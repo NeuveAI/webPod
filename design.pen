@@ -780,11 +780,12 @@
           "y": 54,
           "name": "FX Screen Tint Agent",
           "enabled": false,
+          "opacity": 0.55,
           "fill": "#00000000",
           "width": 272,
           "height": 204,
           "stroke": "$wp-a-core",
-          "strokeWidth": 1.5,
+          "strokeWidth": 1,
           "strokeAlignment": "inner"
         },
         {
@@ -1052,770 +1053,6 @@
           "height": 210
         },
         {
-          "type": "frame",
-          "id": "ToQEu",
-          "x": 0,
-          "y": 0,
-          "name": "FX Agent Idle Ring",
-          "enabled": false,
-          "opacity": 0.34,
-          "width": 330,
-          "height": 552,
-          "effect": {
-            "type": "shadow",
-            "shadowType": "outer",
-            "color": "#00000073",
-            "offset": {
-              "x": 0,
-              "y": 3
-            },
-            "blur": 6,
-            "spread": -1
-          },
-          "layout": "none",
-          "children": [
-            {
-              "type": "ellipse",
-              "id": "l5cL8",
-              "x": 32,
-              "y": 273,
-              "name": "seg 0",
-              "innerRadius": 0.977,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "EZTcG",
-              "x": 32,
-              "y": 273,
-              "name": "seg 1",
-              "innerRadius": 0.977,
-              "startAngle": 20,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "xlyR8",
-              "x": 32,
-              "y": 273,
-              "name": "seg 2",
-              "innerRadius": 0.977,
-              "startAngle": 40,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "jSbqd",
-              "x": 32,
-              "y": 273,
-              "name": "seg 3",
-              "innerRadius": 0.977,
-              "startAngle": 60,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "zPyEl",
-              "x": 32,
-              "y": 273,
-              "name": "seg 4",
-              "innerRadius": 0.977,
-              "startAngle": 80,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "JJDGA",
-              "x": 32,
-              "y": 273,
-              "name": "seg 5",
-              "innerRadius": 0.977,
-              "startAngle": 100,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "TaJkh",
-              "x": 32,
-              "y": 273,
-              "name": "seg 6",
-              "innerRadius": 0.977,
-              "startAngle": 120,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "VIYEq",
-              "x": 32,
-              "y": 273,
-              "name": "seg 7",
-              "innerRadius": 0.977,
-              "startAngle": 140,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "KpoYW",
-              "x": 32,
-              "y": 273,
-              "name": "seg 8",
-              "innerRadius": 0.977,
-              "startAngle": 160,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "MWCx0",
-              "x": 32,
-              "y": 273,
-              "name": "seg 9",
-              "innerRadius": 0.977,
-              "startAngle": 180,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "h72Lx",
-              "x": 32,
-              "y": 273,
-              "name": "seg 10",
-              "innerRadius": 0.977,
-              "startAngle": 200,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "U2U8A",
-              "x": 32,
-              "y": 273,
-              "name": "seg 11",
-              "innerRadius": 0.977,
-              "startAngle": 220,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "dqM4M",
-              "x": 32,
-              "y": 273,
-              "name": "seg 12",
-              "innerRadius": 0.977,
-              "startAngle": 240,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "bSArf",
-              "x": 32,
-              "y": 273,
-              "name": "seg 13",
-              "innerRadius": 0.977,
-              "startAngle": 260,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "LoTHx",
-              "x": 32,
-              "y": 273,
-              "name": "seg 14",
-              "innerRadius": 0.977,
-              "startAngle": 280,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "sRzj8",
-              "x": 32,
-              "y": 273,
-              "name": "seg 15",
-              "innerRadius": 0.977,
-              "startAngle": 300,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "Vudh3",
-              "x": 32,
-              "y": 273,
-              "name": "seg 16",
-              "innerRadius": 0.977,
-              "startAngle": 320,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "uQpP5",
-              "x": 32,
-              "y": 273,
-              "name": "seg 17",
-              "innerRadius": 0.977,
-              "startAngle": 340,
-              "sweepAngle": 9,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            }
-          ]
-        },
-        {
-          "type": "frame",
-          "id": "Ze47a",
-          "x": 0,
-          "y": 0,
-          "name": "FX Agent Ring Active",
-          "enabled": false,
-          "width": 330,
-          "height": 552,
-          "effect": [
-            {
-              "type": "shadow",
-              "shadowType": "outer",
-              "color": "#00000073",
-              "offset": {
-                "x": 0,
-                "y": 3
-              },
-              "blur": 6,
-              "spread": -1
-            },
-            {
-              "type": "shadow",
-              "shadowType": "outer",
-              "color": "$wp-a-glow-soft",
-              "blur": 12
-            }
-          ],
-          "layout": "none",
-          "children": [
-            {
-              "type": "ellipse",
-              "id": "GMgaw",
-              "x": 32,
-              "y": 273,
-              "name": "seg 0",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "p6Pid",
-              "x": 32,
-              "y": 273,
-              "name": "seg 1",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 20,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "IuQda",
-              "x": 32,
-              "y": 273,
-              "name": "seg 2",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 40,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "S0Sbja",
-              "x": 32,
-              "y": 273,
-              "name": "seg 3",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 60,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "r4y8WT",
-              "x": 32,
-              "y": 273,
-              "name": "seg 4",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 80,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "ISonx",
-              "x": 32,
-              "y": 273,
-              "name": "seg 5",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 100,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "M7aVU5",
-              "x": 32,
-              "y": 273,
-              "name": "seg 6",
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 120,
-              "sweepAngle": 11,
-              "fill": "$wp-a-200",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "A7B0K",
-              "x": 32,
-              "y": 273,
-              "name": "seg 7",
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 140,
-              "sweepAngle": 11,
-              "fill": "$wp-a-200",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "zkqbE",
-              "x": 32,
-              "y": 273,
-              "name": "seg 8",
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 160,
-              "sweepAngle": 11,
-              "fill": "$wp-a-200",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "N6INd2",
-              "x": 32,
-              "y": 273,
-              "name": "seg 9",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 180,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "uLvae",
-              "x": 32,
-              "y": 273,
-              "name": "seg 10",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 200,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "KebqX",
-              "x": 32,
-              "y": 273,
-              "name": "seg 11",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 220,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "QbQ8S",
-              "x": 32,
-              "y": 273,
-              "name": "seg 12",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 240,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "GhA34",
-              "x": 32,
-              "y": 273,
-              "name": "seg 13",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 260,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "MQ9dZ",
-              "x": 32,
-              "y": 273,
-              "name": "seg 14",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 280,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "BaOBs",
-              "x": 32,
-              "y": 273,
-              "name": "seg 15",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 300,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "og3pH",
-              "x": 32,
-              "y": 273,
-              "name": "seg 16",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 320,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            },
-            {
-              "type": "ellipse",
-              "id": "A4t7Z",
-              "x": 32,
-              "y": 273,
-              "name": "seg 17",
-              "opacity": 0.5,
-              "innerRadius": 0.9620000000000001,
-              "startAngle": 340,
-              "sweepAngle": 11,
-              "fill": "$wp-a-core",
-              "width": 266,
-              "height": 266
-            }
-          ]
-        },
-        {
-          "type": "ellipse",
-          "id": "A37f2B",
-          "x": 58,
-          "y": 299,
-          "name": "FX Human Ring Active",
-          "enabled": false,
-          "opacity": 0.85,
-          "innerRadius": 0.968,
-          "fill": "$wp-h-core",
-          "width": 214,
-          "height": 214,
-          "effect": {
-            "type": "shadow",
-            "shadowType": "outer",
-            "color": "$wp-h-glow-soft",
-            "blur": 10
-          }
-        },
-        {
-          "type": "ellipse",
-          "id": "TW6TR",
-          "x": 58,
-          "y": 299,
-          "name": "FX Human Trail Arc",
-          "enabled": false,
-          "innerRadius": 0.938,
-          "startAngle": 56,
-          "sweepAngle": -58,
-          "fill": {
-            "type": "gradient",
-            "gradientType": "linear",
-            "enabled": true,
-            "rotation": 270,
-            "size": {
-              "height": 1
-            },
-            "colors": [
-              {
-                "color": "$wp-h-fade",
-                "position": 0
-              },
-              {
-                "color": "$wp-h-solid",
-                "position": 1
-              }
-            ]
-          },
-          "width": 214,
-          "height": 214,
-          "effect": {
-            "type": "shadow",
-            "shadowType": "outer",
-            "color": "$wp-h-glow-soft",
-            "blur": 12
-          }
-        },
-        {
-          "type": "ellipse",
-          "id": "hZ4Sj",
-          "x": 32,
-          "y": 273,
-          "name": "FX Agent Sweep Arc",
-          "enabled": false,
-          "innerRadius": 0.94,
-          "startAngle": 135,
-          "sweepAngle": 64,
-          "fill": {
-            "type": "gradient",
-            "gradientType": "linear",
-            "enabled": true,
-            "rotation": 270,
-            "size": {
-              "height": 1
-            },
-            "colors": [
-              {
-                "color": "$wp-a-solid",
-                "position": 0
-              },
-              {
-                "color": "$wp-a-fade",
-                "position": 1
-              }
-            ]
-          },
-          "width": 266,
-          "height": 266,
-          "effect": [
-            {
-              "type": "shadow",
-              "shadowType": "outer",
-              "color": "#00000073",
-              "offset": {
-                "x": 0,
-                "y": 3
-              },
-              "blur": 6,
-              "spread": -1
-            },
-            {
-              "type": "shadow",
-              "shadowType": "outer",
-              "color": "$wp-a-glow-soft",
-              "blur": 16
-            }
-          ]
-        },
-        {
-          "type": "frame",
-          "id": "G3ltIM",
-          "x": 0,
-          "y": 0,
-          "name": "FX Human Cursor",
-          "enabled": false,
-          "width": 330,
-          "height": 552,
-          "layout": "none",
-          "children": [
-            {
-              "type": "ellipse",
-              "id": "Kfn9n",
-              "x": 205,
-              "y": 297,
-              "name": "halo",
-              "fill": {
-                "type": "gradient",
-                "gradientType": "radial",
-                "enabled": true,
-                "rotation": 0,
-                "size": {
-                  "width": 1,
-                  "height": 1
-                },
-                "colors": [
-                  {
-                    "color": "$wp-h-halo",
-                    "position": 0
-                  },
-                  {
-                    "color": "$wp-h-fade",
-                    "position": 1
-                  }
-                ]
-              },
-              "width": 40,
-              "height": 40
-            },
-            {
-              "type": "ellipse",
-              "id": "lgnGL",
-              "x": 220,
-              "y": 312,
-              "name": "core",
-              "fill": "$wp-h-100",
-              "width": 10,
-              "height": 10,
-              "effect": {
-                "type": "shadow",
-                "shadowType": "outer",
-                "color": "$wp-h-core",
-                "blur": 10
-              }
-            }
-          ]
-        },
-        {
-          "type": "frame",
-          "id": "qlP2Q",
-          "x": 0,
-          "y": 0,
-          "name": "FX Agent Cursor",
-          "enabled": false,
-          "width": 330,
-          "height": 552,
-          "layout": "none",
-          "children": [
-            {
-              "type": "ellipse",
-              "id": "e7QeJ",
-              "x": 51,
-              "y": 292,
-              "name": "halo",
-              "fill": {
-                "type": "gradient",
-                "gradientType": "radial",
-                "enabled": true,
-                "rotation": 0,
-                "size": {
-                  "width": 1,
-                  "height": 1
-                },
-                "colors": [
-                  {
-                    "color": "$wp-a-halo",
-                    "position": 0
-                  },
-                  {
-                    "color": "$wp-a-fade",
-                    "position": 1
-                  }
-                ]
-              },
-              "width": 40,
-              "height": 40
-            },
-            {
-              "type": "polygon",
-              "polygonCount": 6,
-              "cornerRadius": 1.5,
-              "id": "Pk2ye",
-              "x": 63,
-              "y": 304,
-              "name": "core",
-              "fill": "$wp-a-100",
-              "width": 16,
-              "height": 16,
-              "effect": {
-                "type": "shadow",
-                "shadowType": "outer",
-                "color": "$wp-a-core",
-                "blur": 10
-              }
-            }
-          ]
-        },
-        {
           "type": "ellipse",
           "id": "aEm2Y",
           "x": 118,
@@ -1952,6 +1189,1399 @@
               "fill": "$wp-a-core",
               "width": 106,
               "height": 106
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "GareI",
+          "x": 0,
+          "y": 0,
+          "name": "FX Ghost Trail — Human",
+          "enabled": false,
+          "width": 330,
+          "height": 552,
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "PZrp6",
+              "x": 0,
+              "y": 0,
+              "name": "Wake",
+              "width": 330,
+              "height": 552,
+              "effect": {
+                "type": "blur",
+                "radius": 2
+              },
+              "layout": "none",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "Xn8Q0",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w0",
+                  "opacity": 0.42,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 59.434782608695656,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "ZNtgO",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w1",
+                  "opacity": 0.399,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 56.86956521739131,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "nqHyr",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w2",
+                  "opacity": 0.378,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 54.30434782608695,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "lq7nm",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w3",
+                  "opacity": 0.358,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 51.73913043478261,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "u7ubF",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w4",
+                  "opacity": 0.339,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 49.173913043478265,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "Vo5xf",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w5",
+                  "opacity": 0.32,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 46.60869565217392,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "TqGAn",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w6",
+                  "opacity": 0.302,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 44.04347826086956,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "npuG9",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w7",
+                  "opacity": 0.285,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 41.47826086956522,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "w6stbw",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w8",
+                  "opacity": 0.268,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 38.913043478260875,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "XF9hL",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w9",
+                  "opacity": 0.251,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 36.34782608695653,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "XEwoq",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w10",
+                  "opacity": 0.236,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 33.78260869565217,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "pTb3b",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w11",
+                  "opacity": 0.22,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 31.217391304347824,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "s5VPW",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w12",
+                  "opacity": 0.206,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 28.65217391304348,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "s0QUD2",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w13",
+                  "opacity": 0.192,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 26.086956521739136,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "ec95I",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w14",
+                  "opacity": 0.178,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 23.521739130434785,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "E4UWMm",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w15",
+                  "opacity": 0.165,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 20.956521739130434,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "uF06u",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w16",
+                  "opacity": 0.153,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 18.39130434782609,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "bkoum",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w17",
+                  "opacity": 0.141,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 15.826086956521745,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "wkLuI",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w18",
+                  "opacity": 0.13,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 13.260869565217394,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "A69sP",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w19",
+                  "opacity": 0.119,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 10.695652173913043,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "P8AWGn",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w20",
+                  "opacity": 0.109,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 8.130434782608699,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "z922e",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w21",
+                  "opacity": 0.099,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 5.565217391304355,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "ZUnRM",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w22",
+                  "opacity": 0.09,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 3.0000000000000036,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "IjIU0",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w23",
+                  "opacity": 0.081,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": 0.43478260869565233,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "WVsNz",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w24",
+                  "opacity": 0.073,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -2.130434782608692,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "QO8AK",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w25",
+                  "opacity": 0.065,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -4.695652173913036,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "omujG",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w26",
+                  "opacity": 0.058,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -7.26086956521738,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "VkJDI",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w27",
+                  "opacity": 0.051,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -9.826086956521738,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "H3uIw",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w28",
+                  "opacity": 0.045,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -12.391304347826082,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "r9odM1",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w29",
+                  "opacity": 0.039,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -14.956521739130427,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "uAOlm",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w30",
+                  "opacity": 0.034,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -17.521739130434785,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "W6kqSw",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w31",
+                  "opacity": 0.029,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -20.08695652173913,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "AmWFZ",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w32",
+                  "opacity": 0.024,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -22.652173913043473,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "z7Mac",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w33",
+                  "opacity": 0.02,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -25.217391304347817,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "DS9ag",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w34",
+                  "opacity": 0.016,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -27.78260869565216,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "fiImT",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w35",
+                  "opacity": 0.013,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -30.34782608695652,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "BgWLE",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w36",
+                  "opacity": 0.01,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -32.91304347826086,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "Yz1Ly",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w37",
+                  "opacity": 0.008,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -35.478260869565204,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "R6Xan",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w38",
+                  "opacity": 0.006,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -38.04347826086956,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "v9cwE",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w39",
+                  "opacity": 0.004,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -40.60869565217391,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "njmUW",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w40",
+                  "opacity": 0.003,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -43.17391304347825,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "eiLNj",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w41",
+                  "opacity": 0.002,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -45.739130434782595,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "xm2DW",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w42",
+                  "opacity": 0.001,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -48.30434782608694,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "vlNAT",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w43",
+                  "opacity": 0,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -50.8695652173913,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "B4KR8",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w44",
+                  "opacity": 0,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -53.43478260869564,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                },
+                {
+                  "type": "ellipse",
+                  "id": "qmCk3",
+                  "x": 59,
+                  "y": 300,
+                  "name": "w45",
+                  "opacity": 0,
+                  "innerRadius": 0.8759999999999999,
+                  "startAngle": -55.999999999999986,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-h-core",
+                  "width": 212,
+                  "height": 212
+                }
+              ]
+            },
+            {
+              "type": "ellipse",
+              "id": "G9ztw",
+              "x": 196,
+              "y": 302,
+              "name": "contact bloom",
+              "opacity": 0.62,
+              "fill": {
+                "type": "gradient",
+                "gradientType": "radial",
+                "enabled": true,
+                "rotation": 0,
+                "size": {
+                  "width": 1,
+                  "height": 1
+                },
+                "colors": [
+                  {
+                    "color": "$wp-h-halo",
+                    "position": 0
+                  },
+                  {
+                    "color": "$wp-h-glow-soft",
+                    "position": 0.5
+                  },
+                  {
+                    "color": "$wp-h-fade",
+                    "position": 1
+                  }
+                ]
+              },
+              "width": 32,
+              "height": 32
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "PLgYI",
+          "x": 0,
+          "y": 0,
+          "name": "FX Ghost Trail — Agent",
+          "enabled": false,
+          "width": 330,
+          "height": 552,
+          "layout": "none",
+          "children": [
+            {
+              "type": "frame",
+              "id": "VYhjh",
+              "x": 0,
+              "y": 0,
+              "name": "Wake",
+              "width": 330,
+              "height": 552,
+              "effect": {
+                "type": "blur",
+                "radius": 2.4
+              },
+              "layout": "none",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "IfxdI",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w0",
+                  "opacity": 0.4,
+                  "innerRadius": 0.898,
+                  "startAngle": 214,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "VlsfZ",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w1",
+                  "opacity": 0.38,
+                  "innerRadius": 0.898,
+                  "startAngle": 216.56521739130434,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "dsOld",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w2",
+                  "opacity": 0.36,
+                  "innerRadius": 0.898,
+                  "startAngle": 219.1304347826087,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "V0X7P",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w3",
+                  "opacity": 0.341,
+                  "innerRadius": 0.898,
+                  "startAngle": 221.69565217391303,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "kVR3a",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w4",
+                  "opacity": 0.323,
+                  "innerRadius": 0.898,
+                  "startAngle": 224.26086956521738,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "tMKNI",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w5",
+                  "opacity": 0.305,
+                  "innerRadius": 0.898,
+                  "startAngle": 226.82608695652175,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "R2uxMr",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w6",
+                  "opacity": 0.288,
+                  "innerRadius": 0.898,
+                  "startAngle": 229.3913043478261,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "Oh0Ia",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w7",
+                  "opacity": 0.271,
+                  "innerRadius": 0.898,
+                  "startAngle": 231.95652173913044,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "wzV2s",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w8",
+                  "opacity": 0.255,
+                  "innerRadius": 0.898,
+                  "startAngle": 234.52173913043478,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "IGxJd",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w9",
+                  "opacity": 0.239,
+                  "innerRadius": 0.898,
+                  "startAngle": 237.08695652173913,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "asIJd",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w10",
+                  "opacity": 0.224,
+                  "innerRadius": 0.898,
+                  "startAngle": 239.65217391304347,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "s9ipm0",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w11",
+                  "opacity": 0.21,
+                  "innerRadius": 0.898,
+                  "startAngle": 242.2173913043478,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "TG2u3",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w12",
+                  "opacity": 0.196,
+                  "innerRadius": 0.898,
+                  "startAngle": 244.7826086956522,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "z3r9S",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w13",
+                  "opacity": 0.183,
+                  "innerRadius": 0.898,
+                  "startAngle": 247.3478260869565,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "f7xfX",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w14",
+                  "opacity": 0.17,
+                  "innerRadius": 0.898,
+                  "startAngle": 249.91304347826087,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "e4VnV",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w15",
+                  "opacity": 0.157,
+                  "innerRadius": 0.898,
+                  "startAngle": 252.47826086956522,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "cgekS",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w16",
+                  "opacity": 0.146,
+                  "innerRadius": 0.898,
+                  "startAngle": 255.04347826086956,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "fZORT",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w17",
+                  "opacity": 0.134,
+                  "innerRadius": 0.898,
+                  "startAngle": 257.6086956521739,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "n1kMw",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w18",
+                  "opacity": 0.124,
+                  "innerRadius": 0.898,
+                  "startAngle": 260.17391304347825,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "ZFUL9",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w19",
+                  "opacity": 0.113,
+                  "innerRadius": 0.898,
+                  "startAngle": 262.7391304347826,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "C06lQn",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w20",
+                  "opacity": 0.103,
+                  "innerRadius": 0.898,
+                  "startAngle": 265.30434782608694,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "o4jyY",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w21",
+                  "opacity": 0.094,
+                  "innerRadius": 0.898,
+                  "startAngle": 267.8695652173913,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "EknU8",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w22",
+                  "opacity": 0.085,
+                  "innerRadius": 0.898,
+                  "startAngle": 270.4347826086956,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "s5BVaF",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w23",
+                  "opacity": 0.077,
+                  "innerRadius": 0.898,
+                  "startAngle": 273,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "zPuCg",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w24",
+                  "opacity": 0.069,
+                  "innerRadius": 0.898,
+                  "startAngle": 275.5652173913044,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "arjqX",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w25",
+                  "opacity": 0.062,
+                  "innerRadius": 0.898,
+                  "startAngle": 278.1304347826087,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "hsjW4",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w26",
+                  "opacity": 0.055,
+                  "innerRadius": 0.898,
+                  "startAngle": 280.695652173913,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "kaO24",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w27",
+                  "opacity": 0.049,
+                  "innerRadius": 0.898,
+                  "startAngle": 283.2608695652174,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "Ixe65",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w28",
+                  "opacity": 0.043,
+                  "innerRadius": 0.898,
+                  "startAngle": 285.82608695652175,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "YWqcx",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w29",
+                  "opacity": 0.037,
+                  "innerRadius": 0.898,
+                  "startAngle": 288.39130434782606,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "dj5gG",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w30",
+                  "opacity": 0.032,
+                  "innerRadius": 0.898,
+                  "startAngle": 290.95652173913044,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "dBPe5",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w31",
+                  "opacity": 0.027,
+                  "innerRadius": 0.898,
+                  "startAngle": 293.52173913043475,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "vARjG",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w32",
+                  "opacity": 0.023,
+                  "innerRadius": 0.898,
+                  "startAngle": 296.0869565217391,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "dqFfe",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w33",
+                  "opacity": 0.019,
+                  "innerRadius": 0.898,
+                  "startAngle": 298.6521739130435,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "X7tF9C",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w34",
+                  "opacity": 0.016,
+                  "innerRadius": 0.898,
+                  "startAngle": 301.2173913043478,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "AMXR2",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w35",
+                  "opacity": 0.013,
+                  "innerRadius": 0.898,
+                  "startAngle": 303.7826086956522,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "XigmS",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w36",
+                  "opacity": 0.01,
+                  "innerRadius": 0.898,
+                  "startAngle": 306.3478260869565,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "htleQ",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w37",
+                  "opacity": 0.008,
+                  "innerRadius": 0.898,
+                  "startAngle": 308.9130434782609,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "PLghF",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w38",
+                  "opacity": 0.006,
+                  "innerRadius": 0.898,
+                  "startAngle": 311.47826086956525,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "GDpnq",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w39",
+                  "opacity": 0.004,
+                  "innerRadius": 0.898,
+                  "startAngle": 314.04347826086956,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "LHCVD",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w40",
+                  "opacity": 0.003,
+                  "innerRadius": 0.898,
+                  "startAngle": 316.6086956521739,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "f2h5d0",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w41",
+                  "opacity": 0.002,
+                  "innerRadius": 0.898,
+                  "startAngle": 319.17391304347825,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "MWBOI",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w42",
+                  "opacity": 0.001,
+                  "innerRadius": 0.898,
+                  "startAngle": 321.7391304347826,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "XUfE2",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w43",
+                  "opacity": 0,
+                  "innerRadius": 0.898,
+                  "startAngle": 324.30434782608694,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "cQ13m",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w44",
+                  "opacity": 0,
+                  "innerRadius": 0.898,
+                  "startAngle": 326.8695652173913,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                },
+                {
+                  "type": "ellipse",
+                  "id": "Z844g",
+                  "x": 39,
+                  "y": 280,
+                  "name": "w45",
+                  "opacity": 0,
+                  "innerRadius": 0.898,
+                  "startAngle": 329.4347826086956,
+                  "sweepAngle": 2.9152173913043478,
+                  "fill": "$wp-a-core",
+                  "width": 252,
+                  "height": 252
+                }
+              ]
+            },
+            {
+              "type": "polygon",
+              "polygonCount": 6,
+              "cornerRadius": 1.5,
+              "id": "jb4iC",
+              "x": 56,
+              "y": 471,
+              "name": "head",
+              "opacity": 0.82,
+              "fill": "$wp-a-100",
+              "width": 10,
+              "height": 10
             }
           ]
         }
@@ -2623,6 +3253,18 @@
                   "y": 54,
                   "width": 272,
                   "height": 204
+                },
+                "Piwh5": {
+                  "enabled": false
+                },
+                "G1teTH": {
+                  "enabled": false
+                },
+                "GareI": {
+                  "enabled": true
+                },
+                "PLgYI": {
+                  "enabled": false
                 }
               }
             }
@@ -3413,6 +4055,18 @@
                   "y": 54,
                   "width": 272,
                   "height": 204
+                },
+                "Piwh5": {
+                  "enabled": false
+                },
+                "G1teTH": {
+                  "enabled": false
+                },
+                "GareI": {
+                  "enabled": true
+                },
+                "PLgYI": {
+                  "enabled": false
                 }
               }
             }
@@ -4270,16 +4924,16 @@
                   "width": 272,
                   "height": 204
                 },
-                "ToQEu": {
+                "Piwh5": {
+                  "enabled": false
+                },
+                "G1teTH": {
+                  "enabled": false
+                },
+                "GareI": {
                   "enabled": true
                 },
-                "A37f2B": {
-                  "enabled": true
-                },
-                "TW6TR": {
-                  "enabled": true
-                },
-                "G3ltIM": {
+                "PLgYI": {
                   "enabled": true
                 }
               }
@@ -4495,9 +5149,9 @@
           "type": "rectangle",
           "id": "aKnDr",
           "x": 0,
-          "y": 150,
+          "y": 170,
           "name": "Brush Sheen",
-          "opacity": 0.8,
+          "opacity": 0.62,
           "fill": {
             "type": "gradient",
             "gradientType": "linear",
@@ -4526,29 +5180,29 @@
             ]
           },
           "width": 330,
-          "height": 260
+          "height": 250
         },
         {
           "type": "frame",
           "id": "wxgL9",
-          "x": 148,
-          "y": 46,
+          "x": 143,
+          "y": 42,
           "name": "Etched Mark",
           "clip": true,
-          "width": 34,
-          "height": 42,
+          "width": 44,
+          "height": 48,
           "layout": "none",
           "children": [
             {
               "type": "path",
-              "id": "n6ZGGk",
-              "x": 2.7478,
-              "y": 14.5938,
+              "id": "JSeoQ",
+              "x": 2.9333,
+              "y": 6.4,
               "name": "Etch Path",
-              "geometry": "M38.46318 13.1139c-0.20813-6.66036-4.49574-13.11258-11.69725-13.11258-2.66414-0.04163-4.16272 0.9158-5.61968 1.24881-0.95743 0.20814-2.66415 0.20814-4.16272-0.24976-1.41533-0.4579-2.33113-0.99905-5.16178-0.99905-4.32923 0-10.36518 3.53832-11.614 10.73982-1.29044 7.9508 3.62157 18.14948 9.44938 21.52129 1.74835 0.95743 3.82971 1.49858 6.16084 0.62441 2.33112-0.87417 3.6632-0.9158 5.36991-0.54116 1.58183 0.37465 2.53926 0.95743 4.32923 0.91581 5.24503-0.16651 10.2403-5.99432 12.11353-11.98866 0.58278-1.87322 0.95743-4.03784 0.99906-6.49384l-0.16652-1.66509z",
+              "geometry": "M32.97066 6.98133l-1.96533 1.81867-0.23466 4.4c0 0.176-0.32267 0.23467-0.35201 0l-0.32266-4.4-1.11467-0.88-3.57866 3.22667c-0.176 0.088-0.352-0.176-0.23467-0.32267 0 0 3.13866-3.52 3.10933-3.54933l-0.88-0.85067-4.37066-0.264c-0.20533 0-0.20533-0.41067 0.05866-0.41067l4.28267-0.264 2.024-1.96533c-1.496-1.08533-4.136-2.464-6.21867-2.904-1.232-0.352-2.75733-0.616-4.752-0.616-8.12534 0-18.42133 6.688-18.42133 18.392 0 9.21067 6.92267 18.42133 17.54133 18.42133l1.20267 0c9.504 0 18.27466-7.24533 18.27466-18.33333 0-4.07733-1.49599-7.94933-4.048-11.49867z m-14.40266 17.01334c-3.10933 0.02933-5.72-2.464-5.72-5.544 0-3.08 2.64-5.72 5.544-5.72 2.992-0.02933 5.72 2.25866 5.77867 5.48533 0.05866 3.02133-2.40534 5.77867-5.60267 5.77867z",
               "fill": "$wp-etch-fill",
-              "width": 38.6297,
-              "height": 33.3274,
+              "width": 37.0187,
+              "height": 36.8133,
               "effect": {
                 "type": "shadow",
                 "shadowType": "outer",
@@ -4561,14 +5215,54 @@
             },
             {
               "type": "path",
-              "id": "QawZ2",
-              "x": 20.8958,
-              "y": 6.0611,
+              "id": "ZeWgy",
+              "x": 33.0293,
+              "y": 4.794,
               "name": "Etch Path",
-              "geometry": "M0.00109 8.61728c3.87133 0.4579 8.20057-2.33113 8.70009-7.4929l0-1.12394c-4.07947-0.04163-8.78335 2.87228-8.70009 8.61684z",
+              "geometry": "M0 4.598c0.352-0.088 0.55733-0.088 0.88-0.02933l-0.20533-4.37067c-0.02933-0.264-0.38133-0.264-0.38134 0l-0.29333 4.4z",
               "fill": "$wp-etch-fill",
-              "width": 8.7012,
-              "height": 8.666,
+              "width": 0.88,
+              "height": 4.598,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "$wp-etch-light",
+                "offset": {
+                  "x": 0,
+                  "y": 1
+                }
+              }
+            },
+            {
+              "type": "path",
+              "id": "ONsLL",
+              "x": 34.9067,
+              "y": 6.8619,
+              "name": "Etch Path",
+              "geometry": "M0 3.3808l0.64533 0.616 3.31467-3.66666c0.14667-0.23467-0.11733-0.44-0.264-0.264l-3.696 3.31466z",
+              "fill": "$wp-etch-fill",
+              "width": 4.003,
+              "height": 3.9968,
+              "effect": {
+                "type": "shadow",
+                "shadowType": "outer",
+                "color": "$wp-etch-light",
+                "offset": {
+                  "x": 0,
+                  "y": 1
+                }
+              }
+            },
+            {
+              "type": "path",
+              "id": "pcp8y",
+              "x": 36.432,
+              "y": 11.9147,
+              "name": "Etch Path",
+              "geometry": "M0.02934 0c0.05867 0.29333 0.05867 0.704-0.02934 0.88l4.4-0.23467c0.23467 0 0.29333-0.38133 0.02933-0.41066l-4.39999-0.23467z",
+              "fill": "$wp-etch-fill",
+              "width": 4.6031,
+              "height": 0.88,
               "effect": {
                 "type": "shadow",
                 "shadowType": "outer",
@@ -4940,7 +5634,7 @@
                       "name": "Icon",
                       "width": 15,
                       "height": 15,
-                      "icon": "hexagon",
+                      "icon": "sparkles",
                       "library": "lucide",
                       "fill": "$wp-hla-topline"
                     },
@@ -4959,7 +5653,7 @@
                           "fill": "#FFFFFF",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "Agent & Permissions",
+                          "content": "Assistant",
                           "fontFamily": "$wp-font-panel",
                           "fontSize": 12.5,
                           "fontWeight": "600"
@@ -4971,7 +5665,7 @@
                           "fill": "$wp-hla-topline",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "3 tools allowed",
+                          "content": "18 controls exposed · always callable",
                           "fontFamily": "$wp-font-panel",
                           "fontSize": 9.5,
                           "fontWeight": "normal"
@@ -5119,7 +5813,7 @@
                           "fill": "#7A8896",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "124 actions logged",
+                          "content": "124 actions this session",
                           "fontFamily": "$wp-font-panel",
                           "fontSize": 9.5,
                           "fontWeight": "normal"
@@ -5215,9 +5909,9 @@
           "type": "text",
           "id": "Q6a8qg",
           "x": 0,
-          "y": 466,
+          "y": 456,
           "name": "Legal",
-          "fill": "$wp-etch-fill",
+          "fill": "$wp-etch-deep",
           "effect": {
             "type": "shadow",
             "shadowType": "outer",
@@ -5229,10 +5923,10 @@
           },
           "textGrowth": "fixed-width",
           "width": 330,
-          "content": "Designed by webPod   ·   Assembled in the browser",
+          "content": "Designed for the browser  ·  Plays Apple Music",
           "textAlign": "center",
           "fontFamily": "$wp-font-panel",
-          "fontSize": 8.5,
+          "fontSize": 9,
           "fontWeight": "normal",
           "letterSpacing": 0.3
         },
@@ -5240,9 +5934,9 @@
           "type": "text",
           "id": "D8LAI",
           "x": 0,
-          "y": 482,
+          "y": 473,
           "name": "Serial",
-          "fill": "$wp-etch-fill",
+          "fill": "$wp-etch-deep",
           "effect": {
             "type": "shadow",
             "shadowType": "outer",
@@ -5254,10 +5948,35 @@
           },
           "textGrowth": "fixed-width",
           "width": 330,
-          "content": "MCP-2026-A · 18 tools · 5C4B 9A11",
+          "content": "Model WP-5G  ·  320 × 240  ·  24 detents per turn",
           "textAlign": "center",
           "fontFamily": "$wp-font-mono",
-          "fontSize": 8,
+          "fontSize": 8.5,
+          "fontWeight": "normal",
+          "letterSpacing": 0.2
+        },
+        {
+          "type": "text",
+          "id": "F5tMz",
+          "x": 0,
+          "y": 492,
+          "name": "Live Line",
+          "fill": "$wp-etch-deep",
+          "effect": {
+            "type": "shadow",
+            "shadowType": "outer",
+            "color": "$wp-etch-light",
+            "offset": {
+              "x": 0,
+              "y": 1
+            }
+          },
+          "textGrowth": "fixed-width",
+          "width": 330,
+          "content": "Assistant tools exposed · 18 · Session 5C4B 9A11",
+          "textAlign": "center",
+          "fontFamily": "$wp-font-mono",
+          "fontSize": 8.5,
           "fontWeight": "normal",
           "letterSpacing": 0.2
         }
@@ -6730,9 +7449,9 @@
     {
       "type": "frame",
       "id": "Z6jqq",
-      "x": 0,
-      "y": 2468,
-      "name": "D1 · Desktop — Co-pilot",
+      "x": -1028,
+      "y": 2436,
+      "name": "D1 · Desktop — Agent Active",
       "theme": {
         "Mode": "Dark"
       },
@@ -6926,16 +7645,16 @@
                       "width": 272,
                       "height": 204
                     },
-                    "Ze47a": {
-                      "enabled": true
+                    "Piwh5": {
+                      "enabled": false
                     },
-                    "A37f2B": {
-                      "enabled": true
+                    "G1teTH": {
+                      "enabled": false
                     },
-                    "G3ltIM": {
-                      "enabled": true
+                    "GareI": {
+                      "enabled": false
                     },
-                    "qlP2Q": {
+                    "PLgYI": {
                       "enabled": true
                     }
                   }
@@ -6947,46 +7666,6 @@
                   "gap": 9,
                   "alignItems": "center",
                   "children": [
-                    {
-                      "type": "frame",
-                      "id": "R6en8",
-                      "name": "Chip h",
-                      "fill": "$wp-lg-bg",
-                      "cornerRadius": 999,
-                      "stroke": "$wp-lg-border",
-                      "strokeWidth": 1,
-                      "strokeAlignment": "inner",
-                      "effect": {
-                        "type": "background_blur",
-                        "radius": 20
-                      },
-                      "gap": 6,
-                      "padding": [
-                        6,
-                        11
-                      ],
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "ellipse",
-                          "id": "ZXLod",
-                          "name": "Sigil",
-                          "fill": "$wp-h-core",
-                          "width": 8,
-                          "height": 8
-                        },
-                        {
-                          "type": "text",
-                          "id": "zqmrM",
-                          "name": "Label",
-                          "fill": "$wp-h-ink",
-                          "content": "You are turning the wheel",
-                          "fontFamily": "$wp-font-ui",
-                          "fontSize": 11.5,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
                     {
                       "type": "frame",
                       "id": "C0Iko",
@@ -7022,7 +7701,7 @@
                           "id": "ZiMqj",
                           "name": "Label",
                           "fill": "$wp-a-ink",
-                          "content": "Claude is queueing 3 tracks",
+                          "content": "Claude called queue-insert · 2s ago",
                           "fontFamily": "$wp-font-mono",
                           "fontSize": 11.5,
                           "fontWeight": "600"
@@ -7239,6 +7918,7 @@
               "type": "frame",
               "id": "U7k87",
               "name": "Queue",
+              "clip": true,
               "width": "fill_container",
               "height": "fill_container",
               "layout": "vertical",
@@ -7543,76 +8223,6 @@
                       "height": 9
                     }
                   ]
-                },
-                {
-                  "type": "frame",
-                  "id": "soORZ",
-                  "name": "Row Ordinary Ghosts",
-                  "width": "fill_container",
-                  "height": 52,
-                  "cornerRadius": 11,
-                  "gap": 11,
-                  "padding": [
-                    0,
-                    12
-                  ],
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "rectangle",
-                      "cornerRadius": 6,
-                      "id": "XYb8O",
-                      "name": "Art",
-                      "fill": "#1E2430",
-                      "width": 34,
-                      "height": 34,
-                      "stroke": "$wp-art-frame",
-                      "strokeWidth": 1,
-                      "strokeAlignment": "inner"
-                    },
-                    {
-                      "type": "frame",
-                      "id": "I9Xv2R",
-                      "name": "Text",
-                      "width": "fill_container",
-                      "layout": "vertical",
-                      "gap": 1,
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "SXAW5",
-                          "name": "Title",
-                          "fill": "$wp-lg-ink-1",
-                          "textGrowth": "fixed-width",
-                          "width": "fill_container",
-                          "content": "Ordinary Ghosts",
-                          "fontFamily": "$wp-font-ui",
-                          "fontSize": 13,
-                          "fontWeight": "600"
-                        },
-                        {
-                          "type": "text",
-                          "id": "pNi7j",
-                          "name": "Artist",
-                          "fill": "$wp-lg-ink-2",
-                          "textGrowth": "fixed-width",
-                          "width": "fill_container",
-                          "content": "The Reeds",
-                          "fontFamily": "$wp-font-ui",
-                          "fontSize": 11,
-                          "fontWeight": "normal"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "ellipse",
-                      "id": "x9Szki",
-                      "name": "Origin Human",
-                      "fill": "$wp-h-core",
-                      "width": 8,
-                      "height": 8
-                    }
-                  ]
                 }
               ]
             },
@@ -7631,7 +8241,7 @@
               "padding": [
                 10,
                 14,
-                12,
+                14,
                 14
               ],
               "children": [
@@ -7654,7 +8264,7 @@
                       "id": "ZmIxW",
                       "name": "Label",
                       "fill": "$wp-a-ink",
-                      "content": "TOOL CALLS",
+                      "content": "RECENT TOOL CALLS",
                       "fontFamily": "$wp-font-mono",
                       "fontSize": 9,
                       "fontWeight": "600",
@@ -7710,6 +8320,17 @@
                       "fontFamily": "$wp-font-mono",
                       "fontSize": 9.5,
                       "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "CojFl",
+                      "name": "Hint",
+                      "fill": "$wp-a-ink",
+                      "content": "RW",
+                      "fontFamily": "$wp-font-mono",
+                      "fontSize": 8,
+                      "fontWeight": "600",
+                      "letterSpacing": 0.4
                     }
                   ]
                 },
@@ -7751,6 +8372,17 @@
                       "fontFamily": "$wp-font-mono",
                       "fontSize": 9.5,
                       "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "XRMHm",
+                      "name": "Hint",
+                      "fill": "$wp-lg-ink-2",
+                      "content": "RO",
+                      "fontFamily": "$wp-font-mono",
+                      "fontSize": 8,
+                      "fontWeight": "600",
+                      "letterSpacing": 0.4
                     }
                   ]
                 },
@@ -7791,6 +8423,17 @@
                       "fontFamily": "$wp-font-mono",
                       "fontSize": 9.5,
                       "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "JQHIA",
+                      "name": "Hint",
+                      "fill": "$wp-lg-ink-2",
+                      "content": "RO",
+                      "fontFamily": "$wp-font-mono",
+                      "fontSize": 8,
+                      "fontWeight": "600",
+                      "letterSpacing": 0.4
                     }
                   ]
                 }
@@ -8288,329 +8931,6 @@
     },
     {
       "type": "frame",
-      "id": "v4FZU",
-      "x": 2842,
-      "y": 0,
-      "name": "Screen / Consent Interrupt",
-      "reusable": true,
-      "clip": true,
-      "width": 272,
-      "height": 204,
-      "fill": "$wp-panel-bg",
-      "cornerRadius": 4,
-      "layout": "vertical",
-      "children": [
-        {
-          "type": "rectangle",
-          "id": "X9mVPx",
-          "layoutPosition": "absolute",
-          "x": 0,
-          "y": 0,
-          "name": "Dim",
-          "fill": "#03070CD9",
-          "width": 272,
-          "height": 204
-        },
-        {
-          "type": "frame",
-          "id": "RHnF8",
-          "name": "Spacer Top",
-          "width": "fill_container",
-          "height": "fill_container"
-        },
-        {
-          "type": "frame",
-          "id": "H78NKj",
-          "name": "Card",
-          "width": "fill_container",
-          "fill": "$wp-panel-row",
-          "cornerRadius": [
-            10,
-            10,
-            0,
-            0
-          ],
-          "stroke": "$wp-divider",
-          "strokeWidth": 1,
-          "strokeAlignment": "inner",
-          "effect": {
-            "type": "shadow",
-            "shadowType": "outer",
-            "color": "#000000B8",
-            "offset": {
-              "x": 0,
-              "y": -6
-            },
-            "blur": 22,
-            "spread": -4
-          },
-          "layout": "vertical",
-          "children": [
-            {
-              "type": "frame",
-              "id": "x0QKa",
-              "name": "Head",
-              "width": "fill_container",
-              "height": 24,
-              "fill": "$wp-a-glow-soft",
-              "stroke": "$wp-a-core",
-              "strokeWidth": {
-                "bottom": 2
-              },
-              "strokeAlignment": "inner",
-              "gap": 6,
-              "padding": [
-                0,
-                11
-              ],
-              "alignItems": "center",
-              "children": [
-                {
-                  "type": "polygon",
-                  "polygonCount": 6,
-                  "cornerRadius": 1,
-                  "id": "w5szu",
-                  "name": "Sigil",
-                  "fill": "$wp-a-core",
-                  "width": 9,
-                  "height": 9
-                },
-                {
-                  "type": "text",
-                  "id": "mMoYB",
-                  "name": "Actor",
-                  "fill": "$wp-a-ink",
-                  "content": "CLAUDE WANTS TO",
-                  "fontFamily": "$wp-font-mono",
-                  "fontSize": 8,
-                  "fontWeight": "600",
-                  "letterSpacing": 0.7
-                },
-                {
-                  "type": "frame",
-                  "id": "CRAZD",
-                  "name": "Spacer",
-                  "width": "fill_container",
-                  "height": 1
-                },
-                {
-                  "type": "text",
-                  "id": "w4bVW",
-                  "name": "Tool",
-                  "fill": "$wp-txt-3",
-                  "content": "pod-queue-clear",
-                  "fontFamily": "$wp-font-mono",
-                  "fontSize": 8,
-                  "fontWeight": "normal"
-                }
-              ]
-            },
-            {
-              "type": "frame",
-              "id": "rkjHI",
-              "name": "Body",
-              "width": "fill_container",
-              "layout": "vertical",
-              "gap": 5,
-              "padding": [
-                11,
-                11,
-                9,
-                11
-              ],
-              "children": [
-                {
-                  "type": "text",
-                  "id": "GVKMD",
-                  "name": "Ask",
-                  "fill": "$wp-txt-1",
-                  "textGrowth": "fixed-width",
-                  "width": "fill_container",
-                  "content": "Clear Up Next?",
-                  "fontFamily": "$wp-font-panel",
-                  "fontSize": 15,
-                  "fontWeight": "700",
-                  "letterSpacing": -0.2
-                },
-                {
-                  "type": "text",
-                  "id": "FCAEV",
-                  "name": "Detail",
-                  "fill": "$wp-txt-2",
-                  "textGrowth": "fixed-width",
-                  "width": "fill_container",
-                  "content": "14 songs will be removed. You can undo this for 12 seconds.",
-                  "lineHeight": 1.35,
-                  "fontFamily": "$wp-font-panel",
-                  "fontSize": 10.5,
-                  "fontWeight": "normal"
-                },
-                {
-                  "type": "frame",
-                  "id": "XkErV",
-                  "name": "Destructive Note",
-                  "width": "fill_container",
-                  "fill": "#DC26261F",
-                  "cornerRadius": 5,
-                  "stroke": "#DC262666",
-                  "strokeWidth": 1,
-                  "strokeAlignment": "inner",
-                  "gap": 5,
-                  "padding": [
-                    5,
-                    7
-                  ],
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "icon",
-                      "id": "e9JZAh",
-                      "name": "Icon",
-                      "width": 11,
-                      "height": 11,
-                      "icon": "trash-2",
-                      "library": "lucide",
-                      "fill": "$wp-destructive-ink"
-                    },
-                    {
-                      "type": "text",
-                      "id": "MqZnU",
-                      "name": "Label",
-                      "fill": "$wp-destructive-ink",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "Destructive · asked every time",
-                      "fontFamily": "$wp-font-panel",
-                      "fontSize": 9.5,
-                      "fontWeight": "600"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "frame",
-              "id": "IsDzV",
-              "name": "Actions",
-              "width": "fill_container",
-              "height": 34,
-              "stroke": "$wp-divider",
-              "strokeWidth": {
-                "top": 1
-              },
-              "strokeAlignment": "inner",
-              "children": [
-                {
-                  "type": "frame",
-                  "id": "TCGK4",
-                  "name": "Btn Deny",
-                  "width": "fill_container",
-                  "height": "fill_container",
-                  "stroke": "$wp-divider",
-                  "strokeWidth": {
-                    "right": 1
-                  },
-                  "strokeAlignment": "inner",
-                  "layout": "vertical",
-                  "justifyContent": "center",
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "Kh1Fm",
-                      "name": "Label",
-                      "fill": "$wp-txt-1",
-                      "content": "Deny",
-                      "fontFamily": "$wp-font-panel",
-                      "fontSize": 11.5,
-                      "fontWeight": "700"
-                    },
-                    {
-                      "type": "text",
-                      "id": "e8fqc",
-                      "name": "Key",
-                      "fill": "$wp-txt-3",
-                      "content": "MENU",
-                      "fontFamily": "$wp-font-mono",
-                      "fontSize": 7.5,
-                      "fontWeight": "normal",
-                      "letterSpacing": 0.6
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "pGEmD",
-                  "name": "Btn Allow once",
-                  "width": "fill_container",
-                  "height": "fill_container",
-                  "fill": {
-                    "type": "gradient",
-                    "gradientType": "linear",
-                    "enabled": true,
-                    "rotation": 180,
-                    "size": {
-                      "height": 1
-                    },
-                    "colors": [
-                      {
-                        "color": "$wp-hl-0",
-                        "position": 0
-                      },
-                      {
-                        "color": "$wp-hl-1",
-                        "position": 0.5
-                      },
-                      {
-                        "color": "$wp-hl-2",
-                        "position": 1
-                      }
-                    ]
-                  },
-                  "effect": {
-                    "type": "shadow",
-                    "shadowType": "outer",
-                    "color": "$wp-hl-topline",
-                    "offset": {
-                      "x": 0,
-                      "y": 1
-                    }
-                  },
-                  "layout": "vertical",
-                  "justifyContent": "center",
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "qP2S9",
-                      "name": "Label",
-                      "fill": "#FFFFFF",
-                      "content": "Allow once",
-                      "fontFamily": "$wp-font-panel",
-                      "fontSize": 11.5,
-                      "fontWeight": "700"
-                    },
-                    {
-                      "type": "text",
-                      "id": "K6csW",
-                      "name": "Key",
-                      "fill": "$wp-hl-topline",
-                      "content": "CENTER",
-                      "fontFamily": "$wp-font-mono",
-                      "fontSize": 7.5,
-                      "fontWeight": "normal",
-                      "letterSpacing": 0.6
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "type": "frame",
       "id": "n9GQb",
       "x": 1880,
       "y": 772,
@@ -8768,17 +9088,17 @@
                   "width": 272,
                   "height": 204
                 },
-                "ToQEu": {
+                "Piwh5": {
+                  "enabled": false
+                },
+                "G1teTH": {
+                  "enabled": false
+                },
+                "GareI": {
                   "enabled": true
                 },
-                "A37f2B": {
-                  "enabled": true
-                },
-                "TW6TR": {
-                  "enabled": true
-                },
-                "G3ltIM": {
-                  "enabled": true
+                "PLgYI": {
+                  "enabled": false
                 }
               }
             }
@@ -8945,16 +9265,16 @@
                   "width": 272,
                   "height": 204
                 },
+                "Piwh5": {
+                  "enabled": false
+                },
                 "G1teTH": {
                   "enabled": true
                 },
-                "Ze47a": {
-                  "enabled": true
-                },
-                "hZ4Sj": {
+                "GareI": {
                   "enabled": false
                 },
-                "qlP2Q": {
+                "PLgYI": {
                   "enabled": true
                 }
               }
@@ -9122,16 +9442,16 @@
                   "width": 272,
                   "height": 204
                 },
+                "Piwh5": {
+                  "enabled": false
+                },
                 "G1teTH": {
                   "enabled": true
                 },
-                "Ze47a": {
-                  "enabled": true
-                },
-                "hZ4Sj": {
+                "GareI": {
                   "enabled": false
                 },
-                "qlP2Q": {
+                "PLgYI": {
                   "enabled": true
                 }
               }
@@ -9141,181 +9461,74 @@
       ]
     },
     {
-      "type": "frame",
-      "id": "TlV1d",
-      "x": 3290,
-      "y": 772,
-      "name": "M7 · Consent Interrupt",
-      "theme": {
-        "Mode": "Dark"
-      },
-      "clip": true,
-      "width": 390,
-      "height": 844,
-      "fill": [
-        {
-          "type": "gradient",
-          "gradientType": "linear",
-          "enabled": true,
-          "rotation": 180,
-          "size": {
-            "height": 1
-          },
-          "colors": [
-            {
-              "color": "$wp-env-0",
-              "position": 0
-            },
-            {
-              "color": "$wp-env-1",
-              "position": 0.52
-            },
-            {
-              "color": "$wp-env-2",
-              "position": 1
-            }
-          ]
-        },
-        {
-          "type": "gradient",
-          "gradientType": "radial",
-          "enabled": true,
-          "rotation": 0,
-          "size": {
-            "width": 1,
-            "height": 0.6
-          },
-          "colors": [
-            {
-              "color": "$wp-a-glow-soft",
-              "position": 0
-            },
-            {
-              "color": "#00000000",
-              "position": 1
-            }
-          ],
-          "center": {
-            "y": 0.42
-          }
-        }
-      ],
-      "layout": "vertical",
-      "children": [
-        {
-          "type": "frame",
-          "id": "s9GHdc",
-          "name": "Status Bar",
-          "width": "fill_container",
-          "height": 62,
-          "padding": [
-            0,
-            22,
-            0,
-            26
-          ],
-          "justifyContent": "space_between",
-          "alignItems": "center",
-          "children": [
-            {
-              "type": "text",
-              "id": "CTzjG",
-              "name": "Time",
-              "fill": "$wp-lg-ink-1",
-              "content": "9:41",
-              "fontFamily": "Inter",
-              "fontSize": 15,
-              "fontWeight": "600"
-            },
-            {
-              "type": "frame",
-              "id": "VsVCE",
-              "name": "Indicators",
-              "gap": 6,
-              "alignItems": "center",
-              "children": [
-                {
-                  "type": "icon",
-                  "id": "SgZKX",
-                  "name": "signal",
-                  "width": 16,
-                  "height": 16,
-                  "icon": "signal",
-                  "library": "lucide",
-                  "fill": "$wp-lg-ink-1"
-                },
-                {
-                  "type": "icon",
-                  "id": "ATnnV",
-                  "name": "wifi",
-                  "width": 16,
-                  "height": 16,
-                  "icon": "wifi",
-                  "library": "lucide",
-                  "fill": "$wp-lg-ink-1"
-                },
-                {
-                  "type": "icon",
-                  "id": "IvSqm",
-                  "name": "battery-full",
-                  "width": 16,
-                  "height": 16,
-                  "icon": "battery-full",
-                  "library": "lucide",
-                  "fill": "$wp-lg-ink-1"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "type": "frame",
-          "id": "d913wJ",
-          "name": "Stage",
-          "width": "fill_container",
-          "height": "fill_container",
-          "padding": [
-            0,
-            0,
-            62,
-            0
-          ],
-          "justifyContent": "center",
-          "alignItems": "center",
-          "children": [
-            {
-              "id": "NqGUx",
-              "type": "ref",
-              "ref": "VWaJS",
-              "name": "Device",
-              "descendants": {
-                "nYShb": {
-                  "id": "OwZvJ",
-                  "type": "ref",
-                  "ref": "v4FZU",
-                  "name": "Screen Slot",
-                  "x": 29,
-                  "y": 54,
-                  "width": 272,
-                  "height": 204
-                },
-                "tfuGL": {
-                  "enabled": true
-                },
-                "G1teTH": {
-                  "enabled": true
-                },
-                "Ze47a": {
-                  "enabled": true
-                },
-                "hZ4Sj": {
-                  "enabled": false
-                }
-              }
-            }
-          ]
-        }
-      ]
+      "type": "note",
+      "id": "sQPeX",
+      "x": 3720,
+      "y": 1102,
+      "name": "NOTE · Agent flag semantics",
+      "width": 360,
+      "height": 0,
+      "content": "THE AGENT FLAG — ONE BOOLEAN, TWO EDGES\n\nNot a state machine. A single flag:\n\n  ON   ← a tool call happens while the flag is OFF\n  OFF  ← a direct user interaction happens while the flag is ON\n\nThat is the entire model.\n\nIt is a MODE, not a permission and not a session. Nothing is granted when it turns on and nothing is revoked when it turns off. It only answers: 'who touched this last?'\n\nEverything visual keys off this one flag:\n• which ghost trail is on the wheel (blue / green)\n• which sigil rows carry (● circle / ⬡ hexagon)\n• the panel status-bar actor label\n\nBecause a human interaction ALWAYS flips it off, the human never has to reclaim control — touching the device is the reclaim."
+    },
+    {
+      "type": "note",
+      "id": "isWnz",
+      "x": 2869,
+      "y": 1716,
+      "name": "NOTE · Wheel ghost trail direction",
+      "width": 360,
+      "height": 0,
+      "content": "WHEEL GHOST TRAIL\n\nA faint wake that decays behind the point of travel. Same primitive for both actors, same opacity curve — only hue, radius and DIRECTION SOURCE differ.\n\nHUMAN — blue (sky)\n  radius 105 · rides the wheel seam, in contact\n  direction = THE DIRECTION THE FINGER IS MOVING\n  head carries a soft contact bloom\n\nAGENT — green\n  radius 126 · floats clear of the wheel, no contact\n  direction = THE DIRECTION THE WHEEL WOULD TURN\n  to produce the requested change\n  head carries a hexagon, no bloom\n\nThis is the key distinction: the human trail reports a GESTURE that happened. The agent trail depicts the ROTATION IMPLIED by a tool call — the wheel it would have turned if a hand had done it.\n\nOpacity 0.34 → 0.012 over 9 steps, ease-out. Never a solid ring."
+    },
+    {
+      "type": "note",
+      "id": "uyBBX",
+      "x": 1425,
+      "y": 1679,
+      "name": "NOTE · No permissions surface",
+      "width": 360,
+      "height": 0,
+      "content": "SETTINGS · ASSISTANT — A WINDOW, NOT A GATE\n\nRemoved: 'Agent & Permissions — 3 tools allowed'. WebMCP has no grant model, so nothing is 'allowed'.\n\nSPEC GROUND TRUTH (index.bs §ModelContext):\n• registerTool() adds a tool; it is then ALWAYS callable\n• the ONLY withdrawal is aborting the AbortSignal\n• no per-tool scopes, no protocol consent prompt\n• no destructiveHint — ToolAnnotations carries only\n  readOnlyHint and untrustedContentHint\n• no user-gesture requirement anywhere in the spec\n• Permissions-Policy 'tools' gates the API per ORIGIN,\n  not per call\n\nThe spec says so itself: 'the spec does not include normative guidance against the misuse of tools that expose sensitive or high-privilege operations'.\n\nSo this row is a READ-ONLY WINDOW: which tools are registered (RO / RW), and what was recently called. The honest copy is 'Any of them can be used while this page is open.'\n\nExactly ONE real control belongs here, because it is the only real one:\n  Expose tools to assistants · On / Off\nIt literally registers / unregisters. Nothing else can.\n\nENGRAVING — banned vocabulary: granted, allowed,\npermitted, authorised, provisioned, licensed, and any\nprotocol version string. 'MCP-2026-A · 18 tools' read as\na provisioned grant issued to someone. Corrected to a\nfixed spec block plus one live registration line."
+    },
+    {
+      "type": "note",
+      "id": "F46uU",
+      "x": 2416,
+      "y": 1772,
+      "name": "NOTE · Staged diff is app behaviour",
+      "width": 360,
+      "height": 0,
+      "content": "THE AGENT NEVER ASKS — IT ALREADY RAN\n\nThere is no confirm-before-tool-call screen in webPod, because WebMCP has no step at which the page could intervene. registerTool() makes a tool permanently callable; execute() runs; the page finds out by being called. There is nothing to gate.\n\nSo the queue diff is not 'permission deferred'. The call ALREADY HAPPENED. What webPod chooses to do is land the result as a REVIEWABLE PROPOSAL rather than a committed change.\n\n  gate nothing · show everything · make it undoable\n\nThat is the only honest safety pattern available under this protocol, and it is strictly better than a fake prompt: it works even when the human is not watching, which is exactly when an agent acts.\n\nRow vocabulary:\n  +  proposed addition    ⬡ agent sigil\n  −  proposed removal, struck in INK not red\n     (a proposal is not a destruction)\n  ●  human-originated row\n\nDiscard / Commit are the human's real controls. They act on a RESULT, not on a request.\n\nSetting that governs default behaviour (Playback):\n  Assistant changes · Review first / Apply directly\n  default: Review first"
+    },
+    {
+      "type": "note",
+      "id": "JnvgR",
+      "x": 40,
+      "y": 3428,
+      "name": "NOTE · No co-pilot, no idle presence",
+      "width": 420,
+      "height": 0,
+      "content": "TWO STATES WE HAD TO DELETE — THE BROWSER CANNOT SUPPLY THEM\n\n1. CO-PILOT IS STRUCTURALLY IMPOSSIBLE.\nThe agent flag is one boolean. A human interaction turns it OFF; a tool call turns it ON. Therefore both actors can never be 'active' at once, and this board must never show a blue trail and a green trail together. Earlier versions did. The converged-orbit / violet-seam idea is dead — it depicted a state that cannot exist.\n\n2. 'AGENT IDLE / ATTACHED' IS UNIMPLEMENTABLE.\nWebMCP gives the page NO way to detect that an agent is present. There is no attach event and no idle signal. A page learns an agent exists only when a tool actually executes.\n\nSo the breathing 'agent resting' orbit was rendering a fact the browser never provides. Deleted. Absence of the green trail now means 'no tool has been called recently' — which is all we can honestly claim.\n\nWHAT THE TRAIL ACTUALLY MEANS:\n  green visible = a tool ran recently\n  blue visible  = you touched it more recently than that\n  neither       = nothing has happened lately\n\nIt reports WHO ACTED LAST. Not who is present, not who is permitted.\n\nDecay: 400ms fade-out, so a burst of twelve rapid calls pulses rather than strobes.\n\n⚠ isTrusted is true for automation-injected input, so this flag is a best-effort DISPLAY heuristic and never a security boundary."
+    },
+    {
+      "type": "note",
+      "id": "CuZXJ",
+      "x": 910,
+      "y": 1716,
+      "name": "NOTE · Tactility — motion, haptics, sound",
+      "width": 420,
+      "height": 0,
+      "content": "TACTILITY — THE DEVICE MUST BEHAVE LIKE AN OBJECT\n\n1. SHIMMER IS ACCELEROMETER-DRIVEN, NEVER BAKED\nEvery specular, gloss sweep and steel reflection is a\nfunction of viewing angle. Steel on the back plate is\nwhere this matters most: a static mirror reads as a\ngradient; a moving one reads as metal.\n\nPERMISSION CHAIN — in this order:\n 1 never request on load (iOS rejects a non-gesture\n   call and the attempt is spent)\n 2 prefers-reduced-motion → static, no listener\n 3 B03 'Dynamic shimmer: Off' → static\n 4 ask at FIRST pointerdown on the wheel ring\n 5 iOS: await DeviceOrientationEvent.requestPermission()\n   in try/catch, once per session, NEVER re-ask if denied\n 6 elsewhere: attach deviceorientation directly\n 7 granted → beta/gamma → light vector\n   low-pass  smoothed += (raw − smoothed) × 0.08  (~200ms)\n   clamp     ±(surfaceHalfExtent − highlightRadius)\n   so a specular never leaves its own surface\n 8 denied / throws / no events in 1.5s → STATIC KEY LIGHT\n   at 135° top-left, full specular retained.\n   Never a flat surface.\n 9 desktop → pointer position through the same filter\n10 turning the setting back On re-requests from that tap,\n   which is itself a gesture — a declined user has a way back\n\n2. HAPTICS — `web-haptics`, all seven triggers\n~/code/agentic-context/web-haptics · npm i web-haptics\nZero deps, no-ops on desktop, so no feature detection.\n\nselection · EVERY wheel detent (all 4 input paths) ·\n            volume · scrub · rating star · Cover Flow flip ·\n            settings cycle · page jump (per page, not per row)\n            ⚑ suppressed above 12/sec — past that the motor\n            cannot resolve pulses and it becomes a buzz\nlight     · play/pause · skip · Menu · toggles ·\n            Hold DISengage · root-menu elastic bump\nmedium    · CENTER: select, descend, commit, cycle NP mode ·\n            action sheet appearing · flip crossing 50%\nheavy     · EXPOSE-FLIP SETTLE both directions ·\n            long-press opening a sheet · Hold ENGAGE ·\n            cold-boot 'it's alive' beat\nsuccess   · draft committed · UNDO COMPLETING ·\n            add-to-library · sign-in complete\nwarning   · arming an irreversible row · volume hitting\n            the Volume Limit ceiling. Exactly these two.\nerror     · sign-in / reconnect / HUMAN-initiated write\n            failing. A system-caused skip fires NOTHING —\n            a haptic for an unbidden event is alarming\n            in a pocket.\n\n3. SOUND\nDetent tick ±2% pitch jitter so fast scroll never sounds\nlike a machine gun. Hard limit 30/s. Flip = one 90ms low\n'case pivot' thunk at 50% of arc — a thunk, not a whoosh.\nA whoosh is a cartoon; a thunk is an object.\nSetting: Clicker · Off / Sound / Haptic / Both\n\n⚑ AGENT ACTIONS ARE SILENT AND NEVER VIBRATE\nHaptics and the clicker are the signature of a HAND. If the\nagent buzzed the device the human would reach for a phone\nnobody touched.\n\nEnforced at ONE call site: detent() already carries `source`,\nso both the clicker and haptic.trigger() gate on\n  source !== 'agent' && source !== 'system'\n\nThis is attribution channel 7 — listed last, but FIRST in\npractice for the eyes-free case, because it is the only\nchannel that works with the phone in a pocket."
+    },
+    {
+      "type": "note",
+      "id": "E908mN",
+      "x": 1880,
+      "y": 1679,
+      "name": "NOTE · No confirmation surface on the front",
+      "width": 420,
+      "height": 0,
+      "content": "THE FRONT FACE HAS NO CONFIRMATION SURFACE AT ALL\n\nThe consent card is deleted, and so is the app-level confirm that replaced it. Both are gone from every agent flow AND every human flow on the front.\n\nWHY NOT EVEN FOR HUMANS:\nA modal in front of a fully undoable action is friction with no safety in it. Clearing a 14-song queue by hand now just happens — it shows, and a footer row offers ⟲ Undo for 30s. Adding a dialog there would also hand humans back exactly the pause the agent flow no longer has, which would make the two paths inconsistent for no gain.\n\nTHE ONLY TWO EXCEPTIONS — and they are not screens:\n  Sign out\n  Reset All Settings\nThese are the only actions undo cannot reach, because they destroy the undo trail itself (reset wipes the Engraving, which is where undo lives).\n\nBoth are already human-only — NO TOOL IS REGISTERED FOR EITHER — so by construction they can never appear in an agent flow.\n\nTheir confirm is an ARMED ROW IN PLACE on the back plate (B08), beside the button it guards. Not a dialog:\n  · first Center press ARMS and expands the row\n  · second Center press commits\n  · Menu disarms\n  · the second-press label DIFFERS from the first, so\n    muscle memory cannot complete it blind\n  · haptic: 'warning' on arm\n  · no tool name, no actor sub-line, no agent sigil\n\nBANNED VOCABULARY in all agent-flow copy — merge blocker:\nallow · deny · permit · permission · grant · authorise ·\nrequest · ask · waiting · pending · approved · blocked\n\nTHE HONEST TRADE, stated plainly:\nan unattended destructive tool call DOES take effect. What\nprotects the human is that it is visible, logged and\nreversible — not that it was blocked. Blocking was never\non offer."
     }
   ],
   "themes": {
@@ -11972,6 +12185,23 @@
         },
         {
           "value": "#4ADE8014",
+          "theme": {
+            "Mode": "Dark"
+          }
+        }
+      ]
+    },
+    "wp-etch-deep": {
+      "type": "color",
+      "value": [
+        {
+          "value": "#5C6874",
+          "theme": {
+            "Mode": "Light"
+          }
+        },
+        {
+          "value": "#414C58",
           "theme": {
             "Mode": "Dark"
           }
