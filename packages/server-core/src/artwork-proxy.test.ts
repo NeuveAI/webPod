@@ -219,12 +219,47 @@ describe('/artwork response bounds', () => {
     expect(await errorCode(response)).toBe('upstream_content_invalid')
   })
 
-  test('accepts a box-bounded AVIF item structure', async () => {
-    const response = await handleArtworkRequest(artworkRequest(source, 2), {
+  test('accepts a real AVIF only at its independently decoded 1x1 dimensions', async () => {
+    const response = await handleArtworkRequest(artworkRequest(source, 1), {
       fetch: fetchStub(() => Promise.resolve(new Response(avif().buffer, { headers: { 'content-type': 'image/avif' } }))),
     })
     expect(response.status).toBe(200)
     expect(response.headers.get('content-type')).toBe('image/avif')
+  })
+
+  test('rejects the AVIF whose unassociated ispe says 2x2 when the decoder says 1x1', async () => {
+    const response = await handleArtworkRequest(artworkRequest(source, 2), {
+      fetch: fetchStub(() => Promise.resolve(new Response(avif().buffer, { headers: { 'content-type': 'image/avif' } }))),
+    })
+    expect(response.status).toBe(502)
+    expect(await errorCode(response)).toBe('upstream_content_invalid')
+  })
+
+  test('rejects a box-complete AVIF shell whose mdat is arbitrary junk', async () => {
+    const shell = avif().slice()
+    const marker = new TextEncoder().encode('mdat')
+    const markerOffset = shell.findIndex((_, index, bytes) => marker.every((byte, relative) => bytes[index + relative] === byte))
+    const junk = new TextEncoder().encode('NOT-AN-AVIF-BITSTREAM')
+    for (let index = markerOffset + 12; index < shell.length; index += 1) {
+      shell[index] = junk[(index - markerOffset - 12) % junk.length] ?? 0
+    }
+    const response = await handleArtworkRequest(artworkRequest(source, 1), {
+      fetch: fetchStub(() => Promise.resolve(new Response(shell.buffer, { headers: { 'content-type': 'image/avif' } }))),
+    })
+    expect(response.status).toBe(502)
+    expect(await errorCode(response)).toBe('upstream_content_invalid')
+  })
+
+  test('rejects an AVIF request above the provider px ceiling before decode or fetch', async () => {
+    let calls = 0
+    const response = await handleArtworkRequest(artworkRequest(source, 3001), {
+      fetch: fetchStub(() => {
+        calls += 1
+        return Promise.resolve(new Response(avif().buffer, { headers: { 'content-type': 'image/avif' } }))
+      }),
+    })
+    expect(response.status).toBe(400)
+    expect(calls).toBe(0)
   })
 
   test('rejects the reviewer boundary fixture with fake ispe and trailing polyglot bytes', async () => {
@@ -251,7 +286,7 @@ describe('/artwork response bounds', () => {
     const missingMedia = avif().subarray(0, mdatTypeOffset - 4).slice()
     const trailing = concat(avif(), new TextEncoder().encode('TRAILING'))
     for (const body of [malformedExtent, missingMedia, trailing]) {
-      const response = await handleArtworkRequest(artworkRequest(source, 2), {
+      const response = await handleArtworkRequest(artworkRequest(source, 1), {
         fetch: fetchStub(() => Promise.resolve(new Response(body.buffer, { headers: { 'content-type': 'image/avif' } }))),
       })
       expect(response.status).toBe(502)

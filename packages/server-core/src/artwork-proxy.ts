@@ -5,6 +5,7 @@ import {
   TEMPLATE_ARTWORK_CEILING_PX,
 } from '@webpod/providers'
 import { Context, Effect, Layer } from 'effect'
+import sharp from 'sharp'
 
 export const ARTWORK_MAX_BYTES = 8 * 1024 * 1024
 export const ARTWORK_FETCH_TIMEOUT_MS = 5_000
@@ -14,6 +15,11 @@ export const ARTWORK_CACHE_CONTROL = 'public, max-age=86400, stale-while-revalid
 const REMOTE_IMAGE_TYPES = new Set(['image/avif', 'image/jpeg', 'image/png', 'image/webp'])
 const FIXTURE_SOURCE = /^\/artwork-source\/([a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?)\/(\d{1,4})x(\d{1,4})\.png$/
 const APPLE_ARTWORK_HOST = /^is\d+-ssl\.mzstatic\.com$/
+const ARTWORK_MAX_DECODE_PIXELS = TEMPLATE_ARTWORK_CEILING_PX * TEMPLATE_ARTWORK_CEILING_PX
+const ARTWORK_DECODE_TIMEOUT_SECONDS = Math.ceil(ARTWORK_FETCH_TIMEOUT_MS / 1_000)
+
+sharp.cache(false)
+sharp.concurrency(1)
 
 export type ArtworkProxyErrorCode =
   | 'invalid_request'
@@ -389,13 +395,46 @@ function avifMetadata(body: Uint8Array): ImageMetadata | null {
   return { contentType: 'image/avif', width, height }
 }
 
-function validateImage(body: Uint8Array, declaredType: string, px: number): ImageMetadata {
+async function decodedAvifMetadata(body: Uint8Array): Promise<ImageMetadata> {
+  try {
+    const decoder = sharp(body, {
+      animated: false,
+      autoOrient: true,
+      failOn: 'warning',
+      limitInputPixels: ARTWORK_MAX_DECODE_PIXELS,
+      pages: 1,
+      sequentialRead: true,
+      unlimited: false,
+    }).timeout({ seconds: ARTWORK_DECODE_TIMEOUT_SECONDS })
+    const metadata = await decoder.metadata()
+    if (
+      metadata.format !== 'heif' ||
+      metadata.compression !== 'av1' ||
+      metadata.pages !== 1 ||
+      metadata.autoOrient.width === undefined ||
+      metadata.autoOrient.height === undefined
+    ) throw invalidImage()
+    const stats = await decoder.stats()
+    if (stats.channels.length < 1 || stats.channels.length > 4) throw invalidImage()
+    return {
+      contentType: 'image/avif',
+      width: metadata.autoOrient.width,
+      height: metadata.autoOrient.height,
+    }
+  } catch (cause) {
+    if (cause instanceof ArtworkProxyError) throw cause
+    throw new ArtworkProxyError('upstream_content_invalid', 502, 'artwork server returned undecodable image data', { cause })
+  }
+}
+
+async function validateImage(body: Uint8Array, declaredType: string, px: number): Promise<ImageMetadata> {
   const metadata = pngMetadata(body) ?? jpegMetadata(body) ?? webpMetadata(body) ?? avifMetadata(body)
   if (metadata === null || metadata.contentType !== declaredType) throw invalidImage()
-  if (metadata.width !== px || metadata.height !== px) {
+  const authoritative = metadata.contentType === 'image/avif' ? await decodedAvifMetadata(body) : metadata
+  if (authoritative.width !== px || authoritative.height !== px) {
     throw new ArtworkProxyError('upstream_content_invalid', 502, 'artwork dimensions do not match the requested size')
   }
-  return metadata
+  return authoritative
 }
 
 function validatedOptions(options: ArtworkProxyOptions): ValidatedArtworkProxyOptions {
@@ -486,7 +525,7 @@ async function fetchRemoteArtwork(
       throw new ArtworkProxyError('upstream_content_type', 502, 'artwork server returned a non-image response')
     }
     const body = await readBoundedBody(response, maxBytes)
-    const metadata = validateImage(body, contentType, px)
+    const metadata = await validateImage(body, contentType, px)
     return { body, contentType: metadata.contentType }
   } catch (cause) {
     if (cause instanceof ArtworkProxyError) throw cause
