@@ -60,6 +60,9 @@
     "packages/tokens": {
       "name": "@webpod/tokens",
       "version": "0.0.0",
+      "dependencies": {
+        "tailwindcss": "^4.3.3",
+      },
     },
     "packages/tools": {
       "name": "@webpod/tools",

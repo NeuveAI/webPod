@@ -1,4 +1,8 @@
-@import "tailwindcss";
+/* The token export is the single source of colour, type, spacing, radius,
+   duration and easing. This file adds only the content sources Tailwind
+   must scan, which are a property of where the app lives rather than of
+   the design system. */
+@import "@webpod/tokens/globals.css";
 
 @source "../**/*.{ts,tsx}";
 @source "../../../../packages/*/src/**/*.{ts,tsx}";
