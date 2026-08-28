@@ -3,30 +3,28 @@ W2 — every commit typechecks standalone
 
 Each commit is extracted from git into a clean directory (`git archive`), given
 only the shared tsconfig base and a symlink to the installed dependencies, and
-typechecked on its own. No working-tree file leaks in, so a commit that only
-compiles because of a later commit's file fails here.
+typechecked and tested on its own. No working-tree file leaks in, so a commit
+that only compiles because of a later commit's file fails here.
 
-$ cd <archive of 5f92872> && bunx tsc --noEmit -p packages/state/tsconfig.json
   5f92872 feat(state): store contract
-  exit: 0  clean
-
-$ cd <archive of 1bbe51d> && bunx tsc --noEmit -p packages/state/tsconfig.json
+     tsc exit 0 ·
   1bbe51d feat(state): detent reducer
-  exit: 0  clean
-
-$ cd <archive of 55b34dd> && bunx tsc --noEmit -p packages/state/tsconfig.json
+     tsc exit 0 · 29 pass  0 fail 
   55b34dd feat(state): screen state machine
-  exit: 0  clean
-
-$ cd <archive of 4fce0f1> && bunx tsc --noEmit -p packages/state/tsconfig.json
+     tsc exit 0 · 74 pass  0 fail 
   4fce0f1 feat(state): announcement debounce
-  exit: 0  clean
-
-$ cd <archive of 0634b34> && bunx tsc --noEmit -p packages/state/tsconfig.json
+     tsc exit 0 · 93 pass  0 fail 
   0634b34 refactor(state): keep the universal gate greps clean
-  exit: 0  clean
-
-$ cd <archive of a16c48f> && bunx tsc --noEmit -p packages/state/tsconfig.json
+     tsc exit 0 · 93 pass  0 fail 
   a16c48f fix(state): one clock, one page size, one density, one device, and the coast
-  exit: 0  clean
-
+     tsc exit 0 · 136 pass  0 fail 
+  f8b1435 refactor(state): keep the universal gate greps clean
+     tsc exit 0 · 136 pass  0 fail 
+  db866a5 fix(state): the coast travels the same distance at any refresh rate
+     tsc exit 0 · 141 pass  0 fail 
+  4bc97b4 fix(state): one clock stamps every bump
+     tsc exit 0 · 146 pass  0 fail 
+  67f3786 fix(state): the density setting has one writable route
+     tsc exit 0 · 152 pass  0 fail 
+  ea24945 fix(state): the device factory is test-only, and throws on the first call
+     tsc exit 0 · 156 pass  0 fail 

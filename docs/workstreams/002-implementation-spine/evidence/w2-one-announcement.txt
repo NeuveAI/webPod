@@ -25,7 +25,7 @@ bun test v1.4.0 (34cbb9a40)
  24 pass
  0 fail
  87 expect() calls
-Ran 24 tests across 1 file. [958.00ms]
+Ran 24 tests across 1 file. [972.00ms]
 exit: 0
 
 Per-test listing (rendered from the same run's --reporter=junit output):

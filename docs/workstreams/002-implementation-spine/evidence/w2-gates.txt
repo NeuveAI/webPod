@@ -1,7 +1,7 @@
-W2 — gate run (review response)
-===============================
+W2 — gate run (re-review response)
+==================================
 
-Run at 2026-08-28T11:36:37Z on a16c48f (fix(state): one clock, one page size, one density, one device, and the coast).
+Run at 2026-08-28T12:04:05Z on a2ba68b (fix(providers): make the signed-out and free-tier states reachable).
 
 ── 1. Typecheck, this package
 $ bunx tsc --noEmit -p packages/state/tsconfig.json
@@ -9,7 +9,6 @@ exit: 0
 
 ── 2. Typecheck, every package
 $ bun run typecheck
-── tsc --noEmit -p scripts/tsconfig.json
    ok  scripts
 
 11/11 projects clean
@@ -20,49 +19,33 @@ exit: 0
 
 ── 4. Lint, repo-wide
 $ bun run lint
-
-/Users/vinicius/code/webPod/apps/web/src/routes/[_]spike.device.tsx:176:3
-  174 |   const camera = useThree((state) => state.camera)
-  175 |   const paramsRef = useRef(params)
-> 176 |   paramsRef.current = params
-      |   ^^^^^^^^^^^^^^^^^ Cannot update ref during render
-  177 |
-  178 |   const sample = useCallback((): Array<ProbeResult> => {
-  179 |     const active = paramsRef.current  react-hooks/refs
-  304:6  warning  React Hook useEffect has a missing dependency: 'scene'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/exhaustive-deps
-
-✖ 2 problems (1 error, 1 warning)
-
-error: script "lint" exited with code 1
-
-NOT MINE. The one repo-wide lint error is react-hooks/refs in the device
-spike route, which belongs to the device lane. packages/state is clean —
-see section 3, run separately for exactly this reason.
+$ bunx --bun eslint .
+exit: 0   (clean — the device lane's react-hooks error from the previous
+           round has since been fixed by that lane)
 
 ── 5. Tests, this package
 $ bun test packages/state
 bun test v1.4.0 (34cbb9a40)
 
- 136 pass
+ 156 pass
  0 fail
- 498 expect() calls
-Ran 136 tests across 5 files. [977.00ms]
+ 555 expect() calls
+Ran 156 tests across 5 files. [1008.00ms]
 exit: 0
 
 ── 6. Tests, repo-wide
 $ bun test
-
- 413 pass
+ 517 pass
  0 fail
- 1868 expect() calls
-Ran 413 tests across 15 files. [1063.00ms]
+ 2119 expect() calls
+Ran 517 tests across 19 files. [1098.00ms]
 
-── 7. Static gates
-$ bun run gates
-$ bun run scripts/gates.ts
-bun run gates: not implemented
-error: script "gates" exited with code 1
-
-Still the scaffold lane's placeholder, still exiting non-zero by design
-until the gate lane implements it. The greps this slice owes are run by
-hand in w2-greps.txt.
+── 7. Each of the four fix commits, typechecked standalone from git archive
+  db866a5 fix(state): the coast travels the same distance at any refresh rate
+    tsc exit 0 ·  141 pass
+  4bc97b4 fix(state): one clock stamps every bump
+    tsc exit 0 ·  146 pass
+  67f3786 fix(state): the density setting has one writable route
+    tsc exit 0 ·  152 pass
+  ea24945 fix(state): the device factory is test-only, and throws on the first call
+    tsc exit 0 ·  156 pass

@@ -7,22 +7,35 @@ Tool callbacks live outside the React tree and must read and write the same
 state the UI renders; state held in a component closure is unreachable from
 one.
 
-⚑ The review narrowed this claim correctly, and the narrowing is now closed.
+⚑ The review narrowed this claim correctly, and the narrowing is now closed —
+in two rounds, because the first attempt was wrong.
+
 Proving the package does not *need* React is not the same as proving a tool
-callback and the UI address the same device — nothing stopped a consumer from
+callback and the UI address the same device: nothing stopped a consumer from
 handing its `Provider` a fresh `createDeviceStore()`. Two stores, both valid,
-both React-free, every test still green, and the tools moving a screen nobody
-is looking at. So there is now exactly one device per document: `deviceStore`
-is the singleton, `createDeviceStore` throws outside a test runner, and a
-static gate fails on any call to it outside a test file.
+both React-free, every test green, and the tools moving a screen nobody is
+looking at.
+
+The first fix counted constructions and threw above one — but the singleton is
+built through a private path that did not increment the counter, so the FIRST
+production call succeeded, which is the only call the motivating case makes.
+Its test was green because 25 earlier calls in the same file had pushed the
+counter past the threshold.
+
+Now: `createDeviceStore` throws whenever it is not under a test runner, on the
+first call and every call; it is not reachable from `@webpod/state` at all,
+only from `@webpod/state/testing`; `index.ts` enumerates rather than
+re-exporting `./store`, so it cannot creep back; and the first-call test runs
+in a fresh subprocess with a fresh module registry, where nothing this file did
+can make it pass.
 
 $ bun test packages/state/src/store.test.ts
 bun test v1.4.0 (34cbb9a40)
 
- 26 pass
+ 30 pass
  0 fail
- 62 expect() calls
-Ran 26 tests across 1 file. [15.00ms]
+ 70 expect() calls
+Ran 30 tests across 1 file. [44.00ms]
 exit: 0
 
 Per-test listing (rendered from the same run's --reporter=junit output):
@@ -45,30 +58,14 @@ Per-test listing (rendered from the same run's --reporter=junit output):
   [pass] an agent press is silent; a human press clicks
   [pass] a custom initial stack replaces the default main menu
   [pass] `deviceStore` is the module singleton, and repeated imports get it
-  [pass] a second device outside a test throws, rather than quietly working
-  [pass] the store a consumer should hand a Provider is named, and is not the factory
-  [pass] no source file in the repo calls createDeviceStore
+  [pass] the FIRST call in a fresh production module throws
+  [pass] a second call in a fresh production module throws as well
+  [pass] the singleton itself is still built, in that same fresh process
+  [pass] the factory is not reachable from the package entry point
+  [pass] the store a consumer hands a Provider is named, and is not the factory
+  [pass] no non-test source in the repo calls createDeviceStore
+  [pass] and the only re-export of it is the test-only entry point
   [pass] does not bump — an empty stack has no top to announce
   [pass] a device with one screen still bumps, as the root must
   [pass] a visibility predicate drops rows and re-indexes what is left
   [pass] the default admits everything, which is the honest pre-provider answer
-
-$ cat packages/state/package.json      # no react dependency
-{
-  "name": "@webpod/state",
-  "version": "0.0.0",
-  "private": true,
-  "type": "module",
-  "exports": {
-    ".": "./src/index.ts"
-  },
-  "scripts": {
-    "typecheck": "tsc --noEmit -p tsconfig.json"
-  },
-  "dependencies": {
-    "jotai": "2.20.3"
-  }
-}
-
-$ grep -rn "from 'react" packages/state/src/
-exit: 1   (1 = no matches)

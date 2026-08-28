@@ -18,10 +18,10 @@ source cited.
 $ bun test packages/state/src/gates.test.ts
 bun test v1.4.0 (34cbb9a40)
 
- 17 pass
+ 28 pass
  0 fail
- 34 expect() calls
-Ran 17 tests across 1 file. [9.00ms]
+ 57 expect() calls
+Ran 28 tests across 1 file. [6.00ms]
 exit: 0
 
 Per-test listing (rendered from the same run's --reporter=junit output):
@@ -42,3 +42,14 @@ Per-test listing (rendered from the same run's --reporter=junit output):
   [pass] Dynamic Type at 130% forces airy over the human’s own setting
   [pass] just below 130% it does not
   [pass] paging follows the effective density, not the frame’s preference
+  [pass] a wheel bump is stamped from the device clock
+  [pass] a Menu bump at the root is stamped from the device clock
+  [pass] a transport bump is stamped from the device clock
+  [pass] all three writers agree, whatever a caller passes
+  [pass] the bump sequence still increments, so two identical bumps are distinct
+  [pass] the highlight stays inside the window when density changes
+  [pass] and when Dynamic Type forces airy
+  [pass] every frame on the stack is re-clamped, not just the visible one
+  [pass] the bare write does not typecheck, and this is why it must not
+  [pass] the Dynamic Type bare write does not typecheck either
+  [pass] but reading them still works, because they are legitimate state

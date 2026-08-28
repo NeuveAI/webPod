@@ -1,0 +1,85 @@
+D-060 — the coast travels the same distance at every refresh rate
+==================================================================
+
+The defect, as the re-review measured it: `coastStep` decayed velocity once per
+*call* while scaling distance per *second*, so total travel was linear in the
+frame interval. One identical flick:
+
+    30fps →  32 detents, 491.9 deg
+    60fps →  16 detents, 246.0 deg
+    90fps →  10 detents, 164.0 deg
+   120fps →   8 detents, 123.0 deg      ratio 30/120 = 4.00x
+
+The frame COUNT to rest was 46 at every rate, which is the tell: the decay was
+counting frames and the travel was counting seconds.
+
+Why it mattered beyond correctness: this is a phone-first product, ProMotion
+iPhones run at 120Hz and drop to lower rates under Low Power Mode and in
+background tabs, so the same flick landed on a different row on the same device
+depending on power state. 001's accessibility case is that movement is
+deterministic and countable; a coast whose distance depends on the display
+breaks the counting model on hardware rather than on input, which is the harm
+D-042 was ruled on.
+
+Ruling D-060: decay is a function of elapsed time, not call count.
+
+⚑ This turned out to be a transcription gap rather than an under-specified
+constant. design-system §9.4 — a primary source, which I had not read, having
+worked from pm-spec §4.4 — states the normalisation outright:
+
+    "On release, angular velocity ω decays per frame: `ω *= 0.940` at 60fps
+     (normalised to `ω *= 0.940^(dt/16.67ms)`)."
+
+Three changes, each of which the mutation file shows is load-bearing:
+
+  1. Decay `0.94 ** (elapsed * 60)` rather than `0.94` per call — §9.4's own
+     normalisation, with 60fps still seeing exactly 0.94.
+  2. Distance is the closed-form integral of that decay, not `speed x dt`. A
+     rectangle under an exponential is frame-rate dependent by construction.
+  3. Each coasted detent is scored at the speed the wheel was doing when it
+     fired, computed exactly: under `dv/dt = -λv` and `ds/dt = v`, `dv/ds = -λ`,
+     so `v = v₀ - λ·s` — speed as a function of DISTANCE, which no frame rate
+     can change. And the coast stops when the speed reaches the floor rather
+     than at the next frame boundary.
+
+Measured after the fix, one identical flick, every rate:
+
+ 15fps →  16 detents    74 rows    12 frames  240.0 deg
+ 24fps →  16 detents    74 rows    19 frames  240.0 deg
+ 30fps →  16 detents    74 rows    23 frames  240.0 deg
+ 45fps →  16 detents    74 rows    35 frames  240.0 deg
+ 60fps →  16 detents    74 rows    46 frames  240.0 deg
+ 75fps →  16 detents    74 rows    57 frames  240.0 deg
+ 90fps →  16 detents    74 rows    69 frames  240.0 deg
+100fps →  16 detents    74 rows    76 frames  240.0 deg
+120fps →  16 detents    74 rows    91 frames  240.0 deg
+144fps →  16 detents    74 rows   110 frames  240.0 deg
+165fps →  16 detents    74 rows   126 frames  240.0 deg
+240fps →  16 detents    74 rows   182 frames  240.0 deg
+
+Exact — not "within a tolerance". Detents, rows and degrees are identical from
+a stuttering 15fps to a 240Hz display. The frame count still scales with the
+rate, which is what time-based looks like.
+
+$ bun test packages/state/src/detent.test.ts   # includes the D-060 gate
+bun test v1.4.0 (34cbb9a40)
+
+ 47 pass
+ 0 fail
+ 281 expect() calls
+Ran 47 tests across 1 file. [7.00ms]
+exit: 0
+
+Per-test listing (rendered from the same run's --reporter=junit output):
+  [pass] a fast arc accelerates, and the multiplier is smoothed rather than jumping
+  [pass] the coast fires detents, decays, and comes to rest below 60 deg/s
+  [pass] a coast travels in the direction the gesture was going
+  [pass] EVERY coasted detent still clicks — 001 §4.4 says so explicitly
+  [pass] an agent’s coast is silent, like everything else an agent does
+  [pass] a coast never announces per detent — the flick already scheduled one
+  [pass] stepping a wheel that is not coasting is a no-op, not a resurrection
+  [pass] one flick lands on the same row at 30, 60 and 120fps — exactly
+  [pass] and at every rate from a stuttering 15fps to a 240Hz display
+  [pass] the frame COUNT still scales with the rate, which is the tell
+  [pass] a variable-rate display travels the same distance as a steady one
+  [pass] at 60fps the decay is still exactly the transcribed 0.94

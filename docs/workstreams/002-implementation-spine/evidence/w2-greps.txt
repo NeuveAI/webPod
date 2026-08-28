@@ -8,7 +8,6 @@ $ grep -rniE 'agentPresent|agentAttached|agentIdle|isAgentConnected' packages/st
 exit: 1   (1 = no matches)
 
 ── §15.2 #5 — exactly five device states plus one app mode
-$ sed -n '/^export type DeviceStateName/,/^$/p' packages/state/src/contract.ts
 export type DeviceStateName =
   | 'USER_ACTIVE'
   | 'AGENT_ACTIVE'
@@ -16,13 +15,12 @@ export type DeviceStateName =
   | 'HOLD_ENGAGED'
   | 'DISCONNECTED'
 
-$ grep -n '^export type AppMode' packages/state/src/contract.ts
-130:export type AppMode = 'REVIEW_PENDING'
+132:export type AppMode = 'REVIEW_PENDING'
 
 $ grep -rnE 'CONFIRMING|CO_PILOT|AGENT_DENIED|SOLO_HUMAN|AGENT_ATTACHED_IDLE|AGENT_PENDING_CONSENT|AGENT_STAGED|HUMAN_PRIORITY_LOCK' packages/state/src/
-packages/state/src/contract.ts:98: * browser never tells the page. `CONFIRMING`, `CO_PILOT`, `AGENT_DENIED`,
-packages/state/src/contract.ts:99: * `SOLO_HUMAN`, `AGENT_ATTACHED_IDLE`, `AGENT_PENDING_CONSENT`, `AGENT_STAGED`
-packages/state/src/contract.ts:100: * and `HUMAN_PRIORITY_LOCK` were all deleted with reasons. Do not reintroduce
+packages/state/src/contract.ts:100: * browser never tells the page. `CONFIRMING`, `CO_PILOT`, `AGENT_DENIED`,
+packages/state/src/contract.ts:101: * `SOLO_HUMAN`, `AGENT_ATTACHED_IDLE`, `AGENT_PENDING_CONSENT`, `AGENT_STAGED`
+packages/state/src/contract.ts:102: * and `HUMAN_PRIORITY_LOCK` were all deleted with reasons. Do not reintroduce
 (3 hits, one TSDoc block, warning the next reader not to reintroduce them.)
 
 ── U9 — no useState, no exceptions
@@ -30,40 +28,60 @@ $ grep -rn 'useState' packages/state/ | wc -l
        0
 
 ── U8 — no invented permission vocabulary
-$ grep -rniE '\b(allow|deny|denied|permit|permission|granted|authoris|authoriz|approve|approval|pending|blocked|ask(s|ed)? (for|to)|waiting for)\b' packages/state/src/
-packages/state/src/contract.ts:96: * eleven, of which six were permission states for a permission model that does
-packages/state/src/contract.ts:186: * gate. `B10` is absent for the same class of reason — it granted standing
-packages/state/src/contract.ts:187: * permission for actions that were never gated. The desktop shell surfaces
+$ grep -rniE '(allow|deny|denied|permit|permission|granted|authoris|authoriz|approve|approval|pending|blocked|ask(s|ed)? (for|to)|waiting for)' packages/state/src/
+packages/state/src/contract.ts:98: * eleven, of which six were permission states for a permission model that does
+packages/state/src/contract.ts:188: * gate. `B10` is absent for the same class of reason — it granted standing
+packages/state/src/contract.ts:189: * permission for actions that were never gated. The desktop shell surfaces
 
-Three hits, in two TSDoc blocks, all of them prose stating that the permission
-model does NOT exist and why the states that assumed it were deleted. U8 is a
-manually-cleared gate; these are cleared. They are not agent-flow copy and no
-human reads them in the product, and deleting them deletes the warning that
-prevents the bug. See decisions/w2.md.
+The same three pre-cleared prose hits, all stating the permission model
+does NOT exist. Removing them deletes the warning that prevents the bug.
 
-── naming hygiene — bookkeeping strings stay out of code
+── naming hygiene
 $ grep -rnE '002|implementation-spine|workstream' packages/state/src/ | wc -l
        0
 
-── type escapes
-$ grep -rnE '(: any\b|\bas any\b|as unknown|@ts-expect-error|eslint-disable)' packages/state/src/
+── type escapes in SHIPPED source (excluding tests)
+$ grep -rnE '(: any|as any|as unknown|@ts-expect-error|@ts-ignore|eslint-disable)' packages/state/src/ --include='*.ts' | grep -v '\.test\.ts'
 packages/state/src/contract.ts:31: * What this file deliberately does **not** contain: any notion of an agent
-packages/state/src/contract.ts:611:   * during this window are as real as any other — 001 §4.4 is explicit that
+packages/state/src/contract.ts:645:   * during this window are as real as any other — 001 §4.4 is explicit that
 
-Two hits, both English prose in TSDoc — "does not contain: any notion of an
-agent" and "as real as any other". Neither is a type escape; the pattern is
-matching the word "any" in a sentence. Recorded rather than tuned away, so a
-reviewer running this grep knows what they are looking at.
-
-The real count is zero: no `any` type, no `as unknown`, no non-null assertion,
-no `@ts-expect-error` and no `eslint-disable` anywhere in the package. The lint
-config makes the first two errors, so they could not land silently in any case.
+Two hits, both the word "any" in an English sentence. No type escape in
+shipped source. The only @ts-expect-error directives in the package are
+the two in gates.test.ts that PROVE the density write is a type error —
+tsc fails on an unused directive, so their presence is the assertion.
+Invariant recorded in decisions/w2.md §8.
 
 ── D-051 — nothing outside a test builds a device
-$ grep -rn --include='*.ts' --include='*.tsx' 'createDeviceStore' packages apps | grep -v '.test.ts'
-packages/state/src/contract.ts:1125: * `createDeviceStore({ now })` and drive the debounce by hand.
-packages/state/src/contract.ts:1226: * ⚑ **Empty until a store seeds it**, which `createDeviceStore` does at
-packages/state/src/store.ts:299: * tree handed `<Provider store={createDeviceStore()}>` addresses a different
-packages/state/src/store.ts:311:export function createDeviceStore(options: CreateDeviceStoreOptions = {}): DeviceStore {
-packages/state/src/store.ts:497: * once, to `createDeviceStore`, where it governs the whole device. Letting the
-(definition and TSDoc only; enforced by a test that fails on any other hit)
+$ grep -rn --include='*.ts' --include='*.tsx' 'createDeviceStore' packages apps | grep -v '\.test\.ts'
+packages/state/src/testing.ts:10: * React tree handed `<Provider store={createDeviceStore()}>` addresses a
+packages/state/src/testing.ts:21:export { createDeviceStore } from './store'
+packages/state/src/contract.ts:1178: * `createDeviceStore({ now })` and drive the debounce by hand.
+packages/state/src/contract.ts:1291: * ⚑ **Empty until a store seeds it**, which `createDeviceStore` does at
+packages/state/src/store.ts:302: * tree handed `<Provider store={createDeviceStore()}>` addresses a different
+packages/state/src/store.ts:313: * store={createDeviceStore()}>` is written once. A guard that fires on the
+packages/state/src/store.ts:324:export function createDeviceStore(options: CreateDeviceStoreOptions = {}): DeviceStore {
+packages/state/src/store.ts:509: * once, to `createDeviceStore`, where it governs the whole device. Letting the
+packages/state/src/index.ts:9: * `createDeviceStore` must **not** be reachable from this entry point. There
+
+Definition, one sanctioned re-export from the test-only entry point, and
+TSDoc prose. Gated by a test that filters on what the LINE is rather than
+which file it is in, so a real call inside this package's own files is
+reported too.
+
+$ cat packages/state/package.json   # ./testing is a separate entry point
+{
+  "name": "@webpod/state",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./testing": "./src/testing.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "jotai": "2.20.3"
+  }
+}
