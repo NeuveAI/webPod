@@ -1,9 +1,15 @@
-/**
- * `@webpod/server-core` — server-side services and the artwork proxy.
- *
- * Placeholder surface. The package exists from the first commit so that
- * concurrent lanes can land code without editing shared configuration:
- * the workspace glob, the tsconfig base and the typecheck loop already
- * cover it. The lane that owns this package defines its real exports.
- */
-export {};
+export {
+  ARTWORK_CACHE_CONTROL,
+  ARTWORK_FETCH_TIMEOUT_MS,
+  ARTWORK_MAX_BYTES,
+  ARTWORK_PROXY_PATH,
+  ArtworkProxyError,
+  ArtworkTransport,
+  ArtworkTransportLive,
+  artworkProxyEffect,
+  handleArtworkRequest,
+  parseArtworkRequest,
+  type ArtworkProxyErrorCode,
+  type ArtworkProxyOptions,
+  type ArtworkTransportShape,
+} from './artwork-proxy.ts'

@@ -8,5 +8,9 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@webpod/providers": "workspace:*",
+    "effect": "4.0.0-rc.112"
   }
 }
