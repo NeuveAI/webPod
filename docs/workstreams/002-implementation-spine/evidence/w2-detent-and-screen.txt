@@ -1,25 +1,38 @@
-W2.2 / W2.3 — the detent reducer and the screen state machine
-==============================================================
+W2.2 / W2.3 — the detent reducer, the coast, and the screen state machine
+=========================================================================
 
-001 §4.4's four input paths plus the programmatic seam, and 001 §4.2's menu
-hierarchy with push/pop and a highlight index.
+001 §4.4's four input paths plus the programmatic seam, 001 §4.4's inertial
+coast, and 001 §4.2's menu hierarchy with push/pop and a highlight index.
 
 The rule that dominates: arrow keys are exactly one detent, always, with no
-acceleration, ever. Counted navigation is how P5 drives this device, and the
-test that guards it drives 40 keydowns 5ms apart — far faster than any human
-or any OS auto-repeat, and far over every arc acceleration threshold — and
-asserts the highlight moved exactly 40 rows.
+acceleration, ever. The test that guards it drives 40 keydowns 5ms apart — far
+faster than any human or any OS auto-repeat, and far over every arc
+acceleration threshold — and asserts the highlight moved exactly 40 rows with
+`multiplier === 1` throughout.
 
-Acceleration exists on the two arc paths only. The scroll path has no velocity
-multiplier at all, because trackpad momentum already supplies one.
+Two things changed in response to review:
+
+- The page size is no longer a field on the keypress. It is a parameter of the
+  reducer call, supplied by the store, which is the only thing that knows the
+  density. A caller can no longer page by a number that disagrees with the
+  glass.
+- `DetentOutcome.accelerated` is new, because `multiplier` could not carry the
+  "did the device move further than it was told" question — `Shift+Arrow`
+  makes it a viewport, which is not acceleration.
+
+The coast is new: 001 §4.4's Release row, previously absent and undisclosed.
+`endGesture` keeps the momentum and `coastStep` decays it at 0.94/frame,
+firing a detent every 15° until |ω| < 60°/s. Every coasted detent still clicks,
+and obeys the silence rule through the source the accumulator carried out of
+the gesture.
 
 $ bun test packages/state/src/detent.test.ts packages/state/src/screen.test.ts
 bun test v1.4.0 (34cbb9a40)
 
- 56 pass
+ 69 pass
  0 fail
- 151 expect() calls
-Ran 56 tests across 2 files. [5.00ms]
+ 315 expect() calls
+Ran 69 tests across 2 files. [5.00ms]
 exit: 0
 
 Per-test listing (rendered from the same run's --reporter=junit output):
@@ -52,6 +65,19 @@ Per-test listing (rendered from the same run's --reporter=junit output):
   [pass] an agent with no known origin is tagged unknown, not guessed at
   [pass] switching path mid-flight starts a new gesture rather than mixing units
   [pass] the reducer never mutates the accumulator it is handed
+  [pass] releasing a fast arc keeps the momentum instead of discarding it
+  [pass] releasing below the floor stops dead
+  [pass] there is no momentum in a keypress, a scroll or a tool call
+  [pass] the coast fires detents, decays, and comes to rest below 60 deg/s
+  [pass] a coast travels in the direction the gesture was going
+  [pass] EVERY coasted detent still clicks — 001 §4.4 says so explicitly
+  [pass] an agent’s coast is silent, like everything else an agent does
+  [pass] a coast never announces per detent — the flick already scheduled one
+  [pass] stepping a wheel that is not coasting is a no-op, not a resurrection
+  [pass] false for every keyboard event, including Shift
+  [pass] false on the scroll path however fast the wheel spins
+  [pass] false for a programmatic movement of any size
+  [pass] true only when an arc went fast enough to be given extra rows
   [pass] moves by the exact row delta it is given
   [pass] clamps at the bottom and bumps rather than wrapping
   [pass] clamps at the top and bumps

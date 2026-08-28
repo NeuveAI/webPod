@@ -3,21 +3,26 @@ W2 — the store is readable, writable and subscribable from OUTSIDE REACT
 
 The property: device state lives in a Jotai `createStore()` and is reachable
 through `store.get` / `store.set` / `store.sub` with NO React tree mounted.
-Stage 3 registers WebMCP tools whose `execute` callbacks live outside the React
-tree and must read and write the same state the UI renders. State held in a
-component closure is unreachable from a tool handler.
+Tool callbacks live outside the React tree and must read and write the same
+state the UI renders; state held in a component closure is unreachable from
+one.
 
-`packages/state/src/store.test.ts` imports no React, renders nothing and mounts
-no provider. It also asserts structurally that React is not even resolvable
-from this package.
+⚑ The review narrowed this claim correctly, and the narrowing is now closed.
+Proving the package does not *need* React is not the same as proving a tool
+callback and the UI address the same device — nothing stopped a consumer from
+handing its `Provider` a fresh `createDeviceStore()`. Two stores, both valid,
+both React-free, every test still green, and the tools moving a screen nobody
+is looking at. So there is now exactly one device per document: `deviceStore`
+is the singleton, `createDeviceStore` throws outside a test runner, and a
+static gate fails on any call to it outside a test file.
 
 $ bun test packages/state/src/store.test.ts
 bun test v1.4.0 (34cbb9a40)
 
- 18 pass
+ 26 pass
  0 fail
- 45 expect() calls
-Ran 18 tests across 1 file. [11.00ms]
+ 62 expect() calls
+Ran 26 tests across 1 file. [15.00ms]
 exit: 0
 
 Per-test listing (rendered from the same run's --reporter=junit output):
@@ -39,6 +44,14 @@ Per-test listing (rendered from the same run's --reporter=junit output):
   [pass] Center is declined by the machine, for the layer holding the data
   [pass] an agent press is silent; a human press clicks
   [pass] a custom initial stack replaces the default main menu
+  [pass] `deviceStore` is the module singleton, and repeated imports get it
+  [pass] a second device outside a test throws, rather than quietly working
+  [pass] the store a consumer should hand a Provider is named, and is not the factory
+  [pass] no source file in the repo calls createDeviceStore
+  [pass] does not bump — an empty stack has no top to announce
+  [pass] a device with one screen still bumps, as the root must
+  [pass] a visibility predicate drops rows and re-indexes what is left
+  [pass] the default admits everything, which is the honest pre-provider answer
 
 $ cat packages/state/package.json      # no react dependency
 {

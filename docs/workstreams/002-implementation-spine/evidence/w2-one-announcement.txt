@@ -1,30 +1,41 @@
 W2.4 / U13 — a 30-detent flick produces exactly ONE announcement
 ================================================================
 
-001 §4.4 and 001 §15.0 U13: the detent settle is debounced to a single
-`aria-live="polite"` summary 350ms after motion stops, and there is no
-live-region spam during fast scroll. The failure this prevents is invisible to
-anyone not listening to it.
+001 §4.4 and gate U13: the detent settle is debounced to a single
+`aria-live="polite"` summary 350ms after motion stops, with no live-region spam
+during fast scroll.
 
-The headline test drives 30 real detents through the real reducer and the real
-store — no fake timers, no mocks. Only the clock is supplied, because a
-debounce that cannot be told the time cannot be tested at all.
+⚑ This gate previously INVERTED in a real browser and the tests did not see it.
+`startAnnouncer` defaulted its clock to `Date.now()` while comparing against
+`timestampMs + 350`, and the idiomatic browser value for that field is
+`event.timeStamp` — on the `performance.now()` origin, ~1e4 against ~1.8e12.
+Every due time looked long past, so a 30-detent flick announced 30 times. The
+tests missed it because their fixtures fed `Date.now()`-based timestamps: the
+requirement lived in a fixture rather than in the design.
+
+The fix is structural, not documentary. There is now one clock per device,
+held in `clockAtom`; the announcer stamps movements with it and the driver
+reads it. No caller-supplied timestamp reaches any comparison, so the two
+scales cannot diverge. A caller's `timestampMs` is used only for differences
+inside a single gesture, where its origin does not matter.
 
 $ bun test packages/state/src/announce.test.ts
 bun test v1.4.0 (34cbb9a40)
 
- 19 pass
+ 24 pass
  0 fail
- 71 expect() calls
-Ran 19 tests across 1 file. [950.00ms]
+ 87 expect() calls
+Ran 24 tests across 1 file. [958.00ms]
 exit: 0
 
 Per-test listing (rendered from the same run's --reporter=junit output):
   [pass] 30 detents through the real store produce exactly ONE announcement
   [pass] the one sentence names the row the flick settled on
   [pass] flushing repeatedly after a flick still says it once
-  [pass] nothing is said before the debounce elapses
+  [pass] the debounce is 350ms — not 349, and not a symbol that can move
   [pass] a scroll flick behaves the same as a touch flick
+  [pass] performance.now-scale timestamps still announce once
+  [pass] the announcer ignores caller timestamps entirely
   [pass] one keypress speaks at once, with no debounce
   [pass] three counted presses speak three times — this is how P5 navigates
   [pass] a held key does not speak per repeat — it summarises when released
@@ -39,3 +50,6 @@ Per-test listing (rendered from the same run's --reporter=junit output):
   [pass] clearAnnouncer drops the settling summary but keeps the count
   [pass] a flick holds one timeout and speaks once when it stops
   [pass] stopping the driver cancels the settling announcement
+  [pass] a flush that says nothing re-arms instead of going quiet forever
+  [pass] a driver clock that never reaches the due time does not spin forever
+  [pass] the predicate is a shared function rather than a repeated expression

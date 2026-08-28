@@ -3,8 +3,8 @@ W2 — every commit typechecks standalone
 
 Each commit is extracted from git into a clean directory (`git archive`), given
 only the shared tsconfig base and a symlink to the installed dependencies, and
-typechecked on its own. No working-tree files leak in, so a commit that only
-compiles because of a later commit's file would fail here.
+typechecked on its own. No working-tree file leaks in, so a commit that only
+compiles because of a later commit's file fails here.
 
 $ cd <archive of 5f92872> && bunx tsc --noEmit -p packages/state/tsconfig.json
   5f92872 feat(state): store contract
@@ -24,5 +24,9 @@ $ cd <archive of 4fce0f1> && bunx tsc --noEmit -p packages/state/tsconfig.json
 
 $ cd <archive of 0634b34> && bunx tsc --noEmit -p packages/state/tsconfig.json
   0634b34 refactor(state): keep the universal gate greps clean
+  exit: 0  clean
+
+$ cd <archive of a16c48f> && bunx tsc --noEmit -p packages/state/tsconfig.json
+  a16c48f fix(state): one clock, one page size, one density, one device, and the coast
   exit: 0  clean
 

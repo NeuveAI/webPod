@@ -1,0 +1,44 @@
+W2 — the constants that are rulings, gated against literals
+===========================================================
+
+D-050: a constant is gated only if falsifying it turns a test red.
+
+The review demonstrated that this package contained both patterns. Its arc
+geometry was genuinely gated — falsifying `arcDegPerDetent`, the dead zone or
+either acceleration threshold turned 7 tests red — because those tests feed
+literal degrees and assert literal detent counts. But `VISIBLE_ROWS` and
+`ANNOUNCE_DEBOUNCE_MS` were asserted only through themselves, so replacing the
+per-density page sizes with a flat 7 (the value the lead had ruled against) and
+cutting the debounce from 350ms to 50ms both left 93 of 93 tests passing.
+
+`gates.test.ts` closes that class: every value that is a decision rather than a
+derivation is asserted against a literal transcribed from the source, with the
+source cited.
+
+$ bun test packages/state/src/gates.test.ts
+bun test v1.4.0 (34cbb9a40)
+
+ 17 pass
+ 0 fail
+ 34 expect() calls
+Ran 17 tests across 1 file. [9.00ms]
+exit: 0
+
+Per-test listing (rendered from the same run's --reporter=junit output):
+  [pass] the row counts are literally 8, 6 and 4 (001 §3)
+  [pass] the row heights are literally 26, 32 and 44 (001 §3)
+  [pass] no density pages by 7
+  [pass] Shift+Arrow moves 8 rows on a compact screen, through the store
+  [pass] Shift+Arrow moves 4 rows on an airy screen, through the store
+  [pass] the reducer cannot be handed a page size at all
+  [pass] literally 350 (001 §4.4, gate U13)
+  [pass] the auto-repeat window is literally 250ms
+  [pass] haptics stop above 12 detents per second (001 §4.9)
+  [pass] the coast decays at 0.94 per frame and stops below 60 deg/s (001 §4.4)
+  [pass] acceleration is 1, 3 and 7 rows per detent (001 §4.4)
+  [pass] Dynamic Type forces airy at 130% (001 §15.0 U11)
+  [pass] by default a screen renders at the density it prefers
+  [pass] setting the override moves the viewport, the page size and the snapshot
+  [pass] Dynamic Type at 130% forces airy over the human’s own setting
+  [pass] just below 130% it does not
+  [pass] paging follows the effective density, not the frame’s preference

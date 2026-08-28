@@ -1,16 +1,11 @@
 W2 — the greps that must return nothing
 =======================================
 
-001 §15.0 U8/U9 and 001 §15.2 #4/#5. These are the failure modes this project
-has already produced once each: an agent-presence signal the browser cannot
-supply, and state names for a permission model that does not exist.
+001 §15.0 U8/U9 and 001 §15.2 #4/#5.
 
 ── §15.2 #4 — no code claims to detect agent presence
 $ grep -rniE 'agentPresent|agentAttached|agentIdle|isAgentConnected' packages/state/
 exit: 1   (1 = no matches)
-
-$ grep -rniE 'agentPresent|agentAttached|agentIdle|isAgentConnected' --include='*.ts' --include='*.tsx' packages/ apps/ scripts/
-exit: 1   (1 = no matches, repo-wide)
 
 ── §15.2 #5 — exactly five device states plus one app mode
 $ sed -n '/^export type DeviceStateName/,/^$/p' packages/state/src/contract.ts
@@ -21,33 +16,54 @@ export type DeviceStateName =
   | 'HOLD_ENGAGED'
   | 'DISCONNECTED'
 
-$ sed -n '/^export type AppMode/p' packages/state/src/contract.ts
-export type AppMode = 'REVIEW_PENDING'
+$ grep -n '^export type AppMode' packages/state/src/contract.ts
+130:export type AppMode = 'REVIEW_PENDING'
 
-The deleted names appear nowhere except the comment that warns the next
-reader not to reintroduce them:
 $ grep -rnE 'CONFIRMING|CO_PILOT|AGENT_DENIED|SOLO_HUMAN|AGENT_ATTACHED_IDLE|AGENT_PENDING_CONSENT|AGENT_STAGED|HUMAN_PRIORITY_LOCK' packages/state/src/
 packages/state/src/contract.ts:98: * browser never tells the page. `CONFIRMING`, `CO_PILOT`, `AGENT_DENIED`,
 packages/state/src/contract.ts:99: * `SOLO_HUMAN`, `AGENT_ATTACHED_IDLE`, `AGENT_PENDING_CONSENT`, `AGENT_STAGED`
 packages/state/src/contract.ts:100: * and `HUMAN_PRIORITY_LOCK` were all deleted with reasons. Do not reintroduce
-(3 hits, all inside one TSDoc block in contract.ts. Not identifiers.)
+(3 hits, one TSDoc block, warning the next reader not to reintroduce them.)
 
 ── U9 — no useState, no exceptions
 $ grep -rn 'useState' packages/state/ | wc -l
        0
 
 ── U8 — no invented permission vocabulary
-$ grep -rniE '(allow|deny|denied|permit|permission|granted|authoris|authoriz|approve|approval|pending|blocked|ask(s|ed)? (for|to)|waiting for)' packages/state/src/
+$ grep -rniE '\b(allow|deny|denied|permit|permission|granted|authoris|authoriz|approve|approval|pending|blocked|ask(s|ed)? (for|to)|waiting for)\b' packages/state/src/
 packages/state/src/contract.ts:96: * eleven, of which six were permission states for a permission model that does
 packages/state/src/contract.ts:186: * gate. `B10` is absent for the same class of reason — it granted standing
 packages/state/src/contract.ts:187: * permission for actions that were never gated. The desktop shell surfaces
-exit: 0
 
-Three hits, in two TSDoc blocks, all of them prose stating that the
-permission model does NOT exist and why the states that assumed it were
-deleted. Removing them would delete the warning that prevents the bug.
-Pre-cleared against the §8.5 banned list; see decisions/w2.md.
+Three hits, in two TSDoc blocks, all of them prose stating that the permission
+model does NOT exist and why the states that assumed it were deleted. U8 is a
+manually-cleared gate; these are cleared. They are not agent-flow copy and no
+human reads them in the product, and deleting them deletes the warning that
+prevents the bug. See decisions/w2.md.
 
 ── naming hygiene — bookkeeping strings stay out of code
 $ grep -rnE '002|implementation-spine|workstream' packages/state/src/ | wc -l
        0
+
+── type escapes
+$ grep -rnE '(: any\b|\bas any\b|as unknown|@ts-expect-error|eslint-disable)' packages/state/src/
+packages/state/src/contract.ts:31: * What this file deliberately does **not** contain: any notion of an agent
+packages/state/src/contract.ts:611:   * during this window are as real as any other — 001 §4.4 is explicit that
+
+Two hits, both English prose in TSDoc — "does not contain: any notion of an
+agent" and "as real as any other". Neither is a type escape; the pattern is
+matching the word "any" in a sentence. Recorded rather than tuned away, so a
+reviewer running this grep knows what they are looking at.
+
+The real count is zero: no `any` type, no `as unknown`, no non-null assertion,
+no `@ts-expect-error` and no `eslint-disable` anywhere in the package. The lint
+config makes the first two errors, so they could not land silently in any case.
+
+── D-051 — nothing outside a test builds a device
+$ grep -rn --include='*.ts' --include='*.tsx' 'createDeviceStore' packages apps | grep -v '.test.ts'
+packages/state/src/contract.ts:1125: * `createDeviceStore({ now })` and drive the debounce by hand.
+packages/state/src/contract.ts:1226: * ⚑ **Empty until a store seeds it**, which `createDeviceStore` does at
+packages/state/src/store.ts:299: * tree handed `<Provider store={createDeviceStore()}>` addresses a different
+packages/state/src/store.ts:311:export function createDeviceStore(options: CreateDeviceStoreOptions = {}): DeviceStore {
+packages/state/src/store.ts:497: * once, to `createDeviceStore`, where it governs the whole device. Letting the
+(definition and TSDoc only; enforced by a test that fails on any other hit)

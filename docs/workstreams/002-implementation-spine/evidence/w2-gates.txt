@@ -1,9 +1,7 @@
-W2 — gate run
-=============
+W2 — gate run (review response)
+===============================
 
-Run at 2026-08-28T10:58:14Z on 0634b34 (refactor(state): keep the universal gate greps clean).
-Other lanes have uncommitted work in this tree; the per-package results
-below are attributed so a reviewer can tell mine from theirs.
+Run at 2026-08-28T11:36:37Z on a16c48f (fix(state): one clock, one page size, one density, one device, and the coast).
 
 ── 1. Typecheck, this package
 $ bunx tsc --noEmit -p packages/state/tsconfig.json
@@ -11,32 +9,6 @@ exit: 0
 
 ── 2. Typecheck, every package
 $ bun run typecheck
-   ok  packages/composite
-
-── tsc --noEmit -p packages/device/tsconfig.json
-   ok  packages/device
-
-── tsc --noEmit -p packages/panel/tsconfig.json
-   ok  packages/panel
-
-── tsc --noEmit -p packages/providers/tsconfig.json
-   ok  packages/providers
-
-── tsc --noEmit -p packages/server-core/tsconfig.json
-   ok  packages/server-core
-
-── tsc --noEmit -p packages/state/tsconfig.json
-   ok  packages/state
-
-── tsc --noEmit -p packages/tokens/tsconfig.json
-   ok  packages/tokens
-
-── tsc --noEmit -p packages/tools/tsconfig.json
-   ok  packages/tools
-
-── tsc --noEmit -p packages/ui/tsconfig.json
-   ok  packages/ui
-
 ── tsc --noEmit -p scripts/tsconfig.json
    ok  scripts
 
@@ -48,39 +20,49 @@ exit: 0
 
 ── 4. Lint, repo-wide
 $ bun run lint
-$ bunx --bun eslint .
-exit: 0
+
+/Users/vinicius/code/webPod/apps/web/src/routes/[_]spike.device.tsx:176:3
+  174 |   const camera = useThree((state) => state.camera)
+  175 |   const paramsRef = useRef(params)
+> 176 |   paramsRef.current = params
+      |   ^^^^^^^^^^^^^^^^^ Cannot update ref during render
+  177 |
+  178 |   const sample = useCallback((): Array<ProbeResult> => {
+  179 |     const active = paramsRef.current  react-hooks/refs
+  304:6  warning  React Hook useEffect has a missing dependency: 'scene'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/exhaustive-deps
+
+✖ 2 problems (1 error, 1 warning)
+
+error: script "lint" exited with code 1
+
+NOT MINE. The one repo-wide lint error is react-hooks/refs in the device
+spike route, which belongs to the device lane. packages/state is clean —
+see section 3, run separately for exactly this reason.
 
 ── 5. Tests, this package
 $ bun test packages/state
 bun test v1.4.0 (34cbb9a40)
 
- 93 pass
+ 136 pass
  0 fail
- 267 expect() calls
-Ran 93 tests across 4 files. [956.00ms]
+ 498 expect() calls
+Ran 136 tests across 5 files. [977.00ms]
 exit: 0
 
 ── 6. Tests, repo-wide
 $ bun test
-bun test v1.4.0 (34cbb9a40)
 
- 140 pass
+ 413 pass
  0 fail
- 365 expect() calls
-Ran 140 tests across 6 files. [980.00ms]
-exit: 0
+ 1868 expect() calls
+Ran 413 tests across 15 files. [1063.00ms]
 
 ── 7. Static gates
 $ bun run gates
 $ bun run scripts/gates.ts
 bun run gates: not implemented
 error: script "gates" exited with code 1
-exit: 1
 
-NOT MINE, AND NOT A REGRESSION. `scripts/gates.ts` is W0's placeholder
-and exits non-zero on purpose until the gate lane implements it — a
-placeholder that exited 0 would report "no findings" for checks that never
-ran. W0's handover note says so explicitly: "`bun run gates` exits 1 by
-design. Do not 'fix' it by making it exit 0." The greps this slice owes are
-run by hand in w2-greps.txt.
+Still the scaffold lane's placeholder, still exiting non-zero by design
+until the gate lane implements it. The greps this slice owes are run by
+hand in w2-greps.txt.

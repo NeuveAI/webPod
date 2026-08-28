@@ -1,0 +1,90 @@
+W2 review response — every fix goes RED when reverted
+======================================================
+
+The review's own method, turned on the review's own findings: a fix is a fix
+only if reverting it turns a test red. Each mutation below restores exactly the
+behaviour the reviewer measured, in a copy of the tree; sources are restored
+byte-for-byte from a backup outside `src/` before the next one.
+
+Baseline: 136 pass, 0 fail.
+
+── MAJOR 1 — put the announcer back on a second clock
+   (read the caller's timestamp; give the driver its own Date.now())
+(fail) U13 — a flick announces once > 30 detents through the real store produce exactly ONE announcement [0.60ms]
+(fail) U13 — a flick announces once > the one sentence names the row the flick settled on [0.49ms]
+(fail) U13 — a flick announces once > flushing repeatedly after a flick still says it once [0.35ms]
+(fail) U13 — a flick announces once > the debounce is 350ms — not 349, and not a symbol that can move [0.07ms]
+(fail) U13 — a flick announces once > a scroll flick behaves the same as a touch flick [0.40ms]
+(fail) MAJOR 1 — there is one clock, so the browser case cannot diverge > the announcer ignores caller timestamps entirely [0.10ms]
+(fail) the keyboard announces immediately, because it is deterministic > a held key does not speak per repeat — it summarises when released [0.26ms]
+(fail) the sentence > every announcement is polite — navigation never interrupts [0.06ms]
+(fail) MINOR 3 — a timer that fires early must not strand the announcement > a flush that says nothing re-arms instead of going quiet forever [1.42ms]
+ 127 pass
+ 9 fail
+
+── MAJOR 2a — revert the density ruling to a flat 7 (reviewer's PLANT 7)
+(fail) density is 8 / 6 / 4, and a page is one viewport > the row counts are literally 8, 6 and 4 (001 §3) [0.12ms]
+(fail) density is 8 / 6 / 4, and a page is one viewport > no density pages by 7 [0.06ms]
+(fail) density is 8 / 6 / 4, and a page is one viewport > Shift+Arrow moves 8 rows on a compact screen, through the store [0.80ms]
+(fail) density is 8 / 6 / 4, and a page is one viewport > Shift+Arrow moves 4 rows on an airy screen, through the store [0.22ms]
+(fail) density is 8 / 6 / 4, and a page is one viewport > the reducer cannot be handed a page size at all [0.04ms]
+(fail) the density setting is not inert > by default a screen renders at the density it prefers [0.10ms]
+(fail) the density setting is not inert > setting the override moves the viewport, the page size and the snapshot [0.09ms]
+(fail) the density setting is not inert > Dynamic Type at 130% forces airy over the human’s own setting [0.08ms]
+(fail) the density setting is not inert > paging follows the effective density, not the frame’s preference [0.11ms]
+(fail) keyboard path — one keydown is exactly one detent, always > Shift+Arrow is still one detent, but one full viewport of rows [0.09ms]
+ 126 pass
+ 10 fail
+
+── MAJOR 2b — revert U13's constant to 50ms (reviewer's PLANT 9)
+(fail) the announcement debounce is 350ms > literally 350 (001 §4.4, gate U13) [0.13ms]
+(fail) U13 — a flick announces once > the debounce is 350ms — not 349, and not a symbol that can move [0.06ms]
+(fail) MAJOR 1 — there is one clock, so the browser case cannot diverge > the announcer ignores caller timestamps entirely [0.14ms]
+(fail) MINOR 3 — a timer that fires early must not strand the announcement > a flush that says nothing re-arms instead of going quiet forever [1.16ms]
+ 132 pass
+ 4 fail
+
+── MAJOR 3 — make the density setting inert again
+(fail) the density setting is not inert > setting the override moves the viewport, the page size and the snapshot [0.18ms]
+(fail) the density setting is not inert > Dynamic Type at 130% forces airy over the human’s own setting [0.14ms]
+(fail) the density setting is not inert > paging follows the effective density, not the frame’s preference [0.10ms]
+ 133 pass
+ 3 fail
+
+── MAJOR 4 — throw the momentum away on release, as before
+(fail) the inertial coast (001 §4.4, Release row) > releasing a fast arc keeps the momentum instead of discarding it [0.14ms]
+(fail) the inertial coast (001 §4.4, Release row) > the coast fires detents, decays, and comes to rest below 60 deg/s [0.05ms]
+(fail) the inertial coast (001 §4.4, Release row) > a coast travels in the direction the gesture was going [0.06ms]
+(fail) the inertial coast (001 §4.4, Release row) > EVERY coasted detent still clicks — 001 §4.4 says so explicitly [0.05ms]
+(fail) the inertial coast (001 §4.4, Release row) > an agent’s coast is silent, like everything else an agent does [0.05ms]
+ 131 pass
+ 5 fail
+
+── MINOR 2 — copy the silence predicate back into the press handler
+(fail) the silence rule has one definition, not two copies > the predicate is a shared function rather than a repeated expression [7.72ms]
+ 135 pass
+ 1 fail
+
+── MINOR 3 — drop the re-arm, so an early timer strands the announcement
+(fail) MINOR 3 — a timer that fires early must not strand the announcement > a flush that says nothing re-arms instead of going quiet forever [1.19ms]
+ 135 pass
+ 1 fail
+
+── MINOR 4 — treat an empty stack as the root again
+(fail) Menu on a device with no screens > does not bump — an empty stack has no top to announce [0.15ms]
+ 135 pass
+ 1 fail
+
+── MINOR 6 — ignore the visibility predicate, as menuRows used to
+(fail) menu rows the provider cannot serve are absent, not greyed > a visibility predicate drops rows and re-indexes what is left [0.14ms]
+ 135 pass
+ 1 fail
+
+── D-051 — allow a second device to be built outside a test
+(fail) D-051 — exactly one device per document > a second device outside a test throws, rather than quietly working [0.20ms]
+ 135 pass
+ 1 fail
+
+── Restored; the suite is green again
+ 136 pass
+ 0 fail
