@@ -2,6 +2,8 @@ import { describe, expect, test } from 'bun:test'
 
 import {
   ARTWORK_CACHE_CONTROL,
+  ARTWORK_FETCH_TIMEOUT_MS,
+  ARTWORK_MAX_CONCURRENT,
   ARTWORK_MAX_BYTES,
   handleArtworkRequest,
 } from './artwork-proxy.ts'
@@ -9,6 +11,37 @@ import {
 function artworkRequest(src: string, px = 300, extra = ''): Request {
   const params = new URLSearchParams({ src, px: String(px) })
   return new Request(`http://webpod.test/artwork?${params.toString()}${extra}`)
+}
+
+function setU32be(bytes: Uint8Array, offset: number, value: number): void {
+  bytes[offset] = (value >>> 24) & 0xff
+  bytes[offset + 1] = (value >>> 16) & 0xff
+  bytes[offset + 2] = (value >>> 8) & 0xff
+  bytes[offset + 3] = value & 0xff
+}
+
+function crc32(bytes: Uint8Array, start: number, end: number): number {
+  let crc = 0xffffffff
+  for (let index = start; index < end; index += 1) {
+    crc ^= bytes[index] ?? 0
+    for (let bit = 0; bit < 8; bit += 1) crc = (crc >>> 1) ^ (0xedb88320 & -(crc & 1))
+  }
+  return (crc ^ 0xffffffff) >>> 0
+}
+
+function png(width = 300, height = width, padding = 0): Uint8Array<ArrayBuffer> {
+  const bytes = new Uint8Array(45 + padding)
+  bytes.set([137, 80, 78, 71, 13, 10, 26, 10], 0)
+  setU32be(bytes, 8, 13)
+  bytes.set([73, 72, 68, 82], 12)
+  setU32be(bytes, 16, width)
+  setU32be(bytes, 20, height)
+  bytes.set([8, 2, 0, 0, 0], 24)
+  setU32be(bytes, 29, crc32(bytes, 12, 29))
+  setU32be(bytes, 33, 0)
+  bytes.set([73, 69, 78, 68], 37)
+  setU32be(bytes, 41, crc32(bytes, 37, 41))
+  return bytes
 }
 
 function fetchStub(run: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>): typeof globalThis.fetch {
@@ -61,18 +94,18 @@ describe('/artwork remote provider sources', () => {
       fetch: fetchStub((_input, init) => {
         redirect = init?.redirect
         return Promise.resolve(
-          new Response(Uint8Array.of(1, 2, 3), {
+          new Response(png().buffer, {
             status: 200,
-            headers: { 'content-type': 'image/jpeg', 'content-length': '3' },
+            headers: { 'content-type': 'image/png', 'content-length': '45' },
           }),
         )
       }),
     })
 
     expect(response.status).toBe(200)
-    expect(response.headers.get('content-type')).toBe('image/jpeg')
-    expect(response.headers.get('content-length')).toBe('3')
-    expect(await response.arrayBuffer()).toEqual(Uint8Array.of(1, 2, 3).buffer)
+    expect(response.headers.get('content-type')).toBe('image/png')
+    expect(response.headers.get('content-length')).toBe('45')
+    expect(await response.arrayBuffer()).toEqual(png().buffer)
     expect(redirect).toBe('manual')
   })
 
@@ -144,6 +177,33 @@ describe('/artwork response bounds', () => {
     expect(await response.text()).not.toContain(source)
   })
 
+  test('rejects a lying image header carrying script bytes', async () => {
+    const response = await handleArtworkRequest(artworkRequest(source), {
+      fetch: fetchStub(() => Promise.resolve(new Response('<script>alert(1)</script>', { headers: { 'content-type': 'image/jpeg' } }))),
+    })
+    expect(response.status).toBe(502)
+    expect(await errorCode(response)).toBe('upstream_content_invalid')
+    expect(response.headers.get('cache-control')).toBe('no-store')
+  })
+
+  test('rejects truncated and trailing-byte polyglot images', async () => {
+    for (const body of [png().subarray(0, 40), png(300, 300, 8)]) {
+      const response = await handleArtworkRequest(artworkRequest(source), {
+        fetch: fetchStub(() => Promise.resolve(new Response(body.slice().buffer, { headers: { 'content-type': 'image/png' } }))),
+      })
+      expect(response.status).toBe(502)
+      expect(await errorCode(response)).toBe('upstream_content_invalid')
+    }
+  })
+
+  test('rejects image dimensions that disagree with px', async () => {
+    const response = await handleArtworkRequest(artworkRequest(source, 300), {
+      fetch: fetchStub(() => Promise.resolve(new Response(png(640).buffer, { headers: { 'content-type': 'image/png' } }))),
+    })
+    expect(response.status).toBe(502)
+    expect(await errorCode(response)).toBe('upstream_content_invalid')
+  })
+
   test('rejects a declared body larger than the byte ceiling', async () => {
     let cancelled = false
     const body = new ReadableStream<Uint8Array>({
@@ -172,15 +232,15 @@ describe('/artwork response bounds', () => {
     let cancelled = false
     const body = new ReadableStream<Uint8Array>({
       start(controller) {
-        controller.enqueue(Uint8Array.of(1, 2, 3))
-        controller.enqueue(Uint8Array.of(4, 5, 6))
+        controller.enqueue(png())
+        controller.enqueue(png())
       },
       cancel() {
         cancelled = true
       },
     })
     const response = await handleArtworkRequest(artworkRequest(source), {
-      maxBytes: 5,
+      maxBytes: 50,
       fetch: fetchStub(() =>
         Promise.resolve(new Response(body, { headers: { 'content-type': 'image/webp' } })),
       ),
@@ -212,6 +272,78 @@ describe('/artwork response bounds', () => {
     expect(await errorCode(response)).toBe('upstream_timeout')
     expect(observedAbort).toBe(true)
     expect(performance.now() - started).toBeLessThan(500)
+
+    const afterTimeout = await handleArtworkRequest(artworkRequest(`${source}-after-timeout`), {
+      maxConcurrent: 1,
+      fetch: fetchStub(() => Promise.resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } }))),
+    })
+    expect(afterTimeout.status).toBe(200)
+  })
+
+  test.each([
+    ['maxBytes', Infinity], ['maxBytes', NaN], ['maxBytes', 0], ['maxBytes', ARTWORK_MAX_BYTES + 1],
+    ['timeoutMs', Infinity], ['timeoutMs', NaN], ['timeoutMs', 0], ['timeoutMs', ARTWORK_FETCH_TIMEOUT_MS + 1],
+    ['maxConcurrent', Infinity], ['maxConcurrent', NaN], ['maxConcurrent', 0], ['maxConcurrent', ARTWORK_MAX_CONCURRENT + 1],
+  ] as const)('rejects unsafe %s configuration %s before fetch', async (key, value) => {
+    let calls = 0
+    const response = await handleArtworkRequest(artworkRequest(source), {
+      [key]: value,
+      fetch: fetchStub(() => { calls += 1; return Promise.resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } })) }),
+    })
+    expect(response.status).toBe(400)
+    expect(calls).toBe(0)
+  })
+})
+
+describe('/artwork admission', () => {
+  test('rejects cross-site browser image requests before fetch', async () => {
+    let calls = 0
+    const request = artworkRequest('https://i.scdn.co/image/cross-site')
+    const guarded = new Request(request, { headers: { 'sec-fetch-site': 'cross-site', 'sec-fetch-mode': 'no-cors', 'sec-fetch-dest': 'image' } })
+    const response = await handleArtworkRequest(guarded, { fetch: fetchStub(() => { calls += 1; return Promise.reject(new Error('must not fetch')) }) })
+    expect(response.status).toBe(403)
+    expect(await errorCode(response)).toBe('request_not_same_origin')
+    expect(calls).toBe(0)
+  })
+
+  test('admits at most eight of 128 unique requests and releases every slot', async () => {
+    const releases: Array<() => void> = []
+    let started = 0
+    const fetch = fetchStub(() => new Promise<Response>((resolve) => {
+      started += 1
+      releases.push(() => resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } })))
+    }))
+    const pending = Array.from({ length: 128 }, (_, index) =>
+      handleArtworkRequest(artworkRequest(`https://i.scdn.co/image/saturation-${String(index)}`), { fetch }),
+    )
+    await Bun.sleep(0)
+    expect(started).toBe(ARTWORK_MAX_CONCURRENT)
+    for (const release of releases) release()
+    const responses = await Promise.all(pending)
+    expect(responses.filter((response) => response.status === 200)).toHaveLength(ARTWORK_MAX_CONCURRENT)
+    expect(responses.filter((response) => response.status === 503)).toHaveLength(128 - ARTWORK_MAX_CONCURRENT)
+    const after = await handleArtworkRequest(artworkRequest('https://i.scdn.co/image/after-release'), {
+      fetch: fetchStub(() => Promise.resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } }))),
+    })
+    expect(after.status).toBe(200)
+  })
+
+  test('coalesces identical in-flight work and releases admission after errors', async () => {
+    let calls = 0
+    let release: (() => void) | undefined
+    const fetch = fetchStub(() => new Promise<Response>((resolve) => {
+      calls += 1
+      release = () => resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } }))
+    }))
+    const requests = Array.from({ length: 32 }, () => handleArtworkRequest(artworkRequest('https://i.scdn.co/image/shared'), { fetch }))
+    await Bun.sleep(0)
+    expect(calls).toBe(1)
+    release?.()
+    expect((await Promise.all(requests)).every((response) => response.status === 200)).toBe(true)
+    const failed = await handleArtworkRequest(artworkRequest('https://i.scdn.co/image/fail'), { fetch: fetchStub(() => Promise.reject(new Error('fail'))) })
+    expect(failed.status).toBe(502)
+    const recovered = await handleArtworkRequest(artworkRequest('https://i.scdn.co/image/recover'), { fetch: fetchStub(() => Promise.resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } }))) })
+    expect(recovered.status).toBe(200)
   })
 })
 
