@@ -87,6 +87,31 @@ types are rejected. Successful images receive one-day caching, stale reuse,
 same-origin CORP, `nosniff`, and a sandboxed no-source CSP. Errors are structured
 JSON, `no-store`, and never reflect the upstream URL.
 
+## Security review correction
+
+The first review found that those per-request bounds did not bound the process:
+128 distinct browser-triggered requests started 128 outbound fetches. CORP had
+been mistaken for request admission even though it only prevents response
+reading. The corrected route rejects any browser request whose Fetch Metadata is
+present and not `same-origin`, before parsing or transport access. Server clients
+without Fetch Metadata remain usable. Remote work is additionally capped at
+eight process-wide fetches, duplicate in-flight source/size/config work is
+coalesced, saturation returns a structured 503, and the slot/map entry is always
+released in `finally` after success, failure, abort, or timeout.
+
+The review also demonstrated that `Content-Type: image/jpeg` could bless script
+bytes. Remote bodies are now sniffed independently of the header and parsed as a
+bounded PNG, JPEG, WebP, or AVIF structure. The sniffed format must equal the
+declared MIME, the structure must terminate without trailing polyglot bytes, and
+its dimensions must equal `px`. Only then is it returned with public caching.
+
+The public numeric options had also been an accidental bypass surface. Every
+value must now be a positive safe integer and may only tighten the hard 8 MiB,
+five-second, and eight-fetch ceilings. `Infinity`, `NaN`, zero, negatives, and
+values above a ceiling fail before fetch. All three exported handler functions
+now document host, redirect, admission, buffering, cancellation, errors, and
+configuration invariants at their public boundary.
+
 ## U8 copy correction
 
 The first implementation used “artwork source is not allowed” on three

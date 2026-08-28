@@ -1,0 +1,36 @@
+Server artwork security review response — 2026-08-29 Europe/Stockholm
+
+CRITICAL — outbound resource amplification
+- Fetch Metadata cross-site image request: 403 before fetch.
+- Process hard ceiling: 8 distinct remote operations.
+- 128 unique simultaneous requests: 8 upstream starts, 8 HTTP 200, 120 HTTP
+  503; a subsequent request succeeds after release.
+- 32 identical simultaneous requests: 1 upstream start, 32 HTTP 200.
+- Success, transport failure, timeout, and client cancellation share finally-
+  based admission cleanup.
+
+MAJOR — untrusted MIME
+- Content-Type image/jpeg plus script bytes: 502 upstream_content_invalid.
+- Truncated PNG and PNG with bytes after IEND: 502.
+- PNG dimensions 640x640 for px=300: 502.
+- PNG signature, chunk boundaries, CRCs, terminal IEND, and dimensions are
+  checked; JPEG/WebP/AVIF signatures and bounded dimensions are parsed too.
+- Sniffed format must equal the allowlisted Content-Type before public caching.
+
+MAJOR — option bypass
+- Infinity, NaN, zero, and values above each hard ceiling are rejected before
+  fetch for maxBytes, timeoutMs, and maxConcurrent.
+- Options can only tighten 8 MiB, 5 seconds, and 8 operations.
+
+MAJOR — documentation
+- parseArtworkRequest, artworkProxyEffect, and handleArtworkRequest each carry
+  TSDoc for invariants, buffering, cancellation/lifecycle, errors, and config.
+- ArtworkProxyOptions documents the tighten-only configuration contract.
+
+Regression protections preserved
+- closed Apple/Spotify host/path set and fixture path grammar
+- HTTPS, clean authority, no credentials/fragments/custom ports
+- manual redirect refusal
+- declared and streamed byte limits with cancellation
+- active-body timeout and client abort cleanup
+- structured no-store errors without URL reflection

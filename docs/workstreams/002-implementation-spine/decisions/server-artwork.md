@@ -54,3 +54,28 @@ The artwork service reads no environment variables, tokens, cookies, request
 authorization headers, or key paths. The route imports only the server-core
 handler. This is intentionally separate from future MusicKit token minting even
 though both live under `packages/server-core`.
+
+## SA-8 — reject cross-site triggers and cap process-wide remote work
+
+CORP is response isolation, not admission. Browser requests carrying Fetch
+Metadata are accepted only for `same-origin`; other values fail before fetch.
+Independently, at most eight distinct remote artwork operations may run in the
+process. Identical in-flight operations share one bounded payload promise and a
+full budget produces an immediate structured 503. Admission is released in a
+`finally` block so timeout, client abort, validation failure, and transport
+failure cannot leak capacity.
+
+## SA-9 — bytes, MIME, and dimensions must agree
+
+An allowlisted provider is still an untrusted byte source. MIME membership is
+necessary but insufficient: the buffered bytes are structurally parsed as the
+declared supported format, terminal structure forbids trailing polyglot bytes,
+and encoded width/height must equal the provider-owned `px` contract. Invalid
+bytes are no-store structured failures and never enter the public cache.
+
+## SA-10 — configuration may tighten but never weaken ceilings
+
+The exported test/deployment options are checked before transport admission.
+Byte, timeout, and concurrency values must be positive safe integers no greater
+than their exported hard ceilings. This keeps injection useful for deterministic
+tests without making `Infinity` or an oversized limit a security bypass.

@@ -33,3 +33,21 @@ x-content-type-options: nosniff
 The control was rejected during source parsing; the deterministic unit test
 asserts the transport call count remains zero for this and every other SSRF
 shape.
+
+Cross-site control headers:
+Sec-Fetch-Site: cross-site
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Dest: image
+
+Response:
+HTTP/1.1 403 Forbidden
+cache-control: no-store
+content-type: application/json;charset=utf-8
+cross-origin-resource-policy: same-origin
+x-content-type-options: nosniff
+
+{"error":{"code":"request_not_same_origin","message":"artwork request origin is invalid"}}
+
+The exact browser-triggered request from review is rejected before transport
+admission. The 128-way deterministic test independently proves no more than
+eight distinct remote operations start and that all slots are released.

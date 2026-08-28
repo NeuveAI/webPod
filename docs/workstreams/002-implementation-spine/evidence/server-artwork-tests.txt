@@ -4,9 +4,9 @@ COMMAND
 bun test packages/server-core
 
 RESULT
-36 pass
+55 pass
 0 fail
-119 expect() calls
+166 expect() calls
 
 Coverage includes:
 - deterministic fixture artwork with zero outbound fetches
@@ -19,6 +19,11 @@ Coverage includes:
 - stalled upstream abort and 504 classification
 - missing, duplicate, malformed, and unexpected query values
 - GET-only service contract
+- reject-before-fetch cross-site Fetch Metadata policy
+- deterministic 128-way saturation: 8 admitted, 120 refused, then released
+- duplicate in-flight coalescing and release after failure/timeout
+- lying MIME headers, truncated/trailing polyglots, and dimension mismatch
+- unsafe finite/non-finite byte, timeout, and concurrency configuration
 
 COMMAND
 bunx tsc --noEmit -p packages/server-core/tsconfig.json
@@ -36,8 +41,8 @@ COMMAND
 bun run --cwd apps/web build
 
 RESULT
-client build: 206 modules transformed, exit 0
-server build: 369 modules transformed, exit 0
+client build: 207 modules transformed, exit 0
+server build: 370 modules transformed, exit 0
 
 CLIENT BUNDLE CHECK
 No source_not_allowed, ArtworkTransport, artwork-server error copy, or Effect
