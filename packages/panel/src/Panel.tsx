@@ -420,7 +420,7 @@ function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: 
         <div className="wp-times"><span>{formatTime(progressTick.positionMs)}</span><span>-{formatTime(Math.max(0, progressTick.durationMs - progressTick.positionMs))}</span></div>
         <div className="wp-actions" aria-label="Playback status">
           <span aria-label="Shuffle on">⌘</span><span aria-label="Repeat off">↻</span>
-          <button type="button" aria-label="Love track" onClick={() => { void fixtureProvider.ratingSet(track, { love: 'love' }) }}>♥</button>
+          <button type="button" aria-label="Love track" onClick={() => { void fixtureProvider.ratingSet(track, { love: 'love' }) }}><span aria-hidden="true">♥</span></button>
           <span aria-label="Rate">★</span><span aria-label="Queue">≡</span>
         </div>
         {state === 'offline' ? <span className="wp-state-note">Offline. Playback unavailable; cached metadata shown.</span> : null}

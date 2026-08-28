@@ -295,10 +295,24 @@ test('axe and preference emulation pass in both colourways', async ({ page }) =>
         minBlockSize: Number.parseFloat(style.minBlockSize),
       }
     })
+    const hitCoverage = await action.evaluate((element) => {
+      const rect = element.getBoundingClientRect()
+      const points = [
+        [rect.left + 1, rect.top + 1],
+        [rect.right - 1, rect.top + 1],
+        [rect.left + 1, rect.bottom - 1],
+        [rect.right - 1, rect.bottom - 1],
+      ] as const
+      return points.map(([x, y]) => {
+        const hit = document.elementFromPoint(x, y)
+        return hit === element || element.contains(hit)
+      })
+    })
     expect(nativeTarget.offsetWidth).toBeGreaterThanOrEqual(44)
     expect(nativeTarget.offsetHeight).toBeGreaterThanOrEqual(44)
     expect(nativeTarget.minInlineSize).toBeGreaterThanOrEqual(44)
     expect(nativeTarget.minBlockSize).toBeGreaterThanOrEqual(44)
+    expect(hitCoverage).toEqual([true, true, true, true])
     const results = await new AxeBuilder({ page }).include(selector).analyze()
     const targetSize = await new AxeBuilder({ page }).include(selector).withRules(['target-size']).analyze()
     expect(results.violations).toEqual([])
@@ -306,7 +320,7 @@ test('axe and preference emulation pass in both colourways', async ({ page }) =>
     const targetPass = targetSize.passes.find((entry) => entry.id === 'target-size')
     expect(targetPass).toBeDefined()
     expect(targetPass?.nodes.length).toBeGreaterThan(0)
-    reports.push({ colourway, violations: results.violations, targetSizeViolations: targetSize.violations, passes: results.passes.map((entry) => entry.id), targetSizePasses: targetSize.passes.map((entry) => entry.id), targetSizeEvaluatedNodes: targetPass?.nodes.length ?? 0, nativeTarget, previewTarget: box })
+    reports.push({ colourway, violations: results.violations, targetSizeViolations: targetSize.violations, passes: results.passes.map((entry) => entry.id), targetSizePasses: targetSize.passes.map((entry) => entry.id), targetSizeEvaluatedNodes: targetPass?.nodes.length ?? 0, nativeTarget, hitCoverage, previewTarget: box })
   }
   await writeFile(resolve(evidence, `${prefix}-axe.json`), JSON.stringify(reports, null, 2))
 })

@@ -114,9 +114,10 @@
   .wp-progress i { display: block; block-size: 100%; background: var(--wp-danger); transition: inline-size 120ms linear; }
   .wp-times { grid-column: 1 / -1; display: flex; justify-content: space-between; color: var(--wp-text-2); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; font-weight: 500; }
   .wp-actions { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; color: var(--wp-text-2); font-size: 14px; }
-  .wp-actions button { display: grid; flex: 0 0 44px; place-items: center; min-inline-size: 44px; min-block-size: 44px; margin-inline: -10px; padding: 0; border: 0; color: var(--wp-danger); background: transparent; font: inherit; cursor: pointer; }
+  .wp-actions button { position: relative; inset-block-start: -2px; display: grid; flex: 0 0 44px; place-items: center; min-inline-size: 44px; min-block-size: 44px; margin-inline: -10px; padding: 0; border: 0; color: var(--wp-danger); background: transparent; font: inherit; cursor: pointer; }
+  .wp-actions button > span { position: relative; inset-block-start: 2px; }
   .wp-actions button:focus-visible { outline: 2px solid var(--wp-accent); outline-offset: -2px; }
-  .wp-actions span:first-child { color: var(--wp-accent); }
+  .wp-actions > span:first-child { color: var(--wp-accent); }
   .wp-state-note { position: absolute; inset-inline: 8px; inset-block-end: 2px; color: var(--wp-text-3); font-size: 11px; font-weight: 500; text-align: center; }
   .wp-agent-note { color: #22c55e; }
   .wp-panel[data-state="agent-active"] { box-shadow: inset 0 0 0 1px #22c55e; }
