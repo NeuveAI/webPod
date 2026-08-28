@@ -1,21 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Panel, type PanelState } from '../../../../packages/panel/src'
-
-const STATES: readonly PanelState[] = [
-  'ready',
-  'loading',
-  'empty',
-  'error',
-  'offline',
-  'permission-denied',
-  'agent-active',
-  'success-confirmation',
-]
+import { Panel, isPanelState } from '@webpod/panel'
 
 export const Route = createFileRoute('/')({
   validateSearch: (search: Record<string, unknown>) => ({
-    state: STATES.includes(search['state'] as PanelState) ? search['state'] as PanelState : 'ready',
-    scale: search['scale'] === '2' ? 2 : 1,
+    state: isPanelState(search['state']) ? search['state'] : 'ready',
+    scale: search['scale'] === 2 || search['scale'] === '2' ? 2 : search['scale'] === 1.3 || search['scale'] === '1.3' ? 1.3 : 1,
   }),
   component: Home,
 })

@@ -10,18 +10,23 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@react-three/fiber": "9.7.0",
     "@tanstack/react-router": "^1.170.32",
     "@tanstack/react-start": "^1.168.49",
     "@webpod/composite": "workspace:*",
+    "@webpod/device": "workspace:*",
+    "@webpod/panel": "workspace:*",
     "@webpod/tokens": "workspace:*",
     "@webpod/ui": "workspace:*",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "three": "0.185.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@types/three": "^0.185.0",
     "@vitejs/plugin-react": "^6.1.1",
     "tailwindcss": "^4.3.3",
     "vite": "^8.2.2"
