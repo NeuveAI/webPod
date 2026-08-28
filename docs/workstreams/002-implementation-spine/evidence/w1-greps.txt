@@ -1,0 +1,144 @@
+# W1 · greps
+
+Run 2026-08-28 at b17ca75. Every command is shown with its exit code.
+A grep that matches nothing exits 1; for the prohibition greps that is the pass condition.
+
+## §14.4 — a capability check is supports(), never a provider `if`
+
+The packet writes this gate against `src/`, which is not a directory at the repo root. The
+equivalent over the whole tree, excluding the provider modules where the id is legitimate:
+```
+$ grep -rn 'provider.id ===' apps packages --exclude-dir=providers --exclude-dir=node_modules
+exit=1
+
+# a narrow literal grep is easy to walk around, so also the wider forms:
+$ grep -rEn "\.id\s*[!=]==?\s*['\"](apple|spotify|fixture)" apps packages --exclude-dir=node_modules
+packages/providers/src/provider.ts:20: *    `provider.id === "spotify"` outside a provider module, or the third
+exit=0
+
+$ grep -rEn "(===|!==|case)\s*['\"](apple|spotify)['\"]" apps packages --exclude-dir=node_modules
+packages/providers/src/provider.ts:20: *    `provider.id === "spotify"` outside a provider module, or the third
+exit=0
+```
+Only comments quoting the rule itself, all inside `packages/providers`. No branch anywhere.
+
+## No network call from anything W1 wrote
+```
+$ grep -rniE 'fetch\(|XMLHttpRequest|WebSocket|EventSource|sendBeacon|new Image|<script' packages/providers/src
+exit=1
+
+$ grep -rn 'https\?://' packages/providers/src
+packages/providers/src/artwork.test.ts:10:  template: 'https://is1-ssl.mzstatic.com/image/thumb/Music/abc/{w}x{h}bb.jpg',
+packages/providers/src/artwork.test.ts:17:    { url: 'https://i.scdn.co/image/640', w: 640, h: 640 },
+packages/providers/src/artwork.test.ts:18:    { url: 'https://i.scdn.co/image/300', w: 300, h: 300 },
+packages/providers/src/artwork.test.ts:19:    { url: 'https://i.scdn.co/image/64', w: 64, h: 64 },
+packages/providers/src/artwork.test.ts:66:      sizes: [{ url: 'https://is1-ssl.mzstatic.com/image/thumb/Music/abc/3000x3000bb.jpg', w: 3000, h: 3000 }],
+packages/providers/src/artwork.test.ts:91:    expect(params.get('src')).toBe('https://i.scdn.co/image/640')
+exit=0
+```
+Every `https://` is a literal in the artwork test fixture or a doc comment. Nothing fetches one:
+`stub.test.ts` replaces `globalThis.fetch` with a throwing stand-in and asserts a call count of 0.
+
+## No credential is read, printed or referenced
+```
+$ grep -rniE 'cert/|\.p8|\.pem|private_?key|AuthKey|BEGIN [A-Z ]*KEY|process\.env|Bun\.env|import\.meta\.env' packages/providers docs/workstreams/002-implementation-spine/evidence/w1-*
+exit=1
+```
+Nothing under `cert/` was opened, listed or referenced at any point in this slice.
+
+## Type escapes
+```
+$ grep -rnE ':\s*any\b|<any>|\bas any\b|\bany\[\]|Array<any>' packages/providers/src
+exit=1
+
+# the first form of this grep wrote `as any` with no word boundary and matched the word
+# "anyone" in a doc comment. Kept on the record rather than quietly swapped: a prohibition
+# grep that fires on prose is a grep whose next false positive gets waved through.
+$ grep -rnE ': *any|<any>|as any|any\[\]' packages/providers/src
+packages/providers/src/apple/matrix.ts:22: * What Apple Music can do, as far as anyone here has been able to establish.
+exit=0
+
+$ grep -rn '@ts-expect-error' packages/providers/src
+packages/providers/src/identity.test.ts:93:    // @ts-expect-error a plain string must not satisfy LocalKey — §14.5
+packages/providers/src/identity.test.ts:99:    // @ts-expect-error catalogId is a provider id and must not be a key — §14.5
+packages/providers/src/identity.test.ts:105:    // @ts-expect-error libraryId is a provider id and must not be a key — §14.5
+exit=0
+
+$ grep -rn '@ts-ignore\|@ts-nocheck\|eslint-disable' packages/providers/src
+exit=1
+
+$ grep -rnE '[A-Za-z0-9_)\]]!\.' packages/providers/src
+exit=1
+```
+Three `@ts-expect-error`, all in `identity.test.ts`, all load-bearing: they are the compile-time
+proof that a bare string, a `catalogId` and a `libraryId` cannot occupy a `LocalKey` slot. If the
+brand ever stops rejecting one, `tsc` fails on the now-unnecessary directive. The invariant is
+recorded in `decisions/w1.md` §3, as the type-gate rules require.
+No `any`, no `@ts-ignore`, no lint suppression, no non-null assertion anywhere in the package.
+
+## Naming hygiene
+```
+$ grep -rniE '002|implementation-spine|workstream' packages/providers
+exit=1
+```
+Clean. It was **not** clean on the first pass and the fix is its own commit: an implementation
+comment used the banned word, and the fixture ISRC designation codes happened to contain the
+literal `002` inside otherwise-plausible identifiers. Both were found by running the grep rather
+than by reading the rule.
+
+## Cut concepts stay cut
+```
+$ grep -rn 'ratingStars' packages/providers/src
+packages/providers/src/capability.test.ts:35:  test('does not contain ratingStars (D-026)', () => {
+packages/providers/src/capability.test.ts:39:    expect(CAPABILITIES).not.toContain('ratingStars' as Capability)
+packages/providers/src/capability.ts:8: * - **`ratingStars` is dropped (D-026).** Stars are a local-only device rating,
+packages/providers/src/capability.ts:79: * A plain `Record` rather than `Record<Exclude<Capability, "ratingStars">, …>`:
+packages/providers/src/capability-matrix.test.ts:88:    // §14.2's union had `ratingStars` as its 22nd of 26 members, §14.2's
+packages/providers/src/capability-matrix.test.ts:92:    expect(CAPABILITIES).not.toContain('ratingStars' as Capability)
+exit=0
+
+$ grep -rniE "'offline'|\"offline\"|⤓|Play downloads|downloaded" packages/providers/src
+packages/providers/src/capability.test.ts:46:    expect(CAPABILITIES).not.toContain('offline' as Capability)
+packages/providers/src/capability-matrix.test.ts:97:    expect(CAPABILITIES).not.toContain('offline' as Capability)
+packages/providers/src/domain.ts:59: * ⚑ There is no `downloaded` slice. D-019 cut offline repo-wide: no browser
+packages/providers/src/domain.ts:60: * client on either provider can hold audio, so a "downloaded only" filter would
+exit=0
+```
+The only survivors are the two tests asserting the members are absent from the union, and the
+comments recording D-019 and D-026. Neither string is reachable as a `Capability`.
+
+## Each commit typechecks and tests green on its own
+
+Verified without touching the shared working tree — four lanes are live in it — by exporting
+each commit with `git archive` into a scratch directory and running the gate there.
+
+```
+$ git archive 5f2a3bc | tar -x -C <scratch> && bunx tsc --noEmit -p packages/providers/tsconfig.json && bun test packages/providers
+  5f2a3bc  feat(providers): music provider contract
+  tsc: clean
+   59 pass
+   0 fail
+  Ran 59 tests across 4 files. [26.00ms]
+
+$ git archive 5870447 | tar -x -C <scratch> && bunx tsc --noEmit -p packages/providers/tsconfig.json && bun test packages/providers
+  5870447  feat(providers): fixture provider
+  tsc: clean
+   99 pass
+   0 fail
+  Ran 99 tests across 5 files. [59.00ms]
+
+$ git archive 5984dbc | tar -x -C <scratch> && bunx tsc --noEmit -p packages/providers/tsconfig.json && bun test packages/providers
+  5984dbc  feat(providers): apple and spotify capability stubs
+  tsc: clean
+   229 pass
+   0 fail
+  Ran 229 tests across 8 files. [61.00ms]
+
+$ git archive b17ca75 | tar -x -C <scratch> && bunx tsc --noEmit -p packages/providers/tsconfig.json && bun test packages/providers
+  b17ca75  chore(providers): naming hygiene in fixture identifiers and comments
+  tsc: clean
+   230 pass
+   0 fail
+  Ran 230 tests across 8 files. [63.00ms]
+
+```

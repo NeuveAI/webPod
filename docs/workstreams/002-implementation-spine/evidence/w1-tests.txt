@@ -1,0 +1,238 @@
+# W1 · every test that ran
+
+`bun test packages/providers` condenses to a summary when stdout is not a TTY, so the
+full roster is extracted from the JUnit reporter for the same run at b17ca75.
+230 tests, 8 files, 0 failures.
+
+```
+packages/providers/src/capability.test.ts > the Capability union  ›  is §14.2 verbatim, in §14.2 order
+packages/providers/src/capability.test.ts > the Capability union  ›  has 25 members — §14.2 has 26 and one was dropped by ruling
+packages/providers/src/capability.test.ts > the Capability union  ›  lists every member exactly once
+packages/providers/src/capability.test.ts > the Capability union  ›  does not contain ratingStars (D-026)
+packages/providers/src/capability.test.ts > the Capability union  ›  does not contain offline (D-019)
+packages/providers/src/capability.test.ts > capability feature names  ›  every capability has one
+packages/providers/src/capability.test.ts > capability feature names  ›  they carry no exclamation mark — §11.0 rule 2 admits none in the product
+packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  S13 asks Spotify for 1400 and is told it got 640
+packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  actualPx never exceeds the native source, at any request size
+packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  picks the smallest size that still covers the request
+packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  never drops below the request while a larger size exists
+packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  Apple substitutes the exact size asked for
+packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  a template that records its native size is clamped to it too
+packages/providers/src/artwork.test.ts > artworkUrl — the URL is same-origin (D-014)  ›  apple artwork is routed through the proxy path
+packages/providers/src/artwork.test.ts > artworkUrl — the URL is same-origin (D-014)  ›  spotify artwork is routed through the proxy path
+packages/providers/src/artwork.test.ts > artworkUrl — the URL is same-origin (D-014)  ›  the upstream url survives round-tripping through the proxy params
+packages/providers/src/artwork.test.ts > artworkUrl — malformed input is a defect, not a data condition  ›  rejects a template artwork with no template
+packages/providers/src/artwork.test.ts > artworkUrl — malformed input is a defect, not a data condition  ›  rejects a fixed artwork with no sizes
+packages/providers/src/artwork.test.ts > artworkUrl — malformed input is a defect, not a data condition  ›  rejects a fixed artwork with an empty size list
+packages/providers/src/artwork.test.ts > artworkUrl — malformed input is a defect, not a data condition  ›  rejects a size of 0
+packages/providers/src/artwork.test.ts > artworkUrl — malformed input is a defect, not a data condition  ›  rejects a size of -1
+packages/providers/src/artwork.test.ts > artworkUrl — malformed input is a defect, not a data condition  ›  rejects a size of NaN
+packages/providers/src/artwork.test.ts > artworkUrl — malformed input is a defect, not a data condition  ›  rejects a size of Infinity
+packages/providers/src/identity.test.ts > LocalKey minting  ›  mints a canonical UUIDv7
+packages/providers/src/identity.test.ts > LocalKey minting  ›  never repeats, even in a tight burst
+packages/providers/src/identity.test.ts > LocalKey minting  ›  sorts by mint order, which is the property v4 does not have
+packages/providers/src/identity.test.ts > LocalKey minting  ›  carries the timestamp it was minted at
+packages/providers/src/identity.test.ts > LocalKey narrowing at the edges  ›  accepts a key it minted
+packages/providers/src/identity.test.ts > LocalKey narrowing at the edges  ›  rejects an Apple catalog id
+packages/providers/src/identity.test.ts > LocalKey narrowing at the edges  ›  rejects an Apple library id
+packages/providers/src/identity.test.ts > LocalKey narrowing at the edges  ›  rejects a Spotify track id
+packages/providers/src/identity.test.ts > LocalKey narrowing at the edges  ›  rejects a Spotify uri
+packages/providers/src/identity.test.ts > LocalKey narrowing at the edges  ›  rejects a UUIDv4
+packages/providers/src/identity.test.ts > LocalKey narrowing at the edges  ›  rejects an empty string
+packages/providers/src/identity.test.ts > LocalKey narrowing at the edges  ›  the rejection is tagged, not just an Error
+packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  a bare string is not a LocalKey
+packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  a catalogId is not a LocalKey
+packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  a libraryId is not a LocalKey — a third id space, and still not ours
+packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  a minted key is
+packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  a LocalKey is still a string at runtime and to the compiler
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 1 · Authorise / session — parity
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 4 · Catalogue search — parity
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 5 · Library read — parity
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 6 · Library add — parity
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 7 · Library remove — LIKELY·docs on Apple after D-029 downgrade; DELETE /me/tracks on Spotify
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 8 · Playlist create — parity
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 9 · Playlist add tracks — parity — but Apple appends to the end, always
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 10 · Playlist remove tracks — LIKELY·docs, NOT VERIFIED — D-029 falsified the enumeration leg; the staff-statement leg stands
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 11 · Playlist reorder — LIKELY·docs — no positional write at any level
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 12 · Transport — parity
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 13 · Seek — parity
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 14 · Volume — parity — app volume on both, never system volume
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 15 · Queue read — parity
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 16 · Queue append — Spotify emulates the batch — legitimate, the result is equivalent
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 17 · Queue insert-next — playNext() on Apple; no API on Spotify, where the label changes to Add to Queue
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 18 · Queue remove / reorder — LIKELY·docs on Apple; not supported on Spotify. S17 is read-only-with-append on BOTH
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 19 · Stations / radio — Spotify withdrew seeded radio for new apps in Nov 2024; S18 is removed there, not greyed
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 20 · Station seeded from a track — VERIFIED·live on Apple — station id is ra.<songId>; the only row in the matrix that moved
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 21 · Lyrics — Apple: the endpoint EXISTS and returns 400/40012, gated not absent. Spotify: no public API at all
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 23 · Love / Dislike — Spotify has no equivalent. Never map Love to Save
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 24 · Save / add-to-library — parity in capability, different label; on Spotify it is the only affection signal
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 25 · Progress ticks — Spotify is event-driven only; we interpolate and report interpolated: true. Hides no control
+packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 26 · Artwork sizing — Spotify has ~3 fixed sizes; artworkUrl reports actualPx and the sharp region clamps to it
+packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability union deliberately does not model  ›  row 22 · stars are not a provider question (D-023, D-026)
+packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability union deliberately does not model  ›  row 30 · offline is cut, not modelled as a permanent false (D-019)
+packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability union deliberately does not model  ›  row 2 · paid tier has no union member
+packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability union deliberately does not model  ›  row 3 · playback host has no union member
+packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability union deliberately does not model  ›  row 27 · shuffle and repeat has no union member
+packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability union deliberately does not model  ›  row 28 · storefront has no union member
+packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability union deliberately does not model  ›  row 29 · ISRC has no union member
+packages/providers/src/capability-matrix.test.ts > §14.3 coverage — nothing is untested  ›  every capability appears in exactly one row of the table
+packages/providers/src/capability-matrix.test.ts > §14.3 coverage — nothing is untested  ›  the table has all thirty §14.3 rows, numbered 1..30
+packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  apple: null for every supported capability
+packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  apple: a non-empty sentence for every unsupported capability
+packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  apple: the copy obeys §11.0's voice rules
+packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  spotify: null for every supported capability
+packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  spotify: a non-empty sentence for every unsupported capability
+packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  spotify: the copy obeys §11.0's voice rules
+packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  Apple names Apple and Spotify names Spotify — the user is told which service
+packages/providers/src/capability-matrix.test.ts > §14.3 rows 23 and 24 — Love is never Save  ›  Spotify has Save and has no Love
+packages/providers/src/capability-matrix.test.ts > §14.3 rows 23 and 24 — Love is never Save  ›  the two are independent on Apple, which has both
+packages/providers/src/capability-matrix.test.ts > §14.3 rows 23 and 24 — Love is never Save  ›  Spotify's Love reason does not offer Save as an equivalent
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  identifies itself
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  supports() is synchronous, total and never throws
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  is never signed in and is never playing
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  subscriptions register and unsubscribe without throwing
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  configure() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  authorize() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  unauthorize() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  search() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryList() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryAdd() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryRemove() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistCreate() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistAddTracks() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistRemoveTracks() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistReorder() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  play() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  pause() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  skip() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  seek() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  setVolume() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueRead() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueAppend() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueInsertNext() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueRemove() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueReorder() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  stationsList() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  stationStart() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  lyrics() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  ratingSet() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  saveToggle() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  a track-seeded station is refused separately from stations itself
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  onProgress is subscribable even where progressTicks is false
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  identifies itself
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  supports() is synchronous, total and never throws
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  is never signed in and is never playing
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  subscriptions register and unsubscribe without throwing
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  configure() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  authorize() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  unauthorize() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  search() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryList() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryAdd() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryRemove() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistCreate() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistAddTracks() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistRemoveTracks() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistReorder() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  play() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  pause() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  skip() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  seek() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  setVolume() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueRead() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueAppend() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueInsertNext() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueRemove() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueReorder() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  stationsList() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  stationStart() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  lyrics() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  ratingSet() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  saveToggle() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  a track-seeded station is refused separately from stations itself
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  onProgress is subscribable even where progressTicks is false
+packages/providers/src/stub.test.ts > no adapter reaches the network  ›  constructing both providers touches neither fetch nor XHR
+packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "Vienna (feat. Someone Else)" normalises to "vienna"
+packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "Vienna [feat. Someone Else]" normalises to "vienna"
+packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "Vienna - 2019 Remaster" normalises to "vienna 2019 remaster"
+packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "Vienna (2019 Remaster)" normalises to "vienna"
+packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "Vienna (Deluxe Edition)" normalises to "vienna"
+packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "Don't Stop Believin'" normalises to "dont stop believin"
+packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "  Vienna   " normalises to "vienna"
+packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "VIENNA" normalises to "vienna"
+packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  keeps accented letters — stripping them loses a real catalogue
+packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  rung 1: an ISRC match wins, and outranks a better-looking text match
+packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  rung 2: title + artist + duration within tolerance
+packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  rung 3: text alone is a match, and is flagged low
+packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  a duration match further down the list outranks an earlier text-only one
+packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  a different artist is not a match at any rung
+packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  no candidates is a miss, not a throw
+packages/providers/src/reresolve.test.ts > §14.5 identity — what survives a provider switch  ›  the LocalKey survives and every provider field is replaced
+packages/providers/src/reresolve.test.ts > §14.5 identity — what survives a provider switch  ›  a key never leaks between two different tracks
+packages/providers/src/reresolve.test.ts > §14.5 identity — what survives a provider switch  ›  reresolveAll reports the misses by name, as the migration card needs
+packages/providers/src/reresolve.test.ts > §14.5 identity — what survives a provider switch  ›  order is preserved, so a rebuilt queue is in the order it was
+packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  requested-but-absent is a distinct failure from absent-because-empty
+packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  the two conditions carry different tags, so a caller can branch on them
+packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  the error names the relationship and the resource, and says not to read it as "no data"
+packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  a relationships object that lacks the key entirely still throws
+packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  an explicitly undefined key throws rather than reading as empty
+packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  a present key with no data array is honoured-and-empty
+packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  data is returned when it is there
+packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  the function takes no HTTP status — there is no slot to misuse
+packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  an unregistered name is refused
+packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  similar-songs was measured live as not a relationship
+packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  radio was measured live as not a relationship
+packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  videos was measured live as not a relationship
+packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  artists was measured live and is accepted
+packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  station was measured live and is accepted
+packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  credits was measured live and is accepted
+packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  lyrics exists and is gated — the registry says so
+packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  syllable-lyrics exists and is gated — the registry says so
+packages/providers/src/apple/relationships.test.ts > S2's four-state existence oracle  ›  status 200 code null classifies as "exists-with-data"
+packages/providers/src/apple/relationships.test.ts > S2's four-state existence oracle  ›  status 404 code "40403" classifies as "exists-no-data"
+packages/providers/src/apple/relationships.test.ts > S2's four-state existence oracle  ›  status 400 code "40012" classifies as "exists-gated"
+packages/providers/src/apple/relationships.test.ts > S2's four-state existence oracle  ›  status 400 code "40008" classifies as "not-a-relationship"
+packages/providers/src/apple/relationships.test.ts > S2's four-state existence oracle  ›  40012 and 40008 are never collapsed — that distinction is the whole finding
+packages/providers/src/apple/relationships.test.ts > S2's four-state existence oracle  ›  an unrecognised response is inconclusive, never an absence
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture catalogue  ›  is populated enough for every screen to render something honest
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture catalogue  ›  every entity holds a LocalKey and none holds a provider id as one
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture catalogue  ›  keys are unique across the whole catalogue
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture catalogue  ›  two catalogues share titles and share no keys
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture catalogue  ›  every track has a unique, well-formed ISRC
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture catalogue  ›  album track lists are complete and in order
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — the configurable matrix  ›  supports everything by default, because it holds its own data
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — the configurable matrix  ›  a capability can be turned off one at a time
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — the configurable matrix  ›  every capability that is off has a non-empty reason
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — the configurable matrix  ›  a caller can override the reason copy
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  auth throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  search throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  libraryRead throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  libraryAdd throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  libraryRemove throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  playlistCreate throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  playlistAddTracks throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  playlistRemoveTracks throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  playlistReorder throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  transport throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  seek throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  volume throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  queueRead throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  queueAppend throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  queueInsertNext throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  queueRemove throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  queueReorder throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  stations throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  stationSeedFromTrack throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  lyrics throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  ratingLoveDislike throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  saveToggle throws a tagged error when it is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — a missing capability is a tripwire, not an error path  ›  onProgress stays subscribable when progressTicks is off
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  plays an album and advances through it on tick
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  runs no timer of its own — position only moves when ticked
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  Love and Save are different stores and never alias (§14.3 row 23)
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  libraryRemove takes a song out and Love does not put it back
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  pages the library and reports an exact total
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  search normalises the way the re-resolution ladder does
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  an empty catalogue is a supported state, for §11.6
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  unsubscribing is idempotent
+```
