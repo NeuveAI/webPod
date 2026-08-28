@@ -1,7 +1,7 @@
 /**
- * W4 — the rig tuner and the luminance evidence generator.
+ * Device-lighting rig tuner and luminance evidence generator.
  *
- * ⚑ This is a **dev tool for one workstream**, not product code. It drives the
+ * ⚑ This is a development-only calibration tool, not product code. It drives the
  * running `/_spike/device` route over CDP, moves the light rig / room / form
  * parameters, and reports how far the render's vertical luminance column is
  * from §4.2–4.5's stop tables. §12.3 says to *"tune the light rig and env map
