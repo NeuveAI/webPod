@@ -17,3 +17,7 @@ zero matches
 
 git diff --check
 exit 0
+
+bun run gates
+exit 1: `bun run gates: not implemented`
+Dependency ruling: W5a owns this runner. W3 must rerun it after W5a lands and does not claim the universal gate is green.
