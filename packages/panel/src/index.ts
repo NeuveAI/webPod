@@ -1,6 +1,9 @@
 export { Panel, type PanelProps } from './Panel'
 export {
   albumTracksFrame,
+  artworkSampleFixture,
+  deriveArtworkTreatment,
+  excludeActorHue,
   isPanelState,
   PANEL_STATES,
   fixtureProvider,
@@ -10,6 +13,8 @@ export {
   nowPlayingModes,
   sharpArtwork,
   type Colourway,
+  type ArtworkTone,
+  type ArtworkTreatment,
   type NowPlayingMode,
   type PanelState,
 } from './model'

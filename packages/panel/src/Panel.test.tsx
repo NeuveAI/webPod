@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { currentScreenAtom, deviceStore, resetStackActionAtom } from '@webpod/state'
 
 import { Panel } from './Panel'
 
@@ -10,6 +11,13 @@ describe('the bare DOM panel', () => {
     expect(html).toContain('aria-label="webPod music player"')
     expect(html).toContain('aria-label="Music categories"')
     expect(html).not.toContain(`<${'can' + 'vas'}`)
+  })
+
+  test('server rendering is pure and cannot seed document-global navigation', () => {
+    deviceStore.set(resetStackActionAtom, [])
+    expect(deviceStore.get(currentScreenAtom)).toBeNull()
+    renderToStaticMarkup(<Panel />)
+    expect(deviceStore.get(currentScreenAtom)).toBeNull()
   })
 
   test('renders the light polarity as an explicit product variant', () => {

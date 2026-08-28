@@ -3,6 +3,9 @@ import { createFixtureProvider } from '@webpod/providers'
 
 import {
   albumTracksFrame,
+  artworkSampleFixture,
+  deriveArtworkTreatment,
+  excludeActorHue,
   mainMenuFrame,
   nextNowPlayingMode,
   nowPlayingModes,
@@ -39,5 +42,32 @@ describe('panel models', () => {
     if (track === undefined) throw new Error('fixture track missing')
     const art = sharpArtwork(track, 4_000)
     expect(art?.renderedPx).toBeLessThanOrEqual(art?.actualPx ?? 0)
+  })
+
+  test('builds a genuine 120-row fixture for the virtualization boundary', () => {
+    expect(albumTracksFrame(createFixtureProvider(), 120).rows).toHaveLength(120)
+  })
+
+  test('adaptive artwork requires exact 3×3 and 8×8 samples', () => {
+    const pale = artworkSampleFixture('pale')
+    expect(pale.dominant).toHaveLength(9)
+    expect(pale.luminance).toHaveLength(64)
+    expect(() => deriveArtworkTreatment('dark', pale.dominant.slice(1), pale.luminance)).toThrow()
+  })
+
+  test('adaptive artwork rebalances pale and dark covers in both colourways', () => {
+    const pale = artworkSampleFixture('pale')
+    const dark = artworkSampleFixture('dark')
+    const darkPale = deriveArtworkTreatment('dark', pale.dominant, pale.luminance)
+    const lightDark = deriveArtworkTreatment('light', dark.dominant, dark.luminance)
+    expect(darkPale.bloomOpacity).toBeLessThan(0.72)
+    expect(lightDark.bloomOpacity).toBeLessThan(0.62)
+    expect(lightDark.bloomLightness).toEqual([0.84, 0.96])
+  })
+
+  test('ambient bloom cannot occupy either actor hue window', () => {
+    expect(excludeActorHue(232.7)).toBe(252.7)
+    expect(excludeActorHue(151.7)).toBe(171.7)
+    expect(excludeActorHue(20)).toBe(20)
   })
 })

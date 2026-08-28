@@ -4,30 +4,39 @@ import {
   currentScreenAtom,
   detentActionAtom,
   deviceStore,
+  effectiveDensityAtom,
   liveRegionAtom,
   popScreenActionAtom,
   pushScreenActionAtom,
   resetStackActionAtom,
   setDynamicTypeScaleActionAtom,
+  setDensityActionAtom,
+  visibleRowCountAtom,
+  type Density,
   type ScreenFrame,
 } from '@webpod/state'
 import { useEffect, useRef, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 
 import {
   albumTracksFrame,
+  artworkSampleFixture,
   currentTrack,
+  deriveArtworkTreatment,
   fixtureProvider,
   mainMenuFrame,
   nextNowPlayingMode,
   nowPlayingFrame,
   sharpArtwork,
   type Colourway,
+  type ArtworkTone,
   type NowPlayingMode,
   type PanelState,
 } from './model'
 import './panel.css'
 
 const nowPlayingModeAtom = atom<NowPlayingMode>('volume')
+let initializedDocument: Document | null = null
+const libraryCountLabels = new Set(['Playlists', 'Artists', 'Albums', 'Songs', 'Genres'])
 
 /**
  * Renders one 272×204 semantic panel against the document singleton store.
@@ -41,6 +50,10 @@ export interface PanelProps {
   readonly dynamicTypeScale?: number
   readonly className?: string
   readonly actor?: 'human' | 'agent'
+  readonly artworkTone?: ArtworkTone
+  readonly density?: Density | null
+  readonly longList?: boolean
+  readonly offlineDownloaded?: boolean
 }
 
 export function Panel({
@@ -49,16 +62,25 @@ export function Panel({
   dynamicTypeScale = 1,
   className,
   actor = 'human',
+  artworkTone = 'dark',
+  density = null,
+  longList = false,
+  offlineDownloaded = false,
 }: PanelProps) {
-  const rasterScale = Math.min(2, Math.max(1, dynamicTypeScale))
+  const rasterScale = Math.min(1.25, Math.max(1, dynamicTypeScale))
   useEffect(() => {
-    if (deviceStore.get(currentScreenAtom) === null) deviceStore.set(resetStackActionAtom, [mainMenuFrame()])
+    if (initializedDocument !== document) {
+      deviceStore.set(resetStackActionAtom, [mainMenuFrame()])
+      initializedDocument = document
+    }
+    deviceStore.set(setDensityActionAtom, density)
     deviceStore.set(setDynamicTypeScaleActionAtom, dynamicTypeScale)
-  }, [dynamicTypeScale])
+    if (state === 'success-confirmation') void fixtureProvider.setVolume(actor === 'human' ? 72 : 68)
+  }, [actor, density, dynamicTypeScale, state])
   return (
     <div className="wp-panel-stage" style={{ '--wp-raster-scale': rasterScale } as CSSProperties}>
       <Provider store={deviceStore}>
-        <PanelSurface colourway={colourway} state={state} className={className} actor={actor} />
+        <PanelSurface colourway={colourway} state={state} className={className} actor={actor} artworkTone={artworkTone} longList={longList} offlineDownloaded={offlineDownloaded} />
       </Provider>
     </div>
   )
@@ -69,17 +91,25 @@ function PanelSurface({
   state,
   className,
   actor,
+  artworkTone,
+  longList,
+  offlineDownloaded,
 }: {
   readonly colourway: Colourway
   readonly state: PanelState
   readonly className?: string
   readonly actor: 'human' | 'agent'
+  readonly artworkTone: ArtworkTone
+  readonly longList: boolean
+  readonly offlineDownloaded: boolean
 }) {
   const frame = useAtomValue(currentScreenAtom)
   const announcement = useAtomValue(liveRegionAtom)
   const move = useSetAtom(detentActionAtom)
   const push = useSetAtom(pushScreenActionAtom)
   const pop = useSetAtom(popScreenActionAtom)
+  const visibleRows = useAtomValue(visibleRowCountAtom)
+  const density = useAtomValue(effectiveDensityAtom)
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault()
@@ -99,7 +129,7 @@ function PanelSurface({
     }
     if (event.key === 'Enter') {
       event.preventDefault()
-      select(frame, push)
+      select(frame, push, longList)
     }
   }
 
@@ -110,6 +140,8 @@ function PanelSurface({
       data-screen={frame?.screenId ?? 'empty'}
       data-state={state}
       data-actor={actor}
+      data-density={density}
+      data-visible-rows={visibleRows}
       tabIndex={0}
       role="application"
       aria-label="webPod music player"
@@ -119,16 +151,16 @@ function PanelSurface({
       <span className="wp-sr-only" aria-live="polite" aria-atomic="true">
         {announcement?.text ?? ''}
       </span>
-      {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state)}
+      {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state, colourway, artworkTone, visibleRows, offlineDownloaded)}
     </div>
   )
 }
 
-function select(frame: ScreenFrame | null, push: (frame: ScreenFrame) => void) {
+function select(frame: ScreenFrame | null, push: (frame: ScreenFrame) => void, longList: boolean) {
   if (frame === null) return
   if (frame.screenId === 'S03') {
     const selected = frame.rows[frame.highlightIndex]
-    if (selected?.label === 'Albums') push(albumTracksFrame())
+    if (selected?.label === 'Albums') push(albumTracksFrame(fixtureProvider, longList ? 120 : 0))
     return
   }
   if (frame.screenId === 'S08') {
@@ -142,10 +174,10 @@ function select(frame: ScreenFrame | null, push: (frame: ScreenFrame) => void) {
   }
 }
 
-function renderScreen(frame: ScreenFrame, state: PanelState) {
-  if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} />
+function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone, visibleRows: number, offlineDownloaded: boolean) {
+  if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} />
   if (frame.screenId === 'S08') return <AlbumTracks frame={frame} state={state} />
-  if (frame.screenId === 'S13') return <NowPlaying state={state} />
+  if (frame.screenId === 'S13') return <NowPlaying state={state} colourway={colourway} artworkTone={artworkTone} offlineDownloaded={offlineDownloaded} />
   return <PanelError message="This screen is not part of the MVP preview." />
 }
 
@@ -154,50 +186,55 @@ function TitleBar({ title, index }: { readonly title: string; readonly index?: s
     <header className="wp-titlebar">
       <span className="wp-titlebar__side">{index ?? ''}</span>
       <strong>{title}</strong>
-      <span className="wp-titlebar__side wp-titlebar__battery" aria-label="Battery full"><span aria-hidden="true">▰</span></span>
+      <span className="wp-titlebar__side wp-titlebar__battery" role="img" aria-label="Battery full"><span aria-hidden="true">▰</span></span>
     </header>
   )
 }
 
-function MainMenu({ frame, state }: { readonly frame: ScreenFrame; readonly state: PanelState }) {
+function MainMenu({ frame, state, visibleRows }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number }) {
   const selected = frame.rows[frame.highlightIndex] ?? null
-  const baseRows = state === 'empty' ? frame.rows.filter((row) => row.label === 'Search') : frame.rows
+  const baseRows = frame.rows
   const firstRow = baseRows[0]
   const displayRows = state === 'offline' && firstRow !== undefined
     ? [firstRow, { ...firstRow, index: 99, label: 'Downloads', sublabel: null }, ...baseRows.slice(1)]
     : baseRows
+  const windowedRows = displayRows.slice(frame.windowStart, frame.windowStart + visibleRows)
   return (
-    <section className="wp-screen" aria-label="Music menu">
+    <div className="wp-screen">
       <TitleBar title={frame.title} />
       <div className="wp-menu-split">
         <ol className="wp-menu-list" aria-label="Music categories" role="listbox" aria-activedescendant={`wp-menu-${frame.highlightIndex}`}>
-          {displayRows.map((row) => (
+          {windowedRows.map((row) => (
             <li
               id={`wp-menu-${row.index}`}
               role="option"
               aria-selected={row.index === frame.highlightIndex}
+              data-empty={state === 'empty' && libraryCountLabels.has(row.label) ? 'true' : undefined}
+              data-unavailable={(state === 'offline' && (row.label === 'Radio' || row.label === 'Search')) || (state === 'permission-denied' && row.label === 'Radio') ? 'true' : undefined}
               key={row.index}
               className="wp-menu-row"
               aria-current={row.index === frame.highlightIndex ? 'true' : undefined}
             >
               <span>{row.label}</span>
-              <span className="wp-row-meta">{state === 'error' ? '—' : state === 'loading' ? '…' : state === 'empty' ? '0' : row.sublabel}</span>
-              <span aria-hidden="true">›</span>
+              <span className="wp-row-meta">{state === 'error' && row.sublabel !== null ? '—' : state === 'loading' && row.sublabel !== null ? '…' : state === 'empty' && libraryCountLabels.has(row.label) ? '0' : row.sublabel}</span>
+              <span aria-hidden="true">{state === 'offline' && (row.label === 'Radio' || row.label === 'Search') ? '☁︎' : state === 'permission-denied' && row.label === 'Radio' ? '🔒' : '›'}</span>
             </li>
           ))}
         </ol>
-        <aside className="wp-menu-preview" aria-label={`${selected?.label ?? 'Music'} preview`}>
-          <Artwork state={state === 'loading' ? 'loading' : 'ready'} />
-          <strong>{selected?.label ?? 'Music'}</strong>
-          <span>{state === 'error' ? '—' : selected?.sublabel ?? 'Rotate to browse'}</span>
+        <div className="wp-menu-preview" aria-label={`${selected?.label ?? 'Music'} preview`} role="group">
+          <Artwork state={state === 'loading' || state === 'error' ? 'loading' : 'ready'} />
+          <strong>{state === 'error' ? "Couldn't load your library." : selected?.label ?? 'Music'}</strong>
+          <span>{state === 'error' ? 'Retry' : selected?.sublabel ?? 'Rotate to browse'}</span>
           <span className="wp-scroll-track" aria-hidden="true"><i /></span>
           {state === 'offline' ? <small>Cached library</small> : null}
           {state === 'agent-active' ? <small className="wp-agent-note">Assistant browsing</small> : null}
-        </aside>
-        {state === 'empty' ? <FooterReceipt>Your library is empty.</FooterReceipt> : null}
-        {state === 'permission-denied' ? <FooterReceipt>Sign in to browse provider music.</FooterReceipt> : null}
+        </div>
+        {state === 'empty' ? <FooterReceipt>Nothing in your library yet. Try Radio, or search for anything.</FooterReceipt> : null}
+        {state === 'offline' ? <FooterReceipt>Offline. 214 songs are downloaded.</FooterReceipt> : null}
+        {state === 'permission-denied' ? <FooterReceipt>Browsing only — a subscription is needed to play.</FooterReceipt> : null}
+        {state === 'loading' ? <span className="wp-sr-only">Loading your library counts.</span> : null}
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -207,16 +244,22 @@ function AlbumTracks({ frame, state }: { readonly frame: ScreenFrame; readonly s
     : frame.rows.slice(frame.windowStart, frame.windowStart + 8)
   return (
     <section className="wp-screen" aria-label="Album tracks" aria-busy={state === 'loading'}>
-      <TitleBar title={frame.title} />
-      {state === 'error' ? <PanelError message="Couldn't load this album." /> : null}
-      {state === 'permission-denied' ? <PanelError message="Sign in to play this album." /> : null}
-      {state === 'empty' ? <PanelEmpty title="No songs here." detail="Add music to see it in this album." /> : null}
-      {!['error', 'empty', 'permission-denied'].includes(state) ? (
-        state === 'loading' || frame.rows.length <= 100
-          ? <StaticTrackList rows={rows} frame={frame} state={state} />
-          : <VirtualTrackList frame={frame} state={state} />
-      ) : null}
-      {state === 'success-confirmation' ? <FooterReceipt>Playing {frame.rows[frame.highlightIndex]?.label ?? 'track'}.</FooterReceipt> : null}
+      <TitleBar title={frame.title} index={state === 'offline' ? '4 of 12 downloaded' : undefined} />
+      {state === 'empty' ? <PanelEmpty title="Nothing here plays in your region." detail="Search for it · Go to artist" /> : (
+        <div className="wp-album-layout">
+          <div className="wp-album-list">
+            {state === 'loading' || state === 'error' || frame.rows.length <= 100
+              ? <StaticTrackList rows={state === 'error' ? Array.from({ length: 8 }, (_, index) => index) : rows} frame={frame} state={state} />
+              : <VirtualTrackList frame={frame} state={state} />}
+          </div>
+          <div className="wp-album-preview" role="group" aria-label="Album details">
+            <Artwork state={state === 'loading' || state === 'error' ? 'loading' : 'ready'} />
+            <strong>{state === 'error' ? "Couldn't load this album." : frame.title}</strong>
+            <span>{state === 'error' ? 'Retry' : state === 'permission-denied' ? 'Browse now · subscription needed to play' : '2009 · 48 min'}</span>
+          </div>
+        </div>
+      )}
+      {state === 'success-confirmation' ? <FooterReceipt>Added to your library. &nbsp;⟲ Undo</FooterReceipt> : null}
     </section>
   )
 }
@@ -272,36 +315,51 @@ function TrackRow({
     <li
       className="wp-track-row"
       data-unavailable={state === 'offline' ? 'true' : undefined}
-      data-agent={state === 'agent-active' ? 'true' : undefined}
+      data-downloaded={state === 'offline' && displayIndex % 3 === 1 ? 'true' : undefined}
+      data-agent={state === 'agent-active' && row.index === frame.highlightIndex ? 'true' : undefined}
+      data-success={state === 'success-confirmation' && row.index === frame.highlightIndex ? 'true' : undefined}
       aria-current={row.index === frame.highlightIndex ? 'true' : undefined}
       style={style}
     >
-      <span className="wp-track-number">{displayIndex}</span>
+      <span className="wp-track-number">{state === 'success-confirmation' && row.index === frame.highlightIndex ? '✓' : displayIndex}</span>
       <span className="wp-track-title">{row.label}</span>
-      <span className="wp-row-meta">{row.sublabel}</span>
+      <span className="wp-row-meta">{state === 'offline' ? displayIndex % 3 === 1 ? '⤓' : '☁︎' : row.sublabel}</span>
     </li>
   )
 }
 
-function NowPlaying({ state }: { readonly state: PanelState }) {
+function NowPlaying({ state, colourway, artworkTone, offlineDownloaded }: { readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone; readonly offlineDownloaded: boolean }) {
   const mode = useAtomValue(nowPlayingModeAtom)
   useSyncExternalStore(fixtureProvider.onPlaybackChange, playbackVersion, serverPlaybackVersion)
   useSyncExternalStore(fixtureProvider.onProgress, progressVersion, serverProgressVersion)
   const playback = fixtureProvider.playback
   const progressTick = { positionMs: playback.positionMs, durationMs: playback.durationMs }
+  useEffect(() => {
+    if (playback.status === 'playing' && playback.positionMs === 0) fixtureProvider.tick(1_000)
+  }, [playback.positionMs, playback.status])
   const track = playback.now ?? currentTrack()
+  const samples = artworkSampleFixture(artworkTone)
+  const treatment = deriveArtworkTreatment(colourway, samples.dominant, samples.luminance)
+  const artStyle = {
+    '--wp-art-dominant': treatment.dominant,
+    '--wp-bloom-opacity': treatment.bloomOpacity,
+    '--wp-bloom-min': treatment.bloomLightness[0],
+    '--wp-bloom-max': treatment.bloomLightness[1],
+    '--wp-bloom-chroma': treatment.chromaMultiplier,
+    '--wp-art-fallback': `linear-gradient(145deg, ${treatment.dominant}, ${colourway === 'dark' ? '#080b11' : '#f2f6fb'})`,
+  } as CSSProperties
   const progress = progressTick.durationMs === 0 ? 0 : Math.round(
     (progressTick.positionMs / progressTick.durationMs) * 100,
   )
-  if (state === 'loading') return <section className="wp-screen" aria-busy="true"><TitleBar title="Now Playing" /><div className="wp-now-loading"><Artwork state="loading" /><i /><i /></div></section>
-  if (state === 'error') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message="Couldn't load this song." /></section>
-  if (state === 'permission-denied') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message="This account can browse but cannot play." /></section>
-  if (state === 'empty') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelEmpty title="Nothing playing." detail="Choose a song from Music." /></section>
+  if (state === 'loading') return <section className="wp-screen" aria-busy="true"><TitleBar title="Now Playing" /><span className="wp-sr-only">Loading the song.</span><div className="wp-now-loading"><Artwork state="loading" /><i /><i /><i /></div></section>
+  if (state === 'error') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message={`Couldn't play “${track.title}”.`} detail="The next song is queued." /></section>
+  if (state === 'permission-denied') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message="Playback needs an Apple Music subscription." detail="Learn more · Browse anyway" /></section>
+  if (state === 'empty') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelEmpty title="Nothing is playing." detail="Shuffle Songs · Menu returns" /></section>
   return (
-    <section className="wp-screen wp-now" aria-label="Now Playing">
-      <TitleBar title="Now Playing" index="1 of 42" />
+    <section className="wp-screen wp-now" aria-label="Now Playing" data-art-tone={artworkTone} data-volume={playback.volume0to100} data-position-ms={playback.positionMs} style={artStyle}>
+      <TitleBar title="Now Playing" index={track.albumName ?? '1 of 42'} />
       <div className="wp-now-body">
-        <Artwork state="ready" large />
+        <Artwork state="ready" large tone={artworkTone} />
         <div className="wp-now-meta">
           <h1>{track.title}</h1>
           <p>{track.artistName}</p>
@@ -317,7 +375,7 @@ function NowPlaying({ state }: { readonly state: PanelState }) {
           <span aria-label="Shuffle on">⌘</span><span aria-label="Repeat off">↻</span>
           <span aria-label="Loved">♥</span><span aria-label="Rate">★</span><span aria-label="Queue">≡</span>
         </div>
-        {state === 'offline' ? <span className="wp-state-note">Cached metadata · audio unavailable</span> : null}
+        {state === 'offline' ? <span className="wp-state-note">{offlineDownloaded ? '☁︎/ Downloaded' : '☁︎/ You’re offline. · 214 downloaded songs still play. · Play downloads'}</span> : null}
         {state === 'agent-active' ? <span className="wp-state-note wp-agent-note">Assistant moved here</span> : null}
         {state === 'success-confirmation' ? <FooterReceipt>Volume changed.</FooterReceipt> : null}
       </div>
@@ -329,12 +387,17 @@ function FooterReceipt({ children }: { readonly children: ReactNode }) {
   return <div className="wp-footer-receipt" role="status">{children}</div>
 }
 
-function Artwork({ state, large = false }: { readonly state: PanelState; readonly large?: boolean }) {
+function Artwork({ state, large = false, tone }: { readonly state: PanelState; readonly large?: boolean; readonly tone?: ArtworkTone }) {
   if (state === 'loading') return <span className={large ? 'wp-art wp-art--large wp-skeleton' : 'wp-art wp-skeleton'} aria-hidden="true" />
   const art = sharpArtwork(currentTrack(), large ? 176 : 88)
+  const fixtureSurface = tone === 'pale'
+    ? 'linear-gradient(145deg, rgb(250 240 214), rgb(218 188 142))'
+    : tone === 'dark'
+      ? 'linear-gradient(145deg, rgb(49 35 69), rgb(12 10 20))'
+      : null
   return (
-    <span className={large ? 'wp-art wp-art--large' : 'wp-art'} style={{ '--wp-art-max': `${art?.renderedPx ?? 88}px`, backgroundImage: art === null ? undefined : `url(${art.url})` } as CSSProperties}>
-      <span className="wp-art__fallback" aria-hidden="true">◒</span>
+    <span className={large ? 'wp-art wp-art--large' : 'wp-art'} style={{ '--wp-art-max': `${art?.renderedPx ?? 104}px`, backgroundImage: fixtureSurface ?? (art === null ? undefined : `url(${art.url}), var(--wp-art-fallback, linear-gradient(145deg, #334155, #0b0d11))`) } as CSSProperties}>
+      {art === null ? <span className="wp-art__fallback" aria-hidden="true">◒</span> : null}
     </span>
   )
 }
@@ -343,8 +406,8 @@ function PanelEmpty({ title, detail }: { readonly title: string; readonly detail
   return <div className="wp-message"><strong>{title}</strong><span>{detail}</span></div>
 }
 
-function PanelError({ message }: { readonly message: string }) {
-  return <div className="wp-message" role="alert"><strong>{message}</strong><span>Press Menu and try again.</span></div>
+function PanelError({ message, detail = 'Press Menu and try again.' }: { readonly message: string; readonly detail?: string }) {
+  return <div className="wp-message" role="alert"><strong>{message}</strong><span>{detail}</span></div>
 }
 
 const playbackVersion = () => JSON.stringify(fixtureProvider.playback)
