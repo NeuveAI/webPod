@@ -44,6 +44,21 @@ function png(width = 300, height = width, padding = 0): Uint8Array<ArrayBuffer> 
   return bytes
 }
 
+function concat(...parts: readonly Uint8Array<ArrayBuffer>[]): Uint8Array<ArrayBuffer> {
+  const result = new Uint8Array(parts.reduce((total, part) => total + part.length, 0))
+  let offset = 0
+  for (const part of parts) {
+    result.set(part, offset)
+    offset += part.length
+  }
+  return result
+}
+
+function avif(): Uint8Array<ArrayBuffer> {
+  const encoded = 'AAAAGGZ0eXBhdmlmAAAAAGF2aWZtaWYxAAABSm1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAHBpY3QAAAAAAAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAAAAAAAAABAAAADHVybCAAAAABAAAADnBpdG0AAAAAAAEAAAAjaWluZgAAAAAAAQAAABVpbmZlAgAAAAABAABhdjAxAAAAAKppcHJwAAAAiGlwY28AAAATY29scm5jbHgAAgACAAaAAAAADGNsbGkAywBAAAAAFGlzcGUAAAAAAAAAAgAAAAIAAAAoY2xhcAAAAAEAAAABAAAAAQAAAAH/wAAAAIAAAP/AAAAAgAAAAAAACWlyb3QAAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQAMAAAAABppcG1hAAAAAAAAAAEAAQeBAgMGh4SFAAAAHmlsb2MAAAAARAAAAQABAAAAAQAAAXIAAAAvAAAAAW1kYXQAAAAAAAAAPxIACgwAAAAABn/8CBAQNCAyHRABkgAIIIIgAY/RgEku1IS6U94C/FkAAAAAbEh0'
+  return Uint8Array.from(atob(encoded), (character) => character.charCodeAt(0))
+}
+
 function fetchStub(run: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>): typeof globalThis.fetch {
   return run as typeof globalThis.fetch
 }
@@ -202,6 +217,46 @@ describe('/artwork response bounds', () => {
     })
     expect(response.status).toBe(502)
     expect(await errorCode(response)).toBe('upstream_content_invalid')
+  })
+
+  test('accepts a box-bounded AVIF item structure', async () => {
+    const response = await handleArtworkRequest(artworkRequest(source, 2), {
+      fetch: fetchStub(() => Promise.resolve(new Response(avif().buffer, { headers: { 'content-type': 'image/avif' } }))),
+    })
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toBe('image/avif')
+  })
+
+  test('rejects the reviewer boundary fixture with fake ispe and trailing polyglot bytes', async () => {
+    const fake = new Uint8Array(64)
+    setU32be(fake, 0, 20)
+    fake.set(new TextEncoder().encode('ftypavif'), 4)
+    setU32be(fake, 20, 20)
+    fake.set(new TextEncoder().encode('ispe'), 24)
+    setU32be(fake, 32, 300)
+    setU32be(fake, 36, 300)
+    fake.set(new TextEncoder().encode('TRAILING-POLYGLOT'), 40)
+    const response = await handleArtworkRequest(artworkRequest(source), {
+      fetch: fetchStub(() => Promise.resolve(new Response(fake.buffer, { headers: { 'content-type': 'image/avif' } }))),
+    })
+    expect(response.status).toBe(502)
+    expect(await errorCode(response)).toBe('upstream_content_invalid')
+  })
+
+  test('rejects AVIF malformed extents, missing media, and trailing data', async () => {
+    const malformedExtent = avif().slice()
+    setU32be(malformedExtent, 24, malformedExtent.length)
+    const mdatType = new TextEncoder().encode('mdat')
+    const mdatTypeOffset = avif().findIndex((_, index, bytes) => mdatType.every((byte, relative) => bytes[index + relative] === byte))
+    const missingMedia = avif().subarray(0, mdatTypeOffset - 4).slice()
+    const trailing = concat(avif(), new TextEncoder().encode('TRAILING'))
+    for (const body of [malformedExtent, missingMedia, trailing]) {
+      const response = await handleArtworkRequest(artworkRequest(source, 2), {
+        fetch: fetchStub(() => Promise.resolve(new Response(body.buffer, { headers: { 'content-type': 'image/avif' } }))),
+      })
+      expect(response.status).toBe(502)
+      expect(await errorCode(response)).toBe('upstream_content_invalid')
+    }
   })
 
   test('rejects a declared body larger than the byte ceiling', async () => {
@@ -370,12 +425,64 @@ describe('/artwork admission', () => {
     })
     await Bun.sleep(0)
     controller.abort()
-    expect((await pending).status).toBe(502)
+    expect((await pending).status).toBe(499)
     const afterAbort = await handleArtworkRequest(artworkRequest('https://i.scdn.co/image/after-abort'), {
       maxConcurrent: 1,
       fetch: fetchStub(() => Promise.resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } }))),
     })
     expect(afterAbort.status).toBe(200)
+  })
+
+  test.each(['owner', 'follower'] as const)('%s abort does not cancel the other coalesced waiter', async (who) => {
+    const ownerController = new AbortController()
+    const followerController = new AbortController()
+    let upstreamAborts = 0
+    let release: (() => void) | undefined
+    const fetch = fetchStub((_input, init) => new Promise<Response>((resolve, reject) => {
+      release = () => resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } }))
+      init?.signal?.addEventListener('abort', () => {
+        upstreamAborts += 1
+        reject(new DOMException('aborted', 'AbortError'))
+      }, { once: true })
+    }))
+    const owner = handleArtworkRequest(new Request(artworkRequest('https://i.scdn.co/image/two-waiters'), { signal: ownerController.signal }), { fetch })
+    const follower = handleArtworkRequest(new Request(artworkRequest('https://i.scdn.co/image/two-waiters'), { signal: followerController.signal }), { fetch })
+    await Bun.sleep(0)
+    if (who === 'owner') ownerController.abort()
+    else followerController.abort()
+    await Bun.sleep(0)
+    expect(upstreamAborts).toBe(0)
+    release?.()
+    const [ownerResponse, followerResponse] = await Promise.all([owner, follower])
+    expect(who === 'owner' ? ownerResponse.status : followerResponse.status).toBe(499)
+    expect(who === 'owner' ? followerResponse.status : ownerResponse.status).toBe(200)
+  })
+
+  test('shared upstream aborts once only after every waiter cancels and releases admission once', async () => {
+    const firstController = new AbortController()
+    const secondController = new AbortController()
+    let upstreamAborts = 0
+    const fetch = fetchStub((_input, init) => new Promise((_resolve, reject) => {
+      init?.signal?.addEventListener('abort', () => {
+        upstreamAborts += 1
+        reject(new DOMException('aborted', 'AbortError'))
+      }, { once: true })
+    }))
+    const first = handleArtworkRequest(new Request(artworkRequest('https://i.scdn.co/image/all-cancel'), { signal: firstController.signal }), { maxConcurrent: 1, fetch })
+    const second = handleArtworkRequest(new Request(artworkRequest('https://i.scdn.co/image/all-cancel'), { signal: secondController.signal }), { maxConcurrent: 1, fetch })
+    await Bun.sleep(0)
+    firstController.abort()
+    await Bun.sleep(0)
+    expect(upstreamAborts).toBe(0)
+    secondController.abort()
+    expect((await Promise.all([first, second])).map((response) => response.status)).toEqual([499, 499])
+    await Bun.sleep(0)
+    expect(upstreamAborts).toBe(1)
+    const after = await handleArtworkRequest(artworkRequest('https://i.scdn.co/image/all-cancel-released'), {
+      maxConcurrent: 1,
+      fetch: fetchStub(() => Promise.resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } }))),
+    })
+    expect(after.status).toBe(200)
   })
 })
 

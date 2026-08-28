@@ -25,6 +25,7 @@ export type ArtworkProxyErrorCode =
   | 'artwork_too_large'
   | 'upstream_timeout'
   | 'request_not_same_origin'
+  | 'request_cancelled'
   | 'artwork_busy'
 
 export class ArtworkProxyError extends Error {
@@ -94,7 +95,14 @@ interface ImageMetadata {
   readonly height: number
 }
 
-const inFlightArtwork = new Map<string, Promise<ArtworkPayload>>()
+interface InFlightArtwork {
+  readonly controller: AbortController
+  readonly promise: Promise<ArtworkPayload>
+  waiters: number
+  settled: boolean
+}
+
+const inFlightArtwork = new Map<string, InFlightArtwork>()
 let activeRemoteArtwork = 0
 
 function invalidRequest(message: string): ArtworkProxyError {
@@ -324,20 +332,61 @@ function webpMetadata(body: Uint8Array): ImageMetadata | null {
   return { contentType: 'image/webp', width, height }
 }
 
+interface BmffBox {
+  readonly type: string
+  readonly start: number
+  readonly contentStart: number
+  readonly end: number
+}
+
+function bmffBoxes(body: Uint8Array, start: number, end: number): readonly BmffBox[] {
+  const boxes: BmffBox[] = []
+  let offset = start
+  while (offset < end) {
+    if (offset + 8 > end) throw invalidImage()
+    const size32 = u32be(body, offset)
+    let size = size32
+    let contentStart = offset + 8
+    if (size32 === 1) {
+      if (offset + 16 > end || u32be(body, offset + 8) !== 0) throw invalidImage()
+      size = u32be(body, offset + 12)
+      contentStart = offset + 16
+    }
+    if (size < contentStart - offset || offset + size > end) throw invalidImage()
+    boxes.push({ type: ascii(body, offset + 4, 4), start: offset, contentStart, end: offset + size })
+    offset += size
+  }
+  if (offset !== end) throw invalidImage()
+  return boxes
+}
+
+function oneBmffBox(boxes: readonly BmffBox[], type: string): BmffBox {
+  const matching = boxes.filter((box) => box.type === type)
+  if (matching.length !== 1 || matching[0] === undefined) throw invalidImage()
+  return matching[0]
+}
+
 function avifMetadata(body: Uint8Array): ImageMetadata | null {
   if (body.length < 24 || ascii(body, 4, 4) !== 'ftyp') return null
-  const ftypLength = u32be(body, 0)
-  if (ftypLength < 16 || ftypLength > body.length) throw invalidImage()
-  const brands = ascii(body, 8, ftypLength - 8)
+  const top = bmffBoxes(body, 0, body.length)
+  const ftyp = oneBmffBox(top, 'ftyp')
+  if (ftyp.start !== 0 || ftyp.end - ftyp.contentStart < 8) throw invalidImage()
+  const brands = ascii(body, ftyp.contentStart, ftyp.end - ftyp.contentStart)
   if (!brands.includes('avif') && !brands.includes('avis')) return null
-  for (let offset = ftypLength; offset + 20 <= body.length; offset += 1) {
-    if (ascii(body, offset + 4, 4) !== 'ispe' || u32be(body, offset) < 20) continue
-    const width = u32be(body, offset + 12)
-    const height = u32be(body, offset + 16)
-    if (width === 0 || height === 0) throw invalidImage()
-    return { contentType: 'image/avif', width, height }
-  }
-  throw invalidImage()
+
+  const meta = oneBmffBox(top, 'meta')
+  const mdat = oneBmffBox(top, 'mdat')
+  if (mdat.end - mdat.contentStart < 1 || meta.contentStart + 4 > meta.end) throw invalidImage()
+  const metaChildren = bmffBoxes(body, meta.contentStart + 4, meta.end)
+  for (const required of ['hdlr', 'pitm', 'iloc', 'iinf', 'iprp']) oneBmffBox(metaChildren, required)
+  const iprp = oneBmffBox(metaChildren, 'iprp')
+  const ipco = oneBmffBox(bmffBoxes(body, iprp.contentStart, iprp.end), 'ipco')
+  const ispe = oneBmffBox(bmffBoxes(body, ipco.contentStart, ipco.end), 'ispe')
+  if (ispe.end - ispe.contentStart !== 12) throw invalidImage()
+  const width = u32be(body, ispe.contentStart + 4)
+  const height = u32be(body, ispe.contentStart + 8)
+  if (width === 0 || height === 0) throw invalidImage()
+  return { contentType: 'image/avif', width, height }
 }
 
 function validateImage(body: Uint8Array, declaredType: string, px: number): ImageMetadata {
@@ -404,12 +453,12 @@ async function readBoundedBody(response: Response, maxBytes: number): Promise<Ui
 }
 
 async function fetchRemoteArtwork(
-  request: Request,
   source: RemoteArtworkSource,
   fetchImpl: typeof globalThis.fetch,
   maxBytes: number,
   timeoutMs: number,
   px: number,
+  sharedSignal: AbortSignal,
 ): Promise<ArtworkPayload> {
   const controller = new AbortController()
   let timedOut = false
@@ -417,9 +466,9 @@ async function fetchRemoteArtwork(
     timedOut = true
     controller.abort()
   }, timeoutMs)
-  const abortForClient = () => controller.abort()
-  request.signal.addEventListener('abort', abortForClient, { once: true })
-  if (request.signal.aborted) controller.abort()
+  const abortSharedWork = () => controller.abort()
+  sharedSignal.addEventListener('abort', abortSharedWork, { once: true })
+  if (sharedSignal.aborted) controller.abort()
 
   try {
     const response = await fetchImpl(source.url, {
@@ -447,8 +496,39 @@ async function fetchRemoteArtwork(
     throw new ArtworkProxyError('upstream_failure', 502, 'artwork server could not be reached', { cause })
   } finally {
     clearTimeout(timeout)
-    request.signal.removeEventListener('abort', abortForClient)
+    sharedSignal.removeEventListener('abort', abortSharedWork)
   }
+}
+
+function awaitArtworkForCaller(entry: InFlightArtwork, signal: AbortSignal): Promise<ArtworkPayload> {
+  entry.waiters += 1
+  let released = false
+  const release = () => {
+    if (released) return
+    released = true
+    entry.waiters -= 1
+    if (entry.waiters === 0 && !entry.settled) entry.controller.abort()
+  }
+  if (signal.aborted) {
+    release()
+    return Promise.reject(new ArtworkProxyError('request_cancelled', 499, 'artwork request was cancelled'))
+  }
+  return new Promise<ArtworkPayload>((resolve, reject) => {
+    let finished = false
+    const finish = (action: () => void) => {
+      if (finished) return
+      finished = true
+      signal.removeEventListener('abort', abortCaller)
+      release()
+      action()
+    }
+    const abortCaller = () => finish(() => reject(new ArtworkProxyError('request_cancelled', 499, 'artwork request was cancelled')))
+    signal.addEventListener('abort', abortCaller, { once: true })
+    entry.promise.then(
+      (payload) => finish(() => resolve(payload)),
+      (cause: unknown) => finish(() => reject(cause)),
+    )
+  })
 }
 
 async function admittedRemoteArtwork(
@@ -460,19 +540,27 @@ async function admittedRemoteArtwork(
 ): Promise<ArtworkPayload> {
   const key = `${source.url.href}\n${String(px)}\n${String(options.maxBytes)}\n${String(options.timeoutMs)}`
   const existing = inFlightArtwork.get(key)
-  if (existing !== undefined) return existing
+  if (existing !== undefined) return awaitArtworkForCaller(existing, request.signal)
   if (activeRemoteArtwork >= options.maxConcurrent) {
     throw new ArtworkProxyError('artwork_busy', 503, 'artwork service is busy')
   }
   activeRemoteArtwork += 1
-  const pending = fetchRemoteArtwork(request, source, fetchImpl, options.maxBytes, options.timeoutMs, px)
-  inFlightArtwork.set(key, pending)
-  try {
-    return await pending
-  } finally {
-    if (inFlightArtwork.get(key) === pending) inFlightArtwork.delete(key)
-    activeRemoteArtwork -= 1
+  const controller = new AbortController()
+  const entry: InFlightArtwork = {
+    controller,
+    waiters: 0,
+    settled: false,
+    promise: Promise.resolve(undefined).then(() =>
+      fetchRemoteArtwork(source, fetchImpl, options.maxBytes, options.timeoutMs, px, controller.signal),
+    ),
   }
+  inFlightArtwork.set(key, entry)
+  void entry.promise.finally(() => {
+    entry.settled = true
+    if (inFlightArtwork.get(key) === entry) inFlightArtwork.delete(key)
+    activeRemoteArtwork -= 1
+  }).catch(() => undefined)
+  return awaitArtworkForCaller(entry, request.signal)
 }
 
 function artworkResponse(payload: ArtworkPayload): Response {
