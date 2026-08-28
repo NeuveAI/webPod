@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { ARTWORK_PROXY_PATH, artworkUrl } from './artwork.ts'
+import { ARTWORK_PROXY_PATH, artworkUrl, TEMPLATE_ARTWORK_CEILING_PX } from './artwork.ts'
 import { InvalidArtworkError } from './errors.ts'
 import type { Artwork } from './identity.ts'
 
@@ -58,6 +58,22 @@ describe('artworkUrl — never upscales a sharp image (§14.3 row 26)', () => {
     const { url, actualPx } = artworkUrl(APPLE, 1400)
     expect(actualPx).toBe(1400)
     expect(url).toContain(encodeURIComponent('1400x1400bb.jpg'))
+  })
+
+  test('the documented ceiling is ~3000px, per §14.3 row 26', () => {
+    // D-050: the literal is the requirement. Without this, moving the ceiling
+    // to 9000 — or removing it — leaves every other artwork test green.
+    expect(TEMPLATE_ARTWORK_CEILING_PX).toBe(3000)
+  })
+
+  test('a template with no recorded size still refuses to upscale', () => {
+    // Before this, `actualPx` for a bare template was whatever was asked for,
+    // including 9000 — so the never-upscale promise held only for adapters that
+    // remembered to populate `sizes`.
+    expect(artworkUrl(APPLE, 9000).actualPx).toBe(TEMPLATE_ARTWORK_CEILING_PX)
+    expect(artworkUrl(APPLE, 3001).actualPx).toBe(TEMPLATE_ARTWORK_CEILING_PX)
+    expect(artworkUrl(APPLE, 3000).actualPx).toBe(3000)
+    expect(artworkUrl(APPLE, 2999).actualPx).toBe(2999)
   })
 
   test('a template that records its native size is clamped to it too', () => {

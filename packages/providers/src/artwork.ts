@@ -36,6 +36,23 @@ export const ARTWORK_PROXY_SRC_PARAM = 'src'
 export const ARTWORK_PROXY_PX_PARAM = 'px'
 
 /**
+ * The largest size a template artwork is assumed to hold, in pixels.
+ *
+ * §14.3 row 26: Apple's URL template serves *"arbitrary sizes to ~3000px"*.
+ * Above that the server is generating pixels it does not have, which is an
+ * upscale performed remotely rather than locally — and §14.3 row 26 forbids the
+ * result, not the location.
+ *
+ * ⚑ It is a **default ceiling, not the only one.** An artwork that records its
+ * real native size in `sizes` is clamped to that instead, which is always more
+ * accurate. This constant exists so the never-upscale promise holds
+ * unconditionally rather than only for adapters that remembered to populate
+ * `sizes` — a guarantee with a precondition an author has to remember is the
+ * class of guarantee this package keeps finding does not hold.
+ */
+export const TEMPLATE_ARTWORK_CEILING_PX = 3000
+
+/**
  * Wraps an upstream artwork URL in the same-origin proxy path.
  *
  * Returns a root-relative URL, which is same-origin by construction — there is
@@ -81,10 +98,11 @@ function largestSize(
  * Resolves an `Artwork` to a fetchable same-origin URL at, or below, `px`.
  *
  * **Apple (`kind: "template"`)** substitutes arbitrary sizes, so the request is
- * honoured exactly and `actualPx === px`. If the artwork also carries `sizes`,
- * the largest of them is treated as the native ceiling and `actualPx` clamps to
- * it — an adapter that knows the source's real dimensions can record them there
- * and get upscale protection for free.
+ * honoured exactly up to a ceiling. If the artwork carries `sizes`, the largest
+ * of them is the ceiling — an adapter that knows the source's real dimensions
+ * records them there and gets exact upscale protection. Otherwise
+ * {@link TEMPLATE_ARTWORK_CEILING_PX} applies, from §14.3 row 26's documented
+ * ~3000px limit, so the promise holds even when nothing was recorded.
  *
  * **Spotify (`kind: "fixed"`)** picks the smallest size that is at least `px`;
  * failing that, the largest available. Both branches report what was actually
@@ -111,11 +129,13 @@ export function artworkUrl(a: Artwork, px: number): ArtworkUrl {
     if (template === undefined || template.length === 0) {
       throw new InvalidArtworkError('template artwork carries no template url')
     }
-    // A template artwork may also record the source's native size. Where it
-    // does, that is the ceiling; where it does not, the provider substitutes
-    // whatever is asked for and there is nothing to clamp against.
-    const ceiling = a.sizes === undefined ? null : largestSize(a.sizes)
-    const actualPx = ceiling === null ? wanted : Math.min(wanted, ceiling.w)
+    // A template artwork may record the source's native size; where it does,
+    // that is the ceiling because it is the accurate one. Where it does not,
+    // §14.3 row 26's documented ~3000px applies, so a request for 9000 is
+    // clamped rather than passed through to a server that would upscale it.
+    const recorded = a.sizes === undefined ? null : largestSize(a.sizes)
+    const ceiling = recorded === null ? TEMPLATE_ARTWORK_CEILING_PX : recorded.w
+    const actualPx = Math.min(wanted, ceiling)
     const upstream = template.replaceAll('{w}', String(actualPx)).replaceAll('{h}', String(actualPx))
     return { url: buildArtworkProxyUrl(upstream, actualPx), actualPx }
   }
