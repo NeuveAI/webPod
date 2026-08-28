@@ -99,11 +99,11 @@ describe('read, write and subscribe with no React mounted', () => {
     })
 
     store.set(pushScreenActionAtom, trackFrame(20))
-    store.set(moveHighlightActionAtom, 3, 0)
-    store.set(moveHighlightActionAtom, 2, 10)
+    store.set(moveHighlightActionAtom, 3)
+    store.set(moveHighlightActionAtom, 2)
 
     unsubscribe()
-    store.set(moveHighlightActionAtom, 1, 20)
+    store.set(moveHighlightActionAtom, 1)
 
     expect(seen).toEqual([3, 5])
     // The unsubscribed movement still happened; it was simply not observed.
@@ -183,28 +183,31 @@ describe('actions', () => {
   })
 
   test('Menu at the root bumps, and the bump has a fresh sequence number', () => {
-    const store = createDeviceStore()
+    let t = 100
+    const store = createDeviceStore({ now: () => t })
 
-    const first = store.set(popScreenActionAtom, 100)
-    const second = store.set(popScreenActionAtom, 200)
+    const first = store.set(popScreenActionAtom)
+    t = 200
+    const second = store.set(popScreenActionAtom)
 
     expect(first?.direction).toBe('right')
     expect(second?.direction).toBe('right')
     expect(second?.seq).toBe((first?.seq ?? 0) + 1)
+    expect(first?.at).toBe(100)
     expect(store.get(bumpAtom)?.at).toBe(200)
     expect(store.get(screenStackAtom)).toHaveLength(1)
   })
 
   test('descend then Menu restores the exact prior highlight', () => {
     const store = createDeviceStore()
-    store.set(moveHighlightActionAtom, 4, 0)
+    store.set(moveHighlightActionAtom, 4)
     expect(store.get(highlightIndexAtom)).toBe(4)
 
     store.set(pushScreenActionAtom, trackFrame(30))
-    store.set(moveHighlightActionAtom, 11, 10)
+    store.set(moveHighlightActionAtom, 11)
     expect(store.get(highlightIndexAtom)).toBe(11)
 
-    store.set(popScreenActionAtom, 20)
+    store.set(popScreenActionAtom)
     expect(store.get(currentScreenAtom)?.screenId).toBe('S03')
     expect(store.get(highlightIndexAtom)).toBe(4)
   })
@@ -224,7 +227,6 @@ describe('actions', () => {
     const outcome = store.set(pressActionAtom, {
       button: 'next',
       source: 'human',
-      timestampMs: 0,
     })
 
     expect(outcome.handled).toBe(true)
@@ -237,7 +239,6 @@ describe('actions', () => {
     const outcome = store.set(pressActionAtom, {
       button: 'center',
       source: 'human',
-      timestampMs: 0,
     })
 
     expect(outcome.handled).toBe(false)
@@ -250,7 +251,6 @@ describe('actions', () => {
     const byAgent = store.set(pressActionAtom, {
       button: 'menu',
       source: 'agent',
-      timestampMs: 0,
     })
     expect(byAgent.silenced).toBe(true)
     expect(byAgent.clickerTicks).toBe(0)
@@ -259,7 +259,6 @@ describe('actions', () => {
     const byHuman = store.set(pressActionAtom, {
       button: 'menu',
       source: 'human',
-      timestampMs: 1,
     })
     expect(byHuman.silenced).toBe(false)
     expect(byHuman.clickerTicks).toBe(1)
@@ -352,7 +351,7 @@ describe('Menu on a device with no screens', () => {
     // consumer that reads them directly rather than through the factory.
     const store = createDeviceStore({ initialStack: [] })
 
-    const bump = store.set(popScreenActionAtom, 0)
+    const bump = store.set(popScreenActionAtom)
 
     expect(bump).toBeNull()
     expect(store.get(bumpAtom)).toBeNull()
@@ -362,7 +361,7 @@ describe('Menu on a device with no screens', () => {
 
   test('a device with one screen still bumps, as the root must', () => {
     const store = createDeviceStore()
-    expect(store.set(popScreenActionAtom, 0)?.direction).toBe('right')
+    expect(store.set(popScreenActionAtom)?.direction).toBe('right')
   })
 })
 

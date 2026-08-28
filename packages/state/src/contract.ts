@@ -824,10 +824,18 @@ export type PressButton = 'center' | 'menu' | 'next' | 'previous'
 export type PressInput = {
   readonly button: PressButton
   readonly source: DetentSource
-  readonly timestampMs: number
   /** Origin label for an agent-sourced press. See {@link DetentInput}. */
   readonly agentOrigin?: string
 }
+
+/*
+ * ⚑ There is deliberately no `timestampMs` on a press. A press has no
+ * duration and no velocity, so nothing about it needs a caller's clock — and
+ * the one thing it *publishes* that carries a time, {@link BumpEvent.at}, is
+ * stamped from {@link clockAtom} like every other time in this package. The
+ * field existed, was unused by the time the bump was fixed, and was removed
+ * rather than left as somewhere a second time base could re-enter.
+ */
 
 /**
  * Which way the device rubber-bands when a movement hits a hard stop.
@@ -849,6 +857,17 @@ export type BumpDirection = 'up' | 'down' | 'right'
 export type BumpEvent = {
   readonly direction: BumpDirection
   readonly seq: number
+  /**
+   * When the bump happened, on the device clock ({@link clockAtom}).
+   *
+   * ⚑ Always the device clock, from all three writers. This field previously
+   * carried whatever time the caller passed for a `Menu` or transport press
+   * and the device clock for a wheel bump — one field, one atom, two time
+   * bases, chosen by which control the human touched. A panel ageing a bump
+   * with `now - bump.at` got a sane answer for one and a number near 1.7e12
+   * for the other. There is now no parameter through which a caller can supply
+   * a time to any of the three.
+   */
   readonly at: number
 }
 

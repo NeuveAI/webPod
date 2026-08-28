@@ -71,15 +71,24 @@ import { moveHighlight, pageHighlight, popScreen, pushScreen } from './screen'
  * no change on the second one and play nothing, and the human would conclude
  * the second press was swallowed.
  */
-const publishBumpAtom = atom(
-  null,
-  (get, set, direction: BumpDirection, at: number): BumpEvent => {
-    const previous = get(bumpAtom)
-    const event: BumpEvent = { direction, seq: (previous?.seq ?? 0) + 1, at }
-    set(bumpAtom, event)
-    return event
-  },
-)
+const publishBumpAtom = atom(null, (get, set, direction: BumpDirection): BumpEvent => {
+  const previous = get(bumpAtom)
+  // ⚑ The device clock, not a caller's time. `BumpEvent.at` is a published
+  // field on one atom with three writers, and two of them used to stamp
+  // whatever the caller passed — so a wheel bump carried a `performance.now`
+  // reading and a `Menu` bump carried a `Date.now` one, on the same device, in
+  // the same field, chosen by which control the human touched. A panel ageing
+  // a bump with `now - bump.at` got a sane answer for one and a number near
+  // 1.7e12 for the other. This is the announcer's two-clock defect one seam
+  // over; the remedy is the same one, applied the same way.
+  const event: BumpEvent = {
+    direction,
+    seq: (previous?.seq ?? 0) + 1,
+    at: get(clockAtom).now(),
+  }
+  set(bumpAtom, event)
+  return event
+})
 
 /**
  * Moves the highlight on the current screen by a signed number of rows.
@@ -92,10 +101,10 @@ const publishBumpAtom = atom(
  */
 export const moveHighlightActionAtom = atom(
   null,
-  (get, set, rowDelta: number, at: number): BumpEvent | null => {
+  (get, set, rowDelta: number): BumpEvent | null => {
     const transition = moveHighlight(get(screenStackAtom), rowDelta, get(visibleRowCountAtom))
     set(screenStackAtom, transition.stack)
-    return transition.bump === null ? null : set(publishBumpAtom, transition.bump, at)
+    return transition.bump === null ? null : set(publishBumpAtom, transition.bump)
   },
 )
 
@@ -109,10 +118,10 @@ export const pushScreenActionAtom = atom(null, (get, set, frame: ScreenFrame): v
  *
  * @returns The root bump, or `null` when a level was actually popped.
  */
-export const popScreenActionAtom = atom(null, (get, set, at: number): BumpEvent | null => {
+export const popScreenActionAtom = atom(null, (get, set): BumpEvent | null => {
   const transition = popScreen(get(screenStackAtom))
   set(screenStackAtom, transition.stack)
-  return transition.bump === null ? null : set(publishBumpAtom, transition.bump, at)
+  return transition.bump === null ? null : set(publishBumpAtom, transition.bump)
 })
 
 /**
@@ -176,7 +185,7 @@ export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOu
     handled = false
   }
 
-  if (bump !== null) set(publishBumpAtom, bump, input.timestampMs)
+  if (bump !== null) set(publishBumpAtom, bump)
 
   return {
     button: input.button,
@@ -423,7 +432,7 @@ function applyMovement(
 
   const now = get(clockAtom).now()
   const before = get(highlightIndexAtom)
-  set(moveHighlightActionAtom, outcome.rowDelta, now)
+  set(moveHighlightActionAtom, outcome.rowDelta)
   const frame = get(currentScreenAtom)
 
   if (frame === null || get(highlightIndexAtom) === before) return outcome

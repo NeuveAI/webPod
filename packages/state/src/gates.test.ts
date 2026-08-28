@@ -29,6 +29,7 @@ import {
   KEY_REPEAT_WINDOW_MS,
   ROW_HEIGHT_PX,
   VISIBLE_ROWS,
+  bumpAtom,
   densityOverrideAtom,
   dynamicTypeScaleAtom,
   effectiveDensityAtom,
@@ -38,7 +39,13 @@ import {
 } from './contract'
 import type { PanelRow, ScreenFrame } from './contract'
 import { detent } from './detent'
-import { createDeviceStore, detentActionAtom, pushScreenActionAtom } from './store'
+import {
+  createDeviceStore,
+  detentActionAtom,
+  popScreenActionAtom,
+  pressActionAtom,
+  pushScreenActionAtom,
+} from './store'
 
 function listFrame(count: number, density: ScreenFrame['density']): ScreenFrame {
   const rows: readonly PanelRow[] = Array.from({ length: count }, (_, index) => ({
@@ -228,5 +235,77 @@ describe('the density setting is not inert', () => {
     })
 
     expect(store.get(highlightIndexAtom)).toBe(4)
+  })
+})
+
+describe('R2 — one clock stamps every published time', () => {
+  /** A device whose clock reads a value no caller would ever pass by accident. */
+  function pinnedDevice(): ReturnType<typeof createDeviceStore> {
+    return createDeviceStore({ now: () => 500_000 })
+  }
+
+  test('a wheel bump is stamped from the device clock', () => {
+    const store = pinnedDevice()
+    store.set(pushScreenActionAtom, listFrame(3, 'compact'))
+    // Push into the top of the list so the movement clamps and bumps.
+    store.set(detentActionAtom, {
+      path: 'direct',
+      source: 'human',
+      detents: -5,
+      timestampMs: 1_700_000_000_000,
+    })
+
+    expect(store.get(bumpAtom)?.at).toBe(500_000)
+  })
+
+  test('a Menu bump at the root is stamped from the device clock', () => {
+    const store = pinnedDevice()
+    store.set(popScreenActionAtom)
+    expect(store.get(bumpAtom)?.at).toBe(500_000)
+  })
+
+  test('a transport bump is stamped from the device clock', () => {
+    const store = pinnedDevice()
+    store.set(pushScreenActionAtom, listFrame(3, 'compact'))
+    store.set(pressActionAtom, { button: 'next', source: 'human' })
+
+    expect(store.get(bumpAtom)?.at).toBe(500_000)
+  })
+
+  test('all three writers agree, whatever a caller passes', () => {
+    // ⚑ The defect this replaces: `bump.at` read 500000 from the wheel and
+    // 1.7e12 from Menu and the transport, on one device, in one field, chosen
+    // by which control the human touched. A consumer ageing a bump with
+    // `now - bump.at` would have got a sane number for one and a nonsense one
+    // for the others.
+    const store = pinnedDevice()
+    store.set(pushScreenActionAtom, listFrame(3, 'compact'))
+    const stamps: Array<number | undefined> = []
+
+    store.set(detentActionAtom, {
+      path: 'direct',
+      source: 'human',
+      detents: -5,
+      timestampMs: 1_700_000_000_000,
+    })
+    stamps.push(store.get(bumpAtom)?.at)
+
+    store.set(pressActionAtom, { button: 'next', source: 'human' })
+    stamps.push(store.get(bumpAtom)?.at)
+
+    store.set(popScreenActionAtom)
+    stamps.push(store.get(bumpAtom)?.at)
+
+    expect(stamps).toEqual([500_000, 500_000, 500_000])
+  })
+
+  test('the bump sequence still increments, so two identical bumps are distinct', () => {
+    const store = pinnedDevice()
+    const seqs = [
+      store.set(popScreenActionAtom)?.seq,
+      store.set(popScreenActionAtom)?.seq,
+      store.set(popScreenActionAtom)?.seq,
+    ]
+    expect(seqs).toEqual([1, 2, 3])
   })
 })
