@@ -6,5 +6,11 @@
     "S08"
   ],
   "selectedOption": "Albums",
-  "playbackCommanded": true
+  "activeDescendantChanged": true,
+  "playbackCommanded": true,
+  "progress": {
+    "before": 252.79999999701977,
+    "after": 1001.5999999940395,
+    "delta": 748.7999999970198
+  }
 }

@@ -1,0 +1,16 @@
+[
+  {
+    "colourway": "dark",
+    "sampleSource": "provider",
+    "naturalWidth": 176,
+    "naturalHeight": 176,
+    "src": "/artwork?src=%2Fartwork-source%2Fthe-fray%2F176x176.png&px=176"
+  },
+  {
+    "colourway": "light",
+    "sampleSource": "provider",
+    "naturalWidth": 176,
+    "naturalHeight": 176,
+    "src": "/artwork?src=%2Fartwork-source%2Fthe-fray%2F176x176.png&px=176"
+  }
+]

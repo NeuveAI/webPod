@@ -1,6 +1,6 @@
 # W3 visual evidence
 
-Route: `http://localhost:3000/` (or the port printed by `bun dev`). Query `?state=<state>` selects any required state. Other evidence controls are `art=pale|dark`, `scale=1|1.3|2`, `density=compact|medium|airy`, `long=1`, `actor=human|agent`, and `downloaded=1`.
+Route: `http://localhost:3000/` (or the port printed by `bun dev`). Query `?state=<state>` selects any required state. Other evidence controls are `art=pale|dark`, `scale=1|1.3|2`, `density=compact|medium|airy`, `long=1`, and `actor=human|agent`. With no `art` query, S13 renders and samples the provider's real same-origin artwork.
 
 Reference comparisons were made through Pencil MCP against `A76Ib`, `DLqSo`, `H4QpB`, `HYNXu`, and `mObBW`. The panel raster is 272×204 with a 21px title bar; S03 uses the 168/104 split and S08 loading uses eight 26px rows.
 
@@ -15,6 +15,7 @@ Chrome-free panel crops are 544×408, an exact 2× integer scale of the 272×204
 Additional focused evidence:
 
 - adaptive art: `w3-s13-art-{pale,dark}-{dark,light}.png`
+- provider art: `w3-s13-provider-{dark,light}.png` and `w3-provider-artwork.json`
 - Dynamic Type/density: `w3-dynamic-{compact,medium,130,200}.png`
 - preferences: `w3-pref-{reduced-motion,reduced-transparency,contrast-more}-{dark,light}.png`
 - accessibility: `w3-axe.json`

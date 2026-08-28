@@ -9,23 +9,36 @@
       "aria-conditional-attr",
       "aria-deprecated-role",
       "aria-hidden-focus",
-      "aria-input-field-name",
+      "aria-progressbar-name",
       "aria-prohibited-attr",
       "aria-required-attr",
-      "aria-required-children",
-      "aria-required-parent",
       "aria-roles",
-      "aria-toggle-field-name",
       "aria-valid-attr-value",
       "aria-valid-attr",
       "avoid-inline-spacing",
+      "button-name",
       "color-contrast",
+      "empty-heading",
+      "heading-order",
+      "image-alt",
+      "image-redundant-alt",
       "landmark-no-duplicate-banner",
+      "landmark-unique",
       "nested-interactive",
+      "presentation-role-conflict",
       "role-img-alt",
       "tabindex"
     ],
-    "targetSizePasses": []
+    "targetSizePasses": [
+      "target-size"
+    ],
+    "targetSizeEvaluatedNodes": 1,
+    "measuredTarget": {
+      "x": 412.40625,
+      "y": 518,
+      "width": 48,
+      "height": 48
+    }
   },
   {
     "colourway": "light",
@@ -37,22 +50,35 @@
       "aria-conditional-attr",
       "aria-deprecated-role",
       "aria-hidden-focus",
-      "aria-input-field-name",
+      "aria-progressbar-name",
       "aria-prohibited-attr",
       "aria-required-attr",
-      "aria-required-children",
-      "aria-required-parent",
       "aria-roles",
-      "aria-toggle-field-name",
       "aria-valid-attr-value",
       "aria-valid-attr",
       "avoid-inline-spacing",
+      "button-name",
       "color-contrast",
+      "empty-heading",
+      "heading-order",
+      "image-alt",
+      "image-redundant-alt",
       "landmark-no-duplicate-banner",
+      "landmark-unique",
       "nested-interactive",
+      "presentation-role-conflict",
       "role-img-alt",
       "tabindex"
     ],
-    "targetSizePasses": []
+    "targetSizePasses": [
+      "target-size"
+    ],
+    "targetSizeEvaluatedNodes": 1,
+    "measuredTarget": {
+      "x": 980.40625,
+      "y": 518,
+      "width": 48,
+      "height": 48
+    }
   }
 ]
