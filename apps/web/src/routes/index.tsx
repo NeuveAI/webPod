@@ -7,8 +7,9 @@ function parseScale(value: unknown): 1 | 1.3 | 2 {
   return 1
 }
 
-function parseArtworkTone(value: unknown): 'pale' | 'dark' {
-  return value === 'pale' ? 'pale' : 'dark'
+function parseArtworkTone(value: unknown): 'pale' | 'dark' | null {
+  if (value === 'pale' || value === 'dark') return value
+  return null
 }
 
 function parseDensity(value: unknown): 'compact' | 'medium' | 'airy' | null {
@@ -33,13 +34,12 @@ export const Route = createFileRoute('/')({
     density: parseDensity(search['density']),
     long: parseFlag(search['long']),
     actor: parseActor(search['actor']),
-    downloaded: parseFlag(search['downloaded']),
   }),
   component: Home,
 })
 
 function Home() {
-  const { state, scale, art, density, long, actor, downloaded } = Route.useSearch()
+  const { state, scale, art, density, long, actor } = Route.useSearch()
   return (
     <main className="min-h-dvh bg-[var(--room-1)] px-6 py-10 text-[var(--room-ink)]">
       <header className="mx-auto mb-8 max-w-3xl text-center">
@@ -53,11 +53,11 @@ function Home() {
       </header>
       <section className="mx-auto flex max-w-7xl flex-wrap items-start justify-center gap-6" aria-label="Panel colourway comparison">
         <figure className="grid gap-3 [zoom:2]">
-          <Panel colourway="dark" state={state} dynamicTypeScale={scale} artworkTone={art} density={density} longList={long} actor={actor} offlineDownloaded={downloaded} />
+          <Panel colourway="dark" state={state} dynamicTypeScale={scale} artworkTone={art} density={density} longList={long} actor={actor} />
           <figcaption className="font-panel text-center text-xs font-semibold">Dark panel</figcaption>
         </figure>
         <figure className="grid gap-3 [zoom:2]">
-          <Panel colourway="light" state={state} dynamicTypeScale={scale} artworkTone={art} density={density} longList={long} actor={actor} offlineDownloaded={downloaded} />
+          <Panel colourway="light" state={state} dynamicTypeScale={scale} artworkTone={art} density={density} longList={long} actor={actor} />
           <figcaption className="font-panel text-center text-xs font-semibold">Light panel</figcaption>
         </figure>
       </section>
