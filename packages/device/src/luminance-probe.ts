@@ -78,6 +78,8 @@ export type ProbeResult = {
   readonly measuredLuma: number
   /** Averaged sRGB bytes, for the hue check the ±4 gate does not make. */
   readonly measuredRgb: readonly [number, number, number]
+  /** Raw mirrored samples; retained so the acceptance average cannot hide asymmetry. */
+  readonly measuredSamples: ReadonlyArray<readonly [number, number, number]>
   /** `measured − expected`. The gate is `|delta| ≤ 4`. */
   readonly delta: number
   readonly pass: boolean
@@ -430,6 +432,7 @@ export function evaluate(readings: ReadonlyArray<ProbeReading>): Array<ProbeResu
       expectedLuma: expected,
       measuredLuma: measured,
       measuredRgb: rgb,
+      measuredSamples: reading.samples,
       delta,
       // Colour-space arithmetic can put an exact boundary a few ULPs beyond 4.
       // This epsilon admits that representation error, not a visible deviation.

@@ -74,6 +74,17 @@ describe('the screen mesh boundary', () => {
     expect(maxU).toBeCloseTo(1, 6)
     expect(minV).toBeCloseTo(0, 6)
     expect(maxV).toBeCloseTo(1, 6)
+
+    const maxZ = Math.max(...Array.from({ length: positions.count }, (_, index) => positions.getZ(index)))
+    const corners = [[-width/2,height/2],[width/2,height/2],[width/2,-height/2],[-width/2,-height/2]] as const
+    const expected = [[0,1],[1,1],[1,0],[0,0]] as const
+    corners.forEach(([x,y], corner) => {
+      let found=-1, distance=Infinity
+      for(let index=0;index<positions.count;index+=1){ if(Math.abs(positions.getZ(index)-maxZ)>1e-6) continue; const d=Math.hypot(positions.getX(index)-x,positions.getY(index)-y); if(d<distance){distance=d;found=index} }
+      expect(found).toBeGreaterThanOrEqual(0)
+      expect(uvs.getX(found)).toBeCloseTo(expected[corner]?.[0] ?? -1, 1)
+      expect(uvs.getY(found)).toBeCloseTo(expected[corner]?.[1] ?? -1, 1)
+    })
     geometry.dispose()
   })
 
