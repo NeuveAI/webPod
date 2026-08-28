@@ -1,8 +1,8 @@
 # W1 · every test that ran
 
 `bun test packages/providers` condenses to a summary when stdout is not a TTY, so the
-full roster is extracted from the JUnit reporter for the same run at b17ca75.
-230 tests, 8 files, 0 failures.
+full roster is extracted from the JUnit reporter for the same run at 116016b.
+388 tests, 11 files, 0 failures. It was 230 across 8 before the review response.
 
 ```
 packages/providers/src/capability.test.ts > the Capability union  ›  is §14.2 verbatim, in §14.2 order
@@ -12,11 +12,19 @@ packages/providers/src/capability.test.ts > the Capability union  ›  does not 
 packages/providers/src/capability.test.ts > the Capability union  ›  does not contain offline (D-019)
 packages/providers/src/capability.test.ts > capability feature names  ›  every capability has one
 packages/providers/src/capability.test.ts > capability feature names  ›  they carry no exclamation mark — §11.0 rule 2 admits none in the product
+packages/providers/src/capability.test.ts > the B04 / S27 surfacing boundary (D-049)  ›  progressTicks is never surfaced as a missing feature, because it hides no control
+packages/providers/src/capability.test.ts > the B04 / S27 surfacing boundary (D-049)  ›  artworkArbitrarySize is never surfaced as a missing feature, because it hides no control
+packages/providers/src/capability.test.ts > the B04 / S27 surfacing boundary (D-049)  ›  everything else Spotify lacks is surfaced, with its verbatim copy
+packages/providers/src/capability.test.ts > the B04 / S27 surfacing boundary (D-049)  ›  the roster keeps §14.2 capability order, so B04 is stable between providers
+packages/providers/src/capability.test.ts > the B04 / S27 surfacing boundary (D-049)  ›  a fully capable provider surfaces nothing — an empty roster is a state, not a bug
+packages/providers/src/capability.test.ts > the B04 / S27 surfacing boundary (D-049)  ›  Apple surfaces exactly the seven §14.3 rows it lacks
 packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  S13 asks Spotify for 1400 and is told it got 640
 packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  actualPx never exceeds the native source, at any request size
 packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  picks the smallest size that still covers the request
 packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  never drops below the request while a larger size exists
 packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  Apple substitutes the exact size asked for
+packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  the documented ceiling is ~3000px, per §14.3 row 26
+packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  a template with no recorded size still refuses to upscale
 packages/providers/src/artwork.test.ts > artworkUrl — never upscales a sharp image (§14.3 row 26)  ›  a template that records its native size is clamped to it too
 packages/providers/src/artwork.test.ts > artworkUrl — the URL is same-origin (D-014)  ›  apple artwork is routed through the proxy path
 packages/providers/src/artwork.test.ts > artworkUrl — the URL is same-origin (D-014)  ›  spotify artwork is routed through the proxy path
@@ -43,8 +51,12 @@ packages/providers/src/identity.test.ts > LocalKey narrowing at the edges  ›  
 packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  a bare string is not a LocalKey
 packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  a catalogId is not a LocalKey
 packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  a libraryId is not a LocalKey — a third id space, and still not ours
+packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  a Spotify uri is not a LocalKey either
 packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  a minted key is
 packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  a LocalKey is still a string at runtime and to the compiler
+packages/providers/src/identity.test.ts > §14.5 — a provider id cannot occupy a key position  ›  the package spends the brand on the structures it owns
+packages/providers/src/identity.test.ts > D-053(b) — ProviderId membership is a ruling, so it is asserted  ›  there are exactly three, and they are these
+packages/providers/src/identity.test.ts > D-053(b) — ProviderId membership is a ruling, so it is asserted  ›  every provider this package ships reports one of them
 packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 1 · Authorise / session — parity
 packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 4 · Catalogue search — parity
 packages/providers/src/capability-matrix.test.ts > §14.3 capability matrix — one case per row  ›  row 5 · Library read — parity
@@ -75,6 +87,7 @@ packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability un
 packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability union deliberately does not model  ›  row 27 · shuffle and repeat has no union member
 packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability union deliberately does not model  ›  row 28 · storefront has no union member
 packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability union deliberately does not model  ›  row 29 · ISRC has no union member
+packages/providers/src/capability-matrix.test.ts > §14.3 rows the Capability union deliberately does not model  ›  row 27 · the methods D-052 added exist on every implementation
 packages/providers/src/capability-matrix.test.ts > §14.3 coverage — nothing is untested  ›  every capability appears in exactly one row of the table
 packages/providers/src/capability-matrix.test.ts > §14.3 coverage — nothing is untested  ›  the table has all thirty §14.3 rows, numbered 1..30
 packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  apple: null for every supported capability
@@ -83,6 +96,9 @@ packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason 
 packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  spotify: null for every supported capability
 packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  spotify: a non-empty sentence for every unsupported capability
 packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  spotify: the copy obeys §11.0's voice rules
+packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  the copy names the feature the user is looking at (§11.0 rule 1)
+packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  Apple's two lyrics rows do not render as the same sentence twice
+packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  no reason claims webPod is the only place something can happen
 packages/providers/src/capability-matrix.test.ts > §14.4 — unsupportedReason is total, and is product copy  ›  Apple names Apple and Spotify names Spotify — the user is told which service
 packages/providers/src/capability-matrix.test.ts > §14.3 rows 23 and 24 — Love is never Save  ›  Spotify has Save and has no Love
 packages/providers/src/capability-matrix.test.ts > §14.3 rows 23 and 24 — Love is never Save  ›  the two are independent on Apple, which has both
@@ -90,68 +106,131 @@ packages/providers/src/capability-matrix.test.ts > §14.3 rows 23 and 24 — Lov
 packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  identifies itself
 packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  supports() is synchronous, total and never throws
 packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  is never signed in and is never playing
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  subscriptions register and unsubscribe without throwing
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  configure() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  authorize() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  unauthorize() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  search() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryList() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryAdd() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryRemove() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistCreate() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistAddTracks() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistRemoveTracks() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistReorder() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  play() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  pause() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  skip() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  seek() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  setVolume() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueRead() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueAppend() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueInsertNext() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueRemove() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueReorder() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  stationsList() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  stationStart() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  lyrics() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  ratingSet() throws the right kind of error
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  saveToggle() throws the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  onSessionChange throws NotImplementedError rather than never calling back
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  onPlaybackChange throws NotImplementedError rather than never calling back
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  onProgress throws NotImplementedError rather than never calling back
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  onProgress refuses as unimplemented, never as an unsupported capability
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  configure() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  configure() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  authorize() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  authorize() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  unauthorize() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  unauthorize() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  search() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  search() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryList() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryList() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryAdd() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryAdd() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryRemove() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  libraryRemove() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistCreate() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistCreate() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistAddTracks() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistAddTracks() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistRemoveTracks() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistRemoveTracks() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistReorder() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  playlistReorder() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  play() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  play() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  pause() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  pause() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  skip() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  skip() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  seek() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  seek() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  setVolume() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  setVolume() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueRead() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueRead() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueAppend() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueAppend() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueInsertNext() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueInsertNext() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueRemove() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueRemove() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueReorder() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  queueReorder() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  stationsList() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  stationsList() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  stationStart() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  stationStart() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  lyrics() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  lyrics() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  ratingSet() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  ratingSet() rejects with the right kind of error
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  saveToggle() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  saveToggle() rejects with the right kind of error
 packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  a track-seeded station is refused separately from stations itself
-packages/providers/src/stub.test.ts > apple adapter — a compiling stub with a real matrix  ›  onProgress is subscribable even where progressTicks is false
 packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  identifies itself
 packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  supports() is synchronous, total and never throws
 packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  is never signed in and is never playing
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  subscriptions register and unsubscribe without throwing
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  configure() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  authorize() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  unauthorize() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  search() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryList() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryAdd() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryRemove() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistCreate() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistAddTracks() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistRemoveTracks() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistReorder() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  play() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  pause() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  skip() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  seek() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  setVolume() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueRead() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueAppend() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueInsertNext() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueRemove() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueReorder() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  stationsList() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  stationStart() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  lyrics() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  ratingSet() throws the right kind of error
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  saveToggle() throws the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  onSessionChange throws NotImplementedError rather than never calling back
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  onPlaybackChange throws NotImplementedError rather than never calling back
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  onProgress throws NotImplementedError rather than never calling back
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  onProgress refuses as unimplemented, never as an unsupported capability
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  configure() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  configure() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  authorize() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  authorize() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  unauthorize() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  unauthorize() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  search() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  search() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryList() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryList() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryAdd() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryAdd() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryRemove() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  libraryRemove() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistCreate() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistCreate() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistAddTracks() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistAddTracks() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistRemoveTracks() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistRemoveTracks() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistReorder() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  playlistReorder() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  play() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  play() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  pause() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  pause() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  skip() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  skip() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  seek() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  seek() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  setVolume() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  setVolume() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueRead() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueRead() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueAppend() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueAppend() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueInsertNext() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueInsertNext() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueRemove() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueRemove() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueReorder() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  queueReorder() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  stationsList() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  stationsList() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  stationStart() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  stationStart() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  lyrics() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  lyrics() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  ratingSet() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  ratingSet() rejects with the right kind of error
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  saveToggle() rejects rather than throwing synchronously
+packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  saveToggle() rejects with the right kind of error
 packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  a track-seeded station is refused separately from stations itself
-packages/providers/src/stub.test.ts > spotify adapter — a compiling stub with a real matrix  ›  onProgress is subscribable even where progressTicks is false
 packages/providers/src/stub.test.ts > no adapter reaches the network  ›  constructing both providers touches neither fetch nor XHR
+packages/providers/src/stub.test.ts > the two implementations agree on the failure protocol  ›  apple: a failing call returns a rejected promise, not a synchronous throw
+packages/providers/src/stub.test.ts > the two implementations agree on the failure protocol  ›  spotify: a failing call returns a rejected promise, not a synchronous throw
+packages/providers/src/stub.test.ts > the two implementations agree on the failure protocol  ›  fixture: a failing call returns a rejected promise, not a synchronous throw
+packages/providers/src/stub.test.ts > the two implementations agree on the failure protocol  ›  apple: .catch() receives the error
+packages/providers/src/stub.test.ts > the two implementations agree on the failure protocol  ›  spotify: .catch() receives the error
+packages/providers/src/stub.test.ts > the two implementations agree on the failure protocol  ›  fixture: .catch() receives the error
+packages/providers/src/stub.test.ts > the two implementations agree on the failure protocol  ›  Promise.all over several failing calls settles instead of throwing at the call site
 packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "Vienna (feat. Someone Else)" normalises to "vienna"
 packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "Vienna [feat. Someone Else]" normalises to "vienna"
 packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "Vienna - 2019 Remaster" normalises to "vienna 2019 remaster"
@@ -161,8 +240,11 @@ packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "Don't Stop B
 packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "  Vienna   " normalises to "vienna"
 packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  "VIENNA" normalises to "vienna"
 packages/providers/src/reresolve.test.ts > normaliseForMatch  ›  keeps accented letters — stripping them loses a real catalogue
+packages/providers/src/reresolve.test.ts > §14.5 constants  ›  the duration tolerance is ±2000ms, which §14.5 states as a literal
 packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  rung 1: an ISRC match wins, and outranks a better-looking text match
-packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  rung 2: title + artist + duration within tolerance
+packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  rung 2: title + artist + duration exactly at the ±2000ms edge
+packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  one millisecond past the tolerance drops to the low rung
+packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  a live cut is never promoted above the low rung
 packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  rung 3: text alone is a match, and is flagged low
 packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  a duration match further down the list outranks an earlier text-only one
 packages/providers/src/reresolve.test.ts > §14.5 ladder  ›  a different artist is not a match at any rung
@@ -171,14 +253,26 @@ packages/providers/src/reresolve.test.ts > §14.5 identity — what survives a p
 packages/providers/src/reresolve.test.ts > §14.5 identity — what survives a provider switch  ›  a key never leaks between two different tracks
 packages/providers/src/reresolve.test.ts > §14.5 identity — what survives a provider switch  ›  reresolveAll reports the misses by name, as the migration card needs
 packages/providers/src/reresolve.test.ts > §14.5 identity — what survives a provider switch  ›  order is preserved, so a rebuilt queue is in the order it was
+packages/providers/src/evidence-labels.test.ts > D-045 — every capability value carries an evidence label  ›  apple: every one of the 25 rows is labelled
+packages/providers/src/evidence-labels.test.ts > D-045 — every capability value carries an evidence label  ›  apple: no two rows share a label — each carries its own
+packages/providers/src/evidence-labels.test.ts > D-045 — every capability value carries an evidence label  ›  apple: no absence claim is VERIFIED on documentation alone
+packages/providers/src/evidence-labels.test.ts > D-045 — every capability value carries an evidence label  ›  apple: a VERIFIED absence carries live provenance
+packages/providers/src/evidence-labels.test.ts > D-045 — every capability value carries an evidence label  ›  spotify: every one of the 25 rows is labelled
+packages/providers/src/evidence-labels.test.ts > D-045 — every capability value carries an evidence label  ›  spotify: no two rows share a label — each carries its own
+packages/providers/src/evidence-labels.test.ts > D-045 — every capability value carries an evidence label  ›  spotify: no absence claim is VERIFIED on documentation alone
+packages/providers/src/evidence-labels.test.ts > D-045 — every capability value carries an evidence label  ›  spotify: a VERIFIED absence carries live provenance
+packages/providers/src/evidence-labels.test.ts > D-045 — every capability value carries an evidence label  ›  Apple keeps its two measured absences at VERIFIED · live
+packages/providers/src/evidence-labels.test.ts > D-045 — every capability value carries an evidence label  ›  Apple keeps its one measured presence at VERIFIED · live
+packages/providers/src/evidence-labels.test.ts > D-045 — every capability value carries an evidence label  ›  rows 10, 11, 18 and 7 are LIKELY on Apple, never VERIFIED (D-029)
+packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  there is no parameter a status could arrive in (D-062)
 packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  requested-but-absent is a distinct failure from absent-because-empty
 packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  the two conditions carry different tags, so a caller can branch on them
 packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  the error names the relationship and the resource, and says not to read it as "no data"
 packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  a relationships object that lacks the key entirely still throws
 packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  an explicitly undefined key throws rather than reading as empty
+packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  a JSON null value throws with a tag, not a bare TypeError
 packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  a present key with no data array is honoured-and-empty
 packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  data is returned when it is there
-packages/providers/src/apple/relationships.test.ts > D-029 — a 200 is not proof the relationship was requested  ›  the function takes no HTTP status — there is no slot to misuse
 packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  an unregistered name is refused
 packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  similar-songs was measured live as not a relationship
 packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  radio was measured live as not a relationship
@@ -188,6 +282,15 @@ packages/providers/src/apple/relationships.test.ts > a typo is caught before the
 packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  credits was measured live and is accepted
 packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  lyrics exists and is gated — the registry says so
 packages/providers/src/apple/relationships.test.ts > a typo is caught before the request is built  ›  syllable-lyrics exists and is gated — the registry says so
+packages/providers/src/apple/relationships.test.ts > D-045 — the gate acts on the evidence class instead of discarding it  ›  albums is documentation-only and is reported as unmeasured
+packages/providers/src/apple/relationships.test.ts > D-045 — the gate acts on the evidence class instead of discarding it  ›  composers is documentation-only and is reported as unmeasured
+packages/providers/src/apple/relationships.test.ts > D-045 — the gate acts on the evidence class instead of discarding it  ›  genres is documentation-only and is reported as unmeasured
+packages/providers/src/apple/relationships.test.ts > D-045 — the gate acts on the evidence class instead of discarding it  ›  library is documentation-only and is reported as unmeasured
+packages/providers/src/apple/relationships.test.ts > D-045 — the gate acts on the evidence class instead of discarding it  ›  music-videos is documentation-only and is reported as unmeasured
+packages/providers/src/apple/relationships.test.ts > D-045 — the gate acts on the evidence class instead of discarding it  ›  live-exists is measured
+packages/providers/src/apple/relationships.test.ts > D-045 — the gate acts on the evidence class instead of discarding it  ›  live-gated is measured
+packages/providers/src/apple/relationships.test.ts > D-045 — the gate acts on the evidence class instead of discarding it  ›  an absent measured relationship is reported as a request that was not honoured
+packages/providers/src/apple/relationships.test.ts > D-045 — the gate acts on the evidence class instead of discarding it  ›  an absent documentation-only relationship names both candidate causes
 packages/providers/src/apple/relationships.test.ts > S2's four-state existence oracle  ›  status 200 code null classifies as "exists-with-data"
 packages/providers/src/apple/relationships.test.ts > S2's four-state existence oracle  ›  status 404 code "40403" classifies as "exists-no-data"
 packages/providers/src/apple/relationships.test.ts > S2's four-state existence oracle  ›  status 400 code "40012" classifies as "exists-gated"
@@ -230,9 +333,64 @@ packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider �
 packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  plays an album and advances through it on tick
 packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  runs no timer of its own — position only moves when ticked
 packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  Love and Save are different stores and never alias (§14.3 row 23)
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  Save is add-to-library, and the change is observable (§14.3 row 24)
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  Save writes the same store as libraryAdd — one operation, two labels
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  un-saving needs libraryRemove, which Apple does not have (§14.3 row 7)
 packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  libraryRemove takes a song out and Love does not put it back
 packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  pages the library and reports an exact total
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  a cursor of "not-a-cursor" is refused rather than answered with page 0
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  a cursor of "-5" is refused rather than answered with page 0
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  a cursor of "25abc" is refused rather than answered with page 0
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  a cursor of " 25" is refused rather than answered with page 0
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  a cursor of "" is refused rather than answered with page 0
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  a cursor of "1e3" is refused rather than answered with page 0
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  a cursor of "99999" is refused rather than answered with page 0
+packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  a cursor this provider issued is accepted
 packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  search normalises the way the re-resolution ladder does
 packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  an empty catalogue is a supported state, for §11.6
 packages/providers/src/fixture/fixture-provider.test.ts > the fixture provider — behaviour  ›  unsubscribing is idempotent
+packages/providers/src/fixture/shuffle-repeat.test.ts > §14.3 row 27 / D-052 — shuffle and repeat go through the provider  ›  both default to off, per B02
+packages/providers/src/fixture/shuffle-repeat.test.ts > §14.3 row 27 / D-052 — shuffle and repeat go through the provider  ›  setShuffle("off") is read back through playback
+packages/providers/src/fixture/shuffle-repeat.test.ts > §14.3 row 27 / D-052 — shuffle and repeat go through the provider  ›  setShuffle("songs") is read back through playback
+packages/providers/src/fixture/shuffle-repeat.test.ts > §14.3 row 27 / D-052 — shuffle and repeat go through the provider  ›  setShuffle("albums") is read back through playback
+packages/providers/src/fixture/shuffle-repeat.test.ts > §14.3 row 27 / D-052 — shuffle and repeat go through the provider  ›  setRepeat("off") is read back through playback
+packages/providers/src/fixture/shuffle-repeat.test.ts > §14.3 row 27 / D-052 — shuffle and repeat go through the provider  ›  setRepeat("one") is read back through playback
+packages/providers/src/fixture/shuffle-repeat.test.ts > §14.3 row 27 / D-052 — shuffle and repeat go through the provider  ›  setRepeat("all") is read back through playback
+packages/providers/src/fixture/shuffle-repeat.test.ts > §14.3 row 27 / D-052 — shuffle and repeat go through the provider  ›  the mode is provider state, so a playback subscriber sees it change
+packages/providers/src/fixture/shuffle-repeat.test.ts > §14.3 row 27 / D-052 — shuffle and repeat go through the provider  ›  both are gated on transport, which is what §14.3 row 27 makes them part of
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  a signed-out device reports no session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  search() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  libraryList() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  libraryAdd() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  libraryRemove() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  playlistCreate() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  playlistAddTracks() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  playlistRemoveTracks() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  playlistReorder() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  play() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  pause() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  skip() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  seek() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  setVolume() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  setShuffle() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  setRepeat() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  queueRead() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  queueAppend() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  queueInsertNext() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  queueRemove() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  queueReorder() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  stationsList() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  stationStart() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  lyrics() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  ratingSet() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  saveToggle() refuses without a session
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  signing in reaches the signed-in state, and the library appears
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  signing out returns to it
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  unauthorize is idempotent — signing out twice is not an error
+packages/providers/src/fixture/session-states.test.ts > the signed-out state is reachable (§11.5, J6c)  ›  configure and the capability surface stay available while signed out
+packages/providers/src/fixture/session-states.test.ts > the signed-in-but-silent state is reachable (§14.3 row 3)  ›  a free-tier session says so
+packages/providers/src/fixture/session-states.test.ts > the signed-in-but-silent state is reachable (§14.3 row 3)  ›  play() refuses, and nothing starts
+packages/providers/src/fixture/session-states.test.ts > the signed-in-but-silent state is reachable (§14.3 row 3)  ›  browsing still works — the posture is refuse-playback, not refuse-everything
+packages/providers/src/fixture/session-states.test.ts > the signed-in-but-silent state is reachable (§14.3 row 3)  ›  the tier is not a capability — supports("transport") stays true
+packages/providers/src/fixture/session-states.test.ts > the signed-in-but-silent state is reachable (§14.3 row 3)  ›  the three refusals are distinguishable by tag
 ```
