@@ -15,6 +15,8 @@
 export type ProviderErrorTag =
   | 'NotImplemented'
   | 'CapabilityUnsupported'
+  | 'NotAuthorized'
+  | 'PlaybackNotPermitted'
   | 'InvalidArtwork'
   | 'InvalidLocalKey'
   | 'RelationshipNotHonoured'
@@ -74,6 +76,48 @@ export class CapabilityUnsupportedError extends ProviderError {
     readonly reason: string,
   ) {
     super(`${providerId}: capability "${capability}" is not supported`)
+  }
+}
+
+/**
+ * Something needing a signed-in session was called without one.
+ *
+ * A **reachable state, not a defect**: §11.5 has its own copy for it
+ * (`Apple Music needs you to sign in again.`) and J6c is a designed journey.
+ * It is distinct from {@link CapabilityUnsupportedError} because the remedy is
+ * opposite — sign in, versus the feature does not exist here — and from
+ * {@link PlaybackNotPermittedError} because being signed in and being able to
+ * play are different axes (§14.3 rows 2 and 3).
+ */
+export class NotAuthorizedError extends ProviderError {
+  override readonly _tag = 'NotAuthorized' as const
+
+  constructor(
+    readonly providerId: string,
+    /** The `MusicProvider` member that was called. */
+    readonly method: string,
+  ) {
+    super(`${providerId}: ${method}() needs a signed-in session`)
+  }
+}
+
+/**
+ * Playback was started on an account whose tier does not permit it.
+ *
+ * §14.3 row 3: free-tier Spotify is **(d) refuse** — browse-only, with
+ * `Playback needs Spotify Premium.` on S13 — and §11.5 carries the Apple
+ * equivalent. Browsing, search and the library all keep working, which is why
+ * this is raised from `play()` alone rather than from every transport method.
+ *
+ * ⚑ Not a capability. `supports("transport")` is `true` on both providers; the
+ * subscription tier is a property of the *session*, not of the service, so it
+ * cannot be answered by a matrix that is the same for every user.
+ */
+export class PlaybackNotPermittedError extends ProviderError {
+  override readonly _tag = 'PlaybackNotPermitted' as const
+
+  constructor(readonly providerId: string) {
+    super(`${providerId}: this account's tier does not permit playback`)
   }
 }
 

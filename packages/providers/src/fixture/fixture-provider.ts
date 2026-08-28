@@ -25,7 +25,7 @@
 
 import { CAPABILITIES, CAPABILITY_FEATURE_NAMES } from '../capability.ts'
 import type { Capability, CapabilityMatrix } from '../capability.ts'
-import { CapabilityUnsupportedError } from '../errors.ts'
+import { CapabilityUnsupportedError, NotAuthorizedError, PlaybackNotPermittedError } from '../errors.ts'
 import type {
   Cursor,
   Entity,
@@ -73,9 +73,23 @@ export interface FixtureProviderOptions {
   readonly unsupportedReasons?: Partial<Record<Capability, string>>
   /** Shown to a human. */
   readonly displayName?: string
-  /** Start already signed in. Defaults to `true` so screens render on load. */
+  /**
+   * Start already signed in. Defaults to `true` so screens render on load.
+   *
+   * `false` produces a genuinely signed-out device: everything but `configure`,
+   * `authorize`, `supports` and `unsupportedReason` raises
+   * {@link NotAuthorizedError} until `authorize()` is called. That is the state
+   * §11.5's re-auth copy and J6c are written against, and this is the only
+   * provider in which it can be reached.
+   */
   readonly authorized?: boolean
-  /** Whether this account's tier permits playback (§14.3 rows 2, 3). */
+  /**
+   * Whether this account's tier permits playback (§14.3 rows 2, 3).
+   *
+   * `false` is a **signed-in but silent** device: browse, search, library and
+   * queue all work, and `play()` raises {@link PlaybackNotPermittedError}. That
+   * is §14.3 row 3's browse-only refuse posture for free-tier Spotify.
+   */
   readonly canPlay?: boolean
   /** Supply a prebuilt catalogue, e.g. an empty one for §11.6's empty states. */
   readonly catalog?: FixtureCatalog
@@ -215,9 +229,38 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
     for (const listener of progressListeners) listener(tickValue)
   }
 
-  function require(capability: Capability): void {
+  function requireCapability(capability: Capability): void {
     if (matrix[capability]) return
     throw new CapabilityUnsupportedError('fixture', capability, reasonFor(capability))
+  }
+
+  /**
+   * Refuses anything that needs the user's account when there is no session.
+   *
+   * Signed-out is a **reachable state here**, and it has to be: the fixture is
+   * the only provider W3 can drive — Apple and Spotify throw on every method —
+   * so a fixture that served 42 songs while signed out would make §11.5's
+   * signed-out copy and J6c's re-auth journey unbuildable against anything.
+   *
+   * `configure`, `authorize`, `supports` and `unsupportedReason` are outside
+   * this gate: they are what a signed-out screen is allowed to call.
+   */
+  function requireSession(method: string): void {
+    if (session !== null && session.status === 'authorized') return
+    throw new NotAuthorizedError('fixture', method)
+  }
+
+  /**
+   * Refuses playback on an account whose tier does not permit it.
+   *
+   * §14.3 row 3's **(d) refuse** posture: browse-only. Raised from `play()`
+   * alone, because that is the only entry point that starts audio — `pause`,
+   * `seek` and `setVolume` against a stopped player are harmless, and refusing
+   * them would produce errors on a screen that is behaving correctly.
+   */
+  function requireTier(): void {
+    if (session !== null && session.canPlay) return
+    throw new PlaybackNotPermittedError('fixture')
   }
 
   function reasonFor(capability: Capability): string {
@@ -265,7 +308,7 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** Signs in immediately. No gesture needed; there is nothing to consent to. */
     async authorize(): Promise<Session> {
-      require('auth')
+      requireCapability('auth')
       session = {
         provider: 'fixture',
         status: 'authorized',
@@ -278,7 +321,13 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       return session
     },
 
-    /** Drops the session and stops playback, as a real sign-out does. */
+    /**
+     * Drops the session and stops playback, as a real sign-out does.
+     *
+     * Idempotent and callable while signed out — it is the one member outside
+     * the session gate besides `configure` and `authorize`, because "sign me
+     * out" must not fail on a device that is already signed out.
+     */
     async unauthorize(): Promise<void> {
       session = null
       status = 'stopped'
@@ -300,7 +349,8 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** Substring match over the catalogue, normalised the way §14.5 normalises. */
     async search(q: SearchQuery): Promise<SearchResults> {
-      require('search')
+      requireCapability('search')
+      requireSession('search')
       const limit = q.limit ?? 10
       const wants = (kind: SearchQuery['kinds'][number]): boolean => q.kinds.includes(kind)
       return {
@@ -319,7 +369,8 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** Pages the requested library slice. `total` is exact — it is our data. */
     async libraryList(kind: LibraryKind, page?: Cursor): Promise<Page<Entity>> {
-      require('libraryRead')
+      requireCapability('libraryRead')
+      requireSession('libraryList')
       const source: readonly Entity[] =
         kind === 'playlists'
           ? playlists
@@ -337,14 +388,16 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** Adds to the library. Distinct from Love — §14.3 rows 23 and 24. */
     async libraryAdd(ref: TrackRef | AlbumRef | PlaylistRef): Promise<void> {
-      require('libraryAdd')
+      requireCapability('libraryAdd')
+      requireSession('libraryAdd')
       if (ref.kind === 'track') libraryTrackKeys.add(ref.key)
       if (ref.kind === 'album') for (const t of catalog.tracksByAlbum.get(ref.key) ?? []) libraryTrackKeys.add(t.key)
     },
 
     /** ⚑ Gated: `libraryRemove` is `false` on Apple, so this path is Spotify-only there. */
     async libraryRemove(ref: TrackRef | AlbumRef | PlaylistRef): Promise<void> {
-      require('libraryRemove')
+      requireCapability('libraryRemove')
+      requireSession('libraryRemove')
       if (ref.kind === 'track') libraryTrackKeys.delete(ref.key)
       if (ref.kind === 'album') for (const t of catalog.tracksByAlbum.get(ref.key) ?? []) libraryTrackKeys.delete(t.key)
       if (ref.kind === 'playlist') {
@@ -355,7 +408,8 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** Creates a playlist and returns the ref the caller should hold. */
     async playlistCreate(p: { name: string; description?: string; tracks?: TrackRef[] }): Promise<PlaylistRef> {
-      require('playlistCreate')
+      requireCapability('playlistCreate')
+      requireSession('playlistCreate')
       const key = mintLocalKey()
       const tracks = p.tracks ?? []
       const ref: PlaylistRef = {
@@ -375,14 +429,16 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** Appends. Apple can only append, so nothing here may imply a position. */
     async playlistAddTracks(id: PlaylistRef, tracks: TrackRef[]): Promise<void> {
-      require('playlistAddTracks')
+      requireCapability('playlistAddTracks')
+      requireSession('playlistAddTracks')
       const existing = playlistTracks.get(id.key) ?? []
       playlistTracks.set(id.key, [...existing, ...tracks])
     },
 
     /** ⚑ `false` on Apple (D-015, D-029) — the highest-risk row in §14.3. */
     async playlistRemoveTracks(id: PlaylistRef, positions: number[]): Promise<void> {
-      require('playlistRemoveTracks')
+      requireCapability('playlistRemoveTracks')
+      requireSession('playlistRemoveTracks')
       const drop = new Set(positions)
       const existing = playlistTracks.get(id.key) ?? []
       playlistTracks.set(
@@ -393,7 +449,8 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** ⚑ `false` on Apple — no positional write exists at any level. */
     async playlistReorder(id: PlaylistRef, from: number, to: number, count = 1): Promise<void> {
-      require('playlistReorder')
+      requireCapability('playlistReorder')
+      requireSession('playlistReorder')
       const existing = [...(playlistTracks.get(id.key) ?? [])]
       const moved = existing.splice(from, count)
       existing.splice(to, 0, ...moved)
@@ -402,7 +459,9 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** Starts playback. With no target, resumes whatever is loaded. */
     async play(target?: PlayTarget): Promise<void> {
-      require('transport')
+      requireCapability('transport')
+      requireSession('play')
+      requireTier()
       if (target !== undefined) {
         const tracks =
           target.kind === 'tracks'
@@ -424,14 +483,16 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** Pauses. Position is retained; a resume does not restart the track. */
     async pause(): Promise<void> {
-      require('transport')
+      requireCapability('transport')
+      requireSession('pause')
       if (status === 'playing') status = 'paused'
       emitPlayback()
     },
 
     /** Skips. `previous` restarts the track first if past three seconds. */
     async skip(direction: 'next' | 'previous', count = 1): Promise<void> {
-      require('transport')
+      requireCapability('transport')
+      requireSession('skip')
       for (let i = 0; i < count; i++) {
         if (direction === 'next') {
           advanceToNext()
@@ -455,7 +516,8 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** Seeks. Clamped to the track; a seek past the end does not skip. */
     async seek(ms: number): Promise<void> {
-      require('seek')
+      requireCapability('seek')
+      requireSession('seek')
       positionMs = Math.max(0, Math.min(ms, queueNow?.durationMs ?? 0))
       emitPlayback()
       emitProgress()
@@ -463,7 +525,8 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** App volume, 0–100, clamped. Neither real provider can touch the system. */
     async setVolume(level0to100: number): Promise<void> {
-      require('volume')
+      requireCapability('volume')
+      requireSession('setVolume')
       volume0to100 = Math.max(0, Math.min(100, Math.round(level0to100)))
       emitPlayback()
     },
@@ -482,14 +545,16 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
      * reproduce.
      */
     async setShuffle(mode: ShuffleMode): Promise<void> {
-      require('transport')
+      requireCapability('transport')
+      requireSession('setShuffle')
       shuffle = mode
       emitPlayback()
     },
 
     /** Sets repeat mode (D-052). Provider state, read back through `playback`. */
     async setRepeat(mode: RepeatMode): Promise<void> {
-      require('transport')
+      requireCapability('transport')
+      requireSession('setRepeat')
       repeat = mode
       emitPlayback()
     },
@@ -523,32 +588,37 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** Reads the queue. `history` is oldest-first; `next` is play order. */
     async queueRead(): Promise<QueueSnapshot> {
-      require('queueRead')
+      requireCapability('queueRead')
+      requireSession('queueRead')
       return { now: queueNow, next: [...queueNext], history: [...queueHistory] }
     },
 
     /** Appends to the end of Up Next. */
     async queueAppend(tracks: TrackRef[]): Promise<void> {
-      require('queueAppend')
+      requireCapability('queueAppend')
+      requireSession('queueAppend')
       queueNext = [...queueNext, ...tracks]
     },
 
     /** ⚑ `false` on Spotify — there is no API, and the label changes there. */
     async queueInsertNext(tracks: TrackRef[]): Promise<void> {
-      require('queueInsertNext')
+      requireCapability('queueInsertNext')
+      requireSession('queueInsertNext')
       queueNext = [...tracks, ...queueNext]
     },
 
     /** ⚑ `false` on both providers. S17 is read-only-with-append everywhere. */
     async queueRemove(positions: number[]): Promise<void> {
-      require('queueRemove')
+      requireCapability('queueRemove')
+      requireSession('queueRemove')
       const drop = new Set(positions)
       queueNext = queueNext.filter((_track, index) => !drop.has(index))
     },
 
     /** ⚑ `false` on both providers. No drag handles render on either. */
     async queueReorder(from: number, to: number): Promise<void> {
-      require('queueReorder')
+      requireCapability('queueReorder')
+      requireSession('queueReorder')
       const next = [...queueNext]
       const moved = next.splice(from, 1)
       next.splice(to, 0, ...moved)
@@ -557,7 +627,8 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** Lists stations. ⚑ `stations` is `false` on Spotify: S18 is removed there. */
     async stationsList(): Promise<StationRef[]> {
-      require('stations')
+      requireCapability('stations')
+      requireSession('stationsList')
       return [...catalog.stations]
     },
 
@@ -569,8 +640,9 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
      * neither, and §14.3 row 20 was the only row in the whole matrix that moved.
      */
     async stationStart(seed: StationSeed): Promise<StationRef> {
-      require('stations')
-      if (seed.type === 'track') require('stationSeedFromTrack')
+      requireCapability('stations')
+      requireSession('stationStart')
+      if (seed.type === 'track') requireCapability('stationSeedFromTrack')
       const existing = catalog.stations.find((s) => s.catalogId === seed.ref)
       if (existing !== undefined) return existing
       return {
@@ -585,7 +657,8 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
 
     /** ⚑ `lyrics` is `false` on both real providers. See the adapter comments. */
     async lyrics(ref: TrackRef): Promise<Lyrics> {
-      require('lyrics')
+      requireCapability('lyrics')
+      requireSession('lyrics')
       const full = lyricsFor(ref)
       if (matrix.lyricsSynced) return full
       // Unsynced is a real, renderable state, not a failure: §14.3 row 21
@@ -601,13 +674,15 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
      * silently changes what the control means.
      */
     async ratingSet(ref: TrackRef, r: Rating): Promise<void> {
-      require('ratingLoveDislike')
+      requireCapability('ratingLoveDislike')
+      requireSession('ratingSet')
       if (r.love !== undefined) loveByKey.set(ref.key, r.love)
     },
 
     /** Library membership. ⚑ Never aliased to `ratingSet`. */
     async saveToggle(ref: TrackRef, saved: boolean): Promise<void> {
-      require('saveToggle')
+      requireCapability('saveToggle')
+      requireSession('saveToggle')
       if (saved) savedKeys.add(ref.key)
       else savedKeys.delete(ref.key)
     },
