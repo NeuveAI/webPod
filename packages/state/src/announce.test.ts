@@ -536,11 +536,11 @@ describe('MINOR 3 — a timer that fires early must not strand the announcement'
     const store = createDeviceStore({ now: () => t })
     store.set(pushScreenActionAtom, songFrame(20))
 
-    const pending: Array<() => void> = []
+    const armedTimers: Array<() => void> = []
     const stop = startAnnouncer(store, {
       setTimer: (callback) => {
-        pending.push(callback)
-        return pending.length
+        armedTimers.push(callback)
+        return armedTimers.length
       },
       clearTimer: () => {},
     })
@@ -554,15 +554,15 @@ describe('MINOR 3 — a timer that fires early must not strand the announcement'
 
     // Due at 350. The timer fires with the clock reading 349 — one tick early.
     t = 349
-    const firstFire = pending.at(-1)
+    const firstFire = armedTimers.at(-1)
     expect(firstFire).toBeDefined()
     firstFire?.()
     expect(store.get(liveRegionAtom)).toBeNull()
 
     // It must have re-armed. Time passes; the new timer fires; it speaks.
-    const rearmed = pending.at(-1)
+    const rearmed = armedTimers.at(-1)
     expect(rearmed).toBeDefined()
-    expect(pending.length).toBeGreaterThan(1)
+    expect(armedTimers.length).toBeGreaterThan(1)
 
     t = 350
     rearmed?.()

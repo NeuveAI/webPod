@@ -1191,7 +1191,7 @@ export const faceAtom: PrimitiveAtom<Face> = atom<Face>('front')
  * The human's density setting, or `null` to follow each screen's preference.
  *
  * 001 §11: `Row Density: Compact / Medium / Airy` on the Display & Feel plate.
- * `null` is the shipped default and means "whatever this screen asked for" —
+ * `null` is the shipped default and means "whatever this screen prefers" —
  * which is not the same as `medium`, and conflating the two would silently
  * flatten the §3.1 inventory's per-screen choices.
  *
