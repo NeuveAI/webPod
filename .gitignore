@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.output/
+.vinxi/
+.tanstack/
+*.log
+.DS_Store
+.env*
+
+# Agent instructions live in AGENTS.md. CLAUDE.md is a symlink to it, created
+# locally by whoever needs it, so the repo carries exactly one copy of the law.
+.claude/
+CLAUDE.md
