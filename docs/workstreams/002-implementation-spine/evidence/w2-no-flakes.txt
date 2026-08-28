@@ -1,0 +1,35 @@
+W2 — the suite does not depend on scheduler luck
+================================================
+
+Found while re-verifying every commit standalone: one archive reported
+161 pass / 1 fail and passed on re-run. A test that only fails when the machine
+is busy is a defect whether or not it can be summoned on demand.
+
+The two real-timer tests used a fixed `Bun.sleep(350 + 120)` and then asserted,
+which is a claim about OS scheduling rather than about this code. They now poll
+to a generous deadline, with a quiet period afterwards so "exactly one
+announcement" still means exactly one rather than one-so-far.
+
+That change immediately exposed a genuinely wrong assertion of mine:
+`armed - cleared <= 1` for "one timeout in flight". A FIRED timer is neither
+outstanding nor cleared, so that expression was never the number in flight.
+Under load a timer occasionally fires a fraction early against a coarsened
+performance.now, the flush correctly produces nothing, and the driver re-arms —
+the round-1 Minor 3 behaviour working as designed. The driver was right; the
+assertion had been wrong since it was written, and passed only because timers
+on an idle machine rarely fire early. It now counts fires.
+
+Load test: 16 concurrent runs of the package suite, with 6 CPU-saturating
+processes running alongside for the duration.
+
+── Before the fix, under that load:  15 of 16 runs failed
+   (fail) the driver — the one timer in the package > a flick holds one
+          timeout and speaks once when it stops
+   Expected: <= 1   Received: 2
+
+── After the fix, same load, re-run now:
+  16  0 fail
+  16  181 pass
+
+── And 8 sequential runs on an idle machine:
+   8  0 fail

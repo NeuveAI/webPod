@@ -1,51 +1,47 @@
-W2 — gate run (re-review response)
-==================================
+W2 — gate run (D-063 response)
+==============================
 
-Run at 2026-08-28T12:04:05Z on a2ba68b (fix(providers): make the signed-out and free-tier states reachable).
+Run at 2026-08-28T12:19:07Z on 7765438.
 
-── 1. Typecheck, this package
 $ bunx tsc --noEmit -p packages/state/tsconfig.json
 exit: 0
 
-── 2. Typecheck, every package
 $ bun run typecheck
-   ok  scripts
 
 11/11 projects clean
 
-── 3. Lint, this package
 $ bunx --bun eslint packages/state
 exit: 0
 
-── 4. Lint, repo-wide
 $ bun run lint
 $ bunx --bun eslint .
-exit: 0   (clean — the device lane's react-hooks error from the previous
-           round has since been fixed by that lane)
+exit: 0
 
-── 5. Tests, this package
 $ bun test packages/state
 bun test v1.4.0 (34cbb9a40)
 
- 156 pass
+ 181 pass
  0 fail
- 555 expect() calls
-Ran 156 tests across 5 files. [1008.00ms]
+ 691 expect() calls
+Ran 181 tests across 5 files. [1013.00ms]
 exit: 0
 
-── 6. Tests, repo-wide
 $ bun test
- 517 pass
+ 641 pass
  0 fail
- 2119 expect() calls
-Ran 517 tests across 19 files. [1098.00ms]
+ 2550 expect() calls
+Ran 641 tests across 20 files. [1093.00ms]
 
-── 7. Each of the four fix commits, typechecked standalone from git archive
-  db866a5 fix(state): the coast travels the same distance at any refresh rate
-    tsc exit 0 ·  141 pass
-  4bc97b4 fix(state): one clock stamps every bump
-    tsc exit 0 ·  146 pass
-  67f3786 fix(state): the density setting has one writable route
-    tsc exit 0 ·  152 pass
-  ea24945 fix(state): the device factory is test-only, and throws on the first call
-    tsc exit 0 ·  156 pass
+── Each D-063 commit, typechecked and tested standalone from git archive
+  79b4f17 fix(state): adopt the design system's fast-scroll curve
+     tsc exit 0 · 162 pass  0 fail 
+  6b5a3ad fix(state): fast-scroll needs a list longer than 40 rows
+     tsc exit 0 · 169 pass  0 fail 
+  d0426a6 fix(state): clamp angular velocity at four revolutions a second
+     tsc exit 0 · 173 pass  0 fail 
+  5d3737d fix(state): a detent reversal costs the hysteresis
+     tsc exit 0 · 178 pass  0 fail 
+  1b1aaa7 fix(state): the coast stops at 21 deg/s
+     tsc exit 0 · 178 pass  0 fail 
+  7765438 test(state): gate the coast floor behaviourally, not just as a constant
+     tsc exit 0 · 181 pass  0 fail 

@@ -31,8 +31,8 @@ bun test v1.4.0 (34cbb9a40)
 
  74 pass
  0 fail
- 341 expect() calls
-Ran 74 tests across 2 files. [6.00ms]
+ 393 expect() calls
+Ran 74 tests across 2 files. [7.00ms]
 exit: 0
 
 Per-test listing (rendered from the same run's --reporter=junit output):
@@ -46,7 +46,7 @@ Per-test listing (rendered from the same run's --reporter=junit output):
   [pass] the first detent costs the dead zone, later detents cost 15 degrees
   [pass] a slow arc moves one row per detent
   [pass] a fast arc accelerates, and the multiplier is smoothed rather than jumping
-  [pass] reversing direction mid-gesture moves back, never forward
+  [pass] reversing direction moves back, and pays the hysteresis first
   [pass] haptics stop above 12 detents per second, clicker does not
   [pass] the dead zone is smaller than touch — a mouse is steadier than a thumb
   [pass] acceleration thresholds are 1.4x the touch ones

@@ -42,7 +42,12 @@ Three changes, each of which the mutation file shows is load-bearing:
      can change. And the coast stops when the speed reaches the floor rather
      than at the next frame boundary.
 
-Measured after the fix, one identical flick, every rate:
+Measured after the fix, one identical flick, every rate.
+
+⚑ Re-measured after D-063 moved the acceleration tiers to 720/1080 -> x1/x4/x12
+and the coast floor to 21 deg/s. The invariance is unaffected by either; the row
+and detent totals differ from the pre-D-063 run because a 1000 deg/s release now
+decays below the x4 tier quickly, so most of the glide is at x1.
 
  15fps →  16 detents    74 rows    12 frames  240.0 deg
  24fps →  16 detents    74 rows    19 frames  240.0 deg

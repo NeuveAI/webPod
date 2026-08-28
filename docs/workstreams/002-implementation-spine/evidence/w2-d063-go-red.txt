@@ -1,0 +1,90 @@
+D-063 — every adopted §9.4 value goes RED when falsified
+=========================================================
+
+D-063 rules that design-system §9.4, *The wheel inertia and detent model*,
+governs wheel motion over pm-spec §4.4's summary table: acceleration physics is
+§9.4's subject and §4.4's aside.
+
+Five behaviours changed. Each is planted below twice where a plausible wrong
+value exists — once reverted to the pm-spec figure it supersedes, once nudged
+the way a value drifts under maintenance. Sources restored byte-for-byte from a
+backup outside `src/` between runs.
+
+Baseline: 181 pass, 0 fail.
+
+── 1a. Multipliers reverted to pm-spec §4.4's x1/x3/x7
+(fail) the detent constants that are rulings > acceleration is 1, 4 and 12 rows per detent (design-system §9.4) [0.16ms]
+(fail) D-063 — the §9.4 fast-scroll curve, behaviourally > between 720 and 1080 deg/s a detent is four rows [0.07ms]
+(fail) D-063 — the §9.4 fast-scroll curve, behaviourally > above 1080 deg/s a detent is twelve rows [0.06ms]
+(fail) D-063 — the §9.4 fast-scroll curve, behaviourally > the superseded pm-spec tiers are not reachable at any speed [0.15ms]
+(fail) D-063 — the §9.4 fast-scroll curve, behaviourally > a mouse arc needs 1.4x the speed, per pm-spec §4.4 which §9.4 does not cover [0.09ms]
+(fail) D-063 — fast-scroll needs a long list, not just a fast thumb > 41 rows is long enough [0.04ms]
+ 175 pass
+ 6 fail
+
+── 1b. Thresholds reverted to pm-spec §4.4's 240/540 deg/s
+(fail) the detent constants that are rulings > the fast-scroll thresholds are 720 and 1080 deg/s (design-system §9.4) [0.17ms]
+(fail) D-063 — the §9.4 fast-scroll curve, behaviourally > below 720 deg/s a detent is one row [0.16ms]
+(fail) D-063 — the §9.4 fast-scroll curve, behaviourally > between 720 and 1080 deg/s a detent is four rows [0.05ms]
+(fail) D-063 — the §9.4 fast-scroll curve, behaviourally > a mouse arc needs 1.4x the speed, per pm-spec §4.4 which §9.4 does not cover [0.04ms]
+(fail) mouse arc path > acceleration thresholds are 1.4x the touch ones [0.09ms]
+ 176 pass
+ 5 fail
+
+── 2a. The 40-row precondition removed — §4.4 has none at all
+(fail) D-063 — fast-scroll needs a long list, not just a fast thumb > the threshold is literally 40 rows (design-system §9.4) [0.14ms]
+(fail) D-063 — fast-scroll needs a long list, not just a fast thumb > a 39-row list cannot fast-scroll at ANY angular speed [0.10ms]
+(fail) D-063 — fast-scroll needs a long list, not just a fast thumb > exactly 40 rows is still too short — the spec says *exceeds* 40 [0.04ms]
+(fail) D-063 — fast-scroll needs a long list, not just a fast thumb > the main menu cannot fast-scroll, however hard it is flicked [0.10ms]
+ 177 pass
+ 4 fail
+
+── 2b. The 40-row precondition off by one
+(fail) D-063 — fast-scroll needs a long list, not just a fast thumb > the threshold is literally 40 rows (design-system §9.4) [0.15ms]
+(fail) D-063 — fast-scroll needs a long list, not just a fast thumb > exactly 40 rows is still too short — the spec says *exceeds* 40 [0.06ms]
+ 179 pass
+ 2 fail
+
+── 3. The omega clamp raised out of reach — §4.4 has no ceiling at all
+(fail) D-063 — angular velocity is clamped at 1440 deg/s > the ceiling is literally 1440 (design-system §9.4) [0.20ms]
+(fail) D-063 — angular velocity is clamped at 1440 deg/s > an absurd spin is recorded at the ceiling, not above it [0.08ms]
+(fail) D-063 — angular velocity is clamped at 1440 deg/s > the clamp bounds the coast too, so a fling cannot glide forever [0.11ms]
+(fail) D-063 — the coast floor, behaviourally > a harder release glides longer still, and stays bounded by the clamp [0.09ms]
+ 177 pass
+ 4 fail
+
+── 4a. Hysteresis removed — §4.4 does not mention it
+(fail) D-063 — detent hysteresis stops a resting thumb chattering > the hysteresis is literally 1.8 degrees (design-system §9.4) [0.15ms]
+(fail) D-063 — detent hysteresis stops a resting thumb chattering > a thumb jittering across a boundary fires nothing [0.06ms]
+(fail) D-063 — detent hysteresis stops a resting thumb chattering > a deliberate reversal still works, it just costs 1.8 degrees more [0.05ms]
+(fail) touch arc path > reversing direction moves back, and pays the hysteresis first [0.07ms]
+ 177 pass
+ 4 fail
+
+── 4b. Hysteresis charged on every detent, not only on reversals
+(fail) D-063 — detent hysteresis stops a resting thumb chattering > continuing in the same direction is never charged the extra [0.20ms]
+(fail) touch arc path > the first detent costs the dead zone, later detents cost 15 degrees [0.08ms]
+(fail) touch arc path > a slow arc moves one row per detent [0.05ms]
+(fail) touch arc path > reversing direction moves back, and pays the hysteresis first [0.04ms]
+ 177 pass
+ 4 fail
+
+── 5a. Coast floor reverted to pm-spec §4.4's 60 deg/s
+(fail) the detent constants that are rulings > the coast decays at 0.94 per frame and stops below 21 deg/s (§9.4) [0.15ms]
+(fail) D-063 — the coast floor, behaviourally > a 1000 deg/s release glides for 63 frames, not 46 [0.11ms]
+(fail) D-063 — the coast floor, behaviourally > a harder release glides longer still, and stays bounded by the clamp [0.09ms]
+(fail) D-063 — the coast floor, behaviourally > the state layer and the render loop stop on the same condition [0.05ms]
+ 177 pass
+ 4 fail
+
+── 5b. Coast floor rounded to 20
+(fail) the detent constants that are rulings > the coast decays at 0.94 per frame and stops below 21 deg/s (§9.4) [0.15ms]
+(fail) D-063 — the coast floor, behaviourally > a 1000 deg/s release glides for 63 frames, not 46 [0.12ms]
+(fail) D-063 — the coast floor, behaviourally > a harder release glides longer still, and stays bounded by the clamp [0.07ms]
+(fail) D-063 — the coast floor, behaviourally > the state layer and the render loop stop on the same condition [0.05ms]
+ 177 pass
+ 4 fail
+
+── Restored; the suite is green again
+ 181 pass
+ 0 fail

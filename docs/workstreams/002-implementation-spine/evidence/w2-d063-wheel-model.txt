@@ -1,28 +1,54 @@
-W2 — the constants that are rulings, gated against literals
-===========================================================
+D-063 — design-system §9.4 governs wheel motion
+================================================
 
-D-050: a constant is gated only if falsifying it turns a test red.
+The ruling: §9.4, *The wheel inertia and detent model*, beats pm-spec §4.4's
+summary table wherever they disagree. §4.4's columns are trigger, measure,
+detent size, dead zone, release and FX — acceleration physics is §9.4's subject
+and §4.4's aside. Same shape as §12.0's geometry re-derivation beating §7.3.
 
-The review demonstrated that this package contained both patterns. Its arc
-geometry was genuinely gated — falsifying `arcDegPerDetent`, the dead zone or
-either acceleration threshold turned 7 tests red — because those tests feed
-literal degrees and assert literal detent counts. But `VISIBLE_ROWS` and
-`ANNOUNCE_DEBOUNCE_MS` were asserted only through themselves, so replacing the
-per-density page sizes with a flat 7 (the value the lead had ruled against) and
-cutting the debounce from 350ms to 50ms both left 93 of 93 tests passing.
+What changed, all five transcribed from §9.4 and gated against literals:
 
-`gates.test.ts` closes that class: every value that is a decision rather than a
-derivation is asserted against a literal transcribed from the source, with the
-source cited.
+  1. Fast-scroll curve   x1 below 720 deg/s · x4 at 720-1080 · x12 above 1080
+                         (was §4.4's x1/x3/x7 at 240/540)
+  2. Precondition        engages only when the list exceeds 40 rows
+                         (§4.4 has no such gate at all)
+  3. Velocity ceiling    1440 deg/s, four revolutions a second
+                         (§4.4 has no upper bound at all)
+  4. Hysteresis          a reversal costs an extra 1.8 deg
+                         (§4.4 does not mention it)
+  5. Coast floor         21 deg/s = 0.35 deg/frame at 60fps
+                         (was §4.4's 60 deg/s)
 
-⚑ It has since done the job it was built for. When D-063 ruled that
-design-system §9.4 governs the wheel model over pm-spec §4.4, the constants it
-gates went red immediately and precisely — the acceleration tiers, the
-thresholds and the coast floor — rather than the change landing silently
-against tests that computed both sides from the same symbol. The values are now
-§9.4's, the rejected §4.4 figures are named in the assertions so a reader knows
-each one settles a conflict, and `w2-d063-go-red.txt` plants every one of them
-wrong twice.
+What §4.4 keeps, because it is the only place these exist: the four input paths
+converging on one reducer, per-path measurement, detent sizes, dead zones, the
+mouse threshold scaling, per-path FX, release-vs-keyup, the 3-detent smoothing
+window — and above all "arrow keys never accelerate, one keydown is one row,
+always", which §9.4 does not cover and which nothing here touches. A gate
+asserts the keyboard is untouched by the hysteresis for exactly that reason.
+
+⚑ Deferred, not ruled: the haptic conflict (§4.4 "suppressed above 12/sec"
+versus §9.4 "only every 3rd vibrates"). §4.4 defers to §9.4's own haptics
+specialist §4.9, which has not been read, and haptics are out of scope in this
+stage. Neither behaviour is implemented; the seam is left.
+
+── The frame-rate invariance from D-060 survives all five changes
+
+ 15fps →  17 detents    32 rows    16 frames  255.0 deg
+ 24fps →  17 detents    32 rows    25 frames  255.0 deg
+ 30fps →  17 detents    32 rows    32 frames  255.0 deg
+ 45fps →  17 detents    32 rows    47 frames  255.0 deg
+ 60fps →  17 detents    32 rows    63 frames  255.0 deg
+ 75fps →  17 detents    32 rows    79 frames  255.0 deg
+ 90fps →  17 detents    32 rows    94 frames  255.0 deg
+100fps →  17 detents    32 rows   105 frames  255.0 deg
+120fps →  17 detents    32 rows   125 frames  255.0 deg
+144fps →  17 detents    32 rows   150 frames  255.0 deg
+165fps →  17 detents    32 rows   172 frames  255.0 deg
+240fps →  17 detents    32 rows   250 frames  255.0 deg
+
+Exact at every rate. The row totals differ from the pre-D-063 measurement
+because the tiers moved: a 1000 deg/s release now decays below 720 quickly, so
+most of the glide is at x1.
 
 $ bun test packages/state/src/gates.test.ts
 bun test v1.4.0 (34cbb9a40)
@@ -30,7 +56,7 @@ bun test v1.4.0 (34cbb9a40)
  53 pass
  0 fail
  141 expect() calls
-Ran 53 tests across 1 file. [8.00ms]
+Ran 53 tests across 1 file. [7.00ms]
 exit: 0
 
 Per-test listing (rendered from the same run's --reporter=junit output):

@@ -28,3 +28,22 @@ that only compiles because of a later commit's file fails here.
      tsc exit 0 · 152 pass  0 fail 
   ea24945 fix(state): the device factory is test-only, and throws on the first call
      tsc exit 0 · 156 pass  0 fail 
+  79b4f17 fix(state): adopt the design system's fast-scroll curve
+     tsc exit 0 · 162 pass  0 fail 
+  6b5a3ad fix(state): fast-scroll needs a list longer than 40 rows
+     tsc exit 0 · 169 pass  0 fail 
+  d0426a6 fix(state): clamp angular velocity at four revolutions a second
+     tsc exit 0 · 173 pass  0 fail 
+  5d3737d fix(state): a detent reversal costs the hysteresis
+     tsc exit 0 · 178 pass  0 fail 
+  1b1aaa7 fix(state): the coast stops at 21 deg/s
+     tsc exit 0 · 178 pass  0 fail 
+  7765438 test(state): gate the coast floor behaviourally, not just as a constant
+     tsc exit 0 · 181 pass  0 fail 
+  a7fbaee test(state): the driver's timer gates no longer depend on scheduler luck
+     tsc exit 0 · 181 pass  0 fail 
+
+(Runs sequentially and on an idle machine, deliberately: the flake this
+ sweep originally surfaced is fixed — see w2-no-flakes.txt — but the
+ point of this file is the typecheck, and a loaded machine would make it
+ a slower test of something else.)
