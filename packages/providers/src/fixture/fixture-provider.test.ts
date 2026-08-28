@@ -468,6 +468,74 @@ describe('the fixture provider — behaviour', () => {
     expect(restoredPlaylists.playlists.some((candidate) => candidate.key === playlist.key)).toBe(true)
   })
 
+  test('artist list and library search share membership through remove and both add paths', async () => {
+    const provider = createFixtureProvider()
+    const artist = provider.catalog.artists[0]
+    if (artist === undefined) throw new Error('empty fixture catalogue')
+    const albums = provider.catalog.albums.filter((album) => album.artistName === artist.name)
+    const tracks = provider.catalog.tracks.filter((track) => track.artistName === artist.name)
+    if (albums.length === 0 || tracks.length === 0) throw new Error('fixture artist has no music')
+
+    const listed = async (): Promise<boolean> =>
+      (await provider.libraryList('artists')).items.some((candidate) => candidate.key === artist.key)
+    const searched = async (): Promise<boolean> =>
+      (
+        await provider.search({ term: artist.name, scope: 'library', kinds: ['artist'] })
+      ).artists.some((candidate) => candidate.key === artist.key)
+
+    expect(await listed()).toBe(true)
+    expect(await searched()).toBe(true)
+    for (const track of tracks) await provider.libraryRemove(track)
+    for (const album of albums) await provider.libraryRemove(album)
+    expect(await listed()).toBe(false)
+    expect(await searched()).toBe(false)
+
+    const track = tracks[0]
+    const album = albums[0]
+    if (track === undefined || album === undefined) throw new Error('fixture artist has no restorable music')
+    await provider.libraryAdd(track)
+    expect(await listed()).toBe(true)
+    expect(await searched()).toBe(true)
+    await provider.libraryRemove(track)
+    expect(await listed()).toBe(false)
+    expect(await searched()).toBe(false)
+    await provider.libraryAdd(album)
+    expect(await listed()).toBe(true)
+    expect(await searched()).toBe(true)
+  })
+
+  test('genre and composer library facets follow saved tracks and albums', async () => {
+    const provider = createFixtureProvider()
+    const album = provider.catalog.albums[0]
+    if (album === undefined) throw new Error('empty fixture catalogue')
+    const tracks = provider.catalog.tracksByAlbum.get(album.key) ?? []
+    const genre = provider.catalog.genreByAlbum.get(album.key)
+    const composer = provider.catalog.composerByAlbum.get(album.key)
+    if (genre === undefined || composer === undefined) throw new Error('fixture album has no facets')
+
+    for (const track of tracks) await provider.libraryRemove(track)
+    await provider.libraryRemove(album)
+    expect((await provider.libraryList('genres')).items.some((candidate) => candidate.key === genre.key)).toBe(false)
+    expect((await provider.libraryList('composers')).items.some((candidate) => candidate.key === composer.key)).toBe(
+      false,
+    )
+
+    const track = tracks[0]
+    if (track === undefined) throw new Error('fixture album has no tracks')
+    await provider.libraryAdd(track)
+    expect((await provider.libraryList('genres')).items.some((candidate) => candidate.key === genre.key)).toBe(true)
+    expect((await provider.libraryList('composers')).items.some((candidate) => candidate.key === composer.key)).toBe(
+      true,
+    )
+
+    await provider.libraryRemove(track)
+    await provider.libraryAdd(album)
+    expect((await provider.libraryList('genres')).items.some((candidate) => candidate.key === genre.key)).toBe(true)
+    expect((await provider.libraryList('composers')).items.some((candidate) => candidate.key === composer.key)).toBe(
+      true,
+    )
+  })
+
   test('playlist writes publish the updated trackCount on subsequent reads', async () => {
     const provider = createFixtureProvider()
     const playlist = provider.catalog.playlists[0]
@@ -501,6 +569,8 @@ describe('the fixture provider — behaviour', () => {
         genres: [],
         composers: [],
         tracksByAlbum: new Map(),
+        genreByAlbum: new Map(),
+        composerByAlbum: new Map(),
         tracksByPlaylist: new Map(),
       },
     })

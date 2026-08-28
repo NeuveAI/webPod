@@ -161,6 +161,10 @@ export interface FixtureCatalog {
    * not use in the one structure W3 actually drives.
    */
   readonly tracksByAlbum: LocalKeyed<readonly TrackRef[]>
+  /** Album `LocalKey` → its genre facet. */
+  readonly genreByAlbum: LocalKeyed<GenreRef>
+  /** Album `LocalKey` → its composer facet. */
+  readonly composerByAlbum: LocalKeyed<ComposerRef>
   /** Playlist `LocalKey` → its tracks, in playlist order. Keyed as above. */
   readonly tracksByPlaylist: LocalKeyed<readonly TrackRef[]>
 }
@@ -179,6 +183,8 @@ export function createFixtureCatalog(): FixtureCatalog {
   const genres: GenreRef[] = []
   const composers: ComposerRef[] = []
   const tracksByAlbum = new Map<LocalKey, readonly TrackRef[]>()
+  const genreByAlbum = new Map<LocalKey, GenreRef>()
+  const composerByAlbum = new Map<LocalKey, ComposerRef>()
 
   const artistByName = new Map<string, ArtistRef>()
   const genreByName = new Map<string, GenreRef>()
@@ -235,6 +241,12 @@ export function createFixtureCatalog(): FixtureCatalog {
       artwork: artworkFor(seed.slug),
     }
     albums.push(album)
+
+    const genre = genreByName.get(seed.genre)
+    const composer = composerByName.get(seed.composer)
+    if (genre === undefined || composer === undefined) throw new Error('fixture facet was not created')
+    genreByAlbum.set(album.key, genre)
+    composerByAlbum.set(album.key, composer)
 
     const albumTracks: TrackRef[] = seed.tracks.map(([title, durationMs, isrc], index) => ({
       kind: 'track',
@@ -322,5 +334,17 @@ export function createFixtureCatalog(): FixtureCatalog {
     },
   ]
 
-  return { tracks, albums, artists, playlists, stations, genres, composers, tracksByAlbum, tracksByPlaylist }
+  return {
+    tracks,
+    albums,
+    artists,
+    playlists,
+    stations,
+    genres,
+    composers,
+    tracksByAlbum,
+    genreByAlbum,
+    composerByAlbum,
+    tracksByPlaylist,
+  }
 }

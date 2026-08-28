@@ -350,6 +350,34 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
     return new Set(catalog.artists.filter((artist) => names.has(artist.name)).map((artist) => artist.key))
   }
 
+  function libraryMetadataAlbumKeys(): ReadonlySet<LocalKey> {
+    const keys = new Set<LocalKey>(libraryAlbumKeys)
+    for (const album of catalog.albums) {
+      if ((catalog.tracksByAlbum.get(album.key) ?? []).some((track) => libraryTrackKeys.has(track.key))) keys.add(album.key)
+    }
+    return keys
+  }
+
+  function libraryGenreKeys(): ReadonlySet<LocalKey> {
+    const keys = libraryMetadataAlbumKeys()
+    return new Set(
+      catalog.albums.flatMap((album) => {
+        const genre = keys.has(album.key) ? catalog.genreByAlbum.get(album.key) : undefined
+        return genre === undefined ? [] : [genre.key]
+      }),
+    )
+  }
+
+  function libraryComposerKeys(): ReadonlySet<LocalKey> {
+    const keys = libraryMetadataAlbumKeys()
+    return new Set(
+      catalog.albums.flatMap((album) => {
+        const composer = keys.has(album.key) ? catalog.composerByAlbum.get(album.key) : undefined
+        return composer === undefined ? [] : [composer.key]
+      }),
+    )
+  }
+
   function searchSource(scope: SearchQuery['scope'], kind: SearchQuery['kinds'][number]): readonly Entity[] {
     if (scope === 'catalog') {
       if (kind === 'track') return catalog.tracks
@@ -477,14 +505,14 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
         kind === 'playlists'
           ? playlists.filter((playlist) => libraryPlaylistKeys.has(playlist.key))
           : kind === 'artists'
-            ? catalog.artists
+            ? catalog.artists.filter((artist) => libraryArtistKeys().has(artist.key))
             : kind === 'albums'
-            ? catalog.albums.filter((album) => libraryAlbumKeys.has(album.key))
+              ? catalog.albums.filter((album) => libraryAlbumKeys.has(album.key))
               : kind === 'songs'
                 ? catalog.tracks.filter((t) => libraryTrackKeys.has(t.key))
                 : kind === 'genres'
-                  ? catalog.genres
-                  : catalog.composers
+                  ? catalog.genres.filter((genre) => libraryGenreKeys().has(genre.key))
+                  : catalog.composers.filter((composer) => libraryComposerKeys().has(composer.key))
       return pageOf(source, page)
     },
 
