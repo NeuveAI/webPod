@@ -1,0 +1,21 @@
+=== shadcn wiring resolves (review Major 4) ===
+
+$ bun -e 'Bun.resolveSync(spec, "/Users/vinicius/code/webPod/apps/web")'
+  OK    @webpod/ui                     -> /Users/vinicius/code/webPod/packages/ui/src/index.ts
+  OK    @webpod/ui/lib/utils           -> /Users/vinicius/code/webPod/packages/ui/src/lib/utils.ts
+  OK    @webpod/tokens                 -> /Users/vinicius/code/webPod/packages/tokens/src/index.ts
+  OK    @webpod/tokens/globals.css     -> /Users/vinicius/code/webPod/packages/tokens/src/globals.css
+
+Three fixes, all three verified:
+  (a) @webpod/ui added to apps/web dependencies — the isolated linker hoists nothing,
+      so a workspace package must be declared to resolve.
+  (b) packages/ui exports widened to ./components/*, ./hooks/*, ./lib/* — the map
+      previously exposed only ".", so the alias subpaths could never resolve.
+  (c) components.json css moved off the §12.1 transcription:
+$ grep '"css"' apps/web/components.json
+    "css": "src/styles/app.css",
+      shadcn add writes into that file; pointing it at globals.css would have
+      silently mutated the one artefact this slice's correctness rests on.
+
+$ bun -e 'cn("p-2","p-4",{hidden:false},"text-sm")'   # the utils alias target works
+   "p-4 text-sm"

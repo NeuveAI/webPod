@@ -31,6 +31,12 @@ $ bun run scripts/typecheck.ts
 ── tsc --noEmit -p packages/ui/tsconfig.json
    ok  packages/ui
 
-10/10 packages clean
+── tsc --noEmit -p scripts/tsconfig.json
+   ok  scripts
+
+11/11 projects clean
 
 exit: 0
+
+# 11 projects, not 10: scripts/ is now its own tsconfig project and is in the sweep,
+# so the gate runner and gates.ts typecheck themselves (review Major 3).

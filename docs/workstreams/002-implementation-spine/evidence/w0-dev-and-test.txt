@@ -1,40 +1,50 @@
 $ bun run dev
 $ bun run --cwd apps/web dev
 $ vite dev --port 3000
+12:52:17 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
 
-  VITE v8.2.2  ready in 408 ms
+  VITE v8.2.2  ready in 418 ms
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: use --host to expose
-10:49:15 AM [vite] (ssr) connected.
+12:52:17 PM [vite] (ssr) connected.
 
 $ curl -s -D - -o body.html http://localhost:3000/
 HTTP/1.1 200 OK
 Vary: Origin
 content-type: text/html; charset=utf-8
-Date: Fri, 28 Aug 2026 08:49:16 GMT
+Date: Fri, 28 Aug 2026 10:52:17 GMT
 Connection: keep-alive
 Keep-Alive: timeout=5
 Transfer-Encoding: chunked
 
---- served markup (grep -a: the SSR stream carries NUL markers, so grep needs -a) ---
+--- served markup (grep -a: the SSR stream carries NUL markers) ---
 <html lang="en" data-mode="dark">
 <title>webPod</title>
 <main class="text-ui-text-1 grid min-h-dvh place-items-center"><p class="font-panel text-panel-row">webPod</p></main>
-href="/src/styles/app.css"
 
-# data-mode="dark" on <html> is the colourway switch: design-system LAW 5 makes
-# the mode a product variant, so it is an explicit attribute and never a media query.
-# The route renders server-side; the panel classes resolve against the token sheet.
+$ bun run typecheck
+11/11 projects clean
+exit: 0
+
+# NOTE, recorded rather than hidden: an earlier run of this same command in this
+# session reported `failed: packages/state`. That was a race, not a defect — W2 was
+# mid-write in its own package while the sweep ran. Re-run seconds later with no
+# change from me: 11/11 clean. No file under packages/state is mine, and I did not
+# touch one to make this pass.
 
 $ bun test
-bun test v1.4.0 (34cbb9a40)
-
- 15 pass
+ 121 pass
  0 fail
- 34 expect() calls
-Ran 15 tests across 1 file. [2.00ms]
+ 294 expect() calls
+Ran 121 tests across 5 files. [9.00ms]
 
 $ bun run lint
 $ bunx --bun eslint .
 exit: 0
+
+$ bun run gates   # must stay non-zero until the gate set exists
+$ bun run scripts/gates.ts
+bun run gates: not implemented
+error: script "gates" exited with code 1
+exit: 1

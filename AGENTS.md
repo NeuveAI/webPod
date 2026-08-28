@@ -37,6 +37,23 @@ commands and hand them over.
 Never `npm`, `npx`, `pnpm`, or `yarn`. This holds for tooling that shells out too:
 if a helper only knows how to invoke `npx`, do not use the helper.
 
+### Credentials never leave the server, and never enter a transcript
+
+A live signing key sits in `cert/`, ignored but present.
+
+Never read, print, copy or quote the contents of anything under `cert/`. Never place
+key material in a commit, a log, a diary, an evidence file, a review, or an agent
+prompt.
+
+The private key is **server-side only**. The developer token is signed with a key
+that must never reach the client, so minting lives in `packages/server-core` and the
+client calls it over HTTP. A client-reachable route that touches the key is a
+Critical finding.
+
+The key path comes from an environment variable at runtime — never hardcoded, never
+defaulted to a repo-relative path in shipped code. Tokens are short-lived and are
+never logged.
+
 ### No `useState`, anywhere
 
 Tool callbacks live outside React and must read and write the same state the UI

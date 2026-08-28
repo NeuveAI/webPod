@@ -1,0 +1,60 @@
+=== D-020 APPLIED — @theme static on all three blocks ===
+
+The corrected ruling (decision-log D-020, CORRECTION) is three edits, not one.
+$ diff <(sed -n '2473,2748p' docs/workstreams/001-interface-design-handover/design-system.md) packages/tokens/src/globals.css
+12c12
+< @theme {
+---
+> @theme static {
+81c81
+< @theme inline {
+---
+> @theme static inline {
+235c235
+< @theme inline {
+---
+> @theme static inline {
+# ^ exactly three lines, all of them the sanctioned D-020 deviation. No other divergence.
+
+$ grep -n '^@theme' packages/tokens/src/globals.css
+12:@theme static {
+81:@theme static inline {
+235:@theme static inline {
+
+--- BEFORE the fix: variables shaken out of the build ---
+(measured against the pre-D-020 file, rebuilt)
+  --fx-wheel-r                       0 occurrences
+  --fx-halo-blur                     0 occurrences
+  --panel-w                          0 occurrences
+  --dur-tick                         0 occurrences
+  --ease-agent                       0 occurrences
+  ...and with @theme static on line 12 ALONE, the reviewer measured 36 still missing:
+  the whole --color-human-* / --color-agent-* actor ramps and every §12.2 shadcn semantic,
+  because those live in the two @theme inline blocks at :81 and :235.
+
+--- AFTER the fix: every declared variable reaches the browser ---
+$ # extract every custom property declared in globals.css, grep each in the built CSS
+declared in globals.css : 146
+missing from the build : 0
+
+--- the casualties that mattered most, now present ---
+  --color-human-500        1
+  --color-agent-500        1
+  --color-agent-600        1
+  --color-brand-am         1
+  --color-primary          1
+  --color-accent           1
+  --color-ring             1
+  --color-input            1
+  --fx-wheel-r             1
+  --fx-halo-blur           1
+  --fx-agent-blur          1
+  --panel-w                1
+  --panel-h                1
+  --dur-tick               1
+  --ease-agent             1
+  --radius-device          1
+
+# --color-human-* vs --color-agent-* is attribution channel 6. A build silently
+# dropping both ramps would have failed the U2 greyscale check with a symptom no
+# one could trace back to a stylesheet that looked correct on disk.

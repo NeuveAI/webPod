@@ -71,16 +71,27 @@ Run these on a **fresh clone**, not on the working repo. `git filter-repo` refus
 repo with uncommitted state or an existing origin unless forced, and it drops the `origin`
 remote by design — working on a clone keeps the original recoverable if anything goes wrong.
 
+> **This plan is deliberately tip-independent.** It was written while other lanes were
+> committing, so it names no specific HEAD. Everything below is expressed as invariants you
+> verify at the time you run it, not as a snapshot that goes stale the next time anyone commits.
+
 ```bash
-# 3.0 — starting point. Confirm main is at the tip you expect before cloning.
+# 3.0 — starting point. Record the current tip and confirm the invariants the
+#       rewrite depends on. Do not expect a particular hash here.
 cd ~/code/webPod
-git log --format='%h %s' -6
-#   8f27b02 chore: repo hygiene and agent instruction law
-#   9e65a48 chore: bun workspace scaffold
-#   2305f4b docs: interface design handover (workstream 001)
-#   2516827 design: refinements
-#   92c5e41 design: cleanup and improvements
-#   1efe77e design: add base design.pen and some exported frames
+BEFORE_TIP=$(git rev-parse HEAD); echo "before: $BEFORE_TIP"
+BEFORE_COUNT=$(git rev-list --count HEAD); echo "commits: $BEFORE_COUNT"
+
+# Invariant 1 — 2305f4b is still the first commit carrying .claude/ and CLAUDE.md,
+#               so it is the earliest commit the rewrite touches.
+git log --reverse --format='%h' -- .claude CLAUDE.md | head -1     # expect: 2305f4b
+
+# Invariant 2 — 2305f4b is still the only commit with a banned trailer.
+git log --format='%h %(trailers:only=true)' | grep -iE 'co-authored-by|claude-session'
+                                                                    # expect: one line, 2305f4b
+
+# Invariant 3 — history has not already been rewritten.
+git merge-base --is-ancestor 2305f4b HEAD && echo "2305f4b is an ancestor: OK"
 
 # 3.1 — fresh clone to operate on.
 cd ~/code
@@ -165,83 +176,69 @@ Alternative if you would rather not risk it at all: skip pass 2 entirely. The re
 
 ## 5. Expected before / after
 
-### Before
+Stated as per-commit changes rather than a full log, because the tip moves.
 
-```
-$ git log --format='%h %s' --stat
-8f27b02 chore: repo hygiene and agent instruction law
- .claude/settings.local.json |  3 ---
- AGENTS.md                   | 47 +++++++++++++++++++++++++++++++++++++++++++++
- CLAUDE.md                   |  9 ---------
- 3 files changed, 47 insertions(+), 12 deletions(-)
+### The two commits that change
 
-9e65a48 chore: bun workspace scaffold
- 43 files changed, 1277 insertions(+)
+**`2305f4b docs: interface design handover (workstream 001)`**
 
-2305f4b docs: interface design handover (workstream 001)
- .claude/settings.local.json                        |    3 +
- CLAUDE.md                                          |    9 +
- design.pen                                         | 2536 +++++++----------
- .../001-interface-design-handover/design-system.md | 2985 ++++++++++++++++++++
- .../001-interface-design-handover/handover.html    |  765 +++++
- .../001-interface-design-handover/pm-spec.md       | 2180 ++++++++++++++
- .../001-interface-design-handover/readme.md        |  131 +
- .../stack-research.md                              | 1521 ++++++++++
- images/generated-1787847078990.png                 |  Bin 0 -> 745448 bytes
- 9 files changed, 8629 insertions(+), 1501 deletions(-)
+| | Before | After |
+|---|---|---|
+| `.claude/settings.local.json` | `3 +` | gone |
+| `CLAUDE.md` | `9 +` | renamed to `AGENTS.md`, same 9 lines |
+| files changed | 9 | 8 |
+| insertions | 8629 | 8626 |
+| message | ends `Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>` | ends after the "Key decisions" paragraph, no trailer |
 
-2516827 design: refinements               1 file changed
-92c5e41 design: cleanup and improvements  1 file changed
-1efe77e design: add base design.pen ...   4 files changed
-```
+Everything else in that commit — `design.pen`, the five 001 documents, the PNG — is untouched.
 
-Commit `2305f4b`'s message ends with:
+**`8f27b02 chore: repo hygiene and agent instruction law`**
 
-```
-Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
-```
+| | Before | After |
+|---|---|---|
+| `.claude/settings.local.json` | `3 ---` | gone |
+| `CLAUDE.md` | `9 ---` | gone (it was never created, so there is nothing to delete) |
+| `AGENTS.md` | `47 +` | `47 ++---` — a modification of the file `2305f4b` now creates |
+| files changed | 3 | 1 |
 
-### After
+### What must NOT change
 
-```
-<new-hash> chore: repo hygiene and agent instruction law
- AGENTS.md | 47 ++++++++++++++++++++++++++++++++++--------------
- 1 file changed                       # no .claude, no CLAUDE.md; AGENTS.md modified in place
-
-<new-hash> chore: bun workspace scaffold
- 43 files changed, 1277 insertions(+)  # unchanged
-
-<new-hash> docs: interface design handover (workstream 001)
- AGENTS.md                                          |    9 +      # was CLAUDE.md
- design.pen                                         | 2536 +++++++----------
- .../001-interface-design-handover/design-system.md | 2985 ++++++++++++++++++++
- .../001-interface-design-handover/handover.html    |  765 +++++
- .../001-interface-design-handover/pm-spec.md       | 2180 ++++++++++++++
- .../001-interface-design-handover/readme.md        |  131 +
- .../stack-research.md                              | 1521 ++++++++++
- images/generated-1787847078990.png                 |  Bin 0 -> 745448 bytes
- 8 files changed, 8626 insertions(+), 1501 deletions(-)   # -1 file, -3 lines: .claude gone
-
-2516827 design: refinements               # hash UNCHANGED
-92c5e41 design: cleanup and improvements  # hash UNCHANGED
-1efe77e design: add base design.pen ...   # hash UNCHANGED
-```
-
-`2305f4b`'s message ends after the "Key decisions" paragraph, with no trailer.
-
----
+- **`1efe77e`, `92c5e41` and `2516827` keep their exact hashes.** They predate the first
+  commit the rewrite touches. Verify with `git rev-parse`:
+  ```bash
+  git rev-parse 1efe77e^{commit} 92c5e41^{commit} 2516827^{commit}
+  ```
+- **`design.pen` is byte-identical at every commit.** Verify against the pre-rewrite clone:
+  ```bash
+  git -C ~/code/webPod rev-parse HEAD:design.pen
+  git -C ~/code/webPod-rewrite rev-parse HEAD:design.pen    # must match
+  ```
+- **The commit count is unchanged.** The rewrite drops no commit:
+  ```bash
+  test "$(git rev-list --count HEAD)" = "$BEFORE_COUNT" && echo "count unchanged: OK"
+  ```
+- **Every commit from `2305f4b` onward gets a new hash.** That is expected, not a fault.
+- **No commit anywhere gains or keeps a banned trailer:**
+  ```bash
+  git log --format='%B' | grep -iE 'co-authored-by|claude-session|generated with'
+                                                              # expect: no output, exit 1
+  ```
 
 ## 6. Publishing — owner only
 
-The rewrite changes `2305f4b`, which `origin/main` currently points at:
+The rewrite changes `2305f4b`. Confirm at the time you run it that `origin/main` is still
+at or after that commit — if it is, the published history is being rewritten and a plain
+push cannot express it:
 
-```
-$ git show-ref
-8f27b0257555e93b3990271ec6d6ba7ab84ff40e refs/heads/main
-2305f4bbb09a42a07d872019d31a58c4ef3d98d8 refs/remotes/origin/main
+```bash
+git fetch origin
+git rev-parse origin/main
+git merge-base --is-ancestor 2305f4b origin/main \
+  && echo "origin/main contains a commit this rewrite changes -> force-push required"
 ```
 
-So publishing it is a force-push to `git@github.com:NeuveAI/webPod.git`, which **only the owner
+At the time of writing `origin/main` was exactly `2305f4b`, with every commit after it
+unpushed. So publishing is a force-push to `git@github.com:NeuveAI/webPod.git`, which **only the owner
 may perform**. For reference, and deliberately not run here:
 
 ```bash
