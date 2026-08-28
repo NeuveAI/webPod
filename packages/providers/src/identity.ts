@@ -252,8 +252,32 @@ export interface StationRef {
   readonly artwork?: Artwork
 }
 
+/**
+ * A genre, as S10 lists them.
+ *
+ * A browse facet rather than a thing you can play, which is why it carries no
+ * artwork and no duration. It is a `LocalKey` holder all the same: §14.5's rule
+ * is about *our* structures, and a genre a user has drilled into is one.
+ */
+export interface GenreRef {
+  readonly kind: 'genre'
+  readonly key: LocalKey
+  readonly provider: ProviderId
+  readonly catalogId: string
+  readonly name: string
+}
+
+/** A composer, as S11 lists them. §5 keeps this slice despite low traffic. */
+export interface ComposerRef {
+  readonly kind: 'composer'
+  readonly key: LocalKey
+  readonly provider: ProviderId
+  readonly catalogId: string
+  readonly name: string
+}
+
 /** Anything a browse surface can list. */
-export type Entity = TrackRef | AlbumRef | ArtistRef | PlaylistRef | StationRef
+export type Entity = TrackRef | AlbumRef | ArtistRef | PlaylistRef | StationRef | GenreRef | ComposerRef
 
 /**
  * Reads the `LocalKey` off any reference.
