@@ -1,0 +1,1117 @@
+{
+  "params": {
+    "envRoom.elevHalfSpanDeg": 16.8375,
+    "envRoom.exposure": 1.15,
+    "envRoom.profileContrast": 0.9906250000000003,
+    "envRoom.profileSharpenAmount": 0.9400000000000001,
+    "envRoom.profileSharpenSigma": 0.051500000000000004,
+    "envRoom.profileSharpenAmount2": 1.105,
+    "envRoom.profileSharpenSigma2": 0.036500000000000005,
+    "envRoom.sky.intensity": 0.37499999999999983,
+    "envRoom.sky.sizeDeg": 32.8125,
+    "envRoom.sky.azimuthDeg": -39.75,
+    "envRoom.sky.elevationDeg": 48,
+    "envRoom.azimuthVariation": 0.585,
+    "envRoom.horizon.opacity": 0.012499999999999284,
+    "envRoom.horizon.widthDeg": 0.9499999999999995,
+    "cameraDistance": 1160,
+    "envRoom.stopExposure.0": 1.0350000000000001,
+    "envRoom.stopExposure.1": 0.9249999999999999,
+    "envRoom.stopExposure.2": 0.955,
+    "envRoom.stopExposure.3": 0.9574999999999999,
+    "envRoom.stopExposure.4": 1.0950000000000002,
+    "envRoom.stopExposure.5": 1.045,
+    "envRoom.stopExposure.6": 0.975,
+    "envRoom.stopExposure.7": 0.97,
+    "envRoom.stopExposure.8": 1.02,
+    "envRoom.stopExposure.9": 1.11,
+    "envRoom.stopExposure.10": 0.84,
+    "lightRig.key.intensity": 24000000,
+    "lightRig.key.distance": 1360,
+    "lightRig.fill.azimuthDeg": -33,
+    "lightRig.fill.elevationDeg": -73,
+    "lightRig.fill.distance": 356.25,
+    "materials.bodyBlack.envMapIntensity": 0.09,
+    "materials.bodyWhite.envMapIntensity": 0.01062500000000001,
+    "materials.wheelRingBlack.envMapIntensity": 0.0062500000000000125,
+    "materials.wheelRingWhite.envMapIntensity": 0.012000640291977692,
+    "materials.selectBlack.envMapIntensity": 0.17249999999999993,
+    "materials.selectWhite.envMapIntensity": 0.01999999999999992,
+    "form.ringDishTiltDeg": 4.9,
+    "form.ringDishExponent": 7.950000000000001,
+    "form.selectDomeTiltDeg": 11.000000000000004,
+    "form.selectDomeExponent": 2.053125,
+    "form.recessDepth": 4.5,
+    "form.selectProud": 7.775000000000003,
+    "form.frontBevel": 3.000000000000001,
+    "form.seamWidth": 4.2
+  },
+  "results": [
+    {
+      "surface": "body-black",
+      "token": "--poly-k-0",
+      "at": 0,
+      "expectedHex": "#3E4147",
+      "expectedLuma": 64.7954,
+      "measuredLuma": 68.9725,
+      "measuredRgb": [
+        66,
+        69.5,
+        72.5
+      ],
+      "measuredSamples": [
+        [
+          43,
+          48,
+          52
+        ],
+        [
+          89,
+          91,
+          93
+        ]
+      ],
+      "delta": 4.177099999999996,
+      "pass": false
+    },
+    {
+      "surface": "body-black",
+      "token": "--poly-k-1",
+      "at": 0.05,
+      "expectedHex": "#262A2E",
+      "expectedLuma": 41.438399999999994,
+      "measuredLuma": 36.6057,
+      "measuredRgb": [
+        38,
+        36,
+        38.5
+      ],
+      "measuredSamples": [
+        [
+          35,
+          33,
+          36
+        ],
+        [
+          41,
+          39,
+          41
+        ]
+      ],
+      "delta": -4.8326999999999956,
+      "pass": false
+    },
+    {
+      "surface": "body-black",
+      "token": "--poly-k-2",
+      "at": 0.19,
+      "expectedHex": "#16181C",
+      "expectedLuma": 23.863599999999998,
+      "measuredLuma": 31.680499999999995,
+      "measuredRgb": [
+        31.5,
+        31.5,
+        34
+      ],
+      "measuredSamples": [
+        [
+          35,
+          35,
+          37
+        ],
+        [
+          28,
+          28,
+          31
+        ]
+      ],
+      "delta": 7.816899999999997,
+      "pass": false
+    },
+    {
+      "surface": "body-black",
+      "token": "--poly-k-3",
+      "at": 0.44,
+      "expectedHex": "#0C0D0F",
+      "expectedLuma": 12.931799999999999,
+      "measuredLuma": 23.397699999999997,
+      "measuredRgb": [
+        22,
+        23.5,
+        26.5
+      ],
+      "measuredSamples": [
+        [
+          21,
+          23,
+          26
+        ],
+        [
+          23,
+          24,
+          27
+        ]
+      ],
+      "delta": 10.465899999999998,
+      "pass": false
+    },
+    {
+      "surface": "body-black",
+      "token": "--poly-k-4",
+      "at": 0.62,
+      "expectedHex": "#0A0B0D",
+      "expectedLuma": 10.931799999999999,
+      "measuredLuma": 27.4318,
+      "measuredRgb": [
+        26.5,
+        27.5,
+        29.5
+      ],
+      "measuredSamples": [
+        [
+          24,
+          25,
+          27
+        ],
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "delta": 16.5,
+      "pass": false
+    },
+    {
+      "surface": "body-black",
+      "token": "--poly-k-5",
+      "at": 0.81,
+      "expectedHex": "#121417",
+      "expectedLuma": 19.7914,
+      "measuredLuma": 30.431799999999996,
+      "measuredRgb": [
+        29.5,
+        30.5,
+        32.5
+      ],
+      "measuredSamples": [
+        [
+          33,
+          33,
+          34
+        ],
+        [
+          26,
+          28,
+          31
+        ]
+      ],
+      "delta": 10.640399999999996,
+      "pass": false
+    },
+    {
+      "surface": "body-black",
+      "token": "--poly-k-6",
+      "at": 0.93,
+      "expectedHex": "#1E2126",
+      "expectedLuma": 32.7232,
+      "measuredLuma": 28.363599999999998,
+      "measuredRgb": [
+        26.5,
+        28.5,
+        32.5
+      ],
+      "measuredSamples": [
+        [
+          25,
+          26,
+          29
+        ],
+        [
+          28,
+          31,
+          36
+        ]
+      ],
+      "delta": -4.3596,
+      "pass": false
+    },
+    {
+      "surface": "body-black",
+      "token": "--poly-k-7",
+      "at": 1,
+      "expectedHex": "#32363C",
+      "expectedLuma": 53.5828,
+      "measuredLuma": 56.5447,
+      "measuredRgb": [
+        53.5,
+        57,
+        61
+      ],
+      "measuredSamples": [
+        [
+          35,
+          40,
+          45
+        ],
+        [
+          72,
+          74,
+          77
+        ]
+      ],
+      "delta": 2.9619,
+      "pass": true
+    },
+    {
+      "surface": "wheel-ring-black",
+      "token": "--wheel-k-0",
+      "at": 0,
+      "expectedHex": "#14161A",
+      "expectedLuma": 21.863599999999998,
+      "measuredLuma": 7.723199999999999,
+      "measuredRgb": [
+        5,
+        8,
+        13
+      ],
+      "measuredSamples": [
+        [
+          5,
+          8,
+          13
+        ]
+      ],
+      "delta": -14.1404,
+      "pass": false
+    },
+    {
+      "surface": "wheel-ring-black",
+      "token": "--wheel-k-1",
+      "at": 0.38,
+      "expectedHex": "#1E2126",
+      "expectedLuma": 32.7232,
+      "measuredLuma": 47.5487,
+      "measuredRgb": [
+        43.5,
+        48,
+        55
+      ],
+      "measuredSamples": [
+        [
+          43,
+          47,
+          53
+        ],
+        [
+          44,
+          49,
+          57
+        ]
+      ],
+      "delta": 14.825499999999998,
+      "pass": false
+    },
+    {
+      "surface": "wheel-ring-black",
+      "token": "--wheel-k-2",
+      "at": 0.62,
+      "expectedHex": "#23262B",
+      "expectedLuma": 37.7232,
+      "measuredLuma": 49.3381,
+      "measuredRgb": [
+        44,
+        50,
+        58.5
+      ],
+      "measuredSamples": [
+        [
+          42,
+          47,
+          54
+        ],
+        [
+          46,
+          53,
+          63
+        ]
+      ],
+      "delta": 11.614899999999999,
+      "pass": false
+    },
+    {
+      "surface": "wheel-ring-black",
+      "token": "--wheel-k-3",
+      "at": 1,
+      "expectedHex": "#2C3037",
+      "expectedLuma": 47.655,
+      "measuredLuma": 74.18279999999999,
+      "measuredRgb": [
+        61,
+        76,
+        95
+      ],
+      "measuredSamples": [
+        [
+          61,
+          76,
+          95
+        ]
+      ],
+      "delta": 26.527799999999985,
+      "pass": false
+    },
+    {
+      "surface": "select-black",
+      "token": "--select-k-0",
+      "at": 0,
+      "expectedHex": "#3A3E45",
+      "expectedLuma": 61.654999999999994,
+      "measuredLuma": 43.93579999999999,
+      "measuredRgb": [
+        42,
+        44,
+        49
+      ],
+      "measuredSamples": [
+        [
+          42,
+          44,
+          49
+        ]
+      ],
+      "delta": -17.7192,
+      "pass": false
+    },
+    {
+      "surface": "select-black",
+      "token": "--select-k-1",
+      "at": 0.34,
+      "expectedHex": "#262A30",
+      "expectedLuma": 41.5828,
+      "measuredLuma": 46.4358,
+      "measuredRgb": [
+        44.5,
+        46.5,
+        51.5
+      ],
+      "measuredSamples": [
+        [
+          44,
+          46,
+          51
+        ],
+        [
+          45,
+          47,
+          52
+        ]
+      ],
+      "delta": 4.8530000000000015,
+      "pass": false
+    },
+    {
+      "surface": "select-black",
+      "token": "--select-k-2",
+      "at": 0.7,
+      "expectedHex": "#1B1E23",
+      "expectedLuma": 29.723200000000002,
+      "measuredLuma": 48.79339999999999,
+      "measuredRgb": [
+        46.5,
+        49,
+        53.5
+      ],
+      "measuredSamples": [
+        [
+          47,
+          49,
+          53
+        ],
+        [
+          46,
+          49,
+          54
+        ]
+      ],
+      "delta": 19.07019999999999,
+      "pass": false
+    },
+    {
+      "surface": "select-black",
+      "token": "--select-k-3",
+      "at": 1,
+      "expectedHex": "#2A2E34",
+      "expectedLuma": 45.5828,
+      "measuredLuma": 45.795399999999994,
+      "measuredRgb": [
+        43,
+        46,
+        52
+      ],
+      "measuredSamples": [
+        [
+          43,
+          46,
+          52
+        ]
+      ],
+      "delta": 0.2125999999999948,
+      "pass": true
+    },
+    {
+      "surface": "body-white",
+      "token": "--poly-w-0",
+      "at": 0,
+      "expectedHex": "#FFFFFF",
+      "expectedLuma": 254.99999999999997,
+      "measuredLuma": 68.9725,
+      "measuredRgb": [
+        66,
+        69.5,
+        72.5
+      ],
+      "measuredSamples": [
+        [
+          43,
+          48,
+          52
+        ],
+        [
+          89,
+          91,
+          93
+        ]
+      ],
+      "delta": -186.02749999999997,
+      "pass": false
+    },
+    {
+      "surface": "body-white",
+      "token": "--poly-w-1",
+      "at": 0.06,
+      "expectedHex": "#FBFAF8",
+      "expectedLuma": 250.0682,
+      "measuredLuma": 254.99999999999997,
+      "measuredRgb": [
+        255,
+        255,
+        255
+      ],
+      "measuredSamples": [
+        [
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255
+        ]
+      ],
+      "delta": 4.931799999999981,
+      "pass": false
+    },
+    {
+      "surface": "body-white",
+      "token": "--poly-w-2",
+      "at": 0.21,
+      "expectedHex": "#F0F1F3",
+      "expectedLuma": 240.93179999999998,
+      "measuredLuma": 254.99999999999997,
+      "measuredRgb": [
+        255,
+        255,
+        255
+      ],
+      "measuredSamples": [
+        [
+          255,
+          255,
+          255
+        ],
+        [
+          255,
+          255,
+          255
+        ]
+      ],
+      "delta": 14.06819999999999,
+      "pass": false
+    },
+    {
+      "surface": "body-white",
+      "token": "--poly-w-3",
+      "at": 0.47,
+      "expectedHex": "#E2E5E8",
+      "expectedLuma": 228.5788,
+      "measuredLuma": 250.3321,
+      "measuredRgb": [
+        246.5,
+        251,
+        255
+      ],
+      "measuredSamples": [
+        [
+          246,
+          250,
+          255
+        ],
+        [
+          247,
+          252,
+          255
+        ]
+      ],
+      "delta": 21.753299999999996,
+      "pass": false
+    },
+    {
+      "surface": "body-white",
+      "token": "--poly-w-4",
+      "at": 0.64,
+      "expectedHex": "#DBDFE4",
+      "expectedLuma": 222.5106,
+      "measuredLuma": 236.08939999999998,
+      "measuredRgb": [
+        230,
+        237,
+        245
+      ],
+      "measuredSamples": [
+        [
+          228,
+          234,
+          241
+        ],
+        [
+          232,
+          240,
+          249
+        ]
+      ],
+      "delta": 13.578799999999973,
+      "pass": false
+    },
+    {
+      "surface": "body-white",
+      "token": "--poly-w-5",
+      "at": 0.82,
+      "expectedHex": "#E6E9EC",
+      "expectedLuma": 232.57879999999997,
+      "measuredLuma": 232.5284,
+      "measuredRgb": [
+        222,
+        234.5,
+        244
+      ],
+      "measuredSamples": [
+        [
+          215,
+          223,
+          233
+        ],
+        [
+          229,
+          246,
+          255
+        ]
+      ],
+      "delta": -0.050399999999967804,
+      "pass": true
+    },
+    {
+      "surface": "body-white",
+      "token": "--poly-w-6",
+      "at": 0.94,
+      "expectedHex": "#F3F5F7",
+      "expectedLuma": 244.7192,
+      "measuredLuma": 235.98569999999998,
+      "measuredRgb": [
+        228,
+        237.5,
+        244.5
+      ],
+      "measuredSamples": [
+        [
+          209,
+          220,
+          234
+        ],
+        [
+          247,
+          255,
+          255
+        ]
+      ],
+      "delta": -8.73350000000002,
+      "pass": false
+    },
+    {
+      "surface": "body-white",
+      "token": "--poly-w-7",
+      "at": 1,
+      "expectedHex": "#FDFEFE",
+      "expectedLuma": 253.7874,
+      "measuredLuma": 83.47250000000001,
+      "measuredRgb": [
+        80.5,
+        84,
+        87
+      ],
+      "measuredSamples": [
+        [
+          35,
+          40,
+          45
+        ],
+        [
+          126,
+          128,
+          129
+        ]
+      ],
+      "delta": -170.31489999999997,
+      "pass": false
+    },
+    {
+      "surface": "wheel-ring-white",
+      "token": "--wheel-w-0",
+      "at": 0,
+      "expectedHex": "#DCDFE2",
+      "expectedLuma": 222.5788,
+      "measuredLuma": 145.5794,
+      "measuredRgb": [
+        118,
+        150,
+        183
+      ],
+      "measuredSamples": [
+        [
+          118,
+          150,
+          183
+        ]
+      ],
+      "delta": -76.99940000000001,
+      "pass": false
+    },
+    {
+      "surface": "wheel-ring-white",
+      "token": "--wheel-w-1",
+      "at": 0.38,
+      "expectedHex": "#E6E8EA",
+      "expectedLuma": 231.7192,
+      "measuredLuma": 248.9115,
+      "measuredRgb": [
+        241.5,
+        250.5,
+        255
+      ],
+      "measuredSamples": [
+        [
+          239,
+          247,
+          255
+        ],
+        [
+          244,
+          254,
+          255
+        ]
+      ],
+      "delta": 17.19229999999999,
+      "pass": false
+    },
+    {
+      "surface": "wheel-ring-white",
+      "token": "--wheel-w-2",
+      "at": 0.62,
+      "expectedHex": "#E9EBED",
+      "expectedLuma": 234.71919999999997,
+      "measuredLuma": 248.80519999999999,
+      "measuredRgb": [
+        241,
+        250.5,
+        255
+      ],
+      "measuredSamples": [
+        [
+          234,
+          246,
+          255
+        ],
+        [
+          248,
+          255,
+          255
+        ]
+      ],
+      "delta": 14.086000000000013,
+      "pass": false
+    },
+    {
+      "surface": "wheel-ring-white",
+      "token": "--wheel-w-3",
+      "at": 1,
+      "expectedHex": "#F2F4F6",
+      "expectedLuma": 243.71919999999997,
+      "measuredLuma": 254.99999999999997,
+      "measuredRgb": [
+        255,
+        255,
+        255
+      ],
+      "measuredSamples": [
+        [
+          255,
+          255,
+          255
+        ]
+      ],
+      "delta": 11.2808,
+      "pass": false
+    },
+    {
+      "surface": "select-white",
+      "token": "--select-w-0",
+      "at": 0,
+      "expectedHex": "#FFFFFF",
+      "expectedLuma": 254.99999999999997,
+      "measuredLuma": 222.80859999999998,
+      "measuredRgb": [
+        215,
+        224,
+        234
+      ],
+      "measuredSamples": [
+        [
+          215,
+          224,
+          234
+        ]
+      ],
+      "delta": -32.19139999999999,
+      "pass": false
+    },
+    {
+      "surface": "select-white",
+      "token": "--select-w-1",
+      "at": 0.34,
+      "expectedHex": "#F1F3F5",
+      "expectedLuma": 242.7192,
+      "measuredLuma": 225.31059999999997,
+      "measuredRgb": [
+        217,
+        226.5,
+        238
+      ],
+      "measuredSamples": [
+        [
+          218,
+          227,
+          238
+        ],
+        [
+          216,
+          226,
+          238
+        ]
+      ],
+      "delta": -17.408600000000035,
+      "pass": false
+    },
+    {
+      "surface": "select-white",
+      "token": "--select-w-2",
+      "at": 0.7,
+      "expectedHex": "#E4E7EA",
+      "expectedLuma": 230.5788,
+      "measuredLuma": 233.42349999999996,
+      "measuredRgb": [
+        223,
+        235,
+        248.5
+      ],
+      "measuredSamples": [
+        [
+          220,
+          232,
+          245
+        ],
+        [
+          226,
+          238,
+          252
+        ]
+      ],
+      "delta": 2.8446999999999605,
+      "pass": true
+    },
+    {
+      "surface": "select-white",
+      "token": "--select-w-3",
+      "at": 1,
+      "expectedHex": "#EFF1F4",
+      "expectedLuma": 240.7914,
+      "measuredLuma": 236.541,
+      "measuredRgb": [
+        222,
+        239,
+        255
+      ],
+      "measuredSamples": [
+        [
+          222,
+          239,
+          255
+        ]
+      ],
+      "delta": -4.250400000000013,
+      "pass": false
+    },
+    {
+      "surface": "steel-back",
+      "token": "--steel-0",
+      "at": 0,
+      "expectedHex": "#F6F8FA",
+      "expectedLuma": 247.7192,
+      "measuredLuma": 142.596,
+      "measuredRgb": [
+        134,
+        144,
+        154
+      ],
+      "measuredSamples": [
+        [
+          134,
+          144,
+          154
+        ]
+      ],
+      "delta": -105.1232,
+      "pass": false
+    },
+    {
+      "surface": "steel-back",
+      "token": "--steel-1",
+      "at": 0.07,
+      "expectedHex": "#C6CDD4",
+      "expectedLuma": 204.01719999999997,
+      "measuredLuma": 208.37019999999998,
+      "measuredRgb": [
+        204,
+        209,
+        215
+      ],
+      "measuredSamples": [
+        [
+          204,
+          209,
+          215
+        ]
+      ],
+      "delta": 4.353000000000009,
+      "pass": false
+    },
+    {
+      "surface": "steel-back",
+      "token": "--steel-2",
+      "at": 0.16,
+      "expectedHex": "#EDF1F5",
+      "expectedLuma": 240.43839999999997,
+      "measuredLuma": 230.51059999999998,
+      "measuredRgb": [
+        227,
+        231,
+        236
+      ],
+      "measuredSamples": [
+        [
+          227,
+          231,
+          236
+        ]
+      ],
+      "delta": -9.92779999999999,
+      "pass": false
+    },
+    {
+      "surface": "steel-back",
+      "token": "--steel-3",
+      "at": 0.29,
+      "expectedHex": "#929BA5",
+      "expectedLuma": 153.8086,
+      "measuredLuma": 138.8808,
+      "measuredRgb": [
+        131,
+        140,
+        151
+      ],
+      "measuredSamples": [
+        [
+          131,
+          140,
+          151
+        ]
+      ],
+      "delta": -14.927800000000019,
+      "pass": false
+    },
+    {
+      "surface": "steel-back",
+      "token": "--steel-4",
+      "at": 0.43,
+      "expectedHex": "#656E78",
+      "expectedLuma": 108.8086,
+      "measuredLuma": 107.6682,
+      "measuredRgb": [
+        99,
+        109,
+        120
+      ],
+      "measuredSamples": [
+        [
+          99,
+          109,
+          120
+        ]
+      ],
+      "delta": -1.1403999999999996,
+      "pass": true
+    },
+    {
+      "surface": "steel-back",
+      "token": "--steel-5",
+      "at": 0.5,
+      "expectedHex": "#7C858F",
+      "expectedLuma": 131.80859999999998,
+      "measuredLuma": 131.8808,
+      "measuredRgb": [
+        124,
+        133,
+        144
+      ],
+      "measuredSamples": [
+        [
+          124,
+          133,
+          144
+        ]
+      ],
+      "delta": 0.07220000000000937,
+      "pass": true
+    },
+    {
+      "surface": "steel-back",
+      "token": "--steel-6",
+      "at": 0.58,
+      "expectedHex": "#ADB6BF",
+      "expectedLuma": 180.73639999999997,
+      "measuredLuma": 175.7364,
+      "measuredRgb": [
+        168,
+        177,
+        186
+      ],
+      "measuredSamples": [
+        [
+          168,
+          177,
+          186
+        ]
+      ],
+      "delta": -4.999999999999972,
+      "pass": false
+    },
+    {
+      "surface": "steel-back",
+      "token": "--steel-7",
+      "at": 0.71,
+      "expectedHex": "#E1E7EC",
+      "expectedLuma": 230.0854,
+      "measuredLuma": 229.2258,
+      "measuredRgb": [
+        225,
+        230,
+        234
+      ],
+      "measuredSamples": [
+        [
+          225,
+          230,
+          234
+        ]
+      ],
+      "delta": -0.8596000000000004,
+      "pass": true
+    },
+    {
+      "surface": "steel-back",
+      "token": "--steel-8",
+      "at": 0.85,
+      "expectedHex": "#96A0AA",
+      "expectedLuma": 158.596,
+      "measuredLuma": 160.5238,
+      "measuredRgb": [
+        152,
+        162,
+        171
+      ],
+      "measuredSamples": [
+        [
+          152,
+          162,
+          171
+        ]
+      ],
+      "delta": 1.9277999999999906,
+      "pass": true
+    },
+    {
+      "surface": "steel-back",
+      "token": "--steel-9",
+      "at": 0.94,
+      "expectedHex": "#C7CED5",
+      "expectedLuma": 205.0172,
+      "measuredLuma": 195.596,
+      "measuredRgb": [
+        187,
+        197,
+        207
+      ],
+      "measuredSamples": [
+        [
+          187,
+          197,
+          207
+        ]
+      ],
+      "delta": -9.421199999999999,
+      "pass": false
+    },
+    {
+      "surface": "steel-back",
+      "token": "--steel-10",
+      "at": 1,
+      "expectedHex": "#7A828C",
+      "expectedLuma": 129.0212,
+      "measuredLuma": 248,
+      "measuredRgb": [
+        248,
+        248,
+        248
+      ],
+      "measuredSamples": [
+        [
+          248,
+          248,
+          248
+        ]
+      ],
+      "delta": 118.9788,
+      "pass": false
+    }
+  ]
+}

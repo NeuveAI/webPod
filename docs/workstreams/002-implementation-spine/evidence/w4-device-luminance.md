@@ -3,26 +3,29 @@
 Generated from the running `/_spike/device` route with:
 
 ```sh
-bun run scripts/w4-tune.ts report docs/workstreams/002-implementation-spine/evidence/w4-luminance-report.json
+bun run packages/device/calibration/tune.ts report docs/workstreams/002-implementation-spine/evidence/w4-device-luminance.json
 ```
 
 The raw 43-row result, measured RGB values, rig parameters and deltas are in
-`w4-luminance-report.json`.
+`w4-device-luminance.json`.
 
 | Surface | Pass | Total | Worst absolute delta |
 |---|---:|---:|---:|
-| body-black | 2 | 8 | 25.19 |
-| body-white | 2 | 8 | 16.61 |
-| wheel-ring-black | 0 | 4 | 17.65 |
-| wheel-ring-white | 1 | 4 | 7.03 |
-| select-black | 0 | 4 | 18.00 |
-| select-white | 1 | 4 | 9.34 |
-| steel-back | 9 | 11 | 5.08 |
-| **All** | **15** | **43** | **25.19** |
+| body-black | 1 | 8 | 16.50 |
+| body-white | 1 | 8 | 186.03 |
+| wheel-ring-black | 0 | 4 | 26.53 |
+| wheel-ring-white | 0 | 4 | 77.00 |
+| select-black | 1 | 4 | 19.07 |
+| select-white | 1 | 4 | 32.19 |
+| steel-back | 4 | 11 | 118.98 |
+| **All** | **8** | **43** | **186.03** |
 
-RMS delta is **10.13**. The ±4 gate is therefore **not met**. This file is a
-failure record, not acceptance evidence. It prevents the materially improved
-preview from being mistaken for numeric closure.
+The ±4 gate is **not met**. This is a bounded source-conflict record, not
+acceptance evidence. A per-row optical-normal fit reached 32/43, but independent
+holdouts showed broad blue/bronze bands and merged white surfaces—the exact
+material failure Pencil and the owner reject. Product defaults and the tuner now
+use smooth profiles. The regularized white/light and black/dark captures beside
+this file are the visual holdouts; D18 records why pointwise fitting was removed.
 
 One exact boundary originally graded false because colour arithmetic produced
 `4.000000000000028`. The evaluator now admits only `1e-9` of representation
