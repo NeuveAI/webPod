@@ -2,59 +2,55 @@
 
 ## W5a-D1 · Keep the existing typechecked Bun entrypoint
 
-The dispatch names `scripts/gates.sh`, while W0 deliberately installed and
-typechecked `scripts/gates.ts` and root `package.json` already invokes it. W5a
-kept the TypeScript entrypoint. This satisfies the substantive requirement that
-one command runs the gates and closes the already-reviewed failure mode where
-the runner itself sat outside every TypeScript project. Adding a shell wrapper
-would create a second untyped orchestration surface with no additional caller.
+W0 installed `scripts/gates.ts` and root `package.json` already invokes it. W5a
+kept that TypeScript entrypoint instead of adding a second shell surface. It is
+included by `scripts/tsconfig.json`.
 
-## W5a-D2 · U8 clearances are explicit and narrow
+## W5a-D2 · U8 is content-aware, with no path/line allowlist
 
-U8 is not a blind vocabulary ban: `permission-denied` is itself one of the
-required account states, and provider diagnostics truthfully describe API and
-account restrictions. The harness therefore records narrow path-and-line
-patterns for the current manually-cleared non-agent meanings. New copy, another
-path, or changed wording is a finding. Probe scripts are outside the U8 product
-surface; apps and packages remain covered.
-
-No other zero-count grep receives a clearance. In particular, textual mentions
-of `useState`, `navigator.vibrate`, and generic words containing `handed` remain
-findings because their packet contracts explicitly require zero grep hits.
+The first version's allowlist was removed after review proved forbidden copy
+could be appended to an allowed line. U8 now parses authored strings and JSX,
+ignores comments and provider-layer factual diagnostics, removes only the exact
+required `permission-denied` token, then checks the remainder for authorization
+and approval morphology. Required state plus forbidden prose still fails.
 
 ## W5a-D3 · Trailer scope is `origin/main..HEAD`
 
-The owner has not yet executed the prepared history rewrite and the shared base
-commit `2305f4b` still contains the historical trailer being removed. A branch
-gate must judge commits added on the branch, not make every descendant
-permanently red on a known base defect. The runner uses `origin/main..HEAD`, with
-`HEAD^..HEAD` only for an isolated repository without `origin/main`. The
-mutation test creates a second commit and proves its trailer is caught.
+The owner has not executed the prepared history rewrite and `2305f4b` still has
+the historical trailer. The branch gate judges `origin/main..HEAD`, with
+`HEAD^..HEAD` only in an isolated repository without `origin/main`.
 
-## W5a-D4 · Credential hygiene is checked without opening `cert/`
+## W5a-D4 · Credential hygiene covers tracked artifacts without disclosure
 
-The credential gate uses only git metadata and synthetic ignore sentinels:
+The gate obtains paths from `git ls-files`, scans every tracked working-tree
+artifact (including docs/evidence and key-like paths), and checks synthetic
+ignore sentinels. A tracked `cert/` path is reported from metadata without being
+opened. Content findings emit only path, line and a generic label; matching text
+is never echoed. Nothing enumerates, opens, hashes or prints the real `cert/`.
 
-- `git ls-files` rejects tracked `cert/`, key extensions and non-example env files;
-- `git check-ignore --no-index` proves the required patterns cover invented paths;
-- implementation source is checked for private-key markers and relative
-  `cert/` defaults.
+## W5a-D5 · Executable laws use syntax; prose laws use authored content
 
-Nothing enumerates, opens, hashes or prints the real `cert/` directory.
+Provider, tool-return, flip, tier, U9 and U10 use the TypeScript parser. They
+cover property/element access, destructuring, tainted return variables, catch and
+rejection callbacks, JSX error handlers, equality/switch/method tier branches,
+and lowercase or uppercase Canvas elements. Authored-content laws scan strings,
+JSX and CSS/HTML while ignoring comments where factual documentation is legal.
+No harness file is exempt.
 
-## W5a-D5 · Syntax-sensitive checks use the TypeScript parser
+## W5a-D6 · The stale global-pattern path is evidence, not authority
 
-The flip gate inspects catch clauses, promise catch callbacks and named
-error/failure handlers. The tier gate inspects equality and switch cases. The
-tool gate inspects returned expressions rather than comments. These are AST
-checks because a multiline grep would either miss the forbidden structure or
-flag unrelated documentation. The literal zero-count contracts remain literal
-line scans.
+The skill points to absent `~/code/agent-context/global.md`; the corrected
+`agentic-context` root has no `global.md` either. Bun behavior is grounded in the
+exact clone files listed in the diary rather than recalled.
 
-## W5a-D6 · The stale global-pattern skill path is evidence, not authority
+## W5a-D7 · Manual gates are not automated successes
 
-`/Users/vinicius/.agents/skills/global-patterns/SKILL.md` points to the absent
-`~/code/agent-context/global.md`. The corrected
-`/Users/vinicius/code/agentic-context` root also has no `global.md`. W5a records
-that defect and grounds Bun behavior in the exact clone files listed in the
-diary instead of inferring project rules from a missing file.
+U14 and U15 appear as manual outstanding checks. They do not increment automated
+passed or failed counts and cannot represent owner/reviewer validation that did
+not happen.
+
+## W5a-D8 · Every mutation proves its precondition
+
+Each adversarial test writes a fresh fixture, reads it back and asserts the exact
+mutation exists before invoking the gate. A failed substitution cannot make
+unchanged green code look like evidence that a guard held.

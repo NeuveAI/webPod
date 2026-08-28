@@ -1,41 +1,42 @@
 W5a planted-failure evidence
-Date: 2026-08-28
+Date: 2026-08-29
 
 Command:
   bun test scripts/gates.test.ts
 
-Precondition/control:
-  PASS clean fixture is green before mutation
-  PASS U8 permits the explicitly cleared account-state vocabulary
+Preconditions:
+  Every plant creates a fresh temporary repository, reads the target back and
+  asserts the exact edit landed before invoking the gate.
+  A clean fixture is green before mutation.
 
-Every plant writes a fresh temporary repository, reads the file back and asserts
-the exact planted text before running the gate (D-064).
+Same-review adversarial mutations caught (14/14):
+  PASS U8 ordinary authorization vocabulary
+  PASS U8 required state plus forbidden approval prose on one line
+  PASS PROVIDER switch on provider id
+  PASS PROVIDER inequality on provider id
+  PASS PROVIDER destructured provider id
+  PASS TOOLS unsupported result assigned then returned
+  PASS FLIP JSX onError callback
+  PASS FLIP promise rejection callback
+  PASS TIER enum comparison outside composite
+  PASS TIER method-based branching outside composite
+  PASS CREDENTIALS tracked documentation signature, without source echo
+  PASS U9 executable useState inside the harness
+  PASS AGENT-FLAG authored CSS identifier
+  PASS U10 uppercase React Canvas component
 
-Static plants that went red:
-  PASS U8 detects "Waiting for approval"
-  PASS U9 detects useState
-  PASS U10 detects panel canvas
-  PASS AGENT-FLAG detects agentPresent
-  PASS HAPTICS detects navigator.vibrate
-  PASS HALO detects leftHand
-  PASS PROVIDER detects provider.id === outside providers
-  PASS TOOLS detects an unsupported return
-  PASS FLIP detects flipDevice() in a catch handler
-  PASS NAMING detects an initiative id in implementation
-  PASS TIER detects tier === "t1" outside composite
-  PASS TIER detects a switch(tier) case outside composite
-  PASS TRAILERS detects a branch Co-Authored-By trailer
-  PASS CREDENTIALS detects a force-added synthetic .p8 path
-
-Command plants that went red:
-  PASS TYPES propagates an exit-7 typecheck command
-  PASS LINT propagates an exit-8 lint command
-  PASS TESTS propagates a failing Bun test
+Additional controls and plants:
+  PASS truthful comments and required identifiers remain legal
+  PASS all thirteen static predicates turn red on canonical plants
+  PASS trailer mutation is caught
+  PASS manual U14/U15 remain outstanding instead of counted clear
+  PASS typecheck, lint and test command failures propagate red
 
 Result:
-  19 pass
+  35 pass
   0 fail
-  150 expect() calls
+  269 assertions
 
-The credential plant contains only the literal "fixture-not-a-key". No path
+The credential fixture uses a synthetic signature in tracked documentation. The
+assertion verifies neither source line nor payload appears in output. No path
 under the real cert directory was opened or enumerated.

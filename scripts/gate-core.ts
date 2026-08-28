@@ -119,7 +119,11 @@ function contentFindings(files: readonly SourceFile[], pattern: RegExp, options:
     for (const item of authoredText(file, options.comments)) {
       if (options.ignore?.(item) === true) continue
       pattern.lastIndex = 0
-      if (pattern.test(item.text)) findings.push(finding(item.path, item.line, 'forbidden authored content'))
+      const match = pattern.exec(item.text)
+      if (match !== null) {
+        const matchedLine = item.line + (item.text.slice(0, match.index).match(/\n/g)?.length ?? 0)
+        findings.push(finding(item.path, matchedLine, 'forbidden authored content'))
+      }
     }
   }
   return findings

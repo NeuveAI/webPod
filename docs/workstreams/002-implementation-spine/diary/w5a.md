@@ -4,22 +4,15 @@
 
 Owned only `scripts/gate-core.ts`, `scripts/gates.ts`, `scripts/gates.test.ts`, and
 this slice's diary, decisions and evidence. I did not edit, delete, stage, format
-or commit `scripts/w4-*` or `scripts/w4-rig.json`. I did not touch root package
-or lock files; the existing `gates` script already pointed at `scripts/gates.ts`.
+or commit `scripts/w4-*`, `scripts/w4-rig.json`, shared packages or lock files.
 
 ## Sources read before implementation
 
-- `AGENTS.md`
-- `dispatch/W5-gates.md`
-- full workstream `scope.md`, `dependency-graph.md`, `decision-log.md`,
-  `hitl-decisions.md`, `review-system-prompt.md`, `review-lanes.md`, `tracker.md`
-- workstream 001 `pm-spec.md` §15.0–15.3
-- `/Users/vinicius/.agents/skills/global-patterns/SKILL.md`
-
-The global-pattern skill names `~/code/agent-context/global.md`; that path is
-stale and no `global.md` exists at the corrected `agentic-context` root. I did
-not silently fall back to recall. Bun behavior was grounded in these exact
-checked-in sources under `/Users/vinicius/code/agentic-context/bun`:
+Read `AGENTS.md`, the full W5 dispatch and full 002 scope, dependency graph,
+decision log, HITL decisions, review system, review lanes and tracker, plus 001
+§15.0–15.3 and the global-patterns skill. Its `agent-context` path is stale, so
+Bun behavior was grounded in these exact files under
+`/Users/vinicius/code/agentic-context/bun`:
 
 - `docs/guides/process/spawn.mdx`
 - `docs/guides/process/spawn-stdout.mdx`
@@ -29,52 +22,48 @@ checked-in sources under `/Users/vinicius/code/agentic-context/bun`:
 - `docs/runtime/glob.mdx`
 - `docs/snippets/cli/run.mdx`
 
-The live runtime reports Bun `1.4.0`.
-
 ## What landed
 
-`bun run gates` now runs all command gates without stopping after the first
-failure, then every static predicate, then prints one stable summary line per
-gate. The command gates are the existing per-project typecheck sweep, repo lint
-and repo Bun tests. The static gates cover U8, U9, U10, agent-presence names,
-direct vibration, handedness, provider-id branching, unsupported tool returns,
-flip calls in catch/error handlers, branch trailers, implementation naming,
-tier comparisons outside composite, and credential hygiene. U14 and U15 are
-printed as manual/reviewer gates rather than disappearing.
+`bun run gates` runs typecheck, lint, tests and every static predicate without
+stopping after the first failure. The runner is part of `scripts/tsconfig.json`,
+so the code reporting typecheck success is itself typechecked.
 
-The runner is in the `scripts` TypeScript project, so `bun run typecheck` checks
-the code that reports typecheck success. Static checks can also run against an
-isolated root for deterministic mutation testing.
+The first review found that the original harness was too literal in the wrong
+places: it scanned broad prose while executable forms escaped, exempted itself,
+and counted manually unresolved checks as clear. The revised harness uses parsed
+TypeScript/JSX and authored-content scanning:
+
+- U8 scans authored strings and JSX text for ordinary authorization vocabulary,
+  while allowing only the exact required `permission-denied` state token.
+- U9, U10, provider branching, tool returns, flip failure paths and tier
+  branching inspect executable syntax, including destructuring, uppercase React
+  components, rejection callbacks and method-based tier checks.
+- CSS/HTML authored content is scanned while truthful comments remain legal.
+- The harness is subject to its own laws; there is no blanket self-exemption.
+- Credential hygiene scans all tracked working-tree artifacts, including docs
+  and evidence, but emits only path, line and a generic signature label. It
+  neither opens `cert/` nor prints matching source.
+- U14 and U15 are manual outstanding checks, never automated successes.
 
 ## Red before green
 
-The mutation suite creates a fresh temporary git repository for every test. It
-asserts each edit landed, then proves the intended gate turns red. It exercises
-all thirteen static gates, a tier switch in addition to equality, plus failing
-typecheck/lint/test commands. A clean fixture is tested first so a target failure
-cannot be hidden by an unrelated baseline failure.
+Every mutation creates a fresh temporary repository, asserts the exact edit
+landed, then proves the intended gate turns red. The suite includes every one of
+the review's 14 adversarial mutations plus command propagation and false-positive
+controls.
 
-Result: 19 pass, 0 fail. See `evidence/w5a-planted-failures.txt`.
+Result: 35 pass, 0 fail, 269 assertions. See
+`evidence/w5a-planted-failures.txt`.
 
 ## Live-tree result
 
-The harness itself typechecks and lints. The final live `bun run gates` is red
-for five foreign-lane reasons and none were masked:
-
-1. `bun test` discovers a Playwright spec under `packages/panel/e2e/`, which
-   calls Playwright hooks under Bun's test runner and errors before its tests.
-2. U9 finds three textual `useState` mentions in W4/W6 route comments.
-3. HAPTICS finds a textual direct-vibration mention in state documentation.
-4. HALO finds eleven generic uses of the mandated broad `handed` grep.
-5. NAMING finds bookkeeping terms in composite, panel E2E, an S2 spike and the
-   W4 tuning script.
-
-Typecheck is 11/11 and lint is clean. The final-tip rerun reports 697 passing product/unit tests
-before the one Playwright discovery error. Exact paths are recorded in
+The focused harness typechecks, lints and passes all tests. The live-tree run is
+not made green by suppressing foreign work. Its exact anchored result, including
+concurrent W6 type/test failures and the two remaining static violations, is in
 `evidence/w5a-live-gates.txt`.
 
 ## Git discipline
 
-Implementation committed as `2d65f7a chore: static correctness gates` using
-`git commit --only` with three exact paths. The commit has no trailer and swept
-no shared-index work.
+The original implementation was `2d65f7a`; semantic review fixes landed in
+`11ff1ad`. Exact-path `git commit --only` was used, no commit has a trailer, and
+no foreign staged work was swept.

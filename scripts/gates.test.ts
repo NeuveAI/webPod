@@ -64,7 +64,7 @@ describe('W5a static gates go red', () => {
     expect(results.filter((gate) => gate.status === 'fail')).toEqual([])
   })
 
-  test('U8 permits the explicitly cleared account-state vocabulary', async () => {
+  test('U8 permits required account-state vocabulary', async () => {
     const root = await fixture()
     await plant(root, 'packages/panel/src/model.ts', "export const state = 'permission-denied'\n")
     const gate = (await runStaticGates({ root })).find((candidate) => candidate.id === 'U8')
