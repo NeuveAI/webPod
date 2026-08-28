@@ -1,0 +1,53 @@
+W2 — the greps that must return nothing
+=======================================
+
+001 §15.0 U8/U9 and 001 §15.2 #4/#5. These are the failure modes this project
+has already produced once each: an agent-presence signal the browser cannot
+supply, and state names for a permission model that does not exist.
+
+── §15.2 #4 — no code claims to detect agent presence
+$ grep -rniE 'agentPresent|agentAttached|agentIdle|isAgentConnected' packages/state/
+exit: 1   (1 = no matches)
+
+$ grep -rniE 'agentPresent|agentAttached|agentIdle|isAgentConnected' --include='*.ts' --include='*.tsx' packages/ apps/ scripts/
+exit: 1   (1 = no matches, repo-wide)
+
+── §15.2 #5 — exactly five device states plus one app mode
+$ sed -n '/^export type DeviceStateName/,/^$/p' packages/state/src/contract.ts
+export type DeviceStateName =
+  | 'USER_ACTIVE'
+  | 'AGENT_ACTIVE'
+  | 'AGENT_THROTTLED'
+  | 'HOLD_ENGAGED'
+  | 'DISCONNECTED'
+
+$ sed -n '/^export type AppMode/p' packages/state/src/contract.ts
+export type AppMode = 'REVIEW_PENDING'
+
+The deleted names appear nowhere except the comment that warns the next
+reader not to reintroduce them:
+$ grep -rnE 'CONFIRMING|CO_PILOT|AGENT_DENIED|SOLO_HUMAN|AGENT_ATTACHED_IDLE|AGENT_PENDING_CONSENT|AGENT_STAGED|HUMAN_PRIORITY_LOCK' packages/state/src/
+packages/state/src/contract.ts:98: * browser never tells the page. `CONFIRMING`, `CO_PILOT`, `AGENT_DENIED`,
+packages/state/src/contract.ts:99: * `SOLO_HUMAN`, `AGENT_ATTACHED_IDLE`, `AGENT_PENDING_CONSENT`, `AGENT_STAGED`
+packages/state/src/contract.ts:100: * and `HUMAN_PRIORITY_LOCK` were all deleted with reasons. Do not reintroduce
+(3 hits, all inside one TSDoc block in contract.ts. Not identifiers.)
+
+── U9 — no useState, no exceptions
+$ grep -rn 'useState' packages/state/ | wc -l
+       0
+
+── U8 — no invented permission vocabulary
+$ grep -rniE '(allow|deny|denied|permit|permission|granted|authoris|authoriz|approve|approval|pending|blocked|ask(s|ed)? (for|to)|waiting for)' packages/state/src/
+packages/state/src/contract.ts:96: * eleven, of which six were permission states for a permission model that does
+packages/state/src/contract.ts:186: * gate. `B10` is absent for the same class of reason — it granted standing
+packages/state/src/contract.ts:187: * permission for actions that were never gated. The desktop shell surfaces
+exit: 0
+
+Three hits, in two TSDoc blocks, all of them prose stating that the
+permission model does NOT exist and why the states that assumed it were
+deleted. Removing them would delete the warning that prevents the bug.
+Pre-cleared against the §8.5 banned list; see decisions/w2.md.
+
+── naming hygiene — bookkeeping strings stay out of code
+$ grep -rnE '002|implementation-spine|workstream' packages/state/src/ | wc -l
+       0

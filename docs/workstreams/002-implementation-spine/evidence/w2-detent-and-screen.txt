@@ -1,0 +1,81 @@
+W2.2 / W2.3 — the detent reducer and the screen state machine
+==============================================================
+
+001 §4.4's four input paths plus the programmatic seam, and 001 §4.2's menu
+hierarchy with push/pop and a highlight index.
+
+The rule that dominates: arrow keys are exactly one detent, always, with no
+acceleration, ever. Counted navigation is how P5 drives this device, and the
+test that guards it drives 40 keydowns 5ms apart — far faster than any human
+or any OS auto-repeat, and far over every arc acceleration threshold — and
+asserts the highlight moved exactly 40 rows.
+
+Acceleration exists on the two arc paths only. The scroll path has no velocity
+multiplier at all, because trackpad momentum already supplies one.
+
+$ bun test packages/state/src/detent.test.ts packages/state/src/screen.test.ts
+bun test v1.4.0 (34cbb9a40)
+
+ 56 pass
+ 0 fail
+ 151 expect() calls
+Ran 56 tests across 2 files. [5.00ms]
+exit: 0
+
+Per-test listing (rendered from the same run's --reporter=junit output):
+  [pass] a single ArrowDown is one detent and one row
+  [pass] ArrowUp is one detent upward
+  [pass] three keydowns move exactly three rows — counted navigation
+  [pass] NO acceleration, ever: 40 keydowns 5ms apart still move 40 rows
+  [pass] Shift+Arrow is still one detent, but one full viewport of rows
+  [pass] a lone keypress announces immediately; auto-repeat falls back to a summary
+  [pass] the keyboard path never fires a haptic — there is no hardware behind it
+  [pass] the first detent costs the dead zone, later detents cost 15 degrees
+  [pass] a slow arc moves one row per detent
+  [pass] a fast arc accelerates, and the multiplier is smoothed rather than jumping
+  [pass] reversing direction mid-gesture moves back, never forward
+  [pass] haptics stop above 12 detents per second, clicker does not
+  [pass] the dead zone is smaller than touch — a mouse is steadier than a thumb
+  [pass] acceleration thresholds are 1.4x the touch ones
+  [pass] a mouse arc never fires haptics — the hardware is not there
+  [pass] 40 accumulated pixels is one detent, after a 24px dead zone
+  [pass] no velocity multiplier, however fast the wheel is spun
+  [pass] line and page delta modes are normalised to pixels
+  [pass] residual under one detent is discarded, never rounded into a phantom
+  [pass] a requested count arrives exactly, with no acceleration
+  [pass] agent movement is silent and still on every path — visible, never felt
+  [pass] system movement is silent too
+  [pass] human movement clicks
+  [pass] an agent moving the same distance as a hand moves exactly as far
+  [pass] each human path names the limb that drove it
+  [pass] an agent driving a touch arc is still tagged as an agent
+  [pass] an agent with no known origin is tagged unknown, not guessed at
+  [pass] switching path mid-flight starts a new gesture rather than mixing units
+  [pass] the reducer never mutates the accumulator it is handed
+  [pass] moves by the exact row delta it is given
+  [pass] clamps at the bottom and bumps rather than wrapping
+  [pass] clamps at the top and bumps
+  [pass] an empty list bumps in the direction of travel
+  [pass] a zero delta is not a bump — nothing was requested
+  [pass] stays put while the highlight is inside it
+  [pass] slides by the minimum needed, never recentring
+  [pass] never scrolls past the last full page
+  [pass] slides back up when the highlight moves above the window
+  [pass] one page is one full viewport of rows, per density
+  [pass] a page that runs off the end lands on the end, and bumps
+  [pass] pop restores the exact prior highlight index
+  [pass] pop restores the exact prior scroll window too
+  [pass] Menu at the root bumps rightward — it is never a no-op
+  [pass] push normalises a highlight the caller got wrong
+  [pass] an empty screen pushes with no highlight rather than row zero
+  [pass] resetStack discards intervening levels
+  [pass] reports the visible window by default, with absolute row indices
+  [pass] reports every row when it requests the offscreen ones
+  [pass] carries the face and the flag, and nothing about agent presence
+  [pass] the root menu is the 001 §4.2 tree, in order
+  [pass] Music holds the eight browse slices
+  [pass] the removed 2005 surfaces are absent, not hidden
+  [pass] Settings turns the device over rather than pushing a screen
+  [pass] a path that misses returns null rather than the nearest match
+  [pass] the settings tree is reachable from the back face root
+  [pass] a menu frame starts on its first row

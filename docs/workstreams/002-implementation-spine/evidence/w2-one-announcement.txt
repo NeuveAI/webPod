@@ -1,0 +1,41 @@
+W2.4 / U13 — a 30-detent flick produces exactly ONE announcement
+================================================================
+
+001 §4.4 and 001 §15.0 U13: the detent settle is debounced to a single
+`aria-live="polite"` summary 350ms after motion stops, and there is no
+live-region spam during fast scroll. The failure this prevents is invisible to
+anyone not listening to it.
+
+The headline test drives 30 real detents through the real reducer and the real
+store — no fake timers, no mocks. Only the clock is supplied, because a
+debounce that cannot be told the time cannot be tested at all.
+
+$ bun test packages/state/src/announce.test.ts
+bun test v1.4.0 (34cbb9a40)
+
+ 19 pass
+ 0 fail
+ 71 expect() calls
+Ran 19 tests across 1 file. [950.00ms]
+exit: 0
+
+Per-test listing (rendered from the same run's --reporter=junit output):
+  [pass] 30 detents through the real store produce exactly ONE announcement
+  [pass] the one sentence names the row the flick settled on
+  [pass] flushing repeatedly after a flick still says it once
+  [pass] nothing is said before the debounce elapses
+  [pass] a scroll flick behaves the same as a touch flick
+  [pass] one keypress speaks at once, with no debounce
+  [pass] three counted presses speak three times — this is how P5 navigates
+  [pass] a held key does not speak per repeat — it summarises when released
+  [pass] a keypress interrupting a flick clears the flick’s stale summary
+  [pass] a human hears position first, then the row
+  [pass] an agent movement names the actor first
+  [pass] a single-line row is read without a trailing comma
+  [pass] an empty screen says so, rather than reading row zero of zero
+  [pass] every announcement is polite — navigation never interrupts
+  [pass] the sequence number increments so two identical sentences are distinct
+  [pass] noteMovement replaces the settling summary rather than queueing
+  [pass] clearAnnouncer drops the settling summary but keeps the count
+  [pass] a flick holds one timeout and speaks once when it stops
+  [pass] stopping the driver cancels the settling announcement

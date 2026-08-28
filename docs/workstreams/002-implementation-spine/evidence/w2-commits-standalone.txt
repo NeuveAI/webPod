@@ -1,0 +1,28 @@
+W2 — every commit typechecks standalone
+=======================================
+
+Each commit is extracted from git into a clean directory (`git archive`), given
+only the shared tsconfig base and a symlink to the installed dependencies, and
+typechecked on its own. No working-tree files leak in, so a commit that only
+compiles because of a later commit's file would fail here.
+
+$ cd <archive of 5f92872> && bunx tsc --noEmit -p packages/state/tsconfig.json
+  5f92872 feat(state): store contract
+  exit: 0  clean
+
+$ cd <archive of 1bbe51d> && bunx tsc --noEmit -p packages/state/tsconfig.json
+  1bbe51d feat(state): detent reducer
+  exit: 0  clean
+
+$ cd <archive of 55b34dd> && bunx tsc --noEmit -p packages/state/tsconfig.json
+  55b34dd feat(state): screen state machine
+  exit: 0  clean
+
+$ cd <archive of 4fce0f1> && bunx tsc --noEmit -p packages/state/tsconfig.json
+  4fce0f1 feat(state): announcement debounce
+  exit: 0  clean
+
+$ cd <archive of 0634b34> && bunx tsc --noEmit -p packages/state/tsconfig.json
+  0634b34 refactor(state): keep the universal gate greps clean
+  exit: 0  clean
+

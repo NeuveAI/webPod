@@ -1,0 +1,61 @@
+W2 — the store is readable, writable and subscribable from OUTSIDE REACT
+========================================================================
+
+The property: device state lives in a Jotai `createStore()` and is reachable
+through `store.get` / `store.set` / `store.sub` with NO React tree mounted.
+Stage 3 registers WebMCP tools whose `execute` callbacks live outside the React
+tree and must read and write the same state the UI renders. State held in a
+component closure is unreachable from a tool handler.
+
+`packages/state/src/store.test.ts` imports no React, renders nothing and mounts
+no provider. It also asserts structurally that React is not even resolvable
+from this package.
+
+$ bun test packages/state/src/store.test.ts
+bun test v1.4.0 (34cbb9a40)
+
+ 18 pass
+ 0 fail
+ 45 expect() calls
+Ran 18 tests across 1 file. [11.00ms]
+exit: 0
+
+Per-test listing (rendered from the same run's --reporter=junit output):
+  [pass] React is not reachable from this package at all
+  [pass] store.get reads device state
+  [pass] store.set writes device state and store.get reads it back
+  [pass] store.sub notifies an outside-React listener on change
+  [pass] a derived atom is subscribable from outside React too
+  [pass] two stores are genuinely separate devices
+  [pass] Hold outranks everything
+  [pass] disconnection outranks the agent states
+  [pass] throttling is a sub-mode of agent activity, and reads as its own state
+  [pass] the app mode is orthogonal and never replaces a device state
+  [pass] the store is born on the main menu, with rows, before any network call
+  [pass] Menu at the root bumps, and the bump has a fresh sequence number
+  [pass] descend then Menu restores the exact prior highlight
+  [pass] the visible window follows the density of the screen on top
+  [pass] the transport buttons page a list, and do not select
+  [pass] Center is declined by the machine, for the layer holding the data
+  [pass] an agent press is silent; a human press clicks
+  [pass] a custom initial stack replaces the default main menu
+
+$ cat packages/state/package.json      # no react dependency
+{
+  "name": "@webpod/state",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "jotai": "2.20.3"
+  }
+}
+
+$ grep -rn "from 'react" packages/state/src/
+exit: 1   (1 = no matches)

@@ -1,0 +1,58 @@
+W2 — the tests go RED when the invariants are broken
+=====================================================
+
+An antagonistic reviewer will plant violations to check that these tests are
+load-bearing rather than decorative. Here are the three that matter, planted
+and run, in a clean `git archive` of HEAD so nothing touches the working tree.
+Each mutation is reverted before the next.
+
+── Mutation 1: give the arrow keys an acceleration curve
+   (the one rule that outranks the rest: one keydown = one detent, always)
+
+   detent.ts, the 'key' branch:
+     -    multiplier = input.page ? input.pageRows : DETENT.rowsSlow
+     +    const sinceLast = base.lastDetentMs === null ? Infinity
+     +                    : input.timestampMs - base.lastDetentMs
+     +    multiplier = input.page ? input.pageRows
+     +               : sinceLast < 120 ? DETENT.rowsFaster : DETENT.rowsSlow
+
+(fail) keyboard path — one keydown is exactly one detent, always > NO acceleration, ever: 40 keydowns 5ms apart still move 40 rows [0.44ms]
+ 28 pass
+ 1 fail
+
+── Mutation 2: let an agent's movement click
+   (001 §15.2 #3: the silence rule is enforced at ONE call site, inside detent())
+
+   detent.ts:
+     -  const silenced = input.source !== 'human'
+     +  const silenced = false
+
+(fail) the silence rule, enforced at one call site > agent movement is silent and still on every path — visible, never felt [0.18ms]
+(fail) the silence rule, enforced at one call site > system movement is silent too [0.04ms]
+(fail) the silence rule, enforced at one call site > an agent moving the same distance as a hand moves exactly as far [0.05ms]
+(fail) the actor tag is derived, never accepted > an agent driving a touch arc is still tagged as an agent [0.04ms]
+ 25 pass
+ 4 fail
+
+── Mutation 3: announce every detent instead of the settled position
+   (001 §15.0 U13: a 30-detent flick must produce exactly 1 announcement)
+
+   announce.ts, noteMovement:
+     -  if (movement.urgency === 'immediate') {
+     +  if (true) {          // every movement speaks at once
+
+(fail) U13 — a flick announces once > 30 detents through the real store produce exactly ONE announcement [1.77ms]
+(fail) U13 — a flick announces once > flushing repeatedly after a flick still says it once [0.49ms]
+(fail) U13 — a flick announces once > nothing is said before the debounce elapses [0.49ms]
+(fail) U13 — a flick announces once > a scroll flick behaves the same as a touch flick [0.60ms]
+(fail) the keyboard announces immediately, because it is deterministic > a held key does not speak per repeat — it summarises when released [0.30ms]
+(fail) the keyboard announces immediately, because it is deterministic > a keypress interrupting a flick clears the flick’s stale summary [0.23ms]
+(fail) the pure announcer > noteMovement replaces the settling summary rather than queueing [0.07ms]
+(fail) the driver — the one timer in the package > a flick holds one timeout and speaks once when it stops [473.02ms]
+(fail) the driver — the one timer in the package > stopping the driver cancels the settling announcement [472.55ms]
+ 10 pass
+ 9 fail
+
+── Reverted; the suite is green again
+ 93 pass
+ 0 fail
