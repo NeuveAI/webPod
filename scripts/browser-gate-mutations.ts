@@ -16,7 +16,7 @@ for (const gate of gates) {
     '--config',
     config,
     '--grep',
-    `^${gate} `,
+    `${gate} `,
   ]
   const child = Bun.spawn(args, {
     cwd: root,
@@ -29,8 +29,10 @@ for (const gate of gates) {
     new Response(child.stderr).text(),
     child.exited,
   ])
-  const outcome = exitCode === 0 ? 'MUTATION MISSED' : 'RED AS REQUIRED'
-  if (exitCode === 0) missed = true
+  const executed = stdout.includes('1 failed') && !stdout.includes('No tests found')
+  const caught = exitCode !== 0 && executed
+  const outcome = caught ? 'RED AS REQUIRED' : 'MUTATION MISSED'
+  if (!caught) missed = true
   sections.push(`── ${gate}: ${outcome} (exit ${String(exitCode)})`, stdout.trim(), stderr.trim(), '')
   console.log(`${gate.padEnd(4)} ${outcome}`)
 }
