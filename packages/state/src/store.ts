@@ -285,49 +285,49 @@ export type CreateDeviceStoreOptions = {
   readonly now?: Clock
 }
 
-/**
- * How many device stores this module has built.
- *
- * Module-level, so it counts per module instance. Two resolutions of this
- * package would each start at zero — which is itself a bug (two
- * `screenStackAtom`s), but a different one, and not one a counter can see.
- */
-let devicesBuilt = 0
-
 /** Whether we are running under a test runner. */
 function underTest(): boolean {
   return typeof process !== 'undefined' && process.env['NODE_ENV'] === 'test'
 }
 
 /**
- * Builds an isolated device. **Tests only.**
+ * Builds an isolated device. **Tests only — this throws in production.**
  *
- * ⚑ There is exactly one device per document, and it is {@link deviceStore}.
- * This function throws outside a test runner, which is deliberate and is the
- * enforcement of that rule rather than a note asking for it.
+ * ⚑ There is exactly one device per document and it is {@link deviceStore}.
+ * This function throws whenever it is called outside a test runner, which is
+ * the enforcement of that rule rather than a note asking for it.
  *
  * The reason is the capability requirement the whole package exists for. A
  * tool callback runs outside React and addresses the module singleton; a React
  * tree handed `<Provider store={createDeviceStore()}>` addresses a different
- * object. Both are valid stores, both are React-free, both pass every test
- * here — and the tool is now moving a screen nobody is looking at, silently,
- * with no type error. "The state is reachable outside React" would still be
- * true and the product's premise would still be dead.
+ * object. Both are valid stores, both are React-free, both pass every test in
+ * this package — and the tool is now moving a screen nobody is looking at,
+ * silently, with no type error. "The state is reachable outside React" would
+ * still be true and the product's premise would still be dead.
+ *
+ * ⚑ It throws on the **first** call, not the second. An earlier version
+ * counted constructions and threw above one — but the singleton is built
+ * through a private path that does not increment the counter, so in a real
+ * document the count was zero when a consumer called this, and the first call
+ * succeeded. That is the only call the motivating case makes: `<Provider
+ * store={createDeviceStore()}>` is written once. A guard that fires on the
+ * second occurrence of a first-occurrence problem is not a guard, and its test
+ * was green only because two dozen earlier calls in the same file had already
+ * pushed the counter past the threshold.
  *
  * A second device is a legitimate thing for a *test* to want, because a test
  * that shared one would see the previous test's screen stack. That is the only
- * legitimate want, so that is the only case allowed.
+ * legitimate want, so it is the only case allowed.
  *
- * @throws If called outside a test runner, or more than once for the document.
+ * @throws Always, outside a test runner.
  */
 export function createDeviceStore(options: CreateDeviceStoreOptions = {}): DeviceStore {
-  devicesBuilt += 1
-  if (devicesBuilt > 1 && !underTest()) {
+  if (!underTest()) {
     throw new Error(
-      'A second device store was constructed. There is exactly one device per ' +
-        'document — import `deviceStore`. A store built inside a component is ' +
-        'not the one tool callbacks address, and nothing would report the ' +
-        'difference.',
+      'This factory is for tests. There is exactly one device per ' +
+        'document — import `deviceStore` and hand the Provider that. A store ' +
+        'built inside a component is not the one tool callbacks address, and ' +
+        'nothing at runtime would report the difference.',
     )
   }
   return buildDeviceStore(options)

@@ -280,30 +280,91 @@ describe('D-051 — exactly one device per document', () => {
     expect(again).toBe(deviceStore)
   })
 
-  test('a second device outside a test throws, rather than quietly working', () => {
-    // ⚑ The failure this prevents has no symptom of its own. A React tree
-    // handed `<Provider store={createDeviceStore()}>` gets a store that is
-    // valid, React-free, and passes every other test in this package — while
-    // tool callbacks address the singleton. Two devices, no type error, and
-    // the UI and the tools moving different screens. "State is reachable
-    // outside React" stays true and the product's premise is dead.
+  test('the FIRST call in a fresh production module throws', async () => {
+    // ⚑ D-058. The previous version of this test stubbed NODE_ENV inside this
+    // file and asserted a throw — and was green only because two dozen earlier
+    // `createDeviceStore()` calls in the same file had already pushed a
+    // counter past its threshold. In a real document the count starts at zero,
+    // so the *first* call succeeded: precisely the call D-051 exists to stop,
+    // since `<Provider store={createDeviceStore()}>` is written once.
     //
-    // Constructing a second device is legitimate for a *test*, which needs
-    // isolation from the previous test's screen stack. That is the only
-    // legitimate case, so it is the only one allowed.
-    const previous = process.env['NODE_ENV']
-    try {
-      process.env['NODE_ENV'] = 'production'
-      expect(() => createDeviceStore()).toThrow(/exactly one device per document/)
-    } finally {
-      if (previous === undefined) delete process.env['NODE_ENV']
-      else process.env['NODE_ENV'] = previous
-    }
+    // The assertion cannot be allowed to depend on anything that happened
+    // before it, so it runs in a fresh process with a fresh module registry
+    // and no test runner, where the call under test is genuinely the first
+    // one. Nothing this file did can make it pass.
+    const source = `
+      import { createDeviceStore } from '${import.meta.dir}/testing.ts'
+      try {
+        createDeviceStore()
+        console.log('NO_THROW')
+      } catch (error) {
+        console.log('THREW:' + (error as Error).message.slice(0, 40))
+      }
+    `
+    const proc = Bun.spawn(['bun', 'run', '-'], {
+      stdin: new TextEncoder().encode(source),
+      stdout: 'pipe',
+      stderr: 'pipe',
+      env: { PATH: process.env['PATH'] ?? '' },
+    })
+    const output = await new Response(proc.stdout).text()
+    await proc.exited
+
+    expect(output).toContain('THREW:')
+    expect(output).not.toContain('NO_THROW')
   })
 
-  test('the store a consumer should hand a Provider is named, and is not the factory', () => {
-    // A structural reading of the same rule: the module's default path to a
-    // device is the singleton. `createDeviceStore` is reachable but gated.
+  test('a second call in a fresh production module throws as well', async () => {
+    const source = `
+      import { createDeviceStore } from '${import.meta.dir}/testing.ts'
+      let survived = 0
+      for (let i = 0; i < 2; i += 1) {
+        try { createDeviceStore(); survived += 1 } catch { /* expected */ }
+      }
+      console.log('SURVIVED:' + String(survived))
+    `
+    const proc = Bun.spawn(['bun', 'run', '-'], {
+      stdin: new TextEncoder().encode(source),
+      stdout: 'pipe',
+      stderr: 'pipe',
+      env: { PATH: process.env['PATH'] ?? '' },
+    })
+    const output = await new Response(proc.stdout).text()
+    await proc.exited
+
+    expect(output).toContain('SURVIVED:0')
+  })
+
+  test('the singleton itself is still built, in that same fresh process', async () => {
+    // The guard must not be so blunt that it stops the device existing. If
+    // importing the package threw, the previous two tests would pass for the
+    // wrong reason.
+    const source = `
+      import { deviceStore } from '${import.meta.dir}/index.ts'
+      import { currentScreenAtom } from '${import.meta.dir}/contract.ts'
+      console.log('SCREEN:' + String(deviceStore.get(currentScreenAtom)?.screenId))
+    `
+    const proc = Bun.spawn(['bun', 'run', '-'], {
+      stdin: new TextEncoder().encode(source),
+      stdout: 'pipe',
+      stderr: 'pipe',
+      env: { PATH: process.env['PATH'] ?? '' },
+    })
+    const output = await new Response(proc.stdout).text()
+    await proc.exited
+
+    expect(output).toContain('SCREEN:S03')
+  })
+
+  test('the factory is not reachable from the package entry point', async () => {
+    // The shape half of the fix: the import a consumer would actually write
+    // does not resolve to anything.
+    const entry = await import('./index')
+    expect('createDeviceStore' in entry).toBe(false)
+    expect('deviceStore' in entry).toBe(true)
+  })
+
+  test('the store a consumer hands a Provider is named, and is not the factory', () => {
     expect(typeof deviceStore.get).toBe('function')
     expect(typeof deviceStore.set).toBe('function')
     expect(typeof deviceStore.sub).toBe('function')
@@ -311,12 +372,17 @@ describe('D-051 — exactly one device per document', () => {
 })
 
 describe('D-051 — nothing outside a test builds a device', () => {
-  test('no source file in the repo calls createDeviceStore', async () => {
+  test('no non-test source in the repo calls createDeviceStore', async () => {
     // The static half of the gate. The runtime guard catches a second device
-    // at construction; this catches the line that would construct it, in
-    // review, before it ships — including in packages this one cannot import.
-    const { spawn } = await import('bun')
-    const proc = spawn(
+    // at construction; this catches the *line* that would construct it, in
+    // review, including in packages this one cannot import.
+    //
+    // ⚑ Filtered by what the line IS, not by which file it is in. An earlier
+    // version excluded three of this package's files wholesale, so a real call
+    // added inside `store.ts` or `menu.ts` would have been invisible to the
+    // gate meant to catch it — the same "green for the wrong reason" shape as
+    // the counter this replaces.
+    const proc = Bun.spawn(
       [
         'grep',
         '-rn',
@@ -334,13 +400,35 @@ describe('D-051 — nothing outside a test builds a device', () => {
     const offenders = output
       .split('\n')
       .filter((line) => line.trim() !== '')
-      .filter((line) => !line.includes('.test.ts'))
-      // Its own definition, its own TSDoc, and the doc comments that name it.
-      .filter((line) => !line.startsWith('packages/state/src/store.ts'))
-      .filter((line) => !line.startsWith('packages/state/src/contract.ts'))
-      .filter((line) => !line.startsWith('packages/state/src/menu.ts'))
+      .filter((line) => !/\.test\.tsx?:/.test(line))
+      .filter((line) => {
+        const code = line.slice(line.indexOf(':', line.indexOf(':') + 1) + 1).trim()
+        // Prose in a TSDoc block or a line comment is not a call.
+        if (code.startsWith('*') || code.startsWith('//') || code.startsWith('/*')) return false
+        // The definition itself, and the single sanctioned re-export.
+        if (code.startsWith('export function createDeviceStore')) return false
+        if (code.startsWith('export { createDeviceStore }')) return false
+        // Anything else that mentions it without calling it is still reported.
+        return true
+      })
 
     expect(offenders).toEqual([])
+  })
+
+  test('and the only re-export of it is the test-only entry point', async () => {
+    const proc = Bun.spawn(
+      ['grep', '-rn', '--include=*.ts', 'export { createDeviceStore }', 'packages', 'apps'],
+      { cwd: `${import.meta.dir}/../../..`, stdout: 'pipe', stderr: 'pipe' },
+    )
+    const output = await new Response(proc.stdout).text()
+    await proc.exited
+
+    const lines = output
+      .split('\n')
+      .filter((line) => line.trim() !== '')
+      .filter((line) => !/\.test\.tsx?:/.test(line))
+    expect(lines).toHaveLength(1)
+    expect(lines[0]).toContain('packages/state/src/testing.ts')
   })
 })
 
