@@ -65,6 +65,15 @@ const IDLE: PlaybackState = {
  * suppression on twenty methods, or a repo-wide rule change made by the lane
  * that does not own the lint config. An absent parameter also reads correctly —
  * this body genuinely does not look at its arguments.
+ *
+ * ⚑ **Every `Promise`-returning member is `async`, and that is load-bearing.**
+ * `gate()` returns `never`, so a plain method would *throw synchronously* from
+ * a member whose declared type is `Promise<…>`. The fixture rejects. The two
+ * implementations of one interface would then disagree on the failure protocol,
+ * and `provider.search(q).catch(handle)` — one of the two shapes a UI actually
+ * writes — would work against the fixture and crash the caller against Apple.
+ * `await` inside a `try` masks the difference, which is why the test asserts
+ * the promise directly.
  */
 export function createStubProvider(spec: StubProviderSpec): MusicProvider {
   function reasonFor(c: Capability): string {
@@ -97,134 +106,161 @@ export function createStubProvider(spec: StubProviderSpec): MusicProvider {
     },
 
     /** Not implemented — no SDK is loaded and no network call is made. */
-    configure(): Promise<void> {
+    async configure(): Promise<void> {
       return gate('auth', 'configure')
     },
     /** Not implemented. */
-    authorize(): Promise<Session> {
+    async authorize(): Promise<Session> {
       return gate('auth', 'authorize')
     },
     /** Not implemented. */
-    unauthorize(): Promise<void> {
+    async unauthorize(): Promise<void> {
       return gate('auth', 'unauthorize')
     },
-    /** Always `null`: a stub is never signed in. */
+    /**
+     * Always `null`: a stub is never signed in.
+     *
+     * ⚠ **The one place this adapter does not throw**, and the departure from
+     * the packet's *"every method throws a typed `NotImplemented`"* is
+     * deliberate: §14.2 declares `session` as a property, not a method, and
+     * `null` is a member of its declared type and the honest value for a
+     * provider that has never authorised. A throwing getter would also make the
+     * object unloggable and unspreadable. Recorded in `decisions/w1.md` §2.
+     */
     get session(): Session | null {
       return null
     },
-    /** Registers the callback and never calls it. Unsubscribing is a no-op. */
+    /**
+     * Not implemented — throws rather than registering.
+     *
+     * A stub that accepted the callback and never called it would be
+     * indistinguishable, from the caller's side, from a provider where nothing
+     * has changed yet: a screen frozen with no signal. Throwing says which one
+     * it is. Synchronous, because the declared return type is `Unsubscribe`,
+     * not a promise.
+     */
     onSessionChange(): Unsubscribe {
-      return () => {}
+      throw new NotImplementedError(spec.id, 'onSessionChange')
     },
 
     /** Not implemented. */
-    search(): Promise<SearchResults> {
+    async search(): Promise<SearchResults> {
       return gate('search', 'search')
     },
     /** Not implemented. */
-    libraryList(): Promise<Page<Entity>> {
+    async libraryList(): Promise<Page<Entity>> {
       return gate('libraryRead', 'libraryList')
     },
     /** Not implemented. */
-    libraryAdd(): Promise<void> {
+    async libraryAdd(): Promise<void> {
       return gate('libraryAdd', 'libraryAdd')
     },
     /** Not implemented. ⚑ `libraryRemove` is `false` on Apple. */
-    libraryRemove(): Promise<void> {
+    async libraryRemove(): Promise<void> {
       return gate('libraryRemove', 'libraryRemove')
     },
 
     /** Not implemented. */
-    playlistCreate(): Promise<PlaylistRef> {
+    async playlistCreate(): Promise<PlaylistRef> {
       return gate('playlistCreate', 'playlistCreate')
     },
     /** Not implemented. ⚑ Apple appends to the end, always. */
-    playlistAddTracks(): Promise<void> {
+    async playlistAddTracks(): Promise<void> {
       return gate('playlistAddTracks', 'playlistAddTracks')
     },
     /** Not implemented. ⚑ `false` on Apple — §14.3's highest-risk row. */
-    playlistRemoveTracks(): Promise<void> {
+    async playlistRemoveTracks(): Promise<void> {
       return gate('playlistRemoveTracks', 'playlistRemoveTracks')
     },
     /** Not implemented. ⚑ `false` on Apple. */
-    playlistReorder(): Promise<void> {
+    async playlistReorder(): Promise<void> {
       return gate('playlistReorder', 'playlistReorder')
     },
 
     /** Not implemented. */
-    play(): Promise<void> {
+    async play(): Promise<void> {
       return gate('transport', 'play')
     },
     /** Not implemented. */
-    pause(): Promise<void> {
+    async pause(): Promise<void> {
       return gate('transport', 'pause')
     },
     /** Not implemented. */
-    skip(): Promise<void> {
+    async skip(): Promise<void> {
       return gate('transport', 'skip')
     },
     /** Not implemented. */
-    seek(): Promise<void> {
+    async seek(): Promise<void> {
       return gate('seek', 'seek')
     },
     /** Not implemented. */
-    setVolume(): Promise<void> {
+    async setVolume(): Promise<void> {
       return gate('volume', 'setVolume')
     },
     /** Not implemented. Gated on `transport` — §14.3 row 27 is full parity (D-052). */
-    setShuffle(): Promise<void> {
+    async setShuffle(): Promise<void> {
       return gate('transport', 'setShuffle')
     },
     /** Not implemented. Gated on `transport` — §14.3 row 27 is full parity (D-052). */
-    setRepeat(): Promise<void> {
+    async setRepeat(): Promise<void> {
       return gate('transport', 'setRepeat')
     },
-    /** Idle, always. */
+    /**
+     * Idle, always.
+     *
+     * ⚠ The second and last non-throwing member, for the same reason as
+     * `session`: §14.2 declares it a property whose type has no empty case, so
+     * it must return a `PlaybackState`, and `idle` is the true one. Recorded in
+     * `decisions/w1.md` §2.
+     */
     get playback(): PlaybackState {
       return IDLE
     },
-    /** Registers the callback and never calls it. */
+    /** Not implemented — throws rather than registering. See `onSessionChange`. */
     onPlaybackChange(): Unsubscribe {
-      return () => {}
+      throw new NotImplementedError(spec.id, 'onPlaybackChange')
     },
     /**
-     * Registers the callback and never calls it.
+     * Not implemented — throws rather than registering.
      *
-     * Does **not** gate on `progressTicks`. That capability says whether the
-     * provider emits a continuous tick, not whether progress is subscribable,
-     * and it is the one capability whose `false` hides no control (§14.3 row 25).
+     * ⚑ It throws `NotImplementedError`, never `CapabilityUnsupportedError`.
+     * `progressTicks` says whether the *provider* emits a continuous tick, not
+     * whether progress is subscribable, and it is the one capability whose
+     * `false` hides no control (§14.3 row 25). "We have not written this
+     * adapter" and "this service cannot do that" stay different answers here
+     * as everywhere else.
      */
     onProgress(): Unsubscribe {
-      return () => {}
+      throw new NotImplementedError(spec.id, 'onProgress')
     },
 
     /** Not implemented. */
-    queueRead(): Promise<QueueSnapshot> {
+    async queueRead(): Promise<QueueSnapshot> {
       return gate('queueRead', 'queueRead')
     },
     /** Not implemented. */
-    queueAppend(): Promise<void> {
+    async queueAppend(): Promise<void> {
       return gate('queueAppend', 'queueAppend')
     },
     /** Not implemented. ⚑ `false` on Spotify — no API exists. */
-    queueInsertNext(): Promise<void> {
+    async queueInsertNext(): Promise<void> {
       return gate('queueInsertNext', 'queueInsertNext')
     },
     /** Not implemented. ⚑ `false` on both providers. */
-    queueRemove(): Promise<void> {
+    async queueRemove(): Promise<void> {
       return gate('queueRemove', 'queueRemove')
     },
     /** Not implemented. ⚑ `false` on both providers. */
-    queueReorder(): Promise<void> {
+    async queueReorder(): Promise<void> {
       return gate('queueReorder', 'queueReorder')
     },
 
     /** Not implemented. ⚑ `false` on Spotify — S18 is removed there entirely. */
-    stationsList(): Promise<StationRef[]> {
+    async stationsList(): Promise<StationRef[]> {
       return gate('stations', 'stationsList')
     },
     /** Not implemented. A `track` seed also needs `stationSeedFromTrack`. */
-    stationStart(seed: StationSeed): Promise<StationRef> {
+    async stationStart(seed: StationSeed): Promise<StationRef> {
       if (seed.type === 'track' && !spec.supports.stationSeedFromTrack) {
         throw new CapabilityUnsupportedError(spec.id, 'stationSeedFromTrack', reasonFor('stationSeedFromTrack'))
       }
@@ -232,15 +268,15 @@ export function createStubProvider(spec: StubProviderSpec): MusicProvider {
     },
 
     /** Not implemented. ⚑ `false` on both providers, for different reasons. */
-    lyrics(): Promise<Lyrics> {
+    async lyrics(): Promise<Lyrics> {
       return gate('lyrics', 'lyrics')
     },
     /** Not implemented. ⚑ Never route this through `saveToggle` (§14.3 row 23). */
-    ratingSet(): Promise<void> {
+    async ratingSet(): Promise<void> {
       return gate('ratingLoveDislike', 'ratingSet')
     },
     /** Not implemented. ⚑ Never aliased to `ratingSet`. */
-    saveToggle(): Promise<void> {
+    async saveToggle(): Promise<void> {
       return gate('saveToggle', 'saveToggle')
     },
   }

@@ -6,6 +6,7 @@ import { CapabilityUnsupportedError, NotImplementedError } from './errors.ts'
 import { mintLocalKey } from './identity.ts'
 import type { PlaylistRef, TrackRef } from './identity.ts'
 import type { MusicProvider } from './provider.ts'
+import { createFixtureProvider } from './fixture/fixture-provider.ts'
 import { createSpotifyProvider } from './spotify/spotify-provider.ts'
 
 const TRACK: TrackRef = {
@@ -83,26 +84,61 @@ for (const [providerName, make] of [
       expect(provider.playback.now).toBeNull()
     })
 
-    test('subscriptions register and unsubscribe without throwing', () => {
-      for (const off of [
-        provider.onSessionChange(() => {}),
-        provider.onPlaybackChange(() => {}),
-        provider.onProgress(() => {}),
-      ]) {
-        expect(() => {
-          off()
-        }).not.toThrow()
-      }
-    })
-
-    for (const [method, capability, call] of CALLS) {
-      test(`${method}() throws the right kind of error`, async () => {
+    test.each(['onSessionChange', 'onPlaybackChange', 'onProgress'])(
+      '%s throws NotImplementedError rather than never calling back',
+      (name) => {
+        // A stub that took the callback and stayed silent is, from the caller's
+        // side, identical to a provider where nothing has changed yet — a
+        // frozen screen with no signal. It is also not what the packet asked
+        // for. Synchronous here: the declared return type is `Unsubscribe`.
+        const subscribe = provider[name as 'onSessionChange' | 'onPlaybackChange' | 'onProgress']
         let thrown: unknown = null
         try {
-          await call(provider)
+          subscribe(() => {})
         } catch (error) {
           thrown = error
         }
+        expect(thrown).toBeInstanceOf(NotImplementedError)
+        expect((thrown as NotImplementedError).method).toBe(name)
+      },
+    )
+
+    test('onProgress refuses as unimplemented, never as an unsupported capability', () => {
+      // §14.3 row 25: `progressTicks` says whether the provider emits a tick,
+      // not whether progress is subscribable. It hides no control, so a
+      // CapabilityUnsupportedError here would be the wrong answer even on
+      // Spotify, where the capability is false.
+      let thrown: unknown = null
+      try {
+        provider.onProgress(() => {})
+      } catch (error) {
+        thrown = error
+      }
+      expect(thrown).toBeInstanceOf(NotImplementedError)
+      expect(thrown).not.toBeInstanceOf(CapabilityUnsupportedError)
+    })
+
+    for (const [method, capability, call] of CALLS) {
+      test(`${method}() rejects rather than throwing synchronously`, () => {
+        // The declared type is `Promise<…>`, and `provider.search(q).catch(h)`
+        // / `void provider.play()` are the two shapes a UI writes. A plain
+        // method returning `never` throws before a promise exists, so both
+        // crash the caller — on one implementation of the interface but not
+        // the other. `await` inside a `try` handles either and is exactly why
+        // this went unnoticed, so the promise is taken directly here.
+        let returned: unknown = null
+        expect(() => {
+          returned = call(provider)
+        }).not.toThrow()
+        expect(returned).toBeInstanceOf(Promise)
+        void (returned as Promise<unknown>).catch(() => undefined)
+      })
+
+      test(`${method}() rejects with the right kind of error`, async () => {
+        let thrown: unknown = null
+        await Promise.resolve(call(provider)).catch((error: unknown) => {
+          thrown = error
+        })
 
         if (provider.supports(capability as never)) {
           // Supported and unwritten: this is the stub half of the slice.
@@ -131,12 +167,6 @@ for (const [providerName, make] of [
         expect(thrown).toBeInstanceOf(CapabilityUnsupportedError)
         expect((thrown as CapabilityUnsupportedError).capability).toBe('stationSeedFromTrack')
       }
-    })
-
-    test('onProgress is subscribable even where progressTicks is false', () => {
-      // §14.3 row 25: that capability reports whether the provider emits a
-      // tick, not whether progress is knowable. It hides no control.
-      expect(() => provider.onProgress(() => {})).not.toThrow()
     })
   })
 }
@@ -169,5 +199,61 @@ describe('no adapter reaches the network', () => {
       globalThis.fetch = realFetch
     }
     expect(calls).toBe(0)
+  })
+})
+
+describe('the two implementations agree on the failure protocol', () => {
+  // The finding this guards: the stubs threw *synchronously* from members
+  // declared `Promise<…>` while the fixture rejected. One interface, two
+  // protocols — so `provider.search(q).catch(handle)` worked against the day-one
+  // runtime and crashed the caller against the launch provider. Nothing in the
+  // suite could see it, because every stub test awaited inside a `try`.
+  const IMPLEMENTATIONS = [
+    ['apple', createAppleProvider()],
+    ['spotify', createSpotifyProvider()],
+    ['fixture', createFixtureProvider({ authorized: false, supports: { search: false } })],
+  ] as const
+
+  test.each(IMPLEMENTATIONS.map(([name]) => [name]))(
+    '%s: a failing call returns a rejected promise, not a synchronous throw',
+    (name) => {
+      const entry = IMPLEMENTATIONS.find(([id]) => id === name)
+      if (entry === undefined) throw new Error('unknown implementation')
+      const [, provider] = entry
+
+      let returned: unknown = null
+      expect(() => {
+        returned = provider.search({ term: 'vienna', scope: 'catalog', kinds: ['track'] })
+      }).not.toThrow()
+      expect(returned).toBeInstanceOf(Promise)
+      void (returned as Promise<unknown>).catch(() => undefined)
+    },
+  )
+
+  test.each(IMPLEMENTATIONS.map(([name]) => [name]))('%s: .catch() receives the error', async (name) => {
+    const entry = IMPLEMENTATIONS.find(([id]) => id === name)
+    if (entry === undefined) throw new Error('unknown implementation')
+    const [, provider] = entry
+
+    let caught: unknown = null
+    await provider
+      .search({ term: 'vienna', scope: 'catalog', kinds: ['track'] })
+      .catch((error: unknown) => {
+        caught = error
+      })
+    expect(caught).toBeInstanceOf(Error)
+  })
+
+  test('Promise.all over several failing calls settles instead of throwing at the call site', async () => {
+    const apple = createAppleProvider()
+    let thrownSynchronously = false
+    let settled: PromiseSettledResult<unknown>[] = []
+    try {
+      settled = await Promise.allSettled([apple.queueRead(), apple.stationsList(), apple.libraryList('albums')])
+    } catch {
+      thrownSynchronously = true
+    }
+    expect(thrownSynchronously).toBe(false)
+    expect(settled.map((r) => r.status)).toEqual(['rejected', 'rejected', 'rejected'])
   })
 })
