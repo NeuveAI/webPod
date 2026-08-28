@@ -36,6 +36,8 @@ interface LabelledRow {
   readonly row: number
   readonly strength: string
   readonly provenance: string
+  /** Where in the file the label was found — see the uniqueness test below. */
+  readonly labelIndex: number
 }
 
 /**
@@ -80,6 +82,7 @@ async function readLabelledRows(path: string): Promise<readonly LabelledRow[]> {
       row: found.row,
       strength: found.strength,
       provenance: found.provenance,
+      labelIndex: found.index,
     })
   }
   return rows
@@ -93,6 +96,16 @@ describe('D-045 — every capability value carries an evidence label', () => {
       // The parse must agree with the shipped matrix, or it is reading comments
       // that no longer sit above the values they describe.
       for (const row of rows) expect(row.value).toBe(matrix[row.capability])
+    })
+
+    test(`${provider}: no two rows share a label — each carries its own`, async () => {
+      // Without this the gate has a hole its own control plant found: deleting
+      // a row's docblock lets the member fall back to the *preceding* label and
+      // silently inherit a neighbour's evidence class, which is worse than
+      // having none — it is a wrong claim that reads as a checked one.
+      const rows = await readLabelledRows(path)
+      const indices = rows.map((r) => r.labelIndex)
+      expect(new Set(indices).size).toBe(indices.length)
     })
 
     test(`${provider}: no absence claim is VERIFIED on documentation alone`, async () => {
