@@ -58,9 +58,11 @@ Result: 35 pass, 0 fail, 269 assertions. See
 ## Live-tree result
 
 The focused harness typechecks, lints and passes all tests. The live-tree run is
-not made green by suppressing foreign work. Its exact anchored result, including
-concurrent W6 type/test failures and the two remaining static violations, is in
-`evidence/w5a-live-gates.txt`.
+not made green by suppressing foreign work. Its exact stable anchored result and
+the two remaining static violations are in `evidence/w5a-live-gates.txt`.
+Subsequent post-commit runs can additionally reflect active W4/W6 edits in this
+shared tree; those are reported at handoff rather than retroactively changing the
+anchored measurement.
 
 ## Git discipline
 
