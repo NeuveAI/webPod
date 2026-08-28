@@ -61,7 +61,7 @@ exit=0
 
 TYPES: 11/11 projects clean
 LINT: pass (one non-blocking exhaustive-deps warning in the panel lane)
-TESTS: 779 pass, 0 fail, 5042 expectations
+TESTS at the final committed tip: 804 pass, 0 fail, 5134 expectations
 
 Scoped W6:
   bun test packages/composite: 13 pass, 0 fail
