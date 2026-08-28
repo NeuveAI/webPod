@@ -9,7 +9,7 @@ import {
   sharpArtwork,
 } from './model'
 
-describe('W3 panel models', () => {
+describe('panel models', () => {
   test('S03 keeps synchronous rows and removes Radio from the tree when stations are absent', () => {
     const provider = createFixtureProvider({ supports: { stations: false } })
     const labels = mainMenuFrame(provider).rows.map((row) => row.label)

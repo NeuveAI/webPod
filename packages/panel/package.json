@@ -11,6 +11,7 @@
     "test": "bun test src"
   },
   "dependencies": {
+    "@tanstack/react-virtual": "^3.13.18",
     "@webpod/providers": "workspace:*",
     "@webpod/state": "workspace:*",
     "jotai": "2.20.3",

@@ -22,6 +22,23 @@ describe('the bare DOM panel', () => {
     expect(css).toContain('inline-size: 272px')
     expect(css).toContain('block-size: 204px')
     expect(css).toContain('block-size: 26px')
+    const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
+    expect(source).toMatch(/Array\.from\(\{ length: 8 \}/)
+  })
+
+  test('never authors final panel text below eleven pixels', () => {
+    const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
+    const sizes = [...css.matchAll(/font-size:\s*([\d.]+)px/g)].map((match) => Number(match[1]))
+    expect(sizes.length).toBeGreaterThan(0)
+    expect(Math.min(...sizes)).toBeGreaterThanOrEqual(11)
+  })
+
+  test('uses provider commands, subscriptions, and TanStack virtualization', () => {
+    const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
+    expect(source).toContain('fixtureProvider.play(')
+    expect(source).toContain('fixtureProvider.onPlaybackChange')
+    expect(source).toContain('fixtureProvider.onProgress')
+    expect(source).toContain('useVirtualizer(')
   })
 
   test('contains the three required accessibility preference branches', () => {

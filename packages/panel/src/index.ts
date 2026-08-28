@@ -1,6 +1,8 @@
 export { Panel, type PanelProps } from './Panel'
 export {
   albumTracksFrame,
+  isPanelState,
+  PANEL_STATES,
   fixtureProvider,
   mainMenuFrame,
   nextNowPlayingMode,
