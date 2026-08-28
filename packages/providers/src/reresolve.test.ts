@@ -39,6 +39,18 @@ describe('normaliseForMatch', () => {
   })
 })
 
+describe('§14.5 constants', () => {
+  test('the duration tolerance is ±2000ms, which §14.5 states as a literal', () => {
+    // D-050: a constant is gated only if falsifying it turns a test red. The
+    // rung-2 case below used to write `224_000 + DURATION_TOLERANCE_MS`, so
+    // both sides moved with the symbol and 500 / 3000 / 30000 all stayed green.
+    // At 30s a live cut and a studio cut of the same song are silently promoted
+    // from `low` to `metadata` — a queue rebuilt out of the wrong recordings,
+    // reported as matched, which is the harm §14.5 exists to prevent.
+    expect(DURATION_TOLERANCE_MS).toBe(2000)
+  })
+})
+
 describe('§14.5 ladder', () => {
   test('rung 1: an ISRC match wins, and outranks a better-looking text match', () => {
     const original = track({ isrc: 'USSM10305161' })
@@ -56,17 +68,35 @@ describe('§14.5 ladder', () => {
     expect(result?.ref.catalogId).toBe('real')
   })
 
-  test('rung 2: title + artist + duration within tolerance', () => {
-    const original = track()
-    const candidate = track({
-      provider: 'spotify',
-      catalogId: 'sp1',
-      title: 'Vienna (feat. Nobody)',
-      durationMs: 224_000 + DURATION_TOLERANCE_MS,
-    })
+  test('rung 2: title + artist + duration exactly at the ±2000ms edge', () => {
+    // Literals on both sides, drawn from §14.5's stated ±2000ms rather than
+    // from the symbol under test.
+    const original = track({ durationMs: 224_000 })
+    const later = track({ provider: 'spotify', catalogId: 'sp-late', durationMs: 226_000 })
+    const earlier = track({ provider: 'spotify', catalogId: 'sp-early', durationMs: 222_000 })
 
-    const result = reresolve(original, [candidate])
-    expect(result?.confidence).toBe('metadata')
+    expect(reresolve(original, [later])?.confidence).toBe('metadata')
+    expect(reresolve(original, [earlier])?.confidence).toBe('metadata')
+  })
+
+  test('one millisecond past the tolerance drops to the low rung', () => {
+    // The pair above and this one bracket the boundary from both sides, so a
+    // tolerance that is too wide fails here and one that is too narrow fails
+    // above. Either direction is red.
+    const original = track({ durationMs: 224_000 })
+    const later = track({ provider: 'spotify', catalogId: 'sp-late', durationMs: 226_001 })
+    const earlier = track({ provider: 'spotify', catalogId: 'sp-early', durationMs: 221_999 })
+
+    expect(reresolve(original, [later])?.confidence).toBe('low')
+    expect(reresolve(original, [earlier])?.confidence).toBe('low')
+  })
+
+  test('a live cut is never promoted above the low rung', () => {
+    // The concrete harm: §14.5's migration card must not report a different
+    // recording of the same song as a match.
+    const studio = track({ durationMs: 224_000 })
+    const live = track({ provider: 'spotify', catalogId: 'sp-live', durationMs: 254_000 })
+    expect(reresolve(studio, [live])?.confidence).toBe('low')
   })
 
   test('rung 3: text alone is a match, and is flagged low', () => {
