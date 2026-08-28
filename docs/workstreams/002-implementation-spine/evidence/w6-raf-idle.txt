@@ -1,0 +1,11 @@
+W6 demand-rendering evidence — Chrome 151, CanvasDrawElement enabled
+2026-08-29
+
+requestAnimationFrame was wrapped before application scripts loaded.
+After the composited 130% route settled:
+  total callbacks before idle window: 8
+  total callbacks after 2,000 ms:      8
+  idle delta:                          0
+
+No polling loop was added. Geometry updates are driven by committed React
+projection changes, ScreenMeshHandle notifications, and ResizeObserver.

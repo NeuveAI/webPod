@@ -1,0 +1,25 @@
+W6 geometry and lifecycle browser evidence — Chrome 151
+CanvasDrawElement enabled, 2026-08-29
+
+Viewport regression:
+  1280x720 host: x=513.807 y=178.770 w=252.385 h=189.289
+   800x500 host: x=323.031 y=151.293 w=153.937 h=115.453
+  CSS matrix3d changed: true
+  click at stale old screen point: BODY
+  click at new visible screen point: application
+  page errors: []
+  screenshot: w6-resize-hit-test-review.png
+
+Context lifecycle:
+  lost:     tier=T4, canvas=1, panel=0
+  restored: tier=T1, canvas=1, panel=1
+  page errors: []
+
+Deterministic coordinator tests also cover renderer replacement, camera
+replacement, partial attach failure, same-context retry, repeated clear,
+reattach, context restore, and repeated dispose.
+
+Initial-paint regression:
+  final flagged load: tier=T1, panel count=1
+  no InvalidStateError / texElementImage2D paint-record exception
+  Three owns every texElementImage2D call; application source owns none.

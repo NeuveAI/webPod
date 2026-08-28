@@ -1,0 +1,24 @@
+W6 panel boundary and keyboard evidence
+2026-08-29
+
+Runtime, composited mode:
+  [data-pixel-source="html-in-canvas"] count = 1
+  role=application count = 1
+  panel parent = CANVAS
+  canvas has layoutsubtree
+
+Keyboard traversal through the native DOM:
+  focused application "webPod music player"
+  ArrowDown: "Albums 4" -> "Songs 42"
+  ArrowUp + Enter: opens aria-label="Album tracks"
+  Backspace: returns to one "Music categories" listbox
+  page errors: []
+
+Package boundary checks:
+  packages/panel tests: 8 pass, 0 fail
+  panel remains DOM-only; no Three, R3F, composite, or Canvas import
+  composite imports Panel only through @webpod/panel in the diagnostic route
+
+Dynamic Type 130% composited host:
+  client 340x255; scroll 340x255; first child 340x255
+  no clipped raster extent

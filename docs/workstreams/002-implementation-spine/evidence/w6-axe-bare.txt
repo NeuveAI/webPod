@@ -1,0 +1,16 @@
+W6 bare accessibility control — Chrome 151
+2026-08-29
+
+Route inputs held constant except colourway:
+  /_probe/composite?state=ready&scale=1&fov=30&mode=bare
+
+axe-core 4.13.0, scoped to the same .wp-panel component:
+  black: 0 violations, 21 passing rules
+  white: 0 violations, 21 passing rules
+
+The same four contrast nodes are incomplete for the same inference limitations
+listed in w6-axe-composited.txt. Endpoint calculations settle all rendered text
+above 4.5:1. This control demonstrates that Canvas reparenting preserves the
+panel's semantic result rather than creating a parallel accessibility surface.
+
+Screenshot: w6-bare-black-review.png.

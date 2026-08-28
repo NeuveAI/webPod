@@ -1,0 +1,30 @@
+W6 composited accessibility review — Chrome 151, CanvasDrawElement enabled
+2026-08-29
+
+Route inputs held constant except colourway:
+  /_probe/composite?state=ready&scale=1&fov=30&mode=composited
+
+axe-core 4.13.0, scoped to the real .wp-panel DOM below Canvas:
+  black: 0 violations, 21 passing rules
+  white: 0 violations, 21 passing rules
+
+Four color-contrast nodes are INCOMPLETE in each run, not violations:
+  title text: background is a gradient
+  selected label: background is a gradient
+  battery glyph: non-text character
+  selected row count: text is too short for axe inference
+
+The same four nodes are incomplete in bare mode, so compositing introduces no
+new uncertainty. Exact WCAG luminance ratios at every gradient endpoint:
+  dark title:    13.46:1 minimum
+  dark selected:  5.93:1 minimum
+  light title:   14.04:1 minimum
+  light selected: 10.71:1 minimum
+
+CDP Accessibility.getFullAXTree after keyboard traversal:
+  application "webPod music player" focused=true
+  listbox "Music categories"
+  eight named options; "Albums 4" selected=true
+
+No aria-prohibited-attr result remains. The host carries no redundant ARIA name.
+Screenshots: w6-composite-black-review.png, w6-composite-white-review.png.

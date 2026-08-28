@@ -49,3 +49,23 @@ $ bun run scripts/gates.ts
 bun run gates: not implemented
 error: script "gates" exited with code 1
 exit=1   # placeholder, W5a owns it — exits 1 by design (scripts/gates.ts)
+
+---
+Final correction run, 2026-08-29
+
+$ bun run gates
+exit=0
+16 automated passed; 0 automated failed; 2 manual outstanding
+  U14 thumb occlusion — owner phone-in-hand validation
+  U15 unsupported controls absent — reviewer inspection
+
+TYPES: 11/11 projects clean
+LINT: pass (one non-blocking exhaustive-deps warning in the panel lane)
+TESTS: 779 pass, 0 fail, 5042 expectations
+
+Scoped W6:
+  bun test packages/composite: 13 pass, 0 fail
+  bunx tsc -p packages/composite: exit 0
+  bunx tsc -p apps/web: exit 0
+  eslint packages/composite and both probe routes: exit 0
+  isolated jotai/vanilla package resolution: pass
