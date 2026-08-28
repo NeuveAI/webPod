@@ -1,0 +1,46 @@
+W6 capability detector deterministic regressions
+2026-08-29
+
+Sources re-read before implementing:
+  /Users/vinicius/code/agentic-context/html-in-canvas/README.md
+    developer trial and paint-event design
+  /Users/vinicius/code/agentic-context/html-in-canvas/Examples/webGL.html:50-82
+    current/legacy texElementImage2D signatures
+  /Users/vinicius/code/agentic-context/three.js/src/textures/HTMLTexture.js
+    requestPaint feature detection
+  /Users/vinicius/code/agentic-context/three.js/src/renderers/webgl/WebGLTextures.js:1248-1322
+    shipped member-name and arity branch
+
+Baseline scoped test:
+  bun test packages/composite/src/capabilities.test.ts
+  14 pass, 0 fail, 25 expectations
+
+Classifier coverage:
+  all eight combinations of webgl, requestPaint, and prefersReducedMotion
+  T4 reduced-motion precedence over every capability combination
+  T4 missing-WebGL precedence over requestPaint
+  T1 when WebGL and requestPaint are present
+  T3 when WebGL is present and requestPaint is absent
+  T2 is never manufactured because its polyfill is not installed
+
+Descriptor coverage:
+  own function data descriptor -> declared arity 1
+  inherited function data descriptor -> declared arity 3
+  own throwing getter -> null, getter calls 0
+  inherited throwing getter -> null, getter calls 0
+  non-function and missing descriptor -> null
+
+Exact unsafe mutation planted:
+
+  const value = (target as Record<string, unknown>)[name]
+  return typeof value === 'function' ? value.length : null
+
+Mutation result:
+  exit 1
+  12 pass, 2 fail
+  own IDL-style getter: TypeError: Illegal invocation
+  inherited IDL-style getter: TypeError: Illegal invocation
+
+The mutation was reverted with apply_patch. The final implementation walks
+Object.getOwnPropertyDescriptor over the prototype chain and reads only the
+descriptor's data-property value.

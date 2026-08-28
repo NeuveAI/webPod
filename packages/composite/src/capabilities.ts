@@ -249,7 +249,7 @@ function memberOf(target: object, name: string): unknown {
  * with it off the members do not exist and nothing is read — so it is
  * exactly the kind of bug a probe must not have.
  */
-function arityOf(target: object, name: string): number | null {
+export function arityOf(target: object, name: string): number | null {
   let cursor: object | null = target
   while (cursor !== null) {
     const descriptor = Object.getOwnPropertyDescriptor(cursor, name)
