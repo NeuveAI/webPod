@@ -242,19 +242,29 @@ describe('touch arc path', () => {
     expect(totalRows(outcomes)).toBeGreaterThan(totalDetents(outcomes))
   })
 
-  test('reversing direction mid-gesture moves back, never forward', () => {
+  test('reversing direction moves back, and pays the hysteresis first', () => {
     const forward = replay([
       { path: 'touch-arc', source: 'human', angleDeg: 18, timestampMs: 100 },
       { path: 'touch-arc', source: 'human', angleDeg: 15, timestampMs: 300 },
     ])
     expect(totalDetents(forward.outcomes)).toBe(2)
 
-    const back = detent(forward.accumulator, {
-      path: 'touch-arc',
-      source: 'human',
-      angleDeg: -15,
-      timestampMs: 500,
-    }, VISIBLE_ROWS.medium)
+    // A bare 15 degrees back is no longer enough: a reversal costs 15 + 1.8
+    // (design-system §9.4).
+    const nudged = detent(
+      forward.accumulator,
+      { path: 'touch-arc', source: 'human', angleDeg: -15, timestampMs: 500 },
+      VISIBLE_ROWS.medium,
+      { totalRows: 500 },
+    )
+    expect(nudged.detents).toBe(0)
+
+    const back = detent(
+      nudged.accumulator,
+      { path: 'touch-arc', source: 'human', angleDeg: -2, timestampMs: 700 },
+      VISIBLE_ROWS.medium,
+      { totalRows: 500 },
+    )
     expect(back.detents).toBe(-1)
   })
 

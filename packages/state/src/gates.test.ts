@@ -668,3 +668,111 @@ describe('D-063 — angular velocity is clamped at 1440 deg/s', () => {
     expect(outcome.accumulator.speedDegPerSec).toBe(900)
   })
 })
+
+describe('D-063 — detent hysteresis stops a resting thumb chattering', () => {
+  test('the hysteresis is literally 1.8 degrees (design-system §9.4)', () => {
+    // "Detent threshold hysteresis ±1.8°". pm-spec §4.4 does not mention it.
+    expect(DETENT.reversalHysteresisDeg).toBe(1.8)
+  })
+
+  test('a thumb jittering across a boundary fires nothing', () => {
+    // ⚑ The failure without this: a hand held still near a threshold crosses
+    // it on tremor alone, so the highlight oscillates and the clicker
+    // machine-guns while nobody is moving. Here the thumb advances one detent
+    // and then shakes by ±15° — exactly one detent's worth each way, which
+    // without hysteresis fires every single time.
+    let accumulator = detent(
+      IDLE_DETENT_ACCUMULATOR,
+      { path: 'touch-arc', source: 'human', angleDeg: 18, timestampMs: 0 },
+      VISIBLE_ROWS.medium,
+      { totalRows: 500 },
+    ).accumulator
+
+    let fired = 0
+    for (let i = 0; i < 20; i += 1) {
+      const outcome = detent(
+        accumulator,
+        {
+          path: 'touch-arc',
+          source: 'human',
+          angleDeg: i % 2 === 0 ? -15 : 15,
+          timestampMs: 20 + i * 20,
+        },
+        VISIBLE_ROWS.medium,
+        { totalRows: 500 },
+      )
+      fired += Math.abs(outcome.detents)
+      accumulator = outcome.accumulator
+    }
+
+    expect(fired).toBe(0)
+  })
+
+  test('a deliberate reversal still works, it just costs 1.8 degrees more', () => {
+    let accumulator = detent(
+      IDLE_DETENT_ACCUMULATOR,
+      { path: 'touch-arc', source: 'human', angleDeg: 18, timestampMs: 0 },
+      VISIBLE_ROWS.medium,
+      { totalRows: 500 },
+    ).accumulator
+
+    const short = detent(
+      accumulator,
+      { path: 'touch-arc', source: 'human', angleDeg: -16.7, timestampMs: 20 },
+      VISIBLE_ROWS.medium,
+      { totalRows: 500 },
+    )
+    expect(short.detents).toBe(0)
+
+    accumulator = detent(
+      accumulator,
+      { path: 'touch-arc', source: 'human', angleDeg: -16.8, timestampMs: 20 },
+      VISIBLE_ROWS.medium,
+      { totalRows: 500 },
+    ).accumulator
+    expect(accumulator.direction).toBe(-1)
+  })
+
+  test('continuing in the same direction is never charged the extra', () => {
+    // Hysteresis must not tax ordinary scrolling: 10 detents forward is 10
+    // detents forward, at 15 degrees each.
+    const outcomes: number[] = []
+    let accumulator = IDLE_DETENT_ACCUMULATOR
+    for (let i = 0; i < 11; i += 1) {
+      const outcome = detent(
+        accumulator,
+        {
+          path: 'touch-arc',
+          source: 'human',
+          angleDeg: i === 0 ? 18 : 15,
+          timestampMs: (i + 1) * 200,
+        },
+        VISIBLE_ROWS.medium,
+        { totalRows: 500 },
+      )
+      outcomes.push(outcome.detents)
+      accumulator = outcome.accumulator
+    }
+
+    expect(outcomes.reduce((a, b) => a + b, 0)).toBe(11)
+  })
+
+  test('the keyboard is untouched by it — a reversal is still one detent', () => {
+    // ⚑ 001's non-negotiable: one keydown is one row, always. Hysteresis is an
+    // arc-geometry rule and must not reach a path that has no geometry.
+    let accumulator = IDLE_DETENT_ACCUMULATOR
+    let net = 0
+    for (const direction of [1, 1, -1, 1, -1, -1, 1] as const) {
+      const outcome = detent(
+        accumulator,
+        { path: 'key', source: 'human', direction, page: false, timestampMs: 0 },
+        VISIBLE_ROWS.medium,
+        { totalRows: 500 },
+      )
+      expect(Math.abs(outcome.detents)).toBe(1)
+      net += outcome.rowDelta
+      accumulator = outcome.accumulator
+    }
+    expect(net).toBe(1)
+  })
+})

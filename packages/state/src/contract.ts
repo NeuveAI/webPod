@@ -479,6 +479,21 @@ export const DETENT = {
    */
   maxAngularSpeedDegPerSec: 1440,
   /**
+   * Extra travel, in degrees, required to fire a detent in the direction
+   * opposite the previous one (design-system §9.4).
+   *
+   * §9.4: *"Detent threshold hysteresis ±1.8° — prevents a thumb resting
+   * exactly on a boundary from chattering."* pm-spec §4.4 does not mention it.
+   *
+   * ⚑ Applied to **reversals only**, which is where the chatter is. A thumb
+   * held still near a threshold jitters back and forth across it; without
+   * hysteresis each crossing fires a detent, so the highlight oscillates and
+   * the clicker machine-guns while the hand is not moving. Charging the extra
+   * only on a change of direction means a genuine reversal costs 16.8° instead
+   * of 15° — imperceptible — while a tremor costs more than it has.
+   */
+  reversalHysteresisDeg: 1.8,
+  /**
    * Above this detent rate the `selection` haptic stops firing (001 §4.9).
    *
    * A fast flick would otherwise mean a continuous buzz, which reads as a

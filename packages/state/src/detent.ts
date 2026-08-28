@@ -131,26 +131,41 @@ function drainDetents(
   armed: boolean,
   perDetent: number,
   deadZone: number,
-): { detents: number; residual: number; armed: boolean } {
+  lastDirection: 1 | -1 | 0 = 0,
+  hysteresisDeg = 0,
+): { detents: number; residual: number; armed: boolean; direction: 1 | -1 | 0 } {
   let remaining = residual
   let isArmed = armed
   let detents = 0
+  let direction: 1 | -1 | 0 = lastDirection
 
   if (!isArmed) {
-    if (Math.abs(remaining) < deadZone) return { detents: 0, residual: remaining, armed: false }
-    const direction = Math.sign(remaining)
-    remaining -= direction * deadZone
-    detents += direction
+    if (Math.abs(remaining) < deadZone) {
+      return { detents: 0, residual: remaining, armed: false, direction }
+    }
+    const sign = Math.sign(remaining)
+    remaining -= sign * deadZone
+    detents += sign
+    direction = sign > 0 ? 1 : -1
     isArmed = true
   }
 
-  while (Math.abs(remaining) >= perDetent) {
-    const direction = Math.sign(remaining)
-    remaining -= direction * perDetent
-    detents += direction
+  for (;;) {
+    const sign = Math.sign(remaining)
+    if (sign === 0) break
+    // ⚑ Hysteresis (design-system §9.4). A detent that reverses direction costs
+    // the ordinary travel plus 1.8°; one that continues costs the ordinary
+    // travel. This is what stops a thumb parked on a threshold from chattering
+    // the highlight back and forth while the hand is not moving.
+    const reversing = direction !== 0 && sign !== direction
+    const cost = perDetent + (reversing ? hysteresisDeg : 0)
+    if (Math.abs(remaining) < cost) break
+    remaining -= sign * cost
+    detents += sign
+    direction = sign > 0 ? 1 : -1
   }
 
-  return { detents, residual: remaining, armed: isArmed }
+  return { detents, residual: remaining, armed: isArmed, direction }
 }
 
 /**
@@ -188,6 +203,10 @@ export const detent: DetentFn = (accumulator, input, viewportRows, screen) => {
       base.armed,
       DETENT.scrollPxPerDetent,
       DETENT.scrollDeadZonePx,
+      base.direction,
+      // No hysteresis on this path: §9.4's chatter case is a thumb parked on a
+      // threshold, and a trackpad at rest emits no events to chatter with.
+      0,
     )
 
     // No velocity multiplier on this path, deliberately. Trackpad momentum
@@ -196,7 +215,12 @@ export const detent: DetentFn = (accumulator, input, viewportRows, screen) => {
     detents = drained.detents
     multiplier = DETENT.rowsSlow
     rowDelta = detents
-    next = { ...next, residualPx: drained.residual, armed: drained.armed }
+    next = {
+      ...next,
+      residualPx: drained.residual,
+      armed: drained.armed,
+      direction: drained.direction,
+    }
   } else if (input.path === 'key') {
     // Exactly one detent. Not "usually one", not "one unless the key repeats".
     detents = input.direction
@@ -206,14 +230,14 @@ export const detent: DetentFn = (accumulator, input, viewportRows, screen) => {
     // the density ruling and leaves a row nobody can reach.
     multiplier = input.page ? viewportRows : DETENT.rowsSlow
     rowDelta = detents * multiplier
-    next = { ...next, armed: true }
+    next = { ...next, armed: true, direction: input.direction }
   } else if (input.path === 'direct') {
     // A programmatic count, already discretised. No acceleration: determinism
     // is the entire reason this path exists.
     detents = Math.trunc(input.detents)
     multiplier = DETENT.rowsSlow
     rowDelta = detents
-    next = { ...next, armed: true }
+    next = { ...next, armed: true, direction: detents === 0 ? base.direction : detents > 0 ? 1 : -1 }
   } else {
     const elapsedSec =
       base.lastEventMs === null ? 0 : (input.timestampMs - base.lastEventMs) / 1000
@@ -229,6 +253,8 @@ export const detent: DetentFn = (accumulator, input, viewportRows, screen) => {
       base.armed,
       DETENT.arcDegPerDetent,
       input.path === 'touch-arc' ? DETENT.touchDeadZoneDeg : DETENT.mouseDeadZoneDeg,
+      base.direction,
+      DETENT.reversalHysteresisDeg,
     )
 
     let recent = base.recentMultipliers
@@ -247,6 +273,10 @@ export const detent: DetentFn = (accumulator, input, viewportRows, screen) => {
       armed: drained.armed,
       speedDegPerSec,
       recentMultipliers: recent,
+      // From the drain, not from the event's net detents: an event that both
+      // advanced and reversed must leave the direction of the *last* detent,
+      // or the next reversal is charged the wrong way.
+      direction: drained.direction,
     }
   }
 
@@ -257,13 +287,7 @@ export const detent: DetentFn = (accumulator, input, viewportRows, screen) => {
       ? 0
       : (Math.abs(detents) * 1000) / sinceLastDetentMs
 
-  if (detents !== 0) {
-    next = {
-      ...next,
-      lastDetentMs: input.timestampMs,
-      direction: detents > 0 ? 1 : -1,
-    }
-  }
+  if (detents !== 0) next = { ...next, lastDetentMs: input.timestampMs }
 
   // ⚑ THE SILENCE RULE. Asked once, of `feedbackFor`, which is the only place
   // in the package that answers it — for the coast below as well as for this
