@@ -11,3 +11,12 @@ dist/
 # locally by whoever needs it, so the repo carries exactly one copy of the law.
 .claude/
 CLAUDE.md
+
+# Signing keys and credentials. The MusicKit private key signs the developer
+# token and must never reach the client, a commit, a log, a doc, or an agent
+# prompt. Token minting is server-side only (pm-spec §14.1).
+cert/
+*.p8
+*.pem
+*.key
+*.p12

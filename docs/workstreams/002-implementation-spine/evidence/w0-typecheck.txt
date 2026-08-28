@@ -1,0 +1,36 @@
+$ bun run typecheck
+$ bun run scripts/typecheck.ts
+
+── tsc --noEmit -p apps/web/tsconfig.json
+   ok  apps/web
+
+── tsc --noEmit -p packages/composite/tsconfig.json
+   ok  packages/composite
+
+── tsc --noEmit -p packages/device/tsconfig.json
+   ok  packages/device
+
+── tsc --noEmit -p packages/panel/tsconfig.json
+   ok  packages/panel
+
+── tsc --noEmit -p packages/providers/tsconfig.json
+   ok  packages/providers
+
+── tsc --noEmit -p packages/server-core/tsconfig.json
+   ok  packages/server-core
+
+── tsc --noEmit -p packages/state/tsconfig.json
+   ok  packages/state
+
+── tsc --noEmit -p packages/tokens/tsconfig.json
+   ok  packages/tokens
+
+── tsc --noEmit -p packages/tools/tsconfig.json
+   ok  packages/tools
+
+── tsc --noEmit -p packages/ui/tsconfig.json
+   ok  packages/ui
+
+10/10 packages clean
+
+exit: 0

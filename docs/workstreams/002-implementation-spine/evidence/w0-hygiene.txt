@@ -1,0 +1,64 @@
+$ git ls-files | grep -i claude
+(exit 1)
+
+$ git ls-files | grep -i agents
+AGENTS.md
+
+$ ls -l CLAUDE.md AGENTS.md
+-rw-r--r--@ 1 vinicius  staff  2233 Aug 28 10:45 AGENTS.md
+lrwxr-xr-x@ 1 vinicius  staff     9 Aug 28 10:45 CLAUDE.md -> AGENTS.md
+
+$ readlink CLAUDE.md
+AGENTS.md
+
+$ head -3 CLAUDE.md   # resolves through the symlink
+# webPod
+
+A browser music player rendered as a physically-modelled iPod 5G, playable by humans and by AI agents through WebMCP.
+
+$ git check-ignore -v CLAUDE.md .claude/settings.local.json
+.gitignore:13:CLAUDE.md	CLAUDE.md
+.gitignore:12:.claude/	.claude/settings.local.json
+
+$ git status --short   # nothing from .claude, nothing untracked but this workstream's own docs
+?? docs/workstreams/002-implementation-spine/
+
+$ git log --format='%H %s' -3
+8f27b0257555e93b3990271ec6d6ba7ab84ff40e chore: repo hygiene and agent instruction law
+9e65a4863e65feb71fdbd83a92e77b1f6ca29b52 chore: bun workspace scaffold
+2305f4bbb09a42a07d872019d31a58c4ef3d98d8 docs: interface design handover (workstream 001)
+
+$ git log -3 --format='commit %h%nsubject: %s%nbody: [%b]%ntrailers: [%(trailers)]'   # trailer check
+commit 8f27b02
+subject: chore: repo hygiene and agent instruction law
+body: []
+trailers: []
+commit 9e65a48
+subject: chore: bun workspace scaffold
+body: []
+trailers: []
+commit 2305f4b
+subject: docs: interface design handover (workstream 001)
+body: [Design system, interaction model, agent architecture and provider
+contract for webPod. No implementation code.
+
+- docs/workstreams/001-interface-design-handover/
+    readme.md          entry point: layers, hard rules, build order, risks
+    handover.html      rendered handover
+    pm-spec.md         screens, wheel mapping, WebMCP surface, DoD
+    design-system.md   tokens, materials, motion, FX, a11y math
+    stack-research.md  ground-truth API research from local clones
+- design.pen           8 artboards, 8 components, 8 notes, 148 tokens
+                       (57 superseded tokens removed)
+- CLAUDE.md            constitutional repo facts only
+
+Key decisions: three-layer split (3D device / DOM panel / glass chrome),
+with the panel staying real DOM because it is the layer WebMCP actuates;
+WebMCP has no permission model, so safety is "gate nothing, show
+everything, make it undoable"; human and agent are separated on seven
+channels with hue ranked 6th.
+
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+]
+trailers: [Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+]

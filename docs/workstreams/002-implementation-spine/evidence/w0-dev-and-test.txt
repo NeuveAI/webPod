@@ -1,0 +1,40 @@
+$ bun run dev
+$ bun run --cwd apps/web dev
+$ vite dev --port 3000
+
+  VITE v8.2.2  ready in 408 ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: use --host to expose
+10:49:15 AM [vite] (ssr) connected.
+
+$ curl -s -D - -o body.html http://localhost:3000/
+HTTP/1.1 200 OK
+Vary: Origin
+content-type: text/html; charset=utf-8
+Date: Fri, 28 Aug 2026 08:49:16 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+--- served markup (grep -a: the SSR stream carries NUL markers, so grep needs -a) ---
+<html lang="en" data-mode="dark">
+<title>webPod</title>
+<main class="text-ui-text-1 grid min-h-dvh place-items-center"><p class="font-panel text-panel-row">webPod</p></main>
+href="/src/styles/app.css"
+
+# data-mode="dark" on <html> is the colourway switch: design-system LAW 5 makes
+# the mode a product variant, so it is an explicit attribute and never a media query.
+# The route renders server-side; the panel classes resolve against the token sheet.
+
+$ bun test
+bun test v1.4.0 (34cbb9a40)
+
+ 15 pass
+ 0 fail
+ 34 expect() calls
+Ran 15 tests across 1 file. [2.00ms]
+
+$ bun run lint
+$ bunx --bun eslint .
+exit: 0

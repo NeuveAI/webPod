@@ -1,0 +1,20 @@
+=== §12.1 transcription is verbatim ===
+$ diff <(sed -n '2473,2748p' docs/workstreams/001-interface-design-handover/design-system.md) packages/tokens/src/globals.css
+(no output above = byte-identical; exit 0)
+
+$ shasum -a 256 packages/tokens/src/globals.css
+08998d2cf836b4672b5b621393672952593fc0f53c1724e67e19a2679befeecc  packages/tokens/src/globals.css
+$ sed -n '2473,2748p' docs/.../design-system.md | shasum -a 256
+08998d2cf836b4672b5b621393672952593fc0f53c1724e67e19a2679befeecc  -
+
+=== bunx tsc --noEmit -p packages/tokens/tsconfig.json ===
+exit: 0
+
+=== bun test packages/tokens ===
+bun test v1.4.0 (34cbb9a40)
+
+ 15 pass
+ 0 fail
+ 34 expect() calls
+Ran 15 tests across 1 file. [5.00ms]
+exit: 0

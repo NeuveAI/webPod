@@ -1,0 +1,67 @@
+=== each commit typechecks on its own ===
+# git worktrees are forbidden by the packet, so each commit is extracted with
+# 'git archive | tar -x' into a scratch dir, installed and typechecked there.
+
+$ git archive 9e65a48 | tar -x -C <scratch>/9e65a48 && cd <scratch>/9e65a48 && bun install && bun run typecheck
+  9e65a48 chore: bun workspace scaffold
+
+10/10 packages clean
+
+$ git archive 8f27b02 | tar -x -C <scratch>/8f27b02 && cd <scratch>/8f27b02 && bun install && bun run typecheck
+  8f27b02 chore: repo hygiene and agent instruction law
+
+10/10 packages clean
+
+$ git archive 48b3b90 | tar -x -C <scratch>/48b3b90 && cd <scratch>/48b3b90 && bun install && bun run typecheck
+  48b3b90 feat(tokens): design system tokens
+
+10/10 packages clean
+
+=== gates go red on a planted violation ===
+# Planted: packages/state/src/__planted.tsx with a useState + an 'any';
+#          packages/device/src/__planted.ts with a type error;
+#          WHEEL_R temporarily set to the pre-R5 value 106.
+# All three planted files were removed afterwards.
+
+$ bun run lint            -> exit 1
+$ bunx --bun eslint .
+
+/Users/vinicius/code/webPod/packages/state/src/__planted.tsx
+  1:10  error  useState is banned repo-wide. Use the Jotai store  no-restricted-syntax
+  4:15  error  useState is banned repo-wide. Use the Jotai store  no-restricted-syntax
+  5:14  error  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+
+✖ 3 problems (3 errors, 0 warnings)
+
+error: script "lint" exited with code 1
+
+$ bun run typecheck       -> exit 1
+packages/device/src/__planted.ts(1,7): error TS2322: Type 'number' is not assignable to type 'string'.
+packages/device/src/__planted.ts(1,7): error TS6133: 'wrong' is declared but its value is never read.
+   FAIL packages/device (exit 2)
+packages/state/src/__planted.tsx(1,26): error TS2307: Cannot find module 'react' or its corresponding type declarations.
+   FAIL packages/state (exit 2)
+8/10 packages clean
+failed: packages/device, packages/state
+
+$ bun test packages/tokens  (WHEEL_R 115 -> 106)  -> exit 1
+Expected: 115
+Received: 106
+(fail) R5 geometry table > matches the design system §12.0 values [0.90ms]
+Expected: 0.697
+Received: 0.642
+(fail) R5 geometry table > wheel diameter over body width is 0.697 to 3dp [0.21ms]
+Expected: >= 77
+Received: 73.55199999999999
+(fail) R5 geometry table > the label band is innerR + ringW x 0.493, not x 0.57 [0.20ms]
+Expected: 107
+Received: 116
+(fail) FX orbit clearances > the halo centreline straddles the rim at wheelR + 1 [0.04ms]
+Expected: 0.66
+Received: 0.72
+(fail) FX orbit clearances > the agent trail sits at 0.660 x wheelR [0.03ms]
+ 10 pass
+ 5 fail
+
+# Note: reverting WHEEL_R to the pre-R5 106 reproduces exactly the 0.642
+# wheel/body ratio design-system §7.3 records as the drift §12.0 corrects.

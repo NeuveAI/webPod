@@ -1,0 +1,62 @@
+$ bun --version
+1.4.0
+
+# from a wiped node_modules and no lockfile, at the final tree (HEAD = 48b3b90)
+$ rm -rf node_modules apps/web/node_modules packages/*/node_modules bun.lock
+
+$ bun install
+bun install v1.4.0 (34cbb9a40)
+Resolving dependencies
+Resolved, downloaded and extracted [180]
+Saved lockfile
+
++ @eslint/js@10.0.1
++ @types/bun@1.4.0
++ eslint@10.9.1
++ eslint-plugin-react-hooks@7.1.1
++ globals@17.11.0
++ typescript@6.0.3 (v7.0.2 available)
++ typescript-eslint@8.68.0
+
+214 packages installed [617.00ms]
+
+# The regenerated bun.lock is byte-identical to the committed one:
+$ git status --short bun.lock
+(no output = reproducible)
+
+# Bun 1.4 uses the isolated linker: each workspace gets its own node_modules
+# rather than hoisting to the root, so the summary above lists only the root's
+# own devDependencies. One 'bun install' covers all ten workspaces:
+$ ls apps/web/node_modules
+@tailwindcss
+@tanstack
+@types
+@vitejs
+@webpod
+react
+react-dom
+tailwindcss
+vite
+
+$ ls packages/tokens/node_modules
+tailwindcss
+
+$ bun pm ls
+/Users/vinicius/code/webPod node_modules (275)
+├── @eslint/js@10.0.1
+├── @types/bun@1.4.0
+├── @webpod/composite@workspace:packages/composite
+├── @webpod/device@workspace:packages/device
+├── @webpod/panel@workspace:packages/panel
+├── @webpod/providers@workspace:packages/providers
+├── @webpod/server-core@workspace:packages/server-core
+├── @webpod/state@workspace:packages/state
+├── @webpod/tokens@workspace:packages/tokens
+├── @webpod/tools@workspace:packages/tools
+├── @webpod/ui@workspace:packages/ui
+├── @webpod/web@workspace:apps/web
+├── eslint@10.9.1
+├── eslint-plugin-react-hooks@7.1.1
+├── globals@17.11.0
+├── typescript@6.0.3
+└── typescript-eslint@8.68.0
