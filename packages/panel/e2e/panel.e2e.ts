@@ -285,8 +285,20 @@ test('axe and preference emulation pass in both colourways', async ({ page }) =>
     const action = page.locator(selector).getByRole('button', { name: 'Love track' })
     const box = await action.boundingBox()
     if (box === null) throw new Error('Love track action has no target box')
-    expect(box.width).toBeGreaterThanOrEqual(24)
-    expect(box.height).toBeGreaterThanOrEqual(24)
+    const nativeTarget = await action.evaluate((element) => {
+      if (!(element instanceof HTMLButtonElement)) throw new Error('Love track action must be a native button')
+      const style = getComputedStyle(element)
+      return {
+        offsetWidth: element.offsetWidth,
+        offsetHeight: element.offsetHeight,
+        minInlineSize: Number.parseFloat(style.minInlineSize),
+        minBlockSize: Number.parseFloat(style.minBlockSize),
+      }
+    })
+    expect(nativeTarget.offsetWidth).toBeGreaterThanOrEqual(44)
+    expect(nativeTarget.offsetHeight).toBeGreaterThanOrEqual(44)
+    expect(nativeTarget.minInlineSize).toBeGreaterThanOrEqual(44)
+    expect(nativeTarget.minBlockSize).toBeGreaterThanOrEqual(44)
     const results = await new AxeBuilder({ page }).include(selector).analyze()
     const targetSize = await new AxeBuilder({ page }).include(selector).withRules(['target-size']).analyze()
     expect(results.violations).toEqual([])
@@ -294,7 +306,7 @@ test('axe and preference emulation pass in both colourways', async ({ page }) =>
     const targetPass = targetSize.passes.find((entry) => entry.id === 'target-size')
     expect(targetPass).toBeDefined()
     expect(targetPass?.nodes.length).toBeGreaterThan(0)
-    reports.push({ colourway, violations: results.violations, targetSizeViolations: targetSize.violations, passes: results.passes.map((entry) => entry.id), targetSizePasses: targetSize.passes.map((entry) => entry.id), targetSizeEvaluatedNodes: targetPass?.nodes.length ?? 0, measuredTarget: box })
+    reports.push({ colourway, violations: results.violations, targetSizeViolations: targetSize.violations, passes: results.passes.map((entry) => entry.id), targetSizePasses: targetSize.passes.map((entry) => entry.id), targetSizeEvaluatedNodes: targetPass?.nodes.length ?? 0, nativeTarget, previewTarget: box })
   }
   await writeFile(resolve(evidence, `${prefix}-axe.json`), JSON.stringify(reports, null, 2))
 })

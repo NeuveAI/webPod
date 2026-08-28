@@ -41,6 +41,14 @@ describe('the bare DOM panel', () => {
     expect(Math.min(...sizes)).toBeGreaterThanOrEqual(11)
   })
 
+  test('native interactive targets are at least forty-four panel pixels before preview scaling', () => {
+    const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
+    const actionRule = css.match(/\.wp-actions button\s*\{([^}]*)\}/)?.[1]
+    expect(actionRule).toBeDefined()
+    expect(actionRule).toMatch(/min-inline-size:\s*44px/)
+    expect(actionRule).toMatch(/min-block-size:\s*44px/)
+  })
+
   test('uses provider commands, subscriptions, and TanStack virtualization', () => {
     const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
     expect(source).toContain('fixtureProvider.play(')
