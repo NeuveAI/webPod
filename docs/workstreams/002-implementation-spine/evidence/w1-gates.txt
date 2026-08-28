@@ -90,3 +90,17 @@ and initiative-name matches in composite/panel/spike sources. Provider branching
 types, lint, provider tests, unsupported-tool registration, trailers, and
 credential boundaries all pass. MAJOR-5 therefore remains a W5a/workstream gate
 blocker even though the placeholder itself is gone.
+
+## Artist membership correction
+
+Run 2026-08-29 at `c05054b`:
+
+| Check | Result |
+|---|---|
+| `bunx tsc --noEmit -p packages/providers/tsconfig.json` | exit 0 |
+| `bunx --bun eslint packages/providers` | exit 0 |
+| `bun test packages/providers` | **402 pass, 0 fail, 1735 expects** |
+
+The shared full gate was deliberately not edited around. Its remaining failure
+is MAJOR-2 and is rerun after W3/W4/W5a convergence, as directed by the
+re-review owner.

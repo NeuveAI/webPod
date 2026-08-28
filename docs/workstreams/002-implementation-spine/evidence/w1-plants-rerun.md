@@ -81,3 +81,19 @@ ran. None touched the shared working tree.
 These are behavioral gates. They do not derive expected values from the symbols
 or stores being tested, and the plant results show each can reject the exact
 defect class that prompted the final review.
+
+## Artist membership re-review plant
+
+Run 2026-08-29 from a byte-isolated `git archive` of `c05054b`.
+
+The plant restored the reviewed defect exactly: the `libraryList("artists")`
+branch was changed from filtering with `libraryArtistKeys()` to returning
+`catalog.artists`. `rg` confirmed the catalogue-wide branch at lines 507–508
+before the focused test ran. The remove/add regression then failed at its first
+post-removal list assertion: expected `false`, received `true`. Library search
+had already returned `false`, reproducing the contradictory public answers.
+
+The same committed test covers both restoration paths independently: adding one
+track restores the artist to list and search; removing that track and adding an
+album restores it again. A sibling test proves genre and composer facets follow
+saved tracks and saved albums rather than silently remaining catalogue-wide.
