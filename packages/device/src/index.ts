@@ -61,7 +61,7 @@ export {
 } from './layout'
 export { circleHole, roundedRectHole, roundedRectShape, silhouetteShape } from './shapes'
 export { curvedAnnulusGeometry, domedDiscGeometry } from './curved-discs'
-export { createMicroNoiseRoughnessMap, createSteelAnisotropyMap, createWheelLabelMap } from './textures'
+export { createBlackPolySssMap, createMicroNoiseRoughnessMap, createSteelAnisotropyMap, createWheelLabelMap } from './textures'
 
 export {
   createScreenMeshHandle,
@@ -73,6 +73,7 @@ export {
 } from './screen-mesh'
 export { createScreenGeometry } from './screen-geometry'
 export { createCoverGlassMaterial, patchGlassShader } from './physical-materials'
+export { createOpticalNormalMap, DEFAULT_DEVICE_OPTICAL_PROFILES, type DeviceOpticalProfiles, type OpticalProfile } from './optical-profile'
 
 export {
   hexLuma255,

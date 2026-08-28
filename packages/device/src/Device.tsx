@@ -46,7 +46,8 @@ import { circleHole, roundedRectHole, roundedRectShape, silhouetteShape } from '
 import { createScreenMeshHandle, type ScreenMeshReady } from './screen-mesh'
 import { createScreenGeometry } from './screen-geometry'
 import { createCoverGlassMaterial } from './physical-materials'
-import { createMicroNoiseRoughnessMap, createSteelAnisotropyMap, createWheelLabelMap } from './textures'
+import { createOpticalNormalMap, DEFAULT_DEVICE_OPTICAL_PROFILES, type DeviceOpticalProfiles } from './optical-profile'
+import { createBlackPolySssMap, createMicroNoiseRoughnessMap, createSteelAnisotropyMap, createWheelLabelMap } from './textures'
 
 /** LAW 5: both modes are the product, so both colourways are first class. */
 export type Colourway = 'black' | 'white'
@@ -72,6 +73,7 @@ export type DeviceProps = {
    * room passes it here and `env-map.ts` is not called.
    */
   readonly envMap?: Texture | null
+  readonly opticalProfiles?: DeviceOpticalProfiles
   /** Handed the screen quad once it exists. This is the W6 boundary (D-011). */
   readonly onScreenMeshReady?: ScreenMeshReady
   /** Pre-installed material for the screen slot; `undefined` keeps the default. */
@@ -91,6 +93,7 @@ export function Device({
   envRoom = DEFAULT_ENV_ROOM,
   form = DEFAULT_DEVICE_FORM,
   envMap,
+  opticalProfiles = DEFAULT_DEVICE_OPTICAL_PROFILES,
   onScreenMeshReady,
   screenMaterial,
 }: DeviceProps) {
@@ -126,11 +129,22 @@ export function Device({
   useEffect(() => () => noise.dispose(), [noise])
   const steelAnisotropy = useMemo(() => createSteelAnisotropyMap(), [])
   useEffect(() => () => steelAnisotropy.dispose(), [steelAnisotropy])
+  const blackSss = useMemo(() => { const map=createBlackPolySssMap(); map.repeat.set(1,1/body.height); map.offset.set(0,.5); return map }, [])
+  useEffect(() => () => blackSss.dispose(), [blackSss])
 
   const isBlack = colourway === 'black'
   const bodyMaterial = isBlack ? materials.bodyBlack : materials.bodyWhite
   const ringMaterial = isBlack ? materials.wheelRingBlack : materials.wheelRingWhite
   const selectMaterial = isBlack ? materials.selectBlack : materials.selectWhite
+  const opticalSignature = JSON.stringify(opticalProfiles)
+  const opticalMaps = useMemo(() => {
+    const p=JSON.parse(opticalSignature) as DeviceOpticalProfiles
+    const bodyMap=createOpticalNormalMap(isBlack?p.bodyBlack:p.bodyWhite)
+    bodyMap.repeat.set(1, 1/body.height)
+    bodyMap.offset.set(0, .5)
+    return { body:bodyMap, ring:createOpticalNormalMap(isBlack?p.wheelBlack:p.wheelWhite), select:createOpticalNormalMap(isBlack?p.selectBlack:p.selectWhite) }
+  }, [isBlack,opticalSignature])
+  useEffect(() => () => { opticalMaps.body.dispose(); opticalMaps.ring.dispose(); opticalMaps.select.dispose() }, [opticalMaps])
 
   // ── Geometry ───────────────────────────────────────────────────────────────
   // Built once per shape-affecting input. Under `frameloop="demand"` a rebuild
@@ -387,12 +401,12 @@ export function Device({
 
       {/* §5.1 / §4.3 — the polycarbonate front, inset by the seam. */}
       <mesh geometry={frontGeometry}>
-        <meshPhysicalMaterial {...spread(bodyMaterial)} envMap={env} roughnessMap={noise} />
+        <meshPhysicalMaterial {...spread(bodyMaterial)} envMap={env} roughnessMap={noise} normalMap={opticalMaps.body} emissive={isBlack ? '#6E4A2E' : '#000000'} emissiveIntensity={isBlack ? 0.02 : 0} emissiveMap={isBlack ? blackSss : null} />
       </mesh>
 
       {/* §5.3 — the dished ring, at the bottom of the recess. */}
       <mesh geometry={ringGeometry} position={[wheel.centerX, wheel.centerY, ringZ]}>
-        <meshPhysicalMaterial {...spread(ringMaterial)} envMap={env} />
+        <meshPhysicalMaterial {...spread(ringMaterial)} envMap={env} normalMap={opticalMaps.ring} />
       </mesh>
 
       {/* §5.3 L8 — screen-printed ink. A separate transparent decal is
@@ -418,7 +432,7 @@ export function Device({
         position={[wheel.centerX, wheel.centerY, selectRimZ - form.selectProud / 2]}
         rotation={[Math.PI / 2, 0, 0]}
       >
-        <meshPhysicalMaterial {...spread(selectMaterial)} envMap={env} />
+        <meshPhysicalMaterial {...spread(selectMaterial)} envMap={env} normalMap={opticalMaps.select} />
       </mesh>
       <mesh
         geometry={selectGeometry}
