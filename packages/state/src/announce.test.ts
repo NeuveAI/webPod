@@ -103,7 +103,7 @@ describe('U13 — a flick announces once', () => {
 
     const announcement = store.get(liveRegionAtom)
     const frame = store.get(announcerAtom)
-    expect(frame.pending).toBeNull()
+    expect(frame.settling).toBeNull()
     expect(announcement?.text).toMatch(/^Row \d+ of 200\. Song \d+, Vienna Teng\.$/)
   })
 
@@ -185,7 +185,7 @@ describe('the keyboard announces immediately, because it is deterministic', () =
     })
 
     expect(store.get(liveRegionAtom)?.text).toBe('Row 2 of 18. Song 2, Vienna Teng.')
-    expect(store.get(announcerAtom).pending).toBeNull()
+    expect(store.get(announcerAtom).settling).toBeNull()
   })
 
   test('three counted presses speak three times — this is how P5 navigates', () => {
@@ -260,7 +260,7 @@ describe('the keyboard announces immediately, because it is deterministic', () =
         timestampMs: i * 20,
       })
     }
-    expect(store.get(announcerAtom).pending).not.toBeNull()
+    expect(store.get(announcerAtom).settling).not.toBeNull()
 
     store.set(detentActionAtom, {
       path: 'key',
@@ -271,7 +271,7 @@ describe('the keyboard announces immediately, because it is deterministic', () =
       timestampMs: 1000,
     })
 
-    expect(store.get(announcerAtom).pending).toBeNull()
+    expect(store.get(announcerAtom).settling).toBeNull()
     // Nothing stale is left armed to speak later.
     expect(store.set(flushAnnouncementsActionAtom, 100000)).toBeNull()
   })
@@ -349,7 +349,7 @@ describe('the sentence', () => {
 })
 
 describe('the pure announcer', () => {
-  test('noteMovement replaces the pending summary rather than queueing', () => {
+  test('noteMovement replaces the settling summary rather than queueing', () => {
     const frame = songFrame(50)
     let state = IDLE_ANNOUNCER_STATE
     for (let i = 0; i < 30; i += 1) {
@@ -365,14 +365,14 @@ describe('the pure announcer', () => {
 
     expect(state.emitted).toBe(0)
     expect(state.dueAtMs).toBe(29 * 20 + ANNOUNCE_DEBOUNCE_MS)
-    expect(state.pending?.snapshot.frame.highlightIndex).toBe(29)
+    expect(state.settling?.snapshot.frame.highlightIndex).toBe(29)
 
     const flushed = flushAnnouncer(state, 29 * 20 + ANNOUNCE_DEBOUNCE_MS)
     expect(flushed.announcement?.text).toBe('Row 30 of 50. Song 30, Vienna Teng.')
     expect(flushAnnouncer(flushed.state, 999999).announcement).toBeNull()
   })
 
-  test('clearAnnouncer drops the pending summary but keeps the count', () => {
+  test('clearAnnouncer drops the settling summary but keeps the count', () => {
     const frame = songFrame(10)
     const noted = noteMovement(IDLE_ANNOUNCER_STATE, {
       snapshot: sourceAt(frame, 1),
@@ -382,7 +382,7 @@ describe('the pure announcer', () => {
     })
     const cleared = clearAnnouncer(noted.state)
 
-    expect(cleared.pending).toBeNull()
+    expect(cleared.settling).toBeNull()
     expect(cleared.dueAtMs).toBeNull()
     expect(cleared.emitted).toBe(noted.state.emitted)
   })
@@ -430,7 +430,7 @@ describe('the driver — the one timer in the package', () => {
     expect(armed - cleared).toBeLessThanOrEqual(1)
   })
 
-  test('stopping the driver cancels the pending announcement', async () => {
+  test('stopping the driver cancels the settling announcement', async () => {
     const store = createDeviceStore()
     store.set(pushScreenActionAtom, songFrame(20))
     const stop = startAnnouncer(store)

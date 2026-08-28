@@ -95,7 +95,7 @@ export const SETTINGS_ROOT: MenuNode = {
  *
  * Matching is exact and case-sensitive: these labels are the product's own
  * copy, not user input, and a fuzzy match here would silently send a caller
- * somewhere it did not ask to go.
+ * somewhere it never named.
  *
  * @returns The node at the end of the path, or `null` if any segment misses.
  */

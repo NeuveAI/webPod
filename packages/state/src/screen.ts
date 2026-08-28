@@ -104,7 +104,7 @@ export const moveHighlight: MoveHighlightFn = (stack, rowDelta, visibleRows) => 
  * Jumps one full viewport (001 §4.3).
  *
  * The `⏭` / `⏮` buttons on a list screen, and `Shift+Arrow`. A page that runs
- * off the end lands *on* the end rather than refusing — the human asked to go
+ * off the end lands *on* the end rather than refusing — the human wanted to travel
  * as far as possible in that direction and the last row is as far as possible
  * — and still bumps, so the end is legible.
  */
@@ -169,7 +169,7 @@ export function resetStack(frames: readonly ScreenFrame[]): ScreenTransition {
  *
  * Row `index` stays absolute even when the rows are windowed, so a row read
  * out of a partial view still says where it is in the whole list — otherwise a
- * reader that asked for the visible rows and then asked to move to "row 3"
+ * reader given the visible rows that then said "move to row 3"
  * would mean a different row than the one it was told about.
  */
 export const readScreen: ReadScreenFn = (source, options) => {

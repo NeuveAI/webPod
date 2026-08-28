@@ -9,7 +9,7 @@
  * completely invisible to anyone not listening to it.
  *
  * So: **announce where the human ended up, never the journey.** Each new
- * movement replaces the pending summary and pushes the due time out. Only
+ * movement replaces the settling summary and pushes the due time out. Only
  * stillness emits.
  *
  * The single exception is a deliberate keypress, which is announced at once:
@@ -92,7 +92,7 @@ function announcementFor(
 ): Announcement {
   return {
     text: describeMovement(snapshot, source),
-    // Always polite. A movement the human asked for must never interrupt what
+    // Always polite. A movement the human made must never interrupt what
     // the screen reader is already saying; `assertive` is reserved for the
     // things that stop you — an error, Hold engaging, an armed irreversible
     // confirm. Navigation is not one of them.
@@ -104,12 +104,12 @@ function announcementFor(
 /**
  * Records that the highlight moved, and decides when it will be spoken.
  *
- * ⚑ Repeated calls **replace** the pending summary; they never queue a second
- * one. Thirty detents in a flick call this thirty times and leave one pending
+ * ⚑ Repeated calls **replace** the settling summary; they never queue a second
+ * one. Thirty detents in a flick call this thirty times and leave one settling
  * announcement, whose due time has been pushed out thirty times — so the
  * sentence that eventually comes out describes where the flick *stopped*.
  *
- * An `immediate` movement emits on the spot **and clears anything pending**.
+ * An `immediate` movement emits on the spot **and clears whatever was settling**.
  * That second half matters: a keypress that interrupts a coasting flick would
  * otherwise leave the flick's stale summary armed, and the human would hear
  * the row they pressed a key from a third of a second after they left it.
@@ -123,14 +123,14 @@ function announcementFor(
 export const noteMovement: NoteMovementFn = (state, movement) => {
   if (movement.urgency === 'immediate') {
     return {
-      state: { pending: null, dueAtMs: null, emitted: state.emitted + 1 },
+      state: { settling: null, dueAtMs: null, emitted: state.emitted + 1 },
       announcement: announcementFor(state, movement.snapshot, movement.source),
     }
   }
 
   return {
     state: {
-      pending: { snapshot: movement.snapshot, source: movement.source },
+      settling: { snapshot: movement.snapshot, source: movement.source },
       dueAtMs: movement.atMs + ANNOUNCE_DEBOUNCE_MS,
       emitted: state.emitted,
     },
@@ -139,9 +139,9 @@ export const noteMovement: NoteMovementFn = (state, movement) => {
 }
 
 /**
- * Emits the pending summary if the motion has been still long enough.
+ * Emits the settling summary if the motion has been still long enough.
  *
- * Idempotent: once it has emitted, the pending movement is cleared and further
+ * Idempotent: once it has emitted, the settling movement is cleared and further
  * calls return `null` until something moves again. A driver that fires this on
  * a timer and again on a stray wake-up therefore cannot double-speak.
  *
@@ -149,18 +149,18 @@ export const noteMovement: NoteMovementFn = (state, movement) => {
  *   to {@link noteMovement}.
  */
 export const flushAnnouncer: FlushAnnouncerFn = (state, nowMs) => {
-  if (state.pending === null || state.dueAtMs === null || nowMs < state.dueAtMs) {
+  if (state.settling === null || state.dueAtMs === null || nowMs < state.dueAtMs) {
     return { state, announcement: null }
   }
 
   return {
-    state: { pending: null, dueAtMs: null, emitted: state.emitted + 1 },
-    announcement: announcementFor(state, state.pending.snapshot, state.pending.source),
+    state: { settling: null, dueAtMs: null, emitted: state.emitted + 1 },
+    announcement: announcementFor(state, state.settling.snapshot, state.settling.source),
   }
 }
 
 /**
- * Discards a pending announcement without speaking it.
+ * Discards a settling announcement without speaking it.
  *
  * Keeps the emission count. The counter is what makes two identical sentences
  * two distinct values downstream, so resetting it here would let a repeated
@@ -168,5 +168,5 @@ export const flushAnnouncer: FlushAnnouncerFn = (state, nowMs) => {
  * region — a bug that is silent in the most literal sense.
  */
 export function clearAnnouncer(state: AnnouncerState): AnnouncerState {
-  return { ...state, pending: null, dueAtMs: null }
+  return { ...state, settling: null, dueAtMs: null }
 }

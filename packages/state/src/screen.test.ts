@@ -67,7 +67,7 @@ describe('highlight movement', () => {
     expect(top(moveHighlight(start, 1, VISIBLE_ROWS.medium).stack).highlightIndex).toBe(-1)
   })
 
-  test('a zero delta is not a bump — nothing was asked for', () => {
+  test('a zero delta is not a bump — nothing was requested', () => {
     const start = pushScreen([], frame('S09', 5)).stack
     expect(moveHighlight(start, 0, VISIBLE_ROWS.medium).bump).toBeNull()
   })
@@ -207,7 +207,7 @@ describe('the enumerable screen description', () => {
     expect(snapshot.rows.some((row) => row.index === 20)).toBe(true)
   })
 
-  test('reports every row when asked for the offscreen ones', () => {
+  test('reports every row when it requests the offscreen ones', () => {
     const stack = pushScreen([], frame('S09', 40)).stack
     const snapshot = readScreen(
       { face: 'front', frame: top(stack), agentActive: false },

@@ -294,7 +294,7 @@ function announceUrgencyFor(
  * Ends a gesture, discarding residual travel below one detent.
  *
  * ⚑ The residual is dropped, never rounded up. Rounding fires a detent the
- * human did not ask for at the end of every gesture that stops mid-detent —
+ * human did not make at the end of every gesture that stops mid-detent —
  * which is nearly all of them — and the resulting extra row is invisible to
  * whoever wrote the rounding and infuriating to whoever uses it.
  */

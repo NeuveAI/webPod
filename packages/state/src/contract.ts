@@ -3,7 +3,7 @@
  * outside this package is allowed to depend on.
  *
  * This module is published ahead of its implementation on purpose. The panel
- * layer is blocked on the *shape* of device state, not on the reducers that
+ * layer depends on the *shape* of device state, not on the reducers that
  * move it, so the shape lands first and the reducers follow. Nothing here
  * implements behaviour: the reducer, the screen machine and the announcer are
  * declared as function *types* and their bodies arrive in sibling modules.
@@ -15,7 +15,8 @@
  *    `store.set` and `store.sub` with no React tree mounted. Tool callbacks
  *    run outside the React tree and must reach the same state the UI renders;
  *    state held in a component closure is unreachable from one. This is why
- *    `useState` is banned repo-wide with no exception for "local" state.
+ *    React's component-local state hook is banned repo-wide, by lint, with no
+ *    exception for "local" or "trivial" state.
  * 2. **The screen surface is enumerable.** {@link ScreenSnapshot} is the exact
  *    payload a screen-reading tool reports — face, screen id, title, density,
  *    rows, highlight index, totals. Its field names are transcribed from the
@@ -24,8 +25,8 @@
  * 3. **`source` is threaded through the reducer, not around it.** Feedback that
  *    signals a hand — the clicker and haptics — is suppressed at exactly one
  *    place, inside the detent reducer, so no call site can forget. Nothing in
- *    this workstream emits anything but `"human"`; the seam exists so that the
- *    day something does, the rule is already enforced.
+ *    nothing in this stage emits anything but `"human"`; the seam exists so
+ *    that the day something does, the rule is already enforced.
  *
  * What this file deliberately does **not** contain: any notion of an agent
  * being present, attached, connected or idle. The browser supplies no such
@@ -42,7 +43,7 @@ import { atom } from 'jotai/vanilla'
  * ────────────────────────────────────────────────────────────────────────── */
 
 /**
- * Who asked for a movement, as declared by the caller.
+ * Who caused a movement, as declared by the caller.
  *
  * Coarse on purpose: it is the only actor information a call site is trusted
  * to supply. The fine-grained {@link Actor} tag that ends up in the provenance
@@ -324,7 +325,7 @@ export type ScreenSnapshot = {
   readonly density: Density
   /**
    * The rows to report. By default only the window the human can actually
-   * see; a reader that asks for offscreen rows gets the whole set.
+   * see; a reader that requests offscreen rows gets the whole set.
    */
   readonly rows: readonly PanelRow[]
   /** Absolute index of the highlight, or `-1` on an empty screen. */
@@ -427,7 +428,7 @@ export const DETENT = {
   /**
    * Above this detent rate the `selection` haptic stops firing (001 §4.9).
    *
-   * A fast flick would otherwise ask for a continuous buzz, which reads as a
+   * A fast flick would otherwise mean a continuous buzz, which reads as a
    * fault rather than as feedback, and drains the actuator.
    */
   hapticSuppressAbovePerSec: 12,
@@ -625,7 +626,7 @@ export type DetentFn = (
  * Ends a gesture and discards any residual travel.
  *
  * Residual below one detent is dropped rather than rounded up: rounding fires
- * a phantom detent the human never asked for, on every single gesture that
+ * a phantom detent the human never made, on every single gesture that
  * ends mid-detent, which is most of them.
  */
 export type EndGestureFn = (accumulator: DetentAccumulator) => DetentAccumulator
@@ -828,7 +829,7 @@ export type Announcement = {
 }
 
 /**
- * The announcer's pending work.
+ * The movement waiting to settle, if there is one.
  *
  * It holds a *due time* rather than a timer handle. Nothing here schedules
  * anything: the pure part decides when an announcement is due and the store
@@ -837,8 +838,8 @@ export type Announcement = {
  */
 export type AnnouncerState = {
   /** The movement to describe when the debounce elapses, or `null`. */
-  readonly pending: PendingAnnouncement | null
-  /** Timestamp at which {@link pending} becomes due, or `null`. */
+  readonly settling: SettlingMovement | null
+  /** Timestamp at which {@link settling} becomes due, or `null`. */
   readonly dueAtMs: number | null
   /** Emissions so far. Becomes {@link Announcement.seq}. */
   readonly emitted: number
@@ -851,17 +852,17 @@ export type AnnouncerState = {
  * changes the sentence: a human hears where they are, and a human whose device
  * moved without them needs to hear that first.
  *
- * Only one is ever pending. A flick replaces it thirty times and announces
+ * Only one is ever held. A flick replaces it thirty times and announces
  * once, which is the entire point.
  */
-export type PendingAnnouncement = {
+export type SettlingMovement = {
   readonly snapshot: ScreenSnapshotSource
   readonly source: DetentSource
 }
 
 /** The announcer at rest. */
 export const IDLE_ANNOUNCER_STATE: AnnouncerState = {
-  pending: null,
+  settling: null,
   dueAtMs: null,
   emitted: 0,
 }
@@ -869,9 +870,9 @@ export const IDLE_ANNOUNCER_STATE: AnnouncerState = {
 /**
  * Records that the highlight moved, and decides when it will be announced.
  *
- * Calling this repeatedly during a flick replaces the pending snapshot and
+ * Calling this repeatedly during a flick replaces the settling snapshot and
  * pushes the due time out; it never queues a second announcement. An
- * `immediate` urgency emits on the spot and clears anything pending, so a
+ * `immediate` urgency emits on the spot and clears whatever was settling, so a
  * keypress that interrupts a flick does not later produce a stale summary of
  * where the flick had got to.
  */
@@ -886,7 +887,7 @@ export type NoteMovementFn = (
 ) => { readonly state: AnnouncerState; readonly announcement: Announcement | null }
 
 /**
- * Emits the pending announcement if it is due at `nowMs`, otherwise nothing.
+ * Emits the settling announcement if it is due at `nowMs`, otherwise nothing.
  *
  * Idempotent: calling it again after an emission returns `null` until another
  * movement is noted.
@@ -996,7 +997,7 @@ export const screenStackAtom: PrimitiveAtom<readonly ScreenFrame[]> = atom<reado
 /** Gesture state for the detent reducer. */
 export const detentAccumulatorAtom: PrimitiveAtom<DetentAccumulator> = atom(IDLE_DETENT_ACCUMULATOR)
 
-/** The announcer's pending work. */
+/** The movement waiting to settle, if there is one. */
 export const announcerAtom: PrimitiveAtom<AnnouncerState> = atom(IDLE_ANNOUNCER_STATE)
 
 /**

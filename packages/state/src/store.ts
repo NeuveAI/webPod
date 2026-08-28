@@ -9,9 +9,10 @@
  * That is a capability requirement rather than a preference. Tool callbacks
  * run outside the React tree and have to reach the same state the UI renders.
  * State living in a component closure is unreachable from one — not
- * inconvenient, unreachable — which is why `useState` is banned repo-wide with
- * no exception for "local" or "trivial" state. A collapsed section held in a
- * closure is a collapsed section no tool can ever open.
+ * inconvenient, unreachable — which is why React's component-local state hook
+ * is banned repo-wide, by lint, with no exception for "local" or "trivial"
+ * state. A collapsed section held in a closure is a collapsed section no tool
+ * can ever open.
  *
  * The React binding, when it exists, is a `Provider` handed this same store.
  * React reads it; it does not own it.
@@ -196,7 +197,7 @@ export type CreateDeviceStoreOptions = {
    * The stack to start on. Defaults to the main menu at the default density.
    *
    * The default is not a convenience: 001 §15.1 requires the main menu's rows
-   * to render on the first frame and never to be blocked on a network call, so
+   * to render on the first frame and never to wait on a network call, so
    * the store is born with them.
    */
   readonly initialStack?: readonly ScreenFrame[]
@@ -301,7 +302,7 @@ export const endGestureActionAtom = atom(null, (get, set, nowMs: number): Announ
 })
 
 /**
- * Publishes the pending announcement if it is due.
+ * Publishes the settling movement's announcement if it is due.
  *
  * Safe to call on any schedule, including too often: {@link flushAnnouncer} is
  * idempotent, so a driver that wakes up early emits nothing and a driver that
@@ -318,7 +319,7 @@ export const flushAnnouncementsActionAtom = atom(
 )
 
 /**
- * A pending-timeout handle.
+ * A timer handle.
  *
  * Widened deliberately: `setTimeout` returns a `number` in the browser and a
  * `Timeout` object under Bun and Node, and this package is compiled against
@@ -342,12 +343,12 @@ export type AnnouncerDriverOptions = {
  * announcer must stay a pure function of `(state, time)` for the thirty-detent
  * gate to be provable without mocks.
  *
- * It subscribes to the announcer's state and keeps a single pending timeout
+ * It subscribes to the announcer's state and keeps a single armed timeout
  * aimed at the current due time. Every new movement pushes that time out and
  * re-aims the same timer, so a flick of any length holds one timeout and
  * produces one sentence when it stops.
  *
- * @returns An unsubscribe function that also cancels the pending timeout.
+ * @returns An unsubscribe function that also cancels the armed timeout.
  *   Call it on teardown; a timer that outlives its store would speak about a
  *   device nobody is looking at.
  */
