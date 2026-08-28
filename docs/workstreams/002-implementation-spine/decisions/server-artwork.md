@@ -89,21 +89,12 @@ when the live waiter count reaches zero; the entry's owning completion path
 removes the map entry and process admission slot exactly once. Thus either the
 first or later caller may cancel without poisoning a still-live consumer.
 
-## SA-12 — AVIF containers are bounded before decoding
+## SA-12 — AVIF is explicitly unsupported until decode is killable
 
-AVIF validation consumes complete top-level boxes, including 64-bit extended
-box sizes, and rejects undeclared trailing bytes. It requires one `ftyp`, one
-`meta`, one non-empty `mdat`, the item metadata boxes, and an
-`iprp/ipco/ispe` path. These checks reject malformed containers but do not
-authenticate media or dimensions; they are only a pre-decoder defense.
-
-## SA-13 — decoded pixels, never ispe, authorize AVIF
-
-AVIF acceptance requires a successful Sharp/libvips/libheif decode with strict
-warning failure. The decoder-resolved, auto-oriented primary image dimensions
-must equal `px`; `ispe` is never authoritative. Decode is bounded to one page,
-9,000,000 input pixels, four resulting channels, one native worker, disabled
-Sharp cache, sequential reads, and a five-second native pipeline timeout. The
-existing 8 MiB compressed-body and eight-operation admission bounds remain.
-Sharp 0.34.4 was selected deliberately: it supports AVIF and exposes declarations
-under this repo's TypeScript module resolution; 0.35.0's export map did not.
+AVIF is absent from both the outbound `Accept` header and inbound MIME allowlist.
+An AVIF response is cancelled before body buffering or native decode and returns
+a structured no-store 502. Bun can terminate a subprocess, but adding a bundled
+decoder child entrypoint, IPC protocol, process resource policy and deployment
+lifecycle is not a bounded MVP change. In-process Sharp cannot terminate an
+active native decode when the last waiter aborts, so keeping it would violate
+SA-11. PNG, JPEG and WebP remain the only accepted remote formats.

@@ -14,7 +14,7 @@ MAJOR — untrusted MIME
 - Truncated PNG and PNG with bytes after IEND: 502.
 - PNG dimensions 640x640 for px=300: 502.
 - PNG signature, chunk boundaries, CRCs, terminal IEND, and dimensions are
-  checked; JPEG/WebP/AVIF signatures and bounded dimensions are parsed too.
+  checked; JPEG and WebP signatures and bounded dimensions are parsed too.
 - Sniffed format must equal the allowlisted Content-Type before public caching.
 
 MAJOR — option bypass
@@ -43,17 +43,16 @@ FINAL RE-REVIEW — waiter cancellation
 - Follower-first abort: follower 499, owner 200, zero upstream aborts.
 - All waiters abort: both 499, one upstream abort, next request succeeds.
 
-FINAL RE-REVIEW — AVIF
-- Real 2×2 AVIF written by ImageIO: 200 image/avif.
-- Reviewer's fabricated ispe plus TRAILING-POLYGLOT fixture: 502.
-- Oversized box extent, absent mdat, and appended bytes: each 502.
-- Parsing follows declared BMFF box boundaries and required meta/iprp/ipco/ispe
-  nesting instead of scanning bytes.
+SUPERSEDED AVIF EXPERIMENT
+- Earlier revisions parsed boxes and then used Sharp. Final review proved the
+  native decode lifecycle unsafe under cancellation; none of that experimental
+  acceptance remains in shipped code or current tests.
 
-FINAL DECODER REVIEW — AVIF
-- Box metadata is advisory only; Sharp/libheif must decode the image.
-- Real fixture: decoded 1x1 succeeds for px=1 and fails for ispe-claimed px=2.
-- Same complete box structure with junk mdat: decoder rejects with 502.
-- px=3001 fails before fetch/decode.
-- Decode bounds: one page, 9M pixels, <=4 decoded channels, sequential read,
-  one native worker, no Sharp cache, five-second native timeout.
+FINAL CANCELLATION REVIEW — AVIF
+- In-process decode removed because native work cannot be cancelled promptly.
+- Sharp dependency and all AVIF-support claims removed.
+- Outbound Accept contains only WebP, PNG and JPEG.
+- Inbound image/avif is cancelled before body buffering or decode and returns
+  502 upstream_content_type.
+- Under maxConcurrent=1, a distinct PNG request starts and completes immediately
+  after AVIF rejection; no native/background decode exists to oversubscribe.

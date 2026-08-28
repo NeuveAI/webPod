@@ -65,3 +65,18 @@ Root lint: the same out-of-scope device-spike memoization error remains at
 
 The shared-tree `bun run gates` therefore exits 1 (15 automated passed,
 1 automated failed, 2 manual outstanding); this server lane is scoped-clean.
+
+FINAL NO-AVIF RUN
+
+Scoped server/app TypeScript: pass
+Scoped server/app lint: pass
+Server tests: 60 pass, 0 fail
+App production build: 207 client / 370 server modules, pass
+Sharp/libvips: absent from dependency graph and bundles
+Root tests: 833 pass, 0 fail
+Root typecheck: 11/11 pass
+Root lint: pass
+Root static gates: all pass
+
+`bun run gates` exits 0: 16 automated passed, 0 automated failed, 2 manual
+outstanding (U14/U15).

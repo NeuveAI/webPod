@@ -101,7 +101,7 @@ released in `finally` after success, failure, abort, or timeout.
 
 The review also demonstrated that `Content-Type: image/jpeg` could bless script
 bytes. Remote bodies are now sniffed independently of the header and parsed as a
-bounded PNG, JPEG, WebP, or AVIF structure. The sniffed format must equal the
+bounded PNG, JPEG, or WebP structure. AVIF is explicitly rejected. The sniffed format must equal the
 declared MIME, the structure must terminate without trailing polyglot bytes, and
 its dimensions must equal `px`. Only then is it returned with public caching.
 
@@ -128,12 +128,17 @@ and consumes the complete body. That was still insufficient: the positive
 fixture's unassociated `ispe` says 2×2 while ImageIO and Sharp decode its primary
 image as 1×1, and a box-complete shell could carry junk media.
 
-The final correction adds Sharp 0.34.4 as a deliberate server-only dependency.
-Container validation remains a cheap first boundary, then libvips/libheif must
-fully decode the primary image under pixel, page, channel, worker, cache, time,
-compressed-byte and admission limits. Decoder dimensions are authoritative.
-The real fixture succeeds only at `px=1`, fails at `px=2`, and the same complete
-container with its media bytes replaced by junk fails decoding.
+Sharp closed authenticity and dimension correctness, but the final review found
+that aborting the last waiter during native decode returned 499 while the decode
+continued for about five seconds and retained the only admission slot. Sharp's
+pipeline timeout is not cancellation. A Bun subprocess could be killed, but a
+portable bundled child entrypoint, IPC and process budget is disproportionate
+and insufficiently proven for this MVP dependency.
+
+The safe branch is explicit non-support: Sharp and all AVIF parsing/claims/tests
+were removed. AVIF is not negotiated, and an AVIF response is cancelled before
+buffering or decode. A max-concurrency-one test proves the rejection is followed
+immediately by a distinct successful request with no decoder/background work.
 
 ## U8 copy correction
 

@@ -13,22 +13,12 @@ All library/runtime claims were checked against
 | Abort in Bun | `bun/test/js/web/fetch/fetch.tls.test.ts:959-975` | An abort signal terminates an active fetch/body read within its bound |
 | Start server route | `tanstack/router/docs/start/framework/react/guide/server-routes.md:1-168` | A file route `server.handlers.GET` receives `Request` and returns raw `Response` |
 
-Sharp is not part of the canonical `agentic-context` clones, so runtime and HTTP
-behavior remain grounded above while the deliberately installed decoder is
-grounded in its exact vendored source:
-
-| Concern | Exact installed source | Finding used |
-|---|---|---|
-| Decoder/version | `packages/server-core/node_modules/sharp/package.json` | Sharp 0.34.4, Node-API AVIF/libvips distribution |
-| Typed limits/output | `packages/server-core/node_modules/sharp/lib/index.d.ts` at `SharpOptions`, `timeout`, `metadata`, and `stats` | strict fail mode, pixel/page/sequential bounds, native timeout, decoded metadata and pixel-derived decode |
-| Native pixel bound | `packages/server-core/node_modules/sharp/src/common.cc:600-620` | libvips rejects width × height above `limitInputPixels` before pipeline work |
-
-Sharp 0.35.0 was evaluated first but its package export map omitted a TypeScript
-`types` condition under this repo's bundler resolution. Version 0.34.4 exposes
-`lib/index.d.ts` through its package metadata and keeps package/app typechecking
-green. Official Sharp constructor/output documentation was also checked for
-AVIF support, `failOn: warning`, `limitInputPixels`, sequential reads, pipeline
-timeouts, metadata, and pixel-derived `stats()`.
+The final decoder review invalidated in-process Sharp for this lifecycle. The
+dependency and its source claims were removed, which also closes the review's
+stale Sharp line-number Minor. The viability decision was grounded in Bun's
+`docs/runtime/child-process.mdx:6-31,131-166,256-331`: `Bun.spawn` subprocesses
+are async, killable and IPC-capable, but require a child entrypoint and explicit
+lifecycle. No child-process decoder was shipped for this MVP.
 
 Additional instruction sources read completely or to the relevant routed
 reference:
