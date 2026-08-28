@@ -1,16 +1,25 @@
-W3 final gate run
+W3 correction gate run
 
-bunx tsc --noEmit -p packages/panel/tsconfig.json
+bunx tsc -p packages/panel
 exit 0
 
-bunx tsc --noEmit -p apps/web/tsconfig.json
+bunx tsc -p apps/web
 exit 0
 
-bunx --bun eslint --max-warnings 0 packages/panel apps/web/src/routes/index.tsx apps/web/src/routes/__root.tsx
+bunx eslint packages/panel apps/web/src/routes/index.tsx
 exit 0, zero warnings
 
-bun test packages/panel/src
-8 pass, 0 fail, 20 expect() calls
+bun test packages/panel
+15 pass, 0 fail, 39 expect() calls
+
+bun test
+701 pass, 0 fail, 3661 expect() calls
+The Playwright suite uses `.e2e.ts`; root Bun test does not discover it.
+
+PANEL_EVIDENCE_DIR=... PANEL_EVIDENCE_PREFIX=w3 bun run --cwd packages/panel test:e2e
+9 pass, 0 fail
+Includes 48 state/colourway crops, adaptive art, Dynamic Type, preference emulation,
+axe including target-size, provider keyboard traversal, and a 4x CPU runtime sample.
 
 rg -n 'canvas|useFrame|useState' packages/panel
 zero matches
@@ -19,5 +28,10 @@ git diff --check
 exit 0
 
 bun run gates
-exit 1: `bun run gates: not implemented`
-Dependency ruling: W5a owns this runner. W3 must rerun it after W5a lands and does not claim the universal gate is green.
+exit 1 before gate execution: `Cannot find module './gate-core.ts'`.
+W5a implemented the runner, but `scripts/gate-core.ts` is concurrently deleted in the
+shared worktree. That file and the runner remain W5a-owned. W3 does not restore,
+modify, or commit the foreign file, and does not claim the universal aggregate is
+green. Its constituent type, lint, and root-test commands above are green. The
+previous W5a static-grep failures were under W5a review as false positives; prescribed
+state vocabulary and truthful comments were retained as explicitly directed.
