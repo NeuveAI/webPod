@@ -293,6 +293,19 @@ describe('/artwork response bounds', () => {
     expect(response.status).toBe(400)
     expect(calls).toBe(0)
   })
+
+  test('the reviewed Infinity bypass cannot fetch or return a nine MiB body', async () => {
+    let calls = 0
+    const response = await handleArtworkRequest(artworkRequest(source), {
+      maxBytes: Infinity,
+      fetch: fetchStub(() => {
+        calls += 1
+        return Promise.resolve(new Response(new Uint8Array(9 * 1024 * 1024).buffer, { headers: { 'content-type': 'image/png' } }))
+      }),
+    })
+    expect(response.status).toBe(400)
+    expect(calls).toBe(0)
+  })
 })
 
 describe('/artwork admission', () => {
