@@ -82,8 +82,9 @@ function base64urlJson(value: unknown): string {
 /**
  * Imports the PKCS#8 PEM at `keyPath` as an ECDSA P-256 signing key.
  *
- * The PEM text and its DER bytes are local to this function and are zeroed on
- * the way out. They are never returned, so no caller can accidentally log them.
+ * The PEM and base64 body strings remain subject to JavaScript garbage
+ * collection and cannot be explicitly zeroed. The mutable decoded DER buffer
+ * is zeroed in `finally`. None of these values is returned or logged.
  */
 async function importSigningKey(keyPath: string): Promise<CryptoKey> {
   const pem = await Bun.file(keyPath).text();

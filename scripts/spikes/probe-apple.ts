@@ -8,8 +8,9 @@
  * empirically requires creating and mutating playlists in the owner's real
  * Apple Music library, which is irreversible and is NOT AUTHORISED.
  *
- * `assertReadOnly()` below enforces this at the only place a request can be
- * made. If a future edit tries to add a write, it throws.
+ * `sendReadOnly()` below validates the actual `Request` immediately before the
+ * only transport call. If a future edit changes its method or targets `/v1/me`,
+ * the request is rejected before it reaches the network.
  * ======================================================================
  *
  * Credential law (D-017): the token is minted in-process by
@@ -95,11 +96,26 @@ const RELATIONSHIP_ORACLE_NAMES = [
   "similar-songs", "radio", "videos", "zzz-not-a-relationship",
 ] as const;
 
+/** Request budget for one successful complete run of the current instrument. */
+export const REQUEST_BUDGET = Object.freeze({
+  anonymousPreflight: 5,
+  credentialSanity: 1,
+  row20: ROW20_FIXTURE.reduce((count, entry) => count + entry.songs.length + 1, 0),
+  row21: 4,
+  enumeration: 4 + RELATIONSHIP_ORACLE_NAMES.length,
+});
+
+export const EXPECTED_REQUEST_COUNT = Object.values(REQUEST_BUDGET).reduce(
+  (total, count) => total + count,
+  0,
+);
+
 // ---------------------------------------------------------------------------
 // Read-only enforcement + redaction
 // ---------------------------------------------------------------------------
 
 let TOKEN = "";
+let requestCount = 0;
 
 /** Scrubs the developer token from anything on its way to stdout. */
 function redact(text: string): string {
@@ -112,14 +128,38 @@ function log(...parts: unknown[]): void {
   console.log(redact(parts.map((p) => (typeof p === "string" ? p : JSON.stringify(p))).join(" ")));
 }
 
-/** Hard stop on anything that could mutate the owner's library. */
-function assertReadOnly(method: string, path: string): void {
-  if (method !== "GET") {
-    throw new Error(`BOUNDARY VIOLATION: non-GET method ${method} is forbidden in this spike.`);
+/**
+ * Validates the concrete request that is about to cross the network boundary.
+ *
+ * Checking the Request—not a parallel method/path pair—keeps the assertion and
+ * transport from drifting apart. `/v1/me` is rejected as a complete path
+ * segment, including the exact endpoint and every descendant.
+ */
+export function assertReadOnlyRequest(request: Request): void {
+  if (request.method !== "GET") {
+    throw new Error(`BOUNDARY VIOLATION: non-GET method ${request.method} is forbidden in this spike.`);
   }
-  if (path.includes("/v1/me/")) {
-    throw new Error(`BOUNDARY VIOLATION: ${path} touches the user library; no user token is authorised.`);
+  const encodedPathname = new URL(request.url).pathname;
+  let pathname: string;
+  try {
+    pathname = decodeURIComponent(encodedPathname);
+  } catch {
+    throw new Error(`BOUNDARY VIOLATION: malformed URL path ${encodedPathname}.`);
   }
+  if (/^\/v1\/me(?:\/|$)/.test(pathname)) {
+    throw new Error(`BOUNDARY VIOLATION: ${pathname} touches the user library; no user token is authorised.`);
+  }
+}
+
+type FetchTransport = (request: Request) => Promise<Response>;
+
+/** The sole transport boundary. Tests inject a credential-free fake transport. */
+export async function sendReadOnly(
+  request: Request,
+  transport: FetchTransport = fetch,
+): Promise<Response> {
+  assertReadOnlyRequest(request);
+  return transport(request);
 }
 
 interface Probe {
@@ -132,11 +172,12 @@ interface Probe {
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function get(path: string, opts?: { readonly anonymous?: boolean }): Promise<Probe> {
-  assertReadOnly("GET", path);
   await sleep(POLITE_DELAY_MS);
-  const headers: Record<string, string> = { Accept: "application/json" };
-  if (opts?.anonymous !== true) headers.Authorization = `Bearer ${TOKEN}`;
-  const res = await fetch(`${BASE}${path}`, { method: "GET", headers });
+  const headers = new Headers({ Accept: "application/json" });
+  if (opts?.anonymous !== true) headers.set("Authorization", `Bearer ${TOKEN}`);
+  const request = new Request(`${BASE}${path}`, { method: "GET", headers });
+  const res = await sendReadOnly(request);
+  requestCount += 1;
   const raw = await res.text();
   return { path, status: res.status, body: redact(raw) };
 }
@@ -144,7 +185,9 @@ async function get(path: string, opts?: { readonly anonymous?: boolean }): Promi
 function report(label: string, p: Probe, bodyChars = 700): void {
   log(`\n  GET ${p.path}`);
   log(`  -> ${p.status}  [${label}]`);
-  log(`  body: ${p.body.length === 0 ? "<empty>" : p.body.slice(0, bodyChars)}`);
+  const fullTranscript = process.env.APPLE_PROBE_FULL_TRANSCRIPT === "1";
+  const body = fullTranscript ? p.body : p.body.slice(0, bodyChars);
+  log(`  body: ${body.length === 0 ? "<empty>" : body}`);
 }
 
 /** Pulls `data[0]` id/name out of a relationship response, if present. */
@@ -295,7 +338,7 @@ async function p3Enumeration(): Promise<void> {
   log("\nNOTE: the enumeration of the WRITE surface (rows 10/11 — whether an");
   log("undocumented DELETE or PUT exists on /v1/me/library/playlists) is NOT");
   log("probed. It requires a user token and a real mutation of the owner's");
-  log("library. assertReadOnly() blocks it. See the report.");
+  log("library. sendReadOnly() blocks it. See the report.");
 }
 
 // ---------------------------------------------------------------------------
@@ -331,6 +374,18 @@ async function main(): Promise<void> {
   await p1Row20();
   await p2Row21();
   await p3Enumeration();
+  log(`\n[request count: ${requestCount} GETs]`);
+  if (requestCount !== EXPECTED_REQUEST_COUNT) {
+    throw new Error(
+      `Probe request count drifted: expected ${EXPECTED_REQUEST_COUNT}, observed ${requestCount}.`,
+    );
+  }
 }
 
-await main();
+if (import.meta.main) {
+  if (Bun.argv.includes("--request-plan")) {
+    log(JSON.stringify({ ...REQUEST_BUDGET, total: EXPECTED_REQUEST_COUNT }, null, 2));
+  } else {
+    await main();
+  }
+}

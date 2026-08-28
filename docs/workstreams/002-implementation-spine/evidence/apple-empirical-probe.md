@@ -32,9 +32,32 @@ Every finding carries **evidential strength** × **provenance**. `live` is the a
 
 ## Method
 
-Twenty-two `GET` requests to `api.music.apple.com`, 350–400 ms apart, across two runs. Every request carried a **developer token only**. None touched `/v1/me/`. `assertReadOnly()` in the probe script throws on any non-`GET` method and on any `/v1/me/` path, so this is a property of the code rather than of my intentions.
+The current instrument performs exactly **36 `GET` requests** to
+`api.music.apple.com` in one successful complete run, 350 ms apart: five
+anonymous preflight requests, one credential sanity request, nine Row 20
+requests, four Row 21 requests, and seventeen S2.4 requests. The phase budget is
+derived and checked by the script and locked by a credential-free unit test.
+Authenticated requests carry a **developer token only**. None touches `/v1/me`.
+`sendReadOnly()` validates the concrete `Request` immediately before the sole
+transport call, rejecting non-GET methods and `/v1/me` as an exact path segment
+or ancestor before the injected transport can run.
 
-Credentials: `APPLE_TEAM_ID` from `.env.local` (gitignored, auto-loaded by Bun), key path from `APPLE_MUSICKIT_KEY_PATH`. The token was never printed, written to a file, or included below; `redact()` scrubs both the live token and any JWT-shaped string from every output line. The key is read only inside the signing call, imported non-extractable, and the decoded DER is zeroed in a `finally`.
+Credentials: `APPLE_TEAM_ID` from `.env.local` (gitignored, auto-loaded by Bun),
+key path from `APPLE_MUSICKIT_KEY_PATH`. The token was never printed, written to
+a file, or included below; `redact()` scrubs both the live token and any
+JWT-shaped string from every output line. The key is read only inside the
+signing call and imported non-extractable. The mutable decoded DER buffer is
+zeroed in a `finally`. The immutable JavaScript PEM/base64 strings cannot be
+explicitly zeroed and remain subject to garbage collection.
+
+**Evidence provenance.** The tables below are a redacted extraction of the
+historical live observations; the original raw stdout was not retained. They
+must not be represented as a byte-for-byte archived transcript. The checked-in
+instrument is the rerun recipe. With `APPLE_PROBE_FULL_TRANSCRIPT=1`, it emits
+each request, exact status, and complete redacted response body, then verifies
+the 36-request total. No rerun was performed for this correction because it
+would require minting a credential; the safety and count corrections are proven
+credential-free by `probe-apple.test.ts`.
 
 ---
 
@@ -54,7 +77,8 @@ Credentials: `APPLE_TEAM_ID` from `.env.local` (gitignored, auto-loaded by Bun),
 | Björk | Army of Me (`300205685`) | **`ra.300205685`** | Army of Me Station |
 | Björk | — *artist `295015`* | **`ra.295015`** | Björk & Similar Artists Station |
 
-Verbatim response for the first (token-free; the others are identical in shape):
+Redacted response body preserved for the first historical request (the other
+eight bodies were not retained and are represented only by the table above):
 
 ```json
 {"data":[{"id":"ra.651880159","type":"stations","href":"/v1/catalog/us/stations/ra.651880159",
@@ -113,7 +137,12 @@ Cross-artist distinctness — the comparison S1 proposed — was also observed, 
 
 **`supports("lyrics")` stays `false`, and `supports("lyricsSynced")` stays `false`.** A capability gated behind an entitlement we do not hold is not a capability (001 §14.4: never invent parity). The *product* outcome for S16 and the Now Playing centre-cycle is unchanged; only the reason changed, from "impossible" to "not entitled — ask." Do not soften the UI on the strength of this. **Do not build against the private path**: `40012` is Apple explicitly declining the request, and routing around it would be an entitlement violation, not a workaround.
 
-**Row 21c — time-synced lyrics: `LIKELY · live` that a syllable-level variant exists.** `syllable-lyrics` is confirmed a real gated entity, and syllable-level timing is the only sensible reading of the name. But we have never seen a response body, so the *content* format remains `UNVERIFIED`. Moot while 21b is unresolved.
+**Row 21c is three separate propositions.** The `syllable-lyrics` relationship's
+**existence is `VERIFIED · live`** because Apple's routing layer returns `40012`
+rather than the `40008` negative control. That it carries syllable-level timing
+is **`LIKELY · live`**, inferred only from the name. Its response shape and
+timing format are **`UNVERIFIED`** because no successful body has been observed.
+All three remain moot while 21b is unresolved.
 
 ---
 
@@ -173,7 +202,12 @@ It does **not** show that playlist removal exists. Rows 10, 11 and 18 have a **s
 
 ## F4 — Supporting live findings
 
-**`api.music.apple.com` authenticates before it routes · `VERIFIED · live`.** Five unauthenticated `GET`s — real paths and fabricated ones alike — all returned a bare **`401`**, `content-length: 0`, no `WWW-Authenticate`, no `errors[]` envelope. The route surface cannot be enumerated anonymously, and it is only because auth is evaluated first that F2's and F3's authenticated status codes are statements about routing rather than about credentials.
+**`api.music.apple.com` authenticates before it routes · `VERIFIED · live`.** Five
+unauthenticated `GET`s—real paths and fabricated ones alike—returned **`401`**
+with empty captured bodies. The instrument did not capture response headers, so
+the earlier `content-length` and `WWW-Authenticate` claims are withdrawn. The
+status/body observations support that routing distinctions become visible only
+after authentication.
 
 **Token minting is correct · `VERIFIED · live`.** ES256 over P-256 via WebCrypto, no JWT dependency: header `{alg, kid, typ}` with a 10-char `kid` derived from the key filename, claims `{iss, iat, exp}`, and a **64-byte raw `r‖s`** signature (not DER — the usual failure). Credential sanity check `GET /v1/catalog/us/songs/651880159` → **`200`**. The earlier blocker (`H-11`) is closed.
 
@@ -188,7 +222,7 @@ It does **not** show that playlist removal exists. Rows 10, 11 and 18 have a **s
 | **20** — station seeded from track | `LIKELY` supported, unproven | **SUPPORTED — track-seeded, id is `ra.<songId>`** | **`VERIFIED · live`** |
 | **21a** — public lyrics endpoint | `VERIFIED-docs` **none exists** | **⚠ FALSIFIED — exists, `40012` permission-gated** | **`VERIFIED · live`** |
 | **21b** — display entitlement | `UNVERIFIED` | unchanged; the *question to ask Apple* is now concrete | `UNVERIFIED · docs` |
-| **21c** — time-synced | `UNVERIFIED`, moot | `syllable-lyrics` exists and is gated; content format unseen | `LIKELY · live` (existence) |
+| **21c** — time-synced | `UNVERIFIED`, moot | relationship existence verified; timing semantics inferred; format unseen | existence `VERIFIED · live`; timing `LIKELY · live`; format `UNVERIFIED` |
 | **10 / 11** — playlist remove / reorder | `VERIFIED-docs` not supported | not probed (needs a write); **enumeration leg weakened** | `LIKELY · docs` |
 | **18** — queue splice / reorder | `VERIFIED-docs` not supported | not probed | `LIKELY · docs` |
 | **7** — library remove | `VERIFIED-docs` not supported | not probed; same weakened leg | `LIKELY · docs` |
@@ -221,7 +255,34 @@ Everything else holds:
 export APPLE_MUSICKIT_KEY_PATH="$PWD/cert/AuthKey_<KEYID>.p8"
 
 bun run scripts/spikes/mint-apple-dev-token.ts   # metadata only; never prints the token
-bun run scripts/spikes/probe-apple.ts            # ~22 read-only GETs, 350 ms apart
+APPLE_PROBE_FULL_TRANSCRIPT=1 bun run scripts/spikes/probe-apple.ts
+# exactly 36 read-only GETs, 350 ms apart; complete bodies redacted to stdout
 ```
 
-`probe-apple.ts` is read-only by construction: `assertReadOnly()` throws on any non-`GET` method and on any path containing `/v1/me/`. Do not relax it.
+`probe-apple.ts` is read-only at the actual transport boundary:
+`sendReadOnly()` validates the concrete `Request`, rejects any non-`GET` method,
+and rejects `/v1/me` plus every descendant before transport. Do not relax it.
+
+Credential-free verification:
+
+```sh
+bun run scripts/spikes/probe-apple.ts --request-plan
+bun test scripts/spikes/probe-apple.test.ts
+bunx tsc --noEmit -p scripts/tsconfig.json
+bunx eslint scripts/spikes/probe-apple.ts scripts/spikes/probe-apple.test.ts \
+  scripts/spikes/mint-apple-dev-token.ts
+```
+
+The first command performs no minting and no network access. Its current output
+is the instrument-derived phase budget:
+
+```json
+{
+  "anonymousPreflight": 5,
+  "credentialSanity": 1,
+  "row20": 9,
+  "row21": 4,
+  "enumeration": 17,
+  "total": 36
+}
+```
