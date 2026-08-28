@@ -33,11 +33,17 @@
       "target-size"
     ],
     "targetSizeEvaluatedNodes": 1,
-    "measuredTarget": {
-      "x": 412.40625,
-      "y": 518,
-      "width": 48,
-      "height": 48
+    "nativeTarget": {
+      "offsetWidth": 44,
+      "offsetHeight": 44,
+      "minInlineSize": 44,
+      "minBlockSize": 44
+    },
+    "previewTarget": {
+      "x": 392.40625,
+      "y": 498,
+      "width": 88,
+      "height": 88
     }
   },
   {
@@ -74,11 +80,17 @@
       "target-size"
     ],
     "targetSizeEvaluatedNodes": 1,
-    "measuredTarget": {
-      "x": 980.40625,
-      "y": 518,
-      "width": 48,
-      "height": 48
+    "nativeTarget": {
+      "offsetWidth": 44,
+      "offsetHeight": 44,
+      "minInlineSize": 44,
+      "minBlockSize": 44
+    },
+    "previewTarget": {
+      "x": 960.40625,
+      "y": 498,
+      "width": 88,
+      "height": 88
     }
   }
 ]
