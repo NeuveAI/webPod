@@ -7,7 +7,7 @@ Command:
 Command gates:
   PASS TYPES — 11/11 projects clean, including scripts
   PASS LINT — repo-wide eslint clean
-  FAIL TESTS — 691 pass, 1 fail/error
+  FAIL TESTS — 697 pass, 1 fail/error
 
 Foreign test failure:
   packages/panel/e2e/panel.spec.ts:20

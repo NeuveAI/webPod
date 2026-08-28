@@ -69,7 +69,7 @@ for five foreign-lane reasons and none were masked:
 5. NAMING finds bookkeeping terms in composite, panel E2E, an S2 spike and the
    W4 tuning script.
 
-Typecheck is 11/11 and lint is clean. Bun reports 691 passing product/unit tests
+Typecheck is 11/11 and lint is clean. The final-tip rerun reports 697 passing product/unit tests
 before the one Playwright discovery error. Exact paths are recorded in
 `evidence/w5a-live-gates.txt`.
 
