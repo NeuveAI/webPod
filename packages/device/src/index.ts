@@ -71,6 +71,7 @@ export {
   type ScreenTransform,
   type ViewportPoint,
 } from './screen-mesh'
+export { createScreenGeometry } from './screen-geometry'
 
 export {
   hexLuma255,

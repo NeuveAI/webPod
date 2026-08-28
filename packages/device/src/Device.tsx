@@ -44,6 +44,7 @@ import {
 } from './materials'
 import { circleHole, roundedRectHole, roundedRectShape, silhouetteShape } from './shapes'
 import { createScreenMeshHandle, type ScreenMeshReady } from './screen-mesh'
+import { createScreenGeometry } from './screen-geometry'
 import { createMicroNoiseRoughnessMap, createWheelLabelMap } from './textures'
 
 /** LAW 5: both modes are the product, so both colourways are first class. */
@@ -267,11 +268,7 @@ export function Device({
   useEffect(() => () => surroundGeometry.dispose(), [surroundGeometry])
 
   const screenGeometry = useMemo(
-    () => new ExtrudeGeometry(roundedRectShape(screen.width, screen.height, SCREEN_CORNER_R, 8), {
-      depth: 0.1,
-      bevelEnabled: false,
-      curveSegments: 1,
-    }),
+    () => createScreenGeometry(screen.width, screen.height, SCREEN_CORNER_R),
     [],
   )
   useEffect(() => () => screenGeometry.dispose(), [screenGeometry])

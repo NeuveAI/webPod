@@ -113,7 +113,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     sheen: 0.15,
     sheenColor: '#6E4A2E',
     sheenRoughness: 1.0,
-    envMapIntensity: 0.07,
+    envMapIntensity: 0.085,
   },
   bodyWhite: {
     color: '#E2E5E8',
@@ -176,7 +176,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoat: 1.0,
     clearcoatRoughness: 0.06,
     metalness: 0,
-    envMapIntensity: 0.4269,
+    envMapIntensity: 0.425,
   },
   coverGlass: {
     // §4.6's `--panel-bg` is behind the sheet; the sheet itself is colourless.

@@ -17,6 +17,7 @@ import { describe, expect, test } from 'bun:test'
 import { Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry } from 'three'
 
 import { createScreenMeshHandle } from './screen-mesh'
+import { createScreenGeometry } from './screen-geometry'
 import { DEVICE_LAYOUT } from './layout'
 
 const VIEWPORT = { width: 400, height: 800 }
@@ -48,6 +49,34 @@ function makeHandle() {
 }
 
 describe('the screen mesh boundary', () => {
+  test('screen UVs are normalized with TL/TR/BR/BL texture orientation', () => {
+    const { width, height } = DEVICE_LAYOUT.screen
+    const geometry = createScreenGeometry(width, height, 7)
+    const positions = geometry.getAttribute('position')
+    const uvs = geometry.getAttribute('uv')
+    let minU = Infinity
+    let maxU = -Infinity
+    let minV = Infinity
+    let maxV = -Infinity
+
+    for (let index = 0; index < positions.count; index += 1) {
+      const u = uvs.getX(index)
+      const v = uvs.getY(index)
+      minU = Math.min(minU, u)
+      maxU = Math.max(maxU, u)
+      minV = Math.min(minV, v)
+      maxV = Math.max(maxV, v)
+      expect(u).toBeCloseTo(positions.getX(index) / width + 0.5, 6)
+      expect(v).toBeCloseTo(positions.getY(index) / height + 0.5, 6)
+    }
+
+    expect(minU).toBeCloseTo(0, 6)
+    expect(maxU).toBeCloseTo(1, 6)
+    expect(minV).toBeCloseTo(0, 6)
+    expect(maxV).toBeCloseTo(1, 6)
+    geometry.dispose()
+  })
+
   test('size is 272 × 204 body px and panel is 320 × 240 at 0.85', () => {
     const { handle } = makeHandle()
     expect(handle.size).toEqual({ width: 272, height: 204 })
