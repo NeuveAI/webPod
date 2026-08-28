@@ -538,15 +538,20 @@ export const DETENT = {
    * A floor rather than a decay to zero: 0.94^n never reaches zero, and a
    * wheel that keeps almost-moving forever is worse than one that stops.
    *
-   * ⚑ **Two primaries disagree on this number and the disagreement is
-   * unresolved.** pm-spec §4.4 says *"until |ω| < 60°/s"*; design-system §9.4
-   * says *"stop when |ω| < 0.35 °/frame (≈21 °/s)"*. 60 is transcribed here
-   * because the dispatch names §4.4's table as the engineering contract for
-   * the four input paths, and because every other number in this block comes
-   * from it — mixing one §9.4 value into a §4.4 model would be less coherent
-   * than either source alone. Raised for a ruling; see `decisions/w2.md`.
+   * ⚑ **21, not pm-spec §4.4's 60** (D-063). design-system §9.4 says *"stop
+   * when |ω| < 0.35 °/frame (≈21 °/s)"* — 0.35 × 60fps — and §14.1's
+   * frame-budget table independently repeats the same figure for when the
+   * wheel's render loop terminates (*"stops when inertia ‖ω‖ < 0.35°/frame"*).
+   * Two design-system sections agree against one line of pm-spec, and §9.4 is
+   * the specialist for wheel motion, so it governs.
+   *
+   * The consequence is a materially longer glide: the coast now runs until the
+   * wheel is genuinely nearly still rather than cutting out at three times
+   * that speed. It also means the state layer and whatever owns the render
+   * loop stop on the same condition, rather than one of them idling frames
+   * after the other has given up.
    */
-  coastFloorDegPerSec: 60,
+  coastFloorDegPerSec: 21,
 } as const
 
 /**

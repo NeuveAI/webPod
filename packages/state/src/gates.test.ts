@@ -163,12 +163,21 @@ describe('the detent constants that are rulings', () => {
     expect(DETENT.hapticSuppressAbovePerSec).toBe(12)
   })
 
-  test('the coast decays at 0.94 per frame and stops below 60 deg/s (001 §4.4)', () => {
-    // "remaining angular velocity decays at 0.94/frame, firing a detent every
-    // 15° until |ω| < 60°/s."
+  test('the coast decays at 0.94 per frame and stops below 21 deg/s (§9.4)', () => {
+    // design-system §9.4: "ω *= 0.940 at 60fps ... Stop when |ω| < 0.35
+    // °/frame (≈21 °/s)". 0.35 x 60fps = 21. §14.1's frame-budget table
+    // repeats the same 0.35°/frame for when the wheel's render loop
+    // terminates, so two design-system sections agree.
     expect(DETENT.coastDecayPerFrame).toBe(0.94)
-    expect(DETENT.coastFloorDegPerSec).toBe(60)
+    expect(DETENT.coastFloorDegPerSec).toBe(21)
     expect(DETENT.arcDegPerDetent).toBe(15)
+
+    // pm-spec §4.4's superseded figure (D-063).
+    expect(DETENT.coastFloorDegPerSec).not.toBe(60)
+
+    // And it really is 0.35 deg/frame at the reference rate, which is the form
+    // both design-system sections state it in.
+    expect(DETENT.coastFloorDegPerSec / DETENT.coastReferenceFps).toBeCloseTo(0.35, 10)
   })
 
   test('acceleration is 1, 4 and 12 rows per detent (design-system §9.4)', () => {
