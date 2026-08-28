@@ -33,9 +33,7 @@ import {
   bumpAtom,
   clockAtom,
   currentScreenAtom,
-  densityOverrideAtom,
   detentAccumulatorAtom,
-  dynamicTypeScaleAtom,
   effectiveDensityAtom,
   faceAtom,
   highlightIndexAtom,
@@ -59,6 +57,7 @@ import type {
   ScreenSnapshotSource,
 } from './contract'
 import { coastStep, detent, endGesture } from './detent'
+import { densityOverrideStateAtom, dynamicTypeScaleStateAtom } from './internal'
 import { MENU_ROOT, menuFrame } from './menu'
 import { actorFor, isSilenced } from './silence'
 import { moveHighlight, pageHighlight, popScreen, pushScreen } from './screen'
@@ -201,16 +200,20 @@ export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOu
 /**
  * Sets the human's density preference, or clears it back to per-screen.
  *
- * ⚑ Writing {@link densityOverrideAtom} directly works too, and is deliberately
- * left possible: everything downstream reads {@link effectiveDensityAtom}, so
- * the viewport size, the page size and the reported snapshot all move together
- * with no reconciliation step to forget. This atom exists because the *window*
- * still needs re-clamping — a `compact` window of 8 rows starting at row 40 is
- * out of range once `airy` cuts the viewport to 4 — and that is a stack edit,
- * which belongs to the store rather than to a derived read.
+ * ⚑ **The only way to change it.** `densityOverrideAtom` is published as a
+ * read-only `Atom`, so a bare write does not typecheck. An earlier version
+ * exported it writable and said in a comment that writing it directly "works
+ * too" — on the reasoning that every derived reader moves together. That
+ * reasoning is correct about the derived readers and wrong about the answer:
+ * the scroll windows are stored per frame, not derived, and re-clamping them
+ * is a stack edit no derived read can do. Measured on a 100-row `compact`
+ * screen with the highlight on row 60, the bare write left the window at rows
+ * 53–56 — the highlighted row not among the rows rendered, which is exactly
+ * the "row you can never scroll to" this work exists to prevent, through the
+ * route the comment recommended.
  */
 export const setDensityActionAtom = atom(null, (get, set, density: Density | null): void => {
-  set(densityOverrideAtom, density)
+  set(densityOverrideStateAtom, density)
   reclampWindows(get, set)
 })
 
@@ -221,7 +224,7 @@ export const setDensityActionAtom = atom(null, (get, set, density: Density | nul
  * effective density is derived, but the scroll windows it invalidates are not.
  */
 export const setDynamicTypeScaleActionAtom = atom(null, (get, set, scale: number): void => {
-  set(dynamicTypeScaleAtom, scale)
+  set(dynamicTypeScaleStateAtom, scale)
   reclampWindows(get, set)
 })
 

@@ -38,6 +38,8 @@
 import type { Atom, PrimitiveAtom, WritableAtom } from 'jotai/vanilla'
 import { atom } from 'jotai/vanilla'
 
+import { densityOverrideStateAtom, dynamicTypeScaleStateAtom } from './internal'
+
 /* ────────────────────────────────────────────────────────────────────────────
  * Actors
  * ────────────────────────────────────────────────────────────────────────── */
@@ -1248,8 +1250,17 @@ export const faceAtom: PrimitiveAtom<Face> = atom<Face>('front')
  *
  * ⚑ This is an *input* to the density that is in force, not the density
  * itself. Read {@link effectiveDensityAtom} to lay out or to page.
+ *
+ * ⚑ **Read-only, and that is the fix rather than an inconvenience.** Writing
+ * it directly used to be documented as fine, on the reasoning that every
+ * derived reader moves together — which is true and is not the whole story.
+ * The scroll windows are not derived; they are stored per frame, and a
+ * `compact` window of 8 rows is out of range the moment `airy` cuts the
+ * viewport to 4. Measured, with the highlight on row 60: the bare write left
+ * the window showing rows 53–56, so the highlighted row was not among the rows
+ * rendered. Change it through `setDensityActionAtom`, which re-clamps.
  */
-export const densityOverrideAtom: PrimitiveAtom<Density | null> = atom<Density | null>(null)
+export const densityOverrideAtom: Atom<Density | null> = densityOverrideStateAtom
 
 /**
  * Dynamic Type scale, `1` being the system default.
@@ -1259,8 +1270,11 @@ export const densityOverrideAtom: PrimitiveAtom<Density | null> = atom<Density |
  * implemented by {@link effectiveDensityAtom}; the raster scale belongs to
  * whatever draws the raster and reads this same atom, so the two cannot come
  * to different conclusions about what 130% means.
+ *
+ * ⚑ Read-only, for the reason given on {@link densityOverrideAtom}. Change it
+ * through `setDynamicTypeScaleActionAtom`.
  */
-export const dynamicTypeScaleAtom: PrimitiveAtom<number> = atom(1)
+export const dynamicTypeScaleAtom: Atom<number> = dynamicTypeScaleStateAtom
 
 /**
  * The scale at or above which `airy` is forced (001 §15.0 U11).
@@ -1365,8 +1379,8 @@ export const currentScreenAtom: Atom<ScreenFrame | null> = atom((get) => {
  * three read this.
  */
 export const effectiveDensityAtom: Atom<Density> = atom((get) => {
-  if (get(dynamicTypeScaleAtom) >= AIRY_FORCING_TYPE_SCALE) return 'airy'
-  const override = get(densityOverrideAtom)
+  if (get(dynamicTypeScaleStateAtom) >= AIRY_FORCING_TYPE_SCALE) return 'airy'
+  const override = get(densityOverrideStateAtom)
   if (override !== null) return override
   return get(currentScreenAtom)?.density ?? 'medium'
 })

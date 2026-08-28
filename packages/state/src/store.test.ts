@@ -36,6 +36,7 @@ import { MENU_ROOT, menuFrame } from './menu'
 import {
   createDeviceStore,
   deviceStore,
+  setDensityActionAtom,
   moveHighlightActionAtom,
   popScreenActionAtom,
   pressActionAtom,
@@ -80,7 +81,7 @@ describe('read, write and subscribe with no React mounted', () => {
   test('store.set writes device state and store.get reads it back', () => {
     const store = createDeviceStore()
 
-    store.set(densityOverrideAtom, 'airy')
+    store.set(setDensityActionAtom, 'airy')
     expect(store.get(densityOverrideAtom)).toBe('airy')
 
     store.set(faceAtom, 'back')
@@ -130,7 +131,7 @@ describe('read, write and subscribe with no React mounted', () => {
     const a = createDeviceStore()
     const b = createDeviceStore()
 
-    a.set(densityOverrideAtom, 'airy')
+    a.set(setDensityActionAtom, 'airy')
     expect(a.get(densityOverrideAtom)).toBe('airy')
     expect(b.get(densityOverrideAtom)).toBeNull()
   })

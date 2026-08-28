@@ -45,6 +45,8 @@ import {
   popScreenActionAtom,
   pressActionAtom,
   pushScreenActionAtom,
+  setDensityActionAtom,
+  setDynamicTypeScaleActionAtom,
 } from './store'
 
 function listFrame(count: number, density: ScreenFrame['density']): ScreenFrame {
@@ -195,7 +197,7 @@ describe('the density setting is not inert', () => {
     const store = createDeviceStore()
     store.set(pushScreenActionAtom, listFrame(100, 'compact'))
 
-    store.set(densityOverrideAtom, 'airy')
+    store.set(setDensityActionAtom, 'airy')
 
     expect(store.get(effectiveDensityAtom)).toBe('airy')
     expect(store.get(visibleRowCountAtom)).toBe(4)
@@ -206,8 +208,8 @@ describe('the density setting is not inert', () => {
   test('Dynamic Type at 130% forces airy over the human’s own setting', () => {
     const store = createDeviceStore()
     store.set(pushScreenActionAtom, listFrame(100, 'compact'))
-    store.set(densityOverrideAtom, 'compact')
-    store.set(dynamicTypeScaleAtom, 1.3)
+    store.set(setDensityActionAtom, 'compact')
+    store.set(setDynamicTypeScaleActionAtom, 1.3)
 
     expect(store.get(effectiveDensityAtom)).toBe('airy')
     expect(store.get(visibleRowCountAtom)).toBe(4)
@@ -216,7 +218,7 @@ describe('the density setting is not inert', () => {
   test('just below 130% it does not', () => {
     const store = createDeviceStore()
     store.set(pushScreenActionAtom, listFrame(100, 'compact'))
-    store.set(dynamicTypeScaleAtom, 1.29)
+    store.set(setDynamicTypeScaleActionAtom, 1.29)
 
     expect(store.get(effectiveDensityAtom)).toBe('compact')
   })
@@ -224,7 +226,7 @@ describe('the density setting is not inert', () => {
   test('paging follows the effective density, not the frame’s preference', () => {
     const store = createDeviceStore()
     store.set(pushScreenActionAtom, listFrame(100, 'compact'))
-    store.set(densityOverrideAtom, 'airy')
+    store.set(setDensityActionAtom, 'airy')
 
     store.set(detentActionAtom, {
       path: 'key',
@@ -307,5 +309,108 @@ describe('R2 — one clock stamps every published time', () => {
       store.set(popScreenActionAtom)?.seq,
     ]
     expect(seqs).toEqual([1, 2, 3])
+  })
+})
+
+describe('R3 — the density route that half-worked is now unconstructible', () => {
+  function scrolledDevice(): ReturnType<typeof createDeviceStore> {
+    const store = createDeviceStore()
+    store.set(pushScreenActionAtom, listFrame(100, 'compact'))
+    // Walk the highlight down to row 60 so the window is well away from zero.
+    store.set(detentActionAtom, {
+      path: 'direct',
+      source: 'human',
+      detents: 60,
+      timestampMs: 0,
+    })
+    return store
+  }
+
+  /** The absolute row indices currently on the glass. */
+  function windowRows(store: ReturnType<typeof createDeviceStore>): number[] {
+    return (store.get(screenSnapshotAtom)?.rows ?? []).map((row) => row.index)
+  }
+
+  test('the highlight stays inside the window when density changes', () => {
+    // ⚑ The measured regression: highlight on row 60, window at rows 53–56 —
+    // the highlighted row not among the rows rendered. That is the "row you
+    // can never scroll to" the density work exists to prevent, and it was
+    // reachable through the route a doc comment recommended.
+    const store = scrolledDevice()
+    expect(store.get(highlightIndexAtom)).toBe(60)
+
+    store.set(setDensityActionAtom, 'airy')
+
+    const rows = windowRows(store)
+    expect(rows).toHaveLength(4)
+    expect(rows).toContain(60)
+    expect(rows).toEqual([57, 58, 59, 60])
+  })
+
+  test('and when Dynamic Type forces airy', () => {
+    const store = scrolledDevice()
+    store.set(setDynamicTypeScaleActionAtom, 1.3)
+
+    const rows = windowRows(store)
+    expect(rows).toHaveLength(4)
+    expect(rows).toContain(60)
+  })
+
+  test('every frame on the stack is re-clamped, not just the visible one', () => {
+    // A screen the human returns to with `Menu` must be as valid as the one
+    // they are looking at, or the list is empty on the way back down.
+    const store = scrolledDevice()
+    store.set(pushScreenActionAtom, listFrame(20, 'compact'))
+    store.set(setDensityActionAtom, 'airy')
+    store.set(popScreenActionAtom)
+
+    const rows = windowRows(store)
+    expect(rows).toContain(store.get(highlightIndexAtom))
+  })
+
+  test('the bare write does not typecheck, and this is why it must not', () => {
+    // ⚑ The enforcement is the type, and this test is the proof of it: `tsc`
+    // reports an *unused* `@ts-expect-error` as an error, so this file
+    // compiling at all establishes that each directive suppressed a real one.
+    // Nothing here needs to throw — read-only is a compile-time view of the
+    // same atom, so the write below succeeds at runtime. That is precisely the
+    // point: it succeeds, and leaves the device wrong. Invariant recorded in
+    // decisions/w2.md §8; these are the only two directives in the package.
+    const store = scrolledDevice()
+    expect(store.get(highlightIndexAtom)).toBe(60)
+
+    // @ts-expect-error densityOverrideAtom is published read-only; use setDensityActionAtom
+    store.set(densityOverrideAtom, 'airy')
+
+    // Derived readers moved, exactly as the old comment claimed.
+    expect(store.get(effectiveDensityAtom)).toBe('airy')
+    expect(store.get(visibleRowCountAtom)).toBe(4)
+
+    // And the window did not, because it is stored rather than derived. The
+    // highlighted row is not on the glass.
+    expect(windowRows(store)).toEqual([53, 54, 55, 56])
+    expect(windowRows(store)).not.toContain(60)
+  })
+
+  test('the Dynamic Type bare write does not typecheck either', () => {
+    const store = scrolledDevice()
+
+    // @ts-expect-error dynamicTypeScaleAtom is published read-only; use setDynamicTypeScaleActionAtom
+    store.set(dynamicTypeScaleAtom, 1.3)
+
+    expect(store.get(effectiveDensityAtom)).toBe('airy')
+    expect(windowRows(store)).not.toContain(60)
+  })
+
+  test('but reading them still works, because they are legitimate state', () => {
+    const store = createDeviceStore()
+    expect(store.get(densityOverrideAtom)).toBeNull()
+    expect(store.get(dynamicTypeScaleAtom)).toBe(1)
+
+    store.set(setDensityActionAtom, 'medium')
+    store.set(setDynamicTypeScaleActionAtom, 1.1)
+
+    expect(store.get(densityOverrideAtom)).toBe('medium')
+    expect(store.get(dynamicTypeScaleAtom)).toBe(1.1)
   })
 })
