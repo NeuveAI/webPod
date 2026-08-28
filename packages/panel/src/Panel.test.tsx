@@ -73,6 +73,27 @@ describe('the bare DOM panel', () => {
     expect(css).toContain('prefers-contrast: more')
   })
 
+  test('reduced motion removes every authored panel animation and transition', () => {
+    const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
+    const reducedMotion = css.match(/@media \(prefers-reduced-motion: reduce\)\s*\{([\s\S]*?)\n[ ]{2}\}/)?.[1]
+    expect(reducedMotion).toBeDefined()
+    expect(reducedMotion).toContain('.wp-panel *::before')
+    expect(reducedMotion).toContain('.wp-panel *::after')
+    expect(reducedMotion).toContain('.wp-panel[data-state="success-confirmation"] [aria-current="true"]')
+    expect(reducedMotion).toContain('.wp-panel[data-colourway][data-state="success-confirmation"] .wp-now-body')
+    expect(reducedMotion).toContain('.wp-panel .wp-progress i { transition: none; }')
+    expect(reducedMotion).toMatch(/animation:\s*none/)
+    expect(reducedMotion).toMatch(/transition:\s*none/)
+  })
+
+  test('light tertiary text uses the AA-verified hierarchy token', () => {
+    const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
+    const lightRule = css.match(/\.wp-panel\[data-colourway="light"\]\s*\{([^}]*)\}/)?.[1]
+    expect(lightRule).toBeDefined()
+    expect(lightRule).toMatch(/--wp-text-2:\s*#475569/)
+    expect(lightRule).toMatch(/--wp-text-3:\s*#607086/)
+  })
+
   test('keeps the package boundary compatible with DOM rasterization', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
     expect(css).not.toMatch(/mix-blend-mode\s*:/)
