@@ -21,6 +21,8 @@ This map addresses every binding review finding and all re-review entry criteria
 15. All new screenshot evidence is real PNG data produced by Playwright. The earlier mislabeled files were converted to PNG in the first correction.
 16. Search input is narrowed by closed parsers with explicit return unions and no unchecked casts.
 
+The subsequent T1 boundary correction removes all `filter`, `backdrop-filter`, and `mix-blend-mode` declarations from the panel package. Artwork ambience now uses a raster-safe pre-composited radial field. Computed-style browser evidence covers both colourways and reduced-transparency removal without importing composite or branching on tier.
+
 ## Re-review entry criteria
 
 1. Provider playback/progress: `w3-keyboard.json` and browser test.

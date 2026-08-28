@@ -1,0 +1,19 @@
+{
+  "reports": [
+    {
+      "colourway": "dark",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "backgroundImage": "radial-gradient(88% 96% at 26% 34%, oklch(0.22 0.0217596 86.0584) 0%, oklab(0.22 0.00149575 0.0217081 / 0.52) 42%, rgba(0, 0, 0, 0) 78%)"
+    },
+    {
+      "colourway": "light",
+      "display": "block",
+      "filter": "none",
+      "mixBlendMode": "normal",
+      "backgroundImage": "radial-gradient(88% 96% at 26% 34%, oklch(0.86 0.0158252 86.0584) 0%, oklab(0.86 0.00108782 0.0157877 / 0.52) 42%, rgba(0, 0, 0, 0) 78%)"
+    }
+  ],
+  "reducedTransparencyBloom": "none"
+}

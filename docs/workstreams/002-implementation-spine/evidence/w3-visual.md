@@ -20,5 +20,6 @@ Additional focused evidence:
 - accessibility: `w3-axe.json`
 - keyboard/provider traversal: `w3-keyboard.json`
 - 120-row runtime: `w3-virtual-performance.json`
+- raster-compatible package seam: `w3-raster-compatible-{dark,light}.png` and `w3-raster-compatibility.json`
 
 The route presents both panels at 2× integer zoom for owner inspection. U14 and H-6 remain owner-only and are not asserted here.

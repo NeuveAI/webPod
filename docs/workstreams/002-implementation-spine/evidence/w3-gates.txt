@@ -10,16 +10,18 @@ bunx eslint packages/panel apps/web/src/routes/index.tsx
 exit 0, zero warnings
 
 bun test packages/panel
-15 pass, 0 fail, 39 expect() calls
+16 pass, 0 fail, 43 expect() calls
 
 bun test
-701 pass, 0 fail, 3661 expect() calls
-The Playwright suite uses `.e2e.ts`; root Bun test does not discover it.
+716 pass, then 1 non-W3 module error: packages/composite/src/tier-store.ts cannot
+resolve `jotai/vanilla`. The Playwright suite uses `.e2e.ts`; root Bun test does
+not discover it. A prior run before the concurrent W6 dependency edit was green.
 
 PANEL_EVIDENCE_DIR=... PANEL_EVIDENCE_PREFIX=w3 bun run --cwd packages/panel test:e2e
-9 pass, 0 fail
+10 pass, 0 fail
 Includes 48 state/colourway crops, adaptive art, Dynamic Type, preference emulation,
-axe including target-size, provider keyboard traversal, and a 4x CPU runtime sample.
+axe including target-size, provider keyboard traversal, a 4x CPU runtime sample,
+and computed raster-compatibility checks in both colourways plus reduced transparency.
 
 rg -n 'canvas|useFrame|useState' packages/panel
 zero matches
@@ -28,10 +30,11 @@ git diff --check
 exit 0
 
 bun run gates
-exit 1 before gate execution: `Cannot find module './gate-core.ts'`.
-W5a implemented the runner, but `scripts/gate-core.ts` is concurrently deleted in the
-shared worktree. That file and the runner remain W5a-owned. W3 does not restore,
-modify, or commit the foreign file, and does not claim the universal aggregate is
-green. Its constituent type, lint, and root-test commands above are green. The
-previous W5a static-grep failures were under W5a review as false positives; prescribed
-state vocabulary and truthful comments were retained as explicitly directed.
+exit 1 with 13 automated passes and three non-W3 failures:
+- TESTS: the concurrent composite `jotai/vanilla` resolution error above
+- NAMING: scripts/spikes/mint-apple-dev-token.ts (S2-owned)
+- TIER: apps/web/src/routes/_probe.capabilities.tsx (W6-owned)
+TYPES and LINT pass, all W3-relevant static checks pass, and no Playwright file is
+discovered by root Bun. W3 does not modify or commit those foreign surfaces and does
+not claim the aggregate is green. Prescribed state vocabulary and truthful comments
+were retained as explicitly directed.
