@@ -32,3 +32,20 @@ PASS CREDENTIALS
 The outstanding items are the intentionally manual U14 phone-in-hand thumb
 occlusion check and U15 reviewer inspection. Neither is satisfiable by this
 server-only lane.
+
+FINAL RE-REVIEW RUN
+
+Scoped server/app TypeScript: pass
+Scoped server/app lint: pass
+Server tests: 62 pass, 0 fail
+App production build: 207 client / 370 server modules, pass
+Root tests: 812 pass, 0 fail
+Root typecheck: 11/11 pass
+Root static gates: all pass
+Root lint: failed only in the concurrently modified, out-of-scope
+`apps/web/src/routes/[_]spike.device.tsx:350` on
+`react-hooks/preserve-manual-memoization`. The server artwork paths are clean.
+
+Therefore the final shared-tree `bun run gates` exits 1 (15 automated passed,
+1 automated failed, 2 manual outstanding). This lane does not claim a green
+repository while the foreign device spike edit remains live.

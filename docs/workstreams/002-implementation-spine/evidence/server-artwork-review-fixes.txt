@@ -36,3 +36,16 @@ Regression protections preserved
 - declared and streamed byte limits with cancellation
 - active-body timeout and client abort cleanup
 - structured no-store errors without URL reflection
+
+FINAL RE-REVIEW — waiter cancellation
+- In-flight entries own upstream cancellation independently of callers.
+- Owner-first abort: owner 499, follower 200, zero upstream aborts.
+- Follower-first abort: follower 499, owner 200, zero upstream aborts.
+- All waiters abort: both 499, one upstream abort, next request succeeds.
+
+FINAL RE-REVIEW — AVIF
+- Real 2×2 AVIF written by ImageIO: 200 image/avif.
+- Reviewer's fabricated ispe plus TRAILING-POLYGLOT fixture: 502.
+- Oversized box extent, absent mdat, and appended bytes: each 502.
+- Parsing follows declared BMFF box boundaries and required meta/iprp/ipco/ispe
+  nesting instead of scanning bytes.

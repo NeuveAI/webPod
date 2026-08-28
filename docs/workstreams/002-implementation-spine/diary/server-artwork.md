@@ -112,6 +112,22 @@ values above a ceiling fail before fetch. All three exported handler functions
 now document host, redirect, admission, buffering, cancellation, errors, and
 configuration invariants at their public boundary.
 
+## Final independent review correction
+
+The first coalescer stored only a bare promise created with the first request's
+signal. That made the owner able to cancel every follower and made follower
+cancellation invisible. The in-flight map now stores an explicit entry with its
+own controller and waiter count. Owner-first and follower-first abort tests both
+leave the other waiter successful; cancelling all waiters aborts upstream once
+and a subsequent max-concurrency-one request proves the slot was released.
+
+The initial AVIF check also contradicted the terminal-structure claim: it scanned
+arbitrary bytes for `ispe` and returned immediately. The replacement walks
+declared ISO-BMFF extents and nesting, requires image-item metadata plus media,
+and consumes the complete body. The positive test embeds a real 2×2 AVIF written
+by macOS ImageIO (`sips`, `public.avif`); the independent reviewer's 64-byte fake
+and three box/media/trailing mutations all fail.
+
 ## U8 copy correction
 
 The first implementation used “artwork source is not allowed” on three

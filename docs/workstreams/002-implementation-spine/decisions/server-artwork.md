@@ -79,3 +79,21 @@ The exported test/deployment options are checked before transport admission.
 Byte, timeout, and concurrency values must be positive safe integers no greater
 than their exported hard ceilings. This keeps injection useful for deterministic
 tests without making `Infinity` or an oversized limit a security bypass.
+
+## SA-11 — shared work owns transport; callers own only their wait
+
+An in-flight entry owns the upstream controller, promise, settled flag and live
+waiter count. Each request observes its own abort signal and releases exactly
+one waiter without controlling another. The shared upstream is aborted only
+when the live waiter count reaches zero; the entry's owning completion path
+removes the map entry and process admission slot exactly once. Thus either the
+first or later caller may cancel without poisoning a still-live consumer.
+
+## SA-12 — AVIF is parsed as ISO-BMFF boxes, never searched as bytes
+
+AVIF validation consumes complete top-level boxes, including 64-bit extended
+box sizes, and rejects undeclared trailing bytes. It requires one `ftyp`, one
+`meta`, one non-empty `mdat`, the item metadata boxes, and an
+`iprp/ipco/ispe` path whose dimensions match `px`. A real ImageIO-generated AVIF
+is the positive fixture; a fabricated `ispe` string, missing media, malformed
+extent and appended polyglot bytes are negative fixtures.

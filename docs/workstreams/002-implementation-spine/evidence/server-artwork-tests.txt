@@ -4,9 +4,9 @@ COMMAND
 bun test packages/server-core
 
 RESULT
-56 pass
+62 pass
 0 fail
-168 expect() calls
+188 expect() calls
 
 Coverage includes:
 - deterministic fixture artwork with zero outbound fetches
@@ -24,6 +24,10 @@ Coverage includes:
 - duplicate in-flight coalescing and release after failure/timeout
 - lying MIME headers, truncated/trailing polyglots, and dimension mismatch
 - unsafe finite/non-finite byte, timeout, and concurrency configuration
+- owner-first and follower-first cancellation isolation for coalesced work
+- all-waiters cancellation aborts upstream once and releases admission once
+- real ImageIO AVIF positive fixture and exact BMFF box traversal
+- fabricated ispe, malformed extent, missing mdat, and trailing AVIF mutations
 
 COMMAND
 bunx tsc --noEmit -p packages/server-core/tsconfig.json
