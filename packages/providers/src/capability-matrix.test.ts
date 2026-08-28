@@ -176,6 +176,39 @@ describe('§14.4 — unsupportedReason is total, and is product copy', () => {
     })
   }
 
+  test('the copy names the feature the user is looking at (§11.0 rule 1)', () => {
+    // "Apple Music doesn't give webPod the words" was cutesy — §11.0's opening
+    // line — and named a euphemism where B04, S16 and the centre-cycle all say
+    // "Lyrics". Copy rendered verbatim has to use the product's own noun.
+    for (const provider of [apple, spotify]) {
+      for (const capability of ['lyrics', 'lyricsSynced'] as const) {
+        const reason = provider.unsupportedReason(capability)
+        if (reason === null) continue
+        expect(reason.toLowerCase()).toContain('lyrics')
+      }
+    }
+  })
+
+  test("Apple's two lyrics rows do not render as the same sentence twice", () => {
+    // They are separately gated relationships and B04 lists them as two rows.
+    // Identical copy would read as a duplicated row rather than as two answers.
+    expect(apple.unsupportedReason('lyrics')).not.toBe(apple.unsupportedReason('lyricsSynced'))
+  })
+
+  test('no reason claims webPod is the only place something can happen', () => {
+    // "Apple Music playlists can only be added to from here" parsed as "webPod
+    // is the only app that can add to them", which is false. A verbatim string
+    // that states something untrue is worse than no explanation.
+    for (const provider of [apple, spotify]) {
+      for (const capability of CAPABILITIES) {
+        const reason = provider.unsupportedReason(capability)
+        if (reason === null) continue
+        expect(reason.toLowerCase()).not.toContain('from here')
+        expect(reason.toLowerCase()).not.toContain('only place')
+      }
+    }
+  })
+
   test('Apple names Apple and Spotify names Spotify — the user is told which service', () => {
     for (const capability of CAPABILITIES) {
       const appleReason = apple.unsupportedReason(capability)

@@ -80,10 +80,18 @@ export const APPLE_SUPPORTS: CapabilityMatrix = {
   /**
    * row 10 · LIKELY · docs — §14.3's own highest-risk row, and it resolves against us.
    *
-   * "Creating and Modifying User Playlists" has exactly three entries, all
-   * additive; the only `DELETE` verbs in the entire API are the ten ratings
-   * deletions; the sole track-write endpoint is documented as *"Add new tracks
-   * to the end of a library playlist."*
+   * "Creating and Modifying User Playlists" holds five entries — three
+   * endpoints (`POST` playlist, `POST` tracks, `POST` library) and two request
+   * objects — and every endpoint is additive; the only `DELETE` verbs in the
+   * entire API are the **nine** ratings deletions; the sole track-write
+   * endpoint is documented as *"Add new tracks to the end of a library
+   * playlist."*
+   *
+   * ⚑ Those counts are `apple-capability-spike.md`'s, verbatim. An earlier
+   * version of this comment said "three entries" and "ten deletions" — both
+   * wrong, both against the source named two lines below. A comment whose whole
+   * job is stopping a future reader re-deriving a wrong conclusion cannot
+   * misquote the evidence it points them at.
    *
    * ⚑ **The trap, so nobody "corrects" this later.** Apple staff stated in
    * June 2022 that removal *is* supported. That reply is about **Swift
@@ -159,7 +167,10 @@ export const APPLE_UNSUPPORTED_REASONS: Readonly<Record<Capability, string | nul
   libraryRemove: 'Apple Music doesn’t let other apps take songs out of your library.',
   playlistCreate: null,
   playlistAddTracks: null,
-  playlistRemoveTracks: 'Apple Music playlists can only be added to from here.',
+  // Reads as "webPod is the only place these can be added to", which is false.
+  // The spike's own suggested copy says the true thing (§11.0 rule 1: name the
+  // concrete thing).
+  playlistRemoveTracks: 'Apple Music only lets other apps add to a playlist.',
   playlistReorder: 'Apple Music doesn’t let other apps reorder a playlist.',
   transport: null,
   seek: null,
@@ -171,8 +182,17 @@ export const APPLE_UNSUPPORTED_REASONS: Readonly<Record<Capability, string | nul
   queueReorder: 'Apple Music doesn’t let other apps reorder Up Next.',
   stations: null,
   stationSeedFromTrack: null,
-  lyrics: 'Apple Music doesn’t give webPod the words.',
-  lyricsSynced: 'Apple Music doesn’t give webPod the words.',
+  // §11.0's opening line is "Never cutesy", and rule 1 is "name the concrete
+  // thing": the feature is called Lyrics on B04, on S16 and in the centre-cycle,
+  // so "the words" substitutes a euphemism for the name the user is looking at.
+  // This is the spike's suggested copy, and it matches the sibling string on the
+  // same §14.3 row (`Spotify doesn't offer lyrics to other apps.`).
+  lyrics: 'Apple Music doesn’t make lyrics available to other apps.',
+  // A different sentence, because it is a different fact: the lyrics
+  // relationship and the syllable-lyrics relationship are separately gated, and
+  // B04 lists them as two rows. Identical copy on both would read as a
+  // duplicated row rather than as two answers.
+  lyricsSynced: 'Apple Music doesn’t make lyrics available to other apps, timed or otherwise.',
   ratingLoveDislike: null,
   saveToggle: null,
   progressTicks: null,

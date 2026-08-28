@@ -7,6 +7,28 @@
  * means **not settled**: it may be built on provisionally and stays visible as
  * unconfirmed. Nothing here has been demonstrated against the running API.
  *
+ * **The principle that divides the labels, since the file previously had none.**
+ * D-045 (LAW): structural evidence — a mechanism that makes a thing impossible —
+ * may carry `VERIFIED`; testimonial evidence, which is someone with authority
+ * saying so, may not, because it goes stale silently while the statement does
+ * not change.
+ *
+ * - Every **`false`** here is an absence claim resting on documentation prose:
+ *   testimonial, therefore **`LIKELY · docs`**, without exception. The file
+ *   used to stamp `VERIFIED · docs` on four of them (rows 17, 18, 21, 23) while
+ *   hedging two structurally identical ones (rows 19, 20) to `LIKELY`, with no
+ *   principle separating them and with this very header conceding nothing had
+ *   been demonstrated. Row 19 is the tell: Spotify **withdrew** those endpoints
+ *   in Nov 2024, which is precisely how a documented absence changes under a
+ *   label that cannot.
+ * - Every **`true`** is a positive claim that a documented endpoint exists,
+ *   carrying §14.3's own label. A positive claim is falsifiable by one call the
+ *   day someone holds a token; a negative one is not, which is the asymmetry
+ *   D-029 has already cost this project once.
+ *
+ * No `supports()` value moves either way. The label is the point, for D-029's
+ * stated reason: someone will reopen this and say "we verified it".
+ *
  * The column matters now anyway, and that is the point of the slice: Spotify
  * is where the parity gaps live. Six capabilities Apple has, Spotify does not,
  * and each one is a control that must be **absent** on Spotify rather than
@@ -22,6 +44,10 @@ export const SPOTIFY_SUPPORTS: CapabilityMatrix = {
   libraryRead: true, //             row 5  · VERIFIED · docs — /me/tracks, /me/albums, /me/playlists
   libraryAdd: true, //              row 6  · VERIFIED · docs — PUT /me/tracks
   libraryRemove: true, //           row 7  · VERIFIED · docs — DELETE /me/tracks. ⚑ Apple cannot do this.
+  //                                ⚑ Row 7's confidence cell reads `LIKELY (Apple: not supported)` — the
+  //                                only cell in §14.3 that is not a clean per-provider split. Read as
+  //                                scoping the hedge to Apple, which is what the parenthetical says and
+  //                                what the endpoint's documentation supports.
   playlistCreate: true, //          row 8  · VERIFIED · docs — POST /users/{id}/playlists
   playlistAddTracks: true, //       row 9  · VERIFIED · docs — POST /playlists/{id}/tracks
   playlistRemoveTracks: true, //    row 10 · VERIFIED · docs — DELETE /playlists/{id}/tracks. ⚑ Apple cannot.
@@ -41,17 +67,19 @@ export const SPOTIFY_SUPPORTS: CapabilityMatrix = {
   saveToggle: true, //              row 24 · VERIFIED · docs — PUT /me/tracks. Spotify's "like" IS save.
 
   /**
-   * row 17 · VERIFIED · docs — no insert-next API exists.
+   * row 17 · LIKELY · docs — no insert-next API is documented.
+   *
+   * Testimonial: an absence read off published prose (D-045).
    *
    * (b) degrade: `Play Next` becomes `Add to Queue` in the action sheet with an
    * 11px sublabel. The label changes; the button never lies.
    */
   queueInsertNext: false,
 
-  /** row 18 · VERIFIED · docs — no remove. S17 loses its swipe-to-remove entirely. */
+  /** row 18 · LIKELY · docs — no documented remove. S17 loses its swipe-to-remove entirely. */
   queueRemove: false,
 
-  /** row 18 · VERIFIED · docs — no reorder. S17's drag handles do not render. */
+  /** row 18 · LIKELY · docs — no documented reorder. S17's drag handles do not render. */
   queueReorder: false,
 
   /**
@@ -67,19 +95,23 @@ export const SPOTIFY_SUPPORTS: CapabilityMatrix = {
   stationSeedFromTrack: false,
 
   /**
-   * row 21 · VERIFIED · docs — no public API. Spotify's lyrics are a licensed
-   * third-party integration and are not exposed.
+   * row 21 · LIKELY · docs — no public API is documented. Spotify's lyrics are
+   * a licensed third-party integration and are not exposed.
+   *
+   * ⚑ Testimonial, and Apple's row 21 is the cautionary case: there the
+   * endpoint turned out to **exist and be gated**, which no amount of reading
+   * revealed and three GETs settled. Nobody has made the equivalent call here.
    *
    * (d) refuse, **stated plainly rather than hidden silently**: S16 says so, and
    * the Now Playing centre-cycle drops from four stops to three.
    */
   lyrics: false,
 
-  /** row 21 · VERIFIED · docs — no lyrics at all, so no timing either. */
+  /** row 21 · LIKELY · docs — no documented lyrics at all, so no timing either. */
   lyricsSynced: false,
 
   /**
-   * row 23 · VERIFIED · docs — Spotify has no Love/Dislike equivalent.
+   * row 23 · LIKELY · docs — no documented Love/Dislike equivalent.
    *
    * ⚑ **Do not map Love to Save.** Love is a taste signal that shapes
    * recommendations; Save is library membership. Conflating them silently
