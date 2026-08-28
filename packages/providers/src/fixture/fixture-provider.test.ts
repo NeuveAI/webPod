@@ -62,6 +62,15 @@ describe('the fixture catalogue', () => {
     expect(b.tracks.some((t) => aKeys.has(t.key))).toBe(false)
   })
 
+  test('every track has a unique, well-formed ISRC', () => {
+    // ISRC is the top rung of §14.5's re-resolution ladder, so a duplicate in
+    // the fixture would make a matching test pass for the wrong reason.
+    const catalog = createFixtureCatalog()
+    const isrcs = catalog.tracks.map((t) => t.isrc ?? '')
+    expect(new Set(isrcs).size).toBe(isrcs.length)
+    for (const isrc of isrcs) expect(isrc).toMatch(/^[A-Z]{2}[A-Z0-9]{3}\d{7}$/)
+  })
+
   test('album track lists are complete and in order', () => {
     const catalog = createFixtureCatalog()
     for (const album of catalog.albums) {

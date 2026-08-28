@@ -93,8 +93,8 @@ export const APPLE_SUPPORTS: CapabilityMatrix = {
    * who finds that thread will believe this row was answered wrong (D-015).
    *
    * ⚑ Still `LIKELY`, not `VERIFIED`: unprobed. Settling it needs a Music User
-   * Token and a real mutation, which is the workstream's highest-value unrun
-   * experiment (D-036) and is not this slice's to run.
+   * Token and a real mutation. That is the highest-value experiment still
+   * unrun on this codebase (D-036), and it is not this module's to run.
    */
   playlistRemoveTracks: false,
 
