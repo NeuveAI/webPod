@@ -1,20 +1,21 @@
-W2 — gate run (D-063 response)
+W2 — final correction gate run
 ==============================
 
-Run at 2026-08-28T12:19:07Z on 7765438.
+Run at 2026-08-28T22:02:17Z from repository HEAD `c05054b`, which contains
+both approved W2 correction commits:
+
+  6e7fca1 fix(state): leave haptic policy to the actuator
+  ece7a24 docs(state): reconcile final review evidence
+
+This supersedes the historical run at `7765438`. The commands below were run
+against the current working tree after the final W2 re-review. The working tree
+also contains concurrent W3/W5a surfaces, so global results are reported as
+global results rather than attributed to W2.
 
 $ bunx tsc --noEmit -p packages/state/tsconfig.json
 exit: 0
 
-$ bun run typecheck
-
-11/11 projects clean
-
 $ bunx --bun eslint packages/state
-exit: 0
-
-$ bun run lint
-$ bunx --bun eslint .
 exit: 0
 
 $ bun test packages/state
@@ -22,26 +23,36 @@ bun test v1.4.0 (34cbb9a40)
 
  181 pass
  0 fail
- 691 expect() calls
-Ran 181 tests across 5 files. [1013.00ms]
+ 692 expect() calls
+Ran 181 tests across 5 files. [2.17s]
 exit: 0
 
-$ bun test
- 641 pass
- 0 fail
- 2550 expect() calls
-Ran 641 tests across 20 files. [1093.00ms]
+$ bun run gates
 
-── Each D-063 commit, typechecked and tested standalone from git archive
-  79b4f17 fix(state): adopt the design system's fast-scroll curve
-     tsc exit 0 · 162 pass  0 fail 
-  6b5a3ad fix(state): fast-scroll needs a list longer than 40 rows
-     tsc exit 0 · 169 pass  0 fail 
-  d0426a6 fix(state): clamp angular velocity at four revolutions a second
-     tsc exit 0 · 173 pass  0 fail 
-  5d3737d fix(state): a detent reversal costs the hysteresis
-     tsc exit 0 · 178 pass  0 fail 
-  1b1aaa7 fix(state): the coast stops at 21 deg/s
-     tsc exit 0 · 178 pass  0 fail 
-  7765438 test(state): gate the coast floor behaviourally, not just as a constant
-     tsc exit 0 · 181 pass  0 fail 
+Command gates inside the runner:
+
+ PASS TYPES — 11/11 projects clean
+ PASS LINT  — repository ESLint clean
+ PASS TESTS — 701 pass, 0 fail, 3661 assertions across 27 files
+
+Static gate summary:
+
+ 13/18 gates clear; 5 failed
+ exit: 1
+
+This is deliberately **not** a claim of global green. W5a's current review
+state still reports prose/comment false positives and one W3 state-vocabulary
+fixture:
+
+- U8: W3's `permission-denied` visual-state fixture.
+- U9: truthful comments explaining that `useState` is absent.
+- HAPTICS: a W2 comment explaining why a non-touch path must not lead to a
+  `navigator.vibrate` call; there is no call in the implementation.
+- HALO: generic English uses of “handed”, including W2 documentation and test
+  names; no stored handedness exists.
+- NAMING: a spike-script comment naming the workstream documentation path.
+
+The W5a gate classifier is under review for these prose matches. Per the lead's
+instruction, W2 did not delete truthful documentation to satisfy a blunt grep.
+The approved W2 code has no outstanding implementation finding; this artifact
+records the current global gate state without approving around it.
