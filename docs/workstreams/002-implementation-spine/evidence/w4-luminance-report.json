@@ -19,21 +19,21 @@
     "lightRig.key.distance": 1360,
     "lightRig.fill.azimuthDeg": -28,
     "lightRig.fill.elevationDeg": -66,
-    "lightRig.fill.distance": 481.875,
-    "materials.bodyBlack.envMapIntensity": 0.06999999999999999,
+    "lightRig.fill.distance": 485.625,
+    "materials.bodyBlack.envMapIntensity": 0.08499999999999999,
     "materials.bodyWhite.envMapIntensity": 0.11,
     "materials.wheelRingBlack.envMapIntensity": 0.00625,
     "materials.wheelRingWhite.envMapIntensity": 0.018125000000000002,
     "materials.selectBlack.envMapIntensity": 0.208125,
-    "materials.selectWhite.envMapIntensity": 0.426875,
-    "form.ringDishTiltDeg": 0.2874999999999983,
+    "materials.selectWhite.envMapIntensity": 0.425,
+    "form.ringDishTiltDeg": 0.23749999999999832,
     "form.ringDishExponent": 7.800000000000001,
     "form.selectDomeTiltDeg": 1.399999999999999,
     "form.selectDomeExponent": 1.228125,
     "form.recessDepth": 13.125,
     "form.selectProud": 7.075000000000001,
     "form.frontBevel": 2.2,
-    "form.seamWidth": 3
+    "form.seamWidth": 3.8
   },
   "results": [
     {
@@ -42,13 +42,13 @@
       "at": 0,
       "expectedHex": "#3E4147",
       "expectedLuma": 64.7954,
-      "measuredLuma": 39.2421,
+      "measuredLuma": 41.2421,
       "measuredRgb": [
-        42.5,
-        38.5,
-        37
+        44.5,
+        40.5,
+        39
       ],
-      "delta": -25.5533,
+      "delta": -23.5533,
       "pass": false
     },
     {
@@ -57,13 +57,13 @@
       "at": 0.05,
       "expectedHex": "#262A2E",
       "expectedLuma": 41.438399999999994,
-      "measuredLuma": 38.2782,
+      "measuredLuma": 40.2782,
       "measuredRgb": [
-        41.5,
-        37.5,
-        36.5
+        43.5,
+        39.5,
+        38.5
       ],
-      "delta": -3.160199999999996,
+      "delta": -1.1601999999999961,
       "pass": true
     },
     {
@@ -72,13 +72,13 @@
       "at": 0.19,
       "expectedHex": "#16181C",
       "expectedLuma": 23.863599999999998,
-      "measuredLuma": 33.9206,
+      "measuredLuma": 35.7782,
       "measuredRgb": [
-        37.5,
-        33,
-        32.5
+        39,
+        35,
+        34
       ],
-      "delta": 10.057000000000002,
+      "delta": 11.9146,
       "pass": false
     },
     {
@@ -87,13 +87,13 @@
       "at": 0.44,
       "expectedHex": "#0C0D0F",
       "expectedLuma": 12.931799999999999,
-      "measuredLuma": 24.8504,
+      "measuredLuma": 25.8143,
       "measuredRgb": [
-        28,
-        24,
-        24
+        29,
+        25,
+        24.5
       ],
-      "delta": 11.918600000000001,
+      "delta": 12.8825,
       "pass": false
     },
     {
@@ -102,13 +102,13 @@
       "at": 0.62,
       "expectedHex": "#0A0B0D",
       "expectedLuma": 10.931799999999999,
-      "measuredLuma": 28.6378,
+      "measuredLuma": 30.244099999999996,
       "measuredRgb": [
-        31,
-        28,
-        28
+        33,
+        29.5,
+        29.5
       ],
-      "delta": 17.706,
+      "delta": 19.312299999999997,
       "pass": false
     },
     {
@@ -117,13 +117,13 @@
       "at": 0.81,
       "expectedHex": "#121417",
       "expectedLuma": 19.7914,
-      "measuredLuma": 28.6739,
+      "measuredLuma": 30.5315,
       "measuredRgb": [
-        31,
-        28,
-        28.5
+        32.5,
+        30,
+        30
       ],
-      "delta": 8.8825,
+      "delta": 10.740100000000002,
       "pass": false
     },
     {
@@ -132,14 +132,14 @@
       "at": 0.93,
       "expectedHex": "#1E2126",
       "expectedLuma": 32.7232,
-      "measuredLuma": 28.4974,
+      "measuredLuma": 30.355,
       "measuredRgb": [
+        31.5,
         30,
-        28,
-        29
+        30.5
       ],
-      "delta": -4.2258,
-      "pass": false
+      "delta": -2.368199999999998,
+      "pass": true
     },
     {
       "surface": "body-black",
@@ -147,13 +147,13 @@
       "at": 1,
       "expectedHex": "#32363C",
       "expectedLuma": 53.5828,
-      "measuredLuma": 27.0335,
+      "measuredLuma": 28.391099999999994,
       "measuredRgb": [
-        28.5,
-        26.5,
-        28
+        29.5,
+        28,
+        29
       ],
-      "delta": -26.5493,
+      "delta": -25.191700000000004,
       "pass": false
     },
     {
@@ -162,13 +162,13 @@
       "at": 0,
       "expectedHex": "#14161A",
       "expectedLuma": 21.863599999999998,
-      "measuredLuma": 38.7232,
+      "measuredLuma": 39.510600000000004,
       "measuredRgb": [
         36,
-        39,
-        44
+        40,
+        45
       ],
-      "delta": 16.8596,
+      "delta": 17.647000000000006,
       "pass": false
     },
     {
@@ -207,13 +207,13 @@
       "at": 1,
       "expectedHex": "#2C3037",
       "expectedLuma": 47.655,
-      "measuredLuma": 55.8126,
+      "measuredLuma": 54.812599999999996,
       "measuredRgb": [
-        47,
-        57,
-        70
+        46,
+        56,
+        69
       ],
-      "delta": 8.157600000000002,
+      "delta": 7.157599999999995,
       "pass": false
     },
     {
@@ -342,13 +342,13 @@
       "at": 0.64,
       "expectedHex": "#DBDFE4",
       "expectedLuma": 222.5106,
-      "measuredLuma": 231.5212,
+      "measuredLuma": 231.5573,
       "measuredRgb": [
         224.5,
         232.5,
-        242.5
+        243
       ],
-      "delta": 9.010599999999982,
+      "delta": 9.046699999999987,
       "pass": false
     },
     {
@@ -372,13 +372,13 @@
       "at": 0.94,
       "expectedHex": "#F3F5F7",
       "expectedLuma": 244.7192,
-      "measuredLuma": 235.321,
+      "measuredLuma": 235.3571,
       "measuredRgb": [
         221,
         238.5,
-        246
+        246.5
       ],
-      "delta": -9.398200000000003,
+      "delta": -9.362099999999998,
       "pass": false
     },
     {
@@ -387,13 +387,13 @@
       "at": 1,
       "expectedHex": "#FDFEFE",
       "expectedLuma": 253.7874,
-      "measuredLuma": 237.27969999999996,
+      "measuredLuma": 237.1734,
       "measuredRgb": [
-        226,
+        225.5,
         239.5,
         248.5
       ],
-      "delta": -16.50770000000003,
+      "delta": -16.614000000000004,
       "pass": false
     },
     {
@@ -417,13 +417,13 @@
       "at": 0.38,
       "expectedHex": "#E6E8EA",
       "expectedLuma": 231.7192,
-      "measuredLuma": 236.0639,
+      "measuredLuma": 235.99169999999998,
       "measuredRgb": [
         226.5,
         237.5,
-        250
+        249
       ],
-      "delta": 4.344699999999989,
+      "delta": 4.2724999999999795,
       "pass": false
     },
     {
@@ -432,13 +432,13 @@
       "at": 0.62,
       "expectedHex": "#E9EBED",
       "expectedLuma": 234.71919999999997,
-      "measuredLuma": 236.78369999999998,
+      "measuredLuma": 236.3198,
       "measuredRgb": [
-        224.5,
-        239,
+        224,
+        238.5,
         251
       ],
-      "delta": 2.0645000000000095,
+      "delta": 1.6006000000000142,
       "pass": true
     },
     {
@@ -447,13 +447,13 @@
       "at": 1,
       "expectedHex": "#F2F4F6",
       "expectedLuma": 243.71919999999997,
-      "measuredLuma": 250.96059999999997,
+      "measuredLuma": 250.748,
       "measuredRgb": [
-        236,
+        235,
         255,
         255
       ],
-      "delta": 7.241399999999999,
+      "delta": 7.028800000000018,
       "pass": false
     },
     {
@@ -492,13 +492,13 @@
       "at": 0.7,
       "expectedHex": "#E4E7EA",
       "expectedLuma": 230.5788,
-      "measuredLuma": 239.4576,
+      "measuredLuma": 239.06390000000002,
       "measuredRgb": [
         229.5,
-        241,
-        253.5
+        240.5,
+        253
       ],
-      "delta": 8.878800000000012,
+      "delta": 8.485100000000017,
       "pass": false
     },
     {
@@ -507,13 +507,13 @@
       "at": 1,
       "expectedHex": "#EFF1F4",
       "expectedLuma": 240.7914,
-      "measuredLuma": 239.03439999999998,
+      "measuredLuma": 238.10660000000001,
       "measuredRgb": [
-        227,
-        241,
+        226,
+        240,
         255
       ],
-      "delta": -1.7570000000000334,
+      "delta": -2.6847999999999956,
       "pass": true
     },
     {

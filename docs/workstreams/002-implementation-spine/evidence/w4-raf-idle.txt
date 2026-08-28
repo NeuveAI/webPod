@@ -118,3 +118,11 @@ used again on 2026-08-28.
 The positive controls move the counter by two frames per colourway commit and
 both runs terminate. The replacement material/decal work therefore preserves
 the hard **0 idle rAF** requirement.
+
+RECHECK AFTER NORMALIZED SCREEN UVS — 2026-08-29
+------------------------------------------------
+The same wrapper was installed after a fresh route reload. Ten untouched
+seconds scheduled **0** callbacks. White scheduled two bounded callbacks and
+remained at 2 after five more seconds; black scheduled two more and remained at
+4 after another five seconds. Replacing the screen geometry therefore did not
+introduce a render loop.
