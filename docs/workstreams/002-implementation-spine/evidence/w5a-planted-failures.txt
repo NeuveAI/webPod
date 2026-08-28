@@ -1,0 +1,41 @@
+W5a planted-failure evidence
+Date: 2026-08-28
+
+Command:
+  bun test scripts/gates.test.ts
+
+Precondition/control:
+  PASS clean fixture is green before mutation
+  PASS U8 permits the explicitly cleared account-state vocabulary
+
+Every plant writes a fresh temporary repository, reads the file back and asserts
+the exact planted text before running the gate (D-064).
+
+Static plants that went red:
+  PASS U8 detects "Waiting for approval"
+  PASS U9 detects useState
+  PASS U10 detects panel canvas
+  PASS AGENT-FLAG detects agentPresent
+  PASS HAPTICS detects navigator.vibrate
+  PASS HALO detects leftHand
+  PASS PROVIDER detects provider.id === outside providers
+  PASS TOOLS detects an unsupported return
+  PASS FLIP detects flipDevice() in a catch handler
+  PASS NAMING detects an initiative id in implementation
+  PASS TIER detects tier === "t1" outside composite
+  PASS TIER detects a switch(tier) case outside composite
+  PASS TRAILERS detects a branch Co-Authored-By trailer
+  PASS CREDENTIALS detects a force-added synthetic .p8 path
+
+Command plants that went red:
+  PASS TYPES propagates an exit-7 typecheck command
+  PASS LINT propagates an exit-8 lint command
+  PASS TESTS propagates a failing Bun test
+
+Result:
+  19 pass
+  0 fail
+  150 expect() calls
+
+The credential plant contains only the literal "fixture-not-a-key". No path
+under the real cert directory was opened or enumerated.

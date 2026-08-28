@@ -1,0 +1,61 @@
+W5a live gate evidence
+Date: 2026-08-28
+
+Command:
+  bun run gates
+
+Command gates:
+  PASS TYPES — 11/11 projects clean, including scripts
+  PASS LINT — repo-wide eslint clean
+  FAIL TESTS — 691 pass, 1 fail/error
+
+Foreign test failure:
+  packages/panel/e2e/panel.spec.ts:20
+  Playwright Test did not expect test.beforeAll() to be called under Bun's test
+  runner. The file is discovered by root `bun test` because it matches *.spec.ts.
+
+Static summary:
+  PASS U8
+  FAIL U9
+    apps/web/src/routes/_probe.capabilities.tsx:13
+    apps/web/src/routes/[_]spike.device.tsx:16
+    apps/web/src/routes/[_]spike.device.tsx:21
+  PASS U10
+  PASS AGENT-FLAG
+  FAIL HAPTICS
+    packages/state/src/silence.ts:88
+  FAIL HALO
+    packages/device/src/Device.tsx:73
+    packages/device/src/luminance-probe.ts:246
+    packages/device/src/screen-mesh.ts:65
+    packages/device/src/screen-mesh.ts:103
+    packages/providers/src/identity.ts:133
+    packages/state/src/announce.ts:148
+    packages/state/src/detent.test.ts:604
+    packages/state/src/gates.test.ts:130
+    packages/state/src/store.ts:17
+    packages/state/src/store.ts:302
+    packages/state/src/testing.ts:10
+  PASS PROVIDER
+  PASS TOOLS
+  PASS FLIP
+  PASS TRAILERS
+  FAIL NAMING
+    packages/composite/src/capabilities.ts:391
+    packages/composite/src/capabilities.ts:485
+    packages/composite/src/capabilities.ts:520
+    packages/panel/e2e/panel.spec.ts:6
+    scripts/spikes/mint-apple-dev-token.ts:8
+    scripts/w4-tune.ts:4
+  PASS TIER
+  PASS CREDENTIALS
+  MANUAL U14 — owner phone-in-hand validation
+  MANUAL U15 — reviewer structural inspection
+
+Final:
+  13/18 gates clear
+  5 failed
+  exit 1
+
+No failure was allowlisted, suppressed, or rewritten by W5a. The affected files
+belong to W3, W4, W6, W2/state, W1/providers and S2; W5a did not modify them.
