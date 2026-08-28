@@ -6,6 +6,7 @@
  * re-exported here alongside it.
  */
 export * from './contract'
+export * from './announce'
 export * from './detent'
 export * from './menu'
 export * from './screen'

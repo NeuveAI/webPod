@@ -23,23 +23,35 @@
 
 import { atom, createStore } from 'jotai/vanilla'
 
+import { flushAnnouncer, noteMovement } from './announce'
 import {
   IDLE_DETENT_ACCUMULATOR,
+  agentActiveAtom,
+  announcerAtom,
   bumpAtom,
+  currentScreenAtom,
   densityAtom,
   detentAccumulatorAtom,
+  faceAtom,
+  highlightIndexAtom,
+  liveRegionAtom,
   screenStackAtom,
   visibleRowCountAtom,
 } from './contract'
 import type {
   Actor,
+  Announcement,
   BumpDirection,
   BumpEvent,
+  DetentInput,
+  DetentOutcome,
   DeviceStore,
   PressInput,
   PressOutcome,
   ScreenFrame,
+  ScreenSnapshotSource,
 } from './contract'
+import { detent, endGesture } from './detent'
 import { MENU_ROOT, menuFrame } from './menu'
 import { moveHighlight, pageHighlight, popScreen, pushScreen } from './screen'
 
@@ -224,4 +236,153 @@ export const deviceStore: DeviceStore = createDeviceStore()
  */
 export function resetInputState(store: DeviceStore): void {
   store.set(detentAccumulatorAtom, IDLE_DETENT_ACCUMULATOR)
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Detent, and the announcement that follows it
+ * ────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * The whole wheel, end to end: one measured input becomes movement, feedback
+ * and — eventually — one sentence.
+ *
+ * ⚑ This is the only place the four input paths meet the screen stack, which
+ * is what makes the silence rule and the announcement rule enforceable at all.
+ * A second path from an event handler to `screenStackAtom` would be a second
+ * place to forget them.
+ *
+ * A movement that changes nothing announces nothing. Running into the end of a
+ * list already says so physically, with a bump; repeating "Row 18 of 18" for
+ * every further detent of the same flick would be the live-region spam this
+ * whole module exists to prevent, in a smaller costume.
+ *
+ * @returns The reducer's outcome, so the caller can play the clicker, the
+ *   haptic and the FX it describes.
+ */
+export const detentActionAtom = atom(null, (get, set, input: DetentInput): DetentOutcome => {
+  const outcome = detent(get(detentAccumulatorAtom), input)
+  set(detentAccumulatorAtom, outcome.accumulator)
+
+  if (outcome.rowDelta === 0) return outcome
+
+  const before = get(highlightIndexAtom)
+  set(moveHighlightActionAtom, outcome.rowDelta, input.timestampMs)
+  const frame = get(currentScreenAtom)
+
+  if (frame === null || get(highlightIndexAtom) === before) return outcome
+
+  const snapshot: ScreenSnapshotSource = {
+    face: get(faceAtom),
+    frame,
+    agentActive: get(agentActiveAtom),
+  }
+
+  const noted = noteMovement(get(announcerAtom), {
+    snapshot,
+    urgency: outcome.announce,
+    source: input.source,
+    atMs: input.timestampMs,
+  })
+  set(announcerAtom, noted.state)
+  if (noted.announcement !== null) set(liveRegionAtom, noted.announcement)
+
+  return outcome
+})
+
+/**
+ * Ends a gesture: drops sub-detent residual, and speaks the settled position
+ * if the debounce has elapsed.
+ *
+ * @returns The announcement that was published, or `null`.
+ */
+export const endGestureActionAtom = atom(null, (get, set, nowMs: number): Announcement | null => {
+  set(detentAccumulatorAtom, endGesture(get(detentAccumulatorAtom)))
+  return set(flushAnnouncementsActionAtom, nowMs)
+})
+
+/**
+ * Publishes the pending announcement if it is due.
+ *
+ * Safe to call on any schedule, including too often: {@link flushAnnouncer} is
+ * idempotent, so a driver that wakes up early emits nothing and a driver that
+ * wakes up twice emits once.
+ */
+export const flushAnnouncementsActionAtom = atom(
+  null,
+  (get, set, nowMs: number): Announcement | null => {
+    const flushed = flushAnnouncer(get(announcerAtom), nowMs)
+    set(announcerAtom, flushed.state)
+    if (flushed.announcement !== null) set(liveRegionAtom, flushed.announcement)
+    return flushed.announcement
+  },
+)
+
+/**
+ * A pending-timeout handle.
+ *
+ * Widened deliberately: `setTimeout` returns a `number` in the browser and a
+ * `Timeout` object under Bun and Node, and this package is compiled against
+ * both lib sets. Narrowing to either one would make the driver un-typeable in
+ * the other environment, and the handle is only ever passed straight back to
+ * the matching `clearTimeout`.
+ */
+export type TimerHandle = number | ReturnType<typeof setTimeout>
+
+/** Injection points for {@link startAnnouncer}, so a test can drive its own clock. */
+export type AnnouncerDriverOptions = {
+  readonly now?: () => number
+  readonly setTimer?: (callback: () => void, ms: number) => TimerHandle
+  readonly clearTimer?: (handle: TimerHandle) => void
+}
+
+/**
+ * Starts the one timer in this package.
+ *
+ * ⚑ Exactly one, and it lives here rather than in the announcer, because the
+ * announcer must stay a pure function of `(state, time)` for the thirty-detent
+ * gate to be provable without mocks.
+ *
+ * It subscribes to the announcer's state and keeps a single pending timeout
+ * aimed at the current due time. Every new movement pushes that time out and
+ * re-aims the same timer, so a flick of any length holds one timeout and
+ * produces one sentence when it stops.
+ *
+ * @returns An unsubscribe function that also cancels the pending timeout.
+ *   Call it on teardown; a timer that outlives its store would speak about a
+ *   device nobody is looking at.
+ */
+export function startAnnouncer(
+  store: DeviceStore,
+  options: AnnouncerDriverOptions = {},
+): () => void {
+  const now = options.now ?? (() => Date.now())
+  const setTimer = options.setTimer ?? setTimeout
+  const clearTimer = options.clearTimer ?? clearTimeout
+
+  let handle: TimerHandle | null = null
+
+  const cancel = (): void => {
+    if (handle !== null) {
+      clearTimer(handle)
+      handle = null
+    }
+  }
+
+  const arm = (): void => {
+    cancel()
+    const dueAtMs = store.get(announcerAtom).dueAtMs
+    if (dueAtMs === null) return
+    handle = setTimer(() => {
+      handle = null
+      store.set(flushAnnouncementsActionAtom, now())
+    }, Math.max(0, dueAtMs - now()))
+  }
+
+  const unsubscribe = store.sub(announcerAtom, arm)
+  arm()
+
+  return () => {
+    cancel()
+    unsubscribe()
+  }
 }

@@ -836,12 +836,27 @@ export type Announcement = {
  * 30-detent test assert "exactly one announcement" without fake timers.
  */
 export type AnnouncerState = {
-  /** The snapshot to describe when the debounce elapses, or `null`. */
-  readonly pending: ScreenSnapshotSource | null
+  /** The movement to describe when the debounce elapses, or `null`. */
+  readonly pending: PendingAnnouncement | null
   /** Timestamp at which {@link pending} becomes due, or `null`. */
   readonly dueAtMs: number | null
   /** Emissions so far. Becomes {@link Announcement.seq}. */
   readonly emitted: number
+}
+
+/**
+ * A movement waiting to be summarised.
+ *
+ * It holds the snapshot *and* the source, because who moved the highlight
+ * changes the sentence: a human hears where they are, and a human whose device
+ * moved without them needs to hear that first.
+ *
+ * Only one is ever pending. A flick replaces it thirty times and announces
+ * once, which is the entire point.
+ */
+export type PendingAnnouncement = {
+  readonly snapshot: ScreenSnapshotSource
+  readonly source: DetentSource
 }
 
 /** The announcer at rest. */
