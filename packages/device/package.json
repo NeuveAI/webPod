@@ -8,5 +8,17 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.7.0",
+    "@webpod/tokens": "workspace:*",
+    "three": "0.185.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/three": "^0.185.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   }
 }
