@@ -268,7 +268,7 @@ describe('touch arc path', () => {
     expect(back.detents).toBe(-1)
   })
 
-  test('haptics stop above 12 detents per second, clicker does not', () => {
+  test('high-rate touch detents stay policy-neutral for the future haptic actuator', () => {
     // Four detents in one 40ms event is 100 detents/second.
     const primed = detent(IDLE_DETENT_ACCUMULATOR, {
       path: 'touch-arc',
@@ -283,8 +283,11 @@ describe('touch arc path', () => {
       timestampMs: 40,
     }, VISIBLE_ROWS.medium)
 
-    expect(fast.detentsPerSecond).toBeGreaterThan(DETENT.hapticSuppressAbovePerSec)
-    expect(fast.hapticPulses).toBe(0)
+    expect(fast.detentsPerSecond).toBeGreaterThan(12)
+    // D-063 defers whether the actuator suppresses this stream or fires every
+    // third pulse. W2 reports every candidate pulse so either policy remains
+    // implementable without undoing state-layer filtering.
+    expect(fast.hapticPulses).toBe(Math.abs(fast.detents))
     expect(fast.clickerTicks).toBe(Math.abs(fast.detents))
   })
 })
@@ -670,7 +673,7 @@ describe('the inertial coast (001 §4.4, Release row)', () => {
     }
   })
 
-  test('the coast fires detents, decays, and comes to rest below 60 deg/s', () => {
+  test('the coast fires detents, decays, and comes to rest below 21 deg/s', () => {
     let accumulator = endGesture(windUp(900))
     expect(accumulator.coasting).toBe(true)
 

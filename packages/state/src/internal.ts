@@ -1,9 +1,9 @@
 /**
  * Writable state that must not be writable from outside this package.
  *
- * ⚑ This module is **not** re-exported by `index.ts`, and `package.json`
- * exposes only `.` in its `exports` map, so nothing outside can reach it —
- * not even by a deep import path.
+ * ⚑ This module is **not** re-exported by `index.ts`, and `package.json` has a
+ * closed export map containing only `.` and `./testing`; `./internal` is not
+ * exposed, so nothing outside can reach it through a package deep import.
  *
  * It exists for one shape of problem: state whose *derived* readers all stay
  * correct on a bare write, while something imperative does not. Density is the

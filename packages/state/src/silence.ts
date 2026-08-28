@@ -19,7 +19,6 @@
  * for it.
  */
 
-import { DETENT } from './contract'
 import type { Actor, DetentSource, InputPath } from './contract'
 
 /**
@@ -66,21 +65,19 @@ export type Feedback = {
 /**
  * The feedback budget for a movement.
  *
- * Counts, not effects: this decides what is *allowed*, and the layer that owns
- * the speaker and the actuator decides what actually happens. The 30/sec
- * clicker limit of 001 §4.9 lives with the sound layer for that reason — it is
- * a property of the speaker. The 12/sec haptic suppression lives here, because
- * it depends on the detent rate, which only this side knows.
+ * Counts, not effects: this reports candidate feedback, and the layer that
+ * owns the speaker and actuator decides what actually happens. The 30/sec
+ * clicker limit lives with the sound layer. D-063 explicitly defers the
+ * conflicting high-rate haptic policies (suppress all versus every third), so
+ * this function reports one candidate pulse per human touch detent and chooses
+ * neither policy.
  *
  * @param detents - Signed; only the magnitude is used.
- * @param detentsPerSecond - `0` when the rate is not yet known, which suppresses
- *   nothing: the first detent of a gesture is never the one that buzzes too much.
  */
 export function feedbackFor(
   source: DetentSource,
   path: InputPath,
   detents: number,
-  detentsPerSecond: number,
 ): Feedback {
   const silenced = isSilenced(source)
   const count = Math.abs(detents)
@@ -90,11 +87,6 @@ export function feedbackFor(
     // Haptics exist on touch only. A mouse, a trackpad and a keyboard have no
     // actuator, and pretending otherwise would put a `navigator.vibrate` call
     // behind a gesture that cannot feel it.
-    hapticPulses:
-      silenced ||
-      path !== 'touch-arc' ||
-      detentsPerSecond > DETENT.hapticSuppressAbovePerSec
-        ? 0
-        : count,
+    hapticPulses: silenced || path !== 'touch-arc' ? 0 : count,
   }
 }

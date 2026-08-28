@@ -292,7 +292,7 @@ export const detent: DetentFn = (accumulator, input, viewportRows, screen) => {
   // ⚑ THE SILENCE RULE. Asked once, of `feedbackFor`, which is the only place
   // in the package that answers it — for the coast below as well as for this
   // event, and for presses over in the store. See `silence.ts`.
-  const feedback = feedbackFor(input.source, input.path, detents, detentsPerSecond)
+  const feedback = feedbackFor(input.source, input.path, detents)
 
   return {
     accumulator: next,
@@ -393,7 +393,7 @@ export const coastStep: CoastStepFn = (accumulator, frameSeconds, screen) => {
       multiplier: DETENT.rowsSlow,
       accelerated: false,
       detentsPerSecond: 0,
-      ...feedbackFor(source, path, 0, 0),
+      ...feedbackFor(source, path, 0),
       actor: actorFor(source, path),
       announce: 'debounced',
     } satisfies DetentOutcome
@@ -431,7 +431,7 @@ export const coastStep: CoastStepFn = (accumulator, frameSeconds, screen) => {
   )
 
   // The multiplier keeps coasting at the speed the hand left it at, decaying
-  // with the velocity. A flick that was moving 7 rows per detent does not
+  // with the velocity. A flick that was moving 12 rows per detent does not
   // become a 1-row crawl the instant the thumb lifts; it slows down.
   // ⚑ Each detent is scored at the speed the wheel was doing **when it fired**,
   // and that speed is exact rather than interpolated. Under exponential decay
@@ -474,7 +474,7 @@ export const coastStep: CoastStepFn = (accumulator, frameSeconds, screen) => {
     multiplier,
     accelerated: multiplier > DETENT.rowsSlow,
     detentsPerSecond,
-    ...feedbackFor(source, path, drained.detents, detentsPerSecond),
+    ...feedbackFor(source, path, drained.detents),
     actor: actorFor(source, path),
     // A coast is the tail of a flick, and the flick already scheduled a
     // summary. Announcing per coasted detent would put the U13 spam back.

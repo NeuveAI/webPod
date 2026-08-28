@@ -159,8 +159,8 @@ describe('the announcement debounce is 350ms', () => {
 })
 
 describe('the detent constants that are rulings', () => {
-  test('haptics stop above 12 detents per second (001 §4.9)', () => {
-    expect(DETENT.hapticSuppressAbovePerSec).toBe(12)
+  test('D-063 leaves no high-rate haptic policy in the wheel constants', () => {
+    expect('hapticSuppressAbovePerSec' in DETENT).toBe(false)
   })
 
   test('the coast decays at 0.94 per frame and stops below 21 deg/s (§9.4)', () => {

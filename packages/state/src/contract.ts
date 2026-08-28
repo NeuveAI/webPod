@@ -399,11 +399,13 @@ export type ScreenSnapshotSource = {
  * ────────────────────────────────────────────────────────────────────────── */
 
 /**
- * Detent geometry and acceleration thresholds (001 §4.4).
+ * Detent geometry and acceleration thresholds (pm-spec §4.4 and
+ * design-system §9.4).
  *
- * ⚑ Every number is transcribed from the §4.4 engineering-contract table. The
- * table is the source of truth; if a value here disagrees with it, this file
- * is wrong.
+ * Input-path geometry comes from pm-spec §4.4. Wheel-motion values come from
+ * design-system §9.4 under D-063: the specialist section governs where the
+ * summary table disagrees. Each exception is called out at the value it
+ * affects so a later edit cannot silently collapse the two sources again.
  */
 export const DETENT = {
   /** Degrees of arc per detent, on both arc paths. 24 detents per revolution. */
@@ -493,13 +495,6 @@ export const DETENT = {
    * of 15° — imperceptible — while a tremor costs more than it has.
    */
   reversalHysteresisDeg: 1.8,
-  /**
-   * Above this detent rate the `selection` haptic stops firing (001 §4.9).
-   *
-   * A fast flick would otherwise mean a continuous buzz, which reads as a
-   * fault rather than as feedback, and drains the actuator.
-   */
-  hapticSuppressAbovePerSec: 12,
   /**
    * Angular velocity retained per frame once the finger leaves.
    *
@@ -761,7 +756,14 @@ export type DetentOutcome = {
   readonly detentsPerSecond: number
   /** Clicker ticks to play. `0` when silenced. */
   readonly clickerTicks: number
-  /** `selection` haptic pulses to fire. `0` when silenced. */
+  /**
+   * Candidate `selection` pulses requested by human touch detents.
+   *
+   * `0` when silenced or when the input path has no touch actuator. This is
+   * deliberately pre-policy: D-063 defers whether a high-rate stream is
+   * suppressed or reduced to every third pulse. The future actuator layer
+   * owns that choice; this count must not choose it in advance.
+   */
   readonly hapticPulses: number
   /**
    * `true` when this movement produced no sound and no vibration because it
@@ -851,12 +853,12 @@ export type EndGestureFn = (accumulator: DetentAccumulator) => DetentAccumulator
 /**
  * Advances a coasting wheel by one frame.
  *
- * 001 §4.4: *"remaining angular velocity decays at 0.94/frame, firing a detent
- * every 15° until |ω| < 60°/s. Every coasted detent still clicks."* All three
- * clauses live here — including the third, which is why this returns a full
- * {@link DetentOutcome} rather than a bare row count. A coasted detent is a
- * detent: it clicks, it buzzes, it announces, and it obeys the silence rule
- * through the `source` the accumulator carried out of the gesture.
+ * pm-spec §4.4 supplies the 0.94-at-60fps decay, 15° detents, and the rule that
+ * coasted detents still click. D-063 applies design-system §9.4's specialist
+ * 21°/s floor instead of §4.4's stale 60°/s summary value. This returns a full
+ * {@link DetentOutcome} rather than a bare row count because every coasted
+ * detent remains countable feedback and obeys the silence rule through the
+ * `source` carried out of the gesture.
  *
  * ⚑ The frame loop belongs to the caller, exactly as the announcement timer
  * belongs to the store. This package holds no `requestAnimationFrame`: the
@@ -867,9 +869,10 @@ export type EndGestureFn = (accumulator: DetentAccumulator) => DetentAccumulator
  * @param accumulator - Must have `coasting` set; anything else is a no-op that
  *   returns the idle accumulator, so a caller that over-runs its loop by a
  *   frame does not resurrect a dead gesture.
- * @param frameSeconds - Elapsed time for this frame. The decay is specified
- *   per *frame* rather than per second, so this scales the distance travelled
- *   and not the decay itself.
+ * @param frameSeconds - Elapsed time for this frame. Both decay and distance
+ *   are normalised to elapsed time: `0.94 ** (frameSeconds * 60)` plus the
+ *   closed-form distance integral. This is what makes one flick land on the
+ *   same row from 15–240 Hz (design-system §9.4 and D-060).
  *
  * There is no `viewportRows` parameter, unlike {@link DetentFn}: a coast is
  * momentum, and momentum never pages.
