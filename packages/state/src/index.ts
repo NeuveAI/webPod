@@ -1,9 +1,8 @@
 /**
- * `@webpod/state` — the Jotai store, reachable from outside React.
+ * `@webpod/state` — device state, reachable from outside React.
  *
- * Placeholder surface. The package exists from the first commit so that
- * concurrent lanes can land code without editing shared configuration:
- * the workspace glob, the tsconfig base and the typecheck loop already
- * cover it. The lane that owns this package defines its real exports.
+ * The public surface is `./contract`: types, constants and atoms. Everything
+ * else in this package is an implementation of a function type declared
+ * there, and is re-exported here alongside it.
  */
-export {};
+export * from './contract'
