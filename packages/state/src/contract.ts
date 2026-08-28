@@ -454,6 +454,19 @@ export const DETENT = {
    */
   multiplierSmoothingDetents: 3,
   /**
+   * The list must be longer than this before fast-scroll can engage
+   * (design-system §9.4).
+   *
+   * ⚑ A precondition pm-spec §4.4 does not have at all, and without it a
+   * twelve-row menu enters fast-scroll on a brisk flick and jumps four rows
+   * per detent through a list that is four rows long. §9.4: *"Engages when
+   * |ω| > 720 °/s **and** the list exceeds 40 items."* The reason it exists is
+   * §9.4's own argument for the whole feature — fast-scroll is what makes the
+   * wheel beat a flat list on a 4,000-item library, and a short list has
+   * nothing for it to beat.
+   */
+  fastScrollMinRows: 40,
+  /**
    * Above this detent rate the `selection` haptic stops firing (001 §4.9).
    *
    * A fast flick would otherwise mean a continuous buzz, which reads as a
@@ -752,6 +765,11 @@ export type DetentOutcome = {
  * @param accumulator - Gesture state; pass {@link IDLE_DETENT_ACCUMULATOR} to
  *   start a gesture.
  * @param input - One measured event.
+ * @param screen - What the reducer needs to know about the list, currently
+ *   just its length: fast-scroll does not engage on a list of
+ *   {@link DETENT.fastScrollMinRows} rows or fewer (design-system §9.4).
+ *   Omitting it disables fast-scroll entirely, which is the safe default for a
+ *   caller that does not know.
  * @param viewportRows - How many rows fit on screen, for `Shift+Arrow`. ⚑ Must
  *   be a {@link VISIBLE_ROWS} value for the effective density. It is a
  *   parameter rather than a field on the event because it is a property of the
@@ -766,7 +784,21 @@ export type DetentFn = (
   accumulator: DetentAccumulator,
   input: DetentInput,
   viewportRows: number,
+  screen?: ScreenMetrics,
 ) => DetentOutcome
+
+/**
+ * What the reducer needs to know about the list it is moving through.
+ *
+ * Only `totalRows` for now, and it is optional: a caller that omits it gets
+ * no fast-scroll, which is the safe direction. `detentActionAtom` supplies it
+ * from the current frame, so the seam W3 uses always has it — the same shape
+ * as `viewportRows`, and for the same reason.
+ */
+export type ScreenMetrics = {
+  /** Rows on the screen, including those outside the window. */
+  readonly totalRows: number
+}
 
 /**
  * Lifts the finger: discards residual travel, and hands the wheel its momentum.
@@ -813,6 +845,7 @@ export type EndGestureFn = (accumulator: DetentAccumulator) => DetentAccumulator
 export type CoastStepFn = (
   accumulator: DetentAccumulator,
   frameSeconds: number,
+  screen?: ScreenMetrics,
 ) => DetentOutcome
 
 /* ────────────────────────────────────────────────────────────────────────────

@@ -32,6 +32,7 @@ import {
   bumpAtom,
   densityOverrideAtom,
   dynamicTypeScaleAtom,
+  currentScreenAtom,
   effectiveDensityAtom,
   highlightIndexAtom,
   screenSnapshotAtom,
@@ -449,6 +450,7 @@ describe('D-063 — the §9.4 fast-scroll curve, behaviourally', () => {
           timestampMs: (i + 1) * stepMs,
         },
         VISIBLE_ROWS.medium,
+        { totalRows: 500 },
       )
       accumulator = outcome.accumulator
       multiplier = outcome.multiplier
@@ -485,5 +487,104 @@ describe('D-063 — the §9.4 fast-scroll curve, behaviourally', () => {
     expect(multiplierAt(900, 'touch-arc')).toBe(4)
     expect(multiplierAt(900, 'mouse-arc')).toBe(1)
     expect(multiplierAt(1100, 'mouse-arc')).toBe(4)
+  })
+})
+
+describe('D-063 — fast-scroll needs a long list, not just a fast thumb', () => {
+  /** Runs a very fast arc through a list of `totalRows` and returns the multiplier. */
+  function multiplierOnList(totalRows: number, speedDegPerSec = 3000): number {
+    const stepMs = 20
+    let accumulator = IDLE_DETENT_ACCUMULATOR
+    let multiplier = 1
+    for (let i = 0; i < 8; i += 1) {
+      const outcome = detent(
+        accumulator,
+        {
+          path: 'touch-arc',
+          source: 'human',
+          angleDeg: (speedDegPerSec * stepMs) / 1000,
+          timestampMs: (i + 1) * stepMs,
+        },
+        VISIBLE_ROWS.medium,
+        { totalRows },
+      )
+      accumulator = outcome.accumulator
+      multiplier = outcome.multiplier
+    }
+    return multiplier
+  }
+
+  test('the threshold is literally 40 rows (design-system §9.4)', () => {
+    // "Engages when |ω| > 720 °/s AND the list exceeds 40 items." pm-spec §4.4
+    // has no such precondition at all.
+    expect(DETENT.fastScrollMinRows).toBe(40)
+  })
+
+  test('a 39-row list cannot fast-scroll at ANY angular speed', () => {
+    // ⚑ The failure without this: a twelve-row menu enters fast-scroll on a
+    // brisk flick and jumps four rows per detent through a list four rows
+    // long. Swept rather than sampled, because "at any speed" is the claim.
+    for (const speed of [100, 500, 719, 721, 900, 1079, 1081, 2000, 5000, 50_000]) {
+      expect(multiplierOnList(39, speed)).toBe(1)
+    }
+  })
+
+  test('exactly 40 rows is still too short — the spec says *exceeds* 40', () => {
+    expect(multiplierOnList(40)).toBe(1)
+  })
+
+  test('41 rows is long enough', () => {
+    expect(multiplierOnList(41)).toBe(12)
+  })
+
+  test('the main menu cannot fast-scroll, however hard it is flicked', () => {
+    // The real case this protects: the root menu is eight rows.
+    const store = createDeviceStore()
+    const rows = store.get(currentScreenAtom)?.rows.length ?? 0
+    expect(rows).toBeLessThan(DETENT.fastScrollMinRows)
+
+    for (let i = 0; i < 8; i += 1) {
+      const outcome = store.set(detentActionAtom, {
+        path: 'touch-arc',
+        source: 'human',
+        angleDeg: 60,
+        timestampMs: (i + 1) * 20,
+      })
+      expect(outcome.multiplier).toBe(1)
+      expect(outcome.accelerated).toBe(false)
+    }
+  })
+
+  test('a long list reached through the store does fast-scroll', () => {
+    const store = createDeviceStore()
+    store.set(pushScreenActionAtom, listFrame(500, 'compact'))
+
+    let accelerated = false
+    for (let i = 0; i < 8; i += 1) {
+      const outcome = store.set(detentActionAtom, {
+        path: 'touch-arc',
+        source: 'human',
+        angleDeg: 60,
+        timestampMs: (i + 1) * 20,
+      })
+      accelerated = accelerated || outcome.accelerated
+    }
+    expect(accelerated).toBe(true)
+  })
+
+  test('omitting the list length disables fast-scroll, which is the safe way to be wrong', () => {
+    const stepMs = 20
+    let accumulator = IDLE_DETENT_ACCUMULATOR
+    let multiplier = 1
+    for (let i = 0; i < 8; i += 1) {
+      const outcome = detent(
+        accumulator,
+        { path: 'touch-arc', source: 'human', angleDeg: 60, timestampMs: (i + 1) * stepMs },
+        VISIBLE_ROWS.medium,
+      )
+      accumulator = outcome.accumulator
+      multiplier = outcome.multiplier
+    }
+    expect(multiplier).toBe(1)
   })
 })

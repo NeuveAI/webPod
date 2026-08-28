@@ -1,19 +1,33 @@
 import { describe, expect, test } from 'bun:test'
 
 import { DETENT, IDLE_DETENT_ACCUMULATOR, VISIBLE_ROWS } from './contract'
-import type { DetentAccumulator, DetentInput, DetentOutcome } from './contract'
+import type {
+  DetentAccumulator,
+  DetentInput,
+  DetentOutcome,
+  ScreenMetrics,
+} from './contract'
 import { coastStep, detent, endGesture } from './detent'
 
 /** Threads a sequence of inputs through the reducer, collecting every outcome. */
+/**
+ * Threads a sequence of inputs through the reducer, collecting every outcome.
+ *
+ * Defaults to a 500-row list, because most of what is exercised here is
+ * acceleration and design-system §9.4 does not let fast-scroll engage on a
+ * list of 40 rows or fewer. Tests of the precondition itself pass a short one
+ * explicitly.
+ */
 function replay(
   inputs: readonly DetentInput[],
   from: DetentAccumulator = IDLE_DETENT_ACCUMULATOR,
   viewportRows = VISIBLE_ROWS.medium,
+  screen: ScreenMetrics = { totalRows: 500 },
 ): { outcomes: readonly DetentOutcome[]; accumulator: DetentAccumulator } {
   let accumulator = from
   const outcomes: DetentOutcome[] = []
   for (const input of inputs) {
-    const outcome = detent(accumulator, input, viewportRows)
+    const outcome = detent(accumulator, input, viewportRows, screen)
     outcomes.push(outcome)
     accumulator = outcome.accumulator
   }
@@ -655,7 +669,7 @@ describe('the inertial coast (001 §4.4, Release row)', () => {
     let lastSpeed = accumulator.speedDegPerSec
 
     while (accumulator.coasting && frames < 1000) {
-      const outcome = coastStep(accumulator, 1 / 60)
+      const outcome = coastStep(accumulator, 1 / 60, { totalRows: 500 })
       // Velocity only ever decreases.
       expect(outcome.accumulator.speedDegPerSec).toBeLessThanOrEqual(lastSpeed)
       lastSpeed = outcome.accumulator.speedDegPerSec
@@ -685,7 +699,7 @@ describe('the inertial coast (001 §4.4, Release row)', () => {
 
     let net = 0
     while (coasting.coasting) {
-      const outcome = coastStep(coasting, 1 / 60)
+      const outcome = coastStep(coasting, 1 / 60, { totalRows: 500 })
       net += outcome.detents
       coasting = outcome.accumulator
     }
@@ -698,7 +712,7 @@ describe('the inertial coast (001 §4.4, Release row)', () => {
     let ticks = 0
 
     while (accumulator.coasting) {
-      const outcome = coastStep(accumulator, 1 / 60)
+      const outcome = coastStep(accumulator, 1 / 60, { totalRows: 500 })
       detents += Math.abs(outcome.detents)
       ticks += outcome.clickerTicks
       accumulator = outcome.accumulator
@@ -727,7 +741,7 @@ describe('the inertial coast (001 §4.4, Release row)', () => {
     let pulses = 0
 
     while (coasting.coasting) {
-      const outcome = coastStep(coasting, 1 / 60)
+      const outcome = coastStep(coasting, 1 / 60, { totalRows: 500 })
       detents += Math.abs(outcome.detents)
       ticks += outcome.clickerTicks
       pulses += outcome.hapticPulses
@@ -743,14 +757,14 @@ describe('the inertial coast (001 §4.4, Release row)', () => {
   test('a coast never announces per detent — the flick already scheduled one', () => {
     let accumulator = endGesture(windUp(900))
     while (accumulator.coasting) {
-      const outcome = coastStep(accumulator, 1 / 60)
+      const outcome = coastStep(accumulator, 1 / 60, { totalRows: 500 })
       expect(outcome.announce).toBe('debounced')
       accumulator = outcome.accumulator
     }
   })
 
   test('stepping a wheel that is not coasting is a no-op, not a resurrection', () => {
-    const outcome = coastStep(IDLE_DETENT_ACCUMULATOR, 1 / 60)
+    const outcome = coastStep(IDLE_DETENT_ACCUMULATOR, 1 / 60, { totalRows: 500 })
     expect(outcome.detents).toBe(0)
     expect(outcome.rowDelta).toBe(0)
     expect(outcome.accumulator).toEqual(IDLE_DETENT_ACCUMULATOR)
@@ -764,6 +778,7 @@ describe('accelerated says what multiplier cannot', () => {
         IDLE_DETENT_ACCUMULATOR,
         { path: 'key', source: 'human', direction: 1, page, timestampMs: 0 },
         VISIBLE_ROWS.compact,
+        { totalRows: 500 },
       )
       expect(outcome.accelerated).toBe(false)
     }
@@ -785,10 +800,11 @@ describe('accelerated says what multiplier cannot', () => {
 
   test('false for a programmatic movement of any size', () => {
     const outcome = detent(
-      IDLE_DETENT_ACCUMULATOR,
-      { path: 'direct', source: 'agent', detents: 200, timestampMs: 0 },
-      VISIBLE_ROWS.medium,
-    )
+        IDLE_DETENT_ACCUMULATOR,
+        { path: 'direct', source: 'agent', detents: 200, timestampMs: 0 },
+        VISIBLE_ROWS.medium,
+        { totalRows: 500 },
+      )
     expect(outcome.accelerated).toBe(false)
     expect(outcome.rowDelta).toBe(200)
   })
@@ -836,7 +852,7 @@ describe('D-060 — the coast is the same gesture at any refresh rate', () => {
     let frames = 0
 
     while (coasting.coasting && frames < 100_000) {
-      const outcome = coastStep(coasting, 1 / fps)
+      const outcome = coastStep(coasting, 1 / fps, { totalRows: 500 })
       detents += Math.abs(outcome.detents)
       rows += Math.abs(outcome.rowDelta)
       coasting = outcome.accumulator
@@ -912,7 +928,9 @@ describe('D-060 — the coast is the same gesture at any refresh rate', () => {
     let i = 0
     const intervals = [1 / 120, 1 / 24, 1 / 60, 1 / 240, 1 / 30, 1 / 90]
     while (jittery.coasting && i < 100_000) {
-      const outcome = coastStep(jittery, intervals[i % intervals.length] ?? 1 / 60)
+      const outcome = coastStep(jittery, intervals[i % intervals.length] ?? 1 / 60, {
+        totalRows: 500,
+      })
       jitteryDetents += Math.abs(outcome.detents)
       jittery = outcome.accumulator
       i += 1
@@ -921,7 +939,7 @@ describe('D-060 — the coast is the same gesture at any refresh rate', () => {
     let steady = endGesture(accumulator)
     let steadyDetents = 0
     while (steady.coasting) {
-      const outcome = coastStep(steady, 1 / 60)
+      const outcome = coastStep(steady, 1 / 60, { totalRows: 500 })
       steadyDetents += Math.abs(outcome.detents)
       steady = outcome.accumulator
     }
@@ -943,7 +961,7 @@ describe('D-060 — the coast is the same gesture at any refresh rate', () => {
       ).accumulator,
     )
 
-    const after = coastStep(released, 1 / 60)
+    const after = coastStep(released, 1 / 60, { totalRows: 500 })
     expect(after.accumulator.speedDegPerSec).toBeCloseTo(
       released.speedDegPerSec * DETENT.coastDecayPerFrame,
       9,

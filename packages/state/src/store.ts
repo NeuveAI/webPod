@@ -390,7 +390,12 @@ export const detentActionAtom = atom(null, (get, set, input: DetentInput): Deten
   // ⚑ The viewport size comes from here, never from the event. This atom holds
   // the density and the caller does not, so `Shift+Arrow` cannot page by a
   // number that disagrees with what is on the glass.
-  const outcome = detent(get(detentAccumulatorAtom), input, get(visibleRowCountAtom))
+  const outcome = detent(get(detentAccumulatorAtom), input, get(visibleRowCountAtom), {
+    // ⚑ Supplied here for the same reason the viewport size is: this atom
+    // knows the list and the caller does not, so fast-scroll cannot engage on
+    // a twelve-row menu because somebody passed the wrong number.
+    totalRows: get(currentScreenAtom)?.rows.length ?? 0,
+  })
   set(detentAccumulatorAtom, outcome.accumulator)
   return applyMovement(get, set, outcome, input.source)
 })
@@ -407,7 +412,9 @@ export const detentActionAtom = atom(null, (get, set, input: DetentInput): Deten
  */
 export const coastActionAtom = atom(null, (get, set, frameSeconds: number): DetentOutcome => {
   const accumulator = get(detentAccumulatorAtom)
-  const outcome = coastStep(accumulator, frameSeconds)
+  const outcome = coastStep(accumulator, frameSeconds, {
+    totalRows: get(currentScreenAtom)?.rows.length ?? 0,
+  })
   set(detentAccumulatorAtom, outcome.accumulator)
   return applyMovement(get, set, outcome, accumulator.source ?? 'human')
 })

@@ -69,7 +69,16 @@ function scrollDeltaToPx(deltaY: number, deltaMode: 0 | 1 | 2, viewportPx: numbe
  * mouse arc is jerkier than a thumb arc and the touch thresholds fire
  * fast-scroll on movements the human meant as slow.
  */
-function rawMultiplier(path: InputPath, speedDegPerSec: number): number {
+function rawMultiplier(
+  path: InputPath,
+  speedDegPerSec: number,
+  totalRows: number,
+): number {
+  // ⚑ Short lists never fast-scroll (design-system §9.4). Checked before the
+  // speed, because on a twelve-row menu no angular velocity should produce a
+  // four-row jump — there is nothing down there to jump to.
+  if (totalRows <= DETENT.fastScrollMinRows) return DETENT.rowsSlow
+
   const scale = path === 'mouse-arc' ? DETENT.mouseAccelScale : 1
   if (speedDegPerSec > DETENT.fasterThresholdDegPerSec * scale) return DETENT.rowsFaster
   if (speedDegPerSec > DETENT.fastThresholdDegPerSec * scale) return DETENT.rowsFast
@@ -156,7 +165,8 @@ function drainDetents(
  * @returns The movement, the feedback budget and the next accumulator. The
  *   arguments are never mutated.
  */
-export const detent: DetentFn = (accumulator, input, viewportRows) => {
+export const detent: DetentFn = (accumulator, input, viewportRows, screen) => {
+  const totalRows = screen?.totalRows ?? 0
   const base = baseFor(accumulator, input.path)
   const agentOrigin = 'agentOrigin' in input ? input.agentOrigin : undefined
   const actor = actorFor(input.source, input.path, agentOrigin)
@@ -219,7 +229,7 @@ export const detent: DetentFn = (accumulator, input, viewportRows) => {
 
     let recent = base.recentMultipliers
     for (let i = 0; i < Math.abs(drained.detents); i += 1) {
-      recent = pushMultiplier(recent, rawMultiplier(input.path, speedDegPerSec))
+      recent = pushMultiplier(recent, rawMultiplier(input.path, speedDegPerSec, totalRows))
     }
 
     detents = drained.detents
@@ -342,7 +352,8 @@ export const endGesture: EndGestureFn = (accumulator) => {
  * Returns `detents: 0` and an idle accumulator once the wheel is at rest, so a
  * caller can drive it until `accumulator.coasting` is `false` and stop.
  */
-export const coastStep: CoastStepFn = (accumulator, frameSeconds) => {
+export const coastStep: CoastStepFn = (accumulator, frameSeconds, screen) => {
+  const totalRows = screen?.totalRows ?? 0
   const source = accumulator.source ?? 'human'
   const path = accumulator.path ?? 'touch-arc'
 
@@ -415,7 +426,7 @@ export const coastStep: CoastStepFn = (accumulator, frameSeconds) => {
   for (let i = 0; i < fired; i += 1) {
     const travelledDeg = (i + 1) * DETENT.arcDegPerDetent - carriedDeg
     const speedAtDetent = accumulator.speedDegPerSec - COAST_DECAY_PER_SEC * travelledDeg
-    multiplier = rawMultiplier(path, speedAtDetent)
+    multiplier = rawMultiplier(path, speedAtDetent, totalRows)
     rowDelta += multiplier
   }
   rowDelta *= accumulator.direction
