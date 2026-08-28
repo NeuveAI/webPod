@@ -210,13 +210,13 @@ describe('touch arc path', () => {
   })
 
   test('a fast arc accelerates, and the multiplier is smoothed rather than jumping', () => {
-    // 60 degrees per 60ms is 1000 deg/s — over the second threshold.
+    // 60 degrees per 20ms is 3000 deg/s — well over §9.4's 1080 threshold.
     const { outcomes } = replay(
       Array.from({ length: 5 }, (_, i) => ({
         path: 'touch-arc' as const,
         source: 'human' as const,
         angleDeg: 60,
-        timestampMs: (i + 1) * 60,
+        timestampMs: (i + 1) * 20,
       })),
     )
 
@@ -278,8 +278,8 @@ describe('mouse arc path', () => {
   })
 
   test('acceleration thresholds are 1.4x the touch ones', () => {
-    // 300 deg/s clears the touch threshold (240) but not the mouse one (336).
-    const speedDegPerSec = 300
+    // 900 deg/s clears the touch threshold (720) but not the mouse one (1008).
+    const speedDegPerSec = 900
     const arcInputs = (path: 'touch-arc' | 'mouse-arc'): readonly DetentInput[] =>
       Array.from({ length: 5 }, (_, i) => ({
         path,
@@ -799,7 +799,7 @@ describe('accelerated says what multiplier cannot', () => {
         path: 'touch-arc' as const,
         source: 'human' as const,
         angleDeg: 60,
-        timestampMs: (i + 1) * 60,
+        timestampMs: (i + 1) * 20,
       })),
     )
     expect(outcomes[0]?.accelerated).toBe(false)

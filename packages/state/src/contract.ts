@@ -419,13 +419,20 @@ export const DETENT = {
   /** `deltaMode: DOM_DELTA_LINE` is multiplied by this to reach pixels. */
   scrollLineToPx: 16,
   /**
-   * Angular speed, in deg/s, above which one detent moves 3 rows on the touch
-   * arc; the mouse thresholds are these scaled by
+   * Angular speed, in deg/s, above which fast-scroll engages on the touch arc
+   * (design-system §9.4). The mouse thresholds are these scaled by
    * {@link DETENT.mouseAccelScale}.
+   *
+   * ⚑ 720, not 240. pm-spec §4.4's table says 240/540 → ×1/×3/×7;
+   * design-system §9.4, *The wheel inertia and detent model*, says
+   * 720/1080 → ×1/×4/×12. **§9.4 governs** (D-063): acceleration physics is
+   * its subject and §4.4's aside, and the specialist section beats the summary
+   * table — the same shape as §12.0's geometry re-derivation beating §7.3's
+   * stale column.
    */
-  fastThresholdDegPerSec: 240,
-  /** Angular speed above which one detent moves 7 rows on the touch arc. */
-  fasterThresholdDegPerSec: 540,
+  fastThresholdDegPerSec: 720,
+  /** Angular speed above which one detent moves 12 rows (design-system §9.4). */
+  fasterThresholdDegPerSec: 1080,
   /**
    * Both arc thresholds are multiplied by this on the mouse path.
    *
@@ -433,12 +440,12 @@ export const DETENT = {
    * false fast-scroll on a mouse.
    */
   mouseAccelScale: 1.4,
-  /** Rows per detent below the first threshold. */
+  /** Rows per detent below the first threshold (design-system §9.4). */
   rowsSlow: 1,
-  /** Rows per detent between the two thresholds. */
-  rowsFast: 3,
-  /** Rows per detent above the second threshold. */
-  rowsFaster: 7,
+  /** Rows per detent between the two thresholds (design-system §9.4). */
+  rowsFast: 4,
+  /** Rows per detent above the second threshold (design-system §9.4). */
+  rowsFaster: 12,
   /**
    * The row multiplier is averaged over this many detents.
    *

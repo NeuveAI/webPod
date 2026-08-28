@@ -170,10 +170,28 @@ describe('the detent constants that are rulings', () => {
     expect(DETENT.arcDegPerDetent).toBe(15)
   })
 
-  test('acceleration is 1, 3 and 7 rows per detent (001 §4.4)', () => {
+  test('acceleration is 1, 4 and 12 rows per detent (design-system §9.4)', () => {
+    // ⚑ §9.4, *The wheel inertia and detent model*: "×1 below 720 °/s, ×4 at
+    // 720–1080, ×12 above 1080". pm-spec §4.4's table says ×1/×3/×7 at
+    // 240/540; D-063 rules that §9.4 governs, because acceleration physics is
+    // its subject and §4.4's aside. The rejected values are named here so a
+    // reader knows this assertion settles a conflict rather than restating a
+    // number.
     expect(DETENT.rowsSlow).toBe(1)
-    expect(DETENT.rowsFast).toBe(3)
-    expect(DETENT.rowsFaster).toBe(7)
+    expect(DETENT.rowsFast).toBe(4)
+    expect(DETENT.rowsFaster).toBe(12)
+
+    expect(DETENT.rowsFast).not.toBe(3)
+    expect(DETENT.rowsFaster).not.toBe(7)
+  })
+
+  test('the fast-scroll thresholds are 720 and 1080 deg/s (design-system §9.4)', () => {
+    expect(DETENT.fastThresholdDegPerSec).toBe(720)
+    expect(DETENT.fasterThresholdDegPerSec).toBe(1080)
+
+    // pm-spec §4.4's superseded pair.
+    expect(DETENT.fastThresholdDegPerSec).not.toBe(240)
+    expect(DETENT.fasterThresholdDegPerSec).not.toBe(540)
   })
 
   test('Dynamic Type forces airy at 130% (001 §15.0 U11)', () => {
@@ -412,5 +430,60 @@ describe('R3 — the density route that half-worked is now unconstructible', () 
 
     expect(store.get(densityOverrideAtom)).toBe('medium')
     expect(store.get(dynamicTypeScaleAtom)).toBe(1.1)
+  })
+})
+
+describe('D-063 — the §9.4 fast-scroll curve, behaviourally', () => {
+  /** Runs an arc at a steady angular speed and returns the settled multiplier. */
+  function multiplierAt(speedDegPerSec: number, path: 'touch-arc' | 'mouse-arc'): number {
+    const stepMs = 20
+    let accumulator = IDLE_DETENT_ACCUMULATOR
+    let multiplier = 1
+    for (let i = 0; i < 8; i += 1) {
+      const outcome = detent(
+        accumulator,
+        {
+          path,
+          source: 'human',
+          angleDeg: (speedDegPerSec * stepMs) / 1000,
+          timestampMs: (i + 1) * stepMs,
+        },
+        VISIBLE_ROWS.medium,
+      )
+      accumulator = outcome.accumulator
+      multiplier = outcome.multiplier
+    }
+    return multiplier
+  }
+
+  test('below 720 deg/s a detent is one row', () => {
+    expect(multiplierAt(300, 'touch-arc')).toBe(1)
+    expect(multiplierAt(700, 'touch-arc')).toBe(1)
+  })
+
+  test('between 720 and 1080 deg/s a detent is four rows', () => {
+    expect(multiplierAt(800, 'touch-arc')).toBe(4)
+    expect(multiplierAt(1000, 'touch-arc')).toBe(4)
+  })
+
+  test('above 1080 deg/s a detent is twelve rows', () => {
+    expect(multiplierAt(1500, 'touch-arc')).toBe(12)
+    expect(multiplierAt(3000, 'touch-arc')).toBe(12)
+  })
+
+  test('the superseded pm-spec tiers are not reachable at any speed', () => {
+    // ⚑ 3 and 7 were §4.4's multipliers. If either turns up, the ruling has
+    // been quietly reverted.
+    for (const speed of [100, 239, 241, 500, 539, 541, 719, 721, 1079, 1081, 5000]) {
+      expect([1, 4, 12]).toContain(multiplierAt(speed, 'touch-arc'))
+    }
+  })
+
+  test('a mouse arc needs 1.4x the speed, per pm-spec §4.4 which §9.4 does not cover', () => {
+    // §9.4 is silent on input path, and §4.4's per-path adjustment is its own
+    // subject, so it survives the ruling and applies to the new thresholds.
+    expect(multiplierAt(900, 'touch-arc')).toBe(4)
+    expect(multiplierAt(900, 'mouse-arc')).toBe(1)
+    expect(multiplierAt(1100, 'mouse-arc')).toBe(4)
   })
 })
