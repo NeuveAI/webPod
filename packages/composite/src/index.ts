@@ -3,9 +3,9 @@
  *
  * Owns tier detection and the pixel-source strategy for that seam.
  *
- * W6.0 has landed tier detection only. The `PanelPixelSource` strategy
- * interface (W6.1) and the T1 `html-in-canvas` implementation (W6.2) are
- * not here yet; nothing outside this package should compare a tier value.
+ * Tier detection, the future-safe pixel-source seam, and the T1
+ * `html-in-canvas` implementation live here. Nothing outside this package
+ * should compare a tier value or call an experimental canvas upload API.
  */
 export {
   getCapabilities,
@@ -27,6 +27,12 @@ export {
   subscribeCompositeTier,
   type CompositeTierSnapshot,
 } from './tier-store'
+export { CompositeDevice, type CompositeDeviceProps } from './CompositeDevice'
+export {
+  createPanelPixelSource,
+  HtmlInCanvasPixelSource,
+  type PanelOverlayTone,
+} from './html-in-canvas'
 
 export type {
   CapabilityReport,

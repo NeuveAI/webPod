@@ -75,7 +75,7 @@ export interface ProbeGroup {
  * Which generation of the DOM-to-canvas geometry API this browser ships.
  *
  * The explainer and the implementation are a generation apart, and the two
- * generations solve the same problem by different mechanisms, so W6.2 has
+ * generations solve the same problem by different mechanisms, so the runtime has
  * to be written against whichever one actually exists:
  *
  * - `explainer` — `updateElementGeometry({ canvasTransform })` plus
@@ -388,7 +388,7 @@ function withContext<T>(
 }
 
 /* ─────────────────────────────────────────────────────────────
-   The WebGL entry point - the question the workstream rests on.
+   The WebGL entry point used by the composite path.
    ───────────────────────────────────────────────────────────── */
 
 function resolveEntryPoint(results: readonly ProbeResult[]): WebGLEntryPoint {
@@ -482,11 +482,11 @@ export interface TierFacts {
  * capable the browser otherwise is.
  *
  * T2 is reachable in the table but not producible here: it requires the
- * `three-html-render` polyfill, which 002 does not ship (RISK-01). Rather
+ * `three-html-render` polyfill, which is not installed. Rather
  * than add a detector for something that cannot be installed, the T3 reason
  * names T2 as the branch that would apply.
  *
- * Exported because W6.1 must re-run it on `webglcontextlost` /
+ * Exported so the runtime can re-run it on `webglcontextlost` /
  * `webglcontextrestored`.
  */
 export function resolveTier(facts: TierFacts): { tier: Tier; reason: string } {
@@ -517,7 +517,7 @@ export function resolveTier(facts: TierFacts): { tier: Tier; reason: string } {
   return {
     tier: 'T3',
     reason:
-      "'requestPaint' in HTMLCanvasElement.prototype is false, so html-in-canvas is not exposed. WebGL is available, so the panel would be a CSS-3D matrix3d overlay registered to the modelled bezel. T2 would take precedence here if the three-html-render polyfill were installed; 002 does not ship it (RISK-01), and neither T2 nor T3 is built yet.",
+      "'requestPaint' in HTMLCanvasElement.prototype is false, so html-in-canvas is not exposed. WebGL is available, so the panel would be a CSS-3D matrix3d overlay registered to the modelled bezel. T2 would take precedence here if the three-html-render polyfill were installed; it is not installed, and neither T2 nor T3 is built yet.",
   }
 }
 
@@ -529,7 +529,7 @@ export function resolveTier(facts: TierFacts): { tier: Tier; reason: string } {
  * Runs the full probe. Browser-only - touches `document` and `navigator`.
  *
  * Prefer {@link getCapabilities}, which resolves once at boot. This is
- * exported unmemoised so W6.1 can re-probe after a context restore.
+ * exported unmemoised so the runtime can re-probe after a context restore.
  */
 export function probeCapabilities(): CapabilityReport {
   const requestPaint = 'requestPaint' in HTMLCanvasElement.prototype
