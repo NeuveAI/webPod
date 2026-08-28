@@ -2,7 +2,7 @@
  * Fold the tuned rig back into the package defaults.
  *
  * ⚑ Without this step the tuned numbers would live only in
- * `scripts/w4-rig.json` and the device would render standalone with the
+ * `packages/device/calibration/rig.json` and the device renders standalone with the
  * untuned defaults — a spike route that passes its own gate and a package that
  * does not. The tuner's output is not the artefact; the defaults are.
  *
@@ -11,9 +11,9 @@
  * the modules are hand-written documentation as much as data, and a generator
  * would flatten the comments that explain why each number is what it is.
  *
- *   bun run scripts/w4-apply-rig.ts
+ *   bun run packages/device/calibration/apply-rig.ts
  */
-const RIG = (await Bun.file('scripts/w4-rig.json').json()) as Record<string, number>
+const RIG = (await Bun.file('packages/device/calibration/rig.json').json()) as Record<string, number>
 
 /** `rig key` → `[file, the field name to patch]`. */
 const TARGETS: ReadonlyArray<readonly [string, string, string]> = [
@@ -71,7 +71,7 @@ function patch(source: string, name: string, value: number, scopeStart = 0): str
   const pattern = new RegExp(`(\\b${name}:\\s*)(-?[0-9_.]+)(,)`)
   const head = source.slice(0, scopeStart)
   const tail = source.slice(scopeStart)
-  if (!pattern.test(tail)) throw new Error(`w4-apply-rig: no field \`${name}\` to patch`)
+  if (!pattern.test(tail)) throw new Error(`device calibration: no field \`${name}\` to patch`)
   return head + tail.replace(pattern, `$1${round(value)}$3`)
 }
 

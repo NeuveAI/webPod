@@ -6,13 +6,13 @@
  * parameters, and reports how far the render's vertical luminance column is
  * from §4.2–4.5's stop tables. §12.3 says to *"tune the light rig and env map
  * until the numbers match"*; this is that tuning, done by measurement instead
- * of by eye, so the numbers in `evidence/w4-device-luminance.md` are
+ * of by eye, so the checked luminance evidence is
  * reproducible rather than asserted.
  *
  * Usage — the dev server and a browser session must already be up:
- *   bunx agent-browser --session w4 open http://localhost:3000/_spike/device
- *   bun run scripts/w4-tune.ts report
- *   bun run scripts/w4-tune.ts tune 400
+ *   bunx agent-browser --session device-calibration open http://localhost:3000/_spike/device
+ *   bun run packages/device/calibration/tune.ts report
+ *   bun run packages/device/calibration/tune.ts tune 400
  */
 import { setTimeout as sleep } from 'node:timers/promises'
 
@@ -184,13 +184,13 @@ const SCORE_EXPR = (patchJson: string, views: string) => `
     }
     node[parts[parts.length - 1]] = value;
   };
-  const base = JSON.parse(JSON.stringify(window.__w4.getParams()));
+  const base = JSON.parse(JSON.stringify(window.__deviceCalibration.getParams()));
   for (const [path, value] of Object.entries(patch)) set(base, path, value);
   const surfaces = [];
   for (const [colourway, face] of ${views}) {
-    window.__w4.setParams({ ...base, colourway, face });
+    window.__deviceCalibration.setParams({ ...base, colourway, face });
     await new Promise((r) => setTimeout(r, ${SETTLE_MS}));
-    surfaces.push(...window.__w4.sample());
+    surfaces.push(...window.__deviceCalibration.sample());
   }
   return JSON.stringify(surfaces);
 })()
@@ -261,11 +261,11 @@ function getPath(object: Json, path: string): number {
 
 async function main() {
   const [command, arg, arg2] = process.argv.slice(2)
-  const browserWs = (await Bun.$`bunx agent-browser --session w4 get cdp-url`.text()).trim()
+  const browserWs = (await Bun.$`bunx agent-browser --session device-calibration get cdp-url`.text()).trim()
   const page = await Page.attach(browserWs)
 
-  const params = JSON.parse(await page.evaluate<string>('JSON.stringify(window.__w4.getParams())'))
-  const saved = await Bun.file('scripts/w4-rig.json')
+  const params = JSON.parse(await page.evaluate<string>('JSON.stringify(window.__deviceCalibration.getParams())'))
+  const saved = await Bun.file('packages/device/calibration/rig.json')
     .json()
     .catch(() => ({}) as Record<string, number>)
 
@@ -322,7 +322,7 @@ async function main() {
     console.error(
       `[${stage}] pass ${pass} scale ${scale} score ${bestScore.toFixed(2)} worst ${worst(bestResults).toFixed(1)} fails ${bestResults.filter((r) => !r.pass).length}/${bestResults.length}`,
     )
-    await Bun.write('scripts/w4-rig.json', JSON.stringify(best, null, 2))
+    await Bun.write('packages/device/calibration/rig.json', JSON.stringify(best, null, 2))
     if (!improved) {
       if (scale <= 0.0625) break
       scale /= 2
@@ -330,7 +330,7 @@ async function main() {
     await sleep(1)
   }
 
-  await Bun.write('scripts/w4-rig.json', JSON.stringify(best, null, 2))
+  await Bun.write('packages/device/calibration/rig.json', JSON.stringify(best, null, 2))
   console.log(JSON.stringify({ params: best, results: bestResults }, null, 2))
   page.close()
 }

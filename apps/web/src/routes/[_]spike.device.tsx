@@ -18,7 +18,7 @@
  * exactly this. That satisfies the *stated purpose* of the repo's ban ("tool
  * callbacks live outside React and must read and write the same state the UI
  * renders"): the rig tuner drives this store from outside React entirely, over
- * `window.__w4`, and the scene re-renders from it. A component closure would
+ * `window.__deviceCalibration`, and the scene re-renders from it. A component closure would
  * have made the tuner unable to reach the values it exists to move. `packages/state` is
  * W2's and is not imported.
  */
@@ -131,7 +131,7 @@ function resetParams(): SpikeParams {
    ───────────────────────────────────────────────────────────── */
 
 /**
- * `window.__w4` — the rig tuner's only entry point.
+ * `window.__deviceCalibration` — the rig tuner's only entry point.
  *
  * ⚑ Every method is a **command**, not a query over a live scene: `sample()`
  * renders one frame and reads it back in the same task. That ordering is not
@@ -163,7 +163,7 @@ type ProbeApi = {
 
 declare global {
   interface Window {
-    __w4?: ProbeApi
+    __deviceCalibration?: ProbeApi
   }
 }
 
@@ -305,9 +305,9 @@ function LuminanceProbe() {
         }
       },
     }
-    window.__w4 = api
+    window.__deviceCalibration = api
     return () => {
-      delete window.__w4
+      delete window.__deviceCalibration
     }
   }, [sample, scene])
 
