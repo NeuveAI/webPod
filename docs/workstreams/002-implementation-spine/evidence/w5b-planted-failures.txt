@@ -43,7 +43,7 @@ Running 1 test using 1 worker
 
   1 failed
     apps/web/tests/browser-gates.e2e.ts:123:0 › U1 captures a light/dark pair for every required screen state
-(node:28796) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:38678) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 ── U2: RED AS REQUIRED (exit 1)
@@ -90,7 +90,7 @@ Running 1 test using 1 worker
 
   1 failed
     apps/web/tests/browser-gates.e2e.ts:142:0 › U2 greyscale preserves the human actor and non-colour selection channel
-(node:28827) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:38776) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 ── U3: RED AS REQUIRED (exit 1)
@@ -137,7 +137,7 @@ Running 1 test using 1 worker
 
   1 failed
     apps/web/tests/browser-gates.e2e.ts:158:0 › U3 reduced motion removes authored animation and transition
-(node:28855) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:38805) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 ── U4: RED AS REQUIRED (exit 1)
@@ -175,7 +175,7 @@ Running 1 test using 1 worker
 
   1 failed
     apps/web/tests/browser-gates.e2e.ts:170:0 › U4 reduced transparency removes bloom, shadow and title translucency
-(node:29236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:39189) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 ── U5: RED AS REQUIRED (exit 1)
@@ -222,7 +222,7 @@ Running 1 test using 1 worker
 
   1 failed
     apps/web/tests/browser-gates.e2e.ts:182:0 › U5 increased contrast resolves to black/white foundations
-(node:29246) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:39199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 ── U6: RED AS REQUIRED (exit 1)
@@ -260,7 +260,7 @@ Running 1 test using 1 worker
 
   1 failed
     apps/web/tests/browser-gates.e2e.ts:195:0 › U6 axe is clean and every native action is at least 44×44
-(node:29282) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:39244) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 ── U7: RED AS REQUIRED (exit 1)
@@ -440,7 +440,7 @@ Running 1 test using 1 worker
 
   1 failed
     apps/web/tests/browser-gates.e2e.ts:218:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
-(node:29313) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:39273) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 ── U11: RED AS REQUIRED (exit 1)
@@ -491,7 +491,7 @@ Running 1 test using 1 worker
 
   1 failed
     apps/web/tests/browser-gates.e2e.ts:237:0 › U11 200% Dynamic Type has no clipped or truncated visible text
-(node:29336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:39296) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 ── U12: RED AS REQUIRED (exit 1)
@@ -544,7 +544,7 @@ Running 1 test using 1 worker
 
   1 failed
     apps/web/tests/browser-gates.e2e.ts:259:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
-(node:29351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:39318) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 ── U13: RED AS REQUIRED (exit 1)
@@ -583,5 +583,5 @@ Running 1 test using 1 worker
 
   1 failed
     apps/web/tests/browser-gates.e2e.ts:299:0 › U13 a 30-detent browser flick publishes exactly one live announcement
-(node:29372) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:39339) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
