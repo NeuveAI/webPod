@@ -4,9 +4,8 @@
  * THROWAWAY SPIKE. The shipping implementation is an Effect service in
  * `packages/server-core` (D-017 §2: the private key is server-side only and
  * must never reach the client). This file exists so S2's probes can run and
- * so that service can be lifted from it later; see
- * `docs/workstreams/002-implementation-spine/decisions/s2.md` for what changes
- * on the way to `packages/server-core`.
+ * so that service can be lifted from it later. The shipping service must retain
+ * the credential boundaries below when it moves to `packages/server-core`.
  *
  * Credential law (D-017), enforced in code below:
  *   1. The key path comes from an env var. Never hardcoded, never defaulted to
