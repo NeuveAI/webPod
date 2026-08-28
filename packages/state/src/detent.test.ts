@@ -807,3 +807,146 @@ describe('accelerated says what multiplier cannot', () => {
     expect(outcomes.at(-1)?.multiplier).toBe(DETENT.rowsFaster)
   })
 })
+
+describe('D-060 — the coast is the same gesture at any refresh rate', () => {
+  /**
+   * Coasts one identical release to a standstill at `fps` and reports what the
+   * human would be able to count.
+   */
+  function coastAt(fps: number): {
+    detents: number
+    rows: number
+    degrees: number
+    frames: number
+  } {
+    const stepMs = 20
+    const releaseSpeed = 1000
+    const { accumulator } = replay(
+      Array.from({ length: 6 }, (_, i) => ({
+        path: 'touch-arc' as const,
+        source: 'human' as const,
+        angleDeg: (releaseSpeed * stepMs) / 1000,
+        timestampMs: (i + 1) * stepMs,
+      })),
+    )
+
+    let coasting = endGesture(accumulator)
+    let detents = 0
+    let rows = 0
+    let frames = 0
+
+    while (coasting.coasting && frames < 100_000) {
+      const outcome = coastStep(coasting, 1 / fps)
+      detents += Math.abs(outcome.detents)
+      rows += Math.abs(outcome.rowDelta)
+      coasting = outcome.accumulator
+      frames += 1
+    }
+
+    return { detents, rows, degrees: detents * DETENT.arcDegPerDetent, frames }
+  }
+
+  test('one flick lands on the same row at 30, 60 and 120fps — exactly', () => {
+    // ⚑ This test is the requirement; the decay constant is one implementation
+    // of it. The bug it exists against: decaying velocity once per *call*
+    // while scaling distance per *second* made the same flick travel 4× as far
+    // at 30fps as at 120fps — 32 detents against 8. A ProMotion phone dropping
+    // to a lower refresh rate under Low Power Mode would then land an
+    // identical gesture on a different row, which breaks 001's counting model
+    // on hardware rather than on input. The human cannot see their refresh
+    // rate, so it must not be able to move them.
+    const at30 = coastAt(30)
+    const at60 = coastAt(60)
+    const at120 = coastAt(120)
+
+    expect(at30.detents).toBe(at60.detents)
+    expect(at120.detents).toBe(at60.detents)
+    expect(at30.degrees).toBe(at60.degrees)
+    expect(at120.degrees).toBe(at60.degrees)
+    expect(at30.rows).toBe(at60.rows)
+    expect(at120.rows).toBe(at60.rows)
+
+    // And it really did coast — an invariance that holds because nothing moves
+    // would be no invariance at all.
+    expect(at60.detents).toBeGreaterThan(5)
+    expect(at60.rows).toBeGreaterThan(at60.detents)
+  })
+
+  test('and at every rate from a stuttering 15fps to a 240Hz display', () => {
+    const reference = coastAt(60)
+    for (const fps of [15, 24, 30, 45, 50, 60, 75, 90, 100, 120, 144, 165, 200, 240]) {
+      const measured = coastAt(fps)
+      expect({ fps, ...measured, frames: 0 }).toEqual({
+        fps,
+        detents: reference.detents,
+        rows: reference.rows,
+        degrees: reference.degrees,
+        frames: 0,
+      })
+    }
+  })
+
+  test('the frame COUNT still scales with the rate, which is the tell', () => {
+    // If frames-to-rest were also constant, the decay would be counting frames
+    // again and the invariance above would be an accident. More frames at a
+    // higher rate, same distance, is what "time-based" looks like.
+    expect(coastAt(120).frames).toBeGreaterThan(coastAt(60).frames)
+    expect(coastAt(60).frames).toBeGreaterThan(coastAt(30).frames)
+  })
+
+  test('a variable-rate display travels the same distance as a steady one', () => {
+    // ProMotion does not hand you a fixed interval. Frames of wildly different
+    // lengths, summing to the same elapsed time, must produce the same result.
+    const stepMs = 20
+    const { accumulator } = replay(
+      Array.from({ length: 6 }, (_, i) => ({
+        path: 'touch-arc' as const,
+        source: 'human' as const,
+        angleDeg: 20,
+        timestampMs: (i + 1) * stepMs,
+      })),
+    )
+
+    let jittery = endGesture(accumulator)
+    let jitteryDetents = 0
+    let i = 0
+    const intervals = [1 / 120, 1 / 24, 1 / 60, 1 / 240, 1 / 30, 1 / 90]
+    while (jittery.coasting && i < 100_000) {
+      const outcome = coastStep(jittery, intervals[i % intervals.length] ?? 1 / 60)
+      jitteryDetents += Math.abs(outcome.detents)
+      jittery = outcome.accumulator
+      i += 1
+    }
+
+    let steady = endGesture(accumulator)
+    let steadyDetents = 0
+    while (steady.coasting) {
+      const outcome = coastStep(steady, 1 / 60)
+      steadyDetents += Math.abs(outcome.detents)
+      steady = outcome.accumulator
+    }
+
+    expect(jitteryDetents).toBe(steadyDetents)
+  })
+
+  test('at 60fps the decay is still exactly the transcribed 0.94', () => {
+    // The normalisation must not have moved the authored value. design-system
+    // §9.4: "ω *= 0.940 at 60fps (normalised to ω *= 0.940^(dt/16.67ms))".
+    const released = endGesture(
+      replay(
+        Array.from({ length: 6 }, (_, i) => ({
+          path: 'touch-arc' as const,
+          source: 'human' as const,
+          angleDeg: 20,
+          timestampMs: (i + 1) * 20,
+        })),
+      ).accumulator,
+    )
+
+    const after = coastStep(released, 1 / 60)
+    expect(after.accumulator.speedDegPerSec).toBeCloseTo(
+      released.speedDegPerSec * DETENT.coastDecayPerFrame,
+      9,
+    )
+  })
+})

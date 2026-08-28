@@ -452,18 +452,50 @@ export const DETENT = {
    */
   hapticSuppressAbovePerSec: 12,
   /**
-   * Angular velocity retained per frame once the finger leaves (001 §4.4).
+   * Angular velocity retained per frame once the finger leaves.
    *
-   * The wheel does not stop when the thumb does. 0.94 per frame is roughly a
-   * 300ms fall to a third of the release speed at 60Hz — long enough to read
-   * as momentum, short enough not to feel out of control.
+   * The wheel does not stop when the thumb does. 0.94 per frame gives a ~1.1s
+   * glide from a hard flick — long enough to read as a flywheel, short enough
+   * not to feel out of control.
+   *
+   * ⚑ **Per frame *at 60fps*, and the design system says so in the same
+   * breath.** design-system §9.4: *"angular velocity ω decays per frame:
+   * `ω *= 0.940` at 60fps (normalised to `ω *= 0.940^(dt/16.67ms)`)"*. The
+   * normalisation is not an interpretation of an under-specified constant —
+   * it is written into the source, and an earlier version of this reducer
+   * decayed per *call* while scaling distance per *second*, which made the
+   * same flick travel four times as far at 30fps as at 120fps. On a product
+   * whose accessibility case is that movement is countable, that is the
+   * counting model breaking on hardware rather than on input: a ProMotion
+   * phone dropping to a lower refresh rate under Low Power Mode would land the
+   * same gesture on a different row.
+   *
+   * Consumed only through {@link DETENT.coastReferenceFps}. Nothing should
+   * multiply by this constant once per call.
    */
   coastDecayPerFrame: 0.94,
+  /**
+   * The frame rate {@link DETENT.coastDecayPerFrame} was authored at
+   * (design-system §9.4, and D-060).
+   *
+   * Turns a per-frame decay into a per-second one:
+   * `0.94 ** (elapsedSeconds * 60)`. Every display then sees the same physics,
+   * and 60fps still sees exactly 0.94.
+   */
+  coastReferenceFps: 60,
   /**
    * Angular speed below which a coast is over, in deg/s (001 §4.4).
    *
    * A floor rather than a decay to zero: 0.94^n never reaches zero, and a
    * wheel that keeps almost-moving forever is worse than one that stops.
+   *
+   * ⚑ **Two primaries disagree on this number and the disagreement is
+   * unresolved.** pm-spec §4.4 says *"until |ω| < 60°/s"*; design-system §9.4
+   * says *"stop when |ω| < 0.35 °/frame (≈21 °/s)"*. 60 is transcribed here
+   * because the dispatch names §4.4's table as the engineering contract for
+   * the four input paths, and because every other number in this block comes
+   * from it — mixing one §9.4 value into a §4.4 model would be less coherent
+   * than either source alone. Raised for a ruling; see `decisions/w2.md`.
    */
   coastFloorDegPerSec: 60,
 } as const

@@ -35,6 +35,16 @@ import type {
 } from './contract'
 import { actorFor, feedbackFor } from './silence'
 
+/**
+ * The coast's decay rate, as a continuous per-second exponent.
+ *
+ * `λ` such that `e^(−λt)` equals `0.94^(t × 60)`. Precomputed because it is
+ * the denominator of every frame's distance integral, and recomputing a
+ * logarithm sixty times a second to get a constant is silly.
+ */
+const COAST_DECAY_PER_SEC: number =
+  -Math.log(DETENT.coastDecayPerFrame) * DETENT.coastReferenceFps
+
 /** The row multipliers acceleration is allowed to choose between (001 §4.4). */
 const MULTIPLIERS: readonly number[] = [DETENT.rowsSlow, DETENT.rowsFast, DETENT.rowsFaster]
 
@@ -350,8 +360,29 @@ export const coastStep: CoastStepFn = (accumulator, frameSeconds) => {
     } satisfies DetentOutcome
   }
 
-  const speedDegPerSec = accumulator.speedDegPerSec * DETENT.coastDecayPerFrame
-  const travelDeg = speedDegPerSec * frameSeconds * accumulator.direction
+  // ⚑ Time-based decay, per design-system §9.4 and D-060. The constant is
+  // authored per frame at 60fps; raising it to `elapsed × 60` is the source's
+  // own normalisation. Decaying once per *call* while scaling distance per
+  // *second* — which is what this used to do — makes the wheel a function of
+  // the display: 4× further at 30fps than at 120fps, on the same flick.
+  const decay = DETENT.coastDecayPerFrame ** (frameSeconds * DETENT.coastReferenceFps)
+
+  // ⚑ The coast ends when the speed reaches the floor, not at whichever frame
+  // boundary happens to come next. Without this clamp a long frame carries the
+  // wheel past the stopping point and fires detents a shorter frame never
+  // would, which puts the display back into the count at the one place the
+  // exact-decay maths above cannot reach.
+  const speedDegPerSec = Math.max(
+    accumulator.speedDegPerSec * decay,
+    DETENT.coastFloorDegPerSec,
+  )
+
+  // Distance is the exact integral of that decay across the frame, not
+  // `speed × frameSeconds`. A rectangle under an exponential curve is
+  // frame-rate dependent by construction, which is the same bug in a smaller
+  // costume; the closed form is not.
+  const travelDeg =
+    ((accumulator.speedDegPerSec - speedDegPerSec) / COAST_DECAY_PER_SEC) * accumulator.direction
 
   const drained = drainDetents(
     accumulator.residualDeg + travelDeg,
@@ -363,30 +394,44 @@ export const coastStep: CoastStepFn = (accumulator, frameSeconds) => {
   // The multiplier keeps coasting at the speed the hand left it at, decaying
   // with the velocity. A flick that was moving 7 rows per detent does not
   // become a 1-row crawl the instant the thumb lifts; it slows down.
-  let recent = accumulator.recentMultipliers
-  for (let i = 0; i < Math.abs(drained.detents); i += 1) {
-    recent = pushMultiplier(recent, rawMultiplier(path, speedDegPerSec))
+  // ⚑ Each detent is scored at the speed the wheel was doing **when it fired**,
+  // and that speed is exact rather than interpolated. Under exponential decay
+  // `dv/dt = −λv` and `ds/dt = v`, so `dv/ds = −λ` and therefore
+  // `v = v₀ − λ·s`: the speed after travelling a distance depends only on the
+  // distance, never on how many frames it took. That is what makes the row
+  // count frame-rate invariant and not merely approximately so.
+  //
+  // Not smoothed, either. The smoothing window exists because a hand's speed
+  // jitters, and a multiplier that jumped mid-flick would be uncontrollable
+  // exactly when the human can least correct for it. A coast has no hand: its
+  // velocity decays monotonically, so the multiplier can only step down and
+  // there is nothing to smooth. Using the window here would put the display
+  // back into the row count one level below the distance, because the window's
+  // contents would depend on how many detents landed in one frame.
+  const fired = Math.abs(drained.detents)
+  const carriedDeg = Math.abs(accumulator.residualDeg)
+  let rowDelta = 0
+  let multiplier = smoothMultiplier(accumulator.recentMultipliers)
+  for (let i = 0; i < fired; i += 1) {
+    const travelledDeg = (i + 1) * DETENT.arcDegPerDetent - carriedDeg
+    const speedAtDetent = accumulator.speedDegPerSec - COAST_DECAY_PER_SEC * travelledDeg
+    multiplier = rawMultiplier(path, speedAtDetent)
+    rowDelta += multiplier
   }
-  const multiplier =
-    drained.detents === 0 ? smoothMultiplier(accumulator.recentMultipliers) : smoothMultiplier(recent)
+  rowDelta *= accumulator.direction
 
-  const stillCoasting = speedDegPerSec >= DETENT.coastFloorDegPerSec
+  const stillCoasting = speedDegPerSec > DETENT.coastFloorDegPerSec
   const detentsPerSecond =
     drained.detents === 0 || frameSeconds <= 0 ? 0 : Math.abs(drained.detents) / frameSeconds
 
   const next: DetentAccumulator = stillCoasting
-    ? {
-        ...accumulator,
-        speedDegPerSec,
-        residualDeg: drained.residual,
-        recentMultipliers: recent,
-      }
+    ? { ...accumulator, speedDegPerSec, residualDeg: drained.residual }
     : IDLE_DETENT_ACCUMULATOR
 
   return {
     accumulator: next,
     detents: drained.detents,
-    rowDelta: drained.detents * multiplier,
+    rowDelta,
     multiplier,
     accelerated: multiplier > DETENT.rowsSlow,
     detentsPerSecond,
