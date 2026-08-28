@@ -121,6 +121,13 @@ export class InvalidLocalKeyError extends ProviderError {
  *
  * A requested-but-absent relationship therefore gets this error, and an
  * empty-but-present relationship gets an empty array. Never collapse the two.
+ *
+ * ⚑ `nameIsMeasured` is not decoration. For a relationship name we have
+ * *measured* live, absence means exactly one thing: the request was not
+ * honoured. For a name we have only from Apple's documentation — the surface
+ * D-029 proved is not a reliable index of what exists — absence has two
+ * candidate causes, and a message that names only the first would send a
+ * reader hunting a request bug when the name itself may be wrong.
  */
 export class RelationshipNotHonouredError extends ProviderError {
   override readonly _tag = 'RelationshipNotHonoured' as const
@@ -130,11 +137,23 @@ export class RelationshipNotHonouredError extends ProviderError {
     readonly relationship: string,
     /** The resource id the request was made against, where known. */
     readonly resourceId: string | null,
+    /**
+     * Whether this name has been observed to exist against the live API.
+     *
+     * `false` for a documentation-only name, which widens the diagnosis.
+     */
+    readonly nameIsMeasured: boolean,
   ) {
     super(
       `relationship "${relationship}" was requested but is absent from the response` +
         (resourceId === null ? '' : ` for ${resourceId}`) +
-        ' — the request was not honoured; do not read this as "no data"',
+        (nameIsMeasured
+          ? ' — the request was not honoured; do not read this as "no data"'
+          : ' — either the request was not honoured, or "' +
+            relationship +
+            '" is not a real relationship: this name comes from Apple\'s documentation and has ' +
+            'never been measured. Do not read this as "no data". Settle it with a relationship-path ' +
+            'GET and classifyRelationshipResponse — 40008 means the name is wrong'),
     )
   }
 }
