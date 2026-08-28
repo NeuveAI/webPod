@@ -10,6 +10,31 @@ value exists — once reverted to the pm-spec figure it supersedes, once nudged
 the way a value drifts under maintenance. Sources restored byte-for-byte from a
 backup outside `src/` between runs.
 
+D-064 edit precondition, rerun after the final W2 review
+--------------------------------------------------------
+
+Each plant below was replayed in an isolated copy of the current package. The
+runner first hashed the unmodified file, applied the mutation, required a
+different hash, and grepped the exact mutated line before starting Bun. A
+same-hash mutation aborts without running tests. This closes the old artifact's
+missing proof that the edit itself landed.
+
+| Plant | Before SHA-256 | After SHA-256 | Exact proof | Result |
+|---|---|---|---|---|
+| 1a multipliers 3/7 | `9d157db0…106f5` | `8dc6e73e…5b741` | `rowsFast: 3`, `rowsFaster: 7` | 175 pass / **6 fail** |
+| 1b thresholds 240/540 | `9d157db0…106f5` | `79c6dc81…1b33` | thresholds `240`, `540` | 176 pass / **5 fail** |
+| 2a precondition removed | `9d157db0…106f5` | `684de5a0…ae95` | `fastScrollMinRows: 0` | 177 pass / **4 fail** |
+| 2b precondition off by one | `9d157db0…106f5` | `d43f2bab…3df1` | `fastScrollMinRows: 41` | 179 pass / **2 fail** |
+| 3 clamp unreachable | `9d157db0…106f5` | `2ad8fe4c…aed2` | `maxAngularSpeedDegPerSec: 144000` | 177 pass / **4 fail** |
+| 4a hysteresis removed | `9d157db0…106f5` | `ec3ea6d5…36b3` | `reversalHysteresisDeg: 0` | 177 pass / **4 fail** |
+| 4b hysteresis every detent | `6d6cd957…c6db` | `f6ac5497…3f05` | `const reversing = direction !== 0` | 177 pass / **4 fail** |
+| 5a floor 60 | `9d157db0…106f5` | `db3451a6…ee53` | `coastFloorDegPerSec: 60` | 173 pass / **8 fail** |
+| 5b floor 20 | `9d157db0…106f5` | `b4fa3591…363f` | `coastFloorDegPerSec: 20` | 173 pass / **8 fail** |
+
+The unmodified current package immediately before this replay was 181 pass,
+0 fail. The replay changed only the isolated copy; the working package was
+never mutated.
+
 Baseline: 181 pass, 0 fail.
 
 ── 1a. Multipliers reverted to pm-spec §4.4's x1/x3/x7

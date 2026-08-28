@@ -49,18 +49,18 @@ and the coast floor to 21 deg/s. The invariance is unaffected by either; the row
 and detent totals differ from the pre-D-063 run because a 1000 deg/s release now
 decays below the x4 tier quickly, so most of the glide is at x1.
 
- 15fps →  16 detents    74 rows    12 frames  240.0 deg
- 24fps →  16 detents    74 rows    19 frames  240.0 deg
- 30fps →  16 detents    74 rows    23 frames  240.0 deg
- 45fps →  16 detents    74 rows    35 frames  240.0 deg
- 60fps →  16 detents    74 rows    46 frames  240.0 deg
- 75fps →  16 detents    74 rows    57 frames  240.0 deg
- 90fps →  16 detents    74 rows    69 frames  240.0 deg
-100fps →  16 detents    74 rows    76 frames  240.0 deg
-120fps →  16 detents    74 rows    91 frames  240.0 deg
-144fps →  16 detents    74 rows   110 frames  240.0 deg
-165fps →  16 detents    74 rows   126 frames  240.0 deg
-240fps →  16 detents    74 rows   182 frames  240.0 deg
+ 15fps →  17 detents    32 rows    16 frames  255.0 deg
+ 24fps →  17 detents    32 rows    25 frames  255.0 deg
+ 30fps →  17 detents    32 rows    32 frames  255.0 deg
+ 45fps →  17 detents    32 rows    47 frames  255.0 deg
+ 60fps →  17 detents    32 rows    63 frames  255.0 deg
+ 75fps →  17 detents    32 rows    79 frames  255.0 deg
+ 90fps →  17 detents    32 rows    94 frames  255.0 deg
+100fps →  17 detents    32 rows   105 frames  255.0 deg
+120fps →  17 detents    32 rows   125 frames  255.0 deg
+144fps →  17 detents    32 rows   150 frames  255.0 deg
+165fps →  17 detents    32 rows   172 frames  255.0 deg
+240fps →  17 detents    32 rows   250 frames  255.0 deg
 
 Exact — not "within a tolerance". Detents, rows and degrees are identical from
 a stuttering 15fps to a 240Hz display. The frame count still scales with the
@@ -77,7 +77,7 @@ exit: 0
 
 Per-test listing (rendered from the same run's --reporter=junit output):
   [pass] a fast arc accelerates, and the multiplier is smoothed rather than jumping
-  [pass] the coast fires detents, decays, and comes to rest below 60 deg/s
+  [pass] the coast fires detents, decays, and comes to rest below 21 deg/s
   [pass] a coast travels in the direction the gesture was going
   [pass] EVERY coasted detent still clicks — 001 §4.4 says so explicitly
   [pass] an agent’s coast is silent, like everything else an agent does

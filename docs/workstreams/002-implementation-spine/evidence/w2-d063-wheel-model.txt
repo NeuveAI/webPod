@@ -27,9 +27,9 @@ always", which §9.4 does not cover and which nothing here touches. A gate
 asserts the keyboard is untouched by the hysteresis for exactly that reason.
 
 ⚑ Deferred, not ruled: the haptic conflict (§4.4 "suppressed above 12/sec"
-versus §9.4 "only every 3rd vibrates"). §4.4 defers to §9.4's own haptics
-specialist §4.9, which has not been read, and haptics are out of scope in this
-stage. Neither behaviour is implemented; the seam is left.
+versus §9.4 "only every 3rd vibrates"). Haptics are out of scope in this
+stage. Neither behaviour is implemented: W2 reports every candidate human-touch
+pulse and leaves high-rate policy to the future actuator layer.
 
 ── The frame-rate invariance from D-060 survives all five changes
 
@@ -68,7 +68,7 @@ Per-test listing (rendered from the same run's --reporter=junit output):
   [pass] the reducer cannot be handed a page size at all
   [pass] literally 350 (001 §4.4, gate U13)
   [pass] the auto-repeat window is literally 250ms
-  [pass] haptics stop above 12 detents per second (001 §4.9)
+  [pass] D-063 leaves no high-rate haptic policy in the wheel constants
   [pass] the coast decays at 0.94 per frame and stops below 21 deg/s (§9.4)
   [pass] acceleration is 1, 4 and 12 rows per detent (design-system §9.4)
   [pass] the fast-scroll thresholds are 720 and 1080 deg/s (design-system §9.4)

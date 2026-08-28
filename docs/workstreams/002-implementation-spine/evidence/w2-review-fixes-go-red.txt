@@ -1,6 +1,11 @@
 W2 review response — every fix goes RED when reverted
 ======================================================
 
+Historical evidence from before D-063. References to the superseded 60 deg/s
+floor below describe the mutation run at that revision, not the current wheel
+contract. Current D-063 evidence is in `w2-d063-wheel-model.txt` and
+`w2-d063-go-red.txt`.
+
 The review's own method, turned on the review's own findings: a fix is a fix
 only if reverting it turns a test red. Each mutation below restores exactly the
 behaviour the reviewer measured, in a copy of the tree; sources are restored
