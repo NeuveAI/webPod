@@ -39,7 +39,7 @@ import {
   visibleRowCountAtom,
 } from './contract'
 import type { PanelRow, ScreenFrame } from './contract'
-import { detent } from './detent'
+import { coastStep, detent, endGesture } from './detent'
 import {
   createDeviceStore,
   detentActionAtom,
@@ -586,5 +586,85 @@ describe('D-063 — fast-scroll needs a long list, not just a fast thumb', () =>
       multiplier = outcome.multiplier
     }
     expect(multiplier).toBe(1)
+  })
+})
+
+describe('D-063 — angular velocity is clamped at 1440 deg/s', () => {
+  test('the ceiling is literally 1440 (design-system §9.4)', () => {
+    // Four revolutions a second. pm-spec §4.4 sets no ceiling at all.
+    expect(DETENT.maxAngularSpeedDegPerSec).toBe(1440)
+  })
+
+  test('an absurd spin is recorded at the ceiling, not above it', () => {
+    // 3600 degrees in 10ms is 360,000 deg/s — a thousand revolutions a second,
+    // which a trackpad fling or a synthetic event can genuinely produce.
+    const first = detent(
+      IDLE_DETENT_ACCUMULATOR,
+      { path: 'touch-arc', source: 'human', angleDeg: 18, timestampMs: 0 },
+      VISIBLE_ROWS.medium,
+      { totalRows: 500 },
+    )
+    const spun = detent(
+      first.accumulator,
+      { path: 'touch-arc', source: 'human', angleDeg: 3600, timestampMs: 10 },
+      VISIBLE_ROWS.medium,
+      { totalRows: 500 },
+    )
+
+    expect(spun.accumulator.speedDegPerSec).toBe(1440)
+  })
+
+  test('the clamp bounds the coast too, so a fling cannot glide forever', () => {
+    // The velocity the coast starts from is the clamped one, so the longest
+    // possible glide is bounded rather than proportional to how hard the
+    // event said the thumb moved.
+    let accumulator = IDLE_DETENT_ACCUMULATOR
+    for (let i = 0; i < 4; i += 1) {
+      accumulator = detent(
+        accumulator,
+        {
+          path: 'touch-arc',
+          source: 'human',
+          angleDeg: 3600,
+          timestampMs: (i + 1) * 10,
+        },
+        VISIBLE_ROWS.medium,
+        { totalRows: 500 },
+      ).accumulator
+    }
+
+    let coasting = endGesture(accumulator)
+    expect(coasting.speedDegPerSec).toBe(1440)
+
+    let detents = 0
+    let frames = 0
+    while (coasting.coasting && frames < 10_000) {
+      const outcome = coastStep(coasting, 1 / 60, { totalRows: 500 })
+      detents += Math.abs(outcome.detents)
+      coasting = outcome.accumulator
+      frames += 1
+    }
+
+    // Bounded, and bounded by the ceiling rather than by the input: the total
+    // travel is (1440 - 21) / λ degrees, which is under one and a half
+    // revolutions of the wheel.
+    expect(detents).toBeLessThan(40)
+    expect(detents).toBeGreaterThan(0)
+  })
+
+  test('ordinary speeds are untouched by the clamp', () => {
+    const outcome = detent(
+      detent(
+        IDLE_DETENT_ACCUMULATOR,
+        { path: 'touch-arc', source: 'human', angleDeg: 18, timestampMs: 0 },
+        VISIBLE_ROWS.medium,
+        { totalRows: 500 },
+      ).accumulator,
+      { path: 'touch-arc', source: 'human', angleDeg: 18, timestampMs: 20 },
+      VISIBLE_ROWS.medium,
+      { totalRows: 500 },
+    )
+
+    expect(outcome.accumulator.speedDegPerSec).toBe(900)
   })
 })

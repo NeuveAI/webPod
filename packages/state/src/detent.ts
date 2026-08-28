@@ -217,8 +217,12 @@ export const detent: DetentFn = (accumulator, input, viewportRows, screen) => {
   } else {
     const elapsedSec =
       base.lastEventMs === null ? 0 : (input.timestampMs - base.lastEventMs) / 1000
-    const speedDegPerSec =
-      elapsedSec > 0 ? Math.abs(input.angleDeg) / elapsedSec : base.speedDegPerSec
+    // ⚑ Clamped (design-system §9.4). An unbounded ω makes the list unreadable
+    // and blows the tick-audio budget; pm-spec §4.4 sets no ceiling at all.
+    const speedDegPerSec = Math.min(
+      elapsedSec > 0 ? Math.abs(input.angleDeg) / elapsedSec : base.speedDegPerSec,
+      DETENT.maxAngularSpeedDegPerSec,
+    )
 
     const drained = drainDetents(
       base.residualDeg + input.angleDeg,

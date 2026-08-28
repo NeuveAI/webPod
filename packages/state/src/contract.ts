@@ -467,6 +467,18 @@ export const DETENT = {
    */
   fastScrollMinRows: 40,
   /**
+   * Ceiling on angular velocity, in deg/s (design-system §9.4).
+   *
+   * 1440°/s is four revolutions a second. ⚑ pm-spec §4.4 has **no upper bound
+   * at all**, and without one a hard spin on a trackpad or a flung thumb
+   * produces an unbounded ω: at ×12 rows per detent and 24 detents per
+   * revolution, the list scrolls faster than it can be read and the tick
+   * stream exceeds the audio budget §9.4 sets for it. The clamp is on the
+   * velocity rather than on the detent rate, so it bounds the acceleration
+   * tier and the coast length together.
+   */
+  maxAngularSpeedDegPerSec: 1440,
+  /**
    * Above this detent rate the `selection` haptic stops firing (001 §4.9).
    *
    * A fast flick would otherwise mean a continuous buzz, which reads as a
