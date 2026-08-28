@@ -16,6 +16,7 @@
     "@webpod/composite": "workspace:*",
     "@webpod/device": "workspace:*",
     "@webpod/panel": "workspace:*",
+    "@webpod/server-core": "workspace:*",
     "@webpod/tokens": "workspace:*",
     "@webpod/ui": "workspace:*",
     "react": "^19.2.8",

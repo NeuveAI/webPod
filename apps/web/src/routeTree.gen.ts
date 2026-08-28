@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ArtworkRouteImport } from './routes/artwork'
 import { Route as ProbeCapabilitiesRouteImport } from './routes/_probe.capabilities'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArtworkRoute = ArtworkRouteImport.update({
+  id: '/artwork',
+  path: '/artwork',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProbeCapabilitiesRoute = ProbeCapabilitiesRouteImport.update({
@@ -25,27 +31,31 @@ const ProbeCapabilitiesRoute = ProbeCapabilitiesRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/artwork': typeof ArtworkRoute
   '/capabilities': typeof ProbeCapabilitiesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/artwork': typeof ArtworkRoute
   '/capabilities': typeof ProbeCapabilitiesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/artwork': typeof ArtworkRoute
   '/_probe/capabilities': typeof ProbeCapabilitiesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/capabilities'
+  fullPaths: '/' | '/artwork' | '/capabilities'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/capabilities'
-  id: '__root__' | '/' | '/_probe/capabilities'
+  to: '/' | '/artwork' | '/capabilities'
+  id: '__root__' | '/' | '/artwork' | '/_probe/capabilities'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ArtworkRoute: typeof ArtworkRoute
   ProbeCapabilitiesRoute: typeof ProbeCapabilitiesRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/artwork': {
+      id: '/artwork'
+      path: '/artwork'
+      fullPath: '/artwork'
+      preLoaderRoute: typeof ArtworkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_probe/capabilities': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ArtworkRoute: ArtworkRoute,
   ProbeCapabilitiesRoute: ProbeCapabilitiesRoute,
 }
 export const routeTree = rootRouteImport
