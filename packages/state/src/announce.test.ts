@@ -459,16 +459,39 @@ describe('the pure announcer', () => {
 })
 
 describe('the driver — the one timer in the package', () => {
+  /**
+   * Waits until `settled()` is true, or gives up after a generous deadline.
+   *
+   * ⚑ Polling rather than a fixed `Bun.sleep(350 + margin)`. These two tests
+   * are the only ones in the package on a real clock and a real timer, and a
+   * fixed sleep asserts that the OS scheduled a timer within a chosen margin —
+   * which is a claim about the machine, not about this code. Under enough load
+   * that claim fails, and a gate that goes red when the CI box is busy teaches
+   * people to re-run it rather than to read it. The deadline is long enough
+   * that exceeding it means the timer never fired at all, which is the thing
+   * actually worth failing on.
+   */
+  async function waitFor(settled: () => boolean, deadlineMs = 5_000): Promise<void> {
+    const startedAt = Date.now()
+    while (!settled() && Date.now() - startedAt < deadlineMs) {
+      await Bun.sleep(5)
+    }
+  }
+
   test('a flick holds one timeout and speaks once when it stops', async () => {
     const store = createDeviceStore()
     store.set(pushScreenActionAtom, songFrame(200))
 
     let armed = 0
     let cleared = 0
+    let fired = 0
     const stop = startAnnouncer(store, {
       setTimer: (callback, ms) => {
         armed += 1
-        return setTimeout(callback, ms)
+        return setTimeout(() => {
+          fired += 1
+          callback()
+        }, ms)
       },
       clearTimer: (handle) => {
         cleared += 1
@@ -492,13 +515,26 @@ describe('the driver — the one timer in the package', () => {
       })
     }
 
-    await Bun.sleep(ANNOUNCE_DEBOUNCE_MS + 120)
+    await waitFor(() => spoken > 0)
+    // A further quiet period, to catch a second announcement arriving late —
+    // "exactly one" is the claim, and one-so-far is not it.
+    await Bun.sleep(ANNOUNCE_DEBOUNCE_MS)
     stop()
     unsubscribe()
 
     expect(spoken).toBe(1)
-    // One timeout in flight at a time: every re-arm cancelled the previous.
-    expect(armed - cleared).toBeLessThanOrEqual(1)
+
+    // One timeout in flight at a time. ⚑ A fired timer counts: it is neither
+    // outstanding nor cleared, so `armed - cleared` alone is not the number in
+    // flight. An earlier version asserted that and went red under load —
+    // correctly reporting a difference of 2, because a timer that fires a
+    // fraction early re-arms rather than dropping the announcement, which is
+    // exactly the behaviour the round-1 Minor 3 fix added. The driver was
+    // right and the assertion was wrong.
+    expect(armed - cleared - fired).toBeLessThanOrEqual(1)
+
+    // And an early fire must not have spoken twice on the way through.
+    expect(fired).toBeGreaterThanOrEqual(1)
   })
 
   test('stopping the driver cancels the settling announcement', async () => {
@@ -514,7 +550,10 @@ describe('the driver — the one timer in the package', () => {
     })
     stop()
 
-    await Bun.sleep(ANNOUNCE_DEBOUNCE_MS + 120)
+    // Nothing to poll for here — the assertion is that nothing happens — so
+    // this one waits a fixed, generous multiple of the debounce. A timer that
+    // was going to fire has had four windows in which to do it.
+    await Bun.sleep(ANNOUNCE_DEBOUNCE_MS * 4)
     expect(store.get(liveRegionAtom)).toBeNull()
   })
 })
