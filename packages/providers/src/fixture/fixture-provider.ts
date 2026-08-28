@@ -65,6 +65,15 @@ export const FIXTURE_FULL_SUPPORT: CapabilityMatrix = Object.fromEntries(
 /** How many items a library page holds. Small enough that paging is exercised. */
 const PAGE_SIZE = 25
 
+/** Search result order before a page is regrouped for {@link SearchResults}. */
+const SEARCH_KIND_ORDER: readonly SearchQuery['kinds'][number][] = [
+  'track',
+  'album',
+  'artist',
+  'playlist',
+  'station',
+]
+
 /** Options for {@link createFixtureProvider}. */
 export interface FixtureProviderOptions {
   /**
@@ -185,7 +194,10 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
    * membership (§14.3 row 23); the two share no store and no code path.
    */
   const libraryTrackKeys = new Set<LocalKey>(catalog.tracks.map((t) => t.key))
+  const libraryAlbumKeys = new Set<LocalKey>(catalog.albums.map((a) => a.key))
+  const libraryPlaylistKeys = new Set<LocalKey>(catalog.playlists.map((p) => p.key))
   const playlists: PlaylistRef[] = [...catalog.playlists]
+  const catalogPlaylistKeys = new Set<LocalKey>(catalog.playlists.map((p) => p.key))
   // No cast: `tracksByPlaylist` is `LocalKeyed`, so its keys arrive branded.
   // The `as LocalKey` that used to sit here was the package laundering a raw
   // string past its own type in the one place the type mattered.
@@ -320,6 +332,52 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
     return normaliseForMatch(haystack).includes(normaliseForMatch(needle))
   }
 
+  function replacePlaylistRef(key: LocalKey, trackCount: number): void {
+    const index = playlists.findIndex((playlist) => playlist.key === key)
+    const current = playlists[index]
+    if (index < 0 || current === undefined) return
+    playlists[index] = { ...current, trackCount }
+  }
+
+  function libraryArtistKeys(): ReadonlySet<LocalKey> {
+    const names = new Set<string>()
+    for (const track of catalog.tracks) {
+      if (libraryTrackKeys.has(track.key)) names.add(track.artistName)
+    }
+    for (const album of catalog.albums) {
+      if (libraryAlbumKeys.has(album.key)) names.add(album.artistName)
+    }
+    return new Set(catalog.artists.filter((artist) => names.has(artist.name)).map((artist) => artist.key))
+  }
+
+  function searchSource(scope: SearchQuery['scope'], kind: SearchQuery['kinds'][number]): readonly Entity[] {
+    if (scope === 'catalog') {
+      if (kind === 'track') return catalog.tracks
+      if (kind === 'album') return catalog.albums
+      if (kind === 'artist') return catalog.artists
+      if (kind === 'playlist') return playlists.filter((playlist) => catalogPlaylistKeys.has(playlist.key))
+      return catalog.stations
+    }
+
+    if (kind === 'track') return catalog.tracks.filter((track) => libraryTrackKeys.has(track.key))
+    if (kind === 'album') return catalog.albums.filter((album) => libraryAlbumKeys.has(album.key))
+    if (kind === 'artist') {
+      const keys = libraryArtistKeys()
+      return catalog.artists.filter((artist) => keys.has(artist.key))
+    }
+    if (kind === 'playlist') return playlists.filter((playlist) => libraryPlaylistKeys.has(playlist.key))
+    // The provider contract has no station-library slice, so claiming a
+    // station is in the user's library would invent membership we cannot read.
+    return []
+  }
+
+  function matchesEntity(entity: Entity, term: string): boolean {
+    if (entity.kind === 'track' || entity.kind === 'album') {
+      return matches(entity.title, term) || matches(entity.artistName, term)
+    }
+    return matches(entity.name, term)
+  }
+
   const provider: FixtureProvider = {
     id: 'fixture',
     displayName,
@@ -379,23 +437,35 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       }
     },
 
-    /** Substring match over the catalogue, normalised the way §14.5 normalises. */
+    /**
+     * Searches the requested scope and returns one deterministic cross-kind page.
+     *
+     * The cursor is an offset into track → album → artist → playlist → station
+     * order. Results are regrouped after slicing, so `limit` caps the whole
+     * response rather than multiplying by the number of requested kinds.
+     */
     async search(q: SearchQuery): Promise<SearchResults> {
       requireCapability('search')
       requireSession('search')
-      const limit = q.limit ?? 10
-      const wants = (kind: SearchQuery['kinds'][number]): boolean => q.kinds.includes(kind)
+      const limit = Math.max(1, Math.min(25, Math.trunc(q.limit ?? 10)))
+      const matchesByKind = SEARCH_KIND_ORDER.flatMap((kind) =>
+        q.kinds.includes(kind) ? searchSource(q.scope, kind).filter((entity) => matchesEntity(entity, q.term)) : [],
+      )
+      let from = 0
+      if (q.cursor !== undefined) {
+        if (!/^\d+$/.test(q.cursor)) throw new InvalidCursorError('fixture', q.cursor)
+        from = Number(q.cursor)
+        if (from > matchesByKind.length) throw new InvalidCursorError('fixture', q.cursor)
+      }
+      const page = matchesByKind.slice(from, from + limit)
+      const end = from + page.length
       return {
-        tracks: wants('track')
-          ? catalog.tracks.filter((t) => matches(t.title, q.term) || matches(t.artistName, q.term)).slice(0, limit)
-          : [],
-        albums: wants('album')
-          ? catalog.albums.filter((a) => matches(a.title, q.term) || matches(a.artistName, q.term)).slice(0, limit)
-          : [],
-        artists: wants('artist') ? catalog.artists.filter((a) => matches(a.name, q.term)).slice(0, limit) : [],
-        playlists: wants('playlist') ? playlists.filter((p) => matches(p.name, q.term)).slice(0, limit) : [],
-        stations: wants('station') ? catalog.stations.filter((s) => matches(s.name, q.term)).slice(0, limit) : [],
-        next: null,
+        tracks: page.filter((entity): entity is TrackRef => entity.kind === 'track'),
+        albums: page.filter((entity): entity is AlbumRef => entity.kind === 'album'),
+        artists: page.filter((entity) => entity.kind === 'artist'),
+        playlists: page.filter((entity): entity is PlaylistRef => entity.kind === 'playlist'),
+        stations: page.filter((entity): entity is StationRef => entity.kind === 'station'),
+        next: end < matchesByKind.length ? String(end) : null,
       }
     },
 
@@ -405,11 +475,11 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       requireSession('libraryList')
       const source: readonly Entity[] =
         kind === 'playlists'
-          ? playlists
+          ? playlists.filter((playlist) => libraryPlaylistKeys.has(playlist.key))
           : kind === 'artists'
             ? catalog.artists
             : kind === 'albums'
-              ? catalog.albums
+            ? catalog.albums.filter((album) => libraryAlbumKeys.has(album.key))
               : kind === 'songs'
                 ? catalog.tracks.filter((t) => libraryTrackKeys.has(t.key))
                 : kind === 'genres'
@@ -423,7 +493,11 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       requireCapability('libraryAdd')
       requireSession('libraryAdd')
       if (ref.kind === 'track') libraryTrackKeys.add(ref.key)
-      if (ref.kind === 'album') for (const t of catalog.tracksByAlbum.get(ref.key) ?? []) libraryTrackKeys.add(t.key)
+      if (ref.kind === 'album') libraryAlbumKeys.add(ref.key)
+      if (ref.kind === 'playlist') {
+        if (!playlists.some((playlist) => playlist.key === ref.key)) playlists.push(ref)
+        libraryPlaylistKeys.add(ref.key)
+      }
     },
 
     /** ⚑ Gated: `libraryRemove` is `false` on Apple, so this path is Spotify-only there. */
@@ -431,11 +505,8 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       requireCapability('libraryRemove')
       requireSession('libraryRemove')
       if (ref.kind === 'track') libraryTrackKeys.delete(ref.key)
-      if (ref.kind === 'album') for (const t of catalog.tracksByAlbum.get(ref.key) ?? []) libraryTrackKeys.delete(t.key)
-      if (ref.kind === 'playlist') {
-        const index = playlists.findIndex((p) => p.key === ref.key)
-        if (index >= 0) playlists.splice(index, 1)
-      }
+      if (ref.kind === 'album') libraryAlbumKeys.delete(ref.key)
+      if (ref.kind === 'playlist') libraryPlaylistKeys.delete(ref.key)
     },
 
     /** Creates a playlist and returns the ref the caller should hold. */
@@ -455,6 +526,7 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
         editable: true,
       }
       playlists.push(ref)
+      libraryPlaylistKeys.add(key)
       playlistTracks.set(key, [...tracks])
       return ref
     },
@@ -464,7 +536,9 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       requireCapability('playlistAddTracks')
       requireSession('playlistAddTracks')
       const existing = playlistTracks.get(id.key) ?? []
-      playlistTracks.set(id.key, [...existing, ...tracks])
+      const next = [...existing, ...tracks]
+      playlistTracks.set(id.key, next)
+      replacePlaylistRef(id.key, next.length)
     },
 
     /** ⚑ `false` on Apple (D-015, D-029) — the highest-risk row in §14.3. */
@@ -473,10 +547,9 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       requireSession('playlistRemoveTracks')
       const drop = new Set(positions)
       const existing = playlistTracks.get(id.key) ?? []
-      playlistTracks.set(
-        id.key,
-        existing.filter((_track, index) => !drop.has(index)),
-      )
+      const next = existing.filter((_track, index) => !drop.has(index))
+      playlistTracks.set(id.key, next)
+      replacePlaylistRef(id.key, next.length)
     },
 
     /** ⚑ `false` on Apple — no positional write exists at any level. */

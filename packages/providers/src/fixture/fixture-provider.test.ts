@@ -353,6 +353,143 @@ describe('the fixture provider — behaviour', () => {
     expect(results.tracks.map((t) => t.title)).toContain("Don't Stop")
   })
 
+  test('library search excludes a removed track while catalogue search still finds it', async () => {
+    const provider = createFixtureProvider()
+    const track = provider.catalog.tracks[0]
+    if (track === undefined) throw new Error('empty fixture catalogue')
+
+    await provider.libraryRemove(track)
+    const query = { term: track.title, kinds: ['track'] as const }
+    const library = await provider.search({ ...query, scope: 'library' })
+    const catalog = await provider.search({ ...query, scope: 'catalog' })
+
+    expect(library.tracks.some((candidate) => candidate.key === track.key)).toBe(false)
+    expect(catalog.tracks.some((candidate) => candidate.key === track.key)).toBe(true)
+  })
+
+  test('search cursor advances through all matches without repeating the first page', async () => {
+    const provider = createFixtureProvider()
+    const first = await provider.search({ term: '', scope: 'catalog', kinds: ['track'], limit: 10 })
+    expect(first.tracks).toHaveLength(10)
+    expect(first.next).toBe('10')
+
+    const second = await provider.search({
+      term: '',
+      scope: 'catalog',
+      kinds: ['track'],
+      limit: 10,
+      cursor: first.next ?? undefined,
+    })
+    expect(second.tracks).toHaveLength(10)
+    expect(second.tracks[0]?.key).not.toBe(first.tracks[0]?.key)
+    expect(new Set([...first.tracks, ...second.tracks].map((track) => track.key)).size).toBe(20)
+    expect(second.next).toBe('20')
+  })
+
+  test('search limit caps the whole grouped result rather than every requested kind', async () => {
+    const provider = createFixtureProvider()
+    const result = await provider.search({
+      term: '',
+      scope: 'catalog',
+      kinds: ['track', 'album', 'artist', 'playlist', 'station'],
+      limit: 10,
+    })
+    const count =
+      result.tracks.length +
+      result.albums.length +
+      result.artists.length +
+      result.playlists.length +
+      result.stations.length
+    expect(count).toBe(10)
+    expect(result.next).toBe('10')
+  })
+
+  test.each(['not-a-cursor', '-1', '1e2', '99999'])(
+    'search refuses malformed or unissued cursor %p',
+    async (cursor) => {
+      const provider = createFixtureProvider()
+      let thrown: unknown = null
+      await provider
+        .search({ term: '', scope: 'catalog', kinds: ['track'], cursor })
+        .catch((error: unknown) => {
+          thrown = error
+        })
+      expect(thrown).toBeInstanceOf(InvalidCursorError)
+    },
+  )
+
+  test('album membership changes the album slice and never the songs slice', async () => {
+    const provider = createFixtureProvider()
+    const album = provider.catalog.albums[0]
+    if (album === undefined) throw new Error('empty fixture catalogue')
+    const songsBefore = (await provider.libraryList('songs')).total
+    const albumsBefore = (await provider.libraryList('albums')).total
+
+    await provider.libraryRemove(album)
+    expect((await provider.libraryList('albums')).total).toBe((albumsBefore ?? 0) - 1)
+    expect((await provider.libraryList('songs')).total).toBe(songsBefore)
+
+    await provider.libraryAdd(album)
+    expect((await provider.libraryList('albums')).total).toBe(albumsBefore)
+    expect((await provider.libraryList('songs')).total).toBe(songsBefore)
+  })
+
+  test('playlist membership changes the playlist slice and is idempotent', async () => {
+    const provider = createFixtureProvider()
+    const playlist = provider.catalog.playlists[0]
+    if (playlist === undefined) throw new Error('empty fixture catalogue')
+    const before = (await provider.libraryList('playlists')).total
+
+    await provider.libraryRemove(playlist)
+    expect((await provider.libraryList('playlists')).total).toBe((before ?? 0) - 1)
+    await provider.libraryAdd(playlist)
+    await provider.libraryAdd(playlist)
+    expect((await provider.libraryList('playlists')).total).toBe(before)
+  })
+
+  test('album and playlist membership drive library-scoped search', async () => {
+    const provider = createFixtureProvider()
+    const album = provider.catalog.albums[0]
+    const playlist = provider.catalog.playlists[0]
+    if (album === undefined || playlist === undefined) throw new Error('empty fixture catalogue')
+
+    await provider.libraryRemove(album)
+    await provider.libraryRemove(playlist)
+    const albums = await provider.search({ term: album.title, scope: 'library', kinds: ['album'] })
+    const playlists = await provider.search({ term: playlist.name, scope: 'library', kinds: ['playlist'] })
+    expect(albums.albums.some((candidate) => candidate.key === album.key)).toBe(false)
+    expect(playlists.playlists.some((candidate) => candidate.key === playlist.key)).toBe(false)
+
+    await provider.libraryAdd(album)
+    await provider.libraryAdd(playlist)
+    const restoredAlbums = await provider.search({ term: album.title, scope: 'library', kinds: ['album'] })
+    const restoredPlaylists = await provider.search({ term: playlist.name, scope: 'library', kinds: ['playlist'] })
+    expect(restoredAlbums.albums.some((candidate) => candidate.key === album.key)).toBe(true)
+    expect(restoredPlaylists.playlists.some((candidate) => candidate.key === playlist.key)).toBe(true)
+  })
+
+  test('playlist writes publish the updated trackCount on subsequent reads', async () => {
+    const provider = createFixtureProvider()
+    const playlist = provider.catalog.playlists[0]
+    const track = provider.catalog.tracks[0]
+    if (playlist === undefined || track === undefined) throw new Error('empty fixture catalogue')
+
+    await provider.playlistAddTracks(playlist, [track])
+    const afterAdd = await provider.libraryList('playlists')
+    const added = afterAdd.items.find((candidate) => candidate.key === playlist.key)
+    expect(added?.kind).toBe('playlist')
+    expect(added?.kind === 'playlist' ? added.trackCount : null).toBe(playlist.trackCount + 1)
+
+    await provider.play({ kind: 'playlist', playlist })
+    const queueAfterAdd = await provider.queueRead()
+    expect(1 + queueAfterAdd.next.length).toBe(playlist.trackCount + 1)
+
+    await provider.playlistRemoveTracks(playlist, [0, 1])
+    const afterRemove = await provider.libraryList('playlists')
+    const removed = afterRemove.items.find((candidate) => candidate.key === playlist.key)
+    expect(removed?.kind === 'playlist' ? removed.trackCount : null).toBe(playlist.trackCount - 1)
+  })
+
   test('an empty catalogue is a supported state, for §11.6', async () => {
     const empty = createFixtureProvider({
       catalog: {
