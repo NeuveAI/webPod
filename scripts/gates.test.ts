@@ -220,7 +220,7 @@ describe('W5a same-review adversarial mutations', () => {
 
   test('FLIP catches an error event callback', async () => {
     const root = await fixture()
-    await plant(root, 'apps/web/src/event.ts', 'addEventListener("error", () => flipDevice())\n')
+    await plant(root, 'apps/web/src/event.ts', 'window.addEventListener("error", () => flipDevice())\n')
     failed(await runStaticGates({ root }), 'FLIP')
   })
 

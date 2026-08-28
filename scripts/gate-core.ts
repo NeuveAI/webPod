@@ -407,8 +407,11 @@ function errorContext(node: ts.CallExpression, source: ts.SourceFile): string | 
         if (name === 'then' && index === 1) return 'promise rejection handler'
         const event = parent.arguments[0]
         const handler: ts.Expression | undefined = parent.arguments[1]
+        const isEventListener = ts.isIdentifier(parent.expression)
+          ? parent.expression.text === 'addEventListener'
+          : ts.isPropertyAccessExpression(parent.expression) && parent.expression.name.text === 'addEventListener'
         if (event !== undefined && ts.isStringLiteralLike(event) && /error|failure|failed/iu.test(event.text)
-          && handler === current && ts.isIdentifier(parent.expression) && parent.expression.text === 'addEventListener') return `event ${event.text} handler`
+          && handler === current && isEventListener) return `event ${event.text} handler`
       }
     }
   }
