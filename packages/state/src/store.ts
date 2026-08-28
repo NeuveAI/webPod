@@ -1,0 +1,227 @@
+/**
+ * The store, and the actions that write to it.
+ *
+ * ⚑ The property this module exists to guarantee: **every piece of device
+ * state is readable, writable and subscribable from outside React.** The store
+ * is a plain object with `get`, `set` and `sub`; the atoms are module-level
+ * values; nothing here needs a component, a provider or a render to work.
+ *
+ * That is a capability requirement rather than a preference. Tool callbacks
+ * run outside the React tree and have to reach the same state the UI renders.
+ * State living in a component closure is unreachable from one — not
+ * inconvenient, unreachable — which is why `useState` is banned repo-wide with
+ * no exception for "local" or "trivial" state. A collapsed section held in a
+ * closure is a collapsed section no tool can ever open.
+ *
+ * The React binding, when it exists, is a `Provider` handed this same store.
+ * React reads it; it does not own it.
+ *
+ * Actions are write-only atoms rather than exported functions taking a store,
+ * so that a caller cannot accidentally read from one store and write to
+ * another, and so that a sequence of writes lands as one notification.
+ */
+
+import { atom, createStore } from 'jotai/vanilla'
+
+import {
+  IDLE_DETENT_ACCUMULATOR,
+  bumpAtom,
+  densityAtom,
+  detentAccumulatorAtom,
+  screenStackAtom,
+  visibleRowCountAtom,
+} from './contract'
+import type {
+  Actor,
+  BumpDirection,
+  BumpEvent,
+  DeviceStore,
+  PressInput,
+  PressOutcome,
+  ScreenFrame,
+} from './contract'
+import { MENU_ROOT, menuFrame } from './menu'
+import { moveHighlight, pageHighlight, popScreen, pushScreen } from './screen'
+
+/**
+ * Publishes a bump, stamping it with a monotonic sequence number.
+ *
+ * The sequence number is what makes two identical bumps two distinct values.
+ * Without it a subscriber that rubber-bands rightward twice in a row would see
+ * no change on the second one and play nothing, and the human would conclude
+ * the second press was swallowed.
+ */
+const publishBumpAtom = atom(
+  null,
+  (get, set, direction: BumpDirection, at: number): BumpEvent => {
+    const previous = get(bumpAtom)
+    const event: BumpEvent = { direction, seq: (previous?.seq ?? 0) + 1, at }
+    set(bumpAtom, event)
+    return event
+  },
+)
+
+/**
+ * Moves the highlight on the current screen by a signed number of rows.
+ *
+ * Takes rows rather than detents: the detent reducer has already applied any
+ * acceleration, and this atom must behave identically whether the rows came
+ * from a flick, a keypress or a tool call.
+ *
+ * @returns The bump that was published, or `null` if the movement landed.
+ */
+export const moveHighlightActionAtom = atom(
+  null,
+  (get, set, rowDelta: number, at: number): BumpEvent | null => {
+    const transition = moveHighlight(get(screenStackAtom), rowDelta, get(visibleRowCountAtom))
+    set(screenStackAtom, transition.stack)
+    return transition.bump === null ? null : set(publishBumpAtom, transition.bump, at)
+  },
+)
+
+/** Pushes a screen. The outgoing frame keeps its highlight and its window. */
+export const pushScreenActionAtom = atom(null, (get, set, frame: ScreenFrame): void => {
+  set(screenStackAtom, pushScreen(get(screenStackAtom), frame).stack)
+})
+
+/**
+ * Pops one level, or bumps at the root.
+ *
+ * @returns The root bump, or `null` when a level was actually popped.
+ */
+export const popScreenActionAtom = atom(null, (get, set, at: number): BumpEvent | null => {
+  const transition = popScreen(get(screenStackAtom))
+  set(screenStackAtom, transition.stack)
+  return transition.bump === null ? null : set(publishBumpAtom, transition.bump, at)
+})
+
+/**
+ * Replaces the entire stack — the `Menu`-held jump to the main menu, and a
+ * navigation tool asking for a screen by id.
+ */
+export const resetStackActionAtom = atom(
+  null,
+  (_get, set, frames: readonly ScreenFrame[]): void => {
+    set(
+      screenStackAtom,
+      frames.reduce<readonly ScreenFrame[]>(
+        (stack, frame) => pushScreen(stack, frame).stack,
+        [],
+      ),
+    )
+  },
+)
+
+/**
+ * Derives the provenance tag for a press.
+ *
+ * A press has no input path to distinguish a thumb from a mouse, so a human
+ * press is tagged as touch — the device's primary input. As with the detent
+ * reducer, the tag is derived here and never accepted from the caller.
+ */
+function pressActor(input: PressInput): Actor {
+  if (input.source === 'system') return 'system'
+  if (input.source === 'agent') return `agent:${input.agentOrigin ?? 'unknown'}`
+  return 'human:touch'
+}
+
+/**
+ * Applies a button press to the screen stack.
+ *
+ * `Menu` ascends, or bumps at the root. `⏭` and `⏮` page by one viewport —
+ * paging, deliberately, and not selecting, so that "only Center commits"
+ * survives the transport buttons doing something on a list.
+ *
+ * ⚑ `Center` returns `handled: false` and changes nothing. This is a boundary,
+ * not a gap: the machine owns the stack, and the layer holding the data owns
+ * what a row points at. A row on the main menu descends into a known screen; a
+ * row on an album is a track and descending means playing it. Guessing here
+ * would put half the navigation model in the wrong module. The caller reads
+ * `handled` and pushes the frame it knows how to build.
+ *
+ * The silence rule applies to the clicker on a press exactly as it does to a
+ * detent: an agent's press is visible and silent.
+ */
+export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOutcome => {
+  const actor = pressActor(input)
+  const silenced = input.source !== 'human'
+
+  let bump: BumpDirection | null = null
+  let handled = true
+
+  if (input.button === 'menu') {
+    const transition = popScreen(get(screenStackAtom))
+    set(screenStackAtom, transition.stack)
+    bump = transition.bump
+  } else if (input.button === 'next' || input.button === 'previous') {
+    const transition = pageHighlight(
+      get(screenStackAtom),
+      input.button === 'next' ? 1 : -1,
+      get(visibleRowCountAtom),
+    )
+    set(screenStackAtom, transition.stack)
+    bump = transition.bump
+  } else {
+    handled = false
+  }
+
+  if (bump !== null) set(publishBumpAtom, bump, input.timestampMs)
+
+  return {
+    button: input.button,
+    stack: get(screenStackAtom),
+    bump,
+    handled,
+    actor,
+    silenced,
+    clickerTicks: silenced ? 0 : 1,
+  }
+})
+
+/** Options for {@link createDeviceStore}. */
+export type CreateDeviceStoreOptions = {
+  /**
+   * The stack to start on. Defaults to the main menu at the default density.
+   *
+   * The default is not a convenience: 001 §15.1 requires the main menu's rows
+   * to render on the first frame and never to be blocked on a network call, so
+   * the store is born with them.
+   */
+  readonly initialStack?: readonly ScreenFrame[]
+}
+
+/**
+ * Creates an isolated device store.
+ *
+ * Each call returns a store with its own state, so a test never sees another
+ * test's screen stack. The application uses the {@link deviceStore} singleton;
+ * this factory exists for tests and for any surface that needs a second,
+ * genuinely separate device.
+ */
+export function createDeviceStore(options: CreateDeviceStoreOptions = {}): DeviceStore {
+  const store = createStore()
+  const initial = options.initialStack ?? [menuFrame(MENU_ROOT, store.get(densityAtom))]
+  store.set(screenStackAtom, initial)
+  return store
+}
+
+/**
+ * The application's device store.
+ *
+ * A module singleton on purpose. A tool callback registered at module scope and
+ * a React tree mounted later must address the *same* device; a store created
+ * inside a component would give them one each, and the tool would move a screen
+ * nobody is looking at.
+ */
+export const deviceStore: DeviceStore = createDeviceStore()
+
+/**
+ * Resets a store's transient input state.
+ *
+ * Only the gesture accumulator: a half-finished flick is not a fact worth
+ * keeping across a teardown, whereas the screen stack, the density and the
+ * device state all are.
+ */
+export function resetInputState(store: DeviceStore): void {
+  store.set(detentAccumulatorAtom, IDLE_DETENT_ACCUMULATOR)
+}

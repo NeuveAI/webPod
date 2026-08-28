@@ -34,8 +34,8 @@
  * acted most recently", and nothing more.
  */
 
-import type { Atom, PrimitiveAtom, WritableAtom } from 'jotai'
-import { atom } from 'jotai'
+import type { Atom, PrimitiveAtom, WritableAtom } from 'jotai/vanilla'
+import { atom } from 'jotai/vanilla'
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Actors
@@ -703,12 +703,17 @@ export type MenuNode = {
 export type ScreenTransition = {
   readonly stack: readonly ScreenFrame[]
   /**
-   * The bump to play, or `null`.
+   * The direction to rubber-band in, or `null` when the movement landed
+   * somewhere.
    *
-   * ⚑ `Menu` at the root of the front face always produces a bump and is never
-   * a no-op.
+   * ⚑ `Menu` at the root always produces a bump and is never a no-op.
+   *
+   * A direction rather than a {@link BumpEvent}: the machine is pure, so it
+   * has neither a clock nor a counter. The store stamps `seq` and `at` when it
+   * publishes the bump, which is also the only place that can guarantee `seq`
+   * is monotonic.
    */
-  readonly bump: BumpEvent | null
+  readonly bump: BumpDirection | null
 }
 
 /**
@@ -726,7 +731,6 @@ export type MoveHighlightFn = (
   stack: readonly ScreenFrame[],
   rowDelta: number,
   visibleRows: number,
-  at: number,
 ) => ScreenTransition
 
 /** Pushes a screen. The outgoing frame keeps its highlight and its window. */
@@ -742,10 +746,43 @@ export type PushScreenFn = (
  * bump. Below the root the previous frame is restored **exactly** — same
  * highlight, same window — because it was never dismantled.
  */
-export type PopScreenFn = (
+export type PopScreenFn = (stack: readonly ScreenFrame[]) => ScreenTransition
+
+/**
+ * Pages the highlight by one full viewport (001 §4.3).
+ *
+ * `⏭` and `⏮` on a list screen, and `Shift+Arrow` from the keyboard. Paging is
+ * deliberately **not** select: the mental model that only Center commits has
+ * to survive the fact that the transport buttons do something on a list.
+ */
+export type PageFn = (
   stack: readonly ScreenFrame[],
-  at: number,
+  direction: 1 | -1,
+  visibleRows: number,
 ) => ScreenTransition
+
+/** What a button press did. */
+export type PressOutcome = {
+  readonly button: PressButton
+  /** The stack after the press. */
+  readonly stack: readonly ScreenFrame[]
+  readonly bump: BumpDirection | null
+  /**
+   * `false` when the machine had nothing to do with this press.
+   *
+   * `Center` on a screen whose rows come from a provider is the ordinary case:
+   * the machine knows the menu hierarchy but not what is inside an album, so
+   * it declines rather than guessing, and the layer holding the data pushes
+   * the frame.
+   */
+  readonly handled: boolean
+  /** The provenance tag, derived from `source` — never supplied by the caller. */
+  readonly actor: Actor
+  /** `true` when this press produced no sound, for the reason in {@link DetentOutcome.silenced}. */
+  readonly silenced: boolean
+  /** Clicker ticks to play. `0` when silenced. */
+  readonly clickerTicks: number
+}
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Announcements
@@ -998,8 +1035,21 @@ export const currentScreenAtom: Atom<ScreenFrame | null> = atom((get) => {
   return stack.length === 0 ? null : (stack[stack.length - 1] ?? null)
 })
 
-/** How many rows fit at the current density. */
-export const visibleRowCountAtom: Atom<number> = atom((get) => VISIBLE_ROWS[get(densityAtom)])
+/**
+ * How many rows fit on screen right now.
+ *
+ * Read from the current frame rather than from {@link densityAtom}, with the
+ * device setting as the fallback before any screen is pushed. The frame's
+ * density is the *effective* one — a screen's preference, already reconciled
+ * against the device setting and against Dynamic Type — so taking the count
+ * from anywhere else would let the window size and the rendered row height
+ * disagree by one row, which is exactly the kind of off-by-one that only shows
+ * up as a row you can never scroll to.
+ */
+export const visibleRowCountAtom: Atom<number> = atom((get) => {
+  const frame = get(currentScreenAtom)
+  return VISIBLE_ROWS[frame?.density ?? get(densityAtom)]
+})
 
 /**
  * The rows actually on screen: the current frame's sticky window.
