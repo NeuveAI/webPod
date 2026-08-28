@@ -1,9 +1,10 @@
 {
+  "authority": "axe browser paint evaluation",
   "reports": [
     {
       "colourway": "dark",
       "axeViolations": [],
-      "axeIncompleteResolvedByMeasuredThresholds": [
+      "axeIncomplete": [
         {
           "id": "color-contrast",
           "impact": "serious",
@@ -387,24 +388,42 @@
           "text": "The Fray",
           "fontSize": 11,
           "fontWeight": 600,
-          "ratio": 5.087665906527305,
-          "required": 4.5
+          "ratio": 3.879960293076081,
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "header:2:gradient(2 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "strong:1",
           "text": "Now Playing",
           "fontSize": 11,
           "fontWeight": 700,
-          "ratio": 17.648784599673824,
-          "required": 4.5
+          "ratio": 13.459331789049651,
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "header:2:gradient(2 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:2",
           "text": "▰",
           "fontSize": 11,
           "fontWeight": 600,
-          "ratio": 5.087665906527305,
-          "required": 4.5
+          "ratio": 3.879960293076081,
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "header:2:gradient(2 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "h1:3",
@@ -412,7 +431,14 @@
           "fontSize": 15,
           "fontWeight": 400,
           "ratio": 17.47075620841506,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)",
+            "div:3:background-color"
+          ],
+          "unresolved": []
         },
         {
           "selector": "p:4",
@@ -420,7 +446,14 @@
           "fontSize": 17,
           "fontWeight": 600,
           "ratio": 8.62732391343397,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)",
+            "div:3:background-color"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:5",
@@ -428,7 +461,14 @@
           "fontSize": 11,
           "fontWeight": 600,
           "ratio": 7.152448836536294,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)",
+            "div:3:background-color"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:6",
@@ -436,7 +476,14 @@
           "fontSize": 11,
           "fontWeight": 500,
           "ratio": 8.62732391343397,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)",
+            "div:3:background-color"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:7",
@@ -444,7 +491,13 @@
           "fontSize": 11,
           "fontWeight": 500,
           "ratio": 8.715237028290277,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:8",
@@ -452,7 +505,13 @@
           "fontSize": 11,
           "fontWeight": 500,
           "ratio": 8.715237028290277,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:9",
@@ -460,7 +519,13 @@
           "fontSize": 14,
           "fontWeight": 400,
           "ratio": 9.077426477859351,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:10",
@@ -468,7 +533,13 @@
           "fontSize": 14,
           "fontWeight": 400,
           "ratio": 8.715237028290277,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:11",
@@ -476,7 +547,13 @@
           "fontSize": 14,
           "fontWeight": 400,
           "ratio": 7.225332857396013,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:12",
@@ -484,7 +561,13 @@
           "fontSize": 14,
           "fontWeight": 400,
           "ratio": 8.715237028290277,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:13",
@@ -492,14 +575,20 @@
           "fontSize": 14,
           "fontWeight": 400,
           "ratio": 8.715237028290277,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         }
       ]
     },
     {
       "colourway": "light",
       "axeViolations": [],
-      "axeIncompleteResolvedByMeasuredThresholds": [
+      "axeIncomplete": [
         {
           "id": "color-contrast",
           "impact": "serious",
@@ -914,24 +1003,42 @@
           "text": "The Fray",
           "fontSize": 11,
           "fontWeight": 600,
-          "ratio": 4.652438126227672,
-          "required": 4.5
+          "ratio": 3.971069477887424,
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "header:2:gradient(2 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "strong:1",
           "text": "Now Playing",
           "fontSize": 11,
           "fontWeight": 700,
-          "ratio": 16.450484354101206,
-          "required": 4.5
+          "ratio": 14.041243438954469,
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "header:2:gradient(2 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:2",
           "text": "▰",
           "fontSize": 11,
           "fontWeight": 600,
-          "ratio": 4.652438126227672,
-          "required": 4.5
+          "ratio": 3.971069477887424,
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "header:2:gradient(2 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "h1:3",
@@ -939,7 +1046,14 @@
           "fontSize": 15,
           "fontWeight": 400,
           "ratio": 16.450484354101206,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)",
+            "div:3:background-color"
+          ],
+          "unresolved": []
         },
         {
           "selector": "p:4",
@@ -947,7 +1061,14 @@
           "fontSize": 17,
           "fontWeight": 600,
           "ratio": 6.9825513612840515,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)",
+            "div:3:background-color"
+          ],
+          "unresolved": []
         },
         {
           "selector": "p:5",
@@ -955,7 +1076,14 @@
           "fontSize": 11,
           "fontWeight": 500,
           "ratio": 6.9825513612840515,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)",
+            "div:3:background-color"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:6",
@@ -963,7 +1091,14 @@
           "fontSize": 11,
           "fontWeight": 600,
           "ratio": 5.06748630300696,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)",
+            "div:3:background-color"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:7",
@@ -971,7 +1106,14 @@
           "fontSize": 11,
           "fontWeight": 500,
           "ratio": 6.9825513612840515,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)",
+            "div:3:background-color"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:8",
@@ -979,7 +1121,13 @@
           "fontSize": 11,
           "fontWeight": 500,
           "ratio": 6.9825513612840515,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:9",
@@ -987,7 +1135,13 @@
           "fontSize": 11,
           "fontWeight": 500,
           "ratio": 6.9825513612840515,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:10",
@@ -995,7 +1149,13 @@
           "fontSize": 14,
           "fontWeight": 400,
           "ratio": 5.467639765618263,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:11",
@@ -1003,7 +1163,13 @@
           "fontSize": 14,
           "fontWeight": 400,
           "ratio": 6.9825513612840515,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:12",
@@ -1011,7 +1177,13 @@
           "fontSize": 14,
           "fontWeight": 400,
           "ratio": 5.06748630300696,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:13",
@@ -1019,7 +1191,13 @@
           "fontSize": 14,
           "fontWeight": 400,
           "ratio": 6.9825513612840515,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         },
         {
           "selector": "span:14",
@@ -1027,10 +1205,41 @@
           "fontSize": 14,
           "fontWeight": 400,
           "ratio": 6.9825513612840515,
-          "required": 4.5
+          "required": 4.5,
+          "paintSources": [
+            "div:0:background-color",
+            "section:1:background-color",
+            "div:2::before:gradient(1 stops)"
+          ],
+          "unresolved": []
         }
       ]
     }
   ],
-  "failures": []
+  "advisoryMeasurements": [
+    {
+      "colourway": "dark",
+      "text": "The Fray",
+      "ratio": 3.879960293076081,
+      "required": 4.5
+    },
+    {
+      "colourway": "dark",
+      "text": "▰",
+      "ratio": 3.879960293076081,
+      "required": 4.5
+    },
+    {
+      "colourway": "light",
+      "text": "The Fray",
+      "ratio": 3.971069477887424,
+      "required": 4.5
+    },
+    {
+      "colourway": "light",
+      "text": "▰",
+      "ratio": 3.971069477887424,
+      "required": 4.5
+    }
+  ]
 }

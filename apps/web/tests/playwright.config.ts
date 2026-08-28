@@ -1,6 +1,9 @@
 import { defineConfig } from '../../../packages/panel/node_modules/@playwright/test/index.js'
 import { resolve } from 'node:path'
 
+const port = Number(process.env['W5B_PORT'] ?? '4317')
+const baseURL = `http://127.0.0.1:${String(port)}`
+
 export default defineConfig({
   testDir: import.meta.dirname,
   testMatch: '**/*.e2e.ts',
@@ -8,17 +11,17 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL,
     viewport: { width: 1440, height: 900 },
     colorScheme: 'light',
     reducedMotion: 'no-preference',
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: 'bun dev',
-    cwd: resolve(import.meta.dirname, '../../..'),
-    url: 'http://localhost:3000',
-    reuseExistingServer: true,
+    command: `bun node_modules/vite/bin/vite.js dev --host 127.0.0.1 --port ${String(port)} --strictPort`,
+    cwd: resolve(import.meta.dirname, '..'),
+    url: baseURL,
+    reuseExistingServer: false,
     timeout: 30_000,
   },
   outputDir: resolve(import.meta.dirname, 'test-results'),

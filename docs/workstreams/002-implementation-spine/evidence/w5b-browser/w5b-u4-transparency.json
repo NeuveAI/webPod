@@ -1,0 +1,36 @@
+[
+  {
+    "colourway": "dark",
+    "backdrop": [],
+    "titleStops": [
+      {
+        "value": "rgb(20, 23, 28)",
+        "alpha": 1
+      },
+      {
+        "value": "rgb(20, 23, 28)",
+        "alpha": 1
+      }
+    ],
+    "scrims": [],
+    "title0": "#14171c",
+    "title1": "#14171c"
+  },
+  {
+    "colourway": "light",
+    "backdrop": [],
+    "titleStops": [
+      {
+        "value": "rgb(253, 254, 255)",
+        "alpha": 1
+      },
+      {
+        "value": "rgb(221, 229, 238)",
+        "alpha": 1
+      }
+    ],
+    "scrims": [],
+    "title0": "#fdfeff",
+    "title1": "#dde5ee"
+  }
+]

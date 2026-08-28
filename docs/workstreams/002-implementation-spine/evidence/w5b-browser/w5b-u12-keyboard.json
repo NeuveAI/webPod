@@ -7,12 +7,22 @@
     1,
     -1
   ],
-  "rapidDetents": 20,
+  "heldRepeatDetents": 20,
+  "states": 8,
+  "colourways": [
+    "dark",
+    "light"
+  ],
   "traversal": [
     "S03",
     "S08",
     "S13",
-    "S08"
+    "S08",
+    "S03"
+  ],
+  "tabOrder": [
+    "DIV:dark",
+    "DIV:light"
   ],
   "focusVisible": true
 }

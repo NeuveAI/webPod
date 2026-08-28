@@ -38,14 +38,18 @@ mutation per automated gate. All ten filtered runs exit non-zero. The mutation
 runner checks that the edit is effective by observing the failing browser
 assertion, rather than treating process startup as proof.
 
-The final baseline is intentionally red on two product failures. Per the W5b
-guardrail, no `src` file was changed:
+After W3 fixes `1693761` and `e1f5dd2`, the fresh flag-off baseline is 10/10.
+The review response replaced every original plant with a different mutation.
+The runner now proves a clean isolated baseline first, launches every mutation
+against a fresh strict-port server, verifies the edit landed in the browser,
+and requires the named gate—not merely the process—to turn red.
 
-1. U3: the light success-confirmation animation remains
-   `wp-success-light` under `prefers-reduced-motion: reduce`; the dark
-   colourway correctly resolves to `none`.
-2. U7: light-panel secondary title text (`The Fray`) and its battery glyph
-   measure 4.3851:1 where U7 requires 4.5:1.
-
-The other eight browser gates pass. U14 and U15 are printed as manual
-outstanding on every complete runner invocation; neither is claimed clear.
+U4 now inventories every element and pseudo-element for backdrop filters,
+checks the emulated media query, bloom, shadow, opaque title-gradient stops,
+and agent scrims. U7 treats axe's browser paint evaluation as authoritative
+and supplements it with a conservative gradient/pseudo-element model that
+fails closed on unresolved paint. U11 walks clipping ancestors. U12 uses real
+Tab traversal, both colourways, the state matrix, and held-key repeat events.
+U13 keeps duplicate announcement records and covers assertive errors and busy
+loading state. U2's greyscale automation remains evidence, while visual actor
+identification is explicitly reviewer-only. U14 and U15 remain manual.
