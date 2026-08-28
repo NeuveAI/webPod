@@ -424,6 +424,13 @@ export const DETENT = {
    * uncontrollable exactly when the human is least able to correct it.
    */
   multiplierSmoothingDetents: 3,
+  /**
+   * Above this detent rate the `selection` haptic stops firing (001 §4.9).
+   *
+   * A fast flick would otherwise ask for a continuous buzz, which reads as a
+   * fault rather than as feedback, and drains the actuator.
+   */
+  hapticSuppressAbovePerSec: 12,
 } as const
 
 /**
@@ -444,6 +451,8 @@ export type DetentInput =
        */
       readonly angleDeg: number
       readonly timestampMs: number
+      /** Origin label for an agent-sourced movement. See the `direct` variant. */
+      readonly agentOrigin?: string
     }
   | {
       readonly path: 'scroll'
@@ -455,6 +464,8 @@ export type DetentInput =
       /** Viewport height in px, used only to normalise `deltaMode: 2`. */
       readonly viewportPx: number
       readonly timestampMs: number
+      /** Origin label for an agent-sourced movement. See the `direct` variant. */
+      readonly agentOrigin?: string
     }
   | {
       readonly path: 'key'
@@ -463,7 +474,17 @@ export type DetentInput =
       readonly direction: 1 | -1
       /** `true` when Shift is held: one full viewport of rows, deterministically. */
       readonly page: boolean
+      /**
+       * Rows in one viewport, for the `page` case.
+       *
+       * Supplied by the caller from {@link VISIBLE_ROWS} at the current
+       * density rather than read from the store, because the reducer is pure
+       * and has no store. Ignored unless `page` is `true`.
+       */
+      readonly pageRows: number
       readonly timestampMs: number
+      /** Origin label for an agent-sourced press. See {@link DetentInput}. */
+      readonly agentOrigin?: string
     }
   | {
       readonly path: 'direct'
@@ -471,6 +492,17 @@ export type DetentInput =
       /** A signed detent count supplied by the caller, already discretised. */
       readonly detents: number
       readonly timestampMs: number
+      /**
+       * Origin label written into {@link DetentOutcome.actor} when `source` is
+       * `"agent"`.
+       *
+       * The platform supplies no such identifier, so this is whatever the tool
+       * layer knows about its caller and nothing more; when it knows nothing,
+       * the tag reads `agent:unknown`. It exists so two agents are
+       * distinguishable in the provenance log, not to assert that either one
+       * is present.
+       */
+      readonly agentOrigin?: string
     }
 
 /**
@@ -617,6 +649,8 @@ export type PressInput = {
   readonly button: PressButton
   readonly source: DetentSource
   readonly timestampMs: number
+  /** Origin label for an agent-sourced press. See {@link DetentInput}. */
+  readonly agentOrigin?: string
 }
 
 /**
