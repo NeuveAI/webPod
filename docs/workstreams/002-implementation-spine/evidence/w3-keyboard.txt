@@ -1,0 +1,8 @@
+Browser keyboard validation
+
+S03: ArrowDown/ArrowUp move the highlighted row through deviceStore.
+S03 Enter on Albums -> S08 album tracks.
+S08 Enter -> S13 Now Playing.
+S13 Enter sequence -> volume, scrub, rate, volume.
+Backspace/Escape -> pop one screen, returning S13 -> S08 -> S03.
+Both colourways subscribe to the same singleton store and remain synchronized.

@@ -1,0 +1,19 @@
+W3 final gate run
+
+bunx tsc --noEmit -p packages/panel/tsconfig.json
+exit 0
+
+bunx tsc --noEmit -p apps/web/tsconfig.json
+exit 0
+
+bunx --bun eslint --max-warnings 0 packages/panel apps/web/src/routes/index.tsx apps/web/src/routes/__root.tsx
+exit 0, zero warnings
+
+bun test packages/panel/src
+8 pass, 0 fail, 20 expect() calls
+
+rg -n 'canvas|useFrame|useState' packages/panel
+zero matches
+
+git diff --check
+exit 0
