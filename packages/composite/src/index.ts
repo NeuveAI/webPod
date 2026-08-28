@@ -14,6 +14,20 @@ export {
   HTML_IN_CANVAS_FLAG,
 } from './capabilities'
 
+export {
+  HTML_IN_CANVAS_REQUIREMENTS,
+  type PanelPixelAttachment,
+  type PanelPixelRequirements,
+  type PanelPixelSource,
+} from './pixel-source'
+export {
+  getCompositeTierSnapshot,
+  markCompositeContextLost,
+  refreshCompositeTier,
+  subscribeCompositeTier,
+  type CompositeTierSnapshot,
+} from './tier-store'
+
 export type {
   CapabilityReport,
   EnvironmentReport,

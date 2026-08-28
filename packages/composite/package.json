@@ -7,6 +7,19 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "bun test src"
+  },
+  "dependencies": {
+    "@react-three/fiber": "9.7.0",
+    "@webpod/device": "workspace:*",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "three": "0.185.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/three": "^0.185.0"
   }
 }
