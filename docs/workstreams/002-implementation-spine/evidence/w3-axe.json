@@ -39,9 +39,15 @@
       "minInlineSize": 44,
       "minBlockSize": 44
     },
+    "hitCoverage": [
+      true,
+      true,
+      true,
+      true
+    ],
     "previewTarget": {
       "x": 392.40625,
-      "y": 498,
+      "y": 494,
       "width": 88,
       "height": 88
     }
@@ -86,9 +92,15 @@
       "minInlineSize": 44,
       "minBlockSize": 44
     },
+    "hitCoverage": [
+      true,
+      true,
+      true,
+      true
+    ],
     "previewTarget": {
       "x": 960.40625,
-      "y": 498,
+      "y": 494,
       "width": 88,
       "height": 88
     }

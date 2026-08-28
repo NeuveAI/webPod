@@ -9,7 +9,7 @@
 - Provider artwork: `w3-provider-artwork.json` records the same-origin URL, 176×176 decoded dimensions, and provider sample source for both colourways; `w3-s13-provider-{dark,light}.png` are 544×408 crops.
 - Continuous playback: `w3-keyboard.json` records 749.9ms advancement during an 800ms observation. The deterministic clock test proves two leases share one clock and only the final release clears it.
 - Active option: `w3-keyboard.json` records that the focused application's active descendant changed with keyboard navigation.
-- Target size: `w3-axe.json` records one evaluated `target-size` node per colourway, a native 44×44 layout target before preview scaling, and the separately transformed preview box. The source gate binds both authored minimum dimensions to 44px.
+- Target size: `w3-axe.json` records one evaluated `target-size` node per colourway, a native 44×44 layout target before preview scaling, successful hit testing at all four box corners, and the separately transformed preview box. The source gate binds both authored minimum dimensions to 44px.
 - D-019: package source tests reject `Downloads`, `downloaded`, `Play downloads`, and `⤓`; browser state tests assert cached-metadata-only behavior on S03/S08/S13.
 - Success: browser tests require S08's returned object key and non-zero playlist-library total, and reject a volume receipt on S08. S13 separately proves its volume mutation and receipt.
 
