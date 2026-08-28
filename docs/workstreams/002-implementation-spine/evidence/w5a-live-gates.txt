@@ -1,27 +1,27 @@
-W5a live gate evidence — second re-review
+W5a live gate evidence — final review fixes
 Date: 2026-08-29
 
-Measurement anchor:
-  HEAD 311be7ace32b3c59993a3e048cfe4549995310cd
+Measurement interval:
+  HEAD 9229208a073e7d79dcf6cb06590b65a7ca260be9
   Bun 1.4.0
-  safe dirty-content SHA-256:
-    bf6c1e8abc7a799e3691a1570b94038474804d832b3b293fc9bf3a3edeaef360
-  The safe content fingerprint was identical before and after the run. It hashes
-  dirty status metadata and regular-file bytes, skipping design.pen, cert/ and
-  symlinks before content reads.
+  safe dirty-content SHA-256 before:
+    70e26c99a9430ea14f80171a1574e2ef985a3c9f00985601f1210aea30a6a6d8
+  safe dirty-content SHA-256 after:
+    3c141ce2b947beced987e4b0216eefb13aa68910fb9edde851bd15319c488ad8
+
+The shared tree changed during the run because active foreign lanes wrote their
+owned evidence. Both content hashes use the protected-read-safe fingerprint:
+dirty regular-file bytes participate; design.pen, cert/ and symlinks are skipped
+before reads. The two hashes bound the exact live measurement honestly rather
+than claiming a stable tree that did not exist.
 
 Command:
   bun run gates
 
 Command gates:
-  FAIL TYPES — 9/11 projects clean
-    apps/web and packages/panel fail on active panel-lane edits. Reported errors
-    include missing `success`, nullable artwork/sample values, and the removed
-    `offlineDownloaded` prop.
-  FAIL LINT — active composite/panel edits
-    packages/composite/src/CompositeDevice.tsx:133 mutates a hook-returned camera
-    packages/panel/src/Panel.tsx:368 has a missing effect dependency
-  PASS TESTS — 778 pass, 0 fail, 5038 assertions across 33 files
+  PASS TYPES — 11/11 projects clean, including scripts
+  PASS LINT — repo-wide eslint clean
+  PASS TESTS — 785 pass, 0 fail, 5087 assertions across 34 files
 
 Static gates:
   PASS U8
@@ -43,10 +43,7 @@ Manual gates:
   OUTSTANDING U15 — reviewer inspection that unsupported controls are absent
 
 Final:
-  14 automated passed
-  2 automated failed
+  16 automated passed
+  0 automated failed
   2 manual outstanding
-  exit 1
-
-The two failures belong to active foreign implementation lanes. W5a did not
-edit, suppress, stage or commit those files.
+  exit 0

@@ -44,10 +44,17 @@ Second-review adversarial mutations caught:
   PASS dirty fingerprint changes for different content at the same path
   PASS dirty fingerprint does not follow a symlink target
 
+Final-review adversarial mutations caught:
+  PASS visible JSX copy exactly equal to Authorized
+  PASS visible JSX copy exactly equal to Pending
+  PASS exact executable authorization API/state tokens remain legal
+  PASS unsupported result introduced through later property assignment
+  PASS automatic flip assigned through window.onerror
+
 Result:
-  44 pass
+  48 pass
   0 fail
-  336 assertions
+  364 assertions
 
 The credential fixture uses a synthetic signature in tracked documentation. The
 assertion verifies neither source line nor payload appears in output. No path

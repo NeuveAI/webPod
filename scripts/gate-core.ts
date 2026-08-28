@@ -68,6 +68,7 @@ interface LocatedText {
   readonly path: string
   readonly line: number
   readonly text: string
+  readonly userVisible: boolean
 }
 
 const U8_PATTERN = /\b(?:allows?|allowed|allowing|den(?:y|ies|ied|ying)|permits?|permitted|permitting|permissions?|grants?|granted|granting|authori[sz](?:e|es|ed|ing|ation|ations)?|approv(?:e|es|ed|ing|al|als)|pending|blocked|asks?\s+(?:for|to)|asked\s+(?:for|to)|waiting\s+for)\b/iu
@@ -128,14 +129,14 @@ async function readGlob(root: string, glob: Glob): Promise<readonly SourceFile[]
 function authoredText(file: SourceFile, includeComments: boolean): readonly LocatedText[] {
   if (!/\.(?:[cm]?[jt]sx?|json)$/u.test(file.path)) {
     const text = includeComments ? file.text : file.text.replaceAll(/\/\*[\s\S]*?\*\//gu, '').replaceAll(/\/\/.*$/gmu, '')
-    return text.split('\n').map((line, index) => ({ path: file.path, line: index + 1, text: line }))
+    return text.split('\n').map((line, index) => ({ path: file.path, line: index + 1, text: line, userVisible: false }))
   }
 
   const source = sourceFile(file)
   const pieces: LocatedText[] = []
   const visit = (node: ts.Node): void => {
     if (ts.isStringLiteralLike(node) || ts.isJsxText(node)) {
-      pieces.push({ path: file.path, line: lineAt(source, node.getStart(source)), text: node.text })
+      pieces.push({ path: file.path, line: lineAt(source, node.getStart(source)), text: node.text, userVisible: ts.isJsxText(node) })
     }
     ts.forEachChild(node, visit)
   }
@@ -145,7 +146,7 @@ function authoredText(file: SourceFile, includeComments: boolean): readonly Loca
     const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, file.path.endsWith('x') ? ts.LanguageVariant.JSX : ts.LanguageVariant.Standard, file.text)
     for (let token = scanner.scan(); token !== ts.SyntaxKind.EndOfFileToken; token = scanner.scan()) {
       if (token === ts.SyntaxKind.SingleLineCommentTrivia || token === ts.SyntaxKind.MultiLineCommentTrivia) {
-        pieces.push({ path: file.path, line: lineAt(source, scanner.getTokenPos()), text: scanner.getTokenText() })
+        pieces.push({ path: file.path, line: lineAt(source, scanner.getTokenPos()), text: scanner.getTokenText(), userVisible: false })
       }
     }
   }
@@ -196,7 +197,7 @@ function u8Findings(files: readonly SourceFile[]): readonly string[] {
     comments: false,
     ignore: (item) => {
       const withoutRequiredState = item.text.replaceAll('permission-denied', '')
-      if (/^(?:authorize|authorized|unauthorize|unauthorized|authorization|permissions?|permission_denied|insufficient permissions|pending)$/iu.test(withoutRequiredState.trim())) return true
+      if (!item.userVisible && /^(?:authorize|authorized|unauthorize|unauthorized|authorization|permissions?|permission_denied|insufficient permissions|pending)$/iu.test(withoutRequiredState.trim())) return true
       U8_PATTERN.lastIndex = 0
       return !U8_PATTERN.test(withoutRequiredState)
     },
@@ -350,10 +351,17 @@ function toolReturnFindings(files: readonly SourceFile[]): readonly string[] {
     const source = sourceFile(file)
     const tainted = new Set<string>()
     const declarations: Array<{ readonly name: string; readonly initializer: ts.Expression }> = []
+    const propertyWrites: Array<{ readonly owner: string; readonly value: ts.Expression }> = []
     const collect = (node: ts.Node): void => {
       const name = assignedIdentifier(node)
       const initializer = assignedExpression(node)
       if (name !== undefined && initializer !== undefined) declarations.push({ name, initializer })
+      if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+        const owner = ts.isPropertyAccessExpression(node.left) || ts.isElementAccessExpression(node.left)
+          ? node.left.expression
+          : undefined
+        if (owner !== undefined && ts.isIdentifier(owner)) propertyWrites.push({ owner: owner.text, value: node.right })
+      }
       ts.forEachChild(node, collect)
     }
     collect(source)
@@ -365,6 +373,13 @@ function toolReturnFindings(files: readonly SourceFile[]): readonly string[] {
         const initializer = declaration.initializer
         if (initializer !== undefined && (containsUnsupportedLiteral(initializer) || identifiersIn(initializer).some((name) => tainted.has(name)))) {
           tainted.add(declaration.name)
+          changed = true
+        }
+      }
+      for (const write of propertyWrites) {
+        if (tainted.has(write.owner)) continue
+        if (containsUnsupportedLiteral(write.value) || identifiersIn(write.value).some((name) => tainted.has(name))) {
+          tainted.add(write.owner)
           changed = true
         }
       }
@@ -395,11 +410,19 @@ function errorContext(node: ts.CallExpression, source: ts.SourceFile): string | 
   for (let current: ts.Node | undefined = node.parent; current !== undefined; current = current.parent) {
     if (ts.isCatchClause(current)) return 'catch handler'
     if (ts.isJsxAttribute(current) && /error|failure|failed/iu.test(current.name.getText(source))) return `JSX ${current.name.getText(source)} handler`
-    if (ts.isFunctionLike(current)) {
+      if (ts.isFunctionLike(current)) {
       const parent: ts.Node = current.parent
       if (ts.isVariableDeclaration(parent) && /error|failure|failed/iu.test(parent.name.getText(source))) return `error handler ${parent.name.getText(source)}`
       if (ts.isPropertyAssignment(parent) && /error|failure|failed/iu.test(parent.name.getText(source))) return `error handler ${parent.name.getText(source)}`
       if (ts.isMethodDeclaration(current) && current.name !== undefined && /error|failure|failed/iu.test(current.name.getText(source))) return `error handler ${current.name.getText(source)}`
+      if (ts.isBinaryExpression(parent) && parent.operatorToken.kind === ts.SyntaxKind.EqualsToken && parent.right === current) {
+        const callbackName = ts.isPropertyAccessExpression(parent.left)
+          ? parent.left.name.text
+          : ts.isElementAccessExpression(parent.left) && parent.left.argumentExpression !== undefined && ts.isStringLiteralLike(parent.left.argumentExpression)
+            ? parent.left.argumentExpression.text
+            : undefined
+        if (callbackName !== undefined && /^(?:on)?(?:error|failure|failed)$/iu.test(callbackName)) return `assigned ${callbackName} handler`
+      }
       if (ts.isCallExpression(parent)) {
         const name = propertyCallName(parent)
         const index = parent.arguments.findIndex((argument) => argument === current)

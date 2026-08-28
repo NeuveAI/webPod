@@ -157,6 +157,14 @@ describe('W5a same-review adversarial mutations', () => {
     expect(gate?.status).toBe('pass')
   })
 
+  for (const copy of ['Authorized', 'Pending'] as const) {
+    test(`U8 rejects exact visible ${copy} copy`, async () => {
+      const root = await fixture()
+      await plant(root, `packages/providers/src/${copy.toLowerCase()}.tsx`, `export const Copy = () => <p>${copy}</p>\n`)
+      failed(await runStaticGates({ root }), 'U8')
+    })
+  }
+
   test('U8 catches ordinary authorization vocabulary', async () => {
     const root = await fixture()
     const text = 'export const copy = "The assistant is authorized"\n'
@@ -204,6 +212,12 @@ describe('W5a same-review adversarial mutations', () => {
     failed(await runStaticGates({ root }), 'TOOLS')
   })
 
+  test('TOOLS follows unsupported content introduced by later property assignment', async () => {
+    const root = await fixture()
+    await plant(root, 'packages/tools/src/property.ts', 'export function run() { const r = { error: "" }; r.error = "unsupported"; return r }\n')
+    failed(await runStaticGates({ root }), 'TOOLS')
+  })
+
   test('FLIP catches a JSX onError callback', async () => {
     const root = await fixture()
     const text = 'export const View = () => <Boundary onError={() => flipDevice()} />\n'
@@ -221,6 +235,12 @@ describe('W5a same-review adversarial mutations', () => {
   test('FLIP catches an error event callback', async () => {
     const root = await fixture()
     await plant(root, 'apps/web/src/event.ts', 'window.addEventListener("error", () => flipDevice())\n')
+    failed(await runStaticGates({ root }), 'FLIP')
+  })
+
+  test('FLIP catches assignment to window.onerror', async () => {
+    const root = await fixture()
+    await plant(root, 'apps/web/src/onerror.ts', 'window.onerror = () => flipDevice()\n')
     failed(await runStaticGates({ root }), 'FLIP')
   })
 

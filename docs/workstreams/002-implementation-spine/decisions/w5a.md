@@ -76,3 +76,10 @@ The evidence fingerprint hashes status metadata plus content of dirty regular
 files. It skips `design.pen`, `cert/` and symlinks before reads. Tests prove that
 different edits at one path produce different hashes and that changing an
 ignored symlink target does not affect the result.
+
+## W5a-D12 · Machine tokens are allowed by syntax context, not spelling alone
+
+Exact authorization and lifecycle tokens remain legal in executable string
+literals, but JSX text is user-visible and receives no token exemption. Tool
+taint includes later property writes to a returned object. Flip error contexts
+include callbacks assigned to browser `onerror` properties.

@@ -78,6 +78,14 @@ event callbacks are mechanically covered. The suite is now 44 tests with 336
 assertions. Dirty-tree evidence uses a safe content fingerprint rather than a
 hash of path names.
 
+## Final re-review correction
+
+The last context escapes are closed: visible JSX text equal to `Authorized` or
+`Pending` is rejected while executable API/state tokens remain legal; later
+property writes taint returned tool objects; and assignment to `window.onerror`
+is an error callback context. Each exact reviewer bypass is a confirmed-landed
+mutation. The focused suite is 48 tests with 364 assertions.
+
 ## Git discipline
 
 The original implementation was `2d65f7a`; semantic review fixes landed in
