@@ -30,32 +30,32 @@
  * against this one instead of being an arbitrary bag.
  */
 export type PhysicalSurfaceParams = {
-  readonly color: string
-  readonly roughness: number
-  readonly metalness?: number
-  readonly clearcoat?: number
-  readonly clearcoatRoughness?: number
-  readonly reflectivity?: number
-  readonly sheen?: number
-  readonly sheenColor?: string
-  readonly sheenRoughness?: number
-  readonly specularIntensity?: number
-  readonly anisotropy?: number
-  readonly anisotropyRotation?: number
-  readonly transmission?: number
-  readonly thickness?: number
-  readonly ior?: number
-  readonly opacity?: number
-  readonly transparent?: boolean
-  readonly envMapIntensity?: number
-}
+  readonly color: string;
+  readonly roughness: number;
+  readonly metalness?: number;
+  readonly clearcoat?: number;
+  readonly clearcoatRoughness?: number;
+  readonly reflectivity?: number;
+  readonly sheen?: number;
+  readonly sheenColor?: string;
+  readonly sheenRoughness?: number;
+  readonly specularIntensity?: number;
+  readonly anisotropy?: number;
+  readonly anisotropyRotation?: number;
+  readonly transmission?: number;
+  readonly thickness?: number;
+  readonly ior?: number;
+  readonly opacity?: number;
+  readonly transparent?: boolean;
+  readonly envMapIntensity?: number;
+};
 
 /** Parameters for the screen quad's `MeshBasicMaterial` (§12.3, last row). */
 export type ScreenSurfaceParams = {
-  readonly color: string
+  readonly color: string;
   /** ⚑ §12.3: `toneMapped false`. The panel is emissive; it is not lit. */
-  readonly toneMapped: boolean
-}
+  readonly toneMapped: boolean;
+};
 
 /**
  * Every surface §12.3 hands to R3F, keyed by the name §12.3 uses.
@@ -65,17 +65,17 @@ export type ScreenSurfaceParams = {
  * tuned against one colourway alone is not tuned.
  */
 export type DeviceMaterials = {
-  readonly bodyBlack: PhysicalSurfaceParams
-  readonly bodyWhite: PhysicalSurfaceParams
-  readonly steelBack: PhysicalSurfaceParams
-  readonly chromeSeam: PhysicalSurfaceParams
-  readonly wheelRingBlack: PhysicalSurfaceParams
-  readonly wheelRingWhite: PhysicalSurfaceParams
-  readonly selectBlack: PhysicalSurfaceParams
-  readonly selectWhite: PhysicalSurfaceParams
-  readonly coverGlass: PhysicalSurfaceParams
-  readonly screen: ScreenSurfaceParams
-}
+  readonly bodyBlack: PhysicalSurfaceParams;
+  readonly bodyWhite: PhysicalSurfaceParams;
+  readonly steelBack: PhysicalSurfaceParams;
+  readonly chromeSeam: PhysicalSurfaceParams;
+  readonly wheelRingBlack: PhysicalSurfaceParams;
+  readonly wheelRingWhite: PhysicalSurfaceParams;
+  readonly selectBlack: PhysicalSurfaceParams;
+  readonly selectWhite: PhysicalSurfaceParams;
+  readonly coverGlass: PhysicalSurfaceParams;
+  readonly screen: ScreenSurfaceParams;
+};
 
 /**
  * §12.3 verbatim.
@@ -104,28 +104,30 @@ export type DeviceMaterials = {
  */
 export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   bodyBlack: {
-    color: '#0C0D0F',
+    color: "#0C0D0F",
     roughness: 0.28,
     metalness: 0,
     clearcoat: 1.0,
     clearcoatRoughness: 0.06,
     reflectivity: 0.55,
-    sheen: 0.15,
-    sheenColor: '#6E4A2E',
+    // A restrained cool subsurface lift keeps the black shell neutral in both
+    // rooms; the former warm-brown sheen made it read as bronze.
+    sheen: 0.08,
+    sheenColor: "#2B313A",
     sheenRoughness: 1.0,
-    envMapIntensity: 0.085,
+    envMapIntensity: 0.09,
   },
   bodyWhite: {
-    color: '#E2E5E8',
+    color: "#E2E5E8",
     roughness: 0.34,
     metalness: 0,
     clearcoat: 1.0,
     clearcoatRoughness: 0.08,
     reflectivity: 0.5,
-    envMapIntensity: 0.11,
+    envMapIntensity: 0.0106,
   },
   steelBack: {
-    color: '#C4CBD2',
+    color: "#C4CBD2",
     metalness: 1.0,
     roughness: 0.08,
     anisotropy: 0.75,
@@ -133,13 +135,13 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     envMapIntensity: 1.0,
   },
   chromeSeam: {
-    color: '#98A1AA',
+    color: "#98A1AA",
     metalness: 1.0,
     roughness: 0.18,
     envMapIntensity: 0.16,
   },
   wheelRingBlack: {
-    color: '#23262B',
+    color: "#23262B",
     roughness: 0.42,
     metalness: 0,
     clearcoat: 0.6,
@@ -147,16 +149,16 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     envMapIntensity: 0.0063,
   },
   wheelRingWhite: {
-    color: '#E9EBED',
+    color: "#E9EBED",
     roughness: 0.42,
     metalness: 0,
     clearcoat: 0.6,
     clearcoatRoughness: 0.18,
-    envMapIntensity: 0.0181,
+    envMapIntensity: 0.012,
   },
   selectBlack: {
     // §4.5 `--select-k-2`, the plug's body value.
-    color: '#1B1E23',
+    color: "#1B1E23",
     transmission: 0.35,
     thickness: 1.2,
     ior: 1.52,
@@ -164,11 +166,11 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoat: 1.0,
     clearcoatRoughness: 0.06,
     metalness: 0,
-    envMapIntensity: 0.2081,
+    envMapIntensity: 0.1725,
   },
   selectWhite: {
     // §4.5 `--select-w-2`.
-    color: '#E4E7EA',
+    color: "#E4E7EA",
     transmission: 0.35,
     thickness: 1.2,
     ior: 1.52,
@@ -176,11 +178,11 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoat: 1.0,
     clearcoatRoughness: 0.06,
     metalness: 0,
-    envMapIntensity: 0.425,
+    envMapIntensity: 0.02,
   },
   coverGlass: {
     // §4.6's `--panel-bg` is behind the sheet; the sheet itself is colourless.
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     transmission: 0.92,
     ior: 1.52,
     thickness: 0.6,
@@ -195,7 +197,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   },
   screen: {
     // The standalone default. W6 replaces the map; see `screen-mesh.ts`.
-    color: '#0B0D11',
+    color: "#0B0D11",
     toneMapped: false,
   },
-}
+};

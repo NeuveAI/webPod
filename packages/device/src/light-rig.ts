@@ -26,73 +26,77 @@ export type KeyLightParams = {
    * Degrees the light sits toward the viewer from straight up. LAW 2: **18°**.
    * Not a free parameter.
    */
-  readonly tiltTowardViewerDeg: number
+  readonly tiltTowardViewerDeg: number;
   /** Distance from the body's face centre, in body px. */
-  readonly distance: number
+  readonly distance: number;
   /** Candela, three.js physical units — irradiance is `intensity / d²`. */
-  readonly intensity: number
-  readonly color: string
-}
+  readonly intensity: number;
+  readonly color: string;
+};
 
 export type FillLightParams = {
   /** Degrees left of the viewer's forward axis. LAW 2: lower-**left**. */
-  readonly azimuthDeg: number
+  readonly azimuthDeg: number;
   /** Degrees **below** the horizon. LAW 2: **lower**-left. */
-  readonly elevationDeg: number
-  readonly distance: number
+  readonly elevationDeg: number;
+  readonly distance: number;
   /**
    * Fraction of the key's intensity. LAW 2: **0.22**. Not a free parameter —
    * the tuner moves the key, and the fill follows it.
    */
-  readonly intensityRatio: number
+  readonly intensityRatio: number;
   /**
    * §4.2 `--poly-k-edge-lo` is `#8FB4D8 / 12%`, described in the same row as
    * "(fill light)". The fill's colour is therefore already stated by the token
    * that records its effect.
    */
-  readonly color: string
-}
+  readonly color: string;
+};
 
 export type LightRigParams = {
-  readonly key: KeyLightParams
-  readonly fill: FillLightParams
-}
+  readonly key: KeyLightParams;
+  readonly fill: FillLightParams;
+};
 
 export const DEFAULT_LIGHT_RIG: LightRigParams = {
   key: {
     tiltTowardViewerDeg: 18,
     distance: 1360,
-    intensity: 19600000,
-    color: '#FFFFFF',
+    intensity: 24000000,
+    color: "#FFFFFF",
   },
   fill: {
-    azimuthDeg: -28,
-    elevationDeg: -66,
+    azimuthDeg: -33,
+    elevationDeg: -73,
     distance: 900,
     intensityRatio: 0.22,
-    color: '#8FB4D8',
+    color: "#8FB4D8",
   },
-}
+};
 
 /** World position of the key light, body-local, +y up, +z toward the viewer. */
-export function keyLightPosition(key: KeyLightParams): [number, number, number] {
-  const tilt = (key.tiltTowardViewerDeg * Math.PI) / 180
-  return [0, Math.cos(tilt) * key.distance, Math.sin(tilt) * key.distance]
+export function keyLightPosition(
+  key: KeyLightParams,
+): [number, number, number] {
+  const tilt = (key.tiltTowardViewerDeg * Math.PI) / 180;
+  return [0, Math.cos(tilt) * key.distance, Math.sin(tilt) * key.distance];
 }
 
 /** World position of the fill light. */
-export function fillLightPosition(fill: FillLightParams): [number, number, number] {
-  const az = (fill.azimuthDeg * Math.PI) / 180
-  const el = (fill.elevationDeg * Math.PI) / 180
+export function fillLightPosition(
+  fill: FillLightParams,
+): [number, number, number] {
+  const az = (fill.azimuthDeg * Math.PI) / 180;
+  const el = (fill.elevationDeg * Math.PI) / 180;
   return [
     Math.cos(el) * Math.sin(az) * fill.distance,
     Math.sin(el) * fill.distance,
     Math.cos(el) * Math.cos(az) * fill.distance,
-  ]
+  ];
 }
 
 /** The fill's absolute intensity, derived from the key so LAW 2's 22% holds. */
 export function fillLightIntensity(rig: LightRigParams): number {
-  const scale = (rig.fill.distance / rig.key.distance) ** 2
-  return rig.key.intensity * rig.fill.intensityRatio * scale
+  const scale = (rig.fill.distance / rig.key.distance) ** 2;
+  return rig.key.intensity * rig.fill.intensityRatio * scale;
 }

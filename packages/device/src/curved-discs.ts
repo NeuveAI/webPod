@@ -32,7 +32,7 @@
  * element on the wheel", highlight top and shadow bottom — so it is **convex**,
  * and the deliberate inversion against the dish around it is what makes it pop.
  */
-import { BufferAttribute, BufferGeometry } from 'three'
+import { BufferAttribute, BufferGeometry } from "three";
 
 /**
  * An annulus displaced into a shallow spherical dish or dome.
@@ -59,55 +59,62 @@ export function curvedAnnulusGeometry(
   radialSegments = 128,
   ringSegments = 24,
 ): BufferGeometry {
-  const tilt = (edgeTiltDeg * Math.PI) / 180
-  const sag = (outerR * Math.tan(tilt)) / exponent
+  const tilt = (edgeTiltDeg * Math.PI) / 180;
+  const sag = (outerR * Math.tan(tilt)) / exponent;
 
-  const positions: Array<number> = []
-  const normals: Array<number> = []
-  const uvs: Array<number> = []
-  const indices: Array<number> = []
+  const positions: Array<number> = [];
+  const normals: Array<number> = [];
+  const uvs: Array<number> = [];
+  const indices: Array<number> = [];
 
-  const zAt = (r: number) => sag * (r / outerR) ** exponent
-  const slopeAt = (r: number) => (exponent * sag * r ** (exponent - 1)) / outerR ** exponent
+  const zAt = (r: number) => sag * (r / outerR) ** exponent;
+  const slopeAt = (r: number) =>
+    (exponent * sag * r ** (exponent - 1)) / outerR ** exponent;
 
   for (let j = 0; j <= ringSegments; j++) {
-    const r = innerR + ((outerR - innerR) * j) / ringSegments
-    const z = zAt(r)
-    const slope = slopeAt(r)
+    const r = innerR + ((outerR - innerR) * j) / ringSegments;
+    const z = zAt(r);
+    const slope = slopeAt(r);
     // Normal of a surface of revolution z = f(r): (−f'(r)·r̂ + ẑ), normalised.
-    const nr = -slope
-    const nz = 1
-    const nl = Math.hypot(nr, nz)
+    const nr = -slope;
+    const nz = 1;
+    const nl = Math.hypot(nr, nz);
     for (let i = 0; i <= radialSegments; i++) {
-      const a = (i / radialSegments) * Math.PI * 2
-      const cos = Math.cos(a)
-      const sin = Math.sin(a)
-      positions.push(r * cos, r * sin, z)
-      normals.push((nr * cos) / nl, (nr * sin) / nl, nz / nl)
+      const a = (i / radialSegments) * Math.PI * 2;
+      const cos = Math.cos(a);
+      const sin = Math.sin(a);
+      positions.push(r * cos, r * sin, z);
+      normals.push((nr * cos) / nl, (nr * sin) / nl, nz / nl);
       // Planar UVs over the disc's bounding square, so an anisotropy or
       // roughness map applied here has a stable horizontal tangent.
-      uvs.push((r * cos) / (2 * outerR) + 0.5, (r * sin) / (2 * outerR) + 0.5)
+      uvs.push((r * cos) / (2 * outerR) + 0.5, (r * sin) / (2 * outerR) + 0.5);
     }
   }
 
-  const stride = radialSegments + 1
+  const stride = radialSegments + 1;
   for (let j = 0; j < ringSegments; j++) {
     for (let i = 0; i < radialSegments; i++) {
-      const a = j * stride + i
-      const b = a + 1
-      const c = a + stride
-      const d = c + 1
-      indices.push(a, c, b, b, c, d)
+      const a = j * stride + i;
+      const b = a + 1;
+      const c = a + stride;
+      const d = c + 1;
+      indices.push(a, c, b, b, c, d);
     }
   }
 
-  const geometry = new BufferGeometry()
-  geometry.setAttribute('position', new BufferAttribute(new Float32Array(positions), 3))
-  geometry.setAttribute('normal', new BufferAttribute(new Float32Array(normals), 3))
-  geometry.setAttribute('uv', new BufferAttribute(new Float32Array(uvs), 2))
-  geometry.setIndex(indices)
-  geometry.computeBoundingSphere()
-  return geometry
+  const geometry = new BufferGeometry();
+  geometry.setAttribute(
+    "position",
+    new BufferAttribute(new Float32Array(positions), 3),
+  );
+  geometry.setAttribute(
+    "normal",
+    new BufferAttribute(new Float32Array(normals), 3),
+  );
+  geometry.setAttribute("uv", new BufferAttribute(new Float32Array(uvs), 2));
+  geometry.setIndex(indices);
+  geometry.computeBoundingSphere();
+  return geometry;
 }
 
 /**
@@ -131,5 +138,5 @@ export function domedDiscGeometry(
     exponent,
     radialSegments,
     ringSegments,
-  )
+  );
 }

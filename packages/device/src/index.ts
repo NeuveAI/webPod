@@ -15,20 +15,25 @@
  * is one set of defaults and no registry, resolver or asset-pack loader, which
  * is the other half of D-012.
  */
-export { Device, type Colourway, type DeviceFace, type DeviceProps } from './Device'
+export {
+  Device,
+  type Colourway,
+  type DeviceFace,
+  type DeviceProps,
+} from "./Device";
 export {
   DEFAULT_CAMERA_DISTANCE,
   DEFAULT_CAMERA_FOV,
   DeviceCanvas,
   type DeviceCanvasProps,
-} from './DeviceCanvas'
+} from "./DeviceCanvas";
 
 export {
   DEFAULT_DEVICE_MATERIALS,
   type DeviceMaterials,
   type PhysicalSurfaceParams,
   type ScreenSurfaceParams,
-} from './materials'
+} from "./materials";
 export {
   DEFAULT_LIGHT_RIG,
   fillLightIntensity,
@@ -37,7 +42,7 @@ export {
   type FillLightParams,
   type KeyLightParams,
   type LightRigParams,
-} from './light-rig'
+} from "./light-rig";
 export {
   createRoomEnvMap,
   DEFAULT_ENV_ROOM,
@@ -46,8 +51,8 @@ export {
   type HorizonLineParams,
   type RoomStop,
   type SkyBlobParams,
-} from './env-map'
-export { DEFAULT_DEVICE_FORM, type DeviceFormParams } from './form'
+} from "./env-map";
+export { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 
 export {
   BODY_D,
@@ -58,10 +63,20 @@ export {
   SCREEN_CORNER_R,
   SILHOUETTE_EXPONENT,
   toCanvasTopLeft,
-} from './layout'
-export { circleHole, roundedRectHole, roundedRectShape, silhouetteShape } from './shapes'
-export { curvedAnnulusGeometry, domedDiscGeometry } from './curved-discs'
-export { createBlackPolySssMap, createMicroNoiseRoughnessMap, createSteelAnisotropyMap, createWheelLabelMap } from './textures'
+} from "./layout";
+export {
+  circleHole,
+  roundedRectHole,
+  roundedRectShape,
+  silhouetteShape,
+} from "./shapes";
+export { curvedAnnulusGeometry, domedDiscGeometry } from "./curved-discs";
+export {
+  createBlackPolySssMap,
+  createMicroNoiseRoughnessMap,
+  createSteelAnisotropyMap,
+  createWheelLabelMap,
+} from "./textures";
 
 export {
   createScreenMeshHandle,
@@ -70,10 +85,19 @@ export {
   type ScreenMeshReady,
   type ScreenTransform,
   type ViewportPoint,
-} from './screen-mesh'
-export { createScreenGeometry } from './screen-geometry'
-export { createCoverGlassMaterial, patchGlassShader } from './physical-materials'
-export { createOpticalNormalMap, DEFAULT_DEVICE_OPTICAL_PROFILES, type DeviceOpticalProfiles, type OpticalProfile } from './optical-profile'
+} from "./screen-mesh";
+export { createScreenGeometry } from "./screen-geometry";
+export {
+  createCoverGlassMaterial,
+  patchGlassShader,
+} from "./physical-materials";
+export {
+  applyOpticalProfile,
+  createOpticalNormalMap,
+  DEFAULT_DEVICE_OPTICAL_PROFILES,
+  type DeviceOpticalProfiles,
+  type OpticalProfile,
+} from "./optical-profile";
 
 export {
   hexLuma255,
@@ -82,7 +106,7 @@ export {
   linearToSrgb,
   luma255,
   srgbToLinear,
-} from './colour'
+} from "./colour";
 export {
   BODY_BLACK_STOPS,
   BODY_WHITE_STOPS,
@@ -100,4 +124,4 @@ export {
   type ProbeSurface,
   type ProbeTarget,
   type TargetOptions,
-} from './luminance-probe'
+} from "./luminance-probe";

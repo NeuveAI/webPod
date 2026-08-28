@@ -1,6 +1,6 @@
-import { ExtrudeGeometry } from 'three'
+import { ExtrudeGeometry } from "three";
 
-import { roundedRectShape } from './shapes'
+import { roundedRectShape } from "./shapes";
 
 /**
  * Build the D-056 screen surface with texture coordinates in normalized panel
@@ -14,21 +14,24 @@ export function createScreenGeometry(
   height: number,
   cornerRadius: number,
 ): ExtrudeGeometry {
-  const geometry = new ExtrudeGeometry(roundedRectShape(width, height, cornerRadius, 8), {
-    depth: 0.1,
-    bevelEnabled: false,
-    curveSegments: 1,
-  })
-  const positions = geometry.getAttribute('position')
-  const uvs = geometry.getAttribute('uv')
+  const geometry = new ExtrudeGeometry(
+    roundedRectShape(width, height, cornerRadius, 8),
+    {
+      depth: 0.1,
+      bevelEnabled: false,
+      curveSegments: 1,
+    },
+  );
+  const positions = geometry.getAttribute("position");
+  const uvs = geometry.getAttribute("uv");
 
   for (let index = 0; index < positions.count; index += 1) {
     uvs.setXY(
       index,
       positions.getX(index) / width + 0.5,
       positions.getY(index) / height + 0.5,
-    )
+    );
   }
-  uvs.needsUpdate = true
-  return geometry
+  uvs.needsUpdate = true;
+  return geometry;
 }

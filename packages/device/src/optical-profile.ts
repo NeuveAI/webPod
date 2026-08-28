@@ -1,12 +1,105 @@
-import { ClampToEdgeWrapping, DataTexture, LinearFilter, RGBAFormat } from 'three'
-export type OpticalProfile = ReadonlyArray<readonly [at: number, tiltDeg: number]>
-export type DeviceOpticalProfiles = { readonly bodyBlack: OpticalProfile; readonly bodyWhite: OpticalProfile; readonly wheelBlack: OpticalProfile; readonly wheelWhite: OpticalProfile; readonly selectBlack: OpticalProfile; readonly selectWhite: OpticalProfile }
-const flat = (ats: ReadonlyArray<number>): OpticalProfile => ats.map((at) => [at, 0] as const)
-export const DEFAULT_DEVICE_OPTICAL_PROFILES: DeviceOpticalProfiles = { bodyBlack: flat([0,.05,.19,.44,.62,.81,.93,1]), bodyWhite: flat([0,.06,.21,.47,.64,.82,.94,1]), wheelBlack: flat([0,.38,.62,1]), wheelWhite: flat([0,.38,.62,1]), selectBlack: flat([0,.34,.7,1]), selectWhite: flat([0,.34,.7,1]) }
+import {
+  ClampToEdgeWrapping,
+  DataTexture,
+  LinearFilter,
+  RGBAFormat,
+  type BufferGeometry,
+} from "three";
+export type OpticalProfile = ReadonlyArray<
+  readonly [at: number, tiltDeg: number]
+>;
+export type DeviceOpticalProfiles = {
+  readonly bodyBlack: OpticalProfile;
+  readonly bodyBlackLateral: OpticalProfile;
+  readonly bodyWhite: OpticalProfile;
+  readonly bodyWhiteLateral: OpticalProfile;
+  readonly wheelBlack: OpticalProfile;
+  readonly wheelBlackLateral: OpticalProfile;
+  readonly wheelWhite: OpticalProfile;
+  readonly wheelWhiteLateral: OpticalProfile;
+  readonly selectBlack: OpticalProfile;
+  readonly selectBlackLateral: OpticalProfile;
+  readonly selectWhite: OpticalProfile;
+  readonly selectWhiteLateral: OpticalProfile;
+};
+const flat = (ats: ReadonlyArray<number>): OpticalProfile =>
+  ats.map((at) => [at, 0] as const);
+export const DEFAULT_DEVICE_OPTICAL_PROFILES: DeviceOpticalProfiles = {
+  bodyBlack: flat([0, 0.05, 0.19, 0.44, 0.62, 0.81, 0.93, 1]),
+  bodyBlackLateral: flat([0, 0.05, 0.19, 0.44, 0.62, 0.81, 0.93, 1]),
+  bodyWhite: flat([0, 0.06, 0.21, 0.47, 0.64, 0.82, 0.94, 1]),
+  bodyWhiteLateral: flat([0, 0.06, 0.21, 0.47, 0.64, 0.82, 0.94, 1]),
+  wheelBlack: flat([0, 0.38, 0.62, 1]),
+  wheelBlackLateral: flat([0, 0.38, 0.62, 1]),
+  wheelWhite: flat([0, 0.38, 0.62, 1]),
+  wheelWhiteLateral: flat([0, 0.38, 0.62, 1]),
+  selectBlack: flat([0, 0.34, 0.7, 1]),
+  selectBlackLateral: flat([0, 0.34, 0.7, 1]),
+  selectWhite: flat([0, 0.34, 0.7, 1]),
+  selectWhiteLateral: flat([0, 0.34, 0.7, 1]),
+};
 /** Tangent-space micro-curvature. `at=0` is the visible top, `at=1` the bottom. */
-export function createOpticalNormalMap(profile: OpticalProfile, height = 512): DataTexture {
-  const data = new Uint8Array(height * 4)
-  for (let y = 0; y < height; y += 1) { const tilt = sample(profile, 1-y/(height-1))*Math.PI/180; const o=y*4; data[o]=128; data[o+1]=Math.round(127.5+127.5*Math.sin(tilt)); data[o+2]=Math.round(127.5+127.5*Math.cos(tilt)); data[o+3]=255 }
-  const texture = new DataTexture(data,1,height,RGBAFormat); texture.wrapS=ClampToEdgeWrapping; texture.wrapT=ClampToEdgeWrapping; texture.minFilter=LinearFilter; texture.magFilter=LinearFilter; texture.needsUpdate=true; return texture
+export function createOpticalNormalMap(
+  profile: OpticalProfile,
+  height = 512,
+  lateral?: OpticalProfile,
+): DataTexture {
+  const data = new Uint8Array(height * 4);
+  for (let y = 0; y < height; y += 1) {
+    const at = 1 - y / (height - 1);
+    const tilt = (sample(profile, at) * Math.PI) / 180;
+    const side = (sample(lateral ?? [], at) * Math.PI) / 180;
+    const nx = Math.sin(side),
+      ny = Math.sin(tilt),
+      nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
+    const o = y * 4;
+    data[o] = Math.round(127.5 + 127.5 * nx);
+    data[o + 1] = Math.round(127.5 + 127.5 * ny);
+    data[o + 2] = Math.round(127.5 + 127.5 * nz);
+    data[o + 3] = 255;
+  }
+  const texture = new DataTexture(data, 1, height, RGBAFormat);
+  texture.wrapS = ClampToEdgeWrapping;
+  texture.wrapT = ClampToEdgeWrapping;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+  texture.needsUpdate = true;
+  return texture;
 }
-function sample(profile: OpticalProfile, at: number): number { const first=profile[0]; if(first===undefined)return 0; if(at<=first[0])return first[1]; for(let i=1;i<profile.length;i+=1){const r=profile[i],l=profile[i-1]; if(r!==undefined&&l!==undefined&&at<=r[0]){const t=(at-l[0])/(r[0]-l[0]); return l[1]+(r[1]-l[1])*t}} return profile.at(-1)?.[1]??0 }
+function sample(profile: OpticalProfile, at: number): number {
+  const first = profile[0];
+  if (first === undefined) return 0;
+  if (at <= first[0]) return first[1];
+  for (let i = 1; i < profile.length; i += 1) {
+    const r = profile[i],
+      l = profile[i - 1];
+    if (r !== undefined && l !== undefined && at <= r[0]) {
+      const t = (at - l[0]) / (r[0] - l[0]);
+      return l[1] + (r[1] - l[1]) * t;
+    }
+  }
+  return profile.at(-1)?.[1] ?? 0;
+}
+
+export function applyOpticalProfile(
+  geometry: BufferGeometry,
+  vertical: OpticalProfile,
+  lateral: OpticalProfile,
+  minY: number,
+  maxY: number,
+): BufferGeometry {
+  const position = geometry.getAttribute("position");
+  const normal = geometry.getAttribute("normal");
+  for (let index = 0; index < normal.count; index += 1) {
+    if (normal.getZ(index) <= 0) continue;
+    const at = 1 - (position.getY(index) - minY) / (maxY - minY);
+    const x = (sample(lateral, at) * Math.PI) / 180;
+    const y = (sample(vertical, at) * Math.PI) / 180;
+    const nx = Math.sin(x);
+    const ny = Math.sin(y);
+    const nz = Math.sqrt(Math.max(0.0001, 1 - nx * nx - ny * ny));
+    normal.setXYZ(index, nx, ny, nz);
+  }
+  normal.needsUpdate = true;
+  return geometry;
+}

@@ -18,14 +18,14 @@
  * ⚑ This is not a look preference: with tone mapping on, the ±4 gate is
  * arithmetically unreachable at the top of three of the five tables.
  */
-import { Canvas } from '@react-three/fiber'
-import type { ReactNode } from 'react'
+import { Canvas } from "@react-three/fiber";
+import type { ReactNode } from "react";
 
-import { Device, type DeviceProps } from './Device'
-import { DEVICE_LAYOUT } from './layout'
+import { Device, type DeviceProps } from "./Device";
+import { DEVICE_LAYOUT } from "./layout";
 
 export type DeviceCanvasProps = DeviceProps & {
-  readonly className?: string
+  readonly className?: string;
   /**
    * Camera distance in body px.
    *
@@ -35,20 +35,20 @@ export type DeviceCanvasProps = DeviceProps & {
    * profile. That coupling is the proof the profile is a reflection rather
    * than a fill, and it is why this is an input rather than a constant.
    */
-  readonly cameraDistance?: number
-  readonly cameraFov?: number
+  readonly cameraDistance?: number;
+  readonly cameraFov?: number;
   /**
    * Device pixel ratio. `[1, 2]` for looking at; **`1` for measuring** — the
    * luminance probe reads the drawing buffer, and at dpr 2 one body px is four
    * framebuffer pixels, so a target's column would land between them.
    */
-  readonly dpr?: number | [number, number]
+  readonly dpr?: number | [number, number];
   /** Extra scene content. The spike route mounts its luminance probe here. */
-  readonly children?: ReactNode
-}
+  readonly children?: ReactNode;
+};
 
-export const DEFAULT_CAMERA_DISTANCE = 1160
-export const DEFAULT_CAMERA_FOV = 30
+export const DEFAULT_CAMERA_DISTANCE = 1160;
+export const DEFAULT_CAMERA_FOV = 30;
 
 export function DeviceCanvas({
   className,
@@ -75,5 +75,5 @@ export function DeviceCanvas({
       <Device {...device} />
       {children}
     </Canvas>
-  )
+  );
 }

@@ -15,8 +15,8 @@
  * have nothing that could poll. The screen mesh's change notification hangs
  * off `onBeforeRender` instead (see `screen-mesh.ts`).
  */
-import { useThree } from '@react-three/fiber'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useThree } from "@react-three/fiber";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   CylinderGeometry,
   ExtrudeGeometry,
@@ -24,70 +24,97 @@ import {
   type Mesh,
   MeshBasicMaterial,
   type Texture,
-} from 'three'
+} from "three";
 
-import { curvedAnnulusGeometry, domedDiscGeometry } from './curved-discs'
-import { createRoomEnvMap, DEFAULT_ENV_ROOM, type EnvRoomParams } from './env-map'
-import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from './form'
-import { DEVICE_LAYOUT, GLASS_CORNER_R, SCREEN_CORNER_R } from './layout'
+import { curvedAnnulusGeometry, domedDiscGeometry } from "./curved-discs";
+import {
+  createRoomEnvMap,
+  DEFAULT_ENV_ROOM,
+  type EnvRoomParams,
+} from "./env-map";
+import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
+import { DEVICE_LAYOUT, GLASS_CORNER_R, SCREEN_CORNER_R } from "./layout";
 import {
   DEFAULT_LIGHT_RIG,
   fillLightIntensity,
   fillLightPosition,
   keyLightPosition,
   type LightRigParams,
-} from './light-rig'
+} from "./light-rig";
 import {
   DEFAULT_DEVICE_MATERIALS,
   type DeviceMaterials,
   type PhysicalSurfaceParams,
-} from './materials'
-import { circleHole, roundedRectHole, roundedRectShape, silhouetteShape } from './shapes'
-import { createScreenMeshHandle, type ScreenMeshReady } from './screen-mesh'
-import { createScreenGeometry } from './screen-geometry'
-import { createCoverGlassMaterial } from './physical-materials'
-import { createOpticalNormalMap, DEFAULT_DEVICE_OPTICAL_PROFILES, type DeviceOpticalProfiles } from './optical-profile'
-import { createBlackPolySssMap, createMicroNoiseRoughnessMap, createSteelAnisotropyMap, createWheelLabelMap } from './textures'
+} from "./materials";
+import {
+  circleHole,
+  roundedRectHole,
+  roundedRectShape,
+  silhouetteShape,
+} from "./shapes";
+import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
+import { createScreenGeometry } from "./screen-geometry";
+import { createCoverGlassMaterial } from "./physical-materials";
+import {
+  applyOpticalProfile,
+  createOpticalNormalMap,
+  DEFAULT_DEVICE_OPTICAL_PROFILES,
+  type DeviceOpticalProfiles,
+} from "./optical-profile";
+import {
+  createBlackPolySssMap,
+  createMicroNoiseRoughnessMap,
+  createSteelAnisotropyMap,
+  createWheelLabelMap,
+} from "./textures";
 
 /** LAW 5: both modes are the product, so both colourways are first class. */
-export type Colourway = 'black' | 'white'
+export type Colourway = "black" | "white";
 
 /** Which face of the device is toward the camera. */
-export type DeviceFace = 'front' | 'back'
+export type DeviceFace = "front" | "back";
 
 export type DeviceProps = {
-  readonly colourway?: Colourway
-  readonly face?: DeviceFace
+  readonly colourway?: Colourway;
+  readonly face?: DeviceFace;
   /** §12.3's parameter table. Injected (D-012); defaults to §12.3. */
-  readonly materials?: DeviceMaterials
+  readonly materials?: DeviceMaterials;
   /** LAW 2's rig. Injected; defaults to LAW 2. */
-  readonly lightRig?: LightRigParams
+  readonly lightRig?: LightRigParams;
   /** The room. Injected; defaults to §4.4 + §5.2 L3/L5. */
-  readonly envRoom?: EnvRoomParams
+  readonly envRoom?: EnvRoomParams;
   /** Depths and curvatures §12.0 does not state. */
-  readonly form?: DeviceFormParams
+  readonly form?: DeviceFormParams;
   /**
    * An environment map to use instead of the one built from `envRoom`.
    *
    * The renderer-specific escape hatch: a tier with a captured HDR of a real
    * room passes it here and `env-map.ts` is not called.
    */
-  readonly envMap?: Texture | null
-  readonly opticalProfiles?: DeviceOpticalProfiles
+  readonly envMap?: Texture | null;
+  readonly opticalProfiles?: DeviceOpticalProfiles;
   /** Handed the screen quad once it exists. This is the W6 boundary (D-011). */
-  readonly onScreenMeshReady?: ScreenMeshReady
+  readonly onScreenMeshReady?: ScreenMeshReady;
   /** Pre-installed material for the screen slot; `undefined` keeps the default. */
-  readonly screenMaterial?: Material | null
-}
+  readonly screenMaterial?: Material | null;
+};
 
-const { body, glass, screen, wheel } = DEVICE_LAYOUT
+const { body, glass, screen, wheel } = DEVICE_LAYOUT;
+
+// The reusable Pencil frame VWaJS is the visual source for the enclosure: its
+// 330 × 552 body has a visibly circular 26 px corner.  The 4.2 superellipse in
+// the older token table produces an almost square slab at the actual preview
+// scale, so the rendered shell uses the observed outline while retaining the
+// locked internal layout and wheel/screen geometry.
+const ENCLOSURE_CORNER_R = 26;
+const ENCLOSURE_EXPONENT = 2;
 
 /** Bevel segments everywhere. Rolled edges are the §10.4 conic response. */
-const BEVEL_SEGMENTS = 6
+const BEVEL_SEGMENTS = 6;
 
 export function Device({
-  colourway = 'black',
-  face = 'front',
+  colourway = "black",
+  face = "front",
   materials = DEFAULT_DEVICE_MATERIALS,
   lightRig = DEFAULT_LIGHT_RIG,
   envRoom = DEFAULT_ENV_ROOM,
@@ -97,15 +124,19 @@ export function Device({
   onScreenMeshReady,
   screenMaterial,
 }: DeviceProps) {
-  const invalidate = useThree((state) => state.invalidate)
+  const invalidate = useThree((state) => state.invalidate);
   // A getter, not a value: r3f swaps the camera on some prop changes and the
   // viewport changes on every resize, so the handle must read both at the
   // moment it projects rather than capture them (see `screen-mesh.ts`).
-  const store = useThree((state) => state)
+  const store = useThree((state) => state);
   const view = useCallback(
-    () => ({ camera: store.camera, width: store.size.width, height: store.size.height }),
+    () => ({
+      camera: store.camera,
+      width: store.size.width,
+      height: store.size.height,
+    }),
     [store],
-  )
+  );
 
   // ⚑ Keyed on the room's **values**, not on the object's identity. Building
   // the room is the most expensive thing this package does — a 2048 × 1024
@@ -115,42 +146,86 @@ export function Device({
   // object every render and rebuilds a 32MB texture for a value that did not
   // change. The rig tuner did precisely that and its inner loop went from
   // milliseconds to four seconds.
-  const envSignature = JSON.stringify(envRoom)
+  const envSignature = JSON.stringify(envRoom);
   const builtEnv = useMemo(() => {
-    if (envMap !== undefined) return null
+    if (envMap !== undefined) return null;
     // Parsed from the signature rather than closed over `envRoom`, so the memo
     // and its input cannot disagree about which room was built.
-    return createRoomEnvMap(JSON.parse(envSignature) as EnvRoomParams)
-  }, [envMap, envSignature])
-  useEffect(() => () => builtEnv?.dispose(), [builtEnv])
-  const env = envMap ?? builtEnv
+    return createRoomEnvMap(JSON.parse(envSignature) as EnvRoomParams);
+  }, [envMap, envSignature]);
+  useEffect(() => () => builtEnv?.dispose(), [builtEnv]);
+  const env = envMap ?? builtEnv;
 
-  const noise = useMemo(() => createMicroNoiseRoughnessMap(), [])
-  useEffect(() => () => noise.dispose(), [noise])
-  const steelAnisotropy = useMemo(() => createSteelAnisotropyMap(), [])
-  useEffect(() => () => steelAnisotropy.dispose(), [steelAnisotropy])
-  const blackSss = useMemo(() => { const map=createBlackPolySssMap(); map.repeat.set(1,1/body.height); map.offset.set(0,.5); return map }, [])
-  useEffect(() => () => blackSss.dispose(), [blackSss])
+  const noise = useMemo(() => {
+    const map = createMicroNoiseRoughnessMap();
+    map.repeat.set(0.04, 0.04);
+    return map;
+  }, []);
+  useEffect(() => () => noise.dispose(), [noise]);
+  const steelAnisotropy = useMemo(() => {
+    const map = createSteelAnisotropyMap();
+    map.repeat.set(0.02, 0.02);
+    return map;
+  }, []);
+  useEffect(() => () => steelAnisotropy.dispose(), [steelAnisotropy]);
+  const blackSss = useMemo(() => {
+    const map = createBlackPolySssMap();
+    map.repeat.set(1, 1 / body.height);
+    map.offset.set(0, 0.5);
+    return map;
+  }, []);
+  useEffect(() => () => blackSss.dispose(), [blackSss]);
 
-  const isBlack = colourway === 'black'
-  const bodyMaterial = isBlack ? materials.bodyBlack : materials.bodyWhite
-  const ringMaterial = isBlack ? materials.wheelRingBlack : materials.wheelRingWhite
-  const selectMaterial = isBlack ? materials.selectBlack : materials.selectWhite
-  const opticalSignature = JSON.stringify(opticalProfiles)
+  const isBlack = colourway === "black";
+  const bodyMaterial = isBlack ? materials.bodyBlack : materials.bodyWhite;
+  const ringMaterial = isBlack
+    ? materials.wheelRingBlack
+    : materials.wheelRingWhite;
+  const selectMaterial = isBlack
+    ? materials.selectBlack
+    : materials.selectWhite;
+  const opticalSignature = JSON.stringify(opticalProfiles);
+  const parsedOptical = useMemo(
+    () => JSON.parse(opticalSignature) as DeviceOpticalProfiles,
+    [opticalSignature],
+  );
   const opticalMaps = useMemo(() => {
-    const p=JSON.parse(opticalSignature) as DeviceOpticalProfiles
-    const bodyMap=createOpticalNormalMap(isBlack?p.bodyBlack:p.bodyWhite)
-    bodyMap.repeat.set(1, 1/body.height)
-    bodyMap.offset.set(0, .5)
-    return { body:bodyMap, ring:createOpticalNormalMap(isBlack?p.wheelBlack:p.wheelWhite), select:createOpticalNormalMap(isBlack?p.selectBlack:p.selectWhite) }
-  }, [isBlack,opticalSignature])
-  useEffect(() => () => { opticalMaps.body.dispose(); opticalMaps.ring.dispose(); opticalMaps.select.dispose() }, [opticalMaps])
+    const p = parsedOptical;
+    const bodyMap = createOpticalNormalMap(
+      isBlack ? p.bodyBlack : p.bodyWhite,
+      512,
+      isBlack ? p.bodyBlackLateral : p.bodyWhiteLateral,
+    );
+    bodyMap.repeat.set(1, 1 / body.height);
+    bodyMap.offset.set(0, 0.5);
+    return {
+      body: bodyMap,
+      ring: createOpticalNormalMap(
+        isBlack ? p.wheelBlack : p.wheelWhite,
+        512,
+        isBlack ? p.wheelBlackLateral : p.wheelWhiteLateral,
+      ),
+      select: createOpticalNormalMap(
+        isBlack ? p.selectBlack : p.selectWhite,
+        512,
+        isBlack ? p.selectBlackLateral : p.selectWhiteLateral,
+      ),
+    };
+  }, [isBlack, parsedOptical]);
+  useEffect(
+    () => () => {
+      opticalMaps.body.dispose();
+      opticalMaps.ring.dispose();
+      opticalMaps.select.dispose();
+    },
+    [opticalMaps],
+  );
 
   // ── Geometry ───────────────────────────────────────────────────────────────
   // Built once per shape-affecting input. Under `frameloop="demand"` a rebuild
   // is also a re-render, so the memo keys are the whole render trigger.
 
-  const frontFaceZ = body.depth / 2
+  const frontFaceZ = body.depth / 2;
 
   // ⚑ **The chassis is three parts, and the split is load-bearing.** A single
   // solid steel slab is the obvious model and it is wrong: the click wheel is a
@@ -165,11 +240,16 @@ export function Device({
   //   steelShell     [splitZ … faceZ]   perimeter frame + opening walls
   //   steelBackPlate [−D/2 … splitZ]    §5.2's mirror, uncut
   //   frontPlate     [plateBackZ … faceZ]  §5.1/§4.3, inset by the seam
-  const splitZ = 0
-  const plateBackZ = frontFaceZ - form.frontThickness
+  const splitZ = 0;
+  const plateBackZ = frontFaceZ - form.frontThickness;
 
   const steelShellGeometry = useMemo(() => {
-    const shape = silhouetteShape(body.width, body.height, body.cornerR, body.exponent)
+    const shape = silhouetteShape(
+      body.width,
+      body.height,
+      ENCLOSURE_CORNER_R,
+      ENCLOSURE_EXPONENT,
+    );
     // The steel's openings are a pixel wider than the plastic's, so the two
     // opening walls are never coplanar. Coplanar walls z-fight; the extra pixel
     // also reads as §5.3 L1's lip, which is a metal edge in the real part.
@@ -181,8 +261,10 @@ export function Device({
         glass.height + 2,
         GLASS_CORNER_R + 1,
       ),
-    )
-    shape.holes.push(circleHole(wheel.centerX, wheel.centerY, wheel.outerR + 1))
+    );
+    shape.holes.push(
+      circleHole(wheel.centerX, wheel.centerY, wheel.outerR + 1),
+    );
     const geometry = new ExtrudeGeometry(shape, {
       depth: Math.max(0.1, frontFaceZ - splitZ - 2 * form.frontBevel),
       bevelEnabled: true,
@@ -190,15 +272,20 @@ export function Device({
       bevelSize: form.frontBevel,
       bevelSegments: BEVEL_SEGMENTS,
       curveSegments: 1,
-    })
-    geometry.translate(0, 0, splitZ + form.frontBevel)
-    return geometry
-  }, [form.frontBevel, frontFaceZ])
-  useEffect(() => () => steelShellGeometry.dispose(), [steelShellGeometry])
+    });
+    geometry.translate(0, 0, splitZ + form.frontBevel);
+    return geometry;
+  }, [form.frontBevel, frontFaceZ]);
+  useEffect(() => () => steelShellGeometry.dispose(), [steelShellGeometry]);
 
   const backGeometry = useMemo(() => {
-    const shape = silhouetteShape(body.width, body.height, body.cornerR, body.exponent)
-    const depth = frontFaceZ + splitZ - 2 * form.backBevel
+    const shape = silhouetteShape(
+      body.width,
+      body.height,
+      ENCLOSURE_CORNER_R,
+      ENCLOSURE_EXPONENT,
+    );
+    const depth = frontFaceZ + splitZ - 2 * form.backBevel;
     const geometry = new ExtrudeGeometry(shape, {
       depth: Math.max(0.1, depth),
       bevelEnabled: true,
@@ -206,28 +293,34 @@ export function Device({
       bevelSize: form.backBevel,
       bevelSegments: BEVEL_SEGMENTS,
       curveSegments: 1,
-    })
-    geometry.translate(0, 0, -body.depth / 2 + form.backBevel)
-    return geometry
-  }, [form.backBevel, frontFaceZ])
-  useEffect(() => () => backGeometry.dispose(), [backGeometry])
+    });
+    geometry.translate(0, 0, -body.depth / 2 + form.backBevel);
+    return geometry;
+  }, [form.backBevel, frontFaceZ]);
+  useEffect(() => () => backGeometry.dispose(), [backGeometry]);
 
   const frontGeometry = useMemo(() => {
     // §5.6 modelled rather than stroked: the polycarbonate front is inset by
     // the seam width, so what runs round the perimeter is the steel shell's own
     // rolled edge, presenting a different angle to the light at every point of
     // the silhouette — §10.4 prevention #6, for free.
-    const seam = form.seamWidth
+    const seam = form.seamWidth;
     const shape = silhouetteShape(
       body.width - 2 * seam,
       body.height - 2 * seam,
-      body.cornerR - seam,
-      body.exponent,
-    )
+      ENCLOSURE_CORNER_R - seam,
+      ENCLOSURE_EXPONENT,
+    );
     shape.holes.push(
-      roundedRectHole(glass.centerX, glass.centerY, glass.width, glass.height, GLASS_CORNER_R),
-    )
-    shape.holes.push(circleHole(wheel.centerX, wheel.centerY, wheel.outerR))
+      roundedRectHole(
+        glass.centerX,
+        glass.centerY,
+        glass.width,
+        glass.height,
+        GLASS_CORNER_R,
+      ),
+    );
+    shape.holes.push(circleHole(wheel.centerX, wheel.centerY, wheel.outerR));
     const geometry = new ExtrudeGeometry(shape, {
       depth: Math.max(0.1, form.frontThickness - 2 * form.frontBevel),
       bevelEnabled: true,
@@ -235,60 +328,105 @@ export function Device({
       bevelSize: form.frontBevel,
       bevelSegments: BEVEL_SEGMENTS,
       curveSegments: 1,
-    })
-    geometry.translate(0, 0, plateBackZ + form.frontBevel)
-    return geometry
-  }, [form.seamWidth, form.frontThickness, form.frontBevel, plateBackZ])
-  useEffect(() => () => frontGeometry.dispose(), [frontGeometry])
+    });
+    geometry.translate(0, 0, plateBackZ + form.frontBevel);
+    return geometry;
+  }, [form.seamWidth, form.frontThickness, form.frontBevel, plateBackZ]);
+  useEffect(() => () => frontGeometry.dispose(), [frontGeometry]);
 
   const ringGeometry = useMemo(
     () =>
-      curvedAnnulusGeometry(
-        wheel.selectR - 1,
+      applyOpticalProfile(
+        curvedAnnulusGeometry(
+          wheel.selectR - 1,
+          wheel.outerR,
+          form.ringDishTiltDeg,
+          form.ringDishExponent,
+        ),
+        isBlack ? parsedOptical.wheelBlack : parsedOptical.wheelWhite,
+        isBlack
+          ? parsedOptical.wheelBlackLateral
+          : parsedOptical.wheelWhiteLateral,
+        -wheel.outerR,
         wheel.outerR,
-        form.ringDishTiltDeg,
-        form.ringDishExponent,
       ),
-    [form.ringDishTiltDeg, form.ringDishExponent],
-  )
-  useEffect(() => () => ringGeometry.dispose(), [ringGeometry])
+    [form.ringDishTiltDeg, form.ringDishExponent, isBlack, parsedOptical],
+  );
+  useEffect(() => () => ringGeometry.dispose(), [ringGeometry]);
 
   const selectGeometry = useMemo(
-    () => domedDiscGeometry(wheel.selectR, form.selectDomeTiltDeg, form.selectDomeExponent),
-    [form.selectDomeTiltDeg, form.selectDomeExponent],
-  )
-  useEffect(() => () => selectGeometry.dispose(), [selectGeometry])
+    () =>
+      applyOpticalProfile(
+        domedDiscGeometry(
+          wheel.selectR,
+          form.selectDomeTiltDeg,
+          form.selectDomeExponent,
+        ),
+        isBlack ? parsedOptical.selectBlack : parsedOptical.selectWhite,
+        isBlack
+          ? parsedOptical.selectBlackLateral
+          : parsedOptical.selectWhiteLateral,
+        -wheel.selectR,
+        wheel.selectR,
+      ),
+    [form.selectDomeTiltDeg, form.selectDomeExponent, isBlack, parsedOptical],
+  );
+  useEffect(() => () => selectGeometry.dispose(), [selectGeometry]);
 
   const selectWallGeometry = useMemo(
-    () => new CylinderGeometry(wheel.selectR, wheel.selectR, form.selectProud, 128, 1, true),
+    () =>
+      new CylinderGeometry(
+        wheel.selectR,
+        wheel.selectR,
+        form.selectProud,
+        128,
+        1,
+        true,
+      ),
     [form.selectProud],
-  )
-  useEffect(() => () => selectWallGeometry.dispose(), [selectWallGeometry])
+  );
+  useEffect(() => () => selectWallGeometry.dispose(), [selectWallGeometry]);
 
   const glassGeometry = useMemo(() => {
-    const shape = roundedRectShape(glass.width, glass.height, GLASS_CORNER_R, 12)
+    const shape = roundedRectShape(
+      glass.width,
+      glass.height,
+      GLASS_CORNER_R,
+      12,
+    );
     const geometry = new ExtrudeGeometry(shape, {
       depth: form.glassThickness,
       bevelEnabled: false,
       curveSegments: 1,
-    })
-    geometry.translate(0, 0, -form.glassThickness)
-    return geometry
-  }, [form.glassThickness])
-  useEffect(() => () => glassGeometry.dispose(), [glassGeometry])
+    });
+    geometry.translate(0, 0, -form.glassThickness);
+    return geometry;
+  }, [form.glassThickness]);
+  useEffect(() => () => glassGeometry.dispose(), [glassGeometry]);
 
   const surroundGeometry = useMemo(() => {
-    const shape = roundedRectShape(glass.width, glass.height, GLASS_CORNER_R, 12)
-    shape.holes.push(roundedRectHole(0, 0, screen.width, screen.height, SCREEN_CORNER_R, 8))
-    return new ExtrudeGeometry(shape, { depth: 0.6, bevelEnabled: false, curveSegments: 1 })
-  }, [])
-  useEffect(() => () => surroundGeometry.dispose(), [surroundGeometry])
+    const shape = roundedRectShape(
+      glass.width,
+      glass.height,
+      GLASS_CORNER_R,
+      12,
+    );
+    shape.holes.push(
+      roundedRectHole(0, 0, screen.width, screen.height, SCREEN_CORNER_R, 8),
+    );
+    return new ExtrudeGeometry(shape, {
+      depth: 0.6,
+      bevelEnabled: false,
+      curveSegments: 1,
+    });
+  }, []);
+  useEffect(() => () => surroundGeometry.dispose(), [surroundGeometry]);
 
   const screenGeometry = useMemo(
     () => createScreenGeometry(screen.width, screen.height, SCREEN_CORNER_R),
     [],
-  )
-  useEffect(() => () => screenGeometry.dispose(), [screenGeometry])
+  );
+  useEffect(() => () => screenGeometry.dispose(), [screenGeometry]);
 
   // §5.3 L8's printed legends. `--wheel-k-label` / `--wheel-w-label` are §4.5
   // tokens; they are the only two colours written in this file, and they are
@@ -299,33 +437,42 @@ export function Device({
         outerR: wheel.outerR,
         bandInnerR: wheel.labelBandInnerR,
         bandOuterR: wheel.labelBandOuterR,
-        labelColor: isBlack ? '#A9AFB7' : '#5E646D',
+        labelColor: isBlack ? "#A9AFB7" : "#5E646D",
         ringColor: ringMaterial.color,
         fontPx: 13,
         size: 1024,
       }),
     [isBlack, ringMaterial.color],
-  )
-  useEffect(() => () => labelMap?.dispose(), [labelMap])
+  );
+  useEffect(() => () => labelMap?.dispose(), [labelMap]);
 
   // ── Depths derived from the dish profiles ─────────────────────────────────
-  const ringSag = (wheel.outerR * Math.tan((form.ringDishTiltDeg * Math.PI) / 180)) / form.ringDishExponent
-  const ringZ = frontFaceZ - form.recessDepth - ringSag
-  const ringInnerZ = ringZ + ringSag * ((wheel.selectR - 1) / wheel.outerR) ** form.ringDishExponent
-  const selectSag = (wheel.selectR * Math.tan((form.selectDomeTiltDeg * Math.PI) / 180)) / form.selectDomeExponent
-  const selectRimZ = ringInnerZ + form.selectProud
-  const glassFrontZ = frontFaceZ
+  const ringSag =
+    (wheel.outerR * Math.tan((form.ringDishTiltDeg * Math.PI) / 180)) /
+    form.ringDishExponent;
+  const ringZ = frontFaceZ - form.recessDepth - ringSag;
+  const ringInnerZ =
+    ringZ +
+    ringSag * ((wheel.selectR - 1) / wheel.outerR) ** form.ringDishExponent;
+  const selectSag =
+    (wheel.selectR * Math.tan((form.selectDomeTiltDeg * Math.PI) / 180)) /
+    form.selectDomeExponent;
+  const selectRimZ = ringInnerZ + form.selectProud;
+  const glassFrontZ = frontFaceZ;
 
   // ── The screen mesh boundary (D-011) ──────────────────────────────────────
   const screenDefaultMaterial = useMemo(
     () =>
       new MeshBasicMaterial({
-        color: materials.screen.color,
+        color: isBlack ? materials.screen.color : "#F2F6FB",
         toneMapped: materials.screen.toneMapped,
       }),
-    [materials.screen.color, materials.screen.toneMapped],
-  )
-  useEffect(() => () => screenDefaultMaterial.dispose(), [screenDefaultMaterial])
+    [isBlack, materials.screen.color, materials.screen.toneMapped],
+  );
+  useEffect(
+    () => () => screenDefaultMaterial.dispose(),
+    [screenDefaultMaterial],
+  );
   const coverGlassMaterial = useMemo(
     () =>
       createCoverGlassMaterial(materials.coverGlass, env, {
@@ -333,15 +480,15 @@ export function Device({
         height: glass.height,
       }),
     [env, materials.coverGlass],
-  )
-  useEffect(() => () => coverGlassMaterial.dispose(), [coverGlassMaterial])
+  );
+  useEffect(() => () => coverGlassMaterial.dispose(), [coverGlassMaterial]);
 
   const attachScreen = useCallback(
     (mesh: Mesh | null) => {
       // ⚑ No ref is kept. The handle's lifetime belongs to whoever asked for
       // it, and the mesh keeps it alive through the `onBeforeRender` closure;
       // a ref here would be a second owner with nothing to do.
-      if (mesh === null) return
+      if (mesh === null) return;
       const handle = createScreenMeshHandle({
         mesh,
         panel: {
@@ -353,18 +500,24 @@ export function Device({
         defaultMaterial: screenDefaultMaterial,
         invalidate,
         view,
-      })
-      if (screenMaterial !== undefined) handle.setMaterial(screenMaterial)
-      onScreenMeshReady?.(handle)
+      });
+      if (screenMaterial !== undefined) handle.setMaterial(screenMaterial);
+      onScreenMeshReady?.(handle);
     },
-    [screenDefaultMaterial, invalidate, onScreenMeshReady, screenMaterial, view],
-  )
+    [
+      screenDefaultMaterial,
+      invalidate,
+      onScreenMeshReady,
+      screenMaterial,
+      view,
+    ],
+  );
 
-  const keyPos = keyLightPosition(lightRig.key)
-  const fillPos = fillLightPosition(lightRig.fill)
+  const keyPos = keyLightPosition(lightRig.key);
+  const fillPos = fillLightPosition(lightRig.fill);
 
   return (
-    <group rotation={face === 'back' ? [0, Math.PI, 0] : [0, 0, 0]}>
+    <group rotation={face === "back" ? [0, Math.PI, 0] : [0, 0, 0]}>
       {/* LAW 2 — exactly two lights. The room is the third term and it is the
           env map, not an ambient light. */}
       <pointLight
@@ -401,12 +554,23 @@ export function Device({
 
       {/* §5.1 / §4.3 — the polycarbonate front, inset by the seam. */}
       <mesh geometry={frontGeometry}>
-        <meshPhysicalMaterial {...spread(bodyMaterial)} envMap={env} roughnessMap={noise} normalMap={opticalMaps.body} emissive={isBlack ? '#6E4A2E' : '#000000'} emissiveIntensity={isBlack ? 0.02 : 0} emissiveMap={isBlack ? blackSss : null} />
+        <meshPhysicalMaterial
+          {...spread(bodyMaterial)}
+          envMap={env}
+          roughnessMap={noise}
+          normalMap={opticalMaps.body}
+          emissive={isBlack ? "#6E4A2E" : "#000000"}
+          emissiveIntensity={isBlack ? 0.02 : 0}
+          emissiveMap={isBlack ? blackSss : null}
+        />
       </mesh>
 
       {/* §5.3 — the dished ring, at the bottom of the recess. */}
-      <mesh geometry={ringGeometry} position={[wheel.centerX, wheel.centerY, ringZ]}>
-        <meshPhysicalMaterial {...spread(ringMaterial)} envMap={env} normalMap={opticalMaps.ring} />
+      <mesh
+        geometry={ringGeometry}
+        position={[wheel.centerX, wheel.centerY, ringZ]}
+      >
+        <meshPhysicalMaterial {...spread(ringMaterial)} envMap={env} />
       </mesh>
 
       {/* §5.3 L8 — screen-printed ink. A separate transparent decal is
@@ -429,10 +593,14 @@ export function Device({
       {/* §5.4 — the translucent plug, the one raised element on the wheel. */}
       <mesh
         geometry={selectWallGeometry}
-        position={[wheel.centerX, wheel.centerY, selectRimZ - form.selectProud / 2]}
+        position={[
+          wheel.centerX,
+          wheel.centerY,
+          selectRimZ - form.selectProud / 2,
+        ]}
         rotation={[Math.PI / 2, 0, 0]}
       >
-        <meshPhysicalMaterial {...spread(selectMaterial)} envMap={env} normalMap={opticalMaps.select} />
+        <meshPhysicalMaterial {...spread(selectMaterial)} envMap={env} />
       </mesh>
       <mesh
         geometry={selectGeometry}
@@ -444,9 +612,18 @@ export function Device({
       {/* §5.5 L2 — the printed black surround, flat, no gloss of its own. */}
       <mesh
         geometry={surroundGeometry}
-        position={[glass.centerX, glass.centerY, glassFrontZ - form.glassThickness - 0.8]}
+        position={[
+          glass.centerX,
+          glass.centerY,
+          glassFrontZ - form.glassThickness - 0.8,
+        ]}
       >
-        <meshStandardMaterial color="#05060A" roughness={0.86} metalness={0} envMap={env} />
+        <meshStandardMaterial
+          color="#05060A"
+          roughness={0.86}
+          metalness={0}
+          envMap={env}
+        />
       </mesh>
 
       {/* ⚑ The W6 boundary. §12.3: MeshBasicMaterial, toneMapped false. */}
@@ -468,7 +645,7 @@ export function Device({
         material={coverGlassMaterial}
       />
     </group>
-  )
+  );
 }
 
 /**
@@ -479,5 +656,5 @@ export function Device({
  * this one function so the immutability holds everywhere it matters.
  */
 function spread(params: PhysicalSurfaceParams): Record<string, unknown> {
-  return { ...params }
+  return { ...params };
 }

@@ -32,7 +32,7 @@ import {
   SELECT_LIP_R,
   SELECT_R,
   WHEEL_R,
-} from '@webpod/tokens'
+} from "@webpod/tokens";
 
 /**
  * Millimetres per CSS pixel, mobile — §7.3's "Scale" row, stated as the
@@ -42,7 +42,7 @@ import {
  * authoritative; that division is reproduced rather than the rounded constant
  * transcribed.
  */
-export const PX_PER_MM: number = BODY_W / 61.8
+export const PX_PER_MM: number = BODY_W / 61.8;
 
 /** §7.3 millimetre column — the real 5th generation, measured. */
 const MM = {
@@ -52,22 +52,22 @@ const MM = {
   topToGlass: 9.0,
   /** Glass bottom → wheel top. */
   glassToWheel: 8.0,
-} as const
+} as const;
 
 /** §5.5: the printed black surround extends 6px beyond the active area. */
-export const GLASS_SURROUND: number = 6
+export const GLASS_SURROUND: number = 6;
 
 /** §7.1: screen glass window radius, mobile. */
-export const GLASS_CORNER_R: number = 7
+export const GLASS_CORNER_R: number = 7;
 
 /** §7.1: screen active area radius, mobile — glass − 3px print inset. */
-export const SCREEN_CORNER_R: number = 4
+export const SCREEN_CORNER_R: number = 4;
 
 /** §7.1: the silhouette is a superellipse of this exponent, not a circular arc. */
-export const SILHOUETTE_EXPONENT: number = 4.2
+export const SILHOUETTE_EXPONENT: number = 4.2;
 
 /** Body depth in CSS px. */
-export const BODY_D: number = MM.bodyDepth * PX_PER_MM
+export const BODY_D: number = MM.bodyDepth * PX_PER_MM;
 
 /**
  * The vertical chain, in body-local coordinates (+y up, origin at centre).
@@ -94,11 +94,11 @@ export const BODY_D: number = MM.bodyDepth * PX_PER_MM
  * check that `wheelR` 115 is the self-consistent geometry, not a patch.
  */
 function verticalChain() {
-  const topToGlass = Math.round(MM.topToGlass * PX_PER_MM)
-  const glassToWheel = Math.round(MM.glassToWheel * PX_PER_MM)
-  const screenTopFromTop = topToGlass
-  const wheelTopFromTop = topToGlass + PANEL_H + glassToWheel
-  const wheelBottomFromTop = wheelTopFromTop + WHEEL_R * 2
+  const topToGlass = Math.round(MM.topToGlass * PX_PER_MM);
+  const glassToWheel = Math.round(MM.glassToWheel * PX_PER_MM);
+  const screenTopFromTop = topToGlass;
+  const wheelTopFromTop = topToGlass + PANEL_H + glassToWheel;
+  const wheelBottomFromTop = wheelTopFromTop + WHEEL_R * 2;
   return {
     topToGlass,
     glassToWheel,
@@ -106,14 +106,14 @@ function verticalChain() {
     wheelTopFromTop,
     /** Left as the remainder so the chain closes on `BODY_H` exactly. */
     bottomMargin: BODY_H - wheelBottomFromTop,
-  }
+  };
 }
 
-const CHAIN = verticalChain()
+const CHAIN = verticalChain();
 
 /** Half-extents, used everywhere below. */
-const HALF_W = BODY_W / 2
-const HALF_H = BODY_H / 2
+const HALF_W = BODY_W / 2;
+const HALF_H = BODY_H / 2;
 
 /**
  * The device layout, body-local, +y up, origin at the face centre.
@@ -160,13 +160,16 @@ export const DEVICE_LAYOUT = Object.freeze({
     centerY: HALF_H - CHAIN.wheelTopFromTop - WHEEL_R,
   }),
   chain: Object.freeze(CHAIN),
-} as const)
+} as const);
 
 /**
  * Convert a body-local point (+y up, centre origin) to the design canvas's
  * top-left origin with +y down, so a number here can be checked against an
  * artboard measurement without doing the flip in one's head.
  */
-export function toCanvasTopLeft(x: number, y: number): { x: number; y: number } {
-  return { x: x + HALF_W, y: HALF_H - y }
+export function toCanvasTopLeft(
+  x: number,
+  y: number,
+): { x: number; y: number } {
+  return { x: x + HALF_W, y: HALF_H - y };
 }

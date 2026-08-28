@@ -27,49 +27,49 @@ export type DeviceFormParams = {
    * a real rolled edge gives one for free, because every point of it presents a
    * different angle to the light.
    */
-  readonly seamWidth: number
+  readonly seamWidth: number;
   /** Front shell thickness. */
-  readonly frontThickness: number
+  readonly frontThickness: number;
   /** Radius of the rolled edge on the front shell's face. */
-  readonly frontBevel: number
+  readonly frontBevel: number;
   /** Radius of the rolled edge on the steel back's face. */
-  readonly backBevel: number
+  readonly backBevel: number;
   /** How far below the body face the wheel ring sits. §5.3: "1.5px below". */
-  readonly recessDepth: number
+  readonly recessDepth: number;
   /**
    * Surface tilt at the ring's outer rim, degrees, **concave**. See
    * `curved-discs.ts` for why the ring is dished and what it replaces.
    */
-  readonly ringDishTiltDeg: number
+  readonly ringDishTiltDeg: number;
   /**
    * Profile exponent for the ring's dish. Higher keeps the middle flat and
    * turns up near the rim, reaching the same rim tilt in less depth — see
    * `curved-discs.ts`.
    */
-  readonly ringDishExponent: number
+  readonly ringDishExponent: number;
   /** Surface tilt at the Select plug's rim, degrees, **convex**. */
-  readonly selectDomeTiltDeg: number
+  readonly selectDomeTiltDeg: number;
   /** Profile exponent for the Select plug's dome. */
-  readonly selectDomeExponent: number
+  readonly selectDomeExponent: number;
   /** How far the Select plug stands proud of the ring's inner edge. */
-  readonly selectProud: number
+  readonly selectProud: number;
   /** Cover glass sheet thickness. */
-  readonly glassThickness: number
+  readonly glassThickness: number;
   /** Gap between the glass sheet's inner face and the emissive panel. */
-  readonly glassToPanel: number
-}
+  readonly glassToPanel: number;
+};
 
 export const DEFAULT_DEVICE_FORM: DeviceFormParams = {
-  seamWidth: 3,
+  seamWidth: 4.2,
   frontThickness: 7,
-  frontBevel: 2.2,
+  frontBevel: 3,
   backBevel: 3.5,
-  recessDepth: 13.125,
-  ringDishTiltDeg: 0.2375,
-  ringDishExponent: 7.8,
-  selectDomeTiltDeg: 1.4,
-  selectDomeExponent: 1.2281,
-  selectProud: 7.075,
+  recessDepth: 4.5,
+  ringDishTiltDeg: 4.9,
+  ringDishExponent: 7.95,
+  selectDomeTiltDeg: 11,
+  selectDomeExponent: 2.0531,
+  selectProud: 7.775,
   glassThickness: 2.4,
   glassToPanel: 1.2,
-}
+};

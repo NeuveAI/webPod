@@ -22,8 +22,8 @@
  * have made the tuner unable to reach the values it exists to move. `packages/state` is
  * W2's and is not imported.
  */
-import { useThree } from '@react-three/fiber'
-import { createFileRoute } from '@tanstack/react-router'
+import { useThree } from "@react-three/fiber";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   DEFAULT_DEVICE_FORM,
   DEFAULT_DEVICE_MATERIALS,
@@ -45,36 +45,43 @@ import {
   type ProbeReading,
   type ProbeResult,
   type ScreenMeshHandle,
-} from '@webpod/device'
-import { useCallback, useEffect, useMemo, useSyncExternalStore } from 'react'
-import { Vector3 } from 'three'
+} from "@webpod/device";
+import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
+import {
+  CanvasTexture,
+  MeshBasicMaterial,
+  SRGBColorSpace,
+  Vector3,
+} from "three";
 
-export const Route = createFileRoute('/_spike/device')({
+export const Route = createFileRoute("/_spike/device")({
   ssr: false,
   component: DeviceSpike,
-})
+});
 
 /* ─────────────────────────────────────────────────────────────
    The tunables, as a store outside React.
    ───────────────────────────────────────────────────────────── */
 
 type SpikeParams = {
-  readonly colourway: Colourway
-  readonly face: DeviceFace
-  readonly room: 'light' | 'dark'
-  readonly cameraDistance: number
-  readonly dpr: number
-  readonly lightRig: LightRigParams
-  readonly envRoom: EnvRoomParams
-  readonly form: DeviceFormParams
-  readonly materials: DeviceMaterials
-  readonly opticalProfiles: DeviceOpticalProfiles
-}
+  readonly colourway: Colourway;
+  readonly face: DeviceFace;
+  readonly room: "light" | "dark";
+  readonly cameraDistance: number;
+  readonly dpr: number;
+  readonly lightRig: LightRigParams;
+  readonly envRoom: EnvRoomParams;
+  readonly form: DeviceFormParams;
+  readonly materials: DeviceMaterials;
+  readonly opticalProfiles: DeviceOpticalProfiles;
+};
 
 const INITIAL: SpikeParams = {
-  colourway: 'black',
-  face: 'front',
-  room: 'dark',
+  colourway: "white",
+  face: "front",
+  room: "light",
+  // 980 clips the 330 × 552 enclosure against its same-sized canvas at a 30°
+  // FOV, hiding the rounded corners and making the body read as a square slab.
   cameraDistance: 1160,
   dpr: 1,
   lightRig: DEFAULT_LIGHT_RIG,
@@ -82,35 +89,35 @@ const INITIAL: SpikeParams = {
   form: DEFAULT_DEVICE_FORM,
   materials: DEFAULT_DEVICE_MATERIALS,
   opticalProfiles: DEFAULT_DEVICE_OPTICAL_PROFILES,
-}
+};
 
-let current: SpikeParams = INITIAL
-const listeners = new Set<() => void>()
+let current: SpikeParams = INITIAL;
+const listeners = new Set<() => void>();
 
 function subscribe(listener: () => void): () => void {
-  listeners.add(listener)
+  listeners.add(listener);
   return () => {
-    listeners.delete(listener)
-  }
+    listeners.delete(listener);
+  };
 }
 
 function getSnapshot(): SpikeParams {
-  return current
+  return current;
 }
 
 /** A one-level-deep patch, which is all the tuner needs and all it can break. */
 type SpikePatch = {
-  readonly colourway?: Colourway
-  readonly face?: DeviceFace
-  readonly room?: 'light' | 'dark'
-  readonly cameraDistance?: number
-  readonly dpr?: number
-  readonly lightRig?: Partial<LightRigParams>
-  readonly envRoom?: Partial<EnvRoomParams>
-  readonly form?: Partial<DeviceFormParams>
-  readonly materials?: Partial<DeviceMaterials>
-  readonly opticalProfiles?: DeviceOpticalProfiles
-}
+  readonly colourway?: Colourway;
+  readonly face?: DeviceFace;
+  readonly room?: "light" | "dark";
+  readonly cameraDistance?: number;
+  readonly dpr?: number;
+  readonly lightRig?: Partial<LightRigParams>;
+  readonly envRoom?: Partial<EnvRoomParams>;
+  readonly form?: Partial<DeviceFormParams>;
+  readonly materials?: Partial<DeviceMaterials>;
+  readonly opticalProfiles?: DeviceOpticalProfiles;
+};
 
 function setParams(patch: SpikePatch): SpikeParams {
   current = {
@@ -121,15 +128,15 @@ function setParams(patch: SpikePatch): SpikeParams {
     form: { ...current.form, ...patch.form },
     materials: { ...current.materials, ...patch.materials },
     opticalProfiles: patch.opticalProfiles ?? current.opticalProfiles,
-  }
-  for (const listener of listeners) listener()
-  return current
+  };
+  for (const listener of listeners) listener();
+  return current;
 }
 
 function resetParams(): SpikeParams {
-  current = INITIAL
-  for (const listener of listeners) listener()
-  return current
+  current = INITIAL;
+  for (const listener of listeners) listener();
+  return current;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -147,11 +154,11 @@ function resetParams(): SpikeParams {
  * grade a black screen as a very dark body and pass §4.2 stop 4.
  */
 type ProbeApi = {
-  setParams(patch: SpikePatch): SpikeParams
-  getParams(): SpikeParams
-  reset(): SpikeParams
-  sample(): Array<ProbeResult>
-  rms(): number
+  setParams(patch: SpikePatch): SpikeParams;
+  getParams(): SpikeParams;
+  reset(): SpikeParams;
+  sample(): Array<ProbeResult>;
+  rms(): number;
   /**
    * The scene as the renderer actually has it — material class and the handful
    * of parameters that decide the render, read off the live objects rather
@@ -163,43 +170,46 @@ type ProbeApi = {
    * had not received its parameters at all. Reading the objects back is the
    * only check that distinguishes those.
    */
-  describe(): Array<Record<string, unknown>>
-  screenMesh(): Record<string, unknown> | null
-}
+  describe(): Array<Record<string, unknown>>;
+  screenMesh(): Record<string, unknown> | null;
+};
 
 declare global {
   interface Window {
-    __deviceCalibration?: ProbeApi
+    __deviceCalibration?: ProbeApi;
   }
 }
 
-const screenHandle: { current: ScreenMeshHandle | null } = { current: null }
+const screenHandle: { current: ScreenMeshHandle | null } = { current: null };
 
 function LuminanceProbe() {
-  const gl = useThree((state) => state.gl)
-  const scene = useThree((state) => state.scene)
-  const camera = useThree((state) => state.camera)
+  const gl = useThree((state) => state.gl);
+  const scene = useThree((state) => state.scene);
+  const camera = useThree((state) => state.camera);
 
   const sample = useCallback((): Array<ProbeResult> => {
     // ⚑ Read the store, not a ref mirroring a prop. The store is already the
     // thing outside React that both the tuner and the scene read, so a ref
     // would be a second copy of it that can only be wrong — and writing one
     // during render is what `react-hooks/refs` exists to stop.
-    const active = getSnapshot()
-    const { body } = DEVICE_LAYOUT
-    const frontFaceZ = body.depth / 2
-    const form = active.form
+    const active = getSnapshot();
+    const { body } = DEVICE_LAYOUT;
+    const frontFaceZ = body.depth / 2;
+    const form = active.form;
     const ringSag =
-      (DEVICE_LAYOUT.wheel.outerR * Math.tan((form.ringDishTiltDeg * Math.PI) / 180)) /
-      form.ringDishExponent
-    const ringZ = frontFaceZ - form.recessDepth - ringSag
+      (DEVICE_LAYOUT.wheel.outerR *
+        Math.tan((form.ringDishTiltDeg * Math.PI) / 180)) /
+      form.ringDishExponent;
+    const ringZ = frontFaceZ - form.recessDepth - ringSag;
     const ringInnerZ =
       ringZ +
       ringSag *
-        ((DEVICE_LAYOUT.wheel.selectR - 1) / DEVICE_LAYOUT.wheel.outerR) ** form.ringDishExponent
+        ((DEVICE_LAYOUT.wheel.selectR - 1) / DEVICE_LAYOUT.wheel.outerR) **
+          form.ringDishExponent;
     const selectSag =
-      (DEVICE_LAYOUT.wheel.selectR * Math.tan((form.selectDomeTiltDeg * Math.PI) / 180)) /
-      form.selectDomeExponent
+      (DEVICE_LAYOUT.wheel.selectR *
+        Math.tan((form.selectDomeTiltDeg * Math.PI) / 180)) /
+      form.selectDomeExponent;
 
     const targets = probeTargets(active.colourway, active.face, {
       edgeInset: 3,
@@ -209,13 +219,16 @@ function LuminanceProbe() {
       backFaceZ: frontFaceZ,
       seamWidth: form.seamWidth,
       ringZ: (radius) =>
-        ringZ + ringSag * (radius / DEVICE_LAYOUT.wheel.outerR) ** form.ringDishExponent,
+        ringZ +
+        ringSag *
+          (radius / DEVICE_LAYOUT.wheel.outerR) ** form.ringDishExponent,
       selectZ: (radius) =>
         ringInnerZ +
         form.selectProud +
         selectSag *
-          (1 - (radius / DEVICE_LAYOUT.wheel.selectR) ** form.selectDomeExponent),
-    })
+          (1 -
+            (radius / DEVICE_LAYOUT.wheel.selectR) ** form.selectDomeExponent),
+    });
 
     // ⚑ One draw, then **one** readback, in the same task.
     //
@@ -231,31 +244,45 @@ function LuminanceProbe() {
     // loop from milliseconds to two seconds and its convergence from minutes to
     // an hour. One full-buffer read and then indexing into it is the same
     // measurement at a fraction of the cost.
-    gl.render(scene, camera)
-    const context = gl.getContext()
-    const bufferW = context.drawingBufferWidth
-    const bufferH = context.drawingBufferHeight
-    const frame = new Uint8Array(bufferW * bufferH * 4)
-    context.readPixels(0, 0, bufferW, bufferH, context.RGBA, context.UNSIGNED_BYTE, frame)
-    const point = new Vector3()
+    gl.render(scene, camera);
+    const context = gl.getContext();
+    const bufferW = context.drawingBufferWidth;
+    const bufferH = context.drawingBufferHeight;
+    const frame = new Uint8Array(bufferW * bufferH * 4);
+    context.readPixels(
+      0,
+      0,
+      bufferW,
+      bufferH,
+      context.RGBA,
+      context.UNSIGNED_BYTE,
+      frame,
+    );
+    const point = new Vector3();
 
     const readings: Array<ProbeReading> = targets.map((target) => {
       const samples = target.xs.map((x) => {
-        point.set(x, target.y, target.z).project(camera)
-        const px = Math.min(bufferW - 1, Math.max(0, Math.round((point.x * 0.5 + 0.5) * bufferW)))
+        point.set(x, target.y, target.z).project(camera);
+        const px = Math.min(
+          bufferW - 1,
+          Math.max(0, Math.round((point.x * 0.5 + 0.5) * bufferW)),
+        );
         // readPixels' origin is bottom-left, which is already this frame's y-up.
-        const py = Math.min(bufferH - 1, Math.max(0, Math.round((point.y * 0.5 + 0.5) * bufferH)))
-        const i = (py * bufferW + px) * 4
-        return [frame[i] ?? 0, frame[i + 1] ?? 0, frame[i + 2] ?? 0] as const
-      })
-      return { target, samples }
-    })
+        const py = Math.min(
+          bufferH - 1,
+          Math.max(0, Math.round((point.y * 0.5 + 0.5) * bufferH)),
+        );
+        const i = (py * bufferW + px) * 4;
+        return [frame[i] ?? 0, frame[i + 1] ?? 0, frame[i + 2] ?? 0] as const;
+      });
+      return { target, samples };
+    });
 
-    return evaluate(readings)
-  }, [gl, scene, camera])
+    return evaluate(readings);
+  }, [gl, scene, camera]);
 
   useEffect(() => {
-    if (!import.meta.env.DEV) return
+    if (!import.meta.env.DEV) return;
     const api: ProbeApi = {
       setParams,
       getParams: getSnapshot,
@@ -263,27 +290,28 @@ function LuminanceProbe() {
       sample,
       rms: () => rmsDelta(sample()),
       describe: () => {
-        const rows: Array<Record<string, unknown>> = []
+        const rows: Array<Record<string, unknown>> = [];
         scene.traverse((object) => {
           const mesh = object as unknown as {
-            isMesh?: boolean
-            isLight?: boolean
-            type?: string
-            intensity?: number
-            position?: { x: number; y: number; z: number }
-            material?: Record<string, unknown>
-          }
+            isMesh?: boolean;
+            isLight?: boolean;
+            type?: string;
+            intensity?: number;
+            position?: { x: number; y: number; z: number };
+            material?: Record<string, unknown>;
+          };
           if (mesh.isLight === true) {
             rows.push({
               kind: mesh.type,
               intensity: mesh.intensity,
               position: mesh.position,
-            })
-            return
+            });
+            return;
           }
-          if (mesh.isMesh !== true || mesh.material === undefined) return
-          const material = mesh.material
-          const colour = material.color as { getHexString?: () => string } | undefined
+          if (mesh.isMesh !== true || mesh.material === undefined) return;
+          const material = mesh.material;
+          const colour = material.color as
+            { getHexString?: () => string } | undefined;
           rows.push({
             kind: material.type,
             color: colour?.getHexString?.(),
@@ -291,33 +319,36 @@ function LuminanceProbe() {
             metalness: material.metalness,
             clearcoat: material.clearcoat,
             transmission: material.transmission,
-            envMap: material.envMap === null || material.envMap === undefined ? null : 'set',
+            envMap:
+              material.envMap === null || material.envMap === undefined
+                ? null
+                : "set",
             envMapIntensity: material.envMapIntensity,
             toneMapped: material.toneMapped,
-          })
-        })
-        return rows
+          });
+        });
+        return rows;
       },
       screenMesh: () => {
-        const handle = screenHandle.current
-        if (handle === null) return null
-        const transform = handle.readTransform()
+        const handle = screenHandle.current;
+        if (handle === null) return null;
+        const transform = handle.readTransform();
         return {
           size: handle.size,
           panel: handle.panel,
           worldMatrix: transform.worldMatrix.toArray(),
           world: transform.world,
           viewport: transform.viewport,
-        }
+        };
       },
-    }
-    window.__deviceCalibration = api
+    };
+    window.__deviceCalibration = api;
     return () => {
-      delete window.__deviceCalibration
-    }
-  }, [sample, scene])
+      delete window.__deviceCalibration;
+    };
+  }, [sample, scene]);
 
-  return null
+  return null;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -328,29 +359,80 @@ function LuminanceProbe() {
 const ROOM = {
   dark: {
     sweep:
-      'radial-gradient(120% 90% at 28% 6%, #16171C 0%, #101216 36%, #0B0D10 70%, #07080A 100%)',
-    floor: 'linear-gradient(180deg, #0D0F13 0%, #060709 100%)',
-    contact: '0 24px 48px 0 rgb(0 0 0 / 0.66), 0 4px 10px -2px rgb(0 0 0 / 0.48)',
-    ink: '#F1F5F9',
-    ink2: '#94A3B8',
+      "radial-gradient(120% 90% at 28% 6%, #16171C 0%, #101216 36%, #0B0D10 70%, #07080A 100%)",
+    floor: "linear-gradient(180deg, #0D0F13 0%, #060709 100%)",
+    contact:
+      "0 24px 48px 0 rgb(0 0 0 / 0.66), 0 4px 10px -2px rgb(0 0 0 / 0.48)",
+    ink: "#F1F5F9",
+    ink2: "#94A3B8",
   },
   light: {
     sweep:
-      'radial-gradient(120% 90% at 28% 8%, #F1F3F7 0%, #E7EBF1 34%, #DDE2EA 68%, #D4DAE3 100%)',
-    floor: 'linear-gradient(180deg, #CDD4DE 0%, #BAC2CF 100%)',
-    contact: '0 24px 48px 0 rgb(51 65 85 / 0.34), 0 4px 10px -2px rgb(30 41 59 / 0.20)',
-    ink: '#0F172A',
-    ink2: '#475569',
+      "radial-gradient(120% 90% at 28% 8%, #F1F3F7 0%, #E7EBF1 34%, #DDE2EA 68%, #D4DAE3 100%)",
+    floor: "linear-gradient(180deg, #CDD4DE 0%, #BAC2CF 100%)",
+    contact:
+      "0 24px 48px 0 rgb(51 65 85 / 0.34), 0 4px 10px -2px rgb(30 41 59 / 0.20)",
+    ink: "#0F172A",
+    ink2: "#475569",
   },
-} as const
+} as const;
+
+let previewScreenCache: {
+  material: MeshBasicMaterial;
+  texture: CanvasTexture;
+} | null = null;
+function getPreviewScreen() {
+  if (previewScreenCache !== null) return previewScreenCache;
+  const canvas = document.createElement("canvas");
+  canvas.width = 272;
+  canvas.height = 204;
+  const context = canvas.getContext("2d");
+  if (context === null) return null;
+  context.fillStyle = "#F2F6FB";
+  context.fillRect(0, 0, 272, 204);
+  context.fillStyle = "#DCE5EE";
+  context.fillRect(0, 0, 272, 24);
+  context.fillStyle = "#334155";
+  context.font = "bold 13px system-ui";
+  context.fillText("iPod", 10, 17);
+  context.textAlign = "right";
+  context.fillText("Now Playing", 262, 17);
+  context.textAlign = "left";
+  context.font = "14px system-ui";
+  ["Music", "Photos", "Podcasts", "Settings"].forEach((label, index) => {
+    const y = 24 + index * 45;
+    context.fillStyle = index === 0 ? "#CBD8E6" : "#F2F6FB";
+    context.fillRect(0, y, 272, 45);
+    context.fillStyle = "#334155";
+    context.fillText(label, 14, y + 28);
+    context.textAlign = "right";
+    context.fillText("›", 256, y + 28);
+    context.textAlign = "left";
+  });
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.needsUpdate = true;
+  previewScreenCache = {
+    material: new MeshBasicMaterial({ map: texture, toneMapped: false }),
+    texture,
+  };
+  return previewScreenCache;
+}
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    previewScreenCache?.material.dispose();
+    previewScreenCache?.texture.dispose();
+    previewScreenCache = null;
+  });
+}
 
 function DeviceSpike() {
-  const params = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
-  const room = ROOM[params.room]
-
+  const params = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  const room = ROOM[params.room];
+  const previewScreen = getPreviewScreen();
   const onScreenMeshReady = useCallback((handle: ScreenMeshHandle) => {
-    screenHandle.current = handle
-  }, [])
+    screenHandle.current = handle;
+  }, []);
 
   // §10.6 elevation 5 — the device is the only thing at this elevation, and the
   // shadow is CSS because §12.3 puts the environment in the CSS layer. It is
@@ -362,39 +444,49 @@ function DeviceSpike() {
       radius: DEVICE_LAYOUT.body.cornerR,
     }),
     [],
-  )
+  );
 
   if (!import.meta.env.DEV) {
-    return <main style={{ padding: 24, fontFamily: 'ui-monospace, monospace' }}>Not available.</main>
+    return (
+      <main style={{ padding: 24, fontFamily: "ui-monospace, monospace" }}>
+        Not available.
+      </main>
+    );
   }
 
   return (
     <main
       style={{
-        position: 'fixed',
+        position: "fixed",
         inset: 0,
         background: room.sweep,
         color: room.ink,
-        display: 'grid',
-        placeItems: 'center',
-        overflow: 'hidden',
+        display: "grid",
+        placeItems: "center",
+        overflow: "hidden",
       }}
     >
       <div
         aria-hidden
         style={{
-          position: 'absolute',
+          position: "absolute",
           insetInline: 0,
           bottom: 0,
-          height: '32%',
+          height: "32%",
           background: room.floor,
         }}
       />
-      <div style={{ position: 'relative', width: shadow.width, height: shadow.height }}>
+      <div
+        style={{
+          position: "relative",
+          width: shadow.width,
+          height: shadow.height,
+        }}
+      >
         <div
           aria-hidden
           style={{
-            position: 'absolute',
+            position: "absolute",
             inset: 0,
             borderRadius: shadow.radius,
             boxShadow: room.contact,
@@ -411,6 +503,7 @@ function DeviceSpike() {
           cameraDistance={params.cameraDistance}
           dpr={params.dpr}
           onScreenMeshReady={onScreenMeshReady}
+          screenMaterial={previewScreen?.material}
           className="webpod-device-canvas"
         >
           <LuminanceProbe />
@@ -418,7 +511,7 @@ function DeviceSpike() {
       </div>
       <Hud params={params} tone={room.ink2} />
     </main>
-  )
+  );
 }
 
 /**
@@ -427,38 +520,49 @@ function DeviceSpike() {
  * Deliberately unstyled beyond legibility: this is a diagnostic, and any craft
  * spent here is craft not spent on the object the page exists to judge.
  */
-function Hud({ params, tone }: { readonly params: SpikeParams; readonly tone: string }) {
+function Hud({
+  params,
+  tone,
+}: {
+  readonly params: SpikeParams;
+  readonly tone: string;
+}) {
   return (
     <div
       style={{
-        position: 'absolute',
+        position: "absolute",
         top: 12,
         left: 12,
-        display: 'flex',
+        display: "flex",
         gap: 8,
-        fontFamily: 'ui-monospace, monospace',
+        fontFamily: "ui-monospace, monospace",
         fontSize: 12,
         color: tone,
       }}
     >
-      <button type="button" onClick={() => setParams({ colourway: 'black' })}>
+      <button type="button" onClick={() => setParams({ colourway: "black" })}>
         black
       </button>
-      <button type="button" onClick={() => setParams({ colourway: 'white' })}>
+      <button type="button" onClick={() => setParams({ colourway: "white" })}>
         white
       </button>
-      <button type="button" onClick={() => setParams({ face: 'front' })}>
+      <button type="button" onClick={() => setParams({ face: "front" })}>
         front
       </button>
-      <button type="button" onClick={() => setParams({ face: 'back' })}>
+      <button type="button" onClick={() => setParams({ face: "back" })}>
         back
       </button>
-      <button type="button" onClick={() => setParams({ room: params.room === 'dark' ? 'light' : 'dark' })}>
+      <button
+        type="button"
+        onClick={() =>
+          setParams({ room: params.room === "dark" ? "light" : "dark" })
+        }
+      >
         room: {params.room}
       </button>
       <span>
         {params.colourway} / {params.face}
       </span>
     </div>
-  )
+  );
 }

@@ -47,19 +47,19 @@
  * device renders standalone — the spike route depends on that, and so does any
  * tier where the composite is not mounted.
  */
-import type { Camera, Material, Mesh, Object3D } from 'three'
-import { Matrix4, Vector3 } from 'three'
+import type { Camera, Material, Mesh, Object3D } from "three";
+import { Matrix4, Vector3 } from "three";
 
 /** A point in the canvas's CSS pixel space: origin top-left, +y **down**. */
-export type ViewportPoint = { readonly x: number; readonly y: number }
+export type ViewportPoint = { readonly x: number; readonly y: number };
 
 /** The quad's four corners, in the order a texture's UVs run. */
 export type ScreenCorners<T> = {
-  readonly topLeft: T
-  readonly topRight: T
-  readonly bottomRight: T
-  readonly bottomLeft: T
-}
+  readonly topLeft: T;
+  readonly topRight: T;
+  readonly bottomRight: T;
+  readonly bottomLeft: T;
+};
 
 /**
  * Everything about where the quad is, computed at the moment it is handed out.
@@ -70,16 +70,16 @@ export type ScreenCorners<T> = {
  */
 export type ScreenTransform = {
   /** The quad's world matrix. */
-  readonly worldMatrix: Matrix4
+  readonly worldMatrix: Matrix4;
   /** The quad's corners in world space. */
-  readonly world: ScreenCorners<Vector3>
+  readonly world: ScreenCorners<Vector3>;
   /** The same corners in the canvas's CSS pixel space. */
   readonly viewport: {
-    readonly corners: ScreenCorners<ViewportPoint>
-    readonly width: number
-    readonly height: number
-  }
-}
+    readonly corners: ScreenCorners<ViewportPoint>;
+    readonly width: number;
+    readonly height: number;
+  };
+};
 
 export type ScreenMeshHandle = {
   /**
@@ -87,7 +87,11 @@ export type ScreenMeshHandle = {
    * `transform: scale(0.85)`. This is the coordinate system W6's DOM element
    * is laid out in.
    */
-  readonly panel: { readonly width: number; readonly height: number; readonly scale: number }
+  readonly panel: {
+    readonly width: number;
+    readonly height: number;
+    readonly scale: number;
+  };
   /**
    * The quad itself, in body px — §7.3's "Screen active" row, **272 × 204**.
    *
@@ -95,15 +99,15 @@ export type ScreenMeshHandle = {
    * them is a factor-of-0.85 error in the composited transform that produces a
    * panel which is nearly right.
    */
-  readonly size: { readonly width: number; readonly height: number }
+  readonly size: { readonly width: number; readonly height: number };
   /** Read the quad's position. Always computed now; never cached. */
-  readTransform(): ScreenTransform
+  readTransform(): ScreenTransform;
   /**
    * Subscribe to transform changes. Fires during `onBeforeRender`, only on
    * frames where the transform actually differs, and is handed the new value.
    * Returns an unsubscriber.
    */
-  onTransformChange(listener: (transform: ScreenTransform) => void): () => void
+  onTransformChange(listener: (transform: ScreenTransform) => void): () => void;
   /**
    * Install a material into the slot. `null` restores the §12.3 default
    * (`MeshBasicMaterial`, `toneMapped: false`).
@@ -112,23 +116,27 @@ export type ScreenMeshHandle = {
    * Whoever created a material owns its lifetime; a slot that disposed its
    * occupant would free a texture W6 still holds.
    */
-  setMaterial(material: Material | null): void
+  setMaterial(material: Material | null): void;
   /**
    * Ask for a frame. The consumer calls this after changing its texture, since
    * under `frameloop="demand"` nothing else will.
    */
-  invalidate(): void
-}
+  invalidate(): void;
+};
 
 /** Emitted by `<Device>` once the quad exists. */
-export type ScreenMeshReady = (handle: ScreenMeshHandle) => void
+export type ScreenMeshReady = (handle: ScreenMeshHandle) => void;
 
 type HandleDeps = {
-  readonly mesh: Mesh
-  readonly panel: { readonly width: number; readonly height: number; readonly scale: number }
-  readonly size: { readonly width: number; readonly height: number }
-  readonly defaultMaterial: Material
-  readonly invalidate: () => void
+  readonly mesh: Mesh;
+  readonly panel: {
+    readonly width: number;
+    readonly height: number;
+    readonly scale: number;
+  };
+  readonly size: { readonly width: number; readonly height: number };
+  readonly defaultMaterial: Material;
+  readonly invalidate: () => void;
   /**
    * The live camera and canvas size.
    *
@@ -136,18 +144,18 @@ type HandleDeps = {
    * and the viewport changes on every resize, so capturing either by value
    * would reintroduce exactly the staleness this module removes.
    */
-  readonly view: () => { camera: Camera; width: number; height: number }
-}
+  readonly view: () => { camera: Camera; width: number; height: number };
+};
 
 type HandleState = {
-  deps: HandleDeps
-  readonly listeners: Set<(transform: ScreenTransform) => void>
-  readonly lastReported: Matrix4
-  everReported: boolean
-  readonly handle: ScreenMeshHandle
-}
+  deps: HandleDeps;
+  readonly listeners: Set<(transform: ScreenTransform) => void>;
+  readonly lastReported: Matrix4;
+  everReported: boolean;
+  readonly handle: ScreenMeshHandle;
+};
 
-const handlesByMesh = new WeakMap<Mesh, HandleState>()
+const handlesByMesh = new WeakMap<Mesh, HandleState>();
 
 /**
  * Wire a mesh up as a {@link ScreenMeshHandle}.
@@ -157,49 +165,51 @@ const handlesByMesh = new WeakMap<Mesh, HandleState>()
  * without one.
  */
 export function createScreenMeshHandle(deps: HandleDeps): ScreenMeshHandle {
-  const existing = handlesByMesh.get(deps.mesh)
+  const existing = handlesByMesh.get(deps.mesh);
   if (existing !== undefined) {
-    existing.deps = deps
-    return existing.handle
+    existing.deps = deps;
+    return existing.handle;
   }
 
-  const { mesh, panel, size } = deps
+  const { mesh, panel, size } = deps;
 
-  const listeners = new Set<(transform: ScreenTransform) => void>()
-  const lastReported = new Matrix4()
-  const scratch = new Vector3()
+  const listeners = new Set<(transform: ScreenTransform) => void>();
+  const lastReported = new Matrix4();
+  const scratch = new Vector3();
 
   function readTransform(): ScreenTransform {
     // `updateWorldMatrix(true, false)` refreshes ancestors as well, which is
     // what makes the answer current even when the caller asks between frames.
-    mesh.updateWorldMatrix(true, false)
-    const worldMatrix = new Matrix4().copy(mesh.matrixWorld)
-    const hw = size.width / 2
-    const hh = size.height / 2
+    mesh.updateWorldMatrix(true, false);
+    const worldMatrix = new Matrix4().copy(mesh.matrixWorld);
+    const hw = size.width / 2;
+    const hh = size.height / 2;
     const local: Array<[number, number]> = [
       [-hw, hh],
       [hw, hh],
       [hw, -hh],
       [-hw, -hh],
-    ]
-    const world = local.map(([x, y]) => new Vector3(x, y, 0).applyMatrix4(worldMatrix))
+    ];
+    const world = local.map(([x, y]) =>
+      new Vector3(x, y, 0).applyMatrix4(worldMatrix),
+    );
 
-    const { camera, width, height } = state.deps.view()
+    const { camera, width, height } = state.deps.view();
     const viewportCorners = world.map((point) => {
-      scratch.copy(point).project(camera)
+      scratch.copy(point).project(camera);
       return {
         x: (scratch.x * 0.5 + 0.5) * width,
         // NDC is y-up and CSS pixels are y-down; this is the only place that
         // flip happens, which is the point of doing it here rather than in W6.
         y: (1 - (scratch.y * 0.5 + 0.5)) * height,
-      }
-    })
+      };
+    });
 
     return {
       worldMatrix,
       world: cornersOf(world),
       viewport: { corners: cornersOf(viewportCorners), width, height },
-    }
+    };
   }
 
   const handle: ScreenMeshHandle = {
@@ -208,48 +218,54 @@ export function createScreenMeshHandle(deps: HandleDeps): ScreenMeshHandle {
     readTransform,
 
     setMaterial(material) {
-      mesh.material = material ?? state.deps.defaultMaterial
-      state.deps.invalidate()
+      mesh.material = material ?? state.deps.defaultMaterial;
+      state.deps.invalidate();
     },
 
     onTransformChange(listener) {
-      listeners.add(listener)
+      listeners.add(listener);
       return () => {
-        listeners.delete(listener)
-      }
+        listeners.delete(listener);
+      };
     },
 
     invalidate() {
-      state.deps.invalidate()
+      state.deps.invalidate();
     },
-  }
+  };
 
-  const state: HandleState = { deps, listeners, lastReported, everReported: false, handle }
-  handlesByMesh.set(mesh, state)
+  const state: HandleState = {
+    deps,
+    listeners,
+    lastReported,
+    everReported: false,
+    handle,
+  };
+  handlesByMesh.set(mesh, state);
 
   // three.js calls this once per rendered frame, per mesh. Under
   // `frameloop="demand"` that is once per frame somebody asked for.
   mesh.onBeforeRender = function onBeforeRender(this: Object3D) {
-    if (listeners.size === 0) return
-    if (state.everReported && lastReported.equals(mesh.matrixWorld)) return
-    lastReported.copy(mesh.matrixWorld)
-    state.everReported = true
-    const transform = readTransform()
-    for (const listener of listeners) listener(transform)
-  }
+    if (listeners.size === 0) return;
+    if (state.everReported && lastReported.equals(mesh.matrixWorld)) return;
+    lastReported.copy(mesh.matrixWorld);
+    state.everReported = true;
+    const transform = readTransform();
+    for (const listener of listeners) listener(transform);
+  };
 
-  return handle
+  return handle;
 }
 
 function cornersOf<T>(values: ReadonlyArray<T>): ScreenCorners<T> {
-  const [topLeft, topRight, bottomRight, bottomLeft] = values
+  const [topLeft, topRight, bottomRight, bottomLeft] = values;
   if (
     topLeft === undefined ||
     topRight === undefined ||
     bottomRight === undefined ||
     bottomLeft === undefined
   ) {
-    throw new Error('createScreenMeshHandle: expected four corners')
+    throw new Error("createScreenMeshHandle: expected four corners");
   }
-  return { topLeft, topRight, bottomRight, bottomLeft }
+  return { topLeft, topRight, bottomRight, bottomLeft };
 }

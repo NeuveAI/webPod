@@ -20,31 +20,31 @@ import {
   RedFormat,
   RepeatWrapping,
   SRGBColorSpace,
-} from 'three'
+} from "three";
 
 /** §5.3 L8's four printed legends, in the order they sit on the wheel. */
 const WHEEL_LABELS = [
-  { text: 'MENU', angle: -Math.PI / 2 },
-  { text: '⏭', angle: 0 },
-  { text: '⏯', angle: Math.PI / 2 },
-  { text: '⏮', angle: Math.PI },
-] as const
+  { text: "MENU", angle: -Math.PI / 2 },
+  { text: "⏭", angle: 0 },
+  { text: "⏯", angle: Math.PI / 2 },
+  { text: "⏮", angle: Math.PI },
+] as const;
 
 export type WheelLabelMapParams = {
   /** Ring outer radius — the texture covers the disc's bounding square. */
-  readonly outerR: number
+  readonly outerR: number;
   /** §12.0's measured band, r 77–79. The legends are centred in it. */
-  readonly bandInnerR: number
-  readonly bandOuterR: number
+  readonly bandInnerR: number;
+  readonly bandOuterR: number;
   /** §5.3 L8: `--wheel-k-label` / `--wheel-w-label`. */
-  readonly labelColor: string
+  readonly labelColor: string;
   /** The ring's own §12.3 base colour, so the map is neutral off the glyphs. */
-  readonly ringColor: string
+  readonly ringColor: string;
   /** §5.3 L8: 13px on mobile, Source Sans 3 600, letter-spacing +0.14em. */
-  readonly fontPx: number
+  readonly fontPx: number;
   /** Texture edge length. */
-  readonly size: number
-}
+  readonly size: number;
+};
 
 /**
  * Screen-printed legends, as a transparent decal over the wheel.
@@ -54,44 +54,47 @@ export type WheelLabelMapParams = {
  * uniform white texture. The map therefore carries transparent pixels off the
  * glyphs and the ink colour on them; `Device` renders it as an unlit decal.
  */
-export function createWheelLabelMap(params: WheelLabelMapParams): CanvasTexture | null {
-  if (typeof document === 'undefined') return null
-  const { size, outerR, bandInnerR, bandOuterR, fontPx } = params
+export function createWheelLabelMap(
+  params: WheelLabelMapParams,
+): CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const { size, outerR, bandInnerR, bandOuterR, fontPx } = params;
 
-  const canvas = document.createElement('canvas')
-  canvas.width = size
-  canvas.height = size
-  const ctx = canvas.getContext('2d')
-  if (ctx === null) return null
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (ctx === null) return null;
 
-  ctx.clearRect(0, 0, size, size)
+  ctx.clearRect(0, 0, size, size);
 
-  const pxPerUnit = size / (outerR * 2)
-  const bandR = ((bandInnerR + bandOuterR) / 2) * pxPerUnit
-  const centre = size / 2
+  const pxPerUnit = size / (outerR * 2);
+  const bandR = ((bandInnerR + bandOuterR) / 2) * pxPerUnit;
+  const centre = size / 2;
 
-  ctx.fillStyle = params.labelColor
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.font = `600 ${fontPx * pxPerUnit}px "Source Sans 3", ui-sans-serif, system-ui, sans-serif`
-  if ('letterSpacing' in ctx) ctx.letterSpacing = `${0.14 * fontPx * pxPerUnit}px`
+  ctx.fillStyle = params.labelColor;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.font = `600 ${fontPx * pxPerUnit}px "Source Sans 3", ui-sans-serif, system-ui, sans-serif`;
+  if ("letterSpacing" in ctx)
+    ctx.letterSpacing = `${0.14 * fontPx * pxPerUnit}px`;
 
   for (const label of WHEEL_LABELS) {
     // The texture's v axis runs down; the layout frame's y runs up. Negating
     // the sine here is the single place that flip happens for the labels.
-    const x = centre + bandR * Math.cos(label.angle)
-    const y = centre + bandR * Math.sin(label.angle)
-    ctx.fillText(label.text, x, y)
+    const x = centre + bandR * Math.cos(label.angle);
+    const y = centre + bandR * Math.sin(label.angle);
+    ctx.fillText(label.text, x, y);
   }
 
-  const texture = new CanvasTexture(canvas)
+  const texture = new CanvasTexture(canvas);
   // ⚑ A colour map, so it must be tagged sRGB. `CanvasTexture` defaults to
   // `NoColorSpace`, which three then treats as already-linear — white survives
   // that unchanged, so the *background* of this map looks correct while the
   // glyphs come out at the wrong value. A silent, partial wrongness.
-  texture.colorSpace = SRGBColorSpace
-  texture.anisotropy = 4
-  return texture
+  texture.colorSpace = SRGBColorSpace;
+  texture.anisotropy = 4;
+  return texture;
 }
 
 /**
@@ -110,71 +113,74 @@ export function createMicroNoiseRoughnessMap(
   size = 128,
   seed = 0x5eed1234,
 ): DataTexture {
-  const random = xorshift32(seed)
-  const data = new Uint8Array(size * size)
+  const random = xorshift32(seed);
+  const data = new Uint8Array(size * size);
   for (let i = 0; i < data.length; i++) {
-    data[i] = Math.round(255 * (1 - random() * amplitude))
+    data[i] = Math.round(255 * (1 - random() * amplitude));
   }
-  const texture = new DataTexture(data, size, size, RedFormat)
-  texture.wrapS = RepeatWrapping
-  texture.wrapT = RepeatWrapping
+  const texture = new DataTexture(data, size, size, RedFormat);
+  texture.wrapS = RepeatWrapping;
+  texture.wrapT = RepeatWrapping;
   // ⚑ `ExtrudeGeometry`'s UV generator emits **world coordinates**, not 0..1,
   // so a default repeat of 1 would tile this 128² texture once per body pixel
   // and alias into a flat grey. One tile per `size` body px is what "128²
   // tiled" in §12.3 recipe 8 means.
-  texture.repeat.set(1 / size, 1 / size)
-  texture.minFilter = LinearFilter
-  texture.magFilter = LinearFilter
-  texture.needsUpdate = true
-  return texture
+  texture.repeat.set(1 / size, 1 / size);
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+  texture.needsUpdate = true;
+  return texture;
 }
 
 /** §12.3 recipe 2 — horizontal 304-steel grain, encoded as RG direction + B strength. */
 export function createSteelAnisotropyMap(size = 1024): DataTexture {
-  const data = new Uint8Array(size * size * 4)
+  const data = new Uint8Array(size * size * 4);
   for (let y = 0; y < size; y += 1) {
     // Two deterministic, horizontal-only micro-stripe frequencies. Direction
     // remains +x; only the strength breathes by at most five percent.
-    const grain = 0.95 + 0.025 * Math.sin((y * Math.PI * 2) / 3) + 0.025 * Math.sin((y * Math.PI * 2) / 5)
+    const grain =
+      0.95 +
+      0.025 * Math.sin((y * Math.PI * 2) / 3) +
+      0.025 * Math.sin((y * Math.PI * 2) / 5);
     for (let x = 0; x < size; x += 1) {
-      const offset = (y * size + x) * 4
-      data[offset] = 255
-      data[offset + 1] = 128
-      data[offset + 2] = Math.round(255 * grain)
-      data[offset + 3] = 255
+      const offset = (y * size + x) * 4;
+      data[offset] = 255;
+      data[offset + 1] = 128;
+      data[offset + 2] = Math.round(255 * grain);
+      data[offset + 3] = 255;
     }
   }
-  const texture = new DataTexture(data, size, size, RGBAFormat)
-  texture.wrapS = RepeatWrapping
-  texture.wrapT = RepeatWrapping
-  texture.minFilter = LinearFilter
-  texture.magFilter = LinearFilter
-  texture.needsUpdate = true
-  return texture
+  const texture = new DataTexture(data, size, size, RGBAFormat);
+  texture.wrapS = RepeatWrapping;
+  texture.wrapT = RepeatWrapping;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+  texture.needsUpdate = true;
+  return texture;
 }
 
 /** §5.1 L4 — restrained lower-edge sub-surface warmth for black polycarbonate. */
 export function createBlackPolySssMap(height = 256): DataTexture {
-  const data = new Uint8Array(height)
+  const data = new Uint8Array(height);
   for (let y = 0; y < height; y += 1) {
-    const fromBottom = y / (height - 1)
-    data[y] = Math.round(255 * Math.max(0, (fromBottom - 0.72) / 0.28))
+    const fromBottom = y / (height - 1);
+    data[y] = Math.round(255 * Math.max(0, (fromBottom - 0.72) / 0.28));
   }
-  const texture = new DataTexture(data, 1, height, RedFormat)
-  texture.wrapS = ClampToEdgeWrapping
-  texture.wrapT = ClampToEdgeWrapping
-  texture.minFilter = LinearFilter
-  texture.magFilter = LinearFilter
-  texture.needsUpdate = true
-  return texture
+  const texture = new DataTexture(data, 1, height, RedFormat);
+  texture.wrapS = ClampToEdgeWrapping;
+  texture.wrapT = ClampToEdgeWrapping;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+  texture.needsUpdate = true;
+  return texture;
 }
 
 function xorshift32(seed: number): () => number {
-  let state = seed >>> 0 || 1
+  let state = seed >>> 0 || 1;
   return () => {
-    state ^= state << 13
-    state ^= state >>> 17
-    state ^= state << 5
-    return (state >>> 0) / 0x1_0000_0000
-  }
+    state ^= state << 13;
+    state ^= state >>> 17;
+    state ^= state << 5;
+    return (state >>> 0) / 0x1_0000_0000;
+  };
 }
