@@ -171,6 +171,14 @@ export function createStubProvider(spec: StubProviderSpec): MusicProvider {
     setVolume(): Promise<void> {
       return gate('volume', 'setVolume')
     },
+    /** Not implemented. Gated on `transport` — §14.3 row 27 is full parity (D-052). */
+    setShuffle(): Promise<void> {
+      return gate('transport', 'setShuffle')
+    },
+    /** Not implemented. Gated on `transport` — §14.3 row 27 is full parity (D-052). */
+    setRepeat(): Promise<void> {
+      return gate('transport', 'setRepeat')
+    },
     /** Idle, always. */
     get playback(): PlaybackState {
       return IDLE

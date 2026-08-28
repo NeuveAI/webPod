@@ -177,14 +177,11 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
   let status: PlaybackState['status'] = 'idle'
   let positionMs = 0
   let volume0to100 = 60
-  // ⚑ `const`, and that is a finding rather than a shortcut. §14.3 row 27 has
-  // shuffle and repeat at full parity on both providers, and §14.2 gives the
-  // interface no method that sets either. Nothing can change these until that
-  // gap is resolved, so they are fixed at their B02 defaults. Logged in
-  // `decisions/w1.md` as a question for the lead rather than patched here:
-  // adding `setShuffle` / `setRepeat` would be redesigning §14.2.
-  const shuffle: ShuffleMode = 'off'
-  const repeat: RepeatMode = 'off'
+  // §14.2 supplies no setter for either; D-052 ruled that an omission rather
+  // than a design and added `setShuffle` / `setRepeat` to the interface. These
+  // start at their B02 defaults (§11.1) and move only through those methods.
+  let shuffle: ShuffleMode = 'off'
+  let repeat: RepeatMode = 'off'
 
   function snapshot(): PlaybackState {
     return {
@@ -465,6 +462,32 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
     async setVolume(level0to100: number): Promise<void> {
       require('volume')
       volume0to100 = Math.max(0, Math.min(100, Math.round(level0to100)))
+      emitPlayback()
+    },
+
+    /**
+     * Sets shuffle mode (D-052).
+     *
+     * Provider state, not device state: the mode is read back through
+     * `playback`, which is what a real provider does, so a screen built here
+     * cannot come to depend on a local flag that would do nothing against
+     * MusicKit or the Spotify SDK.
+     *
+     * The fixture does not reorder its queue on shuffle. That is deliberate —
+     * §14.2 exposes no way to observe a provider's shuffled order either, so
+     * inventing one would be a behaviour W3 could build on and Apple could not
+     * reproduce.
+     */
+    async setShuffle(mode: ShuffleMode): Promise<void> {
+      require('transport')
+      shuffle = mode
+      emitPlayback()
+    },
+
+    /** Sets repeat mode (D-052). Provider state, read back through `playback`. */
+    async setRepeat(mode: RepeatMode): Promise<void> {
+      require('transport')
+      repeat = mode
       emitPlayback()
     },
 

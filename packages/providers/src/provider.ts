@@ -35,9 +35,11 @@ import type {
   ProgressTick,
   QueueSnapshot,
   Rating,
+  RepeatMode,
   SearchQuery,
   SearchResults,
   Session,
+  ShuffleMode,
   StationSeed,
   Unsubscribe,
 } from './domain.ts'
@@ -126,6 +128,30 @@ export interface MusicProvider {
   seek(positionMs: number): Promise<void>
   /** App volume, 0–100. Neither provider can touch system volume. */
   setVolume(level0to100: number): Promise<void>
+  /**
+   * Sets shuffle mode.
+   *
+   * ⚠ **Not in §14.2's method list. Added by ruling D-052**, which found the
+   * omission rather than the design: §14.3 row 27 rates shuffle at full parity
+   * and names the endpoints on both providers, §11.1's B02 lists it as a
+   * user-changeable setting, and §7.2's `pod-set-setting` carries it in its
+   * `key` enum. Three sections require what a fourth forgot to provide.
+   *
+   * **It goes through the provider, never through device state.** Playback is
+   * provider-hosted — MusicKit owns the queue, Spotify's SDK owns an EME
+   * player — so a device-local shuffle flag would not change what plays next.
+   * That is a control which appears to work and does not, which is worse than
+   * the gap it would paper over.
+   *
+   * Gated on `transport` rather than on a capability of its own: row 27 is full
+   * parity, so there is nothing to gate, and §14.2's union has no member for it.
+   */
+  setShuffle(mode: ShuffleMode): Promise<void>
+  /**
+   * Sets repeat mode. See {@link MusicProvider.setShuffle} — same ruling, same
+   * reasoning, same `transport` gate.
+   */
+  setRepeat(mode: RepeatMode): Promise<void>
   readonly playback: PlaybackState
   onPlaybackChange(cb: (s: PlaybackState) => void): Unsubscribe
   /**

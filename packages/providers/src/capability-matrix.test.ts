@@ -54,7 +54,7 @@ const MATRIX_14_3: readonly MatrixRow[] = [
   { row: 24, title: 'Save / add-to-library', capabilities: ['saveToggle'], apple: true, spotify: true, why: 'parity in capability, different label; on Spotify it is the only affection signal' },
   { row: 25, title: 'Progress ticks', capabilities: ['progressTicks'], apple: true, spotify: false, why: 'Spotify is event-driven only; we interpolate and report interpolated: true. Hides no control' },
   { row: 26, title: 'Artwork sizing', capabilities: ['artworkArbitrarySize'], apple: true, spotify: false, why: 'Spotify has ~3 fixed sizes; artworkUrl reports actualPx and the sharp region clamps to it' },
-  { row: 27, title: 'Shuffle / repeat', capabilities: [], apple: true, spotify: true, why: 'not a capability — parity on both, and §14.2 supplies no method that sets either' },
+  { row: 27, title: 'Shuffle / repeat', capabilities: [], apple: true, spotify: true, why: 'not a capability — full parity on both, so there is nothing to gate; setShuffle/setRepeat exist on the interface per D-052 and are gated on transport' },
   { row: 28, title: 'Storefront / market', capabilities: [], apple: true, spotify: true, why: 'not a capability — it sets TrackRef.playable and Session.storefront' },
   { row: 29, title: 'ISRC', capabilities: [], apple: true, spotify: true, why: 'not a capability — it is the basis of §14.5 re-resolution' },
   { row: 30, title: 'Offline / downloads', capabilities: [], apple: false, spotify: false, why: 'CUT repo-wide — no browser client can hold audio, so no union member exists to be permanently false' },
@@ -105,6 +105,18 @@ describe('§14.3 rows the Capability union deliberately does not model', () => {
     ['row 29 · ISRC', 'isrc'],
   ])('%s has no union member', (_label, name) => {
     expect(CAPABILITIES).not.toContain(name as Capability)
+  })
+
+  test('row 27 · the methods D-052 added exist on every implementation', () => {
+    // The row has no capability key and never will — it is full parity — but
+    // it does have an interface obligation, and the absence of a key is not a
+    // reason to leave that untested. Before D-052 landed, this file asserted
+    // the opposite justification ("§14.2 supplies no method that sets either"),
+    // which is how a settled ruling can end up contradicted by a green suite.
+    for (const provider of [apple, spotify]) {
+      expect(typeof provider.setShuffle).toBe('function')
+      expect(typeof provider.setRepeat).toBe('function')
+    }
   })
 })
 
