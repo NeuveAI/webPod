@@ -142,6 +142,14 @@ export function assertReadOnlyRequest(request: Request): void {
   }
   const encodedPathname = new URL(request.url).pathname;
   const pathname = canonicalPathname(encodedPathname);
+  if (pathname.includes("\\")) {
+    throw new Error(
+      `BOUNDARY VIOLATION: backslash path separators are forbidden in this spike.`,
+    );
+  }
+  if (pathname.split("/").some((segment) => segment === "." || segment === "..")) {
+    throw new Error(`BOUNDARY VIOLATION: dot path segments are forbidden in this spike.`);
+  }
   if (/^\/v1\/me(?:\/|$)/.test(pathname)) {
     throw new Error(`BOUNDARY VIOLATION: ${pathname} touches the user library; no user token is authorised.`);
   }
@@ -152,6 +160,8 @@ export function assertReadOnlyRequest(request: Request): void {
  *
  * A path must converge within four decode rounds. Malformed percent escapes or
  * deeper encodings are rejected instead of being interpreted optimistically.
+ * The caller then rejects decoded dot segments and backslash separators rather
+ * than relying on a downstream router's normalization rules.
  */
 function canonicalPathname(encodedPathname: string): string {
   let current = encodedPathname;

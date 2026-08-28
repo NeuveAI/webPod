@@ -18,9 +18,9 @@ $ bun run scripts/spikes/probe-apple.ts --request-plan
 }
 
 $ bun test scripts/spikes/probe-apple.test.ts
-22 pass
+31 pass
 0 fail
-48 expect() calls
+66 expect() calls
 ```
 
 The tests pass the concrete `Request` through the same `sendReadOnly()` boundary
@@ -29,6 +29,12 @@ single/double/triple encoded segments and separators, malformed escapes, and a
 non-convergent deeper encoding all throw before the fake transport is called. A
 catalog GET reaches the fake transport exactly once. The request-budget test
 locks every phase and the 36-request total.
+
+After bounded decoding converges, literal or encoded `.`/`..` segments and
+backslash-equivalent separators are rejected rather than normalized. The test
+matrix covers literal, single-, double- and triple-encoded dot/slash forms plus
+raw and encoded backslash forms; every rejected request leaves transport at
+zero calls.
 
 The injected-transport test executes the real complete probe plan. It captures
 36 records with stable ids `response-001` through `response-036`, verifies every

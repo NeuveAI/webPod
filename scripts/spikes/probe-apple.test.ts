@@ -152,6 +152,29 @@ describe("Apple empirical probe boundary", () => {
     });
   }
 
+  for (const path of [
+    "/v1/../v1/me",
+    "/v1/%2e%2e/v1/%6de",
+    "/v1/%252e%252e/v1/%256de",
+    "/v1/%25252e%25252e/v1/%25256de",
+    "/v1%252f%252e%252e%252fv1%252f%256de",
+    "/v1\\..\\v1\\me",
+    "/v1/%2e%2e%5cv1%5c%6de",
+    "/v1/%252e%252e%255cv1%255c%256de",
+    "/v1/%25252e%25252e%25255cv1%25255c%25256de",
+  ] as const) {
+    test(`rejects dot-segment or backslash normalization ${path}`, async () => {
+      let calls = 0;
+      await expect(
+        sendReadOnly(new Request(`${api}${path}`), () => {
+          calls += 1;
+          return Promise.resolve(new Response());
+        }),
+      ).rejects.toThrow("BOUNDARY VIOLATION");
+      expect(calls).toBe(0);
+    });
+  }
+
   test("does not reject a non-segment lookalike", () => {
     expect(() => assertReadOnlyRequest(new Request(`${api}/v1/media`))).not.toThrow();
   });

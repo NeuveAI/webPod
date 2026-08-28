@@ -265,7 +265,9 @@ APPLE_PROBE_FULL_TRANSCRIPT=1 bun run scripts/spikes/probe-apple.ts
 `sendReadOnly()` validates the concrete `Request`, rejects any non-`GET` method,
 and canonicalizes its pathname through at most four decode rounds before
 rejecting `/v1/me` plus every descendant. Malformed or non-convergent encodings
-fail closed before transport. Do not relax it.
+fail closed before transport. Fully decoded `.`/`..` segments and backslash
+separators are also rejected rather than delegated to downstream URL/router
+normalization. Do not relax it.
 
 Credential-free verification:
 
