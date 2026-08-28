@@ -23,6 +23,7 @@
  */
 
 import { atom, createStore } from 'jotai/vanilla'
+import type { Getter, Setter } from 'jotai/vanilla'
 
 import { flushAnnouncer, noteMovement } from './announce'
 import {
@@ -30,9 +31,12 @@ import {
   agentActiveAtom,
   announcerAtom,
   bumpAtom,
+  clockAtom,
   currentScreenAtom,
-  densityAtom,
+  densityOverrideAtom,
   detentAccumulatorAtom,
+  dynamicTypeScaleAtom,
+  effectiveDensityAtom,
   faceAtom,
   highlightIndexAtom,
   liveRegionAtom,
@@ -40,20 +44,23 @@ import {
   visibleRowCountAtom,
 } from './contract'
 import type {
-  Actor,
   Announcement,
   BumpDirection,
   BumpEvent,
+  Clock,
+  Density,
   DetentInput,
   DetentOutcome,
   DeviceStore,
+  MenuVisibility,
   PressInput,
   PressOutcome,
   ScreenFrame,
   ScreenSnapshotSource,
 } from './contract'
-import { detent, endGesture } from './detent'
+import { coastStep, detent, endGesture } from './detent'
 import { MENU_ROOT, menuFrame } from './menu'
+import { actorFor, isSilenced } from './silence'
 import { moveHighlight, pageHighlight, popScreen, pushScreen } from './screen'
 
 /**
@@ -126,19 +133,6 @@ export const resetStackActionAtom = atom(
 )
 
 /**
- * Derives the provenance tag for a press.
- *
- * A press has no input path to distinguish a thumb from a mouse, so a human
- * press is tagged as touch — the device's primary input. As with the detent
- * reducer, the tag is derived here and never accepted from the caller.
- */
-function pressActor(input: PressInput): Actor {
-  if (input.source === 'system') return 'system'
-  if (input.source === 'agent') return `agent:${input.agentOrigin ?? 'unknown'}`
-  return 'human:touch'
-}
-
-/**
  * Applies a button press to the screen stack.
  *
  * `Menu` ascends, or bumps at the root. `⏭` and `⏮` page by one viewport —
@@ -156,8 +150,12 @@ function pressActor(input: PressInput): Actor {
  * detent: an agent's press is visible and silent.
  */
 export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOutcome => {
-  const actor = pressActor(input)
-  const silenced = input.source !== 'human'
+  // The same two derivations the reducer uses, from the same module. A press
+  // cannot go through `detent()` — it is not a detent — so this is a second
+  // *caller* of the rule, which is fine; what would not be fine is a second
+  // copy of the rule.
+  const actor = actorFor(input.source, 'touch-arc', input.agentOrigin)
+  const silenced = isSilenced(input.source)
 
   let bump: BumpDirection | null = null
   let handled = true
@@ -191,42 +189,158 @@ export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOu
   }
 })
 
-/** Options for {@link createDeviceStore}. */
+/**
+ * Sets the human's density preference, or clears it back to per-screen.
+ *
+ * ⚑ Writing {@link densityOverrideAtom} directly works too, and is deliberately
+ * left possible: everything downstream reads {@link effectiveDensityAtom}, so
+ * the viewport size, the page size and the reported snapshot all move together
+ * with no reconciliation step to forget. This atom exists because the *window*
+ * still needs re-clamping — a `compact` window of 8 rows starting at row 40 is
+ * out of range once `airy` cuts the viewport to 4 — and that is a stack edit,
+ * which belongs to the store rather than to a derived read.
+ */
+export const setDensityActionAtom = atom(null, (get, set, density: Density | null): void => {
+  set(densityOverrideAtom, density)
+  reclampWindows(get, set)
+})
+
+/**
+ * Sets the Dynamic Type scale, forcing `airy` at 130% and above.
+ *
+ * The same shape as {@link setDensityActionAtom} and for the same reason: the
+ * effective density is derived, but the scroll windows it invalidates are not.
+ */
+export const setDynamicTypeScaleActionAtom = atom(null, (get, set, scale: number): void => {
+  set(dynamicTypeScaleAtom, scale)
+  reclampWindows(get, set)
+})
+
+/**
+ * Re-clamps every frame's window to the viewport size now in force.
+ *
+ * Runs over the whole stack, not just the top: a screen the human will come
+ * back to with `Menu` must be as valid as the one they are looking at, and a
+ * frame that kept an out-of-range window would show an empty list on the way
+ * back down.
+ */
+function reclampWindows(get: Getter, set: Setter): void {
+  const visibleRows = get(visibleRowCountAtom)
+  set(
+    screenStackAtom,
+    get(screenStackAtom).map((frame) => {
+      const maxStart = Math.max(0, frame.rows.length - visibleRows)
+      const clampedStart = Math.min(Math.max(frame.windowStart, 0), maxStart)
+      const start =
+        frame.highlightIndex < 0
+          ? 0
+          : frame.highlightIndex < clampedStart
+            ? frame.highlightIndex
+            : frame.highlightIndex >= clampedStart + visibleRows
+              ? Math.min(frame.highlightIndex - visibleRows + 1, maxStart)
+              : clampedStart
+      return start === frame.windowStart ? frame : { ...frame, windowStart: start }
+    }),
+  )
+}
+
+/** Options for building a device. */
 export type CreateDeviceStoreOptions = {
   /**
-   * The stack to start on. Defaults to the main menu at the default density.
+   * The stack to start on. Defaults to the main menu.
    *
    * The default is not a convenience: 001 §15.1 requires the main menu's rows
-   * to render on the first frame and never to wait on a network call, so
-   * the store is born with them.
+   * to render on the first frame and never to wait on a network call, so the
+   * device is born with them.
    */
   readonly initialStack?: readonly ScreenFrame[]
+  /**
+   * Which menu rows the default stack shows.
+   *
+   * Defaults to all of them, which is the honest answer before a provider has
+   * been asked. Whoever learns that stations are unsupported, or that no audio
+   * is loaded, re-seeds through {@link resetStackActionAtom}.
+   */
+  readonly isVisible?: MenuVisibility
+  /**
+   * The device's clock. Defaults to `performance.now()`.
+   *
+   * Substituting one is how a test drives the announcement debounce by hand.
+   * ⚑ There is one clock per device and everything time-related reads it, so a
+   * test that supplies this controls *all* of them and cannot accidentally
+   * leave the announcer on a different scale.
+   */
+  readonly now?: Clock
 }
 
 /**
- * Creates an isolated device store.
+ * How many device stores this module has built.
  *
- * Each call returns a store with its own state, so a test never sees another
- * test's screen stack. The application uses the {@link deviceStore} singleton;
- * this factory exists for tests and for any surface that needs a second,
- * genuinely separate device.
+ * Module-level, so it counts per module instance. Two resolutions of this
+ * package would each start at zero — which is itself a bug (two
+ * `screenStackAtom`s), but a different one, and not one a counter can see.
+ */
+let devicesBuilt = 0
+
+/** Whether we are running under a test runner. */
+function underTest(): boolean {
+  return typeof process !== 'undefined' && process.env['NODE_ENV'] === 'test'
+}
+
+/**
+ * Builds an isolated device. **Tests only.**
+ *
+ * ⚑ There is exactly one device per document, and it is {@link deviceStore}.
+ * This function throws outside a test runner, which is deliberate and is the
+ * enforcement of that rule rather than a note asking for it.
+ *
+ * The reason is the capability requirement the whole package exists for. A
+ * tool callback runs outside React and addresses the module singleton; a React
+ * tree handed `<Provider store={createDeviceStore()}>` addresses a different
+ * object. Both are valid stores, both are React-free, both pass every test
+ * here — and the tool is now moving a screen nobody is looking at, silently,
+ * with no type error. "The state is reachable outside React" would still be
+ * true and the product's premise would still be dead.
+ *
+ * A second device is a legitimate thing for a *test* to want, because a test
+ * that shared one would see the previous test's screen stack. That is the only
+ * legitimate want, so that is the only case allowed.
+ *
+ * @throws If called outside a test runner, or more than once for the document.
  */
 export function createDeviceStore(options: CreateDeviceStoreOptions = {}): DeviceStore {
+  devicesBuilt += 1
+  if (devicesBuilt > 1 && !underTest()) {
+    throw new Error(
+      'A second device store was constructed. There is exactly one device per ' +
+        'document — import `deviceStore`. A store built inside a component is ' +
+        'not the one tool callbacks address, and nothing would report the ' +
+        'difference.',
+    )
+  }
+  return buildDeviceStore(options)
+}
+
+/** The actual construction, with no policy attached. */
+function buildDeviceStore(options: CreateDeviceStoreOptions): DeviceStore {
   const store = createStore()
-  const initial = options.initialStack ?? [menuFrame(MENU_ROOT, store.get(densityAtom))]
+  if (options.now !== undefined) store.set(clockAtom, { now: options.now })
+  const initial = options.initialStack ?? [
+    menuFrame(MENU_ROOT, 'medium', undefined, options.isVisible),
+  ]
   store.set(screenStackAtom, initial)
   return store
 }
 
 /**
- * The application's device store.
+ * The device.
  *
- * A module singleton on purpose. A tool callback registered at module scope and
- * a React tree mounted later must address the *same* device; a store created
- * inside a component would give them one each, and the tool would move a screen
- * nobody is looking at.
+ * A module singleton on purpose, and the only store anything in the running
+ * application may use. A tool callback registered at module scope and a React
+ * tree mounted later must address the *same* device: hand this object to the
+ * `Provider`, never a fresh one.
  */
-export const deviceStore: DeviceStore = createDeviceStore()
+export const deviceStore: DeviceStore = buildDeviceStore({})
 
 /**
  * Resets a store's transient input state.
@@ -261,13 +375,55 @@ export function resetInputState(store: DeviceStore): void {
  *   haptic and the FX it describes.
  */
 export const detentActionAtom = atom(null, (get, set, input: DetentInput): DetentOutcome => {
-  const outcome = detent(get(detentAccumulatorAtom), input)
+  // ⚑ The viewport size comes from here, never from the event. This atom holds
+  // the density and the caller does not, so `Shift+Arrow` cannot page by a
+  // number that disagrees with what is on the glass.
+  const outcome = detent(get(detentAccumulatorAtom), input, get(visibleRowCountAtom))
   set(detentAccumulatorAtom, outcome.accumulator)
+  return applyMovement(get, set, outcome, input.source)
+})
 
+/**
+ * Advances a coasting wheel by one frame, and moves the highlight with it.
+ *
+ * The caller drives this from its frame loop while
+ * `detentAccumulatorAtom.coasting` is true. Every detent it produces clicks
+ * and moves exactly like one the thumb made, because it goes through the same
+ * path as {@link detentActionAtom} below this line.
+ *
+ * @param frameSeconds - Elapsed time for the frame, in seconds.
+ */
+export const coastActionAtom = atom(null, (get, set, frameSeconds: number): DetentOutcome => {
+  const accumulator = get(detentAccumulatorAtom)
+  const outcome = coastStep(accumulator, frameSeconds)
+  set(detentAccumulatorAtom, outcome.accumulator)
+  return applyMovement(get, set, outcome, accumulator.source ?? 'human')
+})
+
+/**
+ * The half of a movement that touches the screen: move the highlight, then
+ * decide what gets said about it.
+ *
+ * Shared by the detent path and the coast path so that a coasted detent is
+ * indistinguishable from a driven one everywhere it matters — same clamping,
+ * same bump, same announcement policy.
+ *
+ * ⚑ The announcement is stamped with the **device clock**, not with the
+ * caller's `timestampMs`. That is the whole fix for the two-clock bug: the
+ * debounce compares two readings of one clock, so no caller can put it on a
+ * different scale by passing the browser's idiomatic `event.timeStamp`.
+ */
+function applyMovement(
+  get: Getter,
+  set: Setter,
+  outcome: DetentOutcome,
+  source: DetentInput['source'],
+): DetentOutcome {
   if (outcome.rowDelta === 0) return outcome
 
+  const now = get(clockAtom).now()
   const before = get(highlightIndexAtom)
-  set(moveHighlightActionAtom, outcome.rowDelta, input.timestampMs)
+  set(moveHighlightActionAtom, outcome.rowDelta, now)
   const frame = get(currentScreenAtom)
 
   if (frame === null || get(highlightIndexAtom) === before) return outcome
@@ -275,20 +431,21 @@ export const detentActionAtom = atom(null, (get, set, input: DetentInput): Deten
   const snapshot: ScreenSnapshotSource = {
     face: get(faceAtom),
     frame,
+    density: get(effectiveDensityAtom),
     agentActive: get(agentActiveAtom),
   }
 
   const noted = noteMovement(get(announcerAtom), {
     snapshot,
     urgency: outcome.announce,
-    source: input.source,
-    atMs: input.timestampMs,
+    source,
+    atMs: now,
   })
   set(announcerAtom, noted.state)
   if (noted.announcement !== null) set(liveRegionAtom, noted.announcement)
 
   return outcome
-})
+}
 
 /**
  * Ends a gesture: drops sub-detent residual, and speaks the settled position
@@ -296,9 +453,9 @@ export const detentActionAtom = atom(null, (get, set, input: DetentInput): Deten
  *
  * @returns The announcement that was published, or `null`.
  */
-export const endGestureActionAtom = atom(null, (get, set, nowMs: number): Announcement | null => {
+export const endGestureActionAtom = atom(null, (get, set): Announcement | null => {
   set(detentAccumulatorAtom, endGesture(get(detentAccumulatorAtom)))
-  return set(flushAnnouncementsActionAtom, nowMs)
+  return set(flushAnnouncementsActionAtom)
 })
 
 /**
@@ -310,8 +467,11 @@ export const endGestureActionAtom = atom(null, (get, set, nowMs: number): Announ
  */
 export const flushAnnouncementsActionAtom = atom(
   null,
-  (get, set, nowMs: number): Announcement | null => {
-    const flushed = flushAnnouncer(get(announcerAtom), nowMs)
+  (get, set): Announcement | null => {
+    // ⚑ The device clock, read here rather than passed in. Nothing outside
+    // this package can put the debounce on a second time scale, because
+    // nothing outside this package supplies the time it is compared against.
+    const flushed = flushAnnouncer(get(announcerAtom), get(clockAtom).now())
     set(announcerAtom, flushed.state)
     if (flushed.announcement !== null) set(liveRegionAtom, flushed.announcement)
     return flushed.announcement
@@ -329,9 +489,16 @@ export const flushAnnouncementsActionAtom = atom(
  */
 export type TimerHandle = number | ReturnType<typeof setTimeout>
 
-/** Injection points for {@link startAnnouncer}, so a test can drive its own clock. */
+/**
+ * Injection points for {@link startAnnouncer}.
+ *
+ * ⚑ There is deliberately no `now` here. The driver reads the device's own
+ * {@link clockAtom}, and a test that wants a deterministic clock supplies it
+ * once, to `createDeviceStore`, where it governs the whole device. Letting the
+ * driver take a second clock is exactly how the two-clock bug was possible:
+ * one component of the debounce could be moved without the other.
+ */
 export type AnnouncerDriverOptions = {
-  readonly now?: () => number
   readonly setTimer?: (callback: () => void, ms: number) => TimerHandle
   readonly clearTimer?: (handle: TimerHandle) => void
 }
@@ -356,7 +523,6 @@ export function startAnnouncer(
   store: DeviceStore,
   options: AnnouncerDriverOptions = {},
 ): () => void {
-  const now = options.now ?? (() => Date.now())
   const setTimer = options.setTimer ?? setTimeout
   const clearTimer = options.clearTimer ?? clearTimeout
 
@@ -375,8 +541,19 @@ export function startAnnouncer(
     if (dueAtMs === null) return
     handle = setTimer(() => {
       handle = null
-      store.set(flushAnnouncementsActionAtom, now())
-    }, Math.max(0, dueAtMs - now()))
+      const spoken = store.set(flushAnnouncementsActionAtom)
+      // ⚑ Re-arm when the flush said nothing. `flushAnnouncer` returns the
+      // *same* state object when the due time has not arrived, and setting an
+      // atom to the value it already holds is a no-op to jotai — so the
+      // subscription below does not fire, and without this line nothing would
+      // ever arm again. The settling summary would be dropped in silence,
+      // which is the one failure mode this whole module exists to prevent.
+      //
+      // A timer firing early is not hypothetical once the clock is
+      // `performance.now()`: browsers coarsen it deliberately, so reading back
+      // a value a fraction below the due time is ordinary.
+      if (spoken === null) arm()
+    }, Math.max(0, dueAtMs - store.get(clockAtom).now()))
   }
 
   const unsubscribe = store.sub(announcerAtom, arm)

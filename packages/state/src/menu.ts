@@ -16,17 +16,29 @@
  * kept despite low traffic, on purpose.
  */
 
-import type { Density, MenuNode, PanelRow, ScreenFrame, ScreenId } from './contract'
+import type {
+  Density,
+  MenuNode,
+  MenuVisibility,
+  PanelRow,
+  ScreenFrame,
+  ScreenId,
+} from './contract'
 
 /**
  * The front-face menu tree, root first (001 §4.2).
  *
- * `Now Playing` is present in the tree but is only shown while audio is
- * loaded, and `Radio` is **absent from the tree** rather than greyed out when
- * the provider cannot make stations — a disabled row for a feature that will
- * never work on this account is a promise the product cannot keep. Both
- * filters belong to the layer that knows the provider; see
- * {@link menuRows}, which takes the visible children as given.
+ * `Now Playing` is present in this tree but is only shown while audio is
+ * loaded, and `Radio` is **absent from the rendered menu** rather than greyed
+ * out when the provider cannot make stations — a disabled row for a feature
+ * that will never work on this account is a promise the product cannot keep.
+ *
+ * Both are decided by the layer that knows the provider and the queue, through
+ * the {@link MenuVisibility} predicate that {@link menuRows} and
+ * {@link menuFrame} accept. The default admits everything, which is the honest
+ * answer at construction: no provider has been asked yet. ⚑ A device seeded
+ * with the default therefore shows `Radio` and `Now Playing`, and whoever
+ * learns the truth must re-seed through `resetStackActionAtom`.
  *
  * `Settings` turns the device over rather than pushing a screen. It is the one
  * front-face row that does.
@@ -120,14 +132,23 @@ export function findMenuNode(
  * layer above resolves. Menu rows carry no provenance: nobody put `Artists`
  * there, it is part of the device.
  */
-export function menuRows(node: MenuNode): readonly PanelRow[] {
-  return (node.children ?? []).map((child, index) => ({
-    index,
-    label: child.label,
-    sublabel: null,
-    glyphs: child.children === undefined && child.flips !== true ? [] : ['descend' as const],
-    provenance: null,
-  }))
+export function menuRows(
+  node: MenuNode,
+  isVisible: MenuVisibility = () => true,
+): readonly PanelRow[] {
+  return (node.children ?? [])
+    .filter((child) => isVisible(child))
+    .map((child, index) => ({
+      // Re-indexed after filtering, deliberately. A row's `index` is its
+      // position on the screen the human is looking at, and it is what a
+      // navigation tool is told to move to — an index that counted rows nobody
+      // can see would send that tool somewhere else.
+      index,
+      label: child.label,
+      sublabel: null,
+      glyphs: child.children === undefined && child.flips !== true ? [] : ['descend' as const],
+      provenance: null,
+    }))
 }
 
 /**
@@ -138,17 +159,21 @@ export function menuRows(node: MenuNode): readonly PanelRow[] {
  * is a legitimate frame rather than an error.
  *
  * @param node - The node whose children become the rows.
- * @param density - The effective density, already reconciled against the
- *   device setting and Dynamic Type.
+ * @param density - The density this screen *prefers*, from 001 §3.1. What it
+ *   renders at is `effectiveDensityAtom`, which reconciles this against the
+ *   human's setting and Dynamic Type.
  * @param screenId - Overrides the node's own screen id, for the case where one
  *   node is rendered as more than one screen.
+ * @param isVisible - Drops rows the provider cannot serve. Defaults to showing
+ *   everything.
  */
 export function menuFrame(
   node: MenuNode,
   density: Density,
   screenId?: ScreenId,
+  isVisible?: MenuVisibility,
 ): ScreenFrame {
-  const rows = menuRows(node)
+  const rows = menuRows(node, isVisible)
   const id = screenId ?? node.screenId
   if (id === undefined) {
     throw new Error(`Menu node "${node.label}" has no screen id and none was supplied`)

@@ -141,7 +141,11 @@ export const pushScreen: PushScreenFn = (stack, frame) => {
  * read as broken rather than as "this is the top". The bump is the answer.
  */
 export const popScreen: PopScreenFn = (stack) => {
-  if (stack.length <= 1) return { stack, bump: 'right' }
+  // No device yet. Not the root — the root is a screen, and there is none, so
+  // there is nothing for a bump to mean. `<= 1` used to cover both cases and
+  // published an elastic "this is the top" for a stack with no top.
+  if (stack.length === 0) return { stack, bump: null }
+  if (stack.length === 1) return { stack, bump: 'right' }
   return { stack: stack.slice(0, -1), bump: null }
 }
 
@@ -173,8 +177,12 @@ export function resetStack(frames: readonly ScreenFrame[]): ScreenTransition {
  * would mean a different row than the one it was told about.
  */
 export const readScreen: ReadScreenFn = (source, options) => {
-  const { face, frame, agentActive } = source
-  const visibleRows = VISIBLE_ROWS[frame.density]
+  const { face, frame, density, agentActive } = source
+  // ⚑ The effective density, from the caller — never `frame.density`, which is
+  // only what this screen would prefer. The two differ whenever the human has
+  // set a density or Dynamic Type has forced `airy`, and reading the wrong one
+  // reports a window size that does not match what is on the glass.
+  const visibleRows = VISIBLE_ROWS[density]
   const rows: readonly PanelRow[] =
     options?.includeOffscreenRows === true
       ? frame.rows
@@ -184,7 +192,7 @@ export const readScreen: ReadScreenFn = (source, options) => {
     face,
     screenId: frame.screenId,
     title: frame.title,
-    density: frame.density,
+    density,
     rows,
     highlightIndex: frame.highlightIndex,
     totalRows: frame.rows.length,

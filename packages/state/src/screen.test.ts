@@ -197,7 +197,7 @@ describe('the enumerable screen description', () => {
       VISIBLE_ROWS.medium,
     ).stack
 
-    const snapshot = readScreen({ face: 'front', frame: top(stack), agentActive: false })
+    const snapshot = readScreen({ face: 'front', frame: top(stack), density: top(stack).density, agentActive: false })
 
     expect(snapshot.rows).toHaveLength(VISIBLE_ROWS.medium)
     expect(snapshot.totalRows).toBe(40)
@@ -210,7 +210,7 @@ describe('the enumerable screen description', () => {
   test('reports every row when it requests the offscreen ones', () => {
     const stack = pushScreen([], frame('S09', 40)).stack
     const snapshot = readScreen(
-      { face: 'front', frame: top(stack), agentActive: false },
+      { face: 'front', frame: top(stack), density: top(stack).density, agentActive: false },
       { includeOffscreenRows: true },
     )
 
@@ -219,7 +219,7 @@ describe('the enumerable screen description', () => {
 
   test('carries the face and the flag, and nothing about agent presence', () => {
     const stack = pushScreen([], frame('B01', 8)).stack
-    const snapshot = readScreen({ face: 'back', frame: top(stack), agentActive: true })
+    const snapshot = readScreen({ face: 'back', frame: top(stack), density: top(stack).density, agentActive: true })
 
     expect(snapshot.face).toBe('back')
     expect(snapshot.agentActive).toBe(true)

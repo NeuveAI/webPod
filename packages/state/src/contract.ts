@@ -25,8 +25,8 @@
  * 3. **`source` is threaded through the reducer, not around it.** Feedback that
  *    signals a hand — the clicker and haptics — is suppressed at exactly one
  *    place, inside the detent reducer, so no call site can forget. Nothing in
- *    nothing in this stage emits anything but `"human"`; the seam exists so
- *    that the day something does, the rule is already enforced.
+ *    this stage emits anything but `"human"`; the seam exists so that the day
+ *    something does, the rule is already enforced.
  *
  * What this file deliberately does **not** contain: any notion of an agent
  * being present, attached, connected or idle. The browser supplies no such
@@ -142,10 +142,10 @@ export type Face = 'front' | 'back'
 /**
  * Row metrics on the panel raster (001 §3).
  *
- * Density is a device setting, not a per-screen constant: every screen has a
- * *preferred* density in the 001 §3.1 inventory, but Dynamic Type at 130% or
- * more forces `airy` across the board, so the effective density is device
- * state and lives in {@link densityAtom}.
+ * Three things have an opinion: the screen (a preference, per the 001 §3.1
+ * inventory), the human (a Display & Feel setting), and Dynamic Type (which
+ * forces `airy` at 130% and above). {@link effectiveDensityAtom} reconciles
+ * them, and is the only one of the four that anything should lay out against.
  */
 export type Density = 'compact' | 'medium' | 'airy'
 
@@ -286,6 +286,15 @@ export type ScreenFrame = {
   readonly screenId: ScreenId
   /** The title bar string for this level. */
   readonly title: string
+  /**
+   * The density this screen *prefers*, from the 001 §3.1 inventory.
+   *
+   * ⚑ Not necessarily the density it renders at. The device setting overrides
+   * it and Dynamic Type overrides both — see {@link effectiveDensityAtom},
+   * which is the only value anything should lay out or page against. This
+   * field is the screen's opinion, kept per frame so that popping back to a
+   * `compact` list from an `airy` one restores the right preference.
+   */
   readonly density: Density
   readonly rows: readonly PanelRow[]
   /**
@@ -370,6 +379,16 @@ export type ReadScreenFn = (
 export type ScreenSnapshotSource = {
   readonly face: Face
   readonly frame: ScreenFrame
+  /**
+   * The density actually in force — {@link effectiveDensityAtom}, not
+   * `frame.density`.
+   *
+   * Passed in rather than read off the frame because the frame only carries a
+   * preference. Taking it from the frame here is precisely the bug this
+   * parameter exists to prevent: the window size and the rendered row height
+   * would then disagree, which shows up as a row you can never scroll to.
+   */
+  readonly density: Density
   readonly agentActive: boolean
 }
 
@@ -432,6 +451,21 @@ export const DETENT = {
    * fault rather than as feedback, and drains the actuator.
    */
   hapticSuppressAbovePerSec: 12,
+  /**
+   * Angular velocity retained per frame once the finger leaves (001 §4.4).
+   *
+   * The wheel does not stop when the thumb does. 0.94 per frame is roughly a
+   * 300ms fall to a third of the release speed at 60Hz — long enough to read
+   * as momentum, short enough not to feel out of control.
+   */
+  coastDecayPerFrame: 0.94,
+  /**
+   * Angular speed below which a coast is over, in deg/s (001 §4.4).
+   *
+   * A floor rather than a decay to zero: 0.94^n never reaches zero, and a
+   * wheel that keeps almost-moving forever is worse than one that stops.
+   */
+  coastFloorDegPerSec: 60,
 } as const
 
 /**
@@ -440,6 +474,27 @@ export const DETENT = {
  * Every variant carries `source` and `timestampMs`. The timestamp is passed in
  * rather than read from a clock inside the reducer, which is what makes a
  * 30-detent flick reproducible in a test with no fake timers.
+ *
+ * ## The clock domain of `timestampMs`
+ *
+ * ⚑ `timestampMs` is used **only for differences within one gesture** — the
+ * angular speed between two events, and the gap that separates a deliberate
+ * keypress from an auto-repeat. It is never compared against any other clock.
+ * So it must be monotonic and consistent across a gesture, and it does not
+ * have to share an origin with anything: `event.timeStamp` is the right value
+ * in a browser, and it sits on the `performance.now()` origin.
+ *
+ * This used to matter much more than it does now, and the history is worth
+ * one sentence because the bug it caused was invisible. The announcement
+ * debounce originally compared `timestampMs + 350` against the driver's own
+ * `Date.now()`. Feeding it the idiomatic `event.timeStamp` — a number around
+ * `1e4` against a clock around `1.8e12` — made every due time appear already
+ * elapsed, so a thirty-detent flick announced thirty times instead of once,
+ * failing the U13 gate wide open and in the loud direction. The fix was not to
+ * document a rule for callers to follow: it was to stop having two clocks.
+ * The announcer now reads {@link clockAtom}, which the store owns, and no
+ * caller-supplied timestamp reaches it. A mismatch is unconstructible rather
+ * than merely discouraged.
  */
 export type DetentInput =
   | {
@@ -473,16 +528,13 @@ export type DetentInput =
       readonly source: DetentSource
       /** `1` for `ArrowDown`, `-1` for `ArrowUp`. */
       readonly direction: 1 | -1
-      /** `true` when Shift is held: one full viewport of rows, deterministically. */
-      readonly page: boolean
       /**
-       * Rows in one viewport, for the `page` case.
+       * `true` when Shift is held: one full viewport of rows, deterministically.
        *
-       * Supplied by the caller from {@link VISIBLE_ROWS} at the current
-       * density rather than read from the store, because the reducer is pure
-       * and has no store. Ignored unless `page` is `true`.
+       * How many rows that is comes from `viewportRows` on the reducer call,
+       * not from this event. See {@link DetentFn}.
        */
-      readonly pageRows: number
+      readonly page: boolean
       readonly timestampMs: number
       /** Origin label for an agent-sourced press. See {@link DetentInput}. */
       readonly agentOrigin?: string
@@ -535,6 +587,31 @@ export type DetentAccumulator = {
   readonly lastEventMs: number | null
   /** Timestamp of the last detent that actually fired, or `null`. */
   readonly lastDetentMs: number | null
+  /**
+   * Who is driving this gesture, or `null` when idle.
+   *
+   * Carried so that a coasting gesture — which continues after the last input
+   * event and therefore has no event to read `source` from — is still gated by
+   * the silence rule. Without it, the coast would be the one path where an
+   * agent could make the device click.
+   */
+  readonly source: DetentSource | null
+  /**
+   * Which way the gesture is travelling: `1` down, `-1` up, `0` at rest.
+   *
+   * {@link speedDegPerSec} is a magnitude, because the acceleration curve only
+   * cares how fast. The coast needs to know which way as well.
+   */
+  readonly direction: 1 | -1 | 0
+  /**
+   * `true` between the release of an arc gesture and the moment its momentum
+   * dies.
+   *
+   * The finger has left, but the wheel has not stopped, and detents fired
+   * during this window are as real as any other — 001 §4.4 is explicit that
+   * every coasted detent still clicks.
+   */
+  readonly coasting: boolean
 }
 
 /** The accumulator at rest. A gesture starts and ends here. */
@@ -547,6 +624,9 @@ export const IDLE_DETENT_ACCUMULATOR: DetentAccumulator = {
   recentMultipliers: [],
   lastEventMs: null,
   lastDetentMs: null,
+  source: null,
+  direction: 0,
+  coasting: false,
 }
 
 /**
@@ -567,8 +647,25 @@ export type DetentOutcome = {
    * the key path with Shift, where it is one full viewport.
    */
   readonly rowDelta: number
-  /** Rows per detent applied to this event. Always `1` on the key path. */
+  /**
+   * Rows moved per detent by this event.
+   *
+   * ⚑ Not always `1` on the key path: `Shift` makes it one full viewport. What
+   * *is* always true on the key path is that it is never a **velocity**
+   * multiplier — it is `1`, or a page, and never a function of how fast the
+   * key is being pressed. Read {@link accelerated} to assert that; reading
+   * this field for it gives a false positive on every `Shift+Arrow`.
+   */
   readonly multiplier: number
+  /**
+   * `true` when {@link multiplier} was raised because the input was *fast*.
+   *
+   * This is the field that means "the device decided to move further than it
+   * was told". It is `false` for every keyboard event including `Shift+Arrow`,
+   * `false` on the scroll path always, and `false` for any programmatic
+   * movement — those are the paths on which counted navigation must hold.
+   */
+  readonly accelerated: boolean
   /**
    * Detent rate, in detents per second, for this event.
    *
@@ -614,22 +711,68 @@ export type DetentOutcome = {
  * @param accumulator - Gesture state; pass {@link IDLE_DETENT_ACCUMULATOR} to
  *   start a gesture.
  * @param input - One measured event.
+ * @param viewportRows - How many rows fit on screen, for `Shift+Arrow`. ⚑ Must
+ *   be a {@link VISIBLE_ROWS} value for the effective density. It is a
+ *   parameter rather than a field on the event because it is a property of the
+ *   screen, not of the keypress — and because passing it here means the store,
+ *   which is the only thing that knows the density, is the one that supplies
+ *   it. `detentActionAtom` reads {@link visibleRowCountAtom} and passes it, so
+ *   no caller can page by the wrong number.
  * @returns The movement, the feedback budget, and the accumulator to carry
  *   forward. Never mutates its arguments.
  */
 export type DetentFn = (
   accumulator: DetentAccumulator,
   input: DetentInput,
+  viewportRows: number,
 ) => DetentOutcome
 
 /**
- * Ends a gesture and discards any residual travel.
+ * Lifts the finger: discards residual travel, and hands the wheel its momentum.
  *
  * Residual below one detent is dropped rather than rounded up: rounding fires
- * a phantom detent the human never made, on every single gesture that
- * ends mid-detent, which is most of them.
+ * a phantom detent the human never made, on every single gesture that ends
+ * mid-detent, which is most of them.
+ *
+ * ⚑ Momentum is **not** dropped. An arc released above
+ * {@link DETENT.coastFloorDegPerSec} returns an accumulator with `coasting`
+ * set, and the caller drives {@link CoastStepFn} once per frame until it comes
+ * back to rest (001 §4.4, Release row). A release below the floor, and every
+ * release on the scroll, key and direct paths, returns the idle accumulator —
+ * there is no momentum in a keypress.
  */
 export type EndGestureFn = (accumulator: DetentAccumulator) => DetentAccumulator
+
+/**
+ * Advances a coasting wheel by one frame.
+ *
+ * 001 §4.4: *"remaining angular velocity decays at 0.94/frame, firing a detent
+ * every 15° until |ω| < 60°/s. Every coasted detent still clicks."* All three
+ * clauses live here — including the third, which is why this returns a full
+ * {@link DetentOutcome} rather than a bare row count. A coasted detent is a
+ * detent: it clicks, it buzzes, it announces, and it obeys the silence rule
+ * through the `source` the accumulator carried out of the gesture.
+ *
+ * ⚑ The frame loop belongs to the caller, exactly as the announcement timer
+ * belongs to the store. This package holds no `requestAnimationFrame`: the
+ * physics is a pure function of `(accumulator, seconds)` so that a whole
+ * coast can be replayed in a test at any frame rate, including rates no
+ * display has.
+ *
+ * @param accumulator - Must have `coasting` set; anything else is a no-op that
+ *   returns the idle accumulator, so a caller that over-runs its loop by a
+ *   frame does not resurrect a dead gesture.
+ * @param frameSeconds - Elapsed time for this frame. The decay is specified
+ *   per *frame* rather than per second, so this scales the distance travelled
+ *   and not the decay itself.
+ *
+ * There is no `viewportRows` parameter, unlike {@link DetentFn}: a coast is
+ * momentum, and momentum never pages.
+ */
+export type CoastStepFn = (
+  accumulator: DetentAccumulator,
+  frameSeconds: number,
+) => DetentOutcome
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Presses
@@ -699,6 +842,21 @@ export type MenuNode = {
    */
   readonly flips?: boolean
 }
+
+/**
+ * Decides whether a menu row is shown at all.
+ *
+ * ⚑ Absent, never greyed (001 §14.4, §15.3 #7). A row for something this
+ * account can never do is a promise the product cannot keep, and a *disabled*
+ * row is worse than no row: it advertises the promise and then refuses it.
+ * `Radio` is dropped outright when the provider cannot make stations, and
+ * `Now Playing` when no audio is loaded.
+ *
+ * Returning `true` for everything — the default — is the honest answer before
+ * a provider exists to ask, which is the state the device is in at
+ * construction.
+ */
+export type MenuVisibility = (node: MenuNode) => boolean
 
 /** The result of a screen-machine transition. */
 export type ScreenTransition = {
@@ -933,6 +1091,60 @@ export type DeviceStore = {
 /* ── Primitive atoms ─────────────────────────────────────────────────────── */
 
 /**
+ * A monotonic clock, in milliseconds.
+ *
+ * One per device, so that everything which compares two times compares them on
+ * the same scale.
+ */
+export type Clock = () => number
+
+/**
+ * A {@link Clock} in a box, so it can live in an atom.
+ *
+ * See {@link clockAtom} for why the box is required rather than tidy.
+ */
+export type ClockHolder = { readonly now: Clock }
+
+/**
+ * The device's clock. Every time comparison in this package goes through it.
+ *
+ * ⚑ This exists because two clocks is a real bug, not a hypothetical one. The
+ * announcement debounce used to compare a caller-supplied `timestampMs` — for
+ * which `event.timeStamp`, on the `performance.now()` origin, is the idiomatic
+ * browser value — against the driver's own `Date.now()`. Every due time then
+ * looked long past, so a thirty-detent flick announced thirty times: U13
+ * failing open, in the loud direction, invisible to anyone not listening.
+ *
+ * The fix is structural rather than documentary. Nothing compares a caller's
+ * timestamp against a clock any more: `detentActionAtom` stamps movements with
+ * *this* clock, and `startAnnouncer` reads *this* clock, so there is one time
+ * scale per device and a mismatch cannot be constructed. A caller's
+ * `timestampMs` is used only for differences inside one gesture.
+ *
+ * Held in an atom so a test can substitute a deterministic clock through
+ * `createDeviceStore({ now })` and drive the debounce by hand.
+ *
+ * ⚑ Boxed in an object, and that is not decoration. `atom(someFunction)` does
+ * **not** create an atom holding that function — jotai reads a function
+ * argument as a *derived* atom's read callback, so the atom would compute a
+ * number and every `get(clockAtom)()` would throw "is not a function". A
+ * function can only be stored in an atom by wrapping it.
+ */
+export const clockAtom: PrimitiveAtom<ClockHolder> = atom<ClockHolder>({ now: defaultNow })
+
+/**
+ * The clock a device gets when none is supplied.
+ *
+ * `performance.now()` where it exists, because it is monotonic — it does not
+ * step backwards when the system clock is corrected, and a backward step
+ * between arming a debounce and firing it would strand the announcement. Falls
+ * back to `Date.now()` only where `performance` is absent.
+ */
+export function defaultNow(): number {
+  return typeof performance !== 'undefined' ? performance.now() : Date.now()
+}
+
+/**
  * Whether the agent acted most recently (001 §8.2.1).
  *
  * ⚑ Read this as "who moved last", never as "who is here". The page cannot
@@ -976,19 +1188,53 @@ export const appModeAtom: PrimitiveAtom<AppMode | null> = atom<AppMode | null>(n
 export const faceAtom: PrimitiveAtom<Face> = atom<Face>('front')
 
 /**
- * The effective row density.
+ * The human's density setting, or `null` to follow each screen's preference.
  *
- * Device state rather than a per-screen constant, because Dynamic Type at 130%
- * or more forces `airy` regardless of what a screen would prefer.
+ * 001 §11: `Row Density: Compact / Medium / Airy` on the Display & Feel plate.
+ * `null` is the shipped default and means "whatever this screen asked for" —
+ * which is not the same as `medium`, and conflating the two would silently
+ * flatten the §3.1 inventory's per-screen choices.
+ *
+ * ⚑ This is an *input* to the density that is in force, not the density
+ * itself. Read {@link effectiveDensityAtom} to lay out or to page.
  */
-export const densityAtom: PrimitiveAtom<Density> = atom<Density>('medium')
+export const densityOverrideAtom: PrimitiveAtom<Density | null> = atom<Density | null>(null)
+
+/**
+ * Dynamic Type scale, `1` being the system default.
+ *
+ * 001 §15.0 U11: at 130% or more the device forces `airy` and scales the
+ * raster 1.0 → 1.25 **rather than clipping the text**. The forcing half is
+ * implemented by {@link effectiveDensityAtom}; the raster scale belongs to
+ * whatever draws the raster and reads this same atom, so the two cannot come
+ * to different conclusions about what 130% means.
+ */
+export const dynamicTypeScaleAtom: PrimitiveAtom<number> = atom(1)
+
+/**
+ * The scale at or above which `airy` is forced (001 §15.0 U11).
+ *
+ * A literal from the gate, kept here so a test can assert against `1.3`
+ * directly rather than against a symbol that would move with the bug.
+ */
+export const AIRY_FORCING_TYPE_SCALE = 1.3
+
 
 /**
  * The navigation stack, root first.
  *
- * Never empty. The screen machine is the only writer; a call site that wants
- * to navigate goes through a transition rather than assigning a stack, so that
- * the bump on a hard stop cannot be skipped.
+ * ⚑ **Empty until a store seeds it**, which `createDeviceStore` does at
+ * construction. It is not "never empty": this atom is exported, so a consumer
+ * can read it before any screen exists, and an earlier version of this comment
+ * claimed otherwise while the atom's own default contradicted it. Every
+ * consumer here handles the empty case explicitly — `currentScreenAtom`
+ * returns `null`, `visibleRowsAtom` returns `[]`, and `popScreen` treats it as
+ * "no device yet" rather than as the root, so `Menu` on an empty stack does
+ * not bump to announce the top of a stack that has no top.
+ *
+ * The screen machine is the only thing that should *write* it: a call site
+ * that navigates goes through a transition, so the bump on a hard stop cannot
+ * be skipped.
  */
 export const screenStackAtom: PrimitiveAtom<readonly ScreenFrame[]> = atom<readonly ScreenFrame[]>(
   [],
@@ -1052,20 +1298,41 @@ export const currentScreenAtom: Atom<ScreenFrame | null> = atom((get) => {
 })
 
 /**
+ * The density actually in force: the one thing that lays out and pages.
+ *
+ * Precedence, highest first:
+ *
+ * 1. **Dynamic Type ≥ 130% forces `airy`.** An accessibility floor outranks a
+ *    preference, including the human's own — U11 is about text that fits.
+ * 2. **The human's setting**, when they have made one.
+ * 3. **The screen's preference** from 001 §3.1.
+ *
+ * Derived rather than stored, so there is no combination of writes that leaves
+ * a stale answer behind, and no writer that has to remember to recompute. This
+ * atom is why {@link densityOverrideAtom} is not inert: setting it moves the
+ * viewport size, the page size and the reported snapshot together, because all
+ * three read this.
+ */
+export const effectiveDensityAtom: Atom<Density> = atom((get) => {
+  if (get(dynamicTypeScaleAtom) >= AIRY_FORCING_TYPE_SCALE) return 'airy'
+  const override = get(densityOverrideAtom)
+  if (override !== null) return override
+  return get(currentScreenAtom)?.density ?? 'medium'
+})
+
+/**
  * How many rows fit on screen right now.
  *
- * Read from the current frame rather than from {@link densityAtom}, with the
- * device setting as the fallback before any screen is pushed. The frame's
- * density is the *effective* one — a screen's preference, already reconciled
- * against the device setting and against Dynamic Type — so taking the count
- * from anywhere else would let the window size and the rendered row height
- * disagree by one row, which is exactly the kind of off-by-one that only shows
- * up as a row you can never scroll to.
+ * Reads {@link effectiveDensityAtom} — the reconciled answer — and nothing
+ * else. Every other candidate is a half-truth: the frame carries only the
+ * screen's preference, and the override atom is silent about Dynamic Type.
+ * Taking the count from either would let the window size and the rendered row
+ * height disagree by one row, which is the kind of off-by-one that shows up as
+ * a row you can never scroll to.
  */
-export const visibleRowCountAtom: Atom<number> = atom((get) => {
-  const frame = get(currentScreenAtom)
-  return VISIBLE_ROWS[frame?.density ?? get(densityAtom)]
-})
+export const visibleRowCountAtom: Atom<number> = atom(
+  (get) => VISIBLE_ROWS[get(effectiveDensityAtom)],
+)
 
 /**
  * The rows actually on screen: the current frame's sticky window.
@@ -1096,7 +1363,7 @@ export const screenSnapshotAtom: Atom<ScreenSnapshot | null> = atom((get) => {
     face: get(faceAtom),
     screenId: frame.screenId,
     title: frame.title,
-    density: frame.density,
+    density: get(effectiveDensityAtom),
     rows: get(visibleRowsAtom),
     highlightIndex: frame.highlightIndex,
     totalRows: frame.rows.length,

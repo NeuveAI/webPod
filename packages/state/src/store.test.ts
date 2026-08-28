@@ -22,7 +22,7 @@ import {
   bumpAtom,
   connectionAtom,
   currentScreenAtom,
-  densityAtom,
+  densityOverrideAtom,
   deviceStateAtom,
   faceAtom,
   highlightIndexAtom,
@@ -35,6 +35,7 @@ import type { PanelRow, ScreenFrame } from './contract'
 import { MENU_ROOT, menuFrame } from './menu'
 import {
   createDeviceStore,
+  deviceStore,
   moveHighlightActionAtom,
   popScreenActionAtom,
   pressActionAtom,
@@ -79,8 +80,8 @@ describe('read, write and subscribe with no React mounted', () => {
   test('store.set writes device state and store.get reads it back', () => {
     const store = createDeviceStore()
 
-    store.set(densityAtom, 'airy')
-    expect(store.get(densityAtom)).toBe('airy')
+    store.set(densityOverrideAtom, 'airy')
+    expect(store.get(densityOverrideAtom)).toBe('airy')
 
     store.set(faceAtom, 'back')
     expect(store.get(faceAtom)).toBe('back')
@@ -129,9 +130,9 @@ describe('read, write and subscribe with no React mounted', () => {
     const a = createDeviceStore()
     const b = createDeviceStore()
 
-    a.set(densityAtom, 'airy')
-    expect(a.get(densityAtom)).toBe('airy')
-    expect(b.get(densityAtom)).toBe('medium')
+    a.set(densityOverrideAtom, 'airy')
+    expect(a.get(densityOverrideAtom)).toBe('airy')
+    expect(b.get(densityOverrideAtom)).toBeNull()
   })
 })
 
@@ -270,5 +271,125 @@ describe('actions', () => {
 
     expect(store.get(screenStackAtom)).toHaveLength(2)
     expect(store.get(currentScreenAtom)?.screenId).toBe('S08')
+  })
+})
+
+describe('D-051 — exactly one device per document', () => {
+  test('`deviceStore` is the module singleton, and repeated imports get it', async () => {
+    const again = (await import('./store')).deviceStore
+    expect(again).toBe(deviceStore)
+  })
+
+  test('a second device outside a test throws, rather than quietly working', () => {
+    // ⚑ The failure this prevents has no symptom of its own. A React tree
+    // handed `<Provider store={createDeviceStore()}>` gets a store that is
+    // valid, React-free, and passes every other test in this package — while
+    // tool callbacks address the singleton. Two devices, no type error, and
+    // the UI and the tools moving different screens. "State is reachable
+    // outside React" stays true and the product's premise is dead.
+    //
+    // Constructing a second device is legitimate for a *test*, which needs
+    // isolation from the previous test's screen stack. That is the only
+    // legitimate case, so it is the only one allowed.
+    const previous = process.env['NODE_ENV']
+    try {
+      process.env['NODE_ENV'] = 'production'
+      expect(() => createDeviceStore()).toThrow(/exactly one device per document/)
+    } finally {
+      if (previous === undefined) delete process.env['NODE_ENV']
+      else process.env['NODE_ENV'] = previous
+    }
+  })
+
+  test('the store a consumer should hand a Provider is named, and is not the factory', () => {
+    // A structural reading of the same rule: the module's default path to a
+    // device is the singleton. `createDeviceStore` is reachable but gated.
+    expect(typeof deviceStore.get).toBe('function')
+    expect(typeof deviceStore.set).toBe('function')
+    expect(typeof deviceStore.sub).toBe('function')
+  })
+})
+
+describe('D-051 — nothing outside a test builds a device', () => {
+  test('no source file in the repo calls createDeviceStore', async () => {
+    // The static half of the gate. The runtime guard catches a second device
+    // at construction; this catches the line that would construct it, in
+    // review, before it ships — including in packages this one cannot import.
+    const { spawn } = await import('bun')
+    const proc = spawn(
+      [
+        'grep',
+        '-rn',
+        '--include=*.ts',
+        '--include=*.tsx',
+        'createDeviceStore',
+        'packages',
+        'apps',
+      ],
+      { cwd: `${import.meta.dir}/../../..`, stdout: 'pipe', stderr: 'pipe' },
+    )
+    const output = await new Response(proc.stdout).text()
+    await proc.exited
+
+    const offenders = output
+      .split('\n')
+      .filter((line) => line.trim() !== '')
+      .filter((line) => !line.includes('.test.ts'))
+      // Its own definition, its own TSDoc, and the doc comments that name it.
+      .filter((line) => !line.startsWith('packages/state/src/store.ts'))
+      .filter((line) => !line.startsWith('packages/state/src/contract.ts'))
+      .filter((line) => !line.startsWith('packages/state/src/menu.ts'))
+
+    expect(offenders).toEqual([])
+  })
+})
+
+describe('Menu on a device with no screens', () => {
+  test('does not bump — an empty stack has no top to announce', () => {
+    // `popScreen` used to guard with `<= 1`, so a stack of zero was treated as
+    // the root and published an elastic "this is the top" for a top that did
+    // not exist. The atoms are exported, so this state is reachable by a
+    // consumer that reads them directly rather than through the factory.
+    const store = createDeviceStore({ initialStack: [] })
+
+    const bump = store.set(popScreenActionAtom, 0)
+
+    expect(bump).toBeNull()
+    expect(store.get(bumpAtom)).toBeNull()
+    expect(store.get(screenStackAtom)).toEqual([])
+    expect(store.get(currentScreenAtom)).toBeNull()
+  })
+
+  test('a device with one screen still bumps, as the root must', () => {
+    const store = createDeviceStore()
+    expect(store.set(popScreenActionAtom, 0)?.direction).toBe('right')
+  })
+})
+
+describe('menu rows the provider cannot serve are absent, not greyed', () => {
+  test('a visibility predicate drops rows and re-indexes what is left', () => {
+    const store = createDeviceStore({
+      isVisible: (node) => node.label !== 'Radio' && node.label !== 'Now Playing',
+    })
+
+    // The whole frame, not the visible window — a filtered row must be absent
+    // from the list itself, not merely scrolled past.
+    const rows = store.get(currentScreenAtom)?.rows ?? []
+    const labels = rows.map((row) => row.label)
+    expect(labels).not.toContain('Radio')
+    expect(labels).not.toContain('Now Playing')
+    expect(labels[0]).toBe('Music')
+
+    // Indices count the rows the human can see. An index that counted hidden
+    // rows would send a navigation tool to a different row than the one it was
+    // told about.
+    expect(rows.map((row) => row.index)).toEqual(rows.map((_row, i) => i))
+  })
+
+  test('the default admits everything, which is the honest pre-provider answer', () => {
+    const store = createDeviceStore()
+    const labels = (store.get(currentScreenAtom)?.rows ?? []).map((row) => row.label)
+    expect(labels).toContain('Radio')
+    expect(labels).toContain('Now Playing')
   })
 })
