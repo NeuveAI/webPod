@@ -785,3 +785,61 @@ describe('D-063 — detent hysteresis stops a resting thumb chattering', () => {
     expect(net).toBe(1)
   })
 })
+
+describe('D-063 — the coast floor, behaviourally', () => {
+  /** Releases an arc at `speed` deg/s and counts frames to rest at 60fps. */
+  function framesToRest(speedDegPerSec: number): number {
+    const stepMs = 20
+    let accumulator = IDLE_DETENT_ACCUMULATOR
+    for (let i = 0; i < 6; i += 1) {
+      accumulator = detent(
+        accumulator,
+        {
+          path: 'touch-arc',
+          source: 'human',
+          angleDeg: (speedDegPerSec * stepMs) / 1000,
+          timestampMs: (i + 1) * stepMs,
+        },
+        VISIBLE_ROWS.medium,
+        { totalRows: 500 },
+      ).accumulator
+    }
+
+    let coasting = endGesture(accumulator)
+    let frames = 0
+    while (coasting.coasting && frames < 100_000) {
+      coasting = coastStep(coasting, 1 / 60, { totalRows: 500 }).accumulator
+      frames += 1
+    }
+    return frames
+  }
+
+  test('a 1000 deg/s release glides for 63 frames, not 46', () => {
+    // ⚑ The behavioural half of the floor change, and the discriminator that a
+    // constant assertion alone cannot give: at pm-spec §4.4's 60°/s the same
+    // release stopped after 46 frames — the figure the previous round's review
+    // measured and verified independently. At §9.4's 21°/s it runs to 63. The
+    // glide is materially longer, which is the point of the ruling.
+    expect(framesToRest(1000)).toBe(63)
+
+    // Computed from the spec's own numbers rather than from the code's, so
+    // this does not merely restate the implementation.
+    const independently = Math.ceil(Math.log(21 / 1000) / Math.log(0.94))
+    expect(framesToRest(1000)).toBe(independently)
+  })
+
+  test('a harder release glides longer still, and stays bounded by the clamp', () => {
+    // The ceiling caps how long any glide can be: 1440°/s is the fastest
+    // velocity the reducer will record, so this is the longest coast possible.
+    const longest = framesToRest(5000)
+    expect(longest).toBe(Math.ceil(Math.log(21 / 1440) / Math.log(0.94)))
+    expect(longest).toBeGreaterThan(framesToRest(1000))
+  })
+
+  test('the state layer and the render loop stop on the same condition', () => {
+    // design-system §14.1's frame-budget table terminates the wheel's render
+    // loop at "inertia ‖ω‖ < 0.35°/frame" — the same figure §9.4 gives for the
+    // coast. Expressed here in §14.1's units so a drift in either shows up.
+    expect(DETENT.coastFloorDegPerSec / DETENT.coastReferenceFps).toBeCloseTo(0.35, 10)
+  })
+})
