@@ -5,21 +5,15 @@ import {
   TEMPLATE_ARTWORK_CEILING_PX,
 } from '@webpod/providers'
 import { Context, Effect, Layer } from 'effect'
-import sharp from 'sharp'
 
 export const ARTWORK_MAX_BYTES = 8 * 1024 * 1024
 export const ARTWORK_FETCH_TIMEOUT_MS = 5_000
 export const ARTWORK_MAX_CONCURRENT = 8
 export const ARTWORK_CACHE_CONTROL = 'public, max-age=86400, stale-while-revalidate=604800'
 
-const REMOTE_IMAGE_TYPES = new Set(['image/avif', 'image/jpeg', 'image/png', 'image/webp'])
+const REMOTE_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 const FIXTURE_SOURCE = /^\/artwork-source\/([a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?)\/(\d{1,4})x(\d{1,4})\.png$/
 const APPLE_ARTWORK_HOST = /^is\d+-ssl\.mzstatic\.com$/
-const ARTWORK_MAX_DECODE_PIXELS = TEMPLATE_ARTWORK_CEILING_PX * TEMPLATE_ARTWORK_CEILING_PX
-const ARTWORK_DECODE_TIMEOUT_SECONDS = Math.ceil(ARTWORK_FETCH_TIMEOUT_MS / 1_000)
-
-sharp.cache(false)
-sharp.concurrency(1)
 
 export type ArtworkProxyErrorCode =
   | 'invalid_request'
@@ -338,103 +332,13 @@ function webpMetadata(body: Uint8Array): ImageMetadata | null {
   return { contentType: 'image/webp', width, height }
 }
 
-interface BmffBox {
-  readonly type: string
-  readonly start: number
-  readonly contentStart: number
-  readonly end: number
-}
-
-function bmffBoxes(body: Uint8Array, start: number, end: number): readonly BmffBox[] {
-  const boxes: BmffBox[] = []
-  let offset = start
-  while (offset < end) {
-    if (offset + 8 > end) throw invalidImage()
-    const size32 = u32be(body, offset)
-    let size = size32
-    let contentStart = offset + 8
-    if (size32 === 1) {
-      if (offset + 16 > end || u32be(body, offset + 8) !== 0) throw invalidImage()
-      size = u32be(body, offset + 12)
-      contentStart = offset + 16
-    }
-    if (size < contentStart - offset || offset + size > end) throw invalidImage()
-    boxes.push({ type: ascii(body, offset + 4, 4), start: offset, contentStart, end: offset + size })
-    offset += size
-  }
-  if (offset !== end) throw invalidImage()
-  return boxes
-}
-
-function oneBmffBox(boxes: readonly BmffBox[], type: string): BmffBox {
-  const matching = boxes.filter((box) => box.type === type)
-  if (matching.length !== 1 || matching[0] === undefined) throw invalidImage()
-  return matching[0]
-}
-
-function avifMetadata(body: Uint8Array): ImageMetadata | null {
-  if (body.length < 24 || ascii(body, 4, 4) !== 'ftyp') return null
-  const top = bmffBoxes(body, 0, body.length)
-  const ftyp = oneBmffBox(top, 'ftyp')
-  if (ftyp.start !== 0 || ftyp.end - ftyp.contentStart < 8) throw invalidImage()
-  const brands = ascii(body, ftyp.contentStart, ftyp.end - ftyp.contentStart)
-  if (!brands.includes('avif') && !brands.includes('avis')) return null
-
-  const meta = oneBmffBox(top, 'meta')
-  const mdat = oneBmffBox(top, 'mdat')
-  if (mdat.end - mdat.contentStart < 1 || meta.contentStart + 4 > meta.end) throw invalidImage()
-  const metaChildren = bmffBoxes(body, meta.contentStart + 4, meta.end)
-  for (const required of ['hdlr', 'pitm', 'iloc', 'iinf', 'iprp']) oneBmffBox(metaChildren, required)
-  const iprp = oneBmffBox(metaChildren, 'iprp')
-  const ipco = oneBmffBox(bmffBoxes(body, iprp.contentStart, iprp.end), 'ipco')
-  const ispe = oneBmffBox(bmffBoxes(body, ipco.contentStart, ipco.end), 'ispe')
-  if (ispe.end - ispe.contentStart !== 12) throw invalidImage()
-  const width = u32be(body, ispe.contentStart + 4)
-  const height = u32be(body, ispe.contentStart + 8)
-  if (width === 0 || height === 0) throw invalidImage()
-  return { contentType: 'image/avif', width, height }
-}
-
-async function decodedAvifMetadata(body: Uint8Array): Promise<ImageMetadata> {
-  try {
-    const decoder = sharp(body, {
-      animated: false,
-      autoOrient: true,
-      failOn: 'warning',
-      limitInputPixels: ARTWORK_MAX_DECODE_PIXELS,
-      pages: 1,
-      sequentialRead: true,
-      unlimited: false,
-    }).timeout({ seconds: ARTWORK_DECODE_TIMEOUT_SECONDS })
-    const metadata = await decoder.metadata()
-    if (
-      metadata.format !== 'heif' ||
-      metadata.compression !== 'av1' ||
-      metadata.pages !== 1 ||
-      metadata.autoOrient.width === undefined ||
-      metadata.autoOrient.height === undefined
-    ) throw invalidImage()
-    const stats = await decoder.stats()
-    if (stats.channels.length < 1 || stats.channels.length > 4) throw invalidImage()
-    return {
-      contentType: 'image/avif',
-      width: metadata.autoOrient.width,
-      height: metadata.autoOrient.height,
-    }
-  } catch (cause) {
-    if (cause instanceof ArtworkProxyError) throw cause
-    throw new ArtworkProxyError('upstream_content_invalid', 502, 'artwork server returned undecodable image data', { cause })
-  }
-}
-
-async function validateImage(body: Uint8Array, declaredType: string, px: number): Promise<ImageMetadata> {
-  const metadata = pngMetadata(body) ?? jpegMetadata(body) ?? webpMetadata(body) ?? avifMetadata(body)
+function validateImage(body: Uint8Array, declaredType: string, px: number): ImageMetadata {
+  const metadata = pngMetadata(body) ?? jpegMetadata(body) ?? webpMetadata(body)
   if (metadata === null || metadata.contentType !== declaredType) throw invalidImage()
-  const authoritative = metadata.contentType === 'image/avif' ? await decodedAvifMetadata(body) : metadata
-  if (authoritative.width !== px || authoritative.height !== px) {
+  if (metadata.width !== px || metadata.height !== px) {
     throw new ArtworkProxyError('upstream_content_invalid', 502, 'artwork dimensions do not match the requested size')
   }
-  return authoritative
+  return metadata
 }
 
 function validatedOptions(options: ArtworkProxyOptions): ValidatedArtworkProxyOptions {
@@ -511,7 +415,7 @@ async function fetchRemoteArtwork(
 
   try {
     const response = await fetchImpl(source.url, {
-      headers: { accept: 'image/avif,image/webp,image/png,image/jpeg' },
+      headers: { accept: 'image/webp,image/png,image/jpeg' },
       redirect: 'manual',
       signal: controller.signal,
     })
@@ -525,7 +429,7 @@ async function fetchRemoteArtwork(
       throw new ArtworkProxyError('upstream_content_type', 502, 'artwork server returned a non-image response')
     }
     const body = await readBoundedBody(response, maxBytes)
-    const metadata = await validateImage(body, contentType, px)
+    const metadata = validateImage(body, contentType, px)
     return { body, contentType: metadata.contentType }
   } catch (cause) {
     if (cause instanceof ArtworkProxyError) throw cause

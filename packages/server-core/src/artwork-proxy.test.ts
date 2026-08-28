@@ -44,21 +44,6 @@ function png(width = 300, height = width, padding = 0): Uint8Array<ArrayBuffer> 
   return bytes
 }
 
-function concat(...parts: readonly Uint8Array<ArrayBuffer>[]): Uint8Array<ArrayBuffer> {
-  const result = new Uint8Array(parts.reduce((total, part) => total + part.length, 0))
-  let offset = 0
-  for (const part of parts) {
-    result.set(part, offset)
-    offset += part.length
-  }
-  return result
-}
-
-function avif(): Uint8Array<ArrayBuffer> {
-  const encoded = 'AAAAGGZ0eXBhdmlmAAAAAGF2aWZtaWYxAAABSm1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAHBpY3QAAAAAAAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAAAAAAAAABAAAADHVybCAAAAABAAAADnBpdG0AAAAAAAEAAAAjaWluZgAAAAAAAQAAABVpbmZlAgAAAAABAABhdjAxAAAAAKppcHJwAAAAiGlwY28AAAATY29scm5jbHgAAgACAAaAAAAADGNsbGkAywBAAAAAFGlzcGUAAAAAAAAAAgAAAAIAAAAoY2xhcAAAAAEAAAABAAAAAQAAAAH/wAAAAIAAAP/AAAAAgAAAAAAACWlyb3QAAAAAEHBpeGkAAAAAAwgICAAAAAxhdjFDgQAMAAAAABppcG1hAAAAAAAAAAEAAQeBAgMGh4SFAAAAHmlsb2MAAAAARAAAAQABAAAAAQAAAXIAAAAvAAAAAW1kYXQAAAAAAAAAPxIACgwAAAAABn/8CBAQNCAyHRABkgAIIIIgAY/RgEku1IS6U94C/FkAAAAAbEh0'
-  return Uint8Array.from(atob(encoded), (character) => character.charCodeAt(0))
-}
-
 function fetchStub(run: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>): typeof globalThis.fetch {
   return run as typeof globalThis.fetch
 }
@@ -105,9 +90,11 @@ describe('/artwork remote provider sources', () => {
     'https://i.scdn.co/image/ab67616d00001e02',
   ])('proxies an allowed provider shape: %s', async (src) => {
     let redirect: RequestRedirect | undefined
+    const accept: Array<string | null> = []
     const response = await handleArtworkRequest(artworkRequest(src), {
       fetch: fetchStub((_input, init) => {
         redirect = init?.redirect
+        accept.push(new Headers(init?.headers).get('accept'))
         return Promise.resolve(
           new Response(png().buffer, {
             status: 200,
@@ -122,6 +109,7 @@ describe('/artwork remote provider sources', () => {
     expect(response.headers.get('content-length')).toBe('45')
     expect(await response.arrayBuffer()).toEqual(png().buffer)
     expect(redirect).toBe('manual')
+    expect(accept).toEqual(['image/webp,image/png,image/jpeg'])
   })
 
   test.each([
@@ -219,79 +207,29 @@ describe('/artwork response bounds', () => {
     expect(await errorCode(response)).toBe('upstream_content_invalid')
   })
 
-  test('accepts a real AVIF only at its independently decoded 1x1 dimensions', async () => {
-    const response = await handleArtworkRequest(artworkRequest(source, 1), {
-      fetch: fetchStub(() => Promise.resolve(new Response(avif().buffer, { headers: { 'content-type': 'image/avif' } }))),
+  test('rejects AVIF before body decode and promptly recovers the sole admission slot', async () => {
+    let bodyCancelled = 0
+    const avifBody = new ReadableStream<Uint8Array>({ cancel() { bodyCancelled += 1 } })
+    const rejected = await handleArtworkRequest(artworkRequest(`${source}-avif`), {
+      maxConcurrent: 1,
+      fetch: fetchStub(() => Promise.resolve(new Response(avifBody, { headers: { 'content-type': 'image/avif' } }))),
     })
-    expect(response.status).toBe(200)
-    expect(response.headers.get('content-type')).toBe('image/avif')
-  })
+    expect(rejected.status).toBe(502)
+    expect(await errorCode(rejected)).toBe('upstream_content_type')
+    expect(bodyCancelled).toBe(1)
 
-  test('rejects the AVIF whose unassociated ispe says 2x2 when the decoder says 1x1', async () => {
-    const response = await handleArtworkRequest(artworkRequest(source, 2), {
-      fetch: fetchStub(() => Promise.resolve(new Response(avif().buffer, { headers: { 'content-type': 'image/avif' } }))),
-    })
-    expect(response.status).toBe(502)
-    expect(await errorCode(response)).toBe('upstream_content_invalid')
-  })
-
-  test('rejects a box-complete AVIF shell whose mdat is arbitrary junk', async () => {
-    const shell = avif().slice()
-    const marker = new TextEncoder().encode('mdat')
-    const markerOffset = shell.findIndex((_, index, bytes) => marker.every((byte, relative) => bytes[index + relative] === byte))
-    const junk = new TextEncoder().encode('NOT-AN-AVIF-BITSTREAM')
-    for (let index = markerOffset + 12; index < shell.length; index += 1) {
-      shell[index] = junk[(index - markerOffset - 12) % junk.length] ?? 0
-    }
-    const response = await handleArtworkRequest(artworkRequest(source, 1), {
-      fetch: fetchStub(() => Promise.resolve(new Response(shell.buffer, { headers: { 'content-type': 'image/avif' } }))),
-    })
-    expect(response.status).toBe(502)
-    expect(await errorCode(response)).toBe('upstream_content_invalid')
-  })
-
-  test('rejects an AVIF request above the provider px ceiling before decode or fetch', async () => {
-    let calls = 0
-    const response = await handleArtworkRequest(artworkRequest(source, 3001), {
+    let nextStarts = 0
+    const started = performance.now()
+    const next = await handleArtworkRequest(artworkRequest(`${source}-after-avif`), {
+      maxConcurrent: 1,
       fetch: fetchStub(() => {
-        calls += 1
-        return Promise.resolve(new Response(avif().buffer, { headers: { 'content-type': 'image/avif' } }))
+        nextStarts += 1
+        return Promise.resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } }))
       }),
     })
-    expect(response.status).toBe(400)
-    expect(calls).toBe(0)
-  })
-
-  test('rejects the reviewer boundary fixture with fake ispe and trailing polyglot bytes', async () => {
-    const fake = new Uint8Array(64)
-    setU32be(fake, 0, 20)
-    fake.set(new TextEncoder().encode('ftypavif'), 4)
-    setU32be(fake, 20, 20)
-    fake.set(new TextEncoder().encode('ispe'), 24)
-    setU32be(fake, 32, 300)
-    setU32be(fake, 36, 300)
-    fake.set(new TextEncoder().encode('TRAILING-POLYGLOT'), 40)
-    const response = await handleArtworkRequest(artworkRequest(source), {
-      fetch: fetchStub(() => Promise.resolve(new Response(fake.buffer, { headers: { 'content-type': 'image/avif' } }))),
-    })
-    expect(response.status).toBe(502)
-    expect(await errorCode(response)).toBe('upstream_content_invalid')
-  })
-
-  test('rejects AVIF malformed extents, missing media, and trailing data', async () => {
-    const malformedExtent = avif().slice()
-    setU32be(malformedExtent, 24, malformedExtent.length)
-    const mdatType = new TextEncoder().encode('mdat')
-    const mdatTypeOffset = avif().findIndex((_, index, bytes) => mdatType.every((byte, relative) => bytes[index + relative] === byte))
-    const missingMedia = avif().subarray(0, mdatTypeOffset - 4).slice()
-    const trailing = concat(avif(), new TextEncoder().encode('TRAILING'))
-    for (const body of [malformedExtent, missingMedia, trailing]) {
-      const response = await handleArtworkRequest(artworkRequest(source, 1), {
-        fetch: fetchStub(() => Promise.resolve(new Response(body.buffer, { headers: { 'content-type': 'image/avif' } }))),
-      })
-      expect(response.status).toBe(502)
-      expect(await errorCode(response)).toBe('upstream_content_invalid')
-    }
+    expect(next.status).toBe(200)
+    expect(nextStarts).toBe(1)
+    expect(performance.now() - started).toBeLessThan(100)
   })
 
   test('rejects a declared body larger than the byte ceiling', async () => {
