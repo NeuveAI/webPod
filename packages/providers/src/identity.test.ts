@@ -2,7 +2,9 @@ import { describe, expect, test } from 'bun:test'
 
 import { InvalidLocalKeyError } from './errors.ts'
 import { asLocalKey, isLocalKey, localKeyOf, mintLocalKey } from './identity.ts'
-import type { LocalKey, TrackRef } from './identity.ts'
+import type { LocalKey, ProviderId, TrackRef } from './identity.ts'
+import { createFixtureCatalog } from './fixture/catalog.ts'
+import { createFixtureProvider } from './fixture/fixture-provider.ts'
 
 const UUID_V7_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
 
@@ -102,8 +104,21 @@ describe('§14.5 — a provider id cannot occupy a key position', () => {
   })
 
   test('a libraryId is not a LocalKey — a third id space, and still not ours', () => {
+    // ⚑ `?? ''` is load-bearing. `ref.libraryId` is `string | undefined`, so
+    // without it this directive is satisfied by the **optionality** and passes
+    // unchanged against an unbranded `type LocalKey = string`. It was recorded
+    // as one of three brand proofs and only two were; the plant that removes
+    // the brand must turn all three red, not two.
+    const libraryId: string = ref.libraryId ?? ''
     // @ts-expect-error libraryId is a provider id and must not be a key — §14.5
-    takesAKey(ref.libraryId)
+    takesAKey(libraryId)
+    expect(true).toBe(true)
+  })
+
+  test('a Spotify uri is not a LocalKey either', () => {
+    const uri: string = 'spotify:track:4uLU6hMCjMI75M1A2tKUQC'
+    // @ts-expect-error a provider URI is a provider id and must not be a key — §14.5
+    takesAKey(uri)
     expect(true).toBe(true)
   })
 
@@ -117,5 +132,46 @@ describe('§14.5 — a provider id cannot occupy a key position', () => {
     const asString: string = ref.key
     expect(typeof asString).toBe('string')
     expect(asString).toMatch(UUID_V7_SHAPE)
+  })
+
+  test('the package spends the brand on the structures it owns', () => {
+    // §14.5's rule is about *our* structures, and `LocalKeyed` was written for
+    // exactly this. Exporting the type and then declaring the only two maps in
+    // the package as `ReadonlyMap<string, …>` left the guarantee unspent in
+    // the one structure W3 consumes directly.
+    const catalog = createFixtureCatalog()
+    const album = catalog.albums[0]
+    if (album === undefined) throw new Error('empty fixture catalogue')
+
+    expect(catalog.tracksByAlbum.get(album.key)).toBeDefined()
+
+    // @ts-expect-error a catalogId must not index a structure of ours — §14.5
+    catalog.tracksByAlbum.get(album.catalogId)
+    // @ts-expect-error an Apple library id must not index a structure of ours — §14.5
+    catalog.tracksByAlbum.get('i.gLrJKQEsl5eL2q')
+    // @ts-expect-error a Spotify uri must not index a structure of ours — §14.5
+    catalog.tracksByPlaylist.get('spotify:playlist:37i9dQZF1DXcBWIGoYBM5M')
+  })
+})
+
+describe('D-053(b) — ProviderId membership is a ruling, so it is asserted', () => {
+  /**
+   * Transcribed by hand from D-053(b) and §14.2, not imported.
+   *
+   * `"apple" | "spotify"` is §14.2's; `"fixture"` is the one accepted widening.
+   * Without this, adding a fourth member left 230 tests green and `tsc` at 0 —
+   * a settled ruling with nothing standing on it (D-050).
+   */
+  const RULED_PROVIDER_IDS: readonly string[] = ['apple', 'spotify', 'fixture']
+
+  test('there are exactly three, and they are these', () => {
+    const declared: Record<ProviderId, true> = { apple: true, spotify: true, fixture: true }
+    expect(Object.keys(declared).sort()).toEqual([...RULED_PROVIDER_IDS].sort())
+  })
+
+  test('every provider this package ships reports one of them', () => {
+    for (const id of [createFixtureProvider().id, 'apple', 'spotify']) {
+      expect(RULED_PROVIDER_IDS).toContain(id)
+    }
   })
 })

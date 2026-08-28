@@ -20,6 +20,8 @@ import type {
   ArtistRef,
   ComposerRef,
   GenreRef,
+  LocalKey,
+  LocalKeyed,
   PlaylistRef,
   StationRef,
   TrackRef,
@@ -139,10 +141,19 @@ export interface FixtureCatalog {
   readonly stations: readonly StationRef[]
   readonly genres: readonly GenreRef[]
   readonly composers: readonly ComposerRef[]
-  /** Album key → its tracks, in album order. */
-  readonly tracksByAlbum: ReadonlyMap<string, readonly TrackRef[]>
-  /** Playlist key → its tracks, in playlist order. */
-  readonly tracksByPlaylist: ReadonlyMap<string, readonly TrackRef[]>
+  /**
+   * Album `LocalKey` → its tracks, in album order.
+   *
+   * ⚑ `LocalKeyed`, not `ReadonlyMap<string, …>`. §14.5 forbids any internal
+   * structure holding a provider id as a key, and the packet requires that be
+   * verified *by type*. Declared with a bare `string` this map accepted a
+   * `catalogId`, an Apple `i.xxxx` library id and a Spotify URI, all cleanly —
+   * which made the branded `LocalKey` a guarantee the package exported and did
+   * not use in the one structure W3 actually drives.
+   */
+  readonly tracksByAlbum: LocalKeyed<readonly TrackRef[]>
+  /** Playlist `LocalKey` → its tracks, in playlist order. Keyed as above. */
+  readonly tracksByPlaylist: LocalKeyed<readonly TrackRef[]>
 }
 
 /**
@@ -158,7 +169,7 @@ export function createFixtureCatalog(): FixtureCatalog {
   const artists: ArtistRef[] = []
   const genres: GenreRef[] = []
   const composers: ComposerRef[] = []
-  const tracksByAlbum = new Map<string, readonly TrackRef[]>()
+  const tracksByAlbum = new Map<LocalKey, readonly TrackRef[]>()
 
   const artistByName = new Map<string, ArtistRef>()
   const genreByName = new Map<string, GenreRef>()
@@ -254,7 +265,7 @@ export function createFixtureCatalog(): FixtureCatalog {
   ]
 
   const playlists: PlaylistRef[] = []
-  const tracksByPlaylist = new Map<string, readonly TrackRef[]>()
+  const tracksByPlaylist = new Map<LocalKey, readonly TrackRef[]>()
 
   for (const seed of playlistSeeds) {
     const playlistTracks = seed.titles.map(byTitle)

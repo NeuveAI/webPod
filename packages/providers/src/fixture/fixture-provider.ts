@@ -155,8 +155,11 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
   const loveByKey = new Map<LocalKey, 'love' | 'dislike' | 'none'>()
   const libraryTrackKeys = new Set<LocalKey>(catalog.tracks.map((t) => t.key))
   const playlists: PlaylistRef[] = [...catalog.playlists]
+  // No cast: `tracksByPlaylist` is `LocalKeyed`, so its keys arrive branded.
+  // The `as LocalKey` that used to sit here was the package laundering a raw
+  // string past its own type in the one place the type mattered.
   const playlistTracks = new Map<LocalKey, TrackRef[]>(
-    [...catalog.tracksByPlaylist].map(([key, tracks]) => [key as LocalKey, [...tracks]]),
+    [...catalog.tracksByPlaylist].map(([key, tracks]) => [key, [...tracks]]),
   )
 
   let session: Session | null =
