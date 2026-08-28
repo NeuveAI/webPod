@@ -162,6 +162,11 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
   { path: 'form.seamWidth', min: 1, max: 9, step: 0.4 },
 ]
 
+const PROFILE_LENGTHS = { bodyBlack: 8, bodyWhite: 8, wheelBlack: 4, wheelWhite: 4, selectBlack: 4, selectWhite: 4 } as const
+const PROFILE_KNOBS: ReadonlyArray<Knob> = Object.entries(PROFILE_LENGTHS).flatMap(([surface, length]) =>
+  Array.from({ length }, (_, index) => ({ path: `opticalProfiles.${surface}.${index}.1`, min: -70, max: 70, step: 4 })),
+)
+
 const SETTLE_MS = 30
 
 /**
@@ -179,7 +184,7 @@ const SCORE_EXPR = (patchJson: string, views: string) => `
     const parts = path.split('.');
     let node = obj;
     for (let i = 0; i < parts.length - 1; i++) {
-      node[parts[i]] = { ...node[parts[i]] };
+      node[parts[i]] = Array.isArray(node[parts[i]]) ? [...node[parts[i]]] : { ...node[parts[i]] };
       node = node[parts[i]];
     }
     node[parts[parts.length - 1]] = value;
@@ -269,7 +274,7 @@ async function main() {
     .json()
     .catch(() => ({}) as Record<string, number>)
 
-  const allKnobs = [...ROOM_KNOBS, ...FRONT_KNOBS]
+  const allKnobs = [...ROOM_KNOBS, ...FRONT_KNOBS, ...PROFILE_KNOBS]
   const start: Record<string, number> = {}
   for (const knob of allKnobs) {
     start[knob.path] = saved[knob.path] ?? getPath(params as Json, knob.path)
@@ -285,7 +290,7 @@ async function main() {
   }
 
   const stage = command === 'room' ? 'room' : command === 'front' ? 'front' : 'all'
-  const knobs = stage === 'room' ? ROOM_KNOBS : stage === 'front' ? FRONT_KNOBS : allKnobs
+  const knobs = stage === 'room' ? ROOM_KNOBS : stage === 'front' ? [...FRONT_KNOBS, ...PROFILE_KNOBS] : allKnobs
   const views = stage === 'room' ? VIEWS.room : stage === 'front' ? VIEWS.front : VIEWS.all
   const iterations = Number(arg ?? 40)
   let scale = Number(arg2 ?? 4)

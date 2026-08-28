@@ -29,6 +29,7 @@ import {
   DEFAULT_DEVICE_MATERIALS,
   DEFAULT_ENV_ROOM,
   DEFAULT_LIGHT_RIG,
+  DEFAULT_DEVICE_OPTICAL_PROFILES,
   DEVICE_LAYOUT,
   DeviceCanvas,
   evaluate,
@@ -38,6 +39,7 @@ import {
   type DeviceFace,
   type DeviceFormParams,
   type DeviceMaterials,
+  type DeviceOpticalProfiles,
   type EnvRoomParams,
   type LightRigParams,
   type ProbeReading,
@@ -66,6 +68,7 @@ type SpikeParams = {
   readonly envRoom: EnvRoomParams
   readonly form: DeviceFormParams
   readonly materials: DeviceMaterials
+  readonly opticalProfiles: DeviceOpticalProfiles
 }
 
 const INITIAL: SpikeParams = {
@@ -78,6 +81,7 @@ const INITIAL: SpikeParams = {
   envRoom: DEFAULT_ENV_ROOM,
   form: DEFAULT_DEVICE_FORM,
   materials: DEFAULT_DEVICE_MATERIALS,
+  opticalProfiles: DEFAULT_DEVICE_OPTICAL_PROFILES,
 }
 
 let current: SpikeParams = INITIAL
@@ -105,6 +109,7 @@ type SpikePatch = {
   readonly envRoom?: Partial<EnvRoomParams>
   readonly form?: Partial<DeviceFormParams>
   readonly materials?: Partial<DeviceMaterials>
+  readonly opticalProfiles?: DeviceOpticalProfiles
 }
 
 function setParams(patch: SpikePatch): SpikeParams {
@@ -115,6 +120,7 @@ function setParams(patch: SpikePatch): SpikeParams {
     envRoom: { ...current.envRoom, ...patch.envRoom },
     form: { ...current.form, ...patch.form },
     materials: { ...current.materials, ...patch.materials },
+    opticalProfiles: patch.opticalProfiles ?? current.opticalProfiles,
   }
   for (const listener of listeners) listener()
   return current
@@ -401,6 +407,7 @@ function DeviceSpike() {
           envRoom={params.envRoom}
           form={params.form}
           materials={params.materials}
+          opticalProfiles={params.opticalProfiles}
           cameraDistance={params.cameraDistance}
           dpr={params.dpr}
           onScreenMeshReady={onScreenMeshReady}
