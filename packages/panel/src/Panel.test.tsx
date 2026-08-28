@@ -49,6 +49,15 @@ describe('the bare DOM panel', () => {
     expect(source).toContain('useVirtualizer(')
   })
 
+  test('offline mode remains cached metadata and never restores the cut download product', () => {
+    const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
+    const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
+    expect(source).toContain('cached library metadata')
+    expect(source).toContain('Playback unavailable; cached metadata shown')
+    expect(source).not.toMatch(/Downloads|downloaded|Play downloads|⤓/i)
+    expect(css).not.toMatch(/downloaded/i)
+  })
+
   test('contains the three required accessibility preference branches', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
     expect(css).toContain('prefers-reduced-motion: reduce')

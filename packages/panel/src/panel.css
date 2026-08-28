@@ -75,6 +75,7 @@
   .wp-menu-preview > span:not(.wp-art, .wp-scroll-track) { font-size: 11px; }
   .wp-art { display: grid; place-items: center; inline-size: min(88px, var(--wp-art-max, 88px)); aspect-ratio: 1; overflow: hidden; border: 1px solid rgb(255 255 255 / 12%); background-color: var(--wp-bg-alt); background-position: center; background-size: cover; box-shadow: 0 2px 4px rgb(0 0 0 / 60%); }
   .wp-art--large { inline-size: min(104px, var(--wp-art-max, 104px)); }
+  .wp-art img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; }
   .wp-art__fallback { color: rgb(255 255 255 / 72%); font-size: 32px; }
   .wp-scroll-track { position: relative; display: block; inline-size: 3px; block-size: 37px; margin-inline-start: auto; background: var(--wp-divider); }
   .wp-scroll-track i { position: absolute; inset-block-start: 4px; inline-size: 3px; block-size: 28px; background: var(--wp-accent); }
@@ -92,14 +93,13 @@
   .wp-track-row { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; block-size: 26px; padding-inline: 8px; border-block-end: 1px solid var(--wp-divider); }
   .wp-track-row[data-unavailable="true"] { opacity: .52; }
   .wp-panel[data-colourway="dark"] .wp-track-row[data-unavailable="true"] { opacity: .45; }
-  .wp-track-row[data-downloaded="true"] { opacity: 1; }
   .wp-track-row[data-agent="true"] { background: color-mix(in oklab, var(--wp-bg), #22c55e 8%); }
   .wp-panel[data-colourway="light"] .wp-track-row[data-agent="true"] { background: color-mix(in oklab, var(--wp-bg), #22c55e 12%); }
   .wp-track-number { color: var(--wp-text-3); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; font-weight: 500; }
   .wp-track-title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .wp-skeleton { background: var(--wp-bg-alt); animation: wp-shimmer 1.2s ease-in-out infinite alternate; }
   .wp-skeleton i { display: block; inline-size: 62%; block-size: 7px; margin-inline-start: 20px; background: var(--wp-divider); }
-  .wp-now-body { position: relative; z-index: 0; display: grid; grid-template-columns: 104px 1fr; grid-template-rows: 104px 5px 12px 14px; gap: 8px; padding: 8px; overflow: hidden; }
+  .wp-now-body { position: relative; z-index: 0; display: grid; grid-template-columns: 104px 1fr; grid-template-rows: 104px 5px 12px 24px; gap: 7px; padding: 8px; overflow: hidden; }
   .wp-now-body::before { content: ""; position: absolute; z-index: -1; inset: 0; background: radial-gradient(ellipse 88% 96% at 26% 34%, var(--wp-art-dominant) 0%, color-mix(in oklab, var(--wp-art-dominant), transparent 48%) 42%, transparent 78%); opacity: var(--wp-bloom-opacity, .72); pointer-events: none; }
   .wp-now-meta { position: relative; min-inline-size: 0; padding: 4px; background: rgb(10 15 22 / 86%); }
   .wp-panel[data-colourway="light"] .wp-now-meta { background: rgb(242 246 251 / 68%); }
@@ -114,8 +114,9 @@
   .wp-progress i { display: block; block-size: 100%; background: var(--wp-danger); transition: inline-size 120ms linear; }
   .wp-times { grid-column: 1 / -1; display: flex; justify-content: space-between; color: var(--wp-text-2); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; font-weight: 500; }
   .wp-actions { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; color: var(--wp-text-2); font-size: 14px; }
+  .wp-actions button { display: grid; place-items: center; min-inline-size: 24px; min-block-size: 24px; padding: 0; border: 0; color: var(--wp-danger); background: transparent; font: inherit; cursor: pointer; }
+  .wp-actions button:focus-visible { outline: 2px solid var(--wp-accent); outline-offset: -2px; }
   .wp-actions span:first-child { color: var(--wp-accent); }
-  .wp-actions span:nth-child(3) { color: var(--wp-danger); }
   .wp-state-note { position: absolute; inset-inline: 8px; inset-block-end: 2px; color: var(--wp-text-3); font-size: 11px; font-weight: 500; text-align: center; }
   .wp-agent-note { color: #22c55e; }
   .wp-panel[data-state="agent-active"] { box-shadow: inset 0 0 0 1px #22c55e; }

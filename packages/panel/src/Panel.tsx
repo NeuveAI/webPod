@@ -15,7 +15,7 @@ import {
   type Density,
   type ScreenFrame,
 } from '@webpod/state'
-import { useEffect, useRef, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
 
 import {
   albumTracksFrame,
@@ -32,11 +32,23 @@ import {
   type NowPlayingMode,
   type PanelState,
 } from './model'
+import { acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import './panel.css'
 
 const nowPlayingModeAtom = atom<NowPlayingMode>('volume')
+const sampledArtworkAtom = atom<{ readonly url: string; readonly samples: ArtworkSamples } | null>(null)
+const successResultAtom = atom<SuccessResult | null>(null)
 let initializedDocument: Document | null = null
 const libraryCountLabels = new Set(['Playlists', 'Artists', 'Albums', 'Songs', 'Genres'])
+const successOperations = new WeakMap<Document, Map<string, Promise<SuccessResult>>>()
+const artworkRequests = new Map<string, Promise<ArtworkSamples>>()
+
+interface SuccessResult {
+  readonly screenId: 'S03' | 'S08' | 'S13'
+  readonly text: string
+  readonly objectKey: string
+  readonly libraryTotal?: number
+}
 
 /**
  * Renders one 272×204 semantic panel against the document singleton store.
@@ -50,10 +62,9 @@ export interface PanelProps {
   readonly dynamicTypeScale?: number
   readonly className?: string
   readonly actor?: 'human' | 'agent'
-  readonly artworkTone?: ArtworkTone
+  readonly artworkTone?: ArtworkTone | null
   readonly density?: Density | null
   readonly longList?: boolean
-  readonly offlineDownloaded?: boolean
 }
 
 export function Panel({
@@ -62,10 +73,9 @@ export function Panel({
   dynamicTypeScale = 1,
   className,
   actor = 'human',
-  artworkTone = 'dark',
+  artworkTone = null,
   density = null,
   longList = false,
-  offlineDownloaded = false,
 }: PanelProps) {
   const rasterScale = Math.min(1.25, Math.max(1, dynamicTypeScale))
   useEffect(() => {
@@ -75,12 +85,11 @@ export function Panel({
     }
     deviceStore.set(setDensityActionAtom, density)
     deviceStore.set(setDynamicTypeScaleActionAtom, dynamicTypeScale)
-    if (state === 'success-confirmation') void fixtureProvider.setVolume(actor === 'human' ? 72 : 68)
   }, [actor, density, dynamicTypeScale, state])
   return (
     <div className="wp-panel-stage" style={{ '--wp-raster-scale': rasterScale } as CSSProperties}>
       <Provider store={deviceStore}>
-        <PanelSurface colourway={colourway} state={state} className={className} actor={actor} artworkTone={artworkTone} longList={longList} offlineDownloaded={offlineDownloaded} />
+        <PanelSurface colourway={colourway} state={state} className={className} actor={actor} artworkTone={artworkTone} longList={longList} />
       </Provider>
     </div>
   )
@@ -93,16 +102,15 @@ function PanelSurface({
   actor,
   artworkTone,
   longList,
-  offlineDownloaded,
 }: {
   readonly colourway: Colourway
   readonly state: PanelState
   readonly className?: string
   readonly actor: 'human' | 'agent'
-  readonly artworkTone: ArtworkTone
+  readonly artworkTone: ArtworkTone | null
   readonly longList: boolean
-  readonly offlineDownloaded: boolean
 }) {
+  const panelId = useId()
   const frame = useAtomValue(currentScreenAtom)
   const announcement = useAtomValue(liveRegionAtom)
   const move = useSetAtom(detentActionAtom)
@@ -146,12 +154,13 @@ function PanelSurface({
       role="application"
       aria-label="webPod music player"
       aria-roledescription="click wheel music player"
+      aria-activedescendant={frame?.screenId === 'S03' ? `${panelId}-menu-${frame.highlightIndex}` : undefined}
       onKeyDown={onKeyDown}
     >
       <span className="wp-sr-only" aria-live="polite" aria-atomic="true">
         {announcement?.text ?? ''}
       </span>
-      {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state, colourway, artworkTone, visibleRows, offlineDownloaded)}
+      {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state, colourway, artworkTone, visibleRows, actor, panelId)}
     </div>
   )
 }
@@ -174,10 +183,10 @@ function select(frame: ScreenFrame | null, push: (frame: ScreenFrame) => void, l
   }
 }
 
-function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone, visibleRows: number, offlineDownloaded: boolean) {
-  if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} />
+function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone | null, visibleRows: number, actor: 'human' | 'agent', panelId: string) {
+  if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
   if (frame.screenId === 'S08') return <AlbumTracks frame={frame} state={state} />
-  if (frame.screenId === 'S13') return <NowPlaying state={state} colourway={colourway} artworkTone={artworkTone} offlineDownloaded={offlineDownloaded} />
+  if (frame.screenId === 'S13') return <NowPlaying state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} />
   return <PanelError message="This screen is not part of the MVP preview." />
 }
 
@@ -191,25 +200,23 @@ function TitleBar({ title, index }: { readonly title: string; readonly index?: s
   )
 }
 
-function MainMenu({ frame, state, visibleRows }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number }) {
+function MainMenu({ frame, state, visibleRows, panelId }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string }) {
+  const success = useLibrarySuccess('S03', frame.title, state)
   const selected = frame.rows[frame.highlightIndex] ?? null
   const baseRows = frame.rows
-  const firstRow = baseRows[0]
-  const displayRows = state === 'offline' && firstRow !== undefined
-    ? [firstRow, { ...firstRow, index: 99, label: 'Downloads', sublabel: null }, ...baseRows.slice(1)]
-    : baseRows
-  const windowedRows = displayRows.slice(frame.windowStart, frame.windowStart + visibleRows)
+  const windowedRows = baseRows.slice(frame.windowStart, frame.windowStart + visibleRows)
   return (
     <div className="wp-screen">
       <TitleBar title={frame.title} />
       <div className="wp-menu-split">
-        <ol className="wp-menu-list" aria-label="Music categories" role="listbox" aria-activedescendant={`wp-menu-${frame.highlightIndex}`}>
+        <ol className="wp-menu-list" aria-label="Music categories" role="listbox">
           {windowedRows.map((row) => (
             <li
-              id={`wp-menu-${row.index}`}
+              id={`${panelId}-menu-${row.index}`}
               role="option"
               aria-selected={row.index === frame.highlightIndex}
               data-empty={state === 'empty' && libraryCountLabels.has(row.label) ? 'true' : undefined}
+              data-success={success?.screenId === 'S03' && row.label === 'Playlists' ? 'true' : undefined}
               data-unavailable={(state === 'offline' && (row.label === 'Radio' || row.label === 'Search')) || (state === 'permission-denied' && row.label === 'Radio') ? 'true' : undefined}
               key={row.index}
               className="wp-menu-row"
@@ -230,8 +237,9 @@ function MainMenu({ frame, state, visibleRows }: { readonly frame: ScreenFrame; 
           {state === 'agent-active' ? <small className="wp-agent-note">Assistant browsing</small> : null}
         </div>
         {state === 'empty' ? <FooterReceipt>Nothing in your library yet. Try Radio, or search for anything.</FooterReceipt> : null}
-        {state === 'offline' ? <FooterReceipt>Offline. 214 songs are downloaded.</FooterReceipt> : null}
+        {state === 'offline' ? <FooterReceipt>Offline. Showing cached library metadata.</FooterReceipt> : null}
         {state === 'permission-denied' ? <FooterReceipt>Browsing only — a subscription is needed to play.</FooterReceipt> : null}
+        {success?.screenId === 'S03' ? <FooterReceipt>{success.text}</FooterReceipt> : null}
         {state === 'loading' ? <span className="wp-sr-only">Loading your library counts.</span> : null}
       </div>
     </div>
@@ -239,17 +247,18 @@ function MainMenu({ frame, state, visibleRows }: { readonly frame: ScreenFrame; 
 }
 
 function AlbumTracks({ frame, state }: { readonly frame: ScreenFrame; readonly state: PanelState }) {
+  const success = useLibrarySuccess('S08', frame.title, state)
   const rows = state === 'loading'
     ? Array.from({ length: 8 }, (_, index) => index)
     : frame.rows.slice(frame.windowStart, frame.windowStart + 8)
   return (
-    <section className="wp-screen" aria-label="Album tracks" aria-busy={state === 'loading'}>
-      <TitleBar title={frame.title} index={state === 'offline' ? '4 of 12 downloaded' : undefined} />
+    <section className="wp-screen" aria-label="Album tracks" aria-busy={state === 'loading'} data-success-object={success?.objectKey} data-library-total={success?.libraryTotal}>
+      <TitleBar title={frame.title} index={state === 'offline' ? 'Cached metadata' : undefined} />
       {state === 'empty' ? <PanelEmpty title="Nothing here plays in your region." detail="Search for it · Go to artist" /> : (
         <div className="wp-album-layout">
           <div className="wp-album-list">
             {state === 'loading' || state === 'error' || frame.rows.length <= 100
-              ? <StaticTrackList rows={state === 'error' ? Array.from({ length: 8 }, (_, index) => index) : rows} frame={frame} state={state} />
+              ? <StaticTrackList rows={state === 'error' ? Array.from({ length: 8 }, (_, index) => index) : rows} frame={frame} state={state} success={success !== null} />
               : <VirtualTrackList frame={frame} state={state} />}
           </div>
           <div className="wp-album-preview" role="group" aria-label="Album details">
@@ -259,7 +268,7 @@ function AlbumTracks({ frame, state }: { readonly frame: ScreenFrame; readonly s
           </div>
         </div>
       )}
-      {state === 'success-confirmation' ? <FooterReceipt>Added to your library. &nbsp;⟲ Undo</FooterReceipt> : null}
+      {success?.screenId === 'S08' ? <FooterReceipt>{success.text}</FooterReceipt> : null}
     </section>
   )
 }
@@ -268,16 +277,18 @@ function StaticTrackList({
   rows,
   frame,
   state,
+  success,
 }: {
   readonly rows: readonly (number | ScreenFrame['rows'][number])[]
   readonly frame: ScreenFrame
   readonly state: PanelState
+  readonly success: boolean
 }) {
   return (
     <ol className="wp-track-list">
       {rows.map((row, index) => typeof row === 'number'
         ? <li className="wp-track-row wp-skeleton" key={row} aria-hidden="true"><i /></li>
-        : <TrackRow key={row.index} row={row} displayIndex={frame.windowStart + index + 1} frame={frame} state={state} />)}
+        : <TrackRow key={row.index} row={row} displayIndex={frame.windowStart + index + 1} frame={frame} state={state} success={success} />)}
     </ol>
   )
 }
@@ -292,7 +303,7 @@ function VirtualTrackList({ frame, state }: { readonly frame: ScreenFrame; reado
       <li className="wp-virtual-space" style={{ blockSize: virtualizer.getTotalSize() }} aria-hidden="true" />
       {virtualizer.getVirtualItems().map((item) => {
         const row = frame.rows[item.index]
-        return row === undefined ? null : <TrackRow key={row.index} row={row} displayIndex={item.index + 1} frame={frame} state={state} style={{ transform: `translateY(${item.start}px)` }} />
+        return row === undefined ? null : <TrackRow key={row.index} row={row} displayIndex={item.index + 1} frame={frame} state={state} success={false} style={{ transform: `translateY(${item.start}px)` }} />
       })}
     </ol>
   )
@@ -303,50 +314,86 @@ function TrackRow({
   displayIndex,
   frame,
   state,
+  success,
   style,
 }: {
   readonly row: ScreenFrame['rows'][number]
   readonly displayIndex: number
   readonly frame: ScreenFrame
   readonly state: PanelState
+  readonly success: boolean
   readonly style?: CSSProperties
 }) {
   return (
     <li
       className="wp-track-row"
       data-unavailable={state === 'offline' ? 'true' : undefined}
-      data-downloaded={state === 'offline' && displayIndex % 3 === 1 ? 'true' : undefined}
       data-agent={state === 'agent-active' && row.index === frame.highlightIndex ? 'true' : undefined}
-      data-success={state === 'success-confirmation' && row.index === frame.highlightIndex ? 'true' : undefined}
+      data-success={success && row.index === frame.highlightIndex ? 'true' : undefined}
       aria-current={row.index === frame.highlightIndex ? 'true' : undefined}
       style={style}
     >
-      <span className="wp-track-number">{state === 'success-confirmation' && row.index === frame.highlightIndex ? '✓' : displayIndex}</span>
+      <span className="wp-track-number">{success && row.index === frame.highlightIndex ? '✓' : displayIndex}</span>
       <span className="wp-track-title">{row.label}</span>
-      <span className="wp-row-meta">{state === 'offline' ? displayIndex % 3 === 1 ? '⤓' : '☁︎' : row.sublabel}</span>
+      <span className="wp-row-meta">{state === 'offline' ? '☁︎' : row.sublabel}</span>
     </li>
   )
 }
 
-function NowPlaying({ state, colourway, artworkTone, offlineDownloaded }: { readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone; readonly offlineDownloaded: boolean }) {
+function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone | null; readonly actor: 'human' | 'agent' }) {
   const mode = useAtomValue(nowPlayingModeAtom)
+  const sampledArtwork = useAtomValue(sampledArtworkAtom)
+  const setSampledArtwork = useSetAtom(sampledArtworkAtom)
+  const success = useAtomValue(successResultAtom)
+  const setSuccess = useSetAtom(successResultAtom)
   useSyncExternalStore(fixtureProvider.onPlaybackChange, playbackVersion, serverPlaybackVersion)
   useSyncExternalStore(fixtureProvider.onProgress, progressVersion, serverProgressVersion)
   const playback = fixtureProvider.playback
   const progressTick = { positionMs: playback.positionMs, durationMs: playback.durationMs }
-  useEffect(() => {
-    if (playback.status === 'playing' && playback.positionMs === 0) fixtureProvider.tick(1_000)
-  }, [playback.positionMs, playback.status])
   const track = playback.now ?? currentTrack()
-  const samples = artworkSampleFixture(artworkTone)
-  const treatment = deriveArtworkTreatment(colourway, samples.dominant, samples.luminance)
+  const art = sharpArtwork(track, 176)
+  const artUrl = art?.url ?? null
+  useEffect(() => acquirePlaybackClock(document, fixtureProvider, {
+    now: () => performance.now(),
+    setInterval: (callback, intervalMs) => window.setInterval(callback, intervalMs),
+    clearInterval: (handle) => window.clearInterval(handle),
+  }), [])
+  useEffect(() => {
+    if (artworkTone !== null || artUrl === null) return
+    let live = true
+    const request = artworkRequests.get(artUrl) ?? sampleProviderArtwork(artUrl)
+    artworkRequests.set(artUrl, request)
+    void request.then((samples) => {
+      if (live) setSampledArtwork({ url: artUrl, samples })
+    }).catch(() => {
+      if (live) setSampledArtwork(null)
+    })
+    return () => { live = false }
+  }, [artUrl, artworkTone, setSampledArtwork])
+  useEffect(() => {
+    if (state !== 'success-confirmation') return
+    let live = true
+    const operation = successOperation(document, 'S13', async () => {
+      await fixtureProvider.setVolume(actor === 'human' ? 72 : 68)
+      return { screenId: 'S13', text: 'Volume changed.', objectKey: 'playback.volume' }
+    })
+    void operation.then((result) => { if (live) setSuccess(result) })
+    return () => { live = false }
+  }, [actor, setSuccess, state])
+  let samples: ArtworkSamples | null = null
+  if (artworkTone !== null) {
+    samples = artworkSampleFixture(artworkTone)
+  } else if (sampledArtwork !== null && art !== null && sampledArtwork.url === art.url) {
+    samples = sampledArtwork.samples
+  }
+  const treatment = samples === null ? null : deriveArtworkTreatment(colourway, samples.dominant, samples.luminance)
   const artStyle = {
-    '--wp-art-dominant': treatment.dominant,
-    '--wp-bloom-opacity': treatment.bloomOpacity,
-    '--wp-bloom-min': treatment.bloomLightness[0],
-    '--wp-bloom-max': treatment.bloomLightness[1],
-    '--wp-bloom-chroma': treatment.chromaMultiplier,
-    '--wp-art-fallback': `linear-gradient(145deg, ${treatment.dominant}, ${colourway === 'dark' ? '#080b11' : '#f2f6fb'})`,
+    '--wp-art-dominant': treatment?.dominant ?? 'transparent',
+    '--wp-bloom-opacity': treatment?.bloomOpacity ?? 0,
+    '--wp-bloom-min': treatment?.bloomLightness[0] ?? 0,
+    '--wp-bloom-max': treatment?.bloomLightness[1] ?? 0,
+    '--wp-bloom-chroma': treatment?.chromaMultiplier ?? 0,
+    '--wp-art-fallback': `linear-gradient(145deg, ${treatment?.dominant ?? '#334155'}, ${colourway === 'dark' ? '#080b11' : '#f2f6fb'})`,
   } as CSSProperties
   const progress = progressTick.durationMs === 0 ? 0 : Math.round(
     (progressTick.positionMs / progressTick.durationMs) * 100,
@@ -356,7 +403,7 @@ function NowPlaying({ state, colourway, artworkTone, offlineDownloaded }: { read
   if (state === 'permission-denied') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message="Playback needs an Apple Music subscription." detail="Learn more · Browse anyway" /></section>
   if (state === 'empty') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelEmpty title="Nothing is playing." detail="Shuffle Songs · Menu returns" /></section>
   return (
-    <section className="wp-screen wp-now" aria-label="Now Playing" data-art-tone={artworkTone} data-volume={playback.volume0to100} data-position-ms={playback.positionMs} style={artStyle}>
+    <section className="wp-screen wp-now" aria-label="Now Playing" data-art-tone={artworkTone ?? 'provider'} data-art-sample-source={artworkTone === null ? samples === null ? 'pending' : 'provider' : 'fixture'} data-volume={playback.volume0to100} data-position-ms={playback.positionMs} style={artStyle}>
       <TitleBar title="Now Playing" index={track.albumName ?? '1 of 42'} />
       <div className="wp-now-body">
         <Artwork state="ready" large tone={artworkTone} />
@@ -373,11 +420,12 @@ function NowPlaying({ state, colourway, artworkTone, offlineDownloaded }: { read
         <div className="wp-times"><span>{formatTime(progressTick.positionMs)}</span><span>-{formatTime(Math.max(0, progressTick.durationMs - progressTick.positionMs))}</span></div>
         <div className="wp-actions" aria-label="Playback status">
           <span aria-label="Shuffle on">⌘</span><span aria-label="Repeat off">↻</span>
-          <span aria-label="Loved">♥</span><span aria-label="Rate">★</span><span aria-label="Queue">≡</span>
+          <button type="button" aria-label="Love track" onClick={() => { void fixtureProvider.ratingSet(track, { love: 'love' }) }}>♥</button>
+          <span aria-label="Rate">★</span><span aria-label="Queue">≡</span>
         </div>
-        {state === 'offline' ? <span className="wp-state-note">{offlineDownloaded ? '☁︎/ Downloaded' : '☁︎/ You’re offline. · 214 downloaded songs still play. · Play downloads'}</span> : null}
+        {state === 'offline' ? <span className="wp-state-note">Offline. Playback unavailable; cached metadata shown.</span> : null}
         {state === 'agent-active' ? <span className="wp-state-note wp-agent-note">Assistant moved here</span> : null}
-        {state === 'success-confirmation' ? <FooterReceipt>Volume changed.</FooterReceipt> : null}
+        {success?.screenId === 'S13' ? <FooterReceipt>{success.text}</FooterReceipt> : null}
       </div>
     </section>
   )
@@ -387,7 +435,7 @@ function FooterReceipt({ children }: { readonly children: ReactNode }) {
   return <div className="wp-footer-receipt" role="status">{children}</div>
 }
 
-function Artwork({ state, large = false, tone }: { readonly state: PanelState; readonly large?: boolean; readonly tone?: ArtworkTone }) {
+function Artwork({ state, large = false, tone }: { readonly state: PanelState; readonly large?: boolean; readonly tone?: ArtworkTone | null }) {
   if (state === 'loading') return <span className={large ? 'wp-art wp-art--large wp-skeleton' : 'wp-art wp-skeleton'} aria-hidden="true" />
   const art = sharpArtwork(currentTrack(), large ? 176 : 88)
   const fixtureSurface = tone === 'pale'
@@ -397,9 +445,43 @@ function Artwork({ state, large = false, tone }: { readonly state: PanelState; r
       : null
   return (
     <span className={large ? 'wp-art wp-art--large' : 'wp-art'} style={{ '--wp-art-max': `${art?.renderedPx ?? 104}px`, backgroundImage: fixtureSurface ?? (art === null ? undefined : `url(${art.url}), var(--wp-art-fallback, linear-gradient(145deg, #334155, #0b0d11))`) } as CSSProperties}>
+      {tone === null && art !== null ? <img src={art.url} alt="" data-provider-artwork="true" /> : null}
       {art === null ? <span className="wp-art__fallback" aria-hidden="true">◒</span> : null}
     </span>
   )
+}
+
+function useLibrarySuccess(screenId: 'S03' | 'S08', title: string, state: PanelState): SuccessResult | null {
+  const success = useAtomValue(successResultAtom)
+  const setSuccess = useSetAtom(successResultAtom)
+  useEffect(() => {
+    if (state !== 'success-confirmation') return
+    let live = true
+    const track = currentTrack()
+    const operation = successOperation(document, screenId, async () => {
+      const playlist = await fixtureProvider.playlistCreate({ name: `${title} Picks`, tracks: [track] })
+      const library = await fixtureProvider.libraryList('playlists')
+      return {
+        screenId,
+        text: `Created “${playlist.name}”.`,
+        objectKey: playlist.key,
+        ...(library.total === null ? {} : { libraryTotal: library.total }),
+      }
+    })
+    void operation.then((result) => { if (live) setSuccess(result) })
+    return () => { live = false }
+  }, [screenId, setSuccess, state, title])
+  return success?.screenId === screenId ? success : null
+}
+
+function successOperation(owner: Document, key: SuccessResult['screenId'], create: () => Promise<SuccessResult>): Promise<SuccessResult> {
+  const operations = successOperations.get(owner) ?? new Map<string, Promise<SuccessResult>>()
+  successOperations.set(owner, operations)
+  const existing = operations.get(key)
+  if (existing !== undefined) return existing
+  const operation = create()
+  operations.set(key, operation)
+  return operation
 }
 
 function PanelEmpty({ title, detail }: { readonly title: string; readonly detail: string }) {
