@@ -25,7 +25,12 @@
 
 import { CAPABILITIES, CAPABILITY_FEATURE_NAMES } from '../capability.ts'
 import type { Capability, CapabilityMatrix } from '../capability.ts'
-import { CapabilityUnsupportedError, NotAuthorizedError, PlaybackNotPermittedError } from '../errors.ts'
+import {
+  CapabilityUnsupportedError,
+  InvalidCursorError,
+  NotAuthorizedError,
+  PlaybackNotPermittedError,
+} from '../errors.ts'
 import type {
   Cursor,
   Entity,
@@ -288,9 +293,24 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
     if (queueNow === null) status = 'stopped'
   }
 
+  /**
+   * Slices one page, refusing a cursor this provider did not issue.
+   *
+   * The cursor is the offset of the next page, as a decimal string — the only
+   * values `Page.next` ever returns. Anything else throws rather than
+   * collapsing to `0`: a malformed or negative cursor silently answering with
+   * page 0 *and a non-null `next`* is byte-identical to a legitimate first
+   * page, so the caller appends the same rows again and sees no error.
+   */
   function pageOf<T>(items: readonly T[], cursor: Cursor | undefined): Page<T> {
-    const start = cursor === undefined ? 0 : Number.parseInt(cursor, 10)
-    const from = Number.isFinite(start) && start > 0 ? start : 0
+    let from = 0
+    if (cursor !== undefined) {
+      // `Number.parseInt` would accept `'25abc'` and `' 25'`; the cursor is
+      // ours and its shape is exact, so it is matched rather than parsed.
+      if (!/^\d+$/.test(cursor)) throw new InvalidCursorError('fixture', cursor)
+      from = Number(cursor)
+      if (from > items.length) throw new InvalidCursorError('fixture', cursor)
+    }
     const slice = items.slice(from, from + PAGE_SIZE)
     const end = from + slice.length
     return { items: slice, next: end < items.length ? String(end) : null, total: items.length }

@@ -3,7 +3,7 @@ import { describe, expect, test } from 'bun:test'
 import { CAPABILITIES } from '../capability.ts'
 import type { Capability } from '../capability.ts'
 import { APPLE_SUPPORTS } from '../apple/matrix.ts'
-import { CapabilityUnsupportedError } from '../errors.ts'
+import { CapabilityUnsupportedError, InvalidCursorError } from '../errors.ts'
 import { isLocalKey } from '../identity.ts'
 import type { TrackRef } from '../identity.ts'
 import { createFixtureCatalog } from './catalog.ts'
@@ -320,6 +320,31 @@ describe('the fixture provider — behaviour', () => {
 
     expect(seen).toHaveLength(provider.catalog.tracks.length)
     expect(new Set(seen).size).toBe(seen.length)
+  })
+
+  test.each(['not-a-cursor', '-5', '25abc', ' 25', '', '1e3', '99999'])(
+    'a cursor of %p is refused rather than answered with page 0',
+    async (cursor) => {
+      // Returning the first page with a non-null `next` is indistinguishable
+      // from a legitimate first page, so a UI appending on a stale cursor
+      // duplicates rows and never sees an error.
+      const provider = createFixtureProvider()
+      let thrown: unknown = null
+      await provider.libraryList('songs', cursor).catch((error: unknown) => {
+        thrown = error
+      })
+      expect(thrown).toBeInstanceOf(InvalidCursorError)
+      expect((thrown as InvalidCursorError)._tag).toBe('InvalidCursor')
+    },
+  )
+
+  test('a cursor this provider issued is accepted', async () => {
+    const provider = createFixtureProvider()
+    const first = await provider.libraryList('songs')
+    expect(first.next).not.toBeNull()
+    const second = await provider.libraryList('songs', first.next ?? undefined)
+    expect(second.items.length).toBeGreaterThan(0)
+    expect(second.items[0]?.key).not.toBe(first.items[0]?.key)
   })
 
   test('search normalises the way the re-resolution ladder does', async () => {

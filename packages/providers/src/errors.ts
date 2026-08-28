@@ -17,6 +17,7 @@ export type ProviderErrorTag =
   | 'CapabilityUnsupported'
   | 'NotAuthorized'
   | 'PlaybackNotPermitted'
+  | 'InvalidCursor'
   | 'InvalidArtwork'
   | 'InvalidLocalKey'
   | 'RelationshipNotHonoured'
@@ -134,6 +135,30 @@ export class InvalidArtworkError extends ProviderError {
 
   constructor(message: string) {
     super(message)
+  }
+}
+
+/**
+ * A pagination cursor was not one this provider issued.
+ *
+ * A `Cursor` is opaque and provider-scoped: the only legal values are `null`
+ * and whatever `Page.next` last returned. Anything else — a hand-written
+ * string, a cursor from a different listing, a stale one — is a caller defect.
+ *
+ * ⚑ It throws rather than falling back to the first page. Silently returning
+ * page 0 with a non-null `next` is indistinguishable from a legitimate first
+ * page, so a UI appending on a stale cursor duplicates rows instead of failing
+ * — a hidden fallback in arithmetic form, which is exactly what this module's
+ * header says the taxonomy exists to prevent.
+ */
+export class InvalidCursorError extends ProviderError {
+  override readonly _tag = 'InvalidCursor' as const
+
+  constructor(
+    readonly providerId: string,
+    readonly value: string,
+  ) {
+    super(`${providerId}: not a cursor this provider issued: ${JSON.stringify(value)}`)
   }
 }
 
