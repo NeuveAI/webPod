@@ -8,7 +8,9 @@
  * surface is known to be strictly larger than its documented one (D-029), so a
  * `docs` value may be built on provisionally and stays visible as unconfirmed.
  *
- * Exactly one row in this whole matrix is closed at `live`: `stationSeedFromTrack`.
+ * Exactly three rows in this matrix are closed at `live`:
+ * `stationSeedFromTrack`, `lyrics`, and `lyricsSynced`. The first is a measured
+ * presence; the latter two are measured, entitlement-gated absences.
  *
  * ⚑ Do not "correct" a `false` here from a search result. Three of them have a
  * documented-looking counterargument that is about a different API surface, and

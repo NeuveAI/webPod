@@ -143,6 +143,20 @@ describe('D-045 — every capability value carries an evidence label', () => {
     expect(row?.provenance).toBe('live')
   })
 
+  test('Apple header and rows agree that exactly three findings have live provenance', async () => {
+    const path = `${import.meta.dir}/apple/matrix.ts`
+    const source = await Bun.file(path).text()
+    const rows = await readLabelledRows(path)
+    expect(rows.filter((row) => row.provenance === 'live').map((row) => row.capability).sort()).toEqual([
+      'lyrics',
+      'lyricsSynced',
+      'stationSeedFromTrack',
+    ])
+    expect(source.slice(0, source.indexOf('export const APPLE_SUPPORTS'))).toContain(
+      'Exactly three rows in this matrix are closed at `live`',
+    )
+  })
+
   test('rows 10, 11, 18 and 7 are LIKELY on Apple, never VERIFIED (D-029)', async () => {
     // Someone will reopen `pod-edit-playlist` and say "we verified this". They
     // must find LIKELY. That sentence is the entire value of the label.
