@@ -345,6 +345,25 @@ describe('/artwork admission', () => {
     const recovered = await handleArtworkRequest(artworkRequest('https://i.scdn.co/image/recover'), { fetch: fetchStub(() => Promise.resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } }))) })
     expect(recovered.status).toBe(200)
   })
+
+  test('client abort releases the only admitted slot', async () => {
+    const controller = new AbortController()
+    const request = new Request(artworkRequest('https://i.scdn.co/image/client-abort'), { signal: controller.signal })
+    const pending = handleArtworkRequest(request, {
+      maxConcurrent: 1,
+      fetch: fetchStub((_input, init) => new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')), { once: true })
+      })),
+    })
+    await Bun.sleep(0)
+    controller.abort()
+    expect((await pending).status).toBe(502)
+    const afterAbort = await handleArtworkRequest(artworkRequest('https://i.scdn.co/image/after-abort'), {
+      maxConcurrent: 1,
+      fetch: fetchStub(() => Promise.resolve(new Response(png().buffer, { headers: { 'content-type': 'image/png' } }))),
+    })
+    expect(afterAbort.status).toBe(200)
+  })
 })
 
 describe('/artwork query validation', () => {
