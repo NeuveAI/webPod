@@ -36,8 +36,8 @@ COMMAND
 bun run --cwd apps/web build
 
 RESULT
-client build: 203 modules transformed, exit 0
-server build: 366 modules transformed, exit 0
+client build: 206 modules transformed, exit 0
+server build: 369 modules transformed, exit 0
 
 CLIENT BUNDLE CHECK
 No source_not_allowed, ArtworkTransport, artwork-server error copy, or Effect
