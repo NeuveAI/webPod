@@ -7,7 +7,7 @@ Running 1 test using 1 worker
 
 
 [1/1] apps/web/tests/browser-gates.e2e.ts:123:0 › U1 captures a light/dark pair for every required screen state
-  1) apps/web/tests/browser-gates.e2e.ts:123:0 › U1 captures a light/dark pair for every required screen state 
+  1) apps/web/tests/browser-gates.e2e.ts:123:0 › U1 captures a light/dark pair for every required screen state
 
     Error: expect(locator).toHaveAttribute(expected) failed
 
@@ -52,7 +52,7 @@ Running 1 test using 1 worker
 
 
 [1/1] apps/web/tests/browser-gates.e2e.ts:142:0 › U2 greyscale preserves the human actor and non-colour selection channel
-  1) apps/web/tests/browser-gates.e2e.ts:142:0 › U2 greyscale preserves the human actor and non-colour selection channel 
+  1) apps/web/tests/browser-gates.e2e.ts:142:0 › U2 greyscale preserves the human actor and non-colour selection channel
 
     Error: expect(locator).toHaveAttribute(expected) failed
 
@@ -99,7 +99,7 @@ Running 1 test using 1 worker
 
 
 [1/1] apps/web/tests/browser-gates.e2e.ts:158:0 › U3 reduced motion removes authored animation and transition
-  1) apps/web/tests/browser-gates.e2e.ts:158:0 › U3 reduced motion removes authored animation and transition 
+  1) apps/web/tests/browser-gates.e2e.ts:158:0 › U3 reduced motion removes authored animation and transition
 
     Error: expect(locator).toHaveCSS(expected) failed
 
@@ -146,7 +146,7 @@ Running 1 test using 1 worker
 
 
 [1/1] apps/web/tests/browser-gates.e2e.ts:170:0 › U4 reduced transparency removes bloom, shadow and title translucency
-  1) apps/web/tests/browser-gates.e2e.ts:170:0 › U4 reduced transparency removes bloom, shadow and title translucency 
+  1) apps/web/tests/browser-gates.e2e.ts:170:0 › U4 reduced transparency removes bloom, shadow and title translucency
 
     Error: expect(received).toBe(expected) // Object.is equality
 
@@ -184,7 +184,7 @@ Running 1 test using 1 worker
 
 
 [1/1] apps/web/tests/browser-gates.e2e.ts:182:0 › U5 increased contrast resolves to black/white foundations
-  1) apps/web/tests/browser-gates.e2e.ts:182:0 › U5 increased contrast resolves to black/white foundations 
+  1) apps/web/tests/browser-gates.e2e.ts:182:0 › U5 increased contrast resolves to black/white foundations
 
     Error: expect(locator).toHaveCSS(expected) failed
 
@@ -231,7 +231,7 @@ Running 1 test using 1 worker
 
 
 [1/1] apps/web/tests/browser-gates.e2e.ts:195:0 › U6 axe is clean and every native action is at least 44×44
-  1) apps/web/tests/browser-gates.e2e.ts:195:0 › U6 axe is clean and every native action is at least 44×44 
+  1) apps/web/tests/browser-gates.e2e.ts:195:0 › U6 axe is clean and every native action is at least 44×44
 
     Error: expect(received).toBeGreaterThanOrEqual(expected)
 
@@ -269,7 +269,7 @@ Running 1 test using 1 worker
 
 
 [1/1] apps/web/tests/browser-gates.e2e.ts:218:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
-  1) apps/web/tests/browser-gates.e2e.ts:218:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways 
+  1) apps/web/tests/browser-gates.e2e.ts:218:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
 
     Error: expect(received).toEqual(expected) // deep equality
 
@@ -449,7 +449,7 @@ Running 1 test using 1 worker
 
 
 [1/1] apps/web/tests/browser-gates.e2e.ts:237:0 › U11 200% Dynamic Type has no clipped or truncated visible text
-  1) apps/web/tests/browser-gates.e2e.ts:237:0 › U11 200% Dynamic Type has no clipped or truncated visible text 
+  1) apps/web/tests/browser-gates.e2e.ts:237:0 › U11 200% Dynamic Type has no clipped or truncated visible text
 
     Error: s03/dark clipped content
 
@@ -500,7 +500,7 @@ Running 1 test using 1 worker
 
 
 [1/1] apps/web/tests/browser-gates.e2e.ts:259:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
-  1) apps/web/tests/browser-gates.e2e.ts:259:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible 
+  1) apps/web/tests/browser-gates.e2e.ts:259:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
 
     Error: expect(received).toEqual(expected) // deep equality
 
@@ -553,7 +553,7 @@ Running 1 test using 1 worker
 
 
 [1/1] apps/web/tests/browser-gates.e2e.ts:299:0 › U13 a 30-detent browser flick publishes exactly one live announcement
-  1) apps/web/tests/browser-gates.e2e.ts:299:0 › U13 a 30-detent browser flick publishes exactly one live announcement 
+  1) apps/web/tests/browser-gates.e2e.ts:299:0 › U13 a 30-detent browser flick publishes exactly one live announcement
 
     Error: expect(received).toHaveLength(expected)
 

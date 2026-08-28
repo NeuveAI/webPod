@@ -38,6 +38,6 @@ for (const gate of gates) {
 }
 
 const destination = `${root}/docs/workstreams/002-implementation-spine/evidence/w5b-planted-failures.txt`
-await Bun.write(destination, sections.join('\n'))
+await Bun.write(destination, sections.join('\n').split('\n').map((line) => line.trimEnd()).join('\n'))
 console.log(`evidence: ${destination}`)
 if (missed) process.exit(1)
