@@ -1,0 +1,34 @@
+Repository gate — 2026-08-29 Europe/Stockholm
+
+COMMAND
+bun run gates
+
+RESULT
+exit 0
+
+11/11 TypeScript projects clean
+766 tests passed, 0 failed
+repo lint passed
+
+PASS TYPES
+PASS LINT
+PASS TESTS
+PASS U8
+PASS U9
+PASS U10
+PASS AGENT-FLAG
+PASS HAPTICS
+PASS HALO
+PASS PROVIDER
+PASS TOOLS
+PASS FLIP
+PASS TRAILERS
+PASS NAMING
+PASS TIER
+PASS CREDENTIALS
+
+16 automated passed; 0 automated failed; 2 manual outstanding.
+
+The outstanding items are the intentionally manual U14 phone-in-hand thumb
+occlusion check and U15 reviewer inspection. Neither is satisfiable by this
+server-only lane.

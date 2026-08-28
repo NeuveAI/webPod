@@ -1,0 +1,35 @@
+Live route probe — 2026-08-29 Europe/Stockholm
+
+Server:
+bun run --cwd apps/web dev -- --port 3012
+
+URL:
+http://localhost:3012/artwork?src=%2Fartwork-source%2Frumours%2F300x300.png&px=300
+
+Response:
+HTTP/1.1 200 OK
+cache-control: public, max-age=86400, stale-while-revalidate=604800
+content-length: 412
+content-security-policy: default-src 'none'; sandbox
+content-type: image/svg+xml
+cross-origin-resource-policy: same-origin
+x-content-type-options: nosniff
+
+Body size: 412 bytes. Body is a deterministic self-contained SVG for the
+fixture provider's `rumours` artwork source.
+
+SSRF control URL:
+http://localhost:3012/artwork?src=http%3A%2F%2F169.254.169.254%2Flatest%2Fmeta-data&px=300
+
+Response:
+HTTP/1.1 403 Forbidden
+cache-control: no-store
+content-type: application/json;charset=utf-8
+cross-origin-resource-policy: same-origin
+x-content-type-options: nosniff
+
+{"error":{"code":"source_not_allowed","message":"artwork source host or path is invalid"}}
+
+The control was rejected during source parsing; the deterministic unit test
+asserts the transport call count remains zero for this and every other SSRF
+shape.

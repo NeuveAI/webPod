@@ -1,0 +1,44 @@
+Server artwork verification — 2026-08-29 Europe/Stockholm
+
+COMMAND
+bun test packages/server-core
+
+RESULT
+36 pass
+0 fail
+119 expect() calls
+
+Coverage includes:
+- deterministic fixture artwork with zero outbound fetches
+- Apple and Spotify provider URL shapes
+- loopback, IPv6 loopback, RFC1918, metadata, file, data, javascript,
+  user-info, custom-port, and host-suffix SSRF attempts
+- manual redirect rejection before a private target
+- non-image response rejection
+- declared and streamed oversize cancellation
+- stalled upstream abort and 504 classification
+- missing, duplicate, malformed, and unexpected query values
+- GET-only service contract
+
+COMMAND
+bunx tsc --noEmit -p packages/server-core/tsconfig.json
+
+RESULT
+exit 0
+
+COMMAND
+bunx --bun eslint packages/server-core apps/web/src/routes/artwork.ts
+
+RESULT
+exit 0
+
+COMMAND
+bun run --cwd apps/web build
+
+RESULT
+client build: 203 modules transformed, exit 0
+server build: 366 modules transformed, exit 0
+
+CLIENT BUNDLE CHECK
+No source_not_allowed, ArtworkTransport, artwork-server error copy, or Effect
+HTTP identifier appears under apps/web/dist/client.
