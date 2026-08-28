@@ -3,9 +3,25 @@
  *
  * Owns tier detection and the pixel-source strategy for that seam.
  *
- * Placeholder surface. The package exists from the first commit so that
- * concurrent lanes can land code without editing shared configuration:
- * the workspace glob, the tsconfig base and the typecheck loop already
- * cover it. The lane that owns this package defines its real exports.
+ * W6.0 has landed tier detection only. The `PanelPixelSource` strategy
+ * interface (W6.1) and the T1 `html-in-canvas` implementation (W6.2) are
+ * not here yet; nothing outside this package should compare a tier value.
  */
-export {};
+export {
+  getCapabilities,
+  probeCapabilities,
+  resolveTier,
+  HTML_IN_CANVAS_FLAG,
+} from './capabilities'
+
+export type {
+  CapabilityReport,
+  EnvironmentReport,
+  GeometryApi,
+  GeometryApiGeneration,
+  ProbeGroup,
+  ProbeResult,
+  Tier,
+  TierFacts,
+  WebGLEntryPoint,
+} from './capabilities'

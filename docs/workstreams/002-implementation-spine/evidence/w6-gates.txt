@@ -1,0 +1,51 @@
+W6.0 — gate output, captured 2026-08-28T09:07:59Z
+host: macOS 26.4 · bun 1.4.0
+
+$ bunx tsc --noEmit -p packages/composite/tsconfig.json
+exit=0
+
+$ bunx tsc --noEmit -p apps/web/tsconfig.json
+exit=0
+
+$ bun run typecheck   (all packages)
+   ok  packages/composite
+
+── tsc --noEmit -p packages/device/tsconfig.json
+   ok  packages/device
+
+── tsc --noEmit -p packages/panel/tsconfig.json
+   ok  packages/panel
+
+── tsc --noEmit -p packages/providers/tsconfig.json
+   ok  packages/providers
+
+── tsc --noEmit -p packages/server-core/tsconfig.json
+   ok  packages/server-core
+
+── tsc --noEmit -p packages/state/tsconfig.json
+   ok  packages/state
+
+── tsc --noEmit -p packages/tokens/tsconfig.json
+   ok  packages/tokens
+
+── tsc --noEmit -p packages/tools/tsconfig.json
+   ok  packages/tools
+
+── tsc --noEmit -p packages/ui/tsconfig.json
+   ok  packages/ui
+
+── tsc --noEmit -p scripts/tsconfig.json
+   ok  scripts
+
+11/11 projects clean
+exit=
+
+$ bun run lint
+$ bunx --bun eslint .
+exit=0
+
+$ bun run gates
+$ bun run scripts/gates.ts
+bun run gates: not implemented
+error: script "gates" exited with code 1
+exit=1   # placeholder, W5a owns it — exits 1 by design (scripts/gates.ts)

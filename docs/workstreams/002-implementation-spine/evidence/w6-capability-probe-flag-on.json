@@ -1,0 +1,178 @@
+{
+  "probedAt": "2026-08-28T09:06:29.436Z",
+  "environment": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+    "brands": [
+      "Not=A?Brand 99",
+      "Google Chrome 151",
+      "Chromium 151"
+    ],
+    "chromiumMajor": 151,
+    "devicePixelRatio": 1,
+    "prefersReducedMotion": false,
+    "webgl2": true,
+    "webgl1": true
+  },
+  "requestPaint": true,
+  "layoutSubtreeReflects": true,
+  "webglEntryPoint": {
+    "available": true,
+    "name": "texElementImage2D",
+    "arity": 3,
+    "signature": "current 3-arg (target, internalformat, element) - three.js calls this its \"Chrome 150+\" branch",
+    "verdict": "texElementImage2D is the name that shipped here, with the current 3-arg (target, internalformat, element) signature."
+  },
+  "geometryApi": {
+    "generation": "shipped",
+    "name": "getElementTransform",
+    "verdict": "This browser ships the OLDER generation: getElementTransform(element, screenSpaceTransform) exists, updateElementGeometry does not. The panel is positioned by writing the returned matrix to element.style.transform, so hit-testing, focus, selection and a11y geometry come from a genuinely transformed DOM element rather than from a canvas-side geometry call."
+  },
+  "groups": [
+    {
+      "id": "canvas",
+      "title": "HTMLCanvasElement.prototype",
+      "subtitle": "The five primitives, as declared in the README IDL block.",
+      "results": [
+        {
+          "name": "requestPaint",
+          "present": true,
+          "detail": "0-arg",
+          "note": "The gate. three.js HTMLTexture.js tests exactly this, as `'requestPaint' in parent`. If this is false nothing else matters."
+        },
+        {
+          "name": "onpaint",
+          "present": true,
+          "detail": null,
+          "note": "The `paint` event handler. Fires after the Paint step; DOM changes made inside it land on the NEXT frame."
+        },
+        {
+          "name": "layoutSubtree",
+          "present": true,
+          "detail": null,
+          "note": "README IDL: `[CEReactions, Reflect] attribute boolean layoutSubtree`. Content attribute is lowercase `layoutsubtree`."
+        },
+        {
+          "name": "captureElementImage",
+          "present": true,
+          "detail": "1-arg",
+          "note": "Takes an `ElementImage` snapshot that can be transferred to a worker and drawn to an OffscreenCanvas."
+        },
+        {
+          "name": "updateElementGeometry",
+          "present": false,
+          "detail": null,
+          "note": "MANDATORY for 3D contexts. Supplies `canvasTransform`, which is what adds a11y GEOMETRY and inserts the element into the canvas hit-test list. 2D gets it free from drawElementImage; WebGL does not."
+        },
+        {
+          "name": "clearElementGeometry",
+          "present": false,
+          "detail": null,
+          "note": "Clears the hit-test entry and canvas transform set by updateElementGeometry."
+        },
+        {
+          "name": "getCanvasTransform",
+          "present": false,
+          "detail": null,
+          "note": "README IDL spelling. Returns the element's border-box -> canvas DOMMatrix."
+        },
+        {
+          "name": "getElementTransform",
+          "present": true,
+          "detail": "2-arg",
+          "note": "The OTHER half of the same rename - the spelling used by the WebGPU demo and by published guidance. Probed so we learn which one shipped."
+        },
+        {
+          "name": "onelementgeometryupdate",
+          "present": false,
+          "detail": null,
+          "note": "Fires when OffscreenCanvas-originated geometry updates have been applied on the main thread."
+        }
+      ]
+    },
+    {
+      "id": "layout-subtree",
+      "title": "layoutsubtree reflection",
+      "subtitle": "Declared is not the same as reflecting. Both directions are checked on a real <canvas>.",
+      "results": [
+        {
+          "name": "'layoutSubtree' in HTMLCanvasElement.prototype",
+          "present": true,
+          "detail": null,
+          "note": "The IDL attribute is declared. Necessary, not sufficient."
+        },
+        {
+          "name": "canvas.layoutSubtree = true  ->  [layoutsubtree]",
+          "present": true,
+          "detail": null,
+          "note": "Property reflects out to the content attribute."
+        },
+        {
+          "name": "[layoutsubtree]  ->  canvas.layoutSubtree",
+          "present": true,
+          "detail": null,
+          "note": "Content attribute reflects back to the property. three.js writes the ATTRIBUTE, so this direction is the one it depends on."
+        }
+      ]
+    },
+    {
+      "id": "webgl",
+      "title": "WebGL2 entry point",
+      "subtitle": "Mid-rename. Both candidate spellings are probed by name.",
+      "results": [
+        {
+          "name": "texElementSubImage2D",
+          "present": false,
+          "detail": null,
+          "note": "The CURRENT README IDL name (partial interface WebGLRenderingContext). Not called by three.js and not called by the spec repo's own demo - the IDL is ahead of the implementation."
+        },
+        {
+          "name": "texElementImage2D",
+          "present": true,
+          "detail": "3-arg",
+          "note": "The name that Examples/webGL.html and three.js WebGLTextures.js actually call. If exactly one of these two exists, this is the one that shipped."
+        }
+      ]
+    },
+    {
+      "id": "context-2d",
+      "title": "CanvasRenderingContext2D",
+      "subtitle": "Not our path, but a useful corroboration that the flag is on.",
+      "results": [
+        {
+          "name": "drawElementImage",
+          "present": true,
+          "detail": "3-arg",
+          "note": "The 2D draw path. Not used by this product - the panel goes into a WebGL texture - but its presence corroborates that the flag is on rather than a single member being polyfilled."
+        }
+      ]
+    },
+    {
+      "id": "globals",
+      "title": "Global interfaces",
+      "subtitle": "Which interfaces the API generation brought with it.",
+      "results": [
+        {
+          "name": "ElementImage",
+          "present": true,
+          "detail": "0-arg",
+          "note": "The transferable snapshot handle returned by captureElementImage."
+        },
+        {
+          "name": "PaintEvent",
+          "present": false,
+          "detail": null,
+          "note": "README IDL declares `interface PaintEvent : Event` with a `changedElements` list. three.js reads `event.changedElements` in its paint handler, so the data is delivered even where the constructor is not exposed."
+        },
+        {
+          "name": "ElementGeometryUpdateEvent",
+          "present": false,
+          "detail": null,
+          "note": "Only meaningful alongside updateElementGeometry. Its absence corroborates which generation of the API shipped."
+        }
+      ]
+    }
+  ],
+  "tier": "T1",
+  "tierReason": "'requestPaint' in HTMLCanvasElement.prototype is true, so html-in-canvas is exposed and the panel's DOM pixels can reach the screen mesh through three.js HTMLTexture. This is the main path.",
+  "capabilityTier": "T1"
+}

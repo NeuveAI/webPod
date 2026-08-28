@@ -1,0 +1,139 @@
+W6.0 — html-in-canvas capability probe · real runs, implementer's machine
+========================================================================
+Captured 2026-08-28T09:07Z · macOS 26.4 · bun 1.4.0
+Route: http://localhost:3000/capabilities  (file: apps/web/src/routes/_probe.capabilities.tsx)
+Detection: packages/composite/src/capabilities.ts — getCapabilities()
+
+This is NOT the owner's run. The owner runs the same URL in their own Chrome
+Canary with chrome://flags/#canvas-draw-element enabled. Two runs are recorded
+here because the implementer's machine has no Canary, so the flag was forced on
+via a Blink runtime flag instead — which turned out to answer the question
+anyway, on Chrome 151 stable.
+
+Browser under test, BOTH runs:
+  Google Chrome 151.0.7922.174 (stable), driven headless
+  /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+  UA: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36
+      (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36
+
+
+RUN A — flag OFF (default Chrome for Testing)
+---------------------------------------------
+$ bunx agent-browser --session w6probe open http://localhost:3000/capabilities
+
+  tier             T3
+  requestPaint     false
+  WebGL2           available
+  entry point      neither texElementSubImage2D nor texElementImage2D
+  geometry API     neither generation
+
+  Every probed member absent. Full report: w6-capability-probe-flag-off.json
+  Screenshot:                              w6-capability-probe-flag-off.png
+
+
+RUN B — flag ON
+---------------
+The chrome://flags entry #canvas-draw-element is a Blink runtime-enabled
+feature named CanvasDrawElement. Forcing it directly works on Chrome 151
+stable — Canary is not required, which is worth knowing on its own:
+
+$ bunx agent-browser --session w6stable \
+    --executable-path "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+    --args "--enable-blink-features=CanvasDrawElement" \
+    open http://localhost:3000/capabilities
+
+  tier             T1
+  requestPaint     true
+  layoutSubtree    declared, and reflects in BOTH directions
+  entry point      texElementImage2D, 3-arg
+  geometry API     getElementTransform, 2-arg   <-- see finding 2
+
+  Full report: w6-capability-probe-flag-on.json
+  Screenshot:  w6-capability-probe-flag-on.png
+
+
+EXHAUSTIVE ENUMERATION (run B)
+------------------------------
+Run to make sure the answer does not depend on my candidate list being right.
+Every own property matching /element|paint|layout|canvastransform|drawable|geometry/i:
+
+$ bunx agent-browser --session w6stable eval --stdin <<'EOF'
+  ...Object.getOwnPropertyNames() over the four prototypes and window...
+EOF
+
+  HTMLCanvasElement.prototype
+      layoutSubtree, onpaint, captureElementImage, getElementTransform, requestPaint
+  OffscreenCanvas.prototype
+      getElementTransform
+  WebGL2RenderingContext.prototype
+      texElementImage2D            (plus pre-existing drawElements* / ELEMENT_* constants)
+  WebGLRenderingContext.prototype
+      texElementImage2D
+  CanvasRenderingContext2D.prototype
+      drawElementImage
+  window
+      ElementImage
+
+  ABSENT, conclusively:
+      updateElementGeometry, clearElementGeometry, getCanvasTransform,
+      onelementgeometryupdate, texElementSubImage2D,
+      PaintEvent, ElementGeometryUpdateEvent
+
+
+FINDING 1 — the WebGL entry point that shipped is texElementImage2D, 3-arg
+-------------------------------------------------------------------------
+  texElementSubImage2D   ABSENT   (this is the name in the current README IDL)
+  texElementImage2D      PRESENT, arity 3
+
+Arity 3 is three.js's `// Chrome 150+` branch
+(three.js src/renderers/webgl/WebGLTextures.js:1298). Chrome here is 151, which
+matches. So three.js HTMLTexture works against this browser unmodified, and the
+"which signature" half of RISK-02 is answered: the new one.
+
+RISK-02 as written in decision-log.md describes the churn as
+`texElementImage2D` <-> `texElementSubImage2D`. That is the NAME axis and it is
+real, but the try/catch in the spec repo's own Examples/webGL.html:59-72 spans
+two SIGNATURES of the same name `texElementImage2D`, not two names. Both axes
+exist; the evidence cited for RISK-02 is evidence for the second one.
+
+
+FINDING 2 — BLOCKING for W6 — updateElementGeometry does not exist
+-----------------------------------------------------------------
+The W6 dispatch packet, under "The property that must not be lost":
+
+    "So: updateElementGeometry({ canvasTransform }) is mandatory, must be
+     recomputed every time the device moves, and is what makes the composited
+     panel screen-reader-navigable. Skipping it yields a panel with content
+     and no positions. That is not a cosmetic gap — it is the difference
+     between the thesis holding and not."
+
+updateElementGeometry is NOT IMPLEMENTED in Chrome 151. Neither is
+clearElementGeometry, getCanvasTransform, onelementgeometryupdate, or
+ElementGeometryUpdateEvent. They exist only in the explainer.
+
+What ships instead is the previous generation of the same idea:
+
+    canvas.getElementTransform(element, screenSpaceTransform) -> DOMMatrix
+    // then: element.style.transform = returned.toString()
+
+The element becomes genuinely CSS-transformed DOM, so hit-testing, focus,
+selection and accessibility geometry are native and come from the transform —
+the same outcome the packet wants, reached by a different mechanism. This is
+also exactly what three.js examples/jsm/interaction/InteractionManager.js
+already does: it computes the MVP itself and writes matrix3d to
+element.style.transform. It never calls updateElementGeometry.
+
+So W6.2 is buildable, but the packet's mandated call does not exist and W6.2
+must be specified against getElementTransform. Raised to the lead, not patched.
+
+
+GATES
+-----
+See w6-gates.txt for verbatim output. Summary:
+  bunx tsc --noEmit -p packages/composite/tsconfig.json    exit 0
+  bunx tsc --noEmit -p apps/web/tsconfig.json              exit 0
+  bun run typecheck                          11/11 projects clean
+  bun run lint                                            exit 0
+  bun run gates                                           exit 1 — placeholder,
+                                                          W5a owns it, exits 1 by
+                                                          design (scripts/gates.ts)
