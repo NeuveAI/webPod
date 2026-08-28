@@ -165,8 +165,20 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
   const playbackListeners = new Set<(s: PlaybackState) => void>()
   const progressListeners = new Set<(p: ProgressTick) => void>()
 
-  const savedKeys = new Set<LocalKey>()
   const loveByKey = new Map<LocalKey, 'love' | 'dislike' | 'none'>()
+  /**
+   * Library membership — and therefore also what `saveToggle` writes.
+   *
+   * ⚑ There is deliberately **no separate `savedKeys` set.** §14.3 row 24 makes
+   * Save and add-to-library *one operation with two labels*: `POST
+   * /v1/me/library` on Apple, `PUT /me/tracks` on Spotify — the same endpoint
+   * `libraryAdd` calls. A second store would have made `Save` a control that
+   * changes nothing anything can read back, which is the opposite of what a
+   * fixture is for.
+   *
+   * ⚑ It is still not `loveByKey`. Love is a taste signal and Save is
+   * membership (§14.3 row 23); the two share no store and no code path.
+   */
   const libraryTrackKeys = new Set<LocalKey>(catalog.tracks.map((t) => t.key))
   const playlists: PlaylistRef[] = [...catalog.playlists]
   // No cast: `tracksByPlaylist` is `LocalKeyed`, so its keys arrive branded.
@@ -679,12 +691,30 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       if (r.love !== undefined) loveByKey.set(ref.key, r.love)
     },
 
-    /** Library membership. ⚑ Never aliased to `ratingSet`. */
+    /**
+     * Library membership — Apple's `Add to Library`, Spotify's `Save`.
+     *
+     * Writes the same store `libraryAdd` writes, because §14.3 row 24 says they
+     * are one operation: the result is observable through `libraryList('songs')`
+     * and survives a read-back, which is what makes a `Save` control built
+     * against this fixture a real control.
+     *
+     * ⚑ **Un-saving needs `libraryRemove`, and that is `false` on Apple.**
+     * Removing from the library is a different endpoint from adding to it, and
+     * Apple exposes no removal at all (§14.3 row 7), so `saveToggle(ref, false)`
+     * is genuinely unavailable there. Gating it on the capability that actually
+     * governs it is what keeps that parity gap visible instead of letting the
+     * fixture do something the launch provider cannot.
+     *
+     * ⚑ **Never aliased to `ratingSet`.** Love is a taste signal, Save is
+     * membership (§14.3 row 23).
+     */
     async saveToggle(ref: TrackRef, saved: boolean): Promise<void> {
       requireCapability('saveToggle')
+      if (!saved) requireCapability('libraryRemove')
       requireSession('saveToggle')
-      if (saved) savedKeys.add(ref.key)
-      else savedKeys.delete(ref.key)
+      if (saved) libraryTrackKeys.add(ref.key)
+      else libraryTrackKeys.delete(ref.key)
     },
 
     tick(deltaMs: number): void {

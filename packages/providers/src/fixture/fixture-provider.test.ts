@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test'
 
 import { CAPABILITIES } from '../capability.ts'
 import type { Capability } from '../capability.ts'
+import { APPLE_SUPPORTS } from '../apple/matrix.ts'
 import { CapabilityUnsupportedError } from '../errors.ts'
 import { isLocalKey } from '../identity.ts'
 import type { TrackRef } from '../identity.ts'
@@ -230,6 +231,64 @@ describe('the fixture provider — behaviour', () => {
     // Loving a track must not change library membership. If Love were mapped
     // to Save, the library page count would move here.
     expect(after.total).toBe(before.total)
+  })
+
+  test('Save is add-to-library, and the change is observable (§14.3 row 24)', async () => {
+    // The other half of the pair above. Asserting only that Love ≠ Save is
+    // satisfied by a `saveToggle` that does nothing at all — which is what it
+    // did: it wrote a set no code in any package ever read, so a `Save` control
+    // wired to it changed nothing and could not be read back.
+    const provider = createFixtureProvider()
+    const track = provider.catalog.tracks[0]
+    if (track === undefined) throw new Error('empty fixture catalogue')
+
+    await provider.libraryRemove(track)
+    const removed = await provider.libraryList('songs')
+
+    await provider.saveToggle(track, true)
+    const saved = await provider.libraryList('songs')
+    expect(saved.total).toBe((removed.total ?? 0) + 1)
+
+    await provider.saveToggle(track, false)
+    const unsaved = await provider.libraryList('songs')
+    expect(unsaved.total).toBe(removed.total)
+  })
+
+  test('Save writes the same store as libraryAdd — one operation, two labels', async () => {
+    const provider = createFixtureProvider()
+    const track = provider.catalog.tracks[0]
+    if (track === undefined) throw new Error('empty fixture catalogue')
+
+    await provider.libraryRemove(track)
+    const removed = (await provider.libraryList('songs')).total ?? 0
+
+    await provider.libraryAdd(track)
+    const afterAdd = (await provider.libraryList('songs')).total ?? 0
+    await provider.saveToggle(track, true)
+    const afterSave = (await provider.libraryList('songs')).total ?? 0
+
+    expect(afterAdd).toBe(removed + 1)
+    // Saving an already-added track is a no-op, not a second copy: they are the
+    // same membership, not two stores that happen to agree.
+    expect(afterSave).toBe(afterAdd)
+  })
+
+  test('un-saving needs libraryRemove, which Apple does not have (§14.3 row 7)', async () => {
+    const apple = createFixtureProvider({ supports: APPLE_SUPPORTS })
+    const track = apple.catalog.tracks[0]
+    if (track === undefined) throw new Error('empty fixture catalogue')
+
+    // Saving works on Apple; un-saving is a library removal, and there is no
+    // endpoint for it. The fixture must not be able to do what the launch
+    // provider cannot, or the gap stops being visible.
+    await apple.saveToggle(track, true)
+
+    let thrown: unknown = null
+    await apple.saveToggle(track, false).catch((error: unknown) => {
+      thrown = error
+    })
+    expect(thrown).toBeInstanceOf(CapabilityUnsupportedError)
+    expect((thrown as CapabilityUnsupportedError).capability).toBe('libraryRemove')
   })
 
   test('libraryRemove takes a song out and Love does not put it back', async () => {
