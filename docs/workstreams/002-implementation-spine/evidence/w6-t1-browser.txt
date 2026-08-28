@@ -1,0 +1,23 @@
+W6 T1 browser evidence — Chrome 151, CanvasDrawElement enabled
+
+URL: http://localhost:3001/_probe/composite?colourway=black&state=ready
+Flag: --enable-blink-features=CanvasDrawElement
+Capability: 'requestPaint' in HTMLCanvasElement.prototype => true
+
+Accessibility below Canvas:
+- generic "Composited iPod display"
+  - application "webPod music player" (focusable)
+    - listbox "Music categories"
+      - eight options; selected state represented
+
+Focused the application and sent ArrowDown; the selected option moved.
+
+Demand rendering: requestAnimationFrame wrapped after load; 0 callbacks over
+two idle seconds.
+
+Browser-only upload instrumentation observed the HTMLTexture source and GL error
+0. Repository source makes no raw upload call; Three owns it.
+
+Visual blocker: the screen shows clamped bands. W4's material slot uses
+ExtrudeGeometry with shape-space top-face UVs, not normalized texture coordinates.
+W6 did not modify device code. Visual acceptance awaits normalized W4 screen UVs.
