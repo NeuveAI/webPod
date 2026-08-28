@@ -1,4 +1,4 @@
-import { formatGate, gatesPassed, runStaticGates, type GateResult } from './gate-core.ts'
+import { formatGate, formatSummary, gatesPassed, runStaticGates, summarizeGates, type GateResult } from './gate-core.ts'
 
 interface CommandGate { readonly id: string; readonly label: string; readonly command: readonly string[] }
 
@@ -30,6 +30,5 @@ results.push(...await runStaticGates({ root, ...(commitRange === undefined ? {} 
 
 console.log('\n── gate summary')
 for (const gate of results) console.log(formatGate(gate))
-const failed = results.filter((gate) => gate.status === 'fail')
-console.log(`\n${String(results.length - failed.length)}/${String(results.length)} gates clear; ${String(failed.length)} failed`)
+console.log(`\n${formatSummary(summarizeGates(results))}`)
 if (!gatesPassed(results)) process.exit(1)

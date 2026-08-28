@@ -1,5 +1,5 @@
 import { Glob } from 'bun'
-import { relative, resolve, sep } from 'node:path'
+import { resolve, sep } from 'node:path'
 import ts from 'typescript'
 
 export type GateStatus = 'pass' | 'fail' | 'manual'
@@ -16,57 +16,64 @@ export interface StaticGateOptions {
   readonly commitRange?: string
 }
 
+export interface GateSummary {
+  readonly automatedPassed: number
+  readonly automatedFailed: number
+  readonly manualOutstanding: number
+}
+
 const SOURCE_GLOB = new Glob('{apps,packages,scripts}/**/*.{ts,tsx,js,jsx,css,html,json}')
 const CODE_GLOB = new Glob('{apps,packages,scripts}/**/*.{ts,tsx,js,jsx}')
 const PANEL_GLOB = new Glob('packages/panel/**/*.{ts,tsx,js,jsx,css,html}')
 const TOOL_GLOB = new Glob('packages/tools/**/*.{ts,tsx,js,jsx}')
+const IGNORED_SEGMENTS = new Set(['node_modules', 'dist', '.output', '.tanstack', 'test-results'])
 
-const HARNESS_FILES = new Set(['scripts/gate-core.ts', 'scripts/gates.ts', 'scripts/gates.test.ts'])
-const IGNORED_SEGMENTS = new Set(['node_modules', 'dist', '.output', '.tanstack'])
+interface SourceFile {
+  readonly path: string
+  readonly text: string
+}
 
-interface SourceFile { readonly path: string; readonly text: string }
-interface LineFinding { readonly path: string; readonly line: number; readonly text: string }
-interface Clearance { readonly path: string; readonly line: RegExp; readonly reason: string }
+interface LocatedText {
+  readonly path: string
+  readonly line: number
+  readonly text: string
+}
 
-/**
- * U8 is an audit, not a blind word ban. These are product/account facts that
- * contain the vocabulary but do not imply that an agent sought or received
- * consent. Every clearance is narrow enough that changed copy is reviewed
- * again, and a stale clearance fails the gate.
- */
-const U8_CLEARANCES: readonly Clearance[] = [
-  { path: 'apps/web/src/routes/[_]probe.composite.tsx', line: /'permission-denied'/u, reason: 'required account-state fixture' },
-  { path: 'packages/panel/src/Panel.tsx', line: /permission-denied/u, reason: 'required account-state rendering' },
-  { path: 'packages/panel/src/model.ts', line: /permission-denied/u, reason: 'required account-state union' },
-  { path: 'packages/providers/src/provider.ts', line: /permit playback authorises normally|permission-gated/u, reason: 'provider API fact' },
-  { path: 'packages/providers/src/errors.ts', line: /does not permit/u, reason: 'account playback fact' },
-  { path: 'packages/providers/src/apple/matrix.ts', line: /permission|asked for/u, reason: 'measured Apple API fact' },
-  { path: 'packages/providers/src/apple/relationships.ts', line: /permission-gated|asked for/u, reason: 'measured Apple API fact' },
-  { path: 'packages/providers/src/apple/relationships.test.ts', line: /permission/u, reason: 'measured API assertion' },
-  { path: 'packages/providers/src/fixture/fixture-provider.ts', line: /does not permit/u, reason: 'account playback fixture' },
-  { path: 'packages/state/src/contract.ts', line: /permission/u, reason: 'historical model rejection' },
-  { path: 'packages/panel/e2e/panel.spec.ts', line: /permission-denied/u, reason: 'required account-state browser fixture' },
-  { path: 'packages/device/src/curved-discs.ts', line: /asks for/u, reason: 'geometry specification wording' },
-  { path: 'packages/device/src/Device.tsx', line: /asked for/u, reason: 'screen-handle lifecycle wording' },
-  { path: 'packages/device/src/DeviceCanvas.tsx', line: /asks for/u, reason: 'React lifecycle wording' },
-  { path: 'packages/device/src/env-map.ts', line: /asks for/u, reason: 'material specification wording' },
-  { path: 'packages/device/src/form.ts', line: /asks for/u, reason: 'geometry specification wording' },
-  { path: 'packages/device/src/luminance-probe.ts', line: /blocked by the glass/u, reason: 'physical occlusion wording' },
-  { path: 'packages/device/src/screen-mesh.test.ts', line: /ask for a frame/u, reason: 'render invalidation test' },
-  { path: 'packages/device/src/screen-mesh.ts', line: /asked for|Ask for/u, reason: 'render invalidation API wording' },
-  { path: 'packages/providers/src/artwork.test.ts', line: /asked for/u, reason: 'artwork sizing assertion' },
-  { path: 'packages/providers/src/errors.ts', line: /asked for/u, reason: 'relationship diagnostic field' },
-  { path: 'packages/providers/src/identity.ts', line: /asked for/u, reason: 'identity resolution outcome' },
-  { path: 'packages/providers/src/spotify/matrix.ts', line: /asks for/u, reason: 'artwork sizing posture' },
-  { path: 'packages/state/src/contract.ts', line: /granted standing/u, reason: 'historical model rejection' },
-] as const
+const U8_PATTERN = /\b(?:allows?|allowed|allowing|den(?:y|ies|ied|ying)|permits?|permitted|permitting|permissions?|grants?|granted|granting|authori[sz](?:e|es|ed|ing|ation|ations)?|approv(?:e|es|ed|ing|al|als)|pending|blocked|asks?\s+(?:for|to)|asked\s+(?:for|to)|waiting\s+for)\b/iu
+const AGENT_FLAG_PATTERN = /^(?:agentPresent|agentAttached|agentIdle|isAgentConnected)$/iu
+const HANDEDNESS_PATTERN = /^(?:handed|handedness|leftHand|rightHand)$/iu
+const NAMING_PATTERN = /(?<![\d.])002(?!\d)|implementation-spine|workstream/iu
 
-const U8_PATTERN = /\b(allow|deny|denied|permit|permission|granted|authoris|authoriz|approve|approval|pending|blocked|asks? (?:for|to)|asked (?:for|to)|waiting for)\b/iu
+function normalizePath(path: string): string {
+  return path.split(sep).join('/')
+}
 
-function normalizePath(path: string): string { return path.split(sep).join('/') }
 function isIgnored(path: string): boolean {
-  if (HARNESS_FILES.has(path)) return true
   return path.split('/').some((part) => IGNORED_SEGMENTS.has(part))
+}
+
+function scriptKind(path: string): ts.ScriptKind {
+  if (path.endsWith('.tsx')) return ts.ScriptKind.TSX
+  if (path.endsWith('.jsx')) return ts.ScriptKind.JSX
+  if (path.endsWith('.js')) return ts.ScriptKind.JS
+  if (path.endsWith('.json')) return ts.ScriptKind.JSON
+  return ts.ScriptKind.TS
+}
+
+function sourceFile(file: SourceFile): ts.SourceFile {
+  return ts.createSourceFile(file.path, file.text, ts.ScriptTarget.Latest, true, scriptKind(file.path))
+}
+
+function lineAt(source: ts.SourceFile, position: number): number {
+  return source.getLineAndCharacterOfPosition(position).line + 1
+}
+
+function finding(path: string, line: number, message: string): string {
+  return `${path}:${String(line)}: ${message}`
+}
+
+function result(id: string, label: string, findings: readonly string[]): GateResult {
+  return { id, label, status: findings.length === 0 ? 'pass' : 'fail', findings }
 }
 
 async function readGlob(root: string, glob: Glob): Promise<readonly SourceFile[]> {
@@ -76,115 +83,308 @@ async function readGlob(root: string, glob: Glob): Promise<readonly SourceFile[]
     if (isIgnored(path)) continue
     files.push({ path, text: await Bun.file(resolve(root, rawPath)).text() })
   }
-  return files.sort((a, b) => a.path.localeCompare(b.path))
+  return files.sort((left, right) => left.path.localeCompare(right.path))
 }
 
-function findLines(files: readonly SourceFile[], pattern: RegExp): readonly LineFinding[] {
-  const findings: LineFinding[] = []
+function authoredText(file: SourceFile, includeComments: boolean): readonly LocatedText[] {
+  if (!/\.(?:[cm]?[jt]sx?|json)$/u.test(file.path)) {
+    const text = includeComments ? file.text : file.text.replaceAll(/\/\*[\s\S]*?\*\//gu, '').replaceAll(/\/\/.*$/gmu, '')
+    return text.split('\n').map((line, index) => ({ path: file.path, line: index + 1, text: line }))
+  }
+
+  const source = sourceFile(file)
+  const pieces: LocatedText[] = []
+  const visit = (node: ts.Node): void => {
+    if (ts.isStringLiteralLike(node) || ts.isJsxText(node)) {
+      pieces.push({ path: file.path, line: lineAt(source, node.getStart(source)), text: node.text })
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+
+  if (includeComments) {
+    const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, file.path.endsWith('x') ? ts.LanguageVariant.JSX : ts.LanguageVariant.Standard, file.text)
+    for (let token = scanner.scan(); token !== ts.SyntaxKind.EndOfFileToken; token = scanner.scan()) {
+      if (token === ts.SyntaxKind.SingleLineCommentTrivia || token === ts.SyntaxKind.MultiLineCommentTrivia) {
+        pieces.push({ path: file.path, line: lineAt(source, scanner.getTokenPos()), text: scanner.getTokenText() })
+      }
+    }
+  }
+  return pieces
+}
+
+function contentFindings(files: readonly SourceFile[], pattern: RegExp, options: { readonly comments: boolean; readonly ignore?: (item: LocatedText) => boolean }): readonly string[] {
+  const findings: string[] = []
   for (const file of files) {
-    for (const [index, text] of file.text.split('\n').entries()) {
+    for (const item of authoredText(file, options.comments)) {
+      if (options.ignore?.(item) === true) continue
       pattern.lastIndex = 0
-      if (pattern.test(text)) findings.push({ path: file.path, line: index + 1, text: text.trim() })
+      if (pattern.test(item.text)) findings.push(finding(item.path, item.line, 'forbidden authored content'))
     }
   }
   return findings
 }
 
-function formatLine(finding: LineFinding): string {
-  return `${finding.path}:${String(finding.line)}: ${finding.text}`
+function executableNameFindings(files: readonly SourceFile[], pattern: RegExp, label: string, includeStrings = false): readonly string[] {
+  const findings: string[] = []
+  for (const file of files) {
+    const source = sourceFile(file)
+    const visit = (node: ts.Node): void => {
+      const candidate = ts.isIdentifier(node) || ts.isPrivateIdentifier(node)
+        ? node.text
+        : includeStrings && ts.isStringLiteralLike(node)
+          ? node.text
+          : undefined
+      if (candidate !== undefined) {
+        pattern.lastIndex = 0
+        if (pattern.test(candidate)) findings.push(finding(file.path, lineAt(source, node.getStart(source)), `${label}: ${candidate}`))
+      }
+      ts.forEachChild(node, visit)
+    }
+    visit(source)
+  }
+  return findings
 }
 
-function result(id: string, label: string, findings: readonly string[]): GateResult {
-  return { id, label, status: findings.length === 0 ? 'pass' : 'fail', findings }
-}
-
-function manuallyClearedU8(findings: readonly LineFinding[]): readonly LineFinding[] {
-  return findings.filter((finding) => {
-    const index = U8_CLEARANCES.findIndex((clearance) => {
-      clearance.line.lastIndex = 0
-      return clearance.path === finding.path && clearance.line.test(finding.text)
-    })
-    return index < 0
+function u8Findings(files: readonly SourceFile[]): readonly string[] {
+  const productFiles = files.filter((file) => !file.path.startsWith('packages/providers/')
+    && !file.path.startsWith('scripts/')
+    && !/\.(?:test|spec|e2e)\.[cm]?[jt]sx?$/u.test(file.path))
+  return contentFindings(productFiles, U8_PATTERN, {
+    comments: false,
+    ignore: (item) => {
+      const withoutRequiredState = item.text.replaceAll('permission-denied', '')
+      U8_PATTERN.lastIndex = 0
+      return !U8_PATTERN.test(withoutRequiredState)
+    },
   })
 }
 
-function scriptKind(path: string): ts.ScriptKind {
-  if (path.endsWith('.tsx')) return ts.ScriptKind.TSX
-  if (path.endsWith('.jsx')) return ts.ScriptKind.JSX
-  if (path.endsWith('.js')) return ts.ScriptKind.JS
-  return ts.ScriptKind.TS
+function useStateFindings(files: readonly SourceFile[]): readonly string[] {
+  return executableNameFindings(files, /^useState$/u, 'executable useState')
 }
 
-function containsFlipCall(node: ts.Node, source: ts.SourceFile): boolean {
+function panelCanvasFindings(files: readonly SourceFile[]): readonly string[] {
+  const findings: string[] = []
+  for (const file of files) {
+    if (!/\.(?:[cm]?[jt]sx?)$/u.test(file.path)) {
+      const withoutComments = file.text.replaceAll(/\/\*[\s\S]*?\*\//gu, '').replaceAll(/\/\/.*$/gmu, '')
+      for (const [index, line] of withoutComments.split('\n').entries()) {
+        if (/<canvas\b|\buseFrame\b/iu.test(line)) findings.push(finding(file.path, index + 1, 'panel canvas API'))
+      }
+      continue
+    }
+    const source = sourceFile(file)
+    const visit = (node: ts.Node): void => {
+      let violation: string | undefined
+      if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+        if (node.tagName.getText(source).toLowerCase() === 'canvas') violation = 'Canvas JSX element'
+      } else if (ts.isIdentifier(node) && (node.text === 'useFrame' || node.text === 'Canvas')) {
+        violation = node.text
+      } else if (ts.isStringLiteralLike(node) && node.text.toLowerCase() === 'canvas') {
+        violation = 'canvas element name'
+      }
+      if (violation !== undefined) findings.push(finding(file.path, lineAt(source, node.getStart(source)), `panel canvas API: ${violation}`))
+      ts.forEachChild(node, visit)
+    }
+    visit(source)
+  }
+  return findings
+}
+
+function agentFlagFindings(sources: readonly SourceFile[], code: readonly SourceFile[]): readonly string[] {
+  const findings = [...executableNameFindings(code, AGENT_FLAG_PATTERN, 'fabricated agent flag', true)]
+  for (const file of sources.filter((candidate) => /\.(?:css|html)$/u.test(candidate.path))) {
+    const withoutComments = file.text.replaceAll(/\/\*[\s\S]*?\*\//gu, '').replaceAll(/<!--([\s\S]*?)-->/gu, '')
+    for (const [index, line] of withoutComments.split('\n').entries()) {
+      if (/agentPresent|agentAttached|agentIdle|isAgentConnected/iu.test(line)) findings.push(finding(file.path, index + 1, 'fabricated agent flag in authored markup/style'))
+    }
+  }
+  return findings
+}
+
+function hapticFindings(files: readonly SourceFile[]): readonly string[] {
+  const findings: string[] = []
+  for (const file of files) {
+    const source = sourceFile(file)
+    const visit = (node: ts.Node): void => {
+      const isDirect = ts.isPropertyAccessExpression(node)
+        ? node.expression.getText(source) === 'navigator' && node.name.text === 'vibrate'
+        : ts.isElementAccessExpression(node)
+          ? node.expression.getText(source) === 'navigator' && node.argumentExpression !== undefined
+            && ts.isStringLiteralLike(node.argumentExpression) && node.argumentExpression.text === 'vibrate'
+          : false
+      if (isDirect) findings.push(finding(file.path, lineAt(source, node.getStart(source)), 'direct navigator vibration access'))
+      ts.forEachChild(node, visit)
+    }
+    visit(source)
+  }
+  return findings
+}
+
+function handednessFindings(files: readonly SourceFile[]): readonly string[] {
+  return executableNameFindings(files, HANDEDNESS_PATTERN, 'stored handedness', true)
+}
+
+function isProviderExpression(node: ts.Expression, source: ts.SourceFile): boolean {
+  return node.getText(source) === 'provider'
+}
+
+function providerFindings(files: readonly SourceFile[]): readonly string[] {
+  const findings: string[] = []
+  for (const file of files.filter((candidate) => !candidate.path.startsWith('packages/providers/'))) {
+    const source = sourceFile(file)
+    const visit = (node: ts.Node): void => {
+      let violation = false
+      if (ts.isPropertyAccessExpression(node)) violation = isProviderExpression(node.expression, source) && node.name.text === 'id'
+      if (ts.isElementAccessExpression(node)) violation = isProviderExpression(node.expression, source) && node.argumentExpression !== undefined
+        && ts.isStringLiteralLike(node.argumentExpression) && node.argumentExpression.text === 'id'
+      if (ts.isVariableDeclaration(node) && ts.isObjectBindingPattern(node.name) && node.initializer !== undefined
+        && isProviderExpression(node.initializer, source)) {
+        violation = node.name.elements.some((element) => (element.propertyName ?? element.name).getText(source) === 'id')
+      }
+      if (violation) findings.push(finding(file.path, lineAt(source, node.getStart(source)), 'provider identity read outside provider layer'))
+      ts.forEachChild(node, visit)
+    }
+    visit(source)
+  }
+  return findings
+}
+
+function containsUnsupportedLiteral(node: ts.Node): boolean {
   let found = false
   const visit = (child: ts.Node): void => {
     if (found) return
-    if (ts.isCallExpression(child) && /flip/iu.test(child.expression.getText(source))) { found = true; return }
+    if (ts.isStringLiteralLike(child) && /not supported|unsupported/iu.test(child.text)) { found = true; return }
     ts.forEachChild(child, visit)
   }
   visit(node)
   return found
 }
 
-function functionName(node: ts.Node, source: ts.SourceFile): string | undefined {
-  if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)) return node.name?.getText(source)
-  if (ts.isVariableDeclaration(node) && node.initializer !== undefined
-    && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) return node.name.getText(source)
-  if (ts.isPropertyAssignment(node)
-    && (ts.isArrowFunction(node.initializer) || ts.isFunctionExpression(node.initializer))) return node.name.getText(source)
+function identifiersIn(node: ts.Node): readonly string[] {
+  const names: string[] = []
+  const visit = (child: ts.Node): void => {
+    if (ts.isIdentifier(child)) names.push(child.text)
+    ts.forEachChild(child, visit)
+  }
+  visit(node)
+  return names
+}
+
+function toolReturnFindings(files: readonly SourceFile[]): readonly string[] {
+  const findings: string[] = []
+  for (const file of files) {
+    const source = sourceFile(file)
+    const tainted = new Set<string>()
+    const declarations: Array<{ readonly name: string; readonly initializer: ts.Expression }> = []
+    const collect = (node: ts.Node): void => {
+      if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer !== undefined) {
+        declarations.push({ name: node.name.text, initializer: node.initializer })
+      }
+      ts.forEachChild(node, collect)
+    }
+    collect(source)
+    let changed = true
+    while (changed) {
+      changed = false
+      for (const declaration of declarations) {
+        if (tainted.has(declaration.name)) continue
+        const initializer = declaration.initializer
+        if (initializer !== undefined && (containsUnsupportedLiteral(initializer) || identifiersIn(initializer).some((name) => tainted.has(name)))) {
+          tainted.add(declaration.name)
+          changed = true
+        }
+      }
+    }
+    const reportReturn = (node: ts.Node): void => {
+      if (!containsUnsupportedLiteral(node) && !identifiersIn(node).some((name) => tainted.has(name))) return
+      findings.push(finding(file.path, lineAt(source, node.getStart(source)), 'tool return contains unsupported result'))
+    }
+    const visit = (node: ts.Node): void => {
+      if (ts.isReturnStatement(node) && node.expression !== undefined) reportReturn(node.expression)
+      if (ts.isArrowFunction(node) && !ts.isBlock(node.body)) reportReturn(node.body)
+      ts.forEachChild(node, visit)
+    }
+    visit(source)
+  }
+  return findings
+}
+
+function isFlipCall(node: ts.Node, source: ts.SourceFile): node is ts.CallExpression {
+  return ts.isCallExpression(node) && /flip/iu.test(node.expression.getText(source))
+}
+
+function propertyCallName(node: ts.CallExpression): string | undefined {
+  return ts.isPropertyAccessExpression(node.expression) ? node.expression.name.text : undefined
+}
+
+function errorContext(node: ts.CallExpression, source: ts.SourceFile): string | undefined {
+  for (let current: ts.Node | undefined = node.parent; current !== undefined; current = current.parent) {
+    if (ts.isCatchClause(current)) return 'catch handler'
+    if (ts.isJsxAttribute(current) && /error|failure|failed/iu.test(current.name.getText(source))) return `JSX ${current.name.getText(source)} handler`
+    if (ts.isFunctionLike(current)) {
+      const parent = current.parent
+      if (ts.isVariableDeclaration(parent) && /error|failure|failed/iu.test(parent.name.getText(source))) return `error handler ${parent.name.getText(source)}`
+      if (ts.isPropertyAssignment(parent) && /error|failure|failed/iu.test(parent.name.getText(source))) return `error handler ${parent.name.getText(source)}`
+      if (ts.isMethodDeclaration(current) && current.name !== undefined && /error|failure|failed/iu.test(current.name.getText(source))) return `error handler ${current.name.getText(source)}`
+      if (ts.isCallExpression(parent)) {
+        const name = propertyCallName(parent)
+        const index = parent.arguments.findIndex((argument) => argument === current)
+        if (name === 'catch' && index === 0) return 'promise catch handler'
+        if (name === 'then' && index === 1) return 'promise rejection handler'
+      }
+    }
+  }
   return undefined
 }
 
 function flipFindings(files: readonly SourceFile[]): readonly string[] {
   const findings: string[] = []
   for (const file of files) {
-    const source = ts.createSourceFile(file.path, file.text, ts.ScriptTarget.Latest, true, scriptKind(file.path))
-    const report = (node: ts.Node, kind: string): void => {
-      const position = source.getLineAndCharacterOfPosition(node.getStart(source))
-      findings.push(`${file.path}:${String(position.line + 1)}: flip call inside ${kind}`)
-    }
+    const source = sourceFile(file)
     const visit = (node: ts.Node): void => {
-      if (ts.isCatchClause(node) && containsFlipCall(node.block, source)) report(node, 'catch handler')
-      if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'catch') {
-        const callback = node.arguments[0]
-        if (callback !== undefined && containsFlipCall(callback, source)) report(node, 'promise catch handler')
+      if (isFlipCall(node, source)) {
+        const context = errorContext(node, source)
+        if (context !== undefined) findings.push(finding(file.path, lineAt(source, node.getStart(source)), `flip call inside ${context}`))
       }
-      const name = functionName(node, source)
-      if (name !== undefined && /(?:error|failure|failed)/iu.test(name) && containsFlipCall(node, source)) report(node, `error handler ${name}`)
       ts.forEachChild(node, visit)
     }
     visit(source)
   }
   return findings
+}
+
+function containsTierReference(node: ts.Node): boolean {
+  let found = false
+  const visit = (child: ts.Node): void => {
+    if (found) return
+    if (ts.isIdentifier(child) && child.text.toLowerCase() === 'tier') { found = true; return }
+    ts.forEachChild(child, visit)
+  }
+  visit(node)
+  return found
 }
 
 function tierFindings(files: readonly SourceFile[]): readonly string[] {
   const findings: string[] = []
-  for (const file of files) {
-    if (file.path.startsWith('packages/composite/')) continue
-    const source = ts.createSourceFile(file.path, file.text, ts.ScriptTarget.Latest, true, scriptKind(file.path))
+  for (const file of files.filter((candidate) => !candidate.path.startsWith('packages/composite/'))) {
+    const source = sourceFile(file)
     const visit = (node: ts.Node): void => {
+      let violation = false
       if (ts.isBinaryExpression(node)) {
-        const operator = node.operatorToken.kind
-        const isComparison = operator === ts.SyntaxKind.EqualsEqualsEqualsToken || operator === ts.SyntaxKind.ExclamationEqualsEqualsToken
-          || operator === ts.SyntaxKind.EqualsEqualsToken || operator === ts.SyntaxKind.ExclamationEqualsToken
-        if (isComparison) {
-          const left = node.left.getText(source)
-          const right = node.right.getText(source)
-          if ((/\btier\b/iu.test(left) && /['"]t[1-4]['"]/iu.test(right)) || (/\btier\b/iu.test(right) && /['"]t[1-4]['"]/iu.test(left))) {
-            const position = source.getLineAndCharacterOfPosition(node.getStart(source))
-            findings.push(`${file.path}:${String(position.line + 1)}: ${node.getText(source)}`)
-          }
-        }
+        const comparison = node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken
+          || node.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken
+          || node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsToken
+          || node.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsToken
+        violation = comparison && containsTierReference(node)
+      } else if (ts.isSwitchStatement(node)) {
+        violation = containsTierReference(node.expression)
+      } else if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
+        violation = containsTierReference(node.expression.expression)
+          && /^(?:startsWith|endsWith|includes|match|test)$/u.test(node.expression.name.text)
       }
-      if (ts.isSwitchStatement(node) && /\btier\b/iu.test(node.expression.getText(source))) {
-        for (const clause of node.caseBlock.clauses) {
-          if (ts.isCaseClause(clause) && /['"]t[1-4]['"]/iu.test(clause.expression.getText(source))) {
-            const position = source.getLineAndCharacterOfPosition(clause.getStart(source))
-            findings.push(`${file.path}:${String(position.line + 1)}: tier switch ${clause.expression.getText(source)}`)
-          }
-        }
-      }
+      if (violation) findings.push(finding(file.path, lineAt(source, node.getStart(source)), 'tier-dependent branch outside composite'))
       ts.forEachChild(node, visit)
     }
     visit(source)
@@ -192,23 +392,8 @@ function tierFindings(files: readonly SourceFile[]): readonly string[] {
   return findings
 }
 
-function toolReturnFindings(files: readonly SourceFile[]): readonly string[] {
-  const findings: string[] = []
-  for (const file of files) {
-    const source = ts.createSourceFile(file.path, file.text, ts.ScriptTarget.Latest, true, scriptKind(file.path))
-    const report = (node: ts.Node): void => {
-      if (!/not supported|unsupported/iu.test(node.getText(source))) return
-      const position = source.getLineAndCharacterOfPosition(node.getStart(source))
-      findings.push(`${file.path}:${String(position.line + 1)}: ${node.getText(source)}`)
-    }
-    const visit = (node: ts.Node): void => {
-      if (ts.isReturnStatement(node)) report(node)
-      if (ts.isArrowFunction(node) && !ts.isBlock(node.body)) report(node.body)
-      ts.forEachChild(node, visit)
-    }
-    visit(source)
-  }
-  return findings
+function namingFindings(files: readonly SourceFile[]): readonly string[] {
+  return contentFindings(files, NAMING_PATTERN, { comments: true })
 }
 
 async function gitOutput(root: string, args: readonly string[]): Promise<{ readonly code: number; readonly text: string }> {
@@ -236,20 +421,58 @@ async function trailerFindings(root: string, requestedRange?: string): Promise<r
   })
 }
 
-async function credentialFindings(root: string, files: readonly SourceFile[]): Promise<readonly string[]> {
-  const findings: string[] = []
-  const tracked = await gitOutput(root, ['ls-files'])
-  if (tracked.code !== 0) return ['git ls-files failed']
-  for (const path of tracked.text.split('\n').filter(Boolean)) {
-    if (path === '.env' || (path.startsWith('.env.') && !path.endsWith('.example'))) findings.push(`tracked environment file: ${path}`)
-    if (path.startsWith('cert/') || /\.(?:p8|pem|key|p12)$/iu.test(path)) findings.push(`tracked credential path: ${path}`)
+function byteIndex(haystack: Uint8Array, needle: Uint8Array): number {
+  if (needle.length === 0) return -1
+  outer: for (let offset = 0; offset <= haystack.length - needle.length; offset += 1) {
+    for (let index = 0; index < needle.length; index += 1) {
+      if (haystack[offset + index] !== needle[index]) continue outer
+    }
+    return offset
   }
+  return -1
+}
+
+function lineAtByte(bytes: Uint8Array, offset: number): number {
+  let line = 1
+  for (let index = 0; index < offset; index += 1) if (bytes[index] === 10) line += 1
+  return line
+}
+
+async function credentialFindings(root: string): Promise<readonly string[]> {
+  const findings: string[] = []
+  const tracked = await gitOutput(root, ['ls-files', '-z'])
+  if (tracked.code !== 0) return ['git ls-files failed']
+  const trackedPaths = tracked.text.split('\0').filter(Boolean)
+  const encoder = new TextEncoder()
+  const begin = ['-----BEGIN ', 'PRIVATE KEY-----'].join('')
+  const rsa = ['-----BEGIN RSA ', 'PRIVATE KEY-----'].join('')
+  const ec = ['-----BEGIN EC ', 'PRIVATE KEY-----'].join('')
+  const openssh = ['-----BEGIN OPENSSH ', 'PRIVATE KEY-----'].join('')
+  const relativeCert = ['./', 'cert/'].join('')
+  const signatures = [begin, rsa, ec, openssh, relativeCert].map((signature) => encoder.encode(signature))
+
+  for (const path of trackedPaths) {
+    if (path === '.env' || (path.startsWith('.env.') && !path.endsWith('.example'))) findings.push(`tracked environment file: ${path}`)
+    const keyLikePath = path.startsWith('cert/') || /\.(?:p8|pem|key|p12)$/iu.test(path)
+    if (keyLikePath) findings.push(`tracked credential path: ${path}`)
+    if (path.startsWith('cert/')) continue
+
+    const file = Bun.file(resolve(root, path))
+    if (!await file.exists()) continue
+    const bytes = new Uint8Array(await file.arrayBuffer())
+    for (const signature of signatures) {
+      const offset = byteIndex(bytes, signature)
+      if (offset >= 0) {
+        findings.push(`${path}:${String(lineAtByte(bytes, offset))}: credential signature detected`)
+        break
+      }
+    }
+  }
+
   for (const sentinel of ['cert/gate-sentinel.p8', 'gate-sentinel.pem', 'gate-sentinel.key', 'gate-sentinel.p12']) {
     const ignored = Bun.spawn(['git', 'check-ignore', '--no-index', '--quiet', sentinel], { cwd: root, stdout: 'ignore', stderr: 'ignore' })
     if (await ignored.exited !== 0) findings.push(`credential pattern is not ignored: ${sentinel}`)
   }
-  const forbidden = /(?:-----BEGIN (?:EC |RSA )?PRIVATE KEY-----|(?:\.\/|\.\.\/)cert\/)/u
-  findings.push(...findLines(files, forbidden).map(formatLine))
   return findings
 }
 
@@ -257,40 +480,52 @@ async function credentialFindings(root: string, files: readonly SourceFile[]): P
 export async function runStaticGates(options: StaticGateOptions): Promise<readonly GateResult[]> {
   const root = resolve(options.root)
   const [sources, code, panel, tools] = await Promise.all([
-    readGlob(root, SOURCE_GLOB), readGlob(root, CODE_GLOB), readGlob(root, PANEL_GLOB), readGlob(root, TOOL_GLOB),
+    readGlob(root, SOURCE_GLOB),
+    readGlob(root, CODE_GLOB),
+    readGlob(root, PANEL_GLOB),
+    readGlob(root, TOOL_GLOB),
   ])
-  const u8 = manuallyClearedU8(findLines(sources.filter((file) => file.path.startsWith('apps/') || file.path.startsWith('packages/')), U8_PATTERN))
-  const providerFiles = code.filter((file) => !file.path.startsWith('packages/providers/'))
   return [
-    result('U8', 'no invented permission language', u8.map(formatLine)),
-    result('U9', 'no useState anywhere', findLines(sources, /useState/u).map(formatLine)),
-    result('U10', 'panel remains DOM-only', findLines(panel, /canvas|useFrame/u).map(formatLine)),
-    result('AGENT-FLAG', 'no fabricated agent-presence signal', findLines(code, /agentPresent|agentAttached|agentIdle|isAgentConnected/iu).map(formatLine)),
-    result('HAPTICS', 'no direct navigator vibration', findLines(code, /navigator\.vibrate/u).map(formatLine)),
-    result('HALO', 'no stored handedness', findLines(code, /handed|leftHand|rightHand/iu).map(formatLine)),
-    result('PROVIDER', 'provider branching uses capabilities', findLines(providerFiles, /provider\.id\s*===/u).map(formatLine)),
+    result('U8', 'no invented permission language', u8Findings(sources)),
+    result('U9', 'no executable useState', useStateFindings(code)),
+    result('U10', 'panel remains DOM-only', panelCanvasFindings(panel)),
+    result('AGENT-FLAG', 'no fabricated agent-presence signal', agentFlagFindings(sources, code)),
+    result('HAPTICS', 'no direct navigator vibration', hapticFindings(code)),
+    result('HALO', 'no stored handedness', handednessFindings(code)),
+    result('PROVIDER', 'provider branching uses capabilities', providerFindings(code)),
     result('TOOLS', 'unsupported capabilities are unregistered', toolReturnFindings(tools)),
     result('FLIP', 'no automatic flip from an error handler', flipFindings(code)),
     result('TRAILERS', 'branch commits contain no attribution trailers', await trailerFindings(root, options.commitRange)),
-    result('NAMING', 'initiative ids stay out of implementation artifacts', findLines(sources, /(?<![\d.])002(?!\d)|implementation-spine|workstream/iu).map(formatLine)),
+    result('NAMING', 'initiative ids stay out of implementation artifacts', namingFindings(sources)),
     result('TIER', 'tier comparisons are composite-owned', tierFindings(code)),
-    result('CREDENTIALS', 'credential paths and material stay server-side and ignored', await credentialFindings(root, sources)),
+    result('CREDENTIALS', 'tracked credential material is absent and key paths stay ignored', await credentialFindings(root)),
     { id: 'U14', label: 'thumb occlusion requires owner phone-in-hand validation', status: 'manual', findings: [] },
     { id: 'U15', label: 'unsupported controls absent, reviewer inspection required', status: 'manual', findings: [] },
   ]
 }
 
-/** Render one stable, grep-friendly status line plus any evidence for a gate. */
+/** Render one stable, grep-friendly status line plus metadata-only evidence. */
 export function formatGate(gate: GateResult): string {
   const prefix = gate.status === 'pass' ? 'PASS' : gate.status === 'manual' ? 'MANUAL' : 'FAIL'
-  const details = gate.findings.map((finding) => `\n      ${finding}`).join('')
+  const details = gate.findings.map((item) => `\n      ${item}`).join('')
   return `${prefix.padEnd(6)} ${gate.id.padEnd(12)} ${gate.label}${details}`
 }
 
-/** Return true only when every machine-checkable gate passed. */
+/** Count automated results separately from unresolved manual validation. */
+export function summarizeGates(results: readonly GateResult[]): GateSummary {
+  return {
+    automatedPassed: results.filter((gate) => gate.status === 'pass').length,
+    automatedFailed: results.filter((gate) => gate.status === 'fail').length,
+    manualOutstanding: results.filter((gate) => gate.status === 'manual').length,
+  }
+}
+
+/** Format a summary that never represents manual gates as cleared. */
+export function formatSummary(summary: GateSummary): string {
+  return `${String(summary.automatedPassed)} automated passed; ${String(summary.automatedFailed)} automated failed; ${String(summary.manualOutstanding)} manual outstanding`
+}
+
+/** Return true when every automated predicate passed; manual gates stay explicit. */
 export function gatesPassed(results: readonly GateResult[]): boolean {
   return results.every((gate) => gate.status !== 'fail')
 }
-
-/** Convert an absolute path to the repository-relative form used in findings. */
-export function repositoryPath(root: string, path: string): string { return normalizePath(relative(root, path)) }

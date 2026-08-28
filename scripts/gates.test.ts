@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from 'bun:test'
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
-import { runStaticGates, type GateResult } from './gate-core.ts'
+import { formatSummary, runStaticGates, summarizeGates, type GateResult } from './gate-core.ts'
 
 const roots: string[] = []
 const runner = resolve(import.meta.dir, 'gates.ts')
@@ -81,7 +81,6 @@ describe('W5a static gates go red', () => {
     ['PROVIDER', 'apps/web/src/provider.ts', 'if (provider.id === "apple") throw new Error()\n'],
     ['TOOLS', 'packages/tools/src/read.ts', 'export const run = () => ({ error: "unsupported" })\n'],
     ['FLIP', 'apps/web/src/flip.ts', 'try { work() } catch { flipDevice() }\n'],
-    ['NAMING', 'apps/web/src/name.ts', 'export const note = "initiative 002"\n'],
     ['TIER', 'apps/web/src/tier.ts', 'if (tier === "t1") render()\n'],
   ] as const
 
@@ -93,6 +92,13 @@ describe('W5a static gates go red', () => {
       expect(gate.findings.some((finding) => finding.includes(path))).toBe(true)
     })
   }
+
+  test('NAMING detects its planted violation', async () => {
+    const root = await fixture()
+    const text = ['export const note = "initiative ', '00', '2"\n'].join('')
+    await plant(root, 'apps/web/src/name.ts', text)
+    failed(await runStaticGates({ root }), 'NAMING')
+  })
 
   test('TRAILERS detects a planted branch trailer', async () => {
     const root = await fixture()
@@ -115,6 +121,128 @@ describe('W5a static gates go red', () => {
     expect((await command(root, ['git', 'add', '-f', 'leaked.p8'])).code).toBe(0)
     const gate = failed(await runStaticGates({ root }), 'CREDENTIALS')
     expect(gate.findings).toContain('tracked credential path: leaked.p8')
+  })
+
+  test('manual gates remain outstanding rather than counted clear', async () => {
+    const results = await runStaticGates({ root: await fixture() })
+    const summary = summarizeGates(results)
+    expect(summary.manualOutstanding).toBe(2)
+    expect(formatSummary(summary)).toContain('2 manual outstanding')
+    expect(formatSummary(summary)).not.toContain('gates clear')
+  })
+})
+
+describe('W5a same-review adversarial mutations', () => {
+  test('U8 catches ordinary authorization vocabulary', async () => {
+    const root = await fixture()
+    const text = 'export const copy = "The assistant is authorized"\n'
+    await plant(root, 'apps/web/src/authorized.ts', text)
+    failed(await runStaticGates({ root }), 'U8')
+  })
+
+  test('U8 cannot hide banned copy beside a required state identifier', async () => {
+    const root = await fixture()
+    const text = 'export const state = "permission-denied; waiting for approval"\n'
+    await plant(root, 'packages/panel/src/model.ts', text)
+    failed(await runStaticGates({ root }), 'U8')
+  })
+
+  const providerPlants = [
+    'switch (provider.id) { case "apple": play() }\n',
+    'if (provider.id !== "apple") pause()\n',
+    'const { id } = provider\nif (id === "apple") play()\n',
+  ] as const
+  for (const [index, text] of providerPlants.entries()) {
+    test(`PROVIDER catches adversarial form ${String(index + 1)}`, async () => {
+      const root = await fixture()
+      const path = `apps/web/src/provider-${String(index)}.ts`
+      await plant(root, path, text)
+      failed(await runStaticGates({ root }), 'PROVIDER')
+    })
+  }
+
+  test('TOOLS follows an unsupported result through a returned variable', async () => {
+    const root = await fixture()
+    const text = 'export function run() { const result = { error: "unsupported" }; return result }\n'
+    await plant(root, 'packages/tools/src/read.ts', text)
+    failed(await runStaticGates({ root }), 'TOOLS')
+  })
+
+  test('FLIP catches a JSX onError callback', async () => {
+    const root = await fixture()
+    const text = 'export const View = () => <Boundary onError={() => flipDevice()} />\n'
+    await plant(root, 'apps/web/src/error.tsx', text)
+    failed(await runStaticGates({ root }), 'FLIP')
+  })
+
+  test('FLIP catches a promise rejection callback', async () => {
+    const root = await fixture()
+    const text = 'promise.then(render, () => flipDevice())\n'
+    await plant(root, 'apps/web/src/rejection.ts', text)
+    failed(await runStaticGates({ root }), 'FLIP')
+  })
+
+  test('TIER catches enum comparison outside composite', async () => {
+    const root = await fixture()
+    const text = 'if (tier === Tier.T1) render()\n'
+    await plant(root, 'apps/web/src/tier-enum.ts', text)
+    failed(await runStaticGates({ root }), 'TIER')
+  })
+
+  test('TIER catches method-based branching outside composite', async () => {
+    const root = await fixture()
+    const text = 'if (tier.startsWith("t1")) render()\n'
+    await plant(root, 'apps/web/src/tier-method.ts', text)
+    failed(await runStaticGates({ root }), 'TIER')
+  })
+
+  test('CREDENTIALS scans tracked documentation and never echoes its source', async () => {
+    const root = await fixture()
+    const marker = ['-----BEGIN ', 'PRIVATE KEY-----'].join('')
+    const payload = 'SENSITIVE-FIXTURE-PAYLOAD'
+    await plant(root, 'docs/leak.txt', `${marker}${payload}\n`)
+    expect((await command(root, ['git', 'add', '-f', 'docs/leak.txt'])).code).toBe(0)
+    const gate = failed(await runStaticGates({ root }), 'CREDENTIALS')
+    expect(gate.findings.join('\n')).toContain('docs/leak.txt:1')
+    expect(gate.findings.join('\n')).not.toContain(marker)
+    expect(gate.findings.join('\n')).not.toContain(payload)
+  })
+
+  test('U9 scans the executable harness itself', async () => {
+    const root = await fixture()
+    const text = 'export const state = useState(0)\n'
+    await plant(root, 'scripts/gates.ts', text)
+    failed(await runStaticGates({ root }), 'U9')
+  })
+
+  test('AGENT-FLAG scans authored CSS while ignoring comments', async () => {
+    const root = await fixture()
+    const text = '.agentPresent { display: block }\n'
+    await plant(root, 'apps/web/src/agent.css', text)
+    failed(await runStaticGates({ root }), 'AGENT-FLAG')
+  })
+
+  test('U10 catches the canonical React Canvas component', async () => {
+    const root = await fixture()
+    const text = 'export const Raster = () => <Canvas />\n'
+    await plant(root, 'packages/panel/src/raster.tsx', text)
+    failed(await runStaticGates({ root }), 'U10')
+  })
+
+  test('syntax gates ignore truthful prose and required identifiers', async () => {
+    const root = await fixture()
+    const text = [
+      '// useState is intentionally absent',
+      '// navigator.vibrate would violate the actuator boundary',
+      '// the value is handed to the renderer',
+      'export const state = "permission-denied"',
+      '',
+    ].join('\n')
+    await plant(root, 'apps/web/src/compliance.ts', text)
+    const results = await runStaticGates({ root })
+    for (const id of ['U8', 'U9', 'HAPTICS', 'HALO']) {
+      expect(results.find((gate) => gate.id === id)?.status).toBe('pass')
+    }
   })
 })
 
