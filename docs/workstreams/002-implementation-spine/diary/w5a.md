@@ -52,7 +52,7 @@ landed, then proves the intended gate turns red. The suite includes every one of
 the review's 14 adversarial mutations plus command propagation and false-positive
 controls.
 
-Result: 35 pass, 0 fail, 269 assertions. See
+Result after second re-review: 44 pass, 0 fail, 336 assertions. See
 `evidence/w5a-planted-failures.txt`.
 
 ## Live-tree result
@@ -63,6 +63,20 @@ the two remaining static violations are in `evidence/w5a-live-gates.txt`.
 Subsequent post-commit runs can additionally reflect active W4/W6 edits in this
 shared tree; those are reported at handoff rather than retroactively changing the
 anchored measurement.
+
+## Second re-review correction
+
+The tracked-artifact scan still crossed two forbidden boundaries: it read the
+encrypted Pencil document and followed tracked symlinks. All gate content reads
+now require an allowed path and `lstat().isFile()`; `design.pen`, `cert/` and
+symlinks are skipped. Synthetic tests cover both shapes without touching either
+real protected location.
+
+U8 now includes provider-layer product strings while exact machine/API state
+tokens remain legal. Provider and tier aliases, later tool assignments and error
+event callbacks are mechanically covered. The suite is now 44 tests with 336
+assertions. Dirty-tree evidence uses a safe content fingerprint rather than a
+hash of path names.
 
 ## Git discipline
 

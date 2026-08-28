@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, test } from 'bun:test'
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
-import { formatSummary, runStaticGates, summarizeGates, type GateResult } from './gate-core.ts'
+import { formatSummary, runStaticGates, safeDirtyFingerprint, summarizeGates, type GateResult } from './gate-core.ts'
 
 const roots: string[] = []
 const runner = resolve(import.meta.dir, 'gates.ts')
@@ -31,7 +31,7 @@ async function fixture(): Promise<string> {
     mkdir(join(root, 'packages/providers/src'), { recursive: true }),
     mkdir(join(root, 'scripts'), { recursive: true }),
   ])
-  await writeFile(join(root, '.gitignore'), 'cert/\n*.p8\n*.pem\n*.key\n*.p12\n')
+  await writeFile(join(root, '.gitignore'), 'cert/\nignored-target/\n*.p8\n*.pem\n*.key\n*.p12\n')
   await writeFile(join(root, 'apps/web/src/index.ts'), 'export const ready = true\n')
   await writeFile(join(root, 'packages/panel/src/index.ts'), 'export const panel = "dom"\n')
   await writeFile(join(root, 'packages/tools/src/index.ts'), 'export const tools = []\n')
@@ -123,6 +123,17 @@ describe('W5a static gates go red', () => {
     expect(gate.findings).toContain('tracked credential path: leaked.p8')
   })
 
+  test('CREDENTIALS never opens design.pen or follows a tracked symlink', async () => {
+    const root = await fixture()
+    const marker = ['-----BEGIN ', 'PRIVATE KEY-----'].join('')
+    await plant(root, 'design.pen', `${marker}synthetic-encrypted-document\n`)
+    await plant(root, 'ignored-target/synthetic.txt', `${marker}synthetic-ignored-target\n`)
+    await symlink('../../../ignored-target/synthetic.txt', join(root, 'apps/web/src/reference.ts'))
+    expect((await command(root, ['git', 'add', '-f', 'design.pen', 'apps/web/src/reference.ts'])).code).toBe(0)
+    const gate = (await runStaticGates({ root })).find((candidate) => candidate.id === 'CREDENTIALS')
+    expect(gate?.status).toBe('pass')
+  })
+
   test('manual gates remain outstanding rather than counted clear', async () => {
     const results = await runStaticGates({ root: await fixture() })
     const summary = summarizeGates(results)
@@ -133,6 +144,19 @@ describe('W5a static gates go red', () => {
 })
 
 describe('W5a same-review adversarial mutations', () => {
+  test('U8 scans user-facing provider copy', async () => {
+    const root = await fixture()
+    await plant(root, 'packages/providers/src/copy.ts', 'export const reason = "Waiting for approval"\n')
+    failed(await runStaticGates({ root }), 'U8')
+  })
+
+  test('U8 permits exact provider authorization API tokens', async () => {
+    const root = await fixture()
+    await plant(root, 'packages/providers/src/api.ts', 'export const operation = "authorize"\nexport const code = "permission_denied"\n')
+    const gate = (await runStaticGates({ root })).find((candidate) => candidate.id === 'U8')
+    expect(gate?.status).toBe('pass')
+  })
+
   test('U8 catches ordinary authorization vocabulary', async () => {
     const root = await fixture()
     const text = 'export const copy = "The assistant is authorized"\n'
@@ -161,10 +185,22 @@ describe('W5a same-review adversarial mutations', () => {
     })
   }
 
+  test('PROVIDER follows an ordinary provider alias', async () => {
+    const root = await fixture()
+    await plant(root, 'apps/web/src/provider-alias.ts', 'const selected = provider\nif (selected.id === "apple") play()\n')
+    failed(await runStaticGates({ root }), 'PROVIDER')
+  })
+
   test('TOOLS follows an unsupported result through a returned variable', async () => {
     const root = await fixture()
     const text = 'export function run() { const result = { error: "unsupported" }; return result }\n'
     await plant(root, 'packages/tools/src/read.ts', text)
+    failed(await runStaticGates({ root }), 'TOOLS')
+  })
+
+  test('TOOLS follows a later assignment into a returned variable', async () => {
+    const root = await fixture()
+    await plant(root, 'packages/tools/src/later.ts', 'export function run() { let result; result = { error: "unsupported" }; return result }\n')
     failed(await runStaticGates({ root }), 'TOOLS')
   })
 
@@ -182,6 +218,12 @@ describe('W5a same-review adversarial mutations', () => {
     failed(await runStaticGates({ root }), 'FLIP')
   })
 
+  test('FLIP catches an error event callback', async () => {
+    const root = await fixture()
+    await plant(root, 'apps/web/src/event.ts', 'addEventListener("error", () => flipDevice())\n')
+    failed(await runStaticGates({ root }), 'FLIP')
+  })
+
   test('TIER catches enum comparison outside composite', async () => {
     const root = await fixture()
     const text = 'if (tier === Tier.T1) render()\n'
@@ -193,6 +235,12 @@ describe('W5a same-review adversarial mutations', () => {
     const root = await fixture()
     const text = 'if (tier.startsWith("t1")) render()\n'
     await plant(root, 'apps/web/src/tier-method.ts', text)
+    failed(await runStaticGates({ root }), 'TIER')
+  })
+
+  test('TIER follows an ordinary tier alias', async () => {
+    const root = await fixture()
+    await plant(root, 'apps/web/src/tier-alias.ts', 'const mode = tier\nif (mode === "t1") render()\n')
     failed(await runStaticGates({ root }), 'TIER')
   })
 
@@ -269,5 +317,25 @@ describe('W5a command gates propagate red', () => {
     const run = await command(root, ['bun', runner, '--root', root])
     expect(run.code).toBe(1)
     expect(run.output).toContain('FAIL   TESTS')
+  })
+})
+
+describe('W5a evidence fingerprint', () => {
+  test('changes when dirty content changes at the same path', async () => {
+    const root = await fixture()
+    await plant(root, 'apps/web/src/index.ts', 'export const ready = "first"\n')
+    const first = await safeDirtyFingerprint(root)
+    await plant(root, 'apps/web/src/index.ts', 'export const ready = "second"\n')
+    const second = await safeDirtyFingerprint(root)
+    expect(first).not.toBe(second)
+  })
+
+  test('does not follow dirty symlinks while fingerprinting', async () => {
+    const root = await fixture()
+    await plant(root, 'ignored-target/synthetic.txt', 'first\n')
+    await symlink('../../../ignored-target/synthetic.txt', join(root, 'apps/web/src/fingerprint.ts'))
+    const first = await safeDirtyFingerprint(root)
+    await plant(root, 'ignored-target/synthetic.txt', 'second\n')
+    expect(await safeDirtyFingerprint(root)).toBe(first)
   })
 })

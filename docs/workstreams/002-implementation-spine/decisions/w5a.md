@@ -54,3 +54,25 @@ not happen.
 Each adversarial test writes a fresh fixture, reads it back and asserts the exact
 mutation exists before invoking the gate. A failed substitution cannot make
 unchanged green code look like evidence that a guard held.
+
+## W5a-D9 · Content reads require a safe regular-file boundary
+
+Every source and credential content read now follows the same order: reject the
+protected `design.pen` and `cert/` paths, inspect with `lstat`, and read only a
+regular file. Symlinks, directories and special files are never opened or
+followed. Git metadata can reject a tracked credential-shaped path without
+reading it.
+
+## W5a-D10 · One-step data flow is part of semantic enforcement
+
+Provider and tier predicates compute fixed-point alias sets across declarations
+and later assignments. Tool-result taint includes later assignments. Flip checks
+include standard error event listeners in addition to catch, JSX and promise
+rejection callbacks.
+
+## W5a-D11 · Evidence hashes safe dirty content, not status names alone
+
+The evidence fingerprint hashes status metadata plus content of dirty regular
+files. It skips `design.pen`, `cert/` and symlinks before reads. Tests prove that
+different edits at one path produce different hashes and that changing an
+ignored symlink target does not affect the result.

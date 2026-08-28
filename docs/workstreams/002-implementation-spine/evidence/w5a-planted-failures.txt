@@ -32,10 +32,22 @@ Additional controls and plants:
   PASS manual U14/U15 remain outstanding instead of counted clear
   PASS typecheck, lint and test command failures propagate red
 
+Second-review adversarial mutations caught:
+  PASS CREDENTIALS skips synthetic design.pen before any read
+  PASS CREDENTIALS does not follow a tracked symlink into an ignored target
+  PASS U8 scans provider-layer user-facing copy
+  PASS U8 permits exact authorization API/state tokens
+  PASS PROVIDER follows a one-step alias
+  PASS TOOLS follows a later assignment
+  PASS FLIP catches an error event callback
+  PASS TIER follows a one-step alias
+  PASS dirty fingerprint changes for different content at the same path
+  PASS dirty fingerprint does not follow a symlink target
+
 Result:
-  35 pass
+  44 pass
   0 fail
-  269 assertions
+  336 assertions
 
 The credential fixture uses a synthetic signature in tracked documentation. The
 assertion verifies neither source line nor payload appears in output. No path

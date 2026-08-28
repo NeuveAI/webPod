@@ -1,4 +1,5 @@
 import { Glob } from 'bun'
+import { lstat } from 'node:fs/promises'
 import { resolve, sep } from 'node:path'
 import ts from 'typescript'
 
@@ -20,6 +21,36 @@ export interface GateSummary {
   readonly automatedPassed: number
   readonly automatedFailed: number
   readonly manualOutstanding: number
+}
+
+/** Hash dirty metadata plus safe regular-file content without opening design.pen, cert, or symlink targets. */
+export async function safeDirtyFingerprint(rootInput: string): Promise<string> {
+  const root = resolve(rootInput)
+  const status = await gitOutput(root, ['status', '--porcelain=v1', '-z', '--untracked-files=all'])
+  if (status.code !== 0) throw new Error('git status failed while fingerprinting')
+  const entries = status.text.split('\0').filter(Boolean)
+  const hasher = new Bun.CryptoHasher('sha256')
+  for (let index = 0; index < entries.length; index += 1) {
+    const entry = entries[index] ?? ''
+    hasher.update(entry)
+    const path = normalizePath(entry.slice(3))
+    const renamed = entry[0] === 'R' || entry[1] === 'R'
+    if (renamed) {
+      const destination = entries[index + 1]
+      if (destination !== undefined) { hasher.update(destination); index += 1 }
+    }
+    if (path === 'design.pen' || path.startsWith('cert/')) continue
+    const absolute = resolve(root, path)
+    let fileStatus
+    try {
+      fileStatus = await lstat(absolute)
+    } catch {
+      continue
+    }
+    if (!fileStatus.isFile()) continue
+    hasher.update(new Uint8Array(await Bun.file(absolute).arrayBuffer()))
+  }
+  return hasher.digest('hex')
 }
 
 const SOURCE_GLOB = new Glob('{apps,packages,scripts}/**/*.{ts,tsx,js,jsx,css,html,json}')
@@ -81,7 +112,15 @@ async function readGlob(root: string, glob: Glob): Promise<readonly SourceFile[]
   for await (const rawPath of glob.scan({ cwd: root, dot: false, onlyFiles: true })) {
     const path = normalizePath(rawPath)
     if (isIgnored(path)) continue
-    files.push({ path, text: await Bun.file(resolve(root, rawPath)).text() })
+    const absolute = resolve(root, rawPath)
+    let status
+    try {
+      status = await lstat(absolute)
+    } catch {
+      continue
+    }
+    if (!status.isFile()) continue
+    files.push({ path, text: await Bun.file(absolute).text() })
   }
   return files.sort((left, right) => left.path.localeCompare(right.path))
 }
@@ -151,13 +190,13 @@ function executableNameFindings(files: readonly SourceFile[], pattern: RegExp, l
 }
 
 function u8Findings(files: readonly SourceFile[]): readonly string[] {
-  const productFiles = files.filter((file) => !file.path.startsWith('packages/providers/')
-    && !file.path.startsWith('scripts/')
+  const productFiles = files.filter((file) => !file.path.startsWith('scripts/')
     && !/\.(?:test|spec|e2e)\.[cm]?[jt]sx?$/u.test(file.path))
   return contentFindings(productFiles, U8_PATTERN, {
     comments: false,
     ignore: (item) => {
       const withoutRequiredState = item.text.replaceAll('permission-denied', '')
+      if (/^(?:authorize|authorized|unauthorize|unauthorized|authorization|permissions?|permission_denied|insufficient permissions|pending)$/iu.test(withoutRequiredState.trim())) return true
       U8_PATTERN.lastIndex = 0
       return !U8_PATTERN.test(withoutRequiredState)
     },
@@ -230,21 +269,50 @@ function handednessFindings(files: readonly SourceFile[]): readonly string[] {
   return executableNameFindings(files, HANDEDNESS_PATTERN, 'stored handedness', true)
 }
 
-function isProviderExpression(node: ts.Expression, source: ts.SourceFile): boolean {
-  return node.getText(source) === 'provider'
+function assignedIdentifier(node: ts.Node): string | undefined {
+  if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) return node.name.text
+  if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isIdentifier(node.left)) return node.left.text
+  return undefined
+}
+
+function assignedExpression(node: ts.Node): ts.Expression | undefined {
+  if (ts.isVariableDeclaration(node)) return node.initializer
+  if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) return node.right
+  return undefined
+}
+
+function aliasesOf(source: ts.SourceFile, seed: (node: ts.Expression) => boolean): ReadonlySet<string> {
+  const aliases = new Set<string>()
+  let changed = true
+  while (changed) {
+    changed = false
+    const visit = (node: ts.Node): void => {
+      const name = assignedIdentifier(node)
+      const expression = assignedExpression(node)
+      if (name !== undefined && expression !== undefined && (seed(expression) || (ts.isIdentifier(expression) && aliases.has(expression.text))) && !aliases.has(name)) {
+        aliases.add(name)
+        changed = true
+      }
+      ts.forEachChild(node, visit)
+    }
+    visit(source)
+  }
+  return aliases
 }
 
 function providerFindings(files: readonly SourceFile[]): readonly string[] {
   const findings: string[] = []
   for (const file of files.filter((candidate) => !candidate.path.startsWith('packages/providers/'))) {
     const source = sourceFile(file)
+    const providerAliases = aliasesOf(source, (node) => ts.isIdentifier(node) && node.text === 'provider')
+    const isProviderExpression = (node: ts.Expression): boolean => ts.isIdentifier(node) && (node.text === 'provider' || providerAliases.has(node.text))
     const visit = (node: ts.Node): void => {
       let violation = false
-      if (ts.isPropertyAccessExpression(node)) violation = isProviderExpression(node.expression, source) && node.name.text === 'id'
-      if (ts.isElementAccessExpression(node)) violation = isProviderExpression(node.expression, source) && node.argumentExpression !== undefined
+      if (ts.isPropertyAccessExpression(node)) violation = isProviderExpression(node.expression) && node.name.text === 'id'
+      if (ts.isElementAccessExpression(node)) violation = isProviderExpression(node.expression) && node.argumentExpression !== undefined
         && ts.isStringLiteralLike(node.argumentExpression) && node.argumentExpression.text === 'id'
       if (ts.isVariableDeclaration(node) && ts.isObjectBindingPattern(node.name) && node.initializer !== undefined
-        && isProviderExpression(node.initializer, source)) {
+        && isProviderExpression(node.initializer)) {
         violation = node.name.elements.some((element) => (element.propertyName ?? element.name).getText(source) === 'id')
       }
       if (violation) findings.push(finding(file.path, lineAt(source, node.getStart(source)), 'provider identity read outside provider layer'))
@@ -283,9 +351,9 @@ function toolReturnFindings(files: readonly SourceFile[]): readonly string[] {
     const tainted = new Set<string>()
     const declarations: Array<{ readonly name: string; readonly initializer: ts.Expression }> = []
     const collect = (node: ts.Node): void => {
-      if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer !== undefined) {
-        declarations.push({ name: node.name.text, initializer: node.initializer })
-      }
+      const name = assignedIdentifier(node)
+      const initializer = assignedExpression(node)
+      if (name !== undefined && initializer !== undefined) declarations.push({ name, initializer })
       ts.forEachChild(node, collect)
     }
     collect(source)
@@ -328,7 +396,7 @@ function errorContext(node: ts.CallExpression, source: ts.SourceFile): string | 
     if (ts.isCatchClause(current)) return 'catch handler'
     if (ts.isJsxAttribute(current) && /error|failure|failed/iu.test(current.name.getText(source))) return `JSX ${current.name.getText(source)} handler`
     if (ts.isFunctionLike(current)) {
-      const parent = current.parent
+      const parent: ts.Node = current.parent
       if (ts.isVariableDeclaration(parent) && /error|failure|failed/iu.test(parent.name.getText(source))) return `error handler ${parent.name.getText(source)}`
       if (ts.isPropertyAssignment(parent) && /error|failure|failed/iu.test(parent.name.getText(source))) return `error handler ${parent.name.getText(source)}`
       if (ts.isMethodDeclaration(current) && current.name !== undefined && /error|failure|failed/iu.test(current.name.getText(source))) return `error handler ${current.name.getText(source)}`
@@ -337,6 +405,10 @@ function errorContext(node: ts.CallExpression, source: ts.SourceFile): string | 
         const index = parent.arguments.findIndex((argument) => argument === current)
         if (name === 'catch' && index === 0) return 'promise catch handler'
         if (name === 'then' && index === 1) return 'promise rejection handler'
+        const event = parent.arguments[0]
+        const handler: ts.Expression | undefined = parent.arguments[1]
+        if (event !== undefined && ts.isStringLiteralLike(event) && /error|failure|failed/iu.test(event.text)
+          && handler === current && ts.isIdentifier(parent.expression) && parent.expression.text === 'addEventListener') return `event ${event.text} handler`
       }
     }
   }
@@ -359,21 +431,20 @@ function flipFindings(files: readonly SourceFile[]): readonly string[] {
   return findings
 }
 
-function containsTierReference(node: ts.Node): boolean {
-  let found = false
-  const visit = (child: ts.Node): void => {
-    if (found) return
-    if (ts.isIdentifier(child) && child.text.toLowerCase() === 'tier') { found = true; return }
-    ts.forEachChild(child, visit)
-  }
-  visit(node)
-  return found
-}
-
 function tierFindings(files: readonly SourceFile[]): readonly string[] {
   const findings: string[] = []
   for (const file of files.filter((candidate) => !candidate.path.startsWith('packages/composite/'))) {
     const source = sourceFile(file)
+    const tierAliases = aliasesOf(source, (node) => ts.isIdentifier(node) && node.text.toLowerCase() === 'tier')
+    const containsTierOrAlias = (node: ts.Node): boolean => {
+      let found = false
+      const inspect = (child: ts.Node): void => {
+        if (ts.isIdentifier(child) && (child.text.toLowerCase() === 'tier' || tierAliases.has(child.text))) found = true
+        if (!found) ts.forEachChild(child, inspect)
+      }
+      inspect(node)
+      return found
+    }
     const visit = (node: ts.Node): void => {
       let violation = false
       if (ts.isBinaryExpression(node)) {
@@ -381,11 +452,11 @@ function tierFindings(files: readonly SourceFile[]): readonly string[] {
           || node.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken
           || node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsToken
           || node.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsToken
-        violation = comparison && containsTierReference(node)
+        violation = comparison && containsTierOrAlias(node)
       } else if (ts.isSwitchStatement(node)) {
-        violation = containsTierReference(node.expression)
+        violation = containsTierOrAlias(node.expression)
       } else if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
-        violation = containsTierReference(node.expression.expression)
+        violation = containsTierOrAlias(node.expression.expression)
           && /^(?:startsWith|endsWith|includes|match|test)$/u.test(node.expression.name.text)
       }
       if (violation) findings.push(finding(file.path, lineAt(source, node.getStart(source)), 'tier-dependent branch outside composite'))
@@ -459,10 +530,17 @@ async function credentialFindings(root: string): Promise<readonly string[]> {
     if (path === '.env' || (path.startsWith('.env.') && !path.endsWith('.example'))) findings.push(`tracked environment file: ${path}`)
     const keyLikePath = path.startsWith('cert/') || /\.(?:p8|pem|key|p12)$/iu.test(path)
     if (keyLikePath) findings.push(`tracked credential path: ${path}`)
-    if (path.startsWith('cert/')) continue
+    if (path === 'design.pen' || path.startsWith('cert/')) continue
 
-    const file = Bun.file(resolve(root, path))
-    if (!await file.exists()) continue
+    const absolute = resolve(root, path)
+    let status
+    try {
+      status = await lstat(absolute)
+    } catch {
+      continue
+    }
+    if (!status.isFile()) continue
+    const file = Bun.file(absolute)
     const bytes = new Uint8Array(await file.arrayBuffer())
     for (const signature of signatures) {
       const offset = byteIndex(bytes, signature)
