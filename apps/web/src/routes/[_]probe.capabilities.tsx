@@ -1,5 +1,5 @@
 /**
- * `_probe.capabilities` — the html-in-canvas capability probe (W6.0).
+ * The dev-only html-in-canvas capability probe.
  *
  * This is a dev-only diagnostic, and it is deliberately NOT a proof-only
  * route: every value on the page is read from `@webpod/composite`'s real
@@ -9,15 +9,14 @@
  *
  * `ssr: false` because the probe touches `document`, `navigator` and a
  * WebGL context. That also keeps the route free of React state: the report
- * is resolved once, module-side, by `getCapabilities()` — so there is no
- * `useState` to ban and nothing for the Jotai store to hold yet. The tier
- * atom belongs to W6.1, not here.
+ * is resolved once, module-side, by `getCapabilities()`.
  */
 import { createFileRoute } from '@tanstack/react-router'
 
 import {
   HTML_IN_CANVAS_FLAG,
   getCapabilities,
+  isCapabilityTierMasked,
   type CapabilityReport,
   type ProbeGroup,
   type ProbeResult,
@@ -56,7 +55,7 @@ const TIER_TONE: Record<Tier, { readonly text: string; readonly headline: string
 
 function Verdict({ report }: { readonly report: CapabilityReport }) {
   const tone = TIER_TONE[report.tier]
-  const maskedByPreference = report.tier !== report.capabilityTier
+  const maskedByPreference = isCapabilityTierMasked(report)
 
   return (
     <section className="border-border bg-card rounded-xl border p-6" aria-labelledby="verdict-heading">
@@ -248,7 +247,7 @@ function CapabilityProbe() {
       <div className="mx-auto flex max-w-5xl flex-col gap-10">
         <header>
           <p className="text-muted-foreground text-xs font-medium tracking-[0.14em] uppercase">
-            webPod · W6.0 diagnostic
+            webPod · browser diagnostic
           </p>
           <h1 className="mt-2 text-3xl font-semibold">html-in-canvas capability probe</h1>
           <p className="text-muted-foreground mt-3 max-w-[76ch] text-sm leading-relaxed">

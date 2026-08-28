@@ -1,3 +1,5 @@
+import { atom, createStore } from 'jotai/vanilla'
+
 import { getCapabilities, probeCapabilities, type CapabilityReport, type Tier } from './capabilities'
 
 export interface CompositeTierSnapshot {
@@ -7,31 +9,34 @@ export interface CompositeTierSnapshot {
   readonly contextLost: boolean
 }
 
-const listeners = new Set<() => void>()
-let snapshot: CompositeTierSnapshot | undefined
+const unresolved = Symbol('unresolved composite tier')
+type TierAtomValue = CompositeTierSnapshot | typeof unresolved
+
+export const compositeTierAtom = atom<TierAtomValue>(unresolved)
+export const compositeTierStore = createStore()
 
 function publish(next: CompositeTierSnapshot): void {
-  snapshot = next
-  for (const listener of listeners) listener()
+  compositeTierStore.set(compositeTierAtom, next)
 }
 
 /** The document's single resolved composite tier. Lazily resolved at boot. */
 export function getCompositeTierSnapshot(): CompositeTierSnapshot {
-  if (snapshot !== undefined) return snapshot
+  const current = compositeTierStore.get(compositeTierAtom)
+  if (current !== unresolved) return current
   const report = getCapabilities()
-  snapshot = {
+  const snapshot = {
     tier: report.tier,
     reason: report.tierReason,
     report,
     contextLost: false,
   }
+  publish(snapshot)
   return snapshot
 }
 
 /** Subscribe to the one tier value; components never run their own probe. */
 export function subscribeCompositeTier(listener: () => void): () => void {
-  listeners.add(listener)
-  return () => listeners.delete(listener)
+  return compositeTierStore.sub(compositeTierAtom, listener)
 }
 
 /** Context loss is a T4 fact even if a throwaway probe could create another context. */
@@ -39,7 +44,7 @@ export function markCompositeContextLost(): void {
   publish({
     tier: 'T4',
     reason: 'The compositing WebGL context was lost. The device cannot supply pixels until it restores.',
-    report: snapshot?.report ?? null,
+    report: currentReport(),
     contextLost: true,
   })
 }
@@ -59,6 +64,10 @@ export function refreshCompositeTier(): CompositeTierSnapshot {
 
 /** Test-only reset kept out of the package's public entry point. */
 export function resetCompositeTierForTest(): void {
-  snapshot = undefined
-  listeners.clear()
+  compositeTierStore.set(compositeTierAtom, unresolved)
+}
+
+function currentReport(): CapabilityReport | null {
+  const current = compositeTierStore.get(compositeTierAtom)
+  return current === unresolved ? null : current.report
 }

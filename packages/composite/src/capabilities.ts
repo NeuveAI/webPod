@@ -146,6 +146,11 @@ export interface CapabilityReport {
   readonly capabilityTier: Tier
 }
 
+/** Whether a user preference overrides the browser's raw capability tier. */
+export function isCapabilityTierMasked(report: CapabilityReport): boolean {
+  return report.tier !== report.capabilityTier
+}
+
 /* ─────────────────────────────────────────────────────────────
    Probe tables. Name + provenance live together so the note on
    screen and the reason for probing cannot drift apart.

@@ -18,13 +18,14 @@ import {
 export type PanelOverlayTone = 'dark' | 'light'
 
 type RequestPaintCanvas = HTMLCanvasElement & { requestPaint(): void }
+type CanvasPaintEvent = Event & { readonly changedElements?: readonly Element[] }
 
 function canRequestPaint(canvas: HTMLCanvasElement): canvas is RequestPaintCanvas {
   return 'requestPaint' in canvas && typeof Reflect.get(canvas, 'requestPaint') === 'function'
 }
 
 /** A T1-only factory. Tier selection remains inside this package. */
-export function createPanelPixelSource(tone: PanelOverlayTone): PanelPixelSource {
+export function createPanelPixelSource(tone: PanelOverlayTone): PanelPixelSource<'webgl'> {
   const snapshot = getCompositeTierSnapshot()
   if (snapshot.tier !== 'T1') {
     throw new Error(`T1 html-in-canvas is unavailable: ${snapshot.reason}`)
@@ -40,11 +41,11 @@ export function createPanelPixelSource(tone: PanelOverlayTone): PanelPixelSource
  * their shared lifetime and asks R3F for a frame only when DOM pixels or the
  * screen transform change.
  */
-export class HtmlInCanvasPixelSource implements PanelPixelSource {
+export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
   readonly tier = 'T1' as const
   readonly requires = HTML_IN_CANVAS_REQUIREMENTS
 
-  private attachment: PanelPixelAttachment | null = null
+  private attachment: PanelPixelAttachment<'webgl'> | null = null
   private texture: HTMLTexture | null = null
   private material: MeshBasicMaterial | null = null
   private proxy: Mesh<PlaneGeometry, MeshBasicMaterial> | null = null
@@ -52,23 +53,31 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource {
   private unsubscribeTransform: (() => void) | null = null
   private mutationObserver: MutationObserver | null = null
   private resizeObserver: ResizeObserver | null = null
+  private canvasResizeObserver: ResizeObserver | null = null
   private paintListener: EventListener | null = null
   private contrastQuery: MediaQueryList | null = null
   private contrastListener: ((event: MediaQueryListEvent) => void) | null = null
+  private attachmentGeneration = 0
+  private hasPaintRecord = false
 
   constructor(private readonly tone: PanelOverlayTone) {}
 
-  attach(attachment: PanelPixelAttachment): void {
+  attach(attachment: PanelPixelAttachment<'webgl'>): void {
     this.detach()
     this.attachment = attachment
+    const generation = this.attachmentGeneration
 
     const { panelElement, renderer, camera, screen } = attachment
+    this.hasPaintRecord = false
     panelElement.style.width = `${screen.panel.width}px`
     panelElement.style.height = `${screen.panel.height}px`
     panelElement.style.overflow = 'hidden'
     panelElement.setAttribute('drawable', '')
     panelElement.dataset['pixelSource'] = 'html-in-canvas'
 
+    const canvas = renderer.domElement
+    canvas.setAttribute('layoutsubtree', 'true')
+    canvas.appendChild(panelElement)
     const texture = new HTMLTexture(panelElement)
     texture.colorSpace = SRGBColorSpace
     const material = createLcdMaterial(
@@ -90,16 +99,32 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource {
     this.proxy = proxy
     this.interactions = interactions
 
-    screen.setMaterial(material)
     this.unsubscribeTransform = screen.onTransformChange((transform) => {
       this.syncGeometry(transform)
     })
 
-    const canvas = renderer.domElement
+    const fitHostToContent = (): void => {
+      const content = panelElement.firstElementChild
+      const contentWidth = content instanceof HTMLElement ? content.scrollWidth : 0
+      const contentHeight = content instanceof HTMLElement ? content.scrollHeight : 0
+      const width = Math.max(screen.panel.width, contentWidth)
+      const height = Math.max(screen.panel.height, contentHeight)
+      if (panelElement.offsetWidth !== width) panelElement.style.width = `${width}px`
+      if (panelElement.offsetHeight !== height) panelElement.style.height = `${height}px`
+      material.userData['wpWidth'] = width
+      material.userData['wpHeight'] = height
+    }
     const requestPixels = (): void => {
-      texture.needsUpdate = true
-      if (canRequestPaint(canvas)) canvas.requestPaint()
-      screen.invalidate()
+      if (this.attachmentGeneration !== generation || this.attachment !== attachment) return
+      fitHostToContent()
+      // Painting before Three reparents the element can emit a canvas paint
+      // event that has no record for this panel. The first WebGL texture pass
+      // performs that reparent and requests the authoritative paint itself.
+      if (panelElement.parentNode === canvas && canRequestPaint(canvas)) canvas.requestPaint()
+      if (this.hasPaintRecord) {
+        texture.needsUpdate = true
+        screen.invalidate()
+      }
     }
 
     this.mutationObserver = new MutationObserver((records) => {
@@ -118,15 +143,25 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource {
     })
 
     this.resizeObserver = new ResizeObserver(() => {
-      material.userData['wpWidth'] = panelElement.offsetWidth
-      material.userData['wpHeight'] = panelElement.offsetHeight
+      fitHostToContent()
       material.needsUpdate = true
       this.syncGeometry(screen.readTransform())
       requestPixels()
     })
     this.resizeObserver.observe(panelElement)
 
-    this.paintListener = () => {
+    this.canvasResizeObserver = new ResizeObserver(() => {
+      this.syncGeometry(screen.readTransform())
+      screen.invalidate()
+    })
+    this.canvasResizeObserver.observe(canvas)
+
+    this.paintListener = (event) => {
+      if (this.attachmentGeneration !== generation || this.attachment !== attachment) return
+      const changedElements = (event as CanvasPaintEvent).changedElements
+      if (changedElements !== undefined && !changedElements.includes(panelElement)) return
+      if (!this.hasPaintRecord) screen.setMaterial(material)
+      this.hasPaintRecord = true
       texture.needsUpdate = true
       screen.invalidate()
     }
@@ -142,11 +177,10 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource {
     this.contrastListener(new MediaQueryListEvent('change', { matches: this.contrastQuery.matches }))
 
     this.syncGeometry(screen.readTransform())
+    // The screen material stays detached until Chrome confirms the panel has
+    // a paint record. This prevents Three from uploading an element that has
+    // been adopted by the canvas but is not raster-ready yet.
     requestPixels()
-    // `attach` can run during the canvas's first commit. `invalidate()` is a
-    // flag, not an immediate render; repeat it after the commit so the first
-    // HTMLTexture upload cannot be swallowed by the frame already in flight.
-    queueMicrotask(requestPixels)
   }
 
   syncGeometry(transform: ScreenTransform): void {
@@ -158,6 +192,7 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource {
   }
 
   detach(): void {
+    this.attachmentGeneration += 1
     const attachment = this.attachment
     const panel = attachment?.panelElement ?? null
     const canvas = attachment?.renderer.domElement ?? null
@@ -168,6 +203,8 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource {
     this.mutationObserver = null
     this.resizeObserver?.disconnect()
     this.resizeObserver = null
+    this.canvasResizeObserver?.disconnect()
+    this.canvasResizeObserver = null
 
     if (canvas !== null && this.paintListener !== null) {
       canvas.removeEventListener('paint', this.paintListener)
@@ -191,6 +228,7 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource {
     this.material = null
     this.texture?.dispose()
     this.texture = null
+    this.hasPaintRecord = false
 
     if (panel !== null) {
       panel.style.removeProperty('position')

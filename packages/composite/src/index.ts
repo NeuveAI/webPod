@@ -9,6 +9,7 @@
  */
 export {
   getCapabilities,
+  isCapabilityTierMasked,
   probeCapabilities,
   resolveTier,
   HTML_IN_CANVAS_FLAG,

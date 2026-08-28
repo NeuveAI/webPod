@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArtworkRouteImport } from './routes/artwork'
-import { Route as ProbeCapabilitiesRouteImport } from './routes/_probe.capabilities'
+import { Route as ProbeCapabilitiesRouteImport } from './routes/[_]probe.capabilities'
+import { Route as ProbeCompositeRouteImport } from './routes/[_]probe.composite'
+import { Route as SpikeDeviceRouteImport } from './routes/[_]spike.device'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -25,38 +27,72 @@ const ArtworkRoute = ArtworkRouteImport.update({
 } as any)
 const ProbeCapabilitiesRoute = ProbeCapabilitiesRouteImport.update({
   id: '/_probe/capabilities',
-  path: '/capabilities',
+  path: '/_probe/capabilities',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProbeCompositeRoute = ProbeCompositeRouteImport.update({
+  id: '/_probe/composite',
+  path: '/_probe/composite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpikeDeviceRoute = SpikeDeviceRouteImport.update({
+  id: '/_spike/device',
+  path: '/_spike/device',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/artwork': typeof ArtworkRoute
-  '/capabilities': typeof ProbeCapabilitiesRoute
+  '/_probe/capabilities': typeof ProbeCapabilitiesRoute
+  '/_probe/composite': typeof ProbeCompositeRoute
+  '/_spike/device': typeof SpikeDeviceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/artwork': typeof ArtworkRoute
-  '/capabilities': typeof ProbeCapabilitiesRoute
+  '/_probe/capabilities': typeof ProbeCapabilitiesRoute
+  '/_probe/composite': typeof ProbeCompositeRoute
+  '/_spike/device': typeof SpikeDeviceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/artwork': typeof ArtworkRoute
   '/_probe/capabilities': typeof ProbeCapabilitiesRoute
+  '/_probe/composite': typeof ProbeCompositeRoute
+  '/_spike/device': typeof SpikeDeviceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/artwork' | '/capabilities'
+  fullPaths:
+    | '/'
+    | '/artwork'
+    | '/_probe/capabilities'
+    | '/_probe/composite'
+    | '/_spike/device'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/artwork' | '/capabilities'
-  id: '__root__' | '/' | '/artwork' | '/_probe/capabilities'
+  to:
+    | '/'
+    | '/artwork'
+    | '/_probe/capabilities'
+    | '/_probe/composite'
+    | '/_spike/device'
+  id:
+    | '__root__'
+    | '/'
+    | '/artwork'
+    | '/_probe/capabilities'
+    | '/_probe/composite'
+    | '/_spike/device'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ArtworkRoute: typeof ArtworkRoute
   ProbeCapabilitiesRoute: typeof ProbeCapabilitiesRoute
+  ProbeCompositeRoute: typeof ProbeCompositeRoute
+  SpikeDeviceRoute: typeof SpikeDeviceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -77,9 +113,23 @@ declare module '@tanstack/react-router' {
     }
     '/_probe/capabilities': {
       id: '/_probe/capabilities'
-      path: '/capabilities'
-      fullPath: '/capabilities'
+      path: '/_probe/capabilities'
+      fullPath: '/_probe/capabilities'
       preLoaderRoute: typeof ProbeCapabilitiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_probe/composite': {
+      id: '/_probe/composite'
+      path: '/_probe/composite'
+      fullPath: '/_probe/composite'
+      preLoaderRoute: typeof ProbeCompositeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_spike/device': {
+      id: '/_spike/device'
+      path: '/_spike/device'
+      fullPath: '/_spike/device'
+      preLoaderRoute: typeof SpikeDeviceRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -89,6 +139,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArtworkRoute: ArtworkRoute,
   ProbeCapabilitiesRoute: ProbeCapabilitiesRoute,
+  ProbeCompositeRoute: ProbeCompositeRoute,
+  SpikeDeviceRoute: SpikeDeviceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

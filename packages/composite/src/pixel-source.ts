@@ -4,20 +4,31 @@ import type { Camera, WebGLRenderer } from 'three'
 import type { Tier } from './capabilities'
 
 /** Renderer and asset needs declared by a panel-pixel strategy. */
-export interface PanelPixelRequirements {
-  readonly renderer: 'webgl' | 'none'
+export type PanelPixelRenderer = 'webgl' | 'none'
+
+export interface PanelPixelRequirements<Renderer extends PanelPixelRenderer = PanelPixelRenderer> {
+  readonly renderer: Renderer
   readonly materialVariant: string
   readonly shaderVariants: readonly string[]
   readonly textureSet: readonly string[]
 }
 
 /** Everything needed to join one real DOM panel to one device screen. */
-export interface PanelPixelAttachment {
+export interface DomPanelPixelAttachment {
+  readonly kind: 'none'
+  readonly panelElement: HTMLElement
+}
+
+export interface WebGlPanelPixelAttachment {
+  readonly kind: 'webgl'
   readonly screen: ScreenMeshHandle
   readonly panelElement: HTMLElement
   readonly renderer: WebGLRenderer
   readonly camera: Camera
 }
+
+export type PanelPixelAttachment<Renderer extends PanelPixelRenderer = PanelPixelRenderer> =
+  Renderer extends 'webgl' ? WebGlPanelPixelAttachment : DomPanelPixelAttachment
 
 /**
  * Supplies panel pixels and native DOM interaction to a device screen.
@@ -27,16 +38,16 @@ export interface PanelPixelAttachment {
  * renderer without changing `@webpod/panel` or `@webpod/device`. This slice
  * intentionally provides exactly one implementation.
  */
-export interface PanelPixelSource {
+export interface PanelPixelSource<Renderer extends PanelPixelRenderer = PanelPixelRenderer> {
   readonly tier: Tier
-  readonly requires: PanelPixelRequirements
-  attach(attachment: PanelPixelAttachment): void
+  readonly requires: PanelPixelRequirements<Renderer>
+  attach(attachment: PanelPixelAttachment<Renderer>): void
   syncGeometry(transform: ScreenTransform): void
   detach(): void
 }
 
 /** T1's end-to-end requirements. One concrete set, not a variant registry. */
-export const HTML_IN_CANVAS_REQUIREMENTS: PanelPixelRequirements = Object.freeze({
+export const HTML_IN_CANVAS_REQUIREMENTS: PanelPixelRequirements<'webgl'> = Object.freeze({
   renderer: 'webgl',
   materialVariant: 'html-texture-lcd',
   shaderVariants: Object.freeze(['lcd-scanline-subpixel']),
