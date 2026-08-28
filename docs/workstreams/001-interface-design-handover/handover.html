@@ -1,0 +1,765 @@
+<title>webPod Build Handover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --ground:#F2F6FB; --surface:#FFFFFF; --surface-2:#E9F0F8; --well:#DDE5EE;
+  --ink-1:#0F172A; --ink-2:#475569; --ink-3:#748196;
+  --rule:#0F172A1F; --rule-strong:#0F172A33;
+  --human:#0284C7; --human-soft:#0EA5E914; --human-ink:#0369A1;
+  --agent:#15803D; --agent-soft:#16A34A14; --agent-ink:#166534;
+  --brand:#D1102A; --brand-soft:#FA243C14;
+  --warn:#8A5A00; --warn-soft:#F59E0B1F;
+  --steel:#6F7E8D;
+  --shadow:0 1px 2px #0F172A0F, 0 8px 24px -12px #0F172A26;
+  --display:"Inter Tight",system-ui,sans-serif;
+  --body:"Source Sans 3",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  --measure:68ch;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0A0F16; --surface:#111823; --surface-2:#0D141D; --well:#161F2B;
+    --ink-1:#F1F5F9; --ink-2:#A3AFC0; --ink-3:#77869B;
+    --rule:#FFFFFF17; --rule-strong:#FFFFFF2E;
+    --human:#38BDF8; --human-soft:#38BDF814; --human-ink:#7DD3FC;
+    --agent:#4ADE80; --agent-soft:#4ADE8014; --agent-ink:#86EFAC;
+    --brand:#FF8494; --brand-soft:#FA243C1F;
+    --warn:#FBBF24; --warn-soft:#F59E0B1A;
+    --steel:#94A2B0;
+    --shadow:0 1px 2px #00000066, 0 8px 24px -12px #000000AA;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0A0F16; --surface:#111823; --surface-2:#0D141D; --well:#161F2B;
+  --ink-1:#F1F5F9; --ink-2:#A3AFC0; --ink-3:#77869B;
+  --rule:#FFFFFF17; --rule-strong:#FFFFFF2E;
+  --human:#38BDF8; --human-soft:#38BDF814; --human-ink:#7DD3FC;
+  --agent:#4ADE80; --agent-soft:#4ADE8014; --agent-ink:#86EFAC;
+  --brand:#FF8494; --brand-soft:#FA243C1F;
+  --warn:#FBBF24; --warn-soft:#F59E0B1A;
+  --steel:#94A2B0;
+  --shadow:0 1px 2px #00000066, 0 8px 24px -12px #000000AA;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink-1);
+  font-family:var(--body); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px; margin:0 auto; padding:0 24px 96px}
+
+/* ---------- masthead ---------- */
+.mast{padding:64px 0 40px; border-bottom:1px solid var(--rule-strong)}
+.eyebrow{
+  font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ink-3); margin:0 0 20px
+}
+h1{
+  font-family:var(--display); font-weight:800; letter-spacing:-.035em;
+  font-size:clamp(38px,6vw,62px); line-height:1.02; margin:0 0 20px;
+  text-wrap:balance
+}
+.lede{
+  font-size:19px; line-height:1.55; color:var(--ink-2);
+  max-width:var(--measure); margin:0
+}
+.mast-meta{
+  display:flex; flex-wrap:wrap; gap:10px 28px; margin-top:28px;
+  font-family:var(--mono); font-size:12px; color:var(--ink-3)
+}
+.mast-meta b{color:var(--ink-2); font-weight:500}
+
+/* ---------- layout ---------- */
+.cols{display:grid; grid-template-columns:1fr; gap:40px; margin-top:40px}
+@media(min-width:1000px){
+  .cols{grid-template-columns:212px 1fr; gap:56px; align-items:start}
+  .toc{position:sticky; top:24px}
+}
+.toc ol{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:2px}
+.toc a{
+  display:flex; gap:10px; padding:5px 8px; border-radius:6px;
+  font-family:var(--display); font-size:13.5px; font-weight:500;
+  color:var(--ink-2); text-decoration:none; line-height:1.35
+}
+.toc a:hover{background:var(--surface-2); color:var(--ink-1)}
+.toc a:focus-visible{outline:2px solid var(--human); outline-offset:1px}
+.toc .n{font-family:var(--mono); font-size:11px; color:var(--ink-3); padding-top:2px}
+
+/* ---------- sections ---------- */
+section{padding-top:56px; scroll-margin-top:24px}
+h2{
+  font-family:var(--display); font-weight:700; letter-spacing:-.02em;
+  font-size:29px; line-height:1.15; margin:0 0 8px; text-wrap:balance
+}
+h2 .n{
+  font-family:var(--mono); font-size:13px; font-weight:500;
+  color:var(--ink-3); letter-spacing:0; margin-right:12px
+}
+h3{
+  font-family:var(--display); font-weight:650; font-size:18px;
+  letter-spacing:-.01em; margin:36px 0 10px; text-wrap:balance
+}
+h4{
+  font-family:var(--mono); font-size:11.5px; font-weight:600; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ink-3); margin:26px 0 10px
+}
+p{max-width:var(--measure); margin:0 0 14px}
+.sub{color:var(--ink-2); max-width:var(--measure); margin:0 0 22px; font-size:16.5px}
+ul,ol.list{max-width:var(--measure); padding-left:20px; margin:0 0 16px}
+li{margin-bottom:7px}
+strong{font-weight:600; color:var(--ink-1)}
+a{color:var(--human-ink)}
+code{
+  font-family:var(--mono); font-size:.87em; background:var(--surface-2);
+  padding:.12em .38em; border-radius:4px; color:var(--ink-1);
+  border:1px solid var(--rule)
+}
+
+/* ---------- layer badges: the structural device ---------- */
+.lay{
+  display:inline-flex; align-items:center; gap:5px; vertical-align:middle;
+  font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.08em;
+  text-transform:uppercase; padding:2px 7px; border-radius:4px; white-space:nowrap;
+  border:1px solid
+}
+.lay.device{color:var(--steel); border-color:var(--steel); background:transparent}
+.lay.panel{color:var(--human-ink); border-color:var(--human); background:var(--human-soft)}
+.lay.glass{color:var(--ink-2); border-color:var(--rule-strong); background:var(--surface-2)}
+.lay.agent{color:var(--agent-ink); border-color:var(--agent); background:var(--agent-soft)}
+
+.chip{
+  display:inline-flex; align-items:center; gap:5px;
+  font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.06em;
+  padding:2px 7px; border-radius:4px; border:1px solid; white-space:nowrap
+}
+.chip.ok{color:var(--agent-ink); border-color:var(--agent); background:var(--agent-soft)}
+.chip.warn{color:var(--warn); border-color:var(--warn); background:var(--warn-soft)}
+.chip.stop{color:var(--brand); border-color:var(--brand); background:var(--brand-soft)}
+
+/* ---------- tables ---------- */
+.tw{overflow-x:auto; margin:0 0 22px; border:1px solid var(--rule); border-radius:10px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:14px; min-width:600px}
+th{
+  text-align:left; font-family:var(--mono); font-size:10.5px; font-weight:600;
+  letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3);
+  padding:11px 14px; border-bottom:1px solid var(--rule-strong); white-space:nowrap;
+  background:var(--surface-2)
+}
+td{padding:11px 14px; border-bottom:1px solid var(--rule); vertical-align:top; color:var(--ink-2)}
+tr:last-child td{border-bottom:none}
+td:first-child{color:var(--ink-1); font-weight:500}
+td.mono,th.mono{font-family:var(--mono); font-size:12.5px}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- callouts ---------- */
+.note{
+  border:1px solid var(--rule-strong); border-radius:10px;
+  padding:18px 20px; margin:22px 0; background:var(--surface);
+  max-width:var(--measure)
+}
+.note.law{border-color:var(--human); background:var(--human-soft)}
+.note.stop{border-color:var(--brand); background:var(--brand-soft)}
+.note.warn{border-color:var(--warn); background:var(--warn-soft)}
+.note > :last-child{margin-bottom:0}
+.note h4{margin-top:0}
+
+pre{
+  font-family:var(--mono); font-size:12.5px; line-height:1.62;
+  background:var(--surface); color:var(--ink-1);
+  border:1px solid var(--rule); border-radius:10px;
+  padding:16px 18px; overflow-x:auto; margin:0 0 20px
+}
+pre b{color:var(--human-ink); font-weight:600}
+pre i{color:var(--ink-3); font-style:normal}
+
+.grid2{display:grid; gap:16px; margin:0 0 22px}
+@media(min-width:760px){.grid2{grid-template-columns:1fr 1fr}}
+.card{border:1px solid var(--rule); border-radius:10px; padding:18px 20px; background:var(--surface)}
+.card h4{margin-top:0}
+.card > :last-child{margin-bottom:0}
+.card p{font-size:14.5px; margin-bottom:8px}
+
+hr{border:none; border-top:1px solid var(--rule); margin:44px 0 0}
+.foot{
+  margin-top:56px; padding-top:24px; border-top:1px solid var(--rule-strong);
+  font-family:var(--mono); font-size:12px; color:var(--ink-3);
+  display:flex; flex-wrap:wrap; gap:8px 24px
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">Engineering handover · v1</p>
+  <h1>webPod Build Handover</h1>
+  <p class="lede">A browser music player rendered as a physically-modelled iPod 5G, driven by a real click wheel — and by AI agents through WebMCP, visibly, on the same screen. This document is the bridge from the design file to the codebase.</p>
+  <div class="mast-meta">
+    <span>Design file <b>~/code/webPod/design.pen</b></span>
+    <span>Viewports <b>390×844 · 1440×900</b></span>
+    <span>Device <b>330×552 · wheelR 115</b></span>
+    <span>Panel <b>272×204 @ 0.85</b></span>
+  </div>
+</header>
+
+<div class="cols">
+  <nav class="toc" aria-label="Contents">
+    <ol>
+      <li><a href="#layers"><span class="n">01</span> The three layers</a></li>
+      <li><a href="#order"><span class="n">02</span> Build order</a></li>
+      <li><a href="#stack"><span class="n">03</span> Stack, verified</a></li>
+      <li><a href="#state"><span class="n">04</span> State &amp; the useState ban</a></li>
+      <li><a href="#provider"><span class="n">05</span> Provider abstraction</a></li>
+      <li><a href="#tokens"><span class="n">06</span> Design tokens</a></li>
+      <li><a href="#components"><span class="n">07</span> Components</a></li>
+      <li><a href="#fx"><span class="n">08</span> Interaction &amp; FX</a></li>
+      <li><a href="#agent"><span class="n">09</span> The agent surface</a></li>
+      <li><a href="#gates"><span class="n">10</span> Review gates</a></li>
+      <li><a href="#skills"><span class="n">11</span> Required skills</a></li>
+      <li><a href="#open"><span class="n">12</span> Open questions</a></li>
+    </ol>
+  </nav>
+
+  <main>
+
+  <section id="layers">
+    <h2><span class="n">01</span>The three layers</h2>
+    <p class="sub">Every element in the design file belongs to exactly one layer. If you cannot classify something in under two seconds, that is a design bug — raise it rather than guessing.</p>
+
+    <div class="tw"><table>
+      <thead><tr><th>Layer</th><th>Renders with</th><th>Contains</th><th>Visual law</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="lay device">Device</span></td>
+          <td class="mono">react-three-fiber</td>
+          <td>Body, wheel, Select button, steel back, cover glass</td>
+          <td>Skeuomorphic. One key light at 12 o'clock. Gradients are material parameters or shaders — <strong>never CSS</strong>.</td>
+        </tr>
+        <tr>
+          <td><span class="lay panel">Panel</span></td>
+          <td class="mono">real DOM</td>
+          <td>Everything inside the 272×204 screen</td>
+          <td>2005 LCD discipline: flat fills, ≤3 gradient stops, no blur, no translucency.</td>
+        </tr>
+        <tr>
+          <td><span class="lay glass">Glass</span></td>
+          <td class="mono">DOM · Tailwind · shadcn</td>
+          <td>Sidecar, overlays, sheets, status bar</td>
+          <td>iOS 26 Liquid Glass: blur, translucency, 1px border, soft elevation. No gloss, no bevel, no specular.</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <div class="note law">
+      <h4>The law that makes this non-negotiable</h4>
+      <p><strong>The panel must remain genuine DOM, because it is the layer WebMCP actuates.</strong> A texture cannot be focused, read by a screen reader, or driven by a tool call. The moment the panel becomes pixels, the entire agent thesis dies with it.</p>
+    </div>
+
+    <h3>How the panel meets the device</h3>
+    <p><code>html-in-canvas</code> is the bridge: <code>layoutsubtree</code> on the canvas, <code>drawable</code> on the panel root, then <code>drawElementImage()</code> in the <code>paint</code> event, with <code>updateElementGeometry()</code> to keep hit-testing and the accessibility tree aligned with where the pixels actually landed.</p>
+
+    <div class="note stop">
+      <h4><span class="chip stop">Flagged</span> Not a dependency — and weaker than it looks</h4>
+      <p>It is an unshipped WICG <em>Community Group</em> explainer, implemented only behind <code>chrome://flags/#canvas-draw-element</code> in Chrome Canary. No origin trial, no second implementer, an admittedly unfinished spec, and the WebGL entry point is <strong>mid-rename</strong> — the proposal's own example carries a runtime try/catch across the old and new signatures of <code>texElementImage2D</code> while the IDL declares <code>texElementSubImage2D</code>.</p>
+      <p>One API detail that bites: in a 2D context <code>updateElementGeometry</code> runs automatically, but <strong>3D contexts must call it explicitly</strong> — the transform from a texture back to canvas CSS coordinates isn't available to the canvas API. Our device is a 3D context.</p>
+    </div>
+
+    <div class="note law">
+      <h4>The finding that de-risks this entirely</h4>
+      <p><strong>The correct architecture is identical whether the flag exists or not.</strong> The local three.js clone (r185) already ships <code>src/textures/HTMLTexture.js</code> — feature-detected via <code>'requestPaint' in parent</code> — alongside <code>InteractionManager.js</code>, which computes CSS <code>matrix3d</code> transforms each frame so the underlying HTML elements stay aligned with their meshes. Because <strong>those elements are real children of the canvas, the browser dispatches pointer events to them natively.</strong></p>
+      <p>So hit-testing and accessibility need no flag at all. Three tiers, same scene, same components:</p>
+      <ol class="list">
+        <li><strong>Flag on</strong> — DOM pixels composited into WebGL. Best fidelity.</li>
+        <li><strong>Flag off</strong> — CSS-3D-transformed DOM overlay registered to the modelled bezel.</li>
+        <li>Either way — <strong>nothing is lost in accessibility or WebMCP actuation.</strong> The only casualty is "pixels inside the material".</li>
+      </ol>
+      <p>Build tier 2 first. Tier 1 is a swap, not a rewrite.</p>
+    </div>
+
+    <div class="note warn">
+      <h4>Two constraints that bind from day one</h4>
+      <p><strong>Cross-origin album artwork will not paint.</strong> Read-back-allowed rendering means artwork must be <strong>proxied same-origin through Bun</strong>. This affects Now Playing, Cover Flow, the sidecar and every list thumbnail — design the proxy in stage 1, not after the first black square appears.</p>
+      <p><strong>DOM changes made during <code>paint</code> only appear the following frame.</strong> Never mutate state from inside the paint handler and expect it that frame.</p>
+    </div>
+  </section>
+
+  <section id="order">
+    <h2><span class="n">02</span>Build order</h2>
+    <p class="sub">This sequence is deliberate — each stage is shippable and each de-risks the next. It is a real dependency chain, not a wish list.</p>
+    <div class="tw"><table>
+      <thead><tr><th style="width:34px">#</th><th>Stage</th><th>Why here</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>Provider layer + Effect services, headless</td><td>Everything renders something from it. Two implementations from day one or the seams never get found.</td></tr>
+        <tr><td class="num">2</td><td>Jotai store + panel DOM, no 3D at all</td><td>The whole product is operable here. Accessible, keyboard-driven, testable.</td></tr>
+        <tr><td class="num">3</td><td>WebMCP tool registration against that store</td><td>Proves the agent thesis before any pixels are spent on it.</td></tr>
+        <tr><td class="num">4</td><td>Glass layer — sidecar, overlays</td><td>Standard shadcn work, low risk.</td></tr>
+        <tr><td class="num">5</td><td>R3F device body + expose flip</td><td>The expensive, beautiful part. Nothing depends on it.</td></tr>
+        <tr><td class="num">6</td><td><code>html-in-canvas</code> composite, behind detection</td><td>Enhancement only. If it never ships, the product is complete without it.</td></tr>
+      </tbody>
+    </table></div>
+    <p><strong>Stage 2 is the honesty checkpoint.</strong> If webPod isn't genuinely good as a plain DOM app with a keyboard, no amount of three.js will rescue it.</p>
+  </section>
+
+  <section id="stack">
+    <h2><span class="n">03</span>Stack, verified</h2>
+    <p class="sub">Every API below was read from the local clones in <code>~/code/agentic-context/</code>, not recalled. Where a local doc contradicts what you'd assume, it is flagged — those are the expensive ones.</p>
+
+    <div class="tw"><table>
+      <thead><tr><th>Concern</th><th>Library</th><th class="mono">API</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Routing / SSR / RPC</td><td>TanStack Start</td><td class="mono">createServerFn()</td><td><span class="chip ok">Verified</span></td></tr>
+        <tr><td>State</td><td>Jotai</td><td class="mono">createStore() · get/set/sub</td><td><span class="chip ok">Verified</span></td></tr>
+        <tr><td>3D device</td><td>react-three-fiber</td><td class="mono">frameloop="demand" · invalidate()</td><td><span class="chip ok">Verified</span></td></tr>
+        <tr><td>Backend</td><td>Bun + Effect</td><td class="mono">Effect.gen · Layer · Schema</td><td><span class="chip ok">Verified</span></td></tr>
+        <tr><td>Long lists</td><td>TanStack Virtual</td><td class="mono">useVirtualizer</td><td><span class="chip ok">Verified</span></td></tr>
+        <tr><td>Panel in 3D</td><td>html-in-canvas</td><td class="mono">drawElementImage</td><td><span class="chip stop">Flagged build</span></td></tr>
+        <tr><td>Agent tools</td><td>WebMCP</td><td class="mono">registerTool()</td><td><span class="chip warn">Origin trial</span></td></tr>
+        <tr><td>Haptics</td><td>web-haptics</td><td class="mono">trigger() · 7 types</td><td><span class="chip ok">Verified</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="note stop">
+      <h4>Three things your training data has wrong</h4>
+      <p>Every one of these was verified against the local clones. Assume the version in your head is stale.</p>
+      <ol class="list">
+        <li><strong>Effect is <code>4.0.0-rc.112</code>, and HTTP has moved to <code>effect/unstable/http</code> — not <code>@effect/platform</code>.</strong> Services use <code>Context.Service</code>, not <code>Context.Tag</code> or <code>Effect.Service</code>. <code>Schema</code> imports from <code>"effect"</code> directly.</li>
+        <li><strong>TanStack Start server functions use <code>.validator(…)</code></strong>, not <code>.inputValidator(…)</code>, in 1.168.49.</li>
+        <li><strong>Jotai's outside-React docs are marked <code>published: false</code></strong> — so the <code>store.get/set/sub</code> pattern our whole state architecture rests on is likely absent from training data. It is real; it is in <code>core/store.mdx</code>.</li>
+      </ol>
+    </div>
+
+    <h3>Server functions</h3>
+    <pre><i>// @tanstack/react-start</i>
+<b>import</b> { createServerFn } <b>from</b> '@tanstack/react-start'
+
+<b>export const</b> getServerTime = createServerFn().handler(<b>async</b> () =&gt; { … })
+<b>export const</b> saveData = createServerFn({ method:'POST' })
+  .<b>validator</b>(Schema)          <i>// ⚑ .validator, not .inputValidator</i>
+  .handler(<b>async</b> ({ data }) =&gt; { … })</pre>
+    <p>Server routes — not server functions — are the documented mechanism for anything called from <em>outside</em> the app.</p>
+
+    <h3>The provider as an Effect service</h3>
+    <pre><b>class</b> MusicProvider <b>extends</b> Context.Service&lt;MusicProvider, {…}&gt;()(
+  "webpod/music/MusicProvider"
+) {}
+
+<i>// two Layer.effect implementations, swapped at the composition root</i>
+Layer.provide(appLayer, AppleMusicLive)   <i>// or SpotifyLive</i></pre>
+    <p>Only token minting and refresh are server-side; both music SDKs are browser-side, so the provider layer itself runs in the client.</p>
+
+    <h3>The scene must not run at 60fps</h3>
+    <p>The device sits still almost all the time. This is a mobile-first, battery-sensitive product, so an always-on render loop is a defect, not a default.</p>
+    <pre><i>// scaling-performance.mdx: renders frames whenever it detects prop changes</i>
+&lt;Canvas <b>frameloop</b>="demand"&gt;
+
+<i>// request a frame when something actually changed</i>
+invalidate()</pre>
+    <div class="note warn">
+      <h4>Footgun from the local docs</h4>
+      <p><code>invalidate()</code> only <em>schedules</em> a render, it does not render immediately. For animations that start synchronously, the first frame can land after the animation has already advanced, producing a visible jump. Schedule the render pre-emptively, then start the animation on the next frame.</p>
+    </div>
+  </section>
+
+  <section id="state">
+    <h2><span class="n">04</span>State, and why <code>useState</code> is banned</h2>
+    <p class="sub">The ban is architectural, not stylistic. Stating the reason properly is what stops it being quietly worked around at 2am.</p>
+
+    <div class="note law">
+      <h4>The reason</h4>
+      <p><strong>WebMCP tool callbacks live outside React.</strong> A tool handler is a plain function the browser invokes; it must read and write the same state the UI renders. State trapped in a component closure is unreachable from there.</p>
+      <p>A store you can reach from a plain function is therefore a <em>requirement</em>. <code>useState</code> is not a worse way of doing this — it is unable to do it.</p>
+    </div>
+
+    <p>Jotai's store exposes exactly the three operations a tool handler needs, and no more:</p>
+    <pre><i>// jotai/docs/core/store.mdx — "get for getting atom values, set for setting</i>
+<i>// atom values, and sub for subscribing to atom changes"</i>
+<b>import</b> { createStore, Provider } <b>from</b> 'jotai'
+
+<b>export const</b> store = createStore()
+
+<i>// inside a WebMCP tool handler — no React in sight</i>
+store.get(nowPlayingAtom)
+store.set(queueAtom, next)
+<b>const</b> unsub = store.sub(queueAtom, () =&gt; { … })
+
+<i>// the app is mounted against the same store</i>
+&lt;Provider store={store}&gt;&lt;App /&gt;&lt;/Provider&gt;</pre>
+
+    <div class="tw"><table>
+      <thead><tr><th>Kind of state</th><th>Pattern</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Ephemeral UI</td><td class="mono">atom()</td><td>Highlight index, open sheet, scrub position. Still atoms — an agent may need to read them.</td></tr>
+        <tr><td>Derived</td><td class="mono">atom(get =&gt; …)</td><td>Never recompute in render.</td></tr>
+        <tr><td>Server / async</td><td class="mono">TanStack Query + atom bridge</td><td>Catalogue, library, lyrics.</td></tr>
+        <tr><td>Per-viewer persisted</td><td class="mono">atomWithStorage</td><td>Colourway, clicker mode, density.</td></tr>
+        <tr><td>Collections</td><td class="mono">atomFamily · splitAtom</td><td>Queue rows, so one row changing doesn't rerender the list.</td></tr>
+      </tbody>
+    </table></div>
+    <p><strong>Reviewers:</strong> a single <code>useState</code> in a PR is a merge blocker, including in a "temporary" or "just local" case. The exception list is empty.</p>
+  </section>
+
+  <section id="provider">
+    <h2><span class="n">05</span>Provider abstraction</h2>
+    <p class="sub">Apple Music (MusicKit) ships first. Spotify must be addable without redesign — which means the seams are designed now, while there is only one implementation to be honest about.</p>
+    <p>The contract is one method — <code>supports(capability)</code> — and it drives <strong>both</strong> the UI branch and the tool registration. Nothing else in the app asks which provider is active.</p>
+    <pre><b>interface</b> MusicProvider {
+  <b>readonly</b> id: ProviderId                     <i>// "apple" | "spotify"</i>
+  supports(c: Capability): boolean              <i>// ⚑ the contract</i>
+  unsupportedReason(c: Capability): string|null <i>// reaches the human, never the agent</i>
+
+  authorize(): Promise&lt;Session&gt;
+  search(q): · libraryList/Add/Remove(…)
+  playlistCreate/AddTracks/RemoveTracks/Reorder(…)
+  play/pause/skip/seek/setVolume(…)
+  onPlaybackChange(cb) · onProgress(cb)
+  queueRead/Append/InsertNext/Remove/Reorder(…)
+  stationsList/stationStart(…) · lyrics(ref)
+  ratingSet(ref,{love}) · saveToggle(ref,saved)
+}</pre>
+    <p>Star ratings are deliberately <em>absent</em> from the interface — neither service has them, so they live locally rather than being faked into the contract.</p>
+
+    <h3>Where they genuinely differ</h3>
+    <p class="sub">Postures: <strong>(a)</strong> emulate · <strong>(b)</strong> degrade visibly · <strong>(c)</strong> hide entirely · <strong>(d)</strong> refuse and say so. Confidence is labelled because neither API was available locally — <strong>a marked unknown is worth more than a confident guess.</strong></p>
+    <div class="tw"><table>
+      <thead><tr><th>Capability</th><th>Apple</th><th>Spotify</th><th>Conf.</th><th>Posture</th></tr></thead>
+      <tbody>
+        <tr><td>Playback host</td><td>Owns a media element in our page</td><td>Web Playback SDK only — a Connect device it hosts</td><td><span class="chip ok">Verified</span></td><td><strong>(b)</strong> · Free tier → <strong>(d)</strong> browse-only</td></tr>
+        <tr><td><strong>Playlist remove tracks</strong></td><td>Append-only as far as we know</td><td>Supported</td><td><span class="chip stop">Unverified</span></td><td><strong>(c)</strong> hide on Apple — <strong>highest-risk row in the table</strong></td></tr>
+        <tr><td><strong>Playlist reorder</strong></td><td>Same doubt</td><td>Supported</td><td><span class="chip stop">Unverified</span></td><td><strong>(c)</strong> · staged diff shows <code>+</code> only</td></tr>
+        <tr><td>Queue insert-next</td><td><code>playNext()</code></td><td>No API</td><td><span class="chip ok">Verified</span></td><td><strong>(b)</strong> · "Play Next" becomes "Add to Queue"</td></tr>
+        <tr><td>Queue remove / reorder</td><td>Queue splice</td><td>Not supported at all</td><td><span class="chip warn">Mixed</span></td><td><strong>(c)</strong> · S17 becomes read-only + append</td></tr>
+        <tr><td>Stations / radio</td><td>Supported</td><td>Seeded radio withdrawn for new apps, Nov 2024</td><td><span class="chip warn">Likely</span></td><td><strong>(c)</strong> · S18 removed from the tree, not greyed</td></tr>
+        <tr><td>Lyrics</td><td>Entitlement unclear</td><td>No public API</td><td><span class="chip stop">Unverified</span></td><td><strong>(d)</strong> · NP centre-cycle drops 4 stops → 3</td></tr>
+        <tr><td>5-star ratings</td><td>Not in the API</td><td>None</td><td><span class="chip ok">Verified</span></td><td><strong>(a)</strong> local-only · "Star ratings stay on this device."</td></tr>
+        <tr><td>Love / Dislike</td><td>±1 rating</td><td>No equivalent</td><td><span class="chip ok">Verified</span></td><td><strong>(c)</strong> · <strong>never map Love → Save</strong></td></tr>
+        <tr><td>Progress ticks</td><td>Timer</td><td>Event-driven only</td><td><span class="chip warn">Likely</span></td><td><strong>(a)</strong> rAF interpolator, <code>interpolated:true</code></td></tr>
+        <tr><td>Artwork sizing</td><td>URL template, any size</td><td>Fixed ~3 sizes</td><td><span class="chip warn">Likely</span></td><td><strong>(b)</strong> clamp, never upscale sharp</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note stop">
+      <h4>Resolve the two unverified playlist rows first</h4>
+      <p>If Apple Music genuinely cannot remove or reorder playlist tracks, <code>pod-edit-playlist</code> is broken <strong>on the launch provider</strong> and the staged-diff screen loses half its purpose. This is a day-one spike, not a month-three discovery.</p>
+    </div>
+
+    <h3>Identity — <code>LocalKey</code>, not provider IDs</h3>
+    <p>Every internal structure holds a <strong>UUIDv7 <code>LocalKey</code></strong>. <code>TrackRef</code> is the resolution record it points at, carrying provider, catalogue ID, Apple's separate library ID, ISRC, and denormalised title/artist/duration <strong>so a track can be re-resolved without a round-trip</strong>. Cross-provider matching ladder: ISRC exact → title+artist normalised + duration ±2s → flagged low-confidence.</p>
+    <div class="note law">
+      <h4>The queue cannot survive a provider switch — and we don't pretend it can</h4>
+      <p>It is provider-side state consumed in real time, and on Spotify it cannot even be reordered. A 78%-matched reconstruction would be neither the old queue nor one the user could repair.</p>
+      <p>So the queue is <strong>cleared</strong>, with a one-time card: <em>"Your queue didn't come across. 14 songs were queued on Apple Music. 11 are on Spotify."</em> → <strong>Rebuild queue</strong> · <strong>Start fresh</strong>. The Engraving is <strong>archived, not deleted</strong> — stamped with the old provider, read-only, and the <code>⟲</code> affordances <em>removed</em>, because a dead Undo control is worse than none.</p>
+      <p>The framing that makes this coherent: <strong>a provider switch is a new device, not a migration.</strong></p>
+    </div>
+    <p><strong>Unsupported capability ⇒ the tool is not registered.</strong> An agent never sees a tool it cannot use, never plans around one, and never has to interpret a refusal. <strong>Partial</strong> support <em>narrows the <code>inputSchema</code></em> rather than registering-and-refusing — on Apple, <code>pod-edit-playlist</code> would register with <code>remove</code> and <code>reorder</code> simply absent as properties. A provider switch fires <code>toolchange</code>. <strong>No registered tool may ever return "unsupported".</strong></p>
+  </section>
+
+  <section id="tokens">
+    <h2><span class="n">06</span>Design tokens</h2>
+    <p class="sub">148 tokens, extracted from the design file itself rather than transcribed. 57 superseded tokens were deleted during handover prep, so what remains is what is actually used.</p>
+
+    <div class="note law">
+      <h4>The split that matters</h4>
+      <p>Tokens divide by <em>consumer</em>, not by category. <span class="lay panel">Panel</span> and <span class="lay glass">Glass</span> tokens are CSS custom properties. <span class="lay device">Device</span> tokens are <strong>three.js material parameters</strong> — the body, wheel and steel gradients are lit surfaces, and several cannot be expressed in CSS at all. Those become shaders or baked textures.</p>
+    </div>
+
+    <h3>Actor colours</h3>
+    <p>Tailwind <code>sky</code> for the human, Tailwind <code>green</code> for the agent. Apple Music crimson is <strong>brand only</strong> — progress fill, Loved, station chips — and is never an actor colour.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Token</th><th class="mono">Light</th><th class="mono">Dark</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">--human-core</td><td class="mono">#0284C7</td><td class="mono">#0EA5E9</td><td>Halo, human fills &amp; strokes</td></tr>
+        <tr><td class="mono">--human-ink</td><td class="mono">#0369A1</td><td class="mono">#38BDF8</td><td>Human text. <strong>Never sky-600 on white poly</strong> — 3.24:1, fails.</td></tr>
+        <tr><td class="mono">--agent-core</td><td class="mono">#15803D</td><td class="mono">#4ADE80</td><td>Ghost thumb, agent strokes</td></tr>
+        <tr><td class="mono">--agent-ink</td><td class="mono">#166534</td><td class="mono">#86EFAC</td><td>Agent text. <strong>green-700 is never text on light</strong> — 3.97:1.</td></tr>
+        <tr><td class="mono">--brand</td><td class="mono">#FA243C</td><td class="mono">#FA243C</td><td>Apple Music only</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Panel &amp; environment</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Token</th><th class="mono">Light</th><th class="mono">Dark</th><th>Use</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">--panel-bg</td><td class="mono">#F2F6FB</td><td class="mono">#0A0F16</td><td>LCD ground — tinted toward the human blue, never neutral grey</td></tr>
+        <tr><td class="mono">--panel-row</td><td class="mono">#FFFFFF</td><td class="mono">#111823</td><td>List row</td></tr>
+        <tr><td class="mono">--txt-1 / 2 / 3</td><td class="mono">#0F172A · #475569 · #64748B</td><td class="mono">#F1F5F9 · #A3AFC0 · #7A8698</td><td>Panel type ramp</td></tr>
+        <tr><td class="mono">--hl-0 / 1 / 2</td><td class="mono" colspan="2">#0369A1 → #075985 → #0C4A6E</td><td>Selection band — the 2005 blue gradient, modernised</td></tr>
+        <tr><td class="mono">--hla-0 / 1 / 2</td><td class="mono" colspan="2">#15803D → #166534 → #14532D</td><td>Agent-driven selection, same structure</td></tr>
+      </tbody>
+    </table></div>
+
+    <h4>Panel spacing scale</h4>
+    <p>Authored at 272×204 and scaled 0.85 to the 320×240 panel. Hairlines must be authored as <code>calc(1px / var(--panel-scale))</code> so they resolve to one device pixel.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Inset</th><th>Gap</th><th>Row 1-line</th><th>Row 2-line</th><th>Title bar</th><th>Thumb</th><th>Sigil</th></tr></thead>
+      <tbody><tr class="num"><td>8</td><td>8 / 6</td><td>21</td><td>26</td><td>21</td><td>22</td><td>8</td></tr></tbody>
+    </table></div>
+    <p>Glass layer runs a separate, larger scale: inset 20, gap 12–16, row 56, thumbnail 36.</p>
+
+    <h3>Type</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Role</th><th>Face</th><th>Where</th></tr></thead>
+      <tbody>
+        <tr><td>Panel UI</td><td class="mono">Source Sans 3</td><td>Inside the screen — humanist, holds up at 8.5px</td></tr>
+        <tr><td>Glass / display</td><td class="mono">Inter Tight</td><td>Sidecar, headings, wordmark</td></tr>
+        <tr><td>Machine voice</td><td class="mono">IBM Plex Mono</td><td><strong>Agent surfaces only.</strong> Typeface is attribution channel 5 — the human never speaks in mono.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Three token tiers — do not mix them</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Tier</th><th>Lives in</th><th>Consumed by</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Static</strong></td><td class="mono">@theme</td><td>Build-time — generates utilities. Tailwind v4 already ships <code>sky</code>/<code>green</code>/<code>slate</code>/<code>red</code>: <strong>alias them, never redeclare.</strong></td></tr>
+        <tr><td><strong>Runtime</strong></td><td class="mono">:root · [data-mode="dark"]</td><td>Mode-flipping values, bridged back into utilities via <code>@theme inline</code>. <strong>Never put these in <code>@theme</code></strong> — they'd freeze at build time.</td></tr>
+        <tr><td><strong>Material</strong></td><td class="mono">--mat-*</td><td><span class="lay device">Device</span> only. ⚑ <strong>Never <code>background: var(--mat-*)</code></strong> — these are three.js inputs, not CSS colours.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h4>shadcn mapping — attribution is built into the primitives</h4>
+    <div class="tw"><table>
+      <thead><tr><th>Variable</th><th class="mono">Light</th><th class="mono">Dark</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">--primary</td><td class="mono">sky-700</td><td class="mono">sky-500</td><td>⚑ <strong>the human actor</strong></td></tr>
+        <tr><td class="mono">--accent</td><td class="mono">green-700</td><td class="mono">green-400</td><td>⚑ <strong>the agent actor</strong></td></tr>
+        <tr><td class="mono">--ring</td><td class="mono">sky-700</td><td class="mono">sky-400</td><td>⚑ focus is a <em>human</em> state</td></tr>
+        <tr><td class="mono">--input</td><td class="mono">slate-500</td><td class="mono">slate-600</td><td>⚑ slate-300 measures 1.37:1 — fails SC 1.4.11</td></tr>
+        <tr><td class="mono">--destructive</td><td class="mono">red-700</td><td class="mono">red-400</td><td>Red is fully unowned now that success has no hue</td></tr>
+      </tbody>
+    </table></div>
+    <p>Mapping <code>--primary</code> to the human and <code>--accent</code> to the agent is load-bearing: <strong>any shadcn component dropped in unmodified is already correctly attributed.</strong></p>
+    <div class="note warn">
+      <p><strong>Springs are not CSS.</strong> No CSS primitive expresses stiffness / damping / mass, so they ship as <code>motion-tokens.ts</code> and are consumed by Motion and R3F. Easing curves stay in <code>@theme</code>; springs cannot.</p>
+    </div>
+  </section>
+
+  <section id="components">
+    <h2><span class="n">07</span>Components</h2>
+    <p class="sub">Eight reusable components exist in the design file. Each maps to one layer; the layer decides the rendering technology, not the designer's preference.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Design file</th><th>Layer</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">Device / Mobile</td><td><span class="lay device">Device</span></td><td>Body, wheel, Select, glass. Hosts the panel slot and the full FX bank.</td></tr>
+        <tr><td class="mono">Device / Back Steel</td><td><span class="lay device">Device</span></td><td>Mirror-polished back, engraved marks, machined recess.</td></tr>
+        <tr><td class="mono">Screen / Now Playing</td><td><span class="lay panel">Panel</span></td><td>Artwork bloom, transport, progress.</td></tr>
+        <tr><td class="mono">Screen / Music Menu</td><td><span class="lay panel">Panel</span></td><td>Split pane. Screens 4–11 are skins of this.</td></tr>
+        <tr><td class="mono">Screen / Music Menu — Agent</td><td><span class="lay agent">Panel · agent</span></td><td>Same structure, agent selection band + ⬡ sigil.</td></tr>
+        <tr><td class="mono">Screen / Cover Flow</td><td><span class="lay panel">Panel</span></td><td>Shelf, backdrop bloom, rail.</td></tr>
+        <tr><td class="mono">Screen / Up Next — Staged</td><td><span class="lay agent">Panel · agent</span></td><td>Reviewable diff: + / − gutter, ink strikethrough, Discard / Commit.</td></tr>
+        <tr><td class="mono">Screen / Search — Agent Typing</td><td><span class="lay agent">Panel · agent</span></td><td>Agent fills the human's real <code>&lt;form&gt;</code> field.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="note law">
+      <h4>The agent variants are props, not components</h4>
+      <p>The design file lists <code>Music Menu</code> and <code>Music Menu — Agent</code> separately because a canvas has no props. <strong>In code they are one <code>&lt;MusicMenuScreen selectionActor="human"|"agent"&gt;</code>.</strong></p>
+      <p>Forking them is precisely how attribution drifts: the agent fork gets a fix the human one doesn't, and six months later the two selection bands behave differently for reasons nobody remembers. Same ruling for <code>Now Playing</code> / <code>— Light Mode</code>: mode is a prop, never a second component.</p>
+    </div>
+    <p>Shared sub-parts to extract once: <code>&lt;PanelTitleBar&gt;</code>, <code>&lt;PanelListRow&gt;</code> (<code>selected</code>, <code>actor</code>, <code>provenance</code>), <code>&lt;SplitPanePreview&gt;</code>, <code>&lt;Transport&gt;</code>, <code>&lt;ProgressBar&gt;</code>, <code>&lt;ActorSigil&gt;</code>, <code>&lt;HumanHalo&gt;</code> + <code>&lt;AgentTrail&gt;</code>. From shadcn: <code>Button</code> (review bar), <code>Input</code> (search field), <code>Command</code> (results), <code>Badge</code> (provenance).</p>
+    <div class="note">
+      <h4>Sigils are not decoration</h4>
+      <p><strong>● filled circle = human. ⬡ hexagon = agent.</strong> These carry attribution when colour fails — colourblindness, greyscale, 4% opacity. Any row whose origin is attributable renders one. Never substitute a colour swatch for the shape.</p>
+    </div>
+    <h4>At risk if the panel is ever rasterised</h4>
+    <ul>
+      <li><code>&lt;PanelListRow&gt;</code> — focus ring and accessibility tree vanish. <strong>DOM path stays primary, always.</strong></li>
+      <li><code>&lt;SearchField&gt;</code> — caret, IME and autofill break. Never rasterise; it belongs to <span class="lay glass">Glass</span>.</li>
+      <li><code>&lt;ScreenTint&gt;</code> — <code>mix-blend-mode</code> does not survive. Pre-composite it.</li>
+    </ul>
+    <p>Everything else in the panel is already canvas-safe — <strong>Panel Discipline forbids exactly the features that don't rasterise</strong> (blur, translucency, backdrop-filter). The 2005 constraint turned out to be the portability constraint.</p>
+  </section>
+
+  <section id="fx">
+    <h2><span class="n">08</span>Interaction &amp; FX</h2>
+
+    <h3>The occlusion rule</h3>
+    <div class="note law">
+      <p><strong>A thumb on the wheel hides the inner ring.</strong> Under the contact patch, render <em>material</em> state only — depression, bevel — which the finger supplies haptically anyway. Anything carrying <em>information</em> must render where the finger is not.</p>
+      <p>The thumb shaft subtends <strong>±33°</strong> at the trail radius. This rule already killed three effects that had been drawn: the per-quadrant press glow, the lit Center button, and the in-wheel human rotate arc.</p>
+    </div>
+
+    <h3>Ghost trails</h3>
+    <div class="grid2">
+      <div class="card">
+        <h4>Human — halo, outside</h4>
+        <p>Centreline <strong>r116</strong>, straddling the rim so it reads as the wheel's own edge lighting. Width tapers <strong>22 → 9px</strong>. 44 steps, blur 4.</p>
+        <p>Direction = the direction the finger is moving.</p>
+        <p><em>The light escaping around my thumb.</em></p>
+      </div>
+      <div class="card">
+        <h4>Agent — ghost thumb, inside</h4>
+        <p>Centre <strong>r76</strong>, band <strong>46 → 16px</strong> — a real contact patch. <strong>18 steps, blur 1.8, 1.4° gaps.</strong></p>
+        <p>Direction = the direction the wheel would turn.</p>
+        <p><em>The gesture I did not make.</em></p>
+      </div>
+    </div>
+    <div class="note warn">
+      <h4>Two rules that look like polish and are not</h4>
+      <p><strong>The two trails must not converge in smoothness.</strong> At equal blur the agent band becomes as smooth as the human halo and continuity — attribution channel 2 — collapses. The human reads as a continuous smear; the agent as a sampled sweep.</p>
+      <p><strong>Arcs are exact-tiled, never overlapped.</strong> Overlapping alpha accumulates as <code>1−(1−a)ⁿ</code> and produces bright seams. Rule: <code>blur ≥ 0.5 × step arc length</code>.</p>
+      <p><strong>Persistent agent states cap at α ≤ 0.18</strong>, where the printed wheel labels stay at 3.37:1. Only transient acting states may obscure them.</p>
+    </div>
+
+    <h3>Tactility</h3>
+    <p>Shimmer is <strong>accelerometer-driven, never baked</strong>: <code>DeviceOrientationEvent</code> beta/gamma → light vector, low-pass filtered so it glides. Never request on load — iOS rejects a non-gesture call and the attempt is spent. Ask once, at first <code>pointerdown</code> on the wheel ring; never re-ask if denied; fall back to a static 135° key light with full specular, never a flat surface.</p>
+    <div class="note law">
+      <h4>Agent actions are silent and never vibrate</h4>
+      <p>Haptics and the clicker are the signature of a hand. If the agent buzzed the device, the user would reach for a phone nobody touched. Enforced at one call site — <code>detent()</code> already carries <code>source</code>, so both the clicker and <code>haptic.trigger()</code> gate on <code>source !== 'agent' &amp;&amp; source !== 'system'</code>.</p>
+      <p>This is attribution channel 7, and the only one that works with the phone in a pocket.</p>
+    </div>
+
+    <h3>Nine recipes that cannot be CSS</h3>
+    <p class="sub">These are the boundary an implementer will otherwise get wrong. Each becomes a shader, a map, or geometry.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Recipe</th><th>Why CSS fails</th><th>Becomes</th></tr></thead>
+      <tbody>
+        <tr><td>Steel 10-stop gradient</td><td>Its dark band is a <em>reflection of the room's dark half</em>, not a ramp. Painting it is the "chrome reads as grey plastic" failure.</td><td>512×256 equirect <strong>env map</strong></td></tr>
+        <tr><td>Anisotropic brush grain</td><td>Directional micro-roughness has no CSS analogue</td><td>Anisotropy map, 1024²</td></tr>
+        <tr><td>Chromatic edge refraction</td><td>Needs two hue-split fresnel terms</td><td>Custom shader</td></tr>
+        <tr><td>Black-poly sub-surface warmth</td><td><code>sheen</code> can't reproduce edge-entering scatter</td><td>Fake-SSS shader</td></tr>
+        <tr><td><strong>Halo &amp; agent trail</strong></td><td>⚑ <strong>Not a CSS primitive at all</strong> — <code>conic-gradient</code> varies colour along an arc but <strong>cannot vary stroke width</strong>, and the taper <em>is</em> the direction cue</td><td><strong>SVG <code>&lt;path&gt;</code> per tile</strong> (44 / 18)</td></tr>
+        <tr><td>Panel scanline / sub-pixel</td><td>Relies on <code>mix-blend-mode</code>, which doesn't rasterise</td><td>Shader on the screen mesh</td></tr>
+        <tr><td>Engraved text on steel</td><td>With the light vector moving, a baked <code>text-shadow</code> points the wrong way</td><td>Normal map</td></tr>
+        <tr><td>Micro-noise dithering</td><td>CSS noise can't modulate 3D roughness</td><td>Roughness map, 128²</td></tr>
+        <tr><td>Wheel recess rim</td><td>Conic is CSS-able, but the wheel is 3D geometry</td><td>Real chamfer + AO</td></tr>
+      </tbody>
+    </table></div>
+    <p>The gradient stop tables in the design system don't disappear — <strong>they become the acceptance criterion.</strong> Tune the light rig and env map until a vertical luminance sample through the render matches the stops within ±4 units.</p>
+
+    <h3>Frame budget</h3>
+    <div class="note law">
+      <p><code>&lt;Canvas frameloop="demand"&gt;</code>. <strong>The loop is off by default.</strong> Nothing runs per-frame unless a gesture or a bounded animation is in flight, and every one terminates.</p>
+    </div>
+    <div class="tw"><table>
+      <thead><tr><th>Effect</th><th>Per-frame?</th><th>Trigger → termination</th></tr></thead>
+      <tbody>
+        <tr><td>Wheel rotation</td><td>Yes</td><td><code>pointerdown</code> → stops at ‖ω‖ &lt; 0.35°/frame</td></tr>
+        <tr><td>Expose flip</td><td>Yes</td><td>Spring settle ≈720ms</td></tr>
+        <tr><td>Select / quadrant press</td><td>Yes</td><td>Settle ≈130ms</td></tr>
+        <tr><td>Accelerometer shimmer</td><td>Throttled</td><td>⚑ sample at <strong>20 Hz, not 60</strong>; auto-suspend after 2s below 0.4°/s</td></tr>
+        <tr><td>Agent trail</td><td>Event-driven</td><td>⚑ ~4.5 <code>invalidate()</code>/s while a call is pending — <strong>not 60fps</strong></td></tr>
+        <tr><td>Halo / trail geometry</td><td>Never in R3F</td><td>SVG overlay; rAF only during an active gesture</td></tr>
+        <tr><td>Panel content</td><td>Never</td><td>DOM; repaints on state change</td></tr>
+        <tr><td><strong>Idle device</strong></td><td><strong>No</strong></td><td>⚑ <strong>0 renders/sec — hard target, verified as 0 rAF callbacks in DevTools</strong></td></tr>
+      </tbody>
+    </table></div>
+    <p>Three hard rules: <strong>(1)</strong> no unconditional <code>useFrame</code> — every body early-returns when inert; <strong>(2)</strong> anything oscillating below ~4 Hz belongs in CSS on a DOM overlay, never the 3D loop (a 0.06 Hz breathe would have cost 1,000 frames to move 3% opacity); <strong>(3)</strong> budget ≤4 <code>backdrop-filter</code> and ≤12 composited layers, degrading during the flip.</p>
+  </section>
+
+  <section id="agent">
+    <h2><span class="n">09</span>The agent surface</h2>
+    <p class="sub">The single most misunderstood part of this product. Read this section before writing any agent code.</p>
+
+    <div class="note stop">
+      <h4>WebMCP has no permission model</h4>
+      <p>There are <strong>no per-tool grants</strong>, no session/always/never scopes, and no protocol-level consent prompt. <code>registerTool()</code> makes a tool <em>permanently callable</em>; the only withdrawal is aborting its <code>AbortSignal</code>. There is no <code>destructiveHint</code> — annotations carry only <code>readOnlyHint</code> and <code>untrustedContentHint</code>. "User activation" appears nowhere in the normative spec.</p>
+      <p>The spec disclaims the area itself: <em>"the spec does not include normative guidance against the misuse of tools that expose sensitive or high-privilege operations."</em></p>
+    </div>
+
+    <h3>What follows from that</h3>
+    <ul>
+      <li><strong>There is no confirm-before-tool-call screen</strong>, because there is no point at which the page could intervene. The call already ran; the page finds out by being called.</li>
+      <li>The honest substitute is <strong>gate nothing · show everything · make it undoable</strong>. Results land as reviewable proposals, governed by <code>Assistant changes · Review first / Apply directly</code>.</li>
+      <li><strong>The front face has no confirmation surface at all</strong> — not for agents, and not for humans either. A modal in front of a fully undoable action is friction with no safety in it.</li>
+      <li>The page <strong>cannot detect that an agent is present.</strong> No attach event, no idle signal. It learns one exists only when a tool executes — so "agent idle" cannot be rendered, because it cannot be known.</li>
+    </ul>
+
+    <h3>The agent flag</h3>
+    <pre><i>// one boolean, two edges — not a state machine</i>
+ON   ← a tool call happens while the flag is OFF
+OFF  ← a trusted user interaction happens while the flag is ON</pre>
+    <p>It means <strong>who acted most recently</strong> — not who is present, not who is permitted. Because any human interaction flips it off, the human never has to reclaim control; touching the device <em>is</em> the reclaim.</p>
+    <div class="note warn">
+      <p><code>isTrusted</code> is true for automation-injected input, so this flag is a best-effort <strong>display</strong> heuristic and <strong>never a security boundary</strong>. Do not build authorisation on it.</p>
+    </div>
+
+    <h4>Banned vocabulary in agent-flow copy — merge blocker</h4>
+    <p class="mono" style="color:var(--brand)">allow · deny · permit · permission · grant · authorise · request · ask · waiting · pending · approved · blocked</p>
+    <p><strong>L0 — never imply a permission that does not exist.</strong></p>
+  </section>
+
+  <section id="gates">
+    <h2><span class="n">10</span>Review gates</h2>
+    <p class="sub">Reviewers on this project are expected to be strict. These are the failure modes that have actually occurred during design — every one was caught late, and every one would have shipped.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Failure mode</th><th>What it looks like</th></tr></thead>
+      <tbody>
+        <tr><td>Fake permission language</td><td>Any UI implying the agent waits, asks, or is granted something. Run the banned-vocabulary list against every string.</td></tr>
+        <tr><td>Feedback under the thumb</td><td>Any transient effect rendering only inside the occluded zone. A mock looks fine; a hand on glass does not.</td></tr>
+        <tr><td>Agent marks that look human</td><td>Equal blur, equal continuity, springs on agent motion. <strong>Agents never get springs</strong> — that rule is a lint failure, not a review comment.</td></tr>
+        <tr><td><code>useState</code> creeping in</td><td>Breaks agent reachability. Zero exceptions.</td></tr>
+        <tr><td>Invented provider parity</td><td>A capability that "works for both" without a verified source.</td></tr>
+        <tr><td>Silently dropped states</td><td>Loading, empty, error, offline missing on a surface that can reach them.</td></tr>
+        <tr><td>Tools that run invisibly</td><td>Every agent action produces a visible change on a surface reachable in ≤1 gesture.</td></tr>
+        <tr><td><strong>Rendering a fact the platform never supplies</strong></td><td>The worst class, and the prettiest. An earlier draft shipped an "agent idle" indicator for a state the browser cannot report.</td></tr>
+        <tr><td>Green used as success</td><td>Green is the agent. Success has no hue — it is <em>closure</em>: the human's arc closes, the agent's dashes go solid.</td></tr>
+        <tr><td>Device state drawn on the wheel</td><td>Hold, offline and review-pending all belong off the wheel; the two FX regions are a pure actor channel.</td></tr>
+        <tr><td>Dark-mode-only design</td><td>Both colourways, same sitting.</td></tr>
+        <tr><td>An <span class="chip stop">Unverified</span> row treated as fact</td><td>Especially the two Apple playlist rows.</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="note law">
+      <h4>The reviewer's question</h4>
+      <p>On this project the plausible-looking answer has been wrong more often than the awkward one. Three drafts invented a permission model. One invented an agent-presence signal. One put the human's feedback underneath their own thumb. One gave the agent a voice you could feel.</p>
+      <p>Every one of those was internally coherent, and every one was fiction. So treat <em>"this looks right"</em> as the <strong>beginning</strong> of the check, and ask of any indicator: <strong>which API supplies this fact?</strong></p>
+      <p>One gate cannot be met at a desk: <strong>the occlusion check must be done on a phone, in hand.</strong> A desktop review cannot pass it.</p>
+    </div>
+
+    <h4>Gates every screen must pass</h4>
+    <ul>
+      <li>Reviewed in <strong>both colourways in one sitting</strong> — not on different days, where drift hides.</li>
+      <li><strong>Greyscale attribution test</strong>: desaturate; human and agent must still be distinguishable. Hue is the 6th of 7 channels and never load-bearing.</li>
+      <li><code>prefers-reduced-motion</code> and <code>prefers-reduced-transparency</code> variants both specified and built.</li>
+      <li>44px minimum touch targets, wheel quadrants included.</li>
+      <li>Contrast floors: 4.5:1 text, 3:1 non-text UI. Agent text on light is <code>green-800</code>, never 700.</li>
+      <li>Every state present: loading · empty · error · offline · agent-active · success.</li>
+    </ul>
+  </section>
+
+  <section id="skills">
+    <h2><span class="n">11</span>Required skills</h2>
+    <p class="sub">Load the skill for your stack before writing code, and ground in <code>~/code/agentic-context/</code> rather than recall — several of these libraries have moved since any model's training data.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Working on</th><th>Load</th></tr></thead>
+      <tbody>
+        <tr><td>Any HTML/CSS or client JS</td><td class="mono">modern-web-guidance <span class="chip warn">first, always</span></td></tr>
+        <tr><td>Components, styling</td><td class="mono">shadcn · shadcn-ui · web-design-guidelines</td></tr>
+        <tr><td>State</td><td class="mono">jotai-state</td></tr>
+        <tr><td>Routing, server functions</td><td class="mono">tanstack-router · tanstack-form</td></tr>
+        <tr><td>Backend services</td><td class="mono">effect-services · bun-http</td></tr>
+        <tr><td>Motion, FX</td><td class="mono">interface-craft · neuve-motion · ios-hig</td></tr>
+        <tr><td>Haptics</td><td class="mono">web-haptics</td></tr>
+        <tr><td>Review</td><td class="mono">review · runtime-review</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section id="open">
+    <h2><span class="n">12</span>Open questions</h2>
+    <p class="sub">Recorded rather than resolved. Each needs a decision before the stage it blocks.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Question</th><th>Blocks</th></tr></thead>
+      <tbody>
+        <tr><td>Can an agent-connected state be shown at all, given the page cannot detect one? Empty-state copy may need to say so in words.</td><td>Stage 3</td></tr>
+        <tr><td>Does the agent's green read loudly enough now that its channel shrank from an ~1850px body contour to a ~240px band? Fix with trail length and softness, <em>not</em> opacity.</td><td>Stage 5</td></tr>
+        <tr><td>Dependent FX layers — press bloom, long-press fill ring, screen spill — were rescaled to <code>wheelR</code> 115 by proportion, not re-derived from clearance math.</td><td>Stage 5</td></tr>
+        <tr><td>First-run, offline and auth-expired screens are specified but not drawn.</td><td>Stage 2</td></tr>
+        <tr><td>The B08 armed-row confirm (Sign out, Reset) is specified but not drawn.</td><td>Stage 4</td></tr>
+        <tr><td><strong>Can Apple Music remove or reorder playlist tracks?</strong> If not, <code>pod-edit-playlist</code> is broken on the launch provider.</td><td><strong>Stage 1 — spike first</strong></td></tr>
+        <tr><td>Offline audio support on either provider is unverified, and it changes copy on five screens.</td><td>Stage 1</td></tr>
+        <tr><td>The <code>three-html-render</code> polyfill referenced by three.js's example is not vendored locally — unverified.</td><td>Stage 6</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <div class="foot">
+    <span>webPod handover v1</span>
+    <span>Design file: <b>~/code/webPod/design.pen</b></span>
+    <span>8 artboards · 8 components · 8 notes · 148 tokens</span>
+  </div>
+
+  </main>
+</div>
+</div>
