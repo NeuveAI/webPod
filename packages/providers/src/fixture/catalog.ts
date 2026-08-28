@@ -43,7 +43,16 @@ interface AlbumSeed {
   readonly releaseYear: number
   readonly genre: string
   readonly composer: string
-  /** `[title, durationMs, isrc]` per track, in album order. */
+  /**
+   * `[title, durationMs, isrc]` per track, in album order.
+   *
+   * ⚑ **The ISRCs are synthetic.** They are shaped like real ones and belong to
+   * no recording. The albums and titles are real, which makes the pairing easy
+   * to mistake for ground truth — and ISRC is the top rung of §14.5's
+   * re-resolution ladder, so a synthetic code treated as authoritative would
+   * silently "match" two unrelated tracks. Nothing outside this package may
+   * treat them as identifiers of the recordings they are attached to.
+   */
   readonly tracks: readonly (readonly [string, number, string])[]
 }
 
