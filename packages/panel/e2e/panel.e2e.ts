@@ -106,6 +106,31 @@ test('pale and dark artwork exercise both adaptive colourways', async ({ page })
   }
 })
 
+test('the canonical package seam uses only raster-compatible panel effects', async ({ page }) => {
+  await openScreen(page, 's13', '?art=pale')
+  const reports = []
+  for (const [index, colourway] of ['dark', 'light'].entries()) {
+    const panel = page.locator('.wp-panel').nth(index)
+    const treatment = await panel.locator('.wp-now-body').evaluate((element) => {
+      const style = getComputedStyle(element, '::before')
+      return { display: style.display, filter: style.filter, mixBlendMode: style.mixBlendMode, backgroundImage: style.backgroundImage }
+    })
+    expect(treatment.display).not.toBe('none')
+    expect(treatment.filter).toBe('none')
+    expect(treatment.mixBlendMode).toBe('normal')
+    expect(treatment.backgroundImage).toContain('radial-gradient')
+    await panel.screenshot({ path: resolve(evidence, `${prefix}-raster-compatible-${colourway}.png`) })
+    reports.push({ colourway, ...treatment })
+  }
+  const session = await page.context().newCDPSession(page)
+  await session.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-transparency', value: 'reduce' }] })
+  for (const panel of await page.locator('.wp-panel').all()) {
+    const display = await panel.locator('.wp-now-body').evaluate((element) => getComputedStyle(element, '::before').display)
+    expect(display).toBe('none')
+  }
+  await writeFile(resolve(evidence, `${prefix}-raster-compatibility.json`), JSON.stringify({ reports, reducedTransparencyBloom: 'none' }, null, 2))
+})
+
 test('a 120-row fixture is rendered through TanStack Virtual', async ({ page }) => {
   const panel = await openScreen(page, 's08', '?long=1')
   const list = panel.locator('[data-virtual-count="120"]')

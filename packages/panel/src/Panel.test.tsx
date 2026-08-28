@@ -55,4 +55,12 @@ describe('the bare DOM panel', () => {
     expect(css).toContain('prefers-reduced-transparency: reduce')
     expect(css).toContain('prefers-contrast: more')
   })
+
+  test('keeps the package boundary compatible with DOM rasterization', () => {
+    const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
+    expect(css).not.toMatch(/mix-blend-mode\s*:/)
+    expect(css).not.toMatch(/(?:^|[;{])\s*(?:backdrop-)?filter\s*:/m)
+    expect(css).toContain('.wp-now-body::before')
+    expect(css).toContain('prefers-reduced-transparency: reduce')
+  })
 })
