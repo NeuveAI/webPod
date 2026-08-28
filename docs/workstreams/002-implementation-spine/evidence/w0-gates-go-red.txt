@@ -72,3 +72,35 @@ typecheck exit: 1
  0 fail
  98 expect() calls
 Ran 47 tests across 2 files. [4.00ms]
+
+=== FOLLOW-UP: the last two useState escapes, closed ===
+# Raised by the re-review as Minor. Closed because AGENTS.md states the law
+# absolutely: a stated law with a known hole buys false confidence in exactly the
+# constraint the tool-callback architecture rests on.
+
+--- PLANT J: R['useState'](0)                — computed member access
+  3:15  error  useState is banned repo-wide. Use the Jotai store  no-restricted-syntax
+✖ 1 problem (1 error, 0 warnings)
+  eslint exit: 1
+
+--- PLANT K: const { useState: mk } = R      — renamed destructure
+  2:9  error  useState is banned repo-wide. Use the Jotai store  no-restricted-syntax
+✖ 1 problem (1 error, 0 warnings)
+  eslint exit: 1
+
+--- PLANT L: const { useState } = R          — shorthand destructure
+  2:9   error  useState is banned repo-wide. Use the Jotai store  no-restricted-syntax
+  4:15  error  useState is banned repo-wide. Use the Jotai store  no-restricted-syntax
+✖ 2 problems (2 errors, 0 warnings)
+  eslint exit: 1
+
+--- FALSE-POSITIVE guard: an object LITERAL with a useState key must not trip it
+  no errors — the ObjectPattern restriction holds
+  eslint exit: 0
+
+--- the real tree stays clean
+$ bunx --bun eslint .
+  bun run lint exit: 0
+
+# Five selectors now cover: bare call, any member access (aliased or not),
+# computed string-key access, import specifier, and destructuring off a namespace.

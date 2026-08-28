@@ -10,6 +10,14 @@
 
 ## 1. What the rewrite has to do
 
+> ⚑ **Where the hashes in this section are valid.** Every hash named below — `2305f4b`,
+> `8f27b02` and the rest — refers to the **original repo** (`~/code/webPod`), which the
+> rewrite never modifies. **None of them resolve inside `~/code/webPod-rewrite`**, because
+> every commit from `2305f4b` onward gets a new hash there. Anything you run inside the
+> rewritten clone identifies commits by message, as §4.1 does. The snapshots below were
+> measured at the time of writing and the tip has moved since; §3.0 re-verifies the three
+> invariants that actually matter at the moment you run this.
+
 Three things, and only these three:
 
 | # | Change | Which commits actually carry it |
@@ -151,26 +159,80 @@ git log --follow --format='%h %s' -- AGENTS.md                 # expect: both co
 
 ## 4. ⚑ The one thing that can go wrong, and how to tell
 
-The tip commit `8f27b02` contains **both** a delete of `CLAUDE.md` and a create of `AGENTS.md`.
-After `--path-rename CLAUDE.md:AGENTS.md` that single commit holds two changes for the same
-path — one delete, one create — and which of them survives depends on how `filter-repo`
-de-duplicates them. If the delete wins, **`AGENTS.md` vanishes at the tip** while every earlier
-commit still has it, which is a silently wrong result rather than an error.
+**Read this before running pass 2. It is the only step that can hand you a wrong tree
+without reporting an error.**
 
-`git cat-file -e HEAD:AGENTS.md` in step 3.6 is the check that catches it. If it fails:
+The commit that renamed `CLAUDE.md` to `AGENTS.md` contains **both** a delete of
+`CLAUDE.md` and a create of `AGENTS.md`. After `--path-rename CLAUDE.md:AGENTS.md` that
+one commit holds two changes for the same path — one delete, one create — and which
+survives depends on how `filter-repo` de-duplicates them. If the delete wins,
+**`AGENTS.md` disappears** from that commit onward until the next commit that writes it.
+No error is raised. The tree is simply wrong.
+
+### 4.1 Find the commit at risk — by message, never by hash
+
+Every hash from `2305f4b` onward is different inside the rewritten clone, so a hash from
+this document, or from your own `git log` in the original repo, will not resolve there.
 
 ```bash
-# Restore the file at the tip from the content that is already correct in the parent,
-# then amend. This does not need another filter-repo pass.
-git checkout HEAD~1 -- AGENTS.md 2>/dev/null || git show 8f27b02:AGENTS.md > AGENTS.md
-git add AGENTS.md
-git commit --amend --no-edit
-git cat-file -e HEAD:AGENTS.md && echo "fixed"
+# Inside ~/code/webPod-rewrite, after pass 2.
+RENAME_COMMIT=$(git log --format='%H %s' \
+  | grep 'repo hygiene and agent instruction law' | cut -d' ' -f1)
+test -n "$RENAME_COMMIT" && echo "rename commit: $RENAME_COMMIT"
 ```
 
-Alternative if you would rather not risk it at all: skip pass 2 entirely. The rename at
-`8f27b02` is honest history — the file genuinely was renamed at that commit — and only the
-`.claude/` removal and the trailer strip are load-bearing.
+### 4.2 The check — across the whole history, not just the tip
+
+`AGENTS.md` must exist at that commit and at **every commit after it**. Checking only the
+tip is not enough: a later commit that happens to write `AGENTS.md` would restore it at
+the tip while leaving a hole in the middle.
+
+```bash
+BAD=0
+for c in $(git rev-list --reverse "${RENAME_COMMIT}^..HEAD"); do
+  git cat-file -e "$c:AGENTS.md" 2>/dev/null \
+    || { echo "MISSING at $(git log -1 --format='%h %s' "$c")"; BAD=1; }
+done
+[ "$BAD" = 0 ] && echo "AGENTS.md present at every commit from the rename onward: OK"
+```
+
+### 4.3 If it failed — start over without pass 2
+
+⚑ **Do not try to repair it with `git commit --amend`.** That only ever works when the
+damaged commit is the tip, and it is not: several commits now sit on top of it. Amending
+would rewrite the wrong commit and leave the hole in place.
+
+Repairing a mid-history commit means another full rewrite pass, which is strictly more
+risk than simply not doing the optional half. Throw the clone away and redo pass 1 only:
+
+```bash
+cd ~/code
+rm -rf webPod-rewrite
+git clone webPod webPod-rewrite          # the original was never modified
+cd webPod-rewrite
+# run step 3.3 (the .claude/ removal + trailer strip), then stop.
+# Skip 3.5 entirely.
+```
+
+### 4.4 Recommended default: skip pass 2 anyway
+
+Of the three changes this rewrite makes, only two are load-bearing: removing `.claude/`
+and stripping the trailer. **The rename is cosmetic.** The file genuinely was renamed at
+that commit, so leaving it is honest history, not a defect — `git log --follow AGENTS.md`
+traverses the rename correctly either way.
+
+Pass 2 was worth attempting when that commit was the tip and a failure was one `--amend`
+away from repair. It no longer is. Unless you specifically want `AGENTS.md` to appear
+under that name from `2305f4b` onward, **run pass 1 and stop.**
+
+If you do skip it, the §3.6 verification reduces to:
+
+```bash
+git log --all --format='%h %s' --name-only -- .claude    # expect: no output
+git log --format='%B' | grep -iE 'co-authored-by|claude-session|generated with'
+                                                          # expect: no output, exit 1
+git cat-file -e HEAD:AGENTS.md && echo "AGENTS.md present at tip: OK"
+```
 
 ---
 

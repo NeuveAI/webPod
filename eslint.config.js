@@ -40,7 +40,21 @@ export default tseslint.config(
           message: 'useState is banned repo-wide. Use the Jotai store.',
         },
         {
+          // Computed access: `R['useState'](0)`. A plain MemberExpression selector
+          // matches on `property.name`, which a string-literal key does not have.
+          selector: "MemberExpression[computed=true][property.value='useState']",
+          message: 'useState is banned repo-wide. Use the Jotai store.',
+        },
+        {
           selector: "ImportSpecifier[imported.name='useState']",
+          message: 'useState is banned repo-wide. Use the Jotai store.',
+        },
+        {
+          // Destructured off a namespace: `const { useState: mk } = R`. Covers the
+          // shorthand `const { useState } = R` too, since both carry the same key.
+          // Restricted to ObjectPattern so object *literals* with a `useState`
+          // property are untouched.
+          selector: "ObjectPattern > Property[key.name='useState']",
           message: 'useState is banned repo-wide. Use the Jotai store.',
         },
       ],
