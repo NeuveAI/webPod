@@ -1,0 +1,22 @@
+[
+  {
+    "colourway": "dark",
+    "violations": [],
+    "boxes": [
+      {
+        "width": 44,
+        "height": 44
+      }
+    ]
+  },
+  {
+    "colourway": "light",
+    "violations": [],
+    "boxes": [
+      {
+        "width": 44,
+        "height": 44
+      }
+    ]
+  }
+]

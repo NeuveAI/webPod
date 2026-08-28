@@ -1,0 +1,18 @@
+{
+  "oneDetentDeltas": [
+    1,
+    -1,
+    1,
+    -1,
+    1,
+    -1
+  ],
+  "rapidDetents": 20,
+  "traversal": [
+    "S03",
+    "S08",
+    "S13",
+    "S08"
+  ],
+  "focusVisible": true
+}

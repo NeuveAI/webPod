@@ -1,0 +1,42 @@
+W5b planted browser-gate failures
+Each run injects one DOM/CSS/event mutation through W5B_PLANT and must exit non-zero.
+
+── U1: RED AS REQUIRED (exit 1)
+Error: No tests found
+
+
+── U2: RED AS REQUIRED (exit 1)
+Error: No tests found
+
+
+── U3: RED AS REQUIRED (exit 1)
+Error: No tests found
+
+
+── U4: RED AS REQUIRED (exit 1)
+Error: No tests found
+
+
+── U5: RED AS REQUIRED (exit 1)
+Error: No tests found
+
+
+── U6: RED AS REQUIRED (exit 1)
+Error: No tests found
+
+
+── U7: RED AS REQUIRED (exit 1)
+Error: No tests found
+
+
+── U11: RED AS REQUIRED (exit 1)
+Error: No tests found
+
+
+── U12: RED AS REQUIRED (exit 1)
+Error: No tests found
+
+
+── U13: RED AS REQUIRED (exit 1)
+Error: No tests found
+

@@ -1,0 +1,1049 @@
+{
+  "reports": [
+    {
+      "colourway": "dark",
+      "axeViolations": [],
+      "axeIncompleteResolvedByMeasuredThresholds": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgGradient",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<header class=\"wp-titlebar\"><span class=\"wp-titlebar__side\">The Fray</span><strong>Now Playing</strong><span class=\"wp-titlebar__side wp-titlebar__battery\" role=\"img\" aria-label=\"Battery full\"><span aria-hidden=\"true\">▰</span></span></header>",
+                      "target": [
+                        "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-titlebar"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background gradient"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"wp-titlebar__side\">The Fray</span>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-titlebar > .wp-titlebar__side:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "bold",
+                    "messageKey": "bgGradient",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<header class=\"wp-titlebar\"><span class=\"wp-titlebar__side\">The Fray</span><strong>Now Playing</strong><span class=\"wp-titlebar__side wp-titlebar__battery\" role=\"img\" aria-label=\"Battery full\"><span aria-hidden=\"true\">▰</span></span></header>",
+                      "target": [
+                        "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-titlebar"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background gradient"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<strong>Now Playing</strong>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-titlebar > strong"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span aria-hidden=\"true\">▰</span>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-titlebar > .wp-titlebar__battery[role=\"img\"][aria-label=\"Battery full\"] > span[aria-hidden=\"true\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1>Syndicate</h1>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-now-meta > h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "12.8pt (17px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p>The Fray</p>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-now-meta > p:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"wp-source\">Demo library</span>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-now-meta > .wp-source"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"wp-mode-chip\">volume</span>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-now-meta > .wp-mode-chip"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>0:00</span>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-times > span:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>-3:46</span>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-times > span:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span aria-label=\"Shuffle on\">⌘</span>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-actions[aria-label=\"Playback status\"] > span[aria-label=\"Shuffle on\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span aria-label=\"Repeat off\">↻</span>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-actions[aria-label=\"Playback status\"] > span[aria-label=\"Repeat off\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span aria-label=\"Rate\">★</span>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-actions[aria-label=\"Playback status\"] > span[aria-label=\"Rate\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span aria-label=\"Queue\">≡</span>",
+              "target": [
+                "div[data-colourway=\"dark\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-actions[aria-label=\"Playback status\"] > span[aria-label=\"Queue\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            }
+          ]
+        }
+      ],
+      "text": [
+        {
+          "selector": "span:0",
+          "text": "The Fray",
+          "fontSize": 11,
+          "fontWeight": 600,
+          "ratio": 5.087665906527305,
+          "required": 4.5
+        },
+        {
+          "selector": "strong:1",
+          "text": "Now Playing",
+          "fontSize": 11,
+          "fontWeight": 700,
+          "ratio": 17.648784599673824,
+          "required": 4.5
+        },
+        {
+          "selector": "span:2",
+          "text": "▰",
+          "fontSize": 11,
+          "fontWeight": 600,
+          "ratio": 5.087665906527305,
+          "required": 4.5
+        },
+        {
+          "selector": "h1:3",
+          "text": "Syndicate",
+          "fontSize": 15,
+          "fontWeight": 400,
+          "ratio": 17.47075620841506,
+          "required": 4.5
+        },
+        {
+          "selector": "p:4",
+          "text": "The Fray",
+          "fontSize": 17,
+          "fontWeight": 600,
+          "ratio": 8.62732391343397,
+          "required": 4.5
+        },
+        {
+          "selector": "span:5",
+          "text": "Demo library",
+          "fontSize": 11,
+          "fontWeight": 600,
+          "ratio": 7.152448836536294,
+          "required": 4.5
+        },
+        {
+          "selector": "span:6",
+          "text": "volume",
+          "fontSize": 11,
+          "fontWeight": 500,
+          "ratio": 8.62732391343397,
+          "required": 4.5
+        },
+        {
+          "selector": "span:7",
+          "text": "0:00",
+          "fontSize": 11,
+          "fontWeight": 500,
+          "ratio": 8.715237028290277,
+          "required": 4.5
+        },
+        {
+          "selector": "span:8",
+          "text": "-3:46",
+          "fontSize": 11,
+          "fontWeight": 500,
+          "ratio": 8.715237028290277,
+          "required": 4.5
+        },
+        {
+          "selector": "span:9",
+          "text": "⌘",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "ratio": 9.077426477859351,
+          "required": 4.5
+        },
+        {
+          "selector": "span:10",
+          "text": "↻",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "ratio": 8.715237028290277,
+          "required": 4.5
+        },
+        {
+          "selector": "span:11",
+          "text": "♥",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "ratio": 7.225332857396013,
+          "required": 4.5
+        },
+        {
+          "selector": "span:12",
+          "text": "★",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "ratio": 8.715237028290277,
+          "required": 4.5
+        },
+        {
+          "selector": "span:13",
+          "text": "≡",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "ratio": 8.715237028290277,
+          "required": 4.5
+        }
+      ]
+    },
+    {
+      "colourway": "light",
+      "axeViolations": [],
+      "axeIncompleteResolvedByMeasuredThresholds": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgGradient",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<header class=\"wp-titlebar\"><span class=\"wp-titlebar__side\">The Fray</span><strong>Now Playing</strong><span class=\"wp-titlebar__side wp-titlebar__battery\" role=\"img\" aria-label=\"Battery full\"><span aria-hidden=\"true\">▰</span></span></header>",
+                      "target": [
+                        "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-titlebar"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background gradient"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"wp-titlebar__side\">The Fray</span>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-titlebar > .wp-titlebar__side:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "bold",
+                    "messageKey": "bgGradient",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<header class=\"wp-titlebar\"><span class=\"wp-titlebar__side\">The Fray</span><strong>Now Playing</strong><span class=\"wp-titlebar__side wp-titlebar__battery\" role=\"img\" aria-label=\"Battery full\"><span aria-hidden=\"true\">▰</span></span></header>",
+                      "target": [
+                        "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-titlebar"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background gradient"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<strong>Now Playing</strong>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-titlebar > strong"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span aria-hidden=\"true\">▰</span>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-titlebar > .wp-titlebar__battery[role=\"img\"][aria-label=\"Battery full\"] > span[aria-hidden=\"true\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "11.3pt (15px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1>Syndicate</h1>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-now-meta > h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "12.8pt (17px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p>The Fray</p>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-now-meta > p:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<p>The Fray</p>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-now-meta > p:nth-child(3)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"wp-source\">Demo library</span>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-now-meta > .wp-source"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span class=\"wp-mode-chip\">volume</span>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-now-meta > .wp-mode-chip"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>0:00</span>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-times > span:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "fontSize": "8.3pt (11px)",
+                    "fontWeight": "normal",
+                    "messageKey": "pseudoContent",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"wp-now-body\">",
+                      "target": [
+                        "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a pseudo element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span>-3:46</span>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-times > span:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a pseudo element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span aria-label=\"Shuffle on\">⌘</span>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-actions[aria-label=\"Playback status\"] > span[aria-label=\"Shuffle on\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span aria-label=\"Repeat off\">↻</span>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-actions[aria-label=\"Playback status\"] > span[aria-label=\"Repeat off\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span aria-label=\"Rate\">★</span>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-actions[aria-label=\"Playback status\"] > span[aria-label=\"Rate\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "messageKey": "nonBmp"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element content contains only non-text characters"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<span aria-label=\"Queue\">≡</span>",
+              "target": [
+                "div[data-colourway=\"light\"] > .wp-screen.wp-now[aria-label=\"Now Playing\"] > .wp-now-body > .wp-actions[aria-label=\"Playback status\"] > span[aria-label=\"Queue\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+            }
+          ]
+        }
+      ],
+      "text": [
+        {
+          "selector": "span:0",
+          "text": "The Fray",
+          "fontSize": 11,
+          "fontWeight": 600,
+          "ratio": 4.385106596218901,
+          "required": 4.5
+        },
+        {
+          "selector": "strong:1",
+          "text": "Now Playing",
+          "fontSize": 11,
+          "fontWeight": 700,
+          "ratio": 16.450484354101206,
+          "required": 4.5
+        },
+        {
+          "selector": "span:2",
+          "text": "▰",
+          "fontSize": 11,
+          "fontWeight": 600,
+          "ratio": 4.385106596218901,
+          "required": 4.5
+        },
+        {
+          "selector": "h1:3",
+          "text": "Syndicate",
+          "fontSize": 15,
+          "fontWeight": 400,
+          "ratio": 16.450484354101206,
+          "required": 4.5
+        },
+        {
+          "selector": "p:4",
+          "text": "The Fray",
+          "fontSize": 17,
+          "fontWeight": 600,
+          "ratio": 6.9825513612840515,
+          "required": 4.5
+        },
+        {
+          "selector": "p:5",
+          "text": "The Fray",
+          "fontSize": 11,
+          "fontWeight": 500,
+          "ratio": 6.9825513612840515,
+          "required": 4.5
+        },
+        {
+          "selector": "span:6",
+          "text": "Demo library",
+          "fontSize": 11,
+          "fontWeight": 600,
+          "ratio": 5.06748630300696,
+          "required": 4.5
+        },
+        {
+          "selector": "span:7",
+          "text": "volume",
+          "fontSize": 11,
+          "fontWeight": 500,
+          "ratio": 6.9825513612840515,
+          "required": 4.5
+        },
+        {
+          "selector": "span:8",
+          "text": "0:00",
+          "fontSize": 11,
+          "fontWeight": 500,
+          "ratio": 6.9825513612840515,
+          "required": 4.5
+        },
+        {
+          "selector": "span:9",
+          "text": "-3:45",
+          "fontSize": 11,
+          "fontWeight": 500,
+          "ratio": 6.9825513612840515,
+          "required": 4.5
+        },
+        {
+          "selector": "span:10",
+          "text": "⌘",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "ratio": 5.467639765618263,
+          "required": 4.5
+        },
+        {
+          "selector": "span:11",
+          "text": "↻",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "ratio": 6.9825513612840515,
+          "required": 4.5
+        },
+        {
+          "selector": "span:12",
+          "text": "♥",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "ratio": 5.06748630300696,
+          "required": 4.5
+        },
+        {
+          "selector": "span:13",
+          "text": "★",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "ratio": 6.9825513612840515,
+          "required": 4.5
+        },
+        {
+          "selector": "span:14",
+          "text": "≡",
+          "fontSize": 14,
+          "fontWeight": 400,
+          "ratio": 6.9825513612840515,
+          "required": 4.5
+        }
+      ]
+    }
+  ],
+  "failures": [
+    {
+      "colourway": "light",
+      "text": "The Fray",
+      "ratio": 4.385106596218901,
+      "required": 4.5
+    },
+    {
+      "colourway": "light",
+      "text": "▰",
+      "ratio": 4.385106596218901,
+      "required": 4.5
+    }
+  ]
+}

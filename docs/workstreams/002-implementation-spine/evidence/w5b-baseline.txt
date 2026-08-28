@@ -1,0 +1,117 @@
+W5b browser gates — flag-off baseline
+command: bun packages/panel/node_modules/@playwright/test/cli.js test --config apps/web/tests/playwright.config.ts
+
+Running 10 tests using 1 worker
+
+(node:25188) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[1/10] apps/web/tests/browser-gates.e2e.ts:123:0 › U1 captures a light/dark pair for every required screen state
+[2/10] apps/web/tests/browser-gates.e2e.ts:142:0 › U2 greyscale preserves the human actor and non-colour selection channel
+[3/10] apps/web/tests/browser-gates.e2e.ts:158:0 › U3 reduced motion removes authored animation and transition
+  1) apps/web/tests/browser-gates.e2e.ts:158:0 › U3 reduced motion removes authored animation and transition 
+
+    Error: expect(locator).toHaveCSS(expected) failed
+
+    Locator:  locator('.wp-panel').nth(1).locator('.wp-now-body')
+    Expected: "none"
+    Received: "wp-success-light"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "to.have.css" with timeout 5000ms
+      - waiting for locator('.wp-panel').nth(1).locator('.wp-now-body')
+        14 × locator resolved to <div class="wp-now-body">…</div>
+           - unexpected value "wp-success-light"
+
+
+      162 |   for (const [index, colourway] of colourways.entries()) {
+      163 |     const panel = page.locator('.wp-panel').nth(index)
+    > 164 |     await expect(panel.locator('.wp-now-body')).toHaveCSS('animation-name', 'none')
+          |                                                ^
+      165 |     await expect(panel.locator('.wp-progress i')).toHaveCSS('transition-duration', '0s')
+      166 |     await panel.screenshot({ path: resolve(evidence, `w5b-u3-reduced-motion-${colourway}.png`) })
+      167 |   }
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:164:48
+
+    Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U3-re-e36cf-ed-animation-and-transition/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/browser-gates.e2e.ts-U3-re-e36cf-ed-animation-and-transition/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/browser-gates.e2e.ts-U3-re-e36cf-ed-animation-and-transition/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:26433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[4/10] apps/web/tests/browser-gates.e2e.ts:170:0 › U4 reduced transparency removes bloom, shadow and title translucency
+[5/10] apps/web/tests/browser-gates.e2e.ts:182:0 › U5 increased contrast resolves to black/white foundations
+[6/10] apps/web/tests/browser-gates.e2e.ts:195:0 › U6 axe is clean and every native action is at least 44×44
+[7/10] apps/web/tests/browser-gates.e2e.ts:218:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
+  2) apps/web/tests/browser-gates.e2e.ts:218:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 14
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "colourway": "light",
+    +     "ratio": 4.385106596218901,
+    +     "required": 4.5,
+    +     "text": "The Fray",
+    +   },
+    +   Object {
+    +     "colourway": "light",
+    +     "ratio": 4.385106596218901,
+    +     "required": 4.5,
+    +     "text": "▰",
+    +   },
+    + ]
+
+      232 |   expect(reports.flatMap((report) => report.axeViolations)).toEqual([])
+      233 |   expect(reports.every((report) => report.text.length > 0)).toBe(true)
+    > 234 |   expect(failures).toEqual([])
+          |                   ^
+      235 | })
+      236 |
+      237 | test('U11 200% Dynamic Type has no clipped or truncated visible text', async ({ page }) => {
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:234:19
+
+    Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U7-te-3c96d-resholds-in-both-colourways/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/browser-gates.e2e.ts-U7-te-3c96d-resholds-in-both-colourways/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/browser-gates.e2e.ts-U7-te-3c96d-resholds-in-both-colourways/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:26982) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[8/10] apps/web/tests/browser-gates.e2e.ts:237:0 › U11 200% Dynamic Type has no clipped or truncated visible text
+[9/10] apps/web/tests/browser-gates.e2e.ts:259:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
+[10/10] apps/web/tests/browser-gates.e2e.ts:299:0 › U13 a 30-detent browser flick publishes exactly one live announcement
+  2 failed
+    apps/web/tests/browser-gates.e2e.ts:158:0 › U3 reduced motion removes authored animation and transition 
+    apps/web/tests/browser-gates.e2e.ts:218:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways 
+  8 passed (22.8s)
+
+MANUAL U14 — owner-only phone-in-hand thumb-occlusion validation; not cleared by automation
+MANUAL U15 — reviewer-only structural inspection that unsupported controls are absent; not cleared by automation
