@@ -83,6 +83,33 @@ export const CAPABILITIES: readonly Capability[] = Object.keys(CAPABILITY_SET) a
 export type CapabilityMatrix = Readonly<Record<Capability, boolean>>
 
 /**
+ * The capabilities whose `false` hides **no control**.
+ *
+ * §14.4 sends `unsupportedReason()` to B04 and S27 as the explanation for
+ * something the user cannot have. These two are not that:
+ *
+ * - **`progressTicks`** says whether the *provider* emits a continuous position
+ *   tick, not whether position is knowable. Where it is `false` we interpolate
+ *   and set `ProgressTick.interpolated`; the scrubber renders and works
+ *   (§14.3 row 25, posture (a) emulate).
+ * - **`artworkArbitrarySize`** says whether arbitrary sizes can be requested,
+ *   not whether artwork exists. Where it is `false` we take the nearest size up
+ *   and report `actualPx`; the art renders (§14.3 row 26, posture (b) degrade).
+ *
+ * On Spotify both are `false` and both features **work**. A roster built by
+ * walking every `false` would therefore tell the user that live playback
+ * position and album artwork are unavailable, which is wrong twice on the
+ * screen whose entire job is telling them the truth about what this product
+ * can do here.
+ *
+ * ⚑ This package is the one that knows the difference — it says so in four
+ * places — so per D-049 it is the one that must enforce it, rather than
+ * exporting the rule to a consumer that does not exist yet. Use
+ * {@link unsupportedCapabilitiesToSurface} instead of iterating `CAPABILITIES`.
+ */
+export const CAPABILITIES_WITHOUT_A_CONTROL: readonly Capability[] = ['progressTicks', 'artworkArbitrarySize']
+
+/**
  * The human-facing name of the feature a capability gates.
  *
  * Used to compose `unsupportedReason()` copy where a provider has no
@@ -114,4 +141,54 @@ export const CAPABILITY_FEATURE_NAMES: Readonly<Record<Capability, string>> = {
   saveToggle: 'Saving a song',
   progressTicks: 'Live playback position',
   artworkArbitrarySize: 'Artwork at any size',
+}
+
+/** One row of B04's tools-and-features list. */
+export interface UnsupportedFeature {
+  readonly capability: Capability
+  /** The name to show. Sentence case, from {@link CAPABILITY_FEATURE_NAMES}. */
+  readonly feature: string
+  /** `unsupportedReason()` verbatim — §14.4 renders it unchanged. */
+  readonly reason: string
+}
+
+/** The subset of `MusicProvider` this helper needs, so it can be called with either. */
+export interface CapabilityReporter {
+  supports(c: Capability): boolean
+  unsupportedReason(c: Capability): string | null
+}
+
+/**
+ * Builds the list of missing features to show a human, in B04 and S27.
+ *
+ * **This is the surfacing boundary, and it is here rather than in the panel on
+ * purpose (D-049).** It excludes {@link CAPABILITIES_WITHOUT_A_CONTROL},
+ * because a `false` there hides nothing and listing it would name a working
+ * feature as unavailable. A consumer that walked `CAPABILITIES` itself would
+ * have to remember that, and the rule would be a comment in a package the
+ * consumer does not read.
+ *
+ * @param provider the provider whose roster to build.
+ * @returns one row per genuinely missing feature, in §14.2's capability order.
+ * Empty when nothing is missing — which is a state B04 must render, not a
+ * reason to hide the section.
+ * @throws never. A provider that reports a capability missing with no reason is
+ * a defect this helper cannot fix, so the row is emitted with the feature name
+ * alone rather than silently dropped; a missing explanation should look wrong.
+ */
+export function unsupportedCapabilitiesToSurface(provider: CapabilityReporter): readonly UnsupportedFeature[] {
+  const hidden = new Set<Capability>(CAPABILITIES_WITHOUT_A_CONTROL)
+  const rows: UnsupportedFeature[] = []
+
+  for (const capability of CAPABILITIES) {
+    if (hidden.has(capability)) continue
+    if (provider.supports(capability)) continue
+    rows.push({
+      capability,
+      feature: CAPABILITY_FEATURE_NAMES[capability],
+      reason: provider.unsupportedReason(capability) ?? '',
+    })
+  }
+
+  return rows
 }

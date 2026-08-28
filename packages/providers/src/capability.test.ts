@@ -1,7 +1,15 @@
 import { describe, expect, test } from 'bun:test'
 
-import { CAPABILITIES, CAPABILITY_FEATURE_NAMES } from './capability.ts'
+import { createAppleProvider } from './apple/apple-provider.ts'
+import {
+  CAPABILITIES,
+  CAPABILITIES_WITHOUT_A_CONTROL,
+  CAPABILITY_FEATURE_NAMES,
+  unsupportedCapabilitiesToSurface,
+} from './capability.ts'
 import type { Capability } from './capability.ts'
+import { createFixtureProvider } from './fixture/fixture-provider.ts'
+import { createSpotifyProvider } from './spotify/spotify-provider.ts'
 
 /**
  * §14.2's union, retyped here by hand from the spec text rather than imported.
@@ -58,5 +66,59 @@ describe('capability feature names', () => {
     for (const capability of CAPABILITIES) {
       expect(CAPABILITY_FEATURE_NAMES[capability]).not.toContain('!')
     }
+  })
+})
+
+describe('the B04 / S27 surfacing boundary (D-049)', () => {
+  test.each(CAPABILITIES_WITHOUT_A_CONTROL.map((c) => [c]))(
+    '%s is never surfaced as a missing feature, because it hides no control',
+    (capability) => {
+      // On Spotify both of these are `false` and both features work —
+      // interpolated position and 640px artwork. A roster built by walking
+      // every `false` would tell the user two working things are unavailable,
+      // on the screen whose job is telling them the truth about this product.
+      const rows = unsupportedCapabilitiesToSurface(createSpotifyProvider())
+      expect(rows.map((r) => r.capability)).not.toContain(capability)
+    },
+  )
+
+  test('everything else Spotify lacks is surfaced, with its verbatim copy', () => {
+    const spotify = createSpotifyProvider()
+    const rows = unsupportedCapabilitiesToSurface(spotify)
+    const expected = CAPABILITIES.filter(
+      (c) => !spotify.supports(c) && !CAPABILITIES_WITHOUT_A_CONTROL.includes(c),
+    )
+
+    expect(rows.map((r) => r.capability)).toEqual(expected)
+    for (const row of rows) {
+      expect(row.reason).toBe(spotify.unsupportedReason(row.capability) ?? '')
+      expect(row.reason.length).toBeGreaterThan(0)
+      expect(row.feature).toBe(CAPABILITY_FEATURE_NAMES[row.capability])
+    }
+  })
+
+  test('the roster keeps §14.2 capability order, so B04 is stable between providers', () => {
+    for (const provider of [createAppleProvider(), createSpotifyProvider()]) {
+      const rows = unsupportedCapabilitiesToSurface(provider)
+      const positions = rows.map((r) => CAPABILITIES.indexOf(r.capability))
+      expect([...positions].sort((a, b) => a - b)).toEqual(positions)
+    }
+  })
+
+  test('a fully capable provider surfaces nothing — an empty roster is a state, not a bug', () => {
+    expect(unsupportedCapabilitiesToSurface(createFixtureProvider())).toEqual([])
+  })
+
+  test('Apple surfaces exactly the seven §14.3 rows it lacks', () => {
+    const rows = unsupportedCapabilitiesToSurface(createAppleProvider())
+    expect(rows.map((r) => r.capability)).toEqual([
+      'libraryRemove',
+      'playlistRemoveTracks',
+      'playlistReorder',
+      'queueRemove',
+      'queueReorder',
+      'lyrics',
+      'lyricsSynced',
+    ])
   })
 })
