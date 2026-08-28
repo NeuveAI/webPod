@@ -65,3 +65,19 @@ readings was a measurement.**
 
 The second one is the reason a control belongs in a plant table at all. It was aimed at the gate
 rather than at the code, and it is the only row here that found something.
+## Final re-review correction plants
+
+Run 2026-08-28 from byte-isolated `git archive` copies of `9f7f16d`. Every
+mutation was applied with `apply_patch`, then asserted before its focused test
+ran. None touched the shared working tree.
+
+| Finding attacked | Mutation | Proof it landed | Result |
+|---|---|---|---|
+| scoped search | replace `searchSource(q.scope, kind)` with `searchSource('catalog', kind)` | exact replacement found at line 452 | 2 focused tests fail: removed track, album and playlist all leak into library search |
+| search cursor | replace `from = Number(q.cursor)` with `from = 0` | planted assignment found at line 457 | cursor test fails because page two repeats page one's first key |
+| album membership | restore the old add/remove loops over `tracksByAlbum` | both loops found at lines 496 and 508 | album test fails: albums remain 4 instead of 3 |
+| playlist count | delete both `replacePlaylistRef(id.key, next.length)` calls | zero remaining write-site calls asserted | count test fails: listed count remains 6 after seven tracks become playable |
+
+These are behavioral gates. They do not derive expected values from the symbols
+or stores being tested, and the plant results show each can reject the exact
+defect class that prompted the final review.
