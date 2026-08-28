@@ -46,11 +46,16 @@ export const SELECT_R: number = 42
 export const SELECT_LIP_R: number = 46
 
 /**
- * Inner radius of the printed label band on the wheel (§12.0).
+ * Inner radius of the printed label band on the wheel — measured, not derived (§12.0).
  *
- * Derived as `SELECT_R + (WHEEL_R - SELECT_R) x 0.493`, which lands at 77.99.
- * ⚑ §7.3 states the multiplier is 0.57; §12.0 corrects it to 0.493 against
- * the measured artboard (0.57 would put the band at r83.6). Canvas wins.
+ * 77 and 79 are what §12.0 reports measuring off the artboard. The band's
+ * construction constant `SELECT_R + (WHEEL_R - SELECT_R) x 0.493` lands at
+ * 77.99, i.e. inside the measured band rather than at either edge; that is the
+ * check, not the source of this number.
+ *
+ * ⚑ §7.3 states the multiplier is 0.57, which would put the band at r83.6,
+ * outside the measured range. §12.0 corrects it to 0.493 and canvas wins
+ * (D-021). Both halves are locked by test.
  */
 export const LABEL_BAND_INNER_R: number = 77
 

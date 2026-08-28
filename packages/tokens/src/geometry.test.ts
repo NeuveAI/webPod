@@ -90,6 +90,17 @@ describe('FX orbit clearances', () => {
 })
 
 describe('attribution channel 2 — continuity', () => {
+  // §12.0 and §14.2 both single these two out as the values to guard in review:
+  // "Any PR that changes either blur value is an attribution change, not a visual
+  // tweak." The relationship assertions below are necessary but not sufficient —
+  // 4.25 -> 4.06 satisfies every one of them and is a value §12.0 explicitly
+  // rejects ("4.0 is 0.494x — a hair under; raise it"). So both are pinned by
+  // equality first, exactly as every other §12.0 table value is.
+  test('both blur values are exactly what §12.0 ships', () => {
+    expect(HALO.blur).toBe(4.25)
+    expect(TRAIL.blur).toBe(1.8)
+  })
+
   test('the human halo blur clears the 0.5 x step seam threshold', () => {
     const stepArc = (((HALO.lead + HALO.trail) * Math.PI) / 180) * HALO.c / HALO.steps
     expect(to2dp(stepArc)).toBe(8.1)

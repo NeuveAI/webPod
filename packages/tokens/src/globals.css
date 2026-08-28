@@ -9,7 +9,7 @@
    Tailwind v4 ships sky/green/slate/red/amber as --color-*.
    DO NOT redeclare them. Alias them semantically instead.
    ───────────────────────────────────────────────────────────── */
-@theme {
+@theme static {
   /* -- type families -- */
   --font-panel:   "Source Sans 3", "Segoe UI", system-ui, sans-serif;
   --font-ui:      "Inter Tight", Inter, system-ui, -apple-system, sans-serif;
@@ -78,7 +78,7 @@
 
 /* Semantic aliases onto Tailwind's own palette. `inline` so they
    resolve to the palette var, not a copied literal. */
-@theme inline {
+@theme static inline {
   --color-human-100: var(--color-sky-100);
   --color-human-200: var(--color-sky-200);
   --color-human-300: var(--color-sky-300);
@@ -232,7 +232,7 @@
 }
 
 /* Bridge the runtime layer back into utility generation. */
-@theme inline {
+@theme static inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);              --color-card-foreground: var(--card-foreground);
