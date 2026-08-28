@@ -15,6 +15,7 @@ import {
   CanvasTexture,
   DataTexture,
   LinearFilter,
+  RGBAFormat,
   RedFormat,
   RepeatWrapping,
   SRGBColorSpace,
@@ -103,10 +104,15 @@ export function createWheelLabelMap(params: WheelLabelMapParams): CanvasTexture 
  * `RedFormat` is enough: three samples `roughnessMap.g`, and a single-channel
  * texture returns the same value on every channel.
  */
-export function createMicroNoiseRoughnessMap(amplitude = 0.02, size = 128): DataTexture {
+export function createMicroNoiseRoughnessMap(
+  amplitude = 0.02,
+  size = 128,
+  seed = 0x5eed1234,
+): DataTexture {
+  const random = xorshift32(seed)
   const data = new Uint8Array(size * size)
   for (let i = 0; i < data.length; i++) {
-    data[i] = Math.round(255 * (1 - Math.random() * amplitude))
+    data[i] = Math.round(255 * (1 - random() * amplitude))
   }
   const texture = new DataTexture(data, size, size, RedFormat)
   texture.wrapS = RepeatWrapping
@@ -120,4 +126,38 @@ export function createMicroNoiseRoughnessMap(amplitude = 0.02, size = 128): Data
   texture.magFilter = LinearFilter
   texture.needsUpdate = true
   return texture
+}
+
+/** §12.3 recipe 2 — horizontal 304-steel grain, encoded as RG direction + B strength. */
+export function createSteelAnisotropyMap(size = 1024): DataTexture {
+  const data = new Uint8Array(size * size * 4)
+  for (let y = 0; y < size; y += 1) {
+    // Two deterministic, horizontal-only micro-stripe frequencies. Direction
+    // remains +x; only the strength breathes by at most five percent.
+    const grain = 0.95 + 0.025 * Math.sin((y * Math.PI * 2) / 3) + 0.025 * Math.sin((y * Math.PI * 2) / 5)
+    for (let x = 0; x < size; x += 1) {
+      const offset = (y * size + x) * 4
+      data[offset] = 255
+      data[offset + 1] = 128
+      data[offset + 2] = Math.round(255 * grain)
+      data[offset + 3] = 255
+    }
+  }
+  const texture = new DataTexture(data, size, size, RGBAFormat)
+  texture.wrapS = RepeatWrapping
+  texture.wrapT = RepeatWrapping
+  texture.minFilter = LinearFilter
+  texture.magFilter = LinearFilter
+  texture.needsUpdate = true
+  return texture
+}
+
+function xorshift32(seed: number): () => number {
+  let state = seed >>> 0 || 1
+  return () => {
+    state ^= state << 13
+    state ^= state >>> 17
+    state ^= state << 5
+    return (state >>> 0) / 0x1_0000_0000
+  }
 }

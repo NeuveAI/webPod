@@ -61,7 +61,7 @@ export {
 } from './layout'
 export { circleHole, roundedRectHole, roundedRectShape, silhouetteShape } from './shapes'
 export { curvedAnnulusGeometry, domedDiscGeometry } from './curved-discs'
-export { createMicroNoiseRoughnessMap, createWheelLabelMap } from './textures'
+export { createMicroNoiseRoughnessMap, createSteelAnisotropyMap, createWheelLabelMap } from './textures'
 
 export {
   createScreenMeshHandle,
@@ -72,6 +72,7 @@ export {
   type ViewportPoint,
 } from './screen-mesh'
 export { createScreenGeometry } from './screen-geometry'
+export { createCoverGlassMaterial, patchGlassShader } from './physical-materials'
 
 export {
   hexLuma255,

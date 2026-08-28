@@ -45,7 +45,8 @@ import {
 import { circleHole, roundedRectHole, roundedRectShape, silhouetteShape } from './shapes'
 import { createScreenMeshHandle, type ScreenMeshReady } from './screen-mesh'
 import { createScreenGeometry } from './screen-geometry'
-import { createMicroNoiseRoughnessMap, createWheelLabelMap } from './textures'
+import { createCoverGlassMaterial } from './physical-materials'
+import { createMicroNoiseRoughnessMap, createSteelAnisotropyMap, createWheelLabelMap } from './textures'
 
 /** LAW 5: both modes are the product, so both colourways are first class. */
 export type Colourway = 'black' | 'white'
@@ -123,6 +124,8 @@ export function Device({
 
   const noise = useMemo(() => createMicroNoiseRoughnessMap(), [])
   useEffect(() => () => noise.dispose(), [noise])
+  const steelAnisotropy = useMemo(() => createSteelAnisotropyMap(), [])
+  useEffect(() => () => steelAnisotropy.dispose(), [steelAnisotropy])
 
   const isBlack = colourway === 'black'
   const bodyMaterial = isBlack ? materials.bodyBlack : materials.bodyWhite
@@ -309,6 +312,15 @@ export function Device({
     [materials.screen.color, materials.screen.toneMapped],
   )
   useEffect(() => () => screenDefaultMaterial.dispose(), [screenDefaultMaterial])
+  const coverGlassMaterial = useMemo(
+    () =>
+      createCoverGlassMaterial(materials.coverGlass, env, {
+        width: glass.width,
+        height: glass.height,
+      }),
+    [env, materials.coverGlass],
+  )
+  useEffect(() => () => coverGlassMaterial.dispose(), [coverGlassMaterial])
 
   const attachScreen = useCallback(
     (mesh: Mesh | null) => {
@@ -360,6 +372,7 @@ export function Device({
           {...spread(materials.steelBack)}
           envMap={env}
           roughnessMap={noise}
+          anisotropyMap={steelAnisotropy}
         />
       </mesh>
 
@@ -435,9 +448,11 @@ export function Device({
       />
 
       {/* §5.5 — the cover glass sheet, above everything in the window. */}
-      <mesh geometry={glassGeometry} position={[glass.centerX, glass.centerY, glassFrontZ]}>
-        <meshPhysicalMaterial {...spread(materials.coverGlass)} envMap={env} />
-      </mesh>
+      <mesh
+        geometry={glassGeometry}
+        position={[glass.centerX, glass.centerY, glassFrontZ]}
+        material={coverGlassMaterial}
+      />
     </group>
   )
 }

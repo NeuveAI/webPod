@@ -187,13 +187,10 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     roughness: 0.02,
     clearcoat: 1.0,
     clearcoatRoughness: 0.02,
-    // Built-in transmission alone renders the offscreen transmission buffer
-    // over the emissive screen slot in three r185. Transparent compositing
-    // preserves W6's material while this physical sheet supplies its sheen.
     specularIntensity: 0.2,
     metalness: 0,
-    opacity: 0.12,
-    transparent: true,
+    opacity: 1,
+    transparent: false,
     envMapIntensity: 0.08,
   },
   screen: {

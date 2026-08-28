@@ -1,7 +1,9 @@
 import { describe, expect, test } from 'bun:test'
+import { Texture } from 'three'
 
 import { DEFAULT_LIGHT_RIG } from './light-rig'
 import { DEFAULT_DEVICE_MATERIALS } from './materials'
+import { createCoverGlassMaterial, patchGlassShader } from './physical-materials'
 
 describe('§12.3 device material contract', () => {
   test('polycarbonate keeps the specified base response', () => {
@@ -55,9 +57,29 @@ describe('§12.3 device material contract', () => {
       ior: 1.52,
       roughness: 0.02,
       clearcoat: 1,
-      transparent: true,
+      opacity: 1,
+      transparent: false,
     })
     expect(DEFAULT_DEVICE_MATERIALS.screen).toEqual({ color: '#0B0D11', toneMapped: false })
+  })
+
+  test('instantiated cover glass obeys transmission and carries two-hue dispersion', () => {
+    const material = createCoverGlassMaterial(DEFAULT_DEVICE_MATERIALS.coverGlass, new Texture(), {
+      width: 284,
+      height: 216,
+    })
+    expect(material.transmission).toBe(0.92)
+    expect(material.opacity).toBe(1)
+    expect(material.transparent).toBe(false)
+    const shader = {
+      vertexShader: '#include <common>\n#include <begin_vertex>',
+      fragmentShader: '#include <common>\n#include <opaque_fragment>',
+    }
+    patchGlassShader(shader, { width: 284, height: 216 })
+    expect(shader.fragmentShader).toContain('glassEdgeCool')
+    expect(shader.fragmentShader).toContain('glassEdgeWarm')
+    expect(shader.fragmentShader).toContain('webpodFresnel')
+    material.dispose()
   })
 
   test('the seam is chrome rather than mirror-back material', () => {
