@@ -1,0 +1,120 @@
+W4 — §14.1's hard gate: an untouched device produces 0 rAF callbacks
+====================================================================
+Captured 2026-08-28 · macOS 26.4 · bun 1.4.0
+Route: http://localhost:3000/_spike/device  (apps/web/src/routes/[_]spike.device.tsx)
+Browser: Google Chrome 151 (stable), driven headless via `bunx agent-browser`
+
+§14.1 states the gate as "verified in DevTools: an untouched device must produce
+0 rAF callbacks". What is recorded below is stronger than reading the DevTools
+performance panel, because it is an exact count rather than an eyeballed flame
+chart: `window.requestAnimationFrame` is wrapped with a counter, so EVERY
+scheduling call is counted no matter who makes it — react-three-fiber's loop,
+React itself, or any library.
+
+⚑ The positive control at step 3 is not decorative. A counter that reads zero
+because it was never wired reads exactly like a device that never renders, and
+"0" from a broken instrument is the failure mode this whole gate is meant to
+catch. Step 3 shows the counter moving; step 4 shows it stopping again.
+
+
+STEP 1 — load the route and let it settle
+-----------------------------------------
+$ bunx agent-browser --session raf open http://localhost:3000/_spike/device
+  (3s settle)
+
+
+STEP 2 — wrap requestAnimationFrame, then leave the device completely alone
+---------------------------------------------------------------------------
+$ bunx agent-browser --session raf eval "
+    window.__rafCount = 0;
+    window.__rafOriginal = window.requestAnimationFrame;
+    window.requestAnimationFrame = function (cb) {
+      window.__rafCount += 1;
+      return window.__rafOriginal.call(window, cb);
+    };
+    'installed'"
+
+  "installed"
+
+  (10 seconds elapse. No pointer events, no key events, no resize, no
+   navigation. The device is on screen and static.)
+
+$ bunx agent-browser --session raf eval \
+    "JSON.stringify({idleSeconds:10, rafCallbacksScheduled: window.__rafCount})"
+
+  {"idleSeconds":10,"rafCallbacksScheduled":0}
+
+  ⚑ ZERO. At 60fps a conventional render loop would have scheduled ~600.
+
+
+STEP 3 — positive control: prove the counter is live
+-----------------------------------------------------
+One state change — the colourway toggle — which is a bounded, terminating
+animation-free re-render.
+
+$ bunx agent-browser --session raf eval "window.__w4.setParams({colourway:'white'}); 'toggled'"
+  (2s)
+$ bunx agent-browser --session raf eval \
+    "JSON.stringify({afterOneColourwayChange: window.__rafCount})"
+
+  {"afterOneColourwayChange":4}
+
+  The counter moves, so step 2's zero is a measurement and not a dead wire.
+  Four callbacks for one full scene change — React's commit plus r3f's
+  on-demand render — and then it stops.
+
+
+STEP 4 — the loop terminates rather than staying warm
+------------------------------------------------------
+  (a further 8 seconds elapse, untouched)
+
+$ bunx agent-browser --session raf eval \
+    "JSON.stringify({afterFurther8sIdle: window.__rafCount})"
+
+  {"afterFurther8sIdle":4}
+
+  Still 4. The render loop did not stay running after the change settled, which
+  is the second half of §14.1's rule ("every one of them terminates").
+
+
+HOW THIS IS ACHIEVED — the three structural reasons, not a tuning result
+------------------------------------------------------------------------
+1. `<Canvas frameloop="demand">`  — packages/device/src/DeviceCanvas.tsx.
+   The loop is off by default and renders only when something asks.
+
+2. ⚑ There is NO `useFrame` anywhere in `packages/device`. Not a conditional
+   one, not an early-returning one — none. §14.1's first hard rule is "no
+   unconditional `useFrame`"; the strongest form of compliance is to have
+   nothing that could poll, and that is what is built.
+
+   $ grep -rn "useFrame(" packages/device/src apps/web/src
+     (no matches — the only occurrences of the string anywhere in the package
+      are the three doc comments explaining why it is not used)
+
+3. The screen mesh's transform-change notification, which is the one thing that
+   plausibly wanted a per-frame hook, hangs off the mesh's `onBeforeRender`
+   instead (packages/device/src/screen-mesh.ts). three.js calls that once per
+   *rendered* frame, so under `frameloop="demand"` it costs exactly nothing
+   while idle and fires on every frame the device actually moved in.
+
+No accelerometer shimmer is implemented, so there is also no `deviceorientation`
+listener and no permission prompt in this package — which is the cleanest way to
+satisfy §14.1's "never requested on load". The static LAW 2 rig is the fallback
+§14.1 requires, and it is a lit object rather than a flat surface.
+
+
+RECHECK AFTER THE REPLACEMENT MATERIAL PASS
+===========================================
+The legend decal adds a mesh, so the idle claim was re-measured rather than
+inferred from the earlier run. The exact route and Chrome 151 session above were
+used again on 2026-08-28.
+
+  after installing the wrapper, then 10s untouched:  0 callbacks
+  click white, then wait 2s:                         2 callbacks
+  leave white untouched for another 5s:             2 callbacks
+  click black, then wait 2s:                         4 callbacks
+  leave black untouched for another 5s:              4 callbacks
+
+The positive controls move the counter by two frames per colourway commit and
+both runs terminate. The replacement material/decal work therefore preserves
+the hard **0 idle rAF** requirement.
