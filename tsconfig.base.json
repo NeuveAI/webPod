@@ -8,6 +8,7 @@
     "jsx": "react-jsx",
     "moduleDetection": "force",
     "isolatedModules": true,
+    "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,

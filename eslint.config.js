@@ -32,8 +32,11 @@ export default tseslint.config(
           message: 'useState is banned repo-wide. Use the Jotai store.',
         },
         {
-          selector:
-            "CallExpression[callee.object.name='React'][callee.property.name='useState']",
+          // Any member access named useState, whatever the namespace is called.
+          // The earlier `React.useState` form was too narrow: an arbitrary alias
+          // (`import * as R from 'react'; R.useState()`) walked straight through
+          // it, while AGENTS.md claims the law is enforced here.
+          selector: "MemberExpression[property.name='useState']",
           message: 'useState is banned repo-wide. Use the Jotai store.',
         },
         {

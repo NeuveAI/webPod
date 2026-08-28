@@ -19,10 +19,15 @@ export const Route = createRootRoute({
 /**
  * The document shell.
  *
- * `data-mode` is set here rather than from a media query on purpose: the
+ * `data-mode` is an attribute rather than a media query on purpose: the
  * colourway is a product variant, not a system preference (design system
- * LAW 5), so the attribute is the only switch and both modes must remain
- * reachable without changing the OS setting.
+ * LAW 5), so nothing here reads `prefers-color-scheme`.
+ *
+ * ⚑ It is currently hardcoded to `dark`. Both colourways are defined at the
+ * token layer and both survive to the built stylesheet, but there is no
+ * switch yet, so light is not reachable in the running app. Whichever lane
+ * owns the mode control drives this attribute from the store; it must not
+ * become component state.
  */
 function RootDocument({ children }: { readonly children: ReactNode }) {
   return (
