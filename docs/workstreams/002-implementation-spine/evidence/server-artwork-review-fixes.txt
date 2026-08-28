@@ -20,6 +20,8 @@ MAJOR — untrusted MIME
 MAJOR — option bypass
 - Infinity, NaN, zero, and values above each hard ceiling are rejected before
   fetch for maxBytes, timeoutMs, and maxConcurrent.
+- The reviewer's exact `maxBytes: Infinity` plus nine MiB response transport is
+  never invoked and returns 400.
 - Options can only tighten 8 MiB, 5 seconds, and 8 operations.
 
 MAJOR — documentation

@@ -4,9 +4,9 @@ COMMAND
 bun test packages/server-core
 
 RESULT
-55 pass
+56 pass
 0 fail
-166 expect() calls
+168 expect() calls
 
 Coverage includes:
 - deterministic fixture artwork with zero outbound fetches
