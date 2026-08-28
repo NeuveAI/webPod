@@ -49,3 +49,19 @@ Root lint: failed only in the concurrently modified, out-of-scope
 Therefore the final shared-tree `bun run gates` exits 1 (15 automated passed,
 1 automated failed, 2 manual outstanding). This lane does not claim a green
 repository while the foreign device spike edit remains live.
+
+DECODER REVIEW RUN
+
+Scoped server/app TypeScript: pass
+Scoped server/app lint: pass
+Server tests: 65 pass, 0 fail
+App production build: 207 client / 410 server modules, pass
+Client bundle: no Sharp/libvips/server error identifiers
+Root tests: 825 pass, 0 fail
+Root typecheck: 11/11 pass
+Root static gates: all pass
+Root lint: the same out-of-scope device-spike memoization error remains at
+`apps/web/src/routes/[_]spike.device.tsx:350`.
+
+The shared-tree `bun run gates` therefore exits 1 (15 automated passed,
+1 automated failed, 2 manual outstanding); this server lane is scoped-clean.

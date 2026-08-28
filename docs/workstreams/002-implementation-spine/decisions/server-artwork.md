@@ -89,11 +89,21 @@ when the live waiter count reaches zero; the entry's owning completion path
 removes the map entry and process admission slot exactly once. Thus either the
 first or later caller may cancel without poisoning a still-live consumer.
 
-## SA-12 — AVIF is parsed as ISO-BMFF boxes, never searched as bytes
+## SA-12 — AVIF containers are bounded before decoding
 
 AVIF validation consumes complete top-level boxes, including 64-bit extended
 box sizes, and rejects undeclared trailing bytes. It requires one `ftyp`, one
 `meta`, one non-empty `mdat`, the item metadata boxes, and an
-`iprp/ipco/ispe` path whose dimensions match `px`. A real ImageIO-generated AVIF
-is the positive fixture; a fabricated `ispe` string, missing media, malformed
-extent and appended polyglot bytes are negative fixtures.
+`iprp/ipco/ispe` path. These checks reject malformed containers but do not
+authenticate media or dimensions; they are only a pre-decoder defense.
+
+## SA-13 — decoded pixels, never ispe, authorize AVIF
+
+AVIF acceptance requires a successful Sharp/libvips/libheif decode with strict
+warning failure. The decoder-resolved, auto-oriented primary image dimensions
+must equal `px`; `ispe` is never authoritative. Decode is bounded to one page,
+9,000,000 input pixels, four resulting channels, one native worker, disabled
+Sharp cache, sequential reads, and a five-second native pipeline timeout. The
+existing 8 MiB compressed-body and eight-operation admission bounds remain.
+Sharp 0.34.4 was selected deliberately: it supports AVIF and exposes declarations
+under this repo's TypeScript module resolution; 0.35.0's export map did not.

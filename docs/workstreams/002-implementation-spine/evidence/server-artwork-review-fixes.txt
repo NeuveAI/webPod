@@ -49,3 +49,11 @@ FINAL RE-REVIEW — AVIF
 - Oversized box extent, absent mdat, and appended bytes: each 502.
 - Parsing follows declared BMFF box boundaries and required meta/iprp/ipco/ispe
   nesting instead of scanning bytes.
+
+FINAL DECODER REVIEW — AVIF
+- Box metadata is advisory only; Sharp/libheif must decode the image.
+- Real fixture: decoded 1x1 succeeds for px=1 and fails for ispe-claimed px=2.
+- Same complete box structure with junk mdat: decoder rejects with 502.
+- px=3001 fails before fetch/decode.
+- Decode bounds: one page, 9M pixels, <=4 decoded channels, sequential read,
+  one native worker, no Sharp cache, five-second native timeout.

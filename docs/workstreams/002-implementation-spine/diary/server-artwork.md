@@ -124,9 +124,16 @@ and a subsequent max-concurrency-one request proves the slot was released.
 The initial AVIF check also contradicted the terminal-structure claim: it scanned
 arbitrary bytes for `ispe` and returned immediately. The replacement walks
 declared ISO-BMFF extents and nesting, requires image-item metadata plus media,
-and consumes the complete body. The positive test embeds a real 2×2 AVIF written
-by macOS ImageIO (`sips`, `public.avif`); the independent reviewer's 64-byte fake
-and three box/media/trailing mutations all fail.
+and consumes the complete body. That was still insufficient: the positive
+fixture's unassociated `ispe` says 2×2 while ImageIO and Sharp decode its primary
+image as 1×1, and a box-complete shell could carry junk media.
+
+The final correction adds Sharp 0.34.4 as a deliberate server-only dependency.
+Container validation remains a cheap first boundary, then libvips/libheif must
+fully decode the primary image under pixel, page, channel, worker, cache, time,
+compressed-byte and admission limits. Decoder dimensions are authoritative.
+The real fixture succeeds only at `px=1`, fails at `px=2`, and the same complete
+container with its media bytes replaced by junk fails decoding.
 
 ## U8 copy correction
 

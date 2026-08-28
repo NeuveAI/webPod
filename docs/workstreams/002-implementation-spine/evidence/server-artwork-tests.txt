@@ -4,9 +4,9 @@ COMMAND
 bun test packages/server-core
 
 RESULT
-62 pass
+65 pass
 0 fail
-188 expect() calls
+194 expect() calls
 
 Coverage includes:
 - deterministic fixture artwork with zero outbound fetches
@@ -28,6 +28,9 @@ Coverage includes:
 - all-waiters cancellation aborts upstream once and releases admission once
 - real ImageIO AVIF positive fixture and exact BMFF box traversal
 - fabricated ispe, malformed extent, missing mdat, and trailing AVIF mutations
+- box-complete shell with junk mdat rejected by a full AV1 decode
+- real AVIF accepted at decoded 1x1, rejected at unassociated ispe 2x2
+- px above 3000 rejected before transport or decode
 
 COMMAND
 bunx tsc --noEmit -p packages/server-core/tsconfig.json
@@ -46,8 +49,8 @@ bun run --cwd apps/web build
 
 RESULT
 client build: 207 modules transformed, exit 0
-server build: 370 modules transformed, exit 0
+server build: 410 modules transformed, exit 0
 
 CLIENT BUNDLE CHECK
-No source_not_allowed, ArtworkTransport, artwork-server error copy, or Effect
-HTTP identifier appears under apps/web/dist/client.
+No source_not_allowed, ArtworkTransport, artwork-server error copy, Effect HTTP
+identifier, Sharp, or libvips identifier appears under apps/web/dist/client.
