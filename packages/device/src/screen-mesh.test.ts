@@ -154,6 +154,32 @@ describe('the screen mesh boundary', () => {
     expect(seen).toEqual([102, 109])
   })
 
+  test('callback-ref replay preserves handle identity and active subscriptions', () => {
+    const first = makeHandle()
+    const seen: Array<number> = []
+    first.handle.onTransformChange((transform) => seen.push(transform.world.topLeft.y))
+
+    const replayed = createScreenMeshHandle({
+      mesh: first.mesh,
+      panel: first.handle.panel,
+      size: first.handle.size,
+      defaultMaterial: first.defaultMaterial,
+      invalidate: () => undefined,
+      view: () => {
+        const camera = new PerspectiveCamera(30, 0.5, 100, 3000)
+        camera.position.set(0, 0, 1000)
+        camera.updateMatrixWorld()
+        camera.updateProjectionMatrix()
+        return { camera, width: 400, height: 800 }
+      },
+    })
+
+    expect(replayed).toBe(first.handle)
+    first.mesh.updateWorldMatrix(true, false)
+    first.mesh.onBeforeRender(...([] as unknown as Parameters<Mesh['onBeforeRender']>))
+    expect(seen).toEqual([102])
+  })
+
   test('setMaterial installs, null restores the default, and both ask for a frame', () => {
     const { handle, mesh, defaultMaterial, frames } = makeHandle()
     const replacement = new MeshBasicMaterial()

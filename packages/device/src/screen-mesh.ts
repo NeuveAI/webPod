@@ -139,6 +139,16 @@ type HandleDeps = {
   readonly view: () => { camera: Camera; width: number; height: number }
 }
 
+type HandleState = {
+  deps: HandleDeps
+  readonly listeners: Set<(transform: ScreenTransform) => void>
+  readonly lastReported: Matrix4
+  everReported: boolean
+  readonly handle: ScreenMeshHandle
+}
+
+const handlesByMesh = new WeakMap<Mesh, HandleState>()
+
 /**
  * Wire a mesh up as a {@link ScreenMeshHandle}.
  *
@@ -147,11 +157,16 @@ type HandleDeps = {
  * without one.
  */
 export function createScreenMeshHandle(deps: HandleDeps): ScreenMeshHandle {
-  const { mesh, panel, size, defaultMaterial, invalidate, view } = deps
+  const existing = handlesByMesh.get(deps.mesh)
+  if (existing !== undefined) {
+    existing.deps = deps
+    return existing.handle
+  }
+
+  const { mesh, panel, size } = deps
 
   const listeners = new Set<(transform: ScreenTransform) => void>()
   const lastReported = new Matrix4()
-  let everReported = false
   const scratch = new Vector3()
 
   function readTransform(): ScreenTransform {
@@ -169,7 +184,7 @@ export function createScreenMeshHandle(deps: HandleDeps): ScreenMeshHandle {
     ]
     const world = local.map(([x, y]) => new Vector3(x, y, 0).applyMatrix4(worldMatrix))
 
-    const { camera, width, height } = view()
+    const { camera, width, height } = state.deps.view()
     const viewportCorners = world.map((point) => {
       scratch.copy(point).project(camera)
       return {
@@ -193,8 +208,8 @@ export function createScreenMeshHandle(deps: HandleDeps): ScreenMeshHandle {
     readTransform,
 
     setMaterial(material) {
-      mesh.material = material ?? defaultMaterial
-      invalidate()
+      mesh.material = material ?? state.deps.defaultMaterial
+      state.deps.invalidate()
     },
 
     onTransformChange(listener) {
@@ -204,16 +219,21 @@ export function createScreenMeshHandle(deps: HandleDeps): ScreenMeshHandle {
       }
     },
 
-    invalidate,
+    invalidate() {
+      state.deps.invalidate()
+    },
   }
+
+  const state: HandleState = { deps, listeners, lastReported, everReported: false, handle }
+  handlesByMesh.set(mesh, state)
 
   // three.js calls this once per rendered frame, per mesh. Under
   // `frameloop="demand"` that is once per frame somebody asked for.
   mesh.onBeforeRender = function onBeforeRender(this: Object3D) {
     if (listeners.size === 0) return
-    if (everReported && lastReported.equals(mesh.matrixWorld)) return
+    if (state.everReported && lastReported.equals(mesh.matrixWorld)) return
     lastReported.copy(mesh.matrixWorld)
-    everReported = true
+    state.everReported = true
     const transform = readTransform()
     for (const listener of listeners) listener(transform)
   }
