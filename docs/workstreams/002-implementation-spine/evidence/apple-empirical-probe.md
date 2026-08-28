@@ -53,9 +53,11 @@ explicitly zeroed and remain subject to garbage collection.
 **Evidence provenance.** The tables below are a redacted extraction of the
 historical live observations; the original raw stdout was not retained. They
 must not be represented as a byte-for-byte archived transcript. The checked-in
-instrument is the rerun recipe. With `APPLE_PROBE_FULL_TRANSCRIPT=1`, it emits
-each request, exact status, and complete redacted response body, then verifies
-the 36-request total. No rerun was performed for this correction because it
+instrument is the rerun recipe. With `APPLE_PROBE_FULL_TRANSCRIPT=1`, the request
+executor emits exactly one `TRANSCRIPT` JSON record per request, with a stable
+`response-NNN` id, exact status, and complete redacted response body—including
+all thirteen relationship-oracle responses—then verifies the 36-request total.
+No rerun was performed for this correction because it
 would require minting a credential; the safety and count corrections are proven
 credential-free by `probe-apple.test.ts`.
 
@@ -261,7 +263,9 @@ APPLE_PROBE_FULL_TRANSCRIPT=1 bun run scripts/spikes/probe-apple.ts
 
 `probe-apple.ts` is read-only at the actual transport boundary:
 `sendReadOnly()` validates the concrete `Request`, rejects any non-`GET` method,
-and rejects `/v1/me` plus every descendant before transport. Do not relax it.
+and canonicalizes its pathname through at most four decode rounds before
+rejecting `/v1/me` plus every descendant. Malformed or non-convergent encodings
+fail closed before transport. Do not relax it.
 
 Credential-free verification:
 

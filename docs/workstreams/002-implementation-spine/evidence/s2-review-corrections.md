@@ -18,16 +18,23 @@ $ bun run scripts/spikes/probe-apple.ts --request-plan
 }
 
 $ bun test scripts/spikes/probe-apple.test.ts
-12 pass
+22 pass
 0 fail
-19 expect() calls
+48 expect() calls
 ```
 
 The tests pass the concrete `Request` through the same `sendReadOnly()` boundary
-used by the live probe. POST, PUT, PATCH, DELETE, exact `/v1/me`, three
-descendants, and an encoded `/v1/%6de` spelling all throw before the fake
-transport is called. A catalog GET reaches the fake transport exactly once. The
-request-budget test locks every phase and the 36-request total.
+used by the live probe. POST, PUT, PATCH, DELETE, exact `/v1/me`, descendants,
+single/double/triple encoded segments and separators, malformed escapes, and a
+non-convergent deeper encoding all throw before the fake transport is called. A
+catalog GET reaches the fake transport exactly once. The request-budget test
+locks every phase and the 36-request total.
+
+The injected-transport test executes the real complete probe plan. It captures
+36 records with stable ids `response-001` through `response-036`, verifies every
+body remains byte-complete beyond the normal 700-character display truncation,
+and checks that the final thirteen records are the ordered relationship-oracle
+sweep. No credential, minting operation, or network access is involved.
 
 ## Static checks
 
@@ -45,7 +52,8 @@ exit 0
 
 - Historical tables are now labelled as redacted extractions, not a retained
   raw transcript.
-- A fresh opted-in rerun can emit complete redacted response bodies.
+- A fresh opted-in rerun emits one complete redacted body record per request at
+  the request executor, including all thirteen relationship-oracle bodies.
 - Header claims not captured by the instrument were withdrawn.
 - Only mutable DER bytes are described as explicitly zeroed; immutable PEM and
   base64 strings are accurately described as garbage-collected.
