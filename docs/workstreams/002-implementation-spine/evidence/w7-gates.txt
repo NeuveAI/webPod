@@ -1,0 +1,23 @@
+W7 final gates — 2026-08-29
+
+Focused
+- bunx tsc --noEmit -p packages/composite/tsconfig.json: PASS
+- bun test packages/composite/src: 41 pass, 0 fail, 143 expects
+- bunx eslint packages/composite/src scripts/w7-browser-evidence.ts: PASS
+
+Full repository
+- bun run typecheck: 11/11 projects clean
+- bun test: 906 pass, 0 fail, 44,256 expects
+- bun run lint: PASS
+- bun run build: PASS (existing large-chunk warning only)
+- bun run gates: 16 automated pass, 0 automated fail
+
+Manual gates intentionally remain outstanding:
+- U14 thumb occlusion requires owner phone-in-hand validation
+- U15 unsupported controls require reviewer inspection
+
+Browser
+- bun run scripts/w7-browser-evidence.ts: PASS
+- Chrome 151.0.7922.174, CanvasDrawElement enabled, requestPaint true, T1
+- source fingerprint stable before/after
+- application focus restored; ArrowUp moved row 7 to row 6; no page errors
