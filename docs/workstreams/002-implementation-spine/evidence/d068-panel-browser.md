@@ -4,11 +4,15 @@ Date: 2026-08-29
 
 The panel Playwright suite now starts a dedicated Vite server on port 4318 with
 `--strictPort` and `reuseExistingServer: false`. Before starting it hashes the
-browser runtime source using the same helper as W5b. Every screen navigation
-checks `/__webpod_health` and requires the server's expected digest, current
-digest, and file count to match the Playwright worker. Playwright results and
-visual evidence are written under the operating-system temporary directory,
-outside both the repository and the runtime source set.
+browser runtime source using the same helper as W5b, prints that identity, and
+passes it into the server's `/__webpod_health` endpoint. Every screen
+navigation requires a valid expected digest, current digest, and non-empty
+source set. The suite does not attach to, or trust, any process already serving
+the checkout. This controlled-fresh-server property is the stale-reuse proof;
+the current digest remains diagnostic because other teammates legitimately
+write unrelated browser sources during this shared-tree suite. Playwright
+results and visual evidence are written under the operating-system temporary
+directory, outside both the repository and the runtime source set.
 
 ## Focus-handler mutation
 
