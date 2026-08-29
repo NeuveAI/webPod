@@ -26,3 +26,9 @@ Mutation command:
 The plant confirmed its write, then failed source identity: expected
 `8dc78efc…/151`, received `bdd58ebb…/151`. The reviewer can reproduce both the
 green proof and this red control from the named source.
+
+The committed JSON is also parsed through `parseW7BrowserEvidence`. Deleting
+`reviewedCommit` made the committed-artifact test fail with “W7 reviewedCommit
+must be a lowercase 40-character Git object id”; deleting `reviewedTree` failed
+independently with the corresponding reviewedTree error. Malformed and
+well-formed-but-mismatched identities have separate deterministic gates.

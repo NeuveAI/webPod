@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { chromium } from '@playwright/test'
 
 import { fingerprintBrowserSources, type BrowserSourceFingerprint } from './browser-source-fingerprint'
+import { parseW7BrowserEvidence } from './w7-browser-evidence-schema'
 
 const port = 3017
 const debugPort = 9337
@@ -134,6 +135,7 @@ try {
     keyboardContinued: selectedAfterKeyboard !== selectedAfterArc,
     pageErrors: errors,
   }
+  parseW7BrowserEvidence(result, { reviewedCommit: resolvedCommit, reviewedTree })
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
   await browser.close()
 } finally {
