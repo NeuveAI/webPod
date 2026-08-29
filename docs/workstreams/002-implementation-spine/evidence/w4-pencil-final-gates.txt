@@ -1,0 +1,36 @@
+W4 Pencil-first final verification
+Implementation commit: ff67c3c
+Implementation tree: 41a49a519046e04401306ca161ec5d0c91b1f398
+
+bun run typecheck
+PASS — 11/11 projects clean
+
+bun run lint
+PASS — eslint . exited 0
+
+bun test
+PASS — 934 pass, 0 fail, 45,783 expect calls across 50 files
+
+bun run build
+PASS — Vite client and SSR production builds completed
+NOTE — existing >500 kB client chunk warning remains
+
+bun run gates
+FAIL — 14 automated pass, 2 automated fail, 2 manual outstanding
+PASS — TYPES, LINT, U8, U9, U10, AGENT-FLAG, HAPTICS, HALO,
+       PROVIDER, TOOLS, FLIP, TRAILERS, TIER, CREDENTIALS
+FAIL — TESTS: the nested second suite run failed one gate-lane test:
+       "NAMING keeps lexical and conditional safe controls green"
+FAIL — NAMING: downstream broad false positives after that safe-control failure
+MANUAL — U14 thumb occlusion; U15 unsupported-control inspection
+
+The same NAMING safe-control test passed in the immediately preceding standalone
+repo suite, so the aggregate failure is nondeterministic in the protected gate
+lane. No gate-lane file or review was changed in this W4 pass.
+
+W4 scoped verification
+PASS — packages/device: 86 pass, 0 fail, 42,267 expect calls
+PASS — archive-schema tests accept complete immutable archives and reject a
+       missing sheen result, missing/duplicate crown candidate, and changed
+       physical constraint.
+PASS — git diff --check
