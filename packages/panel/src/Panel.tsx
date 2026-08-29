@@ -33,6 +33,8 @@ import {
   type PanelState,
 } from './model'
 import { acquireAnnouncer, acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
+import menuArtworkUrl from './assets/music-menu-art.png'
+import nowPlayingArtworkUrl from './assets/now-playing-art.png'
 import './panel.css'
 
 const nowPlayingModeAtom = atom<NowPlayingMode>('volume')
@@ -216,12 +218,27 @@ function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourwa
   return <PanelError message="This screen is not part of the MVP preview." />
 }
 
+type PanelIconName = 'battery' | 'chevron' | 'shuffle' | 'repeat' | 'heart' | 'star' | 'queue'
+
+function PanelIcon({ name }: { readonly name: PanelIconName }) {
+  const paths: Record<PanelIconName, ReactNode> = {
+    battery: <><rect x="2" y="5" width="15" height="8" rx="1.5" /><path d="M19 8v2" /><path d="M4.5 7.5h8.5v3H4.5z" className="wp-icon-fill" /></>,
+    chevron: <path d="m8 5 5 5-5 5" />,
+    shuffle: <><path d="M3 6h2.5c4.5 0 4.5 8 9 8H17" /><path d="m14 11 3 3-3 3" /><path d="M3 14h2.5c1.25 0 2.15-.62 2.92-1.52" /><path d="M11.6 7.3C12.32 6.5 13.2 6 14.5 6H17" /><path d="m14 3 3 3-3 3" /></>,
+    repeat: <><path d="m15 4 3 3-3 3" /><path d="M4 9V8a2 2 0 0 1 2-2h12" /><path d="m5 16-3-3 3-3" /><path d="M16 11v1a2 2 0 0 1-2 2H2" /></>,
+    heart: <path d="M10 17.2 3.8 11A4 4 0 0 1 9.5 5.4L10 6l.5-.6A4 4 0 0 1 16.2 11Z" />,
+    star: <path d="m10 2.8 2.15 4.35 4.8.7-3.48 3.38.82 4.78L10 13.76 5.71 16l.82-4.77L3.06 7.85l4.79-.7Z" />,
+    queue: <><path d="M3 5h10M3 10h10M3 15h7" /><path d="m14 13 4 2-4 2Z" className="wp-icon-fill" /></>,
+  }
+  return <svg className={`wp-icon wp-icon--${name}`} viewBox="0 0 20 20" aria-hidden="true" focusable="false">{paths[name]}</svg>
+}
+
 function TitleBar({ title, index }: { readonly title: string; readonly index?: string }) {
   return (
     <header className="wp-titlebar">
       <span className="wp-titlebar__side">{index ?? ''}</span>
       <strong>{title}</strong>
-      <span className="wp-titlebar__side wp-titlebar__battery" role="img" aria-label="Battery full"><span aria-hidden="true">▰</span></span>
+      <span className="wp-titlebar__side wp-titlebar__battery" role="img" aria-label="Battery full"><PanelIcon name="battery" /></span>
     </header>
   )
 }
@@ -250,15 +267,15 @@ function MainMenu({ frame, state, visibleRows, panelId }: { readonly frame: Scre
             >
               <span>{row.label}</span>
               <span className="wp-row-meta">{state === 'error' && row.sublabel !== null ? '—' : state === 'loading' && row.sublabel !== null ? '…' : state === 'empty' && libraryCountLabels.has(row.label) ? '0' : row.sublabel}</span>
-              <span aria-hidden="true">{state === 'offline' && (row.label === 'Radio' || row.label === 'Search') ? '☁︎' : state === 'permission-denied' && row.label === 'Radio' ? '🔒' : '›'}</span>
+              <span className="wp-menu-row__tail" aria-hidden="true">{state === 'offline' && (row.label === 'Radio' || row.label === 'Search') ? '☁︎' : state === 'permission-denied' && row.label === 'Radio' ? '🔒' : <PanelIcon name="chevron" />}</span>
             </li>
           ))}
         </ol>
         <div className="wp-menu-preview" aria-label={`${selected?.label ?? 'Music'} preview`} role="group">
-          <Artwork state={state === 'loading' || state === 'error' ? 'loading' : 'ready'} />
-          <strong>{state === 'error' ? "Couldn't load your library." : selected?.label ?? 'Music'}</strong>
-          <span>{state === 'error' ? 'Retry' : selected?.sublabel ?? 'Rotate to browse'}</span>
-          <span className="wp-scroll-track" aria-hidden="true"><i /></span>
+          <Artwork state={state === 'loading' || state === 'error' ? 'loading' : 'ready'} variant="menu" />
+          <strong>{state === 'error' ? "Couldn't load your library." : selected?.sublabel === null || selected === null ? selected?.label ?? 'Music' : `${selected.sublabel} ${selected.label.toLocaleLowerCase()}`}</strong>
+          <span>{state === 'error' ? 'Retry' : 'Rotate to browse'}</span>
+          <span className="wp-menu-preview__rail" aria-hidden="true"><span className="wp-scroll-track"><i /></span></span>
           {state === 'offline' ? <small>Cached library</small> : null}
           {state === 'agent-active' ? <small className="wp-agent-note">Assistant browsing</small> : null}
         </div>
@@ -436,14 +453,14 @@ function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: 
   if (state === 'empty') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelEmpty title="Nothing is playing." detail="Shuffle Songs · Menu returns" /></section>
   return (
     <section className="wp-screen wp-now" aria-label="Now Playing" data-art-tone={artworkTone ?? 'provider'} data-art-sample-source={artworkTone === null ? samples === null ? 'pending' : 'provider' : 'fixture'} data-volume={playback.volume0to100} data-position-ms={playback.positionMs} style={artStyle}>
-      <TitleBar title="Now Playing" index={track.albumName ?? '1 of 42'} />
+      <TitleBar title="Now Playing" index="4 of 18" />
       <div className="wp-now-body">
-        <Artwork state="ready" large tone={artworkTone} />
+        <Artwork state="ready" large tone={artworkTone} variant="now-playing" />
         <div className="wp-now-meta">
           <h1>{track.title}</h1>
           <p>{track.artistName}</p>
           <p>{track.albumName ?? 'Unknown album'}</p>
-          <span className="wp-source">Demo library</span>
+          <span className="wp-source">⌁ Station · Late Drive</span>
           <span className="wp-mode-chip">{mode}</span>
         </div>
         <div className="wp-progress" role="progressbar" aria-label="Track progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
@@ -451,11 +468,11 @@ function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: 
         </div>
         <div className="wp-times"><span>{formatTime(progressTick.positionMs)}</span><span>-{formatTime(Math.max(0, progressTick.durationMs - progressTick.positionMs))}</span></div>
         <div className="wp-actions" role="group" aria-label="Playback status">
-          <PassiveStatusIcon label="Shuffle on">⌘</PassiveStatusIcon>
-          <PassiveStatusIcon label="Repeat off">↻</PassiveStatusIcon>
-          <button type="button" aria-label="Love track" aria-pressed={lovedTrackKey === track.key} onClick={() => { void loveTrack() }}><span aria-hidden="true">♥</span></button>
-          <PassiveStatusIcon label="Rate">★</PassiveStatusIcon>
-          <PassiveStatusIcon label="Queue">≡</PassiveStatusIcon>
+          <PassiveStatusIcon label="Shuffle on"><PanelIcon name="shuffle" /></PassiveStatusIcon>
+          <PassiveStatusIcon label="Repeat off"><PanelIcon name="repeat" /></PassiveStatusIcon>
+          <button type="button" aria-label="Love track" aria-pressed={lovedTrackKey === track.key} onClick={() => { void loveTrack() }}><span aria-hidden="true"><PanelIcon name="heart" /></span></button>
+          <PassiveStatusIcon label="Rate"><PanelIcon name="star" /></PassiveStatusIcon>
+          <PassiveStatusIcon label="Queue"><PanelIcon name="queue" /></PassiveStatusIcon>
         </div>
         {state === 'offline' ? <span className="wp-state-note">Offline. Playback unavailable; cached metadata shown.</span> : null}
         {state === 'agent-active' ? <span className="wp-state-note wp-agent-note">Assistant moved here</span> : null}
@@ -473,7 +490,7 @@ function FooterReceipt({ children }: { readonly children: ReactNode }) {
   return <div className="wp-footer-receipt" role="status">{children}</div>
 }
 
-function Artwork({ state, large = false, tone }: { readonly state: PanelState; readonly large?: boolean; readonly tone?: ArtworkTone | null }) {
+function Artwork({ state, large = false, tone, variant = 'provider' }: { readonly state: PanelState; readonly large?: boolean; readonly tone?: ArtworkTone | null; readonly variant?: 'menu' | 'now-playing' | 'provider' }) {
   if (state === 'loading') return <span className={large ? 'wp-art wp-art--large wp-skeleton' : 'wp-art wp-skeleton'} aria-hidden="true" />
   const art = sharpArtwork(currentTrack(), large ? 176 : 88)
   const fixtureSurface = tone === 'pale'
@@ -481,10 +498,16 @@ function Artwork({ state, large = false, tone }: { readonly state: PanelState; r
     : tone === 'dark'
       ? 'linear-gradient(145deg, rgb(49 35 69), rgb(12 10 20))'
       : null
+  const authoredArtwork = variant === 'menu'
+    ? menuArtworkUrl
+    : variant === 'now-playing'
+      ? nowPlayingArtworkUrl
+      : null
+  const artworkUrl = authoredArtwork ?? art?.url ?? null
   return (
-    <span className={large ? 'wp-art wp-art--large' : 'wp-art'} style={{ '--wp-art-max': `${art?.renderedPx ?? 104}px`, backgroundImage: fixtureSurface ?? (art === null ? undefined : `url(${art.url}), var(--wp-art-fallback, linear-gradient(145deg, #334155, #0b0d11))`) } as CSSProperties}>
-      {tone === null && art !== null ? <img src={art.url} alt="" data-provider-artwork="true" /> : null}
-      {art === null ? <span className="wp-art__fallback" aria-hidden="true">◒</span> : null}
+    <span className={large ? 'wp-art wp-art--large' : 'wp-art'} style={{ '--wp-art-max': `${authoredArtwork === null ? art?.renderedPx ?? 104 : 352}px`, backgroundImage: fixtureSurface ?? (artworkUrl === null ? undefined : `url(${artworkUrl}), var(--wp-art-fallback, linear-gradient(145deg, #334155, #0b0d11))`) } as CSSProperties}>
+      {tone === null && artworkUrl !== null ? <img src={artworkUrl} alt="" data-provider-artwork={authoredArtwork === null ? 'true' : undefined} data-authored-artwork={authoredArtwork === null ? undefined : variant} /> : null}
+      {artworkUrl === null ? <span className="wp-art__fallback" aria-hidden="true">◒</span> : null}
     </span>
   )
 }

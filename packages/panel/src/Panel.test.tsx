@@ -35,6 +35,15 @@ describe('the bare DOM panel', () => {
     expect(source).toMatch(/Array\.from\(\{ length: 8 \}/)
   })
 
+  test('locks the authored iPod screen hierarchy and split-panel rhythm', () => {
+    const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
+    expect(css).toMatch(/\.wp-titlebar\s*\{[^}]*block-size:\s*21px/s)
+    expect(css).toMatch(/\.wp-menu-split\s*\{[^}]*grid-template-columns:\s*168px 104px/s)
+    expect(css).toMatch(/\.wp-menu-row\s*\{[^}]*block-size:\s*21px/s)
+    expect(css).toMatch(/\.wp-now-body\s*\{[^}]*grid-template-columns:\s*88px minmax\(0, 1fr\)/s)
+    expect(css).toMatch(/\.wp-art--large\s*\{[^}]*88px/s)
+  })
+
   test('never authors final panel text below eleven pixels', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
     const sizes = [...css.matchAll(/font-size:\s*([\d.]+)px/g)].map((match) => Number(match[1]))
@@ -108,8 +117,8 @@ describe('the bare DOM panel', () => {
     const html = renderToStaticMarkup(<Panel state="ready" />)
 
     expect(html).toContain('class="wp-actions" role="group" aria-label="Playback status"')
-    for (const [label, glyph] of [['Shuffle on', '⌘'], ['Repeat off', '↻'], ['Rate', '★'], ['Queue', '≡']] as const) {
-      expect(html).toContain(`<span role="img" aria-label="${label}"><span aria-hidden="true">${glyph}</span></span>`)
+    for (const [label, icon] of [['Shuffle on', 'shuffle'], ['Repeat off', 'repeat'], ['Rate', 'star'], ['Queue', 'queue']] as const) {
+      expect(html).toContain(`<span role="img" aria-label="${label}"><span aria-hidden="true"><svg class="wp-icon wp-icon--${icon}"`)
     }
     expect(html).not.toMatch(/<span aria-label="(?:Shuffle on|Repeat off|Rate|Queue)"/)
   })
