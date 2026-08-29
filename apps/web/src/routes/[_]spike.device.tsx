@@ -36,9 +36,10 @@ import {
   evaluate,
   firstVisibleProbeHit,
   matchesProbeIdentity,
+  probeSurfaceIsCoherent,
   probeTargets,
+  resolveProbeSurface,
   rmsDelta,
-  verticalCrownOffset,
   type Colourway,
   type DeviceFace,
   type DeviceFormParams,
@@ -205,50 +206,16 @@ function LuminanceProbe() {
     // during render is what `react-hooks/refs` exists to stop.
     const active = getSnapshot();
     const { body } = DEVICE_LAYOUT;
-    const frontFaceZ = body.depth / 2;
     const form = active.form;
-    const ringSag =
-      (DEVICE_LAYOUT.wheel.outerR *
-        Math.tan((form.ringDishTiltDeg * Math.PI) / 180)) /
-      form.ringDishExponent;
-    const ringZ = frontFaceZ - form.recessDepth - ringSag;
-    const ringInnerZ =
-      ringZ +
-      ringSag *
-        ((DEVICE_LAYOUT.wheel.selectR - 1) / DEVICE_LAYOUT.wheel.outerR) **
-          form.ringDishExponent;
-    const selectSag =
-      (DEVICE_LAYOUT.wheel.selectR *
-        Math.tan((form.selectDomeTiltDeg * Math.PI) / 180)) /
-      form.selectDomeExponent;
 
     const targets = probeTargets(active.colourway, active.face, {
-      // Three body pixels clears bevel antialiasing while preserving the stop
-      // table's endpoint response. Raycast identity below is the authority.
-      edgeInset: 3,
+      // Clear the actual rolled seam plus two body pixels of raster margin.
+      // A fixed 3px inset sat inside the 5.875px bevel at screen-row stops.
+      bodyEdgeInset: Math.ceil(form.frontBevel) + 2,
+      backEdgeInset: 3,
       // Recess walls need more clearance than the exposed body perimeter.
       controlInset: 6,
-      bodyZ: (y) =>
-        frontFaceZ +
-        verticalCrownOffset(
-          y,
-          DEVICE_LAYOUT.body.height / 2 - form.seamWidth,
-          form.bodyCrown,
-        ),
-      // Back targets are body-local. The model's live world matrix rotates
-      // them into the viewer-facing +z plane before projection.
-      backFaceZ: -frontFaceZ,
       seamWidth: form.seamWidth,
-      ringZ: (radius) =>
-        ringZ +
-        ringSag *
-          (radius / DEVICE_LAYOUT.wheel.outerR) ** form.ringDishExponent,
-      selectZ: (radius) =>
-        ringInnerZ +
-        form.selectProud +
-        selectSag *
-          (1 -
-            (radius / DEVICE_LAYOUT.wheel.selectR) ** form.selectDomeExponent),
     });
 
     // ⚑ One draw, then **one** readback, in the same task.
@@ -283,18 +250,43 @@ function LuminanceProbe() {
       context.UNSIGNED_BYTE,
       frame,
     );
-    const point = new Vector3();
-    const ndc = new Vector2();
+    const projected = new Vector3();
+    const sampleNdc = new Vector2();
     const raycaster = new Raycaster();
+    const pixelDrift =
+      1.5 * Math.max(body.width / bufferW, body.height / bufferH);
 
     const readings: Array<ProbeReading> = targets.map((target) => {
       const samples = target.xs.map((x) => {
-        model.localToWorld(point.set(x, target.y, target.z)).project(camera);
-        ndc.set(point.x, point.y);
-        raycaster.setFromCamera(ndc, camera);
+        const solved = resolveProbeSurface(
+          model,
+          {
+            objectName: target.objectName,
+            materialNames: [target.materialName],
+          },
+          x,
+          target.y,
+          active.face,
+          body.depth * 4,
+        );
+        projected.copy(solved.worldPoint).project(camera);
+        const px = Math.min(
+          bufferW - 1,
+          Math.max(0, Math.floor((projected.x * 0.5 + 0.5) * bufferW)),
+        );
+        const py = Math.min(
+          bufferH - 1,
+          Math.max(0, Math.floor((projected.y * 0.5 + 0.5) * bufferH)),
+        );
+        sampleNdc.set(
+          ((px + 0.5) / bufferW) * 2 - 1,
+          ((py + 0.5) / bufferH) * 2 - 1,
+        );
+        raycaster.setFromCamera(sampleNdc, camera);
         const intersections = raycaster.intersectObjects(scene.children, true);
         const hit = firstVisibleProbeHit(intersections);
         if (
+          hit === null ||
           !matchesProbeIdentity(
             target,
             hit?.objectName,
@@ -317,15 +309,21 @@ function LuminanceProbe() {
             }`,
           );
         }
-        const px = Math.min(
-          bufferW - 1,
-          Math.max(0, Math.round((point.x * 0.5 + 0.5) * bufferW)),
-        );
+        const visibleLocal = model.worldToLocal(hit.point.clone());
+        if (
+          !probeSurfaceIsCoherent(
+            x,
+            target.y,
+            solved.localPoint,
+            visibleLocal,
+            pixelDrift,
+          )
+        ) {
+          throw new Error(
+            `device probe surface drift for ${target.token}: intended (${x}, ${target.y}, actual), solved (${solved.localPoint.x}, ${solved.localPoint.y}, ${solved.localPoint.z}), visible (${visibleLocal.x}, ${visibleLocal.y}, ${visibleLocal.z}), tolerance ${pixelDrift}`,
+          );
+        }
         // readPixels' origin is bottom-left, which is already this frame's y-up.
-        const py = Math.min(
-          bufferH - 1,
-          Math.max(0, Math.round((point.y * 0.5 + 0.5) * bufferH)),
-        );
         const i = (py * bufferW + px) * 4;
         return [frame[i] ?? 0, frame[i + 1] ?? 0, frame[i + 2] ?? 0] as const;
       });

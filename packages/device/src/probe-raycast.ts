@@ -5,7 +5,9 @@ import {
   Mesh,
   type MeshBasicMaterial,
   type Object3D,
+  Raycaster,
   type Texture,
+  Vector3,
 } from "three";
 
 /** The one rendered overlay whose empty texels may be ignored by the probe. */
@@ -14,6 +16,18 @@ export const WHEEL_LABEL_DECAL_NAME = "wheel-label-decal";
 export type ProbeHitIdentity = {
   readonly objectName: string | undefined;
   readonly materialNames: ReadonlyArray<string | undefined>;
+};
+
+export type VisibleProbeHit = ProbeHitIdentity & {
+  /** World-space point contributing to the sampled pixel. */
+  readonly point: Vector3;
+};
+
+export type ResolvedProbeSurface = {
+  /** Exact intersection with the expected rendered mesh. */
+  readonly worldPoint: Vector3;
+  /** The same point in the device model's body-local frame. */
+  readonly localPoint: Vector3;
 };
 
 function isVisibleInScene(object: Object3D): boolean {
@@ -117,13 +131,14 @@ function isTransparentLabelTexel(
  */
 export function firstVisibleProbeHit(
   intersections: ReadonlyArray<Intersection<Object3D>>,
-): ProbeHitIdentity | null {
+): VisibleProbeHit | null {
   for (const intersection of intersections) {
     if (!isVisibleInScene(intersection.object)) continue;
     if (!isThreeMesh(intersection.object)) {
       return {
         objectName: intersection.object.name || undefined,
         materialNames: [],
+        point: intersection.point.clone(),
       };
     }
 
@@ -136,6 +151,7 @@ export function firstVisibleProbeHit(
       return {
         objectName: hit.object.name || undefined,
         materialNames: [],
+        point: hit.point.clone(),
       };
     }
     if (!material.visible) continue;
@@ -144,7 +160,93 @@ export function firstVisibleProbeHit(
     return {
       objectName: hit.object.name || undefined,
       materialNames: [material.name || undefined],
+      point: hit.point.clone(),
     };
   }
   return null;
+}
+
+function hitMatchesIdentity(
+  hit: Intersection<Object3D>,
+  target: ProbeHitIdentity,
+): boolean {
+  if (!isThreeMesh(hit.object)) return false;
+  const narrowed: Intersection<Mesh> = { ...hit, object: hit.object };
+  const material = hitMaterial(narrowed);
+  return (
+    hit.object.name === target.objectName &&
+    material?.name === target.materialNames[0]
+  );
+}
+
+/**
+ * Intersects the expected mesh along the device-local z axis.
+ *
+ * This is a surface solve, not the visibility admission pass: it may select
+ * the named surface from model-only hits because the camera ray is checked
+ * separately by {@link firstVisibleProbeHit}. Its purpose is to project the
+ * geometry Three actually renders instead of a nominal z equation.
+ */
+export function resolveProbeSurface(
+  model: Object3D,
+  target: ProbeHitIdentity,
+  x: number,
+  y: number,
+  face: "front" | "back",
+  castDistance: number,
+): ResolvedProbeSurface {
+  if (!(castDistance > 0) || !Number.isFinite(castDistance)) {
+    throw new Error(`probe cast distance must be positive; got ${castDistance}`);
+  }
+  model.updateWorldMatrix(true, true);
+  const origin = new Vector3(
+    x,
+    y,
+    face === "front" ? castDistance : -castDistance,
+  );
+  model.localToWorld(origin);
+  const direction = new Vector3(0, 0, face === "front" ? -1 : 1)
+    .transformDirection(model.matrixWorld)
+    .normalize();
+  const raycaster = new Raycaster(origin, direction, 0, castDistance * 2);
+  const intersection = raycaster
+    .intersectObject(model, true)
+    .find((hit) => hitMatchesIdentity(hit, target));
+  if (intersection === undefined) {
+    throw new Error(
+      `probe surface missed ${target.objectName}/${target.materialNames[0] ?? ""} at (${x}, ${y})`,
+    );
+  }
+  const worldPoint = intersection.point.clone();
+  const localPoint = model.worldToLocal(worldPoint.clone());
+  if (
+    Math.abs(localPoint.x - x) > 1e-4 ||
+    Math.abs(localPoint.y - y) > 1e-4
+  ) {
+    throw new Error(
+      `probe surface drifted off its local cast: wanted (${x}, ${y}), got (${localPoint.x}, ${localPoint.y})`,
+    );
+  }
+  return { worldPoint, localPoint };
+}
+
+/**
+ * Checks x/y/z coherence between the solved mesh point and the pixel-centre
+ * camera hit. The solved point supplies the actual intended z; no nominal
+ * surface equation participates.
+ */
+export function probeSurfaceIsCoherent(
+  intendedX: number,
+  intendedY: number,
+  solvedLocal: Vector3,
+  visibleLocal: Vector3,
+  pixelDrift: number,
+): boolean {
+  return (
+    Math.abs(solvedLocal.x - intendedX) <= 1e-4 &&
+    Math.abs(solvedLocal.y - intendedY) <= 1e-4 &&
+    Math.abs(visibleLocal.x - intendedX) <= pixelDrift &&
+    Math.abs(visibleLocal.y - intendedY) <= pixelDrift &&
+    Math.abs(visibleLocal.z - solvedLocal.z) <= pixelDrift
+  );
 }

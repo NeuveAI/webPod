@@ -53,8 +53,6 @@ export type ProbeTarget = {
   readonly expectedHex: string;
   /** Row, in body-local coordinates (+y up, origin at the face centre). */
   readonly y: number;
-  /** Depth of the surface at this row — the sample is projected at this `z`. */
-  readonly z: number;
   /**
    * Columns to read and average. Two entries for a mirrored pair, one where
    * the surface is only exposed on the axis.
@@ -221,19 +219,14 @@ export function silhouetteHalfWidth(
 }
 
 export type TargetOptions = {
-  /** How far inside the body silhouette a sample sits to clear antialiasing. */
-  readonly edgeInset: number;
+  /** Clear the polycarbonate's rolled edge and antialiasing. */
+  readonly bodyEdgeInset: number;
+  /** Clear only the steel back's outer antialiasing edge. */
+  readonly backEdgeInset: number;
   /** Extra clearance from the recessed wheel/select walls. */
   readonly controlInset: number;
-  /** Depth of the crowned polycarbonate face at a body-local row. */
-  readonly bodyZ: (y: number) => number;
-  /** Depth of the steel back's face. */
-  readonly backFaceZ: number;
   /** How far the polycarbonate front is inset from the silhouette (§5.6). */
   readonly seamWidth: number;
-  /** Depth of the ring at the sampled radius, and of the Select plug's face. */
-  readonly ringZ: (radius: number) => number;
-  readonly selectZ: (radius: number) => number;
 };
 
 /**
@@ -251,7 +244,7 @@ function bodyTargets(
 ): Array<ProbeTarget> {
   const { glass } = DEVICE_LAYOUT;
   const seam = options.seamWidth;
-  const inset = options.edgeInset;
+  const inset = options.bodyEdgeInset;
   return stops.map((stop) => {
     const rawY = HALF_H - stop.at * body.height;
     const limit = HALF_H - seam - inset;
@@ -283,7 +276,6 @@ function bodyTargets(
       at: stop.at,
       expectedHex: stop.color,
       y,
-      z: options.bodyZ(y),
       xs: [x, -x],
     };
   });
@@ -309,7 +301,7 @@ function bodyTargets(
  * the stop, and the plate is where it has to be read.
  */
 function steelTargets(options: TargetOptions): Array<ProbeTarget> {
-  const inset = options.edgeInset;
+  const inset = options.backEdgeInset;
   // §4.4: `168deg`. In CSS, angles run clockwise from "to top" in a y-down
   // space; in this module's y-up frame the 0% → 100% direction is therefore
   // (sin θ, −cos θ).
@@ -352,7 +344,6 @@ function steelTargets(options: TargetOptions): Array<ProbeTarget> {
       at: stop.at,
       expectedHex: stop.color,
       y: point.y,
-      z: options.backFaceZ,
       // The back mesh is turned toward the viewer by a π rotation around Y,
       // which mirrors body-local x. `point` was solved in the viewer-facing
       // gradient frame, so apply the inverse transform here; the route's live
@@ -422,7 +413,6 @@ function ringTargets(
       at: stop.at,
       expectedHex: stop.color,
       y: wheel.centerY + dy,
-      z: options.ringZ(radius),
       xs: x > 1 ? [x, -x] : [0],
     };
   });
@@ -448,7 +438,6 @@ function selectTargets(
       at: stop.at,
       expectedHex: stop.color,
       y: wheel.centerY + dy,
-      z: options.selectZ(radius),
       xs: x > 1 ? [x, -x] : [0],
     };
   });

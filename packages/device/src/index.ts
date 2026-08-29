@@ -72,7 +72,13 @@ export {
   silhouetteFrameShape,
 } from "./shapes";
 export { curvedAnnulusGeometry, domedDiscGeometry } from "./curved-discs";
-export { applyVerticalCrown, verticalCrownOffset } from "./curved-shell";
+export {
+  BODY_CROWN_ROW_STEP,
+  frontCoreDepth,
+  tessellateVerticalCrown,
+  verticalCrownOffset,
+  verticalCrownSlope,
+} from "./curved-shell";
 export {
   createBlackPolySssMap,
   createMicroNoiseRoughnessMap,
@@ -95,8 +101,12 @@ export {
 } from "./physical-materials";
 export {
   firstVisibleProbeHit,
+  probeSurfaceIsCoherent,
+  resolveProbeSurface,
   WHEEL_LABEL_DECAL_NAME,
   type ProbeHitIdentity,
+  type ResolvedProbeSurface,
+  type VisibleProbeHit,
 } from "./probe-raycast";
 export {
   applyOpticalProfile,

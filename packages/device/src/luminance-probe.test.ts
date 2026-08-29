@@ -21,7 +21,6 @@ describe("§12.3 luminance tolerance", () => {
       at: 0.5,
       expectedHex: "#808080",
       y: 0,
-      z: 0,
       xs: [-1, 1],
     };
     const [result] = evaluate([
@@ -52,7 +51,6 @@ describe("§12.3 luminance tolerance", () => {
           at: 0.5,
           expectedHex: expected,
           y: 0,
-          z: 0,
           xs: [0],
         },
         samples: [[boundaryChannel, boundaryChannel, boundaryChannel]],
@@ -75,7 +73,6 @@ describe("§12.3 luminance tolerance", () => {
           at: 0.5,
           expectedHex: "#808080",
           y: 0,
-          z: 0,
           xs: [0],
         },
         samples: [[channel, channel, channel]],
@@ -87,15 +84,12 @@ describe("§12.3 luminance tolerance", () => {
 });
 
 describe("D-067 probe geometry and identity", () => {
-  const edgeInset = 3;
+  const edgeInset = 8;
   const options = {
-    edgeInset,
+    bodyEdgeInset: edgeInset,
+    backEdgeInset: 3,
     controlInset: 6,
-    bodyZ: () => DEVICE_LAYOUT.body.depth / 2,
-    backFaceZ: -DEVICE_LAYOUT.body.depth / 2,
     seamWidth: 3,
-    ringZ: () => DEVICE_LAYOUT.body.depth / 2 - 4,
-    selectZ: () => DEVICE_LAYOUT.body.depth / 2 - 2,
   };
 
   test("every target carries an expected object and material identity", () => {
@@ -181,7 +175,11 @@ describe("D-067 probe geometry and identity", () => {
       const x = target.xs[0];
       expect(x).toBeDefined();
       if (x === undefined) continue;
-      const local = new Vector3(x, target.y, target.z);
+      const local = new Vector3(
+        x,
+        target.y,
+        -DEVICE_LAYOUT.body.depth / 2,
+      );
       const world = model.localToWorld(local.clone());
 
       expect(world.x).toBeCloseTo(-local.x, 9);

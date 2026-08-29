@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   BoxGeometry,
+  ExtrudeGeometry,
   Group,
   Mesh,
   MeshBasicMaterial,
@@ -8,6 +9,7 @@ import {
   PlaneGeometry,
   Raycaster,
   Scene,
+  Shape,
   Vector2,
   Vector3,
   Object3D,
@@ -15,7 +17,13 @@ import {
 } from "three";
 
 import { matchesProbeIdentity, type ProbeTarget } from "./luminance-probe";
-import { firstVisibleProbeHit, WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
+import {
+  firstVisibleProbeHit,
+  probeSurfaceIsCoherent,
+  resolveProbeSurface,
+  WHEEL_LABEL_DECAL_NAME,
+} from "./probe-raycast";
+import { tessellateVerticalCrown, verticalCrownOffset } from "./curved-shell";
 
 const target: Pick<ProbeTarget, "objectName" | "materialName"> = {
   objectName: "device-body",
@@ -48,10 +56,11 @@ describe("first visible probe hit", () => {
     ];
 
     const hit = firstVisibleProbeHit(intersections);
-    expect(hit).toEqual({
+    expect(hit).toMatchObject({
       objectName: "device-body",
       materialNames: ["body-black"],
     });
+    expect(hit?.point).toEqual(new Vector3());
   });
 
   test("rejects a nearer unnamed wrong-material occluder", () => {
@@ -127,5 +136,78 @@ describe("first visible probe hit", () => {
         hit?.materialNames ?? [],
       ),
     ).toBe(true);
+  });
+
+  test("solves the actual tessellated mesh surface instead of a nominal z", () => {
+    const shape = new Shape();
+    shape.moveTo(-20, -40);
+    shape.lineTo(20, -40);
+    shape.lineTo(20, 40);
+    shape.lineTo(-20, 40);
+    shape.closePath();
+    const source = new ExtrudeGeometry(shape, {
+      depth: 2.25,
+      bevelEnabled: true,
+      bevelThickness: 5.875,
+      bevelSize: 5.875,
+      bevelSegments: 4,
+    });
+    source.computeBoundingBox();
+    const sourceFront = source.boundingBox?.max.z;
+    expect(sourceFront).toBeDefined();
+    if (sourceFront === undefined) return;
+    const crown = -2;
+    const geometry = tessellateVerticalCrown(source, 40, crown);
+    geometry.translate(0, 0, 7);
+    const material = new MeshBasicMaterial();
+    material.name = "body-black";
+    const body = new Mesh(geometry, material);
+    body.name = "device-body";
+    const model = new Group();
+    model.add(body);
+
+    const solved = resolveProbeSurface(
+      model,
+      { objectName: "device-body", materialNames: ["body-black"] },
+      0,
+      0,
+      "front",
+      100,
+    );
+    expect(solved.localPoint.x).toBeCloseTo(0, 9);
+    expect(solved.localPoint.y).toBeCloseTo(0, 9);
+    expect(solved.localPoint.z).toBeCloseTo(
+      7 + sourceFront + verticalCrownOffset(0, 40, crown),
+      5,
+    );
+    // The old nominal path knew only translation + crown and missed the
+    // extrusion's real lid/bevel placement by the entire front cap depth.
+    expect(
+      Math.abs(solved.localPoint.z - (7 + verticalCrownOffset(0, 40, crown))),
+    ).toBeGreaterThan(5);
+    expect(
+      probeSurfaceIsCoherent(
+        0,
+        0,
+        solved.localPoint,
+        solved.localPoint,
+        0.01,
+      ),
+    ).toBe(true);
+    const plantedNominal = solved.localPoint.clone();
+    plantedNominal.z -= 5;
+    expect(
+      probeSurfaceIsCoherent(
+        0,
+        0,
+        solved.localPoint,
+        plantedNominal,
+        0.01,
+      ),
+    ).toBe(false);
+
+    source.dispose();
+    geometry.dispose();
+    material.dispose();
   });
 });

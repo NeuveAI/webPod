@@ -28,7 +28,7 @@ export type DeviceFormParams = {
    * different angle to the light.
    */
   readonly seamWidth: number;
-  /** Front shell thickness. */
+  /** Front shell thickness; must remain greater than two front bevels. */
   readonly frontThickness: number;
   /** Radius of the rolled edge on the front shell's face. */
   readonly frontBevel: number;
@@ -63,7 +63,7 @@ export type DeviceFormParams = {
 
 export const DEFAULT_DEVICE_FORM: DeviceFormParams = {
   seamWidth: 2,
-  frontThickness: 7,
+  frontThickness: 14,
   frontBevel: 5.875,
   bodyCrown: -2.125,
   backBevel: 3.5,

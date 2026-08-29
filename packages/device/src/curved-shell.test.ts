@@ -1,34 +1,256 @@
 import { describe, expect, test } from "bun:test";
-import { BufferAttribute, BufferGeometry } from "three";
+import {
+  ExtrudeGeometry,
+  Float32BufferAttribute,
+  Shape,
+  Vector3,
+} from "three";
 
-import { applyVerticalCrown, verticalCrownOffset } from "./curved-shell";
+import {
+  BODY_CROWN_ROW_STEP,
+  frontCoreDepth,
+  tessellateVerticalCrown,
+  verticalCrownOffset,
+  verticalCrownSlope,
+} from "./curved-shell";
+import { DEVICE_LAYOUT, GLASS_CORNER_R } from "./layout";
+import { circleHole, roundedRectHole, silhouetteShape } from "./shapes";
 
-describe("vertical shell crown", () => {
+function rectangle(width: number, height: number) {
+  const shape = new Shape();
+  shape.moveTo(-width / 2, -height / 2);
+  shape.lineTo(width / 2, -height / 2);
+  shape.lineTo(width / 2, height / 2);
+  shape.lineTo(-width / 2, height / 2);
+  shape.closePath();
+  return shape;
+}
+
+function actualFrontShape() {
+  const { body, glass, wheel } = DEVICE_LAYOUT;
+  const seam = 2;
+  const shape = silhouetteShape(
+    body.width - 2 * seam,
+    body.height - 2 * seam,
+    body.cornerR - seam,
+    body.exponent,
+  );
+  shape.holes.push(
+    roundedRectHole(
+      glass.centerX,
+      glass.centerY,
+      glass.width,
+      glass.height,
+      GLASS_CORNER_R,
+    ),
+  );
+  shape.holes.push(circleHole(wheel.centerX, wheel.centerY, wheel.outerR));
+  return shape;
+}
+
+function maxNormalSplitOnFront(
+  geometry: ExtrudeGeometry | ReturnType<typeof tessellateVerticalCrown>,
+  frontBaseZ: number,
+  halfHeight: number,
+  crown: number,
+) {
+  const positions = geometry.getAttribute("position");
+  const normals = geometry.getAttribute("normal");
+  const capFaces = geometry.getAttribute("crownCap");
+  const byPosition = new Map<string, Array<Vector3>>();
+  for (let index = 0; index < positions.count; index += 1) {
+    const y = positions.getY(index);
+    const expectedZ = frontBaseZ + verticalCrownOffset(y, halfHeight, crown);
+    if (Math.abs(positions.getZ(index) - expectedZ) > 1e-4) continue;
+    if (capFaces !== undefined && capFaces.getX(index) !== 1) continue;
+    if (normals.getZ(index) < 0.9) continue;
+    const key = [positions.getX(index), y, positions.getZ(index)]
+      .map((value) => value.toFixed(4))
+      .join(":");
+    const entries = byPosition.get(key) ?? [];
+    entries.push(
+      new Vector3(
+        normals.getX(index),
+        normals.getY(index),
+        normals.getZ(index),
+      ).normalize(),
+    );
+    byPosition.set(key, entries);
+  }
+  let max = 0;
+  for (const entries of byPosition.values()) {
+    for (let a = 0; a < entries.length; a += 1) {
+      for (let b = a + 1; b < entries.length; b += 1) {
+        const first = entries[a];
+        const second = entries[b];
+        if (first === undefined || second === undefined) continue;
+        max = Math.max(max, first.angleTo(second));
+      }
+    }
+  }
+  return max;
+}
+
+function markOriginalFrontCap(geometry: ExtrudeGeometry) {
+  geometry.computeBoundingBox();
+  const maxZ = geometry.boundingBox?.max.z;
+  if (maxZ === undefined) throw new Error("test extrusion has no front bound");
+  const positions = geometry.getAttribute("position");
+  const normals = geometry.getAttribute("normal");
+  const flags = new Float32Array(positions.count);
+  for (let index = 0; index < positions.count; index += 1) {
+    if (
+      Math.abs(positions.getZ(index) - maxZ) < 1e-6 &&
+      normals.getZ(index) > 0.99
+    ) {
+      flags[index] = 1;
+    }
+  }
+  geometry.setAttribute("crownCap", new Float32BufferAttribute(flags, 1));
+}
+
+describe("tessellated vertical shell crown", () => {
   test("is one smooth macro curve with fixed top and bottom joins", () => {
     expect(verticalCrownOffset(-100, 100, 12)).toBe(0);
     expect(verticalCrownOffset(0, 100, 12)).toBe(12);
     expect(verticalCrownOffset(100, 100, 12)).toBe(0);
     expect(verticalCrownOffset(-50, 100, 12)).toBe(9);
     expect(verticalCrownOffset(50, 100, 12)).toBe(9);
+    expect(verticalCrownSlope(-50, 100, 12)).toBeCloseTo(0.12, 12);
+    expect(verticalCrownSlope(50, 100, 12)).toBeCloseTo(-0.12, 12);
   });
 
-  test("deforms positions rather than encoding grading rows", () => {
-    const geometry = new BufferGeometry();
-    geometry.setAttribute(
-      "position",
-      new BufferAttribute(
-        new Float32Array([-1, -100, 2, 1, 0, 2, -1, 100, 2]),
-        3,
-      ),
+  test("refuses the old clamped bevel/thickness combination", () => {
+    expect(frontCoreDepth(14, 5.875)).toBe(2.25);
+    expect(() => frontCoreDepth(7, 5.875)).toThrow(
+      "thickness > 2 * bevel",
     );
-    geometry.setIndex([0, 1, 2]);
+  });
 
-    applyVerticalCrown(geometry, 100, 12);
+  test("tessellates every front triangle in the crown direction", () => {
+    const halfHeight = DEVICE_LAYOUT.body.height / 2 - 2;
+    const crown = -2.125;
+    const source = new ExtrudeGeometry(actualFrontShape(), {
+      depth: 2.25,
+      bevelEnabled: true,
+      bevelThickness: 5.875,
+      bevelSize: 5.875,
+      bevelSegments: 4,
+    });
+    source.computeBoundingBox();
+    const frontBaseZ = source.boundingBox?.max.z;
+    expect(frontBaseZ).toBeDefined();
+    if (frontBaseZ === undefined) return;
+    const sourceCount = source.getAttribute("position").count;
+    const geometry = tessellateVerticalCrown(source, halfHeight, crown);
+    const positions = geometry.getAttribute("position");
+    const normals = geometry.getAttribute("normal");
+    let frontTriangles = 0;
 
-    const position = geometry.getAttribute("position");
-    expect(position.getZ(0)).toBe(2);
-    expect(position.getZ(1)).toBe(14);
-    expect(position.getZ(2)).toBe(2);
+    expect(positions.count).toBeGreaterThan(sourceCount * 4);
+    for (let index = 0; index < positions.count; index += 3) {
+      const ys = [
+        positions.getY(index),
+        positions.getY(index + 1),
+        positions.getY(index + 2),
+      ];
+      const isFront = [0, 1, 2].every((offset) => {
+        const y = positions.getY(index + offset);
+        const expectedZ = frontBaseZ + verticalCrownOffset(y, halfHeight, crown);
+        return (
+          Math.abs(positions.getZ(index + offset) - expectedZ) < 1e-4 &&
+          normals.getZ(index + offset) > 0.9
+        );
+      });
+      if (!isFront) continue;
+      frontTriangles += 1;
+      expect(Math.max(...ys) - Math.min(...ys)).toBeLessThanOrEqual(
+        BODY_CROWN_ROW_STEP + 1e-5,
+      );
+      for (const offset of [0, 1, 2]) {
+        const y = positions.getY(index + offset);
+        const expected = new Vector3(
+          0,
+          -verticalCrownSlope(y, halfHeight, crown),
+          1,
+        ).normalize();
+        const actual = new Vector3(
+          normals.getX(index + offset),
+          normals.getY(index + offset),
+          normals.getZ(index + offset),
+        ).normalize();
+        expect(actual.angleTo(expected)).toBeLessThan(1e-6);
+      }
+    }
+    expect(frontTriangles).toBeGreaterThan(100);
+    source.dispose();
+    geometry.dispose();
+  });
+
+  test("removes the non-indexed Earcut normal split the old deformation kept", () => {
+    const halfHeight = DEVICE_LAYOUT.body.height / 2 - 2;
+    const crown = -2.125;
+    const source = new ExtrudeGeometry(actualFrontShape(), {
+      depth: 2.25,
+      bevelEnabled: true,
+      bevelThickness: 5.875,
+      bevelSize: 5.875,
+      bevelSegments: 4,
+    });
+    source.computeBoundingBox();
+    const frontBaseZ = source.boundingBox?.max.z;
+    expect(frontBaseZ).toBeDefined();
+    if (frontBaseZ === undefined) return;
+
+    const legacy = source.clone();
+    markOriginalFrontCap(legacy);
+    const legacyPositions = legacy.getAttribute("position");
+    for (let index = 0; index < legacyPositions.count; index += 1) {
+      const y = legacyPositions.getY(index);
+      legacyPositions.setZ(
+        index,
+        legacyPositions.getZ(index) +
+          verticalCrownOffset(y, halfHeight, crown),
+      );
+    }
+    legacy.computeVertexNormals();
+
+    const geometry = tessellateVerticalCrown(source, halfHeight, crown);
+    expect(
+      maxNormalSplitOnFront(legacy, frontBaseZ, halfHeight, crown),
+    ).toBeGreaterThan((5 * Math.PI) / 180);
+    expect(
+      maxNormalSplitOnFront(geometry, frontBaseZ, halfHeight, crown),
+    ).toBeLessThan(1e-6);
+    source.dispose();
+    legacy.dispose();
+    geometry.dispose();
+  });
+
+  test("preserves shell thickness while bending both faces", () => {
+    const source = new ExtrudeGeometry(rectangle(40, 80), {
+      depth: 14,
+      bevelEnabled: false,
+    });
+    const geometry = tessellateVerticalCrown(source, 40, -6, 4);
+    const positions = geometry.getAttribute("position");
+    const spans = new Map<string, { min: number; max: number }>();
+    for (let index = 0; index < positions.count; index += 1) {
+      const key = `${positions.getX(index).toFixed(4)}:${positions.getY(index).toFixed(4)}`;
+      const z = positions.getZ(index);
+      const span = spans.get(key) ?? { min: z, max: z };
+      span.min = Math.min(span.min, z);
+      span.max = Math.max(span.max, z);
+      spans.set(key, span);
+    }
+    const fullDepthSpans = [...spans.values()].filter(
+      (span) => span.max - span.min > 13,
+    );
+    expect(fullDepthSpans.length).toBeGreaterThan(20);
+    for (const span of fullDepthSpans) {
+      expect(span.max - span.min).toBeCloseTo(14, 5);
+    }
+    source.dispose();
     geometry.dispose();
   });
 });
