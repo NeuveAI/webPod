@@ -107,16 +107,17 @@ export type DeviceMaterials = {
 export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   bodyBlack: {
     color: "#0C0D0F",
-    albedoScale: 1,
-    roughness: 0.28,
+    albedoScale: 0.95,
+    roughness: 0.2925,
     metalness: 0,
     clearcoat: 1.0,
     clearcoatRoughness: 0.06,
     reflectivity: 0.55,
-    sheen: 0.15,
+    sheen: 0.225,
     sheenColor: "#6E4A2E",
     sheenRoughness: 1.0,
-    envMapIntensity: 0.12,
+    specularIntensity: 0.075,
+    envMapIntensity: 0.195,
   },
   bodyWhite: {
     color: "#E2E5E8",
@@ -144,19 +145,19 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   },
   wheelRingBlack: {
     color: "#23262B",
-    roughness: 0.42,
+    roughness: 0.34,
     metalness: 0,
     clearcoat: 0.6,
-    clearcoatRoughness: 0.18,
+    clearcoatRoughness: 0.14,
     envMapIntensity: 0.005,
   },
   wheelRingWhite: {
     color: "#E9EBED",
-    roughness: 0.42,
+    roughness: 0.5,
     metalness: 0,
     clearcoat: 0.6,
-    clearcoatRoughness: 0.18,
-    envMapIntensity: 0.1951,
+    clearcoatRoughness: 0.22,
+    envMapIntensity: 0.1051,
   },
   selectBlack: {
     // §4.5 `--select-k-2`, the plug's body value.

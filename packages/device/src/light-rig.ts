@@ -66,7 +66,7 @@ export const DEFAULT_LIGHT_RIG: LightRigParams = {
     color: "#FFFFFF",
   },
   fill: {
-    azimuthDeg: -34.7116,
+    azimuthDeg: -26.7116,
     elevationDeg: -59.0468,
     distance: 459.375,
     intensityRatio: 0.22,

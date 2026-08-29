@@ -113,7 +113,7 @@ const MATERIAL_KEYS = [
 
 const MATERIAL_FIELDS = [
   "envMapIntensity", "albedoScale", "roughness", "clearcoatRoughness",
-  "reflectivity", "specularIntensity", "sheen", "transmission",
+  "reflectivity", "specularIntensity", "sheen", "sheenRoughness", "transmission",
 ] as const;
 
 function round(value: number): string {
@@ -179,13 +179,47 @@ const materialsFile = "packages/device/src/materials.ts";
 let materials = await read(materialsFile);
 for (const surface of MATERIAL_KEYS) {
   const scope = materials.indexOf(`  ${surface}: {`);
+  const scopeEnd = materials.indexOf("\n  },", scope);
+  if (scope < 0 || scopeEnd < 0) {
+    throw new Error(`device calibration: no material block for ${surface}`);
+  }
   for (const field of MATERIAL_FIELDS) {
     const value = RIG[`materials.${surface}.${field}`];
     if (value === undefined) continue;
-    materials = patch(materials, field, value, scope);
+    const block = materials.slice(scope, scopeEnd);
+    const patched = patch(block, field, value);
+    materials = materials.slice(0, scope) + patched + materials.slice(scopeEnd);
   }
 }
 edits.set(materialsFile, materials);
+
+const profileFile = "packages/device/src/optical-profile.ts";
+let profiles = await read(profileFile);
+const profileShapes = {
+  bodyBlack: [0, 0.05, 0.19, 0.44, 0.62, 0.81, 0.93, 1],
+  bodyBlackLateral: [0, 0.05, 0.19, 0.44, 0.62, 0.81, 0.93, 1],
+  bodyBlackRoughness: [0, 0.25, 0.5, 0.75, 1],
+  bodyWhite: [0, 0.06, 0.21, 0.47, 0.64, 0.82, 0.94, 1],
+  bodyWhiteLateral: [0, 0.06, 0.21, 0.47, 0.64, 0.82, 0.94, 1],
+  bodyWhiteRoughness: [0, 0.25, 0.5, 0.75, 1],
+  wheelBlack: [0, 0.38, 0.62, 1],
+  wheelWhite: [0, 0.38, 0.62, 1],
+  selectBlack: [0, 0.34, 0.7, 1],
+  selectWhite: [0, 0.34, 0.7, 1],
+} as const;
+for (const [name, ats] of Object.entries(profileShapes)) {
+  const points = ats.map((at, index) => [
+    at,
+    RIG[`opticalProfiles.${name}.${index}.1`] ?? 0,
+  ]);
+  const line = `  ${name}: ${JSON.stringify(points)},`;
+  const pattern = new RegExp(`^  ${name}:.*$`, "m");
+  if (!pattern.test(profiles)) {
+    throw new Error(`device calibration: no optical profile ${name}`);
+  }
+  profiles = profiles.replace(pattern, line);
+}
+edits.set(profileFile, profiles);
 
 for (const [file, content] of edits) {
   await Bun.write(file, content);

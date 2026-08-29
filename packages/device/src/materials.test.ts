@@ -11,14 +11,17 @@ import {
 describe("§12.3 device material contract", () => {
   test("polycarbonate keeps the specified base response", () => {
     expect(DEFAULT_DEVICE_MATERIALS.bodyBlack).toMatchObject({
-      albedoScale: 1,
+      albedoScale: 0.95,
       color: "#0C0D0F",
-      roughness: 0.28,
+      roughness: 0.2925,
       clearcoat: 1,
       clearcoatRoughness: 0.06,
       reflectivity: 0.55,
-      sheen: 0.15,
+      sheen: 0.225,
       sheenColor: "#6E4A2E",
+      sheenRoughness: 1,
+      specularIntensity: 0.075,
+      envMapIntensity: 0.195,
     });
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite).toMatchObject({
       color: "#E2E5E8",
@@ -51,8 +54,9 @@ describe("§12.3 device material contract", () => {
   test("wheel, Select, glass and screen keep their physical distinctions", () => {
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingBlack).toMatchObject({
       color: "#23262B",
-      roughness: 0.42,
+      roughness: 0.34,
       clearcoat: 0.6,
+      clearcoatRoughness: 0.14,
     });
     expect(DEFAULT_DEVICE_MATERIALS.selectBlack).toMatchObject({
       transmission: 0.35,

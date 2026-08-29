@@ -225,10 +225,10 @@ export const DEFAULT_ENV_ROOM: EnvRoomParams = {
   radianceGain: radianceGainForMirror(DEFAULT_DEVICE_MATERIALS.steelBack.color),
   exposure: 1.18,
   profileContrast: 0.9906,
-  profileSharpenAmount: 0.38,
-  profileSharpenSigma: 0.0315,
-  profileSharpenAmount2: 1.185,
-  profileSharpenSigma2: 0.0115,
+  profileSharpenAmount: 0.46,
+  profileSharpenSigma: 0.0275,
+  profileSharpenAmount2: 1.425,
+  profileSharpenSigma2: 0.0095,
   sky: {
     // §4.1's room sweep originates at 28% 8% and §5.2 L3's blob at 26% 12% —
     // both upper-left. LAW 2 keeps the *key light* at 12 o'clock; the room's
