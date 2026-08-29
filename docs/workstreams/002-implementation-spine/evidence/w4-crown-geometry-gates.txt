@@ -1,0 +1,43 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/probe-raycast.test.ts:
+(pass) first visible probe hit > uses Three's stable type flags across module graphs [0.13ms]
+(pass) first visible probe hit > rejects a nearer unnamed wrong-material occluder [1.09ms]
+(pass) first visible probe hit > fails closed when the transparent decal alpha cannot be proven empty [0.14ms]
+(pass) first visible probe hit > accepts the transformed back mesh only when it is the first hit [0.44ms]
+(pass) first visible probe hit > solves the actual tessellated mesh surface instead of a nominal z [5.33ms]
+
+packages/device/src/curved-shell.test.ts:
+(pass) tessellated vertical shell crown > zero secondary crown is byte-identical [1.62ms]
+(pass) tessellated vertical shell crown > bounded edge crown is local, manifold, smooth, and thickness-preserving [1.10ms]
+(pass) tessellated vertical shell crown > is one smooth macro curve with fixed top and bottom joins [0.03ms]
+(pass) tessellated vertical shell crown > refuses the old clamped bevel/thickness combination [0.08ms]
+(pass) tessellated vertical shell crown > tessellates every front triangle in the crown direction [27.11ms]
+(pass) tessellated vertical shell crown > removes the non-indexed Earcut normal split the old deformation kept [22.12ms]
+(pass) tessellated vertical shell crown > preserves shell thickness while bending both faces [0.69ms]
+
+packages/device/src/layout.test.ts:
+(pass) §12.0 R5 geometry — the numbers the dispatch names > wheelR is 115 (§12.0, "wheelR 106 → 115")
+(pass) §12.0 R5 geometry — the numbers the dispatch names > body is 330 × 552 (§12.0, "body 330 × 552") [0.02ms]
+(pass) §12.0 R5 geometry — the numbers the dispatch names > wheel/body is 0.697, against the real 5G’s 0.699 (§12.0)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > Select r 42, lip to 46 (§12.0 R5 table)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > label band r 77–79 (§12.0 R5 table, measured)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > the label band constant is innerR + ringW × 0.493, not × 0.57 (§12.0)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > recess-shadow reach r 104 (§12.0 R5 table)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > panel active area 272 × 204 at scale 0.85 (§7.3 mobile column, §7.4)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > D-067 uses Pencil VWaJS's circular 26px enclosure
+(pass) §12.0 R5 geometry — the numbers the dispatch names > the saved Pencil seam remains a thin 2px material boundary
+(pass) the vertical chain, re-derived at wheelR 115 > scale is 5.3398 px/mm (§7.3, body 330px / 61.8mm)
+(pass) the vertical chain, re-derived at wheelR 115 > 48 + 204 + 43 + 230 + 27 = 552 (§7.3 millimetres, §12.0 wheel)
+(pass) the vertical chain, re-derived at wheelR 115 > the bottom margin lands on §7.3’s measured 5.2mm
+(pass) the vertical chain, re-derived at wheelR 115 > screen centre sits 126px above the body centre [0.01ms]
+(pass) the vertical chain, re-derived at wheelR 115 > wheel centre sits 134px below the body centre [0.01ms]
+(pass) the vertical chain, re-derived at wheelR 115 > glass window is the active area plus a 6px surround (§5.5 L2)
+(pass) the vertical chain, re-derived at wheelR 115 > body depth is 11.0mm (§7.3, 30GB)
+(pass) the D-067 circular enclosure > matches the analytic 26px circular corner [0.02ms]
+(pass) the D-067 circular enclosure > keeps the full box width on its straight sides
+
+ 31 pass
+ 0 fail
+ 39999 expect() calls
+Ran 31 tests across 3 files. [79.00ms]

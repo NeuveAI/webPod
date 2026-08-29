@@ -1,0 +1,24 @@
+W4 review-correction verification
+Date: 2026-08-29
+
+bun run typecheck
+PASS — 11/11 projects clean
+
+bun run lint
+PASS — eslint completed with exit 0
+
+bun test
+PASS — 924 pass, 0 fail, 45622 expect() calls, 49 files
+
+bun run build
+PASS — client and SSR production builds completed
+NOTE — Vite reported the existing >500 kB client chunk advisory
+
+bun run gates
+FAIL — 15 automated passed, 1 automated failed, 2 manual outstanding
+The sole automated failure is outside W4:
+  NAMING — scripts/w7-browser-evidence-schema.test.ts:11: forbidden authored content
+Manual gates remain U14 and U15, as the gate runner requires.
+
+Focused W4 geometry command and complete output are recorded in
+w4-crown-geometry-gates.txt: 31 pass, 0 fail.
