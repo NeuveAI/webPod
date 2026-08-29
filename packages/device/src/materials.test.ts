@@ -103,12 +103,12 @@ describe("§12.3 device material contract", () => {
     material.dispose();
   });
 
-  test("the seam is chrome rather than mirror-back material", () => {
+  test("the seam is a restrained blue-gray boundary, not mirror-back material", () => {
     expect(DEFAULT_DEVICE_MATERIALS.chromeSeam).toMatchObject({
-      color: "#98A1AA",
-      metalness: 1,
-      roughness: 0.18,
-      envMapIntensity: 0.8,
+      color: "#A6AFBA",
+      metalness: 0.35,
+      roughness: 0.32,
+      envMapIntensity: 0.25,
     });
     expect(DEFAULT_DEVICE_MATERIALS.chromeSeam.envMapIntensity).toBeLessThan(
       DEFAULT_DEVICE_MATERIALS.steelBack.envMapIntensity ?? 0,

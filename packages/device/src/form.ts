@@ -76,7 +76,7 @@ export const DEFAULT_DEVICE_FORM: DeviceFormParams = {
   bottomEdgeCrown: 0,
   edgeCrownExtent: 28,
   backBevel: 3.5,
-  recessDepth: 0.9688,
+  recessDepth: 1.5,
   ringDishTiltDeg: 0.9918,
   ringDishExponent: 6.1283,
   selectDomeTiltDeg: 15.9951,

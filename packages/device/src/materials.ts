@@ -138,10 +138,10 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     envMapIntensity: 1.0,
   },
   chromeSeam: {
-    color: "#98A1AA",
-    metalness: 1.0,
-    roughness: 0.18,
-    envMapIntensity: 0.8,
+    color: "#A6AFBA",
+    metalness: 0.35,
+    roughness: 0.32,
+    envMapIntensity: 0.25,
   },
   wheelRingBlack: {
     color: "#23262B",
