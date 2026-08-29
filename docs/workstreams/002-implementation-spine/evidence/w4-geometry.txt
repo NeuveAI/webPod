@@ -21,17 +21,42 @@ constant.
 Probe admission:
   body/back perimeter inset     3 body px
   wheel/select recess inset     6 body px
-  identity gate                 expected object name + material name
+  model transform               live DEVICE_MODEL_NAME world matrix
+  back target frame             viewer 168deg -> inverse x -> model local
+  light frame                   viewer/world siblings; only model rotates
+  identity gate                 first visible object + material must match
+  transparent exception         wheel label texel only, alpha proven zero
   failure mode                  throw; no framebuffer sample is admitted
+
+Occlusion correction:
+  The former steel shell had a coplanar cap over the complete polycarbonate
+  face. The old identity search could skip it and approve the hidden body. The
+  shell is now an analytic perimeter frame with a real central hole, and the
+  first-hit test plants a nearer unnamed occluder to prove calibration rejects
+  it.
+
+Bounded smooth front geometry:
+  body crown                    -2.125 body px
+  equation                      crown * (1 - (y / halfHeight)^2)
+  stop-local controls           none (all optical profiles remain flat)
 
 Tests:
   bun test packages/device/src/layout.test.ts \
     packages/device/src/luminance-probe.test.ts \
+    packages/device/src/probe-raycast.test.ts \
+    packages/device/src/ViewerLitDeviceFrame.test.tsx \
+    packages/device/src/shapes.test.ts \
+    packages/device/src/curved-shell.test.ts \
     packages/tokens/src/geometry.test.ts
 
 Result:
-  40 pass
-  0 fail
+  focused device tests          56 passed, 0 failed
+  package/web typechecks        passed
+  repo typecheck                11/11 projects clean
+  repo lint/build               passed
+  repo tests                    875 passed, 0 failed
+  automated gates               16 passed, 0 failed
+  manual gates                  U14 and U15 outstanding
 
 The D-067 tests assert the literal 330×552 / 26 / 2 contract, the analytic
 circular corner, full straight-side width, shared layout values, expected mesh

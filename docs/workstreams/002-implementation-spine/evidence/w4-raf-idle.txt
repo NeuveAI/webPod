@@ -138,3 +138,15 @@ Fresh `/_spike/device` reload, wrapper installed after a 1.2s settle:
 The D-067 raycast probe, corrected SSS map, thin chrome seam and shared circular
 enclosure preserve demand rendering. The positive control moved and the count
 then stopped, so zero idle callbacks is a live measurement.
+
+FINAL RECHECK AFTER VIEW-FRAME / FIRST-HIT CORRECTION — 2026-08-29
+-----------------------------------------------------------------
+Fresh `/_spike/device` reload, wrapper installed after network idle:
+
+  after 5s untouched:             0 callbacks
+  after one colourway change:     4 callbacks
+  after a further 3s untouched:   4 callbacks
+
+The world-space light frame, perimeter-shell correction, quadratic crown and
+strict first-hit probe add no polling path. The positive control moved and the
+count remained fixed afterward.

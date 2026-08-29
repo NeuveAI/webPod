@@ -1,38 +1,39 @@
 {
   "params": {
-    "envRoom.elevHalfSpanDeg": 20.8375,
-    "envRoom.exposure": 1.15,
-    "envRoom.profileContrast": 0.9906250000000003,
-    "envRoom.profileSharpenAmount": 1.1,
-    "envRoom.profileSharpenSigma": 0.019500000000000003,
-    "envRoom.profileSharpenAmount2": 1.7449999999999997,
-    "envRoom.profileSharpenSigma2": 0.0205,
-    "envRoom.sky.intensity": 1.015,
-    "envRoom.sky.sizeDeg": 38.8125,
-    "envRoom.sky.azimuthDeg": -39.75,
-    "envRoom.sky.elevationDeg": 48,
-    "envRoom.azimuthVariation": 0.585,
-    "envRoom.horizon.opacity": 0.6124999999999993,
-    "envRoom.horizon.widthDeg": 4.55,
+    "envRoom.elevHalfSpanDeg": 14.8756,
+    "envRoom.exposure": 1.18,
+    "envRoom.profileContrast": 0.9906,
+    "envRoom.profileSharpenAmount": 0.38,
+    "envRoom.profileSharpenSigma": 0.0315,
+    "envRoom.profileSharpenAmount2": 1.185,
+    "envRoom.profileSharpenSigma2": 0.0115,
+    "envRoom.sky.intensity": 0.0992,
+    "envRoom.sky.sizeDeg": 14.8125,
+    "envRoom.sky.azimuthDeg": -23.0654,
+    "envRoom.sky.elevationDeg": 68.7583,
+    "envRoom.azimuthVariation": 0.505,
+    "envRoom.horizon.opacity": 0.0125,
+    "envRoom.horizon.widthDeg": 4.775,
     "cameraDistance": 1160,
-    "lightRig.key.intensity": 20000000,
-    "lightRig.key.distance": 1360,
-    "lightRig.fill.azimuthDeg": -33,
-    "lightRig.fill.elevationDeg": -73,
-    "lightRig.fill.distance": 416.25,
-    "materials.bodyBlack.envMapIntensity": 0.09,
-    "materials.bodyWhite.envMapIntensity": 0.130625,
-    "materials.wheelRingBlack.envMapIntensity": 0.0062500000000000125,
-    "materials.wheelRingWhite.envMapIntensity": 0.012000640291977692,
-    "materials.selectBlack.envMapIntensity": 0.17249999999999993,
-    "materials.selectWhite.envMapIntensity": 0.46999999999999986,
-    "form.ringDishTiltDeg": 1.7000000000000002,
-    "form.ringDishExponent": 7.350000000000001,
-    "form.selectDomeTiltDeg": 12.600000000000003,
-    "form.selectDomeExponent": 2.053125,
-    "form.recessDepth": 0.5,
-    "form.selectProud": 6.975000000000003,
-    "form.frontBevel": 3.000000000000001,
+    "lightRig.key.intensity": 15500000,
+    "lightRig.key.distance": 1375,
+    "lightRig.fill.azimuthDeg": -34.7116,
+    "lightRig.fill.elevationDeg": -59.0468,
+    "lightRig.fill.distance": 459.375,
+    "materials.bodyBlack.envMapIntensity": 0.12,
+    "materials.bodyWhite.envMapIntensity": 0.2356,
+    "materials.wheelRingBlack.envMapIntensity": 0.005,
+    "materials.wheelRingWhite.envMapIntensity": 0.1951,
+    "materials.selectBlack.envMapIntensity": 0.2175,
+    "materials.selectWhite.envMapIntensity": 0.6237,
+    "form.ringDishTiltDeg": 0.9918,
+    "form.ringDishExponent": 6.7283,
+    "form.selectDomeTiltDeg": 15.9951,
+    "form.selectDomeExponent": 1.4989,
+    "form.recessDepth": 0.9688,
+    "form.selectProud": 6.5848,
+    "form.frontBevel": 5.875,
+    "form.bodyCrown": -2.125,
     "form.seamWidth": 2
   },
   "results": [
@@ -42,25 +43,25 @@
       "at": 0,
       "expectedHex": "#3E4147",
       "expectedLuma": 64.7954,
-      "measuredLuma": 42.3845,
+      "measuredLuma": 45.0997,
       "measuredRgb": [
-        46,
-        41.5,
-        40.5
+        48,
+        44.5,
+        42.5
       ],
       "measuredSamples": [
         [
-          48,
-          43,
-          42
+          49,
+          45,
+          43
         ],
         [
+          47,
           44,
-          40,
-          39
+          42
         ]
       ],
-      "delta": -22.410899999999998,
+      "delta": -19.695700000000002,
       "pass": false
     },
     {
@@ -69,25 +70,25 @@
       "at": 0.05,
       "expectedHex": "#262A2E",
       "expectedLuma": 41.438399999999994,
-      "measuredLuma": 41.2421,
+      "measuredLuma": 43.171899999999994,
       "measuredRgb": [
-        44.5,
-        40.5,
-        39
+        46,
+        42.5,
+        41.5
       ],
       "measuredSamples": [
         [
           47,
           43,
-          41
+          42
         ],
         [
+          45,
           42,
-          38,
-          37
+          41
         ]
       ],
-      "delta": -0.1962999999999937,
+      "delta": 1.7334999999999994,
       "pass": true
     },
     {
@@ -96,25 +97,25 @@
       "at": 0.19,
       "expectedHex": "#16181C",
       "expectedLuma": 23.863599999999998,
-      "measuredLuma": 33.7782,
+      "measuredLuma": 37.065599999999996,
       "measuredRgb": [
-        37,
-        33,
-        32
+        39.5,
+        36.5,
+        35.5
       ],
       "measuredSamples": [
         [
-          38,
-          34,
-          33
+          43,
+          40,
+          39
         ],
         [
           36,
-          32,
-          31
+          33,
+          32
         ]
       ],
-      "delta": 9.9146,
+      "delta": 13.201999999999998,
       "pass": false
     },
     {
@@ -123,25 +124,25 @@
       "at": 0.44,
       "expectedHex": "#0C0D0F",
       "expectedLuma": 12.931799999999999,
-      "measuredLuma": 26.314299999999996,
+      "measuredLuma": 25.137799999999995,
       "measuredRgb": [
-        29.5,
-        25.5,
-        25
+        27.5,
+        24.5,
+        24.5
       ],
       "measuredSamples": [
         [
-          28,
+          27,
           24,
-          23
+          24
         ],
         [
-          31,
-          27,
-          27
+          28,
+          25,
+          25
         ]
       ],
-      "delta": 13.382499999999997,
+      "delta": 12.205999999999996,
       "pass": false
     },
     {
@@ -150,25 +151,25 @@
       "at": 0.62,
       "expectedHex": "#0A0B0D",
       "expectedLuma": 10.931799999999999,
-      "measuredLuma": 30.0656,
+      "measuredLuma": 30.9252,
       "measuredRgb": [
         32.5,
-        29.5,
-        28.5
+        30.5,
+        30.5
       ],
       "measuredSamples": [
         [
-          30,
+          29,
           27,
-          26
+          27
         ],
         [
-          35,
-          32,
-          31
+          36,
+          34,
+          34
         ]
       ],
-      "delta": 19.1338,
+      "delta": 19.9934,
       "pass": false
     },
     {
@@ -177,25 +178,25 @@
       "at": 0.81,
       "expectedHex": "#121417",
       "expectedLuma": 19.7914,
-      "measuredLuma": 33.2441,
+      "measuredLuma": 35.673899999999996,
       "measuredRgb": [
-        36,
-        32.5,
-        32.5
+        38,
+        35,
+        35.5
       ],
       "measuredSamples": [
         [
+          38,
           35,
-          31,
-          31
+          35
         ],
         [
-          37,
-          34,
-          34
+          38,
+          35,
+          36
         ]
       ],
-      "delta": 13.452700000000004,
+      "delta": 15.882499999999997,
       "pass": false
     },
     {
@@ -204,25 +205,25 @@
       "at": 0.93,
       "expectedHex": "#1E2126",
       "expectedLuma": 32.7232,
-      "measuredLuma": 32.563,
+      "measuredLuma": 31.922600000000003,
       "measuredRgb": [
-        36.5,
-        31.5,
-        31.5
+        35,
+        31,
+        32
       ],
       "measuredSamples": [
         [
-          37,
-          32,
-          31
+          33,
+          28,
+          28
         ],
         [
-          36,
-          31,
-          32
+          37,
+          34,
+          36
         ]
       ],
-      "delta": -0.16019999999999612,
+      "delta": -0.8005999999999958,
       "pass": true
     },
     {
@@ -231,25 +232,25 @@
       "at": 1,
       "expectedHex": "#32363C",
       "expectedLuma": 53.5828,
-      "measuredLuma": 31.2776,
+      "measuredLuma": 33.6011,
       "measuredRgb": [
-        35.5,
-        30,
-        31.5
+        37,
+        32.5,
+        34.5
       ],
       "measuredSamples": [
         [
-          36,
-          30,
-          30
+          33,
+          27,
+          28
         ],
         [
-          35,
-          30,
-          33
+          41,
+          38,
+          41
         ]
       ],
-      "delta": -22.3052,
+      "delta": -19.981699999999996,
       "pass": false
     },
     {
@@ -258,20 +259,20 @@
       "at": 0,
       "expectedHex": "#14161A",
       "expectedLuma": 21.863599999999998,
-      "measuredLuma": 45.7232,
+      "measuredLuma": 35.9358,
       "measuredRgb": [
-        43,
-        46,
-        51
+        34,
+        36,
+        41
       ],
       "measuredSamples": [
         [
-          43,
-          46,
-          51
+          34,
+          36,
+          41
         ]
       ],
-      "delta": 23.8596,
+      "delta": 14.072200000000002,
       "pass": false
     },
     {
@@ -280,25 +281,25 @@
       "at": 0.38,
       "expectedHex": "#1E2126",
       "expectedLuma": 32.7232,
-      "measuredLuma": 42.689099999999996,
+      "measuredLuma": 39.5487,
       "measuredRgb": [
-        39.5,
-        43,
-        49
+        35.5,
+        40,
+        47
       ],
       "measuredSamples": [
         [
-          39,
-          42,
-          48
+          34,
+          38,
+          44
         ],
         [
-          40,
-          44,
+          37,
+          42,
           50
         ]
       ],
-      "delta": 9.965899999999998,
+      "delta": 6.825499999999998,
       "pass": false
     },
     {
@@ -307,26 +308,26 @@
       "at": 0.62,
       "expectedHex": "#23262B",
       "expectedLuma": 37.7232,
-      "measuredLuma": 42.94239999999999,
+      "measuredLuma": 41.302,
       "measuredRgb": [
-        38.5,
-        43.5,
-        50.5
+        36,
+        42,
+        50
       ],
       "measuredSamples": [
         [
-          37,
-          42,
-          48
+          33,
+          38,
+          44
         ],
         [
-          40,
-          45,
-          53
+          39,
+          46,
+          56
         ]
       ],
-      "delta": 5.219199999999994,
-      "pass": false
+      "delta": 3.578800000000001,
+      "pass": true
     },
     {
       "surface": "wheel-ring-black",
@@ -334,21 +335,21 @@
       "at": 1,
       "expectedHex": "#2C3037",
       "expectedLuma": 47.655,
-      "measuredLuma": 53.812599999999996,
+      "measuredLuma": 47.953,
       "measuredRgb": [
-        45,
-        55,
-        68
+        40,
+        49,
+        61
       ],
       "measuredSamples": [
         [
-          45,
-          55,
-          68
+          40,
+          49,
+          61
         ]
       ],
-      "delta": 6.157599999999995,
-      "pass": false
+      "delta": 0.2980000000000018,
+      "pass": true
     },
     {
       "surface": "select-black",
@@ -356,20 +357,20 @@
       "at": 0,
       "expectedHex": "#3A3E45",
       "expectedLuma": 61.654999999999994,
-      "measuredLuma": 42.8636,
+      "measuredLuma": 46.578799999999994,
       "measuredRgb": [
-        41,
-        43,
-        47
+        44,
+        47,
+        50
       ],
       "measuredSamples": [
         [
-          41,
-          43,
-          47
+          44,
+          47,
+          50
         ]
       ],
-      "delta": -18.791399999999996,
+      "delta": -15.0762,
       "pass": false
     },
     {
@@ -378,26 +379,26 @@
       "at": 0.34,
       "expectedHex": "#262A30",
       "expectedLuma": 41.5828,
-      "measuredLuma": 44.257299999999994,
+      "measuredLuma": 48.3636,
       "measuredRgb": [
-        42,
-        44.5,
-        48.5
+        46.5,
+        48.5,
+        52.5
       ],
       "measuredSamples": [
         [
-          42,
-          44,
-          48
+          46,
+          48,
+          52
         ],
         [
-          42,
-          45,
-          49
+          47,
+          49,
+          53
         ]
       ],
-      "delta": 2.6744999999999948,
-      "pass": true
+      "delta": 6.780799999999999,
+      "pass": false
     },
     {
       "surface": "select-black",
@@ -413,12 +414,12 @@
       ],
       "measuredSamples": [
         [
-          43,
+          44,
           46,
           50
         ],
         [
-          44,
+          43,
           46,
           50
         ]
@@ -432,20 +433,20 @@
       "at": 1,
       "expectedHex": "#2A2E34",
       "expectedLuma": 45.5828,
-      "measuredLuma": 47.8636,
+      "measuredLuma": 43.7232,
       "measuredRgb": [
-        46,
-        48,
-        52
+        41,
+        44,
+        49
       ],
       "measuredSamples": [
         [
-          46,
-          48,
-          52
+          41,
+          44,
+          49
         ]
       ],
-      "delta": 2.2807999999999993,
+      "delta": -1.8596000000000004,
       "pass": true
     },
     {
@@ -508,25 +509,25 @@
       "at": 0.21,
       "expectedHex": "#F0F1F3",
       "expectedLuma": 240.93179999999998,
-      "measuredLuma": 254.99999999999997,
+      "measuredLuma": 253.79199999999997,
       "measuredRgb": [
-        255,
-        255,
+        251,
+        254.5,
         255
       ],
       "measuredSamples": [
         [
-          255,
-          255,
+          250,
+          254,
           255
         ],
         [
-          255,
+          252,
           255,
           255
         ]
       ],
-      "delta": 14.06819999999999,
+      "delta": 12.860199999999992,
       "pass": false
     },
     {
@@ -535,26 +536,26 @@
       "at": 0.47,
       "expectedHex": "#E2E5E8",
       "expectedLuma": 228.5788,
-      "measuredLuma": 243.5467,
+      "measuredLuma": 231.3702,
       "measuredRgb": [
-        240,
-        244,
-        249.5
+        227,
+        232,
+        238
       ],
       "measuredSamples": [
         [
-          239,
-          243,
-          248
+          225,
+          229,
+          234
         ],
         [
-          241,
-          245,
-          251
+          229,
+          235,
+          242
         ]
       ],
-      "delta": 14.967899999999986,
-      "pass": false
+      "delta": 2.79140000000001,
+      "pass": true
     },
     {
       "surface": "body-white",
@@ -562,26 +563,26 @@
       "at": 0.64,
       "expectedHex": "#DBDFE4",
       "expectedLuma": 222.5106,
-      "measuredLuma": 231.69369999999998,
+      "measuredLuma": 225.44899999999998,
       "measuredRgb": [
+        218.5,
         226.5,
-        232.5,
-        239
+        235.5
       ],
       "measuredSamples": [
         [
-          225,
-          230,
-          236
+          214,
+          220,
+          227
         ],
         [
-          228,
-          235,
-          242
+          223,
+          233,
+          244
         ]
       ],
-      "delta": 9.183099999999968,
-      "pass": false
+      "delta": 2.938399999999973,
+      "pass": true
     },
     {
       "surface": "body-white",
@@ -589,26 +590,26 @@
       "at": 0.82,
       "expectedHex": "#E6E9EC",
       "expectedLuma": 232.57879999999997,
-      "measuredLuma": 227.2765,
+      "measuredLuma": 229.8158,
       "measuredRgb": [
         218.5,
-        228.5,
-        241
+        232,
+        241.5
       ],
       "measuredSamples": [
         [
-          214,
-          221,
-          230
+          209,
+          217,
+          228
         ],
         [
-          223,
-          236,
-          252
+          228,
+          247,
+          255
         ]
       ],
-      "delta": -5.302299999999974,
-      "pass": false
+      "delta": -2.762999999999977,
+      "pass": true
     },
     {
       "surface": "body-white",
@@ -616,25 +617,25 @@
       "at": 0.94,
       "expectedHex": "#F3F5F7",
       "expectedLuma": 244.7192,
-      "measuredLuma": 234.0316,
+      "measuredLuma": 231.882,
       "measuredRgb": [
-        221,
-        237,
-        243
+        222,
+        234,
+        240
       ],
       "measuredSamples": [
         [
-          209,
-          219,
-          231
+          203,
+          213,
+          225
         ],
         [
-          233,
+          241,
           255,
           255
         ]
       ],
-      "delta": -10.687600000000003,
+      "delta": -12.837199999999996,
       "pass": false
     },
     {
@@ -643,25 +644,25 @@
       "at": 1,
       "expectedHex": "#FDFEFE",
       "expectedLuma": 253.7874,
-      "measuredLuma": 237.0218,
+      "measuredLuma": 234.5874,
       "measuredRgb": [
         229,
-        238.5,
-        246
+        235.5,
+        242
       ],
       "measuredSamples": [
         [
-          210,
-          222,
-          237
+          205,
+          216,
+          229
         ],
         [
-          248,
+          253,
           255,
           255
         ]
       ],
-      "delta": -16.765599999999978,
+      "delta": -19.19999999999999,
       "pass": false
     },
     {
@@ -670,20 +671,20 @@
       "at": 0,
       "expectedHex": "#DCDFE2",
       "expectedLuma": 222.5788,
-      "measuredLuma": 237.37019999999998,
+      "measuredLuma": 210.7404,
       "measuredRgb": [
-        233,
-        238,
-        244
+        202,
+        212,
+        224
       ],
       "measuredSamples": [
         [
-          233,
-          238,
-          244
+          202,
+          212,
+          224
         ]
       ],
-      "delta": 14.791399999999982,
+      "delta": -11.838400000000007,
       "pass": false
     },
     {
@@ -692,26 +693,26 @@
       "at": 0.38,
       "expectedHex": "#E6E8EA",
       "expectedLuma": 231.7192,
-      "measuredLuma": 227.6977,
+      "measuredLuma": 231.4169,
       "measuredRgb": [
-        221.5,
-        228.5,
-        238
+        223.5,
+        232.5,
+        244
       ],
       "measuredSamples": [
         [
           220,
-          226,
-          234
+          227,
+          236
         ],
         [
-          223,
-          231,
-          242
+          227,
+          238,
+          252
         ]
       ],
-      "delta": -4.021500000000003,
-      "pass": false
+      "delta": -0.30230000000000246,
+      "pass": true
     },
     {
       "surface": "wheel-ring-white",
@@ -719,26 +720,26 @@
       "at": 0.62,
       "expectedHex": "#E9EBED",
       "expectedLuma": 234.71919999999997,
-      "measuredLuma": 228.4235,
+      "measuredLuma": 233.49429999999998,
       "measuredRgb": [
-        218,
-        230,
-        243.5
+        222.5,
+        235.5,
+        246
       ],
       "measuredSamples": [
         [
-          214,
-          224,
-          235
+          216,
+          226,
+          237
         ],
         [
-          222,
-          236,
-          252
+          229,
+          245,
+          255
         ]
       ],
-      "delta": -6.295699999999982,
-      "pass": false
+      "delta": -1.224899999999991,
+      "pass": true
     },
     {
       "surface": "wheel-ring-white",
@@ -746,21 +747,21 @@
       "at": 1,
       "expectedHex": "#F2F4F6",
       "expectedLuma": 243.71919999999997,
-      "measuredLuma": 251.17319999999998,
+      "measuredLuma": 246.6116,
       "measuredRgb": [
-        237,
-        255,
+        229,
+        251,
         255
       ],
       "measuredSamples": [
         [
-          237,
-          255,
+          229,
+          251,
           255
         ]
       ],
-      "delta": 7.454000000000008,
-      "pass": false
+      "delta": 2.8924000000000376,
+      "pass": true
     },
     {
       "surface": "select-white",
@@ -768,20 +769,20 @@
       "at": 0,
       "expectedHex": "#FFFFFF",
       "expectedLuma": 254.99999999999997,
-      "measuredLuma": 241.0894,
+      "measuredLuma": 241.949,
       "measuredRgb": [
         235,
-        242,
-        250
+        243,
+        252
       ],
       "measuredSamples": [
         [
           235,
-          242,
-          250
+          243,
+          252
         ]
       ],
-      "delta": -13.91059999999996,
+      "delta": -13.05099999999996,
       "pass": false
     },
     {
@@ -790,25 +791,25 @@
       "at": 0.34,
       "expectedHex": "#F1F3F5",
       "expectedLuma": 242.7192,
-      "measuredLuma": 241.9831,
+      "measuredLuma": 245.8768,
       "measuredRgb": [
-        235.5,
-        243,
-        251
+        239,
+        247,
+        255
       ],
       "measuredSamples": [
         [
-          236,
-          243,
-          251
+          239,
+          247,
+          255
         ],
         [
-          235,
-          243,
-          251
+          239,
+          247,
+          255
         ]
       ],
-      "delta": -0.7360999999999933,
+      "delta": 3.157600000000002,
       "pass": true
     },
     {
@@ -817,25 +818,25 @@
       "at": 0.7,
       "expectedHex": "#E4E7EA",
       "expectedLuma": 230.5788,
-      "measuredLuma": 244.949,
+      "measuredLuma": 241.23839999999998,
       "measuredRgb": [
-        238,
-        246,
-        255
+        233,
+        242.5,
+        253
       ],
       "measuredSamples": [
         [
-          238,
-          246,
-          255
+          232,
+          241,
+          251
         ],
         [
-          238,
-          246,
+          234,
+          244,
           255
         ]
       ],
-      "delta": 14.370200000000011,
+      "delta": 10.659599999999983,
       "pass": false
     },
     {
@@ -844,21 +845,21 @@
       "at": 1,
       "expectedHex": "#EFF1F4",
       "expectedLuma": 240.7914,
-      "measuredLuma": 251.231,
+      "measuredLuma": 239.52779999999998,
       "measuredRgb": [
-        244,
-        253,
-        255
+        230,
+        241,
+        253
       ],
       "measuredSamples": [
         [
-          244,
-          253,
-          255
+          230,
+          241,
+          253
         ]
       ],
-      "delta": 10.439599999999984,
-      "pass": false
+      "delta": -1.2636000000000251,
+      "pass": true
     },
     {
       "surface": "steel-back",
@@ -866,21 +867,21 @@
       "at": 0,
       "expectedHex": "#F6F8FA",
       "expectedLuma": 247.7192,
-      "measuredLuma": 254.99999999999997,
+      "measuredLuma": 247.79139999999998,
       "measuredRgb": [
-        255,
-        255,
-        255
+        246,
+        248,
+        251
       ],
       "measuredSamples": [
         [
-          255,
-          255,
-          255
+          246,
+          248,
+          251
         ]
       ],
-      "delta": 7.280799999999971,
-      "pass": false
+      "delta": 0.07219999999998095,
+      "pass": true
     },
     {
       "surface": "steel-back",
@@ -888,21 +889,21 @@
       "at": 0.07,
       "expectedHex": "#C6CDD4",
       "expectedLuma": 204.01719999999997,
-      "measuredLuma": 240.0854,
+      "measuredLuma": 207.01719999999997,
       "measuredRgb": [
-        235,
-        241,
-        246
+        201,
+        208,
+        215
       ],
       "measuredSamples": [
         [
-          235,
-          241,
-          246
+          201,
+          208,
+          215
         ]
       ],
-      "delta": 36.06820000000002,
-      "pass": false
+      "delta": 3,
+      "pass": true
     },
     {
       "surface": "steel-back",
@@ -910,21 +911,21 @@
       "at": 0.16,
       "expectedHex": "#EDF1F5",
       "expectedLuma": 240.43839999999997,
-      "measuredLuma": 201.87679999999997,
+      "measuredLuma": 244.4384,
       "measuredRgb": [
-        195,
-        203,
-        211
+        241,
+        245,
+        249
       ],
       "measuredSamples": [
         [
-          195,
-          203,
-          211
+          241,
+          245,
+          249
         ]
       ],
-      "delta": -38.5616,
-      "pass": false
+      "delta": 4.000000000000028,
+      "pass": true
     },
     {
       "surface": "steel-back",
@@ -932,21 +933,21 @@
       "at": 0.29,
       "expectedHex": "#929BA5",
       "expectedLuma": 153.8086,
-      "measuredLuma": 158.0212,
+      "measuredLuma": 157.80859999999998,
       "measuredRgb": [
-        151,
+        150,
         159,
         169
       ],
       "measuredSamples": [
         [
-          151,
+          150,
           159,
           169
         ]
       ],
-      "delta": 4.212599999999981,
-      "pass": false
+      "delta": 3.9999999999999716,
+      "pass": true
     },
     {
       "surface": "steel-back",
@@ -954,21 +955,21 @@
       "at": 0.43,
       "expectedHex": "#656E78",
       "expectedLuma": 108.8086,
-      "measuredLuma": 121.7364,
+      "measuredLuma": 107.0212,
       "measuredRgb": [
-        114,
-        123,
-        132
+        100,
+        108,
+        118
       ],
       "measuredSamples": [
         [
-          114,
-          123,
-          132
+          100,
+          108,
+          118
         ]
       ],
-      "delta": 12.927800000000005,
-      "pass": false
+      "delta": -1.7874000000000052,
+      "pass": true
     },
     {
       "surface": "steel-back",
@@ -976,21 +977,21 @@
       "at": 0.5,
       "expectedHex": "#7C858F",
       "expectedLuma": 131.80859999999998,
-      "measuredLuma": 141.8086,
+      "measuredLuma": 129.8086,
       "measuredRgb": [
-        134,
-        143,
-        153
+        122,
+        131,
+        141
       ],
       "measuredSamples": [
         [
-          134,
-          143,
-          153
+          122,
+          131,
+          141
         ]
       ],
-      "delta": 10.000000000000028,
-      "pass": false
+      "delta": -1.9999999999999716,
+      "pass": true
     },
     {
       "surface": "steel-back",
@@ -998,21 +999,21 @@
       "at": 0.58,
       "expectedHex": "#ADB6BF",
       "expectedLuma": 180.73639999999997,
-      "measuredLuma": 175.7364,
+      "measuredLuma": 180.73639999999997,
       "measuredRgb": [
-        168,
-        177,
-        186
+        173,
+        182,
+        191
       ],
       "measuredSamples": [
         [
-          168,
-          177,
-          186
+          173,
+          182,
+          191
         ]
       ],
-      "delta": -4.999999999999972,
-      "pass": false
+      "delta": 0,
+      "pass": true
     },
     {
       "surface": "steel-back",
@@ -1020,21 +1021,21 @@
       "at": 0.71,
       "expectedHex": "#E1E7EC",
       "expectedLuma": 230.0854,
-      "measuredLuma": 209.8046,
+      "measuredLuma": 227.01319999999998,
       "measuredRgb": [
-        203,
-        211,
-        218
+        222,
+        228,
+        232
       ],
       "measuredSamples": [
         [
-          203,
-          211,
-          218
+          222,
+          228,
+          232
         ]
       ],
-      "delta": -20.2808,
-      "pass": false
+      "delta": -3.0722000000000094,
+      "pass": true
     },
     {
       "surface": "steel-back",
@@ -1042,20 +1043,20 @@
       "at": 0.85,
       "expectedHex": "#96A0AA",
       "expectedLuma": 158.596,
-      "measuredLuma": 204.01719999999997,
+      "measuredLuma": 152.5238,
       "measuredRgb": [
-        198,
-        205,
-        212
+        144,
+        154,
+        163
       ],
       "measuredSamples": [
         [
-          198,
-          205,
-          212
+          144,
+          154,
+          163
         ]
       ],
-      "delta": 45.42119999999997,
+      "delta": -6.072200000000009,
       "pass": false
     },
     {
@@ -1064,21 +1065,21 @@
       "at": 0.94,
       "expectedHex": "#C7CED5",
       "expectedLuma": 205.0172,
-      "measuredLuma": 175.6642,
+      "measuredLuma": 202.945,
       "measuredRgb": [
-        168,
-        177,
-        185
+        197,
+        204,
+        210
       ],
       "measuredSamples": [
         [
-          168,
-          177,
-          185
+          197,
+          204,
+          210
         ]
       ],
-      "delta": -29.35300000000001,
-      "pass": false
+      "delta": -2.0722000000000094,
+      "pass": true
     },
     {
       "surface": "steel-back",
@@ -1086,21 +1087,21 @@
       "at": 1,
       "expectedHex": "#7A828C",
       "expectedLuma": 129.0212,
-      "measuredLuma": 135.4556,
+      "measuredLuma": 132.23379999999997,
       "measuredRgb": [
         126,
-        137,
-        148
+        133,
+        143
       ],
       "measuredSamples": [
         [
           126,
-          137,
-          148
+          133,
+          143
         ]
       ],
-      "delta": 6.434400000000011,
-      "pass": false
+      "delta": 3.2125999999999806,
+      "pass": true
     }
   ]
 }
