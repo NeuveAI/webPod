@@ -9,13 +9,13 @@ import {
   Raycaster,
   Scene,
   Vector2,
+  Vector3,
+  Object3D,
+  type Intersection,
 } from "three";
 
 import { matchesProbeIdentity, type ProbeTarget } from "./luminance-probe";
-import {
-  firstVisibleProbeHit,
-  WHEEL_LABEL_DECAL_NAME,
-} from "./probe-raycast";
+import { firstVisibleProbeHit, WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 
 const target: Pick<ProbeTarget, "objectName" | "materialName"> = {
   objectName: "device-body",
@@ -34,6 +34,26 @@ function centreHits(scene: Scene) {
 }
 
 describe("first visible probe hit", () => {
+  test("uses Three's stable type flags across module graphs", () => {
+    const material = new MeshBasicMaterial();
+    material.name = "body-black";
+    const body = new Object3D();
+    body.name = "device-body";
+    Object.defineProperties(body, {
+      isMesh: { value: true },
+      material: { value: material },
+    });
+    const intersections: Array<Intersection<Object3D>> = [
+      { distance: 1, point: new Vector3(), object: body },
+    ];
+
+    const hit = firstVisibleProbeHit(intersections);
+    expect(hit).toEqual({
+      objectName: "device-body",
+      materialNames: ["body-black"],
+    });
+  });
+
   test("rejects a nearer unnamed wrong-material occluder", () => {
     const scene = new Scene();
     const bodyMaterial = new MeshBasicMaterial();

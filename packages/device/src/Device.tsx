@@ -34,10 +34,7 @@ import {
 } from "./env-map";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import { DEVICE_LAYOUT, GLASS_CORNER_R, SCREEN_CORNER_R } from "./layout";
-import {
-  DEFAULT_LIGHT_RIG,
-  type LightRigParams,
-} from "./light-rig";
+import { DEFAULT_LIGHT_RIG, type LightRigParams } from "./light-rig";
 import {
   DEFAULT_DEVICE_MATERIALS,
   type DeviceMaterials,
@@ -47,6 +44,7 @@ import {
   circleHole,
   roundedRectHole,
   roundedRectShape,
+  silhouetteFrameShape,
   silhouetteShape,
 } from "./shapes";
 import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
@@ -231,33 +229,19 @@ export function Device({
   // the plastic, which means the steel that shows at the perimeter and the
   // steel that shows when the device is flipped cannot be the same mesh.
   //
-  //   steelShell     [splitZ … faceZ]   perimeter frame + opening walls
+  //   steelShell     [splitZ … faceZ]   perimeter frame
   //   steelBackPlate [−D/2 … splitZ]    §5.2's mirror, uncut
   //   frontPlate     [plateBackZ … faceZ]  §5.1/§4.3, inset by the seam
   const splitZ = 0;
   const plateBackZ = frontFaceZ - form.frontThickness;
 
   const steelShellGeometry = useMemo(() => {
-    const shape = silhouetteShape(
+    const shape = silhouetteFrameShape(
       body.width,
       body.height,
       body.cornerR,
+      form.seamWidth,
       body.exponent,
-    );
-    // The steel's openings are a pixel wider than the plastic's, so the two
-    // opening walls are never coplanar. Coplanar walls z-fight; the extra pixel
-    // also reads as §5.3 L1's lip, which is a metal edge in the real part.
-    shape.holes.push(
-      roundedRectHole(
-        glass.centerX,
-        glass.centerY,
-        glass.width + 2,
-        glass.height + 2,
-        GLASS_CORNER_R + 1,
-      ),
-    );
-    shape.holes.push(
-      circleHole(wheel.centerX, wheel.centerY, wheel.outerR + 1),
     );
     const geometry = new ExtrudeGeometry(shape, {
       depth: Math.max(0.1, frontFaceZ - splitZ - 2 * form.frontBevel),
@@ -269,7 +253,7 @@ export function Device({
     });
     geometry.translate(0, 0, splitZ + form.frontBevel);
     return geometry;
-  }, [form.frontBevel, frontFaceZ]);
+  }, [form.frontBevel, form.seamWidth, frontFaceZ]);
   useEffect(() => () => steelShellGeometry.dispose(), [steelShellGeometry]);
 
   const backGeometry = useMemo(() => {

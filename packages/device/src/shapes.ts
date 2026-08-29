@@ -97,6 +97,47 @@ export function silhouetteShape(
   return shape;
 }
 
+/**
+ * A perimeter frame with the same analytic silhouette on both edges.
+ *
+ * This is the physical steel seam around the polycarbonate face. Keeping the
+ * inner outline as a real hole is important: an overlapping steel cap would
+ * win the depth/raycast test while the renderer happened to show the
+ * coplanar body, letting calibration approve a hidden material.
+ */
+export function silhouetteFrameShape(
+  w: number,
+  h: number,
+  r: number,
+  inset: number,
+  n: number,
+  cornerSegments = 16,
+): Shape {
+  const shape = silhouetteShape(w, h, r, n, cornerSegments);
+  const inner = silhouetteShape(
+    w - 2 * inset,
+    h - 2 * inset,
+    r - inset,
+    n,
+    cornerSegments,
+  );
+  const points = inner.getPoints();
+  const hole = new Path();
+  const first = points.at(-1);
+  if (first === undefined) {
+    throw new Error("silhouetteFrameShape: empty inner outline");
+  }
+  hole.moveTo(first.x, first.y);
+  for (let i = points.length - 2; i >= 0; i--) {
+    const point = points[i];
+    if (point === undefined) continue;
+    hole.lineTo(point.x, point.y);
+  }
+  hole.closePath();
+  shape.holes.push(hole);
+  return shape;
+}
+
 /** An ordinary circular-cornered rectangle, centred on the origin. */
 function roundedRectPoints(
   w: number,

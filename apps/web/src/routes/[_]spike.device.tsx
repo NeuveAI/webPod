@@ -285,9 +285,8 @@ function LuminanceProbe() {
         model.localToWorld(point.set(x, target.y, target.z)).project(camera);
         ndc.set(point.x, point.y);
         raycaster.setFromCamera(ndc, camera);
-        const hit = firstVisibleProbeHit(
-          raycaster.intersectObjects(scene.children, true),
-        );
+        const intersections = raycaster.intersectObjects(scene.children, true);
+        const hit = firstVisibleProbeHit(intersections);
         if (
           !matchesProbeIdentity(
             target,
@@ -296,7 +295,19 @@ function LuminanceProbe() {
           )
         ) {
           throw new Error(
-            `device probe rejected ${target.token}: expected ${target.objectName}/${target.materialName}, hit ${hit?.objectName ?? "nothing"}/${hit?.materialNames.join("|") ?? ""}`,
+            `device probe rejected ${target.token}: expected ${target.objectName}/${target.materialName}, hit ${hit?.objectName ?? "nothing"}/${hit?.materialNames.join("|") ?? ""}; ray ${
+              intersections
+                .map((entry) => {
+                  if (!(entry.object instanceof Mesh)) {
+                    return `${entry.object.name || entry.object.type}[visible=${entry.object.visible}]`;
+                  }
+                  const materials = Array.isArray(entry.object.material)
+                    ? entry.object.material
+                    : [entry.object.material];
+                  return `${entry.object.name || entry.object.type}[visible=${entry.object.visible};materials=${materials.map((material) => `${material.name || material.type}:${material.visible}:${material.transparent}:${material.opacity}`).join(",")}]`;
+                })
+                .join(" > ") || "missed scene"
+            }`,
           );
         }
         const px = Math.min(

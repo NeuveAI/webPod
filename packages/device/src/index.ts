@@ -69,6 +69,7 @@ export {
   roundedRectHole,
   roundedRectShape,
   silhouetteShape,
+  silhouetteFrameShape,
 } from "./shapes";
 export { curvedAnnulusGeometry, domedDiscGeometry } from "./curved-discs";
 export {

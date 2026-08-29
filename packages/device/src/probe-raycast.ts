@@ -1,10 +1,11 @@
 import {
-  CanvasTexture,
+  type CanvasTexture,
   type Intersection,
   type Material,
   Mesh,
-  MeshBasicMaterial,
+  type MeshBasicMaterial,
   type Object3D,
+  type Texture,
 } from "three";
 
 /** The one rendered overlay whose empty texels may be ignored by the probe. */
@@ -24,9 +25,36 @@ function isVisibleInScene(object: Object3D): boolean {
   return true;
 }
 
-function hitMaterial(
-  hit: Intersection<Mesh>,
-): Material | null {
+/**
+ * Three's documented `is*` flags are stable across duplicated module graphs.
+ * `instanceof` is not: Vite may serve `three` once to the app and once through
+ * a workspace package, even though both objects implement the same runtime
+ * contract. The flags are set by the constructors themselves and are the same
+ * checks Three uses internally (`Box3`, `PropertyBinding`, and friends).
+ */
+function isThreeMesh(object: Object3D): object is Mesh {
+  return "isMesh" in object && object.isMesh === true && "material" in object;
+}
+
+function isThreeMeshBasicMaterial(
+  material: Material,
+): material is MeshBasicMaterial {
+  return (
+    "isMeshBasicMaterial" in material && material.isMeshBasicMaterial === true
+  );
+}
+
+function isThreeCanvasTexture(
+  texture: Texture | null,
+): texture is CanvasTexture {
+  return (
+    texture !== null &&
+    "isCanvasTexture" in texture &&
+    texture.isCanvasTexture === true
+  );
+}
+
+function hitMaterial(hit: Intersection<Mesh>): Material | null {
   const source = hit.object.material;
   if (!Array.isArray(source)) return source;
   const index = hit.face?.materialIndex;
@@ -48,9 +76,9 @@ function isTransparentLabelTexel(
 ): boolean {
   if (
     hit.object.name !== WHEEL_LABEL_DECAL_NAME ||
-    !(material instanceof MeshBasicMaterial) ||
+    !isThreeMeshBasicMaterial(material) ||
     !material.transparent ||
-    !(material.map instanceof CanvasTexture) ||
+    !isThreeCanvasTexture(material.map) ||
     hit.uv === undefined ||
     typeof HTMLCanvasElement === "undefined" ||
     !(material.map.image instanceof HTMLCanvasElement)
@@ -62,7 +90,10 @@ function isTransparentLabelTexel(
   const context = canvas.getContext("2d", { willReadFrequently: true });
   if (context === null) return false;
   const uv = material.map.transformUv(hit.uv.clone());
-  const x = Math.min(canvas.width - 1, Math.max(0, Math.floor(uv.x * canvas.width)));
+  const x = Math.min(
+    canvas.width - 1,
+    Math.max(0, Math.floor(uv.x * canvas.width)),
+  );
   const y = Math.min(
     canvas.height - 1,
     Math.max(0, Math.floor(uv.y * canvas.height)),
@@ -89,7 +120,7 @@ export function firstVisibleProbeHit(
 ): ProbeHitIdentity | null {
   for (const intersection of intersections) {
     if (!isVisibleInScene(intersection.object)) continue;
-    if (!(intersection.object instanceof Mesh)) {
+    if (!isThreeMesh(intersection.object)) {
       return {
         objectName: intersection.object.name || undefined,
         materialNames: [],
