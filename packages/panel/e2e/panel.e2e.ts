@@ -143,26 +143,43 @@ test('Love uses its native target, commits provider state, and retains focus', a
 })
 
 test('passive S13 status graphics expose names without becoming controls', async ({ page }) => {
-  const panel = await openScreen(page, 's13')
-  const playbackStatus = panel.getByRole('group', { name: 'Playback status' })
-  await expect(playbackStatus).toHaveCount(1)
+  await openScreen(page, 's13')
 
-  for (const name of ['Shuffle on', 'Repeat off', 'Rate', 'Queue']) {
-    const graphic = playbackStatus.getByRole('img', { name })
-    await expect(graphic).toHaveCount(1)
-    await expect(graphic).not.toHaveAttribute('tabindex')
+  for (const colourway of ['dark', 'light'] as const) {
+    const selector = `.wp-panel[data-colourway="${colourway}"]`
+    const panel = page.locator(selector)
+    const playbackStatus = panel.getByRole('group', { name: 'Playback status' })
+    await expect(playbackStatus).toHaveCount(1)
+
+    for (const name of ['Shuffle on', 'Repeat off', 'Rate', 'Queue']) {
+      const graphic = playbackStatus.getByRole('img', { name })
+      await expect(graphic).toHaveCount(1)
+      await expect(graphic).not.toHaveAttribute('tabindex')
+    }
+
+    await expect(playbackStatus.getByRole('button', { name: 'Love track' })).toHaveCount(1)
+    await expect(playbackStatus.getByRole('button')).toHaveCount(1)
+    await expect(panel).not.toContainText(/Lyrics|Remove from playlist|Reorder playlist|Remove from queue|Reorder queue|Downloaded only/i)
+
+    const prohibitedAttributes = await new AxeBuilder({ page })
+      .include(`${selector} .wp-actions`)
+      .withRules(['aria-prohibited-attr'])
+      .analyze()
+    expect(prohibitedAttributes.violations, `${colourway} playback status has a prohibited ARIA attribute`).toEqual([])
+    expect(prohibitedAttributes.incomplete, `${colourway} playback status has unresolved ARIA semantics`).toEqual([])
   }
 
-  await expect(playbackStatus.getByRole('button', { name: 'Love track' })).toHaveCount(1)
-  await expect(playbackStatus.getByRole('button')).toHaveCount(1)
-  await expect(panel).not.toContainText(/Lyrics|Remove from playlist|Reorder playlist|Remove from queue|Reorder queue|Downloaded only/i)
-
-  const prohibitedAttributes = await new AxeBuilder({ page })
-    .include('.wp-panel[data-colourway="dark"] .wp-actions')
+  const lightStatus = page.locator('.wp-panel[data-colourway="light"] .wp-actions')
+  await lightStatus.evaluate((element) => element.removeAttribute('role'))
+  const plantedFailure = await new AxeBuilder({ page })
+    .include('.wp-panel[data-colourway="light"] .wp-actions')
     .withRules(['aria-prohibited-attr'])
     .analyze()
-  expect(prohibitedAttributes.violations).toEqual([])
-  expect(prohibitedAttributes.incomplete).toEqual([])
+  expect(
+    [...plantedFailure.violations, ...plantedFailure.incomplete].some((result) => result.id === 'aria-prohibited-attr'),
+    'the light-only role-removal plant must be detected',
+  ).toBe(true)
+  await lightStatus.evaluate((element) => element.setAttribute('role', 'group'))
 })
 
 test('all state and colourway pairs produce chrome-free screen evidence', async ({ page }) => {
