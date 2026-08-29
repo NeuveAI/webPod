@@ -1,18 +1,28 @@
 # W7 flagged-browser provenance
 
-Runner: `bun run scripts/w7-browser-evidence.ts`.
+Runner:
 
-The runner starts a fresh Vite server on 3017 and a fresh temporary Chrome
-profile on CDP 9337, explicitly enabling `CanvasDrawElement`. It waits for the
-real `/_probe/composite` route to resolve T1, focuses the application, performs
-a real mouse arc over the canvas, and sends an Arrow key after release. It kills
-both processes and removes the temporary profile in `finally`.
+`W7_SOURCE_COMMIT=d66c66bfdc8d1e284739dc3ecf73ac80b537e4fa bun run scripts/w7-browser-evidence.ts`
 
-The before/after SHA-256 fingerprints are identical. They cover 151 runtime
-files under `apps/web/src`, all packages, lock/package inputs, Vite config, and
-the fingerprint implementation. The browser had `requestPaint`, produced no
-page errors, restored application focus after the arc, and moved from menu row
-7 to row 6 on the subsequent ArrowUp.
+The runner archives exact commit `d66c66bfdc8d1e284739dc3ecf73ac80b537e4fa`
+(tree `7d93de5f0b960adf1ecd3bba72114444bac63ad3`) into a temporary immutable
+snapshot. The archive contains only runtime package/app inputs and excludes
+credentials, `.env*`, `.claude/`, `design.pen`, Git metadata, generated output,
+dependencies, and docs. Dependencies are installed from the frozen lockfile.
+Vite serves only that snapshot on strict dedicated port 3017 with reuse
+forbidden; Chrome uses a fresh profile and CDP port 9337 with
+`CanvasDrawElement` enabled.
 
-The runner itself is committed so the same reviewer can reproduce the result.
+The runner, snapshot health endpoint, and final direct fingerprint all report
+exact digest `8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884`
+and exactly 151 files. The browser had `requestPaint`, produced no page errors,
+restored application focus after the arc, and moved from menu row 7 to row 6 on
+the subsequent ArrowUp.
 
+Mutation command:
+
+`W7_SOURCE_COMMIT=d66c66bfdc8d1e284739dc3ecf73ac80b537e4fa W7_PROVENANCE_PLANT=MIDRUN bun run scripts/w7-browser-evidence.ts`
+
+The plant confirmed its write, then failed source identity: expected
+`8dc78efc…/151`, received `bdd58ebb…/151`. The reviewer can reproduce both the
+green proof and this red control from the named source.

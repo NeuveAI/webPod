@@ -1,12 +1,25 @@
 {
+  "reviewedCommit": "d66c66bfdc8d1e284739dc3ecf73ac80b537e4fa",
+  "reviewedTree": "7d93de5f0b960adf1ecd3bba72114444bac63ad3",
   "route": "http://127.0.0.1:3017/_probe/composite?colourway=black&state=ready&scale=1&fov=30&mode=composited",
   "chromeVersion": "151.0.7922.174",
   "flag": "CanvasDrawElement",
   "requestPaint": true,
   "tier": "T1",
-  "sourceBefore": { "digest": "303ea8d3961d0bdb3fe584fa0f1f9f8e0a46161de246ae750b93739bf01df2a1", "fileCount": 151 },
-  "sourceAfter": { "digest": "303ea8d3961d0bdb3fe584fa0f1f9f8e0a46161de246ae750b93739bf01df2a1", "fileCount": 151 },
-  "sourceStable": true,
+  "expectedSource": { "digest": "8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884", "fileCount": 151 },
+  "healthBefore": {
+    "expected": "8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884",
+    "current": "8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884",
+    "expectedFileCount": 151,
+    "fileCount": 151
+  },
+  "healthAfter": {
+    "expected": "8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884",
+    "current": "8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884",
+    "expectedFileCount": 151,
+    "fileCount": 151
+  },
+  "sourceAfter": { "digest": "8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884", "fileCount": 151 },
   "canvas": { "x": 183, "y": 108.328125, "width": 390, "height": 313 },
   "selectedBeforeArc": "_r_0_-menu-4",
   "selectedAfterArc": "_r_0_-menu-7",
