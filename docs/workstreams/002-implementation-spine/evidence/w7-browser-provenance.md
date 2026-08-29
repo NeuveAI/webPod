@@ -32,3 +32,11 @@ The committed JSON is also parsed through `parseW7BrowserEvidence`. Deleting
 must be a lowercase 40-character Git object id”; deleting `reviewedTree` failed
 independently with the corresponding reviewedTree error. Malformed and
 well-formed-but-mismatched identities have separate deterministic gates.
+
+The producer object now uses `satisfies W7BrowserEvidence` before serialization.
+The exported type describes the complete emitted shape rather than only its
+identity subset. Two independent source mutations prove the compile-time gate:
+deleting `reviewedCommit` fails scripts TypeScript with TS1360 naming the missing
+`reviewedCommit` property; after restoration, deleting `reviewedTree` fails with
+TS1360 naming the missing `reviewedTree` property. The unmodified scripts
+TypeScript gate and both focused evidence test files pass.

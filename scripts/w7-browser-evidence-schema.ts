@@ -1,13 +1,50 @@
+import type { BrowserSourceFingerprint } from './browser-source-fingerprint'
+
 export interface W7SourceIdentity {
   readonly reviewedCommit: string
   readonly reviewedTree: string
 }
 
+export interface W7ValidatedSourceIdentity extends W7SourceIdentity {
+  readonly expectedSource: BrowserSourceFingerprint
+}
+
 export interface W7BrowserEvidence extends W7SourceIdentity {
-  readonly expectedSource: {
-    readonly digest: string
-    readonly fileCount: number
-  }
+  readonly route: string
+  readonly chromeVersion: string
+  readonly flag: 'CanvasDrawElement'
+  readonly requestPaint: boolean
+  readonly tier: string | null
+  readonly expectedSource: BrowserSourceFingerprint
+  readonly healthBefore: W7SourceHealth
+  readonly healthAfter: W7SourceHealth
+  readonly sourceAfter: BrowserSourceFingerprint
+  readonly canvas: W7CanvasBounds
+  readonly selectedBeforeArc: string | null
+  readonly selectedAfterArc: string | null
+  readonly focusAfterArc: W7FocusIdentity
+  readonly selectedAfterKeyboard: string | null
+  readonly keyboardContinued: boolean
+  readonly pageErrors: readonly string[]
+}
+
+export interface W7SourceHealth {
+  readonly expected: string
+  readonly current: string
+  readonly expectedFileCount: number
+  readonly fileCount: number
+}
+
+export interface W7CanvasBounds {
+  readonly x: number
+  readonly y: number
+  readonly width: number
+  readonly height: number
+}
+
+export interface W7FocusIdentity {
+  readonly role: string | null
+  readonly label: string | null
 }
 
 const GIT_OBJECT_ID = /^[a-f0-9]{40}$/u
@@ -20,7 +57,7 @@ const SHA256 = /^[a-f0-9]{64}$/u
 export function parseW7BrowserEvidence(
   value: unknown,
   expected?: W7SourceIdentity,
-): W7BrowserEvidence {
+): W7ValidatedSourceIdentity {
   if (!isRecord(value)) throw new Error('W7 browser evidence must be an object')
   const reviewedCommit = requireObjectId(value, 'reviewedCommit')
   const reviewedTree = requireObjectId(value, 'reviewedTree')

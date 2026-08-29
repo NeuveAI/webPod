@@ -4,17 +4,14 @@ import { join } from 'node:path'
 import { chromium } from '@playwright/test'
 
 import { fingerprintBrowserSources, type BrowserSourceFingerprint } from './browser-source-fingerprint'
-import { parseW7BrowserEvidence } from './w7-browser-evidence-schema'
+import {
+  parseW7BrowserEvidence,
+  type W7BrowserEvidence,
+  type W7SourceHealth,
+} from './w7-browser-evidence-schema'
 
 const port = 3017
 const debugPort = 9337
-
-interface SourceHealth {
-  readonly expected: string
-  readonly current: string
-  readonly expectedFileCount: number
-  readonly fileCount: number
-}
 
 const reviewedCommit = process.env['W7_SOURCE_COMMIT']
 if (reviewedCommit === undefined || reviewedCommit.length === 0) {
@@ -134,7 +131,7 @@ try {
     selectedAfterKeyboard,
     keyboardContinued: selectedAfterKeyboard !== selectedAfterArc,
     pageErrors: errors,
-  }
+  } satisfies W7BrowserEvidence
   parseW7BrowserEvidence(result, { reviewedCommit: resolvedCommit, reviewedTree })
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
   await browser.close()
@@ -157,17 +154,17 @@ function assertFingerprint(actual: BrowserSourceFingerprint, expected: BrowserSo
   }
 }
 
-function assertSourceIdentity(health: SourceHealth, expected: BrowserSourceFingerprint): void {
+function assertSourceIdentity(health: W7SourceHealth, expected: BrowserSourceFingerprint): void {
   if (health.expected !== expected.digest || health.expectedFileCount !== expected.fileCount) {
     throw new Error('Snapshot server expected identity differs from runner identity')
   }
   assertFingerprint({ digest: health.current, fileCount: health.fileCount }, expected, 'immutable served snapshot')
 }
 
-async function readSourceHealth(): Promise<SourceHealth> {
+async function readSourceHealth(): Promise<W7SourceHealth> {
   const response = await fetch(`http://127.0.0.1:${String(port)}/__webpod_health`)
   if (!response.ok) throw new Error(`Source health returned ${String(response.status)}`)
-  return response.json() as Promise<SourceHealth>
+  return response.json() as Promise<W7SourceHealth>
 }
 
 async function assertPortUnused(targetPort: number): Promise<void> {
