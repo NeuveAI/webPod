@@ -52,6 +52,7 @@ import {
 import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
 import { createScreenGeometry } from "./screen-geometry";
 import { createCoverGlassMaterial } from "./physical-materials";
+import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 import {
   applyOpticalProfile,
   createOpticalNormalMap,
@@ -558,7 +559,7 @@ export function Device({
       {/* §5.3 L8 — screen-printed ink. A separate transparent decal is
           required because a multiplicative map cannot lighten the black ring. */}
       <mesh
-        name="wheel-label-decal"
+        name={WHEEL_LABEL_DECAL_NAME}
         geometry={ringGeometry}
         position={[wheel.centerX, wheel.centerY, ringZ + 0.08]}
         renderOrder={2}

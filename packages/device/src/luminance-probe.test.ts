@@ -143,6 +143,34 @@ describe("D-067 probe geometry and identity", () => {
     }
   });
 
+  test("wheel and Select samples keep their separate recessed-surface margins", () => {
+    const targets = probeTargets("black", "front", options);
+    const wheel = DEVICE_LAYOUT.wheel;
+    for (const target of targets) {
+      if (
+        target.surface !== "wheel-ring-black" &&
+        target.surface !== "select-black"
+      ) {
+        continue;
+      }
+      for (const x of target.xs) {
+        const radius = Math.hypot(x, target.y - wheel.centerY);
+        if (target.surface === "wheel-ring-black") {
+          expect(radius).toBeLessThanOrEqual(
+            wheel.outerR - options.controlInset + 1e-9,
+          );
+          expect(radius).toBeGreaterThanOrEqual(
+            wheel.selectR + options.controlInset,
+          );
+        } else {
+          expect(radius).toBeLessThanOrEqual(
+            wheel.selectR - options.controlInset + 1e-9,
+          );
+        }
+      }
+    }
+  });
+
   test("back targets preserve the 168° iso-line through the actual face transform", () => {
     const model = new Group();
     model.rotation.y = Math.PI;

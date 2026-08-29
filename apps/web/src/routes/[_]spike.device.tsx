@@ -34,6 +34,7 @@ import {
   DEVICE_LAYOUT,
   DeviceCanvas,
   evaluate,
+  firstVisibleProbeHit,
   matchesProbeIdentity,
   probeTargets,
   rmsDelta,
@@ -52,7 +53,11 @@ import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
 import {
   CanvasTexture,
   Group,
+  Light,
+  Mesh,
   MeshBasicMaterial,
+  MeshPhysicalMaterial,
+  MeshStandardMaterial,
   Raycaster,
   SRGBColorSpace,
   Vector2,
@@ -280,20 +285,18 @@ function LuminanceProbe() {
         model.localToWorld(point.set(x, target.y, target.z)).project(camera);
         ndc.set(point.x, point.y);
         raycaster.setFromCamera(ndc, camera);
-        const hit = raycaster
-          .intersectObjects(scene.children, true)
-          .find((intersection) =>
-            intersection.object.name.startsWith("device-"),
-          );
-        const material = hit?.object as unknown as {
-          material?: { name?: string } | Array<{ name?: string }>;
-        };
-        const materialNames = Array.isArray(material?.material)
-          ? material.material.map((entry) => entry.name)
-          : [material?.material?.name];
-        if (!matchesProbeIdentity(target, hit?.object.name, materialNames)) {
+        const hit = firstVisibleProbeHit(
+          raycaster.intersectObjects(scene.children, true),
+        );
+        if (
+          !matchesProbeIdentity(
+            target,
+            hit?.objectName,
+            hit?.materialNames ?? [],
+          )
+        ) {
           throw new Error(
-            `device probe rejected ${target.token}: expected ${target.objectName}/${target.materialName}, hit ${hit?.object.name ?? "nothing"}/${materialNames.join("|")}`,
+            `device probe rejected ${target.token}: expected ${target.objectName}/${target.materialName}, hit ${hit?.objectName ?? "nothing"}/${hit?.materialNames.join("|") ?? ""}`,
           );
         }
         const px = Math.min(
@@ -325,40 +328,45 @@ function LuminanceProbe() {
       describe: () => {
         const rows: Array<Record<string, unknown>> = [];
         scene.traverse((object) => {
-          const mesh = object as unknown as {
-            isMesh?: boolean;
-            isLight?: boolean;
-            type?: string;
-            intensity?: number;
-            position?: { x: number; y: number; z: number };
-            material?: Record<string, unknown>;
-          };
-          if (mesh.isLight === true) {
+          if (object instanceof Light) {
             rows.push({
-              kind: mesh.type,
-              intensity: mesh.intensity,
-              position: mesh.position,
+              kind: object.type,
+              intensity: object.intensity,
+              position: object.position,
             });
             return;
           }
-          if (mesh.isMesh !== true || mesh.material === undefined) return;
-          const material = mesh.material;
-          const colour = material.color as
-            { getHexString?: () => string } | undefined;
-          rows.push({
-            kind: material.type,
-            color: colour?.getHexString?.(),
-            roughness: material.roughness,
-            metalness: material.metalness,
-            clearcoat: material.clearcoat,
-            transmission: material.transmission,
-            envMap:
-              material.envMap === null || material.envMap === undefined
-                ? null
-                : "set",
-            envMapIntensity: material.envMapIntensity,
-            toneMapped: material.toneMapped,
-          });
+          if (!(object instanceof Mesh)) return;
+          const materials = Array.isArray(object.material)
+            ? object.material
+            : [object.material];
+          for (const material of materials) {
+            if (material instanceof MeshStandardMaterial) {
+              rows.push({
+                kind: material.type,
+                color: material.color.getHexString(),
+                roughness: material.roughness,
+                metalness: material.metalness,
+                clearcoat:
+                  material instanceof MeshPhysicalMaterial
+                    ? material.clearcoat
+                    : undefined,
+                transmission:
+                  material instanceof MeshPhysicalMaterial
+                    ? material.transmission
+                    : undefined,
+                envMap: material.envMap === null ? null : "set",
+                envMapIntensity: material.envMapIntensity,
+                toneMapped: material.toneMapped,
+              });
+            } else if (material instanceof MeshBasicMaterial) {
+              rows.push({
+                kind: material.type,
+                color: material.color.getHexString(),
+                toneMapped: material.toneMapped,
+              });
+            }
+          }
         });
         return rows;
       },

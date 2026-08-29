@@ -92,6 +92,11 @@ export {
   patchGlassShader,
 } from "./physical-materials";
 export {
+  firstVisibleProbeHit,
+  WHEEL_LABEL_DECAL_NAME,
+  type ProbeHitIdentity,
+} from "./probe-raycast";
+export {
   applyOpticalProfile,
   createOpticalNormalMap,
   DEFAULT_DEVICE_OPTICAL_PROFILES,
