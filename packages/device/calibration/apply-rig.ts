@@ -83,6 +83,9 @@ const TARGETS: ReadonlyArray<readonly [string, string, string]> = [
   ["form.selectProud", "packages/device/src/form.ts", "selectProud"],
   ["form.frontBevel", "packages/device/src/form.ts", "frontBevel"],
   ["form.bodyCrown", "packages/device/src/form.ts", "bodyCrown"],
+  ["form.topEdgeCrown", "packages/device/src/form.ts", "topEdgeCrown"],
+  ["form.bottomEdgeCrown", "packages/device/src/form.ts", "bottomEdgeCrown"],
+  ["form.edgeCrownExtent", "packages/device/src/form.ts", "edgeCrownExtent"],
   ["form.seamWidth", "packages/device/src/form.ts", "seamWidth"],
 ];
 

@@ -330,6 +330,8 @@ export function Device({
       extrusion,
       body.height / 2 - seam,
       form.bodyCrown,
+      undefined,
+      { top: form.topEdgeCrown, bottom: form.bottomEdgeCrown, extent: form.edgeCrownExtent },
     );
     extrusion.dispose();
     geometry.translate(0, 0, plateBackZ + form.frontBevel);
@@ -345,6 +347,9 @@ export function Device({
     form.frontThickness,
     form.frontBevel,
     form.bodyCrown,
+    form.topEdgeCrown,
+    form.bottomEdgeCrown,
+    form.edgeCrownExtent,
     plateBackZ,
     isBlack,
     parsedOptical,

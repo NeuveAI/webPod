@@ -42,6 +42,36 @@ export function verticalCrownSlope(
   return (-2 * crown * y) / (halfHeight * halfHeight);
 }
 
+export type EdgeCrown = {
+  readonly top: number;
+  readonly bottom: number;
+  readonly extent: number;
+};
+
+/** Z-only molded edge lip; applying it to both faces preserves shell thickness. */
+export function edgeCrownOffset(y: number, halfHeight: number, edge: EdgeCrown): number {
+  if (edge.top === 0 && edge.bottom === 0) return 0;
+  if (!(edge.extent > 0) || !Number.isFinite(edge.extent)) {
+    throw new Error(`edge crown extent must be finite and positive; got ${edge.extent}`);
+  }
+  const distance = halfHeight - Math.abs(y);
+  if (distance < 0 || distance > edge.extent) return 0;
+  return (y >= 0 ? edge.top : edge.bottom) *
+    Math.sin((Math.PI * distance) / edge.extent);
+}
+
+/** Derivative dz/dy of {@link edgeCrownOffset}. */
+export function edgeCrownSlope(y: number, halfHeight: number, edge: EdgeCrown): number {
+  if (edge.top === 0 && edge.bottom === 0) return 0;
+  if (!(edge.extent > 0) || !Number.isFinite(edge.extent)) {
+    throw new Error(`edge crown extent must be finite and positive; got ${edge.extent}`);
+  }
+  const distance = halfHeight - Math.abs(y);
+  if (distance < 0 || distance > edge.extent) return 0;
+  return (y >= 0 ? edge.top : edge.bottom) * (Math.PI / edge.extent) *
+    Math.cos((Math.PI * distance) / edge.extent) * (y >= 0 ? -1 : 1);
+}
+
 /**
  * The front extrusion must contain a real core between its two bevels.
  *
@@ -171,6 +201,7 @@ export function tessellateVerticalCrown(
   halfHeight: number,
   crown: number,
   rowStep = BODY_CROWN_ROW_STEP,
+  edge: EdgeCrown = { top: 0, bottom: 0, extent: 1 },
 ): BufferGeometry {
   if (!(rowStep > 0) || !Number.isFinite(rowStep)) {
     throw new Error(
@@ -202,10 +233,12 @@ export function tessellateVerticalCrown(
   const emit = (a: Vertex, b: Vertex, c: Vertex, capFacing: -1 | 0 | 1) => {
     const transformed = [a, b, c].map((vertex) => ({
       vertex,
-      z: vertex.z + verticalCrownOffset(vertex.y, halfHeight, crown),
+      z: vertex.z + verticalCrownOffset(vertex.y, halfHeight, crown) +
+        edgeCrownOffset(vertex.y, halfHeight, edge),
       normal: transformedNormal(
         vertex,
-        verticalCrownSlope(vertex.y, halfHeight, crown),
+        verticalCrownSlope(vertex.y, halfHeight, crown) +
+          edgeCrownSlope(vertex.y, halfHeight, edge),
         capFacing,
       ),
     }));

@@ -34,6 +34,12 @@ export type DeviceFormParams = {
   readonly frontBevel: number;
   /** Maximum forward sag of the front plate's smooth vertical crown. */
   readonly bodyCrown: number;
+  /** Secondary molded crown depth near the top edge; zero removes it exactly. */
+  readonly topEdgeCrown: number;
+  /** Secondary molded crown depth near the bottom edge; zero removes it exactly. */
+  readonly bottomEdgeCrown: number;
+  /** Inboard reach of both secondary edge crowns. */
+  readonly edgeCrownExtent: number;
   /** Radius of the rolled edge on the steel back's face. */
   readonly backBevel: number;
   /** How far below the body face the wheel ring sits. §5.3: "1.5px below". */
@@ -66,6 +72,9 @@ export const DEFAULT_DEVICE_FORM: DeviceFormParams = {
   frontThickness: 14,
   frontBevel: 5.875,
   bodyCrown: -2.125,
+  topEdgeCrown: 0,
+  bottomEdgeCrown: 0,
+  edgeCrownExtent: 28,
   backBevel: 3.5,
   recessDepth: 0.9688,
   ringDishTiltDeg: 0.9918,

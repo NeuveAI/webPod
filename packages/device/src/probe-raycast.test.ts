@@ -157,7 +157,11 @@ describe("first visible probe hit", () => {
     expect(sourceFront).toBeDefined();
     if (sourceFront === undefined) return;
     const crown = -2;
-    const geometry = tessellateVerticalCrown(source, 40, crown);
+    const geometry = tessellateVerticalCrown(source, 40, crown, undefined, {
+      top: 3,
+      bottom: -3,
+      extent: 36,
+    });
     geometry.translate(0, 0, 7);
     const material = new MeshBasicMaterial();
     material.name = "body-black";

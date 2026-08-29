@@ -120,5 +120,8 @@
   "opticalProfiles.bodyWhiteRoughness.4.1": 1,
   "opticalProfiles.wheelBlack.3.1": 0,
   "opticalProfiles.selectBlack.3.1": 0,
-  "opticalProfiles.selectWhite.3.1": 0
+  "opticalProfiles.selectWhite.3.1": 0,
+  "form.topEdgeCrown": 0,
+  "form.bottomEdgeCrown": 0,
+  "form.edgeCrownExtent": 28
 }

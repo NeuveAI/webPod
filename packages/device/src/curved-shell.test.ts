@@ -8,6 +8,8 @@ import {
 
 import {
   BODY_CROWN_ROW_STEP,
+  edgeCrownOffset,
+  edgeCrownSlope,
   frontCoreDepth,
   tessellateVerticalCrown,
   verticalCrownOffset,
@@ -110,6 +112,43 @@ function markOriginalFrontCap(geometry: ExtrudeGeometry) {
 }
 
 describe("tessellated vertical shell crown", () => {
+  test("zero secondary crown is byte-identical", () => {
+    const source = new ExtrudeGeometry(rectangle(40, 80), { depth: 14, bevelEnabled: false });
+    const baseline = tessellateVerticalCrown(source, 40, -6, 4);
+    const zero = tessellateVerticalCrown(source, 40, -6, 4, { top: 0, bottom: 0, extent: 36 });
+    for (const name of ["position", "normal", "uv", "crownCap"]) {
+      expect(Array.from(zero.getAttribute(name).array)).toEqual(Array.from(baseline.getAttribute(name).array));
+    }
+    source.dispose(); baseline.dispose(); zero.dispose();
+  });
+
+  test("bounded edge crown is local, manifold, smooth, and thickness-preserving", () => {
+    const edge = { top: 3, bottom: -3, extent: 36 };
+    expect(edgeCrownOffset(0, 40, edge)).toBe(0);
+    expect(edgeCrownSlope(0, 40, edge)).toBe(0);
+    const source = new ExtrudeGeometry(rectangle(40, 80), { depth: 14, bevelEnabled: false });
+    const geometry = tessellateVerticalCrown(source, 40, -6, 4, edge);
+    const positions = geometry.getAttribute("position");
+    const normals = geometry.getAttribute("normal");
+    const spans = new Map<string, { min: number; max: number }>();
+    for (let index = 0; index < positions.count; index += 1) {
+      const key = `${positions.getX(index).toFixed(4)}:${positions.getY(index).toFixed(4)}`;
+      const z = positions.getZ(index);
+      const span = spans.get(key) ?? { min: z, max: z };
+      span.min = Math.min(span.min, z); span.max = Math.max(span.max, z); spans.set(key, span);
+      expect(new Vector3(normals.getX(index), normals.getY(index), normals.getZ(index)).length()).toBeCloseTo(1, 5);
+    }
+    for (const span of [...spans.values()].filter((value) => value.max - value.min > 13)) {
+      expect(span.max - span.min).toBeCloseTo(14, 5);
+    }
+    for (let index = 0; index < positions.count; index += 3) {
+      const a = new Vector3().fromBufferAttribute(positions, index);
+      const b = new Vector3().fromBufferAttribute(positions, index + 1);
+      const c = new Vector3().fromBufferAttribute(positions, index + 2);
+      expect(b.sub(a).cross(c.sub(a)).lengthSq()).toBeGreaterThan(1e-12);
+    }
+    source.dispose(); geometry.dispose();
+  });
   test("is one smooth macro curve with fixed top and bottom joins", () => {
     expect(verticalCrownOffset(-100, 100, 12)).toBe(0);
     expect(verticalCrownOffset(0, 100, 12)).toBe(12);

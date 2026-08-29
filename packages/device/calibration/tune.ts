@@ -273,6 +273,9 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
   // One smooth cylindrical crown over the whole front plate. This is the
   // macro-geometry degree D-067 leaves open, not a stop-local normal profile.
   { path: "form.bodyCrown", min: -30, max: 30, step: 2 },
+  { path: "form.topEdgeCrown", min: -3, max: 3, step: 0.5 },
+  { path: "form.bottomEdgeCrown", min: -3, max: 3, step: 0.5 },
+  { path: "form.edgeCrownExtent", min: 18, max: 36, step: 3 },
   { path: "form.seamWidth", min: 1, max: 9, step: 0.4 },
 ];
 
@@ -641,6 +644,36 @@ async function main() {
   let bestResults = await scoreStage(best, settleMs);
   let bestScore = objective(bestResults);
   console.error(`[${stage}] start ${objectiveLabel(bestScore)}`);
+
+  if (command === "edge-crown-sweep") {
+    const rows = [];
+    for (let extent = 18; extent <= 36; extent += 3) {
+      for (let depth = 0.5; depth <= 3; depth += 0.5) {
+        const candidate = {
+          ...best,
+          "form.topEdgeCrown": depth,
+          "form.bottomEdgeCrown": -depth,
+          "form.edgeCrownExtent": extent,
+        };
+        rows.push({ extent, depth, results: await scoreStage(candidate, 100) });
+      }
+    }
+    console.log(JSON.stringify({
+      schema: "webpod-edge-crown-sweep-v1",
+      baseline: bestResults,
+      constraints: {
+        bodyWidth: 330,
+        bodyHeight: 552,
+        cornerRadius: 26,
+        frontThickness: 14,
+        maxDepth: 3,
+        extent: { min: 18, max: 36, step: 3 },
+      },
+      rows,
+    }, null, 2));
+    page.close();
+    return;
+  }
 
   if (command?.includes("sensitivity")) {
     const factor = Number(arg ?? 1);
