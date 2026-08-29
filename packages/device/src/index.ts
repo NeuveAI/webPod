@@ -124,6 +124,7 @@ export {
 export {
   addOpticalProfile,
   applyOpticalProfile,
+  createBodyRoughnessMap,
   createOpticalNormalMap,
   DEFAULT_DEVICE_OPTICAL_PROFILES,
   type DeviceOpticalProfiles,

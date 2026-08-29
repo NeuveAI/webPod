@@ -233,6 +233,16 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
       path: `opticalProfiles.${surface}.${knot}.1`, min: -10, max: 10, step: 0.5,
     })),
   ),
+  ...["bodyBlackLateral", "bodyWhiteLateral"].flatMap((surface) =>
+    Array.from({ length: 8 }, (_, knot) => ({
+      path: `opticalProfiles.${surface}.${knot}.1`, min: -12, max: 12, step: 0.5,
+    })),
+  ),
+  ...["bodyBlackRoughness", "bodyWhiteRoughness"].flatMap((surface) =>
+    Array.from({ length: 5 }, (_, knot) => ({
+      path: `opticalProfiles.${surface}.${knot}.1`, min: 0.1, max: 1, step: 0.05,
+    })),
+  ),
   ...["wheelBlack", "selectBlack", "selectWhite"].flatMap((surface) =>
     Array.from({ length: 4 }, (_, knot) => ({
       path: `opticalProfiles.${surface}.${knot}.1`, min: -8, max: 8, step: 0.5,
@@ -532,6 +542,8 @@ async function main() {
             (knob) =>
               command?.includes("profile")
                 ? knob.path.startsWith("opticalProfiles.bodyBlack")
+                : command?.includes("scalar")
+                  ? knob.path.startsWith("materials.bodyBlack.")
                 : knob.path.startsWith("materials.bodyBlack.") ||
                   knob.path.startsWith("opticalProfiles.bodyBlack"),
           )
@@ -594,9 +606,11 @@ async function main() {
     const steel = results.filter((result) => result.surface === "steel-back");
     const whiteWheel = results.filter((result) => result.surface === "wheel-ring-white");
     if (
-      steel.length !== 11 || steel.some((result) => !result.pass) ||
-      (targetSurface !== "wheel-ring-white" &&
-        (whiteWheel.length !== 4 || whiteWheel.some((result) => !result.pass)))
+      !command?.includes("sensitivity") &&
+      (steel.length !== 11 ||
+        steel.some((result) => !result.pass) ||
+        (targetSurface !== "wheel-ring-white" &&
+          (whiteWheel.length !== 4 || whiteWheel.some((result) => !result.pass))))
     ) {
       return [
         {
@@ -618,10 +632,39 @@ async function main() {
   let scale = Number(arg2 ?? 4);
 
   let best = ownedPatch(stage, start);
-  const settleMs = stage === "room" || stage === "all" ? 500 : SETTLE_MS;
+  const settleMs = stage === "room" || stage === "all" ? 500 : targetSurface !== null ? 100 : SETTLE_MS;
   let bestResults = await scoreStage(best, settleMs);
   let bestScore = objective(bestResults);
   console.error(`[${stage}] start ${objectiveLabel(bestScore)}`);
+
+  if (command?.includes("sensitivity")) {
+    const factor = Number(arg ?? 1);
+    const rows = [];
+    for (const knob of knobs) {
+      const center = best[knob.path];
+      if (center === undefined) continue;
+      for (const direction of [-1, 1]) {
+        const next = center + direction * knob.step * factor;
+        if (next < knob.min || next > knob.max) continue;
+        const candidate = { ...best, [knob.path]: next };
+        const measured = await scoreStage(candidate, settleMs);
+        rows.push({
+          path: knob.path,
+          direction,
+          amount: next - center,
+          response: measured.map((result, index) => ({
+            token: result.token,
+            measuredLuma: result.measuredLuma,
+            deltaFromBaseline:
+              result.measuredLuma - (bestResults[index]?.measuredLuma ?? result.measuredLuma),
+          })),
+        });
+      }
+    }
+    console.log(JSON.stringify({ baseline: bestResults, sensitivities: rows }, null, 2));
+    page.close();
+    return;
+  }
 
   if (command?.startsWith("search")) {
     const random = seededRandom(0x57a4c);

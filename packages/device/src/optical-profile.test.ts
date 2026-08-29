@@ -1,8 +1,16 @@
 import { describe, expect, test } from "bun:test";
 import { PlaneGeometry } from "three";
-import { addOpticalProfile, applyOpticalProfile, createOpticalNormalMap } from "./optical-profile";
+import { addOpticalProfile, applyOpticalProfile, createBodyRoughnessMap, createOpticalNormalMap } from "./optical-profile";
 
 describe("moulded-surface optical profile", () => {
+  test("body roughness is encoded in Three's green channel", () => {
+    const map = createBodyRoughnessMap([[0, 0.25], [1, 1]], 2, 3);
+    const data = map.image.data as Uint8Array;
+    expect(data[1]).toBeGreaterThan(247);
+    expect(data.at(-3)).toBeGreaterThan(60);
+    expect(data.at(-3)).toBeLessThan(65);
+    map.dispose();
+  });
   test("zero additive profile preserves a pre-existing crown normal", () => {
     const geometry = new PlaneGeometry(2, 2, 2, 2);
     const normals = geometry.getAttribute("normal");

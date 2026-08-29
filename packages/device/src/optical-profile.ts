@@ -12,8 +12,10 @@ export type OpticalProfile = ReadonlyArray<
 export type DeviceOpticalProfiles = {
   readonly bodyBlack: OpticalProfile;
   readonly bodyBlackLateral: OpticalProfile;
+  readonly bodyBlackRoughness: OpticalProfile;
   readonly bodyWhite: OpticalProfile;
   readonly bodyWhiteLateral: OpticalProfile;
+  readonly bodyWhiteRoughness: OpticalProfile;
   readonly wheelBlack: OpticalProfile;
   readonly wheelBlackLateral: OpticalProfile;
   readonly wheelWhite: OpticalProfile;
@@ -28,8 +30,10 @@ const flat = (ats: ReadonlyArray<number>): OpticalProfile =>
 export const DEFAULT_DEVICE_OPTICAL_PROFILES: DeviceOpticalProfiles = {
   bodyBlack: flat([0, 0.05, 0.19, 0.44, 0.62, 0.81, 0.93, 1]),
   bodyBlackLateral: flat([0, 0.05, 0.19, 0.44, 0.62, 0.81, 0.93, 1]),
+  bodyBlackRoughness: [[0, 1], [0.25, 1], [0.5, 1], [0.75, 1], [1, 1]],
   bodyWhite: flat([0, 0.06, 0.21, 0.47, 0.64, 0.82, 0.94, 1]),
   bodyWhiteLateral: flat([0, 0.06, 0.21, 0.47, 0.64, 0.82, 0.94, 1]),
+  bodyWhiteRoughness: [[0, 1], [0.25, 1], [0.5, 1], [0.75, 1], [1, 1]],
   wheelBlack: flat([0, 0.38, 0.62, 1]),
   wheelBlackLateral: flat([0, 0.38, 0.62, 1]),
   wheelWhite: flat([0, 0.38, 0.62, 1]),
@@ -64,6 +68,34 @@ export function createOpticalNormalMap(
   texture.wrapT = ClampToEdgeWrapping;
   texture.minFilter = LinearFilter;
   texture.magFilter = LinearFilter;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+/** Three reads roughness from green; RGBA avoids the old RedFormat no-op. */
+export function createBodyRoughnessMap(
+  profile: OpticalProfile,
+  width = 128,
+  height = 512,
+): DataTexture {
+  let state = 0x5eed1234;
+  const random = () => {
+    state ^= state << 13; state ^= state >>> 17; state ^= state << 5;
+    return (state >>> 0) / 0x1_0000_0000;
+  };
+  const data = new Uint8Array(width * height * 4);
+  for (let y = 0; y < height; y += 1) {
+    const factor = Math.max(0, Math.min(1, sample(profile, 1 - y / (height - 1))));
+    for (let x = 0; x < width; x += 1) {
+      const offset = (y * width + x) * 4;
+      const roughness = factor * (1 - random() * 0.02);
+      data[offset] = 255; data[offset + 1] = Math.round(255 * roughness);
+      data[offset + 2] = 255; data[offset + 3] = 255;
+    }
+  }
+  const texture = new DataTexture(data, width, height, RGBAFormat);
+  texture.wrapS = ClampToEdgeWrapping; texture.wrapT = ClampToEdgeWrapping;
+  texture.minFilter = LinearFilter; texture.magFilter = LinearFilter;
   texture.needsUpdate = true;
   return texture;
 }
