@@ -1,120 +1,189 @@
-# W0.2 — history rewrite: prepared, NOT run
+# W0.2 — reconciled owner-only history rewrite plan
 
-**Status: prepared and stopped.** Nothing in this file has been executed. Per repo law in
-`AGENTS.md`, an agent may prepare a rewrite and print the commands; the owner runs them.
+**Status: prepared and not run against an authoritative branch or remote.** This
+is the single authoritative sequence for S2 boundary repair, W0 history hygiene,
+and publication preparation. An agent may validate it only in disposable clones.
+Only the owner may run it against the repository that will be published, and only
+the owner may execute the final force-with-lease command.
 
-> `origin/main` is already at `2305f4b`, and that commit is one of the ones this rewrite
-> changes. Publishing the result therefore requires a **force-push, which the owner performs.**
+The binding order is: committed `main` → verified S2 clone → verified W0 clone →
+remote-lease reconstruction. The W0 workspace must never be cloned or reset from
+the original repository or pre-S2 remote. Equality checks below make that mistake
+fatal before pass 1.
 
----
+## 1. Fixed paths, refs, and pre-rewrite state
 
-## 1. What the rewrite has to do
-
-> ⚑ **Where the hashes in this section are valid.** Every hash named below — `2305f4b`,
-> `8f27b02` and the rest — refers to the **original repo** (`~/code/webPod`), which the
-> rewrite never modifies. **None of them resolve inside `~/code/webPod-rewrite`**, because
-> every commit from `2305f4b` onward gets a new hash there. Anything you run inside the
-> rewritten clone identifies commits by message, as §4.1 does. The snapshots below were
-> measured at the time of writing and the tip has moved since; §3.0 re-verifies the three
-> invariants that actually matter at the moment you run this.
-
-Three things, and only these three:
-
-| # | Change | Which commits actually carry it |
-|---|---|---|
-| 1 | Remove `.claude/` from history | `2305f4b` (adds `.claude/settings.local.json`), `8f27b02` (deletes it) |
-| 2 | Rename `CLAUDE.md` → `AGENTS.md` | `2305f4b` (adds `CLAUDE.md`), `8f27b02` (renames it) |
-| 3 | Strip the `Co-Authored-By` trailer | `2305f4b` only — it is the only commit in the repo carrying one |
-
-Measured, not assumed:
-
-```
-$ git log --all --format='%h %s' --name-only -- .claude CLAUDE.md AGENTS.md
-8f27b02 chore: repo hygiene and agent instruction law
-.claude/settings.local.json
-AGENTS.md
-CLAUDE.md
-2305f4b docs: interface design handover (workstream 001)
-.claude/settings.local.json
-CLAUDE.md
-
-$ for c in $(git rev-list --reverse HEAD); do ... done
-1efe77e  design: add base design.pen and some exported frames    trailers:[]
-92c5e41  design: cleanup and improvements                        trailers:[]
-2516827  design: refinements                                     trailers:[]
-2305f4b  docs: interface design handover (workstream 001)        trailers:[Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>]
-9e65a48  chore: bun workspace scaffold                           trailers:[]
-8f27b02  chore: repo hygiene and agent instruction law           trailers:[]
-```
-
-**Consequence for hashes.** The earliest commit any of the three changes touches is `2305f4b`.
-So `1efe77e`, `92c5e41` and `2516827` keep their hashes; `2305f4b` and everything after it get
-new ones. The three design commits are untouched, and `design.pen` is never rewritten.
-
----
-
-## 2. Prerequisite
-
-`git-filter-repo` is **not installed** on this machine:
-
-```
-$ command -v git-filter-repo
-(nothing)
-$ git filter-repo --version
-git: 'filter-repo' is not a git command.
-```
-
-Install it first (Homebrew is the path of least resistance on this machine; the repo's
-`bun`/`bunx`-only law governs the JS toolchain, not system package managers):
+Run after teammates stop and the owner preserves the intentional artifacts in
+`handoff.md`. An existing destination is a stop condition; there is deliberately
+no recursive-delete recovery command.
 
 ```bash
-brew install git-filter-repo
+SOURCE_REPO=/Users/vinicius/code/webPod
+S2_REPO=/Users/vinicius/code/webPod-s2-rewrite
+W0_REPO=/Users/vinicius/code/webPod-history-rewrite
+STATE_FILE=/Users/vinicius/code/webPod-history-rewrite-state.gitconfig
+REMOTE_URL=git@github.com:NeuveAI/webPod.git
+PUBLISH_BRANCH=main
+MIXED_COMMIT=55b34dd
+
+test ! -e "$S2_REPO"
+test ! -e "$W0_REPO"
+test ! -e "$STATE_FILE"
+test "$(git -C "$SOURCE_REPO" branch --show-current)" = "$PUBLISH_BRANCH"
+test "$(git -C "$SOURCE_REPO" remote get-url origin)" = "$REMOTE_URL"
+
+git -C "$SOURCE_REPO" fetch --no-tags origin \
+  refs/heads/main:refs/remotes/origin/main
+EXPECTED_REMOTE_MAIN=$(git -C "$SOURCE_REPO" rev-parse refs/remotes/origin/main)
+LIVE_REMOTE_MAIN=$(git -C "$SOURCE_REPO" ls-remote --exit-code origin \
+  refs/heads/main | cut -f1)
+test -n "$EXPECTED_REMOTE_MAIN"
+test "$LIVE_REMOTE_MAIN" = "$EXPECTED_REMOTE_MAIN"
+
+SOURCE_TIP=$(git -C "$SOURCE_REPO" rev-parse refs/heads/main)
+SOURCE_TREE=$(git -C "$SOURCE_REPO" rev-parse "$SOURCE_TIP^{tree}")
+SOURCE_COUNT=$(git -C "$SOURCE_REPO" rev-list --count "$SOURCE_TIP")
+test "$(git -C "$SOURCE_REPO" log --reverse --format='%h' -- \
+  .claude CLAUDE.md | head -1)" = 2305f4b
+test "$(git -C "$SOURCE_REPO" log --format='%h %(trailers:only=true)' \
+  | grep -iEc 'co-authored-by|claude-session|generated with')" = 1
+git -C "$SOURCE_REPO" merge-base --is-ancestor 2305f4b "$SOURCE_TIP"
+git -C "$SOURCE_REPO" merge-base --is-ancestor "$MIXED_COMMIT" "$SOURCE_TIP"
+
+git config --file "$STATE_FILE" rewrite.sourceTip "$SOURCE_TIP"
+git config --file "$STATE_FILE" rewrite.sourceTree "$SOURCE_TREE"
+git config --file "$STATE_FILE" rewrite.sourceCount "$SOURCE_COUNT"
+git config --file "$STATE_FILE" rewrite.expectedRemoteMain "$EXPECTED_REMOTE_MAIN"
+git config --file "$STATE_FILE" rewrite.remoteUrl "$REMOTE_URL"
 ```
 
----
+The state file is outside all repositories and contains only object IDs and the
+remote URL. It is the validated transfer contract between phases.
 
-## 3. The commands
+## 2. S2 boundary split in its own clone
 
-Run these on a **fresh clone**, not on the working repo. `git filter-repo` refuses to run on a
-repo with uncommitted state or an existing origin unless forced, and it drops the `origin`
-remote by design — working on a clone keeps the original recoverable if anything goes wrong.
-
-> **This plan is deliberately tip-independent.** It was written while other lanes were
-> committing, so it names no specific HEAD. Everything below is expressed as invariants you
-> verify at the time you run it, not as a snapshot that goes stale the next time anyone commits.
+This is the only clone sourced from the original repository. It copies committed
+`main`, not uncommitted source artifacts.
 
 ```bash
-# 3.0 — starting point. Record the current tip and confirm the invariants the
-#       rewrite depends on. Do not expect a particular hash here.
-cd ~/code/webPod
-BEFORE_TIP=$(git rev-parse HEAD); echo "before: $BEFORE_TIP"
-BEFORE_COUNT=$(git rev-list --count HEAD); echo "commits: $BEFORE_COUNT"
+git clone --no-local --branch "$PUBLISH_BRANCH" "$SOURCE_REPO" "$S2_REPO"
+test "$(git -C "$S2_REPO" rev-parse HEAD)" = "$SOURCE_TIP"
+test "$(git -C "$S2_REPO" rev-parse HEAD^{tree})" = "$SOURCE_TREE"
+test "$(git -C "$S2_REPO" rev-list --count HEAD)" = "$SOURCE_COUNT"
+test -z "$(git -C "$S2_REPO" status --short)"
 
-# Invariant 1 — 2305f4b is still the first commit carrying .claude/ and CLAUDE.md,
-#               so it is the earliest commit the rewrite touches.
-git log --reverse --format='%h' -- .claude CLAUDE.md | head -1     # expect: 2305f4b
+git -C "$S2_REPO" branch backup/s2-before-split "$SOURCE_TIP"
+git -C "$S2_REPO" tag "backup-s2-before-split-$(date +%Y%m%d-%H%M%S)" \
+  "$SOURCE_TIP"
+git -C "$S2_REPO" rebase -i --rebase-merges "$MIXED_COMMIT^"
+```
 
-# Invariant 2 — 2305f4b is still the only commit with a banned trailer.
-git log --format='%h %(trailers:only=true)' | grep -iE 'co-authored-by|claude-session'
-                                                                    # expect: one line, 2305f4b
+In the todo, change only `pick 55b34dd feat(state): screen state machine` to
+`edit 55b34dd feat(state): screen state machine`. When rebase stops:
 
-# Invariant 3 — history has not already been rewritten.
-git merge-base --is-ancestor 2305f4b HEAD && echo "2305f4b is an ancestor: OK"
+```bash
+git -C "$S2_REPO" reset HEAD^
+git -C "$S2_REPO" add -- \
+  packages/state/src/contract.ts packages/state/src/index.ts \
+  packages/state/src/menu.ts packages/state/src/screen.test.ts \
+  packages/state/src/screen.ts packages/state/src/store.test.ts \
+  packages/state/src/store.ts
+git -C "$S2_REPO" commit -m "feat(state): screen state machine"
 
-# 3.1 — fresh clone to operate on.
-cd ~/code
-git clone webPod webPod-rewrite
-cd webPod-rewrite
+git -C "$S2_REPO" add -- \
+  docs/workstreams/002-implementation-spine/decisions/s1.md \
+  docs/workstreams/002-implementation-spine/evidence/apple-capability-spike.md
+git -C "$S2_REPO" commit -m "docs(apple): revise capability evidence"
 
-# 3.2 — the trailer-stripping callback, as a file so the quoting is unambiguous.
-cat > /tmp/strip-trailers.py <<'PY'
+git -C "$S2_REPO" add -- scripts/spikes/mint-apple-dev-token.ts \
+  scripts/spikes/probe-apple.ts \
+  docs/workstreams/002-implementation-spine/decisions/s2.md \
+  docs/workstreams/002-implementation-spine/evidence/apple-empirical-probe.md
+git -C "$S2_REPO" commit -m \
+  "spike(apple): probe catalog capabilities read-only"
+git -C "$S2_REPO" rebase --continue
+```
+
+Verify and record the exact S2 output:
+
+```bash
+S2_TIP=$(git -C "$S2_REPO" rev-parse refs/heads/main)
+S2_TREE=$(git -C "$S2_REPO" rev-parse "$S2_TIP^{tree}")
+S2_COUNT=$(git -C "$S2_REPO" rev-list --count "$S2_TIP")
+test "$S2_TREE" = "$SOURCE_TREE"
+test "$S2_COUNT" = "$((SOURCE_COUNT + 2))"
+test -z "$(git -C "$S2_REPO" status --short)"
+
+STATE_SPLIT=$(git -C "$S2_REPO" log --format='%H' \
+  --grep='^feat(state): screen state machine$')
+S1_SPLIT=$(git -C "$S2_REPO" log --format='%H' \
+  --grep='^docs(apple): revise capability evidence$')
+S2_SPLIT=$(git -C "$S2_REPO" log --format='%H' \
+  --grep='^spike(apple): probe catalog capabilities read-only$')
+test "$(printf '%s\n' "$STATE_SPLIT" | grep -c .)" = 1
+test "$(printf '%s\n' "$S1_SPLIT" | grep -c .)" = 1
+test "$(printf '%s\n' "$S2_SPLIT" | grep -c .)" = 1
+test "$(git -C "$S2_REPO" rev-parse "$S1_SPLIT^")" = "$STATE_SPLIT"
+test "$(git -C "$S2_REPO" rev-parse "$S2_SPLIT^")" = "$S1_SPLIT"
+
+git config --file "$STATE_FILE" rewrite.s2Tip "$S2_TIP"
+git config --file "$STATE_FILE" rewrite.s2Tree "$S2_TREE"
+git config --file "$STATE_FILE" rewrite.s2Count "$S2_COUNT"
+git config --file "$STATE_FILE" rewrite.stateSplit "$STATE_SPLIT"
+git config --file "$STATE_FILE" rewrite.s1Split "$S1_SPLIT"
+git config --file "$STATE_FILE" rewrite.s2Split "$S2_SPLIT"
+
+git -C "$S2_REPO" diff --exit-code "$SOURCE_TIP^{tree}" "$S2_TIP^{tree}"
+bun --cwd "$S2_REPO" run typecheck
+bun --cwd "$S2_REPO" test
+bun --cwd "$S2_REPO" run lint
+bun --cwd "$S2_REPO" run gates
+```
+
+## 3. Validated S2 → W0 transfer
+
+The source here is `$S2_REPO` — never `$SOURCE_REPO`, GitHub, or `origin`.
+
+```bash
+EXPECTED_S2_TIP=$(git config --file "$STATE_FILE" rewrite.s2Tip)
+EXPECTED_S2_TREE=$(git config --file "$STATE_FILE" rewrite.s2Tree)
+EXPECTED_S2_COUNT=$(git config --file "$STATE_FILE" rewrite.s2Count)
+
+test "$(git -C "$S2_REPO" rev-parse refs/heads/main)" = "$EXPECTED_S2_TIP"
+test "$(git -C "$S2_REPO" rev-parse HEAD^{tree})" = "$EXPECTED_S2_TREE"
+test "$(git -C "$S2_REPO" rev-list --count HEAD)" = "$EXPECTED_S2_COUNT"
+
+git clone --no-local --branch "$PUBLISH_BRANCH" "$S2_REPO" "$W0_REPO"
+test "$(git -C "$W0_REPO" rev-parse refs/heads/main)" = "$EXPECTED_S2_TIP"
+test "$(git -C "$W0_REPO" rev-parse HEAD^{tree})" = "$EXPECTED_S2_TREE"
+test "$(git -C "$W0_REPO" rev-list --count HEAD)" = "$EXPECTED_S2_COUNT"
+test -z "$(git -C "$W0_REPO" status --short)"
+
+for key in stateSplit s1Split s2Split; do
+  oid=$(git config --file "$STATE_FILE" "rewrite.$key")
+  git -C "$W0_REPO" cat-file -e "$oid^{commit}"
+  git -C "$W0_REPO" merge-base --is-ancestor "$oid" "$EXPECTED_S2_TIP"
+done
+test "$(git -C "$W0_REPO" rev-parse \
+  "$(git config --file "$STATE_FILE" rewrite.s1Split)^")" = \
+  "$(git config --file "$STATE_FILE" rewrite.stateSplit)"
+test "$(git -C "$W0_REPO" rev-parse \
+  "$(git config --file "$STATE_FILE" rewrite.s2Split)^")" = \
+  "$(git config --file "$STATE_FILE" rewrite.s1Split)"
+```
+
+These guards prove the split commits, their order, and unchanged S2 tree are the
+actual W0 input before pass 1.
+
+## 4. W0 rewrite passes
+
+Install `git-filter-repo` before this phase. The callback file avoids ambiguous
+shell quoting.
+
+```bash
+cat > /tmp/webpod-strip-trailers.py <<'PY'
 import re
-
 lines = message.decode("utf-8", "replace").splitlines()
-
-# Drop the trailer lines this repo has outlawed, plus any blank lines they leave
-# stranded at the end of the message. Matching is anchored and case-insensitive
-# so a differently-cased variant cannot slip through.
 BANNED = re.compile(
     r"^\s*(co-authored-by|claude-session|generated[- ]with)\s*:",
     re.IGNORECASE,
@@ -123,197 +192,119 @@ GENERATED_FOOTER = re.compile(
     r"^\s*(\xf0\x9f\xa4\x96\s*)?generated with \[?claude",
     re.IGNORECASE,
 )
-
-kept = [
-    l for l in lines
-    if not BANNED.match(l) and not GENERATED_FOOTER.match(l)
-]
+kept = [line for line in lines
+        if not BANNED.match(line) and not GENERATED_FOOTER.match(line)]
 while kept and not kept[-1].strip():
     kept.pop()
-
 return ("\n".join(kept) + "\n").encode("utf-8")
 PY
 
-# 3.3 — PASS 1: remove .claude/ from every commit, and strip the trailers.
-#        These two are independent, so they share one pass.
-git filter-repo \
-  --invert-paths \
-  --path .claude/ \
-  --message-callback /tmp/strip-trailers.py
+cd "$W0_REPO"
+test "$(git rev-parse HEAD)" = "$EXPECTED_S2_TIP"
+test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_S2_TREE"
+test "$(git rev-list --count HEAD)" = "$EXPECTED_S2_COUNT"
 
-# 3.4 — VERIFY PASS 1 before going further.
-git log --all --format='%h %s' --name-only -- .claude          # expect: no output
-git log --format='%B' | grep -iE 'co-authored-by|claude-session|generated with'
-                                                                # expect: no output, exit 1
+git filter-repo --invert-paths --path .claude/ \
+  --message-callback /tmp/webpod-strip-trailers.py
+test -z "$(git log --all --format='%H' -- .claude)"
+test "$(git log --all --format='%B' \
+  | grep -iEc 'co-authored-by|claude-session|generated with')" = 0
 
-# 3.5 — PASS 2: rename CLAUDE.md to AGENTS.md across history.
 git filter-repo --path-rename CLAUDE.md:AGENTS.md
-
-# 3.6 — VERIFY PASS 2. ⚑ THIS CHECK IS NOT OPTIONAL — see §4.
-git cat-file -e HEAD:AGENTS.md && echo "AGENTS.md present at tip: OK"
-git log --all --format='%h %s' --name-only -- CLAUDE.md        # expect: no output
-git log --follow --format='%h %s' -- AGENTS.md                 # expect: both commits listed
+test -z "$(git log --all --format='%H' -- CLAUDE.md)"
+git cat-file -e HEAD:AGENTS.md
 ```
 
----
-
-## 4. ⚑ The one thing that can go wrong, and how to tell
-
-**Read this before running pass 2. It is the only step that can hand you a wrong tree
-without reporting an error.**
-
-The commit that renamed `CLAUDE.md` to `AGENTS.md` contains **both** a delete of
-`CLAUDE.md` and a create of `AGENTS.md`. After `--path-rename CLAUDE.md:AGENTS.md` that
-one commit holds two changes for the same path — one delete, one create — and which
-survives depends on how `filter-repo` de-duplicates them. If the delete wins,
-**`AGENTS.md` disappears** from that commit onward until the next commit that writes it.
-No error is raised. The tree is simply wrong.
-
-### 4.1 Find the commit at risk — by message, never by hash
-
-Every hash from `2305f4b` onward is different inside the rewritten clone, so a hash from
-this document, or from your own `git log` in the original repo, will not resolve there.
+The old rename commit maps a delete and create onto the same path. Verify every
+descendant tree, not only the tip:
 
 ```bash
-# Inside ~/code/webPod-rewrite, after pass 2.
-RENAME_COMMIT=$(git log --format='%H %s' \
-  | grep 'repo hygiene and agent instruction law' | cut -d' ' -f1)
-test -n "$RENAME_COMMIT" && echo "rename commit: $RENAME_COMMIT"
-```
-
-### 4.2 The check — across the whole history, not just the tip
-
-`AGENTS.md` must exist at that commit and at **every commit after it**. Checking only the
-tip is not enough: a later commit that happens to write `AGENTS.md` would restore it at
-the tip while leaving a hole in the middle.
-
-```bash
+RENAME_COMMIT=$(git log --format='%H%x09%s' \
+  | awk -F '\t' '$2 == "chore: repo hygiene and agent instruction law" {print $1}')
+test "$(printf '%s\n' "$RENAME_COMMIT" | grep -c .)" = 1
 BAD=0
-for c in $(git rev-list --reverse "${RENAME_COMMIT}^..HEAD"); do
-  git cat-file -e "$c:AGENTS.md" 2>/dev/null \
-    || { echo "MISSING at $(git log -1 --format='%h %s' "$c")"; BAD=1; }
+for commit in $(git rev-list --reverse "$RENAME_COMMIT^..HEAD"); do
+  git cat-file -e "${commit}:AGENTS.md" 2>/dev/null \
+    || { echo "AGENTS.md missing at $commit"; BAD=1; }
 done
-[ "$BAD" = 0 ] && echo "AGENTS.md present at every commit from the rename onward: OK"
+test "$BAD" = 0
 ```
 
-### 4.3 If it failed — start over without pass 2
+If this fails, stop. Preserve the failed clone for diagnosis and start a new W0
+destination from the still-verified `$S2_REPO`; never amend a descendant and
+never use a pre-S2 source. H-1 requires the historical rename, so skipping pass
+2 is not an accepted completion path.
 
-⚑ **Do not try to repair it with `git commit --amend`.** That only ever works when the
-damaged commit is the tip, and it is not: several commits now sit on top of it. Amending
-would rewrite the wrong commit and leave the hole in place.
-
-Repairing a mid-history commit means another full rewrite pass, which is strictly more
-risk than simply not doing the optional half. Throw the clone away and redo pass 1 only:
+## 5. Final invariants and local symlink
 
 ```bash
-cd ~/code
-rm -rf webPod-rewrite
-git clone webPod webPod-rewrite          # the original was never modified
-cd webPod-rewrite
-# run step 3.3 (the .claude/ removal + trailer strip), then stop.
-# Skip 3.5 entirely.
+cd "$W0_REPO"
+test "$(git rev-list --count HEAD)" = "$EXPECTED_S2_COUNT"
+test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_S2_TREE"
+git rev-parse 1efe77e^{commit} 92c5e41^{commit} 2516827^{commit}
+test "$(git -C "$S2_REPO" rev-parse main:design.pen)" = \
+  "$(git rev-parse HEAD:design.pen)"
+test -z "$(git log --all --format='%H' -- .claude CLAUDE.md)"
+test "$(git log --all --format='%B' \
+  | grep -iEc 'co-authored-by|claude-session|generated with')" = 0
+
+test ! -e CLAUDE.md
+ln -s AGENTS.md CLAUDE.md
+test "$(readlink CLAUDE.md)" = AGENTS.md
+git check-ignore --quiet CLAUDE.md
+test -z "$(git status --short)"
+
+bun run typecheck
+bun test
+bun run lint
+bun run gates
+bun run build
+bun run build:ssr
 ```
 
-### 4.4 Recommended default: skip pass 2 anyway
+The original repository and S2 backup refs remain recovery sources until a
+fresh post-publication clone is verified.
 
-Of the three changes this rewrite makes, only two are load-bearing: removing `.claude/`
-and stripping the trailer. **The rename is cosmetic.** The file genuinely was renamed at
-that commit, so leaving it is honest history, not a defect — `git log --follow AGENTS.md`
-traverses the rename correctly either way.
+## 6. Publication preparation — owner only
 
-Pass 2 was worth attempting when that commit was the tip and a failure was one `--amend`
-away from repair. It no longer is. Unless you specifically want `AGENTS.md` to appear
-under that name from `2305f4b` onward, **run pass 1 and stop.**
-
-If you do skip it, the §3.6 verification reduces to:
+`git-filter-repo` removes `origin` and remote-tracking refs. Reconstruct that
+state in the rewritten clone, fetch exact `main`, and compare it with the OID
+captured before rewriting. Any mismatch is a hard stop.
 
 ```bash
-git log --all --format='%h %s' --name-only -- .claude    # expect: no output
-git log --format='%B' | grep -iE 'co-authored-by|claude-session|generated with'
-                                                          # expect: no output, exit 1
-git cat-file -e HEAD:AGENTS.md && echo "AGENTS.md present at tip: OK"
+cd "$W0_REPO"
+EXPECTED_REMOTE_MAIN=$(git config --file "$STATE_FILE" rewrite.expectedRemoteMain)
+EXPECTED_REMOTE_URL=$(git config --file "$STATE_FILE" rewrite.remoteUrl)
+test -n "$EXPECTED_REMOTE_MAIN"
+test "$EXPECTED_REMOTE_URL" = "$REMOTE_URL"
+
+if git remote get-url origin >/dev/null 2>&1; then
+  test "$(git remote get-url origin)" = "$EXPECTED_REMOTE_URL"
+else
+  git remote add origin "$EXPECTED_REMOTE_URL"
+fi
+test "$(git remote get-url origin)" = "$EXPECTED_REMOTE_URL"
+
+git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
+FETCHED_REMOTE_MAIN=$(git rev-parse refs/remotes/origin/main)
+LIVE_REMOTE_MAIN=$(git ls-remote --exit-code origin refs/heads/main | cut -f1)
+test "$FETCHED_REMOTE_MAIN" = "$EXPECTED_REMOTE_MAIN"
+test "$LIVE_REMOTE_MAIN" = "$EXPECTED_REMOTE_MAIN"
+test "$(git rev-parse refs/heads/main)" = "$(git rev-parse HEAD)"
 ```
 
----
-
-## 5. Expected before / after
-
-Stated as per-commit changes rather than a full log, because the tip moves.
-
-### The two commits that change
-
-**`2305f4b docs: interface design handover (workstream 001)`**
-
-| | Before | After |
-|---|---|---|
-| `.claude/settings.local.json` | `3 +` | gone |
-| `CLAUDE.md` | `9 +` | renamed to `AGENTS.md`, same 9 lines |
-| files changed | 9 | 8 |
-| insertions | 8629 | 8626 |
-| message | ends `Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>` | ends after the "Key decisions" paragraph, no trailer |
-
-Everything else in that commit — `design.pen`, the five 001 documents, the PNG — is untouched.
-
-**`8f27b02 chore: repo hygiene and agent instruction law`**
-
-| | Before | After |
-|---|---|---|
-| `.claude/settings.local.json` | `3 ---` | gone |
-| `CLAUDE.md` | `9 ---` | gone (it was never created, so there is nothing to delete) |
-| `AGENTS.md` | `47 +` | `47 ++---` — a modification of the file `2305f4b` now creates |
-| files changed | 3 | 1 |
-
-### What must NOT change
-
-- **`1efe77e`, `92c5e41` and `2516827` keep their exact hashes.** They predate the first
-  commit the rewrite touches. Verify with `git rev-parse`:
-  ```bash
-  git rev-parse 1efe77e^{commit} 92c5e41^{commit} 2516827^{commit}
-  ```
-- **`design.pen` is byte-identical at every commit.** Verify against the pre-rewrite clone:
-  ```bash
-  git -C ~/code/webPod rev-parse HEAD:design.pen
-  git -C ~/code/webPod-rewrite rev-parse HEAD:design.pen    # must match
-  ```
-- **The commit count is unchanged.** The rewrite drops no commit:
-  ```bash
-  test "$(git rev-list --count HEAD)" = "$BEFORE_COUNT" && echo "count unchanged: OK"
-  ```
-- **Every commit from `2305f4b` onward gets a new hash.** That is expected, not a fault.
-- **No commit anywhere gains or keeps a banned trailer:**
-  ```bash
-  git log --format='%B' | grep -iE 'co-authored-by|claude-session|generated with'
-                                                              # expect: no output, exit 1
-  ```
-
-## 6. Publishing — owner only
-
-The rewrite changes `2305f4b`. Confirm at the time you run it that `origin/main` is still
-at or after that commit — if it is, the published history is being rewritten and a plain
-push cannot express it:
+Stop here. The prepared command names both destination ref and expected old OID:
 
 ```bash
-git fetch origin
-git rev-parse origin/main
-git merge-base --is-ancestor 2305f4b origin/main \
-  && echo "origin/main contains a commit this rewrite changes -> force-push required"
+# OWNER ONLY — prepared, never executed by an agent.
+git push \
+  --force-with-lease=refs/heads/main:"$EXPECTED_REMOTE_MAIN" \
+  origin refs/heads/main:refs/heads/main
 ```
 
-At the time of writing `origin/main` was exactly `2305f4b`, with every commit after it
-unpushed. So publishing is a force-push to `git@github.com:NeuveAI/webPod.git`, which **only the owner
-may perform**. For reference, and deliberately not run here:
+The explicit lease rejects a remote change even after the fetch. Never replace
+it with `--force`, omit the expected OID, or reuse an OID from another ref. After
+owner publication, verify a fresh clone and have collaborators re-clone.
 
-```bash
-cd ~/code/webPod-rewrite
-git remote add origin git@github.com:NeuveAI/webPod.git
-git push --force-with-lease origin main
-```
-
-Anyone else holding a clone re-clones afterwards; a `git pull` onto the old history will
-re-introduce the removed blobs.
-
-Note that removing `.claude/` from this repo's history does not remove it from GitHub's
-storage: the old objects survive until GitHub garbage-collects, and remain reachable through
-any existing PR ref, fork, or cached view. If the contents of `.claude/settings.local.json`
-were sensitive, rotating whatever it contains matters more than the rewrite does. (Inspected:
-it holds local tool-permission settings, no credentials.)
+Removing reachable history does not guarantee immediate deletion from hosting
+caches, forks, PR refs, or old clones. Rotate anything sensitive independently.

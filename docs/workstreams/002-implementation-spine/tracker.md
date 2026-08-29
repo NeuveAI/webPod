@@ -39,7 +39,7 @@ The operational queue for this workstream. There is no Kanban board and no `neuv
 |---|---|---|---|
 | ~~H-11~~ | ~~Team ID + MusicKit capability~~ | — | **closed 2026-08-28** |
 | **H-10** | **Interactive MusicKit sign-in for a Music User Token.** Now the **highest-value unrun experiment** — D-036 reverses D-025's recommendation and D-018 already authorises the scope. | owner | **waiting on owner** |
-| **H-1** | History rewrite + force-push (`.claude/`, `CLAUDE.md`→`AGENTS.md`, trailer removal) | lead prepared `evidence/w0-history-rewrite-plan.md`; **owner executes** — agents never force-push | `prepared` · not run |
+| **H-1** | History rewrite + force-push (`.claude/`, `CLAUDE.md`→`AGENTS.md`, trailer removal) | reconciled S2→W0 plan + lease dry-run evidence; **owner executes** — agents never rewrite authoritative history or force-push | `prepared` · disposable proof passed · authoritative run not started |
 | **H-5** | **U14** thumb-occlusion check, on a phone, in hand | production W7 wheel + approved composite | **owner-validation** · ready |
 | **H-6** | Aesthetic sign-off: does the device read as the object; both-colourway polarity; panel legibility at 272×204 | approved W3/W4/W6 previews | **owner-validation** · ready |
 
@@ -128,6 +128,7 @@ Committed with `git commit -- design.pen` rather than staging, because the index
 
 | Date | Event |
 |---|---|
+| 2026-08-29 | **Final handoff Majors fixed.** `evidence/w0-history-rewrite-plan.md` is now the one executable owner sequence: fixed original/S2/W0 paths, external OID state transfer, exact S2 tip/tree/count and split-ancestry guards before W0 pass 1, and no path back to the pre-S2 source. Publication now reconstructs `origin` after `git-filter-repo`, fetches exact remote `main`, compares fetched and live OIDs with the pre-rewrite capture, and prepares an explicit expected-OID `--force-with-lease` command. Disposable-clone proof completed both rewrite passes with unchanged final tree/count accounting and proved matching-lease dry-run success plus moved-remote stale rejection. No authoritative rewrite or push ran. Returned to the same final-handoff reviewer. |
 | 2026-08-29 | **Workstream handoff reconciled.** W4 is independently approved at `096be68`; W7 remains approved across three seams; canonical evidence-path hardening is independently approved at `4668475`. A fresh disposable clone of that committed tip passed 11/11 typechecks, lint, 939/0 tests, 16/16 automated gates, and both builds. U15 reviewer inspection is complete; only owner U14/H-5 and H-6 remain for MVP validation. H-1 remains prepared and owner-only. Intentional token churn and eleven untracked intermediate captures are preserved. |
 | 2026-08-29 | **W4 APPROVED.** Pencil-first white/black fronts and the complete steel back reproduce from committed source; calibration archives now reject fabricated identity, schema, arithmetic and summary data. Final independent verdict: 0 Critical / 0 Major / 0 Minor (`096be68`). |
 | 2026-08-29 | **Canonical evidence-path gate APPROVED.** The gate now handles nested canonical workstream paths, unknown template branches and lexical shadowing without allowing traversal or malformed paths; immutable W7 provenance checks remain effective. Final independent verdict committed at `4668475`. |

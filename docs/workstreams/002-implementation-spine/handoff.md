@@ -110,36 +110,28 @@ D-003 and `AGENTS.md`: an agent prepares; the owner executes.
 
 ### Plan quality and composition
 
-`evidence/w0-history-rewrite-plan.md` is tip-independent where it must be: it
-captures the live tip/count at execution time, checks the three historical
-invariants, works in a fresh clone, locates the rename collision by commit
-message instead of a rewritten hash, checks every descendant tree, preserves
-the original clone as recovery, and verifies commit count, early design hashes
-and `design.pen` identity. It includes removal of `.claude/`, removal of banned
-trailers, and the historical `CLAUDE.md` to `AGENTS.md` rename. It stops before
-the owner-only publication step.
+`evidence/w0-history-rewrite-plan.md` is now the **single authoritative owner
+sequence**. It contains concrete absolute paths and refs, records source and
+remote state outside the clones, performs S2 first, and permits W0 pass 1 only
+after W0 `HEAD` equals the recorded S2 output tip/tree/count and all three split
+commits are verified ancestors. It never reclones or resets W0 from the original
+repository or remote. `evidence/s2-history-rewrite-amendment.md` remains the
+review source for the split's exact path boundaries, but explicitly delegates
+execution and composition to the W0 plan.
 
-`evidence/s2-history-rewrite-amendment.md` separately provides backup branch and
-tag recovery, tree-equivalence verification, full gates, and a stop before
-publication. Its `55b34dd` anchor is valid in the current history, but it will
-not remain valid after the W0 rewrite.
+The authoritative sequence is:
 
-The two documents are therefore safe individually but **must not be executed in
-the opposite order or treated as independent final histories**. The reconciled
-owner sequence is:
-
-1. Preserve or relocate the intentional dirty artifacts, then begin from a
-   clean disposable clone.
-2. Perform and verify the S2 boundary split first, while `55b34dd` still names
-   the mixed commit. Keep its backup branch and tag until all work is published
-   and re-cloned successfully.
-3. Use that verified S2-rewritten clone as the source for the W0 rewrite. Re-run
-   W0 §3.0's live invariants there before proceeding; do not clone the original
-   pre-S2 history as W0 §3.1's source.
-4. H-1 explicitly requires the historical rename, so execute W0 pass 2 unless
-   the owner intentionally waives that requirement. Run the whole-history
-   collision check in W0 §4.2; if it fails, discard the rewrite clone and recover
-   from the untouched source/backup rather than amending a descendant.
+1. Preserve the intentional dirty artifacts, capture committed local `main` and
+   exact live `origin/main`, and write their OIDs to the external state file.
+2. Clone local `main` once into the fixed S2 path. Split `55b34dd`, prove the
+   final tree is unchanged and count is source + 2, record the three split OIDs,
+   and keep the backup branch/tag through post-publication verification.
+3. Clone the fixed W0 path **from the verified S2 path**. Require exact equality
+   with the recorded S2 tip/tree/count plus split ancestry before pass 1.
+4. H-1 explicitly requires the historical rename, so execute W0 pass 2 and run
+   the whole-history descendant check in W0 §4. If it fails, stop and create a
+   new W0 destination from the untouched verified S2 source rather than amending
+   a descendant or omitting the rename.
 5. Before publication, require: unchanged final tree relative to the verified
    source except for intended history-only path/message changes; unchanged
    commit count after accounting for the S2 split's two additional boundaries;
@@ -147,14 +139,23 @@ owner sequence is:
    `.claude/`, historical `CLAUDE.md`, or banned trailer anywhere; `AGENTS.md`
    present through the intended history; the ignored local symlink restored at
    the working tip; and the complete typecheck/lint/test/gate/build suite green.
-6. Publish only through the already-prepared owner section of the W0 plan. This
-   handoff intentionally adds no publication command and grants no agent
-   authority to rewrite or force-push.
+6. After `git-filter-repo` removes `origin`, re-add and verify its URL in W0,
+   fetch exact `main`, and require fetched and live OIDs to equal the remote OID
+   captured before rewriting. Then stop at the prepared owner-only command,
+   which uses
+   `--force-with-lease=refs/heads/main:<captured-expected-oid>` and an explicit
+   `refs/heads/main:refs/heads/main` refspec.
 
 Recovery is deliberately redundant: the original repository remains untouched,
 the S2 procedure creates backup refs, and either failed rewrite is abandoned in
 its disposable clone. Existing collaborators must re-clone after publication;
 pulling the old lineage can reintroduce removed objects.
+
+The full chain was executed in disposable clones with official
+`git-filter-repo`; the explicit lease was exercised only with `--dry-run`
+against a disposable bare remote. Both the matching-OID path and moved-remote
+rejection are recorded in `evidence/final-history-rewrite-dry-run.md`. No
+authoritative rewrite or push occurred.
 
 ## Exact remaining owner actions
 

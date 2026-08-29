@@ -21,14 +21,28 @@ Splitting `55b34dd` rewrites that commit and every descendant. Existing commit
 IDs, review references, and any open work based on them will change. A pushed
 branch requires an owner-operated force push and coordination with every clone.
 
-## Owner procedure in a disposable clone
+## Owner procedure and authoritative composition
+
+The complete copy/pasteable procedure now lives in
+`evidence/w0-history-rewrite-plan.md` §§1–3. It fixes the source branch to local
+`main`, fixes both disposable paths, records the original tip/tree/count and
+remote-main OID outside the clones, and binds the W0 input to the verified S2
+output tip. **Use that procedure; do not run this amendment as a standalone
+alternative.** In particular, never substitute the original repository or
+remote for the S2 clone when creating W0's clone.
+
+The commands below document the split itself. They are retained as the review
+source for its exact path boundaries, but the W0 plan supplies their concrete
+repository path and surrounding state-transfer checks.
+
+## Split operation inside the S2 clone
 
 Run only after all live teammates have stopped and the working tree is clean.
 The backup refs make the operation locally recoverable.
 
 ```sh
-git fetch origin
-git switch <branch-containing-55b34dd>
+test "$(git branch --show-current)" = main
+git merge-base --is-ancestor 55b34dd HEAD
 git status --short                         # must print nothing
 git branch backup/s2-before-split HEAD
 git tag backup-s2-before-split-$(date +%Y%m%d-%H%M%S) HEAD
@@ -72,5 +86,7 @@ bun run gates
 ```
 
 If any check fails, abort before publishing and return to the backup branch.
-Publishing rewritten history is owner-only under `AGENTS.md`; this document
-intentionally does not prescribe or execute a force-push command.
+Publication remains owner-only under `AGENTS.md`. The W0 plan §6 is the only
+publication preparation: it reconstructs the remote removed by
+`git-filter-repo`, fetches exact `origin/main`, compares it with the pre-rewrite
+record, and prepares an explicit expected-OID lease before stopping.
