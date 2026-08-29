@@ -209,7 +209,9 @@ function lexicalScope(node: ts.Node): ts.Node {
   let current: ts.Node | undefined = node.parent
   while (current !== undefined) {
     if (ts.isSourceFile(current) || ts.isBlock(current) || ts.isModuleBlock(current) || ts.isCaseBlock(current)
-      || ts.isForStatement(current) || ts.isForInStatement(current) || ts.isForOfStatement(current)) return current
+      || ts.isForStatement(current) || ts.isForInStatement(current) || ts.isForOfStatement(current)
+      || ts.isFunctionLike(current) || ts.isCatchClause(current)
+      || ts.isClassDeclaration(current) || ts.isClassExpression(current)) return current
     current = current.parent
   }
   return node.getSourceFile()
@@ -235,15 +237,37 @@ function directConstBinding(scope: ts.Node, name: string): ts.Expression | null 
       }
       return
     }
+    if (ts.isImportDeclaration(node)) {
+      const clause = node.importClause
+      if (clause?.name?.text === name) shadowedByOpaqueBinding = true
+      const named = clause?.namedBindings
+      if (named !== undefined) {
+        if (ts.isNamespaceImport(named) && named.name.text === name) shadowedByOpaqueBinding = true
+        if (ts.isNamedImports(named) && named.elements.some((element) => element.name.text === name)) shadowedByOpaqueBinding = true
+      }
+      return
+    }
+    if (ts.isImportEqualsDeclaration(node)) {
+      if (node.name.text === name) shadowedByOpaqueBinding = true
+      return
+    }
+    if ((ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node) || ts.isEnumDeclaration(node)) && node.name?.text === name) {
+      shadowedByOpaqueBinding = true
+      return
+    }
     ts.forEachChild(node, (child) => {
       if (!ts.isBlock(child) && !ts.isFunctionLike(child)) inspect(child)
     })
   }
-  if (ts.isSourceFile(scope) || ts.isBlock(scope) || ts.isModuleBlock(scope)) {
+  if (ts.isFunctionLike(scope)) {
+    if (scope.parameters.some((parameter) => bindingNameContains(parameter.name, name))) shadowedByOpaqueBinding = true
+    if ((ts.isFunctionExpression(scope) || ts.isFunctionDeclaration(scope)) && scope.name?.text === name) shadowedByOpaqueBinding = true
+  } else if (ts.isClassDeclaration(scope) || ts.isClassExpression(scope)) {
+    if (scope.name?.text === name) shadowedByOpaqueBinding = true
+  } else if (ts.isCatchClause(scope)) {
+    if (scope.variableDeclaration !== undefined && bindingNameContains(scope.variableDeclaration.name, name)) shadowedByOpaqueBinding = true
+  } else if (ts.isSourceFile(scope) || ts.isBlock(scope) || ts.isModuleBlock(scope)) {
     for (const statement of scope.statements) inspect(statement)
-    if (ts.isBlock(scope) && ts.isFunctionLike(scope.parent) && 'body' in scope.parent && scope.parent.body === scope) {
-      if (scope.parent.parameters.some((parameter) => bindingNameContains(parameter.name, name))) shadowedByOpaqueBinding = true
-    }
   } else if (ts.isCaseBlock(scope)) {
     for (const clause of scope.clauses) for (const statement of clause.statements) inspect(statement)
   } else {

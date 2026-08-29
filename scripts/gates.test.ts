@@ -185,6 +185,31 @@ describe('W5a static gates go red', () => {
     }
   })
 
+  test('NAMING treats every lexical binding form as shadowing an outer const', async () => {
+    const plants = [
+      ['concise-arrow', "const part = 'safe'\nexport const fn = (part: string) => `${part}-spine`\n"],
+      ['catch-identifier', "const part = 'safe'\ntry { throw 'implementation' } catch (part) { void `${part}-spine` }\n"],
+      ['object-parameter', "const part = 'safe'\nexport const fn = ({ part }: { part: string }) => `${part}-spine`\n"],
+      ['array-default-parameter', "const part = 'safe'\nexport const fn = ([part = 'safe']: string[]) => `${part}-spine`\n"],
+      ['rest-parameter', "const part = 'safe'\nexport const fn = (...part: string[]) => `${part[0]}-spine`\n"],
+      ['block-arrow-default', "const part = 'safe'\nexport const fn = (part = 'safe') => { return `${part}-spine` }\n"],
+      ['catch-destructuring', "const part = 'safe'\ntry { throw { part: 'implementation' } } catch ({ part }) { void `${part}-spine` }\n"],
+      ['block-let', "const part = 'safe'\n{ let part = 'implementation'; void `${part}-spine` }\n"],
+      ['loop-let', "const part = 'safe'\nfor (let part = 'implementation'; false;) { void `${part}-spine` }\n"],
+      ['import-alias', "{ const part = 'safe'; void part }\nimport { value as part } from './binding-source'\nvoid `${part}-spine`\n"],
+      ['named-function', "const part = 'safe'\nconst fn = function part() { return `${part}-spine` }\nvoid fn\n"],
+      ['named-class', "const part = 'safe'\nconst Subject = class part { value = `${part}-spine` }\nvoid Subject\n"],
+    ] as const
+
+    for (const [label, source] of plants) {
+      const root = await fixture()
+      const path = `scripts/binding-${label}.ts`
+      await plant(root, path, source)
+      const gate = failed(await runStaticGates({ root }), 'NAMING')
+      expect(gate.findings.some((finding) => finding.includes(path))).toBe(true)
+    }
+  })
+
   test('NAMING keeps lexical and conditional safe controls green', async () => {
     const root = await fixture()
     const source = [
@@ -196,7 +221,12 @@ describe('W5a static gates go red', () => {
       "const forbiddenOuter = 'implementation'",
       "{ const forbiddenOuter = 'safe'; export const shadowed = `${forbiddenOuter}-spine` }",
       "function nested() { const forbiddenOuter = 'safe'; return `${forbiddenOuter}-spine` }",
+      "const arrow = (value: string) => `${value}-label`",
+      "try { throw 'safe' } catch (value) { void `${value}-label` }",
+      "const safeClass = class value { label = `${value}-label` }",
       'void nested',
+      'void arrow',
+      'void safeClass',
       '',
     ].join('\n')
     await plant(root, 'scripts/safe-template-controls.ts', source)
