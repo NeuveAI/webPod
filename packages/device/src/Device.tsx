@@ -261,13 +261,7 @@ export function Device({
       curveSegments: 1,
     });
     geometry.translate(0, 0, splitZ + form.frontBevel);
-    return addOpticalProfile(
-      geometry,
-      isBlack ? parsedOptical.bodyBlack : parsedOptical.bodyWhite,
-      isBlack ? parsedOptical.bodyBlackLateral : parsedOptical.bodyWhiteLateral,
-      -body.height / 2 + seam,
-      body.height / 2 - seam,
-    );
+    return geometry;
   }, [form.frontBevel, form.seamWidth, frontFaceZ]);
   useEffect(() => () => steelShellGeometry.dispose(), [steelShellGeometry]);
 
@@ -288,7 +282,13 @@ export function Device({
       curveSegments: 1,
     });
     geometry.translate(0, 0, -body.depth / 2 + form.backBevel);
-    return geometry;
+    return addOpticalProfile(
+      geometry,
+      isBlack ? parsedOptical.bodyBlack : parsedOptical.bodyWhite,
+      isBlack ? parsedOptical.bodyBlackLateral : parsedOptical.bodyWhiteLateral,
+      -body.height / 2 + seam,
+      body.height / 2 - seam,
+    );
   }, [form.backBevel, frontFaceZ]);
   useEffect(() => () => backGeometry.dispose(), [backGeometry]);
 

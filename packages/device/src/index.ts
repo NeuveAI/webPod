@@ -16,7 +16,6 @@
  * is the other half of D-012.
  */
 export {
-  addOpticalProfile,
   Device,
   type Colourway,
   type DeviceFace,
@@ -123,6 +122,7 @@ export {
   type VisibleProbeHit,
 } from "./probe-raycast";
 export {
+  addOpticalProfile,
   applyOpticalProfile,
   createOpticalNormalMap,
   DEFAULT_DEVICE_OPTICAL_PROFILES,
