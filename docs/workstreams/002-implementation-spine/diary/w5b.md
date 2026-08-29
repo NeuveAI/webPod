@@ -87,3 +87,22 @@ and adds six direct closures: `SOURCE`, `U4_SOLID`, `U7_ALL_TEXT`,
 10/10; all 16 plants red; typecheck 11/11; lint clean; 865 tests pass; build
 passes; repository gates report 16 automated pass, 0 fail, with only the
 pre-existing manual U14 and U15 judgments outstanding.
+
+### Same-review U7 interpolation correction
+
+The reviewer found one remaining hole in U7: the analytical evaluator treated
+gradient stops as the complete paint set. That proves the endpoints, not the
+continuous interpolation. The supplied counterexample is exact: `#767676`
+over `linear-gradient(#000,#fff)` has endpoint ratios 4.623 and 4.542, yet an
+interior point is the same gray and therefore 1:1.
+
+The evaluator now carries conservative RGBA bounds instead of point colours.
+Every adjacent stop pair contributes its full component-wise interpolation
+box; solid paint, element opacity, and alpha compositing propagate bounds; and
+contrast uses the nearest non-overlapping luminance intervals or 1:1 when they
+overlap. The unplanted U7 report retains zero failures. The new
+`U7_INTERPOLATION` plant lands on the visible S13 mode chip, prints both passing
+endpoint ratios, produces a 1:1 lower bound in both colourways, and turns the
+selected U7 test red. The complete mutation run is now clean 10/10 control plus
+17/17 landed→selected-red plants. Repository gates pass with 867 tests and
+5,500 assertions.

@@ -108,3 +108,14 @@ drives thirty real wheel events through the production handler, waits for one
 observed quiet period, and requires exactly one sequence-stamped live-region
 publication whose text names the settled final row. Independent plants prove
 that duplicate publications and stale first-detent content both turn it red.
+
+## D14 — Gradient stops are not a contrast bound
+
+Checking only declared gradient stops is unsound: `#767676` text clears 4.5:1
+against both `#000` and `#fff`, while the continuous gradient between them
+contains the text colour and therefore reaches 1:1. U7 now represents every
+adjacent pair of resolved RGBA stops as a channel-and-alpha bounding box,
+propagates those boxes conservatively through opacity and compositing, and
+compares foreground and background luminance intervals. Overlapping intervals
+return a 1:1 lower bound. The `U7_INTERPOLATION` plant records endpoint ratios
+4.623 and 4.542, then proves the interior bound makes only U7 red.
