@@ -72,6 +72,7 @@ export {
   silhouetteFrameShape,
 } from "./shapes";
 export { curvedAnnulusGeometry, domedDiscGeometry } from "./curved-discs";
+export { applyVerticalCrown, verticalCrownOffset } from "./curved-shell";
 export {
   createBlackPolySssMap,
   createMicroNoiseRoughnessMap,

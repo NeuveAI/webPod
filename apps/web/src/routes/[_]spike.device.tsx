@@ -38,6 +38,7 @@ import {
   matchesProbeIdentity,
   probeTargets,
   rmsDelta,
+  verticalCrownOffset,
   type Colourway,
   type DeviceFace,
   type DeviceFormParams,
@@ -227,7 +228,13 @@ function LuminanceProbe() {
       edgeInset: 3,
       // Recess walls need more clearance than the exposed body perimeter.
       controlInset: 6,
-      frontFaceZ,
+      bodyZ: (y) =>
+        frontFaceZ +
+        verticalCrownOffset(
+          y,
+          DEVICE_LAYOUT.body.height / 2 - form.seamWidth,
+          form.bodyCrown,
+        ),
       // Back targets are body-local. The model's live world matrix rotates
       // them into the viewer-facing +z plane before projection.
       backFaceZ: -frontFaceZ,

@@ -27,6 +27,7 @@ import {
 } from "three";
 
 import { curvedAnnulusGeometry, domedDiscGeometry } from "./curved-discs";
+import { applyVerticalCrown } from "./curved-shell";
 import {
   createRoomEnvMap,
   DEFAULT_ENV_ROOM,
@@ -299,17 +300,27 @@ export function Device({
       ),
     );
     shape.holes.push(circleHole(wheel.centerX, wheel.centerY, wheel.outerR));
-    const geometry = new ExtrudeGeometry(shape, {
-      depth: Math.max(0.1, form.frontThickness - 2 * form.frontBevel),
-      bevelEnabled: true,
-      bevelThickness: form.frontBevel,
-      bevelSize: form.frontBevel,
-      bevelSegments: BEVEL_SEGMENTS,
-      curveSegments: 1,
-    });
+    const geometry = applyVerticalCrown(
+      new ExtrudeGeometry(shape, {
+        depth: Math.max(0.1, form.frontThickness - 2 * form.frontBevel),
+        bevelEnabled: true,
+        bevelThickness: form.frontBevel,
+        bevelSize: form.frontBevel,
+        bevelSegments: BEVEL_SEGMENTS,
+        curveSegments: 1,
+      }),
+      body.height / 2 - seam,
+      form.bodyCrown,
+    );
     geometry.translate(0, 0, plateBackZ + form.frontBevel);
     return geometry;
-  }, [form.seamWidth, form.frontThickness, form.frontBevel, plateBackZ]);
+  }, [
+    form.seamWidth,
+    form.frontThickness,
+    form.frontBevel,
+    form.bodyCrown,
+    plateBackZ,
+  ]);
   useEffect(() => () => frontGeometry.dispose(), [frontGeometry]);
 
   const ringGeometry = useMemo(

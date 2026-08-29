@@ -219,33 +219,33 @@ export const DEFAULT_ENV_ROOM: EnvRoomParams = {
   // atan((552/2) / 1160) = 13.4° — the half-angle a 552px plate at the default
   // camera distance actually reflects. Registering the table to that band is
   // what makes the plate show the whole of §4.4 rather than its middle third.
-  elevHalfSpanDeg: 20.8375,
+  elevHalfSpanDeg: 14.8756,
   stops: STEEL_STOPS,
   stopExposure: STEEL_STOPS.map(() => 1),
   radianceGain: radianceGainForMirror(DEFAULT_DEVICE_MATERIALS.steelBack.color),
-  exposure: 1.15,
+  exposure: 1.18,
   profileContrast: 0.9906,
-  profileSharpenAmount: 1.1,
-  profileSharpenSigma: 0.0195,
-  profileSharpenAmount2: 1.745,
-  profileSharpenSigma2: 0.0205,
+  profileSharpenAmount: 0.38,
+  profileSharpenSigma: 0.0315,
+  profileSharpenAmount2: 1.185,
+  profileSharpenSigma2: 0.0115,
   sky: {
     // §4.1's room sweep originates at 28% 8% and §5.2 L3's blob at 26% 12% —
     // both upper-left. LAW 2 keeps the *key light* at 12 o'clock; the room's
     // brightest patch is allowed to sit off to one side, and that asymmetry is
     // what §5.1 L5 draws the specular arc at x 32% from.
-    azimuthDeg: -39.75,
-    elevationDeg: 48,
-    sizeDeg: 38.8125,
-    intensity: 1.015,
+    azimuthDeg: -23.0654,
+    elevationDeg: 68.7583,
+    sizeDeg: 14.8125,
+    intensity: 0.0992,
   },
   horizon: {
     at: 0.43,
-    widthDeg: 4.55,
+    widthDeg: 4.775,
     color: "#4A525C",
-    opacity: 0.6125,
+    opacity: 0.0125,
   },
-  azimuthVariation: 0.585,
+  azimuthVariation: 0.505,
 };
 
 /** The stop table's mean sRGB value — the pivot {@link EnvRoomParams.profileContrast} expands about. */

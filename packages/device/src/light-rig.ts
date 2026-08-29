@@ -61,14 +61,14 @@ export type LightRigParams = {
 export const DEFAULT_LIGHT_RIG: LightRigParams = {
   key: {
     tiltTowardViewerDeg: 18,
-    distance: 1360,
-    intensity: 20000000,
+    distance: 1375,
+    intensity: 15500000,
     color: "#FFFFFF",
   },
   fill: {
-    azimuthDeg: -33,
-    elevationDeg: -73,
-    distance: 416.25,
+    azimuthDeg: -34.7116,
+    elevationDeg: -59.0468,
+    distance: 459.375,
     intensityRatio: 0.22,
     color: "#8FB4D8",
   },

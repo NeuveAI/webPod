@@ -225,8 +225,8 @@ export type TargetOptions = {
   readonly edgeInset: number;
   /** Extra clearance from the recessed wheel/select walls. */
   readonly controlInset: number;
-  /** Depth of the polycarbonate and glass faces. */
-  readonly frontFaceZ: number;
+  /** Depth of the crowned polycarbonate face at a body-local row. */
+  readonly bodyZ: (y: number) => number;
   /** Depth of the steel back's face. */
   readonly backFaceZ: number;
   /** How far the polycarbonate front is inset from the silhouette (§5.6). */
@@ -283,7 +283,7 @@ function bodyTargets(
       at: stop.at,
       expectedHex: stop.color,
       y,
-      z: options.frontFaceZ,
+      z: options.bodyZ(y),
       xs: [x, -x],
     };
   });

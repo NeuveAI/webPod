@@ -91,7 +91,7 @@ describe("D-067 probe geometry and identity", () => {
   const options = {
     edgeInset,
     controlInset: 6,
-    frontFaceZ: DEVICE_LAYOUT.body.depth / 2,
+    bodyZ: () => DEVICE_LAYOUT.body.depth / 2,
     backFaceZ: -DEVICE_LAYOUT.body.depth / 2,
     seamWidth: 3,
     ringZ: () => DEVICE_LAYOUT.body.depth / 2 - 4,

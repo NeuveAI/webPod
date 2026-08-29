@@ -113,7 +113,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     sheen: 0.15,
     sheenColor: "#6E4A2E",
     sheenRoughness: 1.0,
-    envMapIntensity: 0.09,
+    envMapIntensity: 0.12,
   },
   bodyWhite: {
     color: "#E2E5E8",
@@ -122,7 +122,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoat: 1.0,
     clearcoatRoughness: 0.08,
     reflectivity: 0.5,
-    envMapIntensity: 0.1306,
+    envMapIntensity: 0.2356,
   },
   steelBack: {
     color: "#C4CBD2",
@@ -144,7 +144,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     metalness: 0,
     clearcoat: 0.6,
     clearcoatRoughness: 0.18,
-    envMapIntensity: 0.0063,
+    envMapIntensity: 0.005,
   },
   wheelRingWhite: {
     color: "#E9EBED",
@@ -152,7 +152,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     metalness: 0,
     clearcoat: 0.6,
     clearcoatRoughness: 0.18,
-    envMapIntensity: 0.012,
+    envMapIntensity: 0.1951,
   },
   selectBlack: {
     // §4.5 `--select-k-2`, the plug's body value.
@@ -164,7 +164,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoat: 1.0,
     clearcoatRoughness: 0.06,
     metalness: 0,
-    envMapIntensity: 0.1725,
+    envMapIntensity: 0.2175,
   },
   selectWhite: {
     // §4.5 `--select-w-2`.
@@ -176,7 +176,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoat: 1.0,
     clearcoatRoughness: 0.06,
     metalness: 0,
-    envMapIntensity: 0.47,
+    envMapIntensity: 0.6237,
   },
   coverGlass: {
     // §4.6's `--panel-bg` is behind the sheet; the sheet itself is colourless.

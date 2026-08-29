@@ -82,6 +82,7 @@ const TARGETS: ReadonlyArray<readonly [string, string, string]> = [
   ["form.recessDepth", "packages/device/src/form.ts", "recessDepth"],
   ["form.selectProud", "packages/device/src/form.ts", "selectProud"],
   ["form.frontBevel", "packages/device/src/form.ts", "frontBevel"],
+  ["form.bodyCrown", "packages/device/src/form.ts", "bodyCrown"],
   ["form.seamWidth", "packages/device/src/form.ts", "seamWidth"],
 ];
 

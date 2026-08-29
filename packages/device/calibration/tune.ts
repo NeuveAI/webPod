@@ -208,6 +208,9 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
   // phenomena, not face phenomena — §5.1 L7 calls stop 0 a 1px inner stroke on
   // the top edge. How much of the edge catches the key is the bevel's size.
   { path: "form.frontBevel", min: 2.2, max: 9, step: 0.4 },
+  // One smooth cylindrical crown over the whole front plate. This is the
+  // macro-geometry degree D-067 leaves open, not a stop-local normal profile.
+  { path: "form.bodyCrown", min: -30, max: 30, step: 2 },
   { path: "form.seamWidth", min: 1, max: 9, step: 0.4 },
 ];
 
@@ -309,19 +312,54 @@ async function score(
  * ⚑ Not plain RMS. The gate is per-stop `|delta| ≤ 4`, so a rig that is 3 units
  * off on forty stops passes and one that is 12 off on a single stop does not.
  * Squared error alone would happily trade the second for the first. The
- * objective therefore adds a steep penalty above the tolerance, which makes the
- * search spend its effort where the gate actually bites.
+ * objective therefore orders candidates by failed-stop count, then worst miss,
+ * then mean squared error. A prettier red curve can never outrank one with
+ * fewer failed rows.
  */
-function objective(results: ReadonlyArray<Result>): number {
+type Objective = {
+  readonly invalid: boolean;
+  readonly failures: number;
+  readonly worstOver: number;
+  readonly meanSquared: number;
+};
+
+function objective(results: ReadonlyArray<Result>): Objective {
+  const invalid = results.some(
+    (result) => result.surface === "invalid-geometry",
+  );
+  let failures = 0;
+  let worstOver = 0;
   let total = 0;
   for (const result of results) {
     const over = Math.max(0, Math.abs(result.delta) - 4);
-    // ⚑ The weight is high on purpose. At 60 the search would happily hold four
-    // stops at 4.2 to buy a unit each on six others, because the sum of squares
-    // did not care which side of the line they sat. The gate does.
-    total += result.delta ** 2 + 400 * over ** 2;
+    if (!result.pass) failures += 1;
+    worstOver = Math.max(worstOver, over);
+    total += result.delta ** 2;
   }
-  return total / Math.max(1, results.length);
+  return {
+    invalid,
+    failures,
+    worstOver,
+    meanSquared: total / Math.max(1, results.length),
+  };
+}
+
+/** The acceptance contract is lexicographic: pass rows before polishing rows. */
+function improves(candidate: Objective, incumbent: Objective): boolean {
+  if (candidate.invalid !== incumbent.invalid) return !candidate.invalid;
+  if (candidate.invalid) return false;
+  if (candidate.failures !== incumbent.failures) {
+    return candidate.failures < incumbent.failures;
+  }
+  if (candidate.worstOver !== incumbent.worstOver) {
+    return candidate.worstOver < incumbent.worstOver;
+  }
+  return candidate.meanSquared < incumbent.meanSquared - 1e-6;
+}
+
+function objectiveLabel(value: Objective): string {
+  if (value.invalid) return "invalid geometry";
+  return `${value.failures} fail, ${(value.worstOver + 4).toFixed(1)} worst, mse ${value.meanSquared.toFixed(2)}`;
 }
 
 function getPath(object: Json, path: string): number {
@@ -371,7 +409,11 @@ async function main() {
   }
 
   const stage =
-    command === "room" ? "room" : command === "front" ? "front" : "all";
+    command === "room" || command === "search-room"
+      ? "room"
+      : command === "front" || command === "search-front"
+        ? "front"
+        : "all";
   const knobs =
     stage === "room" ? ROOM_KNOBS : stage === "front" ? FRONT_KNOBS : allKnobs;
   const views =
@@ -383,11 +425,9 @@ async function main() {
   const settleMs = stage === "room" || stage === "all" ? 500 : SETTLE_MS;
   let bestResults = await score(page, best, views, settleMs);
   let bestScore = objective(bestResults);
-  console.error(
-    `[${stage}] start ${bestScore.toFixed(2)} worst ${worst(bestResults).toFixed(1)}`,
-  );
+  console.error(`[${stage}] start ${objectiveLabel(bestScore)}`);
 
-  if (command === "search") {
+  if (command?.startsWith("search")) {
     const random = seededRandom(0x57a4c);
     const attempts = Number(arg ?? 5000);
     for (let attempt = 0; attempt < attempts; attempt += 1) {
@@ -407,7 +447,7 @@ async function main() {
       }
       const results = await score(page, candidate, views, settleMs);
       const value = objective(results);
-      if (value < bestScore) {
+      if (improves(value, bestScore)) {
         best = candidate;
         bestScore = value;
         bestResults = results;
@@ -416,7 +456,7 @@ async function main() {
           `${JSON.stringify(best, null, 2)}\n`,
         );
         console.error(
-          `[${stage}] search ${attempt}/${attempts} score ${bestScore.toFixed(2)} worst ${worst(bestResults).toFixed(1)} fails ${bestResults.filter((r) => !r.pass).length}/${bestResults.length}`,
+          `[${stage}] search ${attempt}/${attempts} ${objectiveLabel(bestScore)}`,
         );
         if (bestResults.every((result) => result.pass)) break;
       }
@@ -443,7 +483,7 @@ async function main() {
         candidate[knob.path] = next;
         const results = await score(page, candidate, views, settleMs);
         const value = objective(results);
-        if (value < bestScore - 1e-6) {
+        if (improves(value, bestScore)) {
           best = candidate;
           bestScore = value;
           bestResults = results;
@@ -453,7 +493,7 @@ async function main() {
       }
     }
     console.error(
-      `[${stage}] pass ${pass} scale ${scale} score ${bestScore.toFixed(2)} worst ${worst(bestResults).toFixed(1)} fails ${bestResults.filter((r) => !r.pass).length}/${bestResults.length}`,
+      `[${stage}] pass ${pass} scale ${scale} ${objectiveLabel(bestScore)}`,
     );
     await Bun.write(
       "packages/device/calibration/rig.json",
@@ -472,12 +512,6 @@ async function main() {
   );
   console.log(JSON.stringify({ params: best, results: bestResults }, null, 2));
   page.close();
-}
-
-function worst(results: ReadonlyArray<Result>): number {
-  let max = 0;
-  for (const result of results) max = Math.max(max, Math.abs(result.delta));
-  return max;
 }
 
 function seededRandom(seed: number): () => number {

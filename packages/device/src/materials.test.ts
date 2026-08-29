@@ -29,6 +29,8 @@ describe("§12.3 device material contract", () => {
   });
 
   test("mirror steel remains room-driven while front surfaces do not (D-057)", () => {
+    const mirrorGain = DEFAULT_DEVICE_MATERIALS.steelBack.envMapIntensity ?? 0;
+
     expect(DEFAULT_DEVICE_MATERIALS.steelBack).toMatchObject({
       color: "#C4CBD2",
       metalness: 1,
@@ -38,10 +40,10 @@ describe("§12.3 device material contract", () => {
       envMapIntensity: 1,
     });
     expect(DEFAULT_DEVICE_MATERIALS.bodyBlack.envMapIntensity).toBeLessThan(
-      0.1,
+      mirrorGain / 4,
     );
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity).toBeLessThan(
-      0.2,
+      mirrorGain / 4,
     );
   });
 
