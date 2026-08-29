@@ -230,7 +230,7 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
   { path: "materials.wheelRingBlack.clearcoatRoughness", min: 0.05, max: 0.35, step: 0.025 },
   ...["bodyBlack", "bodyWhite"].flatMap((surface) =>
     Array.from({ length: 8 }, (_, knot) => ({
-      path: `opticalProfiles.${surface}.${knot}.1`, min: -25, max: 25, step: 0.5,
+      path: `opticalProfiles.${surface}.${knot}.1`, min: -10, max: 10, step: 0.5,
     })),
   ),
   ...["bodyBlackLateral", "bodyWhiteLateral"].flatMap((surface) =>
@@ -241,11 +241,6 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
   ...["bodyBlackRoughness", "bodyWhiteRoughness"].flatMap((surface) =>
     Array.from({ length: 5 }, (_, knot) => ({
       path: `opticalProfiles.${surface}.${knot}.1`, min: 0.1, max: 1, step: 0.05,
-    })),
-  ),
-  ...["bodyBlackClearcoat", "bodyWhiteClearcoat"].flatMap((surface) =>
-    Array.from({ length: 5 }, (_, knot) => ({
-      path: `opticalProfiles.${surface}.${knot}.1`, min: -35, max: 35, step: 1,
     })),
   ),
   ...["wheelBlack", "selectBlack", "selectWhite"].flatMap((surface) =>
@@ -545,10 +540,7 @@ async function main() {
       : stage === "body-black"
         ? FRONT_KNOBS.filter(
             (knob) =>
-              command?.includes("roughness")
-                ? knob.path.startsWith("opticalProfiles.bodyBlackRoughness") ||
-                  knob.path === "materials.bodyBlack.roughness"
-              : command?.includes("profile")
+              command?.includes("profile")
                 ? knob.path.startsWith("opticalProfiles.bodyBlack")
                 : command?.includes("scalar")
                   ? knob.path.startsWith("materials.bodyBlack.")

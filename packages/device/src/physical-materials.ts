@@ -1,46 +1,8 @@
 import { Color, MeshPhysicalMaterial, type Texture } from "three";
 
 import type { PhysicalSurfaceParams } from "./materials";
-import type { OpticalProfile } from "./optical-profile";
 
 type CompilableShader = { vertexShader: string; fragmentShader: string };
-
-export function bodyClearcoatShader(
-  profile: OpticalProfile,
-  minY: number,
-  maxY: number,
-): { onBeforeCompile?: (shader: CompilableShader) => void; customProgramCacheKey?: () => string } {
-  if (profile.every(([, tilt]) => tilt === 0)) return {};
-  const values = profile.map(([, tilt]) => tilt.toFixed(6)).join(",");
-  return {
-    onBeforeCompile: (shader) => patchBodyClearcoatShader(shader, profile, minY, maxY),
-    customProgramCacheKey: () => `webpod-body-clearcoat-v1:${values}:${minY}:${maxY}`,
-  };
-}
-
-export function patchBodyClearcoatShader(
-  shader: CompilableShader,
-  profile: OpticalProfile,
-  minY: number,
-  maxY: number,
-): void {
-  const vertexNeedle = "#include <begin_vertex>";
-  const fragmentNeedle = "#include <clearcoat_normal_fragment_begin>";
-  if (!shader.vertexShader.includes(vertexNeedle) || !shader.fragmentShader.includes(fragmentNeedle)) {
-    throw new Error("three@0.185.1 clearcoat shader seam changed");
-  }
-  const knots = profile.map(([at, tilt]) => `vec2(${at.toFixed(6)},${tilt.toFixed(6)})`);
-  const sample = knots.slice(1).map((right, index) => {
-    const left = knots[index];
-    return `if (webpodAt <= ${profile[index + 1]?.[0].toFixed(6)}) { float t = smoothstep(${profile[index]?.[0].toFixed(6)}, ${profile[index + 1]?.[0].toFixed(6)}, webpodAt); webpodTilt = mix(${left}.y, ${right}.y, t); } else `;
-  }).join("") + `{ webpodTilt = ${knots.at(-1)}.y; }`;
-  shader.vertexShader = shader.vertexShader
-    .replace("#include <common>", "#include <common>\nvarying float vWebpodObjectY;")
-    .replace(vertexNeedle, `${vertexNeedle}\nvWebpodObjectY = position.y;`);
-  shader.fragmentShader = shader.fragmentShader
-    .replace("#include <common>", "#include <common>\nvarying float vWebpodObjectY;")
-    .replace(fragmentNeedle, `${fragmentNeedle}\n#ifdef USE_CLEARCOAT\nfloat webpodAt = clamp(1.0 - (vWebpodObjectY - ${minY.toFixed(6)}) / ${(maxY - minY).toFixed(6)}, 0.0, 1.0);\nfloat webpodTilt = 0.0;\n${sample}\nfloat webpodA = radians(webpodTilt);\nclearcoatNormal = normalize(vec3(clearcoatNormal.x, clearcoatNormal.y * cos(webpodA) - clearcoatNormal.z * sin(webpodA), clearcoatNormal.y * sin(webpodA) + clearcoatNormal.z * cos(webpodA)));\n#endif`);
-}
 
 /** Three-compliant transmissive cover with §12.3's cool/warm chamfer dispersion. */
 export function createCoverGlassMaterial(

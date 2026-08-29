@@ -13,11 +13,9 @@ export type DeviceOpticalProfiles = {
   readonly bodyBlack: OpticalProfile;
   readonly bodyBlackLateral: OpticalProfile;
   readonly bodyBlackRoughness: OpticalProfile;
-  readonly bodyBlackClearcoat: OpticalProfile;
   readonly bodyWhite: OpticalProfile;
   readonly bodyWhiteLateral: OpticalProfile;
   readonly bodyWhiteRoughness: OpticalProfile;
-  readonly bodyWhiteClearcoat: OpticalProfile;
   readonly wheelBlack: OpticalProfile;
   readonly wheelBlackLateral: OpticalProfile;
   readonly wheelWhite: OpticalProfile;
@@ -33,11 +31,9 @@ export const DEFAULT_DEVICE_OPTICAL_PROFILES: DeviceOpticalProfiles = {
   bodyBlack: flat([0, 0.05, 0.19, 0.44, 0.62, 0.81, 0.93, 1]),
   bodyBlackLateral: flat([0, 0.05, 0.19, 0.44, 0.62, 0.81, 0.93, 1]),
   bodyBlackRoughness: [[0, 1], [0.25, 1], [0.5, 1], [0.75, 1], [1, 1]],
-  bodyBlackClearcoat: [[0, 0], [0.25, 0], [0.5, 0], [0.75, 0], [1, 0]],
   bodyWhite: flat([0, 0.06, 0.21, 0.47, 0.64, 0.82, 0.94, 1]),
   bodyWhiteLateral: flat([0, 0.06, 0.21, 0.47, 0.64, 0.82, 0.94, 1]),
   bodyWhiteRoughness: [[0, 1], [0.25, 1], [0.5, 1], [0.75, 1], [1, 1]],
-  bodyWhiteClearcoat: [[0, 0], [0.25, 0], [0.5, 0], [0.75, 0], [1, 0]],
   wheelBlack: flat([0, 0.38, 0.62, 1]),
   wheelBlackLateral: flat([0, 0.38, 0.62, 1]),
   wheelWhite: flat([0, 0.38, 0.62, 1]),
