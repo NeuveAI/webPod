@@ -181,3 +181,178 @@ No new runtime, lifecycle, input, accessibility, type, lint, exclusion, snapshot
 **Severity:** 0 Critical · 0 Major · 0 Minor
 
 The final provenance Major is closed. Independent replay resolves `d66c66bfdc8d1e284739dc3ecf73ac80b537e4fa` to tree `7d93de5f0b960adf1ecd3bba72114444bac63ad3` and reproduces digest `8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884` across 151 files. The committed JSON names that exact commit/tree; expected source, health before, health after, and direct source-after fingerprint all match. The mid-run mutation exits 1 with `bdd58ebbf5f7bdb72318d87901fcd2024d438c1cb29395ef9e6d949f336a9bd8`, and no stale `303ea8d…`, `sourceBefore`, or `sourceStable` value remains in the active W7 evidence or runner. Focused composite tests, TypeScript, and evidence-runner ESLint pass. No new finding.
+
+---
+
+# Independent final provenance re-review — `06652d8`, `617508e`, `da2a229`, `d66c66b`, `50ebdde`
+
+## Verdict: REQUEST_CHANGES
+
+**Severity:** 0 Critical · 1 Major · 0 Minor
+
+## Correctness check
+
+- **Source of truth:** workstream 002 scope, W7 dispatch, dependency graph, HITL register, review lanes, binding review prompt, W7 decisions/diary/evidence, and the prior review history were read. Browser/runtime claims were grounded against the checked-in sources under `/Users/vinicius/code/agentic-context` rather than model recall. This repo deliberately has no Neuve shell or Kanban board; `tracker.md` is the operational queue.
+- **Correctness target:** immutable flagged-Chrome evidence must identify the reviewed Git commit/tree and served bytes, reject mid-run source drift, and make those identity fields mandatory in the evidence contract.
+- **Dispatch scope:** the five commits modify only `scripts/w7-browser-evidence.ts` and the two W7 provenance artifacts. Current composite, runner, fingerprint-helper, and W7 evidence paths are clean; unrelated active W4/device and token changes were excluded.
+- **Dependency/HITL status:** no dependency or HITL decision was bypassed. U14 phone-in-hand validation and H-6 both-colourway aesthetic acceptance remain owner-only and are not cleared here.
+- **Type/lint/doc gates:** composite TypeScript clean; 41/41 focused tests pass; scoped ESLint clean; changed commits are coherent and trailer-free.
+- **Verification evidence:** the green immutable run and red mutation were independently replayed. Archive exclusions and current evidence values were independently inspected.
+- **Decision-log status:** W7-D4 requires evidence tied to bytes. The current implementation supplies the identity values, but does not make them a required evidence schema.
+
+## Findings
+
+- **[MAJOR] Commit/tree identity is present in today’s output but is not required by any schema or gate.** (`scripts/w7-browser-evidence.ts:117`) — `result` is an inferred object literal with no declared evidence type, parser, schema, or test asserting the required keys. In an isolated archive of `50ebdde`, I removed only `reviewedCommit: resolvedCommit` and `reviewedTree` from lines 118–119; the runner still bundled successfully. Repository search found no independent consumer or validator requiring either field. Consequently a future regeneration can silently produce provenance JSON without the two fields while TypeScript, focused tests, and lint remain green—the exact regression this re-review was explicitly asked to prove impossible. Define a closed evidence schema/type with required `reviewedCommit` and `reviewedTree`, validate the emitted/committed JSON against it, and add a mutation gate showing removal of either field turns red.
+
+## Independently reproduced evidence
+
+- `W7_SOURCE_COMMIT=d66c66b… bun run scripts/w7-browser-evidence.ts` → exit 0; commit `d66c66bfdc8d1e284739dc3ecf73ac80b537e4fa`, tree `7d93de5f0b960adf1ecd3bba72114444bac63ad3`, digest `8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884`, 151 files; health before/after and direct source-after all exact; T1/requestPaint/focus/keyboard checks pass with no page errors.
+- `W7_PROVENANCE_PLANT=MIDRUN` → exit 1 after confirming the plant landed; received `bdd58ebbf5f7bdb72318d87901fcd2024d438c1cb29395ef9e6d949f336a9bd8` / 151 against the expected immutable digest.
+- The scoped `git archive d66c66b` manifest contains none of `cert/`, `.claude/`, `.env*`, `design.pen`, or `docs/`.
+- Active W7 JSON contains the exact reviewed commit/tree and no stale `303ea8d`, `sourceBefore`, or `sourceStable` field. The separate D-068 panel evidence legitimately retains `303ea8d…` as historical panel mutation evidence and is outside this W7 artifact assertion.
+- `bunx tsc --noEmit -p packages/composite/tsconfig.json` → clean.
+- `bun test packages/composite/src` → 41 pass, 0 fail, 143 expects.
+- `bunx eslint packages/composite/src scripts/w7-browser-evidence.ts scripts/browser-source-fingerprint.ts` → clean.
+- Trailer scan over all five commits → no `Co-Authored-By`, `Claude-Session`, or generated-with footer.
+
+## D-038 questions
+
+1. **Does a finding contradict the method used elsewhere?** Yes. The runner treats source-byte identity as structural at runtime, but treats the identity metadata that makes the result reviewable as optional object decoration. The method is strict about the measured bytes and permissive about naming those bytes.
+2. **Does the reason support the conclusion?** The exact green/red replays support source immutability. The mere presence of two JSON keys does not support the stronger conclusion that the schema requires them; the removal plant directly falsifies that claim.
+
+## Suggestions (non-blocking)
+
+- None.
+
+---
+
+# Independent provenance-contract re-review — `ec5bec0`
+
+## Verdict: REQUEST_CHANGES
+
+**Severity:** 0 Critical · 1 Major · 0 Minor
+
+## Finding
+
+- **[MAJOR] The runtime evidence object is validated after construction, but its construction is still not type-enforced.** (`scripts/w7-browser-evidence.ts:117`, `scripts/w7-browser-evidence-schema.ts:18`) — in an isolated exact archive of `ec5bec0`, I deleted both `reviewedCommit: resolvedCommit` and `reviewedTree` from the runner’s `result` object and confirmed the edit. `bunx tsc --noEmit -p scripts/tsconfig.json` still exited 0, and all seven schema tests still passed because they exercise the separately committed JSON and hand-mutated records, not the runner’s constructed result. The mutated full runner correctly exited 1 at `parseW7BrowserEvidence`, so runtime validation is real; however, the requested contract was explicitly schema/**type**/runtime enforcement. The exported `W7BrowserEvidence` type currently does not constrain `result` because `parseW7BrowserEvidence` accepts `unknown`. Annotate the constructed result or use `satisfies W7BrowserEvidence`, then plant deletion of each identity field and prove scripts TypeScript turns red; retain the runtime parser for the JSON boundary.
+
+## Independently reproduced evidence
+
+- Baseline `bun test scripts/w7-browser-evidence-schema.test.ts` → 7 pass, 0 fail. Missing `reviewedCommit`, missing `reviewedTree`, malformed IDs, and well-formed mismatched IDs each reject with their specific error.
+- Independent direct parser matrix → all six missing/malformed/mismatch cases red; valid evidence parses.
+- Mutated runner without both identity fields → scripts TypeScript **green** and schema tests **7/7 green** (blocking type-gate failure); full flagged-Chrome runner exits 1 with `W7 reviewedCommit must be a lowercase 40-character Git object id` (runtime gate works).
+- Valid current runner against `d66c66bfdc8d1e284739dc3ecf73ac80b537e4fa` → exit 0; tree `7d93de5f0b960adf1ecd3bba72114444bac63ad3`; digest `8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884`; 151 files; exact health before/after/source-after; T1, requestPaint, focus restoration, keyboard continuation, and no page errors.
+- Current mid-run source mutation → exit 1 after the plant confirms it landed; received `bdd58ebbf5f7bdb72318d87901fcd2024d438c1cb29395ef9e6d949f336a9bd8` / 151.
+- `bunx tsc --noEmit -p scripts/tsconfig.json` → clean unmutated.
+- `bunx eslint scripts/w7-browser-evidence.ts scripts/w7-browser-evidence-schema.ts scripts/w7-browser-evidence-schema.test.ts` → clean.
+- `bun test packages/composite/src` → 41 pass, 0 fail, 143 expects.
+- Commit `ec5bec0` is scoped, coherent, and trailer-free. Current composite/runner/schema paths are clean; only this review artifact is modified.
+
+## Prior provenance disposition
+
+All prior immutable-source, exact-identity, archive-exclusion, source-health, mutation, browser-behavior, scope, and trailer claims remain closed. Approval is withheld solely because deletion of required identity fields does not yet turn the type gate red.
+
+---
+
+# Final provenance-contract re-review — `cebbe2a`
+
+## Verdict: APPROVE
+
+**Severity:** 0 Critical · 0 Major · 0 Minor
+
+The remaining type-contract Major is closed. The producer now applies `satisfies W7BrowserEvidence` directly to the complete result object before runtime validation and JSON serialization, with no `as W7BrowserEvidence`, `as unknown`, `as any`, `@ts-expect-error`, or lint-disable escape.
+
+## Independent mutation results
+
+- Exact `cebbe2a` archive, delete only `reviewedCommit` from the producer → scripts TypeScript exits 2 with **TS1360**, naming missing required property `reviewedCommit` on `W7BrowserEvidence`.
+- Fresh exact `cebbe2a` archive, delete only `reviewedTree` from the producer → scripts TypeScript exits 2 with **TS1360**, naming missing required property `reviewedTree` on `W7BrowserEvidence`.
+- Unmodified `bunx tsc --noEmit -p scripts/tsconfig.json` → clean.
+- `bun test scripts/w7-browser-evidence-schema.test.ts scripts/w7-browser-evidence-type.test.ts` → 8 pass, 0 fail. Missing, malformed, and well-formed-but-mismatched commit/tree identities remain independently rejected; valid committed evidence parses.
+- Scoped ESLint over the producer, schema, and both test files → clean.
+
+## Prior provenance revalidation
+
+- Valid immutable browser run against commit `d66c66bfdc8d1e284739dc3ecf73ac80b537e4fa` → exit 0; tree `7d93de5f0b960adf1ecd3bba72114444bac63ad3`; digest `8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884`; 151 files; exact expected/health-before/health-after/source-after identity; T1 with `requestPaint`; focus restored; keyboard navigation continued; no page errors.
+- Mid-run snapshot mutation → plant confirms it landed, then exits 1 with `bdd58ebbf5f7bdb72318d87901fcd2024d438c1cb29395ef9e6d949f336a9bd8` / 151 against the expected immutable digest.
+- The scoped archive still excludes `cert/`, `.claude/`, `.env*`, `design.pen`, and `docs/`.
+- Composite suite remains 41 pass, 0 fail, 143 expects.
+- `cebbe2a` is scoped, diff-clean, and trailer-free. All reviewed implementation/evidence paths are clean; only this review artifact is modified.
+
+No provenance, schema, type, runtime, browser, scope, exclusion, cleanup, or history finding remains. U14 phone-in-hand validation and H-6 both-colourway aesthetic acceptance remain owner-only and are not cleared by this review.
+
+---
+
+# Evidence-contract re-review — `ec5bec0`
+
+## Verdict: REQUEST_CHANGES
+
+**Severity:** 0 Critical · 1 Major · 0 Minor
+
+The commit/tree omission defect is closed: the committed artifact is parsed, both fields are required lowercase 40-character object IDs, and missing, malformed, and well-formed-but-different values independently turn the gate red. The remaining defect is that the same contract does not bind the committed source fingerprint to the immutable result it claims to preserve.
+
+## Finding
+
+- **[MAJOR] `expectedSource` is syntax-checked but not identity-checked, so the committed artifact can name the right commit/tree and the wrong bytes while all new gates remain green.** (`scripts/w7-browser-evidence-schema.ts:33-43`, `scripts/w7-browser-evidence-schema.test.ts:10-19`, `docs/workstreams/002-implementation-spine/evidence/w7-browser.json:9`) — `parseW7BrowserEvidence` accepts any lowercase 64-character value and any positive integer. The test's `expected` contract contains only `reviewedCommit` and `reviewedTree`, and `toMatchObject(expected)` never compares the known `8dc78efc…/151` source identity. In an isolated `git archive ec5bec0` I replaced the committed artifact's digest with 64 zeroes and `fileCount: 152`; the plant was confirmed and **all 7 schema tests passed**. That recreates the prior provenance failure with syntactically valid metadata: the immutable runner still knows the truth, but the durable committed result is allowed to disagree with it. Extend the expected contract (or the artifact test) to require the exact digest and file count derived for `d66c66b`; ideally require and cross-check `healthBefore`, `healthAfter`, and `sourceAfter` as the same identity rather than leaving the claimed four-way equality outside the schema.
+
+## Independently verified corrections
+
+- Deleting `reviewedCommit` from the actual artifact makes the baseline committed-JSON test fail with `W7 reviewedCommit must be a lowercase 40-character Git object id`.
+- Restoring it and independently deleting `reviewedTree` fails with the corresponding `reviewedTree` error.
+- Malformed and well-formed-but-different commit/tree values are separately gated in the test source.
+- The browser runner validates its generated result against its resolved commit/tree before output.
+- Baseline focused gates reproduce: scripts/composite TypeScript clean; scoped ESLint clean; **48 pass / 0 fail / 150 expects**; diff check clean; commit trailer scan clean.
+
+All plants were confined to an isolated `/tmp` archive and restored. Shared owned source and index were not modified; foreign W4/device/token work was ignored.
+
+---
+
+# Final independent correction — `cebbe2a`
+
+## Verdict: REQUEST_CHANGES
+
+**Severity:** 0 Critical · 1 Major · 0 Minor
+
+The producer identity type defect requested for this round is fully closed: deleting `reviewedCommit` and `reviewedTree` independently produces TS1360 with the correct missing-property diagnostic, and `satisfies W7BrowserEvidence` is applied before validation/serialization without a cast escape. Runtime missing/malformed/mismatch validation also remains correct.
+
+## Remaining finding
+
+- **[MAJOR] The committed source fingerprint is still not bound to the reviewed commit/tree by the evidence contract.** (`scripts/w7-browser-evidence-schema.ts:57`, `scripts/w7-browser-evidence-schema.test.ts:10`, `docs/workstreams/002-implementation-spine/evidence/w7-browser.json:9`) — independently in an exact `cebbe2a` archive, I changed only the committed artifact’s `expectedSource.digest` to 64 zeroes and `fileCount` to 152, confirmed the mutation, and ran both focused evidence suites: **8 pass, 0 fail**. `W7BrowserEvidence` requires the shape, but `parseW7BrowserEvidence` only syntax-checks the fingerprint and its `expected` argument contains only commit/tree. Therefore the durable JSON can name the right Git objects and the wrong served bytes while schema, type, and focused tests all remain green. Extend the expected validated identity to include the exact digest and file count for the reviewed tree, then require the committed artifact’s `expectedSource`, `healthBefore`, `healthAfter`, and `sourceAfter` to equal it; plant a syntactically valid wrong digest/count and prove red.
+
+## Verified closed
+
+- Producer deletion of `reviewedCommit` → TS1360 naming missing `reviewedCommit`.
+- Separate producer deletion of `reviewedTree` → TS1360 naming missing `reviewedTree`.
+- No `as W7BrowserEvidence`, `as unknown`, `as any`, `@ts-expect-error`, or lint-disable escape at the producer boundary.
+- Missing, malformed, and well-formed-but-mismatched commit/tree identities reject at runtime.
+- The valid immutable Chrome replay and `bdd58ebb…/151` mid-run mutation still reproduce exactly; archive exclusions, focused composite tests, lint, commit scope, and trailer posture remain clean.
+
+The earlier APPROVE paragraph in this appended history is superseded by this independent correction. Approval is withheld solely for the still-green wrong-source-identity plant above.
+
+---
+
+# Final source-bound provenance re-review — `d5688fa`
+
+## Verdict: APPROVE
+
+**Severity:** 0 Critical · 0 Major · 0 Minor
+
+The final source-identity Major is closed. The committed evidence test now resolves the artifact’s `reviewedCommit`, verifies its `reviewedTree`, archives the canonical runtime inputs from that Git object, and fingerprints the extracted source independently. The reconstructed identity—not a copied digest constant—is passed into the runtime schema.
+
+## Independent mutation results
+
+- Exact `d5688fa` archive, replace only the committed digest with a syntactically valid 64-zero SHA-256 → focused schema test exits 1 with `W7 source fingerprint mismatch`, naming expected `8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884` and the zero digest received.
+- Fresh exact `d5688fa` archive, replace only committed `fileCount: 151` with `152` → focused schema test exits 1 with `W7 source file count mismatch: expected 151, received 152`.
+- Both plants were confirmed before execution and confined to separate temporary archives.
+
+## Contract and prior-provenance verification
+
+- `satisfies W7BrowserEvidence` remains directly on the complete producer result before runtime validation and serialization; no `as W7BrowserEvidence`, `as unknown`, `as any`, `@ts-expect-error`, or lint-disable escape exists at that boundary.
+- Prior independent deletion plants remain valid: removing `reviewedCommit` or `reviewedTree` separately produces TS1360 naming the corresponding missing property.
+- Missing, malformed, and well-formed-but-mismatched commit/tree identities reject; syntactically valid wrong digest/count identities now reject; valid committed evidence reconstructs and parses.
+- Unmodified evidence suites → 10 pass, 0 fail; scripts TypeScript and scoped ESLint clean.
+- Composite suite → 41 pass, 0 fail, 143 expects.
+- Fresh immutable Chrome replay against commit `d66c66bfdc8d1e284739dc3ecf73ac80b537e4fa` → exit 0; tree `7d93de5f0b960adf1ecd3bba72114444bac63ad3`; reconstructed digest `8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884`; 151 files; exact expected/health-before/health-after/source-after identity; T1 with `requestPaint`; focus restored; keyboard continued; no page errors.
+- Mid-run mutation confirms its write and exits 1 with `bdd58ebbf5f7bdb72318d87901fcd2024d438c1cb29395ef9e6d949f336a9bd8` / 151.
+- Archive exclusions remain clean for `cert/`, `.claude/`, `.env*`, `design.pen`, and `docs/`; `d5688fa` is scoped, diff-clean, and trailer-free. Reviewed implementation/evidence paths are clean; only this review artifact is modified.
+
+No provenance, schema, type, runtime, browser, exclusion, scope, cleanup, or history finding remains. U14 phone-in-hand validation and H-6 both-colourway aesthetic acceptance remain owner-only and are not cleared by this review.
