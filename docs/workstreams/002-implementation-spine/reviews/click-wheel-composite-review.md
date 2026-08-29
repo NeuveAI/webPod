@@ -356,3 +356,24 @@ The final source-identity Major is closed. The committed evidence test now resol
 - Archive exclusions remain clean for `cert/`, `.claude/`, `.env*`, `design.pen`, and `docs/`; `d5688fa` is scoped, diff-clean, and trailer-free. Reviewed implementation/evidence paths are clean; only this review artifact is modified.
 
 No provenance, schema, type, runtime, browser, exclusion, scope, cleanup, or history finding remains. U14 phone-in-hand validation and H-6 both-colourway aesthetic acceptance remain owner-only and are not cleared by this review.
+
+---
+
+# Repeated independent source-bound re-review — `d5688fa`
+
+## Verdict: APPROVE
+
+**Severity:** 0 Critical · 0 Major · 0 Minor
+
+This was a fresh replay against the unchanged commit, not reliance on the prior approval.
+
+- In an exact `d5688fa` archive, a syntactically valid alternate digest of 64 `f` characters makes the reconstructed-artifact test exit 1 with the exact mismatch: expected `8dc78efc13ed68be287f46113dec3dcbf9dc3763c1d30a6c72e5ccb437b13884`, received the planted digest.
+- In a separate exact archive, changing only file count 151 to 152 makes the test exit 1 with `W7 source file count mismatch: expected 151, received 152`.
+- The expected source is reconstructed by resolving the artifact’s named commit, checking its named tree, archiving the canonical runtime path set, and fingerprinting that extraction. No copied expected digest is used by the gate.
+- Producer identity remains constrained with `satisfies W7BrowserEvidence`; prior missing-property TS1360 gates, missing/malformed/mismatched runtime schema gates, and the no-cast-escape check remain intact.
+- Evidence suites: 10 pass, 0 fail. Scripts TypeScript and scoped ESLint clean. Composite suite: 41 pass, 0 fail, 143 expects.
+- Fresh immutable Chrome replay again produced commit `d66c66b…`, tree `7d93de5f…`, digest `8dc78efc…b13884`, 151 files, exact four-way source identity, T1/requestPaint, restored focus, continued keyboard input, and no page errors.
+- Fresh mid-run mutation again confirmed its write and exited 1 with `bdd58ebb…/151` against the immutable expected identity.
+- Commit scope, archive exclusions, diff check, and trailer audit remain clean. Reviewed source/evidence paths were unchanged; only this review artifact was appended.
+
+No finding remains. Owner-only U14 phone-in-hand validation and H-6 both-colourway aesthetic acceptance remain outside this approval.
