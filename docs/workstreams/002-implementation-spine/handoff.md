@@ -132,14 +132,20 @@ The authoritative sequence is:
    the whole-history descendant check in W0 §4. If it fails, stop and create a
    new W0 destination from the untouched verified S2 source rather than amending
    a descendant or omitting the rename.
-5. Before publication, require: unchanged final tree relative to the verified
-   source except for intended history-only path/message changes; unchanged
-   commit count after accounting for the S2 split's two additional boundaries;
-   unchanged three pre-`2305f4b` hashes; byte-identical `design.pen`; no
+5. Before rebinding evidence, require: the rewritten base tree equals the
+   verified S2/source tree; its count equals the S2 count; the three
+   pre-`2305f4b` hashes remain unchanged; `design.pen` is byte-identical; no
    `.claude/`, historical `CLAUDE.md`, or banned trailer anywhere; `AGENTS.md`
-   present through the intended history; the ignored local symlink restored at
-   the working tip; and the complete typecheck/lint/test/gate/build suite green.
-6. After `git-filter-repo` removes `origin`, re-add and verify its URL in W0,
+   is present through the intended history; and the rewritten W7 reviewed
+   commit is uniquely identified by its unchanged reviewed tree and subject.
+6. Regenerate W7's immutable browser evidence with the existing producer bound
+   to that rewritten reviewed commit. Run the existing 9-test schema suite,
+   which mutates commit, tree, digest and count, then create one evidence-only
+   commit touching exactly `w7-browser.json` and `w7-browser-provenance.md`.
+   Record the resulting final tip/tree/count, require count = S2 count + 1,
+   prove runtime source is unchanged, restore the ignored local symlink, and run
+   typecheck, lint, all tests, 16 gates, and `bun run build` (client + SSR).
+7. After `git-filter-repo` removes `origin`, re-add and verify its URL in W0,
    fetch exact `main`, and require fetched and live OIDs to equal the remote OID
    captured before rewriting. Then stop at the prepared owner-only command,
    which uses
@@ -151,11 +157,16 @@ the S2 procedure creates backup refs, and either failed rewrite is abandoned in
 its disposable clone. Existing collaborators must re-clone after publication;
 pulling the old lineage can reintroduce removed objects.
 
-The full chain was executed in disposable clones with official
+The complete chain was replayed from scratch in disposable clones with official
 `git-filter-repo`; the explicit lease was exercised only with `--dry-run`
-against a disposable bare remote. Both the matching-OID path and moved-remote
-rejection are recorded in `evidence/final-history-rewrite-dry-run.md`. No
-authoritative rewrite or push occurred.
+against a disposable bare remote. After the evidence-only commit, the final
+fixture was 214 commits at tip `d6775815b1020416fa7020943349be49b6a925e0`
+and tree `a172ff9e065e3194c012e43b5f25efb81793991a`. It passed 11/11
+typechecks, lint, 941 tests, all 16 automated gates, and the combined client+SSR
+`bun run build`; moving the remote made both the OID preflight and explicit
+lease reject stale state. Exact commands and results are in
+`evidence/final-history-rewrite-dry-run.md`. No authoritative rewrite or push
+occurred.
 
 ## Exact remaining owner actions
 

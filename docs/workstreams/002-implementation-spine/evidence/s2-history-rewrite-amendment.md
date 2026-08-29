@@ -86,7 +86,7 @@ bun run gates
 ```
 
 If any check fails, abort before publishing and return to the backup branch.
-Publication remains owner-only under `AGENTS.md`. The W0 plan §6 is the only
+Publication remains owner-only under `AGENTS.md`. The W0 plan §8 is the only
 publication preparation: it reconstructs the remote removed by
 `git-filter-repo`, fetches exact `origin/main`, compares it with the pre-rewrite
 record, and prepares an explicit expected-OID lease before stopping.

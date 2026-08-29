@@ -71,6 +71,7 @@ test "$(git -C "$S2_REPO" rev-parse HEAD)" = "$SOURCE_TIP"
 test "$(git -C "$S2_REPO" rev-parse HEAD^{tree})" = "$SOURCE_TREE"
 test "$(git -C "$S2_REPO" rev-list --count HEAD)" = "$SOURCE_COUNT"
 test -z "$(git -C "$S2_REPO" status --short)"
+(cd "$S2_REPO" && bun install --frozen-lockfile --ignore-scripts)
 
 git -C "$S2_REPO" branch backup/s2-before-split "$SOURCE_TIP"
 git -C "$S2_REPO" tag "backup-s2-before-split-$(date +%Y%m%d-%H%M%S)" \
@@ -134,10 +135,10 @@ git config --file "$STATE_FILE" rewrite.s1Split "$S1_SPLIT"
 git config --file "$STATE_FILE" rewrite.s2Split "$S2_SPLIT"
 
 git -C "$S2_REPO" diff --exit-code "$SOURCE_TIP^{tree}" "$S2_TIP^{tree}"
-bun --cwd "$S2_REPO" run typecheck
-bun --cwd "$S2_REPO" test
-bun --cwd "$S2_REPO" run lint
-bun --cwd "$S2_REPO" run gates
+(cd "$S2_REPO" && bun run typecheck)
+(cd "$S2_REPO" && bun test)
+(cd "$S2_REPO" && bun run lint)
+(cd "$S2_REPO" && bun run gates)
 ```
 
 ## 3. Validated S2 → W0 transfer
@@ -235,7 +236,7 @@ destination from the still-verified `$S2_REPO`; never amend a descendant and
 never use a pre-S2 source. H-1 requires the historical rename, so skipping pass
 2 is not an accepted completion path.
 
-## 5. Final invariants and local symlink
+## 5. Pre-rebind rewrite invariants
 
 ```bash
 cd "$W0_REPO"
@@ -248,6 +249,105 @@ test -z "$(git log --all --format='%H' -- .claude CLAUDE.md)"
 test "$(git log --all --format='%B' \
   | grep -iEc 'co-authored-by|claude-session|generated with')" = 0
 
+REWRITE_BASE_TIP=$(git rev-parse HEAD)
+REWRITE_BASE_TREE=$(git rev-parse HEAD^{tree})
+REWRITE_BASE_COUNT=$(git rev-list --count HEAD)
+git config --file "$STATE_FILE" rewrite.baseTip "$REWRITE_BASE_TIP"
+git config --file "$STATE_FILE" rewrite.baseTree "$REWRITE_BASE_TREE"
+git config --file "$STATE_FILE" rewrite.baseCount "$REWRITE_BASE_COUNT"
+bun install --frozen-lockfile --ignore-scripts
+```
+
+At this point history hygiene is correct, but the suite is intentionally not yet
+green: W7's committed browser evidence names a pre-rewrite commit that no longer
+exists. Do not publish or claim final verification here.
+
+## 6. Rebind immutable W7 browser evidence
+
+The browser-reviewed runtime tree did not change. Find the rewritten counterpart
+by the conjunction of its exact subject and reviewed tree, regenerate evidence
+with the existing authoritative producer, and commit only the two W7 evidence
+artifacts. Do not edit application, package, or script source.
+
+```bash
+cd "$W0_REPO"
+ORIGINAL_W7_COMMIT=d66c66bfdc8d1e284739dc3ecf73ac80b537e4fa
+ORIGINAL_W7_TREE=7d93de5f0b960adf1ecd3bba72114444bac63ad3
+W7_SUBJECT='fix(composite): sequence immutable evidence server'
+
+if git cat-file -e "$ORIGINAL_W7_COMMIT^{commit}" 2>/dev/null; then
+  echo "pre-rewrite W7 commit still resolves; stop"
+  exit 1
+fi
+W7_REWRITTEN_COMMIT=$(git log --format='%H%x09%T%x09%s' \
+  | awk -F '\t' -v tree="$ORIGINAL_W7_TREE" -v subject="$W7_SUBJECT" \
+      '$2 == tree && $3 == subject {print $1}')
+test "$(printf '%s\n' "$W7_REWRITTEN_COMMIT" | grep -c .)" = 1
+test "$W7_REWRITTEN_COMMIT" != "$ORIGINAL_W7_COMMIT"
+test "$(git rev-parse "$W7_REWRITTEN_COMMIT^{tree}")" = "$ORIGINAL_W7_TREE"
+git merge-base --is-ancestor "$W7_REWRITTEN_COMMIT" "$REWRITE_BASE_TIP"
+
+W7_JSON=docs/workstreams/002-implementation-spine/evidence/w7-browser.json
+W7_PROVENANCE=docs/workstreams/002-implementation-spine/evidence/w7-browser-provenance.md
+W7_REBOUND_JSON=/tmp/webpod-w7-browser-rebound.json
+W7_SOURCE_COMMIT="$W7_REWRITTEN_COMMIT" \
+  bun run scripts/w7-browser-evidence.ts > "$W7_REBOUND_JSON"
+test "$(bun -e 'const v = await Bun.file(process.argv[1]).json(); console.log(v.reviewedCommit)' \
+  "$W7_REBOUND_JSON")" = "$W7_REWRITTEN_COMMIT"
+test "$(bun -e 'const v = await Bun.file(process.argv[1]).json(); console.log(v.reviewedTree)' \
+  "$W7_REBOUND_JSON")" = "$ORIGINAL_W7_TREE"
+cp "$W7_REBOUND_JSON" "$W7_JSON"
+
+W7_REWRITTEN_COMMIT="$W7_REWRITTEN_COMMIT" perl -0pi -e \
+  's/d66c66bfdc8d1e284739dc3ecf73ac80b537e4fa/$ENV{W7_REWRITTEN_COMMIT}/g' \
+  "$W7_PROVENANCE"
+if rg -l "$ORIGINAL_W7_COMMIT" "$W7_JSON" "$W7_PROVENANCE"; then
+  echo "stale pre-rewrite W7 identity remains; stop"
+  exit 1
+fi
+test "$(git diff --name-only | sort)" = \
+  "$(printf '%s\n%s\n' "$W7_JSON" "$W7_PROVENANCE" | sort)"
+git diff --quiet -- apps packages scripts package.json bun.lock tsconfig.base.json
+
+# This existing suite reconstructs the fingerprint from the rewritten reviewed
+# commit and independently mutates commit, tree, digest, and file count.
+bun test scripts/w7-browser-evidence-schema.test.ts
+
+git add -- "$W7_JSON" "$W7_PROVENANCE"
+git commit --only -m "docs(evidence): rebind W7 browser provenance after rewrite" \
+  -- "$W7_JSON" "$W7_PROVENANCE"
+```
+
+This evidence-only commit is part of the publication history. Record its exact
+tip/tree/count and prove it is the sole post-rewrite delta:
+
+```bash
+FINAL_TIP=$(git rev-parse HEAD)
+FINAL_TREE=$(git rev-parse HEAD^{tree})
+FINAL_COUNT=$(git rev-list --count HEAD)
+test "$FINAL_COUNT" = "$((EXPECTED_S2_COUNT + 1))"
+test "$(git rev-parse HEAD^)" = "$REWRITE_BASE_TIP"
+test "$(git diff-tree --no-commit-id --name-only -r HEAD | sort)" = \
+  "$(printf '%s\n%s\n' "$W7_JSON" "$W7_PROVENANCE" | sort)"
+test "$FINAL_TREE" != "$REWRITE_BASE_TREE"
+git diff --quiet "$REWRITE_BASE_TIP" HEAD -- \
+  apps packages scripts package.json bun.lock tsconfig.base.json
+git config --file "$STATE_FILE" rewrite.finalTip "$FINAL_TIP"
+git config --file "$STATE_FILE" rewrite.finalTree "$FINAL_TREE"
+git config --file "$STATE_FILE" rewrite.finalCount "$FINAL_COUNT"
+```
+
+## 7. Final symlink and complete verification
+
+```bash
+cd "$W0_REPO"
+test "$(git rev-parse HEAD)" = \
+  "$(git config --file "$STATE_FILE" rewrite.finalTip)"
+test "$(git rev-parse HEAD^{tree})" = \
+  "$(git config --file "$STATE_FILE" rewrite.finalTree)"
+test "$(git rev-list --count HEAD)" = \
+  "$(git config --file "$STATE_FILE" rewrite.finalCount)"
+
 test ! -e CLAUDE.md
 ln -s AGENTS.md CLAUDE.md
 test "$(readlink CLAUDE.md)" = AGENTS.md
@@ -259,13 +359,12 @@ bun test
 bun run lint
 bun run gates
 bun run build
-bun run build:ssr
 ```
 
 The original repository and S2 backup refs remain recovery sources until a
 fresh post-publication clone is verified.
 
-## 6. Publication preparation — owner only
+## 8. Publication preparation — owner only
 
 `git-filter-repo` removes `origin` and remote-tracking refs. Reconstruct that
 state in the rewritten clone, fetch exact `main`, and compare it with the OID
@@ -290,7 +389,10 @@ FETCHED_REMOTE_MAIN=$(git rev-parse refs/remotes/origin/main)
 LIVE_REMOTE_MAIN=$(git ls-remote --exit-code origin refs/heads/main | cut -f1)
 test "$FETCHED_REMOTE_MAIN" = "$EXPECTED_REMOTE_MAIN"
 test "$LIVE_REMOTE_MAIN" = "$EXPECTED_REMOTE_MAIN"
-test "$(git rev-parse refs/heads/main)" = "$(git rev-parse HEAD)"
+test "$(git rev-parse refs/heads/main)" = \
+  "$(git config --file "$STATE_FILE" rewrite.finalTip)"
+test "$(git rev-parse HEAD)" = \
+  "$(git config --file "$STATE_FILE" rewrite.finalTip)"
 ```
 
 Stop here. The prepared command names both destination ref and expected old OID:
