@@ -254,3 +254,32 @@ The handoff stops before the authoritative push and marks that command owner
 only. No document delegates history rewriting or publication to an agent, and
 this review executed neither action against the authoritative repository or
 remote.
+
+---
+
+# Narrow re-review — `90f0581`
+
+## Verdict: APPROVE
+
+No findings. The commit changes only `handoff.md` and `tracker.md`, and the
+reconciled claims are accurate:
+
+- A pristine clone pinned to `90f0581` passed 941 tests / 0 failures and all 16
+  automated gates / 0 failures. The harness still reports U14 and U15 as manual;
+  the documents correctly distinguish that static label from U15's completed
+  reviewer judgment.
+- The U15 implementation review at `c4df144` and both-colourway re-review at
+  `852270e` are both APPROVE. Together they record zero remaining accessibility
+  findings, including the permanent light/dark Axe coverage.
+- Required owner work is stated consistently as U14/H-5, H-6, and execution of
+  H-1. H-10 remains explicitly optional and is not presented as an MVP blocker.
+- `w0-history-rewrite-plan.md`, `s2-history-rewrite-amendment.md`, and
+  `final-history-rewrite-dry-run.md` have byte-identical Git blobs before and
+  after `90f0581`. The commit does not alter the approved procedure or evidence.
+- Later documentation commits do not invalidate rewrite arithmetic: source tip,
+  tree, and count are captured dynamically; S2 remains `source + 2`; the W7
+  evidence commit remains `S2 + 1`. The dry-run's 211 → 213 → 214 values remain
+  correctly scoped to its named `c4df144` fixture rather than asserted as the
+  future authoritative result.
+
+No implementation or history operation was executed for this review.
