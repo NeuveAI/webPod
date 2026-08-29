@@ -132,7 +132,11 @@ try {
     keyboardContinued: selectedAfterKeyboard !== selectedAfterArc,
     pageErrors: errors,
   } satisfies W7BrowserEvidence
-  parseW7BrowserEvidence(result, { reviewedCommit: resolvedCommit, reviewedTree })
+  parseW7BrowserEvidence(result, {
+    reviewedCommit: resolvedCommit,
+    reviewedTree,
+    expectedSource,
+  })
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`)
   await browser.close()
 } finally {

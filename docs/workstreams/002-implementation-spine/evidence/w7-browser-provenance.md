@@ -40,3 +40,12 @@ deleting `reviewedCommit` fails scripts TypeScript with TS1360 naming the missin
 `reviewedCommit` property; after restoration, deleting `reviewedTree` fails with
 TS1360 naming the missing `reviewedTree` property. The unmodified scripts
 TypeScript gate and both focused evidence test files pass.
+
+The committed-artifact test does not trust the runner's recorded fingerprint.
+It resolves `reviewedCommit` through Git, independently derives and compares its
+tree with `reviewedTree`, creates a fresh `git archive` containing the canonical
+runtime inputs, and runs `fingerprintBrowserSources` over that extracted tree.
+Only the resulting digest and file count are accepted as the expected source
+identity. Planting a syntactically valid 64-zero digest fails with `W7 source
+fingerprint mismatch`; restoring it and planting file count 152 fails with `W7
+source file count mismatch: expected 151, received 152`.

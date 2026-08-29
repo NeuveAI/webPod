@@ -56,7 +56,7 @@ const SHA256 = /^[a-f0-9]{64}$/u
  */
 export function parseW7BrowserEvidence(
   value: unknown,
-  expected?: W7SourceIdentity,
+  expected?: W7ValidatedSourceIdentity,
 ): W7ValidatedSourceIdentity {
   if (!isRecord(value)) throw new Error('W7 browser evidence must be an object')
   const reviewedCommit = requireObjectId(value, 'reviewedCommit')
@@ -76,6 +76,16 @@ export function parseW7BrowserEvidence(
   }
   if (typeof fileCount !== 'number' || !Number.isInteger(fileCount) || fileCount <= 0) {
     throw new Error('W7 expectedSource.fileCount must be a positive integer')
+  }
+  if (expected !== undefined && digest !== expected.expectedSource.digest) {
+    throw new Error(
+      `W7 source fingerprint mismatch: expected ${expected.expectedSource.digest}, received ${digest}`,
+    )
+  }
+  if (expected !== undefined && fileCount !== expected.expectedSource.fileCount) {
+    throw new Error(
+      `W7 source file count mismatch: expected ${String(expected.expectedSource.fileCount)}, received ${String(fileCount)}`,
+    )
   }
   return { reviewedCommit, reviewedTree, expectedSource: { digest, fileCount } }
 }
