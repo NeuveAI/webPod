@@ -36,3 +36,11 @@
 - Format feedback: not applicable.
 - Backlog signals: none for Neuve.
 - Feedback artifact: this review records unavailability as required.
+
+## Re-review — `c9e9baa`
+
+### Verdict: APPROVE — 0 Critical, 0 Major, 0 Minor
+
+The follow-up is limited to `packages/panel/e2e/panel.e2e.ts` and closes the prior Minor. The committed regression now evaluates `aria-prohibited-attr` independently for the dark and light action strips, requiring zero violations and zero incomplete results for each. Both branches retain the named `Playback status` group, four distinctly named non-focusable graphics, the sole native Love button, and the capability-absence assertion.
+
+Focused verification passed: 14/14 panel SSR tests, the targeted Playwright case, panel TypeScript, and scoped ESLint. A temporary light-only removal of the action-strip `role` made the targeted test fail at the light panel while leaving the dark branch unchanged; the file was then restored byte-for-byte and the focused browser test passed again. The test also carries its own light-only Axe plant. Current WAI-ARIA semantics and the Vercel Web Interface Guidelines were rechecked; no new finding applies. No implementation file was changed by this review.
