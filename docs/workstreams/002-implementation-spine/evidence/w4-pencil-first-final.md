@@ -48,9 +48,17 @@ the back artwork is a CanvasTexture marked sRGB and rendered as a transparent,
 tone-map-independent printed layer. It supplies markings, not fake reflection.
 
 The archival sheen and crown JSON descriptions are now executable closed
-parsers. Tests require the exact five-point sheen sweep, all 42 unique crown
-candidates, immutable physical constraints, and complete 43-row measurements;
-the producers validate through those parsers before writing evidence.
+parsers. The measurement boundary now derives one ordered 43-coordinate
+identity from the canonical stop definitions and admits no extra row fields.
+It validates surface/token/position/expected-stop identity, exact mirrored
+sample cardinality, finite 0–255 RGB and luma domains, sample averaging,
+`delta = measured − expected`, and the canonical ±4 pass result. Tests parse
+both committed archives, recompute count/pass/RMS/worst aggregates, require the
+exact five-point sheen sweep and all 42 unique crown coordinates, and reject
+the reviewer's duplicated-black-row + rogue-key + `delta: 999, pass: true`
+fabrication alongside adjacent coordinate, arithmetic, range, deletion and
+duplication mutations. Producers validate through the same parsers before
+writing evidence.
 
 The pass used `global-patterns`, `modern-web-guidance`, `interface-craft`, and
 `interface-design-guardrails`. Visual review emphasized physical hierarchy,
