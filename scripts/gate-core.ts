@@ -82,6 +82,7 @@ const BOOKKEEPING_SUBDIRECTORY_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u
 const BOOKKEEPING_FILE_PATTERN = /^[a-z0-9]+(?:[._-][a-z0-9]+)*$/u
 const BOOKKEEPING_DIRECTORIES = new Set(['decisions', 'diary', 'evidence', 'reviews'])
 const TEMPLATE_EXPRESSION_MARKER = '\u0000'
+const FORBIDDEN_VOCABULARY = ['00' + '2', ['implementation', 'spine'].join('-'), ['work', 'stream'].join('')] as const
 
 function normalizePath(path: string): string {
   return path.split(sep).join('/')
@@ -198,75 +199,163 @@ function authoredText(file: SourceFile, includeComments: boolean): readonly Loca
   return pieces
 }
 
-function staticTemplateExpression(node: ts.Expression, bindings: ReadonlyMap<string, string>): string | undefined {
-  if (ts.isStringLiteralLike(node)) return node.text
-  if (ts.isIdentifier(node)) return bindings.get(node.text)
-  if (ts.isParenthesizedExpression(node)) return staticTemplateExpression(node.expression, bindings)
-  if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
-    const left = staticTemplateExpression(node.left, bindings)
-    const right = staticTemplateExpression(node.right, bindings)
-    if (left !== undefined && right !== undefined) return `${left}${right}`
-  }
-  return undefined
+interface StaticStrings {
+  readonly values: ReadonlySet<string>
 }
 
-function staticStringBindings(source: ts.SourceFile): ReadonlyMap<string, string> {
-  const declarations = new Map<string, ts.Expression[]>()
-  const collect = (node: ts.Node): void => {
-    if (ts.isVariableDeclarationList(node) && (node.flags & ts.NodeFlags.Const) !== 0) {
-      for (const declaration of node.declarations) {
-        if (!ts.isIdentifier(declaration.name) || declaration.initializer === undefined) continue
-        const existing = declarations.get(declaration.name.text) ?? []
-        existing.push(declaration.initializer)
-        declarations.set(declaration.name.text, existing)
-      }
-    }
-    ts.forEachChild(node, collect)
-  }
-  collect(source)
+const UNKNOWN_STATIC_STRING: StaticStrings = { values: new Set([TEMPLATE_EXPRESSION_MARKER]) }
 
-  const bindings = new Map<string, string>()
-  let changed = true
-  while (changed) {
-    changed = false
-    for (const [name, initializers] of declarations) {
-      if (bindings.has(name) || initializers.length !== 1) continue
-      const [initializer] = initializers
-      if (initializer === undefined) continue
-      const value = staticTemplateExpression(initializer, bindings)
-      if (value === undefined) continue
-      bindings.set(name, value)
-      changed = true
-    }
+function lexicalScope(node: ts.Node): ts.Node {
+  let current: ts.Node | undefined = node.parent
+  while (current !== undefined) {
+    if (ts.isSourceFile(current) || ts.isBlock(current) || ts.isModuleBlock(current) || ts.isCaseBlock(current)
+      || ts.isForStatement(current) || ts.isForInStatement(current) || ts.isForOfStatement(current)) return current
+    current = current.parent
   }
-  return bindings
+  return node.getSourceFile()
+}
+
+function bindingNameContains(binding: ts.BindingName, name: string): boolean {
+  if (ts.isIdentifier(binding)) return binding.text === name
+  return binding.elements.some((element) => !ts.isOmittedExpression(element) && bindingNameContains(element.name, name))
+}
+
+function directConstBinding(scope: ts.Node, name: string): ts.Expression | null | undefined {
+  const matches: ts.Expression[] = []
+  let shadowedByOpaqueBinding = false
+  const inspect = (node: ts.Node): void => {
+    if (ts.isVariableDeclarationList(node)) {
+      for (const declaration of node.declarations) {
+        if (!bindingNameContains(declaration.name, name)) continue
+        if ((node.flags & ts.NodeFlags.Const) !== 0 && ts.isIdentifier(declaration.name) && declaration.initializer !== undefined) {
+          matches.push(declaration.initializer)
+        } else {
+          shadowedByOpaqueBinding = true
+        }
+      }
+      return
+    }
+    ts.forEachChild(node, (child) => {
+      if (!ts.isBlock(child) && !ts.isFunctionLike(child)) inspect(child)
+    })
+  }
+  if (ts.isSourceFile(scope) || ts.isBlock(scope) || ts.isModuleBlock(scope)) {
+    for (const statement of scope.statements) inspect(statement)
+    if (ts.isBlock(scope) && ts.isFunctionLike(scope.parent) && 'body' in scope.parent && scope.parent.body === scope) {
+      if (scope.parent.parameters.some((parameter) => bindingNameContains(parameter.name, name))) shadowedByOpaqueBinding = true
+    }
+  } else if (ts.isCaseBlock(scope)) {
+    for (const clause of scope.clauses) for (const statement of clause.statements) inspect(statement)
+  } else {
+    inspect(scope)
+  }
+  if (shadowedByOpaqueBinding || matches.length > 1) return null
+  return matches.length === 1 ? matches[0] : undefined
+}
+
+function visibleConstBinding(node: ts.Node, name: string): ts.Expression | null | undefined {
+  let scope = lexicalScope(node)
+  while (true) {
+    const binding = directConstBinding(scope, name)
+    if (binding !== undefined) return binding
+    if (ts.isSourceFile(scope)) return undefined
+    scope = lexicalScope(scope)
+  }
+}
+
+function combineStaticStrings(left: StaticStrings, right: StaticStrings): StaticStrings {
+  const values = new Set<string>()
+  for (const leftValue of left.values) for (const rightValue of right.values) values.add(`${leftValue}${rightValue}`)
+  return { values }
+}
+
+function unionStaticStrings(...groups: readonly StaticStrings[]): StaticStrings {
+  return { values: new Set(groups.flatMap((group) => [...group.values])) }
+}
+
+function embeddedStaticStrings(strings: StaticStrings): StaticStrings {
+  return {
+    values: new Set([...strings.values].map((value) => isCanonicalBookkeepingPath(value) || isCanonicalBookkeepingTemplate(value)
+      ? TEMPLATE_EXPRESSION_MARKER
+      : value)),
+  }
+}
+
+function staticTemplateExpression(node: ts.Expression, resolving: ReadonlySet<ts.Expression> = new Set()): StaticStrings {
+  if (ts.isStringLiteralLike(node)) return { values: new Set([node.text]) }
+  if (ts.isIdentifier(node)) {
+    const binding = visibleConstBinding(node, node.text)
+    if (binding === undefined || binding === null || resolving.has(binding)) return UNKNOWN_STATIC_STRING
+    return staticTemplateExpression(binding, new Set([...resolving, binding]))
+  }
+  if (ts.isParenthesizedExpression(node)) return staticTemplateExpression(node.expression, resolving)
+  if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+    return combineStaticStrings(staticTemplateExpression(node.left, resolving), staticTemplateExpression(node.right, resolving))
+  }
+  if (ts.isConditionalExpression(node)) {
+    return unionStaticStrings(staticTemplateExpression(node.whenTrue, resolving), staticTemplateExpression(node.whenFalse, resolving))
+  }
+  if (ts.isTemplateExpression(node)) {
+    let result: StaticStrings = { values: new Set([node.head.text]) }
+    for (const span of node.templateSpans) {
+      result = combineStaticStrings(result, staticTemplateExpression(span.expression, resolving))
+      result = combineStaticStrings(result, { values: new Set([span.literal.text]) })
+    }
+    return result
+  }
+  return UNKNOWN_STATIC_STRING
 }
 
 /** Reconstruct static template text and mark every expression that cannot be proven constant. */
 function authoredTemplates(file: SourceFile): readonly LocatedText[] {
   if (!/\.(?:[cm]?[jt]sx?)$/u.test(file.path)) return []
   const source = sourceFile(file)
-  const bindings = staticStringBindings(source)
   const pieces: LocatedText[] = []
   const visit = (node: ts.Node): void => {
     if (ts.isTemplateExpression(node)) {
-      let text = node.head.text
+      let alternatives: StaticStrings = { values: new Set([node.head.text]) }
       for (const span of node.templateSpans) {
-        text += staticTemplateExpression(span.expression, bindings) ?? TEMPLATE_EXPRESSION_MARKER
-        text += span.literal.text
+        alternatives = combineStaticStrings(alternatives, embeddedStaticStrings(staticTemplateExpression(span.expression)))
+        alternatives = combineStaticStrings(alternatives, { values: new Set([span.literal.text]) })
       }
-      pieces.push({
-        path: file.path,
-        line: lineAt(source, node.getStart(source)),
-        text,
-        userVisible: false,
-        kind: 'template',
-      })
+      for (const text of alternatives.values) {
+        pieces.push({
+          path: file.path,
+          line: lineAt(source, node.getStart(source)),
+          text,
+          userVisible: false,
+          kind: 'template',
+        })
+      }
     }
     ts.forEachChild(node, visit)
   }
   visit(source)
   return pieces
+}
+
+function unknownCompletesForbiddenVocabulary(text: string): boolean {
+  const parts = text.split(TEMPLATE_EXPRESSION_MARKER)
+  if (parts.length < 2) return false
+  for (let index = 0; index < parts.length - 1; index += 1) {
+    const left = parts[index] ?? ''
+    const right = parts[index + 1] ?? ''
+    for (const token of FORBIDDEN_VOCABULARY) {
+      const maxLeft = Math.min(left.length, token.length)
+      const maxRight = Math.min(right.length, token.length)
+      for (let leftLength = 0; leftLength <= maxLeft; leftLength += 1) {
+        const leftFragment = token.slice(0, leftLength)
+        if (!left.endsWith(leftFragment)) continue
+        for (let rightLength = 0; rightLength <= maxRight; rightLength += 1) {
+          if (leftLength + rightLength === 0 || leftLength + rightLength > token.length) continue
+          const rightFragment = token.slice(token.length - rightLength)
+          if (!right.startsWith(rightFragment)) continue
+          if (/[a-z0-9]/iu.test(`${leftFragment}${rightFragment}`)) return true
+        }
+      }
+    }
+  }
+  return false
 }
 
 function contentFindings(files: readonly SourceFile[], pattern: RegExp, options: { readonly comments: boolean; readonly templates?: boolean; readonly ignore?: (item: LocatedText) => boolean }): readonly string[] {
@@ -277,14 +366,19 @@ function contentFindings(files: readonly SourceFile[], pattern: RegExp, options:
       : authoredText(file, options.comments)
     for (const item of items) {
       if (options.ignore?.(item) === true) continue
-      const inspectedText = item.kind === 'template'
-        ? item.text.replaceAll(TEMPLATE_EXPRESSION_MARKER, '')
-        : item.text
-      pattern.lastIndex = 0
-      const match = pattern.exec(inspectedText)
-      if (match !== null) {
-        const matchedLine = item.line + (inspectedText.slice(0, match.index).match(/\n/g)?.length ?? 0)
-        findings.add(finding(item.path, matchedLine, 'forbidden authored content'))
+      if (item.kind === 'template' && unknownCompletesForbiddenVocabulary(item.text)) {
+        findings.add(finding(item.path, item.line, 'forbidden authored content'))
+        continue
+      }
+      const inspectedTexts = item.kind === 'template' ? [item.text.replaceAll(TEMPLATE_EXPRESSION_MARKER, '')] : [item.text]
+      for (const inspectedText of inspectedTexts) {
+        pattern.lastIndex = 0
+        const match = pattern.exec(inspectedText)
+        if (match !== null) {
+          const matchedLine = item.line + (inspectedText.slice(0, match.index).match(/\n/g)?.length ?? 0)
+          findings.add(finding(item.path, matchedLine, 'forbidden authored content'))
+          break
+        }
       }
     }
   }

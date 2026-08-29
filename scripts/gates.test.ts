@@ -167,6 +167,13 @@ describe('W5a static gates go red', () => {
       "export const name = `implementation-${'spine'}`\n",
       "const gap = ''\nexport const name = `implementation-${gap}spine`\n",
       "const left = 'implementation'\nconst right = 'spine'\nexport const name = `${left}-${right}`\n",
+      "const flag = process.env['FLAG']\nexport const name = `${flag ? 'implementation' : 'safe'}-spine`\n",
+      "{ const part = 'safe' }\nconst part = 'implementation'\nexport const name = `${part}-spine`\n",
+      "const part = 'safe'\n{ const part = 'implementation'\nexport const name = `${part}-spine` }\n",
+      "const part = 'safe'\nfunction nested() { const part = 'implementation'\nreturn `${part}-spine` }\nvoid nested\n",
+      "const part = 'safe'\nfor (const part of ['implementation']) { void `${part}-spine` }\n",
+      "const flag = process.env['FLAG']\nexport const name = `${flag ? `${'implementation'}` : 'safe'}-spine`\n",
+      "const choose = process.env['CHOOSE']\nconst part = choose ? 'implementation' : 'safe'\nexport const name = `${part}-spine`\n",
     ]
 
     for (const [index, source] of sources.entries()) {
@@ -176,6 +183,25 @@ describe('W5a static gates go red', () => {
       const gate = failed(await runStaticGates({ root }), 'NAMING')
       expect(gate.findings.some((finding) => finding.includes(path))).toBe(true)
     }
+  })
+
+  test('NAMING keeps lexical and conditional safe controls green', async () => {
+    const root = await fixture()
+    const source = [
+      "const flag = process.env['FLAG']",
+      "const part = 'ordinary'",
+      "{ const part = 'safe'; export const inner = `${part}-label` }",
+      "export const outer = `${part}-${flag ? 'safe' : 'ordinary'}`",
+      "export const unknown = `ordinary-${process.env['VALUE']}-label`",
+      "const forbiddenOuter = 'implementation'",
+      "{ const forbiddenOuter = 'safe'; export const shadowed = `${forbiddenOuter}-spine` }",
+      "function nested() { const forbiddenOuter = 'safe'; return `${forbiddenOuter}-spine` }",
+      'void nested',
+      '',
+    ].join('\n')
+    await plant(root, 'scripts/safe-template-controls.ts', source)
+    const gate = (await runStaticGates({ root })).find((candidate) => candidate.id === 'NAMING')
+    expect(gate?.status).toBe('pass')
   })
 
   test('NAMING rejects adjacent noncanonical bookkeeping references', async () => {
