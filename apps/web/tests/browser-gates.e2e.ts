@@ -112,6 +112,7 @@ const assertSourceIdentity = async (page: Page): Promise<void> => {
 
 const contrastReport = async (panel: Locator): Promise<readonly TextContrast[]> => panel.evaluate((root) => {
   type Colour = readonly [number, number, number, number]
+  interface ColourBounds { readonly low: Colour; readonly high: Colour }
   const parse = (value: string): readonly [number, number, number, number] | null => {
     const match = value.match(/^rgba?\((\d+(?:\.\d+)?)\s*,?\s*(\d+(?:\.\d+)?)\s*,?\s*(\d+(?:\.\d+)?)(?:\s*[,/]\s*(\d+(?:\.\d+)?))?\)$/u)
     if (match === null) return null
@@ -121,27 +122,12 @@ const contrastReport = async (panel: Locator): Promise<readonly TextContrast[]> 
     const alpha = match[4] === undefined ? 1 : Number(match[4])
     return [red, green, blue, alpha]
   }
-  const composite = (front: Colour, back: Colour): Colour => {
-    const alpha = front[3] + back[3] * (1 - front[3])
-    if (alpha === 0) return [0, 0, 0, 0]
-    return [
-      (front[0] * front[3] + back[0] * back[3] * (1 - front[3])) / alpha,
-      (front[1] * front[3] + back[1] * back[3] * (1 - front[3])) / alpha,
-      (front[2] * front[3] + back[2] * back[3] * (1 - front[3])) / alpha,
-      alpha,
-    ]
-  }
   const luminance = (colour: Colour): number => {
     const channel = (value: number): number => {
       const normalized = value / 255
       return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4
     }
     return 0.2126 * channel(colour[0]) + 0.7152 * channel(colour[1]) + 0.0722 * channel(colour[2])
-  }
-  const ratio = (a: Colour, b: Colour): number => {
-    const light = Math.max(luminance(a), luminance(b))
-    const dark = Math.min(luminance(a), luminance(b))
-    return (light + 0.05) / (dark + 0.05)
   }
   const visible = (element: HTMLElement): boolean => {
     const style = getComputedStyle(element)
@@ -153,29 +139,79 @@ const contrastReport = async (panel: Locator): Promise<readonly TextContrast[]> 
     const colour = parse(match[0])
     return colour === null ? [] : [colour]
   })
-  const unique = (colours: readonly Colour[]): readonly Colour[] => {
+  const pointBounds = (colour: Colour): ColourBounds => ({ low: colour, high: colour })
+  // A stop pair describes a continuum, not two samples. The component-wise
+  // hull contains every default sRGB/RGBA interpolation between the stops.
+  const interpolationBounds = (left: Colour, right: Colour): ColourBounds => ({
+    low: [
+      Math.min(left[0], right[0]),
+      Math.min(left[1], right[1]),
+      Math.min(left[2], right[2]),
+      Math.min(left[3], right[3]),
+    ],
+    high: [
+      Math.max(left[0], right[0]),
+      Math.max(left[1], right[1]),
+      Math.max(left[2], right[2]),
+      Math.max(left[3], right[3]),
+    ],
+  })
+  const withBoundsOpacity = (bounds: ColourBounds, opacity: number): ColourBounds => ({
+    low: [bounds.low[0], bounds.low[1], bounds.low[2], bounds.low[3] * opacity],
+    high: [bounds.high[0], bounds.high[1], bounds.high[2], bounds.high[3] * opacity],
+  })
+  const compositeBounds = (front: ColourBounds, back: ColourBounds): ColourBounds => {
+    const alphaLow = front.low[3] + back.low[3] * (1 - front.low[3])
+    const alphaHigh = front.high[3] + back.high[3] * (1 - front.high[3])
+    if (alphaLow <= 0) return { low: [0, 0, 0, 0], high: [255, 255, 255, alphaHigh] }
+    const channel = (index: 0 | 1 | 2): readonly [number, number] => {
+      const numeratorLow = front.low[index] * front.low[3] + back.low[index] * back.low[3] * (1 - front.high[3])
+      const numeratorHigh = front.high[index] * front.high[3] + back.high[index] * back.high[3] * (1 - front.low[3])
+      return [Math.max(0, numeratorLow / alphaHigh), Math.min(255, numeratorHigh / alphaLow)]
+    }
+    const red = channel(0)
+    const green = channel(1)
+    const blue = channel(2)
+    return {
+      low: [red[0], green[0], blue[0], alphaLow],
+      high: [red[1], green[1], blue[1], alphaHigh],
+    }
+  }
+  const unique = (bounds: readonly ColourBounds[]): readonly ColourBounds[] => {
     const seen = new Set<string>()
-    return colours.filter((colour) => {
-      const key = colour.map((part) => part.toFixed(3)).join(',')
+    return bounds.filter((candidate) => {
+      const key = [...candidate.low, ...candidate.high].map((part) => part.toFixed(3)).join(',')
       if (seen.has(key)) return false
       seen.add(key)
       return true
     }).slice(0, 96)
   }
+  const luminanceBounds = (bounds: ColourBounds): readonly [number, number] => [luminance(bounds.low), luminance(bounds.high)]
+  const contrastLowerBound = (foreground: Colour, background: ColourBounds): number => {
+    const renderedForeground = compositeBounds(pointBounds(foreground), background)
+    const [foregroundLow, foregroundHigh] = luminanceBounds(renderedForeground)
+    const [backgroundLow, backgroundHigh] = luminanceBounds(background)
+    // If the intervals meet, some admissible interior paint can be identical
+    // in luminance to the text. Endpoints may both pass while that point is 1:1.
+    if (foregroundLow <= backgroundHigh && backgroundLow <= foregroundHigh) return 1
+    return foregroundHigh < backgroundLow
+      ? (backgroundLow + 0.05) / (foregroundHigh + 0.05)
+      : (foregroundLow + 0.05) / (backgroundHigh + 0.05)
+  }
   const applyPaint = (
-    candidates: readonly Colour[],
+    candidates: readonly ColourBounds[],
     style: CSSStyleDeclaration,
     source: string,
     sources: string[],
     unresolved: string[],
-  ): readonly Colour[] => {
+  ): readonly ColourBounds[] => {
     if (style.mixBlendMode !== 'normal') unresolved.push(`${source}: mix-blend-mode ${style.mixBlendMode}`)
     const opacity = Number(style.opacity)
     const solid = parse(style.backgroundColor)
     let next = candidates
     if (solid !== null && solid[3] > 0) {
-      const layer = withOpacity(solid, opacity)
-      next = unique(next.map((background) => composite(layer, background)))
+      const layer = pointBounds(withOpacity(solid, opacity))
+      next = unique(next.map((background) => compositeBounds(layer, background)))
       sources.push(`${source}:background-color`)
     }
     const image = style.backgroundImage
@@ -186,14 +222,17 @@ const contrastReport = async (panel: Locator): Promise<readonly TextContrast[]> 
         const stops = coloursIn(image)
         if (stops.length === 0) unresolved.push(`${source}: gradient has no resolved colour stops`)
         else {
-          next = unique(next.flatMap((background) => stops.map((stop) => composite(withOpacity(stop, opacity), background))))
-          sources.push(`${source}:gradient(${String(stops.length)} stops)`)
+          const spans = stops.length === 1
+            ? [pointBounds(stops[0] ?? [0, 0, 0, 0])]
+            : stops.slice(1).map((stop, index) => interpolationBounds(stops[index] ?? stop, stop))
+          next = unique(next.flatMap((background) => spans.map((span) => compositeBounds(withBoundsOpacity(span, opacity), background))))
+          sources.push(`${source}:gradient(${String(stops.length)} stops, interpolation bounded)`)
         }
       }
     }
     return next
   }
-  const backgrounds = (element: Element): { readonly colours: readonly Colour[]; readonly sources: readonly string[]; readonly unresolved: readonly string[] } => {
+  const backgrounds = (element: Element): { readonly colours: readonly ColourBounds[]; readonly sources: readonly string[]; readonly unresolved: readonly string[] } => {
     const chain: Element[] = []
     let current: Element | null = element
     while (current !== null) {
@@ -201,7 +240,7 @@ const contrastReport = async (panel: Locator): Promise<readonly TextContrast[]> 
       if (current === root) break
       current = current.parentElement
     }
-    let candidates: readonly Colour[] = [[255, 255, 255, 1]]
+    let candidates: readonly ColourBounds[] = [pointBounds([255, 255, 255, 1])]
     const sources: string[] = []
     const unresolved: string[] = []
     for (const [index, node] of chain.entries()) {
@@ -232,7 +271,7 @@ const contrastReport = async (panel: Locator): Promise<readonly TextContrast[]> 
         ancestor = ancestor.parentElement
       }
       const painted = backgrounds(element)
-      const ratios = painted.colours.map((background) => ratio(composite(withOpacity(foreground, opacity), background), background))
+      const ratios = painted.colours.map((background) => contrastLowerBound(withOpacity(foreground, opacity), background))
       return {
         selector: `${element.tagName.toLowerCase()}:${String(index)}`,
         text: (element.textContent ?? '').trim().slice(0, 80),
@@ -495,6 +534,26 @@ test('U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourw
   await landPlant(page, 'U7_ALL_TEXT',
     () => page.addStyleTag({ content: '.wp-titlebar__side{color:var(--wp-title-0)!important}' }).then(() => undefined),
     () => page.locator('.wp-titlebar__battery').first().evaluate((element) => getComputedStyle(element).color === 'rgb(35, 40, 47)'))
+  const interpolationTarget = page.locator('.wp-mode-chip').first()
+  await landPlant(page, 'U7_INTERPOLATION',
+    () => page.addStyleTag({ content: '.wp-mode-chip{color:#767676!important;background:linear-gradient(#000,#fff)!important}' }).then(() => undefined),
+    () => interpolationTarget.evaluate((element) => {
+      const style = getComputedStyle(element)
+      return style.color === 'rgb(118, 118, 118)' && style.backgroundImage.includes('rgb(0, 0, 0)') && style.backgroundImage.includes('rgb(255, 255, 255)')
+    }))
+  if (plant === 'U7_INTERPOLATION') {
+    const endpoints = await interpolationTarget.evaluate(() => {
+      const luminance = (value: number): number => {
+        const channel = value / 255
+        return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+      }
+      const text = luminance(118)
+      return { black: (text + 0.05) / 0.05, white: 1.05 / (text + 0.05) }
+    })
+    expect(endpoints.black).toBeGreaterThan(4.5)
+    expect(endpoints.white).toBeGreaterThan(4.5)
+    console.log(`[W5B U7 INTERPOLATION ENDPOINTS black=${endpoints.black.toFixed(3)} white=${endpoints.white.toFixed(3)}]`)
+  }
   const reports = []
   const failures: Array<{ readonly colourway: string; readonly text: string; readonly ratio: number; readonly required: number; readonly paintSources: readonly string[] }> = []
   for (const colourway of colourways) {

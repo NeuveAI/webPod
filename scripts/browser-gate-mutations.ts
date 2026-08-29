@@ -11,6 +11,7 @@ const mutations = [
   { plant: 'U6', gate: 'U6' },
   { plant: 'U7', gate: 'U7' },
   { plant: 'U7_ALL_TEXT', gate: 'U7' },
+  { plant: 'U7_INTERPOLATION', gate: 'U7' },
   { plant: 'U11', gate: 'U11' },
   { plant: 'U11_RASTER', gate: 'U11' },
   { plant: 'U12', gate: 'U12' },
