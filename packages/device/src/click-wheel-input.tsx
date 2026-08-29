@@ -1,5 +1,5 @@
 import type { ThreeEvent } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import {
   Mesh,
   Plane,
@@ -8,6 +8,7 @@ import {
 } from "three";
 
 import { DEVICE_LAYOUT } from "./layout";
+import { DeviceCanvasFaceContext } from "./DeviceCanvas";
 
 export type ClickWheelPointerType = "mouse" | "touch" | "pen";
 
@@ -99,11 +100,6 @@ export function finishClickWheelCapture(
   return true;
 }
 
-const plane = new Plane();
-const planeNormal = new Vector3();
-const planeOrigin = new Vector3();
-const planeHit = new Vector3();
-
 /** Converts a wheel-local point into the clockwise-positive angle contract. */
 export function clockwiseWheelAngleDeg(x: number, y: number): number {
   return (-Math.atan2(y, x) * 180) / Math.PI;
@@ -118,6 +114,10 @@ export function clockwiseWheelAngleDeg(x: number, y: number): number {
  */
 export function wheelAngleFromRay(mesh: Mesh, ray: Ray): number | null {
   mesh.updateWorldMatrix(true, false);
+  const plane = new Plane();
+  const planeNormal = new Vector3();
+  const planeOrigin = new Vector3();
+  const planeHit = new Vector3();
   planeOrigin.setFromMatrixPosition(mesh.matrixWorld);
   planeNormal.set(0, 0, 1).transformDirection(mesh.matrixWorld);
   plane.setFromNormalAndCoplanarPoint(planeNormal, planeOrigin);
@@ -152,9 +152,18 @@ export function acceptsClickWheelPointer(input: {
   );
 }
 
-function nativeHost(event: ThreeEvent<PointerEvent>): Element | null {
-  const target = event.nativeEvent.currentTarget;
-  return target instanceof Element ? target : null;
+function nativeHost(event: ThreeEvent<PointerEvent>): EventTarget | null {
+  return event.nativeEvent.currentTarget;
+}
+
+function pointerIdentity(event: Event): {
+  readonly pointerId: number;
+  readonly timestampMs: number;
+} | null {
+  if (!("pointerId" in event) || typeof event.pointerId !== "number") {
+    return null;
+  }
+  return { pointerId: event.pointerId, timestampMs: event.timeStamp };
 }
 
 function captureApiOf(target: EventTarget | null): CaptureApi | null {
@@ -193,6 +202,7 @@ export function ClickWheelInputSurface({
   onArcMove,
   onArcEnd,
 }: ClickWheelInputSurfaceProps) {
+  const face = useContext(DeviceCanvasFaceContext);
   const meshRef = useRef<Mesh>(null);
   const captureSlotRef = useRef<ClickWheelCaptureSlot>(
     createClickWheelCaptureSlot(),
@@ -267,14 +277,16 @@ export function ClickWheelInputSurface({
     capture.setPointerCapture(event.pointerId);
 
     const onCancel: EventListener = (nativeEvent) => {
-      if (!(nativeEvent instanceof PointerEvent)) return;
-      finish(nativeEvent.pointerId, nativeEvent.timeStamp, "cancel", false);
+      const pointer = pointerIdentity(nativeEvent);
+      if (pointer === null) return;
+      finish(pointer.pointerId, pointer.timestampMs, "cancel", false);
     };
     const onLostCapture: EventListener = (nativeEvent) => {
-      if (!(nativeEvent instanceof PointerEvent)) return;
+      const pointer = pointerIdentity(nativeEvent);
+      if (pointer === null) return;
       finish(
-        nativeEvent.pointerId,
-        nativeEvent.timeStamp,
+        pointer.pointerId,
+        pointer.timestampMs,
         "lost-capture",
         false,
       );
@@ -307,6 +319,8 @@ export function ClickWheelInputSurface({
     event.stopPropagation();
     finish(event.pointerId, event.timeStamp, "release", true);
   };
+
+  if (face === "back") return null;
 
   return (
     <mesh

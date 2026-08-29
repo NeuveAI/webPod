@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Mesh, Ray, RingGeometry, Vector3 } from "three";
+import { Group, Matrix4, Mesh, Ray, RingGeometry, Vector3 } from "three";
 
 import {
   CLICK_WHEEL_INPUT_POSITION,
@@ -26,10 +26,12 @@ function wheelMesh() {
   return mesh;
 }
 
-function rayAtLocal(mesh: Mesh, x: number, y: number) {
-  mesh.updateWorldMatrix(true, false);
-  const target = new Vector3(x, y, 0).applyMatrix4(mesh.matrixWorld);
-  return new Ray(target.clone().add(new Vector3(0, 0, 100)), new Vector3(0, 0, -1));
+function rayAtExpectedMatrix(matrixWorld: Matrix4, x: number, y: number) {
+  const target = new Vector3(x, y, 0).applyMatrix4(matrixWorld);
+  return new Ray(
+    target.clone().add(new Vector3(0, 0, 100)),
+    new Vector3(0, 0, -1),
+  );
 }
 
 describe("click-wheel input geometry", () => {
@@ -58,23 +60,33 @@ describe("click-wheel input geometry", () => {
     expect(shortestWheelDeltaDeg(-179, 179)).toBe(-2);
   });
 
-  test("samples the live ray against the mesh's current world plane", () => {
+  test("refreshes a dirty parent and mesh world transform in production", () => {
+    const parent = new Group();
     const mesh = wheelMesh();
-    mesh.rotation.set(0.15, -0.2, 0.35);
-    mesh.position.x += 18;
+    parent.add(mesh);
+    parent.updateWorldMatrix(true, true);
+    parent.position.set(31, -24, 18);
+    parent.rotation.set(0.17, -0.23, 0.29);
+    mesh.position.x += 19;
+    mesh.position.y -= 11;
+    mesh.rotation.set(-0.12, 0.19, -0.41);
+
+    const parentMatrix = new Matrix4().compose(
+      parent.position,
+      parent.quaternion,
+      parent.scale,
+    );
+    const meshMatrix = new Matrix4().compose(
+      mesh.position,
+      mesh.quaternion,
+      mesh.scale,
+    );
+    const expectedWorld = parentMatrix.multiply(meshMatrix);
     const clockwiseQuarter = wheelAngleFromRay(
       mesh,
-      rayAtLocal(mesh, 0, -80),
+      rayAtExpectedMatrix(expectedWorld, 0, -80),
     );
     expect(clockwiseQuarter).toBeCloseTo(90, 8);
-
-    mesh.rotation.z = -0.45;
-    mesh.position.y -= 12;
-    const counterClockwiseQuarter = wheelAngleFromRay(
-      mesh,
-      rayAtLocal(mesh, 0, 80),
-    );
-    expect(counterClockwiseQuarter).toBeCloseTo(-90, 8);
   });
 
   test("returns null when the current ray is parallel to the wheel plane", () => {

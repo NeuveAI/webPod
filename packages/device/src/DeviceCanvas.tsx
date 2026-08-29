@@ -19,9 +19,9 @@
  * arithmetically unreachable at the top of three of the five tables.
  */
 import { Canvas } from "@react-three/fiber";
-import type { ReactNode } from "react";
+import { createContext, type ReactNode } from "react";
 
-import { Device, type DeviceProps } from "./Device";
+import { Device, type DeviceFace, type DeviceProps } from "./Device";
 import { DEVICE_LAYOUT } from "./layout";
 
 export type DeviceCanvasProps = DeviceProps & {
@@ -50,11 +50,15 @@ export type DeviceCanvasProps = DeviceProps & {
 export const DEFAULT_CAMERA_DISTANCE = 1160;
 export const DEFAULT_CAMERA_FOV = 30;
 
+/** Resolved canvas face, consumed by front-only scene interactions. */
+export const DeviceCanvasFaceContext = createContext<DeviceFace>("front");
+
 export function DeviceCanvas({
   className,
   cameraDistance = DEFAULT_CAMERA_DISTANCE,
   cameraFov = DEFAULT_CAMERA_FOV,
   dpr = [1, 2],
+  face = "front",
   children,
   ...device
 }: DeviceCanvasProps) {
@@ -72,8 +76,10 @@ export function DeviceCanvas({
         position: [0, 0, cameraDistance],
       }}
     >
-      <Device {...device} />
-      {children}
+      <DeviceCanvasFaceContext.Provider value={face}>
+        <Device {...device} face={face} />
+        {children}
+      </DeviceCanvasFaceContext.Provider>
     </Canvas>
   );
 }
