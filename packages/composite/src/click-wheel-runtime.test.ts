@@ -64,10 +64,10 @@ describe('click-wheel runtime', () => {
     expect(reduced.store.get(detentAccumulatorAtom).coasting).toBe(false)
   })
 
-  test('the external driver settles on the same row from 15 to 240Hz', () => {
+  test('the external driver travels the same unclamped distance from 15 to 240Hz', () => {
     const settledRows = [15, 30, 60, 120, 240].map((hz) => {
       const harness = makeHarness()
-      driveArc(harness, 'touch', 1, 0, 150, 10)
+      driveArc(harness, 'touch', 1, 0, 150, 10, { rowCount: 1000, highlightIndex: 500 })
       harness.runtime.arcEnd({ pointerId: 1, timestampMs: 20, reason: 'release' })
       harness.drainFrames(1000 / hz)
       expect(harness.frames.size).toBe(0)
@@ -75,6 +75,24 @@ describe('click-wheel runtime', () => {
       return harness.store.get(highlightIndexAtom)
     })
     expect(new Set(settledRows).size).toBe(1)
+    expect(settledRows).toEqual([673, 673, 673, 673, 673])
+  })
+
+  test('forwards each display frame elapsed time to the coast reducer', () => {
+    const slowDisplay = makeHarness()
+    driveArc(slowDisplay, 'touch', 1, 0, 150, 10, { rowCount: 1000, highlightIndex: 500 })
+    slowDisplay.runtime.arcEnd({ pointerId: 1, timestampMs: 20, reason: 'release' })
+    slowDisplay.runFrameAt(0)
+    slowDisplay.runFrameAt(1000 / 15)
+
+    const fastDisplay = makeHarness()
+    driveArc(fastDisplay, 'touch', 1, 0, 150, 10, { rowCount: 1000, highlightIndex: 500 })
+    fastDisplay.runtime.arcEnd({ pointerId: 1, timestampMs: 20, reason: 'release' })
+    fastDisplay.runFrameAt(0)
+    fastDisplay.runFrameAt(1000 / 240)
+
+    expect(slowDisplay.store.get(detentAccumulatorAtom).speedDegPerSec)
+      .toBeLessThan(fastDisplay.store.get(detentAccumulatorAtom).speedDegPerSec)
   })
 
   test('cancellation paths never coast', () => {
@@ -88,15 +106,31 @@ describe('click-wheel runtime', () => {
   })
 
   test('wheel modes pass through and settle at the 120ms idle boundary', () => {
+    expect(WHEEL_IDLE_MS).toBe(120)
     for (const deltaMode of [0, 1, 2] as const) {
       const harness = makeHarness()
       harness.runtime.wheel({ deltaY: 36, deltaMode, timestampMs: 1 })
       expect(harness.store.get(detentAccumulatorAtom).path).toBe('scroll')
-      expect([...harness.timers.values()][0]?.ms).toBe(WHEEL_IDLE_MS)
-      harness.fireTimer()
+      expect([...harness.timers.values()][0]?.ms).toBe(120)
+      harness.advanceTimers(119)
+      expect(harness.store.get(detentAccumulatorAtom).path).toBe('scroll')
+      expect(harness.frames.size).toBe(0)
+      harness.advanceTimers(1)
       expect(harness.store.get(detentAccumulatorAtom).path).toBeNull()
       expect(harness.frames.size).toBe(0)
     }
+  })
+
+  test('wheel idle is rescheduled from the most recent event', () => {
+    const harness = makeHarness()
+    harness.runtime.wheel({ deltaY: 10, deltaMode: 0, timestampMs: 0 })
+    harness.advanceTimers(100)
+    harness.runtime.wheel({ deltaY: 10, deltaMode: 0, timestampMs: 100 })
+    expect(harness.timers.size).toBe(1)
+    harness.advanceTimers(119)
+    expect(harness.store.get(detentAccumulatorAtom).path).toBe('scroll')
+    harness.advanceTimers(1)
+    expect(harness.store.get(detentAccumulatorAtom).path).toBeNull()
   })
 
   test('dispose removes listeners, timers, frames, and transient input', () => {
@@ -169,11 +203,16 @@ class FakeReducedMotion extends FakeEventTarget implements ReducedMotionQuery {
 
 function makeHarness(options: { readonly reduced?: boolean } = {}) {
   let now = 0
+  let timerNow = 0
   const store = createDeviceStore({ now: () => now })
   const documentTarget = new FakeDocumentTarget()
   const windowTarget = new FakeEventTarget()
   const reducedMotion = new FakeReducedMotion(options.reduced ?? false)
-  const timers = new Map<RuntimeTimer, { readonly callback: () => void; readonly ms: number }>()
+  const timers = new Map<RuntimeTimer, {
+    readonly callback: () => void
+    readonly ms: number
+    readonly dueAt: number
+  }>()
   const frames = new Map<RuntimeFrame, FrameRequestCallback>()
   let nextTimer = 1
   let nextFrame = 1
@@ -189,7 +228,7 @@ function makeHarness(options: { readonly reduced?: boolean } = {}) {
     cancelFrame(frame) { frames.delete(frame) },
     setTimer(callback, ms) {
       const id = nextTimer++
-      timers.set(id, { callback, ms })
+      timers.set(id, { callback, ms, dueAt: timerNow + ms })
       return id
     },
     clearTimer(timer) { timers.delete(timer) },
@@ -208,11 +247,25 @@ function makeHarness(options: { readonly reduced?: boolean } = {}) {
     windowTarget,
     reducedMotion,
     setNow(value: number) { now = value },
+    advanceTimers(elapsedMs: number) {
+      timerNow += elapsedMs
+      for (const [id, timer] of [...timers]) {
+        if (timer.dueAt > timerNow) continue
+        timers.delete(id)
+        timer.callback()
+      }
+    },
     fireTimer() {
       const entry = [...timers.entries()][0]
       if (entry === undefined) throw new Error('No timer is armed')
       timers.delete(entry[0])
       entry[1].callback()
+    },
+    runFrameAt(frameMs: number) {
+      const entry = [...frames.entries()][0]
+      if (entry === undefined) throw new Error('No animation frame is armed')
+      frames.delete(entry[0])
+      entry[1](frameMs)
     },
     drainFrames(stepMs: number) {
       let frameMs = 0
@@ -237,8 +290,11 @@ function driveArc(
   from: number,
   to: number,
   durationMs = 100,
+  options: { readonly rowCount?: number; readonly highlightIndex?: number } = {},
 ): void {
-  const rows: readonly PanelRow[] = Array.from({ length: 80 }, (_, index) => ({
+  const rowCount = options.rowCount ?? 80
+  const highlightIndex = options.highlightIndex ?? 0
+  const rows: readonly PanelRow[] = Array.from({ length: rowCount }, (_, index) => ({
     index,
     label: `Row ${String(index + 1)}`,
     sublabel: null,
@@ -249,8 +305,8 @@ function driveArc(
     screenId: 'S09',
     title: 'Runtime test',
     rows,
-    highlightIndex: 0,
-    windowStart: 0,
+    highlightIndex,
+    windowStart: highlightIndex,
     density: 'medium',
   }
   harness.store.set(pushScreenActionAtom, frame)

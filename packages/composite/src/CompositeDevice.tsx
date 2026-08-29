@@ -16,6 +16,7 @@ import {
   useMemo,
   useRef,
   useSyncExternalStore,
+  type FocusEvent,
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
@@ -30,6 +31,7 @@ import {
   browserClickWheelRuntimeDependencies,
   createClickWheelRuntime,
   type ClickWheelRuntime,
+  type ClickWheelRuntimeDependencies,
 } from './click-wheel-runtime'
 
 export interface CompositeDeviceProps {
@@ -61,41 +63,11 @@ export function CompositeDevice({
   )
   const host = useMemo(() => (canUseDom ? createPanelHost() : null), [canUseDom])
   const coordinator = useMemo(() => new CompositeCoordinator(panelTone), [panelTone])
-  const rootRef = useRef<HTMLDivElement>(null)
-  const runtimeRef = useRef<ClickWheelRuntime | null>(null)
-
   useLayoutEffect(() => {
     if (host === null) return
     coordinator.setPanel(host)
     return () => coordinator.dispose()
   }, [coordinator, host])
-
-  useEffect(() => {
-    const root = rootRef.current
-    if (root === null) return
-    const runtime = createClickWheelRuntime(
-      browserClickWheelRuntimeDependencies(deviceStore, DEVICE_LAYOUT.screen.height),
-    )
-    runtimeRef.current = runtime
-
-    const detachWheel = attachCompositeWheelListener(root, runtime)
-
-    return () => {
-      detachWheel()
-      runtime.dispose()
-      if (runtimeRef.current === runtime) runtimeRef.current = null
-    }
-  }, [])
-
-  const onArcStart = useCallback((sample: ClickWheelArcSample) => {
-    runtimeRef.current?.arcStart(sample)
-  }, [])
-  const onArcMove = useCallback((sample: ClickWheelArcSample) => {
-    runtimeRef.current?.arcMove(sample)
-  }, [])
-  const onArcEnd = useCallback((end: ClickWheelArcEnd) => {
-    runtimeRef.current?.arcEnd(end)
-  }, [])
 
   const onScreenMeshReady = useCallback(
     (screen: ScreenMeshHandle) => coordinator.setScreen(screen),
@@ -104,30 +76,133 @@ export function CompositeDevice({
   const shouldMountCanvas = host !== null && (tier.tier === 'T1' || tier.contextLost)
 
   return (
-    <div
-      ref={rootRef}
+    <CompositeInputBoundary
       className={className}
       data-composite-tier={tier.tier}
       data-composite-ready={host !== null}
+    >
+      {({ onArcStart, onArcMove, onArcEnd }) => (
+        <>
+          {host !== null && tier.tier === 'T1' ? createPortal(panel, host) : null}
+          {shouldMountCanvas ? (
+            <DeviceCanvas
+              colourway={colourway}
+              cameraFov={cameraFov}
+              onScreenMeshReady={onScreenMeshReady}
+            >
+              <CompositeSceneBridge
+                coordinator={coordinator}
+                onArcStart={onArcStart}
+                onArcMove={onArcMove}
+                onArcEnd={onArcEnd}
+              />
+            </DeviceCanvas>
+          ) : null}
+        </>
+      )}
+    </CompositeInputBoundary>
+  )
+}
+
+type CompositeArcHandlers = {
+  readonly onArcStart: (sample: ClickWheelArcSample) => void
+  readonly onArcMove: (sample: ClickWheelArcSample) => void
+  readonly onArcEnd: (end: ClickWheelArcEnd) => void
+}
+
+type CompositeInputBoundaryProps = {
+  readonly children: (handlers: CompositeArcHandlers) => ReactNode
+  readonly className?: string
+  readonly 'data-composite-tier'?: string
+  readonly 'data-composite-ready'?: boolean
+  readonly createDependencies?: () => ClickWheelRuntimeDependencies
+}
+
+/**
+ * Owns the mounted browser bridge from the R3F annulus to the singleton store.
+ * It remembers the panel application focus because pointer capture moves focus
+ * to the canvas in Blink; release and cancellation restore keyboard navigation.
+ */
+export function CompositeInputBoundary({
+  children,
+  className,
+  'data-composite-tier': tier,
+  'data-composite-ready': ready,
+  createDependencies = defaultRuntimeDependencies,
+}: CompositeInputBoundaryProps) {
+  const rootRef = useRef<HTMLDivElement>(null)
+  const controller = useMemo(
+    () => new CompositeInputController(createDependencies),
+    [createDependencies],
+  )
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (root === null) return
+    return controller.attach(root)
+  }, [controller])
+
+  const onFocusCapture = useCallback((event: FocusEvent<HTMLDivElement>) => {
+    controller.rememberApplicationFocus(event.target, event.currentTarget)
+  }, [controller])
+
+  return (
+    <div
+      ref={rootRef}
+      className={className}
+      data-composite-tier={tier}
+      data-composite-ready={ready}
+      onFocusCapture={onFocusCapture}
       style={{ touchAction: 'none', overscrollBehavior: 'contain' }}
     >
-      {host !== null && tier.tier === 'T1' ? createPortal(panel, host) : null}
-      {shouldMountCanvas ? (
-        <DeviceCanvas
-          colourway={colourway}
-          cameraFov={cameraFov}
-          onScreenMeshReady={onScreenMeshReady}
-        >
-          <CompositeSceneBridge
-            coordinator={coordinator}
-            onArcStart={onArcStart}
-            onArcMove={onArcMove}
-            onArcEnd={onArcEnd}
-          />
-        </DeviceCanvas>
-      ) : null}
+      {children(controller.handlers)}
     </div>
   )
+}
+
+class CompositeInputController {
+  private runtime: ClickWheelRuntime | null = null
+  private applicationFocus: HTMLElement | null = null
+
+  readonly handlers: CompositeArcHandlers = {
+    onArcStart: (sample) => {
+      this.runtime?.arcStart(sample)
+      queueMicrotask(() => this.restoreApplicationFocus())
+    },
+    onArcMove: (sample) => this.runtime?.arcMove(sample),
+    onArcEnd: (end) => {
+      this.runtime?.arcEnd(end)
+      this.restoreApplicationFocus()
+    },
+  }
+
+  constructor(private readonly createDependencies: () => ClickWheelRuntimeDependencies) {}
+
+  attach(root: HTMLDivElement): () => void {
+    const runtime = createClickWheelRuntime(this.createDependencies())
+    this.runtime = runtime
+    const detachWheel = attachCompositeWheelListener(root, runtime)
+    return () => {
+      detachWheel()
+      runtime.dispose()
+      if (this.runtime === runtime) this.runtime = null
+    }
+  }
+
+  rememberApplicationFocus(target: HTMLElement, root: HTMLDivElement): void {
+    const application = target.closest<HTMLElement>('[role="application"]')
+    if (application !== null && root.contains(application)) this.applicationFocus = application
+  }
+
+  private restoreApplicationFocus(): void {
+    if (this.applicationFocus?.isConnected === true) {
+      this.applicationFocus.focus({ preventScroll: true })
+    }
+  }
+}
+
+function defaultRuntimeDependencies(): ClickWheelRuntimeDependencies {
+  return browserClickWheelRuntimeDependencies(deviceStore, DEVICE_LAYOUT.screen.height)
 }
 
 const SERVER_TIER = Object.freeze({
