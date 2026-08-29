@@ -13,11 +13,11 @@ The operational queue for this workstream. There is no Kanban board and no `neuv
 | **S1** | Apple Music capability docs spike (§14.3 rows 10, 11, 18, 20, 21, 30) | L-B | **DONE** ✓ committed `cc09d52` (D-047) | sub-agent (Opus) | sub-agent (Opus) | — | `evidence/apple-capability-spike.md` |
 | **S2** | Apple empirical probe — developer token, **read-only** | L-B | **APPROVED** · final review 0 Critical / 0 Major / 0 Minor | Kepler | Laplace | — | `evidence/apple-empirical-probe.md` |
 | **W0** | bun monorepo scaffold + tokens + repo hygiene | L-A | **DONE** ✓ accepted (D-044) | sub-agent (Opus) | sub-agent (Opus) | — | `evidence/w0-*` (8 files) |
-| **W5a** | Static gate harness (`bun run gates`) | L-A | **APPROVED** · final `dc8d734` | Hooke | Boole | W0 | `evidence/w5a-*` |
+| **W5a** | Static gate harness (`bun run gates`) | L-A | **APPROVED** · canonical-evidence hardening independently approved at `4668475` | Hooke + gate-hardening teammate | Boole + independent gate reviewer | W0 | `evidence/w5a-*`, `reviews/fe5c309-gate-exemption-review.md` |
 | **W1** | Provider contract + fixture + apple/spotify stubs | L-B | **APPROVED** · final review 0 Critical / 0 Major / 0 Minor | Popper | Rawls | W0, W5a gate | `evidence/w1-*` |
 | **W2** | Jotai store, detent reducer, screen state machine | L-C | **APPROVED** · code + evidence correction `125e0dc` | Kierkegaard | Avicenna | W0, W5a gate | `evidence/w2-*` |
 | **W3** | Panel DOM — shell, list primitives, S03 / S08 / S13 | L-D | **APPROVED** · final review 0 Critical / 0 Major / 0 Minor | Kuhn | Galileo | W0, W2 contract, W5a gate | `evidence/w3-*` |
-| **W4** | Device layer — materials, geometry, screen mesh boundary | L-E | `changes-requested` · correction active after tessellated-shell commits `a61e99c`, `43668b3` | Franklin | James | W0 | `evidence/w4-*` |
+| **W4** | Device layer — materials, geometry, screen mesh boundary | L-E | **APPROVED** · Pencil-first visuals + semantic evidence parser; final review 0 Critical / 0 Major / 0 Minor at `096be68` | Franklin + Schrodinger | James + Pasteur | W0 | `evidence/w4-*`, `reviews/w4-conflict-review.md` |
 | **W6.0** | Capability probe — committed `8208ccc` | L-E | **APPROVED** · final review 0 Critical / 0 Major / 0 Minor | Raman | Leibniz | W0 | `evidence/w6-capability-probe.txt` |
 | **W6** | Composite seam, T1 html-in-canvas | L-E | **APPROVED** · final review 0 Critical / 0 Major / 0 Minor | Raman | Leibniz | W3, W4 UV fix, W6.3a | `evidence/w6-*` |
 | **W6.3a** | Same-origin artwork proxy | L-B | **APPROVED** · final review 0 Critical / 0 Major / 0 Minor | Curie | Pasteur | W1 artwork contract | `evidence/server-artwork-*` |
@@ -31,7 +31,7 @@ The operational queue for this workstream. There is no Kanban board and no `neuv
 | id | Risk | Opened | Owner | State |
 |---|---|---|---|---|
 | **RISK-01** | T3 CSS-3D overlay is the eventual shipping default and is **not built**. Until it lands webPod runs only in a flagged Canary. Not self-correcting: `HTMLTexture` degrading to a plain `Texture` gives a blank screen mesh, not T3. **Release gate: no user-facing release until T2–T4 land and §15 is signed off flag-off.** Re-read at the start of every subsequent workstream. | 2026-08-28 | lead | open, accepted |
-| **RISK-02** | The `html-in-canvas` WebGL entry point is mid-rename (`texElementImage2D` ↔ `texElementSubImage2D`). Mitigated by routing through three.js `HTMLTexture` rather than the raw API; a direct call in our source is a blocking finding. | 2026-08-28 | W6 | open, mitigated |
+| ~~RISK-02~~ | **Closed by D-031.** Chrome 151 ships `texElementImage2D` arity 3, matching three.js's Chrome 150+ branch; `HTMLTexture` works unmodified and the raw entry point remains forbidden in product source. | 2026-08-28 | W6 | **closed** |
 
 ## Owner-only gates outstanding
 
@@ -40,8 +40,35 @@ The operational queue for this workstream. There is no Kanban board and no `neuv
 | ~~H-11~~ | ~~Team ID + MusicKit capability~~ | — | **closed 2026-08-28** |
 | **H-10** | **Interactive MusicKit sign-in for a Music User Token.** Now the **highest-value unrun experiment** — D-036 reverses D-025's recommendation and D-018 already authorises the scope. | owner | **waiting on owner** |
 | **H-1** | History rewrite + force-push (`.claude/`, `CLAUDE.md`→`AGENTS.md`, trailer removal) | lead prepared `evidence/w0-history-rewrite-plan.md`; **owner executes** — agents never force-push | `prepared` · not run |
-| **H-5** | **U14** thumb-occlusion check, on a phone, in hand | W3 wheel interactive | `not ready` |
-| **H-6** | Aesthetic sign-off: does the device read as the object; both-colourway polarity; panel legibility at 272×204 | W3 + W4 previews | `not ready` |
+| **H-5** | **U14** thumb-occlusion check, on a phone, in hand | production W7 wheel + approved composite | **owner-validation** · ready |
+| **H-6** | Aesthetic sign-off: does the device read as the object; both-colourway polarity; panel legibility at 272×204 | approved W3/W4/W6 previews | **owner-validation** · ready |
+
+## Closeout snapshot — 2026-08-29
+
+- **Mechanically complete:** S1, S2, W0, W1, W2, W3, W4, W5a, W5b,
+  W6.0, W6, W6.3a and W7 are independently approved. W4's final material
+  review and the canonical-evidence gate review each closed at **0 Critical / 0
+  Major / 0 Minor**.
+- **Committed-state verification:** a disposable local clone of
+  `4668475dc0c4cdc6da4deb2ca28a703c88d28dd3` produced 11/11 clean TypeScript
+  projects, lint exit 0, **939 pass / 0 fail**, **16 automated gates pass / 0
+  fail**, and successful client and SSR builds. The ordinary dirty working tree
+  produced the same result.
+- **Manual gate accounting:** `bun run gates` deliberately continues to print
+  U14 and U15 as manual. U15's unsupported-control absence has been inspected in
+  the approved provider, panel and click-wheel review lanes. **U14/H-5 and H-6
+  are the only owner-only MVP validations still open.**
+- **History:** H-1 is prepared and unexecuted. The current history still contains
+  `.claude/settings.local.json`, the historical `CLAUDE.md`, and the single
+  `Co-Authored-By` trailer at `2305f4b`; repo law and the current tip are already
+  clean. The owner handoff is `handoff.md`.
+- **Preserved local artifacts:** the seven modified `packages/tokens/src/*`
+  files remain intentional formatting-only churn and are not part of closeout.
+  Four untracked W4 calibration captures and seven untracked W6 intermediate
+  captures remain preserved and uncommitted. A concurrent untracked
+  `evidence/final-u15-browser/` capture set also appeared during closeout and is
+  left entirely to its owning review lane. No closeout operation may stage,
+  delete, or rewrite any of these without an owner decision.
 
 ## Teammate roster
 
@@ -101,6 +128,9 @@ Committed with `git commit -- design.pen` rather than staging, because the index
 
 | Date | Event |
 |---|---|
+| 2026-08-29 | **Workstream handoff reconciled.** W4 is independently approved at `096be68`; W7 remains approved across three seams; canonical evidence-path hardening is independently approved at `4668475`. A fresh disposable clone of that committed tip passed 11/11 typechecks, lint, 939/0 tests, 16/16 automated gates, and both builds. U15 reviewer inspection is complete; only owner U14/H-5 and H-6 remain for MVP validation. H-1 remains prepared and owner-only. Intentional token churn and eleven untracked intermediate captures are preserved. |
+| 2026-08-29 | **W4 APPROVED.** Pencil-first white/black fronts and the complete steel back reproduce from committed source; calibration archives now reject fabricated identity, schema, arithmetic and summary data. Final independent verdict: 0 Critical / 0 Major / 0 Minor (`096be68`). |
+| 2026-08-29 | **Canonical evidence-path gate APPROVED.** The gate now handles nested canonical workstream paths, unknown template branches and lexical shadowing without allowing traversal or malformed paths; immutable W7 provenance checks remain effective. Final independent verdict committed at `4668475`. |
 | 2026-08-29 | **W7 APPROVED across all three owned seams.** Device input surface, composite gesture runtime, and panel focus/native-action behavior each reached independent final review with 0 Critical / 0 Major / 0 Minor. The three durable review artifacts are `click-wheel-device-review.md`, `click-wheel-composite-review.md`, and `click-wheel-panel-review.md`. W4 remains active and is not cleared by W7. |
 | 2026-08-29 | **D-068 binding ruling: panel rows remain non-touch targets.** design-system §11.2/U6 and authentic iPod behaviour override pm-spec §4.5 for the MVP. The direct visible-row selection commit `7d170dd` is reversed: no delayed row driver, row handlers, or undersized touch targets. Tapping panel content focuses the click-wheel application without activation; keyboard remains intact; W7's production click-wheel surface is the single-pointer alternative. |
 | 2026-08-28 | W0 dispatched to `logical-giraffe` and **withdrawn**; S1 probe to `cosmic-dream` answered and **withdrawn**. Both are committed ARTEXI-WORK-137 reviewers in artexi-quartus worktrees with no webPod tree. Lead error: routed off `ListAgents` idle status without probing assignment. Rules recorded above. Workstream needs fresh sessions started in this repo before any dispatch — the peer sessions report as "a Claude session on another machine, over Remote Control", so shared-filesystem access to `/Users/vinicius/code/webPod` is **unconfirmed**. No further dispatch until a peer reports back with its `pwd` and repo state. |
