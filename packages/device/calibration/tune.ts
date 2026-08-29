@@ -207,7 +207,10 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
   // §4.2 stop 0 ("top edge") and stop 7 ("bottom edge caustic") are rolled-edge
   // phenomena, not face phenomena — §5.1 L7 calls stop 0 a 1px inner stroke on
   // the top edge. How much of the edge catches the key is the bevel's size.
-  { path: "form.frontBevel", min: 2.2, max: 9, step: 0.4 },
+  // Keep a positive core between the two 5G lid bevels. `frontCoreDepth`
+  // enforces the same invariant in production; the tuner should not spend
+  // candidates on geometry that cannot exist.
+  { path: "form.frontBevel", min: 2.2, max: 6.9, step: 0.4 },
   // One smooth cylindrical crown over the whole front plate. This is the
   // macro-geometry degree D-067 leaves open, not a stop-local normal profile.
   { path: "form.bodyCrown", min: -30, max: 30, step: 2 },
