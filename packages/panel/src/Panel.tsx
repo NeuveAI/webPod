@@ -15,7 +15,7 @@ import {
   type Density,
   type ScreenFrame,
 } from '@webpod/state'
-import { useEffect, useId, useRef, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type MouseEvent, type ReactNode, type WheelEvent } from 'react'
+import { useEffect, useId, useRef, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode, type WheelEvent } from 'react'
 
 import {
   albumTracksFrame,
@@ -38,6 +38,7 @@ import './panel.css'
 const nowPlayingModeAtom = atom<NowPlayingMode>('volume')
 const sampledArtworkAtom = atom<{ readonly url: string; readonly samples: ArtworkSamples } | null>(null)
 const successResultAtom = atom<SuccessResult | null>(null)
+const lovedTrackKeyAtom = atom<string | null>(null)
 let initializedDocument: Document | null = null
 const libraryCountLabels = new Set(['Playlists', 'Artists', 'Albums', 'Songs', 'Genres'])
 const successOperations = new WeakMap<Document, Map<string, Promise<SuccessResult>>>()
@@ -158,6 +159,10 @@ function PanelSurface({
     if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea') !== null) return
     event.currentTarget.focus({ preventScroll: true })
   }
+  const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea') !== null) return
+    event.preventDefault()
+  }
 
   return (
     <div
@@ -175,6 +180,7 @@ function PanelSurface({
       aria-activedescendant={frame?.screenId === 'S03' ? `${panelId}-menu-${frame.highlightIndex}` : undefined}
       onKeyDown={onKeyDown}
       onWheel={onWheel}
+      onPointerDown={onPointerDown}
       onClick={onClick}
     >
       <span className="wp-sr-only" aria-live="polite" aria-atomic="true" data-announcement-seq={announcement?.seq}>
@@ -366,6 +372,8 @@ function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: 
   const setSampledArtwork = useSetAtom(sampledArtworkAtom)
   const success = useAtomValue(successResultAtom)
   const setSuccess = useSetAtom(successResultAtom)
+  const lovedTrackKey = useAtomValue(lovedTrackKeyAtom)
+  const setLovedTrackKey = useSetAtom(lovedTrackKeyAtom)
   useSyncExternalStore(fixtureProvider.onPlaybackChange, playbackVersion, serverPlaybackVersion)
   useSyncExternalStore(fixtureProvider.onProgress, progressVersion, serverProgressVersion)
   const playback = fixtureProvider.playback
@@ -418,6 +426,10 @@ function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: 
   const progress = progressTick.durationMs === 0 ? 0 : Math.round(
     (progressTick.positionMs / progressTick.durationMs) * 100,
   )
+  const loveTrack = async () => {
+    await fixtureProvider.ratingSet(track, { love: 'love' })
+    setLovedTrackKey(track.key)
+  }
   if (state === 'loading') return <section className="wp-screen" aria-busy="true"><TitleBar title="Now Playing" /><span className="wp-sr-only">Loading the song.</span><div className="wp-now-loading"><Artwork state="loading" /><i /><i /><i /></div></section>
   if (state === 'error') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message={`Couldn't play “${track.title}”.`} detail="The next song is queued." /></section>
   if (state === 'permission-denied') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message="Playback needs an Apple Music subscription." detail="Learn more · Browse anyway" /></section>
@@ -440,7 +452,7 @@ function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: 
         <div className="wp-times"><span>{formatTime(progressTick.positionMs)}</span><span>-{formatTime(Math.max(0, progressTick.durationMs - progressTick.positionMs))}</span></div>
         <div className="wp-actions" aria-label="Playback status">
           <span aria-label="Shuffle on">⌘</span><span aria-label="Repeat off">↻</span>
-          <button type="button" aria-label="Love track" onClick={() => { void fixtureProvider.ratingSet(track, { love: 'love' }) }}><span aria-hidden="true">♥</span></button>
+          <button type="button" aria-label="Love track" aria-pressed={lovedTrackKey === track.key} onClick={() => { void loveTrack() }}><span aria-hidden="true">♥</span></button>
           <span aria-label="Rate">★</span><span aria-label="Queue">≡</span>
         </div>
         {state === 'offline' ? <span className="wp-state-note">Offline. Playback unavailable; cached metadata shown.</span> : null}

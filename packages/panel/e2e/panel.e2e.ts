@@ -7,8 +7,39 @@ const evidence = resolve(process.env['PANEL_EVIDENCE_DIR'] ?? resolve(import.met
 const prefix = process.env['PANEL_EVIDENCE_PREFIX'] ?? 'panel'
 const states = ['ready', 'loading', 'empty', 'error', 'offline', 'permission-denied', 'agent-active', 'success-confirmation'] as const
 
+interface SourceHealth {
+  readonly expected: string
+  readonly current: string
+  readonly fileCount: number
+}
+
+const parseSourceHealth = (serialized: string): SourceHealth => {
+  const value: unknown = JSON.parse(serialized)
+  if (typeof value !== 'object' || value === null) throw new Error('Source health did not return an object')
+  if (!('expected' in value) || typeof value.expected !== 'string') throw new Error('Source health omitted expected digest')
+  if (!('current' in value) || typeof value.current !== 'string') throw new Error('Source health omitted current digest')
+  if (!('fileCount' in value) || typeof value.fileCount !== 'number') throw new Error('Source health omitted file count')
+  return { expected: value.expected, current: value.current, fileCount: value.fileCount }
+}
+
+const assertSourceIdentity = async (page: Page) => {
+  const expected = process.env['W5B_EXPECTED_SOURCE_FINGERPRINT']
+  const expectedFileCount = Number(process.env['W5B_EXPECTED_SOURCE_FILE_COUNT'])
+  if (expected === undefined || !Number.isInteger(expectedFileCount)) throw new Error('Panel source fingerprint was not initialized')
+  const response = await page.evaluate(async () => {
+    const result = await fetch('/__webpod_health', { cache: 'no-store' })
+    return { ok: result.ok, status: result.status, body: await result.text() }
+  })
+  expect(response.ok, `source health returned ${String(response.status)}`).toBe(true)
+  const health = parseSourceHealth(response.body)
+  expect(health.expected).toBe(expected)
+  expect(health.fileCount).toBe(expectedFileCount)
+  expect(health.current, 'served runtime source changed after the isolated server started').toBe(expected)
+}
+
 const openScreen = async (page: Page, screen: 's03' | 's08' | 's13', query = '') => {
   await page.goto(`/${query}`)
+  await assertSourceIdentity(page)
   const dark = page.locator('.wp-panel').first()
   await expect(dark).toHaveAttribute('data-screen', 'S03')
   await dark.focus()
@@ -73,6 +104,30 @@ test('panel rows focus the application without direct activation', async ({ page
   await expect(panel).toBeFocused()
   await expect(panel).toHaveAttribute('data-screen', 'S08')
   await panel.press('Enter')
+  await expect(panel).toHaveAttribute('data-screen', 'S13')
+})
+
+test('Love uses its native target, commits provider state, and retains focus', async ({ page }) => {
+  const panel = await openScreen(page, 's13')
+  const love = panel.getByRole('button', { name: 'Love track' })
+  const target = await love.evaluate((element) => {
+    if (!(element instanceof HTMLButtonElement)) throw new Error('Love track action must be a native button')
+    const style = getComputedStyle(element)
+    return {
+      width: element.getBoundingClientRect().width,
+      height: element.getBoundingClientRect().height,
+      minInlineSize: Number.parseFloat(style.minInlineSize),
+      minBlockSize: Number.parseFloat(style.minBlockSize),
+    }
+  })
+  expect(target.width).toBeGreaterThanOrEqual(44)
+  expect(target.height).toBeGreaterThanOrEqual(44)
+  expect(target.minInlineSize).toBeGreaterThanOrEqual(44)
+  expect(target.minBlockSize).toBeGreaterThanOrEqual(44)
+  await expect(love).toHaveAttribute('aria-pressed', 'false')
+  await love.click()
+  await expect(love).toHaveAttribute('aria-pressed', 'true')
+  await expect(love).toBeFocused()
   await expect(panel).toHaveAttribute('data-screen', 'S13')
 })
 
