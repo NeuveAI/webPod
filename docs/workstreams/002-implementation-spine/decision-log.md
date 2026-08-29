@@ -830,6 +830,22 @@ Every antagonistic reviewer we have run has been on the same idle hardware as th
 
 **Implementation consequence.** Commit `7d170dd`, its delayed row-selection driver, row handlers, `data-row-index` plumbing, and direct-activation browser tests are removed by a new revert commit. A browser regression must prove that clicking menu and track rows focuses the panel without changing screens, while Enter still performs the activation. Native actions such as Love remain native buttons and are not swallowed by the focus-only panel handler.
 
+## D-069 · W7 is accepted only as the conjunction of three independently approved seams
+**2026-08-29 · closeout status · settled**
+
+**Decision status.** W7 is **APPROVED** because its device input surface,
+composite gesture runtime, and panel focus/native-action behavior each reached a
+separate final review with **0 Critical / 0 Major / 0 Minor**. The durable proof
+is `reviews/click-wheel-device-review.md`,
+`reviews/click-wheel-composite-review.md`, and
+`reviews/click-wheel-panel-review.md`; no one seam's approval substitutes for
+either of the others.
+
+**Boundary.** This acceptance closes the production pointer/touch/scroll input
+gap identified during MVP audit. It does not approve W4's material or luminance
+work, does not clear H-6 aesthetic acceptance, and does not clear U14's
+phone-in-hand thumb-occlusion gate. W4 remains active.
+
 ---
 
 ## Risks carried by these decisions
