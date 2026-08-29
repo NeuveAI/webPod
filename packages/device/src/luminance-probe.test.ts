@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { Group, Vector3 } from "three";
 
 import {
   evaluate,
@@ -6,6 +7,7 @@ import {
   matchesProbeIdentity,
   probeTargets,
   silhouetteHalfWidth,
+  steelGradientParameter,
 } from "./luminance-probe";
 import { DEVICE_LAYOUT } from "./layout";
 
@@ -90,7 +92,7 @@ describe("D-067 probe geometry and identity", () => {
     edgeInset,
     controlInset: 6,
     frontFaceZ: DEVICE_LAYOUT.body.depth / 2,
-    backFaceZ: DEVICE_LAYOUT.body.depth / 2,
+    backFaceZ: -DEVICE_LAYOUT.body.depth / 2,
     seamWidth: 3,
     ringZ: () => DEVICE_LAYOUT.body.depth / 2 - 4,
     selectZ: () => DEVICE_LAYOUT.body.depth / 2 - 2,
@@ -139,5 +141,42 @@ describe("D-067 probe geometry and identity", () => {
         expect(Math.abs(x)).toBeLessThanOrEqual(reach - edgeInset + 1e-9);
       }
     }
+  });
+
+  test("back targets preserve the 168° iso-line through the actual face transform", () => {
+    const model = new Group();
+    model.rotation.y = Math.PI;
+    model.updateWorldMatrix(true, true);
+    let mirroredTargets = 0;
+
+    for (const target of probeTargets("black", "back", options)) {
+      const x = target.xs[0];
+      expect(x).toBeDefined();
+      if (x === undefined) continue;
+      const local = new Vector3(x, target.y, target.z);
+      const expectedParameter = steelGradientParameter(local.x, local.y);
+      const world = model.localToWorld(local.clone());
+      const recovered = model.worldToLocal(world.clone());
+
+      expect(world.x).toBeCloseTo(-local.x, 9);
+      expect(world.y).toBeCloseTo(local.y, 9);
+      expect(world.z).toBeCloseTo(DEVICE_LAYOUT.body.depth / 2, 9);
+      expect(steelGradientParameter(recovered.x, recovered.y)).toBeCloseTo(
+        expectedParameter,
+        9,
+      );
+
+      if (Math.abs(x) > 1) {
+        mirroredTargets += 1;
+        const wrongLocal = model.worldToLocal(local.clone());
+        expect(
+          Math.abs(
+            steelGradientParameter(wrongLocal.x, wrongLocal.y) -
+              expectedParameter,
+          ),
+        ).toBeGreaterThan(0.04);
+      }
+    }
+    expect(mirroredTargets).toBe(4);
   });
 });

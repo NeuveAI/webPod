@@ -105,6 +105,16 @@ export function matchesProbeIdentity(
 const { body, wheel } = DEVICE_LAYOUT;
 const HALF_W = body.width / 2;
 const HALF_H = body.height / 2;
+const STEEL_THETA = (168 * Math.PI) / 180;
+const STEEL_UX = Math.sin(STEEL_THETA);
+const STEEL_UY = Math.cos(STEEL_THETA);
+const STEEL_GRADIENT_LENGTH =
+  Math.abs(body.width * STEEL_UX) + Math.abs(body.height * STEEL_UY);
+
+/** Reconstruct §4.4's 168° stop parameter from a back-face local point. */
+export function steelGradientParameter(x: number, y: number): number {
+  return (x * STEEL_UX + y * STEEL_UY) / STEEL_GRADIENT_LENGTH + 0.5;
+}
 
 function identity(surface: ProbeSurface) {
   switch (surface) {
@@ -303,19 +313,16 @@ function steelTargets(options: TargetOptions): Array<ProbeTarget> {
   // §4.4: `168deg`. In CSS, angles run clockwise from "to top" in a y-down
   // space; in this module's y-up frame the 0% → 100% direction is therefore
   // (sin θ, −cos θ).
-  const theta = (168 * Math.PI) / 180;
   // CSS angles are measured clockwise from "to top" in a **y-down** space, so
   // the 0% → 100% direction is (sin θ, −cos θ) *there*. This module's frame is
   // y-**up**, which flips the second component back to +cos θ. ⚑ Getting this
   // sign wrong does not fail — it silently grades the plate against §4.4 read
   // bottom-to-top, which looks like a rig that cannot converge.
-  const ux = Math.sin(theta);
-  const uy = Math.cos(theta);
+  const ux = STEEL_UX;
+  const uy = STEEL_UY;
   // The gradient line's length is the box's extent projected onto it — the
   // definition CSS uses, and the reason 168deg is not just 180deg rotated.
-  const length =
-    Math.abs(body.width * Math.sin(theta)) +
-    Math.abs(body.height * Math.cos(theta));
+  const length = STEEL_GRADIENT_LENGTH;
 
   const halfW = HALF_W - inset;
   const halfH = HALF_H - inset;

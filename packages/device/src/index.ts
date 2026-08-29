@@ -43,6 +43,7 @@ export {
   type KeyLightParams,
   type LightRigParams,
 } from "./light-rig";
+export { DEVICE_MODEL_NAME } from "./ViewerLitDeviceFrame";
 export {
   createRoomEnvMap,
   DEFAULT_ENV_ROOM,
@@ -117,6 +118,7 @@ export {
   SELECT_BLACK_STOPS,
   SELECT_WHITE_STOPS,
   silhouetteHalfWidth,
+  steelGradientParameter,
   WHEEL_BLACK_STOPS,
   WHEEL_WHITE_STOPS,
   type ProbeReading,

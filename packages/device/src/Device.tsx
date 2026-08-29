@@ -36,9 +36,6 @@ import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import { DEVICE_LAYOUT, GLASS_CORNER_R, SCREEN_CORNER_R } from "./layout";
 import {
   DEFAULT_LIGHT_RIG,
-  fillLightIntensity,
-  fillLightPosition,
-  keyLightPosition,
   type LightRigParams,
 } from "./light-rig";
 import {
@@ -67,6 +64,7 @@ import {
   createSteelAnisotropyMap,
   createWheelLabelMap,
 } from "./textures";
+import { ViewerLitDeviceFrame } from "./ViewerLitDeviceFrame";
 
 /** LAW 5: both modes are the product, so both colourways are first class. */
 export type Colourway = "black" | "white";
@@ -508,26 +506,8 @@ export function Device({
     ],
   );
 
-  const keyPos = keyLightPosition(lightRig.key);
-  const fillPos = fillLightPosition(lightRig.fill);
-
   return (
-    <group rotation={face === "back" ? [0, Math.PI, 0] : [0, 0, 0]}>
-      {/* LAW 2 — exactly two lights. The room is the third term and it is the
-          env map, not an ambient light. */}
-      <pointLight
-        position={keyPos}
-        intensity={lightRig.key.intensity}
-        color={lightRig.key.color}
-        decay={2}
-      />
-      <pointLight
-        position={fillPos}
-        intensity={fillLightIntensity(lightRig)}
-        color={lightRig.fill.color}
-        decay={2}
-      />
-
+    <ViewerLitDeviceFrame face={face} lightRig={lightRig}>
       {/* §5.2 — the mirror-polished back plate, uncut. */}
       <mesh name="device-steel-back" geometry={backGeometry}>
         <meshPhysicalMaterial
@@ -657,7 +637,7 @@ export function Device({
         position={[glass.centerX, glass.centerY, glassFrontZ]}
         material={coverGlassMaterial}
       />
-    </group>
+    </ViewerLitDeviceFrame>
   );
 }
 

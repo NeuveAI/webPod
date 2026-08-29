@@ -30,6 +30,7 @@ import {
   DEFAULT_ENV_ROOM,
   DEFAULT_LIGHT_RIG,
   DEFAULT_DEVICE_OPTICAL_PROFILES,
+  DEVICE_MODEL_NAME,
   DEVICE_LAYOUT,
   DeviceCanvas,
   evaluate,
@@ -50,6 +51,7 @@ import {
 import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
 import {
   CanvasTexture,
+  Group,
   MeshBasicMaterial,
   Raycaster,
   SRGBColorSpace,
@@ -221,9 +223,9 @@ function LuminanceProbe() {
       // Recess walls need more clearance than the exposed body perimeter.
       controlInset: 6,
       frontFaceZ,
-      // The back face is rotated into view, so in world space it sits at +z
-      // exactly where the front face does.
-      backFaceZ: frontFaceZ,
+      // Back targets are body-local. The model's live world matrix rotates
+      // them into the viewer-facing +z plane before projection.
+      backFaceZ: -frontFaceZ,
       seamWidth: form.seamWidth,
       ringZ: (radius) =>
         ringZ +
@@ -252,6 +254,10 @@ function LuminanceProbe() {
     // an hour. One full-buffer read and then indexing into it is the same
     // measurement at a fraction of the cost.
     gl.render(scene, camera);
+    const model = scene.getObjectByName(DEVICE_MODEL_NAME);
+    if (!(model instanceof Group)) {
+      throw new Error(`device probe requires ${DEVICE_MODEL_NAME}`);
+    }
     const context = gl.getContext();
     const bufferW = context.drawingBufferWidth;
     const bufferH = context.drawingBufferHeight;
@@ -271,7 +277,7 @@ function LuminanceProbe() {
 
     const readings: Array<ProbeReading> = targets.map((target) => {
       const samples = target.xs.map((x) => {
-        point.set(x, target.y, target.z).project(camera);
+        model.localToWorld(point.set(x, target.y, target.z)).project(camera);
         ndc.set(point.x, point.y);
         raycaster.setFromCamera(ndc, camera);
         const hit = raycaster
