@@ -95,7 +95,9 @@ const INITIAL: SpikeParams = {
   // 980 clips the 330 × 552 enclosure against its same-sized canvas at a 30°
   // FOV, hiding the rounded corners and making the body read as a square slab.
   cameraDistance: 1160,
-  dpr: 1,
+  // The interactive preview is supersampled on high-density displays. The
+  // calibration runner explicitly sets this back to 1 before reading pixels.
+  dpr: 2,
   lightRig: DEFAULT_LIGHT_RIG,
   envRoom: DEFAULT_ENV_ROOM,
   form: DEFAULT_DEVICE_FORM,
@@ -514,32 +516,19 @@ function DeviceSpike() {
 
   return (
     <main
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: room.sweep,
-        color: room.ink,
-        display: "grid",
-        placeItems: "center",
-        overflow: "hidden",
-      }}
+      className="webpod-device-spike"
+      style={{ background: room.sweep, color: room.ink }}
     >
+      <style>{DEVICE_SPIKE_CSS}</style>
       <div
         aria-hidden
+        className="webpod-device-spike__floor"
         style={{
-          position: "absolute",
-          insetInline: 0,
-          bottom: 0,
-          height: "32%",
           background: room.floor,
         }}
       />
       <div
-        style={{
-          position: "relative",
-          width: shadow.width,
-          height: shadow.height,
-        }}
+        className="webpod-device-spike__stage"
       >
         <div
           aria-hidden
@@ -572,6 +561,49 @@ function DeviceSpike() {
   );
 }
 
+const DEVICE_SPIKE_CSS = `
+  html:has(.webpod-device-spike), body:has(.webpod-device-spike) {
+    margin: 0;
+    min-inline-size: 0;
+    min-block-size: 100%;
+  }
+  .webpod-device-spike {
+    position: fixed;
+    inset: 0;
+    box-sizing: border-box;
+    display: grid;
+    place-items: safe center;
+    overflow: clip;
+    padding-block: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-bottom));
+    padding-inline: max(16px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-right));
+  }
+  .webpod-device-spike__floor {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    block-size: 32%;
+  }
+  .webpod-device-spike__stage {
+    position: relative;
+    inline-size: min(330px, calc(100dvi - 32px));
+    max-block-size: calc(100dvb - 32px);
+    aspect-ratio: 330 / 552;
+  }
+  .webpod-device-spike__stage > .webpod-device-canvas {
+    inline-size: 100% !important;
+    block-size: 100% !important;
+  }
+  .webpod-device-spike__hud {
+    inset-block-start: max(12px, env(safe-area-inset-top));
+    inset-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right));
+    justify-content: safe center;
+    min-inline-size: 0;
+  }
+  .webpod-device-spike__hud button {
+    min-block-size: 32px;
+  }
+`;
+
 /**
  * The controls.
  *
@@ -587,11 +619,11 @@ function Hud({
 }) {
   return (
     <div
+      className="webpod-device-spike__hud"
       style={{
         position: "absolute",
-        top: 12,
-        left: 12,
         display: "flex",
+        flexWrap: "wrap",
         gap: 8,
         fontFamily: "ui-monospace, monospace",
         fontSize: 12,
