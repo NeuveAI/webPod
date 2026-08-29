@@ -142,6 +142,29 @@ test('Love uses its native target, commits provider state, and retains focus', a
   await expect(panel).toHaveAttribute('data-screen', 'S13')
 })
 
+test('passive S13 status graphics expose names without becoming controls', async ({ page }) => {
+  const panel = await openScreen(page, 's13')
+  const playbackStatus = panel.getByRole('group', { name: 'Playback status' })
+  await expect(playbackStatus).toHaveCount(1)
+
+  for (const name of ['Shuffle on', 'Repeat off', 'Rate', 'Queue']) {
+    const graphic = playbackStatus.getByRole('img', { name })
+    await expect(graphic).toHaveCount(1)
+    await expect(graphic).not.toHaveAttribute('tabindex')
+  }
+
+  await expect(playbackStatus.getByRole('button', { name: 'Love track' })).toHaveCount(1)
+  await expect(playbackStatus.getByRole('button')).toHaveCount(1)
+  await expect(panel).not.toContainText(/Lyrics|Remove from playlist|Reorder playlist|Remove from queue|Reorder queue|Downloaded only/i)
+
+  const prohibitedAttributes = await new AxeBuilder({ page })
+    .include('.wp-panel[data-colourway="dark"] .wp-actions')
+    .withRules(['aria-prohibited-attr'])
+    .analyze()
+  expect(prohibitedAttributes.violations).toEqual([])
+  expect(prohibitedAttributes.incomplete).toEqual([])
+})
+
 test('all state and colourway pairs produce chrome-free screen evidence', async ({ page }) => {
   await freezeEvidenceClock(page)
   for (const state of states) {

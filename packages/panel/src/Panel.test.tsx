@@ -4,6 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { currentScreenAtom, deviceStore, resetStackActionAtom } from '@webpod/state'
 
 import { Panel } from './Panel'
+import { nowPlayingFrame } from './model'
 
 describe('the bare DOM panel', () => {
   test('mounts as a bare semantic DOM surface', () => {
@@ -100,5 +101,25 @@ describe('the bare DOM panel', () => {
     expect(css).not.toMatch(/(?:^|[;{])\s*(?:backdrop-)?filter\s*:/m)
     expect(css).toContain('.wp-now-body::before')
     expect(css).toContain('prefers-reduced-transparency: reduce')
+  })
+
+  test('gives passive S13 playback glyphs accurate non-interactive semantics', () => {
+    deviceStore.set(resetStackActionAtom, [nowPlayingFrame()])
+    const html = renderToStaticMarkup(<Panel state="ready" />)
+
+    expect(html).toContain('class="wp-actions" role="group" aria-label="Playback status"')
+    for (const [label, glyph] of [['Shuffle on', '⌘'], ['Repeat off', '↻'], ['Rate', '★'], ['Queue', '≡']] as const) {
+      expect(html).toContain(`<span role="img" aria-label="${label}"><span aria-hidden="true">${glyph}</span></span>`)
+    }
+    expect(html).not.toMatch(/<span aria-label="(?:Shuffle on|Repeat off|Rate|Queue)"/)
+  })
+
+  test('keeps S13 capability absence and the Love interaction unchanged', () => {
+    deviceStore.set(resetStackActionAtom, [nowPlayingFrame()])
+    const html = renderToStaticMarkup(<Panel state="ready" />)
+
+    expect(html.match(/<button/g)).toHaveLength(1)
+    expect(html).toContain('<button type="button" aria-label="Love track" aria-pressed="false"')
+    expect(html).not.toMatch(/Lyrics|Remove from playlist|Reorder playlist|Remove from queue|Reorder queue|Downloaded only/i)
   })
 })

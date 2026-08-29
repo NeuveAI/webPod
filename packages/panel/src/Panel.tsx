@@ -450,10 +450,12 @@ function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: 
           <i style={{ inlineSize: `${progress}%` }} />
         </div>
         <div className="wp-times"><span>{formatTime(progressTick.positionMs)}</span><span>-{formatTime(Math.max(0, progressTick.durationMs - progressTick.positionMs))}</span></div>
-        <div className="wp-actions" aria-label="Playback status">
-          <span aria-label="Shuffle on">⌘</span><span aria-label="Repeat off">↻</span>
+        <div className="wp-actions" role="group" aria-label="Playback status">
+          <PassiveStatusIcon label="Shuffle on">⌘</PassiveStatusIcon>
+          <PassiveStatusIcon label="Repeat off">↻</PassiveStatusIcon>
           <button type="button" aria-label="Love track" aria-pressed={lovedTrackKey === track.key} onClick={() => { void loveTrack() }}><span aria-hidden="true">♥</span></button>
-          <span aria-label="Rate">★</span><span aria-label="Queue">≡</span>
+          <PassiveStatusIcon label="Rate">★</PassiveStatusIcon>
+          <PassiveStatusIcon label="Queue">≡</PassiveStatusIcon>
         </div>
         {state === 'offline' ? <span className="wp-state-note">Offline. Playback unavailable; cached metadata shown.</span> : null}
         {state === 'agent-active' ? <span className="wp-state-note wp-agent-note">Assistant moved here</span> : null}
@@ -461,6 +463,10 @@ function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: 
       </div>
     </section>
   )
+}
+
+function PassiveStatusIcon({ label, children }: { readonly label: string; readonly children: ReactNode }) {
+  return <span role="img" aria-label={label}><span aria-hidden="true">{children}</span></span>
 }
 
 function FooterReceipt({ children }: { readonly children: ReactNode }) {
