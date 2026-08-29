@@ -645,6 +645,29 @@ async function main() {
   let bestScore = objective(bestResults);
   console.error(`[${stage}] start ${objectiveLabel(bestScore)}`);
 
+  if (command === "sheen-roughness-sweep") {
+    const rows = [];
+    for (const sheenRoughness of [1, 0.9, 0.7, 0.4, 0.1]) {
+      rows.push({
+        sheenRoughness,
+        results: await scoreStage(
+          { ...best, "materials.bodyBlack.sheenRoughness": sheenRoughness },
+          100,
+        ),
+      });
+    }
+    const output = JSON.stringify({
+      schema: "webpod-sheen-roughness-sweep-v1",
+      semantics: "Three 0.185.1 uniform Charlie/IBL sheen roughness",
+      baseline: bestResults,
+      rows,
+    });
+    if (arg) await Bun.write(arg, `${output}\n`);
+    else console.log(output);
+    page.close();
+    return;
+  }
+
   if (command === "edge-crown-sweep") {
     const rows = [];
     for (let extent = 18; extent <= 36; extent += 3) {
@@ -658,7 +681,7 @@ async function main() {
         rows.push({ extent, depth, results: await scoreStage(candidate, 100) });
       }
     }
-    console.log(JSON.stringify({
+    const output = JSON.stringify({
       schema: "webpod-edge-crown-sweep-v1",
       baseline: bestResults,
       constraints: {
@@ -670,7 +693,9 @@ async function main() {
         extent: { min: 18, max: 36, step: 3 },
       },
       rows,
-    }, null, 2));
+    });
+    if (arg) await Bun.write(arg, `${output}\n`);
+    else console.log(output);
     page.close();
     return;
   }
