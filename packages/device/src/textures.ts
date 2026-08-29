@@ -30,6 +30,105 @@ const WHEEL_LABELS = [
   { text: "⏮", angle: Math.PI },
 ] as const;
 
+/** Pencil zbTc3's authored back-face composition, in native body pixels. */
+export const BACK_COMPOSITION_LAYOUT = Object.freeze({
+  width: 330,
+  height: 552,
+  inlay: Object.freeze({ x: 22, y: 150, width: 286, height: 296, radius: 14 }),
+  markY: 50,
+  wordmarkY: 106,
+  legalY: 456,
+  serialY: 473,
+  liveY: 492,
+});
+
+/**
+ * Etched identity and the dark Settings inlay from Pencil component zbTc3.
+ *
+ * This texture carries printed/etched graphics only. Transparent pixels leave
+ * the real anisotropic steel visible, so reflections and rolled-edge response
+ * remain products of the physical material rather than painted shading.
+ */
+export function createBackCompositionMap(scale = 2): CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const layout = BACK_COMPOSITION_LAYOUT;
+  const canvas = document.createElement("canvas");
+  canvas.width = layout.width * scale;
+  canvas.height = layout.height * scale;
+  const ctx = canvas.getContext("2d");
+  if (ctx === null) return null;
+  ctx.scale(scale, scale);
+  ctx.clearRect(0, 0, layout.width, layout.height);
+
+  const inlay = layout.inlay;
+  ctx.fillStyle = "#141920";
+  ctx.beginPath();
+  ctx.roundRect(inlay.x, inlay.y, inlay.width, inlay.height, inlay.radius);
+  ctx.fill();
+  ctx.strokeStyle = "#FFFFFF66";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillStyle = "#6D7B89";
+  ctx.font = '700 22px "Inter Tight", ui-sans-serif, system-ui';
+  ctx.fillText("✦", 165, layout.markY);
+  ctx.font = '800 26px "Inter Tight", ui-sans-serif, system-ui';
+  ctx.fillText("webPod", 165, layout.wordmarkY + 13);
+
+  ctx.textAlign = "left";
+  ctx.fillStyle = "#F1F5F9";
+  ctx.font = '700 13px "Source Sans 3", ui-sans-serif, system-ui';
+  ctx.fillText("Settings", inlay.x + 13, inlay.y + 20);
+  ctx.textAlign = "right";
+  ctx.fillStyle = "#94A3B8";
+  ctx.font = '600 10px "Source Sans 3", ui-sans-serif, system-ui';
+  ctx.fillText("↶  Menu", inlay.x + inlay.width - 13, inlay.y + 20);
+
+  const rows = [
+    ["◖", "Playback", "Shuffle · Repeat"],
+    ["☼", "Display & Feel", "Backlight · Clicker"],
+    ["✦", "Assistant", "18 controls exposed"],
+    ["○", "Account", "Apple Music"],
+    ["▤", "The Engraving", "124 actions this session"],
+    ["ⓘ", "About", "webPod 1.0"],
+  ] as const;
+  for (const [index, row] of rows.entries()) {
+    const y = inlay.y + 53 + index * 38;
+    if (index === 2) {
+      ctx.fillStyle = "#166534";
+      ctx.fillRect(inlay.x + 1, y - 18, inlay.width - 2, 38);
+    }
+    ctx.textAlign = "left";
+    ctx.fillStyle = index === 2 ? "#4ADE80" : "#8A97A5";
+    ctx.font = '600 14px "Source Sans 3", ui-sans-serif, system-ui';
+    ctx.fillText(row[0], inlay.x + 13, y);
+    ctx.fillStyle = index === 2 ? "#FFFFFF" : "#E2E8F0";
+    ctx.font = '600 12.5px "Source Sans 3", ui-sans-serif, system-ui';
+    ctx.fillText(row[1], inlay.x + 38, y - 5);
+    ctx.fillStyle = index === 2 ? "#4ADE80" : "#7A8896";
+    ctx.font = '400 9.5px "Source Sans 3", ui-sans-serif, system-ui';
+    ctx.fillText(row[2], inlay.x + 38, y + 8);
+    ctx.textAlign = "right";
+    ctx.fillStyle = index === 2 ? "#FFFFFF" : "#5E6B78";
+    ctx.fillText("›", inlay.x + inlay.width - 13, y);
+  }
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#52606D";
+  ctx.font = '400 9px "Source Sans 3", ui-sans-serif, system-ui';
+  ctx.fillText("Designed for the browser  ·  Plays Apple Music", 165, layout.legalY);
+  ctx.font = '400 8.5px "IBM Plex Mono", ui-monospace, monospace';
+  ctx.fillText("Model WP-5G  ·  320 × 240  ·  24 detents per turn", 165, layout.serialY);
+  ctx.fillText("Assistant tools exposed · 18 · Session 5C4B 9A11", 165, layout.liveY);
+
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  texture.anisotropy = 4;
+  return texture;
+}
+
 export type WheelLabelMapParams = {
   /** Ring outer radius — the texture covers the disc's bounding square. */
   readonly outerR: number;

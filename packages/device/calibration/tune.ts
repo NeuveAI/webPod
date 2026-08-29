@@ -21,6 +21,7 @@ import {
   mergeOwned,
   ownedPatch,
 } from "./stage-ownership";
+import { parseEdgeCrownArchive, parseSheenRoughnessArchive } from "./archive-schema";
 
 const CDP_TARGET_URL =
   process.env.DEVICE_CALIBRATION_URL ?? "http://localhost:3000/_spike/device";
@@ -656,12 +657,12 @@ async function main() {
         ),
       });
     }
-    const output = JSON.stringify({
+    const output = JSON.stringify(parseSheenRoughnessArchive({
       schema: "webpod-sheen-roughness-sweep-v1",
       semantics: "Three 0.185.1 uniform Charlie/IBL sheen roughness",
       baseline: bestResults,
       rows,
-    });
+    }));
     if (arg) await Bun.write(arg, `${output}\n`);
     else console.log(output);
     page.close();
@@ -681,7 +682,7 @@ async function main() {
         rows.push({ extent, depth, results: await scoreStage(candidate, 100) });
       }
     }
-    const output = JSON.stringify({
+    const output = JSON.stringify(parseEdgeCrownArchive({
       schema: "webpod-edge-crown-sweep-v1",
       baseline: bestResults,
       constraints: {
@@ -693,7 +694,7 @@ async function main() {
         extent: { min: 18, max: 36, step: 3 },
       },
       rows,
-    });
+    }));
     if (arg) await Bun.write(arg, `${output}\n`);
     else console.log(output);
     page.close();

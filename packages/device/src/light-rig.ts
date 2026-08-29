@@ -46,9 +46,9 @@ export type FillLightParams = {
    */
   readonly intensityRatio: number;
   /**
-   * §4.2 `--poly-k-edge-lo` is `#8FB4D8 / 12%`, described in the same row as
-   * "(fill light)". The fill's colour is therefore already stated by the token
-   * that records its effect.
+   * The final Pencil-first ruling keeps this fill cool but neutral. The older
+   * saturated blue was derived from a superseded body-stop token and produced
+   * a cyan pool that does not exist on VWaJS's pearl shell.
    */
   readonly color: string;
 };
@@ -70,7 +70,7 @@ export const DEFAULT_LIGHT_RIG: LightRigParams = {
     elevationDeg: -59.0468,
     distance: 459.375,
     intensityRatio: 0.22,
-    color: "#8FB4D8",
+    color: "#D7DEE7",
   },
 };
 

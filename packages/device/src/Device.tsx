@@ -64,6 +64,7 @@ import {
 } from "./optical-profile";
 import {
   createBlackPolySssMap,
+  createBackCompositionMap,
   createMicroNoiseRoughnessMap,
   createSteelAnisotropyMap,
   createWheelLabelMap,
@@ -172,6 +173,16 @@ export function Device({
     return map;
   }, []);
   useEffect(() => () => blackSss.dispose(), [blackSss]);
+  const backComposition = useMemo(() => createBackCompositionMap(), []);
+  useEffect(() => () => backComposition?.dispose(), [backComposition]);
+  const backCompositionGeometry = useMemo(
+    () => createScreenGeometry(body.width, body.height, body.cornerR),
+    [],
+  );
+  useEffect(
+    () => () => backCompositionGeometry.dispose(),
+    [backCompositionGeometry],
+  );
 
   const isBlack = colourway === "black";
   const bodyMaterial = isBlack ? materials.bodyBlack : materials.bodyWhite;
@@ -544,6 +555,24 @@ export function Device({
           {...spread(materials.steelBack)}
           envMap={env}
           {...surfaceMaps.steel}
+        />
+      </mesh>
+
+      {/* zbTc3's etched identity and Settings inlay. The transparent texture
+          leaves the physical steel reflection visible everywhere else. */}
+      <mesh
+        name="device-back-composition"
+        visible={face === "back"}
+        geometry={backCompositionGeometry}
+        position={[0, 0, -body.depth / 2 - 0.12]}
+        rotation={[0, Math.PI, 0]}
+        renderOrder={3}
+      >
+        <meshBasicMaterial
+          map={backComposition}
+          transparent
+          depthWrite={false}
+          toneMapped={false}
         />
       </mesh>
 

@@ -68,15 +68,15 @@ export type DeviceFormParams = {
 };
 
 export const DEFAULT_DEVICE_FORM: DeviceFormParams = {
-  seamWidth: 2,
+  seamWidth: 1.5,
   frontThickness: 14,
-  frontBevel: 5.875,
+  frontBevel: 3.5,
   bodyCrown: -2.125,
   topEdgeCrown: 0,
   bottomEdgeCrown: 0,
   edgeCrownExtent: 28,
   backBevel: 3.5,
-  recessDepth: 1.5,
+  recessDepth: 2.25,
   ringDishTiltDeg: 0.9918,
   ringDishExponent: 6.1283,
   selectDomeTiltDeg: 15.9951,

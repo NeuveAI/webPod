@@ -152,12 +152,12 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     envMapIntensity: 0.005,
   },
   wheelRingWhite: {
-    color: "#E9EBED",
-    roughness: 0.5,
+    color: "#E1E6EB",
+    roughness: 0.56,
     metalness: 0,
     clearcoat: 0.6,
     clearcoatRoughness: 0.22,
-    envMapIntensity: 0.1051,
+    envMapIntensity: 0.075,
   },
   selectBlack: {
     // §4.5 `--select-k-2`, the plug's body value.

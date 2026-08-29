@@ -490,6 +490,7 @@ function DeviceSpike() {
   const onScreenMeshReady = useCallback((handle: ScreenMeshHandle) => {
     screenHandle.current = handle;
   }, []);
+  const capture = new URLSearchParams(window.location.search).has("capture");
 
   // §10.6 elevation 5 — the device is the only thing at this elevation, and the
   // shadow is CSS because §12.3 puts the environment in the CSS layer. It is
@@ -566,7 +567,7 @@ function DeviceSpike() {
           <LuminanceProbe />
         </DeviceCanvas>
       </div>
-      <Hud params={params} tone={room.ink2} />
+      {capture ? null : <Hud params={params} tone={room.ink2} />}
     </main>
   );
 }

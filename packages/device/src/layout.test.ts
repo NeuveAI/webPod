@@ -99,8 +99,8 @@ describe("§12.0 R5 geometry — the numbers the dispatch names", () => {
     expect(DEVICE_LAYOUT.body.exponent).toBe(BODY_CORNER_EXPONENT);
   });
 
-  test("the saved Pencil seam remains a thin 2px material boundary", () => {
-    expect(DEFAULT_DEVICE_FORM.seamWidth).toBe(2);
+  test("the saved Pencil seam remains a thin 1.5px material boundary", () => {
+    expect(DEFAULT_DEVICE_FORM.seamWidth).toBe(1.5);
   });
 });
 

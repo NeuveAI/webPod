@@ -1,12 +1,23 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  BACK_COMPOSITION_LAYOUT,
   createBlackPolySssMap,
   createMicroNoiseRoughnessMap,
   createSteelAnisotropyMap,
 } from "./textures";
 
 describe("deterministic physical textures", () => {
+  test("the back composition preserves Pencil's native inlay hierarchy", () => {
+    expect(BACK_COMPOSITION_LAYOUT).toMatchObject({
+      width: 330,
+      height: 552,
+      inlay: { x: 22, y: 150, width: 286, height: 296, radius: 14 },
+      legalY: 456,
+      serialY: 473,
+      liveY: 492,
+    });
+  });
   test("black-poly subsurface warmth is confined to the lower edge", () => {
     const texture = createBlackPolySssMap(101);
     const data = texture.image.data as Uint8Array;

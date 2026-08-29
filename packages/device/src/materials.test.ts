@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { Texture } from "three";
 
+import { DEFAULT_DEVICE_FORM } from "./form";
 import { DEFAULT_LIGHT_RIG } from "./light-rig";
 import { DEFAULT_DEVICE_MATERIALS } from "./materials";
 import {
@@ -80,6 +81,14 @@ describe("§12.3 device material contract", () => {
     });
   });
 
+  test("the Pencil-first white wheel remains visibly below the pearl body", () => {
+    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color).toBe("#E1E6EB");
+    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.roughness).toBeGreaterThan(
+      DEFAULT_DEVICE_MATERIALS.bodyWhite.roughness,
+    );
+    expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(2.25);
+  });
+
   test("instantiated cover glass obeys transmission and carries two-hue dispersion", () => {
     const material = createCoverGlassMaterial(
       DEFAULT_DEVICE_MATERIALS.coverGlass,
@@ -123,5 +132,6 @@ describe("LAW 2 light rig", () => {
     expect(DEFAULT_LIGHT_RIG.fill.azimuthDeg).toBeLessThan(0);
     expect(DEFAULT_LIGHT_RIG.fill.elevationDeg).toBeLessThan(0);
     expect(DEFAULT_LIGHT_RIG.fill.intensityRatio).toBe(0.22);
+    expect(DEFAULT_LIGHT_RIG.fill.color).toBe("#D7DEE7");
   });
 });
