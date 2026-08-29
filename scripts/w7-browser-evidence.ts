@@ -34,7 +34,8 @@ try {
   const reviewedTree = git(['rev-parse', `${resolvedCommit}^{tree}`])
   run('git', [
     'archive', '--format=tar', `--output=${archivePath}`, resolvedCommit, '--',
-    'package.json', 'bun.lock', 'apps', 'packages', 'scripts/browser-source-fingerprint.ts',
+    'package.json', 'bun.lock', 'tsconfig.base.json', 'apps', 'packages',
+    'scripts/browser-source-fingerprint.ts',
   ])
   run('mkdir', ['-p', snapshotRoot])
   run('tar', ['-xf', archivePath, '-C', snapshotRoot])
@@ -43,7 +44,7 @@ try {
 
   const expectedSource = fingerprintBrowserSources(snapshotRoot)
   server = Bun.spawn([
-    'bun', '../../node_modules/vite/bin/vite.js', 'dev',
+    'bun', 'node_modules/vite/bin/vite.js', 'dev',
     '--host', '127.0.0.1', '--port', String(port), '--strictPort',
   ], {
     cwd: join(snapshotRoot, 'apps/web'),
