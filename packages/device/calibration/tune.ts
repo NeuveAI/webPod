@@ -218,6 +218,9 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
   { path: "materials.bodyBlack.reflectivity", min: 0.35, max: 0.7, step: 0.025 },
   { path: "materials.bodyBlack.specularIntensity", min: 0, max: 1, step: 0.05 },
   { path: "materials.bodyBlack.sheen", min: 0, max: 0.6, step: 0.05 },
+  // Three 0.185.1 feeds this uniform to both Charlie direct sheen and the
+  // integrated IBL sheen BRDF. It is uniform material response, not a map.
+  { path: "materials.bodyBlack.sheenRoughness", min: 0.1, max: 1, step: 0.1 },
   { path: "materials.bodyWhite.albedoScale", min: 0.7, max: 1.15, step: 0.025 },
   { path: "materials.bodyWhite.roughness", min: 0.2, max: 0.7, step: 0.025 },
   { path: "materials.bodyWhite.clearcoatRoughness", min: 0.03, max: 0.2, step: 0.01 },
@@ -540,7 +543,9 @@ async function main() {
       : stage === "body-black"
         ? FRONT_KNOBS.filter(
             (knob) =>
-              command?.includes("profile")
+              command?.includes("sheen-roughness")
+                ? knob.path === "materials.bodyBlack.sheenRoughness"
+              : command?.includes("profile")
                 ? knob.path.startsWith("opticalProfiles.bodyBlack")
                 : command?.includes("scalar")
                   ? knob.path.startsWith("materials.bodyBlack.")
@@ -645,7 +650,7 @@ async function main() {
       if (center === undefined) continue;
       for (const direction of [-1, 1]) {
         const next = center + direction * knob.step * factor;
-        if (next < knob.min || next > knob.max) continue;
+        if (next < knob.min - 1e-9 || next > knob.max + 1e-9) continue;
         const candidate = { ...best, [knob.path]: next };
         const measured = await scoreStage(candidate, settleMs);
         rows.push({
