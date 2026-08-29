@@ -27,6 +27,19 @@ export {
   DeviceCanvas,
   type DeviceCanvasProps,
 } from "./DeviceCanvas";
+export {
+  CLICK_WHEEL_INPUT_POSITION,
+  CLICK_WHEEL_INPUT_RADII,
+  ClickWheelInputSurface,
+  acceptsClickWheelPointer,
+  clockwiseWheelAngleDeg,
+  shortestWheelDeltaDeg,
+  wheelAngleFromRay,
+  type ClickWheelArcEnd,
+  type ClickWheelArcSample,
+  type ClickWheelInputSurfaceProps,
+  type ClickWheelPointerType,
+} from "./click-wheel-input";
 
 export {
   DEFAULT_DEVICE_MATERIALS,
