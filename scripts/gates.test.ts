@@ -100,16 +100,44 @@ describe('W5a static gates go red', () => {
     failed(await runStaticGates({ root }), 'NAMING')
   })
 
-  test('NAMING permits a script to reference a canonical bookkeeping artifact', async () => {
+  test('NAMING permits canonical bookkeeping paths in script string literals', async () => {
     const root = await fixture()
-    const bookkeepingPath = '../docs/workstreams/002-implementation-spine/evidence/browser.json'
+    const evidencePath = '../docs/workstreams/002-implementation-spine/evidence/browser.json'
+    const reviewPath = '../docs/workstreams/002-implementation-spine/reviews/browser.md'
+    const decisionPath = '../docs/workstreams/002-implementation-spine/decisions/browser.md'
+    const diaryPath = '../docs/workstreams/002-implementation-spine/diary/browser.md'
     await plant(
       root,
       'scripts/evidence-reader.ts',
-      `export const path = ${JSON.stringify(bookkeepingPath)}\n`,
+      [
+        `export const single = '${evidencePath}'`,
+        `export const double = ${JSON.stringify(reviewPath)}`,
+        `export const template = \`${decisionPath}\``,
+        `export const adjacent = '${diaryPath}'`,
+        '',
+      ].join('\n'),
     )
     const gate = (await runStaticGates({ root })).find((candidate) => candidate.id === 'NAMING')
     expect(gate?.status).toBe('pass')
+  })
+
+  test('NAMING rejects traversal, repeated separators and dot segments in bookkeeping paths', async () => {
+    const canonical = '../docs/workstreams/002-implementation-spine/evidence/browser.json'
+    const forbiddenFile = ['implementation', '-spine'].join('')
+    const malformedPaths = [
+      canonical.replace('browser.json', `../../../../packages/product/${forbiddenFile}.ts`),
+      canonical.replace('browser.json', `/${forbiddenFile}.json`),
+      canonical.replace('browser.json', `./${forbiddenFile}.json`),
+    ]
+
+    for (const [index, malformedPath] of malformedPaths.entries()) {
+      const root = await fixture()
+      const source = `export const path = ${JSON.stringify(malformedPath)}\n`
+      const path = `scripts/malformed-evidence-path-${String(index)}.ts`
+      await plant(root, path, source)
+      const gate = failed(await runStaticGates({ root }), 'NAMING')
+      expect(gate.findings.some((finding) => finding.includes(path))).toBe(true)
+    }
   })
 
   test('NAMING still rejects bookkeeping names in script comments', async () => {
@@ -118,6 +146,25 @@ describe('W5a static gates go red', () => {
     const comment = `// ${bookkeepingPath}\n`
     await plant(root, 'scripts/evidence-reader.ts', comment)
     failed(await runStaticGates({ root }), 'NAMING')
+  })
+
+  test('NAMING rejects adjacent noncanonical bookkeeping references', async () => {
+    const canonical = '../docs/workstreams/002-implementation-spine/evidence/browser.json'
+    const malformedInitiative = ['00', '2-'].join('')
+    const controls = [
+      ['scripts/prose.ts', `export const note = ${JSON.stringify(`Evidence: ${canonical}`)}\n`],
+      ['apps/web/src/evidence.ts', `export const path = ${JSON.stringify(canonical)}\n`],
+      ['scripts/unsupported-directory.ts', `export const path = ${JSON.stringify(canonical.replace('/evidence/', '/artifacts/'))}\n`],
+      ['scripts/malformed-initiative.ts', `export const path = ${JSON.stringify(canonical.replace(/\/\d{3}-[a-z0-9-]+\//u, `/${malformedInitiative}/`))}\n`],
+      ['scripts/empty-filename.ts', `export const path = ${JSON.stringify(canonical.replace('browser.json', ''))}\n`],
+    ] as const
+
+    for (const [path, source] of controls) {
+      const root = await fixture()
+      await plant(root, path, source)
+      const gate = failed(await runStaticGates({ root }), 'NAMING')
+      expect(gate.findings.some((finding) => finding.includes(path))).toBe(true)
+    }
   })
 
   test('TRAILERS detects a planted branch trailer', async () => {

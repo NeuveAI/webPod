@@ -76,10 +76,33 @@ const U8_PATTERN = /\b(?:allows?|allowed|allowing|den(?:y|ies|ied|ying)|permits?
 const AGENT_FLAG_PATTERN = /^(?:agentPresent|agentAttached|agentIdle|isAgentConnected)$/iu
 const HANDEDNESS_PATTERN = /^(?:handed|handedness|leftHand|rightHand)$/iu
 const NAMING_PATTERN = /(?<![\d.])002(?!\d)|implementation-spine|workstream/iu
-const BOOKKEEPING_PATH_PATTERN = /^(?:\.\.\/)*docs\/workstreams\/\d{3}-[a-z0-9-]+\/(?:decisions|diary|dispatch|evidence|reviews)\/[a-z0-9._/-]+$/u
+const WORKSTREAM_ROOT_PATTERN = /^workstreams$/u
+const WORKSTREAM_DIRECTORY_PATTERN = /^\d{3}-[a-z0-9]+(?:-[a-z0-9]+)*$/u
+const BOOKKEEPING_FILE_PATTERN = /^[a-z0-9]+(?:[._-][a-z0-9]+)*$/u
+const BOOKKEEPING_DIRECTORIES = new Set(['decisions', 'diary', 'evidence', 'reviews'])
 
 function normalizePath(path: string): string {
   return path.split(sep).join('/')
+}
+
+/** Accept only a canonical file immediately inside one initiative bookkeeping directory. */
+function isCanonicalBookkeepingPath(path: string): boolean {
+  let relative = path
+  while (relative.startsWith('../')) relative = relative.slice(3)
+
+  const segments = relative.split('/')
+  if (segments.length !== 5 || segments.some((segment) => segment === '' || segment === '.' || segment === '..')) return false
+
+  const [docs, workstreams, workstream, directory, file] = segments
+  return docs === 'docs'
+    && workstreams !== undefined
+    && WORKSTREAM_ROOT_PATTERN.test(workstreams)
+    && workstream !== undefined
+    && WORKSTREAM_DIRECTORY_PATTERN.test(workstream)
+    && directory !== undefined
+    && BOOKKEEPING_DIRECTORIES.has(directory)
+    && file !== undefined
+    && BOOKKEEPING_FILE_PATTERN.test(file)
 }
 
 function isIgnored(path: string): boolean {
@@ -506,7 +529,7 @@ function namingFindings(files: readonly SourceFile[]): readonly string[] {
     comments: true,
     ignore: (item) => item.path.startsWith('scripts/')
       && item.kind === 'string'
-      && BOOKKEEPING_PATH_PATTERN.test(item.text),
+      && isCanonicalBookkeepingPath(item.text),
   })
 }
 
