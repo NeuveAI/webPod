@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { appendFile, mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
 const evidence = resolve(process.env['PANEL_EVIDENCE_DIR'] ?? resolve(import.meta.dirname, '../test-results/evidence'))
@@ -10,6 +10,7 @@ const states = ['ready', 'loading', 'empty', 'error', 'offline', 'permission-den
 interface SourceHealth {
   readonly expected: string
   readonly current: string
+  readonly expectedFileCount: number
   readonly fileCount: number
 }
 
@@ -18,8 +19,9 @@ const parseSourceHealth = (serialized: string): SourceHealth => {
   if (typeof value !== 'object' || value === null) throw new Error('Source health did not return an object')
   if (!('expected' in value) || typeof value.expected !== 'string') throw new Error('Source health omitted expected digest')
   if (!('current' in value) || typeof value.current !== 'string') throw new Error('Source health omitted current digest')
+  if (!('expectedFileCount' in value) || typeof value.expectedFileCount !== 'number') throw new Error('Source health omitted expected file count')
   if (!('fileCount' in value) || typeof value.fileCount !== 'number') throw new Error('Source health omitted file count')
-  return { expected: value.expected, current: value.current, fileCount: value.fileCount }
+  return { expected: value.expected, current: value.current, expectedFileCount: value.expectedFileCount, fileCount: value.fileCount }
 }
 
 const assertSourceIdentity = async (page: Page) => {
@@ -29,9 +31,9 @@ const assertSourceIdentity = async (page: Page) => {
   })
   expect(response.ok, `source health returned ${String(response.status)}`).toBe(true)
   const health = parseSourceHealth(response.body)
-  expect(health.expected).toMatch(/^[a-f0-9]{64}$/u)
-  expect(health.current).toMatch(/^[a-f0-9]{64}$/u)
-  expect(health.fileCount).toBeGreaterThan(0)
+  expect(health.current, 'the immutable served snapshot changed during the browser proof').toBe(health.expected)
+  expect(health.fileCount).toBe(health.expectedFileCount)
+  expect(health.expectedFileCount).toBeGreaterThan(0)
 }
 
 const openScreen = async (page: Page, screen: 's03' | 's08' | 's13', query = '') => {
@@ -47,6 +49,18 @@ const openScreen = async (page: Page, screen: 's03' | 's08' | 's13', query = '')
 }
 
 test.beforeAll(async () => mkdir(evidence, { recursive: true }))
+
+test('served source identity remains equal before and after a runtime read', async ({ page }) => {
+  await page.goto('/')
+  await assertSourceIdentity(page)
+  if (process.env['PANEL_PROVENANCE_PLANT'] === 'MIDRUN') {
+    const snapshotRoot = process.env['PANEL_SNAPSHOT_ROOT']
+    if (snapshotRoot === undefined) throw new Error('Panel snapshot root was not initialized')
+    await appendFile(resolve(snapshotRoot, 'packages/panel/src/model.ts'), '\n// provenance mutation plant\n')
+    console.log('[PANEL PLANT MIDRUN LANDED]')
+  }
+  await assertSourceIdentity(page)
+})
 
 const freezeEvidenceClock = async (page: Page) => page.clock.install({ time: new Date('2026-01-01T00:00:00Z') })
 const stabilizeEvidence = async (page: Page) => page.addStyleTag({ content: '*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}' })

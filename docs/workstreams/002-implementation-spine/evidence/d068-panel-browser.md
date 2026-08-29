@@ -61,3 +61,32 @@ and rendered dimensions of at least 44 px, retained button focus, and no screen
 navigation.
 
 All three mutations were restored before the green runs and commit.
+
+## Immutable served-source proof
+
+The final harness copies the browser workspace into a dedicated temporary
+snapshot before Playwright starts. It excludes Git metadata, dependencies,
+generated output, documentation, `cert/`, `.env*`, `.claude/`, and
+`design.pen`; dependencies are installed inside the snapshot with the frozen
+lockfile, so workspace links resolve to snapshot packages rather than the live
+shared tree. Vite runs only from that snapshot with a strict dedicated port and
+no server reuse.
+
+`fingerprintBrowserSources(snapshotRoot)` establishes the expected digest and
+file count. The snapshot's own health endpoint recomputes both on every check,
+and browser assertions require exact expected/current equality for both values.
+Writes from foreign live lanes are therefore neither fingerprinted as served
+source nor able to contaminate the run.
+
+Plant command:
+
+```text
+PANEL_PROVENANCE_PLANT=MIDRUN bun run test:e2e -- --grep "served source identity"
+```
+
+The plant appended a marker to the snapshot's fingerprinted
+`packages/panel/src/model.ts` after the first green identity check. The second
+check was **RED**: expected digest `303ea8d3…`, current digest `50310905…`, with
+the explicit failure “the immutable served snapshot changed during the browser
+proof”. A clean full run then passed all 14 browser tests with digest
+`303ea8d3…` and 151 files at both ends.

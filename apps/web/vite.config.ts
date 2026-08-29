@@ -11,13 +11,14 @@ function sourceIdentityHealth(): Plugin {
     apply: 'serve',
     configureServer(server) {
       const expected = process.env['W5B_EXPECTED_SOURCE_FINGERPRINT']
+      const expectedFileCount = Number(process.env['W5B_EXPECTED_SOURCE_FILE_COUNT'])
       if (expected === undefined) return
       server.middlewares.use('/__webpod_health', (_request, response) => {
         const current = fingerprintBrowserSources()
         response.statusCode = 200
         response.setHeader('cache-control', 'no-store')
         response.setHeader('content-type', 'application/json; charset=utf-8')
-        response.end(JSON.stringify({ expected, current: current.digest, fileCount: current.fileCount }))
+        response.end(JSON.stringify({ expected, current: current.digest, expectedFileCount, fileCount: current.fileCount }))
       })
     },
   }
