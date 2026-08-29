@@ -1,10 +1,20 @@
 import { useThree } from '@react-three/fiber'
-import { DeviceCanvas, type Colourway, type ScreenMeshHandle } from '@webpod/device'
+import {
+  ClickWheelInputSurface,
+  DEVICE_LAYOUT,
+  DeviceCanvas,
+  type ClickWheelArcEnd,
+  type ClickWheelArcSample,
+  type Colourway,
+  type ScreenMeshHandle,
+} from '@webpod/device'
+import { deviceStore } from '@webpod/state'
 import {
   useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
+  useRef,
   useSyncExternalStore,
   type ReactNode,
 } from 'react'
@@ -15,6 +25,12 @@ import {
   getCompositeTierSnapshot,
   subscribeCompositeTier,
 } from './tier-store'
+import {
+  attachCompositeWheelListener,
+  browserClickWheelRuntimeDependencies,
+  createClickWheelRuntime,
+  type ClickWheelRuntime,
+} from './click-wheel-runtime'
 
 export interface CompositeDeviceProps {
   readonly panel: ReactNode
@@ -45,12 +61,41 @@ export function CompositeDevice({
   )
   const host = useMemo(() => (canUseDom ? createPanelHost() : null), [canUseDom])
   const coordinator = useMemo(() => new CompositeCoordinator(panelTone), [panelTone])
+  const rootRef = useRef<HTMLDivElement>(null)
+  const runtimeRef = useRef<ClickWheelRuntime | null>(null)
 
   useLayoutEffect(() => {
     if (host === null) return
     coordinator.setPanel(host)
     return () => coordinator.dispose()
   }, [coordinator, host])
+
+  useEffect(() => {
+    const root = rootRef.current
+    if (root === null) return
+    const runtime = createClickWheelRuntime(
+      browserClickWheelRuntimeDependencies(deviceStore, DEVICE_LAYOUT.screen.height),
+    )
+    runtimeRef.current = runtime
+
+    const detachWheel = attachCompositeWheelListener(root, runtime)
+
+    return () => {
+      detachWheel()
+      runtime.dispose()
+      if (runtimeRef.current === runtime) runtimeRef.current = null
+    }
+  }, [])
+
+  const onArcStart = useCallback((sample: ClickWheelArcSample) => {
+    runtimeRef.current?.arcStart(sample)
+  }, [])
+  const onArcMove = useCallback((sample: ClickWheelArcSample) => {
+    runtimeRef.current?.arcMove(sample)
+  }, [])
+  const onArcEnd = useCallback((end: ClickWheelArcEnd) => {
+    runtimeRef.current?.arcEnd(end)
+  }, [])
 
   const onScreenMeshReady = useCallback(
     (screen: ScreenMeshHandle) => coordinator.setScreen(screen),
@@ -59,7 +104,13 @@ export function CompositeDevice({
   const shouldMountCanvas = host !== null && (tier.tier === 'T1' || tier.contextLost)
 
   return (
-    <div className={className} data-composite-tier={tier.tier} data-composite-ready={host !== null}>
+    <div
+      ref={rootRef}
+      className={className}
+      data-composite-tier={tier.tier}
+      data-composite-ready={host !== null}
+      style={{ touchAction: 'none', overscrollBehavior: 'contain' }}
+    >
       {host !== null && tier.tier === 'T1' ? createPortal(panel, host) : null}
       {shouldMountCanvas ? (
         <DeviceCanvas
@@ -67,7 +118,12 @@ export function CompositeDevice({
           cameraFov={cameraFov}
           onScreenMeshReady={onScreenMeshReady}
         >
-          <CompositeSceneBridge coordinator={coordinator} />
+          <CompositeSceneBridge
+            coordinator={coordinator}
+            onArcStart={onArcStart}
+            onArcMove={onArcMove}
+            onArcEnd={onArcEnd}
+          />
         </DeviceCanvas>
       ) : null}
     </div>
@@ -105,8 +161,14 @@ function createPanelHost(): HTMLDivElement {
 
 function CompositeSceneBridge({
   coordinator,
+  onArcStart,
+  onArcMove,
+  onArcEnd,
 }: {
   readonly coordinator: CompositeCoordinator
+  readonly onArcStart: (sample: ClickWheelArcSample) => void
+  readonly onArcMove: (sample: ClickWheelArcSample) => void
+  readonly onArcEnd: (end: ClickWheelArcEnd) => void
 }) {
   const renderer = useThree((state) => state.gl)
   const camera = useThree((state) => state.camera)
@@ -124,5 +186,11 @@ function CompositeSceneBridge({
     coordinator.resyncGeometry()
   })
 
-  return null
+  return (
+    <ClickWheelInputSurface
+      onArcStart={onArcStart}
+      onArcMove={onArcMove}
+      onArcEnd={onArcEnd}
+    />
+  )
 }
