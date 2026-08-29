@@ -4,11 +4,34 @@ import { Texture } from "three";
 import { DEFAULT_LIGHT_RIG } from "./light-rig";
 import { DEFAULT_DEVICE_MATERIALS } from "./materials";
 import {
+  bodyClearcoatShader,
   createCoverGlassMaterial,
+  patchBodyClearcoatShader,
   patchGlassShader,
 } from "./physical-materials";
 
 describe("§12.3 device material contract", () => {
+  test("zero clearcoat profile is byte-identical and cache-key neutral", () => {
+    expect(bodyClearcoatShader([[0, 0], [1, 0]], -1, 1)).toEqual({});
+  });
+
+  test("body clearcoat patch fails closed when Three's chunk seam changes", () => {
+    expect(() => patchBodyClearcoatShader(
+      { vertexShader: "#include <begin_vertex>", fragmentShader: "changed" },
+      [[0, 5], [1, -5]], -1, 1,
+    )).toThrow("three@0.185.1 clearcoat shader seam changed");
+  });
+
+  test("body clearcoat patch leaves diffuse and roughness untouched", () => {
+    const shader = {
+      vertexShader: "#include <common>\n#include <begin_vertex>",
+      fragmentShader: "#include <common>\n#include <clearcoat_normal_fragment_begin>",
+    };
+    patchBodyClearcoatShader(shader, [[0, 8], [1, -8]], -2, 2);
+    expect(shader.fragmentShader).toContain("clearcoatNormal = normalize");
+    expect(shader.fragmentShader).not.toContain("diffuseColor =");
+    expect(shader.fragmentShader).not.toContain("material.roughness =");
+  });
   test("polycarbonate keeps the specified base response", () => {
     expect(DEFAULT_DEVICE_MATERIALS.bodyBlack).toMatchObject({
       albedoScale: 1,

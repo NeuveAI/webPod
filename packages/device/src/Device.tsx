@@ -52,7 +52,7 @@ import {
 } from "./shapes";
 import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
 import { createScreenGeometry } from "./screen-geometry";
-import { createCoverGlassMaterial } from "./physical-materials";
+import { bodyClearcoatShader, createCoverGlassMaterial } from "./physical-materials";
 import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 import {
   addOpticalProfile,
@@ -222,6 +222,11 @@ export function Device({
     steelAnisotropy,
     bodyNormal: opticalMaps.body,
   });
+  const clearcoatShader = bodyClearcoatShader(
+    isBlack ? parsedOptical.bodyBlackClearcoat : parsedOptical.bodyWhiteClearcoat,
+    -body.height / 2 + form.seamWidth,
+    body.height / 2 - form.seamWidth,
+  );
   const bodyRoughness = useMemo(() => {
     const map = createBodyRoughnessMap(
       isBlack ? parsedOptical.bodyBlackRoughness : parsedOptical.bodyWhiteRoughness,
@@ -559,6 +564,7 @@ export function Device({
           envMap={env}
           {...surfaceMaps.body}
           roughnessMap={bodyRoughness}
+          {...clearcoatShader}
           emissive={isBlack ? "#6E4A2E" : "#000000"}
           emissiveIntensity={isBlack ? 0.02 : 0}
           emissiveMap={isBlack ? blackSss : null}
