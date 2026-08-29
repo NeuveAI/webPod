@@ -1,17 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { PlaneGeometry } from "three";
-import { applyOpticalProfile, createOpticalNormalMap, createOpticalRoughnessMap } from "./optical-profile";
+import { applyOpticalProfile, createOpticalNormalMap } from "./optical-profile";
 
 describe("moulded-surface optical profile", () => {
-  test("roughness profile uses only Three's green channel", () => {
-    const texture = createOpticalRoughnessMap([[0, 0.25], [1, 1]], 3);
-    const data = texture.image.data as Uint8Array;
-    expect([data[0], data[1], data[2], data[3]]).toEqual([255, 255, 255, 255]);
-    expect(data[5]).toBeGreaterThan(63);
-    expect(data[5]).toBeLessThan(255);
-    expect([data[8], data[9], data[10], data[11]]).toEqual([255, 64, 255, 255]);
-    texture.dispose();
-  });
   test("encodes top-to-bottom tilt as a deterministic tangent-space normal map", () => {
     const first = createOpticalNormalMap(
       [

@@ -233,11 +233,6 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
       path: `opticalProfiles.${surface}.${knot}.1`, min: -10, max: 10, step: 0.5,
     })),
   ),
-  ...["bodyBlackRoughness", "bodyWhiteRoughness"].flatMap((surface) =>
-    Array.from({ length: 5 }, (_, knot) => ({
-      path: `opticalProfiles.${surface}.${knot}.1`, min: 0.15, max: 1, step: 0.05,
-    })),
-  ),
   ...["wheelBlack", "selectBlack", "selectWhite"].flatMap((surface) =>
     Array.from({ length: 4 }, (_, knot) => ({
       path: `opticalProfiles.${surface}.${knot}.1`, min: -8, max: 8, step: 0.5,

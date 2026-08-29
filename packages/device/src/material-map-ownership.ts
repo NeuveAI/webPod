@@ -4,7 +4,6 @@ export function materialMapOwnership(input: {
   readonly microNoise: Texture;
   readonly steelAnisotropy: Texture;
   readonly bodyNormal: Texture;
-  readonly bodyRoughness: Texture;
 }) {
   return {
     steel: {
@@ -13,7 +12,6 @@ export function materialMapOwnership(input: {
     },
     body: {
       normalMap: input.bodyNormal,
-      roughnessMap: input.bodyRoughness,
     },
   } as const;
 }

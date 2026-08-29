@@ -57,7 +57,6 @@ import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 import {
   applyOpticalProfile,
   createOpticalNormalMap,
-  createOpticalRoughnessMap,
   DEFAULT_DEVICE_OPTICAL_PROFILES,
   type DeviceOpticalProfiles,
 } from "./optical-profile";
@@ -216,20 +215,10 @@ export function Device({
     },
     [opticalMaps],
   );
-  const bodyRoughnessMap = useMemo(() => {
-    const map = createOpticalRoughnessMap(
-      isBlack ? parsedOptical.bodyBlackRoughness : parsedOptical.bodyWhiteRoughness,
-    );
-    map.repeat.set(1, 1 / body.height);
-    map.offset.set(0, 0.5);
-    return map;
-  }, [isBlack, parsedOptical]);
-  useEffect(() => () => bodyRoughnessMap.dispose(), [bodyRoughnessMap]);
   const surfaceMaps = materialMapOwnership({
     microNoise: noise,
     steelAnisotropy,
     bodyNormal: opticalMaps.body,
-    bodyRoughness: bodyRoughnessMap,
   });
 
   // ── Geometry ───────────────────────────────────────────────────────────────
@@ -550,6 +539,7 @@ export function Device({
           {...spread(bodyMaterial)}
           envMap={env}
           {...surfaceMaps.body}
+          roughnessMap={noise}
           emissive={isBlack ? "#6E4A2E" : "#000000"}
           emissiveIntensity={isBlack ? 0.02 : 0}
           emissiveMap={isBlack ? blackSss : null}
