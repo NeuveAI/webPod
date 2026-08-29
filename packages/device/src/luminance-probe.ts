@@ -111,7 +111,7 @@ const STEEL_UY = Math.cos(STEEL_THETA);
 const STEEL_GRADIENT_LENGTH =
   Math.abs(body.width * STEEL_UX) + Math.abs(body.height * STEEL_UY);
 
-/** Reconstruct §4.4's 168° stop parameter from a back-face local point. */
+/** Reconstruct §4.4's 168° stop parameter in the viewer-facing xy plane. */
 export function steelGradientParameter(x: number, y: number): number {
   return (x * STEEL_UX + y * STEEL_UY) / STEEL_GRADIENT_LENGTH + 0.5;
 }
@@ -353,7 +353,12 @@ function steelTargets(options: TargetOptions): Array<ProbeTarget> {
       expectedHex: stop.color,
       y: point.y,
       z: options.backFaceZ,
-      xs: [point.x],
+      // The back mesh is turned toward the viewer by a π rotation around Y,
+      // which mirrors body-local x. `point` was solved in the viewer-facing
+      // gradient frame, so apply the inverse transform here; the route's live
+      // model matrix then restores the intended 168° iso-line in world/view
+      // space. Leaving this unmirrored moves exactly the four off-axis stops.
+      xs: [-point.x],
     };
   });
 }
