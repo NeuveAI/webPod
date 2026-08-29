@@ -20,6 +20,36 @@ interface TextContrast {
   readonly unresolved: readonly string[]
 }
 
+interface SourceHealth {
+  readonly expected: string
+  readonly current: string
+  readonly fileCount: number
+}
+
+interface TransparencySnapshot {
+  readonly backdrops: readonly { readonly tag: string; readonly pseudo: string; readonly value: string }[]
+  readonly translucentPaint: readonly { readonly tag: string; readonly pseudo: string; readonly paint: string }[]
+  readonly title: {
+    readonly backgroundImage: string
+    readonly alpha: number
+    readonly luminance: number
+    readonly averageStopLuminance: number | null
+  }
+  readonly metadata: {
+    readonly alpha: number
+    readonly compositeLuminance: number
+  } | null
+}
+
+function parseSourceHealth(serialized: string): SourceHealth {
+  const value: unknown = JSON.parse(serialized)
+  if (typeof value !== 'object' || value === null) throw new Error('Source health did not return an object')
+  if (!('expected' in value) || typeof value.expected !== 'string') throw new Error('Source health omitted expected digest')
+  if (!('current' in value) || typeof value.current !== 'string') throw new Error('Source health omitted current digest')
+  if (!('fileCount' in value) || typeof value.fileCount !== 'number') throw new Error('Source health omitted file count')
+  return { expected: value.expected, current: value.current, fileCount: value.fileCount }
+}
+
 const landPlant = async (page: Page, gate: string, apply: () => Promise<void>, verify: () => Promise<boolean>): Promise<void> => {
   if (plant !== gate) return
   await apply()
@@ -53,6 +83,31 @@ const emulateFeature = async (page: Page, name: string, value: string): Promise<
 
 const assertFlagOff = async (page: Page): Promise<void> => {
   expect(await page.evaluate(() => 'requestPaint' in HTMLCanvasElement.prototype), 'W5b must run with CanvasDrawElement disabled').toBe(false)
+}
+
+const assertSourceIdentity = async (page: Page): Promise<void> => {
+  const expected = process.env['W5B_EXPECTED_SOURCE_FINGERPRINT']
+  const expectedFileCount = Number(process.env['W5B_EXPECTED_SOURCE_FILE_COUNT'])
+  if (expected === undefined || !Number.isInteger(expectedFileCount)) throw new Error('Playwright source fingerprint was not initialized')
+  if (plant === 'SOURCE') {
+    await page.route('**/__webpod_health', (route) => route.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({ expected, current: 'source-mismatch-plant', fileCount: expectedFileCount }),
+    }))
+  }
+  const result = await page.evaluate(async () => {
+    const response = await fetch('/__webpod_health', { cache: 'no-store' })
+    return { ok: response.ok, status: response.status, body: await response.text() }
+  })
+  expect(result.ok, `source health returned ${String(result.status)}`).toBe(true)
+  const health = parseSourceHealth(result.body)
+  if (plant === 'SOURCE') {
+    expect(health.current, 'SOURCE plant did not land').toBe('source-mismatch-plant')
+    console.log('[W5B PLANT SOURCE LANDED]')
+  }
+  expect(health.fileCount).toBe(expectedFileCount)
+  expect(health.expected).toBe(expected)
+  expect(health.current, 'served runtime source changed after the isolated server started').toBe(expected)
 }
 
 const contrastReport = async (panel: Locator): Promise<readonly TextContrast[]> => panel.evaluate((root) => {
@@ -191,10 +246,96 @@ const contrastReport = async (panel: Locator): Promise<readonly TextContrast[]> 
     })
 })
 
+const transparencySnapshot = async (panel: Locator): Promise<TransparencySnapshot> => panel.evaluate((root) => {
+  type Colour = readonly [number, number, number, number]
+  const parse = (value: string): Colour | null => {
+    const match = value.match(/^rgba?\(\s*(\d+(?:\.\d+)?)\s*[, ]\s*(\d+(?:\.\d+)?)\s*[, ]\s*(\d+(?:\.\d+)?)(?:\s*[,/]\s*(\d+(?:\.\d+)?))?\s*\)$/u)
+    if (match === null || match[1] === undefined || match[2] === undefined || match[3] === undefined) return null
+    return [Number(match[1]), Number(match[2]), Number(match[3]), match[4] === undefined ? 1 : Number(match[4])]
+  }
+  const coloursIn = (value: string): readonly Colour[] => Array.from(value.matchAll(/rgba?\([^)]*\)/gu)).flatMap((match) => {
+    const colour = parse(match[0])
+    return colour === null ? [] : [colour]
+  })
+  const luminance = (colour: Colour): number => {
+    const channel = (value: number): number => {
+      const normalized = value / 255
+      return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4
+    }
+    return 0.2126 * channel(colour[0]) + 0.7152 * channel(colour[1]) + 0.0722 * channel(colour[2])
+  }
+  const composite = (front: Colour, back: Colour): Colour => [
+    front[0] * front[3] + back[0] * (1 - front[3]),
+    front[1] * front[3] + back[1] * (1 - front[3]),
+    front[2] * front[3] + back[2] * (1 - front[3]),
+    1,
+  ]
+  const visible = (element: HTMLElement): boolean => {
+    const style = getComputedStyle(element)
+    const rect = element.getBoundingClientRect()
+    return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) > 0 && rect.width > 0 && rect.height > 0
+  }
+  const nodes = [root, ...Array.from(root.querySelectorAll<HTMLElement>('*'))].filter(visible)
+  const backdrops: Array<{ readonly tag: string; readonly pseudo: string; readonly value: string }> = []
+  const translucentPaint: Array<{ readonly tag: string; readonly pseudo: string; readonly paint: string }> = []
+  for (const element of nodes) {
+    for (const pseudo of ['', '::before', '::after'] as const) {
+      const style = getComputedStyle(element, pseudo === '' ? null : pseudo)
+      if (pseudo !== '' && (style.content === 'none' || style.display === 'none')) continue
+      const backdrop = style.backdropFilter !== 'none' ? style.backdropFilter : style.webkitBackdropFilter
+      if (backdrop !== undefined && backdrop !== 'none') backdrops.push({ tag: element.tagName, pseudo, value: backdrop })
+      const background = parse(style.backgroundColor)
+      if (background !== null && background[3] > 0 && background[3] < 1) {
+        translucentPaint.push({ tag: element.tagName, pseudo, paint: style.backgroundColor })
+      }
+      for (const colour of coloursIn(style.backgroundImage)) {
+        if (colour[3] > 0 && colour[3] < 1) translucentPaint.push({ tag: element.tagName, pseudo, paint: style.backgroundImage })
+      }
+    }
+  }
+  const title = root.querySelector<HTMLElement>('.wp-titlebar')
+  if (title === null) throw new Error('titlebar missing')
+  const titleStyle = getComputedStyle(title)
+  const titleColour = parse(titleStyle.backgroundColor) ?? [0, 0, 0, 0]
+  const titleStops = coloursIn(titleStyle.backgroundImage)
+  const metadata = root.querySelector<HTMLElement>('.wp-now-meta')
+  let metadataReport: TransparencySnapshot['metadata'] = null
+  if (metadata !== null) {
+    const metadataColour = parse(getComputedStyle(metadata).backgroundColor)
+    if (metadataColour === null) throw new Error('metadata scrim colour was not resolved')
+    let ancestor = metadata.parentElement
+    let backdrop: Colour | null = null
+    while (ancestor !== null && root.contains(ancestor)) {
+      const candidate = parse(getComputedStyle(ancestor).backgroundColor)
+      if (candidate !== null && candidate[3] === 1) {
+        backdrop = candidate
+        break
+      }
+      ancestor = ancestor.parentElement
+    }
+    if (backdrop === null) throw new Error('metadata scrim has no opaque backdrop')
+    metadataReport = { alpha: metadataColour[3], compositeLuminance: luminance(composite(metadataColour, backdrop)) }
+  }
+  return {
+    backdrops,
+    translucentPaint,
+    title: {
+      backgroundImage: titleStyle.backgroundImage,
+      alpha: titleColour[3],
+      luminance: luminance(titleColour),
+      averageStopLuminance: titleStops.length === 0
+        ? null
+        : titleStops.reduce((sum, colour) => sum + luminance(colour), 0) / titleStops.length,
+    },
+    metadata: metadataReport,
+  }
+})
+
 test.beforeAll(async () => mkdir(evidence, { recursive: true }))
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
+  await assertSourceIdentity(page)
   await assertFlagOff(page)
 })
 
@@ -251,49 +392,58 @@ test('U3 reduced motion removes authored animation and transition', async ({ pag
   }
 })
 
-test('U4 reduced transparency removes bloom, shadow and title translucency', async ({ page }) => {
-  await openScreen(page, 's13', '?art=pale')
-  await emulateFeature(page, 'prefers-reduced-transparency', 'reduce')
-  expect(await page.evaluate(() => matchMedia('(prefers-reduced-transparency: reduce)').matches)).toBe(true)
-  await landPlant(page, 'U4',
-    () => page.addStyleTag({ content: '.wp-titlebar{backdrop-filter:blur(2px)!important}' }).then(() => undefined),
-    () => page.locator('.wp-titlebar').first().evaluate((element) => getComputedStyle(element).backdropFilter !== 'none'))
+test('U4 reduced transparency makes every scrim solid at equivalent luminance', async ({ page }) => {
   const reports = []
-  for (const [index, colourway] of colourways.entries()) {
-    const panel = page.locator('.wp-panel').nth(index)
-    expect(await panel.locator('.wp-now-body').evaluate((element) => getComputedStyle(element, '::before').display)).toBe('none')
-    await expect(panel.locator('.wp-art')).toHaveCSS('box-shadow', 'none')
-    const report = await panel.evaluate((root) => {
-      const alpha = (value: string): number => {
-        const slash = value.match(/\/\s*([\d.]+)\s*\)$/u)
-        if (slash?.[1] !== undefined) return Number(slash[1])
-        if (!value.startsWith('rgba(')) return 1
-        const parts = value.slice(5, -1).split(',')
-        return parts[3] === undefined ? 1 : Number(parts[3].trim())
+  let oldPlantLanded = false
+  let solidPlantLanded = false
+  for (const state of states) {
+    for (const screen of screens) {
+      await openScreen(page, screen, `?state=${state}&art=pale`)
+      await emulateFeature(page, 'prefers-reduced-transparency', 'no-preference')
+      const baseline = await Promise.all(colourways.map((colourway) => transparencySnapshot(page.locator(`.wp-panel[data-colourway="${colourway}"]`))))
+      await emulateFeature(page, 'prefers-reduced-transparency', 'reduce')
+      expect(await page.evaluate(() => matchMedia('(prefers-reduced-transparency: reduce)').matches)).toBe(true)
+      if (state === 'ready' && screen === 's13') {
+        await landPlant(page, 'U4',
+          () => page.addStyleTag({ content: '.wp-titlebar{backdrop-filter:blur(2px)!important}' }).then(() => undefined),
+          () => page.locator('.wp-titlebar').first().evaluate((element) => getComputedStyle(element).backdropFilter !== 'none'))
+        oldPlantLanded = plant === 'U4'
+        await landPlant(page, 'U4_SOLID',
+          () => page.addStyleTag({ content: '.wp-titlebar{background:linear-gradient(rgb(255 255 255 / 40%),rgb(0 0 0 / 40%))!important}.wp-now-meta{background:rgb(10 15 22 / 50%)!important}' }).then(() => undefined),
+          () => page.locator('.wp-now-meta').first().evaluate((element) => getComputedStyle(element).backgroundColor.includes('0.5')))
+        solidPlantLanded = plant === 'U4_SOLID'
       }
-      const backdrop = Array.from(root.querySelectorAll<HTMLElement>('*')).flatMap((element) =>
-        ([null, '::before', '::after'] as const).flatMap((pseudo) => {
-          const style = getComputedStyle(element, pseudo)
-          return style.backdropFilter !== 'none' || (style.webkitBackdropFilter !== undefined && style.webkitBackdropFilter !== 'none')
-            ? [{ tag: element.tagName, pseudo, backdrop: style.backdropFilter, webkit: style.webkitBackdropFilter }]
-            : []
-        }))
-      const title = root.querySelector<HTMLElement>('.wp-titlebar')
-      if (title === null) throw new Error('titlebar missing')
-      const titleStyle = getComputedStyle(title)
-      const titleStops = Array.from(titleStyle.backgroundImage.matchAll(/rgba?\([^)]*\)/gu), (match) => ({ value: match[0], alpha: alpha(match[0]) }))
-      const scrims = Array.from(root.querySelectorAll<HTMLElement>('[data-agent="true"]')).map((element) => ({
-        background: getComputedStyle(element).backgroundColor,
-        alpha: alpha(getComputedStyle(element).backgroundColor),
-      }))
-      return { backdrop, titleStops, scrims, title0: titleStyle.getPropertyValue('--wp-title-0').trim(), title1: titleStyle.getPropertyValue('--wp-title-1').trim() }
-    })
-    expect(report.backdrop).toEqual([])
-    expect(report.titleStops.every((stop) => stop.alpha === 1)).toBe(true)
-    expect(report.scrims.every((scrim) => scrim.alpha === 1)).toBe(true)
-    reports.push({ colourway, ...report })
-    await panel.screenshot({ path: resolve(evidence, `w5b-u4-reduced-transparency-${colourway}.png`) })
+      for (const [index, colourway] of colourways.entries()) {
+        const panel = page.locator(`.wp-panel[data-colourway="${colourway}"]`)
+        const before = baseline[index]
+        if (before === undefined) throw new Error(`baseline missing for ${colourway}`)
+        const after = await transparencySnapshot(panel)
+        expect(after.backdrops, `${screen}/${state}/${colourway} backdrop filters`).toEqual([])
+        expect(after.translucentPaint, `${screen}/${state}/${colourway} translucent paint`).toEqual([])
+        expect(after.title.backgroundImage).toBe('none')
+        expect(after.title.alpha).toBe(1)
+        expect(before.title.averageStopLuminance).not.toBeNull()
+        expect(Math.abs(after.title.luminance - (before.title.averageStopLuminance ?? -1))).toBeLessThanOrEqual(0.005)
+        if (before.metadata !== null) {
+          expect(before.metadata.alpha).toBeGreaterThan(0)
+          expect(before.metadata.alpha).toBeLessThan(1)
+          expect(after.metadata).not.toBeNull()
+          if (after.metadata === null) throw new Error(`reduced metadata missing for ${screen}/${state}/${colourway}`)
+          expect(after.metadata.alpha).toBe(1)
+          expect(Math.abs(after.metadata.compositeLuminance - before.metadata.compositeLuminance)).toBeLessThanOrEqual(0.005)
+        }
+        reports.push({ state, screen, colourway, baseline: before, reduced: after })
+        if (state === 'ready' && screen === 's13') {
+          expect(await panel.locator('.wp-now-body').evaluate((element) => getComputedStyle(element, '::before').display)).toBe('none')
+          await expect(panel.locator('.wp-art')).toHaveCSS('box-shadow', 'none')
+          await panel.screenshot({ path: resolve(evidence, `w5b-u4-reduced-transparency-${colourway}.png`) })
+        }
+      }
+    }
   }
+  if (plant === 'U4') expect(oldPlantLanded).toBe(true)
+  if (plant === 'U4_SOLID') expect(solidPlantLanded).toBe(true)
+  expect(reports.length).toBe(states.length * screens.length * colourways.length)
   await writeFile(resolve(evidence, 'w5b-u4-transparency.json'), JSON.stringify(reports, null, 2))
 })
 
@@ -342,25 +492,29 @@ test('U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourw
   await landPlant(page, 'U7',
     () => page.addStyleTag({ content: '.wp-titlebar{color:#000!important;background:linear-gradient(#000,#000)!important}' }).then(() => undefined),
     () => page.locator('.wp-titlebar').first().evaluate((element) => getComputedStyle(element).backgroundImage.includes('rgb(0, 0, 0)')))
+  await landPlant(page, 'U7_ALL_TEXT',
+    () => page.addStyleTag({ content: '.wp-titlebar__side{color:var(--wp-title-0)!important}' }).then(() => undefined),
+    () => page.locator('.wp-titlebar__battery').first().evaluate((element) => getComputedStyle(element).color === 'rgb(35, 40, 47)'))
   const reports = []
-  const advisoryMeasurements: Array<{ readonly colourway: string; readonly text: string; readonly ratio: number; readonly required: number }> = []
-  const gradientFailures: Array<{ readonly colourway: string; readonly text: string; readonly ratio: number; readonly required: number }> = []
+  const failures: Array<{ readonly colourway: string; readonly text: string; readonly ratio: number; readonly required: number; readonly paintSources: readonly string[] }> = []
   for (const colourway of colourways) {
     const selector = `.wp-panel[data-colourway="${colourway}"]`
     const axe = await new AxeBuilder({ page }).include(selector).withRules(['color-contrast']).analyze()
     const text = await contrastReport(page.locator(selector))
     for (const entry of text) if (entry.ratio < entry.required) {
-      const failure = { colourway, text: entry.text, ratio: entry.ratio, required: entry.required }
-      advisoryMeasurements.push(failure)
-      if (entry.text === 'Now Playing' && entry.paintSources.some((source) => source.includes(':gradient('))) gradientFailures.push(failure)
+      failures.push({ colourway, text: entry.text, ratio: entry.ratio, required: entry.required, paintSources: entry.paintSources })
     }
     reports.push({ colourway, axeViolations: axe.violations, axeIncomplete: axe.incomplete.filter((entry) => entry.id === 'color-contrast'), text })
   }
-  await writeFile(resolve(evidence, 'w5b-u7-contrast.json'), JSON.stringify({ authority: 'axe browser paint evaluation', reports, advisoryMeasurements }, null, 2))
+  await writeFile(resolve(evidence, 'w5b-u7-contrast.json'), JSON.stringify({ authority: 'axe plus fail-closed analytical bounds for gradients and pseudo-elements', reports, failures }, null, 2))
   expect(reports.flatMap((report) => report.axeViolations)).toEqual([])
   expect(reports.flatMap((report) => report.text.flatMap((entry) => entry.unresolved))).toEqual([])
   expect(reports.every((report) => report.text.length > 0)).toBe(true)
-  expect(gradientFailures).toEqual([])
+  for (const report of reports) {
+    expect(report.text.some((entry) => entry.text === 'The Fray')).toBe(true)
+    expect(report.text.some((entry) => entry.text === '▰')).toBe(true)
+  }
+  expect(failures).toEqual([])
 })
 
 test('U11 200% Dynamic Type has no clipped or truncated visible text', async ({ page }) => {
@@ -369,9 +523,20 @@ test('U11 200% Dynamic Type has no clipped or truncated visible text', async ({ 
     await landPlant(page, 'U11',
       () => page.addStyleTag({ content: '.wp-titlebar{inline-size:12px!important;min-inline-size:12px!important;max-inline-size:12px!important;overflow:hidden!important}' }).then(() => undefined),
       () => page.locator('.wp-titlebar').first().evaluate((element) => element.clientWidth < 44 && getComputedStyle(element).overflow === 'hidden'))
+    await landPlant(page, 'U11_RASTER',
+      () => page.addStyleTag({ content: '.wp-panel-stage{--wp-raster-scale:1!important}' }).then(() => undefined),
+      () => page.locator('.wp-panel-stage').first().evaluate((element) => getComputedStyle(element).getPropertyValue('--wp-raster-scale').trim() === '1'))
     for (const colourway of colourways) {
       const panel = page.locator(`.wp-panel[data-colourway="${colourway}"]`)
       await expect(panel).toHaveAttribute('data-density', 'airy')
+      const raster = await panel.locator('..').evaluate((stage) => ({
+        scale: Number(getComputedStyle(stage).getPropertyValue('--wp-raster-scale')),
+        width: stage.getBoundingClientRect().width,
+        height: stage.getBoundingClientRect().height,
+      }))
+      expect(raster.scale).toBe(1.25)
+      expect(raster.width).toBeGreaterThanOrEqual(272 * 1.25)
+      expect(raster.height).toBeGreaterThanOrEqual(204 * 1.25)
       const failures = await panel.evaluate((root) => Array.from(root.querySelectorAll<HTMLElement>('*')).flatMap((element) => {
         const style = getComputedStyle(element)
         if (style.display === 'none' || style.visibility === 'hidden') return []
@@ -405,9 +570,16 @@ test('U11 200% Dynamic Type has no clipped or truncated visible text', async ({ 
       await panel.screenshot({ path: resolve(evidence, `w5b-u11-${screen}-200-${colourway}.png`) })
     }
   }
+  await openScreen(page, 's03', '?scale=1.3&density=compact')
+  for (const colourway of colourways) {
+    const panel = page.locator(`.wp-panel[data-colourway="${colourway}"]`)
+    await expect(panel).toHaveAttribute('data-density', 'airy')
+    expect(await panel.locator('..').evaluate((stage) => Number(getComputedStyle(stage).getPropertyValue('--wp-raster-scale')))).toBe(1.25)
+  }
 })
 
 test('U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible', async ({ page }) => {
+  test.setTimeout(75_000)
   const dark = await openScreen(page, 's03', '?long=1')
   await landPlant(page, 'U12', () => dark.evaluate((element) => {
     element.addEventListener('keydown', (event) => {
@@ -462,43 +634,98 @@ test('U12 keyboard traversal is complete, one-detent, unaccelerated and focus-vi
       await expect(target).toHaveAttribute('data-screen', 'S03')
     }
   }
-  await page.goto('/?state=ready')
-  await page.locator('body').focus()
+  await openScreen(page, 's13', '?state=ready')
+  const actionButtons = page.getByRole('button', { name: 'Love track' })
+  await expect(actionButtons).toHaveCount(2)
+  await landPlant(page, 'U12_ACTION',
+    () => actionButtons.evaluateAll((buttons) => { for (const button of buttons) button.setAttribute('tabindex', '-1') }),
+    () => actionButtons.evaluateAll((buttons) => buttons.length === 2 && buttons.every((button) => button.getAttribute('tabindex') === '-1')))
+  await actionButtons.evaluateAll((buttons) => {
+    for (const button of buttons) {
+      button.setAttribute('data-keyboard-activations', '0')
+      button.addEventListener('click', () => {
+        button.setAttribute('data-keyboard-activations', String(Number(button.getAttribute('data-keyboard-activations')) + 1))
+      })
+    }
+  })
+  await page.locator('.wp-panel[data-colourway="dark"]').focus()
   const tabOrder: string[] = []
-  for (let index = 0; index < 2; index += 1) {
+  const activationCounts: number[] = []
+  for (let index = 0; index < 3; index += 1) {
     await page.keyboard.press('Tab')
-    tabOrder.push(await page.locator(':focus').evaluate((element) => `${element.tagName}:${element.getAttribute('data-colourway') ?? element.getAttribute('aria-label') ?? ''}`))
+    tabOrder.push(await page.locator(':focus').evaluate((element) => {
+      const colourway = element.closest<HTMLElement>('.wp-panel')?.dataset['colourway'] ?? ''
+      return `${element.tagName}:${colourway}:${element.getAttribute('aria-label') ?? ''}`
+    }))
     expect(await page.locator(':focus').evaluate((element) => getComputedStyle(element).outlineStyle)).not.toBe('none')
+    if (index === 0 || index === 2) {
+      await page.keyboard.press('Enter')
+      await page.keyboard.press('Space')
+      activationCounts.push(Number(await page.locator(':focus').getAttribute('data-keyboard-activations')))
+    }
   }
-  expect(tabOrder).toEqual(['DIV:dark', 'DIV:light'])
-  await writeFile(resolve(evidence, 'w5b-u12-keyboard.json'), JSON.stringify({ oneDetentDeltas: observed, heldRepeatDetents: 20, states: states.length, colourways, traversal: ['S03', 'S08', 'S13', 'S08', 'S03'], tabOrder, focusVisible: true }, null, 2))
+  expect(tabOrder).toEqual(['BUTTON:dark:Love track', 'DIV:light:webPod music player', 'BUTTON:light:Love track'])
+  expect(activationCounts).toEqual([2, 2])
+  await writeFile(resolve(evidence, 'w5b-u12-keyboard.json'), JSON.stringify({ oneDetentDeltas: observed, heldRepeatDetents: 20, states: states.length, colourways, traversal: ['S03', 'S08', 'S13', 'S08', 'S03'], tabOrder, activationCounts, focusVisible: true }, null, 2))
 })
 
 test('U13 a 30-detent browser flick publishes exactly one live announcement', async ({ page }) => {
   const panel = await openScreen(page, 's08', '?long=1')
   const live = panel.locator('[aria-live="polite"]')
   await live.evaluate((element) => {
-    const records: string[] = []
-    Object.defineProperty(window, '__w5bAnnouncements', { value: records, configurable: true })
+    interface AnnouncementProbe {
+      readonly records: { readonly seq: string; readonly text: string }[]
+      lastMutationAt: number
+    }
+    const probe: AnnouncementProbe = { records: [], lastMutationAt: performance.now() }
+    Object.defineProperty(window, '__w5bAnnouncementProbe', { value: probe, configurable: true })
     new MutationObserver((mutations) => {
       for (const mutation of mutations) {
+        if (mutation.type !== 'attributes' || mutation.attributeName !== 'data-announcement-seq') continue
         const text = mutation.target.textContent?.trim() ?? ''
-        if (text !== '') records.push(text)
+        const seq = mutation.target instanceof HTMLElement ? mutation.target.dataset['announcementSeq'] ?? '' : ''
+        if (text !== '' && seq !== '') {
+          probe.records.push({ seq, text })
+          probe.lastMutationAt = performance.now()
+        }
       }
-    }).observe(element, { childList: true, characterData: true, subtree: true })
+    }).observe(element, { attributes: true, attributeFilter: ['data-announcement-seq'] })
   })
-  for (let index = 0; index < 30; index += 1) await panel.press('ArrowDown')
+  for (let index = 0; index < 30; index += 1) {
+    await panel.dispatchEvent('wheel', { deltaY: 40, deltaMode: 0 })
+  }
+  await expect.poll(async () => page.evaluate(() => {
+    interface AnnouncementProbe { readonly records: readonly { readonly seq: string; readonly text: string }[] }
+    return (window as Window & { __w5bAnnouncementProbe?: AnnouncementProbe }).__w5bAnnouncementProbe?.records.length ?? 0
+  })).toBeGreaterThanOrEqual(1)
+  await page.waitForFunction(() => {
+    interface AnnouncementProbe { readonly records: readonly unknown[]; readonly lastMutationAt: number }
+    const probe = (window as Window & { __w5bAnnouncementProbe?: AnnouncementProbe }).__w5bAnnouncementProbe
+    return probe !== undefined && probe.records.length > 0 && performance.now() - probe.lastMutationAt >= 400
+  })
+  const selected = panel.locator('.wp-track-row[aria-current="true"]')
+  await expect(selected.locator('.wp-track-number')).toHaveText('31')
+  const selectedTitle = (await selected.locator('.wp-track-title').textContent())?.trim() ?? ''
+  const selectedMeta = (await selected.locator('.wp-row-meta').textContent())?.trim() ?? ''
+  const expected = `Row 31 of 120. ${selectedTitle}, ${selectedMeta}.`
   await landPlant(page, 'U13', async () => {
-    await live.evaluate((element) => { element.textContent = 'Duplicate announcement.' })
+    await live.evaluate((element) => { element.setAttribute('data-announcement-seq', 'plant-1') })
     await page.waitForTimeout(0)
-    await live.evaluate((element) => { element.textContent = ''; element.textContent = 'Duplicate announcement.' })
-  }, async () => (await live.textContent()) === 'Duplicate announcement.')
-  await page.waitForTimeout(450)
-  const announcements = await page.evaluate(() => (window as Window & { __w5bAnnouncements?: readonly string[] }).__w5bAnnouncements ?? [])
+    await live.evaluate((element) => { element.setAttribute('data-announcement-seq', 'plant-2') })
+  }, async () => (await live.getAttribute('data-announcement-seq')) === 'plant-2')
+  await landPlant(page, 'U13_SETTLED',
+    () => live.evaluate((element) => { element.textContent = 'Row 2 of 120. Stale first detent.' }),
+    async () => (await live.textContent()) === 'Row 2 of 120. Stale first detent.')
+  const announcements = await page.evaluate(() => {
+    interface AnnouncementProbe { readonly records: readonly { readonly seq: string; readonly text: string }[] }
+    return (window as Window & { __w5bAnnouncementProbe?: AnnouncementProbe }).__w5bAnnouncementProbe?.records ?? []
+  })
   expect(announcements).toHaveLength(1)
+  expect(announcements[0]?.text).toBe(expected)
+  await expect(live).toHaveText(expected)
   await openScreen(page, 's13', '?state=error')
   await expect(page.locator('.wp-panel').first().getByRole('alert')).toBeVisible()
   await openScreen(page, 's13', '?state=loading')
   await expect(page.locator('.wp-panel').first().locator('[aria-busy="true"]')).toBeVisible()
-  await writeFile(resolve(evidence, 'w5b-u13-announcements.json'), JSON.stringify({ detents: 30, announcements, assertiveError: true, loadingBusy: true }, null, 2))
+  await writeFile(resolve(evidence, 'w5b-u13-announcements.json'), JSON.stringify({ detents: 30, finalRow: 31, expected, announcements, assertiveError: true, loadingBusy: true }, null, 2))
 })

@@ -10,10 +10,13 @@
     --wp-pane: #111419;
     --wp-text: #f2f4f7;
     --wp-text-2: #a8aeb8;
-    --wp-text-3: #7c838e;
+    --wp-text-3: #8b939e;
     --wp-divider: #2e333b;
+    --wp-divider-solid: #2e333b;
     --wp-title-0: #23282f;
     --wp-title-1: #14171c;
+    --wp-title-solid: #1c2127;
+    --wp-meta-solid: #0a0f15;
     --wp-highlight-0: #0369a1;
     --wp-highlight-1: #075985;
     --wp-highlight-2: #0c4a6e;
@@ -42,10 +45,13 @@
     --wp-pane: #e9eef4;
     --wp-text: #0f172a;
     --wp-text-2: #475569;
-    --wp-text-3: #607086;
+    --wp-text-3: #52647a;
     --wp-divider: rgb(15 23 42 / 10%);
+    --wp-divider-solid: #e0e2e7;
     --wp-title-0: #fdfeff;
     --wp-title-1: #dde5ee;
+    --wp-title-solid: #eef2f7;
+    --wp-meta-solid: #f2f6fb;
     --wp-highlight-0: #e0f2fe;
     --wp-highlight-1: #bae6fd;
     --wp-highlight-2: #7dd3fc;
@@ -157,7 +163,14 @@
     .wp-panel .wp-progress i { transition: none; }
     .wp-panel .wp-skeleton { opacity: .7; }
   }
-  @media (prefers-reduced-transparency: reduce) { .wp-panel { --wp-title-0: var(--wp-title-1); } .wp-art { box-shadow: none; } .wp-now-body::before { display: none; } }
+  @media (prefers-reduced-transparency: reduce) {
+    .wp-panel[data-colourway] { --wp-divider: var(--wp-divider-solid); }
+    .wp-titlebar { background: var(--wp-title-solid); }
+    .wp-art { box-shadow: none; }
+    .wp-now-body::before { display: none; }
+    .wp-now-meta,
+    .wp-panel[data-colourway="light"] .wp-now-meta { background: var(--wp-meta-solid); }
+  }
   @media (prefers-contrast: more) { .wp-panel { --wp-bg: #000; --wp-text: #fff; --wp-divider: currentColor; } .wp-panel[data-colourway="light"] { --wp-bg: #fff; --wp-text: #000; } }
   @media (forced-colors: active) { .wp-panel { border: 1px solid CanvasText; } .wp-menu-row[aria-current="true"], .wp-track-row[aria-current="true"] { color: HighlightText; background: Highlight; } }
 }

@@ -91,7 +91,7 @@ describe('the bare DOM panel', () => {
     const lightRule = css.match(/\.wp-panel\[data-colourway="light"\]\s*\{([^}]*)\}/)?.[1]
     expect(lightRule).toBeDefined()
     expect(lightRule).toMatch(/--wp-text-2:\s*#475569/)
-    expect(lightRule).toMatch(/--wp-text-3:\s*#607086/)
+    expect(lightRule).toMatch(/--wp-text-3:\s*#52647a/)
   })
 
   test('keeps the package boundary compatible with DOM rasterization', () => {

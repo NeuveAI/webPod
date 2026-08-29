@@ -1,9 +1,29 @@
 import { describe, expect, test } from 'bun:test'
 import { createFixtureProvider } from '@webpod/providers'
+import { createDeviceStore } from '@webpod/state/testing'
 
-import { acquirePlaybackClock, rgbSamplesFromRgba, type PlaybackClockHost } from './runtime'
+import { acquireAnnouncer, acquirePlaybackClock, rgbSamplesFromRgba, type PlaybackClockHost } from './runtime'
 
 describe('panel runtime', () => {
+  test('parallel colourways lease exactly one announcement driver', () => {
+    const store = createDeviceStore()
+    const owner = {}
+    let starts = 0
+    let stops = 0
+    const start = () => {
+      starts += 1
+      return () => { stops += 1 }
+    }
+
+    const releaseDark = acquireAnnouncer(owner, store, start)
+    const releaseLight = acquireAnnouncer(owner, store, start)
+    expect(starts).toBe(1)
+    releaseDark()
+    expect(stops).toBe(0)
+    releaseLight()
+    expect(stops).toBe(1)
+  })
+
   test('one leased clock advances continuously and stops after final cleanup', async () => {
     const provider = createFixtureProvider()
     const track = provider.catalog.tracks[0]

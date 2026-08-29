@@ -1,4 +1,5 @@
 import type { FixtureProvider } from '@webpod/providers'
+import { startAnnouncer, type DeviceStore } from '@webpod/state'
 
 import type { RgbSample } from './model'
 
@@ -18,7 +19,46 @@ interface ClockLease {
   readonly releaseClock: () => void
 }
 
+interface AnnouncerLease {
+  references: number
+  readonly stop: () => void
+}
+
+export type AnnouncerStarter = (store: DeviceStore) => () => void
+
 const playbackClocks = new WeakMap<object, ClockLease>()
+const announcers = new WeakMap<object, AnnouncerLease>()
+
+/**
+ * Leases the singleton store's announcement timer across parallel colourways.
+ *
+ * Both preview panels render the same device store. Starting one driver per
+ * panel would arm competing timers against that store, so the first mount
+ * starts the driver and the final cleanup stops it. The injected starter is a
+ * test seam; production always uses {@link startAnnouncer}.
+ */
+export function acquireAnnouncer(
+  owner: object,
+  store: DeviceStore,
+  start: AnnouncerStarter = startAnnouncer,
+): () => void {
+  const existing = announcers.get(owner)
+  if (existing !== undefined) {
+    existing.references += 1
+    return () => releaseAnnouncer(owner)
+  }
+  announcers.set(owner, { references: 1, stop: start(store) })
+  return () => releaseAnnouncer(owner)
+}
+
+function releaseAnnouncer(owner: object): void {
+  const lease = announcers.get(owner)
+  if (lease === undefined) return
+  lease.references -= 1
+  if (lease.references > 0) return
+  lease.stop()
+  announcers.delete(owner)
+}
 
 /**
  * Drives the timer-free fixture provider from one shared clock per document.

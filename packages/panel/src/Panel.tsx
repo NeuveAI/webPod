@@ -15,7 +15,7 @@ import {
   type Density,
   type ScreenFrame,
 } from '@webpod/state'
-import { useEffect, useId, useRef, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type ReactNode } from 'react'
+import { useEffect, useId, useRef, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type ReactNode, type WheelEvent } from 'react'
 
 import {
   albumTracksFrame,
@@ -32,7 +32,7 @@ import {
   type NowPlayingMode,
   type PanelState,
 } from './model'
-import { acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
+import { acquireAnnouncer, acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import './panel.css'
 
 const nowPlayingModeAtom = atom<NowPlayingMode>('volume')
@@ -118,7 +118,9 @@ function PanelSurface({
   const pop = useSetAtom(popScreenActionAtom)
   const visibleRows = useAtomValue(visibleRowCountAtom)
   const density = useAtomValue(effectiveDensityAtom)
+  useEffect(() => acquireAnnouncer(document, deviceStore), [])
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault()
       move({
@@ -140,6 +142,18 @@ function PanelSurface({
       select(frame, push, longList)
     }
   }
+  const onWheel = (event: WheelEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    const deltaMode = event.deltaMode === 1 ? 1 : event.deltaMode === 2 ? 2 : 0
+    move({
+      path: 'scroll',
+      source: 'human',
+      deltaY: event.deltaY,
+      deltaMode,
+      viewportPx: event.currentTarget.clientHeight,
+      timestampMs: event.timeStamp,
+    })
+  }
 
   return (
     <div
@@ -156,8 +170,9 @@ function PanelSurface({
       aria-roledescription="click wheel music player"
       aria-activedescendant={frame?.screenId === 'S03' ? `${panelId}-menu-${frame.highlightIndex}` : undefined}
       onKeyDown={onKeyDown}
+      onWheel={onWheel}
     >
-      <span className="wp-sr-only" aria-live="polite" aria-atomic="true">
+      <span className="wp-sr-only" aria-live="polite" aria-atomic="true" data-announcement-seq={announcement?.seq}>
         {announcement?.text ?? ''}
       </span>
       {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state, colourway, artworkTone, visibleRows, actor, panelId)}
