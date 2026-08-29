@@ -16,6 +16,12 @@
  */
 import { setTimeout as sleep } from "node:timers/promises";
 
+import {
+  type CalibrationStage,
+  mergeOwned,
+  ownedPatch,
+} from "./stage-ownership";
+
 const CDP_TARGET_URL =
   process.env.DEVICE_CALIBRATION_URL ?? "http://localhost:3000/_spike/device";
 
@@ -135,6 +141,15 @@ const ROOM_KNOBS: ReadonlyArray<Knob> = [
   { path: "envRoom.azimuthVariation", min: 0, max: 0.6, step: 0.04 },
   { path: "envRoom.horizon.opacity", min: 0, max: 1, step: 0.05 },
   { path: "envRoom.horizon.widthDeg", min: 0.3, max: 6, step: 0.3 },
+  // Per-band pre-exposure is part of EnvRoomParams specifically to invert the
+  // roughness + PMREM convolution. Keep it close to unity: this corrects the
+  // radiance entering the real steel reflection rather than painting steel.
+  ...Array.from({ length: 11 }, (_, index) => ({
+    path: `envRoom.stopExposure.${index}`,
+    min: 0.85,
+    max: 1.15,
+    step: 0.01,
+  })),
   { path: "cameraDistance", min: 700, max: 3000, step: 40 },
 ];
 const FRONT_KNOBS: ReadonlyArray<Knob> = [
@@ -309,18 +324,48 @@ async function score(
   }
 }
 
+const APPLY_EXPR = (patchJson: string) => `
+(() => {
+  const patch = ${patchJson};
+  const set = (obj, path, value) => {
+    const parts = path.split('.');
+    let node = obj;
+    for (let i = 0; i < parts.length - 1; i++) {
+      node[parts[i]] = Array.isArray(node[parts[i]]) ? [...node[parts[i]]] : { ...node[parts[i]] };
+      node = node[parts[i]];
+    }
+    node[parts[parts.length - 1]] = value;
+  };
+  window.__deviceCalibration.reset();
+  const base = JSON.parse(JSON.stringify(window.__deviceCalibration.getParams()));
+  for (const [path, value] of Object.entries(patch)) set(base, path, value);
+  window.__deviceCalibration.setParams(base);
+})()
+`;
+
+async function resetAndApply(
+  page: Page,
+  patch: Readonly<Record<string, number>>,
+): Promise<void> {
+  await page.evaluate(APPLY_EXPR(JSON.stringify(patch)));
+  // Environment-map creation and PMREM compilation happen after React commits.
+  await sleep(1000);
+}
+
 /**
  * The objective.
  *
  * ⚑ Not plain RMS. The gate is per-stop `|delta| ≤ 4`, so a rig that is 3 units
  * off on forty stops passes and one that is 12 off on a single stop does not.
  * Squared error alone would happily trade the second for the first. The
- * objective therefore orders candidates by failed-stop count, then worst miss,
- * then mean squared error. A prettier red curve can never outrank one with
- * fewer failed rows.
+ * objective therefore minimizes squared distance outside the admissible band.
+ * That loss is exactly zero if and only if every sampled row passes, while
+ * remaining smooth enough to guide a search that is still far from the band.
+ * Failure count, worst miss and MSE break ties only after gate distance.
  */
 type Objective = {
   readonly invalid: boolean;
+  readonly gateLoss: number;
   readonly failures: number;
   readonly worstOver: number;
   readonly meanSquared: number;
@@ -331,26 +376,32 @@ function objective(results: ReadonlyArray<Result>): Objective {
     (result) => result.surface === "invalid-geometry",
   );
   let failures = 0;
+  let gateLoss = 0;
   let worstOver = 0;
   let total = 0;
   for (const result of results) {
     const over = Math.max(0, Math.abs(result.delta) - 4);
     if (!result.pass) failures += 1;
+    gateLoss += over * over;
     worstOver = Math.max(worstOver, over);
     total += result.delta ** 2;
   }
   return {
     invalid,
+    gateLoss,
     failures,
     worstOver,
     meanSquared: total / Math.max(1, results.length),
   };
 }
 
-/** The acceptance contract is lexicographic: pass rows before polishing rows. */
+/** The acceptance contract is zero distance outside every row's ±4 band. */
 function improves(candidate: Objective, incumbent: Objective): boolean {
   if (candidate.invalid !== incumbent.invalid) return !candidate.invalid;
   if (candidate.invalid) return false;
+  if (Math.abs(candidate.gateLoss - incumbent.gateLoss) > 1e-6) {
+    return candidate.gateLoss < incumbent.gateLoss;
+  }
   if (candidate.failures !== incumbent.failures) {
     return candidate.failures < incumbent.failures;
   }
@@ -362,7 +413,7 @@ function improves(candidate: Objective, incumbent: Objective): boolean {
 
 function objectiveLabel(value: Objective): string {
   if (value.invalid) return "invalid geometry";
-  return `${value.failures} fail, ${(value.worstOver + 4).toFixed(1)} worst, mse ${value.meanSquared.toFixed(2)}`;
+  return `${value.failures} fail, gate-loss ${value.gateLoss.toFixed(1)}, ${(value.worstOver + 4).toFixed(1)} worst, mse ${value.meanSquared.toFixed(2)}`;
 }
 
 function getPath(object: Json, path: string): number {
@@ -380,6 +431,14 @@ async function main() {
   ).trim();
   const page = await Page.attach(browserWs);
 
+  await page.evaluate(`(async () => {
+    const deadline = performance.now() + 10000;
+    while (window.__deviceCalibration === undefined) {
+      if (performance.now() > deadline) throw new Error('device calibration API did not mount');
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+  })()`);
+
   const params = JSON.parse(
     await page.evaluate<string>(
       "JSON.stringify(window.__deviceCalibration.getParams())",
@@ -396,14 +455,19 @@ async function main() {
   ) as Record<string, number>;
 
   const allKnobs = [...ROOM_KNOBS, ...FRONT_KNOBS];
-  const start: Record<string, number> = {};
+  // The checkpoint is authoritative even for keys this tuner is not currently
+  // allowed to move. Movable knobs are clamped below; frozen keys still need
+  // to be applied so a fresh session reproduces the saved render exactly.
+  const start: Record<string, number> = { ...saved };
   for (const knob of allKnobs) {
     const value = saved[knob.path] ?? getPath(params as Json, knob.path);
     start[knob.path] = Math.max(knob.min, Math.min(knob.max, value));
   }
 
+  await resetAndApply(page, start);
+
   if (command === "report") {
-    const results = await score(page, start, VIEWS.all, 500);
+    const results = await score(page, {}, VIEWS.all, 500);
     const report = `${JSON.stringify({ params: start, results }, null, 2)}\n`;
     if (arg) await Bun.write(arg, report);
     else console.log(report);
@@ -411,22 +475,94 @@ async function main() {
     return;
   }
 
-  const stage =
+  const stage: CalibrationStage =
     command === "room" || command === "search-room"
       ? "room"
+      : command?.startsWith("body-black") || command?.startsWith("search-body-black")
+        ? "body-black"
+        : command?.startsWith("body-white") || command?.startsWith("search-body-white")
+          ? "body-white"
+          : command?.startsWith("select-black") || command?.startsWith("search-select-black")
+            ? "select-black"
+            : command?.startsWith("select-white") || command?.startsWith("search-select-white")
+              ? "select-white"
       : command === "front" || command === "search-front"
         ? "front"
         : "all";
   const knobs =
-    stage === "room" ? ROOM_KNOBS : stage === "front" ? FRONT_KNOBS : allKnobs;
+    stage === "room"
+      ? ROOM_KNOBS
+      : stage === "body-black"
+        ? FRONT_KNOBS.filter(
+            (knob) =>
+              command?.includes("profile")
+                ? knob.path.startsWith("opticalProfiles.bodyBlack")
+                : knob.path.startsWith("materials.bodyBlack.") ||
+                  knob.path.startsWith("opticalProfiles.bodyBlack"),
+          )
+        : stage === "body-white"
+          ? FRONT_KNOBS.filter(
+              (knob) =>
+                knob.path.startsWith("materials.bodyWhite.") ||
+                knob.path.startsWith("opticalProfiles.bodyWhite"),
+            )
+          : stage === "select-black"
+            ? FRONT_KNOBS.filter(
+                (knob) =>
+                  knob.path.startsWith("materials.selectBlack.") ||
+                  knob.path.startsWith("opticalProfiles.selectBlack."),
+              )
+            : stage === "select-white"
+              ? FRONT_KNOBS.filter(
+                  (knob) =>
+                    knob.path.startsWith("materials.selectWhite.") ||
+                    knob.path.startsWith("opticalProfiles.selectWhite."),
+                )
+              : stage === "front"
+                ? FRONT_KNOBS
+                : allKnobs;
   const views =
     stage === "room" ? VIEWS.room : stage === "front" ? VIEWS.front : VIEWS.all;
+  const targetSurface =
+    stage === "body-black" ||
+    stage === "body-white" ||
+    stage === "select-black" ||
+    stage === "select-white"
+      ? stage
+      : null;
+  const scoreStage = async (patch: Record<string, number>, settleMs: number) => {
+    const guardedStage = targetSurface !== null;
+    const results = await score(
+      page,
+      patch,
+      guardedStage ? VIEWS.all : views,
+      settleMs,
+    );
+    if (targetSurface === null) return results;
+    const steel = results.filter((result) => result.surface === "steel-back");
+    if (steel.length !== 11 || steel.some((result) => !result.pass)) {
+      return [
+        {
+          surface: "invalid-geometry",
+          token: "frozen-steel-regressed",
+          at: 0,
+          expectedHex: "#000000",
+          expectedLuma: 0,
+          measuredLuma: 255,
+          measuredRgb: [255, 255, 255] as [number, number, number],
+          delta: 255,
+          pass: false,
+        },
+      ];
+    }
+    return results.filter((result) => result.surface === targetSurface);
+  };
   const iterations = Number(arg ?? 40);
   let scale = Number(arg2 ?? 4);
 
-  let best = { ...start };
+  let best = ownedPatch(stage, start);
   const settleMs = stage === "room" || stage === "all" ? 500 : SETTLE_MS;
-  let bestResults = await score(page, best, views, settleMs);
+  let bestResults = await scoreStage(best, settleMs);
   let bestScore = objective(bestResults);
   console.error(`[${stage}] start ${objectiveLabel(bestScore)}`);
 
@@ -448,7 +584,7 @@ async function main() {
           Math.min(knob.max, current + (random() * 2 - 1) * span),
         );
       }
-      const results = await score(page, candidate, views, settleMs);
+      const results = await scoreStage(candidate, settleMs);
       const value = objective(results);
       if (improves(value, bestScore)) {
         best = candidate;
@@ -456,7 +592,7 @@ async function main() {
         bestResults = results;
         await Bun.write(
           "packages/device/calibration/rig.json",
-          `${JSON.stringify(best, null, 2)}\n`,
+          `${JSON.stringify(mergeOwned(stage, saved, best), null, 2)}\n`,
         );
         console.error(
           `[${stage}] search ${attempt}/${attempts} ${objectiveLabel(bestScore)}`,
@@ -484,7 +620,7 @@ async function main() {
         const next = currentValue + direction * knob.step * scale;
         if (next < knob.min || next > knob.max) continue;
         candidate[knob.path] = next;
-        const results = await score(page, candidate, views, settleMs);
+        const results = await scoreStage(candidate, settleMs);
         const value = objective(results);
         if (improves(value, bestScore)) {
           best = candidate;
@@ -500,7 +636,7 @@ async function main() {
     );
     await Bun.write(
       "packages/device/calibration/rig.json",
-      JSON.stringify(best, null, 2),
+      JSON.stringify(mergeOwned(stage, saved, best), null, 2),
     );
     if (!improved) {
       if (scale <= 0.0625) break;
@@ -511,7 +647,7 @@ async function main() {
 
   await Bun.write(
     "packages/device/calibration/rig.json",
-    JSON.stringify(best, null, 2),
+    JSON.stringify(mergeOwned(stage, saved, best), null, 2),
   );
   console.log(JSON.stringify({ params: best, results: bestResults }, null, 2));
   page.close();
