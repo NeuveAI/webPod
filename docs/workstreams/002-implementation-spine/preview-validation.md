@@ -13,7 +13,7 @@ Two separate questions get answered by two separate previews. Conflating them is
 
 **Owner ruling, 2026-08-28:** T1 `html-in-canvas` is the **main path** and is built first; T2/T3/T4 are deferred to a later workstream, with the seam designed now so they are additive rather than a rewrite.
 
-That inverts what 001 recommends, so the reasoning is recorded rather than assumed. **What makes it defensible:** the panel is real DOM in T1 too — `layoutsubtree` keeps canvas descendants in the accessibility tree, and `updateElementGeometry({canvasTransform})` adds geometry to it. So building T1 first does not violate the DOM-panel law; it exercises it. The architecture is the same one 001 specifies, reached in a different order.
+That inverts what 001 recommends, so the reasoning is recorded rather than assumed. **What makes it defensible:** the panel is real DOM in T1 too — `layoutsubtree` keeps canvas descendants in the accessibility tree, and the shipped `getElementTransform(element, screenSpaceTransform)` result is written to the panel's CSS transform so native geometry follows it. So building T1 first does not violate the DOM-panel law; it exercises it. The implementation uses three.js `InteractionManager`'s shipped-browser mechanism rather than the explainer-only `updateElementGeometry` API that Chrome 151 does not expose.
 
 **What it costs, stated plainly and tracked, not waved away:**
 
@@ -38,7 +38,7 @@ The reason this is a manageable risk is that the tiers are **the same architectu
 
 | Tier | Condition | Pixels | Interaction / a11y | Loses |
 |---|---|---|---|---|
-| **T1** | flag on (`'requestPaint' in HTMLCanvasElement.prototype`) | DOM composited into the WebGL material via three.js `HTMLTexture` | native — plus `updateElementGeometry({canvasTransform})`, **mandatory for 3D contexts**, which adds a11y *geometry* and inserts the element into the canvas hit-test list | nothing |
+| **T1** | flag on (`'requestPaint' in HTMLCanvasElement.prototype`) | DOM composited into the WebGL material via three.js `HTMLTexture` | native — `getElementTransform(element, screenSpaceTransform)` supplies the matrix written to the panel's CSS transform, following three.js `InteractionManager`, so hit-testing, focus, selection and accessibility geometry remain browser-native | nothing |
 | **T2** | flag off + `three-html-render` polyfill | polyfilled rasterisation | same | fidelity, unknown amount |
 | **T3** | flag off, no polyfill | DOM panel is a CSS-3D-transformed overlay registered to the modelled bezel | native, via `InteractionManager`'s per-frame `matrix3d` — the browser does the perspective divide, so it stays correct through the flip | only "pixels genuinely inside the WebGL material". Nothing in a11y, focus, selection or actuation. |
 | **T4** | no WebGL, or context lost, or `prefers-reduced-motion` | no device render at all; flat DOM | native | the object. **The product still works** — this is exactly the stage-2 checkpoint, which is why it is built first. |

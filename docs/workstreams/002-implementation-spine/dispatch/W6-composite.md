@@ -13,14 +13,24 @@ Skills: `/interface-craft`, `/runtime-review`, `/modern-web-guidance`.
 The panel's DOM pixels reach the device's screen mesh through `html-in-canvas`, behind a strategy interface with exactly one implementation; the panel remains real DOM with native focus, selection and accessibility **while composited**; and a single tier value is the only place in the app that knows which strategy is live.
 
 ## The property that must not be lost
-`layoutsubtree` marks canvas descendants as real DOM: *"only semantic information is exposed to accessibility, without geometry"* until you call `updateElementGeometry` with a `canvasTransform`, at which point *"the element's accessibility information is updated to include geometry information."* **3D contexts must call it explicitly** — unlike 2D, which gets it free from `drawElementImage`.
 
-So: `updateElementGeometry({ canvasTransform })` is **mandatory**, must be recomputed every time the device moves, and is what makes the composited panel screen-reader-navigable. Skipping it yields a panel with content and no positions. That is not a cosmetic gap — it is the difference between the thesis holding and not.
+> ### ⚠ RESPECIFIED 2026-08-28 — see D-030. This section was confidently wrong.
+> The original text called `updateElementGeometry({canvasTransform})` mandatory and *"the difference between the thesis holding and not"*. **That method does not exist in any shipping browser.** It is in the explainer's IDL — which 001 `stack-research.md` §1.3 also quotes — and W6.0 proved by exhaustive `Object.getOwnPropertyNames()` enumeration that Chrome 151 does not implement it, nor `clearElementGeometry`, `getCanvasTransform`, or `onelementgeometryupdate`.
+>
+> **The IDL in the explainer is not the API in the browser.** Do not build from the explainer; build from what W6.0 measured, recorded in `evidence/w6-capability-probe-chrome151.txt`.
+
+**What Chrome 151 actually ships:** `layoutSubtree` · `onpaint` · `captureElementImage` · **`getElementTransform`** · `requestPaint` · `texElementImage2D` · `drawElementImage` · `ElementImage`.
+
+**The mechanism, respecified.** `layoutsubtree` marks canvas descendants as real DOM, keeping them in the accessibility tree with full semantics but no geometry. Geometry comes from **`getElementTransform(element, screenSpaceTransform)`** → write the result to `element.style.transform`. That makes the panel a **genuinely transformed DOM element**, so hit-testing, focus, text selection and a11y geometry are all native — which is the property we actually needed all along.
+
+**This is what three.js's `InteractionManager` already does.** It never calls `updateElementGeometry`. So the escape hatch and the main path are the same mechanism, which is why the thesis survives the correction intact.
+
+**Recompute and rewrite the transform whenever the device moves — and only then** (see the frame budget below).
 
 ## Slices
 
 ### W6.0 — Capability probe · dispatch this ahead of W6's own dependencies
-`apps/web/src/routes/_probe.capabilities.tsx`, a dev-only diagnostic that **calls the same detection code the product uses** (not a parallel copy — it renders `packages/composite`'s real probe, which is why it is not a proof-only route). It reports:
+`apps/web/src/routes/[_]probe.capabilities.tsx` — **note the escaped underscore (D-032): a bare `_` prefix is a *pathless layout route* in TanStack Router and is stripped from the URL, so `_probe.capabilities.tsx` serves at `/capabilities`.** A dev-only diagnostic that **calls the same detection code the product uses** (not a parallel copy — it renders `packages/composite`'s real probe, which is why it is not a proof-only route). It reports:
 - `'requestPaint' in HTMLCanvasElement.prototype`
 - whether `layoutSubtree` reflects on `<canvas>`
 - which of `texElementSubImage2D` / `texElementImage2D` exists on the WebGL context, **by name**
@@ -52,6 +62,8 @@ Tier detection resolves once at boot, plus on `webglcontextlost` / `webglcontext
 Use three.js `HTMLTexture`. **Do not call the raw WebGL entry point** — its name is actively changing (`texElementImage2D` vs `texElementSubImage2D`, with the spec repo's own demo carrying a try/catch across both signatures). `HTMLTexture` absorbs that churn and already feature-detects with `'requestPaint' in parent`. A direct `texElementSubImage2D` in our source is a blocking finding.
 
 Use `InteractionManager` for interaction: it writes a per-frame `matrix3d` CSS transform onto the DOM element so *"the browser dispatches pointer events to them natively"* and performs the perspective divide itself. Native hit-testing, native focus, native text selection, native a11y geometry — because it is a genuinely transformed DOM element.
+
+**RISK-02 is closed (D-031).** Chrome 151 ships `texElementImage2D` at **arity 3**, matching three.js's `// Chrome 150+` branch at `WebGLTextures.js:1298`, so `HTMLTexture` works unmodified. The explainer's `texElementSubImage2D` exists in **no** shipping browser — writing from the IDL would have failed outright.
 
 Two behaviours to design around, not discover:
 - **DOM changes made in the `paint` event do not appear until the subsequent frame.** Canvas drawing commands in that event do appear in the current frame. Do not mutate panel state from `paint`.

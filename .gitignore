@@ -7,6 +7,11 @@ dist/
 .DS_Store
 .env*
 
+# Playwright/browser-gate run output. Durable evidence is curated under the
+# workstream evidence directory instead of committing the runner's scratch state.
+apps/web/tests/test-results/
+packages/panel/test-results/
+
 # Agent instructions live in AGENTS.md. CLAUDE.md is a symlink to it, created
 # locally by whoever needs it, so the repo carries exactly one copy of the law.
 .claude/

@@ -24,6 +24,9 @@ A painted gradient on a metal is precisely the "chrome reads as grey plastic" fa
 
 §12.3 gives you the exact `MeshPhysicalMaterial` / `MeshStandardMaterial` parameters for all seven surfaces. Use them. The §4.2–4.5 stop tables do not disappear when you go 3D — **they become the acceptance criterion.** Tune the rig until the sampled column matches.
 
+## Route naming — D-032, fixed before you start
+Use `apps/web/src/routes/[_]spike.device.tsx`, with the **escaped** underscore. W6.0 discovered that a bare `_` prefix marks a *pathless layout route* in TanStack Router and is stripped from the URL, so `_spike.device.tsx` would serve at `/device` — a diagnostic sitting at a bare, product-looking top-level URL, one refactor from shipping unnoticed. The escape keeps it at `/_spike/device`.
+
 ## Materials are injected, not inlined
 **Owner ruling, 2026-08-28:** later fallback tiers are expected to need different textures, shaders and possibly a different renderer. You are not building that, and you must not build a variant system for it. What you **must** do is leave the door unlocked:
 
@@ -51,7 +54,7 @@ Any panel content, any DOM-in-canvas, `HTMLTexture`, `InteractionManager`, the `
 `evidence/w4-device-luminance.md` with the actual sampled column beside the §4.2–4.5 stop table and the delta per stop (must be ≤4) · `evidence/w4-geometry.txt` asserting the §12.0 numbers from the imported `packages/tokens` constants, not re-typed · `evidence/w4-raf-idle.txt` proving 0 rAF callbacks on an untouched device · screenshots of both colourways, front and back · per-package tsc, lint, gates.
 
 ## Guardrails
-Own `packages/device/**` and `apps/web/src/routes/_spike.device.tsx` — **only files prefixed `_spike.`**. W3 owns `index.tsx` and the root layout; W6 owns `_probe.*`. Never write `packages/panel`, `packages/state` or `packages/composite`, and never import them.
+Own `packages/device/**` and `apps/web/src/routes/[_]spike.device.tsx` — **only files prefixed `[_]spike.`**. W3 owns `index.tsx` and the root layout; W6 owns `_probe.*`. Never write `packages/panel`, `packages/state` or `packages/composite`, and never import them.
 
 ## Artifacts
 `diary/w4.md` · `decisions/w4.md` · `evidence/w4-*` · review `reviews/w4-review.md` (lane L-E)

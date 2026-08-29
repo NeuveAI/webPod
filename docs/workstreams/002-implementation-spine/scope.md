@@ -23,7 +23,7 @@ The panel's DOM pixels are supplied to the device's screen mesh through `html-in
 **The direction ruling (owner, 2026-08-28).** T1 `html-in-canvas` is the **main path** and is built first. T2 polyfill, T3 CSS-3D overlay and T4 flat DOM are **deferred to a later workstream**, and the seam exists so they are additive rather than a rewrite.
 
 **The law that survives the redirection — and is not a fallback concern:**
-> **The panel is real DOM in T1 too.** `layoutsubtree` keeps canvas descendants in the accessibility tree with full semantics; `updateElementGeometry({canvasTransform})` adds geometry to it. This is the entire reason the API is worth adopting. `packages/panel` must remain independently mountable with no canvas, no three.js and no tier knowledge — verified by a test that mounts it bare — because that property *is* the WebMCP thesis, not a degradation path.
+> **The panel is real DOM in T1 too.** `layoutsubtree` keeps canvas descendants in the accessibility tree with full semantics. Chrome 151 does not ship the explainer's `updateElementGeometry`; it ships `getElementTransform(element, screenSpaceTransform)`. The composite writes that returned matrix to the panel element's CSS transform, following three.js `InteractionManager`, so browser-native hit-testing, focus, selection and accessibility geometry follow the transformed DOM. `packages/panel` must remain independently mountable with no canvas, no three.js and no tier knowledge — verified by a test that mounts it bare — because that property *is* the WebMCP thesis, not a degradation path.
 
 **A, B and C are built on disjoint file trees** and meet only at `packages/composite`. Neither the panel nor the device may import the other.
 

@@ -29,7 +29,7 @@ Status values: `Blocking` (no dispatch until resolved) · `Defaulted` (lead chos
 
 **Owner answer, 2026-08-28:** no Apple Developer account or signed MusicKit token yet — **docs-only**.
 
-**Default the lead chose:** the six `UNVERIFIED` §14.3 rows (10 playlist remove, 11 playlist reorder, 18 queue remove/reorder, 20 station-from-track, 21 lyrics, 30 offline audio) are resolved from Apple's published API documentation only, and the finding stays labelled `UNVERIFIED-docs-only`. **A fixture provider is the day-one implementation**; the Apple adapter ships as a compiling stub whose `supports()` returns the §14.3 Apple column with every unresolved row set to `false` (conservative — a capability is absent until proven present).
+**Label wording superseded by D-022** — the two-axis scheme (evidential strength x provenance) replaces `UNVERIFIED-docs-only` while keeping its tripwire intent. **Default the lead chose:** the six `UNVERIFIED` §14.3 rows (10 playlist remove, 11 playlist reorder, 18 queue remove/reorder, 20 station-from-track, 21 lyrics, 30 offline audio) are resolved from Apple's published API documentation only, and the finding stays labelled `UNVERIFIED-docs-only`. **A fixture provider is the day-one implementation**; the Apple adapter ships as a compiling stub whose `supports()` returns the §14.3 Apple column with every unresolved row set to `false` (conservative — a capability is absent until proven present).
 
 **Consequence to accept knowingly:** the highest-risk row in the whole spec — whether `pod-edit-playlist` is implementable on the launch provider — stays open through 002. It does not block 002, because 002 registers no tools and builds no playlist-edit UI. It **does** block S17 and the staged-diff work in a later workstream, and the spike report must say so in its first line.
 
@@ -78,7 +78,7 @@ Presented as screenshot pairs alongside the `design.pen` artboards.
 
 ## H-7 — `offline` has no home in the `Capability` union · **CLOSED 2026-08-28 → D-019: offline cut repo-wide**
 
-**Raised by S1.** 001 §14.3 row 30 asks whether offline audio is supported. It resolved *unsupported* — but **`offline` is not one of the 25 members of §14.2's `Capability` union**, so there is no `supports()` key for the answer to live in and no way for the UI to branch on it.
+**Raised by S1.** 001 §14.3 row 30 asks whether offline audio is supported. It resolved *unsupported* — but **`offline` is not one of the 26 members of §14.2's `Capability` union**, so there is no `supports()` key for the answer to live in and no way for the UI to branch on it.
 
 **Proposed default (lead):** add `offline` to the union in `packages/providers` and log it as a deliberate, additive deviation from §14.2. The alternative — dropping row 30 silently — means the ⤓ glyph and `Play downloads` copy have nothing driving them, which is exactly failure mode 8, a silently dropped state.
 
@@ -112,3 +112,24 @@ D-018 authorises write probes against a throwaway playlist. **They cannot be run
 **Owner call needed:** are you willing to do the interactive sign-in? If not, D-018 stays authorised-but-unexecuted and rows 10/11/18 rest on S1's enumeration evidence, which is where they are today and is not a blocker for 002.
 
 **Handling note:** a Music User Token is a live credential for the owner's personal account. It falls under D-017 — env var only, never printed, never written to a file, never in a diary or a prompt, and short-lived.
+
+
+---
+
+## H-11 — `APPLE_TEAM_ID` is missing and is not derivable · **CLOSED 2026-08-28**
+
+S2 wrote both scripts, verified them clean, and **could not run a single authenticated request.** The Team ID exists nowhere: not in env, not in any `.env` (none exists), not in `cert/` (which holds only the `.p8`), not in the repo, and **not derivable from the key** — a PKCS#8 EC key yields the Key ID via its filename and nothing more; the Team ID is a separate account identifier.
+
+S2 confirmed the blocker rather than assuming it: a token with a correct `kid` and a placeholder `iss` is rejected `401` with an empty body. Apple validates the team claim.
+
+**Two things needed from the owner, not one:**
+1. The **Apple Developer Team ID** (10 characters, from the membership page).
+2. Confirmation that this key has the **MusicKit capability enabled**.
+
+**Why both:** a wrong Team ID, a revoked key, and a key without MusicKit all produce the **identical opaque `401` with no body**. One wrong answer costs a full undiagnosable round trip. Ask once, ask for both.
+
+After that, S2 is one command and roughly 18 GETs.
+
+**Handling:** the Team ID is an account identifier, not a secret on the order of the key, but it goes in an env var alongside the key path — never hardcoded, never committed.
+
+**Resolution, 2026-08-28.** Owner placed `APPLE_TEAM_ID` in `.env.local` and confirmed the key carries the MusicKit capability. Lead verified without printing the value: present, 10 alphanumeric characters, correct format; `.env.local` matched by the existing `.env*` ignore rule; nothing env-shaped tracked. **Consequence worth keeping:** the opaque-401 ambiguity is now gone, so any further 401 is a real finding rather than a configuration problem, and S2 was told to report it as such.
