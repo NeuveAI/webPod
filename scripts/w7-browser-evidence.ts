@@ -56,17 +56,17 @@ try {
     stdout: 'pipe',
     stderr: 'pipe',
   })
+  await waitFor(`http://127.0.0.1:${String(port)}/`)
+  const healthBefore = await readSourceHealth()
+  assertSourceIdentity(healthBefore, expectedSource)
+
   chrome = Bun.spawn([
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     '--headless=new', '--no-first-run', '--no-default-browser-check',
     `--user-data-dir=${profile}`, `--remote-debugging-port=${String(debugPort)}`,
     '--enable-blink-features=CanvasDrawElement', 'about:blank',
   ], { stdout: 'pipe', stderr: 'pipe' })
-
-  await waitFor(`http://127.0.0.1:${String(port)}/`)
   await waitFor(`http://127.0.0.1:${String(debugPort)}/json/version`)
-  const healthBefore = await readSourceHealth()
-  assertSourceIdentity(healthBefore, expectedSource)
 
   const layout = await import(join(snapshotRoot, 'packages/device/src/layout.ts'))
   const browser = await chromium.connectOverCDP(`http://127.0.0.1:${String(debugPort)}`)
