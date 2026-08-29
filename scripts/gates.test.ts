@@ -106,14 +106,18 @@ describe('W5a static gates go red', () => {
     const reviewPath = '../docs/workstreams/002-implementation-spine/reviews/browser.md'
     const decisionPath = '../docs/workstreams/002-implementation-spine/decisions/browser.md'
     const diaryPath = '../docs/workstreams/002-implementation-spine/diary/browser.md'
+    const nestedEvidencePath = '../docs/workstreams/002-implementation-spine/evidence/w5b-browser/browser.png'
     await plant(
       root,
       'scripts/evidence-reader.ts',
       [
-        `export const single = '${evidencePath}'`,
+        "export const single = '" + evidencePath + "'",
         `export const double = ${JSON.stringify(reviewPath)}`,
-        `export const template = \`${decisionPath}\``,
-        `export const adjacent = '${diaryPath}'`,
+        'export const template = `' + decisionPath + '`',
+        "export const adjacent = '" + diaryPath + "'",
+        "export const nested = '" + nestedEvidencePath + "'",
+        `const root = process.cwd()`,
+        `export const rooted = \`\${root}/${nestedEvidencePath.slice(3)}\``,
         '',
       ].join('\n'),
     )
@@ -123,11 +127,16 @@ describe('W5a static gates go red', () => {
 
   test('NAMING rejects traversal, repeated separators and dot segments in bookkeeping paths', async () => {
     const canonical = '../docs/workstreams/002-implementation-spine/evidence/browser.json'
+    const nestedCanonical = canonical.replace('/evidence/', '/evidence/w5b-browser/')
     const forbiddenFile = ['implementation', '-spine'].join('')
     const malformedPaths = [
       canonical.replace('browser.json', `../../../../packages/product/${forbiddenFile}.ts`),
       canonical.replace('browser.json', `/${forbiddenFile}.json`),
       canonical.replace('browser.json', `./${forbiddenFile}.json`),
+      nestedCanonical.replace('browser.json', `../../../packages/product/${forbiddenFile}.ts`),
+      nestedCanonical.replace('/w5b-browser/', '/w5b-browser//'),
+      nestedCanonical.replace('/w5b-browser/', '/w5b-browser/./'),
+      nestedCanonical.replace('browser.json', `../../reviews/${forbiddenFile}.ts`),
     ]
 
     for (const [index, malformedPath] of malformedPaths.entries()) {
@@ -143,9 +152,30 @@ describe('W5a static gates go red', () => {
   test('NAMING still rejects bookkeeping names in script comments', async () => {
     const root = await fixture()
     const bookkeepingPath = '../docs/workstreams/002-implementation-spine/evidence/browser.json'
-    const comment = `// ${bookkeepingPath}\n`
+    const comment = '// ' + bookkeepingPath + '\n'
     await plant(root, 'scripts/evidence-reader.ts', comment)
     failed(await runStaticGates({ root }), 'NAMING')
+  })
+
+  test('NAMING inspects forbidden static text across interpolated templates', async () => {
+    const canonical = '../docs/workstreams/002-implementation-spine/evidence/browser.json'
+    const forbiddenFile = ['implementation', '-spine'].join('')
+    const escaped = canonical.replace('browser.json', `../../packages/${forbiddenFile}.ts`).slice(3)
+    const sources = [
+      `const root = '..'\nexport const path = \`\${root}/${escaped}\`\n`,
+      "export const name = `${'implementation'}-spine`\n",
+      "export const name = `implementation-${'spine'}`\n",
+      "const gap = ''\nexport const name = `implementation-${gap}spine`\n",
+      "const left = 'implementation'\nconst right = 'spine'\nexport const name = `${left}-${right}`\n",
+    ]
+
+    for (const [index, source] of sources.entries()) {
+      const root = await fixture()
+      const path = `scripts/interpolated-name-${String(index)}.ts`
+      await plant(root, path, source)
+      const gate = failed(await runStaticGates({ root }), 'NAMING')
+      expect(gate.findings.some((finding) => finding.includes(path))).toBe(true)
+    }
   })
 
   test('NAMING rejects adjacent noncanonical bookkeeping references', async () => {

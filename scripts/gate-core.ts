@@ -69,7 +69,7 @@ interface LocatedText {
   readonly line: number
   readonly text: string
   readonly userVisible: boolean
-  readonly kind: 'comment' | 'string' | 'text'
+  readonly kind: 'comment' | 'string' | 'template' | 'text'
 }
 
 const U8_PATTERN = /\b(?:allows?|allowed|allowing|den(?:y|ies|ied|ying)|permits?|permitted|permitting|permissions?|grants?|granted|granting|authori[sz](?:e|es|ed|ing|ation|ations)?|approv(?:e|es|ed|ing|al|als)|pending|blocked|asks?\s+(?:for|to)|asked\s+(?:for|to)|waiting\s+for)\b/iu
@@ -78,23 +78,27 @@ const HANDEDNESS_PATTERN = /^(?:handed|handedness|leftHand|rightHand)$/iu
 const NAMING_PATTERN = /(?<![\d.])002(?!\d)|implementation-spine|workstream/iu
 const WORKSTREAM_ROOT_PATTERN = /^workstreams$/u
 const WORKSTREAM_DIRECTORY_PATTERN = /^\d{3}-[a-z0-9]+(?:-[a-z0-9]+)*$/u
+const BOOKKEEPING_SUBDIRECTORY_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u
 const BOOKKEEPING_FILE_PATTERN = /^[a-z0-9]+(?:[._-][a-z0-9]+)*$/u
 const BOOKKEEPING_DIRECTORIES = new Set(['decisions', 'diary', 'evidence', 'reviews'])
+const TEMPLATE_EXPRESSION_MARKER = '\u0000'
 
 function normalizePath(path: string): string {
   return path.split(sep).join('/')
 }
 
-/** Accept only a canonical file immediately inside one initiative bookkeeping directory. */
+/** Accept canonical bookkeeping files, including canonical nested evidence directories. */
 function isCanonicalBookkeepingPath(path: string): boolean {
   let relative = path
   while (relative.startsWith('../')) relative = relative.slice(3)
 
   const segments = relative.split('/')
-  if (segments.length !== 5 || segments.some((segment) => segment === '' || segment === '.' || segment === '..')) return false
+  if (segments.length < 5 || segments.some((segment) => segment === '' || segment === '.' || segment === '..')) return false
 
-  const [docs, workstreams, workstream, directory, file] = segments
-  return docs === 'docs'
+  const [docs, workstreams, workstream, directory] = segments
+  const nestedDirectories = segments.slice(4, -1)
+  const file = segments.at(-1)
+  const baseIsCanonical = docs === 'docs'
     && workstreams !== undefined
     && WORKSTREAM_ROOT_PATTERN.test(workstreams)
     && workstream !== undefined
@@ -103,6 +107,16 @@ function isCanonicalBookkeepingPath(path: string): boolean {
     && BOOKKEEPING_DIRECTORIES.has(directory)
     && file !== undefined
     && BOOKKEEPING_FILE_PATTERN.test(file)
+  if (!baseIsCanonical) return false
+  if (directory !== 'evidence' && nestedDirectories.length > 0) return false
+  return nestedDirectories.every((segment) => BOOKKEEPING_SUBDIRECTORY_PATTERN.test(segment))
+}
+
+function isCanonicalBookkeepingTemplate(text: string): boolean {
+  const dynamicRoot = `${TEMPLATE_EXPRESSION_MARKER}/`
+  if (!text.startsWith(dynamicRoot)) return false
+  const relative = text.slice(dynamicRoot.length)
+  return !relative.includes(TEMPLATE_EXPRESSION_MARKER) && isCanonicalBookkeepingPath(relative)
 }
 
 function isIgnored(path: string): boolean {
@@ -184,20 +198,97 @@ function authoredText(file: SourceFile, includeComments: boolean): readonly Loca
   return pieces
 }
 
-function contentFindings(files: readonly SourceFile[], pattern: RegExp, options: { readonly comments: boolean; readonly ignore?: (item: LocatedText) => boolean }): readonly string[] {
-  const findings: string[] = []
+function staticTemplateExpression(node: ts.Expression, bindings: ReadonlyMap<string, string>): string | undefined {
+  if (ts.isStringLiteralLike(node)) return node.text
+  if (ts.isIdentifier(node)) return bindings.get(node.text)
+  if (ts.isParenthesizedExpression(node)) return staticTemplateExpression(node.expression, bindings)
+  if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+    const left = staticTemplateExpression(node.left, bindings)
+    const right = staticTemplateExpression(node.right, bindings)
+    if (left !== undefined && right !== undefined) return `${left}${right}`
+  }
+  return undefined
+}
+
+function staticStringBindings(source: ts.SourceFile): ReadonlyMap<string, string> {
+  const declarations = new Map<string, ts.Expression[]>()
+  const collect = (node: ts.Node): void => {
+    if (ts.isVariableDeclarationList(node) && (node.flags & ts.NodeFlags.Const) !== 0) {
+      for (const declaration of node.declarations) {
+        if (!ts.isIdentifier(declaration.name) || declaration.initializer === undefined) continue
+        const existing = declarations.get(declaration.name.text) ?? []
+        existing.push(declaration.initializer)
+        declarations.set(declaration.name.text, existing)
+      }
+    }
+    ts.forEachChild(node, collect)
+  }
+  collect(source)
+
+  const bindings = new Map<string, string>()
+  let changed = true
+  while (changed) {
+    changed = false
+    for (const [name, initializers] of declarations) {
+      if (bindings.has(name) || initializers.length !== 1) continue
+      const [initializer] = initializers
+      if (initializer === undefined) continue
+      const value = staticTemplateExpression(initializer, bindings)
+      if (value === undefined) continue
+      bindings.set(name, value)
+      changed = true
+    }
+  }
+  return bindings
+}
+
+/** Reconstruct static template text and mark every expression that cannot be proven constant. */
+function authoredTemplates(file: SourceFile): readonly LocatedText[] {
+  if (!/\.(?:[cm]?[jt]sx?)$/u.test(file.path)) return []
+  const source = sourceFile(file)
+  const bindings = staticStringBindings(source)
+  const pieces: LocatedText[] = []
+  const visit = (node: ts.Node): void => {
+    if (ts.isTemplateExpression(node)) {
+      let text = node.head.text
+      for (const span of node.templateSpans) {
+        text += staticTemplateExpression(span.expression, bindings) ?? TEMPLATE_EXPRESSION_MARKER
+        text += span.literal.text
+      }
+      pieces.push({
+        path: file.path,
+        line: lineAt(source, node.getStart(source)),
+        text,
+        userVisible: false,
+        kind: 'template',
+      })
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(source)
+  return pieces
+}
+
+function contentFindings(files: readonly SourceFile[], pattern: RegExp, options: { readonly comments: boolean; readonly templates?: boolean; readonly ignore?: (item: LocatedText) => boolean }): readonly string[] {
+  const findings = new Set<string>()
   for (const file of files) {
-    for (const item of authoredText(file, options.comments)) {
+    const items = options.templates === true
+      ? [...authoredText(file, options.comments), ...authoredTemplates(file)]
+      : authoredText(file, options.comments)
+    for (const item of items) {
       if (options.ignore?.(item) === true) continue
+      const inspectedText = item.kind === 'template'
+        ? item.text.replaceAll(TEMPLATE_EXPRESSION_MARKER, '')
+        : item.text
       pattern.lastIndex = 0
-      const match = pattern.exec(item.text)
+      const match = pattern.exec(inspectedText)
       if (match !== null) {
-        const matchedLine = item.line + (item.text.slice(0, match.index).match(/\n/g)?.length ?? 0)
-        findings.push(finding(item.path, matchedLine, 'forbidden authored content'))
+        const matchedLine = item.line + (inspectedText.slice(0, match.index).match(/\n/g)?.length ?? 0)
+        findings.add(finding(item.path, matchedLine, 'forbidden authored content'))
       }
     }
   }
-  return findings
+  return [...findings]
 }
 
 function executableNameFindings(files: readonly SourceFile[], pattern: RegExp, label: string, includeStrings = false): readonly string[] {
@@ -527,9 +618,10 @@ function tierFindings(files: readonly SourceFile[]): readonly string[] {
 function namingFindings(files: readonly SourceFile[]): readonly string[] {
   return contentFindings(files, NAMING_PATTERN, {
     comments: true,
+    templates: true,
     ignore: (item) => item.path.startsWith('scripts/')
-      && item.kind === 'string'
-      && isCanonicalBookkeepingPath(item.text),
+      && ((item.kind === 'string' && isCanonicalBookkeepingPath(item.text))
+        || (item.kind === 'template' && isCanonicalBookkeepingTemplate(item.text))),
   })
 }
 
