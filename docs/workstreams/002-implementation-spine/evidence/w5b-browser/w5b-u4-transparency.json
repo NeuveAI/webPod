@@ -1,36 +1,1560 @@
 [
   {
+    "state": "ready",
+    "screen": "s03",
     "colourway": "dark",
-    "backdrop": [],
-    "titleStops": [
-      {
-        "value": "rgb(20, 23, 28)",
-        "alpha": 1
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
       },
-      {
-        "value": "rgb(20, 23, 28)",
-        "alpha": 1
-      }
-    ],
-    "scrims": [],
-    "title0": "#14171c",
-    "title1": "#14171c"
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
   },
   {
+    "state": "ready",
+    "screen": "s03",
     "colourway": "light",
-    "backdrop": [],
-    "titleStops": [
-      {
-        "value": "rgb(253, 254, 255)",
-        "alpha": 1
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "SPAN",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
       },
-      {
-        "value": "rgb(221, 229, 238)",
-        "alpha": 1
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "ready",
+    "screen": "s08",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "ready",
+    "screen": "s08",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "ready",
+    "screen": "s13",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(10, 15, 22, 0.86)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": {
+        "alpha": 0.86,
+        "compositeLuminance": 0.004544870261652639
       }
-    ],
-    "scrims": [],
-    "title0": "#fdfeff",
-    "title1": "#dde5ee"
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": {
+        "alpha": 1,
+        "compositeLuminance": 0.004603205609937913
+      }
+    }
+  },
+  {
+    "state": "ready",
+    "screen": "s13",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(242, 246, 251, 0.68)"
+        },
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": {
+        "alpha": 0.68,
+        "compositeLuminance": 0.9175381455692074
+      }
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": {
+        "alpha": 1,
+        "compositeLuminance": 0.9175381455692074
+      }
+    }
+  },
+  {
+    "state": "loading",
+    "screen": "s03",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "loading",
+    "screen": "s03",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "SPAN",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "loading",
+    "screen": "s08",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "loading",
+    "screen": "s08",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "loading",
+    "screen": "s13",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "loading",
+    "screen": "s13",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "empty",
+    "screen": "s03",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "empty",
+    "screen": "s03",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "SPAN",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "empty",
+    "screen": "s08",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "empty",
+    "screen": "s08",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "empty",
+    "screen": "s13",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "empty",
+    "screen": "s13",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "error",
+    "screen": "s03",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "error",
+    "screen": "s03",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "SPAN",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "error",
+    "screen": "s08",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "error",
+    "screen": "s08",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        },
+        {
+          "tag": "I",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "error",
+    "screen": "s13",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "error",
+    "screen": "s13",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "offline",
+    "screen": "s03",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "offline",
+    "screen": "s03",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "SPAN",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "offline",
+    "screen": "s08",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "offline",
+    "screen": "s08",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "offline",
+    "screen": "s13",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(10, 15, 22, 0.86)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": {
+        "alpha": 0.86,
+        "compositeLuminance": 0.004544870261652639
+      }
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": {
+        "alpha": 1,
+        "compositeLuminance": 0.004603205609937913
+      }
+    }
+  },
+  {
+    "state": "offline",
+    "screen": "s13",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(242, 246, 251, 0.68)"
+        },
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": {
+        "alpha": 0.68,
+        "compositeLuminance": 0.9175381455692074
+      }
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": {
+        "alpha": 1,
+        "compositeLuminance": 0.9175381455692074
+      }
+    }
+  },
+  {
+    "state": "permission-denied",
+    "screen": "s03",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "permission-denied",
+    "screen": "s03",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "SPAN",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "permission-denied",
+    "screen": "s08",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "permission-denied",
+    "screen": "s08",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "permission-denied",
+    "screen": "s13",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "permission-denied",
+    "screen": "s13",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "agent-active",
+    "screen": "s03",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "agent-active",
+    "screen": "s03",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "SPAN",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "agent-active",
+    "screen": "s08",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "agent-active",
+    "screen": "s08",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "agent-active",
+    "screen": "s13",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(10, 15, 22, 0.86)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": {
+        "alpha": 0.86,
+        "compositeLuminance": 0.004544870261652639
+      }
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": {
+        "alpha": 1,
+        "compositeLuminance": 0.004603205609937913
+      }
+    }
+  },
+  {
+    "state": "agent-active",
+    "screen": "s13",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(242, 246, 251, 0.68)"
+        },
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": {
+        "alpha": 0.68,
+        "compositeLuminance": 0.9175381455692074
+      }
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": {
+        "alpha": 1,
+        "compositeLuminance": 0.9175381455692074
+      }
+    }
+  },
+  {
+    "state": "success-confirmation",
+    "screen": "s03",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "success-confirmation",
+    "screen": "s03",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "SPAN",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "success-confirmation",
+    "screen": "s08",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "success-confirmation",
+    "screen": "s08",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": null
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": null
+    }
+  },
+  {
+    "state": "success-confirmation",
+    "screen": "s13",
+    "colourway": "dark",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(10, 15, 22, 0.86)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(35, 40, 47), rgb(20, 23, 28))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.01462749805401704
+      },
+      "metadata": {
+        "alpha": 0.86,
+        "compositeLuminance": 0.004544870261652639
+      }
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.01481072709317102,
+        "averageStopLuminance": null
+      },
+      "metadata": {
+        "alpha": 1,
+        "compositeLuminance": 0.004603205609937913
+      }
+    }
+  },
+  {
+    "state": "success-confirmation",
+    "screen": "s13",
+    "colourway": "light",
+    "baseline": {
+      "backdrops": [],
+      "translucentPaint": [
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(242, 246, 251, 0.68)"
+        },
+        {
+          "tag": "DIV",
+          "pseudo": "",
+          "paint": "rgba(15, 23, 42, 0.1)"
+        }
+      ],
+      "title": {
+        "backgroundImage": "linear-gradient(rgb(253, 254, 255), rgb(221, 229, 238))",
+        "alpha": 0,
+        "luminance": 0,
+        "averageStopLuminance": 0.8828504510357729
+      },
+      "metadata": {
+        "alpha": 0.68,
+        "compositeLuminance": 0.9175381455692074
+      }
+    },
+    "reduced": {
+      "backdrops": [],
+      "translucentPaint": [],
+      "title": {
+        "backgroundImage": "none",
+        "alpha": 1,
+        "luminance": 0.8839680463710999,
+        "averageStopLuminance": null
+      },
+      "metadata": {
+        "alpha": 1,
+        "compositeLuminance": 0.9175381455692074
+      }
+    }
   }
 ]

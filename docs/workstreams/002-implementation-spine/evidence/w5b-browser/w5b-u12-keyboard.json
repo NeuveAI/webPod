@@ -21,8 +21,13 @@
     "S03"
   ],
   "tabOrder": [
-    "DIV:dark",
-    "DIV:light"
+    "BUTTON:dark:Love track",
+    "DIV:light:webPod music player",
+    "BUTTON:light:Love track"
+  ],
+  "activationCounts": [
+    2,
+    2
   ],
   "focusVisible": true
 }

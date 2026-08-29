@@ -53,3 +53,37 @@ Tab traversal, both colourways, the state matrix, and held-key repeat events.
 U13 keeps duplicate announcement records and covers assertive errors and busy
 loading state. U2's greyscale automation remains evidence, while visual actor
 identification is explicitly reviewer-only. U14 and U15 remain manual.
+
+### Final-review correction
+
+The final re-review identified six places where a green result did not support
+the claim. The correction stayed within those six findings.
+
+The isolated server now has a source identity handshake: Playwright fingerprints
+137 current source inputs, passes the digest into a fresh strict-port Vite
+process, and checks a recomputed health response before every test. The final
+control and mutation runs both used digest
+`a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a`.
+
+U4 now covers all 48 state/screen/colourway combinations with a universal
+element-and-pseudo inventory. The product gained solid title, metadata, and
+divider paints under reduced transparency; the final evidence contains zero
+reduced translucent paints and zero backdrop filters. U7 no longer accepts
+incomplete contrast results: the dark and light tertiary tokens were corrected,
+and The Fray plus the battery glyph are explicitly present in both colourway
+reports with zero accepted failures.
+
+U11 now asserts 1.25 raster scale at both 130% and 200%, in addition to airy
+density and clipping. U12 exposed and fixed a real event-boundary bug: the panel
+had intercepted Enter from its nested Love button. Both S13 buttons now retain
+native tab, focus, Enter, and Space behavior. U13 is production-wired through a
+single reference-counted announcer lease. Thirty real wheel events settle on row
+31 and publish exactly one sentence naming row 31; assertive error and busy
+loading checks remain.
+
+The mutation runner retains the original ten clean→landed→selected-red plants
+and adds six direct closures: `SOURCE`, `U4_SOLID`, `U7_ALL_TEXT`,
+`U11_RASTER`, `U12_ACTION`, and `U13_SETTLED`. Final verification: isolated
+10/10; all 16 plants red; typecheck 11/11; lint clean; 865 tests pass; build
+passes; repository gates report 16 automated pass, 0 fail, with only the
+pre-existing manual U14 and U15 judgments outstanding.

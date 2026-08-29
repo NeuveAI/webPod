@@ -1,0 +1,45 @@
+W5b final-review correction verification
+Date: 2026-08-29
+
+Exact isolated source identity
+  digest: a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a
+  files: 137
+
+Commands and outcomes
+  bun scripts/browser-gates.ts
+    PASS — 10/10 isolated flag-off browser gates
+  bun scripts/browser-gate-mutations.ts
+    PASS — clean 10/10 control, then 16/16 landed plants selected-red
+  bun run typecheck
+    PASS — 11/11 projects clean
+  bun run lint
+    PASS
+  bun test
+    PASS — 865 tests, 0 failures, 5435 assertions
+  bun run gates
+    PASS — 16 automated, 0 failed; U14 and U15 remain manual
+  bun run build
+    PASS — client and server production bundles built
+
+Six final-review closures
+  SOURCE       → stale/mismatched server source makes U1 red
+  U4_SOLID     → translucent title/metadata paint makes U4 red
+  U7_ALL_TEXT  → low-contrast title-side text makes U7 red
+  U11_RASTER   → raster scale 1 at 130%/200% makes U11 red
+  U12_ACTION   → removing S13 Love actions from tab order makes U12 red
+  U13_SETTLED  → stale first-detent live text makes U13 red
+
+Recorded browser facts
+  U4: 48 reports; 0 reduced translucent paints; 0 reduced backdrop filters
+  U7: zero accepted contrast failures; The Fray and battery covered in both colourways
+  U11: airy density and raster scale 1.25 at 130% and 200%
+  U12: both Love buttons receive Tab focus and activate by Enter and Space
+  U13: 30 wheel detents; final row 31; one sequence-stamped row-31 announcement
+
+Detailed evidence
+  evidence/w5b-baseline.txt
+  evidence/w5b-planted-failures.txt
+  evidence/w5b-browser/w5b-u4-transparency.json
+  evidence/w5b-browser/w5b-u7-contrast.json
+  evidence/w5b-browser/w5b-u12-keyboard.json
+  evidence/w5b-browser/w5b-u13-announcements.json

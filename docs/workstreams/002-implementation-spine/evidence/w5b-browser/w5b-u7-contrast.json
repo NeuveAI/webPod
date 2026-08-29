@@ -1,5 +1,5 @@
 {
-  "authority": "axe browser paint evaluation",
+  "authority": "axe plus fail-closed analytical bounds for gradients and pseudo-elements",
   "reports": [
     {
       "colourway": "dark",
@@ -388,7 +388,7 @@
           "text": "The Fray",
           "fontSize": 11,
           "fontWeight": 600,
-          "ratio": 3.879960293076081,
+          "ratio": 4.777448649885621,
           "required": 4.5,
           "paintSources": [
             "div:0:background-color",
@@ -416,7 +416,7 @@
           "text": "▰",
           "fontSize": 11,
           "fontWeight": 600,
-          "ratio": 3.879960293076081,
+          "ratio": 4.777448649885621,
           "required": 4.5,
           "paintSources": [
             "div:0:background-color",
@@ -1003,7 +1003,7 @@
           "text": "The Fray",
           "fontSize": 11,
           "fontWeight": 600,
-          "ratio": 3.971069477887424,
+          "ratio": 4.769958186427179,
           "required": 4.5,
           "paintSources": [
             "div:0:background-color",
@@ -1031,7 +1031,7 @@
           "text": "▰",
           "fontSize": 11,
           "fontWeight": 600,
-          "ratio": 3.971069477887424,
+          "ratio": 4.769958186427179,
           "required": 4.5,
           "paintSources": [
             "div:0:background-color",
@@ -1216,30 +1216,5 @@
       ]
     }
   ],
-  "advisoryMeasurements": [
-    {
-      "colourway": "dark",
-      "text": "The Fray",
-      "ratio": 3.879960293076081,
-      "required": 4.5
-    },
-    {
-      "colourway": "dark",
-      "text": "▰",
-      "ratio": 3.879960293076081,
-      "required": 4.5
-    },
-    {
-      "colourway": "light",
-      "text": "The Fray",
-      "ratio": 3.971069477887424,
-      "required": 4.5
-    },
-    {
-      "colourway": "light",
-      "text": "▰",
-      "ratio": 3.971069477887424,
-      "required": 4.5
-    }
-  ]
+  "failures": []
 }

@@ -1,21 +1,27 @@
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
 Running 10 tests using 1 worker
 
 
 
-[1/10] apps/web/tests/browser-gates.e2e.ts:201:0 › U1 captures a light/dark pair for every required screen state
-[2/10] apps/web/tests/browser-gates.e2e.ts:222:0 › U2 greyscale preserves the human actor and non-colour selection channel
-[3/10] apps/web/tests/browser-gates.e2e.ts:240:0 › U3 reduced motion removes authored animation and transition
-[4/10] apps/web/tests/browser-gates.e2e.ts:254:0 › U4 reduced transparency removes bloom, shadow and title translucency
-[5/10] apps/web/tests/browser-gates.e2e.ts:300:0 › U5 increased contrast resolves to black/white foundations
-[6/10] apps/web/tests/browser-gates.e2e.ts:315:0 › U6 axe is clean and every native action is at least 44×44
-[7/10] apps/web/tests/browser-gates.e2e.ts:340:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
-[8/10] apps/web/tests/browser-gates.e2e.ts:366:0 › U11 200% Dynamic Type has no clipped or truncated visible text
-[9/10] apps/web/tests/browser-gates.e2e.ts:410:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
-[10/10] apps/web/tests/browser-gates.e2e.ts:477:0 › U13 a 30-detent browser flick publishes exactly one live announcement
-  10 passed (21.6s)
-[WebServer] (node:58777) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/10] apps/web/tests/browser-gates.e2e.ts:342:0 › U1 captures a light/dark pair for every required screen state
+[2/10] apps/web/tests/browser-gates.e2e.ts:363:0 › U2 greyscale preserves the human actor and non-colour selection channel
+[3/10] apps/web/tests/browser-gates.e2e.ts:381:0 › U3 reduced motion removes authored animation and transition
+[4/10] apps/web/tests/browser-gates.e2e.ts:395:0 › U4 reduced transparency makes every scrim solid at equivalent luminance
+[5/10] apps/web/tests/browser-gates.e2e.ts:450:0 › U5 increased contrast resolves to black/white foundations
+[6/10] apps/web/tests/browser-gates.e2e.ts:465:0 › U6 axe is clean and every native action is at least 44×44
+[7/10] apps/web/tests/browser-gates.e2e.ts:490:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
+[8/10] apps/web/tests/browser-gates.e2e.ts:520:0 › U11 200% Dynamic Type has no clipped or truncated visible text
+[9/10] apps/web/tests/browser-gates.e2e.ts:581:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
+[10/10] apps/web/tests/browser-gates.e2e.ts:672:0 › U13 a 30-detent browser flick publishes exactly one live announcement
+  10 passed (28.5s)
+[WebServer] (node:88990) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:58778) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:89019) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 MANUAL U2-VISUAL — reviewer visual judgment required.

@@ -1,7 +1,12 @@
 {
   "detents": 30,
+  "finalRow": 31,
+  "expected": "Row 31 of 120. Heartless · 31, 3:56.",
   "announcements": [
-    "Row 2 of 120. Absolute, 3:48."
+    {
+      "seq": "1",
+      "text": "Row 31 of 120. Heartless · 31, 3:56."
+    }
   ],
   "assertiveError": true,
   "loadingBusy": true

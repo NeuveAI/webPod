@@ -2,37 +2,49 @@ W5b planted browser-gate failures
 A clean, isolated 10/10 control run is required before any mutation is attempted.
 
 ── CONTROL: CLEAN 10/10 (exit 0)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
 Running 10 tests using 1 worker
 
 
 
-[1/10] apps/web/tests/browser-gates.e2e.ts:201:0 › U1 captures a light/dark pair for every required screen state
-[2/10] apps/web/tests/browser-gates.e2e.ts:222:0 › U2 greyscale preserves the human actor and non-colour selection channel
-[3/10] apps/web/tests/browser-gates.e2e.ts:240:0 › U3 reduced motion removes authored animation and transition
-[4/10] apps/web/tests/browser-gates.e2e.ts:254:0 › U4 reduced transparency removes bloom, shadow and title translucency
-[5/10] apps/web/tests/browser-gates.e2e.ts:300:0 › U5 increased contrast resolves to black/white foundations
-[6/10] apps/web/tests/browser-gates.e2e.ts:315:0 › U6 axe is clean and every native action is at least 44×44
-[7/10] apps/web/tests/browser-gates.e2e.ts:340:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
-[8/10] apps/web/tests/browser-gates.e2e.ts:366:0 › U11 200% Dynamic Type has no clipped or truncated visible text
-[9/10] apps/web/tests/browser-gates.e2e.ts:410:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
-[10/10] apps/web/tests/browser-gates.e2e.ts:477:0 › U13 a 30-detent browser flick publishes exactly one live announcement
-  10 passed (21.2s)
-[WebServer] (node:57167) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/10] apps/web/tests/browser-gates.e2e.ts:342:0 › U1 captures a light/dark pair for every required screen state
+[2/10] apps/web/tests/browser-gates.e2e.ts:363:0 › U2 greyscale preserves the human actor and non-colour selection channel
+[3/10] apps/web/tests/browser-gates.e2e.ts:381:0 › U3 reduced motion removes authored animation and transition
+[4/10] apps/web/tests/browser-gates.e2e.ts:395:0 › U4 reduced transparency makes every scrim solid at equivalent luminance
+[5/10] apps/web/tests/browser-gates.e2e.ts:450:0 › U5 increased contrast resolves to black/white foundations
+[6/10] apps/web/tests/browser-gates.e2e.ts:465:0 › U6 axe is clean and every native action is at least 44×44
+[7/10] apps/web/tests/browser-gates.e2e.ts:490:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
+[8/10] apps/web/tests/browser-gates.e2e.ts:520:0 › U11 200% Dynamic Type has no clipped or truncated visible text
+[9/10] apps/web/tests/browser-gates.e2e.ts:581:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
+[10/10] apps/web/tests/browser-gates.e2e.ts:672:0 › U13 a 30-detent browser flick publishes exactly one live announcement
+  10 passed (28.4s)
+[WebServer] (node:90439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:57168) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:90440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
-── U1: LANDED → RED AS REQUIRED (exit 1)
+── U1 → U1: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
 Running 1 test using 1 worker
 
 
 
-[1/1] apps/web/tests/browser-gates.e2e.ts:201:0 › U1 captures a light/dark pair for every required screen state
-apps/web/tests/browser-gates.e2e.ts:201:0 › U1 captures a light/dark pair for every required screen state
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:342:0 › U1 captures a light/dark pair for every required screen state
+apps/web/tests/browser-gates.e2e.ts:342:0 › U1 captures a light/dark pair for every required screen state
 [W5B PLANT U1 LANDED]
 
 
-  1) apps/web/tests/browser-gates.e2e.ts:201:0 › U1 captures a light/dark pair for every required screen state
+  1) apps/web/tests/browser-gates.e2e.ts:342:0 › U1 captures a light/dark pair for every required screen state
 
     Test timeout of 45000ms exceeded.
 
@@ -56,14 +68,14 @@ apps/web/tests/browser-gates.e2e.ts:201:0 › U1 captures a light/dark pair for 
            - waiting 500ms
 
 
-      212 |         const panel = page.locator('.wp-panel').nth(index)
-      213 |         await expect(panel).toHaveAttribute('data-state', state)
-    > 214 |         await panel.screenshot({ path: resolve(evidence, `w5b-u1-${screen}-${state}-${colourway}.png`) })
+      353 |         const panel = page.locator('.wp-panel').nth(index)
+      354 |         await expect(panel).toHaveAttribute('data-state', state)
+    > 355 |         await panel.screenshot({ path: resolve(evidence, `w5b-u1-${screen}-${state}-${colourway}.png`) })
           |                    ^
-      215 |         captures += 1
-      216 |       }
-      217 |     }
-        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:214:20
+      356 |         captures += 1
+      357 |       }
+      358 |     }
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:355:20
 
     Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U1-ca-dc574-every-required-screen-state/error-context.md
 
@@ -77,23 +89,82 @@ apps/web/tests/browser-gates.e2e.ts:201:0 › U1 captures a light/dark pair for 
 
 
   1 failed
-    apps/web/tests/browser-gates.e2e.ts:201:0 › U1 captures a light/dark pair for every required screen state
-[WebServer] (node:58174) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+    apps/web/tests/browser-gates.e2e.ts:342:0 › U1 captures a light/dark pair for every required screen state
+[WebServer] (node:91703) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:58181) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:91706) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
-── U2: LANDED → RED AS REQUIRED (exit 1)
+── SOURCE → U1: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
 Running 1 test using 1 worker
 
 
 
-[1/1] apps/web/tests/browser-gates.e2e.ts:222:0 › U2 greyscale preserves the human actor and non-colour selection channel
-apps/web/tests/browser-gates.e2e.ts:222:0 › U2 greyscale preserves the human actor and non-colour selection channel
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:342:0 › U1 captures a light/dark pair for every required screen state
+apps/web/tests/browser-gates.e2e.ts:342:0 › U1 captures a light/dark pair for every required screen state
+[W5B PLANT SOURCE LANDED]
+
+
+  1) apps/web/tests/browser-gates.e2e.ts:342:0 › U1 captures a light/dark pair for every required screen state
+
+    Error: served runtime source changed after the isolated server started
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a"
+    Received: "source-mismatch-plant"
+
+      108 |   expect(health.fileCount).toBe(expectedFileCount)
+      109 |   expect(health.expected).toBe(expected)
+    > 110 |   expect(health.current, 'served runtime source changed after the isolated server started').toBe(expected)
+          |                                                                                            ^
+      111 | }
+      112 |
+      113 | const contrastReport = async (panel: Locator): Promise<readonly TextContrast[]> => panel.evaluate((root) => {
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:110:92
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:338:8
+
+    Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U1-ca-dc574-every-required-screen-state/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/browser-gates.e2e.ts-U1-ca-dc574-every-required-screen-state/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/browser-gates.e2e.ts-U1-ca-dc574-every-required-screen-state/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    apps/web/tests/browser-gates.e2e.ts:342:0 › U1 captures a light/dark pair for every required screen state
+[WebServer] (node:91793) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+(node:91794) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+── U2 → U2: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+Running 1 test using 1 worker
+
+
+
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:363:0 › U2 greyscale preserves the human actor and non-colour selection channel
+apps/web/tests/browser-gates.e2e.ts:363:0 › U2 greyscale preserves the human actor and non-colour selection channel
 [W5B PLANT U2 LANDED]
 
 
-  1) apps/web/tests/browser-gates.e2e.ts:222:0 › U2 greyscale preserves the human actor and non-colour selection channel
+  1) apps/web/tests/browser-gates.e2e.ts:363:0 › U2 greyscale preserves the human actor and non-colour selection channel
 
     Error: expect(locator).toHaveAttribute(expected) failed
 
@@ -109,14 +180,14 @@ apps/web/tests/browser-gates.e2e.ts:222:0 › U2 greyscale preserves the human a
            - unexpected value "agent"
 
 
-      228 |   await expect(panel).toHaveCSS('filter', 'none')
-      229 |   await expect(page.locator('main')).toHaveCSS('filter', 'grayscale(1)')
-    > 230 |   await expect(panel).toHaveAttribute('data-actor', 'human')
+      369 |   await expect(panel).toHaveCSS('filter', 'none')
+      370 |   await expect(page.locator('main')).toHaveCSS('filter', 'grayscale(1)')
+    > 371 |   await expect(panel).toHaveAttribute('data-actor', 'human')
           |                      ^
-      231 |   const selected = panel.locator('[aria-current="true"]')
-      232 |   await expect(selected).toHaveAttribute('aria-selected', 'true')
-      233 |   await expect(selected).toContainText('Albums')
-        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:230:22
+      372 |   const selected = panel.locator('[aria-current="true"]')
+      373 |   await expect(selected).toHaveAttribute('aria-selected', 'true')
+      374 |   await expect(selected).toContainText('Albums')
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:371:22
 
     Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U2-gr-ed9be-on-colour-selection-channel/error-context.md
 
@@ -130,23 +201,29 @@ apps/web/tests/browser-gates.e2e.ts:222:0 › U2 greyscale preserves the human a
 
 
   1 failed
-    apps/web/tests/browser-gates.e2e.ts:222:0 › U2 greyscale preserves the human actor and non-colour selection channel
-[WebServer] (node:58310) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+    apps/web/tests/browser-gates.e2e.ts:363:0 › U2 greyscale preserves the human actor and non-colour selection channel
+[WebServer] (node:91812) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:58311) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:91819) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
-── U3: LANDED → RED AS REQUIRED (exit 1)
+── U3 → U3: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
 Running 1 test using 1 worker
 
 
 
-[1/1] apps/web/tests/browser-gates.e2e.ts:240:0 › U3 reduced motion removes authored animation and transition
-apps/web/tests/browser-gates.e2e.ts:240:0 › U3 reduced motion removes authored animation and transition
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:381:0 › U3 reduced motion removes authored animation and transition
+apps/web/tests/browser-gates.e2e.ts:381:0 › U3 reduced motion removes authored animation and transition
 [W5B PLANT U3 LANDED]
 
 
-  1) apps/web/tests/browser-gates.e2e.ts:240:0 › U3 reduced motion removes authored animation and transition
+  1) apps/web/tests/browser-gates.e2e.ts:381:0 › U3 reduced motion removes authored animation and transition
 
     Error: expect(locator).toHaveCSS(expected) failed
 
@@ -162,14 +239,14 @@ apps/web/tests/browser-gates.e2e.ts:240:0 › U3 reduced motion removes authored
            - unexpected value "0.24s"
 
 
-      248 |     await panel.screenshot({ path: resolve(evidence, `w5b-u3-reduced-motion-${colourway}.png`) })
-      249 |     await expect(panel.locator('.wp-now-body')).toHaveCSS('animation-name', 'none')
-    > 250 |     await expect(panel.locator('.wp-progress i')).toHaveCSS('transition-duration', '0s')
+      389 |     await panel.screenshot({ path: resolve(evidence, `w5b-u3-reduced-motion-${colourway}.png`) })
+      390 |     await expect(panel.locator('.wp-now-body')).toHaveCSS('animation-name', 'none')
+    > 391 |     await expect(panel.locator('.wp-progress i')).toHaveCSS('transition-duration', '0s')
           |                                                  ^
-      251 |   }
-      252 | })
-      253 |
-        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:250:50
+      392 |   }
+      393 | })
+      394 |
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:391:50
 
     Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U3-re-e36cf-ed-animation-and-transition/error-context.md
 
@@ -183,77 +260,161 @@ apps/web/tests/browser-gates.e2e.ts:240:0 › U3 reduced motion removes authored
 
 
   1 failed
-    apps/web/tests/browser-gates.e2e.ts:240:0 › U3 reduced motion removes authored animation and transition
-[WebServer] (node:58345) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+    apps/web/tests/browser-gates.e2e.ts:381:0 › U3 reduced motion removes authored animation and transition
+[WebServer] (node:91850) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:58346) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:91851) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
-── U4: LANDED → RED AS REQUIRED (exit 1)
+── U4 → U4: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
 Running 1 test using 1 worker
 
 
 
-[1/1] apps/web/tests/browser-gates.e2e.ts:254:0 › U4 reduced transparency removes bloom, shadow and title translucency
-apps/web/tests/browser-gates.e2e.ts:254:0 › U4 reduced transparency removes bloom, shadow and title translucency
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:395:0 › U4 reduced transparency makes every scrim solid at equivalent luminance
+apps/web/tests/browser-gates.e2e.ts:395:0 › U4 reduced transparency makes every scrim solid at equivalent luminance
 [W5B PLANT U4 LANDED]
 
 
-  1) apps/web/tests/browser-gates.e2e.ts:254:0 › U4 reduced transparency removes bloom, shadow and title translucency
+  1) apps/web/tests/browser-gates.e2e.ts:395:0 › U4 reduced transparency makes every scrim solid at equivalent luminance
 
-    Error: expect(received).toEqual(expected) // deep equality
+    Error: s13/ready/dark backdrop filters
+
+    expect(received).toEqual(expected) // deep equality
 
     - Expected  - 1
-    + Received  + 8
+    + Received  + 7
 
     - Array []
     + Array [
     +   Object {
-    +     "backdrop": "blur(2px)",
-    +     "pseudo": null,
+    +     "pseudo": "",
     +     "tag": "HEADER",
-    +     "webkit": undefined,
+    +     "value": "blur(2px)",
     +   },
     + ]
 
-      289 |       return { backdrop, titleStops, scrims, title0: titleStyle.getPropertyValue('--wp-title-0').trim(), title1: titleStyle.getPropertyValue('--wp-title-1').trim() }
-      290 |     })
-    > 291 |     expect(report.backdrop).toEqual([])
-          |                            ^
-      292 |     expect(report.titleStops.every((stop) => stop.alpha === 1)).toBe(true)
-      293 |     expect(report.scrims.every((scrim) => scrim.alpha === 1)).toBe(true)
-      294 |     reports.push({ colourway, ...report })
-        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:291:28
+      419 |         if (before === undefined) throw new Error(`baseline missing for ${colourway}`)
+      420 |         const after = await transparencySnapshot(panel)
+    > 421 |         expect(after.backdrops, `${screen}/${state}/${colourway} backdrop filters`).toEqual([])
+          |                                                                                    ^
+      422 |         expect(after.translucentPaint, `${screen}/${state}/${colourway} translucent paint`).toEqual([])
+      423 |         expect(after.title.backgroundImage).toBe('none')
+      424 |         expect(after.title.alpha).toBe(1)
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:421:84
 
-    Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U4-re-f0d98-adow-and-title-translucency/error-context.md
+    Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U4-re-cfa97-lid-at-equivalent-luminance/error-context.md
 
     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
-    apps/web/tests/test-results/browser-gates.e2e.ts-U4-re-f0d98-adow-and-title-translucency/trace.zip
+    apps/web/tests/test-results/browser-gates.e2e.ts-U4-re-cfa97-lid-at-equivalent-luminance/trace.zip
     Usage:
 
-        npx playwright show-trace apps/web/tests/test-results/browser-gates.e2e.ts-U4-re-f0d98-adow-and-title-translucency/trace.zip
+        npx playwright show-trace apps/web/tests/test-results/browser-gates.e2e.ts-U4-re-cfa97-lid-at-equivalent-luminance/trace.zip
 
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
 
   1 failed
-    apps/web/tests/browser-gates.e2e.ts:254:0 › U4 reduced transparency removes bloom, shadow and title translucency
-[WebServer] (node:58475) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+    apps/web/tests/browser-gates.e2e.ts:395:0 › U4 reduced transparency makes every scrim solid at equivalent luminance
+[WebServer] (node:92018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:58476) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:92019) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
-── U5: LANDED → RED AS REQUIRED (exit 1)
+── U4_SOLID → U4: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
 Running 1 test using 1 worker
 
 
 
-[1/1] apps/web/tests/browser-gates.e2e.ts:300:0 › U5 increased contrast resolves to black/white foundations
-apps/web/tests/browser-gates.e2e.ts:300:0 › U5 increased contrast resolves to black/white foundations
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:395:0 › U4 reduced transparency makes every scrim solid at equivalent luminance
+apps/web/tests/browser-gates.e2e.ts:395:0 › U4 reduced transparency makes every scrim solid at equivalent luminance
+[W5B PLANT U4_SOLID LANDED]
+
+
+  1) apps/web/tests/browser-gates.e2e.ts:395:0 › U4 reduced transparency makes every scrim solid at equivalent luminance
+
+    Error: s13/ready/dark translucent paint
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 17
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "paint": "linear-gradient(rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0.4))",
+    +     "pseudo": "",
+    +     "tag": "HEADER",
+    +   },
+    +   Object {
+    +     "paint": "linear-gradient(rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0.4))",
+    +     "pseudo": "",
+    +     "tag": "HEADER",
+    +   },
+    +   Object {
+    +     "paint": "rgba(10, 15, 22, 0.5)",
+    +     "pseudo": "",
+    +     "tag": "DIV",
+    +   },
+    + ]
+
+      420 |         const after = await transparencySnapshot(panel)
+      421 |         expect(after.backdrops, `${screen}/${state}/${colourway} backdrop filters`).toEqual([])
+    > 422 |         expect(after.translucentPaint, `${screen}/${state}/${colourway} translucent paint`).toEqual([])
+          |                                                                                            ^
+      423 |         expect(after.title.backgroundImage).toBe('none')
+      424 |         expect(after.title.alpha).toBe(1)
+      425 |         expect(before.title.averageStopLuminance).not.toBeNull()
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:422:92
+
+    Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U4-re-cfa97-lid-at-equivalent-luminance/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/browser-gates.e2e.ts-U4-re-cfa97-lid-at-equivalent-luminance/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/browser-gates.e2e.ts-U4-re-cfa97-lid-at-equivalent-luminance/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    apps/web/tests/browser-gates.e2e.ts:395:0 › U4 reduced transparency makes every scrim solid at equivalent luminance
+[WebServer] (node:92055) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+(node:92062) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+── U5 → U5: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+Running 1 test using 1 worker
+
+
+
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:450:0 › U5 increased contrast resolves to black/white foundations
+apps/web/tests/browser-gates.e2e.ts:450:0 › U5 increased contrast resolves to black/white foundations
 [W5B PLANT U5 LANDED]
 
 
-  1) apps/web/tests/browser-gates.e2e.ts:300:0 › U5 increased contrast resolves to black/white foundations
+  1) apps/web/tests/browser-gates.e2e.ts:450:0 › U5 increased contrast resolves to black/white foundations
 
     Error: expect(locator).toHaveCSS(expected) failed
 
@@ -269,14 +430,14 @@ apps/web/tests/browser-gates.e2e.ts:300:0 › U5 increased contrast resolves to 
            - unexpected value "rgb(119, 119, 119)"
 
 
-      308 |     const panel = page.locator('.wp-panel').nth(index)
-      309 |     await expect(panel).toHaveCSS('background-color', expected[index]?.[0] ?? '')
-    > 310 |     await expect(panel).toHaveCSS('color', expected[index]?.[1] ?? '')
+      458 |     const panel = page.locator('.wp-panel').nth(index)
+      459 |     await expect(panel).toHaveCSS('background-color', expected[index]?.[0] ?? '')
+    > 460 |     await expect(panel).toHaveCSS('color', expected[index]?.[1] ?? '')
           |                        ^
-      311 |     await panel.screenshot({ path: resolve(evidence, `w5b-u5-contrast-more-${colourway}.png`) })
-      312 |   }
-      313 | })
-        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:310:24
+      461 |     await panel.screenshot({ path: resolve(evidence, `w5b-u5-contrast-more-${colourway}.png`) })
+      462 |   }
+      463 | })
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:460:24
 
     Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U5-in-f8970--to-black-white-foundations/error-context.md
 
@@ -290,37 +451,43 @@ apps/web/tests/browser-gates.e2e.ts:300:0 › U5 increased contrast resolves to 
 
 
   1 failed
-    apps/web/tests/browser-gates.e2e.ts:300:0 › U5 increased contrast resolves to black/white foundations
-[WebServer] (node:58488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+    apps/web/tests/browser-gates.e2e.ts:450:0 › U5 increased contrast resolves to black/white foundations
+[WebServer] (node:92094) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:58495) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:92101) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
-── U6: LANDED → RED AS REQUIRED (exit 1)
+── U6 → U6: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
 Running 1 test using 1 worker
 
 
 
-[1/1] apps/web/tests/browser-gates.e2e.ts:315:0 › U6 axe is clean and every native action is at least 44×44
-apps/web/tests/browser-gates.e2e.ts:315:0 › U6 axe is clean and every native action is at least 44×44
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:465:0 › U6 axe is clean and every native action is at least 44×44
+apps/web/tests/browser-gates.e2e.ts:465:0 › U6 axe is clean and every native action is at least 44×44
 [W5B PLANT U6 LANDED]
 
 
-  1) apps/web/tests/browser-gates.e2e.ts:315:0 › U6 axe is clean and every native action is at least 44×44
+  1) apps/web/tests/browser-gates.e2e.ts:465:0 › U6 axe is clean and every native action is at least 44×44
 
     Error: expect(received).toBeGreaterThanOrEqual(expected)
 
     Expected: >= 44
     Received:    8.800048828125
 
-      328 |       if (!await control.isVisible()) continue
-      329 |       const dimensions = await control.evaluate((element) => ({ width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height }))
-    > 330 |       expect(dimensions.width).toBeGreaterThanOrEqual(44)
+      478 |       if (!await control.isVisible()) continue
+      479 |       const dimensions = await control.evaluate((element) => ({ width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height }))
+    > 480 |       expect(dimensions.width).toBeGreaterThanOrEqual(44)
           |                               ^
-      331 |       expect(dimensions.height).toBeGreaterThanOrEqual(44)
-      332 |       boxes.push(dimensions)
-      333 |     }
-        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:330:31
+      481 |       expect(dimensions.height).toBeGreaterThanOrEqual(44)
+      482 |       boxes.push(dimensions)
+      483 |     }
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:480:31
 
     Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U6-ax-6d295-ve-action-is-at-least-44×44/error-context.md
 
@@ -334,53 +501,91 @@ apps/web/tests/browser-gates.e2e.ts:315:0 › U6 axe is clean and every native a
 
 
   1 failed
-    apps/web/tests/browser-gates.e2e.ts:315:0 › U6 axe is clean and every native action is at least 44×44
-[WebServer] (node:58570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+    apps/web/tests/browser-gates.e2e.ts:465:0 › U6 axe is clean and every native action is at least 44×44
+[WebServer] (node:92133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:58571) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:92134) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
-── U7: LANDED → RED AS REQUIRED (exit 1)
+── U7 → U7: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
 Running 1 test using 1 worker
 
 
 
-[1/1] apps/web/tests/browser-gates.e2e.ts:340:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
-apps/web/tests/browser-gates.e2e.ts:340:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:490:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
+apps/web/tests/browser-gates.e2e.ts:490:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
 [W5B PLANT U7 LANDED]
 
 
-  1) apps/web/tests/browser-gates.e2e.ts:340:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
+  1) apps/web/tests/browser-gates.e2e.ts:490:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
 
     Error: expect(received).toEqual(expected) // deep equality
 
     - Expected  -  1
-    + Received  + 14
+    + Received  + 46
 
     - Array []
     + Array [
     +   Object {
     +     "colourway": "dark",
+    +     "paintSources": Array [
+    +       "div:0:background-color",
+    +       "section:1:background-color",
+    +       "header:2:gradient(2 stops)",
+    +     ],
     +     "ratio": 1,
     +     "required": 4.5,
     +     "text": "Now Playing",
     +   },
     +   Object {
     +     "colourway": "light",
+    +     "paintSources": Array [
+    +       "div:0:background-color",
+    +       "section:1:background-color",
+    +       "header:2:gradient(2 stops)",
+    +     ],
+    +     "ratio": 3.4626643795948566,
+    +     "required": 4.5,
+    +     "text": "The Fray",
+    +   },
+    +   Object {
+    +     "colourway": "light",
+    +     "paintSources": Array [
+    +       "div:0:background-color",
+    +       "section:1:background-color",
+    +       "header:2:gradient(2 stops)",
+    +     ],
     +     "ratio": 1,
     +     "required": 4.5,
     +     "text": "Now Playing",
     +   },
+    +   Object {
+    +     "colourway": "light",
+    +     "paintSources": Array [
+    +       "div:0:background-color",
+    +       "section:1:background-color",
+    +       "header:2:gradient(2 stops)",
+    +     ],
+    +     "ratio": 3.4626643795948566,
+    +     "required": 4.5,
+    +     "text": "▰",
+    +   },
     + ]
 
-      361 |   expect(reports.flatMap((report) => report.text.flatMap((entry) => entry.unresolved))).toEqual([])
-      362 |   expect(reports.every((report) => report.text.length > 0)).toBe(true)
-    > 363 |   expect(gradientFailures).toEqual([])
-          |                           ^
-      364 | })
-      365 |
-      366 | test('U11 200% Dynamic Type has no clipped or truncated visible text', async ({ page }) => {
-        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:363:27
+      515 |     expect(report.text.some((entry) => entry.text === '▰')).toBe(true)
+      516 |   }
+    > 517 |   expect(failures).toEqual([])
+          |                   ^
+      518 | })
+      519 |
+      520 | test('U11 200% Dynamic Type has no clipped or truncated visible text', async ({ page }) => {
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:517:19
 
     Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U7-te-3c96d-resholds-in-both-colourways/error-context.md
 
@@ -394,23 +599,128 @@ apps/web/tests/browser-gates.e2e.ts:340:0 › U7 text contrast meets 4.5:1 body 
 
 
   1 failed
-    apps/web/tests/browser-gates.e2e.ts:340:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
-[WebServer] (node:58590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+    apps/web/tests/browser-gates.e2e.ts:490:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
+[WebServer] (node:92154) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:58591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:92155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
-── U11: LANDED → RED AS REQUIRED (exit 1)
+── U7_ALL_TEXT → U7: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+
 Running 1 test using 1 worker
 
 
 
-[1/1] apps/web/tests/browser-gates.e2e.ts:366:0 › U11 200% Dynamic Type has no clipped or truncated visible text
-apps/web/tests/browser-gates.e2e.ts:366:0 › U11 200% Dynamic Type has no clipped or truncated visible text
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:490:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
+apps/web/tests/browser-gates.e2e.ts:490:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
+[W5B PLANT U7_ALL_TEXT LANDED]
+
+
+  1) apps/web/tests/browser-gates.e2e.ts:490:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 46
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "colourway": "dark",
+    +     "paintSources": Array [
+    +       "div:0:background-color",
+    +       "section:1:background-color",
+    +       "header:2:gradient(2 stops)",
+    +     ],
+    +     "ratio": 1,
+    +     "required": 4.5,
+    +     "text": "The Fray",
+    +   },
+    +   Object {
+    +     "colourway": "dark",
+    +     "paintSources": Array [
+    +       "div:0:background-color",
+    +       "section:1:background-color",
+    +       "header:2:gradient(2 stops)",
+    +     ],
+    +     "ratio": 1,
+    +     "required": 4.5,
+    +     "text": "▰",
+    +   },
+    +   Object {
+    +     "colourway": "light",
+    +     "paintSources": Array [
+    +       "div:0:background-color",
+    +       "section:1:background-color",
+    +       "header:2:gradient(2 stops)",
+    +     ],
+    +     "ratio": 1,
+    +     "required": 4.5,
+    +     "text": "The Fray",
+    +   },
+    +   Object {
+    +     "colourway": "light",
+    +     "paintSources": Array [
+    +       "div:0:background-color",
+    +       "section:1:background-color",
+    +       "header:2:gradient(2 stops)",
+    +     ],
+    +     "ratio": 1,
+    +     "required": 4.5,
+    +     "text": "▰",
+    +   },
+    + ]
+
+      515 |     expect(report.text.some((entry) => entry.text === '▰')).toBe(true)
+      516 |   }
+    > 517 |   expect(failures).toEqual([])
+          |                   ^
+      518 | })
+      519 |
+      520 | test('U11 200% Dynamic Type has no clipped or truncated visible text', async ({ page }) => {
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:517:19
+
+    Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U7-te-3c96d-resholds-in-both-colourways/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/browser-gates.e2e.ts-U7-te-3c96d-resholds-in-both-colourways/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/browser-gates.e2e.ts-U7-te-3c96d-resholds-in-both-colourways/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    apps/web/tests/browser-gates.e2e.ts:490:0 › U7 text contrast meets 4.5:1 body and 3:1 large thresholds in both colourways
+[WebServer] (node:92175) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+(node:92178) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+── U11 → U11: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+Running 1 test using 1 worker
+
+
+
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:520:0 › U11 200% Dynamic Type has no clipped or truncated visible text
+apps/web/tests/browser-gates.e2e.ts:520:0 › U11 200% Dynamic Type has no clipped or truncated visible text
 [W5B PLANT U11 LANDED]
 
 
-  1) apps/web/tests/browser-gates.e2e.ts:366:0 › U11 200% Dynamic Type has no clipped or truncated visible text
+  1) apps/web/tests/browser-gates.e2e.ts:520:0 › U11 200% Dynamic Type has no clipped or truncated visible text
 
     Error: s03/dark clipped content
 
@@ -449,14 +759,14 @@ apps/web/tests/browser-gates.e2e.ts:366:0 › U11 200% Dynamic Type has no clipp
     +   },
     + ]
 
-      402 |         })
-      403 |       }))
-    > 404 |       expect(failures, `${screen}/${colourway} clipped content`).toEqual([])
+      567 |         })
+      568 |       }))
+    > 569 |       expect(failures, `${screen}/${colourway} clipped content`).toEqual([])
           |                                                                 ^
-      405 |       await panel.screenshot({ path: resolve(evidence, `w5b-u11-${screen}-200-${colourway}.png`) })
-      406 |     }
-      407 |   }
-        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:404:65
+      570 |       await panel.screenshot({ path: resolve(evidence, `w5b-u11-${screen}-200-${colourway}.png`) })
+      571 |     }
+      572 |   }
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:569:65
 
     Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U11-2-b4c1d-d-or-truncated-visible-text/error-context.md
 
@@ -470,37 +780,93 @@ apps/web/tests/browser-gates.e2e.ts:366:0 › U11 200% Dynamic Type has no clipp
 
 
   1 failed
-    apps/web/tests/browser-gates.e2e.ts:366:0 › U11 200% Dynamic Type has no clipped or truncated visible text
-[WebServer] (node:58611) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+    apps/web/tests/browser-gates.e2e.ts:520:0 › U11 200% Dynamic Type has no clipped or truncated visible text
+[WebServer] (node:92216) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:58612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:92223) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
-── U12: LANDED → RED AS REQUIRED (exit 1)
+── U11_RASTER → U11: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
 Running 1 test using 1 worker
 
 
 
-[1/1] apps/web/tests/browser-gates.e2e.ts:410:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
-apps/web/tests/browser-gates.e2e.ts:410:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:520:0 › U11 200% Dynamic Type has no clipped or truncated visible text
+apps/web/tests/browser-gates.e2e.ts:520:0 › U11 200% Dynamic Type has no clipped or truncated visible text
+[W5B PLANT U11_RASTER LANDED]
+
+
+  1) apps/web/tests/browser-gates.e2e.ts:520:0 › U11 200% Dynamic Type has no clipped or truncated visible text
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1.25
+    Received: 1
+
+      535 |         height: stage.getBoundingClientRect().height,
+      536 |       }))
+    > 537 |       expect(raster.scale).toBe(1.25)
+          |                           ^
+      538 |       expect(raster.width).toBeGreaterThanOrEqual(272 * 1.25)
+      539 |       expect(raster.height).toBeGreaterThanOrEqual(204 * 1.25)
+      540 |       const failures = await panel.evaluate((root) => Array.from(root.querySelectorAll<HTMLElement>('*')).flatMap((element) => {
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:537:27
+
+    Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U11-2-b4c1d-d-or-truncated-visible-text/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/browser-gates.e2e.ts-U11-2-b4c1d-d-or-truncated-visible-text/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/browser-gates.e2e.ts-U11-2-b4c1d-d-or-truncated-visible-text/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    apps/web/tests/browser-gates.e2e.ts:520:0 › U11 200% Dynamic Type has no clipped or truncated visible text
+[WebServer] (node:92231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+(node:92236) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+── U12 → U12: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+Running 1 test using 1 worker
+
+
+
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:581:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
+apps/web/tests/browser-gates.e2e.ts:581:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
 [W5B PLANT U12 LANDED]
 
 
-  1) apps/web/tests/browser-gates.e2e.ts:410:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
+  1) apps/web/tests/browser-gates.e2e.ts:581:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
 
     Error: expect(received).toBe(expected) // Object.is equality
 
     Expected: 1
     Received: 2
 
-      439 |     await dark.dispatchEvent('keydown', { key: 'ArrowDown', code: 'ArrowDown', repeat: true, bubbles: true })
-      440 |     const after = Number(await dark.locator('.wp-track-row[aria-current="true"] .wp-track-number').textContent())
-    > 441 |     expect(after - before).toBe(1)
+      611 |     await dark.dispatchEvent('keydown', { key: 'ArrowDown', code: 'ArrowDown', repeat: true, bubbles: true })
+      612 |     const after = Number(await dark.locator('.wp-track-row[aria-current="true"] .wp-track-number').textContent())
+    > 613 |     expect(after - before).toBe(1)
           |                           ^
-      442 |   }
-      443 |   await page.keyboard.up('ArrowDown')
-      444 |   await dark.press('Enter')
-        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:441:27
+      614 |   }
+      615 |   await page.keyboard.up('ArrowDown')
+      616 |   await dark.press('Enter')
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:613:27
 
     Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U12-k-17136-celerated-and-focus-visible/error-context.md
 
@@ -514,38 +880,96 @@ apps/web/tests/browser-gates.e2e.ts:410:0 › U12 keyboard traversal is complete
 
 
   1 failed
-    apps/web/tests/browser-gates.e2e.ts:410:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
-[WebServer] (node:58628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+    apps/web/tests/browser-gates.e2e.ts:581:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
+[WebServer] (node:92258) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:58633) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:92265) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
-── U13: LANDED → RED AS REQUIRED (exit 1)
+── U12_ACTION → U12: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
 Running 1 test using 1 worker
 
 
 
-[1/1] apps/web/tests/browser-gates.e2e.ts:477:0 › U13 a 30-detent browser flick publishes exactly one live announcement
-apps/web/tests/browser-gates.e2e.ts:477:0 › U13 a 30-detent browser flick publishes exactly one live announcement
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:581:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
+apps/web/tests/browser-gates.e2e.ts:581:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
+[W5B PLANT U12_ACTION LANDED]
+
+
+  1) apps/web/tests/browser-gates.e2e.ts:581:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
+
+    Test timeout of 75000ms exceeded.
+
+    Error: evaluate: Test timeout of 75000ms exceeded.
+    Call log:
+      - waiting for locator(':focus')
+
+
+      654 |   for (let index = 0; index < 3; index += 1) {
+      655 |     await page.keyboard.press('Tab')
+    > 656 |     tabOrder.push(await page.locator(':focus').evaluate((element) => {
+          |                                               ^
+      657 |       const colourway = element.closest<HTMLElement>('.wp-panel')?.dataset['colourway'] ?? ''
+      658 |       return `${element.tagName}:${colourway}:${element.getAttribute('aria-label') ?? ''}`
+      659 |     }))
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:656:47
+
+    Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U12-k-17136-celerated-and-focus-visible/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/browser-gates.e2e.ts-U12-k-17136-celerated-and-focus-visible/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/browser-gates.e2e.ts-U12-k-17136-celerated-and-focus-visible/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    apps/web/tests/browser-gates.e2e.ts:581:0 › U12 keyboard traversal is complete, one-detent, unaccelerated and focus-visible
+[WebServer] (node:92275) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+(node:92280) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+── U13 → U13: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+Running 1 test using 1 worker
+
+
+
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:672:0 › U13 a 30-detent browser flick publishes exactly one live announcement
+apps/web/tests/browser-gates.e2e.ts:672:0 › U13 a 30-detent browser flick publishes exactly one live announcement
 [W5B PLANT U13 LANDED]
 
 
-  1) apps/web/tests/browser-gates.e2e.ts:477:0 › U13 a 30-detent browser flick publishes exactly one live announcement
+  1) apps/web/tests/browser-gates.e2e.ts:672:0 › U13 a 30-detent browser flick publishes exactly one live announcement
 
     Error: expect(received).toHaveLength(expected)
 
     Expected length: 1
-    Received length: 4
-    Received array:  ["Row 2 of 120. Absolute, 3:48.", "Duplicate announcement.", "Duplicate announcement.", "Duplicate announcement."]
+    Received length: 3
+    Received array:  [{"seq": "1", "text": "Row 31 of 120. Heartless · 31, 3:56."}, {"seq": "plant-1", "text": "Row 31 of 120. Heartless · 31, 3:56."}, {"seq": "plant-2", "text": "Row 31 of 120. Heartless · 31, 3:56."}]
 
-      496 |   await page.waitForTimeout(450)
-      497 |   const announcements = await page.evaluate(() => (window as Window & { __w5bAnnouncements?: readonly string[] }).__w5bAnnouncements ?? [])
-    > 498 |   expect(announcements).toHaveLength(1)
+      721 |     return (window as Window & { __w5bAnnouncementProbe?: AnnouncementProbe }).__w5bAnnouncementProbe?.records ?? []
+      722 |   })
+    > 723 |   expect(announcements).toHaveLength(1)
           |                        ^
-      499 |   await openScreen(page, 's13', '?state=error')
-      500 |   await expect(page.locator('.wp-panel').first().getByRole('alert')).toBeVisible()
-      501 |   await openScreen(page, 's13', '?state=loading')
-        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:498:24
+      724 |   expect(announcements[0]?.text).toBe(expected)
+      725 |   await expect(live).toHaveText(expected)
+      726 |   await openScreen(page, 's13', '?state=error')
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:723:24
 
     Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U13-a-8f9d0-actly-one-live-announcement/error-context.md
 
@@ -559,10 +983,69 @@ apps/web/tests/browser-gates.e2e.ts:477:0 › U13 a 30-detent browser flick publ
 
 
   1 failed
-    apps/web/tests/browser-gates.e2e.ts:477:0 › U13 a 30-detent browser flick publishes exactly one live announcement
-[WebServer] (node:58655) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+    apps/web/tests/browser-gates.e2e.ts:672:0 › U13 a 30-detent browser flick publishes exactly one live announcement
+[WebServer] (node:99948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
-(node:58662) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:99955) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+── U13_SETTLED → U13: LANDED → RED AS REQUIRED (exit 1)
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+Running 1 test using 1 worker
+
+
+
+[W5B SOURCE a403b8fb702b7c30d9caed39214ebe19957cc4cc2c691cd523696e2b6c527d7a FILES 137]
+
+
+[1/1] apps/web/tests/browser-gates.e2e.ts:672:0 › U13 a 30-detent browser flick publishes exactly one live announcement
+apps/web/tests/browser-gates.e2e.ts:672:0 › U13 a 30-detent browser flick publishes exactly one live announcement
+[W5B PLANT U13_SETTLED LANDED]
+
+
+  1) apps/web/tests/browser-gates.e2e.ts:672:0 › U13 a 30-detent browser flick publishes exactly one live announcement
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('.wp-panel').first().locator('[aria-live="polite"]')
+    Expected: "Row 31 of 120. Heartless · 31, 3:56."
+    Received: "Row 2 of 120. Stale first detent."
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "to.have.text" with timeout 5000ms
+      - waiting for locator('.wp-panel').first().locator('[aria-live="polite"]')
+        14 × locator resolved to <span class="wp-sr-only" aria-live="polite" aria-atomic="true" data-announcement-seq="1">Row 2 of 120. Stale first detent.</span>
+           - unexpected value "Row 2 of 120. Stale first detent."
+
+
+      723 |   expect(announcements).toHaveLength(1)
+      724 |   expect(announcements[0]?.text).toBe(expected)
+    > 725 |   await expect(live).toHaveText(expected)
+          |                     ^
+      726 |   await openScreen(page, 's13', '?state=error')
+      727 |   await expect(page.locator('.wp-panel').first().getByRole('alert')).toBeVisible()
+      728 |   await openScreen(page, 's13', '?state=loading')
+        at /Users/vinicius/code/webPod/apps/web/tests/browser-gates.e2e.ts:725:21
+
+    Error Context: apps/web/tests/test-results/browser-gates.e2e.ts-U13-a-8f9d0-actly-one-live-announcement/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/browser-gates.e2e.ts-U13-a-8f9d0-actly-one-live-announcement/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/browser-gates.e2e.ts-U13-a-8f9d0-actly-one-live-announcement/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    apps/web/tests/browser-gates.e2e.ts:672:0 › U13 a 30-detent browser flick publishes exactly one live announcement
+[WebServer] (node:99997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+(node:106) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 MANUAL U2-VISUAL — reviewer must identify the human actor from the greyscale screenshot without source inspection.
