@@ -31,6 +31,8 @@
  */
 export type PhysicalSurfaceParams = {
   readonly color: string;
+  /** Linear-sRGB albedo multiplier; `1` preserves the authored base colour. */
+  readonly albedoScale?: number;
   readonly roughness: number;
   readonly metalness?: number;
   readonly clearcoat?: number;
@@ -105,6 +107,7 @@ export type DeviceMaterials = {
 export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   bodyBlack: {
     color: "#0C0D0F",
+    albedoScale: 1,
     roughness: 0.28,
     metalness: 0,
     clearcoat: 1.0,
@@ -117,6 +120,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   },
   bodyWhite: {
     color: "#E2E5E8",
+    albedoScale: 1,
     roughness: 0.34,
     metalness: 0,
     clearcoat: 1.0,

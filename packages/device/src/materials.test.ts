@@ -11,6 +11,7 @@ import {
 describe("§12.3 device material contract", () => {
   test("polycarbonate keeps the specified base response", () => {
     expect(DEFAULT_DEVICE_MATERIALS.bodyBlack).toMatchObject({
+      albedoScale: 1,
       color: "#0C0D0F",
       roughness: 0.28,
       clearcoat: 1,

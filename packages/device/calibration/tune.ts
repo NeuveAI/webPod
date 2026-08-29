@@ -212,6 +212,42 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
     max: 1,
     step: 0.03,
   },
+  { path: "materials.bodyBlack.albedoScale", min: 0.2, max: 1, step: 0.05 },
+  { path: "materials.bodyBlack.roughness", min: 0.2, max: 0.8, step: 0.025 },
+  { path: "materials.bodyBlack.clearcoatRoughness", min: 0.03, max: 0.2, step: 0.01 },
+  { path: "materials.bodyBlack.reflectivity", min: 0.35, max: 0.7, step: 0.025 },
+  { path: "materials.bodyBlack.specularIntensity", min: 0, max: 1, step: 0.05 },
+  { path: "materials.bodyBlack.sheen", min: 0, max: 0.6, step: 0.05 },
+  { path: "materials.bodyWhite.albedoScale", min: 0.7, max: 1.15, step: 0.025 },
+  { path: "materials.bodyWhite.roughness", min: 0.2, max: 0.7, step: 0.025 },
+  { path: "materials.bodyWhite.clearcoatRoughness", min: 0.03, max: 0.2, step: 0.01 },
+  { path: "materials.bodyWhite.reflectivity", min: 0.35, max: 0.7, step: 0.025 },
+  { path: "materials.selectBlack.roughness", min: 0.08, max: 0.5, step: 0.02 },
+  { path: "materials.selectBlack.transmission", min: 0.15, max: 0.65, step: 0.025 },
+  { path: "materials.selectWhite.roughness", min: 0.08, max: 0.5, step: 0.02 },
+  { path: "materials.selectWhite.transmission", min: 0.15, max: 0.65, step: 0.025 },
+  { path: "materials.wheelRingBlack.roughness", min: 0.2, max: 0.7, step: 0.025 },
+  { path: "materials.wheelRingBlack.clearcoatRoughness", min: 0.05, max: 0.35, step: 0.025 },
+  ...["bodyBlack", "bodyWhite"].flatMap((surface) =>
+    Array.from({ length: 8 }, (_, knot) => ({
+      path: `opticalProfiles.${surface}.${knot}.1`, min: -10, max: 10, step: 0.5,
+    })),
+  ),
+  ...["bodyBlackRoughness", "bodyWhiteRoughness"].flatMap((surface) =>
+    Array.from({ length: 5 }, (_, knot) => ({
+      path: `opticalProfiles.${surface}.${knot}.1`, min: 0.15, max: 1, step: 0.05,
+    })),
+  ),
+  ...["wheelBlack", "selectBlack", "selectWhite"].flatMap((surface) =>
+    Array.from({ length: 4 }, (_, knot) => ({
+      path: `opticalProfiles.${surface}.${knot}.1`, min: -8, max: 8, step: 0.5,
+    })),
+  ),
+  ...["wheelWhite"].flatMap((surface) =>
+    Array.from({ length: 4 }, (_, knot) => ({
+      path: `opticalProfiles.${surface}.${knot}.1`, min: -8, max: 8, step: 0.5,
+    })),
+  ),
   // The depths §12.0 does not state.
   { path: "form.ringDishTiltDeg", min: 0, max: 26, step: 0.8 },
   { path: "form.ringDishExponent", min: 1.2, max: 8, step: 0.3 },
@@ -486,6 +522,10 @@ async function main() {
             ? "select-black"
             : command?.startsWith("select-white") || command?.startsWith("search-select-white")
               ? "select-white"
+              : command?.startsWith("wheel-black") || command?.startsWith("search-wheel-black")
+                ? "wheel-black"
+                : command?.startsWith("wheel-white") || command?.startsWith("search-wheel-white")
+                  ? "wheel-white"
       : command === "front" || command === "search-front"
         ? "front"
         : "all";
@@ -518,6 +558,18 @@ async function main() {
                     knob.path.startsWith("materials.selectWhite.") ||
                     knob.path.startsWith("opticalProfiles.selectWhite."),
                 )
+              : stage === "wheel-black"
+                ? FRONT_KNOBS.filter(
+                    (knob) =>
+                      knob.path.startsWith("materials.wheelRingBlack.") ||
+                      knob.path.startsWith("opticalProfiles.wheelBlack."),
+                  )
+                : stage === "wheel-white"
+                  ? FRONT_KNOBS.filter(
+                      (knob) =>
+                        knob.path.startsWith("materials.wheelRingWhite.") ||
+                        knob.path.startsWith("opticalProfiles.wheelWhite."),
+                    )
               : stage === "front"
                 ? FRONT_KNOBS
                 : allKnobs;
@@ -528,7 +580,12 @@ async function main() {
     stage === "body-white" ||
     stage === "select-black" ||
     stage === "select-white"
-      ? stage
+    || stage === "wheel-black" || stage === "wheel-white"
+      ? stage === "wheel-black"
+        ? "wheel-ring-black"
+        : stage === "wheel-white"
+          ? "wheel-ring-white"
+          : stage
       : null;
   const scoreStage = async (patch: Record<string, number>, settleMs: number) => {
     const guardedStage = targetSurface !== null;
@@ -540,11 +597,16 @@ async function main() {
     );
     if (targetSurface === null) return results;
     const steel = results.filter((result) => result.surface === "steel-back");
-    if (steel.length !== 11 || steel.some((result) => !result.pass)) {
+    const whiteWheel = results.filter((result) => result.surface === "wheel-ring-white");
+    if (
+      steel.length !== 11 || steel.some((result) => !result.pass) ||
+      (targetSurface !== "wheel-ring-white" &&
+        (whiteWheel.length !== 4 || whiteWheel.some((result) => !result.pass)))
+    ) {
       return [
         {
           surface: "invalid-geometry",
-          token: "frozen-steel-regressed",
+          token: "frozen-surface-regressed",
           at: 0,
           expectedHex: "#000000",
           expectedLuma: 0,

@@ -11,8 +11,10 @@ export type OpticalProfile = ReadonlyArray<
 export type DeviceOpticalProfiles = {
   readonly bodyBlack: OpticalProfile;
   readonly bodyBlackLateral: OpticalProfile;
+  readonly bodyBlackRoughness: OpticalProfile;
   readonly bodyWhite: OpticalProfile;
   readonly bodyWhiteLateral: OpticalProfile;
+  readonly bodyWhiteRoughness: OpticalProfile;
   readonly wheelBlack: OpticalProfile;
   readonly wheelBlackLateral: OpticalProfile;
   readonly wheelWhite: OpticalProfile;
@@ -27,8 +29,14 @@ const flat = (ats: ReadonlyArray<number>): OpticalProfile =>
 export const DEFAULT_DEVICE_OPTICAL_PROFILES: DeviceOpticalProfiles = {
   bodyBlack: flat([0, 0.05, 0.19, 0.44, 0.62, 0.81, 0.93, 1]),
   bodyBlackLateral: flat([0, 0.05, 0.19, 0.44, 0.62, 0.81, 0.93, 1]),
+  bodyBlackRoughness: [
+    [0, 1], [0.25, 1], [0.5, 1], [0.75, 1], [1, 1],
+  ],
   bodyWhite: flat([0, 0.06, 0.21, 0.47, 0.64, 0.82, 0.94, 1]),
   bodyWhiteLateral: flat([0, 0.06, 0.21, 0.47, 0.64, 0.82, 0.94, 1]),
+  bodyWhiteRoughness: [
+    [0, 1], [0.25, 1], [0.5, 1], [0.75, 1], [1, 1],
+  ],
   wheelBlack: flat([0, 0.38, 0.62, 1]),
   wheelBlackLateral: flat([0, 0.38, 0.62, 1]),
   wheelWhite: flat([0, 0.38, 0.62, 1]),
@@ -57,6 +65,30 @@ export function createOpticalNormalMap(
     data[o + 1] = Math.round(127.5 + 127.5 * ny);
     data[o + 2] = Math.round(127.5 + 127.5 * nz);
     data[o + 3] = 255;
+  }
+  const texture = new DataTexture(data, 1, height, RGBAFormat);
+  texture.wrapS = ClampToEdgeWrapping;
+  texture.wrapT = ClampToEdgeWrapping;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+/** Five broad coating bands, encoded in Three's green roughness channel. */
+export function createOpticalRoughnessMap(
+  profile: OpticalProfile,
+  height = 512,
+): DataTexture {
+  const data = new Uint8Array(height * 4);
+  for (let y = 0; y < height; y += 1) {
+    const at = 1 - y / (height - 1);
+    const value = Math.round(255 * Math.max(0, Math.min(1, sample(profile, at))));
+    const offset = y * 4;
+    data[offset] = 255;
+    data[offset + 1] = value;
+    data[offset + 2] = 255;
+    data[offset + 3] = 255;
   }
   const texture = new DataTexture(data, 1, height, RGBAFormat);
   texture.wrapS = ClampToEdgeWrapping;

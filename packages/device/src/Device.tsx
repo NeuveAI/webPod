@@ -18,6 +18,7 @@
 import { useThree } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo } from "react";
 import {
+  Color,
   CylinderGeometry,
   ExtrudeGeometry,
   type Material,
@@ -36,6 +37,7 @@ import {
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import { DEVICE_LAYOUT, GLASS_CORNER_R, SCREEN_CORNER_R } from "./layout";
 import { DEFAULT_LIGHT_RIG, type LightRigParams } from "./light-rig";
+import { materialMapOwnership } from "./material-map-ownership";
 import {
   DEFAULT_DEVICE_MATERIALS,
   type DeviceMaterials,
@@ -55,6 +57,7 @@ import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 import {
   applyOpticalProfile,
   createOpticalNormalMap,
+  createOpticalRoughnessMap,
   DEFAULT_DEVICE_OPTICAL_PROFILES,
   type DeviceOpticalProfiles,
 } from "./optical-profile";
@@ -213,6 +216,21 @@ export function Device({
     },
     [opticalMaps],
   );
+  const bodyRoughnessMap = useMemo(() => {
+    const map = createOpticalRoughnessMap(
+      isBlack ? parsedOptical.bodyBlackRoughness : parsedOptical.bodyWhiteRoughness,
+    );
+    map.repeat.set(1, 1 / body.height);
+    map.offset.set(0, 0.5);
+    return map;
+  }, [isBlack, parsedOptical]);
+  useEffect(() => () => bodyRoughnessMap.dispose(), [bodyRoughnessMap]);
+  const surfaceMaps = materialMapOwnership({
+    microNoise: noise,
+    steelAnisotropy,
+    bodyNormal: opticalMaps.body,
+    bodyRoughness: bodyRoughnessMap,
+  });
 
   // ── Geometry ───────────────────────────────────────────────────────────────
   // Built once per shape-affecting input. Under `frameloop="demand"` a rebuild
@@ -512,8 +530,7 @@ export function Device({
           name="steel-back"
           {...spread(materials.steelBack)}
           envMap={env}
-          roughnessMap={noise}
-          anisotropyMap={steelAnisotropy}
+          {...surfaceMaps.steel}
         />
       </mesh>
 
@@ -532,8 +549,7 @@ export function Device({
           name={isBlack ? "body-black" : "body-white"}
           {...spread(bodyMaterial)}
           envMap={env}
-          roughnessMap={noise}
-          normalMap={opticalMaps.body}
+          {...surfaceMaps.body}
           emissive={isBlack ? "#6E4A2E" : "#000000"}
           emissiveIntensity={isBlack ? 0.02 : 0}
           emissiveMap={isBlack ? blackSss : null}
@@ -647,5 +663,6 @@ export function Device({
  * this one function so the immutability holds everywhere it matters.
  */
 function spread(params: PhysicalSurfaceParams): Record<string, unknown> {
-  return { ...params };
+  const { albedoScale = 1, color, ...physical } = params;
+  return { ...physical, color: new Color(color).multiplyScalar(albedoScale) };
 }

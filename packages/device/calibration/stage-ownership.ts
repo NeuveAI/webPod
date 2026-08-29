@@ -5,6 +5,8 @@ export type CalibrationStage =
   | "body-white"
   | "select-black"
   | "select-white"
+  | "wheel-black"
+  | "wheel-white"
   | "all";
 
 const PREFIXES: Readonly<Record<CalibrationStage, ReadonlyArray<string>>> = {
@@ -14,6 +16,8 @@ const PREFIXES: Readonly<Record<CalibrationStage, ReadonlyArray<string>>> = {
   "body-white": ["materials.bodyWhite.", "opticalProfiles.bodyWhite"],
   "select-black": ["materials.selectBlack.", "opticalProfiles.selectBlack."],
   "select-white": ["materials.selectWhite.", "opticalProfiles.selectWhite."],
+  "wheel-black": ["materials.wheelRingBlack.", "opticalProfiles.wheelBlack."],
+  "wheel-white": ["materials.wheelRingWhite.", "opticalProfiles.wheelWhite."],
   all: [""],
 };
 

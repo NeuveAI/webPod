@@ -111,6 +111,11 @@ const MATERIAL_KEYS = [
   "selectWhite",
 ] as const;
 
+const MATERIAL_FIELDS = [
+  "envMapIntensity", "albedoScale", "roughness", "clearcoatRoughness",
+  "reflectivity", "specularIntensity", "sheen", "transmission",
+] as const;
+
 function round(value: number): string {
   const rounded = Math.round(value * 10000) / 10000;
   return Number.isInteger(rounded)
@@ -173,14 +178,12 @@ edits.set(envFile, env);
 const materialsFile = "packages/device/src/materials.ts";
 let materials = await read(materialsFile);
 for (const surface of MATERIAL_KEYS) {
-  const value = RIG[`materials.${surface}.envMapIntensity`];
-  if (value === undefined) continue;
-  materials = patch(
-    materials,
-    "envMapIntensity",
-    value,
-    materials.indexOf(`  ${surface}: {`),
-  );
+  const scope = materials.indexOf(`  ${surface}: {`);
+  for (const field of MATERIAL_FIELDS) {
+    const value = RIG[`materials.${surface}.${field}`];
+    if (value === undefined) continue;
+    materials = patch(materials, field, value, scope);
+  }
 }
 edits.set(materialsFile, materials);
 
