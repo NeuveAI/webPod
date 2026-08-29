@@ -26,10 +26,13 @@ describe("§12.3 device material contract", () => {
     });
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite).toMatchObject({
       color: "#E2E5E8",
-      roughness: 0.34,
+      albedoScale: 0.9,
+      roughness: 0.3,
       clearcoat: 1,
-      clearcoatRoughness: 0.08,
+      clearcoatRoughness: 0.055,
       reflectivity: 0.5,
+      specularIntensity: 0.32,
+      envMapIntensity: 0.31,
     });
   });
 
@@ -48,7 +51,7 @@ describe("§12.3 device material contract", () => {
       mirrorGain / 4,
     );
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity).toBeLessThan(
-      mirrorGain / 4,
+      mirrorGain / 3,
     );
   });
 
@@ -129,6 +132,7 @@ describe("LAW 2 light rig", () => {
   test("keeps one 18° key and one 22% lower-left fill", () => {
     expect(DEFAULT_LIGHT_RIG.key.tiltTowardViewerDeg).toBe(18);
     expect(DEFAULT_LIGHT_RIG.key.distance).toBeGreaterThan(1_000);
+    expect(DEFAULT_LIGHT_RIG.key.intensity).toBe(11_000_000);
     expect(DEFAULT_LIGHT_RIG.fill.azimuthDeg).toBeLessThan(0);
     expect(DEFAULT_LIGHT_RIG.fill.elevationDeg).toBeLessThan(0);
     expect(DEFAULT_LIGHT_RIG.fill.intensityRatio).toBe(0.22);

@@ -1,6 +1,7 @@
 import type { ScreenTransform } from '@webpod/device'
 import {
   HTMLTexture,
+  LinearFilter,
   Mesh,
   MeshBasicMaterial,
   PlaneGeometry,
@@ -59,6 +60,10 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
   private contrastListener: ((event: MediaQueryListEvent) => void) | null = null
   private attachmentGeneration = 0
   private hasPaintRecord = false
+  private scaledContent: HTMLElement | null = null
+  private scaledContentTransform = ''
+  private scaledContentTransformOrigin = ''
+  private appliedRasterDensity: 1 | 2 | 3 | null = null
 
   constructor(private readonly tone: PanelOverlayTone) {}
 
@@ -69,8 +74,6 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
 
     const { panelElement, renderer, camera, screen } = attachment
     this.hasPaintRecord = false
-    panelElement.style.width = `${screen.panel.width}px`
-    panelElement.style.height = `${screen.panel.height}px`
     panelElement.style.overflow = 'hidden'
     panelElement.setAttribute('drawable', '')
     panelElement.dataset['pixelSource'] = 'html-in-canvas'
@@ -80,6 +83,9 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     canvas.appendChild(panelElement)
     const texture = new HTMLTexture(panelElement)
     texture.colorSpace = SRGBColorSpace
+    texture.generateMipmaps = false
+    texture.minFilter = LinearFilter
+    texture.magFilter = LinearFilter
     const material = createLcdMaterial(
       texture,
       this.tone,
@@ -99,20 +105,38 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     this.proxy = proxy
     this.interactions = interactions
 
+    const applyRasterDensity = (): boolean => {
+      const content = panelElement.firstElementChild
+      if (!(content instanceof HTMLElement)) return false
+      const density = resolvePanelRasterDensity(renderer.getPixelRatio())
+      if (this.scaledContent === content && this.appliedRasterDensity === density) return false
+      if (this.scaledContent !== content) {
+        this.restoreScaledContent()
+        this.scaledContent = content
+        this.scaledContentTransform = content.style.transform
+        this.scaledContentTransformOrigin = content.style.transformOrigin
+      }
+      content.style.transformOrigin = 'top left'
+      content.style.transform = density === 1 ? this.scaledContentTransform : `scale(${String(density)})`
+      panelElement.style.width = `${screen.panel.width * density}px`
+      panelElement.style.height = `${screen.panel.height * density}px`
+      panelElement.dataset['rasterDensity'] = String(density)
+      this.appliedRasterDensity = density
+      return true
+    }
+    applyRasterDensity()
+
     this.unsubscribeTransform = screen.onTransformChange((transform) => {
       this.syncGeometry(transform)
     })
 
     const fitHostToContent = (): void => {
+      applyRasterDensity()
       const content = panelElement.firstElementChild
       const contentWidth = content instanceof HTMLElement ? content.scrollWidth : 0
       const contentHeight = content instanceof HTMLElement ? content.scrollHeight : 0
-      const width = Math.max(screen.panel.width, contentWidth)
-      const height = Math.max(screen.panel.height, contentHeight)
-      if (panelElement.offsetWidth !== width) panelElement.style.width = `${width}px`
-      if (panelElement.offsetHeight !== height) panelElement.style.height = `${height}px`
-      material.userData['wpWidth'] = width
-      material.userData['wpHeight'] = height
+      material.userData['wpWidth'] = Math.max(screen.panel.width, contentWidth)
+      material.userData['wpHeight'] = Math.max(screen.panel.height, contentHeight)
     }
     const requestPixels = (): void => {
       if (this.attachmentGeneration !== generation || this.attachment !== attachment) return
@@ -151,7 +175,9 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     this.resizeObserver.observe(panelElement)
 
     this.canvasResizeObserver = new ResizeObserver(() => {
+      const rasterDensityChanged = applyRasterDensity()
       this.syncGeometry(screen.readTransform())
+      if (rasterDensityChanged) requestPixels()
       screen.invalidate()
     })
     this.canvasResizeObserver.observe(canvas)
@@ -229,6 +255,7 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     this.texture?.dispose()
     this.texture = null
     this.hasPaintRecord = false
+    this.restoreScaledContent()
 
     if (panel !== null) {
       panel.style.removeProperty('position')
@@ -241,11 +268,29 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
       panel.style.removeProperty('overflow')
       panel.removeAttribute('drawable')
       delete panel.dataset['pixelSource']
+      delete panel.dataset['rasterDensity']
       if (canvas?.contains(panel) === true) canvas.removeChild(panel)
     }
 
     this.attachment = null
   }
+
+  private restoreScaledContent(): void {
+    if (this.scaledContent !== null) {
+      this.scaledContent.style.transform = this.scaledContentTransform
+      this.scaledContent.style.transformOrigin = this.scaledContentTransformOrigin
+    }
+    this.scaledContent = null
+    this.scaledContentTransform = ''
+    this.scaledContentTransformOrigin = ''
+    this.appliedRasterDensity = null
+  }
+}
+
+export function resolvePanelRasterDensity(pixelRatio: number): 1 | 2 | 3 {
+  if (!Number.isFinite(pixelRatio) || pixelRatio <= 1) return 1
+  if (pixelRatio <= 2) return 2
+  return 3
 }
 
 export function mutationAffectsPanelPixels(

@@ -62,7 +62,9 @@ export const DEFAULT_LIGHT_RIG: LightRigParams = {
   key: {
     tiltTowardViewerDeg: 18,
     distance: 1375,
-    intensity: 15500000,
+    // Keeps the white diffuse term below clipping while leaving the clearcoat
+    // and rolled edges enough headroom to carry VWaJS's authored highlights.
+    intensity: 11000000,
     color: "#FFFFFF",
   },
   fill: {

@@ -153,7 +153,16 @@ export function CompositeInputBoundary({
       data-composite-tier={tier}
       data-composite-ready={ready}
       onFocusCapture={onFocusCapture}
-      style={{ touchAction: 'none', overscrollBehavior: 'contain' }}
+      style={{
+        boxSizing: 'border-box',
+        contain: 'layout size paint',
+        inlineSize: '100%',
+        maxInlineSize: '100%',
+        minInlineSize: 0,
+        overflow: 'clip',
+        touchAction: 'none',
+        overscrollBehavior: 'contain',
+      }}
     >
       {children(controller.handlers)}
     </div>

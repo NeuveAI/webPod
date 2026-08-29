@@ -28,6 +28,13 @@ export {
   type DeviceCanvasProps,
 } from "./DeviceCanvas";
 export {
+  DEVICE_DPR_RANGE,
+  firstDevicePixelBox,
+  resolveCanvasPixelRatio,
+  type CanvasPixelMeasurement,
+  type DevicePixelBox,
+} from "./pixel-density";
+export {
   CLICK_WHEEL_INPUT_POSITION,
   CLICK_WHEEL_INPUT_RADII,
   ClickWheelInputSurface,

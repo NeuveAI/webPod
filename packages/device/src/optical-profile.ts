@@ -31,16 +31,19 @@ export const DEFAULT_DEVICE_OPTICAL_PROFILES: DeviceOpticalProfiles = {
   bodyBlack: [[0,1.5],[0.05,0.75],[0.19,-2.75],[0.44,-0.125],[0.62,2.25],[0.81,-1.5],[0.93,0],[1,-0.125]],
   bodyBlackLateral: [[0,0],[0.05,0],[0.19,0],[0.44,0],[0.62,0],[0.81,0],[0.93,0],[1,0]],
   bodyBlackRoughness: [[0,1],[0.25,1],[0.5,0.95],[0.75,1],[1,1]],
-  bodyWhite: [[0,0],[0.06,0],[0.21,0],[0.47,0],[0.64,0],[0.82,0],[0.94,0],[1,0]],
-  bodyWhiteLateral: [[0,0],[0.06,0],[0.21,0],[0.47,0],[0.64,0],[0.82,0],[0.94,0],[1,0]],
-  bodyWhiteRoughness: [[0,1],[0.25,1],[0.5,1],[0.75,1],[1,1]],
+  // VWaJS is a pearl moulding, not a flat white card. These bounded normal
+  // changes make the shared physical rig produce its authored top highlight,
+  // mid-body trough and lower recovery without an albedo ramp.
+  bodyWhite: [[0,3.5],[0.08,2],[0.42,-2],[0.78,0.75],[1,-0.5]],
+  bodyWhiteLateral: [[0,-0.75],[0.18,-1.5],[0.5,0],[0.82,0.75],[1,0]],
+  bodyWhiteRoughness: [[0,0.94],[0.18,0.9],[0.42,1],[0.78,0.94],[1,0.9]],
   wheelBlack: [[0,-4],[0.38,-2.5],[0.62,0.5],[1,0]],
   wheelBlackLateral: flat([0, 0.38, 0.62, 1]),
-  wheelWhite: [[0,-1.625],[0.38,1.96875],[0.62,2.25],[1,-1]],
+  wheelWhite: [[0,1.5],[0.36,0],[0.64,-1.5],[1,0.5]],
   wheelWhiteLateral: flat([0, 0.38, 0.62, 1]),
   selectBlack: [[0,0],[0.34,0],[0.7,0],[1,0]],
   selectBlackLateral: flat([0, 0.34, 0.7, 1]),
-  selectWhite: [[0,0],[0.34,0],[0.7,0],[1,0]],
+  selectWhite: [[0,1],[0.44,-1],[0.6,-0.5],[1,0.5]],
   selectWhiteLateral: flat([0, 0.34, 0.7, 1]),
 };
 /** Tangent-space micro-curvature. `at=0` is the visible top, `at=1` the bottom. */

@@ -121,13 +121,16 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   },
   bodyWhite: {
     color: "#E2E5E8",
-    albedoScale: 1,
-    roughness: 0.34,
+    // Preserve headroom for the key/clearcoat lobe. At 1.0 the diffuse term
+    // clipped almost the whole face to white and erased Pencil's pearl trough.
+    albedoScale: 0.9,
+    roughness: 0.3,
     metalness: 0,
     clearcoat: 1.0,
-    clearcoatRoughness: 0.08,
+    clearcoatRoughness: 0.055,
     reflectivity: 0.5,
-    envMapIntensity: 0.2356,
+    specularIntensity: 0.32,
+    envMapIntensity: 0.31,
   },
   steelBack: {
     color: "#C4CBD2",

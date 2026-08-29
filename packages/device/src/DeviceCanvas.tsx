@@ -22,6 +22,7 @@ import { Canvas } from "@react-three/fiber";
 import { createContext, type ReactNode } from "react";
 
 import { Device, type DeviceFace, type DeviceProps } from "./Device";
+import { CanvasPixelDensity } from "./CanvasPixelDensity";
 import { DEVICE_LAYOUT } from "./layout";
 
 export type DeviceCanvasProps = DeviceProps & {
@@ -57,7 +58,7 @@ export function DeviceCanvas({
   className,
   cameraDistance = DEFAULT_CAMERA_DISTANCE,
   cameraFov = DEFAULT_CAMERA_FOV,
-  dpr = [1, 2],
+  dpr = [1, 3],
   face = "front",
   children,
   ...device
@@ -77,6 +78,7 @@ export function DeviceCanvas({
       }}
     >
       <DeviceCanvasFaceContext.Provider value={face}>
+        <CanvasPixelDensity enabled={Array.isArray(dpr)} />
         <Device {...device} face={face} />
         {children}
       </DeviceCanvasFaceContext.Provider>

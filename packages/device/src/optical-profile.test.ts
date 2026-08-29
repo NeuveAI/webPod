@@ -1,8 +1,19 @@
 import { describe, expect, test } from "bun:test";
 import { PlaneGeometry } from "three";
-import { addOpticalProfile, applyOpticalProfile, createBodyRoughnessMap, createOpticalNormalMap } from "./optical-profile";
+import { addOpticalProfile, applyOpticalProfile, createBodyRoughnessMap, createOpticalNormalMap, DEFAULT_DEVICE_OPTICAL_PROFILES } from "./optical-profile";
 
 describe("moulded-surface optical profile", () => {
+  test("the Pencil-first white moulding has a real non-flat light hierarchy", () => {
+    expect(DEFAULT_DEVICE_OPTICAL_PROFILES.bodyWhite).toEqual([
+      [0, 3.5], [0.08, 2], [0.42, -2], [0.78, 0.75], [1, -0.5],
+    ]);
+    expect(DEFAULT_DEVICE_OPTICAL_PROFILES.wheelWhite).toEqual([
+      [0, 1.5], [0.36, 0], [0.64, -1.5], [1, 0.5],
+    ]);
+    expect(DEFAULT_DEVICE_OPTICAL_PROFILES.selectWhite).toEqual([
+      [0, 1], [0.44, -1], [0.6, -0.5], [1, 0.5],
+    ]);
+  });
   test("body roughness is encoded in Three's green channel", () => {
     const map = createBodyRoughnessMap([[0, 0.25], [1, 1]], 2, 3);
     const data = map.image.data as Uint8Array;
