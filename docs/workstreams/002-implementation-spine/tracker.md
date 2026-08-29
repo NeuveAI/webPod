@@ -49,15 +49,15 @@ The operational queue for this workstream. There is no Kanban board and no `neuv
   W6.0, W6, W6.3a and W7 are independently approved. W4's final material
   review and the canonical-evidence gate review each closed at **0 Critical / 0
   Major / 0 Minor**.
-- **Committed-state verification:** a disposable local clone of
-  `4668475dc0c4cdc6da4deb2ca28a703c88d28dd3` produced 11/11 clean TypeScript
-  projects, lint exit 0, **939 pass / 0 fail**, **16 automated gates pass / 0
-  fail**, and successful client and SSR builds. The ordinary dirty working tree
-  produced the same result.
+- **Committed-state verification:** the final lead audit through the T1 U15
+  accessibility correction and both-colourway regression produced 11/11 clean
+  TypeScript projects, lint exit 0, **941 pass / 0 fail**, **16 automated gates
+  pass / 0 fail**, and successful client and SSR builds.
 - **Manual gate accounting:** `bun run gates` deliberately continues to print
-  U14 and U15 as manual. U15's unsupported-control absence has been inspected in
-  the approved provider, panel and click-wheel review lanes. **U14/H-5 and H-6
-  are the only owner-only MVP validations still open.**
+  U14 and U15 as manual. U15 is **approved on T1**: unsupported-control absence
+  is preserved and both colourways now pass the passive-status Axe check with
+  **0 remaining accessibility findings** (`c4df144`, `852270e`). **U14/H-5 and
+  H-6 are the only owner-only MVP validations still open.**
 - **History:** H-1 is prepared and unexecuted. The current history still contains
   `.claude/settings.local.json`, the historical `CLAUDE.md`, and the single
   `Co-Authored-By` trailer at `2305f4b`; repo law and the current tip are already
@@ -65,9 +65,7 @@ The operational queue for this workstream. There is no Kanban board and no `neuv
 - **Preserved local artifacts:** the seven modified `packages/tokens/src/*`
   files remain intentional formatting-only churn and are not part of closeout.
   Four untracked W4 calibration captures and seven untracked W6 intermediate
-  captures remain preserved and uncommitted. A concurrent untracked
-  `evidence/final-u15-browser/` capture set also appeared during closeout and is
-  left entirely to its owning review lane. No closeout operation may stage,
+  captures remain preserved and uncommitted. No closeout operation may stage,
   delete, or rewrite any of these without an owner decision.
 
 ## Teammate roster
@@ -128,6 +126,7 @@ Committed with `git commit -- design.pen` rather than staging, because the index
 
 | Date | Event |
 |---|---|
+| 2026-08-29 | **Final bookkeeping reconciled.** T1 U15 is approved after `c9b0ec8` and the both-colourway regression `c9e9baa`; independent reviews at `c4df144` and `852270e` leave 0 accessibility findings. Current verification is 941/0 tests and 16/16 automated gates. Only owner U14/H-5, H-6, and execution of the already-approved H-1 history procedure remain. The rewrite procedure and its replay evidence are unchanged. |
 | 2026-08-29 | **Final handoff W7 provenance/build Majors fixed.** The owner sequence now treats history hygiene as a pre-rebind base, locates W7's rewritten reviewed commit by unchanged tree + exact subject, regenerates immutable browser evidence through the authoritative producer, reruns the 9-test mutation suite, and commits exactly the JSON/provenance pair. The evidence-only commit is included in final tip/tree/count and publication expectations. A fresh disposable replay reached tip `d6775815b1020416fa7020943349be49b6a925e0`, tree `a172ff9e065e3194c012e43b5f25efb81793991a`, count 214; then passed 11/11 typechecks, lint, 941/0 tests, 16/16 automated gates, and `bun run build` for client + SSR. A moved disposable remote rejected both preflight and the explicit stale lease. No authoritative rewrite or push ran; review artifact untouched; returned to the same reviewer. |
 | 2026-08-29 | **Initial final-handoff Majors fixed.** `evidence/w0-history-rewrite-plan.md` became the one executable owner sequence: fixed original/S2/W0 paths, external OID state transfer, exact S2 tip/tree/count and split-ancestry guards before W0 pass 1, and no path back to the pre-S2 source. Publication reconstructs `origin` after `git-filter-repo`, fetches exact remote `main`, compares fetched and live OIDs with the pre-rewrite capture, and prepares an explicit expected-OID `--force-with-lease` command. That replay proved the history-only base retained the S2 tree/count and that moved-remote state rejected the lease; the later W7 provenance rebind entry above supersedes its final-tip accounting. No authoritative rewrite or push ran. |
 | 2026-08-29 | **Workstream handoff reconciled.** W4 is independently approved at `096be68`; W7 remains approved across three seams; canonical evidence-path hardening is independently approved at `4668475`. A fresh disposable clone of that committed tip passed 11/11 typechecks, lint, 939/0 tests, 16/16 automated gates, and both builds. U15 reviewer inspection is complete; only owner U14/H-5 and H-6 remain for MVP validation. H-1 remains prepared and owner-only. Intentional token churn and eleven untracked intermediate captures are preserved. |

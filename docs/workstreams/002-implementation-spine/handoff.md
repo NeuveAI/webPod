@@ -4,9 +4,9 @@
 owner-operated history repair remain.
 
 This handoff reconciles the current repository rather than repeating teammate
-reports. The audited committed tip was
-`4668475dc0c4cdc6da4deb2ca28a703c88d28dd3`; this documentation-only handoff
-commit is its successor.
+reports. The current lead audit includes the T1 U15 accessibility correction
+and both-colourway regression through `852270e`, followed by the approved final
+history-handoff review at `aaf0587`.
 
 ## What is complete
 
@@ -18,31 +18,31 @@ commit is its successor.
   verdict in the three `click-wheel-*-review.md` files.
 - The canonical-evidence path gate received a final approval in
   `reviews/fe5c309-gate-exemption-review.md`, committed as `4668475`.
-- U15's unsupported-control absence has been inspected through the approved
-  provider, panel and click-wheel review lanes. The gate runner continues to
-  label it manual because it cannot automate reviewer judgment.
+- U15 is **approved on the T1 HTML-in-canvas path**. Unsupported controls remain
+  absent, and the passive playback-status semantics now pass Axe in both
+  colourways with **0 remaining accessibility findings**. The final semantic
+  review and both-colourway re-review are committed at `c4df144` and `852270e`.
 
 ## Verification at the handoff boundary
 
-Two runs were made on 2026-08-29:
-
-1. The ordinary working tree, while preserving all intentional local artifacts.
-2. A disposable local clone at committed tip `4668475`, retaining the Git object
-   database required by the W7 provenance tests while excluding every dirty
-   working-tree artifact.
-
-Both produced:
+The current lead audit ran in the ordinary working tree while preserving every
+intentional local artifact. Earlier disposable-clone verification separately
+established W7 provenance and history-rewrite isolation; its exact outcomes
+remain in the immutable rewrite evidence rather than being conflated with this
+later test count.
 
 | Check | Result |
 |---|---|
 | `bun run typecheck` | **11/11 projects clean** |
 | `bun run lint` | exit 0 |
-| `bun test` | **939 pass / 0 fail**, 50 files |
+| `bun test` | **941 pass / 0 fail** |
 | `bun run gates` | **16 automated pass / 0 fail**; U14 and U15 reported manual |
 | `bun run build` | client and SSR builds pass |
 
-The client build emits the existing large-chunk advisory; it is not a failed
-gate. Tool-command assumptions were checked against
+U15 remains listed as manual by the gate harness because its T1 browser and
+accessibility judgment is reviewer-owned; that judgment is now approved with no
+open finding. The client build emits the existing large-chunk advisory; it is
+not a failed gate. Tool-command assumptions were checked against
 `/Users/vinicius/code/agentic-context/bun`; the repository's package scripts are
 the executable source of truth.
 
@@ -86,10 +86,6 @@ Seven superseded/intermediate W6 captures:
 None is required by the final approved evidence set. They remain local because
 deleting collaborator data requires an owner decision. Do not stage them into a
 history-repair clone.
-
-At closeout, `evidence/final-u15-browser/` also appeared as an untracked capture
-set owned by a concurrent browser-review lane. This handoff neither classifies
-nor consumes it; preserve it for that owner and keep it out of this commit.
 
 ## H-1 history-rewrite audit
 
@@ -169,6 +165,9 @@ lease reject stale state. Exact commands and results are in
 occurred.
 
 ## Exact remaining owner actions
+
+Only U14/H-5, H-6, and owner execution of H-1 remain. U15 has no remaining
+owner or accessibility action.
 
 ### 1. U14 / H-5 — phone in hand
 
