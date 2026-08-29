@@ -50,54 +50,30 @@ test('keyboard traversal commands playback and exposes selected options', async 
   await writeFile(resolve(evidence, `${prefix}-keyboard.json`), JSON.stringify({ traversal: ['S03', 'S08', 'S13', 'S08'], selectedOption: 'Albums', activeDescendantChanged: firstActiveId !== secondActiveId, playbackCommanded: true, progress: { before, after, delta: after - before } }, null, 2))
 })
 
-test('visible rows highlight before one delayed activation', async ({ page }) => {
+test('panel rows focus the application without direct activation', async ({ page }) => {
   const panel = await openScreen(page, 's03')
-  const albums = panel.getByRole('option', { name: /Albums/ })
-  await albums.dblclick()
-  await expect(albums).toHaveAttribute('aria-selected', 'true')
-  await expect(panel).toHaveAttribute('data-screen', 'S03')
-  await page.waitForTimeout(100)
-  await expect(panel).toHaveAttribute('data-screen', 'S08')
-  await page.waitForTimeout(100)
-  await expect(panel).toHaveAttribute('data-screen', 'S08')
-
-  const secondTrack = panel.getByRole('option').nth(1)
-  await secondTrack.click()
-  await expect(secondTrack).toHaveAttribute('aria-selected', 'true')
-  await expect(panel).toHaveAttribute('data-screen', 'S08')
-  await page.waitForTimeout(100)
-  await expect(panel).toHaveAttribute('data-screen', 'S13')
-})
-
-test('the list is the pointer target and unavailable rows cannot activate', async ({ page }) => {
-  const panel = await openScreen(page, 's03', '?state=offline')
-  const list = panel.getByRole('listbox', { name: 'Music categories' })
-  const target = await list.boundingBox()
-  if (target === null) throw new Error('Music categories must expose one pointer surface')
-  expect(target.width).toBeGreaterThanOrEqual(44)
-  expect(target.height).toBeGreaterThanOrEqual(44)
-  await expect(list.getByRole('button')).toHaveCount(0)
-
-  const radio = panel.getByRole('option', { name: /Radio/ })
-  await expect(radio).toHaveAttribute('aria-disabled', 'true')
-  await radio.click({ force: true })
-  await page.waitForTimeout(100)
-  await expect(panel).toHaveAttribute('data-screen', 'S03')
-  await expect(radio).toHaveAttribute('aria-selected', 'false')
-})
-
-test('keyboard input cancels a pending row activation and remains authoritative', async ({ page }) => {
-  const panel = await openScreen(page, 's03')
-  await panel.getByRole('option', { name: /Albums/ }).click()
-  await panel.press('ArrowDown')
-  await page.waitForTimeout(100)
-  await expect(panel).toHaveAttribute('data-screen', 'S03')
   const activeId = await panel.getAttribute('aria-activedescendant')
-  expect(activeId).not.toBeNull()
-  await expect(panel.locator(`[id="${activeId ?? ''}"]`)).toHaveAttribute('aria-selected', 'true')
-  await panel.press('ArrowUp')
+  const albums = panel.getByRole('option', { name: /Albums/ })
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+  })
+  await albums.click()
+  await expect(panel).toBeFocused()
+  await expect(panel).toHaveAttribute('data-screen', 'S03')
+  await expect(panel).toHaveAttribute('aria-activedescendant', activeId ?? '')
+  await expect(panel.getByRole('button')).toHaveCount(0)
+
   await panel.press('Enter')
   await expect(panel).toHaveAttribute('data-screen', 'S08')
+  const secondTrack = panel.locator('.wp-track-row').nth(1)
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+  })
+  await secondTrack.click()
+  await expect(panel).toBeFocused()
+  await expect(panel).toHaveAttribute('data-screen', 'S08')
+  await panel.press('Enter')
+  await expect(panel).toHaveAttribute('data-screen', 'S13')
 })
 
 test('all state and colourway pairs produce chrome-free screen evidence', async ({ page }) => {

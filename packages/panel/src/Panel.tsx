@@ -6,7 +6,6 @@ import {
   deviceStore,
   effectiveDensityAtom,
   liveRegionAtom,
-  moveHighlightActionAtom,
   popScreenActionAtom,
   pushScreenActionAtom,
   resetStackActionAtom,
@@ -34,7 +33,6 @@ import {
   type PanelState,
 } from './model'
 import { acquireAnnouncer, acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
-import { createDelayedRowActivation, type DelayedRowActivation } from './visible-row-selection'
 import './panel.css'
 
 const nowPlayingModeAtom = atom<NowPlayingMode>('volume')
@@ -118,29 +116,11 @@ function PanelSurface({
   const move = useSetAtom(detentActionAtom)
   const push = useSetAtom(pushScreenActionAtom)
   const pop = useSetAtom(popScreenActionAtom)
-  const moveHighlight = useSetAtom(moveHighlightActionAtom)
   const visibleRows = useAtomValue(visibleRowCountAtom)
   const density = useAtomValue(effectiveDensityAtom)
-  const rowActivation = useRef<DelayedRowActivation | null>(null)
   useEffect(() => acquireAnnouncer(document, deviceStore), [])
-  useEffect(() => () => {
-    rowActivation.current?.dispose()
-  }, [])
-  const cancelPendingRowSelection = () => {
-    rowActivation.current?.cancel()
-  }
-  const selectVisibleRow = (rowIndex: number) => {
-    if (frame === null) return
-    rowActivation.current ??= createDelayedRowActivation()
-    const scheduled = rowActivation.current.schedule(() => {
-      select(deviceStore.get(currentScreenAtom), push, longList)
-    })
-    if (!scheduled) return
-    moveHighlight(rowIndex - frame.highlightIndex)
-  }
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget) return
-    cancelPendingRowSelection()
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       event.preventDefault()
       move({
@@ -163,7 +143,6 @@ function PanelSurface({
     }
   }
   const onWheel = (event: WheelEvent<HTMLDivElement>) => {
-    cancelPendingRowSelection()
     event.preventDefault()
     const deltaMode = event.deltaMode === 1 ? 1 : event.deltaMode === 2 ? 2 : 0
     move({
@@ -174,6 +153,10 @@ function PanelSurface({
       viewportPx: event.currentTarget.clientHeight,
       timestampMs: event.timeStamp,
     })
+  }
+  const onClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea') !== null) return
+    event.currentTarget.focus({ preventScroll: true })
   }
 
   return (
@@ -192,13 +175,12 @@ function PanelSurface({
       aria-activedescendant={frame?.screenId === 'S03' ? `${panelId}-menu-${frame.highlightIndex}` : undefined}
       onKeyDown={onKeyDown}
       onWheel={onWheel}
+      onClick={onClick}
     >
       <span className="wp-sr-only" aria-live="polite" aria-atomic="true" data-announcement-seq={announcement?.seq}>
         {announcement?.text ?? ''}
       </span>
-      {frame === null
-        ? <PanelError message="The player is starting." />
-        : <RenderedScreen frame={frame} state={state} colourway={colourway} artworkTone={artworkTone} visibleRows={visibleRows} actor={actor} panelId={panelId} selectVisibleRow={selectVisibleRow} />}
+      {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state, colourway, artworkTone, visibleRows, actor, panelId)}
     </div>
   )
 }
@@ -221,9 +203,9 @@ function select(frame: ScreenFrame | null, push: (frame: ScreenFrame) => void, l
   }
 }
 
-function RenderedScreen({ frame, state, colourway, artworkTone, visibleRows, actor, panelId, selectVisibleRow }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone | null; readonly visibleRows: number; readonly actor: 'human' | 'agent'; readonly panelId: string; readonly selectVisibleRow: (rowIndex: number) => void }) {
-  if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} selectVisibleRow={selectVisibleRow} />
-  if (frame.screenId === 'S08') return <AlbumTracks frame={frame} state={state} selectVisibleRow={selectVisibleRow} />
+function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone | null, visibleRows: number, actor: 'human' | 'agent', panelId: string) {
+  if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
+  if (frame.screenId === 'S08') return <AlbumTracks frame={frame} state={state} />
   if (frame.screenId === 'S13') return <NowPlaying state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} />
   return <PanelError message="This screen is not part of the MVP preview." />
 }
@@ -238,7 +220,7 @@ function TitleBar({ title, index }: { readonly title: string; readonly index?: s
   )
 }
 
-function MainMenu({ frame, state, visibleRows, panelId, selectVisibleRow }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string; readonly selectVisibleRow: (rowIndex: number) => void }) {
+function MainMenu({ frame, state, visibleRows, panelId }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string }) {
   const success = useLibrarySuccess('S03', frame.title, state)
   const selected = frame.rows[frame.highlightIndex] ?? null
   const baseRows = frame.rows
@@ -247,18 +229,15 @@ function MainMenu({ frame, state, visibleRows, panelId, selectVisibleRow }: { re
     <div className="wp-screen">
       <TitleBar title={frame.title} />
       <div className="wp-menu-split">
-        <ol className="wp-menu-list" aria-label="Music categories" role="listbox" onClick={(event) => activateVisibleRow(event, selectVisibleRow)}>
-          {windowedRows.map((row) => {
-            const unavailable = state === 'loading' || state === 'error' || (state === 'offline' && (row.label === 'Radio' || row.label === 'Search')) || (state === 'permission-denied' && row.label === 'Radio')
-            return <li
+        <ol className="wp-menu-list" aria-label="Music categories" role="listbox">
+          {windowedRows.map((row) => (
+            <li
               id={`${panelId}-menu-${row.index}`}
               role="option"
               aria-selected={row.index === frame.highlightIndex}
-              aria-disabled={unavailable || undefined}
-              data-row-index={row.index}
               data-empty={state === 'empty' && libraryCountLabels.has(row.label) ? 'true' : undefined}
               data-success={success?.screenId === 'S03' && row.label === 'Playlists' ? 'true' : undefined}
-              data-unavailable={unavailable ? 'true' : undefined}
+              data-unavailable={(state === 'offline' && (row.label === 'Radio' || row.label === 'Search')) || (state === 'permission-denied' && row.label === 'Radio') ? 'true' : undefined}
               key={row.index}
               className="wp-menu-row"
               aria-current={row.index === frame.highlightIndex ? 'true' : undefined}
@@ -267,7 +246,7 @@ function MainMenu({ frame, state, visibleRows, panelId, selectVisibleRow }: { re
               <span className="wp-row-meta">{state === 'error' && row.sublabel !== null ? '—' : state === 'loading' && row.sublabel !== null ? '…' : state === 'empty' && libraryCountLabels.has(row.label) ? '0' : row.sublabel}</span>
               <span aria-hidden="true">{state === 'offline' && (row.label === 'Radio' || row.label === 'Search') ? '☁︎' : state === 'permission-denied' && row.label === 'Radio' ? '🔒' : '›'}</span>
             </li>
-          })}
+          ))}
         </ol>
         <div className="wp-menu-preview" aria-label={`${selected?.label ?? 'Music'} preview`} role="group">
           <Artwork state={state === 'loading' || state === 'error' ? 'loading' : 'ready'} />
@@ -287,7 +266,7 @@ function MainMenu({ frame, state, visibleRows, panelId, selectVisibleRow }: { re
   )
 }
 
-function AlbumTracks({ frame, state, selectVisibleRow }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly selectVisibleRow: (rowIndex: number) => void }) {
+function AlbumTracks({ frame, state }: { readonly frame: ScreenFrame; readonly state: PanelState }) {
   const success = useLibrarySuccess('S08', frame.title, state)
   const rows = state === 'loading'
     ? Array.from({ length: 8 }, (_, index) => index)
@@ -299,8 +278,8 @@ function AlbumTracks({ frame, state, selectVisibleRow }: { readonly frame: Scree
         <div className="wp-album-layout">
           <div className="wp-album-list">
             {state === 'loading' || state === 'error' || frame.rows.length <= 100
-              ? <StaticTrackList rows={state === 'error' ? Array.from({ length: 8 }, (_, index) => index) : rows} frame={frame} state={state} success={success !== null} selectVisibleRow={selectVisibleRow} />
-              : <VirtualTrackList frame={frame} state={state} selectVisibleRow={selectVisibleRow} />}
+              ? <StaticTrackList rows={state === 'error' ? Array.from({ length: 8 }, (_, index) => index) : rows} frame={frame} state={state} success={success !== null} />
+              : <VirtualTrackList frame={frame} state={state} />}
           </div>
           <div className="wp-album-preview" role="group" aria-label="Album details">
             <Artwork state={state === 'loading' || state === 'error' ? 'loading' : 'ready'} />
@@ -319,16 +298,14 @@ function StaticTrackList({
   frame,
   state,
   success,
-  selectVisibleRow,
 }: {
   readonly rows: readonly (number | ScreenFrame['rows'][number])[]
   readonly frame: ScreenFrame
   readonly state: PanelState
   readonly success: boolean
-  readonly selectVisibleRow: (rowIndex: number) => void
 }) {
   return (
-    <ol className="wp-track-list" aria-label="Album tracks" role="listbox" onClick={(event) => activateVisibleRow(event, selectVisibleRow)}>
+    <ol className="wp-track-list">
       {rows.map((row, index) => typeof row === 'number'
         ? <li className="wp-track-row wp-skeleton" key={row} aria-hidden="true"><i /></li>
         : <TrackRow key={row.index} row={row} displayIndex={frame.windowStart + index + 1} frame={frame} state={state} success={success} />)}
@@ -336,13 +313,13 @@ function StaticTrackList({
   )
 }
 
-function VirtualTrackList({ frame, state, selectVisibleRow }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly selectVisibleRow: (rowIndex: number) => void }) {
+function VirtualTrackList({ frame, state }: { readonly frame: ScreenFrame; readonly state: PanelState }) {
   const scrollRef = useRef<HTMLOListElement>(null)
   // eslint-disable-next-line react-hooks/incompatible-library
   const virtualizer = useVirtualizer({ count: frame.rows.length, getScrollElement: () => scrollRef.current, estimateSize: () => 26, overscan: 4 })
   useEffect(() => virtualizer.scrollToIndex(frame.highlightIndex, { align: 'auto' }), [frame.highlightIndex, virtualizer])
   return (
-    <ol ref={scrollRef} className="wp-track-list wp-track-list--virtual" data-virtual-count={frame.rows.length} aria-label="Album tracks" role="listbox" onClick={(event) => activateVisibleRow(event, selectVisibleRow)}>
+    <ol ref={scrollRef} className="wp-track-list wp-track-list--virtual" data-virtual-count={frame.rows.length}>
       <li className="wp-virtual-space" style={{ blockSize: virtualizer.getTotalSize() }} aria-hidden="true" />
       {virtualizer.getVirtualItems().map((item) => {
         const row = frame.rows[item.index]
@@ -370,11 +347,7 @@ function TrackRow({
   return (
     <li
       className="wp-track-row"
-      role="option"
-      aria-selected={row.index === frame.highlightIndex}
-      aria-disabled={state === 'offline' || state === 'permission-denied' || undefined}
-      data-row-index={row.index}
-      data-unavailable={state === 'offline' || state === 'permission-denied' ? 'true' : undefined}
+      data-unavailable={state === 'offline' ? 'true' : undefined}
       data-agent={state === 'agent-active' && row.index === frame.highlightIndex ? 'true' : undefined}
       data-success={success && row.index === frame.highlightIndex ? 'true' : undefined}
       aria-current={row.index === frame.highlightIndex ? 'true' : undefined}
@@ -385,21 +358,6 @@ function TrackRow({
       <span className="wp-row-meta">{state === 'offline' ? '☁︎' : row.sublabel}</span>
     </li>
   )
-}
-
-/**
- * Maps a click anywhere inside a rendered row back to the list's one large
- * pointer surface. Visual rows remain options rather than undersized buttons;
- * unavailable rows are rejected before they can move or activate the device.
- */
-function activateVisibleRow(event: MouseEvent<HTMLOListElement>, selectVisibleRow: (rowIndex: number) => void): void {
-  if (!(event.target instanceof Element)) return
-  const row = event.target.closest<HTMLElement>('[data-row-index]')
-  if (row === null || !event.currentTarget.contains(row) || row.dataset['unavailable'] === 'true') return
-  const rowIndex = Number(row.dataset['rowIndex'])
-  if (!Number.isSafeInteger(rowIndex)) return
-  event.currentTarget.closest<HTMLElement>('.wp-panel')?.focus({ preventScroll: true })
-  selectVisibleRow(rowIndex)
 }
 
 function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone | null; readonly actor: 'human' | 'agent' }) {

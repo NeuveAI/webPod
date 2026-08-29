@@ -821,6 +821,15 @@ Every antagonistic reviewer we have run has been on the same idle hardware as th
 
 **Owner-only gates.** H-6 aesthetic acceptance and U14 phone-in-hand occlusion remain outstanding after the mechanical correction.
 
+## D-068 · Panel rows remain non-touch targets; the click wheel is the single-pointer alternative
+**2026-08-29 · binding owner/lead ruling · settled · AFFECTS W3 AND W7**
+
+**Conflict.** pm-spec §4.5 asks a tap on a visible panel row to move the highlight and descend after 80ms. Design-system §11.2/U6 explicitly rejects panel rows as touch targets: at authored scale their 21–26px height cannot meet 44px, and inflating them destroys the eight-row iPod raster. The authentic device also has no touchscreen.
+
+**Decision.** For the MVP, design-system §11.2/U6 and authentic iPod behaviour win. Panel rows are display semantics, never pointer controls. Tapping non-interactive panel content focuses the existing `role="application"` click-wheel control and performs no navigation, playback, or highlight movement. Keyboard operation remains unchanged. The production click-wheel annulus owned by W7 is the accessible single-pointer alternative to its path gesture.
+
+**Implementation consequence.** Commit `7d170dd`, its delayed row-selection driver, row handlers, `data-row-index` plumbing, and direct-activation browser tests are removed by a new revert commit. A browser regression must prove that clicking menu and track rows focuses the panel without changing screens, while Enter still performs the activation. Native actions such as Love remain native buttons and are not swallowed by the focus-only panel handler.
+
 ---
 
 ## Risks carried by these decisions
