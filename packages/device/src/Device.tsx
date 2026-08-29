@@ -282,13 +282,7 @@ export function Device({
       curveSegments: 1,
     });
     geometry.translate(0, 0, -body.depth / 2 + form.backBevel);
-    return addOpticalProfile(
-      geometry,
-      isBlack ? parsedOptical.bodyBlack : parsedOptical.bodyWhite,
-      isBlack ? parsedOptical.bodyBlackLateral : parsedOptical.bodyWhiteLateral,
-      -body.height / 2 + seam,
-      body.height / 2 - seam,
-    );
+    return geometry;
   }, [form.backBevel, frontFaceZ]);
   useEffect(() => () => backGeometry.dispose(), [backGeometry]);
 
@@ -329,7 +323,13 @@ export function Device({
     );
     extrusion.dispose();
     geometry.translate(0, 0, plateBackZ + form.frontBevel);
-    return geometry;
+    return addOpticalProfile(
+      geometry,
+      isBlack ? parsedOptical.bodyBlack : parsedOptical.bodyWhite,
+      isBlack ? parsedOptical.bodyBlackLateral : parsedOptical.bodyWhiteLateral,
+      -body.height / 2 + seam,
+      body.height / 2 - seam,
+    );
   }, [
     form.seamWidth,
     form.frontThickness,
