@@ -61,7 +61,6 @@ export {
   GLASS_SURROUND,
   PX_PER_MM,
   SCREEN_CORNER_R,
-  SILHOUETTE_EXPONENT,
   toCanvasTopLeft,
 } from "./layout";
 export {
@@ -111,6 +110,7 @@ export {
   BODY_BLACK_STOPS,
   BODY_WHITE_STOPS,
   evaluate,
+  matchesProbeIdentity,
   LUMINANCE_TOLERANCE,
   probeTargets,
   rmsDelta,

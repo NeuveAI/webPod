@@ -1,11 +1,10 @@
 /**
  * The silhouette, and the two openings cut out of it.
  *
- * §7.1 clause 3 is the whole point of this module: the device silhouette is a
- * **superellipse of n = 4.2**, not a circular arc, and *only* the device
- * silhouette is. The glass window and the screen active area use ordinary
- * circular corners, because that difference is one of the channels that makes
- * LAW 1's device/glass boundary felt rather than merely asserted.
+ * D-067 makes the saved Pencil component VWaJS authoritative for the visible
+ * enclosure: 330 × 552, radius 26, circular exponent n = 2. This helper keeps
+ * the exponent explicit so the renderer and probe consume the same typed
+ * geometry instead of maintaining parallel corner implementations.
  */
 import { Path, Shape } from "three";
 
@@ -17,10 +16,8 @@ import { Path, Shape } from "three";
  * `u = r·cos(t)^(2/n)`, `v = r·sin(t)^(2/n)`, `t ∈ [0, π/2]`, which sweeps the
  * quadrant exactly once and — unlike sampling `v = r(1 − (u/r)^n)^(1/n)` in
  * equal `u` steps — puts points where the curvature is, so a 12-segment corner
- * is already visually continuous. Continuity of curvature is what separates a
- * squircle from a rounded rectangle; a corner sampled evenly in `u` shows the
- * seam at the tangent point, which is precisely the artefact n = 4.2 exists to
- * remove.
+ * is already visually continuous. The parametrisation also remains valid for
+ * D-067's circular n = 2 case.
  */
 function superellipseCorner(
   cx: number,

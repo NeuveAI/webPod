@@ -20,6 +20,7 @@
  * {@link toCanvasTopLeft}.
  */
 import {
+  BODY_CORNER_EXPONENT,
   BODY_CORNER_R,
   BODY_H,
   BODY_W,
@@ -62,9 +63,6 @@ export const GLASS_CORNER_R: number = 7;
 
 /** §7.1: screen active area radius, mobile — glass − 3px print inset. */
 export const SCREEN_CORNER_R: number = 4;
-
-/** §7.1: the silhouette is a superellipse of this exponent, not a circular arc. */
-export const SILHOUETTE_EXPONENT: number = 4.2;
 
 /** Body depth in CSS px. */
 export const BODY_D: number = MM.bodyDepth * PX_PER_MM;
@@ -127,7 +125,7 @@ export const DEVICE_LAYOUT = Object.freeze({
     height: BODY_H,
     depth: BODY_D,
     cornerR: BODY_CORNER_R,
-    exponent: SILHOUETTE_EXPONENT,
+    exponent: BODY_CORNER_EXPONENT,
   }),
   /** The emissive panel — the active area W6 composites onto. */
   screen: Object.freeze({

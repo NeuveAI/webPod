@@ -16,8 +16,8 @@ describe("§12.3 device material contract", () => {
       clearcoat: 1,
       clearcoatRoughness: 0.06,
       reflectivity: 0.55,
-      sheen: 0.08,
-      sheenColor: "#2B313A",
+      sheen: 0.15,
+      sheenColor: "#6E4A2E",
     });
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite).toMatchObject({
       color: "#E2E5E8",
@@ -101,6 +101,7 @@ describe("§12.3 device material contract", () => {
       color: "#98A1AA",
       metalness: 1,
       roughness: 0.18,
+      envMapIntensity: 0.8,
     });
     expect(DEFAULT_DEVICE_MATERIALS.chromeSeam.envMapIntensity).toBeLessThan(
       DEFAULT_DEVICE_MATERIALS.steelBack.envMapIntensity ?? 0,

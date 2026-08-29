@@ -60,6 +60,9 @@ export type ProbeTarget = {
    * the surface is only exposed on the axis.
    */
   readonly xs: ReadonlyArray<number>;
+  /** Raycast identity required before framebuffer bytes are admitted. */
+  readonly objectName: string;
+  readonly materialName: string;
 };
 
 /** What the caller brings back: the sRGB bytes at each target's columns. */
@@ -88,9 +91,39 @@ export type ProbeResult = {
 /** §12.3's tolerance. */
 export const LUMINANCE_TOLERANCE = 4;
 
+export function matchesProbeIdentity(
+  target: Pick<ProbeTarget, "objectName" | "materialName">,
+  objectName: string | undefined,
+  materialNames: ReadonlyArray<string | undefined>,
+): boolean {
+  return (
+    objectName === target.objectName &&
+    materialNames.includes(target.materialName)
+  );
+}
+
 const { body, wheel } = DEVICE_LAYOUT;
 const HALF_W = body.width / 2;
 const HALF_H = body.height / 2;
+
+function identity(surface: ProbeSurface) {
+  switch (surface) {
+    case "body-black":
+      return { objectName: "device-body", materialName: "body-black" };
+    case "body-white":
+      return { objectName: "device-body", materialName: "body-white" };
+    case "steel-back":
+      return { objectName: "device-steel-back", materialName: "steel-back" };
+    case "wheel-ring-black":
+      return { objectName: "device-wheel", materialName: "wheel-black" };
+    case "wheel-ring-white":
+      return { objectName: "device-wheel", materialName: "wheel-white" };
+    case "select-black":
+      return { objectName: "device-select", materialName: "select-black" };
+    case "select-white":
+      return { objectName: "device-select", materialName: "select-white" };
+  }
+}
 
 type Stop = {
   readonly at: number;
@@ -178,8 +211,10 @@ export function silhouetteHalfWidth(
 }
 
 export type TargetOptions = {
-  /** How far inside a silhouette edge a sample must sit to clear antialiasing. */
+  /** How far inside the body silhouette a sample sits to clear antialiasing. */
   readonly edgeInset: number;
+  /** Extra clearance from the recessed wheel/select walls. */
+  readonly controlInset: number;
   /** Depth of the polycarbonate and glass faces. */
   readonly frontFaceZ: number;
   /** Depth of the steel back's face. */
@@ -232,6 +267,7 @@ function bodyTargets(
     }
     x = Math.min(x, half - inset);
     return {
+      ...identity(surface),
       surface,
       token: stop.token,
       at: stop.at,
@@ -303,6 +339,7 @@ function steelTargets(options: TargetOptions): Array<ProbeTarget> {
     );
     point.x = Math.min(reach, Math.max(-reach, point.x));
     return {
+      ...identity("steel-back"),
       surface: "steel-back" as const,
       token: `--steel-${index}`,
       at: stop.at,
@@ -356,7 +393,7 @@ function ringTargets(
   stops: ReadonlyArray<Stop>,
   options: TargetOptions,
 ): Array<ProbeTarget> {
-  const inset = options.edgeInset;
+  const inset = options.controlInset;
   // A radius that clears the Select plug, the printed label band (§12.0's
   // measured r 77–79) and the ring's own rim.
   const preferredR = (wheel.labelBandOuterR + (wheel.outerR - inset)) / 2;
@@ -367,6 +404,7 @@ function ringTargets(
     const radius = Math.max(Math.abs(dy), Math.min(preferredR, maxDy));
     const x = Math.sqrt(Math.max(0, radius ** 2 - dy ** 2));
     return {
+      ...identity(surface),
       surface,
       token: stop.token,
       at: stop.at,
@@ -384,7 +422,7 @@ function selectTargets(
   stops: ReadonlyArray<Stop>,
   options: TargetOptions,
 ): Array<ProbeTarget> {
-  const inset = options.edgeInset;
+  const inset = options.controlInset;
   const maxR = wheel.selectR - inset;
   return stops.map((stop) => {
     const rawDy = wheel.selectR - stop.at * wheel.selectR * 2;
@@ -392,6 +430,7 @@ function selectTargets(
     const radius = Math.max(Math.abs(dy), Math.min(maxR * 0.7, maxR));
     const x = Math.sqrt(Math.max(0, radius ** 2 - dy ** 2));
     return {
+      ...identity(surface),
       surface,
       token: stop.token,
       at: stop.at,

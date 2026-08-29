@@ -101,13 +101,8 @@ export type DeviceProps = {
 
 const { body, glass, screen, wheel } = DEVICE_LAYOUT;
 
-// The reusable Pencil frame VWaJS is the visual source for the enclosure: its
-// 330 × 552 body has a visibly circular 26 px corner.  The 4.2 superellipse in
-// the older token table produces an almost square slab at the actual preview
-// scale, so the rendered shell uses the observed outline while retaining the
-// locked internal layout and wheel/screen geometry.
-const ENCLOSURE_CORNER_R = 26;
-const ENCLOSURE_EXPONENT = 2;
+// D-067 puts VWaJS's circular 26px enclosure in DEVICE_LAYOUT; every shell
+// below consumes that single typed geometry.
 
 /** Bevel segments everywhere. Rolled edges are the §10.4 conic response. */
 const BEVEL_SEGMENTS = 6;
@@ -247,8 +242,8 @@ export function Device({
     const shape = silhouetteShape(
       body.width,
       body.height,
-      ENCLOSURE_CORNER_R,
-      ENCLOSURE_EXPONENT,
+      body.cornerR,
+      body.exponent,
     );
     // The steel's openings are a pixel wider than the plastic's, so the two
     // opening walls are never coplanar. Coplanar walls z-fight; the extra pixel
@@ -282,8 +277,8 @@ export function Device({
     const shape = silhouetteShape(
       body.width,
       body.height,
-      ENCLOSURE_CORNER_R,
-      ENCLOSURE_EXPONENT,
+      body.cornerR,
+      body.exponent,
     );
     const depth = frontFaceZ + splitZ - 2 * form.backBevel;
     const geometry = new ExtrudeGeometry(shape, {
@@ -308,8 +303,8 @@ export function Device({
     const shape = silhouetteShape(
       body.width - 2 * seam,
       body.height - 2 * seam,
-      ENCLOSURE_CORNER_R - seam,
-      ENCLOSURE_EXPONENT,
+      body.cornerR - seam,
+      body.exponent,
     );
     shape.holes.push(
       roundedRectHole(
@@ -534,8 +529,9 @@ export function Device({
       />
 
       {/* §5.2 — the mirror-polished back plate, uncut. */}
-      <mesh geometry={backGeometry}>
+      <mesh name="device-steel-back" geometry={backGeometry}>
         <meshPhysicalMaterial
+          name="steel-back"
           {...spread(materials.steelBack)}
           envMap={env}
           roughnessMap={noise}
@@ -553,8 +549,9 @@ export function Device({
       </mesh>
 
       {/* §5.1 / §4.3 — the polycarbonate front, inset by the seam. */}
-      <mesh geometry={frontGeometry}>
+      <mesh name="device-body" geometry={frontGeometry}>
         <meshPhysicalMaterial
+          name={isBlack ? "body-black" : "body-white"}
           {...spread(bodyMaterial)}
           envMap={env}
           roughnessMap={noise}
@@ -567,15 +564,21 @@ export function Device({
 
       {/* §5.3 — the dished ring, at the bottom of the recess. */}
       <mesh
+        name="device-wheel"
         geometry={ringGeometry}
         position={[wheel.centerX, wheel.centerY, ringZ]}
       >
-        <meshPhysicalMaterial {...spread(ringMaterial)} envMap={env} />
+        <meshPhysicalMaterial
+          name={isBlack ? "wheel-black" : "wheel-white"}
+          {...spread(ringMaterial)}
+          envMap={env}
+        />
       </mesh>
 
       {/* §5.3 L8 — screen-printed ink. A separate transparent decal is
           required because a multiplicative map cannot lighten the black ring. */}
       <mesh
+        name="wheel-label-decal"
         geometry={ringGeometry}
         position={[wheel.centerX, wheel.centerY, ringZ + 0.08]}
         renderOrder={2}
@@ -592,6 +595,7 @@ export function Device({
 
       {/* §5.4 — the translucent plug, the one raised element on the wheel. */}
       <mesh
+        name="device-select"
         geometry={selectWallGeometry}
         position={[
           wheel.centerX,
@@ -600,13 +604,22 @@ export function Device({
         ]}
         rotation={[Math.PI / 2, 0, 0]}
       >
-        <meshPhysicalMaterial {...spread(selectMaterial)} envMap={env} />
+        <meshPhysicalMaterial
+          name={isBlack ? "select-black" : "select-white"}
+          {...spread(selectMaterial)}
+          envMap={env}
+        />
       </mesh>
       <mesh
+        name="device-select"
         geometry={selectGeometry}
         position={[wheel.centerX, wheel.centerY, selectRimZ + selectSag]}
       >
-        <meshPhysicalMaterial {...spread(selectMaterial)} envMap={env} />
+        <meshPhysicalMaterial
+          name={isBlack ? "select-black" : "select-white"}
+          {...spread(selectMaterial)}
+          envMap={env}
+        />
       </mesh>
 
       {/* §5.5 L2 — the printed black surround, flat, no gloss of its own. */}

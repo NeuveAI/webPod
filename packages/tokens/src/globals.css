@@ -38,7 +38,7 @@
   --radius-panel-max:   6px;      /* ⚑ hard ceiling inside the panel (Panel Discipline) */
   --radius-glass-panel: 22px;
   --radius-sheet:       26px;
-  --radius-device:      33px;     /* superellipse n=4.2 — see §7.1, not a border-radius */
+  --radius-device:      26px;     /* D-067: circular Pencil VWaJS enclosure */
 
   /* -- easing -- */
   --ease-ios-out:    cubic-bezier(0.33, 1, 0.68, 1);

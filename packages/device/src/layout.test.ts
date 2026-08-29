@@ -15,6 +15,7 @@
 import { describe, expect, test } from "bun:test";
 
 import {
+  BODY_CORNER_EXPONENT,
   BODY_CORNER_R,
   BODY_H,
   BODY_W,
@@ -30,6 +31,7 @@ import {
 } from "@webpod/tokens";
 
 import { DEVICE_LAYOUT, PX_PER_MM, toCanvasTopLeft } from "./layout";
+import { DEFAULT_DEVICE_FORM } from "./form";
 import { silhouetteHalfWidth } from "./luminance-probe";
 
 describe("§12.0 R5 geometry — the numbers the dispatch names", () => {
@@ -91,9 +93,14 @@ describe("§12.0 R5 geometry — the numbers the dispatch names", () => {
     expect(PANEL_H / PANEL_SCALE).toBe(240);
   });
 
-  test("body corner radius 33px, superellipse n = 4.2 (§7.3 mobile, §7.1 clause 3)", () => {
-    expect(BODY_CORNER_R).toBe(33);
-    expect(DEVICE_LAYOUT.body.exponent).toBe(4.2);
+  test("D-067 uses Pencil VWaJS's circular 26px enclosure", () => {
+    expect(BODY_CORNER_R).toBe(26);
+    expect(BODY_CORNER_EXPONENT).toBe(2);
+    expect(DEVICE_LAYOUT.body.exponent).toBe(BODY_CORNER_EXPONENT);
+  });
+
+  test("the saved Pencil seam remains a thin 2px material boundary", () => {
+    expect(DEFAULT_DEVICE_FORM.seamWidth).toBe(2);
   });
 });
 
@@ -152,18 +159,16 @@ describe("the vertical chain, re-derived at wheelR 115", () => {
   });
 });
 
-describe("the silhouette is a superellipse, not a rounded rectangle", () => {
-  test("n = 4.2 is fuller at the corner than a circular arc of the same radius", () => {
-    // At 45° into the corner the superellipse stands proud of the circle; that
-    // difference *is* the squircle. Same radius, same box, different curve.
-    const y = 552 / 2 - 33 + 33 * Math.SQRT1_2;
-    const superellipse = silhouetteHalfWidth(y, 165, 276, 33, 4.2);
-    const circular = silhouetteHalfWidth(y, 165, 276, 33, 2);
-    expect(superellipse).toBeGreaterThan(circular);
+describe("the D-067 circular enclosure", () => {
+  test("matches the analytic 26px circular corner", () => {
+    const y = 276 - 26 + 26 * Math.SQRT1_2;
+    const actual = silhouetteHalfWidth(y, 165, 276, 26, 2);
+    const expected = 165 - 26 + 26 * Math.SQRT1_2;
+    expect(actual).toBeCloseTo(expected, 10);
   });
 
-  test("it is exactly the box width away from the corners", () => {
-    expect(silhouetteHalfWidth(0, 165, 276, 33, 4.2)).toBe(165);
-    expect(silhouetteHalfWidth(240, 165, 276, 33, 4.2)).toBe(165);
+  test("keeps the full box width on its straight sides", () => {
+    expect(silhouetteHalfWidth(0, 165, 276, 26, 2)).toBe(165);
+    expect(silhouetteHalfWidth(240, 165, 276, 26, 2)).toBe(165);
   });
 });

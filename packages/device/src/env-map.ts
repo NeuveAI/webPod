@@ -219,16 +219,16 @@ export const DEFAULT_ENV_ROOM: EnvRoomParams = {
   // atan((552/2) / 1160) = 13.4° — the half-angle a 552px plate at the default
   // camera distance actually reflects. Registering the table to that band is
   // what makes the plate show the whole of §4.4 rather than its middle third.
-  elevHalfSpanDeg: 16.8375,
+  elevHalfSpanDeg: 20.8375,
   stops: STEEL_STOPS,
   stopExposure: STEEL_STOPS.map(() => 1),
   radianceGain: radianceGainForMirror(DEFAULT_DEVICE_MATERIALS.steelBack.color),
   exposure: 1.15,
   profileContrast: 0.9906,
-  profileSharpenAmount: 0.94,
-  profileSharpenSigma: 0.0515,
-  profileSharpenAmount2: 1.105,
-  profileSharpenSigma2: 0.0365,
+  profileSharpenAmount: 1.1,
+  profileSharpenSigma: 0.0195,
+  profileSharpenAmount2: 1.745,
+  profileSharpenSigma2: 0.0205,
   sky: {
     // §4.1's room sweep originates at 28% 8% and §5.2 L3's blob at 26% 12% —
     // both upper-left. LAW 2 keeps the *key light* at 12 o'clock; the room's
@@ -236,14 +236,14 @@ export const DEFAULT_ENV_ROOM: EnvRoomParams = {
     // what §5.1 L5 draws the specular arc at x 32% from.
     azimuthDeg: -39.75,
     elevationDeg: 48,
-    sizeDeg: 32.8125,
-    intensity: 0.375,
+    sizeDeg: 38.8125,
+    intensity: 1.015,
   },
   horizon: {
     at: 0.43,
-    widthDeg: 0.95,
+    widthDeg: 4.55,
     color: "#4A525C",
-    opacity: 0.0125,
+    opacity: 0.6125,
   },
   azimuthVariation: 0.585,
 };

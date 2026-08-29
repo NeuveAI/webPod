@@ -110,10 +110,8 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoat: 1.0,
     clearcoatRoughness: 0.06,
     reflectivity: 0.55,
-    // A restrained cool subsurface lift keeps the black shell neutral in both
-    // rooms; the former warm-brown sheen made it read as bronze.
-    sheen: 0.08,
-    sheenColor: "#2B313A",
+    sheen: 0.15,
+    sheenColor: "#6E4A2E",
     sheenRoughness: 1.0,
     envMapIntensity: 0.09,
   },
@@ -124,7 +122,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoat: 1.0,
     clearcoatRoughness: 0.08,
     reflectivity: 0.5,
-    envMapIntensity: 0.0106,
+    envMapIntensity: 0.1306,
   },
   steelBack: {
     color: "#C4CBD2",
@@ -138,7 +136,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     color: "#98A1AA",
     metalness: 1.0,
     roughness: 0.18,
-    envMapIntensity: 0.16,
+    envMapIntensity: 0.8,
   },
   wheelRingBlack: {
     color: "#23262B",
@@ -178,7 +176,7 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoat: 1.0,
     clearcoatRoughness: 0.06,
     metalness: 0,
-    envMapIntensity: 0.02,
+    envMapIntensity: 0.47,
   },
   coverGlass: {
     // §4.6's `--panel-bg` is behind the sheet; the sheet itself is colourless.

@@ -1,11 +1,20 @@
 import { describe, expect, test } from "bun:test";
 
-import { evaluate, LUMINANCE_TOLERANCE } from "./luminance-probe";
+import {
+  evaluate,
+  LUMINANCE_TOLERANCE,
+  matchesProbeIdentity,
+  probeTargets,
+  silhouetteHalfWidth,
+} from "./luminance-probe";
+import { DEVICE_LAYOUT } from "./layout";
 
 describe("§12.3 luminance tolerance", () => {
   test("preserves mirrored readings instead of hiding asymmetry in the average", () => {
     const target = {
       surface: "body-black" as const,
+      objectName: "device-body",
+      materialName: "body-black",
       token: "raw",
       at: 0.5,
       expectedHex: "#808080",
@@ -35,6 +44,8 @@ describe("§12.3 luminance tolerance", () => {
       {
         target: {
           surface: "steel-back",
+          objectName: "device-steel-back",
+          materialName: "steel-back",
           token: "--steel-5",
           at: 0.5,
           expectedHex: expected,
@@ -56,6 +67,8 @@ describe("§12.3 luminance tolerance", () => {
       {
         target: {
           surface: "steel-back",
+          objectName: "device-steel-back",
+          materialName: "steel-back",
           token: "--steel-5",
           at: 0.5,
           expectedHex: "#808080",
@@ -68,5 +81,63 @@ describe("§12.3 luminance tolerance", () => {
     ]);
 
     expect(result?.pass).toBe(false);
+  });
+});
+
+describe("D-067 probe geometry and identity", () => {
+  const edgeInset = 3;
+  const options = {
+    edgeInset,
+    controlInset: 6,
+    frontFaceZ: DEVICE_LAYOUT.body.depth / 2,
+    backFaceZ: DEVICE_LAYOUT.body.depth / 2,
+    seamWidth: 3,
+    ringZ: () => DEVICE_LAYOUT.body.depth / 2 - 4,
+    selectZ: () => DEVICE_LAYOUT.body.depth / 2 - 2,
+  };
+
+  test("every target carries an expected object and material identity", () => {
+    for (const colourway of ["black", "white"] as const) {
+      for (const face of ["front", "back"] as const) {
+        for (const target of probeTargets(colourway, face, options)) {
+          expect(target.objectName).toStartWith("device-");
+          expect(target.materialName.length).toBeGreaterThan(0);
+        }
+      }
+    }
+  });
+
+  test("off-surface and wrong-material hits cannot count", () => {
+    const target = probeTargets("black", "front", options)[0];
+    expect(target).toBeDefined();
+    if (target === undefined) return;
+    expect(
+      matchesProbeIdentity(target, target.objectName, [target.materialName]),
+    ).toBe(true);
+    expect(matchesProbeIdentity(target, undefined, [])).toBe(false);
+    expect(
+      matchesProbeIdentity(target, "device-steel-back", ["steel-back"]),
+    ).toBe(false);
+    expect(
+      matchesProbeIdentity(target, target.objectName, ["chrome-seam"]),
+    ).toBe(false);
+  });
+
+  test("body samples stay inside the shared circular enclosure by the safe margin", () => {
+    const seam = options.seamWidth;
+    for (const target of probeTargets("white", "front", options).filter(
+      (entry) => entry.surface === "body-white",
+    )) {
+      const reach = silhouetteHalfWidth(
+        target.y,
+        DEVICE_LAYOUT.body.width / 2 - seam,
+        DEVICE_LAYOUT.body.height / 2 - seam,
+        DEVICE_LAYOUT.body.cornerR - seam,
+        DEVICE_LAYOUT.body.exponent,
+      );
+      for (const x of target.xs) {
+        expect(Math.abs(x)).toBeLessThanOrEqual(reach - edgeInset + 1e-9);
+      }
+    }
   });
 });

@@ -33,6 +33,7 @@ import {
   DEVICE_LAYOUT,
   DeviceCanvas,
   evaluate,
+  matchesProbeIdentity,
   probeTargets,
   rmsDelta,
   type Colourway,
@@ -50,7 +51,9 @@ import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
 import {
   CanvasTexture,
   MeshBasicMaterial,
+  Raycaster,
   SRGBColorSpace,
+  Vector2,
   Vector3,
 } from "three";
 
@@ -212,7 +215,11 @@ function LuminanceProbe() {
       form.selectDomeExponent;
 
     const targets = probeTargets(active.colourway, active.face, {
+      // Three body pixels clears bevel antialiasing while preserving the stop
+      // table's endpoint response. Raycast identity below is the authority.
       edgeInset: 3,
+      // Recess walls need more clearance than the exposed body perimeter.
+      controlInset: 6,
       frontFaceZ,
       // The back face is rotated into view, so in world space it sits at +z
       // exactly where the front face does.
@@ -259,10 +266,30 @@ function LuminanceProbe() {
       frame,
     );
     const point = new Vector3();
+    const ndc = new Vector2();
+    const raycaster = new Raycaster();
 
     const readings: Array<ProbeReading> = targets.map((target) => {
       const samples = target.xs.map((x) => {
         point.set(x, target.y, target.z).project(camera);
+        ndc.set(point.x, point.y);
+        raycaster.setFromCamera(ndc, camera);
+        const hit = raycaster
+          .intersectObjects(scene.children, true)
+          .find((intersection) =>
+            intersection.object.name.startsWith("device-"),
+          );
+        const material = hit?.object as unknown as {
+          material?: { name?: string } | Array<{ name?: string }>;
+        };
+        const materialNames = Array.isArray(material?.material)
+          ? material.material.map((entry) => entry.name)
+          : [material?.material?.name];
+        if (!matchesProbeIdentity(target, hit?.object.name, materialNames)) {
+          throw new Error(
+            `device probe rejected ${target.token}: expected ${target.objectName}/${target.materialName}, hit ${hit?.object.name ?? "nothing"}/${materialNames.join("|")}`,
+          );
+        }
         const px = Math.min(
           bufferW - 1,
           Math.max(0, Math.round((point.x * 0.5 + 0.5) * bufferW)),

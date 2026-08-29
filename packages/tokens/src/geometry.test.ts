@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 
 import {
+  BODY_CORNER_EXPONENT,
   BODY_CORNER_R,
   BODY_H,
   BODY_W,
@@ -32,7 +33,8 @@ describe('R5 geometry table', () => {
     expect(LABEL_BAND_INNER_R).toBe(77)
     expect(LABEL_BAND_OUTER_R).toBe(79)
     expect(RECESS_SHADOW_REACH_R).toBe(104)
-    expect(BODY_CORNER_R).toBe(33)
+    expect(BODY_CORNER_R).toBe(26)
+    expect(BODY_CORNER_EXPONENT).toBe(2)
     expect(PANEL_W).toBe(272)
     expect(PANEL_H).toBe(204)
     expect(PANEL_SCALE).toBe(0.85)

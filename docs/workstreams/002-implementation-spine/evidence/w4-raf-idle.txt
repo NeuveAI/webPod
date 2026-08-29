@@ -126,3 +126,15 @@ seconds scheduled **0** callbacks. White scheduled two bounded callbacks and
 remained at 2 after five more seconds; black scheduled two more and remained at
 4 after another five seconds. Replacing the screen geometry therefore did not
 introduce a render loop.
+
+RECHECK AFTER D-067 GEOMETRY / MATERIAL CORRECTION — 2026-08-29
+---------------------------------------------------------------
+Fresh `/_spike/device` reload, wrapper installed after a 1.2s settle:
+
+  after 5s untouched:             0 callbacks
+  after one colourway change:     4 callbacks
+  after a further 3s untouched:   4 callbacks
+
+The D-067 raycast probe, corrected SSS map, thin chrome seam and shared circular
+enclosure preserve demand rendering. The positive control moved and the count
+then stopped, so zero idle callbacks is a live measurement.

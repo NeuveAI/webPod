@@ -103,6 +103,7 @@ const HORIZON: ReadonlyArray<readonly [string, string]> = [
 const MATERIAL_KEYS = [
   "bodyBlack",
   "bodyWhite",
+  "chromeSeam",
   "wheelRingBlack",
   "wheelRingWhite",
   "selectBlack",
@@ -144,6 +145,16 @@ for (const [key, file, field] of TARGETS) {
   edits.set(file, patch(await read(file), field, value));
 }
 
+const lightRigFile = "packages/device/src/light-rig.ts";
+const fillDistance = RIG["lightRig.fill.distance"];
+if (fillDistance !== undefined) {
+  const lightRig = await read(lightRigFile);
+  edits.set(
+    lightRigFile,
+    patch(lightRig, "distance", fillDistance, lightRig.indexOf("  fill: {")),
+  );
+}
+
 const envFile = "packages/device/src/env-map.ts";
 let env = await read(envFile);
 for (const [key, field] of SKY) {
@@ -157,18 +168,6 @@ for (const [key, field] of HORIZON) {
     env = patch(env, field, value, env.indexOf("  horizon: {"));
 }
 edits.set(envFile, env);
-
-const stopExposure = Array.from(
-  { length: 11 },
-  (_, index) => RIG[`envRoom.stopExposure.${index}`],
-);
-if (stopExposure.every((value) => value !== undefined)) {
-  env = (edits.get(envFile) ?? env).replace(
-    /stopExposure:\s*\[[^\]]+\]/s,
-    `stopExposure: [${stopExposure.map((value) => round(value as number)).join(", ")}]`,
-  );
-  edits.set(envFile, env);
-}
 
 const materialsFile = "packages/device/src/materials.ts";
 let materials = await read(materialsFile);

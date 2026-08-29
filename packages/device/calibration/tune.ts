@@ -137,16 +137,6 @@ const ROOM_KNOBS: ReadonlyArray<Knob> = [
   { path: "envRoom.horizon.widthDeg", min: 0.3, max: 6, step: 0.3 },
   { path: "cameraDistance", min: 700, max: 3000, step: 40 },
 ];
-const ROOM_BAND_KNOBS: ReadonlyArray<Knob> = Array.from(
-  { length: 11 },
-  (_, index) => ({
-    path: `envRoom.stopExposure.${index}`,
-    min: 0.25,
-    max: 3,
-    step: 0.08,
-  }),
-);
-
 const FRONT_KNOBS: ReadonlyArray<Knob> = [
   // LAW 2 leaves the key's distance and strength free; its direction is fixed.
   // The closed-form two-colour solve puts the shared key in the far-field and
@@ -288,10 +278,29 @@ async function score(
   views: string,
   settleMs = SETTLE_MS,
 ): Promise<Array<Result>> {
-  const raw = await page.evaluate<string>(
-    SCORE_EXPR(JSON.stringify(patch), views, settleMs),
-  );
-  return JSON.parse(raw) as Array<Result>;
+  try {
+    const raw = await page.evaluate<string>(
+      SCORE_EXPR(JSON.stringify(patch), views, settleMs),
+    );
+    return JSON.parse(raw) as Array<Result>;
+  } catch {
+    // A candidate that moves a recess wall over a target is not evidence; the
+    // strict D-067 probe throws. Give that candidate an unambiguously losing
+    // score and continue instead of weakening the identity assertion.
+    return [
+      {
+        surface: "invalid-geometry",
+        token: "raycast-identity",
+        at: 0,
+        expectedHex: "#000000",
+        expectedLuma: 0,
+        measuredLuma: 255,
+        measuredRgb: [255, 255, 255],
+        delta: 255,
+        pass: false,
+      },
+    ];
+  }
 }
 
 /**
@@ -345,7 +354,7 @@ async function main() {
     "params" in savedDocument ? savedDocument.params : savedDocument
   ) as Record<string, number>;
 
-  const allKnobs = [...ROOM_KNOBS, ...ROOM_BAND_KNOBS, ...FRONT_KNOBS];
+  const allKnobs = [...ROOM_KNOBS, ...FRONT_KNOBS];
   const start: Record<string, number> = {};
   for (const knob of allKnobs) {
     const value = saved[knob.path] ?? getPath(params as Json, knob.path);
@@ -364,11 +373,7 @@ async function main() {
   const stage =
     command === "room" ? "room" : command === "front" ? "front" : "all";
   const knobs =
-    stage === "room"
-      ? [...ROOM_KNOBS, ...ROOM_BAND_KNOBS]
-      : stage === "front"
-        ? FRONT_KNOBS
-        : allKnobs;
+    stage === "room" ? ROOM_KNOBS : stage === "front" ? FRONT_KNOBS : allKnobs;
   const views =
     stage === "room" ? VIEWS.room : stage === "front" ? VIEWS.front : VIEWS.all;
   const iterations = Number(arg ?? 40);

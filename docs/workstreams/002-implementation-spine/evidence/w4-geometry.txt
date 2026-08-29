@@ -1,164 +1,44 @@
-W4 — §12.0 geometry, asserted against the section's own literals
-================================================================
-Captured 2026-08-28 · bun 1.4.0
-Test: packages/device/src/layout.test.ts
-Implementation: packages/device/src/layout.ts, which IMPORTS every §12.0
-constant from @webpod/tokens and re-types none of them.
+W4 — D-067 shared enclosure geometry
+====================================
+Captured 2026-08-29 · bun 1.4.0
 
-D-050 — "a constant is gated only if falsifying it turns a test red." Every
-expected value in layout.test.ts is a number read off design-system §12.0 /
-§7.3 and written by hand with the section cited. NOTHING is recomputed from the
-tokens under test: the implementation imports the tokens, the test asserts the
-spec, and if the two ever disagree the test says which is wrong. A test that
-derived both sides from `WHEEL_R` would move with the bug and report green.
+Authoritative saved Pencil component (read through Pencil MCP):
+  VWaJS body              330 × 552
+  VWaJS enclosure corner  circular, radius 26
 
-The numbers the dispatch names, and where they come from:
+One typed definition:
+  @webpod/tokens BODY_W                 330
+  @webpod/tokens BODY_H                 552
+  @webpod/tokens BODY_CORNER_R          26
+  @webpod/tokens BODY_CORNER_EXPONENT   2
 
-  wheelR              115        @webpod/tokens WHEEL_R                 §12.0
-  body                330 × 552  @webpod/tokens BODY_W, BODY_H          §12.0
-  wheel/body ratio    0.697      derived, vs the real 5G's 0.699        §12.0
-  Select r / lip      42 / 46    SELECT_R, SELECT_LIP_R                 §12.0
-  label band          r 77–79    LABEL_BAND_INNER_R, LABEL_BAND_OUTER_R §12.0
-  band constant       ×0.493     asserted to land inside 77–79, and     §12.0
-                                 ×0.57 asserted to land OUTSIDE it
-  recess reach        r 104      RECESS_SHADOW_REACH_R                  §12.0
-  panel active        272 × 204  PANEL_W, PANEL_H                       §7.3
-  panel scale         0.85       PANEL_SCALE, = 17/20 exactly           §7.4
-  body corner         33px       BODY_CORNER_R                          §7.3
-  silhouette          n = 4.2    superellipse, not a circular arc       §7.1
+`packages/device/src/layout.ts` imports those four values into
+`DEVICE_LAYOUT.body`. `Device.tsx` uses that object for the steel shell, back
+plate, polycarbonate front, and CSS shadow. `luminance-probe.ts` uses the same
+object to derive every body/back target. There is no renderer-local enclosure
+constant.
 
-⚠ §7.3's DESKTOP column is stale (D-021) and is not read anywhere. §7.3's
-MILLIMETRE column is not stale — it is measurements of the real 5th generation
-— and is the only thing taken from that section, through one scale factor.
+Probe admission:
+  body/back perimeter inset     3 body px
+  wheel/select recess inset     6 body px
+  identity gate                 expected object name + material name
+  failure mode                  throw; no framebuffer sample is admitted
 
-The vertical chain is re-derived rather than transcribed, because §7.3 states it
-at wheelR 106 and §12.0 raised the wheel to 115:
+Tests:
+  bun test packages/device/src/layout.test.ts \
+    packages/device/src/luminance-probe.test.ts \
+    packages/tokens/src/geometry.test.ts
 
-    48  top → glass     (9.0mm × 5.3398)
-   204  active area     (PANEL_H)
-    43  glass → wheel   (8.0mm × 5.3398)
-   230  wheel           (WHEEL_R × 2)
-    27  wheel → bottom  (the remainder)
-   ---
-   552  BODY_H  ✓
+Result:
+  40 pass
+  0 fail
 
-The bottom margin is left as the remainder so the chain closes on BODY_H by
-construction — and it then independently lands within 1px of §7.3's measured
-5.2mm (27.77px), which §7.3 itself predicts ("the real ratio gives 28px"). That
-agreement is the check that wheelR 115 is self-consistent geometry rather than a
-patch, and it is asserted.
+The D-067 tests assert the literal 330×552 / 26 / 2 contract, the analytic
+circular corner, full straight-side width, shared layout values, expected mesh
+and material identity on every target, rejection of off-surface hits, and the
+safe body margin against the same silhouette equation used by the probe.
 
-
-FALSIFICATION — twelve plants, each confirmed red
-==================================================
-Each §12.0 / §7.3 constant was given a wrong value in packages/tokens (a value
-a careless edit could plausibly produce — off by one, or the other rounding),
-the test was run, and the token was restored. `git diff -- packages/tokens` is
-empty afterwards; the plants were never committed.
-
-BASELINE (no plant)
- 18 pass
- 0 fail
- 45 expect() calls
-Ran 18 tests across 1 file. [23.00ms]
-----------------------------------------------------------------
-PLANT: wheelR 115 -> 116   (WHEEL_R: number = 115  ->  WHEEL_R: number = 116)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > wheelR is 115 (§12.0, "wheelR 106 → 115") [0.14ms]
-(fail) §12.0 R5 geometry — the numbers the dispatch names > wheel/body is 0.697, against the real 5G’s 0.699 (§12.0) [0.05ms]
-(fail) the vertical chain, re-derived at wheelR 115 > 48 + 204 + 43 + 230 + 27 = 552 (§7.3 millimetres, §12.0 wheel) [0.03ms]
-(fail) the vertical chain, re-derived at wheelR 115 > the bottom margin lands on §7.3’s measured 5.2mm [0.04ms]
-(fail) the vertical chain, re-derived at wheelR 115 > wheel centre sits 134px below the body centre [0.03ms]
- 5 fail
-RESULT: 5 fail
-----------------------------------------------------------------
-PLANT: body width 330 -> 331   (BODY_W: number = 330  ->  BODY_W: number = 331)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > body is 330 × 552 (§12.0, "body 330 × 552") [0.13ms]
-(fail) §12.0 R5 geometry — the numbers the dispatch names > wheel/body is 0.697, against the real 5G’s 0.699 (§12.0) [0.05ms]
-(fail) the vertical chain, re-derived at wheelR 115 > scale is 5.3398 px/mm (§7.3, body 330px / 61.8mm) [0.03ms]
-(fail) the vertical chain, re-derived at wheelR 115 > screen centre sits 126px above the body centre [0.06ms]
-(fail) the vertical chain, re-derived at wheelR 115 > wheel centre sits 134px below the body centre [0.03ms]
-(fail) the vertical chain, re-derived at wheelR 115 > body depth is 11.0mm (§7.3, 30GB) [0.02ms]
-RESULT: 6 fail
-----------------------------------------------------------------
-PLANT: body height 552 -> 553   (BODY_H: number = 552  ->  BODY_H: number = 553)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > body is 330 × 552 (§12.0, "body 330 × 552") [0.14ms]
-(fail) the vertical chain, re-derived at wheelR 115 > 48 + 204 + 43 + 230 + 27 = 552 (§7.3 millimetres, §12.0 wheel) [0.03ms]
-(fail) the vertical chain, re-derived at wheelR 115 > screen centre sits 126px above the body centre [0.03ms]
-(fail) the vertical chain, re-derived at wheelR 115 > wheel centre sits 134px below the body centre [0.07ms]
- 4 fail
-RESULT: 4 fail
-----------------------------------------------------------------
-PLANT: Select r 42 -> 43   (SELECT_R: number = 42  ->  SELECT_R: number = 43)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > Select r 42, lip to 46 (§12.0 R5 table) [0.14ms]
- 1 fail
-RESULT: 1 fail
-----------------------------------------------------------------
-PLANT: Select lip 46 -> 45   (SELECT_LIP_R: number = 46  ->  SELECT_LIP_R: number = 45)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > Select r 42, lip to 46 (§12.0 R5 table) [0.13ms]
- 1 fail
-RESULT: 1 fail
-----------------------------------------------------------------
-PLANT: label band inner 77 -> 76   (LABEL_BAND_INNER_R: number = 77  ->  LABEL_BAND_INNER_R: number = 76)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > label band r 77–79 (§12.0 R5 table, measured) [0.13ms]
- 1 fail
-RESULT: 1 fail
-----------------------------------------------------------------
-PLANT: label band outer 79 -> 80   (LABEL_BAND_OUTER_R: number = 79  ->  LABEL_BAND_OUTER_R: number = 80)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > label band r 77–79 (§12.0 R5 table, measured) [0.26ms]
- 1 fail
-RESULT: 1 fail
-----------------------------------------------------------------
-PLANT: recess reach 104 -> 105   (RECESS_SHADOW_REACH_R: number = 104  ->  RECESS_SHADOW_REACH_R: number = 105)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > recess-shadow reach r 104 (§12.0 R5 table) [0.13ms]
- 1 fail
-RESULT: 1 fail
-----------------------------------------------------------------
-PLANT: panel width 272 -> 271   (PANEL_W: number = 272  ->  PANEL_W: number = 271)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > panel active area 272 × 204 at scale 0.85 (§7.3 mobile column, §7.4) [0.14ms]
-(fail) the vertical chain, re-derived at wheelR 115 > glass window is the active area plus a 6px surround (§5.5 L2) [0.03ms]
- 2 fail
-RESULT: 2 fail
-----------------------------------------------------------------
-PLANT: panel height 204 -> 205   (PANEL_H: number = 204  ->  PANEL_H: number = 205)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > panel active area 272 × 204 at scale 0.85 (§7.3 mobile column, §7.4) [0.16ms]
-(fail) the vertical chain, re-derived at wheelR 115 > 48 + 204 + 43 + 230 + 27 = 552 (§7.3 millimetres, §12.0 wheel) [0.03ms]
-(fail) the vertical chain, re-derived at wheelR 115 > the bottom margin lands on §7.3’s measured 5.2mm [0.04ms]
-(fail) the vertical chain, re-derived at wheelR 115 > screen centre sits 126px above the body centre [0.03ms]
-(fail) the vertical chain, re-derived at wheelR 115 > wheel centre sits 134px below the body centre [0.03ms]
-(fail) the vertical chain, re-derived at wheelR 115 > glass window is the active area plus a 6px surround (§5.5 L2) [0.02ms]
-RESULT: 6 fail
-----------------------------------------------------------------
-PLANT: panel scale 0.85 -> 0.875   (PANEL_SCALE: number = 0.85  ->  PANEL_SCALE: number = 0.875)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > panel active area 272 × 204 at scale 0.85 (§7.3 mobile column, §7.4) [0.16ms]
- 1 fail
-RESULT: 1 fail
-----------------------------------------------------------------
-PLANT: body corner r 33 -> 34   (BODY_CORNER_R: number = 33  ->  BODY_CORNER_R: number = 34)
-(fail) §12.0 R5 geometry — the numbers the dispatch names > body corner radius 33px, superellipse n = 4.2 (§7.3 mobile, §7.1 clause 3) [0.13ms]
- 1 fail
-RESULT: 1 fail
-----------------------------------------------------------------
-RESTORED. Verifying clean:
- 18 pass
- 0 fail
- 45 expect() calls
-Ran 18 tests across 1 file. [15.00ms]
-
-----------------------------------------------------------------
-SUMMARY
-
-  plant                              tests turned red
-  wheelR 115 -> 116                  5
-  body width 330 -> 331              6
-  body height 552 -> 553             4
-  Select r 42 -> 43                  1
-  Select lip 46 -> 45                1
-  label band inner 77 -> 76          1
-  label band outer 79 -> 80          1
-  recess reach 104 -> 105            1
-  panel width 272 -> 271             2
-  panel height 204 -> 205            6
-  panel scale 0.85 -> 0.875          1
-  body corner r 33 -> 34             1
-
-  Twelve plants, twelve reds, zero silent passes. Baseline 18 pass / 0 fail.
+Superseded evidence:
+  The former 33px / n=4.2 geometry record and the 8/43 and 32/43 luminance
+  reports are invalid under D-067. They did not grade the geometry the renderer
+  displayed and had no mesh/material identity pass.

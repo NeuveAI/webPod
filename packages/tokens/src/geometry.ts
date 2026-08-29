@@ -26,13 +26,11 @@ export const BODY_W: number = 330
 /** Body height, giving a 1.6727 ratio against {@link BODY_W} — 0.12% off the real 5G (§7.3). */
 export const BODY_H: number = 552
 
-/**
- * Body corner radius (§7.3).
- *
- * ⚑ Not a `border-radius`. §7.1 specifies a superellipse of n = 4.2; feeding
- * this to CSS rounding produces a visibly different silhouette.
- */
-export const BODY_CORNER_R: number = 33
+/** D-067: saved Pencil VWaJS circular enclosure radius. */
+export const BODY_CORNER_R: number = 26
+
+/** D-067: VWaJS uses an ordinary circular corner, represented by n = 2. */
+export const BODY_CORNER_EXPONENT: number = 2
 
 /** Outer radius of the centre Select button's face (§12.0). */
 export const SELECT_R: number = 42

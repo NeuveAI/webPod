@@ -11,21 +11,30 @@ The raw 43-row result, measured RGB values, rig parameters and deltas are in
 
 | Surface | Pass | Total | Worst absolute delta |
 |---|---:|---:|---:|
-| body-black | 1 | 8 | 16.50 |
-| body-white | 1 | 8 | 186.03 |
-| wheel-ring-black | 0 | 4 | 26.53 |
-| wheel-ring-white | 0 | 4 | 77.00 |
-| select-black | 1 | 4 | 19.07 |
-| select-white | 1 | 4 | 32.19 |
-| steel-back | 4 | 11 | 118.98 |
-| **All** | **8** | **43** | **186.03** |
+| body-black | 2 | 8 | 22.41 |
+| body-white | 1 | 8 | 16.77 |
+| wheel-ring-black | 0 | 4 | 23.86 |
+| wheel-ring-white | 0 | 4 | 14.79 |
+| select-black | 2 | 4 | 18.79 |
+| select-white | 1 | 4 | 14.37 |
+| steel-back | 0 | 11 | 45.42 |
+| **All** | **6** | **43** | **45.42** |
 
-The ±4 gate is **not met**. This is a bounded source-conflict record, not
-acceptance evidence. A per-row optical-normal fit reached 32/43, but independent
-holdouts showed broad blue/bronze bands and merged white surfaces—the exact
-material failure Pencil and the owner reject. Product defaults and the tuner now
-use smooth profiles. The regularized white/light and black/dark captures beside
-this file are the visual holdouts; D18 records why pointwise fitting was removed.
+RMS delta is **16.36**. The ±4 gate is **not met**; this is truthful red
+evidence, not acceptance evidence.
+
+D-067 invalidates the former 8/43 and 32/43 reports. They were measured against
+the stale 33px / n=4.2 silhouette without object/material identity, so endpoint
+pixels could come from the seam or room and still be attributed to a body.
+This run derives the 330×552, circular-26 enclosure from `DEVICE_LAYOUT`, keeps
+body samples 3px inside and recessed controls 6px inside, and rejects every
+sample unless a raycast hits the expected named mesh and material.
+
+The checked candidate deliberately retains smooth geometry. The pointwise
+normal fit that produced the old 32/43 result also produced broad blue/bronze
+bands and merged white surfaces, so it is not a valid visual implementation.
+The white/light, black/dark, and two back captures beside this file show the
+candidate that was actually retained.
 
 One exact boundary originally graded false because colour arithmetic produced
 `4.000000000000028`. The evaluator now admits only `1e-9` of representation
