@@ -100,6 +100,26 @@ describe('W5a static gates go red', () => {
     failed(await runStaticGates({ root }), 'NAMING')
   })
 
+  test('NAMING permits a script to reference a canonical bookkeeping artifact', async () => {
+    const root = await fixture()
+    const bookkeepingPath = '../docs/workstreams/002-implementation-spine/evidence/browser.json'
+    await plant(
+      root,
+      'scripts/evidence-reader.ts',
+      `export const path = ${JSON.stringify(bookkeepingPath)}\n`,
+    )
+    const gate = (await runStaticGates({ root })).find((candidate) => candidate.id === 'NAMING')
+    expect(gate?.status).toBe('pass')
+  })
+
+  test('NAMING still rejects bookkeeping names in script comments', async () => {
+    const root = await fixture()
+    const bookkeepingPath = '../docs/workstreams/002-implementation-spine/evidence/browser.json'
+    const comment = `// ${bookkeepingPath}\n`
+    await plant(root, 'scripts/evidence-reader.ts', comment)
+    failed(await runStaticGates({ root }), 'NAMING')
+  })
+
   test('TRAILERS detects a planted branch trailer', async () => {
     const root = await fixture()
     await plant(root, 'apps/web/src/second.ts', 'export const second = true\n')

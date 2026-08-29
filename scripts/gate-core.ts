@@ -69,12 +69,14 @@ interface LocatedText {
   readonly line: number
   readonly text: string
   readonly userVisible: boolean
+  readonly kind: 'comment' | 'string' | 'text'
 }
 
 const U8_PATTERN = /\b(?:allows?|allowed|allowing|den(?:y|ies|ied|ying)|permits?|permitted|permitting|permissions?|grants?|granted|granting|authori[sz](?:e|es|ed|ing|ation|ations)?|approv(?:e|es|ed|ing|al|als)|pending|blocked|asks?\s+(?:for|to)|asked\s+(?:for|to)|waiting\s+for)\b/iu
 const AGENT_FLAG_PATTERN = /^(?:agentPresent|agentAttached|agentIdle|isAgentConnected)$/iu
 const HANDEDNESS_PATTERN = /^(?:handed|handedness|leftHand|rightHand)$/iu
 const NAMING_PATTERN = /(?<![\d.])002(?!\d)|implementation-spine|workstream/iu
+const BOOKKEEPING_PATH_PATTERN = /^(?:\.\.\/)*docs\/workstreams\/\d{3}-[a-z0-9-]+\/(?:decisions|diary|dispatch|evidence|reviews)\/[a-z0-9._/-]+$/u
 
 function normalizePath(path: string): string {
   return path.split(sep).join('/')
@@ -129,14 +131,20 @@ async function readGlob(root: string, glob: Glob): Promise<readonly SourceFile[]
 function authoredText(file: SourceFile, includeComments: boolean): readonly LocatedText[] {
   if (!/\.(?:[cm]?[jt]sx?|json)$/u.test(file.path)) {
     const text = includeComments ? file.text : file.text.replaceAll(/\/\*[\s\S]*?\*\//gu, '').replaceAll(/\/\/.*$/gmu, '')
-    return text.split('\n').map((line, index) => ({ path: file.path, line: index + 1, text: line, userVisible: false }))
+    return text.split('\n').map((line, index) => ({ path: file.path, line: index + 1, text: line, userVisible: false, kind: 'text' }))
   }
 
   const source = sourceFile(file)
   const pieces: LocatedText[] = []
   const visit = (node: ts.Node): void => {
     if (ts.isStringLiteralLike(node) || ts.isJsxText(node)) {
-      pieces.push({ path: file.path, line: lineAt(source, node.getStart(source)), text: node.text, userVisible: ts.isJsxText(node) })
+      pieces.push({
+        path: file.path,
+        line: lineAt(source, node.getStart(source)),
+        text: node.text,
+        userVisible: ts.isJsxText(node),
+        kind: ts.isJsxText(node) ? 'text' : 'string',
+      })
     }
     ts.forEachChild(node, visit)
   }
@@ -146,7 +154,7 @@ function authoredText(file: SourceFile, includeComments: boolean): readonly Loca
     const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, file.path.endsWith('x') ? ts.LanguageVariant.JSX : ts.LanguageVariant.Standard, file.text)
     for (let token = scanner.scan(); token !== ts.SyntaxKind.EndOfFileToken; token = scanner.scan()) {
       if (token === ts.SyntaxKind.SingleLineCommentTrivia || token === ts.SyntaxKind.MultiLineCommentTrivia) {
-        pieces.push({ path: file.path, line: lineAt(source, scanner.getTokenPos()), text: scanner.getTokenText(), userVisible: false })
+        pieces.push({ path: file.path, line: lineAt(source, scanner.getTokenPos()), text: scanner.getTokenText(), userVisible: false, kind: 'comment' })
       }
     }
   }
@@ -494,7 +502,12 @@ function tierFindings(files: readonly SourceFile[]): readonly string[] {
 }
 
 function namingFindings(files: readonly SourceFile[]): readonly string[] {
-  return contentFindings(files, NAMING_PATTERN, { comments: true })
+  return contentFindings(files, NAMING_PATTERN, {
+    comments: true,
+    ignore: (item) => item.path.startsWith('scripts/')
+      && item.kind === 'string'
+      && BOOKKEEPING_PATH_PATTERN.test(item.text),
+  })
 }
 
 async function gitOutput(root: string, args: readonly string[]): Promise<{ readonly code: number; readonly text: string }> {
