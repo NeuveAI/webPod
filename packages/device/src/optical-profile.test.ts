@@ -1,8 +1,17 @@
 import { describe, expect, test } from "bun:test";
 import { PlaneGeometry } from "three";
-import { applyOpticalProfile, createOpticalNormalMap } from "./optical-profile";
+import { addOpticalProfile, applyOpticalProfile, createOpticalNormalMap } from "./optical-profile";
 
 describe("moulded-surface optical profile", () => {
+  test("zero additive profile preserves a pre-existing crown normal", () => {
+    const geometry = new PlaneGeometry(2, 2, 2, 2);
+    const normals = geometry.getAttribute("normal");
+    normals.setXYZ(0, 0, 0.2, Math.sqrt(0.96));
+    const before = [normals.getX(0), normals.getY(0), normals.getZ(0)];
+    addOpticalProfile(geometry, [[0, 0], [1, 0]], [[0, 0], [1, 0]], -1, 1);
+    expect([normals.getX(0), normals.getY(0), normals.getZ(0)]).toEqual(before);
+    geometry.dispose();
+  });
   test("encodes top-to-bottom tilt as a deterministic tangent-space normal map", () => {
     const first = createOpticalNormalMap(
       [

@@ -16,6 +16,7 @@
  * is the other half of D-012.
  */
 export {
+  addOpticalProfile,
   Device,
   type Colourway,
   type DeviceFace,

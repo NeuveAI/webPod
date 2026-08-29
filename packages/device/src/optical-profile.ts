@@ -4,6 +4,7 @@ import {
   LinearFilter,
   RGBAFormat,
   type BufferGeometry,
+  Vector3,
 } from "three";
 export type OpticalProfile = ReadonlyArray<
   readonly [at: number, tiltDeg: number]
@@ -100,6 +101,32 @@ export function applyOpticalProfile(
     const ny = Math.sin(y);
     const nz = Math.sqrt(Math.max(0.0001, 1 - nx * nx - ny * ny));
     normal.setXYZ(index, nx, ny, nz);
+  }
+  normal.needsUpdate = true;
+  return geometry;
+}
+
+/** Rotate live tessellated normals without flattening the authored crown. */
+export function addOpticalProfile(
+  geometry: BufferGeometry,
+  vertical: OpticalProfile,
+  lateral: OpticalProfile,
+  minY: number,
+  maxY: number,
+): BufferGeometry {
+  const position = geometry.getAttribute("position");
+  const normal = geometry.getAttribute("normal");
+  const value = new Vector3();
+  const xAxis = new Vector3(1, 0, 0);
+  const yAxis = new Vector3(0, 1, 0);
+  for (let index = 0; index < normal.count; index += 1) {
+    if (normal.getZ(index) <= 0) continue;
+    const at = 1 - (position.getY(index) - minY) / (maxY - minY);
+    value.set(normal.getX(index), normal.getY(index), normal.getZ(index))
+      .applyAxisAngle(xAxis, (-sample(vertical, at) * Math.PI) / 180)
+      .applyAxisAngle(yAxis, (sample(lateral, at) * Math.PI) / 180)
+      .normalize();
+    normal.setXYZ(index, value.x, value.y, value.z);
   }
   normal.needsUpdate = true;
   return geometry;

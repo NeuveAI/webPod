@@ -55,6 +55,7 @@ import { createScreenGeometry } from "./screen-geometry";
 import { createCoverGlassMaterial } from "./physical-materials";
 import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 import {
+  addOpticalProfile,
   applyOpticalProfile,
   createOpticalNormalMap,
   DEFAULT_DEVICE_OPTICAL_PROFILES,
@@ -260,7 +261,13 @@ export function Device({
       curveSegments: 1,
     });
     geometry.translate(0, 0, splitZ + form.frontBevel);
-    return geometry;
+    return addOpticalProfile(
+      geometry,
+      isBlack ? parsedOptical.bodyBlack : parsedOptical.bodyWhite,
+      isBlack ? parsedOptical.bodyBlackLateral : parsedOptical.bodyWhiteLateral,
+      -body.height / 2 + seam,
+      body.height / 2 - seam,
+    );
   }, [form.frontBevel, form.seamWidth, frontFaceZ]);
   useEffect(() => () => steelShellGeometry.dispose(), [steelShellGeometry]);
 
@@ -329,6 +336,8 @@ export function Device({
     form.frontBevel,
     form.bodyCrown,
     plateBackZ,
+    isBlack,
+    parsedOptical,
   ]);
   useEffect(() => () => frontGeometry.dispose(), [frontGeometry]);
 
