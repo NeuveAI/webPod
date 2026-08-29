@@ -100,7 +100,6 @@ export {
   verticalCrownSlope,
 } from "./curved-shell";
 export {
-  createBlackPolySssMap,
   createMicroNoiseRoughnessMap,
   createSteelAnisotropyMap,
   createWheelLabelMap,

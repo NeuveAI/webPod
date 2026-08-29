@@ -50,6 +50,12 @@ export type PhysicalSurfaceParams = {
   readonly opacity?: number;
   readonly transparent?: boolean;
   readonly envMapIntensity?: number;
+  readonly subsurfaceColor?: string;
+  readonly subsurfaceAmbient?: number;
+  readonly subsurfaceDistortion?: number;
+  readonly subsurfacePower?: number;
+  readonly subsurfaceScale?: number;
+  readonly edgeTransmission?: number;
 };
 
 /** Parameters for the screen quad's `MeshBasicMaterial` (§12.3, last row). */
@@ -71,6 +77,7 @@ export type DeviceMaterials = {
   readonly bodyWhite: PhysicalSurfaceParams;
   readonly steelBack: PhysicalSurfaceParams;
   readonly chromeSeam: PhysicalSurfaceParams;
+  readonly chromeSeamBlack: PhysicalSurfaceParams;
   readonly wheelRingBlack: PhysicalSurfaceParams;
   readonly wheelRingWhite: PhysicalSurfaceParams;
   readonly selectBlack: PhysicalSurfaceParams;
@@ -106,18 +113,27 @@ export type DeviceMaterials = {
  */
 export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   bodyBlack: {
-    color: "#0C0D0F",
-    albedoScale: 0.95,
-    roughness: 0.2925,
+    color: "#0D1015",
+    albedoScale: 1,
+    roughness: 0.26,
     metalness: 0,
     clearcoat: 1.0,
-    clearcoatRoughness: 0.06,
-    reflectivity: 0.55,
-    sheen: 0.225,
-    sheenColor: "#6E4A2E",
-    sheenRoughness: 1.0,
-    specularIntensity: 0.075,
-    envMapIntensity: 0.195,
+    clearcoatRoughness: 0.045,
+    reflectivity: 0.6,
+    sheen: 0.12,
+    sheenColor: "#687482",
+    sheenRoughness: 0.7,
+    specularIntensity: 0.28,
+    envMapIntensity: 0.32,
+    // Three 0.185.1's WebGL physical material has no SSS term. These values
+    // drive the bounded shader extension in physical-materials.ts using the
+    // same distortion/ambient/power/scale vocabulary as MeshSSSNodeMaterial.
+    subsurfaceColor: "#596675",
+    subsurfaceAmbient: 0.006,
+    subsurfaceDistortion: 0.18,
+    subsurfacePower: 3.5,
+    subsurfaceScale: 0.05,
+    edgeTransmission: 0.016,
   },
   bodyWhite: {
     color: "#E2E5E8",
@@ -145,6 +161,13 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     metalness: 0.35,
     roughness: 0.32,
     envMapIntensity: 0.25,
+  },
+  chromeSeamBlack: {
+    color: "#252A31",
+    metalness: 0.2,
+    roughness: 0.24,
+    specularIntensity: 0.34,
+    envMapIntensity: 0.38,
   },
   wheelRingBlack: {
     color: "#23262B",

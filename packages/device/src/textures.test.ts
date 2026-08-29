@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 
 import {
   BACK_COMPOSITION_LAYOUT,
-  createBlackPolySssMap,
   createMicroNoiseRoughnessMap,
   createSteelAnisotropyMap,
 } from "./textures";
@@ -18,16 +17,6 @@ describe("deterministic physical textures", () => {
       liveY: 492,
     });
   });
-  test("black-poly subsurface warmth is confined to the lower edge", () => {
-    const texture = createBlackPolySssMap(101);
-    const data = texture.image.data as Uint8Array;
-    expect(data[0]).toBe(255);
-    expect(data[28]).toBe(0);
-    expect(data[50]).toBe(0);
-    expect(data[100]).toBe(0);
-    texture.dispose();
-  });
-
   test("roughness noise is byte-stable for the default seed", () => {
     const first = createMicroNoiseRoughnessMap(0.02, 16);
     const second = createMicroNoiseRoughnessMap(0.02, 16);

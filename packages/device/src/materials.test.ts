@@ -5,24 +5,32 @@ import { DEFAULT_DEVICE_FORM } from "./form";
 import { DEFAULT_LIGHT_RIG } from "./light-rig";
 import { DEFAULT_DEVICE_MATERIALS } from "./materials";
 import {
+  createBlackPolycarbonateMaterial,
   createCoverGlassMaterial,
+  patchBlackPolycarbonateShader,
   patchGlassShader,
 } from "./physical-materials";
 
 describe("§12.3 device material contract", () => {
   test("polycarbonate keeps the specified base response", () => {
     expect(DEFAULT_DEVICE_MATERIALS.bodyBlack).toMatchObject({
-      albedoScale: 0.95,
-      color: "#0C0D0F",
-      roughness: 0.2925,
+      albedoScale: 1,
+      color: "#0D1015",
+      roughness: 0.26,
       clearcoat: 1,
-      clearcoatRoughness: 0.06,
-      reflectivity: 0.55,
-      sheen: 0.225,
-      sheenColor: "#6E4A2E",
-      sheenRoughness: 1,
-      specularIntensity: 0.075,
-      envMapIntensity: 0.195,
+      clearcoatRoughness: 0.045,
+      reflectivity: 0.6,
+      sheen: 0.12,
+      sheenColor: "#687482",
+      sheenRoughness: 0.7,
+      specularIntensity: 0.28,
+      envMapIntensity: 0.32,
+      subsurfaceColor: "#596675",
+      subsurfaceAmbient: 0.006,
+      subsurfaceDistortion: 0.18,
+      subsurfacePower: 3.5,
+      subsurfaceScale: 0.05,
+      edgeTransmission: 0.016,
     });
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite).toMatchObject({
       color: "#E2E5E8",
@@ -48,7 +56,7 @@ describe("§12.3 device material contract", () => {
       envMapIntensity: 1,
     });
     expect(DEFAULT_DEVICE_MATERIALS.bodyBlack.envMapIntensity).toBeLessThan(
-      mirrorGain / 4,
+      mirrorGain / 3,
     );
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity).toBeLessThan(
       mirrorGain / 3,
@@ -115,6 +123,32 @@ describe("§12.3 device material contract", () => {
     material.dispose();
   });
 
+  test("black polycarbonate adds bounded transport without transparent blending", () => {
+    const material = createBlackPolycarbonateMaterial(
+      DEFAULT_DEVICE_MATERIALS.bodyBlack,
+      new Texture(),
+    );
+    expect(material.transparent).toBe(false);
+    expect(material.transmission).toBe(0);
+    expect(material.specularIntensity).toBe(0.28);
+    expect(material.sheenColor.getHexString()).toBe("687482");
+
+    const shader = {
+      vertexShader: "",
+      fragmentShader:
+        "#include <common>\nvec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;",
+    };
+    patchBlackPolycarbonateShader(shader);
+    expect(shader.fragmentShader).toContain("webpodInternalTransport");
+    expect(shader.fragmentShader).toContain("webpodSssLightDirection");
+    expect(shader.fragmentShader).toContain("webpodEdgePath");
+    expect(shader.fragmentShader).toContain(
+      "totalDiffuse + totalSpecular + totalEmissiveRadiance + webpodSubsurface",
+    );
+    expect(shader.fragmentShader).not.toContain("emissiveMap");
+    material.dispose();
+  });
+
   test("the seam is a restrained blue-gray boundary, not mirror-back material", () => {
     expect(DEFAULT_DEVICE_MATERIALS.chromeSeam).toMatchObject({
       color: "#A6AFBA",
@@ -124,6 +158,16 @@ describe("§12.3 device material contract", () => {
     });
     expect(DEFAULT_DEVICE_MATERIALS.chromeSeam.envMapIntensity).toBeLessThan(
       DEFAULT_DEVICE_MATERIALS.steelBack.envMapIntensity ?? 0,
+    );
+    expect(DEFAULT_DEVICE_MATERIALS.chromeSeamBlack).toMatchObject({
+      color: "#252A31",
+      metalness: 0.2,
+      roughness: 0.24,
+      specularIntensity: 0.34,
+      envMapIntensity: 0.38,
+    });
+    expect(DEFAULT_DEVICE_MATERIALS.chromeSeamBlack.color).not.toBe(
+      DEFAULT_DEVICE_MATERIALS.chromeSeam.color,
     );
   });
 });

@@ -13,7 +13,6 @@
  */
 import {
   CanvasTexture,
-  ClampToEdgeWrapping,
   DataTexture,
   LinearFilter,
   RGBAFormat,
@@ -252,25 +251,6 @@ export function createSteelAnisotropyMap(size = 1024): DataTexture {
   const texture = new DataTexture(data, size, size, RGBAFormat);
   texture.wrapS = RepeatWrapping;
   texture.wrapT = RepeatWrapping;
-  texture.minFilter = LinearFilter;
-  texture.magFilter = LinearFilter;
-  texture.needsUpdate = true;
-  return texture;
-}
-
-/** §5.1 L4 — restrained lower-edge sub-surface warmth for black polycarbonate. */
-export function createBlackPolySssMap(height = 256): DataTexture {
-  const data = new Uint8Array(height);
-  for (let y = 0; y < height; y += 1) {
-    // DataTexture v=0 is the bottom of the body geometry. Keep the warm cue at
-    // that edge; the previous orientation put it at the top and bronzed the
-    // whole face under the key light.
-    const fromBottom = 1 - y / (height - 1);
-    data[y] = Math.round(255 * Math.max(0, (fromBottom - 0.72) / 0.28));
-  }
-  const texture = new DataTexture(data, 1, height, RedFormat);
-  texture.wrapS = ClampToEdgeWrapping;
-  texture.wrapT = ClampToEdgeWrapping;
   texture.minFilter = LinearFilter;
   texture.magFilter = LinearFilter;
   texture.needsUpdate = true;

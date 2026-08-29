@@ -1,8 +1,80 @@
-import { Color, MeshPhysicalMaterial, type Texture } from "three";
+import { Color, MeshPhysicalMaterial, type Texture, Vector3 } from "three";
 
 import type { PhysicalSurfaceParams } from "./materials";
 
 type CompilableShader = { vertexShader: string; fragmentShader: string };
+
+const BLACK_POLY_SHADER_FIELDS = [
+  "subsurfaceColor",
+  "subsurfaceAmbient",
+  "subsurfaceDistortion",
+  "subsurfacePower",
+  "subsurfaceScale",
+  "edgeTransmission",
+] as const;
+
+export function createBlackPolycarbonateMaterial(
+  params: PhysicalSurfaceParams,
+  envMap: Texture | null,
+  keyDirection: readonly [number, number, number] = [0, 1, 0],
+): MeshPhysicalMaterial {
+  const {
+    subsurfaceColor = "#000000",
+    subsurfaceAmbient = 0,
+    subsurfaceDistortion = 0,
+    subsurfacePower = 1,
+    subsurfaceScale = 0,
+    edgeTransmission = 0,
+    albedoScale = 1,
+    color,
+    ...physical
+  } = params;
+  const material = new MeshPhysicalMaterial({
+    ...physical,
+    color: new Color(color).multiplyScalar(albedoScale),
+    envMap,
+  });
+  const transportColor = new Color(subsurfaceColor);
+  const transportDirection = new Vector3(...keyDirection).normalize();
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.webpodSssColor = { value: transportColor };
+    shader.uniforms.webpodSssAmbient = { value: subsurfaceAmbient };
+    shader.uniforms.webpodSssDistortion = { value: subsurfaceDistortion };
+    shader.uniforms.webpodSssPower = { value: subsurfacePower };
+    shader.uniforms.webpodSssScale = { value: subsurfaceScale };
+    shader.uniforms.webpodEdgeTransmission = { value: edgeTransmission };
+    shader.uniforms.webpodSssLightDirection = { value: transportDirection };
+    patchBlackPolycarbonateShader(shader);
+  };
+  material.customProgramCacheKey = () =>
+    `webpod-black-poly-${BLACK_POLY_SHADER_FIELDS.map((field) => String(params[field] ?? 0)).join("-")}`;
+  return material;
+}
+
+export function patchBlackPolycarbonateShader(shader: CompilableShader): void {
+  shader.fragmentShader = shader.fragmentShader
+    .replace(
+      "#include <common>",
+      `#include <common>
+uniform vec3 webpodSssColor;
+uniform vec3 webpodSssLightDirection;
+uniform float webpodSssAmbient;
+uniform float webpodSssDistortion;
+uniform float webpodSssPower;
+uniform float webpodSssScale;
+uniform float webpodEdgeTransmission;`,
+    )
+    .replace(
+      "vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;",
+      `vec3 webpodViewDir = normalize( vViewPosition );
+float webpodNdotV = saturate( dot( normal, webpodViewDir ) );
+float webpodWrappedDiffuse = saturate( ( dot( normal, webpodSssLightDirection ) + webpodSssDistortion ) / ( 1.0 + webpodSssDistortion ) );
+float webpodInternalTransport = webpodSssAmbient + pow( webpodWrappedDiffuse, webpodSssPower ) * webpodSssScale;
+float webpodEdgePath = pow( 1.0 - webpodNdotV, 2.4 ) * webpodEdgeTransmission;
+vec3 webpodSubsurface = webpodSssColor * ( webpodInternalTransport + webpodEdgePath );
+vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance + webpodSubsurface;`,
+    );
+}
 
 /** Three-compliant transmissive cover with §12.3's cool/warm chamfer dispersion. */
 export function createCoverGlassMaterial(

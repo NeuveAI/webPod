@@ -36,7 +36,11 @@ import {
 } from "./env-map";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import { DEVICE_LAYOUT, GLASS_CORNER_R, SCREEN_CORNER_R } from "./layout";
-import { DEFAULT_LIGHT_RIG, type LightRigParams } from "./light-rig";
+import {
+  DEFAULT_LIGHT_RIG,
+  keyLightPosition,
+  type LightRigParams,
+} from "./light-rig";
 import { materialMapOwnership } from "./material-map-ownership";
 import {
   DEFAULT_DEVICE_MATERIALS,
@@ -52,7 +56,10 @@ import {
 } from "./shapes";
 import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
 import { createScreenGeometry } from "./screen-geometry";
-import { createCoverGlassMaterial } from "./physical-materials";
+import {
+  createBlackPolycarbonateMaterial,
+  createCoverGlassMaterial,
+} from "./physical-materials";
 import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 import {
   addOpticalProfile,
@@ -63,7 +70,6 @@ import {
   type DeviceOpticalProfiles,
 } from "./optical-profile";
 import {
-  createBlackPolySssMap,
   createBackCompositionMap,
   createMicroNoiseRoughnessMap,
   createSteelAnisotropyMap,
@@ -166,13 +172,6 @@ export function Device({
     return map;
   }, []);
   useEffect(() => () => steelAnisotropy.dispose(), [steelAnisotropy]);
-  const blackSss = useMemo(() => {
-    const map = createBlackPolySssMap();
-    map.repeat.set(1, 1 / body.height);
-    map.offset.set(0, 0.5);
-    return map;
-  }, []);
-  useEffect(() => () => blackSss.dispose(), [blackSss]);
   const backComposition = useMemo(() => createBackCompositionMap(), []);
   useEffect(() => () => backComposition?.dispose(), [backComposition]);
   const backCompositionGeometry = useMemo(
@@ -192,6 +191,7 @@ export function Device({
   const selectMaterial = isBlack
     ? materials.selectBlack
     : materials.selectWhite;
+  const seamMaterial = isBlack ? materials.chromeSeamBlack : materials.chromeSeam;
   const opticalSignature = JSON.stringify(opticalProfiles);
   const parsedOptical = useMemo(
     () => JSON.parse(opticalSignature) as DeviceOpticalProfiles,
@@ -515,6 +515,19 @@ export function Device({
     [env, materials.coverGlass],
   );
   useEffect(() => () => coverGlassMaterial.dispose(), [coverGlassMaterial]);
+  const blackBodyPhysicalMaterial = useMemo(
+    () =>
+      createBlackPolycarbonateMaterial(
+        materials.bodyBlack,
+        env,
+        keyLightPosition(lightRig.key),
+      ),
+    [env, lightRig.key, materials.bodyBlack],
+  );
+  useEffect(
+    () => () => blackBodyPhysicalMaterial.dispose(),
+    [blackBodyPhysicalMaterial],
+  );
 
   const attachScreen = useCallback(
     (mesh: Mesh | null) => {
@@ -579,7 +592,7 @@ export function Device({
       {/* §5.6 — the steel shell: the perimeter seam and the opening walls. */}
       <mesh geometry={steelShellGeometry}>
         <meshPhysicalMaterial
-          {...spread(materials.chromeSeam)}
+          {...spread(seamMaterial)}
           envMap={env}
           roughnessMap={noise}
         />
@@ -587,16 +600,23 @@ export function Device({
 
       {/* §5.1 / §4.3 — the polycarbonate front, inset by the seam. */}
       <mesh name="device-body" geometry={frontGeometry}>
-        <meshPhysicalMaterial
-          name={isBlack ? "body-black" : "body-white"}
-          {...spread(bodyMaterial)}
-          envMap={env}
-          {...surfaceMaps.body}
-          roughnessMap={bodyRoughness}
-          emissive={isBlack ? "#6E4A2E" : "#000000"}
-          emissiveIntensity={isBlack ? 0.02 : 0}
-          emissiveMap={isBlack ? blackSss : null}
-        />
+        {isBlack ? (
+          <primitive
+            object={blackBodyPhysicalMaterial}
+            attach="material"
+            name="body-black"
+            {...surfaceMaps.body}
+            roughnessMap={bodyRoughness}
+          />
+        ) : (
+          <meshPhysicalMaterial
+            name="body-white"
+            {...spread(bodyMaterial)}
+            envMap={env}
+            {...surfaceMaps.body}
+            roughnessMap={bodyRoughness}
+          />
+        )}
       </mesh>
 
       {/* §5.3 — the dished ring, at the bottom of the recess. */}
