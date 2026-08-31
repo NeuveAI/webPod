@@ -1,0 +1,127 @@
+{
+  "compositeSummary": [
+    {
+      "pose": "front",
+      "tier": "T1",
+      "hostCount": 1,
+      "canvasCount": 1,
+      "requestPaint": true,
+      "hostTransform": "matrix3d(875.539, 0, 0, 0, 0, 875.539, 0, 0, -165, -276, -2.10145, -1, 47202.1, 78431.9, 499.634, 1135.08)"
+    },
+    {
+      "pose": "three-quarter",
+      "tier": "T1",
+      "hostCount": 1,
+      "canvasCount": 1,
+      "requestPaint": true,
+      "hostTransform": "matrix3d(647.374, -75.6628, -0.993899, -0.472959, 46.9758, 900.884, 0.275657, 0.131175, -710.707, -77.0519, -1.71571, -0.816443, 57509.4, 88697.2, 594.329, 1180.14)"
+    },
+    {
+      "pose": "edge",
+      "tier": "T1",
+      "hostCount": 1,
+      "canvasCount": 1,
+      "requestPaint": true,
+      "hostTransform": "matrix3d(-140.25, -234.6, -1.78623, -0.85, 0, 875.539, 0, 0, -1030.05, -6.12843e-14, -4.66615e-16, -2.22045e-16, 188172, 122846, 837.797, 1296)"
+    },
+    {
+      "pose": "rear",
+      "tier": "T1",
+      "hostCount": 1,
+      "canvasCount": 1,
+      "requestPaint": true,
+      "hostTransform": "matrix3d(-875.539, 2.87302e-14, 2.1875e-16, 1.04095e-16, 0, 875.539, 0, 0, 165, 276, 2.10145, 1, 335598, 92187.1, 604.366, 1184.92)"
+    }
+  ],
+  "deviceSummary": [
+    {
+      "name": "front-white",
+      "pixels": {
+        "browserDpr": 1,
+        "source": {
+          "logicalWidth": 320,
+          "logicalHeight": 240,
+          "pixelWidth": 320,
+          "pixelHeight": 240
+        },
+        "webgl": {
+          "cssWidth": 330,
+          "cssHeight": 552,
+          "pixelWidth": 330,
+          "pixelHeight": 552
+        }
+      }
+    },
+    {
+      "name": "quarter-black",
+      "pixels": {
+        "browserDpr": 1,
+        "source": {
+          "logicalWidth": 320,
+          "logicalHeight": 240,
+          "pixelWidth": 320,
+          "pixelHeight": 240
+        },
+        "webgl": {
+          "cssWidth": 330,
+          "cssHeight": 552,
+          "pixelWidth": 330,
+          "pixelHeight": 552
+        }
+      }
+    },
+    {
+      "name": "edge-black",
+      "pixels": {
+        "browserDpr": 1,
+        "source": {
+          "logicalWidth": 320,
+          "logicalHeight": 240,
+          "pixelWidth": 320,
+          "pixelHeight": 240
+        },
+        "webgl": {
+          "cssWidth": 330,
+          "cssHeight": 552,
+          "pixelWidth": 330,
+          "pixelHeight": 552
+        }
+      }
+    },
+    {
+      "name": "rear-white",
+      "pixels": {
+        "browserDpr": 1,
+        "source": {
+          "logicalWidth": 320,
+          "logicalHeight": 240,
+          "pixelWidth": 320,
+          "pixelHeight": 240
+        },
+        "webgl": {
+          "cssWidth": 330,
+          "cssHeight": 552,
+          "pixelWidth": 330,
+          "pixelHeight": 552
+        }
+      }
+    }
+  ],
+  "mobileMetrics": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "frame": {
+      "x": 30,
+      "y": 231.40625,
+      "width": 330,
+      "height": 552
+    },
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "tier": "T1",
+    "hostCount": 1,
+    "hostTransform": "matrix3d(875.539, 0, 0, 0, 0, 875.539, 0, 0, -165, -276, -2.10145, -1, 47202.1, 78431.9, 499.634, 1135.08)"
+  }
+}
