@@ -25,8 +25,10 @@ describe('html-in-canvas invariants', () => {
 
     expect(source).toContain('new HTMLTexture(')
     expect(source).toContain('texture.generateMipmaps = false')
-    expect(source).toContain('texture.minFilter = LinearFilter')
-    expect(source).toContain('texture.magFilter = LinearFilter')
+    expect(source).toContain('texture.minFilter = NearestFilter')
+    expect(source).toContain('texture.magFilter = NearestFilter')
+    expect(source).not.toContain('wpScanline')
+    expect(source).not.toContain('wpTriad')
     expect(source).toContain('new InteractionManager()')
     expect(source).not.toMatch(/texElement(?:Sub)?Image2D\s*\(/)
     expect(source).not.toContain('updateElementGeometry')

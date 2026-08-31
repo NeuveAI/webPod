@@ -44,6 +44,11 @@ to `window.devicePixelRatio`, clamping above 3×, and a resized 275×460 canvas.
 The browser listens to `visualViewport.resize`, so page zoom re-enters the same
 measured resolver rather than a separate guessed scale.
 
+Strict re-review found that the first implementation passed the resolved value
+as an R3F range, which re-resolved fractional zoom against browser DPR. W6-D24
+supersedes that handoff: the already-resolved value now crosses as a number, and
+the exact physical `1.5` / browser `1` disagreement is a seam test.
+
 ## Native visual evidence
 
 - `evidence/w4-w6-density/white-mobile-dpr-{1,2,3}.png`

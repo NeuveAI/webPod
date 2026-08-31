@@ -1,9 +1,9 @@
 import type { ScreenTransform } from '@webpod/device'
 import {
   HTMLTexture,
-  LinearFilter,
   Mesh,
   MeshBasicMaterial,
+  NearestFilter,
   PlaneGeometry,
   SRGBColorSpace,
 } from 'three'
@@ -84,8 +84,11 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     const texture = new HTMLTexture(panelElement)
     texture.colorSpace = SRGBColorSpace
     texture.generateMipmaps = false
-    texture.minFilter = LinearFilter
-    texture.magFilter = LinearFilter
+    // The panel is authored as a pixel grid and rasterized at the resolved
+    // physical density. Linear sampling averages adjacent glyph and divider
+    // pixels a second time after Chrome has rasterized them.
+    texture.minFilter = NearestFilter
+    texture.magFilter = NearestFilter
     const material = createLcdMaterial(
       texture,
       this.tone,
@@ -309,32 +312,8 @@ function createLcdMaterial(
 ): MeshBasicMaterial {
   const material = new MeshBasicMaterial({ map: texture, toneMapped: false })
   material.name = `webpod-lcd-${tone}`
-  material.userData['wpContrastMore'] = false
-  material.userData['wpWidth'] = width
-  material.userData['wpHeight'] = height
-  material.customProgramCacheKey = () =>
-    `webpod-lcd-${tone}-${String(material.userData['wpContrastMore'])}-${String(material.userData['wpWidth'])}x${String(material.userData['wpHeight'])}`
-  material.onBeforeCompile = (shader) => {
-    const textureWidth = positiveDimension(material.userData['wpWidth'])
-    const textureHeight = positiveDimension(material.userData['wpHeight'])
-    const textureSize = `vec2(${textureWidth.toFixed(1)}, ${textureHeight.toFixed(1)})`
-    const scanlineColor = tone === 'dark' ? 'vec3(1.0)' : 'vec3(0.0588, 0.0902, 0.1647)'
-    const scanlineMix = tone === 'dark' ? '0.03' : '0.03'
-    const effectsEnabled = material.userData['wpContrastMore'] === true ? '0.0' : '1.0'
-    shader.fragmentShader = shader.fragmentShader.replace(
-      '#include <map_fragment>',
-      `#include <map_fragment>
-      vec2 wpPanelPixel = vMapUv * ${textureSize};
-      float wpScanline = step(1.0, mod(floor(wpPanelPixel.y), 3.0));
-      vec3 wpTriad = vec3(
-        1.0 - 0.02 * step(1.0, mod(floor(wpPanelPixel.x), 3.0)),
-        1.0 - 0.02 * step(1.0, mod(floor(wpPanelPixel.x + 2.0), 3.0)),
-        1.0 - 0.02 * step(1.0, mod(floor(wpPanelPixel.x + 1.0), 3.0))
-      );
-      diffuseColor.rgb *= mix(vec3(1.0), wpTriad, ${effectsEnabled});
-      diffuseColor.rgb = mix(diffuseColor.rgb, ${scanlineColor}, wpScanline * ${scanlineMix} * ${effectsEnabled});`,
-    )
-  }
+  material.userData['wpWidth'] = positiveDimension(width)
+  material.userData['wpHeight'] = positiveDimension(height)
   return material
 }
 

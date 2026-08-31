@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 
 import { resolveCanvasPixelRatio } from "./pixel-density";
+import { commitResolvedCanvasPixelRatio } from "./CanvasPixelDensity";
 
 describe("canvas physical-pixel density", () => {
   test.each([
@@ -43,5 +44,12 @@ describe("canvas physical-pixel density", () => {
   test("clamps expensive or invalid device scales to the supported 1–3 range", () => {
     expect(resolveCanvasPixelRatio({ cssWidth: 330, cssHeight: 552, fallbackDevicePixelRatio: 4 })).toBe(3);
     expect(resolveCanvasPixelRatio({ cssWidth: 0, cssHeight: 0, fallbackDevicePixelRatio: 0 })).toBe(1);
+  });
+
+  test("passes a measured zoom DPR through the R3F seam as an exact number", () => {
+    const received: unknown[] = [];
+    commitResolvedCanvasPixelRatio((value) => received.push(value), 1.5);
+    expect(received).toEqual([1.5]);
+    expect(Array.isArray(received[0])).toBe(false);
   });
 });
