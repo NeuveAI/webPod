@@ -51,11 +51,10 @@ export type PhysicalSurfaceParams = {
   readonly transparent?: boolean;
   readonly envMapIntensity?: number;
   readonly subsurfaceColor?: string;
-  readonly subsurfaceAmbient?: number;
   readonly subsurfaceDistortion?: number;
+  readonly subsurfaceAttenuation?: number;
   readonly subsurfacePower?: number;
   readonly subsurfaceScale?: number;
-  readonly edgeTransmission?: number;
 };
 
 /** Parameters for the screen quad's `MeshBasicMaterial` (§12.3, last row). */
@@ -126,27 +125,27 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     specularIntensity: 0.28,
     envMapIntensity: 0.32,
     // Three 0.185.1's WebGL physical material has no SSS term. These values
-    // drive the bounded shader extension in physical-materials.ts using the
-    // same distortion/ambient/power/scale vocabulary as MeshSSSNodeMaterial.
+    // extend its per-direct-light loop using MeshSSSNodeMaterial's scattering
+    // shape. Point-light color, intensity and distance attenuation remain
+    // Three-owned, so LAW 2 is still the sole source of illumination.
     subsurfaceColor: "#596675",
-    subsurfaceAmbient: 0.006,
     subsurfaceDistortion: 0.18,
+    subsurfaceAttenuation: 0.018,
     subsurfacePower: 3.5,
-    subsurfaceScale: 0.05,
-    edgeTransmission: 0.016,
+    subsurfaceScale: 1.25,
   },
   bodyWhite: {
-    color: "#E2E5E8",
+    color: "#E8EDF2",
     // Preserve headroom for the key/clearcoat lobe. At 1.0 the diffuse term
     // clipped almost the whole face to white and erased Pencil's pearl trough.
-    albedoScale: 0.9,
-    roughness: 0.3,
+    albedoScale: 0.68,
+    roughness: 0.27,
     metalness: 0,
     clearcoat: 1.0,
-    clearcoatRoughness: 0.055,
-    reflectivity: 0.5,
-    specularIntensity: 0.32,
-    envMapIntensity: 0.31,
+    clearcoatRoughness: 0.045,
+    reflectivity: 0.58,
+    specularIntensity: 0.4,
+    envMapIntensity: 0.3,
   },
   steelBack: {
     color: "#C4CBD2",
@@ -178,12 +177,13 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     envMapIntensity: 0.005,
   },
   wheelRingWhite: {
-    color: "#E1E6EB",
-    roughness: 0.56,
+    color: "#C7CFD8",
+    albedoScale: 0.5,
+    roughness: 0.48,
     metalness: 0,
     clearcoat: 0.6,
     clearcoatRoughness: 0.22,
-    envMapIntensity: 0.075,
+    envMapIntensity: 0.12,
   },
   selectBlack: {
     // §4.5 `--select-k-2`, the plug's body value.
@@ -199,30 +199,32 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   },
   selectWhite: {
     // §4.5 `--select-w-2`.
-    color: "#E4E7EA",
-    transmission: 0.35,
+    color: "#EEF2F5",
+    albedoScale: 0.72,
+    transmission: 0.22,
     thickness: 1.2,
     ior: 1.52,
-    roughness: 0.18,
+    roughness: 0.14,
     clearcoat: 1.0,
     clearcoatRoughness: 0.06,
     metalness: 0,
-    envMapIntensity: 0.6237,
+    specularIntensity: 0.48,
+    envMapIntensity: 0.48,
   },
   coverGlass: {
     // §4.6's `--panel-bg` is behind the sheet; the sheet itself is colourless.
     color: "#FFFFFF",
-    transmission: 0.92,
+    transmission: 0.98,
     ior: 1.52,
-    thickness: 0.6,
-    roughness: 0.02,
+    thickness: 0.08,
+    roughness: 0,
     clearcoat: 1.0,
     clearcoatRoughness: 0.02,
     specularIntensity: 0.2,
     metalness: 0,
     opacity: 1,
     transparent: false,
-    envMapIntensity: 0.08,
+    envMapIntensity: 0.03,
   },
   screen: {
     // The standalone default. W6 replaces the map; see `screen-mesh.ts`.

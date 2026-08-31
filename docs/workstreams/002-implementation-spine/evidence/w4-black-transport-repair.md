@@ -28,11 +28,17 @@ same dark room and front pose:
 
 ## Mechanism checks
 
+> Superseded mechanism note: strict re-review proved the original post-light
+> additive term violated LAW 2. The captures above are historical evidence for
+> `ab391a7`; the corrected captures and mechanism are in
+> `visual-repair-rereview.md`.
+
 - The obsolete brown lower-edge emissive texture and its export are absent.
 - The black material is opaque (`transparent=false`, `transmission=0`).
-- The custom term is added after Three's physical diffuse/specular terms and is
-  bounded by explicit ambient, scale, and edge coefficients.
-- The transport direction is normalized from the actual W4 key position.
+- The corrected term runs inside Three's per-direct-light function and is
+  multiplied by each real light's attenuated `directLight.color`.
+- There is no independent direction, ambient lift, edge source, or post-light
+  addition.
 - Black and white seams are distinct authored materials; mirror-back steel is
   not reused for either.
 - No route, panel, layout, token, or Pencil source was changed by this repair.

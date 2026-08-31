@@ -36,11 +36,7 @@ import {
 } from "./env-map";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import { DEVICE_LAYOUT, GLASS_CORNER_R, SCREEN_CORNER_R } from "./layout";
-import {
-  DEFAULT_LIGHT_RIG,
-  keyLightPosition,
-  type LightRigParams,
-} from "./light-rig";
+import { DEFAULT_LIGHT_RIG, type LightRigParams } from "./light-rig";
 import { materialMapOwnership } from "./material-map-ownership";
 import {
   DEFAULT_DEVICE_MATERIALS,
@@ -520,9 +516,8 @@ export function Device({
       createBlackPolycarbonateMaterial(
         materials.bodyBlack,
         env,
-        keyLightPosition(lightRig.key),
       ),
-    [env, lightRig.key, materials.bodyBlack],
+    [env, materials.bodyBlack],
   );
   useEffect(
     () => () => blackBodyPhysicalMaterial.dispose(),

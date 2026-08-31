@@ -10,21 +10,18 @@ mkdirSync(output, { recursive: true });
 const candidates = [
   {
     name: "low",
-    subsurfaceAmbient: 0.006,
-    subsurfaceScale: 0.05,
-    edgeTransmission: 0.016,
+    subsurfaceAttenuation: 0.012,
+    subsurfaceScale: 1,
   },
   {
     name: "balanced",
-    subsurfaceAmbient: 0.012,
-    subsurfaceScale: 0.085,
-    edgeTransmission: 0.028,
+    subsurfaceAttenuation: 0.018,
+    subsurfaceScale: 1.25,
   },
   {
     name: "high",
-    subsurfaceAmbient: 0.02,
-    subsurfaceScale: 0.13,
-    edgeTransmission: 0.045,
+    subsurfaceAttenuation: 0.026,
+    subsurfaceScale: 1.5,
   },
 ] as const;
 
@@ -60,9 +57,8 @@ try {
         materials: {
           bodyBlack: {
             ...current.materials.bodyBlack,
-            subsurfaceAmbient: next.subsurfaceAmbient,
+            subsurfaceAttenuation: next.subsurfaceAttenuation,
             subsurfaceScale: next.subsurfaceScale,
-            edgeTransmission: next.edgeTransmission,
           },
         },
       });
@@ -79,7 +75,14 @@ try {
     calibration.setParams({ colourway: "white", face: "front", room: "dark" });
   });
   await page.waitForTimeout(500);
-  await page.locator("canvas").screenshot({ path: resolve(output, "white-control.png") });
+  await page.locator("canvas").screenshot({ path: resolve(output, "white-front.png") });
+  await page.evaluate(() => {
+    const calibration = window.__deviceCalibration;
+    if (calibration === undefined) throw new Error("device calibration API missing");
+    calibration.setParams({ colourway: "white", face: "back", room: "dark" });
+  });
+  await page.waitForTimeout(500);
+  await page.locator("canvas").screenshot({ path: resolve(output, "steel-back.png") });
   if (errors.length > 0) throw new Error(errors.join(" | "));
   await context.close();
 } finally {

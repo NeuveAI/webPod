@@ -26,21 +26,20 @@ describe("§12.3 device material contract", () => {
       specularIntensity: 0.28,
       envMapIntensity: 0.32,
       subsurfaceColor: "#596675",
-      subsurfaceAmbient: 0.006,
       subsurfaceDistortion: 0.18,
+      subsurfaceAttenuation: 0.018,
       subsurfacePower: 3.5,
-      subsurfaceScale: 0.05,
-      edgeTransmission: 0.016,
+      subsurfaceScale: 1.25,
     });
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite).toMatchObject({
-      color: "#E2E5E8",
-      albedoScale: 0.9,
-      roughness: 0.3,
+      color: "#E8EDF2",
+      albedoScale: 0.68,
+      roughness: 0.27,
       clearcoat: 1,
-      clearcoatRoughness: 0.055,
-      reflectivity: 0.5,
-      specularIntensity: 0.32,
-      envMapIntensity: 0.31,
+      clearcoatRoughness: 0.045,
+      reflectivity: 0.58,
+      specularIntensity: 0.4,
+      envMapIntensity: 0.3,
     });
   });
 
@@ -78,10 +77,10 @@ describe("§12.3 device material contract", () => {
       clearcoat: 1,
     });
     expect(DEFAULT_DEVICE_MATERIALS.coverGlass).toMatchObject({
-      transmission: 0.92,
-      thickness: 0.6,
+      transmission: 0.98,
+      thickness: 0.08,
       ior: 1.52,
-      roughness: 0.02,
+      roughness: 0,
       clearcoat: 1,
       opacity: 1,
       transparent: false,
@@ -93,7 +92,10 @@ describe("§12.3 device material contract", () => {
   });
 
   test("the Pencil-first white wheel remains visibly below the pearl body", () => {
-    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color).toBe("#E1E6EB");
+    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color).toBe("#C7CFD8");
+    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.albedoScale).toBeLessThan(
+      DEFAULT_DEVICE_MATERIALS.bodyWhite.albedoScale ?? 0,
+    );
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.roughness).toBeGreaterThan(
       DEFAULT_DEVICE_MATERIALS.bodyWhite.roughness,
     );
@@ -109,7 +111,7 @@ describe("§12.3 device material contract", () => {
         height: 216,
       },
     );
-    expect(material.transmission).toBe(0.92);
+    expect(material.transmission).toBe(0.98);
     expect(material.opacity).toBe(1);
     expect(material.transparent).toBe(false);
     const shader = {
@@ -123,7 +125,7 @@ describe("§12.3 device material contract", () => {
     material.dispose();
   });
 
-  test("black polycarbonate adds bounded transport without transparent blending", () => {
+  test("black polycarbonate integrates bounded transport into every direct light", () => {
     const material = createBlackPolycarbonateMaterial(
       DEFAULT_DEVICE_MATERIALS.bodyBlack,
       new Texture(),
@@ -136,15 +138,18 @@ describe("§12.3 device material contract", () => {
     const shader = {
       vertexShader: "",
       fragmentShader:
-        "#include <common>\nvec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;",
+        "#include <common>\nreflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );\nvec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;",
     };
     patchBlackPolycarbonateShader(shader);
-    expect(shader.fragmentShader).toContain("webpodInternalTransport");
-    expect(shader.fragmentShader).toContain("webpodSssLightDirection");
-    expect(shader.fragmentShader).toContain("webpodEdgePath");
+    expect(shader.fragmentShader).toContain("directLight.direction")
+    expect(shader.fragmentShader).toContain("directLight.color")
+    expect(shader.fragmentShader).toContain("webpodSssAttenuation")
+    expect(shader.fragmentShader).not.toContain("webpodSssAmbient")
+    expect(shader.fragmentShader).not.toContain("webpodSssLightDirection")
     expect(shader.fragmentShader).toContain(
-      "totalDiffuse + totalSpecular + totalEmissiveRadiance + webpodSubsurface",
-    );
+      "vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;",
+    )
+    expect(shader.fragmentShader).not.toContain("+ webpodSubsurface")
     expect(shader.fragmentShader).not.toContain("emissiveMap");
     material.dispose();
   });

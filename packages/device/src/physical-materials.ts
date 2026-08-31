@@ -1,4 +1,4 @@
-import { Color, MeshPhysicalMaterial, type Texture, Vector3 } from "three";
+import { Color, MeshPhysicalMaterial, type Texture } from "three";
 
 import type { PhysicalSurfaceParams } from "./materials";
 
@@ -6,25 +6,22 @@ type CompilableShader = { vertexShader: string; fragmentShader: string };
 
 const BLACK_POLY_SHADER_FIELDS = [
   "subsurfaceColor",
-  "subsurfaceAmbient",
   "subsurfaceDistortion",
+  "subsurfaceAttenuation",
   "subsurfacePower",
   "subsurfaceScale",
-  "edgeTransmission",
 ] as const;
 
 export function createBlackPolycarbonateMaterial(
   params: PhysicalSurfaceParams,
   envMap: Texture | null,
-  keyDirection: readonly [number, number, number] = [0, 1, 0],
 ): MeshPhysicalMaterial {
   const {
     subsurfaceColor = "#000000",
-    subsurfaceAmbient = 0,
     subsurfaceDistortion = 0,
+    subsurfaceAttenuation = 0,
     subsurfacePower = 1,
     subsurfaceScale = 0,
-    edgeTransmission = 0,
     albedoScale = 1,
     color,
     ...physical
@@ -35,15 +32,12 @@ export function createBlackPolycarbonateMaterial(
     envMap,
   });
   const transportColor = new Color(subsurfaceColor);
-  const transportDirection = new Vector3(...keyDirection).normalize();
   material.onBeforeCompile = (shader) => {
     shader.uniforms.webpodSssColor = { value: transportColor };
-    shader.uniforms.webpodSssAmbient = { value: subsurfaceAmbient };
     shader.uniforms.webpodSssDistortion = { value: subsurfaceDistortion };
+    shader.uniforms.webpodSssAttenuation = { value: subsurfaceAttenuation };
     shader.uniforms.webpodSssPower = { value: subsurfacePower };
     shader.uniforms.webpodSssScale = { value: subsurfaceScale };
-    shader.uniforms.webpodEdgeTransmission = { value: edgeTransmission };
-    shader.uniforms.webpodSssLightDirection = { value: transportDirection };
     patchBlackPolycarbonateShader(shader);
   };
   material.customProgramCacheKey = () =>
@@ -57,22 +51,18 @@ export function patchBlackPolycarbonateShader(shader: CompilableShader): void {
       "#include <common>",
       `#include <common>
 uniform vec3 webpodSssColor;
-uniform vec3 webpodSssLightDirection;
-uniform float webpodSssAmbient;
 uniform float webpodSssDistortion;
+uniform float webpodSssAttenuation;
 uniform float webpodSssPower;
-uniform float webpodSssScale;
-uniform float webpodEdgeTransmission;`,
+uniform float webpodSssScale;`,
     )
     .replace(
-      "vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;",
-      `vec3 webpodViewDir = normalize( vViewPosition );
-float webpodNdotV = saturate( dot( normal, webpodViewDir ) );
-float webpodWrappedDiffuse = saturate( ( dot( normal, webpodSssLightDirection ) + webpodSssDistortion ) / ( 1.0 + webpodSssDistortion ) );
-float webpodInternalTransport = webpodSssAmbient + pow( webpodWrappedDiffuse, webpodSssPower ) * webpodSssScale;
-float webpodEdgePath = pow( 1.0 - webpodNdotV, 2.4 ) * webpodEdgeTransmission;
-vec3 webpodSubsurface = webpodSssColor * ( webpodInternalTransport + webpodEdgePath );
-vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance + webpodSubsurface;`,
+      "reflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );",
+      `vec3 webpodScatteringHalf = normalize( directLight.direction + geometryNormal * webpodSssDistortion );
+float webpodScatteringDot = pow( saturate( dot( geometryViewDir, -webpodScatteringHalf ) ), webpodSssPower ) * webpodSssScale;
+vec3 webpodScattering = webpodSssColor * webpodScatteringDot;
+reflectedLight.directDiffuse += webpodScattering * webpodSssAttenuation * directLight.color;
+reflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );`,
     );
 }
 
