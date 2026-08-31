@@ -80,7 +80,7 @@ type SpikeParams = {
   readonly face: DeviceFace;
   readonly room: "light" | "dark";
   readonly cameraDistance: number;
-  readonly dpr: number;
+  readonly dpr: number | [number, number];
   readonly lightRig: LightRigParams;
   readonly envRoom: EnvRoomParams;
   readonly form: DeviceFormParams;
@@ -95,9 +95,10 @@ const INITIAL: SpikeParams = {
   // 980 clips the 330 × 552 enclosure against its same-sized canvas at a 30°
   // FOV, hiding the rounded corners and making the body read as a square slab.
   cameraDistance: 1160,
-  // The interactive preview is supersampled on high-density displays. The
-  // calibration runner explicitly sets this back to 1 before reading pixels.
-  dpr: 2,
+  // Looking follows the browser's physical pixel density through DeviceCanvas'
+  // ResizeObserver path. The calibration runner still sets this to 1 before
+  // reading pixels so a model-space sample cannot land between framebuffer px.
+  dpr: [1, 3],
   lightRig: DEFAULT_LIGHT_RIG,
   envRoom: DEFAULT_ENV_ROOM,
   form: DEFAULT_DEVICE_FORM,
@@ -125,7 +126,7 @@ type SpikePatch = {
   readonly face?: DeviceFace;
   readonly room?: "light" | "dark";
   readonly cameraDistance?: number;
-  readonly dpr?: number;
+  readonly dpr?: number | [number, number];
   readonly lightRig?: Partial<LightRigParams>;
   readonly envRoom?: Partial<EnvRoomParams>;
   readonly form?: Partial<DeviceFormParams>;
@@ -151,6 +152,35 @@ function resetParams(): SpikeParams {
   current = INITIAL;
   for (const listener of listeners) listener();
   return current;
+}
+
+function getBrowserPixelRatio(): number {
+  return window.devicePixelRatio;
+}
+
+function getServerPixelRatio(): number {
+  return 1;
+}
+
+/** Re-arms the resolution query after every density change, including zoom. */
+function subscribeBrowserPixelRatio(listener: () => void): () => void {
+  let resolution = window.matchMedia(
+    `(resolution: ${window.devicePixelRatio}dppx)`,
+  );
+  const onChange = (): void => {
+    resolution.removeEventListener("change", onChange);
+    resolution = window.matchMedia(
+      `(resolution: ${window.devicePixelRatio}dppx)`,
+    );
+    resolution.addEventListener("change", onChange);
+    listener();
+  };
+  resolution.addEventListener("change", onChange);
+  window.visualViewport?.addEventListener("resize", listener);
+  return () => {
+    resolution.removeEventListener("change", onChange);
+    window.visualViewport?.removeEventListener("resize", listener);
+  };
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -186,6 +216,21 @@ type ProbeApi = {
    */
   describe(): Array<Record<string, unknown>>;
   screenMesh(): Record<string, unknown> | null;
+  pixels(): {
+    readonly browserDpr: number;
+    readonly source: {
+      readonly logicalWidth: number;
+      readonly logicalHeight: number;
+      readonly pixelWidth: number;
+      readonly pixelHeight: number;
+    };
+    readonly webgl: {
+      readonly cssWidth: number;
+      readonly cssHeight: number;
+      readonly pixelWidth: number;
+      readonly pixelHeight: number;
+    };
+  };
 };
 
 declare global {
@@ -198,6 +243,7 @@ const screenHandle: { current: ScreenMeshHandle | null } = { current: null };
 
 function LuminanceProbe() {
   const gl = useThree((state) => state.gl);
+  const canvas = useThree((state) => state.gl.domElement);
   const scene = useThree((state) => state.scene);
   const camera = useThree((state) => state.camera);
 
@@ -400,12 +446,31 @@ function LuminanceProbe() {
           viewport: transform.viewport,
         };
       },
+      pixels: () => {
+        const screen = getPreviewScreen(window.devicePixelRatio);
+        const bounds = canvas.getBoundingClientRect();
+        return {
+          browserDpr: window.devicePixelRatio,
+          source: {
+            logicalWidth: PREVIEW_SCREEN_SIZE.width,
+            logicalHeight: PREVIEW_SCREEN_SIZE.height,
+            pixelWidth: screen.canvas.width,
+            pixelHeight: screen.canvas.height,
+          },
+          webgl: {
+            cssWidth: bounds.width,
+            cssHeight: bounds.height,
+            pixelWidth: canvas.width,
+            pixelHeight: canvas.height,
+          },
+        };
+      },
     };
     window.__deviceCalibration = api;
     return () => {
       delete window.__deviceCalibration;
     };
-  }, [sample, scene]);
+  }, [canvas, sample, scene]);
 
   return null;
 }
@@ -437,18 +502,30 @@ const ROOM = {
 } as const;
 
 let previewScreenCache: {
+  canvas: HTMLCanvasElement;
   material: MeshBasicMaterial;
   texture: CanvasTexture;
+  pixelRatio: number;
 } | null = null;
-function getPreviewScreen() {
-  if (previewScreenCache !== null) return previewScreenCache;
-  const canvas = document.createElement("canvas");
-  canvas.width = 272;
-  canvas.height = 204;
+
+const PREVIEW_SCREEN_SIZE = { width: 272, height: 204 } as const;
+
+function resolvePreviewPixelRatio(devicePixelRatio: number): number {
+  return Math.min(3, Math.max(1, devicePixelRatio));
+}
+
+function paintPreviewScreen(
+  canvas: HTMLCanvasElement,
+  devicePixelRatio: number,
+): number {
+  const pixelRatio = resolvePreviewPixelRatio(devicePixelRatio);
+  canvas.width = Math.ceil(PREVIEW_SCREEN_SIZE.width * pixelRatio);
+  canvas.height = Math.ceil(PREVIEW_SCREEN_SIZE.height * pixelRatio);
   const context = canvas.getContext("2d");
-  if (context === null) return null;
+  if (context === null) return pixelRatio;
+  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   context.fillStyle = "#F2F6FB";
-  context.fillRect(0, 0, 272, 204);
+  context.fillRect(0, 0, PREVIEW_SCREEN_SIZE.width, PREVIEW_SCREEN_SIZE.height);
   context.fillStyle = "#DCE5EE";
   context.fillRect(0, 0, 272, 24);
   context.fillStyle = "#334155";
@@ -468,11 +545,33 @@ function getPreviewScreen() {
     context.fillText("›", 256, y + 28);
     context.textAlign = "left";
   });
+  return pixelRatio;
+}
+
+function getPreviewScreen(devicePixelRatio: number) {
+  if (previewScreenCache !== null) {
+    const pixelRatio = resolvePreviewPixelRatio(devicePixelRatio);
+    if (previewScreenCache.pixelRatio !== pixelRatio) {
+      previewScreenCache.pixelRatio = paintPreviewScreen(
+        previewScreenCache.canvas,
+        pixelRatio,
+      );
+      previewScreenCache.texture.needsUpdate = true;
+    }
+    return previewScreenCache;
+  }
+  const canvas = document.createElement("canvas");
+  const pixelRatio = paintPreviewScreen(canvas, devicePixelRatio);
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
+  texture.name = "webpod-preview-screen-texture";
   texture.needsUpdate = true;
+  const material = new MeshBasicMaterial({ map: texture, toneMapped: false });
+  material.name = "webpod-preview-screen-material";
   previewScreenCache = {
-    material: new MeshBasicMaterial({ map: texture, toneMapped: false }),
+    canvas,
+    material,
+    pixelRatio,
     texture,
   };
   return previewScreenCache;
@@ -488,7 +587,12 @@ if (import.meta.hot) {
 function DeviceSpike() {
   const params = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
   const room = ROOM[params.room];
-  const previewScreen = getPreviewScreen();
+  const browserPixelRatio = useSyncExternalStore(
+    subscribeBrowserPixelRatio,
+    getBrowserPixelRatio,
+    getServerPixelRatio,
+  );
+  const previewScreen = getPreviewScreen(browserPixelRatio);
   const onScreenMeshReady = useCallback((handle: ScreenMeshHandle) => {
     screenHandle.current = handle;
   }, []);
@@ -600,7 +704,9 @@ const DEVICE_SPIKE_CSS = `
     min-inline-size: 0;
   }
   .webpod-device-spike__hud button {
-    min-block-size: 32px;
+    min-block-size: 44px;
+    min-inline-size: 44px;
+    touch-action: manipulation;
   }
 `;
 

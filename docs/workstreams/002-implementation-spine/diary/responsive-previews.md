@@ -40,3 +40,16 @@ This lane repairs responsive preview mechanics only. It does not claim to fix
 the package-level lighting, material response, or HTML-texture filtering called
 out by the owner; those require separately owned device/composite changes.
 
+## Strict re-review closure
+
+The first repair checked only the WebGL canvas and explicitly tolerated a DPR 2
+ceiling. That allowed the standalone route's 272×204 `CanvasTexture` to remain
+one physical pixel per authored pixel, and it hid the DPR 3 defect behind a
+WebGL-only assertion. The route now publishes one diagnostic reading containing
+both source-canvas and WebGL backing dimensions. Browser contexts at DPR 1, 2,
+and 3 assert the real buffers independently.
+
+The same re-review found the validation links at 32px, reduced to 28px on short
+screens. They are now 44px in both rules, and every link's rendered bounding box
+is checked at 320×568, 375×667, 390×844, and 430×932 alongside the existing
+overflow, centring, ratio, and interaction gates.

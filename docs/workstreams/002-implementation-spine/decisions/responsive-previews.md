@@ -24,12 +24,26 @@ header and every grid child have `min-inline-size: 0`; the route owns exactly
 keeps every control visible without a hidden horizontal scroller or a `100vw`
 width that includes scrollbar space.
 
-## RP-D3 · Looking and measuring use different pixel-density defaults
+## RP-D3 · Looking follows physical density; measuring remains explicit
 
-The standalone device preview defaults to DPR 2 so a normal high-density mobile
-view is not rendered from a one-device-pixel backing store. The calibration
-boundary remains unchanged: its runner explicitly sets DPR 1 before pixel
-readback, as required by the existing probe contract.
+The standalone device passes `[1, 3]` to `DeviceCanvas`, activating its existing
+physical-pixel `ResizeObserver` instead of pinning WebGL to DPR 2. The separate
+LCD source keeps its authored 272×204 coordinate system, but allocates
+`ceil(logical × devicePixelRatio)` backing pixels and scales its 2D context.
+That preserves layout and UV geometry while avoiding an under-backed texture on
+DPR 3 displays. A re-armed resolution media query updates the source after page
+zoom or a display-density change.
+
+The calibration boundary is unchanged: the runner can still set numeric DPR 1
+before pixel readback, as required by the existing probe contract.
+
+## RP-D4 · Validation controls are mobile-sized, not visually compacted
+
+All nine header links and the standalone HUD buttons have a 44px minimum block
+size at every viewport. The
+short-height media query may tighten surrounding gaps and typography, but it
+cannot shrink pointer targets. Existing wrapping and `min-inline-size: 0`
+contain the larger controls at 320px without changing DOM or focus order.
 
 ## Sources read
 
@@ -40,4 +54,3 @@ readback, as required by the existing probe contract.
   `expose-canvas-content-to-browser-features`, retrieved with `bunx`
 - Requested interface critique, interface guardrail, web guideline, React, and
   routing skill instructions
-

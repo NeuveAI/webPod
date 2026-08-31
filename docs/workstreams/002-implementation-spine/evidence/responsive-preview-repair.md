@@ -18,6 +18,24 @@ contracted below 400px tall, expanded above 500px, remained centred and
 ratio-correct, and retained the keyboard-selected row. Bare mode independently
 preserved the 272×204 raster at 320×568.
 
+Every rendered header target and standalone HUD button measures at least 44px
+high at all four mobile viewports. The larger controls continue to wrap inside
+the viewport; document scroll width remains equal to client width.
+
+## Physical-pixel matrix
+
+The standalone route's diagnostic reads the live LCD source canvas and the live
+WebGL canvas. Three separate browser contexts produced:
+
+| Browser DPR | LCD logical | LCD backing | WebGL backing |
+|---:|---:|---:|---|
+| 1 | 272×204 | 272×204 | CSS canvas × 1 |
+| 2 | 272×204 | 544×408 | CSS canvas × 2 |
+| 3 | 272×204 | 816×612 | CSS canvas × 3 |
+
+WebGL assertions allow only the browser's one-pixel integer rounding edge; they
+no longer accept a DPR 2 ceiling. The source assertions are exact.
+
 The composite paint gate waits for the real panel host beneath the canvas and a
 subsequent HTML-in-canvas `paint` event. The standalone gate invokes the real
 calibration sample command, which forces a WebGL render, before taking the
@@ -44,14 +62,14 @@ RESPONSIVE_PREVIEW_EVIDENCE_DIR=docs/workstreams/002-implementation-spine/eviden
   bunx playwright test --config apps/web/tests/playwright.config.ts \
   apps/web/tests/responsive-previews.e2e.ts
 
-14 passed
+17 passed
 ```
 
 ## Verification
 
 - `bun run typecheck` — 11/11 projects clean
 - `bun run lint` — clean
-- `bun test` — 950 passed, 0 failed across 51 files
+- `bun test` — 952 passed, 0 failed across 51 files
 - `bun run gates` — 16 automated passed, 0 failed; U14 and U15 remain manual
 - `bun run build` — client and SSR builds passed
 

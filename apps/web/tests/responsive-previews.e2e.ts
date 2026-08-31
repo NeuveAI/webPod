@@ -133,6 +133,31 @@ async function expectContainedVertically(locator: Locator, viewportHeight: numbe
   expect(box.y + box.height).toBeLessThanOrEqual(viewportHeight)
 }
 
+async function readDevicePixelMetrics(page: Page): Promise<{
+  browserDpr: number
+  source: { logicalWidth: number; logicalHeight: number; pixelWidth: number; pixelHeight: number }
+  webgl: { cssWidth: number; cssHeight: number; pixelWidth: number; pixelHeight: number }
+}> {
+  type Metrics = {
+    browserDpr: number
+    source: { logicalWidth: number; logicalHeight: number; pixelWidth: number; pixelHeight: number }
+    webgl: { cssWidth: number; cssHeight: number; pixelWidth: number; pixelHeight: number }
+  }
+  let reading: Metrics | null = null
+  await expect.poll(async () => {
+    reading = await page.evaluate(() => {
+      const calibration = Reflect.get(window, '__deviceCalibration')
+      if (typeof calibration !== 'object' || calibration === null) return null
+      const pixels = Reflect.get(calibration, 'pixels')
+      if (typeof pixels !== 'function') return null
+      return Reflect.apply(pixels, calibration, [])
+    })
+    return reading !== null
+  }).toBe(true)
+  if (reading === null) throw new Error('Device pixel diagnostic did not settle')
+  return reading
+}
+
 test.describe('responsive diagnostic previews', () => {
   test.beforeAll(async () => {
     await mkdir(evidenceDirectory, { recursive: true })
@@ -175,6 +200,13 @@ test.describe('responsive diagnostic previews', () => {
           viewport.width,
         )
       }
+      const targets = await navigation.getByRole('link').all()
+      expect(targets.length).toBeGreaterThan(0)
+      for (const target of targets) {
+        const targetBox = await target.boundingBox()
+        expect(targetBox).not.toBeNull()
+        if (targetBox !== null) expect(targetBox.height).toBeGreaterThanOrEqual(44)
+      }
     })
 
     test(`device spike remains centred and contained at ${viewport.name}`, async ({ page }) => {
@@ -192,13 +224,50 @@ test.describe('responsive diagnostic previews', () => {
       await expectCentred(stage, page)
       await expectAuthoredDeviceRatio(stage)
 
-      const canvasPixels = await stage.locator('canvas').evaluate((canvas) => ({
-        cssWidth: canvas.getBoundingClientRect().width,
-        pixelWidth: canvas.width,
-      }))
-      expect(canvasPixels.pixelWidth).toBeGreaterThanOrEqual(
-        Math.floor(canvasPixels.cssWidth * Math.min(2, await page.evaluate(() => window.devicePixelRatio))),
+      const hudButtons = await hud.getByRole('button').all()
+      expect(hudButtons.length).toBeGreaterThan(0)
+      for (const button of hudButtons) {
+        const buttonBox = await button.boundingBox()
+        expect(buttonBox).not.toBeNull()
+        if (buttonBox !== null) expect(buttonBox.height).toBeGreaterThanOrEqual(44)
+      }
+
+      const pixels = await readDevicePixelMetrics(page)
+      expect(pixels.webgl.pixelWidth).toBeGreaterThanOrEqual(
+        Math.floor(pixels.webgl.cssWidth * pixels.browserDpr),
       )
+    })
+  }
+
+
+  for (const deviceScaleFactor of [1, 2, 3] as const) {
+    test.describe(`standalone device at DPR ${deviceScaleFactor}`, () => {
+      test.use({ deviceScaleFactor })
+
+      test('backs both the LCD source and WebGL canvas with physical pixels', async ({ page }) => {
+        await page.setViewportSize({ width: 390, height: 844 })
+        await page.goto('/_spike/device')
+        await settleDevicePaint(page)
+
+        const pixels = await readDevicePixelMetrics(page)
+        expect(pixels.browserDpr).toBe(deviceScaleFactor)
+        expect(pixels.source.logicalWidth).toBe(272)
+        expect(pixels.source.logicalHeight).toBe(204)
+        expect(pixels.source.pixelWidth).toBe(272 * deviceScaleFactor)
+        expect(pixels.source.pixelHeight).toBe(204 * deviceScaleFactor)
+        expect(pixels.webgl.pixelWidth).toBeGreaterThanOrEqual(
+          Math.floor(pixels.webgl.cssWidth * deviceScaleFactor),
+        )
+        expect(pixels.webgl.pixelHeight).toBeGreaterThanOrEqual(
+          Math.floor(pixels.webgl.cssHeight * deviceScaleFactor),
+        )
+        expect(pixels.webgl.pixelWidth).toBeLessThanOrEqual(
+          Math.ceil(pixels.webgl.cssWidth * deviceScaleFactor) + 1,
+        )
+        expect(pixels.webgl.pixelHeight).toBeLessThanOrEqual(
+          Math.ceil(pixels.webgl.cssHeight * deviceScaleFactor) + 1,
+        )
+      })
     })
   }
 

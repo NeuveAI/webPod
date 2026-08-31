@@ -145,8 +145,8 @@ const COMPOSITE_PREVIEW_CSS = `
   .wp-composite-preview__header a {
     box-sizing: border-box;
     min-inline-size: 58px;
-    min-block-size: 32px;
-    padding: 7px 10px;
+    min-block-size: 44px;
+    padding: 12px 10px;
     border: 1px solid #3b4350;
     border-radius: 999px;
     color: inherit;
@@ -190,7 +190,7 @@ const COMPOSITE_PREVIEW_CSS = `
   @media (max-block-size: 720px) {
     .wp-composite-preview { gap: 8px; padding-block: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-bottom)); }
     .wp-composite-preview__header h1 { margin-block: 2px 5px; }
-    .wp-composite-preview__header a { min-block-size: 28px; padding-block: 5px; }
+    .wp-composite-preview__header a { min-block-size: 44px; padding-block: 12px; }
     .wp-composite-preview__help { font-size: 10px; }
   }
 `
