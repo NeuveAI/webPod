@@ -59,6 +59,44 @@ polling the route directly: the front pose did attach the panel host, expose
 `requestPaint`, and render with the correct canvas size. The fix was to wait for
 host attachment in the evidence harness, not to mutate the product.
 
+## VD-08 · Probe identity follows the rendered stack, not a hidden proxy
+
+The review-blocking edge and rear failures came from the same root mistake:
+asking the verifier to prove a surface the camera was not actually reading.
+Every probe-relevant visible surface now has a semantic identity, and the route
+admits a pixel only when the first visible hit matches the rendered surface for
+that pose. For the rear, that means `device-back-composition /
+back-composition` first and `device-steel-back / steel-back` present behind it.
+For the edge, it means the visible steel shell rather than a front-face body
+proxy.
+
+## VD-09 · The exact edge pose must sample inside the shell half, not on the split
+
+At yaw `-90°`, the device side is not one material depth from front to rear.
+`Device.tsx` splits the chassis at `z = 0`: the steel shell occupies the front
+half and the rear steel plate occupies the back half. My first edge probe used
+`z = 0`, which is a geometric boundary, not a trustworthy rendered sample. The
+edge targets now read at `body.depth / 4`, safely inside the visible shell
+band, so the probe tests the sidewall the user sees instead of the split where
+rear steel can legitimately win the pixel.
+
+## VD-10 · Fresh flagged-Chrome proof is enough; I did not reopen long browser work
+
+After the user explicitly asked me to stop hanging on more browser work, I kept
+the rerun bounded. The follow-up evidence is:
+
+- one fresh flagged-Chrome pose summary in
+  `evidence/volumetric-device-browser/summary.json`
+- one fresh responsive Playwright run in
+  `evidence/volumetric-device-responsive.txt`
+- fresh DPR density and LCD acuity captures in
+  `evidence/volumetric-device-density.txt` and
+  `evidence/volumetric-device-acuity.txt`
+- fresh package/app checks and full gates logs
+
+I did not leave any new long-running browser or Vite process behind after the
+captures completed.
+
 ## Sources actually used
 
 - `AGENTS.md`

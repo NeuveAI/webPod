@@ -1,0 +1,3 @@
+{"deviceScaleFactor":1,"metric":{"edgeP95":19.787400000000005,"edgeP99":38.761199999999974,"rowHighFrequencyMean":0.9507320430107566}}
+{"deviceScaleFactor":2,"metric":{"edgeP95":31.774200000000008,"edgeP99":70.34900000000005,"rowHighFrequencyMean":1.7306036842891346}}
+{"deviceScaleFactor":3,"metric":{"edgeP95":37.6298,"edgeP99":93.702,"rowHighFrequencyMean":2.1063485603345384}}

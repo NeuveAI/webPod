@@ -1,0 +1,210 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/composite/src/tier-store.test.ts:
+(pass) authoritative composite tier atom > publishes context loss through Jotai to external subscribers [0.65ms]
+
+packages/composite/src/CompositeDevice.test.tsx:
+(pass) CompositeDevice public boundary > renders on the server without touching document [2.99ms]
+(pass) CompositeCoordinator lifecycle > replaces renderer and camera without retaining a detached source [0.12ms]
+(pass) CompositeCoordinator lifecycle > resyncs geometry without polling [0.02ms]
+(pass) CompositeCoordinator lifecycle > context loss detaches and restore attaches once [0.04ms]
+(pass) CompositeCoordinator lifecycle > cleans a source whose attach fails and can retry [0.06ms]
+(pass) CompositeCoordinator lifecycle > repeated clear, reattach, and dispose are idempotent [0.03ms]
+
+packages/composite/src/capabilities.test.ts:
+(pass) resolveTier > {"webgl":false,"requestPaint":false,"prefersReducedMotion":false} resolves T4 [0.02ms]
+(pass) resolveTier > {"webgl":false,"requestPaint":true,"prefersReducedMotion":false} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":false,"prefersReducedMotion":false} resolves T3
+(pass) resolveTier > {"webgl":true,"requestPaint":true,"prefersReducedMotion":false} resolves T1
+(pass) resolveTier > {"webgl":false,"requestPaint":false,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":false,"requestPaint":true,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":false,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":true,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > never manufactures the uninstalled polyfill tier [0.01ms]
+(pass) arityOf > reads the declared arity of an own data-property function [0.02ms]
+(pass) arityOf > walks to an inherited data-property function descriptor
+(pass) arityOf > does not invoke an own IDL-style getter that throws Illegal invocation [0.01ms]
+(pass) arityOf > does not invoke an inherited IDL-style getter
+(pass) arityOf > returns null for a missing descriptor and for non-functions
+
+packages/composite/src/dependency-resolution.test.ts:
+(pass) package-owned dependency resolution > resolves jotai/vanilla from the composite package boundary [0.05ms]
+
+packages/composite/src/click-wheel-runtime.test.ts:
+(pass) click-wheel runtime > keeps seam crossings short and signed [0.04ms]
+(pass) click-wheel runtime > routes mouse and touch arcs through their reducer paths [1.95ms]
+(pass) click-wheel runtime > a new gesture cancels an existing coast [0.58ms]
+(pass) click-wheel runtime > release coasts only when requested and reduced motion is off [0.49ms]
+(pass) click-wheel runtime > the external driver travels the same unclamped distance from 15 to 240Hz [4.58ms]
+(pass) click-wheel runtime > forwards each display frame elapsed time to the coast reducer [0.27ms]
+(pass) click-wheel runtime > cancellation paths never coast [0.15ms]
+(pass) click-wheel runtime > wheel modes pass through and settle at the 120ms idle boundary [0.38ms]
+(pass) click-wheel runtime > wheel idle is rescheduled from the most recent event [0.10ms]
+(pass) click-wheel runtime > dispose removes listeners, timers, frames, and transient input [0.14ms]
+(pass) click-wheel runtime > visibility, blur, and a new reduced-motion preference cancel input [0.23ms]
+
+packages/composite/src/pixel-source.test.ts:
+(pass) panel pixel source seam > declares the one T1 variant that flows end to end [0.01ms]
+(pass) panel pixel source seam > freezes nested requirement lists so a consumer cannot mutate the contract [0.02ms]
+(pass) panel pixel source seam > admits a renderer-less tier without fake WebGL or device values
+
+packages/composite/src/CompositeDevice.integration.test.tsx:
+(pass) mounted composite input boundary > production arc callbacks move the singleton store and restore application focus [40.95ms]
+
+packages/composite/src/click-wheel-browser.test.ts:
+(pass) composite browser wheel boundary > uses one non-passive capture listener and removes that listener [0.09ms]
+(pass) composite browser wheel boundary > normalizes unknown modes to pixels without changing line or page
+
+packages/composite/src/html-in-canvas.test.ts:
+(pass) html-in-canvas invariants > quantizes the logical 320×240 panel into stable 1×/2×/3× raster sources [0.02ms]
+(pass) html-in-canvas invariants > ignores only InteractionManager geometry writes on the panel host [0.01ms]
+(pass) html-in-canvas invariants > upscales the 272×204 authored LCD to the 320×240 html-in-canvas grid before raster quantization [0.02ms]
+(pass) html-in-canvas invariants > delegates experimental upload and geometry APIs to Three [0.26ms]
+
+packages/device/calibration/archive-schema.test.ts:
+(pass) calibration archive measurement integrity > parses both committed archives and recomputes their reviewed aggregates [21.76ms]
+(pass) calibration archive measurement integrity > rejects the reviewer's exact duplicated black-row, rogue-key, delta/pass fabrication [18.14ms]
+(pass) calibration archive measurement integrity > rejects undeclared result fields and inconsistent delta/pass claims [36.40ms]
+(pass) calibration archive measurement integrity > rejects non-finite, out-of-range, and internally inconsistent colour measurements [30.86ms]
+(pass) calibration archive measurement integrity > rejects changed coordinate identity, expected stop semantics, and cardinality [21.56ms]
+(pass) calibration archive measurement integrity > rejects incomplete, reordered, duplicate, and out-of-grid sweep coordinates [35.06ms]
+
+packages/device/calibration/stage-ownership.test.ts:
+(pass) calibration stage ownership > body-black can apply only its material and optical response [0.16ms]
+(pass) calibration stage ownership > body-black cannot own shared or other-surface keys [0.04ms]
+(pass) calibration stage ownership > body-black writes preserve every frozen non-owned value [0.14ms]
+
+packages/device/src/probe-raycast.test.ts:
+(pass) first visible probe hit > uses Three's stable type flags across module graphs [0.37ms]
+(pass) first visible probe hit > rejects a nearer unnamed wrong-material occluder [1.84ms]
+(pass) first visible probe hit > fails closed when the transparent decal alpha cannot be proven empty [0.23ms]
+(pass) first visible probe hit > accepts the transformed back mesh only when it is the first hit [0.33ms]
+(pass) first visible probe hit > keeps the rendered rear composition in front of the steel backing [0.12ms]
+(pass) first visible probe hit > edge targets fail closed when the nearer visible shell is unnamed [0.12ms]
+(pass) first visible probe hit > solves the actual tessellated mesh surface instead of a nominal z [8.03ms]
+(pass) side-face probe solves > solves the actual visible right shell instead of a front proxy [0.21ms]
+
+packages/device/src/luminance-probe.test.ts:
+(pass) §12.3 luminance tolerance > preserves mirrored readings instead of hiding asymmetry in the average [0.07ms]
+(pass) §12.3 luminance tolerance > admits floating-point noise at the exact ±4 boundary [0.02ms]
+(pass) §12.3 luminance tolerance > still rejects a materially out-of-band reading [0.01ms]
+(pass) D-067 probe geometry and identity > every target carries an expected object and material identity [0.31ms]
+(pass) D-067 probe geometry and identity > off-surface and wrong-material hits cannot count [0.03ms]
+(pass) D-067 probe geometry and identity > body samples stay inside the shared circular enclosure by the safe margin [0.04ms]
+(pass) D-067 probe geometry and identity > wheel and Select samples keep their separate recessed-surface margins [0.04ms]
+(pass) D-067 probe geometry and identity > back targets preserve the 168° iso-line through the actual face transform [0.09ms]
+(pass) D-067 probe geometry and identity > rear targets classify the rendered composition while requiring steel behind it [0.03ms]
+(pass) D-067 probe geometry and identity > edge targets bind to the actual visible shell on both sides [0.04ms]
+
+packages/device/src/click-wheel-input.integration.test.tsx:
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > routes captured down, outside move and up through production handlers [36.61ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > native cancel and following lost capture terminate exactly once [7.50ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > unexpected native lost capture reaches the component listener [0.97ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > reconciler unmount cancels and releases an active pointer [0.57ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > a back-facing DeviceCanvas context contains no raycastable annulus [0.36ms]
+
+packages/device/src/pixel-density.test.ts:
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box [0.04ms]
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box
+(pass) canvas physical-pixel density > maps a 275px by 460px CSS canvas to its physical box
+(pass) canvas physical-pixel density > uses browser DPR when the physical box API is unavailable
+(pass) canvas physical-pixel density > does not let a CSS-sized emulation box override a higher browser DPR
+(pass) canvas physical-pixel density > clamps expensive or invalid device scales to the supported 1–3 range
+(pass) canvas physical-pixel density > passes a measured zoom DPR through the R3F seam as an exact number [0.02ms]
+
+packages/device/src/materials.test.ts:
+(pass) §12.3 device material contract > polycarbonate keeps the specified base response [0.03ms]
+(pass) §12.3 device material contract > mirror steel remains room-driven while front surfaces do not (D-057) [0.02ms]
+(pass) §12.3 device material contract > wheel, Select, glass and screen keep their physical distinctions [0.02ms]
+(pass) §12.3 device material contract > the Pencil-first white wheel remains visibly below the pearl body [0.01ms]
+(pass) §12.3 device material contract > instantiated cover glass obeys transmission and carries two-hue dispersion [0.34ms]
+(pass) §12.3 device material contract > black polycarbonate integrates bounded transport into every direct light [0.15ms]
+(pass) §12.3 device material contract > the seam is a restrained blue-gray boundary, not mirror-back material [0.01ms]
+(pass) LAW 2 light rig > keeps one 18° key and one 22% lower-left fill [0.01ms]
+
+packages/device/src/textures.test.ts:
+(pass) deterministic physical textures > the back composition preserves Pencil's native inlay hierarchy [0.01ms]
+(pass) deterministic physical textures > the back composition texture stays sharp enough for the etched rear copy [0.07ms]
+(pass) deterministic physical textures > roughness noise is byte-stable for the default seed [0.28ms]
+(pass) deterministic physical textures > steel grain encodes horizontal direction and bounded strength [0.13ms]
+
+packages/device/src/shapes.test.ts:
+(pass) silhouette frame > has steel at the seam and no cap over the body [14.35ms]
+(pass) rounded-rectangle frame > keeps the screen opening clear while preserving the bezel lip [0.60ms]
+
+packages/device/src/click-wheel-input.test.tsx:
+(pass) click-wheel input geometry > uses the canonical Select and wheel radii [0.50ms]
+(pass) click-wheel input geometry > clockwise and counter-clockwise quarter turns have the right sign [0.02ms]
+(pass) click-wheel input geometry > crosses the signed-angle seam without a reverse jump
+(pass) click-wheel input geometry > refreshes a dirty parent and mesh world transform in production [0.22ms]
+(pass) click-wheel input geometry > returns null when the current ray is parallel to the wheel plane [0.04ms]
+(pass) click-wheel input geometry > accepts primary touch, pen and left mouse only [0.02ms]
+(pass) click-wheel capture lifecycle > reports release and releases capture exactly once [35.36ms]
+(pass) click-wheel capture lifecycle > ignores terminal events for a different pointer [0.09ms]
+
+packages/device/src/curved-shell.test.ts:
+(pass) tessellated vertical shell crown > zero secondary crown is byte-identical [1.48ms]
+(pass) tessellated vertical shell crown > bounded edge crown is local, manifold, smooth, and thickness-preserving [0.92ms]
+(pass) tessellated vertical shell crown > is one smooth macro curve with fixed top and bottom joins [0.03ms]
+(pass) tessellated vertical shell crown > refuses the old clamped bevel/thickness combination [0.05ms]
+(pass) tessellated vertical shell crown > tessellates every front triangle in the crown direction [81.22ms]
+(pass) tessellated vertical shell crown > removes the non-indexed Earcut normal split the old deformation kept [78.38ms]
+(pass) tessellated vertical shell crown > preserves shell thickness while bending both faces [0.64ms]
+
+packages/device/src/optical-profile.test.ts:
+(pass) moulded-surface optical profile > the Pencil-first white moulding has a real non-flat light hierarchy [0.02ms]
+(pass) moulded-surface optical profile > body roughness is encoded in Three's green channel [0.11ms]
+(pass) moulded-surface optical profile > zero additive profile preserves a pre-existing crown normal [0.13ms]
+(pass) moulded-surface optical profile > encodes top-to-bottom tilt as a deterministic tangent-space normal map [0.09ms]
+(pass) moulded-surface optical profile > combined lateral and vertical profiles remain finite and approximately unit length [0.03ms]
+(pass) moulded-surface optical profile > baked curved-surface normals remain finite and unit length [0.05ms]
+
+packages/device/src/ViewerLitDeviceFrame.test.tsx:
+(pass) viewer-lit device scene frame > keeps key and fill world positions invariant when only the model flips [0.51ms]
+(pass) viewer-lit device scene frame > keeps the lamps world-fixed while accepting arbitrary pose rotations [0.04ms]
+
+packages/device/src/layout.test.ts:
+(pass) §12.0 R5 geometry — the numbers the dispatch names > wheelR is 115 (§12.0, "wheelR 106 → 115") [0.01ms]
+(pass) §12.0 R5 geometry — the numbers the dispatch names > body is 330 × 552 (§12.0, "body 330 × 552")
+(pass) §12.0 R5 geometry — the numbers the dispatch names > wheel/body is 0.697, against the real 5G’s 0.699 (§12.0)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > Select r 42, lip to 46 (§12.0 R5 table)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > label band r 77–79 (§12.0 R5 table, measured)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > the label band constant is innerR + ringW × 0.493, not × 0.57 (§12.0)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > recess-shadow reach r 104 (§12.0 R5 table)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > panel active area 272 × 204 at scale 0.85 (§7.3 mobile column, §7.4)
+(pass) §12.0 R5 geometry — the numbers the dispatch names > D-067 uses Pencil VWaJS's circular 26px enclosure [0.01ms]
+(pass) §12.0 R5 geometry — the numbers the dispatch names > the saved Pencil seam remains a thin 1.5px material boundary
+(pass) the vertical chain, re-derived at wheelR 115 > scale is 5.3398 px/mm (§7.3, body 330px / 61.8mm)
+(pass) the vertical chain, re-derived at wheelR 115 > 48 + 204 + 43 + 230 + 27 = 552 (§7.3 millimetres, §12.0 wheel) [0.01ms]
+(pass) the vertical chain, re-derived at wheelR 115 > the bottom margin lands on §7.3’s measured 5.2mm
+(pass) the vertical chain, re-derived at wheelR 115 > screen centre sits 126px above the body centre [0.02ms]
+(pass) the vertical chain, re-derived at wheelR 115 > wheel centre sits 134px below the body centre
+(pass) the vertical chain, re-derived at wheelR 115 > glass window is the active area plus a 6px surround (§5.5 L2)
+(pass) the vertical chain, re-derived at wheelR 115 > body depth is 11.0mm (§7.3, 30GB)
+(pass) the D-067 circular enclosure > matches the analytic 26px circular corner [0.01ms]
+(pass) the D-067 circular enclosure > keeps the full box width on its straight sides
+
+packages/device/src/material-map-ownership.test.ts:
+(pass) front-body optical maps cannot bind to mirror steel [0.05ms]
+
+packages/device/src/screen-mesh.test.ts:
+(pass) the screen mesh boundary > screen UVs are normalized with TL/TR/BR/BL texture orientation [0.62ms]
+(pass) the screen mesh boundary > size is 272 × 204 body px and panel is 320 × 240 at 0.85 [0.20ms]
+(pass) the screen mesh boundary > world corners are TL, TR, BR, BL with +y up [0.14ms]
+(pass) the screen mesh boundary > viewport corners are canvas CSS px with +y DOWN [0.05ms]
+(pass) the screen mesh boundary > a moved device reports a new transform, not the one it was created with [0.04ms]
+(pass) the screen mesh boundary > onTransformChange delivers the value and fires only on a real change [0.09ms]
+(pass) the screen mesh boundary > callback-ref replay preserves handle identity and active subscriptions [0.06ms]
+(pass) the screen mesh boundary > setMaterial installs, null restores the default, and both ask for a frame [0.04ms]
+(pass) the screen mesh boundary > the handle exposes no Object3D — D-054, staleness has no slot [0.03ms]
+
+ 149 pass
+ 0 fail
+ 43029 expect() calls
+Ran 149 tests across 25 files. [871.00ms]

@@ -6,7 +6,19 @@
       "hostCount": 1,
       "canvasCount": 1,
       "requestPaint": true,
-      "hostTransform": "matrix3d(875.539, 0, 0, 0, 0, 875.539, 0, 0, -165, -276, -2.10145, -1, 47202.1, 78431.9, 499.634, 1135.08)"
+      "hostTransform": "matrix3d(875.539, 0, 0, 0, 0, 875.539, 0, 0, -165, -276, -2.10145, -1, 47202.1, 78431.9, 499.634, 1135.08)",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "frame": {
+        "x": 30,
+        "y": 231.40625,
+        "width": 330,
+        "height": 552
+      },
+      "selectedBeforeKeyboard": "_r_0_-menu-3",
+      "selectedAfterKeyboard": "_r_0_-menu-4",
+      "keyboardContinued": true,
+      "pageErrors": []
     },
     {
       "pose": "three-quarter",
@@ -14,7 +26,19 @@
       "hostCount": 1,
       "canvasCount": 1,
       "requestPaint": true,
-      "hostTransform": "matrix3d(647.374, -75.6628, -0.993899, -0.472959, 46.9758, 900.884, 0.275657, 0.131175, -710.707, -77.0519, -1.71571, -0.816443, 57509.4, 88697.2, 594.329, 1180.14)"
+      "hostTransform": "matrix3d(647.374, -75.6628, -0.993899, -0.472959, 46.9758, 900.884, 0.275657, 0.131175, -710.707, -77.0519, -1.71571, -0.816443, 57509.4, 88697.2, 594.329, 1180.14)",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "frame": {
+        "x": 30,
+        "y": 231.40625,
+        "width": 330,
+        "height": 552
+      },
+      "selectedBeforeKeyboard": "_r_0_-menu-3",
+      "selectedAfterKeyboard": "_r_0_-menu-4",
+      "keyboardContinued": true,
+      "pageErrors": []
     },
     {
       "pose": "edge",
@@ -22,7 +46,19 @@
       "hostCount": 1,
       "canvasCount": 1,
       "requestPaint": true,
-      "hostTransform": "matrix3d(-140.25, -234.6, -1.78623, -0.85, 0, 875.539, 0, 0, -1030.05, -6.12843e-14, -4.66615e-16, -2.22045e-16, 188172, 122846, 837.797, 1296)"
+      "hostTransform": "matrix3d(-140.25, -234.6, -1.78623, -0.85, 0, 875.539, 0, 0, -1030.05, -6.12843e-14, -4.66615e-16, -2.22045e-16, 188172, 122846, 837.797, 1296)",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "frame": {
+        "x": 30,
+        "y": 231.40625,
+        "width": 330,
+        "height": 552
+      },
+      "selectedBeforeKeyboard": "_r_0_-menu-3",
+      "selectedAfterKeyboard": "_r_0_-menu-4",
+      "keyboardContinued": true,
+      "pageErrors": []
     },
     {
       "pose": "rear",
@@ -30,12 +66,45 @@
       "hostCount": 1,
       "canvasCount": 1,
       "requestPaint": true,
-      "hostTransform": "matrix3d(-875.539, 2.87302e-14, 2.1875e-16, 1.04095e-16, 0, 875.539, 0, 0, 165, 276, 2.10145, 1, 335598, 92187.1, 604.366, 1184.92)"
+      "hostTransform": "matrix3d(-875.539, 2.87302e-14, 2.1875e-16, 1.04095e-16, 0, 875.539, 0, 0, 165, 276, 2.10145, 1, 335598, 92187.1, 604.366, 1184.92)",
+      "clientWidth": 390,
+      "scrollWidth": 390,
+      "frame": {
+        "x": 30,
+        "y": 231.40625,
+        "width": 330,
+        "height": 552
+      },
+      "selectedBeforeKeyboard": "_r_0_-menu-3",
+      "selectedAfterKeyboard": "_r_0_-menu-4",
+      "keyboardContinued": true,
+      "pageErrors": []
     }
   ],
   "deviceSummary": [
     {
       "name": "front-white",
+      "pose": "front",
+      "colourway": "white",
+      "probeFace": "front",
+      "sampleCount": 16,
+      "failingTokens": [
+        "--poly-w-0",
+        "--poly-w-1",
+        "--poly-w-2",
+        "--poly-w-3",
+        "--poly-w-4",
+        "--poly-w-5",
+        "--poly-w-6",
+        "--poly-w-7",
+        "--wheel-w-0",
+        "--wheel-w-1",
+        "--wheel-w-2",
+        "--wheel-w-3",
+        "--select-w-0",
+        "--select-w-1",
+        "--select-w-3"
+      ],
       "pixels": {
         "browserDpr": 1,
         "source": {
@@ -50,10 +119,30 @@
           "pixelWidth": 330,
           "pixelHeight": 552
         }
-      }
+      },
+      "pageErrors": []
     },
     {
       "name": "quarter-black",
+      "pose": "three-quarter",
+      "colourway": "black",
+      "probeFace": "front",
+      "sampleCount": 16,
+      "failingTokens": [
+        "--poly-k-0",
+        "--poly-k-2",
+        "--poly-k-3",
+        "--poly-k-4",
+        "--poly-k-5",
+        "--poly-k-6",
+        "--poly-k-7",
+        "--wheel-k-1",
+        "--wheel-k-2",
+        "--wheel-k-3",
+        "--select-k-0",
+        "--select-k-1",
+        "--select-k-3"
+      ],
       "pixels": {
         "browserDpr": 1,
         "source": {
@@ -68,10 +157,20 @@
           "pixelWidth": 330,
           "pixelHeight": 552
         }
-      }
+      },
+      "pageErrors": []
     },
     {
-      "name": "edge-black",
+      "name": "edge-white",
+      "pose": "edge",
+      "colourway": "white",
+      "probeFace": "right",
+      "sampleCount": 3,
+      "failingTokens": [
+        "--edge-shell-w-0",
+        "--edge-shell-w-1",
+        "--edge-shell-w-2"
+      ],
       "pixels": {
         "browserDpr": 1,
         "source": {
@@ -86,10 +185,25 @@
           "pixelWidth": 330,
           "pixelHeight": 552
         }
-      }
+      },
+      "pageErrors": []
     },
     {
       "name": "rear-white",
+      "pose": "rear",
+      "colourway": "white",
+      "probeFace": "back",
+      "sampleCount": 11,
+      "failingTokens": [
+        "--steel-2",
+        "--steel-4",
+        "--steel-5",
+        "--steel-6",
+        "--steel-7",
+        "--steel-8",
+        "--steel-9",
+        "--steel-10"
+      ],
       "pixels": {
         "browserDpr": 1,
         "source": {
@@ -104,24 +218,28 @@
           "pixelWidth": 330,
           "pixelHeight": 552
         }
-      }
+      },
+      "pageErrors": []
     }
   ],
   "mobileMetrics": {
-    "viewport": {
-      "width": 390,
-      "height": 844
-    },
+    "pose": "front",
+    "tier": "T1",
+    "hostCount": 1,
+    "canvasCount": 1,
+    "requestPaint": true,
+    "hostTransform": "matrix3d(875.539, 0, 0, 0, 0, 875.539, 0, 0, -165, -276, -2.10145, -1, 47202.1, 78431.9, 499.634, 1135.08)",
+    "clientWidth": 390,
+    "scrollWidth": 390,
     "frame": {
       "x": 30,
       "y": 231.40625,
       "width": 330,
       "height": 552
     },
-    "scrollWidth": 390,
-    "clientWidth": 390,
-    "tier": "T1",
-    "hostCount": 1,
-    "hostTransform": "matrix3d(875.539, 0, 0, 0, 0, 875.539, 0, 0, -165, -276, -2.10145, -1, 47202.1, 78431.9, 499.634, 1135.08)"
+    "selectedBeforeKeyboard": "_r_0_-menu-3",
+    "selectedAfterKeyboard": "_r_0_-menu-4",
+    "keyboardContinued": true,
+    "pageErrors": []
   }
 }
