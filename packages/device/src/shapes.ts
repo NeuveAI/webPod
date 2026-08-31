@@ -187,6 +187,36 @@ export function roundedRectShape(
   return shape;
 }
 
+/**
+ * A rounded-rectangle frame with an inner rounded-rectangle hole.
+ *
+ * Used for recess lips like the LCD well, where the center must remain open
+ * for the screen mesh rather than being covered by a filled slab.
+ */
+export function roundedRectFrameShape(
+  outer: { width: number; height: number; radius: number },
+  inner: { width: number; height: number; radius: number },
+  arcSegments = 8,
+): Shape {
+  const shape = roundedRectShape(
+    outer.width,
+    outer.height,
+    outer.radius,
+    arcSegments,
+  );
+  shape.holes.push(
+    roundedRectHole(
+      0,
+      0,
+      inner.width,
+      inner.height,
+      inner.radius,
+      arcSegments,
+    ),
+  );
+  return shape;
+}
+
 /** A rounded-rect hole, offset to `(cx, cy)`, for `Shape.holes`. */
 export function roundedRectHole(
   cx: number,

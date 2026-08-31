@@ -61,6 +61,16 @@ export type DeviceFormParams = {
   readonly selectDomeExponent: number;
   /** How far the Select plug stands proud of the ring's inner edge. */
   readonly selectProud: number;
+  /** How far below the body face the dark LCD well begins. */
+  readonly displayWellInset: number;
+  /** Physical thickness of the LCD well floor slab. */
+  readonly displayWellDepth: number;
+  /** Extra wall height around the wheel recess before the ring begins. */
+  readonly wheelWellDepth: number;
+  /** How far inward the rear Settings inlay sits from the mirror back shell. */
+  readonly rearInlayInset: number;
+  /** How far below the body face the cover glass front surface sits. */
+  readonly glassInset: number;
   /** Cover glass sheet thickness. */
   readonly glassThickness: number;
   /** Gap between the glass sheet's inner face and the emissive panel. */
@@ -82,6 +92,11 @@ export const DEFAULT_DEVICE_FORM: DeviceFormParams = {
   selectDomeTiltDeg: 15.9951,
   selectDomeExponent: 1.4989,
   selectProud: 6.5848,
+  displayWellInset: 1.8,
+  displayWellDepth: 0.9,
+  wheelWellDepth: 1.2,
+  rearInlayInset: 1.1,
+  glassInset: 0.85,
   glassThickness: 2.4,
   glassToPanel: 1.2,
 };

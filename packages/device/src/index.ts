@@ -18,15 +18,35 @@
 export {
   Device,
   type Colourway,
-  type DeviceFace,
   type DeviceProps,
 } from "./Device";
+export type {
+  DeviceFace,
+  DeviceOrientation,
+  DevicePosePreset,
+  DeviceVisibleFace,
+} from "./orientation";
 export {
   DEFAULT_CAMERA_DISTANCE,
   DEFAULT_CAMERA_FOV,
   DeviceCanvas,
   type DeviceCanvasProps,
 } from "./DeviceCanvas";
+export {
+  clampDeviceOrientation,
+  DEVICE_FRONT_VISIBILITY_THRESHOLD,
+  DEVICE_ORIENTATION_PRESETS,
+  deviceFrontVisibility,
+  deviceOrientationToRotation,
+  deviceScreenIsInteractable,
+  EDGE_DEVICE_ORIENTATION,
+  FRONT_DEVICE_ORIENTATION,
+  orientationFromFace,
+  REAR_DEVICE_ORIENTATION,
+  resolveDeviceVisibleFace,
+  THREE_QUARTER_DEVICE_ORIENTATION,
+  wrapDegrees,
+} from "./orientation";
 export {
   DEVICE_DPR_RANGE,
   firstDevicePixelBox,
@@ -84,6 +104,7 @@ export {
   SCREEN_CORNER_R,
   toCanvasTopLeft,
 } from "./layout";
+export { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 export {
   circleHole,
   roundedRectHole,

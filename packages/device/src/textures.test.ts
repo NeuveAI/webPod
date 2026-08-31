@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import { CanvasTexture, LinearFilter } from "three";
 
 import {
   BACK_COMPOSITION_LAYOUT,
   createMicroNoiseRoughnessMap,
   createSteelAnisotropyMap,
+  tuneEtchedTextTexture,
 } from "./textures";
 
 describe("deterministic physical textures", () => {
@@ -17,6 +19,19 @@ describe("deterministic physical textures", () => {
       liveY: 492,
     });
   });
+
+  test("the back composition texture stays sharp enough for the etched rear copy", () => {
+    if (typeof OffscreenCanvas !== "function") return;
+    const texture = tuneEtchedTextTexture(
+      new CanvasTexture(new OffscreenCanvas(660, 1104)),
+    );
+    expect(texture.generateMipmaps).toBe(false);
+    expect(texture.minFilter).toBe(LinearFilter);
+    expect(texture.magFilter).toBe(LinearFilter);
+    expect(texture.anisotropy).toBe(8);
+    texture.dispose();
+  });
+
   test("roughness noise is byte-stable for the default seed", () => {
     const first = createMicroNoiseRoughnessMap(0.02, 16);
     const second = createMicroNoiseRoughnessMap(0.02, 16);

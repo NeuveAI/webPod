@@ -15,7 +15,11 @@ import {
   type ClickWheelArcEnd,
   type ClickWheelArcSample,
 } from "./click-wheel-input";
-import { DeviceCanvasFaceContext } from "./DeviceCanvas";
+import {
+  FRONT_DEVICE_ORIENTATION,
+  REAR_DEVICE_ORIENTATION,
+} from "./orientation";
+import { DeviceCanvasOrientationContext } from "./DeviceCanvas";
 import { DEVICE_LAYOUT } from "./layout";
 
 const WIDTH = DEVICE_LAYOUT.body.width;
@@ -87,13 +91,20 @@ async function mountSurface(
   const restoreAnimationFrame = installAnimationFrameStub();
   await act(async () => {
     mountedStore.current = root.render(
-      <DeviceCanvasFaceContext.Provider value={face}>
+      <DeviceCanvasOrientationContext.Provider
+        value={{
+          orientation:
+            face === "back" ? REAR_DEVICE_ORIENTATION : FRONT_DEVICE_ORIENTATION,
+          visibleFace: face,
+          frontInteractive: face === "front",
+        }}
+      >
         <ClickWheelInputSurface
           onArcStart={(sample) => starts.push(sample)}
           onArcMove={(sample) => moves.push(sample)}
           onArcEnd={(end) => ends.push(end)}
         />
-      </DeviceCanvasFaceContext.Provider>,
+      </DeviceCanvasOrientationContext.Provider>,
     );
     await Promise.resolve();
   });

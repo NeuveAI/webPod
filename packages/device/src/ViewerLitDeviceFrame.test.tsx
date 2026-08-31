@@ -7,6 +7,11 @@ import {
   DEVICE_MODEL_NAME,
   ViewerLitDeviceFrame,
 } from "./ViewerLitDeviceFrame";
+import {
+  EDGE_DEVICE_ORIENTATION,
+  FRONT_DEVICE_ORIENTATION,
+  REAR_DEVICE_ORIENTATION,
+} from "./orientation";
 
 type LightElementProps = {
   readonly name: string;
@@ -20,7 +25,8 @@ type GroupElementProps = {
 
 function frameChildren(face: "front" | "back") {
   const frame = ViewerLitDeviceFrame({
-    face,
+    orientation:
+      face === "back" ? REAR_DEVICE_ORIENTATION : FRONT_DEVICE_ORIENTATION,
     lightRig: DEFAULT_LIGHT_RIG,
     children: null,
   });
@@ -76,5 +82,26 @@ describe("viewer-lit device scene frame", () => {
     expect(front.model.name).toBe(DEVICE_MODEL_NAME);
     expect(front.model.rotation.y).toBe(0);
     expect(back.model.rotation.y).toBe(Math.PI);
+  });
+
+  test("keeps the lamps world-fixed while accepting arbitrary pose rotations", () => {
+    const front = ViewerLitDeviceFrame({
+      orientation: FRONT_DEVICE_ORIENTATION,
+      lightRig: DEFAULT_LIGHT_RIG,
+      children: null,
+    });
+    const edge = ViewerLitDeviceFrame({
+      orientation: EDGE_DEVICE_ORIENTATION,
+      lightRig: DEFAULT_LIGHT_RIG,
+      children: null,
+    });
+    const frontChildren = Children.toArray(front.props.children);
+    const edgeChildren = Children.toArray(edge.props.children);
+    const frontKey = requireElement<LightElementProps>(frontChildren[0], "pointLight");
+    const edgeKey = requireElement<LightElementProps>(edgeChildren[0], "pointLight");
+    const edgeModel = requireElement<GroupElementProps>(edgeChildren[2], "group");
+
+    expect(frontKey.props.position).toEqual(edgeKey.props.position);
+    expect(edgeModel.props.rotation[1]).toBeCloseTo(-Math.PI / 2, 8);
   });
 });

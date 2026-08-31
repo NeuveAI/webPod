@@ -20,6 +20,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import {
   Color,
   CylinderGeometry,
+  DoubleSide,
   ExtrudeGeometry,
   type Material,
   type Mesh,
@@ -35,7 +36,7 @@ import {
   type EnvRoomParams,
 } from "./env-map";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
-import { DEVICE_LAYOUT, GLASS_CORNER_R, SCREEN_CORNER_R } from "./layout";
+import { DEVICE_LAYOUT, SCREEN_CORNER_R } from "./layout";
 import { DEFAULT_LIGHT_RIG, type LightRigParams } from "./light-rig";
 import { materialMapOwnership } from "./material-map-ownership";
 import {
@@ -45,6 +46,7 @@ import {
 } from "./materials";
 import {
   circleHole,
+  roundedRectFrameShape,
   roundedRectHole,
   roundedRectShape,
   silhouetteFrameShape,
@@ -72,16 +74,24 @@ import {
   createWheelLabelMap,
 } from "./textures";
 import { ViewerLitDeviceFrame } from "./ViewerLitDeviceFrame";
+import {
+  FRONT_DEVICE_ORIENTATION,
+  type DeviceOrientation,
+} from "./orientation";
+import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 
 /** LAW 5: both modes are the product, so both colourways are first class. */
 export type Colourway = "black" | "white";
-
-/** Which face of the device is toward the camera. */
-export type DeviceFace = "front" | "back";
+export type {
+  DeviceFace,
+  DeviceOrientation,
+  DevicePosePreset,
+  DeviceVisibleFace,
+} from "./orientation";
 
 export type DeviceProps = {
   readonly colourway?: Colourway;
-  readonly face?: DeviceFace;
+  readonly orientation?: DeviceOrientation;
   /** §12.3's parameter table. Injected (D-012); defaults to §12.3. */
   readonly materials?: DeviceMaterials;
   /** LAW 2's rig. Injected; defaults to LAW 2. */
@@ -104,7 +114,9 @@ export type DeviceProps = {
   readonly screenMaterial?: Material | null;
 };
 
-const { body, glass, screen, wheel } = DEVICE_LAYOUT;
+const { body, screen, wheel } = DEVICE_LAYOUT;
+const { displayWell, glass } = DEVICE_SURFACE_LAYOUT.front;
+const rear = DEVICE_SURFACE_LAYOUT.rear;
 
 // D-067 puts VWaJS's circular 26px enclosure in DEVICE_LAYOUT; every shell
 // below consumes that single typed geometry.
@@ -114,7 +126,7 @@ const BEVEL_SEGMENTS = 6;
 
 export function Device({
   colourway = "black",
-  face = "front",
+  orientation = FRONT_DEVICE_ORIENTATION,
   materials = DEFAULT_DEVICE_MATERIALS,
   lightRig = DEFAULT_LIGHT_RIG,
   envRoom = DEFAULT_ENV_ROOM,
@@ -317,11 +329,11 @@ export function Device({
     );
     shape.holes.push(
       roundedRectHole(
-        glass.centerX,
-        glass.centerY,
-        glass.width,
-        glass.height,
-        GLASS_CORNER_R,
+        displayWell.centerX,
+        displayWell.centerY,
+        displayWell.width,
+        displayWell.height,
+        displayWell.cornerR,
       ),
     );
     shape.holes.push(circleHole(wheel.centerX, wheel.centerY, wheel.outerR));
@@ -420,7 +432,7 @@ export function Device({
     const shape = roundedRectShape(
       glass.width,
       glass.height,
-      GLASS_CORNER_R,
+      SCREEN_CORNER_R,
       12,
     );
     const geometry = new ExtrudeGeometry(shape, {
@@ -433,23 +445,61 @@ export function Device({
   }, [form.glassThickness]);
   useEffect(() => () => glassGeometry.dispose(), [glassGeometry]);
 
-  const surroundGeometry = useMemo(() => {
-    const shape = roundedRectShape(
-      glass.width,
-      glass.height,
-      GLASS_CORNER_R,
+  const displayWellGeometry = useMemo(() => {
+    const shape = roundedRectFrameShape(
+      {
+        width: displayWell.width,
+        height: displayWell.height,
+        radius: displayWell.cornerR,
+      },
+      {
+        width: glass.width,
+        height: glass.height,
+        radius: glass.cornerR,
+      },
       12,
     );
-    shape.holes.push(
-      roundedRectHole(0, 0, screen.width, screen.height, SCREEN_CORNER_R, 8),
-    );
-    return new ExtrudeGeometry(shape, {
-      depth: 0.6,
+    const geometry = new ExtrudeGeometry(shape, {
+      depth: Math.max(0.1, form.displayWellDepth),
       bevelEnabled: false,
       curveSegments: 1,
     });
-  }, []);
-  useEffect(() => () => surroundGeometry.dispose(), [surroundGeometry]);
+    geometry.translate(0, 0, -Math.max(0.1, form.displayWellDepth));
+    return geometry;
+  }, [form.displayWellDepth]);
+  useEffect(() => () => displayWellGeometry.dispose(), [displayWellGeometry]);
+
+  const rearInlayGeometry = useMemo(() => {
+    const depth = Math.max(0.1, form.rearInlayInset);
+    const shape = roundedRectShape(
+      rear.inlay.width,
+      rear.inlay.height,
+      rear.inlay.cornerR,
+      12,
+    );
+    const geometry = new ExtrudeGeometry(shape, {
+      depth,
+      bevelEnabled: false,
+      curveSegments: 1,
+    });
+    geometry.translate(0, 0, -depth);
+    return geometry;
+  }, [form.rearInlayInset]);
+  useEffect(() => () => rearInlayGeometry.dispose(), [rearInlayGeometry]);
+
+  const wheelWellGeometry = useMemo(
+    () =>
+      new CylinderGeometry(
+        wheel.outerR,
+        wheel.outerR,
+        Math.max(0.1, form.recessDepth + form.wheelWellDepth),
+        128,
+        1,
+        true,
+      ),
+    [form.recessDepth, form.wheelWellDepth],
+  );
+  useEffect(() => () => wheelWellGeometry.dispose(), [wheelWellGeometry]);
 
   const screenGeometry = useMemo(
     () => createScreenGeometry(screen.width, screen.height, SCREEN_CORNER_R),
@@ -487,7 +537,11 @@ export function Device({
     (wheel.selectR * Math.tan((form.selectDomeTiltDeg * Math.PI) / 180)) /
     form.selectDomeExponent;
   const selectRimZ = ringInnerZ + form.selectProud;
-  const glassFrontZ = frontFaceZ;
+  const displayWellFrontZ = frontFaceZ - form.displayWellInset;
+  const glassFrontZ = frontFaceZ - form.glassInset;
+  const wheelWellZ =
+    frontFaceZ - (form.recessDepth + form.wheelWellDepth) / 2 + 0.15;
+  const rearInlayZ = -body.depth / 2 + form.rearInlayInset;
 
   // ── The screen mesh boundary (D-011) ──────────────────────────────────────
   const screenDefaultMaterial = useMemo(
@@ -555,7 +609,7 @@ export function Device({
   );
 
   return (
-    <ViewerLitDeviceFrame face={face} lightRig={lightRig}>
+    <ViewerLitDeviceFrame orientation={orientation} lightRig={lightRig}>
       {/* §5.2 — the mirror-polished back plate, uncut. */}
       <mesh name="device-steel-back" geometry={backGeometry}>
         <meshPhysicalMaterial
@@ -570,9 +624,8 @@ export function Device({
           leaves the physical steel reflection visible everywhere else. */}
       <mesh
         name="device-back-composition"
-        visible={face === "back"}
         geometry={backCompositionGeometry}
-        position={[0, 0, -body.depth / 2 - 0.12]}
+        position={[0, 0, -body.depth / 2 - 0.04]}
         rotation={[0, Math.PI, 0]}
         renderOrder={3}
       >
@@ -581,6 +634,9 @@ export function Device({
           transparent
           depthWrite={false}
           toneMapped={false}
+          side={DoubleSide}
+          polygonOffset
+          polygonOffsetFactor={-1}
         />
       </mesh>
 
@@ -612,6 +668,46 @@ export function Device({
             roughnessMap={bodyRoughness}
           />
         )}
+      </mesh>
+
+      <mesh
+        name="device-rear-inlay"
+        geometry={rearInlayGeometry}
+        position={[rear.inlay.centerX, rear.inlay.centerY, rearInlayZ]}
+      >
+        <meshPhysicalMaterial
+          name="rear-inlay"
+          {...spread(materials.rearInlay)}
+          envMap={env}
+          side={DoubleSide}
+        />
+      </mesh>
+
+      <mesh
+        name="device-display-well"
+        geometry={displayWellGeometry}
+        position={[glass.centerX, glass.centerY, displayWellFrontZ]}
+      >
+        <meshPhysicalMaterial
+          name="display-well"
+          {...spread(materials.displayWell)}
+          envMap={env}
+        />
+      </mesh>
+
+      <mesh
+        name="device-wheel-well"
+        geometry={wheelWellGeometry}
+        position={[wheel.centerX, wheel.centerY, wheelWellZ]}
+        rotation={[Math.PI / 2, 0, 0]}
+      >
+        <meshPhysicalMaterial
+          name={isBlack ? "wheel-well-black" : "wheel-well-white"}
+          {...spread(
+            isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
+          )}
+          envMap={env}
+        />
       </mesh>
 
       {/* §5.3 — the dished ring, at the bottom of the recess. */}
@@ -670,23 +766,6 @@ export function Device({
         <meshPhysicalMaterial
           name={isBlack ? "select-black" : "select-white"}
           {...spread(selectMaterial)}
-          envMap={env}
-        />
-      </mesh>
-
-      {/* §5.5 L2 — the printed black surround, flat, no gloss of its own. */}
-      <mesh
-        geometry={surroundGeometry}
-        position={[
-          glass.centerX,
-          glass.centerY,
-          glassFrontZ - form.glassThickness - 0.8,
-        ]}
-      >
-        <meshStandardMaterial
-          color="#05060A"
-          roughness={0.86}
-          metalness={0}
           envMap={env}
         />
       </mesh>

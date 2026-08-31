@@ -19,11 +19,18 @@
  * arithmetically unreachable at the top of three of the five tables.
  */
 import { Canvas } from "@react-three/fiber";
-import { createContext, type ReactNode } from "react";
+import { createContext, useMemo, type ReactNode } from "react";
 
-import { Device, type DeviceFace, type DeviceProps } from "./Device";
+import { Device, type DeviceProps } from "./Device";
 import { CanvasPixelDensity } from "./CanvasPixelDensity";
 import { DEVICE_LAYOUT } from "./layout";
+import {
+  FRONT_DEVICE_ORIENTATION,
+  deviceScreenIsInteractable,
+  resolveDeviceVisibleFace,
+  type DeviceOrientation,
+  type DeviceVisibleFace,
+} from "./orientation";
 
 export type DeviceCanvasProps = DeviceProps & {
   readonly className?: string;
@@ -51,18 +58,43 @@ export type DeviceCanvasProps = DeviceProps & {
 export const DEFAULT_CAMERA_DISTANCE = 1160;
 export const DEFAULT_CAMERA_FOV = 30;
 
-/** Resolved canvas face, consumed by front-only scene interactions. */
-export const DeviceCanvasFaceContext = createContext<DeviceFace>("front");
+export type DeviceCanvasOrientationState = {
+  readonly orientation: DeviceOrientation;
+  readonly visibleFace: DeviceVisibleFace;
+  readonly frontInteractive: boolean;
+};
+
+const DEFAULT_CANVAS_ORIENTATION_STATE: DeviceCanvasOrientationState =
+  Object.freeze({
+    orientation: FRONT_DEVICE_ORIENTATION,
+    visibleFace: "front",
+    frontInteractive: true,
+  });
+
+/** Resolved pose state, consumed by front-only scene interactions. */
+export const DeviceCanvasOrientationContext =
+  createContext<DeviceCanvasOrientationState>(
+    DEFAULT_CANVAS_ORIENTATION_STATE,
+  );
 
 export function DeviceCanvas({
   className,
   cameraDistance = DEFAULT_CAMERA_DISTANCE,
   cameraFov = DEFAULT_CAMERA_FOV,
   dpr = [1, 3],
-  face = "front",
+  orientation = FRONT_DEVICE_ORIENTATION,
   children,
   ...device
 }: DeviceCanvasProps) {
+  const orientationState = useMemo<DeviceCanvasOrientationState>(
+    () => ({
+      orientation,
+      visibleFace: resolveDeviceVisibleFace(orientation),
+      frontInteractive: deviceScreenIsInteractable(orientation),
+    }),
+    [orientation],
+  );
+
   return (
     <Canvas
       className={className}
@@ -77,11 +109,11 @@ export function DeviceCanvas({
         position: [0, 0, cameraDistance],
       }}
     >
-      <DeviceCanvasFaceContext.Provider value={face}>
+      <DeviceCanvasOrientationContext.Provider value={orientationState}>
         <CanvasPixelDensity enabled={Array.isArray(dpr)} />
-        <Device {...device} face={face} />
+        <Device {...device} orientation={orientation} />
         {children}
-      </DeviceCanvasFaceContext.Provider>
+      </DeviceCanvasOrientationContext.Provider>
     </Canvas>
   );
 }

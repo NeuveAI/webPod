@@ -3,9 +3,11 @@ import {
   ClickWheelInputSurface,
   DEVICE_LAYOUT,
   DeviceCanvas,
+  FRONT_DEVICE_ORIENTATION,
   type ClickWheelArcEnd,
   type ClickWheelArcSample,
   type Colourway,
+  type DeviceOrientation,
   type ScreenMeshHandle,
 } from '@webpod/device'
 import { deviceStore } from '@webpod/state'
@@ -40,6 +42,7 @@ export interface CompositeDeviceProps {
   readonly className?: string
   readonly panelTone?: PanelOverlayTone
   readonly cameraFov?: number
+  readonly orientation?: DeviceOrientation
 }
 
 /**
@@ -54,6 +57,7 @@ export function CompositeDevice({
   className,
   panelTone = 'dark',
   cameraFov,
+  orientation = FRONT_DEVICE_ORIENTATION,
 }: CompositeDeviceProps) {
   const canUseDom = useSyncExternalStore(subscribeToClientRuntime, readClientRuntime, readServerRuntime)
   const tier = useSyncExternalStore(
@@ -88,6 +92,7 @@ export function CompositeDevice({
             <DeviceCanvas
               colourway={colourway}
               cameraFov={cameraFov}
+              orientation={orientation}
               onScreenMeshReady={onScreenMeshReady}
             >
               <CompositeSceneBridge

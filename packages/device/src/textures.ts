@@ -123,8 +123,17 @@ export function createBackCompositionMap(scale = 2): CanvasTexture | null {
   ctx.fillText("Assistant tools exposed · 18 · Session 5C4B 9A11", 165, layout.liveY);
 
   const texture = new CanvasTexture(canvas);
+  return tuneEtchedTextTexture(texture);
+}
+
+export function tuneEtchedTextTexture<TCanvas extends HTMLCanvasElement | OffscreenCanvas>(
+  texture: CanvasTexture<TCanvas>,
+): CanvasTexture<TCanvas> {
   texture.colorSpace = SRGBColorSpace;
-  texture.anisotropy = 4;
+  texture.generateMipmaps = false;
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+  texture.anisotropy = 8;
   return texture;
 }
 

@@ -1,4 +1,5 @@
 import { CompositeDevice } from '@webpod/composite'
+import { DEVICE_ORIENTATION_PRESETS, type DevicePosePreset } from '@webpod/device'
 import { Panel, type PanelState } from '@webpod/panel'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useLayoutEffect, useRef } from 'react'
@@ -22,6 +23,7 @@ export const Route = createFileRoute('/_probe/composite')({
     readonly scale: 1 | 1.3 | 2
     readonly fov: 24 | 30 | 36
     readonly mode: 'bare' | 'composited'
+    readonly pose: DevicePosePreset
   } => ({
     colourway: search['colourway'] === 'white' ? 'white' : 'black',
     state: STATES.includes(search['state'] as PanelState)
@@ -30,15 +32,22 @@ export const Route = createFileRoute('/_probe/composite')({
     scale: search['scale'] === 2 ? 2 : search['scale'] === 1.3 ? 1.3 : 1,
     fov: search['fov'] === 24 ? 24 : search['fov'] === 36 ? 36 : 30,
     mode: search['mode'] === 'bare' ? 'bare' : 'composited',
+    pose:
+      search['pose'] === 'three-quarter' ||
+      search['pose'] === 'edge' ||
+      search['pose'] === 'rear'
+        ? (search['pose'] as DevicePosePreset)
+        : 'front',
   }),
   component: CompositePreview,
 })
 
 function CompositePreview() {
-  const { colourway, state, scale, fov, mode } = Route.useSearch()
+  const { colourway, state, scale, fov, mode, pose } = Route.useSearch()
   const stageRef = useRef<HTMLDivElement>(null)
   const panelTone = colourway === 'white' ? 'light' : 'dark'
   const panel = <Panel colourway={panelTone} state={state} dynamicTypeScale={scale} />
+  const orientation = DEVICE_ORIENTATION_PRESETS[pose]
   useLayoutEffect(() => {
     const stage = stageRef.current
     if (stage === null) return
@@ -74,15 +83,19 @@ function CompositePreview() {
         <p>T1 · HTML in Canvas</p>
         <h1>Real DOM, inside the device screen</h1>
         <nav aria-label="Composite preview colourway">
-          <Link to="/_probe/composite" search={{ colourway: 'black', state, scale, fov, mode }}>Black</Link>
-          <Link to="/_probe/composite" search={{ colourway: 'white', state, scale, fov, mode }}>White</Link>
-          <Link to="/_probe/composite" search={{ colourway, state, scale: 1, fov, mode }}>100%</Link>
-          <Link to="/_probe/composite" search={{ colourway, state, scale: 1.3, fov, mode }}>130%</Link>
-          <Link to="/_probe/composite" search={{ colourway, state, scale: 2, fov, mode }}>200%</Link>
-          <Link to="/_probe/composite" search={{ colourway, state, scale, fov: 24, mode }}>Narrow</Link>
-          <Link to="/_probe/composite" search={{ colourway, state, scale, fov: 36, mode }}>Wide</Link>
-          <Link to="/_probe/composite" search={{ colourway, state, scale, fov, mode: 'bare' }}>Bare</Link>
-          <Link to="/_probe/composite" search={{ colourway, state, scale, fov, mode: 'composited' }}>Composited</Link>
+          <Link to="/_probe/composite" search={{ colourway: 'black', state, scale, fov, mode, pose }}>Black</Link>
+          <Link to="/_probe/composite" search={{ colourway: 'white', state, scale, fov, mode, pose }}>White</Link>
+          <Link to="/_probe/composite" search={{ colourway, state, scale: 1, fov, mode, pose }}>100%</Link>
+          <Link to="/_probe/composite" search={{ colourway, state, scale: 1.3, fov, mode, pose }}>130%</Link>
+          <Link to="/_probe/composite" search={{ colourway, state, scale: 2, fov, mode, pose }}>200%</Link>
+          <Link to="/_probe/composite" search={{ colourway, state, scale, fov: 24, mode, pose }}>Narrow</Link>
+          <Link to="/_probe/composite" search={{ colourway, state, scale, fov: 36, mode, pose }}>Wide</Link>
+          <Link to="/_probe/composite" search={{ colourway, state, scale, fov, mode, pose: 'front' }}>Front</Link>
+          <Link to="/_probe/composite" search={{ colourway, state, scale, fov, mode, pose: 'three-quarter' }}>Quarter</Link>
+          <Link to="/_probe/composite" search={{ colourway, state, scale, fov, mode, pose: 'edge' }}>Edge</Link>
+          <Link to="/_probe/composite" search={{ colourway, state, scale, fov, mode, pose: 'rear' }}>Rear</Link>
+          <Link to="/_probe/composite" search={{ colourway, state, scale, fov, mode: 'bare', pose }}>Bare</Link>
+          <Link to="/_probe/composite" search={{ colourway, state, scale, fov, mode: 'composited', pose }}>Composited</Link>
         </nav>
       </header>
       <div ref={stageRef} className="wp-composite-preview__stage">
@@ -97,6 +110,7 @@ function CompositePreview() {
               colourway={colourway}
               panelTone={panelTone}
               cameraFov={fov}
+              orientation={orientation}
               panel={panel}
             />
           </div>

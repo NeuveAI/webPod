@@ -8,7 +8,7 @@ import {
 } from "three";
 
 import { DEVICE_LAYOUT } from "./layout";
-import { DeviceCanvasFaceContext } from "./DeviceCanvas";
+import { DeviceCanvasOrientationContext } from "./DeviceCanvas";
 
 export type ClickWheelPointerType = "mouse" | "touch" | "pen";
 
@@ -202,7 +202,7 @@ export function ClickWheelInputSurface({
   onArcMove,
   onArcEnd,
 }: ClickWheelInputSurfaceProps) {
-  const face = useContext(DeviceCanvasFaceContext);
+  const orientationState = useContext(DeviceCanvasOrientationContext);
   const meshRef = useRef<Mesh>(null);
   const captureSlotRef = useRef<ClickWheelCaptureSlot>(
     createClickWheelCaptureSlot(),
@@ -320,7 +320,7 @@ export function ClickWheelInputSurface({
     finish(event.pointerId, event.timeStamp, "release", true);
   };
 
-  if (face === "back") return null;
+  if (!orientationState.frontInteractive) return null;
 
   return (
     <mesh

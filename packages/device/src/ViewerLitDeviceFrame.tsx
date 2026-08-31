@@ -6,12 +6,17 @@ import {
   keyLightPosition,
   type LightRigParams,
 } from "./light-rig";
+import {
+  FRONT_DEVICE_ORIENTATION,
+  deviceOrientationToRotation,
+  type DeviceOrientation,
+} from "./orientation";
 
 /** Stable scene-graph identity used by the calibration probe. */
 export const DEVICE_MODEL_NAME = "device-model";
 
 type ViewerLitDeviceFrameProps = {
-  readonly face: "front" | "back";
+  readonly orientation?: DeviceOrientation;
   readonly lightRig: LightRigParams;
   readonly children: ReactNode;
 };
@@ -23,7 +28,7 @@ type ViewerLitDeviceFrameProps = {
  * model group would bolt it to the iPod and reverse the rig in the back view.
  */
 export function ViewerLitDeviceFrame({
-  face,
+  orientation = FRONT_DEVICE_ORIENTATION,
   lightRig,
   children,
 }: ViewerLitDeviceFrameProps) {
@@ -45,7 +50,7 @@ export function ViewerLitDeviceFrame({
       />
       <group
         name={DEVICE_MODEL_NAME}
-        rotation={face === "back" ? [0, Math.PI, 0] : [0, 0, 0]}
+        rotation={deviceOrientationToRotation(orientation)}
       >
         {children}
       </group>

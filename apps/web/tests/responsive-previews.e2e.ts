@@ -251,10 +251,10 @@ test.describe('responsive diagnostic previews', () => {
 
         const pixels = await readDevicePixelMetrics(page)
         expect(pixels.browserDpr).toBe(deviceScaleFactor)
-        expect(pixels.source.logicalWidth).toBe(272)
-        expect(pixels.source.logicalHeight).toBe(204)
-        expect(pixels.source.pixelWidth).toBe(272 * deviceScaleFactor)
-        expect(pixels.source.pixelHeight).toBe(204 * deviceScaleFactor)
+        expect(pixels.source.logicalWidth).toBe(320)
+        expect(pixels.source.logicalHeight).toBe(240)
+        expect(pixels.source.pixelWidth).toBe(320 * deviceScaleFactor)
+        expect(pixels.source.pixelHeight).toBe(240 * deviceScaleFactor)
         expect(pixels.webgl.pixelWidth).toBeGreaterThanOrEqual(
           Math.floor(pixels.webgl.cssWidth * deviceScaleFactor),
         )

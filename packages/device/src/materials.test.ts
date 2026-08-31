@@ -15,31 +15,31 @@ describe("§12.3 device material contract", () => {
   test("polycarbonate keeps the specified base response", () => {
     expect(DEFAULT_DEVICE_MATERIALS.bodyBlack).toMatchObject({
       albedoScale: 1,
-      color: "#0D1015",
-      roughness: 0.26,
+      color: "#11161C",
+      roughness: 0.22,
       clearcoat: 1,
-      clearcoatRoughness: 0.045,
+      clearcoatRoughness: 0.035,
       reflectivity: 0.6,
-      sheen: 0.12,
-      sheenColor: "#687482",
+      sheen: 0.16,
+      sheenColor: "#748395",
       sheenRoughness: 0.7,
-      specularIntensity: 0.28,
-      envMapIntensity: 0.32,
-      subsurfaceColor: "#596675",
+      specularIntensity: 0.42,
+      envMapIntensity: 0.33,
+      subsurfaceColor: "#6B7888",
       subsurfaceDistortion: 0.18,
-      subsurfaceAttenuation: 0.018,
+      subsurfaceAttenuation: 0.028,
       subsurfacePower: 3.5,
-      subsurfaceScale: 1.25,
+      subsurfaceScale: 1.65,
     });
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite).toMatchObject({
-      color: "#E8EDF2",
-      albedoScale: 0.68,
-      roughness: 0.27,
+      color: "#F4F7FA",
+      albedoScale: 0.74,
+      roughness: 0.24,
       clearcoat: 1,
-      clearcoatRoughness: 0.045,
-      reflectivity: 0.58,
-      specularIntensity: 0.4,
-      envMapIntensity: 0.3,
+      clearcoatRoughness: 0.04,
+      reflectivity: 0.62,
+      specularIntensity: 0.54,
+      envMapIntensity: 0.28,
     });
   });
 
@@ -64,17 +64,27 @@ describe("§12.3 device material contract", () => {
 
   test("wheel, Select, glass and screen keep their physical distinctions", () => {
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingBlack).toMatchObject({
-      color: "#23262B",
-      roughness: 0.34,
-      clearcoat: 0.6,
-      clearcoatRoughness: 0.14,
+      color: "#1D2128",
+      roughness: 0.28,
+      clearcoat: 0.72,
+      clearcoatRoughness: 0.1,
+      envMapIntensity: 0.06,
     });
     expect(DEFAULT_DEVICE_MATERIALS.selectBlack).toMatchObject({
-      transmission: 0.35,
-      thickness: 1.2,
+      transmission: 0.46,
+      thickness: 1.48,
       ior: 1.52,
-      roughness: 0.18,
+      roughness: 0.11,
       clearcoat: 1,
+      clearcoatRoughness: 0.035,
+      specularIntensity: 0.46,
+    });
+    expect(DEFAULT_DEVICE_MATERIALS.rearInlay).toMatchObject({
+      color: "#11161E",
+      roughness: 0.58,
+      clearcoat: 0.24,
+      clearcoatRoughness: 0.26,
+      envMapIntensity: 0.18,
     });
     expect(DEFAULT_DEVICE_MATERIALS.coverGlass).toMatchObject({
       transmission: 0.98,
@@ -92,7 +102,7 @@ describe("§12.3 device material contract", () => {
   });
 
   test("the Pencil-first white wheel remains visibly below the pearl body", () => {
-    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color).toBe("#C7CFD8");
+    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color).toBe("#E7EDF3");
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.albedoScale).toBeLessThan(
       DEFAULT_DEVICE_MATERIALS.bodyWhite.albedoScale ?? 0,
     );
@@ -100,6 +110,9 @@ describe("§12.3 device material contract", () => {
       DEFAULT_DEVICE_MATERIALS.bodyWhite.roughness,
     );
     expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(2.25);
+    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.specularIntensity).toBeGreaterThan(
+      DEFAULT_DEVICE_MATERIALS.bodyWhite.specularIntensity ?? 0,
+    );
   });
 
   test("instantiated cover glass obeys transmission and carries two-hue dispersion", () => {
@@ -132,8 +145,8 @@ describe("§12.3 device material contract", () => {
     );
     expect(material.transparent).toBe(false);
     expect(material.transmission).toBe(0);
-    expect(material.specularIntensity).toBe(0.28);
-    expect(material.sheenColor.getHexString()).toBe("687482");
+    expect(material.specularIntensity).toBe(0.42);
+    expect(material.sheenColor.getHexString()).toBe("748395");
 
     const shader = {
       vertexShader: "",

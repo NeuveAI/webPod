@@ -1,6 +1,7 @@
 import type { ScreenTransform } from '@webpod/device'
 import {
   HTMLTexture,
+  LinearFilter,
   Mesh,
   MeshBasicMaterial,
   NearestFilter,
@@ -74,6 +75,11 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
 
     const { panelElement, renderer, camera, screen } = attachment
     this.hasPaintRecord = false
+    panelElement.style.position = 'absolute'
+    panelElement.style.left = '0'
+    panelElement.style.top = '0'
+    panelElement.style.transformOrigin = 'top left'
+    panelElement.style.transform = 'none'
     panelElement.style.overflow = 'hidden'
     panelElement.setAttribute('drawable', '')
     panelElement.dataset['pixelSource'] = 'html-in-canvas'
@@ -87,8 +93,9 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     // The panel is authored as a pixel grid and rasterized at the resolved
     // physical density. Linear sampling averages adjacent glyph and divider
     // pixels a second time after Chrome has rasterized them.
-    texture.minFilter = NearestFilter
+    texture.minFilter = LinearFilter
     texture.magFilter = NearestFilter
+    texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy())
     const material = createLcdMaterial(
       texture,
       this.tone,
@@ -119,10 +126,19 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
         this.scaledContentTransform = content.style.transform
         this.scaledContentTransformOrigin = content.style.transformOrigin
       }
+      const rasterFrame = resolvePanelRasterFrame(
+        positiveDimension(content.scrollWidth || content.offsetWidth),
+        positiveDimension(content.scrollHeight || content.offsetHeight),
+        density,
+        screen.panel.scale,
+      )
       content.style.transformOrigin = 'top left'
-      content.style.transform = density === 1 ? this.scaledContentTransform : `scale(${String(density)})`
-      panelElement.style.width = `${screen.panel.width * density}px`
-      panelElement.style.height = `${screen.panel.height * density}px`
+      content.style.transform = appendScaleTransform(
+        this.scaledContentTransform,
+        rasterFrame.scale,
+      )
+      panelElement.style.width = `${rasterFrame.width}px`
+      panelElement.style.height = `${rasterFrame.height}px`
       panelElement.dataset['rasterDensity'] = String(density)
       this.appliedRasterDensity = density
       return true
@@ -296,6 +312,22 @@ export function resolvePanelRasterDensity(pixelRatio: number): 1 | 2 | 3 {
   return 3
 }
 
+export function resolvePanelRasterFrame(
+  contentWidth: number,
+  contentHeight: number,
+  density: 1 | 2 | 3,
+  panelScale: number,
+): { readonly width: number; readonly height: number; readonly scale: number } {
+  const resolvedScale =
+    Number.isFinite(panelScale) && panelScale > 0 ? panelScale : 1
+  const scale = density / resolvedScale
+  return {
+    width: Math.max(1, Math.round(contentWidth * scale)),
+    height: Math.max(1, Math.round(contentHeight * scale)),
+    scale,
+  }
+}
+
 export function mutationAffectsPanelPixels(
   panelElement: HTMLElement,
   target: Node,
@@ -319,4 +351,13 @@ function createLcdMaterial(
 
 function positiveDimension(value: unknown): number {
   return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 1
+}
+
+function appendScaleTransform(base: string, scale: number): string {
+  const normalized = base.trim()
+  if (Math.abs(scale - 1) <= 1e-9) return normalized
+  const next = `scale(${String(scale)})`
+  return normalized.length === 0 || normalized === 'none'
+    ? next
+    : `${normalized} ${next}`
 }
