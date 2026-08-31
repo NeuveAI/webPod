@@ -97,6 +97,41 @@ the rerun bounded. The follow-up evidence is:
 I did not leave any new long-running browser or Vite process behind after the
 captures completed.
 
+## VD-11 · D-064 lives in code and browser evidence, not only in the write-up
+
+The route-level sampler now throws on any non-canonical pose, and the new
+Playwright proof asserts that behavior directly. That is more important than a
+paragraph repeating the owner ruling, because the failure mode here was not lack
+of prose — it was a tool that still looked callable in the wrong poses. Front
+and rear sample green; three-quarter, edge, and custom must fail closed and be
+proved another way.
+
+## VD-12 · Fix the source/rig drift at the patcher, not by hand-copying "good" numbers
+
+The passing rig state was not the shipped state. `apply-rig.ts` had been
+patching repeated stale offsets into `materials.ts`, so later tuned fields in a
+surface block could be skipped without any runtime error, and the room file was
+never syncing the full `stopExposure` array. I fixed the patcher to replace the
+whole block once per surface and to rewrite the full stop-exposure row, because
+otherwise the next tune would have reintroduced the same "browser looks wrong,
+rig looks right" split.
+
+## VD-13 · The black Select's extra depth comes from transport, not a fake light
+
+The black center plug needed more depth, but D-064 forbids pose-specific lights,
+painted gradients, and unattenuated emission. The fix is a real thickness path:
+shared transmission, attenuation distance/color, and a radial thickness map on
+the black Select cap. That changes optical path length through the material
+instead of painting a highlight into the object.
+
+## VD-14 · Colourway-specific material keys are required when only one colourway carries extra physical inputs
+
+The white front sample failed only after visiting black first because React
+reused the Select materials across colourways while the black cap alone carried
+its thickness-map transport inputs. The right fix was not to weaken the proof or
+duplicate device state; it was to key the black and white Select cap/wall
+materials separately so a black-only physical input cannot leak into white.
+
 ## Sources actually used
 
 - `AGENTS.md`

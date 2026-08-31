@@ -4,6 +4,7 @@ import { CanvasTexture, LinearFilter } from "three";
 import {
   BACK_COMPOSITION_LAYOUT,
   createMicroNoiseRoughnessMap,
+  createSelectThicknessMap,
   createSteelAnisotropyMap,
   tuneEtchedTextTexture,
 } from "./textures";
@@ -51,6 +52,19 @@ describe("deterministic physical textures", () => {
       expect(data[offset + 2]).toBeGreaterThanOrEqual(230);
       expect(data[offset + 2]).toBeLessThanOrEqual(255);
     }
+    texture.dispose();
+  });
+
+  test("the Select thickness profile stays radial, deterministic, and shoulder-led", () => {
+    const texture = createSelectThicknessMap(33);
+    const data = texture.image.data as Uint8Array;
+    const channel = (x: number, y: number) => data[(y * 33 + x) * 4 + 1] ?? 0;
+    const centre = channel(16, 16);
+    const shoulder = channel(27, 16);
+    const rim = channel(32, 16);
+    expect(shoulder).toBeGreaterThan(centre);
+    expect(centre).toBeGreaterThan(rim);
+    expect(channel(16, 5)).toBe(channel(27, 16));
     texture.dispose();
   });
 });

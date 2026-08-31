@@ -1,74 +1,74 @@
-[W5B SOURCE 267c1d4f57f1617c29806eee085beba1275068d6ac1cee3ffcf6f177b6f302aa FILES 168]
-[WebServer] (node:47654) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[W5B SOURCE 1e2dd4fcfc70eae800a97b6f6a86f91f82445ebb1854cf98a153b3bf7321842d FILES 170]
+[WebServer] (node:66429) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 [WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
 
 
 Running 17 tests using 1 worker
 
-(node:47655) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(node:66430) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
 (Use `bun --trace-warnings ...` to show where the warning was created)
 
 
-[W5B SOURCE 267c1d4f57f1617c29806eee085beba1275068d6ac1cee3ffcf6f177b6f302aa FILES 168]
+[W5B SOURCE 1e2dd4fcfc70eae800a97b6f6a86f91f82445ebb1854cf98a153b3bf7321842d FILES 170]
 
 
 [1/17] apps/web/tests/responsive-previews.e2e.ts:167:4 › responsive diagnostic previews › composite remains centred and contained at 320x568
 [WebServer] Warning: A notFoundError was encountered on the route with ID "__root__", but a notFoundComponent option was not configured, nor was a router level defaultNotFoundComponent configured. Consider configuring at least one of these to avoid TanStack Router's overly generic defaultNotFoundComponent (<p>Not Found</p>)
 
-[WebServer] 3:34:56 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:25 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [2/17] apps/web/tests/responsive-previews.e2e.ts:212:4 › responsive diagnostic previews › device spike remains centred and contained at 320x568
-[WebServer] 3:34:57 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:27 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [3/17] apps/web/tests/responsive-previews.e2e.ts:167:4 › responsive diagnostic previews › composite remains centred and contained at 375x667
-[WebServer] 3:34:58 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:28 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [4/17] apps/web/tests/responsive-previews.e2e.ts:212:4 › responsive diagnostic previews › device spike remains centred and contained at 375x667
-[WebServer] 3:34:59 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:29 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [5/17] apps/web/tests/responsive-previews.e2e.ts:167:4 › responsive diagnostic previews › composite remains centred and contained at 390x844
-[WebServer] 3:35:00 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:30 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [6/17] apps/web/tests/responsive-previews.e2e.ts:212:4 › responsive diagnostic previews › device spike remains centred and contained at 390x844
-[WebServer] 3:35:02 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:32 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [7/17] apps/web/tests/responsive-previews.e2e.ts:167:4 › responsive diagnostic previews › composite remains centred and contained at 430x932
-[WebServer] 3:35:03 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:33 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [8/17] apps/web/tests/responsive-previews.e2e.ts:212:4 › responsive diagnostic previews › device spike remains centred and contained at 430x932
-[WebServer] 3:35:04 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:34 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [9/17] apps/web/tests/responsive-previews.e2e.ts:247:6 › responsive diagnostic previews › standalone device at DPR 1 › backs both the LCD source and WebGL canvas with physical pixels
-[WebServer] 3:35:05 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:36 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [10/17] apps/web/tests/responsive-previews.e2e.ts:247:6 › responsive diagnostic previews › standalone device at DPR 2 › backs both the LCD source and WebGL canvas with physical pixels
-[WebServer] 3:35:06 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:37 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [11/17] apps/web/tests/responsive-previews.e2e.ts:247:6 › responsive diagnostic previews › standalone device at DPR 3 › backs both the LCD source and WebGL canvas with physical pixels
-[WebServer] 3:35:07 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:38 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [12/17] apps/web/tests/responsive-previews.e2e.ts:274:2 › responsive diagnostic previews › composite refits after dynamic mobile-height changes without losing interaction
-[WebServer] 3:35:08 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:39 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [13/17] apps/web/tests/responsive-previews.e2e.ts:301:2 › responsive diagnostic previews › bare panel preserves its authored raster on a narrow viewport
 [14/17] apps/web/tests/responsive-previews.e2e.ts:320:4 › responsive diagnostic previews › captures responsive previews at 320x568
-[WebServer] 3:35:10 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:42 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
-[WebServer] 3:35:11 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:43 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [15/17] apps/web/tests/responsive-previews.e2e.ts:320:4 › responsive diagnostic previews › captures responsive previews at 375x667
-[WebServer] 3:35:12 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:44 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
-[WebServer] 3:35:13 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:45 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [16/17] apps/web/tests/responsive-previews.e2e.ts:320:4 › responsive diagnostic previews › captures responsive previews at 390x844
-[WebServer] 3:35:15 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:46 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
-[WebServer] 3:35:15 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:47 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
 [17/17] apps/web/tests/responsive-previews.e2e.ts:320:4 › responsive diagnostic previews › captures responsive previews at desktop-1440x900
-[WebServer] 3:35:17 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:49 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
-[WebServer] 3:35:18 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+[WebServer] 7:48:50 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
 
-  17 passed (24.4s)
+  17 passed (27.2s)

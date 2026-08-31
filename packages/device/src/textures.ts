@@ -266,6 +266,61 @@ export function createSteelAnisotropyMap(size = 1024): DataTexture {
   return texture;
 }
 
+export const DEFAULT_SELECT_THICKNESS_PROFILE = Object.freeze({
+  center: 0.66,
+  shoulder: 1.0,
+  rim: 0.45,
+  shoulderRadius: 0.68,
+  shoulderWidth: 0.16,
+  rimStart: 0.82,
+});
+
+/**
+ * The Select cap's volume, as non-color thickness data in the G channel.
+ *
+ * `MeshPhysicalMaterial` composes transmissive path length as
+ * `thickness * thicknessMap.g`, so this map changes how much plastic the ray
+ * travels through without painting light into the part. The profile is a thin
+ * feathered rim, a thicker shoulder where the dome rises, and a slightly
+ * thinner centre — the moulded part's own section, shared across colourways.
+ */
+export function createSelectThicknessMap(
+  size = 512,
+  profile = DEFAULT_SELECT_THICKNESS_PROFILE,
+): DataTexture {
+  const data = new Uint8Array(size * size * 4);
+  const scale = 2 / size;
+  for (let y = 0; y < size; y += 1) {
+    const v = (y + 0.5) * scale - 1;
+    for (let x = 0; x < size; x += 1) {
+      const u = (x + 0.5) * scale - 1;
+      const r = Math.hypot(u, v);
+      const shoulder = Math.exp(
+        -(((r - profile.shoulderRadius) / profile.shoulderWidth) ** 2),
+      );
+      const rim = smoothstep(profile.rimStart, 1, Math.min(1, r));
+      const centerBlend = smoothstep(0, 0.42, Math.min(1, r));
+      const value = clamp01(
+        profile.center -
+          0.06 * (1 - centerBlend) +
+          (profile.shoulder - profile.center) * shoulder -
+          (profile.center - profile.rim) * rim,
+      );
+      const byte = Math.round(value * 255);
+      const offset = (y * size + x) * 4;
+      data[offset] = byte;
+      data[offset + 1] = byte;
+      data[offset + 2] = byte;
+      data[offset + 3] = 255;
+    }
+  }
+  const texture = new DataTexture(data, size, size, RGBAFormat);
+  texture.minFilter = LinearFilter;
+  texture.magFilter = LinearFilter;
+  texture.needsUpdate = true;
+  return texture;
+}
+
 function xorshift32(seed: number): () => number {
   let state = seed >>> 0 || 1;
   return () => {
@@ -274,4 +329,13 @@ function xorshift32(seed: number): () => number {
     state ^= state << 5;
     return (state >>> 0) / 0x1_0000_0000;
   };
+}
+
+function clamp01(value: number): number {
+  return Math.min(1, Math.max(0, value));
+}
+
+function smoothstep(edge0: number, edge1: number, value: number): number {
+  const t = clamp01((value - edge0) / Math.max(1e-6, edge1 - edge0));
+  return t * t * (3 - 2 * t);
 }

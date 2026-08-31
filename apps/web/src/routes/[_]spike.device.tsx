@@ -36,6 +36,7 @@ import {
   DeviceCanvas,
   clampDeviceOrientation,
   evaluate,
+  isCanonicalLuminancePose,
   orientationFromFace,
   type DeviceOrientation,
   type DevicePosePreset,
@@ -159,11 +160,15 @@ type SpikePatch = {
 function setParams(patch: SpikePatch): SpikeParams {
   const { face: _face, ...restPatch } = patch;
   const drivesOrientation =
-    restPatch.orientation !== undefined ||
+    _face !== undefined ||
     (restPatch.pose !== undefined && restPatch.pose !== "custom") ||
-    _face !== undefined;
+    restPatch.orientation !== undefined;
   const orientationBase =
-    restPatch.orientation !== undefined
+    _face !== undefined
+      ? orientationFromFace(_face)
+      : restPatch.pose !== undefined && restPatch.pose !== "custom"
+        ? DEVICE_ORIENTATION_PRESETS[restPatch.pose]
+        : restPatch.orientation !== undefined
       ? {
           pitchDeg:
             restPatch.orientation.pitchDeg ?? current.orientation.pitchDeg,
@@ -171,11 +176,7 @@ function setParams(patch: SpikePatch): SpikeParams {
           rollDeg:
             restPatch.orientation.rollDeg ?? current.orientation.rollDeg,
         }
-      : restPatch.pose !== undefined && restPatch.pose !== "custom"
-        ? DEVICE_ORIENTATION_PRESETS[restPatch.pose]
-        : _face !== undefined
-          ? orientationFromFace(_face)
-          : current.orientation;
+      : current.orientation;
   const orientation = drivesOrientation
     ? clampDeviceOrientation(orientationBase)
     : current.orientation;
@@ -348,6 +349,11 @@ function LuminanceProbe() {
     // would be a second copy of it that can only be wrong — and writing one
     // during render is what `react-hooks/refs` exists to stop.
     const active = getSnapshot();
+    if (!isCanonicalLuminancePose(active.pose)) {
+      throw new Error(
+        `canonical luminance sampling applies only to the front and rear reference poses; current pose ${active.pose} requires physical-continuity validation instead`,
+      );
+    }
     const { body } = DEVICE_LAYOUT;
     const form = active.form;
 

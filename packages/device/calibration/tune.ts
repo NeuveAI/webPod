@@ -216,19 +216,33 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
   { path: "materials.bodyBlack.albedoScale", min: 0.2, max: 1, step: 0.05 },
   { path: "materials.bodyBlack.roughness", min: 0.2, max: 0.8, step: 0.025 },
   { path: "materials.bodyBlack.clearcoatRoughness", min: 0.03, max: 0.2, step: 0.01 },
-  { path: "materials.bodyBlack.reflectivity", min: 0.35, max: 0.7, step: 0.025 },
+  { path: "materials.bodyBlack.reflectivity", min: 0.35, max: 0.85, step: 0.025 },
   { path: "materials.bodyBlack.specularIntensity", min: 0, max: 1, step: 0.05 },
   { path: "materials.bodyBlack.sheen", min: 0, max: 0.6, step: 0.05 },
   // Three 0.185.1 feeds this uniform to both Charlie direct sheen and the
   // integrated IBL sheen BRDF. It is uniform material response, not a map.
   { path: "materials.bodyBlack.sheenRoughness", min: 0.1, max: 1, step: 0.1 },
+  { path: "materials.bodyBlack.subsurfaceDistortion", min: 0.05, max: 0.4, step: 0.02 },
+  { path: "materials.bodyBlack.subsurfaceAttenuation", min: 0, max: 0.08, step: 0.004 },
+  { path: "materials.bodyBlack.subsurfacePower", min: 1, max: 6, step: 0.25 },
+  { path: "materials.bodyBlack.subsurfaceScale", min: 0, max: 3, step: 0.1 },
   { path: "materials.bodyWhite.albedoScale", min: 0.7, max: 1.15, step: 0.025 },
   { path: "materials.bodyWhite.roughness", min: 0.2, max: 0.7, step: 0.025 },
   { path: "materials.bodyWhite.clearcoatRoughness", min: 0.03, max: 0.2, step: 0.01 },
   { path: "materials.bodyWhite.reflectivity", min: 0.35, max: 0.7, step: 0.025 },
+  { path: "materials.bodyWhite.specularIntensity", min: 0, max: 1, step: 0.05 },
+  { path: "materials.wheelRingBlack.clearcoat", min: 0.3, max: 1, step: 0.05 },
   { path: "materials.selectBlack.roughness", min: 0.08, max: 0.5, step: 0.02 },
+  { path: "materials.selectBlack.clearcoat", min: 0.3, max: 1, step: 0.05 },
+  { path: "materials.selectBlack.clearcoatRoughness", min: 0.02, max: 0.12, step: 0.01 },
+  { path: "materials.selectBlack.specularIntensity", min: 0.1, max: 1, step: 0.05 },
   { path: "materials.selectBlack.transmission", min: 0.15, max: 0.65, step: 0.025 },
+  { path: "materials.selectBlack.thickness", min: 0.6, max: 2.4, step: 0.05 },
+  { path: "materials.selectBlack.attenuationDistance", min: 0.25, max: 4, step: 0.1 },
   { path: "materials.selectWhite.roughness", min: 0.08, max: 0.5, step: 0.02 },
+  { path: "materials.selectWhite.clearcoat", min: 0.3, max: 1, step: 0.05 },
+  { path: "materials.selectWhite.clearcoatRoughness", min: 0.02, max: 0.12, step: 0.01 },
+  { path: "materials.selectWhite.specularIntensity", min: 0.1, max: 1, step: 0.05 },
   { path: "materials.selectWhite.transmission", min: 0.15, max: 0.65, step: 0.025 },
   { path: "materials.wheelRingBlack.roughness", min: 0.2, max: 0.7, step: 0.025 },
   { path: "materials.wheelRingBlack.clearcoatRoughness", min: 0.05, max: 0.35, step: 0.025 },
@@ -249,12 +263,12 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
   ),
   ...["wheelBlack", "selectBlack", "selectWhite"].flatMap((surface) =>
     Array.from({ length: 4 }, (_, knot) => ({
-      path: `opticalProfiles.${surface}.${knot}.1`, min: -8, max: 8, step: 0.5,
+      path: `opticalProfiles.${surface}.${knot}.1`, min: -12, max: 12, step: 0.5,
     })),
   ),
   ...["wheelWhite"].flatMap((surface) =>
     Array.from({ length: 4 }, (_, knot) => ({
-      path: `opticalProfiles.${surface}.${knot}.1`, min: -8, max: 8, step: 0.5,
+      path: `opticalProfiles.${surface}.${knot}.1`, min: -12, max: 12, step: 0.5,
     })),
   ),
   // The depths §12.0 does not state.
@@ -283,7 +297,7 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
 const SETTLE_MS = 30;
 
 /**
- * Apply a patch, let React commit, then sample both colourways and the back.
+ * Apply a patch, let React commit, then sample the canonical front/rear views.
  *
  * ⚑ The wait is not superstition. `setParams` notifies a `useSyncExternalStore`
  * subscriber, and React's commit is asynchronous; sampling in the same task
@@ -305,8 +319,13 @@ const SCORE_EXPR = (patchJson: string, views: string, settleMs: number) => `
   const base = JSON.parse(JSON.stringify(window.__deviceCalibration.getParams()));
   for (const [path, value] of Object.entries(patch)) set(base, path, value);
   const surfaces = [];
-  for (const [colourway, face] of ${views}) {
-    window.__deviceCalibration.setParams({ ...base, colourway, face });
+  for (const view of ${views}) {
+    const { colourway, face } = view;
+    const sampleBase = { ...base, colourway };
+    delete sampleBase.pose;
+    delete sampleBase.probeFace;
+    delete sampleBase.orientation;
+    window.__deviceCalibration.setParams({ ...sampleBase, face });
     await new Promise((r) => setTimeout(r, ${settleMs}));
     surfaces.push(...window.__deviceCalibration.sample());
   }
@@ -326,6 +345,26 @@ type Result = {
   pass: boolean;
 };
 
+type View = {
+  readonly name: string;
+  readonly colourway: "black" | "white";
+  readonly face: "front" | "back";
+  readonly pose: "front" | "rear";
+  readonly verification: "canonical-luminance";
+};
+
+type ReportView = View & {
+  readonly results: Array<Result>;
+  readonly summary: {
+    readonly total: number;
+    readonly passing: number;
+    readonly failing: number;
+    readonly failingTokens: Array<string>;
+    readonly worstAbsDelta: number;
+    readonly rms: number;
+  };
+};
+
 /**
  * ⚑ **Two stages, because the two halves of the object are driven by different
  * things** (D-057). The steel's profile comes from the room; the polycarbonate
@@ -335,11 +374,80 @@ type Result = {
  * sampled column. Stage one fixes the room against the steel alone; stage two
  * freezes it and lights the front.
  */
+const CANONICAL_REPORT_VIEWS: ReadonlyArray<View> = Object.freeze([
+  {
+    name: "front-black",
+    colourway: "black",
+    face: "front",
+    pose: "front",
+    verification: "canonical-luminance",
+  },
+  {
+    name: "front-white",
+    colourway: "white",
+    face: "front",
+    pose: "front",
+    verification: "canonical-luminance",
+  },
+  {
+    name: "rear-steel",
+    colourway: "black",
+    face: "back",
+    pose: "rear",
+    verification: "canonical-luminance",
+  },
+]);
+
 const VIEWS = {
-  room: "[['black', 'back']]",
-  front: "[['black', 'front'], ['white', 'front']]",
-  all: "[['black', 'front'], ['white', 'front'], ['black', 'back']]",
+  room: CANONICAL_REPORT_VIEWS.filter((view) => view.face === "back"),
+  front: CANONICAL_REPORT_VIEWS.filter((view) => view.face === "front"),
+  all: CANONICAL_REPORT_VIEWS,
 } as const;
+
+function serializeViews(views: ReadonlyArray<View>): string {
+  return JSON.stringify(
+    views.map((view) => ({ colourway: view.colourway, face: view.face })),
+  );
+}
+
+function summarizeResults(results: ReadonlyArray<Result>): ReportView["summary"] {
+  let passing = 0;
+  let worstAbsDelta = 0;
+  let sumSquared = 0;
+  const failingTokens: Array<string> = [];
+  for (const result of results) {
+    if (result.pass) passing += 1;
+    else failingTokens.push(result.token);
+    worstAbsDelta = Math.max(worstAbsDelta, Math.abs(result.delta));
+    sumSquared += result.delta ** 2;
+  }
+  return {
+    total: results.length,
+    passing,
+    failing: results.length - passing,
+    failingTokens,
+    worstAbsDelta,
+    rms: Math.sqrt(sumSquared / Math.max(1, results.length)),
+  };
+}
+
+async function measureViews(
+  page: Page,
+  patch: Record<string, number>,
+  views: ReadonlyArray<View>,
+  settleMs = SETTLE_MS,
+): Promise<Array<ReportView>> {
+  const rows: Array<ReportView> = [];
+  for (const view of views) {
+    const results = await score(page, patch, serializeViews([view]), settleMs);
+    rows.push({
+      ...view,
+      results,
+      summary: summarizeResults(results),
+    });
+  }
+  return rows;
+}
 
 async function score(
   page: Page,
@@ -515,8 +623,17 @@ async function main() {
   await resetAndApply(page, start);
 
   if (command === "report") {
-    const results = await score(page, {}, VIEWS.all, 500);
-    const report = `${JSON.stringify({ params: start, results }, null, 2)}\n`;
+    const canonical = await measureViews(page, {}, VIEWS.all, 500);
+    const report = `${JSON.stringify(
+      {
+        params: start,
+        verificationRule:
+          "D-064: canonical luminance stop tables apply only to the front and rear reference poses; rotated poses require physical-continuity validation instead.",
+        canonical,
+      },
+      null,
+      2,
+    )}\n`;
     if (arg) await Bun.write(arg, report);
     else console.log(report);
     page.close();
@@ -590,7 +707,11 @@ async function main() {
                 ? FRONT_KNOBS
                 : allKnobs;
   const views =
-    stage === "room" ? VIEWS.room : stage === "front" ? VIEWS.front : VIEWS.all;
+    stage === "room"
+      ? serializeViews(VIEWS.room)
+      : stage === "front"
+        ? serializeViews(VIEWS.front)
+        : serializeViews(VIEWS.all);
   const targetSurface =
     stage === "body-black" ||
     stage === "body-white" ||
@@ -604,22 +725,23 @@ async function main() {
           : stage
       : null;
   const scoreStage = async (patch: Record<string, number>, settleMs: number) => {
-    const guardedStage = targetSurface !== null;
+    const guardedStage = stage === "front" || targetSurface !== null;
     const results = await score(
       page,
       patch,
-      guardedStage ? VIEWS.all : views,
+      guardedStage ? serializeViews(VIEWS.all) : views,
       settleMs,
     );
-    if (targetSurface === null) return results;
     const steel = results.filter((result) => result.surface === "steel-back");
     const whiteWheel = results.filter((result) => result.surface === "wheel-ring-white");
     if (
       !command?.includes("sensitivity") &&
-      (steel.length !== 11 ||
-        steel.some((result) => !result.pass) ||
-        (targetSurface !== "wheel-ring-white" &&
-          (whiteWheel.length !== 4 || whiteWheel.some((result) => !result.pass))))
+      ((guardedStage &&
+        (steel.length !== 11 || steel.some((result) => !result.pass))) ||
+        (targetSurface !== null &&
+          targetSurface !== "wheel-ring-white" &&
+          (whiteWheel.length !== 4 ||
+            whiteWheel.some((result) => !result.pass))))
     ) {
       return [
         {
@@ -635,6 +757,7 @@ async function main() {
         },
       ];
     }
+    if (targetSurface === null) return results;
     return results.filter((result) => result.surface === targetSurface);
   };
   const iterations = Number(arg ?? 40);

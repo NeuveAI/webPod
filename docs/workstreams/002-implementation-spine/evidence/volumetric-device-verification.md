@@ -1,37 +1,72 @@
 # Evidence — volumetric device verification
 
-This note records the verification run for the volumetric device slice on
-August 31, 2026.
+This note records the final W8 verification run for the volumetric device slice
+on August 31, 2026.
 
-## Browser artifacts
+## Canonical luminance verification is now explicit and bounded
 
-Pose captures from flagged Chrome T1 live in
-`evidence/volumetric-device-browser/`:
+D-064 is encoded in executable form, not only in prose:
 
-- `composite-front.png`
-- `composite-three-quarter.png`
-- `composite-edge.png`
-- `composite-rear.png`
+- `packages/device/src/orientation.test.ts` classifies only `front` and `rear`
+  as `canonical-luminance`; `three-quarter`, `edge`, and `custom` are
+  `physical-continuity`.
+- `apps/web/tests/volumetric-device-verification.e2e.ts` proves that
+  `window.__deviceCalibration.sample()` succeeds only for the canonical
+  reference poses and rejects rotated poses with the exact D-064 message.
+
+The fresh flagged-Chrome canonical proof lives in
+`evidence/volumetric-device-browser/summary.json`, with native captures beside
+it:
+
+- `device-front-black.png`
 - `device-front-white.png`
-- `device-quarter-black.png`
-- `device-edge-white.png`
 - `device-rear-white.png`
-- `summary.json`
 
-`summary.json` records the exact browser facts behind those screenshots:
+Canonical results from that summary:
 
-- composite front/three-quarter/edge/rear all resolved `tier: "T1"`
-- all four composite poses recorded `requestPaint: true`
-- all four composite poses attached exactly one `.wp-composite-panel-host`
-- all four composite poses kept keyboard continuity (`ArrowDown` changed the
-  selected row, with zero page errors)
-- the mobile composite pass at 390×844 had `scrollWidth === clientWidth === 390`
-  and a centered 330×552 device frame at `x = 30`
-- the exact review repro poses now return readings instead of throwing:
-  `edge-white` resolved `probeFace: "right"` with 3 edge-shell readings, and
-  `rear-white` resolved `probeFace: "back"` with 11 rear readings
+| Reference sample | Readings | Failed tokens | Max `|delta|` |
+|---|---:|---:|---:|
+| black front | 16 | 0 | 3.9999999999999964 |
+| white front | 16 | 0 | 3.893699999999967 |
+| steel rear | 11 | 0 | 4 |
 
-Responsive screenshots from the Playwright matrix live in
+Those are the W4 tables the owner asked to close: canonical white front,
+canonical black front, and the shared steel rear. The shipped source defaults
+now meet the ±4 contract without a live rig patch.
+
+## Rotated poses are verified by physical continuity, not by the stop tables
+
+The same fresh browser summary records the physical-continuity evidence set:
+
+- `device-three-quarter-black.png`
+- `device-edge-white.png`
+- `device-custom-flip-white.png`
+- `device-animated-00.png` through `device-animated-04.png`
+
+What is asserted there:
+
+- three-quarter, edge, and custom poses all reject canonical sampling with the
+  exact D-064 message rather than silently grading the wrong thing
+- the rotated captures keep the stage centered, vertically contained, and free
+  of horizontal overflow at 390×844
+- the animated front→rear sequence keeps rendering through five custom
+  orientations with zero page errors, and the recorded hashes differ frame to
+  frame
+- the sequence's `probeFace` progression is physically sensible for the visible
+  side of the object: front → front → right → back → back
+
+The deterministic invariants behind those captures are split correctly:
+
+- `packages/device/src/ViewerLitDeviceFrame.test.tsx` proves the lamps stay
+  world-fixed while the model rotates
+- `packages/device/src/orientation.test.ts` proves which poses are canonical
+  and which are continuity-only
+- the route-level browser test proves the diagnostic sampler cannot be reused on
+  rotated poses by accident
+
+## Responsive / DPR / resize matrix
+
+Fresh responsive screenshots from the Playwright matrix live in
 `evidence/volumetric-device-responsive/`:
 
 - `composite-320x568.png`
@@ -43,72 +78,47 @@ Responsive screenshots from the Playwright matrix live in
 - `device-390x844.png`
 - `device-desktop-1440x900.png`
 
+`evidence/volumetric-device-responsive.txt` records the matrix result:
+
+- 17 passed
+- composite centered/contained at 320×568, 375×667, 390×844, 430×932
+- standalone device centered/contained at the same mobile sizes
+- standalone device LCD and WebGL backing stores at DPR 1/2/3
+- composite refit after 390×844 → 390×568 → 390×844
+- bare-panel authored-raster preservation
+- mobile/desktop screenshot capture
+
 ## Command results
 
-Responsive Playwright matrix:
+Fresh browser proof:
 
-- command log: `evidence/volumetric-device-responsive.txt`
-- result: 17 passed
-- coverage:
-  - composite centered/contained at 320×568, 375×667, 390×844, 430×932
-  - standalone device centered/contained at the same mobile sizes
-  - standalone device LCD and WebGL backing stores at DPR 1/2/3
-  - composite refit after mobile-height changes
-  - bare panel authored-raster preservation
-  - screenshot capture at mobile and desktop viewports
+- command log: `evidence/volumetric-device-browser.txt`
+- result: 1 passed
+- source identity: `1e2dd4fcfc70eae800a97b6f6a86f91f82445ebb1854cf98a153b3bf7321842d`
+  across 170 browser-served files, matched before capture
 
-Fresh flagged-Chrome DPR density captures:
+Per-package/app checks:
 
-- command log: `evidence/volumetric-device-density.txt`
-- screenshots: `evidence/volumetric-device-density/white-mobile-dpr-{1,2,3}.png`
-- result:
-  - DPR 1 → canvas 330×552, panel 320×240
-  - DPR 2 → canvas 660×1104, panel 640×480
-  - DPR 3 → canvas 990×1656, panel 960×720
-
-Fresh flagged-Chrome LCD acuity captures:
-
-- command log: `evidence/volumetric-device-acuity.txt`
-- screenshots: `evidence/volumetric-device-acuity/lcd-native-dpr-{1,2,3}.png`
-- result:
-  - DPR 1 → edge P95 19.79
-  - DPR 2 → edge P95 31.77
-  - DPR 3 → edge P95 37.63
-
-Repo gates:
-
-- command log: `evidence/volumetric-device-gates.txt`
-- result: automated gates passed
-- summary:
-  - `11/11 projects clean`
-  - lint passed
-  - repo tests passed
-  - manual gates remaining: `U14`, `U15`
-
-Build/type/lint status from the final tree:
-
-- `bun run typecheck` → `11/11 projects clean`
-- `bunx tsc -p packages/device` → exit 0
-- `bunx tsc -p packages/composite` → exit 0
-- `bunx tsc -p apps/web` → exit 0
-- `bun test packages/device packages/composite` → 149 passed
+- `bunx tsc --noEmit -p packages/device/tsconfig.json` → exit 0
+- `bunx tsc --noEmit -p packages/composite/tsconfig.json` → exit 0
+- `bunx tsc --noEmit -p apps/web/tsconfig.json` → exit 0
 - `bun run lint` → exit 0
 - `bun run build` → exit 0
-- `bun run gates` → exit 0
+
+Repo tests:
+
+- command log: `evidence/volumetric-device-tests.txt`
+- result: 966 pass / 0 fail / 53 files
+
+Full gates:
+
+- command log: `evidence/volumetric-device-gates.txt`
+- result: 16 automated passed / 0 automated failed / 2 manual outstanding
+- manual items still outstanding by design: `U14`, `U15`
 
 ## Notes
 
-The in-app browser on this host resolves the composite route to T3, so the
-composited page is intentionally blank there today. That is consistent with the
-current main-path scope: T1 `html-in-canvas` is implemented and verified in
-flagged Chrome, while T2/T3/T4 fallbacks remain deferred.
-
-The fresh browser summary proves the two review fixes specifically:
-
-- edge verification now targets the visible steel shell band rather than a
-  hidden front proxy or the front/back split plane
-- rear verification now classifies the rendered back-composition plane while
-  still requiring steel backing behind it
-
-The remaining failed tokens in `summary.json` are luminance deltas, not probe
-identity or visibility rejections.
+The shell/material evidence and the LCD evidence should not be conflated. W8
+closes the volumetric shell and its canonical-vs-rotated proof boundary. The
+inner LCD content visible on `/_spike/device` remains a diagnostic proxy for
+the panel/composite system, not the final panel-fidelity acceptance surface.

@@ -21,9 +21,11 @@ export {
   type DeviceProps,
 } from "./Device";
 export type {
+  CanonicalLuminancePose,
   DeviceFace,
   DeviceOrientation,
   DevicePosePreset,
+  DeviceVerificationMode,
   DeviceVisibleFace,
 } from "./orientation";
 export {
@@ -41,10 +43,12 @@ export {
   deviceScreenIsInteractable,
   EDGE_DEVICE_ORIENTATION,
   FRONT_DEVICE_ORIENTATION,
+  isCanonicalLuminancePose,
   orientationFromFace,
   REAR_DEVICE_ORIENTATION,
   resolveDeviceVisibleFace,
   THREE_QUARTER_DEVICE_ORIENTATION,
+  verificationModeForPose,
   wrapDegrees,
 } from "./orientation";
 export {

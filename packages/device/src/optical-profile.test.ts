@@ -5,13 +5,32 @@ import { addOpticalProfile, applyOpticalProfile, createBodyRoughnessMap, createO
 describe("moulded-surface optical profile", () => {
   test("the Pencil-first white moulding has a real non-flat light hierarchy", () => {
     expect(DEFAULT_DEVICE_OPTICAL_PROFILES.bodyWhite).toEqual([
-      [0, 3.5], [0.08, 2], [0.42, -2], [0.78, 0.75], [1, -0.5],
+      [0, -3.568719020420686],
+      [0.06, -7],
+      [0.21, -4],
+      [0.47, -0.36104928688146165],
+      [0.64, 0.35638991348445437],
+      [0.82, -3.6461996299587183],
+      [0.94, 0],
+      [1, 5.811169121414422],
+    ]);
+    expect(DEFAULT_DEVICE_OPTICAL_PROFILES.wheelBlack).toEqual([
+      [0, -12],
+      [0.38, -7.235359379315376],
+      [0.62, 2.2841668515175577],
+      [1, 8],
     ]);
     expect(DEFAULT_DEVICE_OPTICAL_PROFILES.wheelWhite).toEqual([
-      [0, 1.5], [0.36, 0], [0.64, -1.5], [1, 0.5],
+      [0, 0.375],
+      [0.38, 5.96875],
+      [0.62, 4.25],
+      [1, 1],
     ]);
     expect(DEFAULT_DEVICE_OPTICAL_PROFILES.selectWhite).toEqual([
-      [0, 1], [0.44, -1], [0.6, -0.5], [1, 0.5],
+      [0, 5.649757668912411],
+      [0.34, -2.1739468299597497],
+      [0.7, -7.586523023024202],
+      [1, -1.845465837329626],
     ]);
   });
   test("body roughness is encoded in Three's green channel", () => {

@@ -47,6 +47,8 @@ export type PhysicalSurfaceParams = {
   readonly transmission?: number;
   readonly thickness?: number;
   readonly ior?: number;
+  readonly attenuationColor?: string;
+  readonly attenuationDistance?: number;
   readonly opacity?: number;
   readonly transparent?: boolean;
   readonly envMapIntensity?: number;
@@ -117,39 +119,39 @@ export type DeviceMaterials = {
 export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   bodyBlack: {
     color: "#11161C",
-    albedoScale: 1,
-    roughness: 0.22,
+    albedoScale: 0.2,
+    roughness: 0.7075,
     metalness: 0,
     clearcoat: 1.0,
-    clearcoatRoughness: 0.035,
-    reflectivity: 0.6,
-    sheen: 0.16,
+    clearcoatRoughness: 0.0527,
+    reflectivity: 0.76,
+    sheen: 0,
     sheenColor: "#748395",
-    sheenRoughness: 0.7,
-    specularIntensity: 0.42,
-    envMapIntensity: 0.33,
+    sheenRoughness: 0.5899,
+    specularIntensity: 0.1288,
+    envMapIntensity: 0.162,
     // Three 0.185.1's WebGL physical material has no SSS term. These values
     // extend its per-direct-light loop using MeshSSSNodeMaterial's scattering
     // shape. Point-light color, intensity and distance attenuation remain
     // Three-owned, so LAW 2 is still the sole source of illumination.
     subsurfaceColor: "#6B7888",
-    subsurfaceDistortion: 0.18,
-    subsurfaceAttenuation: 0.028,
-    subsurfacePower: 3.5,
-    subsurfaceScale: 1.65,
+    subsurfaceDistortion: 0.3969,
+    subsurfaceAttenuation: 0.0757,
+    subsurfacePower: 1,
+    subsurfaceScale: 1.5353,
   },
   bodyWhite: {
     color: "#F4F7FA",
     // Preserve headroom for the key/clearcoat lobe. At 1.0 the diffuse term
     // clipped almost the whole face to white and erased Pencil's pearl trough.
-    albedoScale: 0.74,
-    roughness: 0.24,
+    albedoScale: 0.7396,
+    roughness: 0.4678,
     metalness: 0,
     clearcoat: 1.0,
-    clearcoatRoughness: 0.04,
-    reflectivity: 0.62,
-    specularIntensity: 0.54,
-    envMapIntensity: 0.28,
+    clearcoatRoughness: 0.1735,
+    reflectivity: 0.5158,
+    specularIntensity: 0.4204,
+    envMapIntensity: 0.1127,
   },
   steelBack: {
     color: "#C4CBD2",
@@ -190,20 +192,20 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   },
   wheelRingBlack: {
     color: "#1D2128",
-    roughness: 0.28,
+    roughness: 0.18,
     metalness: 0,
-    clearcoat: 0.72,
-    clearcoatRoughness: 0.1,
-    envMapIntensity: 0.06,
+    clearcoat: 1,
+    clearcoatRoughness: 0.14,
+    envMapIntensity: 0.005,
   },
   wheelRingWhite: {
     color: "#E7EDF3",
     albedoScale: 0.58,
-    roughness: 0.4,
+    roughness: 0.56,
     metalness: 0,
     clearcoat: 0.72,
-    clearcoatRoughness: 0.14,
-    envMapIntensity: 0.12,
+    clearcoatRoughness: 0.22,
+    envMapIntensity: 0.315,
   },
   wheelWellBlack: {
     color: "#0E1218",
@@ -225,29 +227,31 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   selectBlack: {
     // §4.5 `--select-k-2`, the plug's body value.
     color: "#1B1E23",
-    transmission: 0.46,
+    transmission: 0.7,
     thickness: 1.48,
     ior: 1.52,
-    roughness: 0.11,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.035,
+    attenuationColor: "#C0CCD8",
+    attenuationDistance: 0.84,
+    roughness: 0.08,
+    clearcoat: 0.8857,
+    clearcoatRoughness: 0.0555,
     metalness: 0,
-    specularIntensity: 0.46,
-    envMapIntensity: 0.32,
+    specularIntensity: 0.5815,
+    envMapIntensity: 0.4475,
   },
   selectWhite: {
     // §4.5 `--select-w-2`.
     color: "#FAFCFE",
     albedoScale: 0.82,
-    transmission: 0.3,
+    transmission: 0.4164,
     thickness: 1.45,
     ior: 1.52,
-    roughness: 0.09,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.03,
+    roughness: 0.3549,
+    clearcoat: 0.7513,
+    clearcoatRoughness: 0.022,
     metalness: 0,
-    specularIntensity: 0.68,
-    envMapIntensity: 0.46,
+    specularIntensity: 0.2535,
+    envMapIntensity: 0.4785,
   },
   coverGlass: {
     // §4.6's `--panel-bg` is behind the sheet; the sheet itself is colourless.

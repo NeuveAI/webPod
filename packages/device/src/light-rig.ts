@@ -64,11 +64,11 @@ export const DEFAULT_LIGHT_RIG: LightRigParams = {
     distance: 1375,
     // Keeps the white diffuse term below clipping while leaving the clearcoat
     // and rolled edges enough headroom to carry VWaJS's authored highlights.
-    intensity: 11000000,
+    intensity: 19500000,
     color: "#FFFFFF",
   },
   fill: {
-    azimuthDeg: -26.7116,
+    azimuthDeg: -42.7116,
     elevationDeg: -59.0468,
     distance: 459.375,
     intensityRatio: 0.22,

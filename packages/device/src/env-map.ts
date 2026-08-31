@@ -221,7 +221,7 @@ export const DEFAULT_ENV_ROOM: EnvRoomParams = {
   // what makes the plate show the whole of §4.4 rather than its middle third.
   elevHalfSpanDeg: 14.8756,
   stops: STEEL_STOPS,
-  stopExposure: STEEL_STOPS.map(() => 1),
+  stopExposure: [1, 0.99, 0.99, 0.99, 1.01, 1.01, 1, 1.01, 1.01, 1.01, 0.99],
   radianceGain: radianceGainForMirror(DEFAULT_DEVICE_MATERIALS.steelBack.color),
   exposure: 1.18,
   profileContrast: 0.9906,

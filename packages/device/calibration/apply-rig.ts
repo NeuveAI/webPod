@@ -103,7 +103,6 @@ const HORIZON: ReadonlyArray<readonly [string, string]> = [
   ["envRoom.horizon.widthDeg", "widthDeg"],
 ];
 
-/** Per-surface `envMapIntensity` in the §12.3 table. */
 const MATERIAL_KEYS = [
   "bodyBlack",
   "bodyWhite",
@@ -112,11 +111,6 @@ const MATERIAL_KEYS = [
   "wheelRingWhite",
   "selectBlack",
   "selectWhite",
-] as const;
-
-const MATERIAL_FIELDS = [
-  "envMapIntensity", "albedoScale", "roughness", "clearcoatRoughness",
-  "reflectivity", "specularIntensity", "sheen", "sheenRoughness", "transmission",
 ] as const;
 
 function round(value: number): string {
@@ -176,6 +170,25 @@ for (const [key, field] of HORIZON) {
   if (value !== undefined)
     env = patch(env, field, value, env.indexOf("  horizon: {"));
 }
+const stopExposureEntries = Object.entries(RIG)
+  .filter(
+    ([key, value]) =>
+      key.startsWith("envRoom.stopExposure.") &&
+      typeof value === "number" &&
+      Number.isFinite(value),
+  )
+  .sort(
+    ([a], [b]) =>
+      Number(a.slice("envRoom.stopExposure.".length)) -
+      Number(b.slice("envRoom.stopExposure.".length)),
+  );
+if (stopExposureEntries.length > 0) {
+  const stopExposure = stopExposureEntries.map(([, value]) => round(value));
+  env = env.replace(
+    /^ {2}stopExposure:.*$/m,
+    `  stopExposure: [${stopExposure.join(", ")}],`,
+  );
+}
 edits.set(envFile, env);
 
 const materialsFile = "packages/device/src/materials.ts";
@@ -186,13 +199,21 @@ for (const surface of MATERIAL_KEYS) {
   if (scope < 0 || scopeEnd < 0) {
     throw new Error(`device calibration: no material block for ${surface}`);
   }
-  for (const field of MATERIAL_FIELDS) {
-    const value = RIG[`materials.${surface}.${field}`];
-    if (value === undefined) continue;
-    const block = materials.slice(scope, scopeEnd);
-    const patched = patch(block, field, value);
-    materials = materials.slice(0, scope) + patched + materials.slice(scopeEnd);
+  const prefix = `materials.${surface}.`;
+  const entries = Object.entries(RIG)
+    .filter(
+      ([key, value]) =>
+        key.startsWith(prefix) && typeof value === "number" && Number.isFinite(value),
+    )
+    .sort(([a], [b]) => a.localeCompare(b));
+  let block = materials.slice(scope, scopeEnd);
+  for (const [key, value] of entries) {
+    const field = key.slice(prefix.length);
+    const exists = new RegExp(`\\b${field}:\\s*-?[0-9_.]+,`).test(block);
+    if (!exists) continue;
+    block = patch(block, field, value);
   }
+  materials = materials.slice(0, scope) + block + materials.slice(scopeEnd);
 }
 edits.set(materialsFile, materials);
 

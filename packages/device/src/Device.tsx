@@ -70,6 +70,7 @@ import {
 import {
   createBackCompositionMap,
   createMicroNoiseRoughnessMap,
+  createSelectThicknessMap,
   createSteelAnisotropyMap,
   createWheelLabelMap,
 } from "./textures";
@@ -524,6 +525,8 @@ export function Device({
     [isBlack, ringMaterial.color],
   );
   useEffect(() => () => labelMap?.dispose(), [labelMap]);
+  const selectThicknessMap = useMemo(() => createSelectThicknessMap(), []);
+  useEffect(() => () => selectThicknessMap.dispose(), [selectThicknessMap]);
 
   // ── Depths derived from the dish profiles ─────────────────────────────────
   const ringSag =
@@ -755,9 +758,11 @@ export function Device({
         rotation={[Math.PI / 2, 0, 0]}
       >
         <meshPhysicalMaterial
+          key={isBlack ? "select-cap-black" : "select-cap-white"}
           name={isBlack ? "select-black" : "select-white"}
           {...spread(selectMaterial)}
           envMap={env}
+          {...(isBlack ? { thicknessMap: selectThicknessMap } : {})}
         />
       </mesh>
       <mesh
@@ -766,6 +771,7 @@ export function Device({
         position={[wheel.centerX, wheel.centerY, selectRimZ + selectSag]}
       >
         <meshPhysicalMaterial
+          key={isBlack ? "select-wall-black" : "select-wall-white"}
           name={isBlack ? "select-black" : "select-white"}
           {...spread(selectMaterial)}
           envMap={env}

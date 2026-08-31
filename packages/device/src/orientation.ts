@@ -12,6 +12,12 @@ export type DeviceVisibleFace = DeviceFace | "edge";
 
 export type DevicePosePreset = "front" | "three-quarter" | "edge" | "rear";
 
+export type CanonicalLuminancePose = Extract<DevicePosePreset, "front" | "rear">;
+
+export type DeviceVerificationMode =
+  | "canonical-luminance"
+  | "physical-continuity";
+
 export type DeviceOrientation = {
   /** Positive pitches the top edge away from the viewer. */
   readonly pitchDeg: number;
@@ -92,6 +98,20 @@ export function resolveDeviceVisibleFace(
   if (visibility >= DEVICE_FRONT_VISIBILITY_THRESHOLD) return "front";
   if (visibility <= -DEVICE_FRONT_VISIBILITY_THRESHOLD) return "back";
   return "edge";
+}
+
+export function isCanonicalLuminancePose(
+  pose: DevicePosePreset | "custom",
+): pose is CanonicalLuminancePose {
+  return pose === "front" || pose === "rear";
+}
+
+export function verificationModeForPose(
+  pose: DevicePosePreset | "custom",
+): DeviceVerificationMode {
+  return isCanonicalLuminancePose(pose)
+    ? "canonical-luminance"
+    : "physical-continuity";
 }
 
 export function deviceScreenIsInteractable(

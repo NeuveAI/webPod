@@ -1,8 +1,9 @@
 # Diary — volumetric device
 
 Status on August 31, 2026: the volumetric slice is implemented in the shared
-workspace, the two review-blocking probe regressions are fixed, and the fresh
-Chrome evidence and command logs are ready to commit as a focused follow-up.
+workspace, the canonical white-front / black-front / steel-rear references now
+pass the W4 ±4 contract in shipped defaults, and the rotated-pose proof has
+been rewritten around D-064's canonical-vs-physical split.
 
 ## What moved
 
@@ -12,6 +13,19 @@ layouts derived from Pencil components `VWaJS` and `zbTc3`, a recessed display
 well, a recessed wheel well, a raised Select button, a visible rear steel shell
 with inlay, and one pose-aware lighting path that keeps the lamps world-fixed
 while the model rotates beneath them.
+
+The shell/material stack also moved from "passing rig state exists somewhere" to
+"the shipped source defaults reproduce that state." The decisive fixes were:
+
+- fixing `packages/device/calibration/apply-rig.ts` so it patches a whole
+  material block instead of repeatedly splicing stale string offsets and
+  silently skipping later fields
+- syncing the tuned `envRoom.stopExposure` array rather than leaving the room
+  file partially stale
+- keying the black/white Select materials separately so the black-only
+  transmissive inputs cannot leak into the white colourway after a toggle
+- giving the black Select cap a real thickness profile and attenuation path
+  instead of a fake painted highlight
 
 `packages/composite` keeps the T1 `html-in-canvas` path as the main route, but
 the panel raster is now authored into a 320×240 source before Three uploads it,
@@ -47,33 +61,38 @@ and a direct front-pose poll showed the host attached, `requestPaint` present,
 and the canvas sized correctly. I reworked the capture to wait for the panel
 host instead of treating the first blank image as a product regression.
 
-The in-app browser remains a useful contrast check: on this machine it lands on
-T3 for the composite route, so the T1-only page looks blank there. That is a
-runtime fact, not an implementation failure, and it matches the current
-“main-path first, fallbacks later” scope.
+The more important miss was in my own acceptance story. Before D-064 landed in
+code, the W8 evidence still read as though one luminance table could grade the
+whole orientation space. That was the wrong mental model. The browser proof now
+spends one test proving the split explicitly:
 
-The stricter re-review found a second, more useful miss in my own proof path.
-Naming the visible steel shell was necessary, but not sufficient: my first edge
-probe rework still sampled the chassis at the front/back split plane (`z = 0`),
-which means the rendered pixel can legitimately belong to the rear steel plate
-at a perfect 90° turn. The correct verifier is the front-half seam band that is
-actually visible in the edge pose, so the edge targets now sample inside that
-front-half depth instead of on the split proxy.
+- front and rear are canonical stop-table poses and must sample green
+- three-quarter, edge, and custom poses must reject `sample()` with the D-064
+  message and be validated by physical continuity instead
 
-The rear probe needed the same kind of honesty. The rendered rear pixel is the
-double-sided back-composition plane, not the bare steel plate behind it. The
-route now requires that visible composition first and the steel backing second.
-That makes the proof about the rendered stack we ship instead of about a hidden
-material the camera never sees directly.
+The stricter re-review also exposed two honesty bugs in the verifier itself,
+both now fixed:
+
+- the edge probe must sample the visible front-half shell band, not the
+  front/back split plane at `z = 0`
+- the rear probe must classify the rendered back-composition plane first and
+  require steel behind it, because that is the actual visible stack
+
+One thing remains visibly rough by design: the LCD content inside
+`/_spike/device` is still a diagnostic proxy. The shell now reads materially and
+volumetrically like the intended object; the proxy UI is not the panel-fidelity
+acceptance surface for this slice.
 
 ## Verification state
 
-Owned package/app verification is green:
+Owned package/app verification is green, and the numbers are now the final ones
+for this tree:
 
 - `bunx tsc -p packages/device`
 - `bunx tsc -p packages/composite`
 - `bunx tsc -p apps/web`
-- `bun test packages/device packages/composite`
+- `bun test`
+- `apps/web/tests/volumetric-device-verification.e2e.ts`
 - responsive Playwright matrix: 17 passed
 - `bun run lint`
 - `bun run build`
@@ -81,18 +100,17 @@ Owned package/app verification is green:
 
 Fresh flagged-Chrome proof is also back in place:
 
-- `evidence/volumetric-device-browser/summary.json` now records all four
-  composite poses at T1 with `requestPaint: true`, one composite host, one
-  canvas, zero page errors, and keyboard continuity in front, three-quarter,
-  edge, and rear poses.
-- The exact reviewer repro cases now return readings instead of throwing:
-  `edge-white` resolves `probeFace: "right"` with three edge-shell readings,
-  and `rear-white` resolves `probeFace: "back"` with eleven rear readings.
-- `evidence/volumetric-device-density.txt` re-measures the T1 composite at DPR
-  1/2/3 with exact 330×552, 660×1104, and 990×1656 WebGL backing stores and
-  matching 320×240, 640×480, and 960×720 LCD source rasters.
-- `evidence/volumetric-device-acuity.txt` re-measures LCD edge acuity at DPR
-  1/2/3: P95 19.79, 31.77, and 37.63, each above the gate floors.
+- `evidence/volumetric-device-browser/summary.json` records the three canonical
+  samples now green in shipped defaults: black front, white front, and steel
+  rear.
+- The same summary records the rotated proof boundary explicitly:
+  three-quarter, edge, and custom poses reject canonical sampling with the
+  D-064 message instead of being silently graded against the wrong tables.
+- The animated continuity run records five custom orientations, zero page
+  errors, and a front → right → back transition in the visible/probe face as
+  the device flips.
+- `evidence/volumetric-device-responsive.txt` re-runs the mobile/desktop,
+  resize, and DPR matrix against this exact tree.
 
 The raw logs and screenshots are in the `volumetric-device-*` evidence files.
 What remains manual is unchanged: U14 thumb occlusion and U15 unsupported

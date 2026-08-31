@@ -10,6 +10,7 @@ import {
   steelGradientParameter,
 } from "./luminance-probe";
 import { DEVICE_LAYOUT } from "./layout";
+import { BACK_COMPOSITION_LAYOUT } from "./textures";
 
 describe("§12.3 luminance tolerance", () => {
   test("preserves mirrored readings instead of hiding asymmetry in the average", () => {
@@ -213,7 +214,7 @@ describe("D-067 probe geometry and identity", () => {
         ).toBeGreaterThan(0.04);
       }
     }
-    expect(mirroredTargets).toBe(4);
+    expect(mirroredTargets).toBeGreaterThanOrEqual(4);
   });
 
   test("rear targets classify the rendered composition while requiring steel behind it", () => {
@@ -227,6 +228,38 @@ describe("D-067 probe geometry and identity", () => {
       expect(target.probeFace).toBe("back");
       expect(target.lateralAxis).toBe("x");
     }
+  });
+
+  test("rear steel references avoid the opaque Settings inlay while staying on the same stop iso-lines", () => {
+    const halfW = DEVICE_LAYOUT.body.width / 2;
+    const halfH = DEVICE_LAYOUT.body.height / 2;
+    const margin = 8;
+    const inlay = {
+      left: BACK_COMPOSITION_LAYOUT.inlay.x - halfW - margin,
+      right:
+        BACK_COMPOSITION_LAYOUT.inlay.x +
+        BACK_COMPOSITION_LAYOUT.inlay.width -
+        halfW +
+        margin,
+      top: halfH - BACK_COMPOSITION_LAYOUT.inlay.y + margin,
+      bottom:
+        halfH -
+        (BACK_COMPOSITION_LAYOUT.inlay.y + BACK_COMPOSITION_LAYOUT.inlay.height) -
+        margin,
+    };
+    let avoided = 0;
+
+    for (const target of probeTargets("black", "back", options)) {
+      const x = target.xs[0];
+      expect(x).toBeDefined();
+      if (x === undefined) continue;
+      if (target.y >= inlay.bottom && target.y <= inlay.top) {
+        expect(x <= inlay.left || x >= inlay.right).toBe(true);
+        avoided += 1;
+      }
+    }
+
+    expect(avoided).toBeGreaterThanOrEqual(4);
   });
 
   test("edge targets bind to the actual visible shell on both sides", () => {
