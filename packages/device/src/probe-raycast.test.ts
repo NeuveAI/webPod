@@ -20,10 +20,13 @@ import { matchesProbeIdentity, type ProbeTarget } from "./luminance-probe";
 import {
   firstVisibleProbeHit,
   probeSurfaceIsCoherent,
+  type ProbeFace,
   resolveProbeSurface,
+  visibleProbeHits,
   WHEEL_LABEL_DECAL_NAME,
 } from "./probe-raycast";
 import { tessellateVerticalCrown, verticalCrownOffset } from "./curved-shell";
+import { probeTargets } from "./luminance-probe";
 
 const target: Pick<ProbeTarget, "objectName" | "materialName"> = {
   objectName: "device-body",
@@ -138,6 +141,61 @@ describe("first visible probe hit", () => {
     ).toBe(true);
   });
 
+  test("keeps the rendered rear composition in front of the steel backing", () => {
+    const scene = new Scene();
+    const compositionMaterial = new MeshBasicMaterial({
+      transparent: true,
+      opacity: 1,
+    });
+    compositionMaterial.name = "back-composition";
+    const composition = new Mesh(
+      new PlaneGeometry(4, 4),
+      compositionMaterial,
+    );
+    composition.name = "device-back-composition";
+    composition.position.z = 0.1;
+    const steelMaterial = new MeshBasicMaterial();
+    steelMaterial.name = "steel-back";
+    const steel = new Mesh(new PlaneGeometry(4, 4), steelMaterial);
+    steel.name = "device-steel-back";
+    scene.add(composition, steel);
+
+    const hits = visibleProbeHits(centreHits(scene));
+    expect(hits).toHaveLength(2);
+    expect(hits[0]).toMatchObject({
+      objectName: "device-back-composition",
+      materialNames: ["back-composition"],
+    });
+    expect(hits[1]).toMatchObject({
+      objectName: "device-steel-back",
+      materialNames: ["steel-back"],
+    });
+  });
+
+  test("edge targets fail closed when the nearer visible shell is unnamed", () => {
+    const options = {
+      bodyEdgeInset: 8,
+      backEdgeInset: 3,
+      controlInset: 6,
+      seamWidth: 3,
+    };
+    const [target] = probeTargets("white", "right", options);
+    expect(target).toBeDefined();
+    if (target === undefined) return;
+
+    const namedHit = {
+      objectName: "device-steel-shell",
+      materialNames: ["chrome-seam"],
+    };
+    expect(
+      matchesProbeIdentity(target, namedHit.objectName, namedHit.materialNames),
+    ).toBe(true);
+
+    expect(
+      matchesProbeIdentity(target, undefined, namedHit.materialNames),
+    ).toBe(false);
+  });
+
   test("solves the actual tessellated mesh surface instead of a nominal z", () => {
     const shape = new Shape();
     shape.moveTo(-20, -40);
@@ -193,6 +251,7 @@ describe("first visible probe hit", () => {
       probeSurfaceIsCoherent(
         0,
         0,
+        "front",
         solved.localPoint,
         solved.localPoint,
         0.01,
@@ -204,6 +263,7 @@ describe("first visible probe hit", () => {
       probeSurfaceIsCoherent(
         0,
         0,
+        "front",
         solved.localPoint,
         plantedNominal,
         0.01,
@@ -213,5 +273,53 @@ describe("first visible probe hit", () => {
     source.dispose();
     geometry.dispose();
     material.dispose();
+  });
+});
+
+describe("side-face probe solves", () => {
+  function solveShell(face: ProbeFace) {
+    const material = new MeshBasicMaterial();
+    material.name = "chrome-seam";
+    const shell = new Mesh(new BoxGeometry(4, 4, 2), material);
+    shell.name = "device-steel-shell";
+    const model = new Group();
+    model.add(shell);
+    return resolveProbeSurface(
+      model,
+      { objectName: "device-steel-shell", materialNames: ["chrome-seam"] },
+      0.75,
+      1.5,
+      face,
+      20,
+    );
+  }
+
+  test("solves the actual visible right shell instead of a front proxy", () => {
+    const solved = solveShell("right");
+    expect(solved.localPoint.x).toBeCloseTo(2, 6);
+    expect(solved.localPoint.y).toBeCloseTo(1.5, 6);
+    expect(solved.localPoint.z).toBeCloseTo(0.75, 6);
+    expect(
+      probeSurfaceIsCoherent(
+        0.75,
+        1.5,
+        "right",
+        solved.localPoint,
+        solved.localPoint,
+        0.01,
+      ),
+    ).toBe(true);
+    const wrongVisible = solved.localPoint.clone();
+    wrongVisible.z += 0.2;
+    expect(
+      probeSurfaceIsCoherent(
+        0.75,
+        1.5,
+        "right",
+        solved.localPoint,
+        wrongVisible,
+        0.01,
+      ),
+    ).toBe(false);
   });
 });

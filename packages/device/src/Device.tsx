@@ -630,6 +630,7 @@ export function Device({
         renderOrder={3}
       >
         <meshBasicMaterial
+          name="back-composition"
           map={backComposition}
           transparent
           depthWrite={false}
@@ -641,8 +642,9 @@ export function Device({
       </mesh>
 
       {/* §5.6 — the steel shell: the perimeter seam and the opening walls. */}
-      <mesh geometry={steelShellGeometry}>
+      <mesh name="device-steel-shell" geometry={steelShellGeometry}>
         <meshPhysicalMaterial
+          name={isBlack ? "chrome-seam-black" : "chrome-seam"}
           {...spread(seamMaterial)}
           envMap={env}
           roughnessMap={noise}

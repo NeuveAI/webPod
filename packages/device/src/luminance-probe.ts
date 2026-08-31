@@ -29,6 +29,8 @@
  * gradient that is defined as a function of `y` alone.
  */
 import { hexLuma255, luma255 } from "./colour";
+import { DEFAULT_DEVICE_MATERIALS } from "./materials";
+import type { ProbeFace } from "./probe-raycast";
 import { DEVICE_LAYOUT } from "./layout";
 import { STEEL_STOPS } from "./env-map";
 
@@ -36,6 +38,8 @@ import { STEEL_STOPS } from "./env-map";
 export type ProbeSurface =
   | "body-black"
   | "body-white"
+  | "edge-shell-black"
+  | "edge-shell-white"
   | "steel-back"
   | "wheel-ring-black"
   | "wheel-ring-white"
@@ -59,8 +63,12 @@ export type ProbeTarget = {
    */
   readonly xs: ReadonlyArray<number>;
   /** Raycast identity required before framebuffer bytes are admitted. */
+  readonly probeFace: ProbeFace;
+  readonly lateralAxis: "x" | "z";
   readonly objectName: string;
   readonly materialName: string;
+  readonly backingObjectName?: string;
+  readonly backingMaterialName?: string;
 };
 
 /** What the caller brings back: the sRGB bytes at each target's columns. */
@@ -117,19 +125,70 @@ export function steelGradientParameter(x: number, y: number): number {
 function identity(surface: ProbeSurface) {
   switch (surface) {
     case "body-black":
-      return { objectName: "device-body", materialName: "body-black" };
+      return {
+        probeFace: "front" as const,
+        lateralAxis: "x" as const,
+        objectName: "device-body",
+        materialName: "body-black",
+      };
     case "body-white":
-      return { objectName: "device-body", materialName: "body-white" };
+      return {
+        probeFace: "front" as const,
+        lateralAxis: "x" as const,
+        objectName: "device-body",
+        materialName: "body-white",
+      };
+    case "edge-shell-black":
+      return {
+        probeFace: "right" as const,
+        lateralAxis: "z" as const,
+        objectName: "device-steel-shell",
+        materialName: "chrome-seam-black",
+      };
+    case "edge-shell-white":
+      return {
+        probeFace: "right" as const,
+        lateralAxis: "z" as const,
+        objectName: "device-steel-shell",
+        materialName: "chrome-seam",
+      };
     case "steel-back":
-      return { objectName: "device-steel-back", materialName: "steel-back" };
+      return {
+        probeFace: "back" as const,
+        lateralAxis: "x" as const,
+        objectName: "device-back-composition",
+        materialName: "back-composition",
+        backingObjectName: "device-steel-back",
+        backingMaterialName: "steel-back",
+      };
     case "wheel-ring-black":
-      return { objectName: "device-wheel", materialName: "wheel-black" };
+      return {
+        probeFace: "front" as const,
+        lateralAxis: "x" as const,
+        objectName: "device-wheel",
+        materialName: "wheel-black",
+      };
     case "wheel-ring-white":
-      return { objectName: "device-wheel", materialName: "wheel-white" };
+      return {
+        probeFace: "front" as const,
+        lateralAxis: "x" as const,
+        objectName: "device-wheel",
+        materialName: "wheel-white",
+      };
     case "select-black":
-      return { objectName: "device-select", materialName: "select-black" };
+      return {
+        probeFace: "front" as const,
+        lateralAxis: "x" as const,
+        objectName: "device-select",
+        materialName: "select-black",
+      };
     case "select-white":
-      return { objectName: "device-select", materialName: "select-white" };
+      return {
+        probeFace: "front" as const,
+        lateralAxis: "x" as const,
+        objectName: "device-select",
+        materialName: "select-white",
+      };
   }
 }
 
@@ -354,6 +413,54 @@ function steelTargets(options: TargetOptions): Array<ProbeTarget> {
   });
 }
 
+const EDGE_SHELL_STOPS = [0.14, 0.5, 0.86] as const;
+
+function edgeIdentity(
+  colourway: "black" | "white",
+  probeFace: "left" | "right",
+) {
+  const surface =
+    colourway === "black" ? "edge-shell-black" : "edge-shell-white";
+  return {
+    ...identity(surface),
+    probeFace,
+  };
+}
+
+function edgeShellTargets(
+  colourway: "black" | "white",
+  probeFace: "left" | "right",
+  options: TargetOptions,
+): Array<ProbeTarget> {
+  const inset = Math.max(2, options.backEdgeInset);
+  const halfH = HALF_H - inset;
+  // The steel shell occupies the **front half** of the chassis sidewall
+  // (`splitZ … frontFaceZ` in Device.tsx). At the exact edge pose, `z = 0`
+  // is the split itself, where the rendered pixel can belong to the rear steel
+  // plate rather than to the seam band. Sample inside the shell's visible
+  // front-half depth, not on the split proxy.
+  const seamLateral = body.depth / 4;
+  const expectedHex =
+    colourway === "black"
+      ? DEFAULT_DEVICE_MATERIALS.chromeSeamBlack.color
+      : DEFAULT_DEVICE_MATERIALS.chromeSeam.color;
+  return EDGE_SHELL_STOPS.map((at, index) => ({
+    ...edgeIdentity(colourway, probeFace),
+    surface:
+      colourway === "black"
+        ? ("edge-shell-black" as const)
+        : ("edge-shell-white" as const),
+    token: `--edge-shell-${colourway[0]}-${index}`,
+    at,
+    expectedHex,
+    y: HALF_H - at * body.height,
+    xs: [seamLateral],
+  })).map((target) => ({
+    ...target,
+    y: Math.min(halfH, Math.max(-halfH, target.y)),
+  }));
+}
+
 /**
  * Midpoint of the chord `p·u = c` across the axis-aligned box `±halfW × ±halfH`.
  *
@@ -446,10 +553,13 @@ function selectTargets(
 /** Every target for one colourway's front, plus the steel back. */
 export function probeTargets(
   colourway: "black" | "white",
-  face: "front" | "back",
+  face: ProbeFace,
   options: TargetOptions,
 ): Array<ProbeTarget> {
   if (face === "back") return steelTargets(options);
+  if (face === "left" || face === "right") {
+    return edgeShellTargets(colourway, face, options);
+  }
   return colourway === "black"
     ? [
         ...bodyTargets("body-black", BODY_BLACK_STOPS, options),

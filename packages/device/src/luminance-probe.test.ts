@@ -15,6 +15,8 @@ describe("§12.3 luminance tolerance", () => {
   test("preserves mirrored readings instead of hiding asymmetry in the average", () => {
     const target = {
       surface: "body-black" as const,
+      probeFace: "front" as const,
+      lateralAxis: "x" as const,
       objectName: "device-body",
       materialName: "body-black",
       token: "raw",
@@ -45,8 +47,12 @@ describe("§12.3 luminance tolerance", () => {
       {
         target: {
           surface: "steel-back",
-          objectName: "device-steel-back",
-          materialName: "steel-back",
+          probeFace: "back",
+          lateralAxis: "x",
+          objectName: "device-back-composition",
+          materialName: "back-composition",
+          backingObjectName: "device-steel-back",
+          backingMaterialName: "steel-back",
           token: "--steel-5",
           at: 0.5,
           expectedHex: expected,
@@ -67,8 +73,12 @@ describe("§12.3 luminance tolerance", () => {
       {
         target: {
           surface: "steel-back",
-          objectName: "device-steel-back",
-          materialName: "steel-back",
+          probeFace: "back",
+          lateralAxis: "x",
+          objectName: "device-back-composition",
+          materialName: "back-composition",
+          backingObjectName: "device-steel-back",
+          backingMaterialName: "steel-back",
           token: "--steel-5",
           at: 0.5,
           expectedHex: "#808080",
@@ -94,10 +104,14 @@ describe("D-067 probe geometry and identity", () => {
 
   test("every target carries an expected object and material identity", () => {
     for (const colourway of ["black", "white"] as const) {
-      for (const face of ["front", "back"] as const) {
+      for (const face of ["front", "back", "left", "right"] as const) {
         for (const target of probeTargets(colourway, face, options)) {
           expect(target.objectName).toStartWith("device-");
           expect(target.materialName.length).toBeGreaterThan(0);
+          expect(target.probeFace).toBe(face);
+          expect(target.lateralAxis).toBe(
+            face === "left" || face === "right" ? "z" : "x",
+          );
         }
       }
     }
@@ -200,5 +214,37 @@ describe("D-067 probe geometry and identity", () => {
       }
     }
     expect(mirroredTargets).toBe(4);
+  });
+
+  test("rear targets classify the rendered composition while requiring steel behind it", () => {
+    const targets = probeTargets("white", "back", options);
+    expect(targets.length).toBeGreaterThan(0);
+    for (const target of targets) {
+      expect(target.objectName).toBe("device-back-composition");
+      expect(target.materialName).toBe("back-composition");
+      expect(target.backingObjectName).toBe("device-steel-back");
+      expect(target.backingMaterialName).toBe("steel-back");
+      expect(target.probeFace).toBe("back");
+      expect(target.lateralAxis).toBe("x");
+    }
+  });
+
+  test("edge targets bind to the actual visible shell on both sides", () => {
+    for (const colourway of ["black", "white"] as const) {
+      for (const face of ["left", "right"] as const) {
+        const targets = probeTargets(colourway, face, options);
+        expect(targets).toHaveLength(3);
+        for (const target of targets) {
+          expect(target.objectName).toBe("device-steel-shell");
+          expect(target.materialName).toBe(
+            colourway === "black" ? "chrome-seam-black" : "chrome-seam",
+          );
+          expect(target.probeFace).toBe(face);
+          expect(target.lateralAxis).toBe("z");
+          expect(target.xs).toHaveLength(1);
+          expect(target.xs[0]).toBeGreaterThan(0);
+        }
+      }
+    }
   });
 });

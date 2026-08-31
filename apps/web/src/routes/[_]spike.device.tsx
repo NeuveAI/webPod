@@ -36,7 +36,6 @@ import {
   DeviceCanvas,
   clampDeviceOrientation,
   evaluate,
-  firstVisibleProbeHit,
   orientationFromFace,
   type DeviceOrientation,
   type DevicePosePreset,
@@ -46,12 +45,14 @@ import {
   resolveProbeSurface,
   resolveDeviceVisibleFace,
   rmsDelta,
+  visibleProbeHits,
   type Colourway,
   type DeviceFace,
   type DeviceFormParams,
   type DeviceMaterials,
   type DeviceOpticalProfiles,
   type EnvRoomParams,
+  type ProbeFace,
   type LightRigParams,
   type ProbeReading,
   type ProbeResult,
@@ -92,7 +93,7 @@ export const Route = createFileRoute("/_spike/device")({
 type SpikeParams = {
   readonly colourway: Colourway;
   readonly pose: DevicePosePreset | "custom";
-  readonly probeFace: DeviceFace;
+  readonly probeFace: ProbeFace;
   readonly orientation: DeviceOrientation;
   readonly room: "light" | "dark";
   readonly cameraDistance: number;
@@ -143,7 +144,7 @@ type SpikePatch = {
   readonly colourway?: Colourway;
   readonly face?: DeviceFace;
   readonly pose?: DevicePosePreset | "custom";
-  readonly probeFace?: DeviceFace;
+  readonly probeFace?: ProbeFace;
   readonly orientation?: Partial<DeviceOrientation>;
   readonly room?: "light" | "dark";
   readonly cameraDistance?: number;
@@ -219,15 +220,18 @@ function poseFromOrientation(orientation: DeviceOrientation): DevicePosePreset |
   return "custom";
 }
 
-function probeFaceFromOrientation(orientation: DeviceOrientation): DeviceFace {
-  return resolveDeviceVisibleFace(orientation) === "back" ? "back" : "front";
+function probeFaceFromOrientation(orientation: DeviceOrientation): ProbeFace {
+  const visible = resolveDeviceVisibleFace(orientation);
+  if (visible === "back") return "back";
+  if (visible === "front") return "front";
+  return orientation.yawDeg <= 0 ? "right" : "left";
 }
 
 function setPose(pose: DevicePosePreset): SpikeParams {
   const orientation = DEVICE_ORIENTATION_PRESETS[pose];
   return setParams({
     pose,
-    probeFace: pose === "rear" ? "back" : "front",
+    probeFace: probeFaceFromOrientation(orientation),
     orientation,
   });
 }
@@ -405,7 +409,7 @@ function LuminanceProbe() {
           },
           x,
           target.y,
-          active.probeFace,
+          target.probeFace,
           body.depth * 4,
         );
         projected.copy(solved.worldPoint).project(camera);
@@ -423,7 +427,8 @@ function LuminanceProbe() {
         );
         raycaster.setFromCamera(sampleNdc, camera);
         const intersections = raycaster.intersectObjects(scene.children, true);
-        const hit = firstVisibleProbeHit(intersections);
+        const hitStack = visibleProbeHits(intersections);
+        const hit = hitStack[0] ?? null;
         if (
           hit === null ||
           !matchesProbeIdentity(
@@ -448,11 +453,39 @@ function LuminanceProbe() {
             }`,
           );
         }
+        const backingObjectName = target.backingObjectName;
+        const backingMaterialName = target.backingMaterialName;
+        if (
+          backingObjectName !== undefined &&
+          backingMaterialName !== undefined &&
+          !hitStack.slice(1).some((candidate) =>
+            matchesProbeIdentity(
+              {
+                objectName: backingObjectName,
+                materialName: backingMaterialName,
+              },
+              candidate.objectName,
+              candidate.materialNames,
+            ),
+          )
+        ) {
+          throw new Error(
+            `device probe backing rejected ${target.token}: expected ${backingObjectName}/${backingMaterialName} behind ${target.objectName}/${target.materialName}, hit stack ${
+              hitStack
+                .map(
+                  (candidate) =>
+                    `${candidate.objectName ?? "nothing"}/${candidate.materialNames.join("|")}`,
+                )
+                .join(" > ") || "empty"
+            }`,
+          );
+        }
         const visibleLocal = model.worldToLocal(hit.point.clone());
         if (
           !probeSurfaceIsCoherent(
             x,
             target.y,
+            target.probeFace,
             solved.localPoint,
             visibleLocal,
             pixelDrift,

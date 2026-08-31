@@ -143,8 +143,10 @@ export {
   firstVisibleProbeHit,
   probeSurfaceIsCoherent,
   resolveProbeSurface,
+  visibleProbeHits,
   WHEEL_LABEL_DECAL_NAME,
   type ProbeHitIdentity,
+  type ProbeFace,
   type ResolvedProbeSurface,
   type VisibleProbeHit,
 } from "./probe-raycast";

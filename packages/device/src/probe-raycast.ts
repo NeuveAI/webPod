@@ -13,6 +13,9 @@ import {
 /** The one rendered overlay whose empty texels may be ignored by the probe. */
 export const WHEEL_LABEL_DECAL_NAME = "wheel-label-decal";
 
+/** Local face a probe ray is cast through. */
+export type ProbeFace = "front" | "back" | "left" | "right";
+
 export type ProbeHitIdentity = {
   readonly objectName: string | undefined;
   readonly materialNames: ReadonlyArray<string | undefined>;
@@ -29,6 +32,52 @@ export type ResolvedProbeSurface = {
   /** The same point in the device model's body-local frame. */
   readonly localPoint: Vector3;
 };
+
+function visibleProbeHitFromIntersection(
+  intersection: Intersection<Object3D>,
+): VisibleProbeHit | null {
+  if (!isVisibleInScene(intersection.object)) return null;
+  if (!isThreeMesh(intersection.object)) {
+    return {
+      objectName: intersection.object.name || undefined,
+      materialNames: [],
+      point: intersection.point.clone(),
+    };
+  }
+
+  const hit: Intersection<Mesh> = {
+    ...intersection,
+    object: intersection.object,
+  };
+  const material = hitMaterial(hit);
+  if (material === null) {
+    return {
+      objectName: hit.object.name || undefined,
+      materialNames: [],
+      point: hit.point.clone(),
+    };
+  }
+  if (!material.visible) return null;
+  if (material.transparent && material.opacity === 0) return null;
+  if (isTransparentLabelTexel(hit, material)) return null;
+  return {
+    objectName: hit.object.name || undefined,
+    materialNames: [material.name || undefined],
+    point: hit.point.clone(),
+  };
+}
+
+function isDuplicateVisibleHit(
+  current: VisibleProbeHit,
+  previous: VisibleProbeHit | undefined,
+): boolean {
+  return (
+    previous !== undefined &&
+    previous.objectName === current.objectName &&
+    previous.materialNames[0] === current.materialNames[0] &&
+    previous.point.distanceToSquared(current.point) <= 1e-12
+  );
+}
 
 function isVisibleInScene(object: Object3D): boolean {
   let current: Object3D | null = object;
@@ -123,6 +172,25 @@ function isTransparentLabelTexel(
 }
 
 /**
+ * Visible hit stack in the same distance order Three reports.
+ *
+ * Consecutive duplicate hits from the same named surface collapse into one
+ * entry so a double-sided plane or triangle pair cannot hide the material that
+ * sits directly behind it.
+ */
+export function visibleProbeHits(
+  intersections: ReadonlyArray<Intersection<Object3D>>,
+): Array<VisibleProbeHit> {
+  const hits: Array<VisibleProbeHit> = [];
+  for (const intersection of intersections) {
+    const hit = visibleProbeHitFromIntersection(intersection);
+    if (hit === null || isDuplicateVisibleHit(hit, hits.at(-1))) continue;
+    hits.push(hit);
+  }
+  return hits;
+}
+
+/**
  * Identifies the first intersection that can contribute to the rendered pixel.
  *
  * `Raycaster.intersectObjects()` is distance sorted in Three 0.185. The order is
@@ -132,38 +200,7 @@ function isTransparentLabelTexel(
 export function firstVisibleProbeHit(
   intersections: ReadonlyArray<Intersection<Object3D>>,
 ): VisibleProbeHit | null {
-  for (const intersection of intersections) {
-    if (!isVisibleInScene(intersection.object)) continue;
-    if (!isThreeMesh(intersection.object)) {
-      return {
-        objectName: intersection.object.name || undefined,
-        materialNames: [],
-        point: intersection.point.clone(),
-      };
-    }
-
-    const hit: Intersection<Mesh> = {
-      ...intersection,
-      object: intersection.object,
-    };
-    const material = hitMaterial(hit);
-    if (material === null) {
-      return {
-        objectName: hit.object.name || undefined,
-        materialNames: [],
-        point: hit.point.clone(),
-      };
-    }
-    if (!material.visible) continue;
-    if (material.transparent && material.opacity === 0) continue;
-    if (isTransparentLabelTexel(hit, material)) continue;
-    return {
-      objectName: hit.object.name || undefined,
-      materialNames: [material.name || undefined],
-      point: hit.point.clone(),
-    };
-  }
-  return null;
+  return visibleProbeHits(intersections)[0] ?? null;
 }
 
 function hitMatchesIdentity(
@@ -190,9 +227,9 @@ function hitMatchesIdentity(
 export function resolveProbeSurface(
   model: Object3D,
   target: ProbeHitIdentity,
-  x: number,
+  lateral: number,
   y: number,
-  face: "front" | "back",
+  face: ProbeFace,
   castDistance: number,
 ): ResolvedProbeSurface {
   if (!(castDistance > 0) || !Number.isFinite(castDistance)) {
@@ -200,12 +237,16 @@ export function resolveProbeSurface(
   }
   model.updateWorldMatrix(true, true);
   const origin = new Vector3(
-    x,
+    face === "right" ? castDistance : face === "left" ? -castDistance : lateral,
     y,
-    face === "front" ? castDistance : -castDistance,
+    face === "front" ? castDistance : face === "back" ? -castDistance : lateral,
   );
   model.localToWorld(origin);
-  const direction = new Vector3(0, 0, face === "front" ? -1 : 1)
+  const direction = new Vector3(
+    face === "right" ? -1 : face === "left" ? 1 : 0,
+    0,
+    face === "front" ? -1 : face === "back" ? 1 : 0,
+  )
     .transformDirection(model.matrixWorld)
     .normalize();
   const raycaster = new Raycaster(origin, direction, 0, castDistance * 2);
@@ -214,17 +255,19 @@ export function resolveProbeSurface(
     .find((hit) => hitMatchesIdentity(hit, target));
   if (intersection === undefined) {
     throw new Error(
-      `probe surface missed ${target.objectName}/${target.materialNames[0] ?? ""} at (${x}, ${y})`,
+      `probe surface missed ${target.objectName}/${target.materialNames[0] ?? ""} at (${lateral}, ${y}) on ${face}`,
     );
   }
   const worldPoint = intersection.point.clone();
   const localPoint = model.worldToLocal(worldPoint.clone());
+  const solvedLateral =
+    face === "front" || face === "back" ? localPoint.x : localPoint.z;
   if (
-    Math.abs(localPoint.x - x) > 1e-4 ||
+    Math.abs(solvedLateral - lateral) > 1e-4 ||
     Math.abs(localPoint.y - y) > 1e-4
   ) {
     throw new Error(
-      `probe surface drifted off its local cast: wanted (${x}, ${y}), got (${localPoint.x}, ${localPoint.y})`,
+      `probe surface drifted off its local cast: wanted (${lateral}, ${y}) on ${face}, got (${solvedLateral}, ${localPoint.y})`,
     );
   }
   return { worldPoint, localPoint };
@@ -236,17 +279,20 @@ export function resolveProbeSurface(
  * surface equation participates.
  */
 export function probeSurfaceIsCoherent(
-  intendedX: number,
+  intendedLateral: number,
   intendedY: number,
+  face: ProbeFace,
   solvedLocal: Vector3,
   visibleLocal: Vector3,
   pixelDrift: number,
 ): boolean {
+  const lateralAxis = face === "front" || face === "back" ? "x" : "z";
+  const depthAxis = face === "front" || face === "back" ? "z" : "x";
   return (
-    Math.abs(solvedLocal.x - intendedX) <= 1e-4 &&
+    Math.abs(solvedLocal[lateralAxis] - intendedLateral) <= 1e-4 &&
     Math.abs(solvedLocal.y - intendedY) <= 1e-4 &&
-    Math.abs(visibleLocal.x - intendedX) <= pixelDrift &&
+    Math.abs(visibleLocal[lateralAxis] - intendedLateral) <= pixelDrift &&
     Math.abs(visibleLocal.y - intendedY) <= pixelDrift &&
-    Math.abs(visibleLocal.z - solvedLocal.z) <= pixelDrift
+    Math.abs(visibleLocal[depthAxis] - solvedLocal[depthAxis]) <= pixelDrift
   );
 }
