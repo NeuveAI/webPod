@@ -56,6 +56,8 @@ export interface CompositeDeviceProps {
   readonly cameraDistance?: number
   readonly cameraSafePadding?: number
   readonly orientation?: DeviceOrientation
+  /** Explicit mounted-product seam for muting interaction SFX. */
+  readonly interactionAudioEnabled?: boolean
 }
 
 /**
@@ -73,6 +75,7 @@ export function CompositeDevice({
   cameraDistance,
   cameraSafePadding,
   orientation = FRONT_DEVICE_ORIENTATION,
+  interactionAudioEnabled = true,
 }: CompositeDeviceProps) {
   const canUseDom = typeof document !== 'undefined'
   const tier = useSyncExternalStore(
@@ -103,6 +106,7 @@ export function CompositeDevice({
       className={className}
       data-composite-tier={tier.tier}
       data-composite-ready={host !== null}
+      interactionAudioEnabled={interactionAudioEnabled}
     >
       {({ onArcStart, onArcMove, onArcEnd, onSelectStart, onSelectEnd }) => (
         <>
@@ -147,6 +151,7 @@ type CompositeInputBoundaryProps = {
   readonly 'data-composite-ready'?: boolean
   readonly createDependencies?: () => ClickWheelRuntimeDependencies
   readonly createAudioRuntime?: () => InteractionAudioRuntime
+  readonly interactionAudioEnabled?: boolean
 }
 
 /**
@@ -161,12 +166,17 @@ export function CompositeInputBoundary({
   'data-composite-ready': ready,
   createDependencies = defaultRuntimeDependencies,
   createAudioRuntime = defaultInteractionAudioRuntime,
+  interactionAudioEnabled = true,
 }: CompositeInputBoundaryProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const controller = useMemo(
     () => new CompositeInputController(createDependencies, createAudioRuntime),
     [createAudioRuntime, createDependencies],
   )
+
+  useEffect(() => {
+    controller.setInteractionAudioEnabled(interactionAudioEnabled)
+  }, [controller, interactionAudioEnabled])
 
   useEffect(() => {
     const root = rootRef.current
@@ -207,6 +217,8 @@ class CompositeInputController {
   private activeSelectPointerId: number | null = null
   private applicationFocus: HTMLElement | null = null
   private selection: ScopedGestureSelection | null = null
+  private audio: InteractionAudioRuntime | null = null
+  private interactionAudioEnabled = true
 
   readonly handlers: CompositeArcHandlers = {
     onArcStart: (sample) => {
@@ -252,6 +264,7 @@ class CompositeInputController {
     const runtimeDependencies = this.createDependencies()
     const runtime = createClickWheelRuntime(runtimeDependencies)
     const audio = this.createAudioRuntime()
+    audio.setEnabled(this.interactionAudioEnabled)
     const ownerWindow = root.ownerDocument.defaultView ?? window
     let audioAttached = true
     const detachAudio = attachInteractionAudioRuntime(audio, runtimeDependencies.store, {
@@ -266,6 +279,7 @@ class CompositeInputController {
     this.runtime = runtime
     this.store = runtimeDependencies.store
     this.selection = selection
+    this.audio = audio
     const detachWheel = attachCompositeWheelListener(root, runtime)
     return () => {
       audioAttached = false
@@ -279,7 +293,13 @@ class CompositeInputController {
       if (this.store === runtimeDependencies.store) this.store = null
       this.activeSelectPointerId = null
       if (this.selection === selection) this.selection = null
+      if (this.audio === audio) this.audio = null
     }
+  }
+
+  setInteractionAudioEnabled(enabled: boolean): void {
+    this.interactionAudioEnabled = enabled
+    this.audio?.setEnabled(enabled)
   }
 
   rememberApplicationFocus(target: HTMLElement, root: HTMLDivElement): void {

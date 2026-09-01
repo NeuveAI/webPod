@@ -252,6 +252,115 @@ describe('mounted composite input boundary', () => {
     expect(consumed).toHaveLength(1)
     expect(disposals).toBe(1)
   })
+
+  test('multiple mounted public boundaries consume one feedback sequence once', async () => {
+    const firstEnvironment = makeEnvironment()
+    const secondEnvironment = makeEnvironment()
+    const consumed: InteractionFeedbackEvent[] = []
+    const createAudio = (): InteractionAudioRuntime => ({
+      activate: async () => ({ status: 'running', reason: 'running' }),
+      consume(event) {
+        consumed.push(event)
+        return {
+          status: 'scheduled',
+          reason: 'scheduled',
+          requested: event.clickerTicks,
+          scheduled: event.clickerTicks,
+          dropped: 0,
+        }
+      },
+      setEnabled() {},
+      interrupt: async () => undefined,
+      snapshot: () => ({
+        lifecycle: 'running',
+        enabled: true,
+        activeVoices: 0,
+        pendingEvents: 0,
+        scheduledTotal: consumed.length,
+        droppedTotal: 0,
+        lastResult: null,
+      }),
+      dispose() {},
+    })
+
+    await act(async () => {
+      root.render(
+        <>
+          <CompositeInputBoundary
+            createDependencies={() => firstEnvironment.dependencies}
+            createAudioRuntime={createAudio}
+          >
+            {() => <div>First device</div>}
+          </CompositeInputBoundary>
+          <CompositeInputBoundary
+            createDependencies={() => secondEnvironment.dependencies}
+            createAudioRuntime={createAudio}
+          >
+            {() => <div>Second device</div>}
+          </CompositeInputBoundary>
+        </>,
+      )
+    })
+
+    deviceStore.set(pressActionAtom, { button: 'center', source: 'human' })
+
+    expect(consumed).toHaveLength(1)
+  })
+
+  test('the mounted mute prop reaches the runtime without constructing settings UI', async () => {
+    const environment = makeEnvironment()
+    const enabledValues: boolean[] = []
+    const audio: InteractionAudioRuntime = {
+      activate: async () => ({ status: 'running', reason: 'running' }),
+      consume: () => ({
+        status: 'silent',
+        reason: 'disabled',
+        requested: 1,
+        scheduled: 0,
+        dropped: 1,
+      }),
+      setEnabled(enabled) {
+        enabledValues.push(enabled)
+      },
+      interrupt: async () => undefined,
+      snapshot: () => ({
+        lifecycle: 'locked',
+        enabled: enabledValues.at(-1) ?? true,
+        activeVoices: 0,
+        pendingEvents: 0,
+        scheduledTotal: 0,
+        droppedTotal: 0,
+        lastResult: null,
+      }),
+      dispose() {},
+    }
+
+    await act(async () => {
+      root.render(
+        <CompositeInputBoundary
+          interactionAudioEnabled={false}
+          createDependencies={() => environment.dependencies}
+          createAudioRuntime={() => audio}
+        >
+          {() => <div>Muted device</div>}
+        </CompositeInputBoundary>,
+      )
+    })
+    expect(enabledValues).toEqual([false])
+
+    await act(async () => {
+      root.render(
+        <CompositeInputBoundary
+          interactionAudioEnabled
+          createDependencies={() => environment.dependencies}
+          createAudioRuntime={() => audio}
+        >
+          {() => <div>Unmuted device</div>}
+        </CompositeInputBoundary>,
+      )
+    })
+    expect(enabledValues).toEqual([false, true])
+  })
 })
 
 class FakeTarget implements RuntimeEventTarget {
