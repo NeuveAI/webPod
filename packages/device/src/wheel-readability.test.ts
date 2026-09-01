@@ -1,18 +1,22 @@
 import { describe, expect, test } from "bun:test";
-import { Vector3 } from "three";
+import { ShaderChunk, Vector3 } from "three";
 
 import {
   CONTROL_TRAVEL,
+  WHEEL_CONTACT_FOOTPRINT_MM,
   WHEEL_REST_NORMAL_ATTRIBUTE,
   type WheelReadabilitySample,
 } from "./control-physics";
 import { DEVICE_LAYOUT, PX_PER_MM } from "./layout";
 import {
+  assertWheelGrazingShaderStructure,
+  createWheelGrazingMaterial,
   patchWheelGrazingShader,
   WHEEL_GRAZING_RESPONSE,
   WheelGrazingResponse,
   wheelGrazingPose,
 } from "./wheel-readability";
+import { DEFAULT_WHEEL_COLOURWAYS } from "./materials";
 
 const { wheel } = DEVICE_LAYOUT;
 
@@ -47,14 +51,14 @@ function numberUniform(
 describe("wheel contact grazing readability", () => {
   test("the bounded calibration is explicit and does not increase travel", () => {
     expect(WHEEL_GRAZING_RESPONSE).toEqual({
-      tangentOffsetMm: 4,
-      surfaceLiftMm: 5,
+      tangentOffsetMm: 8,
+      surfaceLiftMm: 1.5,
       rangeMm: 12,
-      innerConeDeg: 20,
-      outerConeDeg: 42,
+      innerConeDeg: 8,
+      outerConeDeg: 18,
       normalSlopeStartDeg: 0.65,
       normalSlopeFullDeg: 0.9,
-      peakLinearIrradiance: 0.06,
+      peakLinearIrradiance: 40,
       color: "#FFFFFF",
     });
     expect(CONTROL_TRAVEL.wheelMm).toBe(0.08);
@@ -90,12 +94,19 @@ describe("wheel contact grazing readability", () => {
         ) *
           180) /
         Math.PI;
+      const outerConeRadiusMm =
+        Math.tan(
+          (WHEEL_GRAZING_RESPONSE.outerConeDeg * Math.PI) / 180,
+        ) * expectedDistanceMm;
 
       expect(source.distanceTo(point) / PX_PER_MM).toBeCloseTo(
         expectedDistanceMm,
         8,
       );
-      expect(grazingAngleDeg).toBeLessThan(55);
+      expect(grazingAngleDeg).toBeLessThan(15);
+      expect(outerConeRadiusMm).toBeLessThan(
+        WHEEL_CONTACT_FOOTPRINT_MM.radial,
+      );
       expect(direction.dot(point.clone().sub(source).normalize())).toBeCloseTo(
         1,
         8,
@@ -117,7 +128,7 @@ describe("wheel contact grazing readability", () => {
     expect(overdriven.irradiance).toBe(
       WHEEL_GRAZING_RESPONSE.peakLinearIrradiance,
     );
-    expect(overdriven.irradiance).toBeLessThan(0.1);
+    expect(overdriven.irradiance).toBeLessThanOrEqual(40);
     expect(rest.range).toBe(WHEEL_GRAZING_RESPONSE.rangeMm * PX_PER_MM);
     expect(rest.innerConeCos).toBeGreaterThan(rest.outerConeCos);
     expect(WHEEL_GRAZING_RESPONSE.outerConeDeg).toBeLessThan(45);
@@ -125,14 +136,15 @@ describe("wheel contact grazing readability", () => {
     expect(WHEEL_GRAZING_RESPONSE.normalSlopeFullDeg).toBeLessThan(1);
   });
 
-  test("the wheel-only shader is slope-gated specular with no diffuse blob path", () => {
+  test("every optical output is spatially gated and material-BRDF evaluated", () => {
     const uniforms: Record<string, { value: unknown }> = {};
+    const baselineFragmentShader =
+      "#include <common>\nvoid main() {\n#include <lights_fragment_begin>\n}";
     const shader = {
       uniforms,
       vertexShader:
         "#include <common>\nvoid main() {\n#include <project_vertex>\n}",
-      fragmentShader:
-        "#include <common>\nvoid main() {\n#include <lights_fragment_begin>\n}",
+      fragmentShader: baselineFragmentShader,
     };
     const response = new WheelGrazingResponse();
     response.install(shader);
@@ -151,7 +163,10 @@ describe("wheel contact grazing readability", () => {
     expect(shader.fragmentShader).not.toContain("RE_Direct(");
     expect(shader.fragmentShader).not.toContain("directDiffuse");
     expect(shader.fragmentShader).toContain(
-      "reflectedLight.directSpecular += webpodWheelEdgeSpecular;",
+      "reflectedLight.directSpecular += webpodWheelIncidentIrradiance * BRDF_GGX_Multiscatter( webpodWheelLightDirection, geometryViewDir, geometryNormal, material );",
+    );
+    expect(shader.fragmentShader).toContain(
+      "clearcoatSpecularDirect += webpodWheelClearcoatIrradiance * BRDF_GGX_Clearcoat( webpodWheelLightDirection, geometryViewDir, geometryClearcoatNormal, material );",
     );
     // Load-bearing against the reviewer's exact broad-front-light plant: a
     // plain geometryNormal term no longer satisfies this assertion.
@@ -159,6 +174,15 @@ describe("wheel contact grazing readability", () => {
       "length( geometryNormal - webpodWheelRestNormal )",
     );
     expect(shader.fragmentShader).toContain("webpodWheelNormalRim");
+    expect(shader.fragmentShader).toContain(
+      "webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim",
+    );
+    expect(() =>
+      assertWheelGrazingShaderStructure(
+        shader.fragmentShader,
+        baselineFragmentShader,
+      ),
+    ).not.toThrow();
     expect(shader.fragmentShader).not.toMatch(
       /cameraPosition|vUv|webpod.*(?:Time|Random)|frontFacing/i,
     );
@@ -166,6 +190,97 @@ describe("wheel contact grazing readability", () => {
     expect(shader.vertexShader).toContain(
       `attribute vec3 ${WHEEL_REST_NORMAL_ATTRIBUTE}`,
     );
+  });
+
+  test("fails closed on any raw or incompletely-gated optical addition", () => {
+    const baselineFragmentShader =
+      "#include <common>\nvoid main() {\n#include <lights_fragment_begin>\n}";
+    const shader = {
+      uniforms: {},
+      vertexShader:
+        "#include <common>\nvoid main() {\n#include <project_vertex>\n}",
+      fragmentShader: baselineFragmentShader,
+    };
+    patchWheelGrazingShader(shader);
+
+    const plants = [
+      shader.fragmentShader.replace(
+        "// webpod-wheel-material-specular-end",
+        "reflectedLight.directSpecular += webpodWheelGrazingColor * webpodWheelGrazingIrradiance;\n// webpod-wheel-material-specular-end",
+      ),
+      shader.fragmentShader.replace(
+        "webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim",
+        "webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim",
+      ),
+      shader.fragmentShader.replace(
+        "webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim",
+        "webpodWheelCone * webpodWheelNormalRim",
+      ),
+      shader.fragmentShader.replace(
+        "webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim",
+        "webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow",
+      ),
+      shader.fragmentShader.replace(
+        " * BRDF_GGX_Multiscatter( webpodWheelLightDirection, geometryViewDir, geometryNormal, material )",
+        "",
+      ),
+      shader.fragmentShader.replace(
+        " * BRDF_GGX_Clearcoat( webpodWheelLightDirection, geometryViewDir, geometryClearcoatNormal, material )",
+        "",
+      ),
+      shader.fragmentShader.replace(
+        "float webpodWheelDotNL = saturate( dot( geometryNormal, webpodWheelLightDirection ) );",
+        "float webpodWheelDotNL = 1.0;",
+      ),
+      shader.fragmentShader.replace(
+        "float webpodWheelDotNLcc = saturate( dot( geometryClearcoatNormal, webpodWheelLightDirection ) );",
+        "float webpodWheelDotNLcc = 1.0;",
+      ),
+      shader.fragmentShader.replace(
+        "// webpod-wheel-material-specular-end",
+        "totalEmissiveRadiance += webpodWheelGrazingColor;\n// webpod-wheel-material-specular-end",
+      ),
+    ];
+
+    for (const plant of plants) {
+      expect(() =>
+        assertWheelGrazingShaderStructure(plant, baselineFragmentShader),
+      ).toThrow(
+        "wheel grazing response must be fully gated and material-BRDF evaluated",
+      );
+    }
+  });
+
+  test("black and white evaluate through their distinct physical finishes", () => {
+    const black = createWheelGrazingMaterial(
+      DEFAULT_WHEEL_COLOURWAYS.black.ring,
+      null,
+      new WheelGrazingResponse(),
+    );
+    const white = createWheelGrazingMaterial(
+      DEFAULT_WHEEL_COLOURWAYS.white.ring,
+      null,
+      new WheelGrazingResponse(),
+    );
+
+    expect(black.roughness).toBe(0.44);
+    expect(white.roughness).toBe(0.8);
+    expect(black.clearcoat).toBe(0.08);
+    expect(white.clearcoat).toBe(0.035);
+    expect(black.roughness).not.toBe(white.roughness);
+    expect(black.clearcoat).not.toBe(white.clearcoat);
+    expect(ShaderChunk.lights_physical_pars_fragment).toContain(
+      "vec3 BRDF_GGX_Multiscatter",
+    );
+    expect(ShaderChunk.lights_physical_pars_fragment).toContain(
+      "vec3 singleScatter = BRDF_GGX( lightDir, viewDir, normal, material );",
+    );
+    expect(ShaderChunk.lights_physical_pars_fragment).toContain(
+      "float roughness = material.roughness;",
+    );
+
+    black.dispose();
+    white.dispose();
   });
 
   test("fails closed if Three removes either physical shader seam", () => {

@@ -18,21 +18,21 @@ import {
  * Contact-local grazing response, in physical units where possible.
  *
  * This is a restrained contact-local product-light card, not extra control
- * travel. It adds a bounded edge return to Three's direct-specular accumulator
- * only where the real displaced normals turn away from the contact-centre
- * normal. It cannot contribute Lambert diffuse, and the slope gate prevents
- * an ordinary front light or flat spotlight disc on plastic. Other meshes
- * cannot receive this term, and zero rest intensity removes it.
+ * travel. Its bounded incident energy is evaluated by Three's physical GGX
+ * and clearcoat BRDFs only where the real displaced normals turn away from the
+ * contact-centre normal. It cannot contribute Lambert diffuse, and the slope
+ * gate prevents an ordinary front light or flat spotlight disc on plastic.
+ * Other meshes cannot receive this term, and zero rest intensity removes it.
  */
 export const WHEEL_GRAZING_RESPONSE = Object.freeze({
-  tangentOffsetMm: 4,
-  surfaceLiftMm: 5,
+  tangentOffsetMm: 8,
+  surfaceLiftMm: 1.5,
   rangeMm: 12,
-  innerConeDeg: 20,
-  outerConeDeg: 42,
+  innerConeDeg: 8,
+  outerConeDeg: 18,
   normalSlopeStartDeg: 0.65,
   normalSlopeFullDeg: 0.9,
-  peakLinearIrradiance: 0.06,
+  peakLinearIrradiance: 40,
   color: "#FFFFFF",
 });
 
@@ -125,7 +125,11 @@ varying vec3 webpodWheelGrazingPositionView;
 varying vec3 webpodWheelGrazingDirectionView;
 varying vec3 webpodWheelRestNormalView;`;
 
+const SPECULAR_BLOCK_BEGIN = "// webpod-wheel-material-specular-begin";
+const SPECULAR_BLOCK_END = "// webpod-wheel-material-specular-end";
+
 const FRAGMENT_LIGHT = `#include <lights_fragment_begin>
+${SPECULAR_BLOCK_BEGIN}
 #if defined( RE_Direct )
   if ( webpodWheelGrazingIrradiance > 0.0 ) {
     vec3 webpodWheelToLight = webpodWheelGrazingPositionView - geometryPosition;
@@ -137,10 +141,87 @@ const FRAGMENT_LIGHT = `#include <lights_fragment_begin>
     vec3 webpodWheelRestNormal = normalize( webpodWheelRestNormalView );
     float webpodWheelPhysicalSlope = length( geometryNormal - webpodWheelRestNormal );
     float webpodWheelNormalRim = smoothstep( webpodWheelGrazingSlopeStart, webpodWheelGrazingSlopeFull, webpodWheelPhysicalSlope );
-    vec3 webpodWheelEdgeSpecular = webpodWheelGrazingColor * webpodWheelGrazingIrradiance * webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim;
-    reflectedLight.directSpecular += webpodWheelEdgeSpecular;
+    float webpodWheelOpticalGate = webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim;
+    float webpodWheelDotNL = saturate( dot( geometryNormal, webpodWheelLightDirection ) );
+    vec3 webpodWheelIncidentIrradiance = webpodWheelGrazingColor * webpodWheelGrazingIrradiance * webpodWheelOpticalGate * webpodWheelDotNL;
+    reflectedLight.directSpecular += webpodWheelIncidentIrradiance * BRDF_GGX_Multiscatter( webpodWheelLightDirection, geometryViewDir, geometryNormal, material );
+    #ifdef USE_CLEARCOAT
+      float webpodWheelDotNLcc = saturate( dot( geometryClearcoatNormal, webpodWheelLightDirection ) );
+      vec3 webpodWheelClearcoatIrradiance = webpodWheelGrazingColor * webpodWheelGrazingIrradiance * webpodWheelOpticalGate * webpodWheelDotNLcc;
+      clearcoatSpecularDirect += webpodWheelClearcoatIrradiance * BRDF_GGX_Clearcoat( webpodWheelLightDirection, geometryViewDir, geometryClearcoatNormal, material );
+    #endif
   }
-#endif`;
+#endif
+${SPECULAR_BLOCK_END}`;
+
+const REQUIRED_SPECULAR_STATEMENTS = Object.freeze([
+  "float webpodWheelOpticalGate = webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim;",
+  "float webpodWheelDotNL = saturate( dot( geometryNormal, webpodWheelLightDirection ) );",
+  "vec3 webpodWheelIncidentIrradiance = webpodWheelGrazingColor * webpodWheelGrazingIrradiance * webpodWheelOpticalGate * webpodWheelDotNL;",
+  "reflectedLight.directSpecular += webpodWheelIncidentIrradiance * BRDF_GGX_Multiscatter( webpodWheelLightDirection, geometryViewDir, geometryNormal, material );",
+  "float webpodWheelDotNLcc = saturate( dot( geometryClearcoatNormal, webpodWheelLightDirection ) );",
+  "vec3 webpodWheelClearcoatIrradiance = webpodWheelGrazingColor * webpodWheelGrazingIrradiance * webpodWheelOpticalGate * webpodWheelDotNLcc;",
+  "clearcoatSpecularDirect += webpodWheelClearcoatIrradiance * BRDF_GGX_Clearcoat( webpodWheelLightDirection, geometryViewDir, geometryClearcoatNormal, material );",
+]);
+
+function occurrences(source: string, needle: string): number {
+  return source.split(needle).length - 1;
+}
+
+function opticalOutputWrites(source: string): readonly string[] {
+  return source.match(
+    /(?:reflectedLight\.[A-Za-z]+|[A-Za-z][A-Za-z0-9]*(?:Specular(?:Direct|Indirect)|Radiance)|outgoingLight)\s*(?:\+=|=)/g,
+  ) ?? [];
+}
+
+/**
+ * Fail closed if the wheel response can bypass its spatial gates or Three's
+ * material BRDF. The baseline comparison also rejects an added accumulator
+ * write outside the marked block, which a substring-presence test would miss.
+ */
+export function assertWheelGrazingShaderStructure(
+  fragmentShader: string,
+  baselineFragmentShader: string,
+): void {
+  const begin = fragmentShader.indexOf(SPECULAR_BLOCK_BEGIN);
+  const end = fragmentShader.indexOf(SPECULAR_BLOCK_END);
+  const hasOneBlock =
+    begin >= 0 &&
+    end > begin &&
+    occurrences(fragmentShader, SPECULAR_BLOCK_BEGIN) === 1 &&
+    occurrences(fragmentShader, SPECULAR_BLOCK_END) === 1;
+  if (!hasOneBlock) {
+    throw new Error("wheel grazing material block is missing or ambiguous");
+  }
+
+  const block = fragmentShader.slice(
+    begin,
+    end + SPECULAR_BLOCK_END.length,
+  );
+  const requiredStatementsAreExact = REQUIRED_SPECULAR_STATEMENTS.every(
+    (statement) => occurrences(block, statement) === 1,
+  );
+  const customWrites = opticalOutputWrites(block);
+  const baselineWriteCount = opticalOutputWrites(baselineFragmentShader).length;
+  const patchedWriteCount = opticalOutputWrites(fragmentShader).length;
+  const writesAreExhaustive =
+    customWrites.length === 2 &&
+    customWrites[0] === "reflectedLight.directSpecular +=" &&
+    customWrites[1] === "clearcoatSpecularDirect +=" &&
+    patchedWriteCount === baselineWriteCount + customWrites.length;
+  const hasForbiddenEnergyPath =
+    /directDiffuse|BRDF_Lambert|RE_Direct\s*\(/.test(block);
+
+  if (
+    !requiredStatementsAreExact ||
+    !writesAreExhaustive ||
+    hasForbiddenEnergyPath
+  ) {
+    throw new Error(
+      "wheel grazing response must be fully gated and material-BRDF evaluated",
+    );
+  }
+}
 
 /** Install the wheel-only direct-light term into Three's physical pipeline. */
 export function patchWheelGrazingShader(shader: CompilableShader): void {
@@ -162,6 +243,7 @@ export function patchWheelGrazingShader(shader: CompilableShader): void {
   shader.fragmentShader = originalFragment
     .replace("#include <common>", FRAGMENT_COMMON)
     .replace("#include <lights_fragment_begin>", FRAGMENT_LIGHT);
+  assertWheelGrazingShaderStructure(shader.fragmentShader, originalFragment);
   if (
     !shader.vertexShader.includes("webpodWheelGrazingPositionView") ||
     !shader.fragmentShader.includes("webpodWheelNormalRim")
@@ -237,6 +319,6 @@ export function createWheelGrazingMaterial(
     response.install(shader);
   };
   material.customProgramCacheKey = () =>
-    `${baseCacheKey}|webpod-wheel-grazing-v3`;
+    `${baseCacheKey}|webpod-wheel-grazing-v4`;
   return material;
 }
