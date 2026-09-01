@@ -1,5 +1,5 @@
 import type { ThreeEvent } from "@react-three/fiber";
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useMemo, useRef } from "react";
 import {
   Mesh,
   Plane,
@@ -9,7 +9,11 @@ import {
 
 import { DEVICE_LAYOUT } from "./layout";
 import { DeviceCanvasOrientationContext } from "./DeviceCanvas";
-import { DEFAULT_FRONT_ASSEMBLY_DEPTHS } from "./front-surface";
+import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
+import {
+  DEFAULT_FRONT_ASSEMBLY_DEPTHS,
+  resolveFrontAssemblyDepths,
+} from "./front-surface";
 
 export type ClickWheelPointerType = "mouse" | "touch" | "pen";
 
@@ -51,6 +55,17 @@ export const CLICK_WHEEL_INPUT_POSITION = Object.freeze([
   DEVICE_LAYOUT.wheel.centerY,
   DEFAULT_FRONT_ASSEMBLY_DEPTHS.clickWheelInputZ,
 ] as const);
+
+/** Resolve the ray plane from the same injectable solid form as the wheel. */
+export function clickWheelInputPosition(
+  form: DeviceFormParams = DEFAULT_DEVICE_FORM,
+): readonly [number, number, number] {
+  return [
+    DEVICE_LAYOUT.wheel.centerX,
+    DEVICE_LAYOUT.wheel.centerY,
+    resolveFrontAssemblyDepths(form).clickWheelInputZ,
+  ];
+}
 
 type CaptureApi = {
   readonly hasPointerCapture: (pointerId: number) => boolean;
@@ -211,6 +226,10 @@ export function ClickWheelInputSurface({
   onArcEnd,
 }: ClickWheelInputSurfaceProps) {
   const orientationState = useContext(DeviceCanvasOrientationContext);
+  const inputPosition = useMemo(
+    () => clickWheelInputPosition(orientationState.form),
+    [orientationState.form],
+  );
   const meshRef = useRef<Mesh>(null);
   const captureSlotRef = useRef<ClickWheelCaptureSlot>(
     createClickWheelCaptureSlot(),
@@ -368,7 +387,7 @@ export function ClickWheelInputSurface({
     <mesh
       ref={meshRef}
       name="click-wheel-input"
-      position={CLICK_WHEEL_INPUT_POSITION}
+      position={inputPosition}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}

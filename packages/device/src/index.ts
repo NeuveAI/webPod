@@ -76,6 +76,7 @@ export {
   CLICK_WHEEL_INPUT_RADII,
   ClickWheelInputSurface,
   acceptsClickWheelPointer,
+  clickWheelInputPosition,
   clockwiseWheelAngleDeg,
   shortestWheelDeltaDeg,
   wheelAngleFromRay,

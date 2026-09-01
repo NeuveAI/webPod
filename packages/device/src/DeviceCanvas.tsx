@@ -33,6 +33,7 @@ import {
 import { applyDeviceRendererDefaults } from "./renderer-defaults";
 import { StudioEnvironment, type StudioEnvironmentProps } from "./StudioEnvironment";
 import { DEVICE_MODEL_NAME } from "./ViewerLitDeviceFrame";
+import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import {
   FRONT_DEVICE_ORIENTATION,
   deviceScreenIsInteractable,
@@ -88,6 +89,8 @@ export type DeviceCanvasOrientationState = {
   readonly orientation: DeviceOrientation;
   readonly visibleFace: DeviceVisibleFace;
   readonly frontInteractive: boolean;
+  /** The same injected solid-form contract consumed by visible front meshes. */
+  readonly form: DeviceFormParams;
 };
 
 const DEFAULT_CANVAS_ORIENTATION_STATE: DeviceCanvasOrientationState =
@@ -95,6 +98,7 @@ const DEFAULT_CANVAS_ORIENTATION_STATE: DeviceCanvasOrientationState =
     orientation: FRONT_DEVICE_ORIENTATION,
     visibleFace: "front",
     frontInteractive: true,
+    form: DEFAULT_DEVICE_FORM,
   });
 
 /** Resolved pose state, consumed by front-only scene interactions. */
@@ -120,8 +124,9 @@ export function DeviceCanvas({
       orientation,
       visibleFace: resolveDeviceVisibleFace(orientation),
       frontInteractive: deviceScreenIsInteractable(orientation),
+      form: device.form ?? DEFAULT_DEVICE_FORM,
     }),
-    [orientation],
+    [device.form, orientation],
   );
   const initialDistance = cameraDistance ?? DEFAULT_CAMERA_DISTANCE;
   return (

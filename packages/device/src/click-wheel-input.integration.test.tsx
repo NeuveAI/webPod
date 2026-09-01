@@ -21,6 +21,11 @@ import {
 } from "./orientation";
 import { DeviceCanvasOrientationContext } from "./DeviceCanvas";
 import { DEVICE_LAYOUT } from "./layout";
+import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
+import {
+  DEFAULT_FRONT_ASSEMBLY_DEPTHS,
+  resolveFrontAssemblyDepths,
+} from "./front-surface";
 
 const WIDTH = DEVICE_LAYOUT.body.width;
 const HEIGHT = DEVICE_LAYOUT.body.height;
@@ -64,6 +69,7 @@ function installAnimationFrameStub(): () => void {
 async function mountSurface(
   face: "front" | "back" = "front",
   plants: CallbackPlants = {},
+  form: DeviceFormParams = DEFAULT_DEVICE_FORM,
 ): Promise<MountedSurface> {
   const canvas = document.createElement("canvas");
   const camera = new THREE.OrthographicCamera(
@@ -104,6 +110,7 @@ async function mountSurface(
             face === "back" ? REAR_DEVICE_ORIENTATION : FRONT_DEVICE_ORIENTATION,
           visibleFace: face,
           frontInteractive: face === "front",
+          form,
         }}
       >
         <ClickWheelInputSurface
@@ -208,6 +215,37 @@ async function unmount(mounted: MountedSurface): Promise<void> {
 }
 
 describe("click-wheel mounted R3F event seam", () => {
+  test("an injected form moves the mounted ray plane with the visible wheel", async () => {
+    const plantedForm = {
+      ...DEFAULT_DEVICE_FORM,
+      bodyCrown: 6.2,
+      bodyCrossCrown: 6.2,
+    };
+    expect(plantedForm.bodyCrown).toBe(6.2);
+    expect(plantedForm.bodyCrossCrown).toBe(6.2);
+    const mounted = await mountSurface("front", {}, plantedForm);
+    try {
+      const input = mounted.store
+        .getState()
+        .scene.getObjectByName("click-wheel-input");
+      const depths = resolveFrontAssemblyDepths(plantedForm);
+      expect(input).toBeDefined();
+      expect(input?.position.z).toBeCloseTo(depths.clickWheelInputZ, 12);
+      expect(input?.position.z).toBeCloseTo(
+        depths.ringZ + depths.ringSag + 0.25,
+        12,
+      );
+      expect(
+        Math.abs(
+          depths.clickWheelInputZ -
+            DEFAULT_FRONT_ASSEMBLY_DEPTHS.clickWheelInputZ,
+        ),
+      ).toBeGreaterThan(5);
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
   test("routes captured down, outside move and up through production handlers", async () => {
     const mounted = await mountSurface();
     const pointerId = 31;
