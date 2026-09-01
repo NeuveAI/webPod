@@ -11,7 +11,7 @@ recorded in `verification.txt`.
 | C | Select color collapsed into the wheel color `#F6F2E9 → #D5DADD` | same | **red:** 1 failed, 5 passed; warm-channel relation received `-8` instead of `>= 10` |
 | D | Wheel-well floor restored to dark/cool `#D9E1E9` at albedo `0.6214` | same | **red:** 1 failed, 5 passed; seam-floor albedo fell below wheel albedo `0.7` |
 
-The existing geometry plants remain applicable: a `4.25`-unit wheel inset, a
-flush Select, or a widened Select opening fail `front-surface.test.ts` and
-`layout.test.ts`. The owner photographs independently confirm those existing
-near-coplanar bounds, so this pass did not invent a new metric depth.
+This file records the colorway pass at that point in history. Its geometry
+sentence was superseded by the owner's later binding flush-topology correction;
+the current six geometry/material plants are recorded in
+[`flush-correction/mutation-proof.md`](./flush-correction/mutation-proof.md).

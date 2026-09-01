@@ -606,3 +606,34 @@ not supply calibrated millimetre depth, so wheel inset `1` and Select recess
 `0.5` remain explicitly model-space visual bounds rather than being retuned to
 invented precision. Exact depth still requires a stationary near-orthographic
 macro containing faceplate, wheel and Select with a common in-plane scale.
+
+## VD-48 · The wheel assembly is one flush crowned surface, not nested pockets
+
+The owner's direct inspection of their known OEM 5G settles the visual target
+more strongly than the earlier ordering inferred from hand-held obliques:
+faceplate, click wheel and Select read as coplanar. This supersedes VD-45 and
+VD-47 only where they preserve a `1`-unit wheel inset and `0.5`-unit Select
+recess. Those values were unsupported visual bounds and manufactured the exact
+dark rings the owner rejected.
+
+The failure was geometric, not a lighting artifact. Production combined a
+dished annulus, an open-ended wheel-well cylinder, a closed Select cylinder and
+separate axial offsets. The resulting trench and wall remained visible under
+neutral, key-only, fill-only and combined light because the renderer was
+correctly shading topology that should not exist. No AO map, cast shadow,
+receive shadow or lighting parameter caused the rings.
+
+Wheel and Select are now zero-wall surface patches sampled from the same
+analytic crown and normal functions as the polycarbonate faceplate. Both top
+surface deltas are exactly zero. The front shell retains a physical opening;
+the wheel leaves a `0.5`-unit (`0.094mm`) outer radial seam and Select leaves a
+`1`-unit (`0.187mm`) radial seam. One zero-wall floor sits `0.05` model unit
+(`0.009mm`) behind those openings solely to resolve the empty hairlines. It is
+not a pocket and creates no projected wall at the 40° reference oblique.
+
+Owner originals `IMG_2239`, `2240`, `2242`, `2243`, `2248` and `2249` are the
+primary comparison set. The acceptance millimetres are model tolerances, not
+claims of Apple machining dimensions. Black and white keep independently
+calibrated plastics; Select is matte dielectric in both. The light rig is
+unchanged. The required board and eight-pass light matrix are stored under
+`evidence/w8-wheel-correction/owner-primary/flush-correction/`.

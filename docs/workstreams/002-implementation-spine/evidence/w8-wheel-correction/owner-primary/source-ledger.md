@@ -53,21 +53,24 @@ alone. They support these ranges:
   for perspective and trim, bounding rather than replacing the model's `4.35%`;
 - visible wheel seam: hairline, under roughly `1%` of wheel diameter;
 - visible Select seam: hairline, approximately `1–2%` of Select diameter;
-- axial ordering in `IMG_2242`: faceplate proud of wheel, wheel proud of
-  Select, with both offsets smaller than their radial seams.
+- `IMG_2242` bounds any apparent axial ordering below the radial seams. The
+  owner's subsequent direct correction settles the installed visual target as
+  coplanar; see [`flush-correction/source-record.md`](./flush-correction/source-record.md).
 
 The owner set independently confirms the current body, screen, wheel and Select
 ratios. This correction does not rescale those parts; it corrects white material
-relationships and tightens the already bounded near-coplanar assembly.
+relationships. The later flush-topology correction supersedes the earlier
+`1`/`0.5` model-space depth interpretation without changing these ratios.
 
 ## Remaining uncertainty / requested missing shot
 
-The nine angles establish relative ordering but do not calibrate absolute
-faceplate→wheel or wheel→Select depth in millimetres. To claim either as an OEM
-dimension, the missing source is a stationary, near-orthographic macro edge
-photograph containing faceplate, wheel edge and Select edge together, with a
-ruler or feeler gauge in the same focal plane. Until then, model depth values are
-explicitly visual bounds inside the observed hairline-seam envelope.
+The nine angles do not calibrate Apple machining depth in millimetres. The
+owner's direct correction nevertheless settles the rendering requirement:
+faceplate, wheel and Select must look flush, with no exposed wall. The model
+uses exact top-surface coincidence plus explicit maximum tolerances and makes
+no claim that those tolerances are factory dimensions. A stationary,
+near-orthographic macro edge photograph with a ruler or feeler gauge in the
+same focal plane would still be required for a machining claim.
 
 ## Derived evidence
 

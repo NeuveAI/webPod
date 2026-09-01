@@ -1,0 +1,65 @@
+Flush click-wheel topology correction — final verification
+Date: 2026-09-01 Europe/Stockholm
+
+STRUCTURAL RESULT
+- faceplate -> wheel top-surface delta: 0
+- wheel -> Select top-surface delta: 0
+- wheel outer seam: 0.5 model unit = 0.094mm
+- Select seam: 1 model unit = 0.187mm
+- seam-floor offset: 0.05 model unit = 0.009mm
+- wheel / Select projected wall at 40deg: 0
+- no wheel-well cylinder, Select cylinder, annular bevel, AO proxy,
+  castShadow or receiveShadow path
+- no lighting implementation file changed
+
+SOURCE / BROWSER
+- owner primary originals compared: IMG_2239, IMG_2240, IMG_2242,
+  IMG_2243, IMG_2248, IMG_2249
+- reference-failure-corrected.png: 2160 x 3040 delivery PNG
+- lighting-macro-matrix.png: 2400 x 1400 delivery PNG
+- black and white neutral/key-only/fill-only/combined macros captured
+- black and white production obliques captured
+- GET http://localhost:3000/_spike/device: 200
+
+SCOPED
+$ bun run --cwd packages/device typecheck
+PASS
+
+$ bunx --bun eslint packages/device/src packages/device/calibration
+PASS
+
+$ bun test packages/device/src
+168 pass, 0 fail, 62,005 expect() calls across 24 files
+
+REPOSITORY
+$ bun run typecheck
+11/11 projects clean
+
+$ bun run lint
+PASS
+
+$ bun test
+1,036 pass, 0 fail, 66,029 expect() calls across 62 files
+
+$ bun run build
+client: 230 modules, success
+server: 389 modules, success
+existing non-failing warning: client chunk above 500kB
+
+$ bun run gates
+16 automated passed, 0 automated failed
+manual U14 and U15 remain owner/reviewer checks
+
+MUTATIONS
+- axial wheel pocket: red, 2 failures
+- Select surface offset: red, structural source gate
+- broad outer seam: red, 2 failures
+- Select cylinder: red, structural source gate
+- metallic white Select: red, 3 failures
+- deep gap floor: red, 2 failures
+- production source restored after every plant
+
+DIFF HYGIENE
+- scoped git diff --check: PASS
+- evidence records acceptance tolerances as model bounds, not unsupported
+  Apple machining dimensions

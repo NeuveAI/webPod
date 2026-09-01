@@ -458,3 +458,30 @@ top, bottom and rear-quarter captures were also rechecked so the white material
 correction could not hide the continuous shell handoff or stamped rear roll.
 Four new mutation plants restore the cool shell, dark ink, collapsed Select
 color or painted-dark seam floor; each fails the owner-primary test.
+
+## Tuesday, September 1, 2026 — flush wheel topology correction
+
+The owner's latest correction made the remaining mismatch unambiguous: the
+wheel assembly must read as one flush surface, not as three shallow levels. I
+traced every dark ring before touching material values. The outer moat came
+from the wheel axial inset plus an open-ended cylindrical well. The Select ring
+came from its offset, cylindrical sidewall and the annulus dish. There was no
+AO map, wheel cast shadow, receive shadow or light-rig special case to remove.
+
+I deleted the depth knobs from the form and calibration rig and removed the
+wheel/Select cylinders and dished-annulus helper. A new zero-wall patch builder
+samples the exact faceplate crown and its analytic normal at every vertex. The
+wheel and Select now have zero top-plane delta and zero coincident wall height.
+Their only separation is a 0.094mm outer hairline and 0.187mm Select hairline,
+with one zero-wall floor 0.009mm behind the openings to avoid showing through
+to the empty scene. The interaction plane stays globally in front of the
+crowned shell and HTML-in-canvas mapping did not move.
+
+I compared the live route directly against owner originals `IMG_2239`,
+`IMG_2240`, `IMG_2242`, `IMG_2243`, `IMG_2248` and `IMG_2249`. The board keeps
+the rejected render in the middle column so the correction cannot pass by
+forgetting the actual failure. Separate black/white neutral, key-only,
+fill-only and combined macros all retain a neutral hairline without exposing a
+wall. Six mutations independently restored the axial pocket, Select offset,
+wide outer seam, Select cylinder, metallic Select or deep gap floor; every one
+failed its owning gate before the source was restored.
