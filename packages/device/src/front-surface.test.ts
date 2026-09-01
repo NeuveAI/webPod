@@ -8,7 +8,7 @@ import {
   minimumFrontShellOffsetAroundRect,
   resolveFrontAssemblyDepths,
 } from "./front-surface";
-import { DEVICE_LAYOUT, PX_PER_MM } from "./layout";
+import { DEVICE_LAYOUT } from "./layout";
 import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 
 const { body, screen, wheel } = DEVICE_LAYOUT;
@@ -60,6 +60,13 @@ describe("front assemblies share the crowned shell frame", () => {
     });
     expect(depths.wheelReferenceZ).toBeCloseTo(body.depth / 2 + minimum, 12);
     const wheelOuterSurfaceZ = depths.ringZ + depths.ringSag;
+    expect(depths.wheelReferenceZ - wheelOuterSurfaceZ).toBeCloseTo(1, 12);
+    expect(
+      depths.wheelWellZ +
+        (DEFAULT_DEVICE_FORM.recessDepth +
+          DEFAULT_DEVICE_FORM.wheelWellDepth) /
+          2,
+    ).toBeCloseTo(depths.wheelReferenceZ, 12);
 
     for (let sample = 0; sample < 256; sample += 1) {
       const angle = (sample / 256) * Math.PI * 2;
@@ -79,21 +86,24 @@ describe("front assemblies share the crowned shell frame", () => {
     );
   });
 
-  test("the flat Select is a separate part recessed below the wheel", () => {
+  test("the wheel and Select are near-flush separate parts without a border ring", () => {
     const depths = resolveFrontAssemblyDepths();
     const annularGap = wheel.selectLipR - wheel.selectR;
-    expect(annularGap).toBe(4);
-    expect(annularGap / wheel.outerR).toBeLessThan(0.05);
+    expect(annularGap).toBe(1);
+    expect(annularGap / (wheel.selectR * 2)).toBeLessThan(0.024);
     expect(depths.selectFaceZ).toBeCloseTo(
       depths.ringInnerZ - DEFAULT_DEVICE_FORM.selectRecess,
       12,
     );
     expect(depths.selectFaceZ).toBeLessThan(depths.ringInnerZ);
-    expect(DEFAULT_DEVICE_FORM.selectRecess / PX_PER_MM).toBeCloseTo(0.3, 2);
+    expect(DEFAULT_DEVICE_FORM.selectRecess).toBe(0.5);
+    expect(DEFAULT_DEVICE_FORM.selectRecess).toBeLessThan(annularGap);
+    expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(1);
+    expect(DEFAULT_DEVICE_FORM.recessDepth / body.width).toBeLessThan(0.004);
     expect(DEFAULT_DEVICE_FORM.selectThickness).toBeGreaterThan(0);
   });
 
-  test("no renderer or calibration path can restore the proud dome", async () => {
+  test("no renderer or calibration path can restore a dome or decorative Select border", async () => {
     const sources = await Promise.all(
       [
         "packages/device/src/Device.tsx",
@@ -111,10 +121,17 @@ describe("front assemblies share the crowned shell frame", () => {
       "selectProud",
       "selectRise",
       "selectThicknessMap",
+      "device-select-border",
+      "selectBorderGeometry",
+      "selectBezelGeometry",
     ];
     for (const source of sources) {
       for (const symbol of rejected) expect(source).not.toContain(symbol);
     }
+    const rig = JSON.parse(
+      await Bun.file("packages/device/calibration/rig.json").text(),
+    ) as Record<string, unknown>;
+    expect(rig["form.recessDepth"]).toBe(1);
   });
 
   test("the active LCD keeps its physical grid while only depth moves", () => {

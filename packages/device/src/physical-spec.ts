@@ -20,6 +20,8 @@
  *   https://www.mobiletechreview.com/iPod/images/ipod_5G/side.jpg
  * - Refurbished multi-angle product photography (secondary visual check):
  *   https://retrospekt.com/products/apple-ipod-5th-generation-mp3-player
+ * - Wheel / Select assembly measurements are cross-checked against Apple,
+ *   iFixit and contemporary OEM photography in the initiative evidence.
  *
  * `appleFrontRaster` is a bounded pixel measurement of Apple's linked 5G
  * product image. It is deliberately stored as source pixels rather than as a
@@ -60,7 +62,17 @@ export const IPOD_5G_30GB_PHYSICAL_SPEC = Object.freeze({
   photoDerivedProfileMm: Object.freeze({
     frontShellDepth: 2.6,
     rearCrownInset: 1.6,
-    selectRecess: 0.3,
+  }),
+  /**
+   * Projected seam bounds measured across Apple, iFixit and contemporary OEM
+   * photographs. These are image-space limits, not an unsupported claim that
+   * either recess has a known millimetre depth.
+   */
+  wheelAssemblyRasterBounds: Object.freeze({
+    wheelDiameterPx: 235,
+    wheelSeamMaxPx: 2,
+    selectDiameterPx: 84,
+    selectSeamMaxPx: 2,
   }),
 } as const);
 

@@ -64,7 +64,12 @@ const SELECT_RADIUS = SELECT_DIAMETER / 2;
 /** Label placement measured at roughly 79% of the physical wheel radius. */
 const LABEL_BAND_INNER_RADIUS = Math.round(WHEEL_RADIUS * 0.78);
 const LABEL_BAND_OUTER_RADIUS = LABEL_BAND_INNER_RADIUS + 2;
-const SELECT_LIP_RADIUS = SELECT_RADIUS + 4;
+/**
+ * One model pixel of visible assembly clearance. The multi-source reference
+ * cap is 2 / 84 of the Select diameter (1.76 units at this scale), so this
+ * remains a hairline rather than a decorative annular border.
+ */
+const SELECT_LIP_RADIUS = SELECT_RADIUS + 1;
 const RECESS_SHADOW_REACH_RADIUS = WHEEL_RADIUS - 11;
 
 /** Cover-glass lip beyond each active edge. */

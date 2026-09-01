@@ -274,7 +274,9 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
   // The depths §12.0 does not state.
   { path: "form.ringDishTiltDeg", min: 0, max: 26, step: 0.8 },
   { path: "form.ringDishExponent", min: 1.2, max: 8, step: 0.3 },
-  { path: "form.recessDepth", min: 0.5, max: 14, step: 0.5 },
+  // OEM references bound this as near-flush. Calibration may refine within
+  // that band but must not restore the rejected deep shadow moat.
+  { path: "form.recessDepth", min: 0.5, max: 1.5, step: 0.25 },
   // §4.2 stop 0 ("top edge") and stop 7 ("bottom edge caustic") are rolled-edge
   // phenomena, not face phenomena — §5.1 L7 calls stop 0 a 1px inner stroke on
   // the top edge. How much of the edge catches the key is the bevel's size.

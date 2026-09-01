@@ -49,7 +49,7 @@ export type DeviceFormParams = {
   readonly edgeCrownExtent: number;
   /** Maximum plan inset of the crowned steel rear face relative to its seam. */
   readonly rearCrownInset: number;
-  /** How far below the body face the wheel ring sits. §5.3: "1.5px below". */
+  /** How far below the body face the wheel ring sits. */
   readonly recessDepth: number;
   /**
    * Surface tilt at the ring's outer rim, degrees, **concave**. See
@@ -93,10 +93,16 @@ export const DEFAULT_DEVICE_FORM: DeviceFormParams = {
   edgeCrownExtent: 20,
   rearCrownInset:
     Math.round(PHOTO_PROFILE.rearCrownInset * PX_PER_MM * 10) / 10,
-  recessDepth: 4.25,
+  // Apple, iFixit and contemporary assembled-hardware photographs all bound
+  // the wheel as near-flush. One model pixel is the conservative visual
+  // target inside that bound; it is not presented as an OEM millimetre datum.
+  recessDepth: 1,
   ringDishTiltDeg: 4.1918,
   ringDishExponent: 6.1283,
-  selectRecess: Math.round(PHOTO_PROFILE.selectRecess * PX_PER_MM * 100) / 100,
+  // Likewise, the sources establish ordering (Select below wheel) but not an
+  // exact depth. Half a model pixel keeps the separate part perceptible in an
+  // oblique view without rebuilding the owner's rejected dark annulus.
+  selectRecess: 0.5,
   selectThickness: 1.2,
   displayWellInset: 1.8,
   displayWellDepth: 0.9,

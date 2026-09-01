@@ -78,19 +78,34 @@ describe("thin 30GB iPod 5G physical target", () => {
     expect(DEVICE_LAYOUT.wheel.selectR).toBe(37);
     expect(DEVICE_LAYOUT.wheel.selectR * 2).toBe(74);
     expect((DEVICE_LAYOUT.wheel.selectR * 2) / BODY_W).toBeCloseTo(84 / 377, 2);
-    expect(DEVICE_LAYOUT.wheel.selectLipR).toBe(41);
-    expect(DEFAULT_DEVICE_FORM.selectRecess / PX_PER_MM).toBeCloseTo(0.3, 2);
+    expect(DEVICE_LAYOUT.wheel.selectLipR).toBe(38);
   });
 
-  test("keeps photo-derived profile estimates explicit and separate from OEM dimensions", () => {
+  test("keeps photo-derived profile estimates explicit and does not invent a Select depth", () => {
     expect(DEFAULT_DEVICE_FORM.frontThickness / PX_PER_MM).toBeCloseTo(2.6, 1);
     expect(DEFAULT_DEVICE_FORM.rearCrownInset / PX_PER_MM).toBeCloseTo(1.6, 1);
-    expect(DEFAULT_DEVICE_FORM.selectRecess / PX_PER_MM).toBeCloseTo(0.3, 2);
     expect(IPOD_5G_30GB_PHYSICAL_SPEC.photoDerivedProfileMm).toEqual({
       frontShellDepth: 2.6,
       rearCrownInset: 1.6,
-      selectRecess: 0.3,
     });
+    expect(DEFAULT_DEVICE_FORM.selectRecess).toBe(0.5);
+    expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(1);
+  });
+
+  test("bounds both visible assembly seams from multiple OEM references", () => {
+    const bounds = IPOD_5G_30GB_PHYSICAL_SPEC.wheelAssemblyRasterBounds;
+    const selectGap = DEVICE_LAYOUT.wheel.selectLipR - DEVICE_LAYOUT.wheel.selectR;
+    const selectGapRatio = selectGap / (DEVICE_LAYOUT.wheel.selectR * 2);
+    expect(selectGap).toBe(1);
+    expect(selectGapRatio).toBeLessThanOrEqual(
+      bounds.selectSeamMaxPx / bounds.selectDiameterPx,
+    );
+    // The front opening and wheel share one radius. Their contact line comes
+    // from the shallow z-offset, not from an extra radial border mesh.
+    expect(DEVICE_SURFACE_LAYOUT.front.wheel.outerDiameter / 2).toBe(
+      DEVICE_LAYOUT.wheel.outerR,
+    );
+    expect(bounds.wheelSeamMaxPx / bounds.wheelDiameterPx).toBeLessThan(0.01);
   });
 
   test("retains a thin intentional material seam", () => {

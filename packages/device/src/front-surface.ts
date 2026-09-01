@@ -154,7 +154,7 @@ export function resolveFrontAssemblyDepths(
     screenFrontZ: glassFrontZ - form.glassThickness - form.glassToPanel,
     wheelReferenceZ,
     wheelWellZ:
-      wheelReferenceZ - (form.recessDepth + form.wheelWellDepth) / 2 + 0.15,
+      wheelReferenceZ - (form.recessDepth + form.wheelWellDepth) / 2,
     ringZ,
     ringSag,
     ringInnerZ,
