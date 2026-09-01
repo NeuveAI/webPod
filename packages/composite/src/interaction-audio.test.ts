@@ -186,6 +186,20 @@ describe('interaction audio scheduler', () => {
     expect(runtime.consume(pressEvent('center', 3)).reason).toBe('disabled')
     expect(backend.specs).toHaveLength(0)
     expect(backend.suspendCalls).toBe(1)
+
+    let mutedConstructions = 0
+    const muted = createInteractionAudioRuntime({
+      createBackend: () => {
+        mutedConstructions += 1
+        return new FakeBackend('running')
+      },
+    })
+    muted.setEnabled(false)
+    expect(await muted.activate()).toEqual({
+      status: 'interrupted',
+      reason: 'interrupted',
+    })
+    expect(mutedConstructions).toBe(0)
   })
 
   test('rapid detents are articulate, bounded, and cannot build runaway gain', async () => {
@@ -331,6 +345,28 @@ describe('store and browser lifecycle binding', () => {
 
     expect(backend.suspendCalls).toBe(1)
     expect(runtime.snapshot()).toMatchObject({ lifecycle: 'suspended', activeVoices: 0 })
+    detach()
+    runtime.dispose()
+  })
+
+  test('a failing diagnostic observer cannot escape the audio boundary', async () => {
+    const store = createDeviceStore()
+    const backend = new FakeBackend('running')
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+    const detach = attachInteractionAudioRuntime(runtime, store, {
+      root: new EventTarget(),
+      documentTarget: Object.assign(new EventTarget(), { hidden: false }),
+      windowTarget: new EventTarget(),
+      onSnapshot: () => {
+        throw new Error('diagnostic failed')
+      },
+    })
+
+    expect(() => {
+      store.set(pressActionAtom, { button: 'center', source: 'human' })
+    }).not.toThrow()
+    expect(backend.specs).toHaveLength(1)
     detach()
     runtime.dispose()
   })

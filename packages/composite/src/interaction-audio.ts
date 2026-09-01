@@ -283,6 +283,9 @@ export function createInteractionAudioRuntime(
       if (disposed) {
         return Promise.resolve({ status: 'disposed', reason: 'disposed' })
       }
+      if (!enabled) {
+        return Promise.resolve({ status: 'interrupted', reason: 'interrupted' })
+      }
       if (activation !== null) return activation
       if (backend?.state === 'running') {
         lifecycle = 'running'
@@ -423,7 +426,13 @@ export function attachInteractionAudioRuntime(
   targets: InteractionAudioBrowserTargets,
 ): () => void {
   const isHumanActivation = targets.isHumanActivation ?? ((event: Event) => event.isTrusted)
-  const report = () => targets.onSnapshot?.(runtime.snapshot())
+  const report = () => {
+    try {
+      targets.onSnapshot?.(runtime.snapshot())
+    } catch {
+      // Diagnostics are observational and cannot alter control or audio state.
+    }
+  }
   const activate: EventListener = (event) => {
     if (!isHumanActivation(event)) return
     void runtime.activate().then(report)
