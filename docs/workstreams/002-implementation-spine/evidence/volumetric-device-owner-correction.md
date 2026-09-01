@@ -91,7 +91,7 @@ UV lighting, and additive outgoing-light hooks.
 ```text
 bun run typecheck                     11/11 clean
 bun run lint                          exit 0
-bun test                              999 pass, 0 fail, 50,637 expects
+bun test                              1,006 pass, 0 fail, 50,930 expects
 bun run build                         exit 0
 bun run gates                         16 automated pass, 0 fail
 bunx playwright ... volumetric...     1 pass, 0 page errors
@@ -104,9 +104,25 @@ controls remain manual by repo gate definition.
 
 The browser summary is
 [`volumetric-device-owner-correction/summary.json`](./volumetric-device-owner-correction/summary.json).
-It records a source-health match, every pose's fitted projected bounds, a
+It records immutable source commit
+`4564973e10a655c4684189492afcdfaae042ca58`, tree
+`8fc7834ee389e60d1cfe1393c57e2980409de642`, a source-health match, every pose's fitted projected bounds, a
 375×812 mobile fit (`extentX 0.818667 ≤ limitX 0.818667`), exact DPR rasters,
 and no page errors.
+
+## Independent review corrections
+
+- The front shell, screen stack, click wheel, Select and interaction annulus now
+  resolve their z positions from one crowned-surface frame. Rectangular and
+  circular perimeter sampling proves no insert pierces the shell.
+- The generated RoomEnvironment PMREM is explicit on front materials, so
+  installed Three cannot replace black/white/glass gains with the scene-level
+  0.20 value. The steel rear remains the only legacy calibrated-map consumer.
+- Thrown arc-start and arc-move callbacks cancel capture and listeners before
+  rethrowing; planted failures prove a following gesture still works.
+- The browser test observes active touch state and a real detent before cancel,
+  then performs native mouse selection outside the device and proves wheel
+  activity preserves that external selection.
 
 ## Captures
 

@@ -400,3 +400,49 @@ The root keeps `touch-action: none` as the pre-gesture pointer-routing contract;
 `user-select: none` exists only while the active gesture attribute is present.
 Outside text remains selectable, and focus, keyboard input, live DOM screen
 geometry, button presses, and assistive semantics remain unchanged.
+
+## VD-32 · Every front insert resolves from the crowned shell frame
+
+The first corner repair changed the shell's front surface but continued to
+place the display, glass, wheel, Select and invisible input annulus from the
+old planar `frontFaceZ`. That made the shell coherent in isolation while its
+siblings occupied a different depth frame.
+
+`front-surface.ts` is now the one resolver for the crowned shell offset and
+every front assembly depth. Rectangular inserts use the minimum shell offset
+sampled around their aperture; the wheel uses the minimum around all 256
+sampled opening points. The insert stack therefore remains recessed without
+intersecting the shell at corners or rotated poses. The production crown is a
+subtle 1.2 model units in each axis, and tests reject the former 6.2-unit value
+as a second chassis depth.
+
+## VD-33 · Explicit PMREM maps preserve authored material gain
+
+Installed Three 0.185.1 assigns `scene.environmentIntensity` whenever a
+material inherits `scene.environment`; it does not retain that material's
+`envMapIntensity`. Letting front materials inherit the room therefore collapsed
+all of their different gains to 0.20. Multiplying those authored gains by 0.20
+would apply the scene level a second time and crush black and glass instead.
+
+`StudioEnvironment` now publishes the generated PMREM texture to consumers in
+the same R3F scene. Front materials receive that texture explicitly and keep
+their authored response; a material without an authored gain falls back to the
+scene value. The steel rear alone keeps the calibrated mirror-room map. Tests
+consume the installed renderer source, prove the null-map override exists, and
+lock the explicit black, white and glass gains at 0.008, 0.0024 and 0.16.
+
+## VD-34 · Gesture callback failure is a terminal cancellation path
+
+Pointer capture and listeners are installed before an arc-start callback and
+remain active during arc-move callbacks. Either callback may throw; cleanup
+must therefore happen before the original error escapes. The production
+surface now routes both failure sites through the same cancellation path used
+by pointer cancel, blur and unmount, releases capture, removes listeners, and
+swallows only a secondary end-callback failure so the first error remains the
+one reported.
+
+The browser proof is no longer terminal-state-only. It observes the active
+gesture marker, a real touch detent, touch cancellation and a subsequent mouse
+gesture. It also performs native mouse selection on text outside the device
+instead of constructing a Range programmatically. The evidence summary records
+the exact reviewed commit and tree.

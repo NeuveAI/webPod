@@ -1,12 +1,12 @@
 {
   "route": "/_spike/device?capture",
   "health": {
-    "expected": "b9db586919f3666facc45fa3a888ee4ee2fde43ec5b74cf9a2eab80b45ecdc46",
-    "current": "b9db586919f3666facc45fa3a888ee4ee2fde43ec5b74cf9a2eab80b45ecdc46",
-    "expectedFileCount": 178,
-    "fileCount": 178,
-    "reviewedCommit": null,
-    "reviewedTree": null
+    "expected": "87ab3b953956718881e6486430214f91cbfadb003591f4a7673243153e1bbe53",
+    "current": "87ab3b953956718881e6486430214f91cbfadb003591f4a7673243153e1bbe53",
+    "expectedFileCount": 180,
+    "fileCount": 180,
+    "reviewedCommit": "4564973e10a655c4684189492afcdfaae042ca58",
+    "reviewedTree": "8fc7834ee389e60d1cfe1393c57e2980409de642"
   },
   "captures": [
     {
@@ -14,40 +14,40 @@
       "colourway": "black",
       "filename": "correction-room-front-black.png",
       "fit": {
-        "distance": 1180.0776,
+        "distance": 1179.8476,
         "padding": 34,
         "extentX": 0.412113,
         "extentY": 0.911458,
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "f368956b6e4b0bc66397999022dcb8b1ad9c04b55fd5db07dee97e53dbf63aee"
+      "hash": "5b76d194100e62625c501ffd798bb4e97be57a9184363c090ff197ea7fa38aa9"
     },
     {
       "pose": "screen-close",
       "colourway": "black",
       "filename": "correction-room-screen-close-black.png",
-      "hash": "b23326315288686d8faa21738791f57cf026e8e7e4cc759662386d8bcc6e5071"
+      "hash": "628d4b900ddd82a9b3d16af97a22501cda63c4a71e96e9fc6d860a30eb2aeb24"
     },
     {
       "pose": "front",
       "colourway": "white",
       "filename": "correction-room-front-white.png",
       "fit": {
-        "distance": 1180.0776,
+        "distance": 1179.8476,
         "padding": 34,
         "extentX": 0.412113,
         "extentY": 0.911458,
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "9a995eb8154ae711ac72ff8412d717ba639d52a997d7f74f57feced686cdd623"
+      "hash": "f7fa1dff182cda11c139a42bb439da0d04e20dcbc68d57654561e03b7c9cfacd"
     },
     {
       "pose": "screen-close",
       "colourway": "white",
       "filename": "correction-room-screen-close-white.png",
-      "hash": "e8d4fbb94342498be3e8ae6c45fc15cfeb44c09da4c55f744baa94e5c791b03b"
+      "hash": "f7474b6853b81d01bc95216987ab799a31f25006a1af836d3c67896c353f3169"
     },
     {
       "pose": "three-quarter",
@@ -61,7 +61,7 @@
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "b9f1dc8b91fa80c57759ba62be02617a63606d32a1aef4c1e9bf155d76f60b07"
+      "hash": "93619facd7c4606cfcab096a8f8e6edecf45bd8c1fd00d7f8daa93345bdeb34f"
     },
     {
       "pose": "edge",
@@ -70,38 +70,38 @@
       "fit": {
         "distance": 1312.9387,
         "padding": 34,
-        "extentX": 0.087165,
+        "extentX": 0.086602,
         "extentY": 0.911458,
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "b2cfa0e0e30f4b94fa5c3c505b07c09c1311193fe62b6316084000cd4a8409f1"
+      "hash": "93df9c3d99e014e27ee12a211e8c5061a6a77fc9dae021ca41dcb9c1e5000764"
     },
     {
       "pose": "rear",
       "colourway": "white",
       "filename": "correction-room-rear-steel.png",
       "fit": {
-        "distance": 1180.0776,
+        "distance": 1179.8476,
         "padding": 34,
         "extentX": 0.412113,
         "extentY": 0.911458,
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "9285a1dc387dec573f34552920339d75feead02bfd7f7b39eb7a916ffed1988d"
+      "hash": "56dc75f4a21b2327e3dd5bf3c3e93ddd9c3fe991e13aced45cbc355437ec95db"
     },
     {
       "pose": "corner-left-beauty",
       "colourway": "black",
       "filename": "correction-room-corner-left-beauty.png",
-      "hash": "e95c5d758c736cd0fb1ebe7b2cec8c9b254107e3091cd49ec2163da797e0f059"
+      "hash": "e8115de8d1693262993b0c66fb9a22a60ea83b1c3f759aecf813e55b5e33f660"
     },
     {
       "pose": "corner-right-beauty",
       "colourway": "black",
       "filename": "correction-room-corner-right-beauty.png",
-      "hash": "fa8fcb4a4bdf357718fdab47d386ea4be67a3b5dccfa3b88f25b02d5500fec04"
+      "hash": "5a98d345747a3ad345a3030d7a461e8fec83ff3f81591b16763b04d28e6412d5"
     },
     {
       "pose": "top-controls",
@@ -110,12 +110,12 @@
       "fit": {
         "distance": 1297.3958,
         "padding": 34,
-        "extentX": 0.445194,
+        "extentX": 0.44425,
         "extentY": 0.911458,
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "e5b4d9d0b64adce859fda9eeccdb2311a89db63e6eeda3b056c4c081aa005277"
+      "hash": "5d08ab4997c7a78c292a4d6a3cebe98b0c55991e87010f3f1bcd39565fe1af4e"
     }
   ],
   "mobileFit": {
@@ -126,7 +126,7 @@
     "limitX": 0.818667,
     "limitY": 0.916256
   },
-  "mobileHash": "9542966945271f0a558c7559804a1b5e0f17cb5527f1424c45f4ddcefd70b470",
+  "mobileHash": "d2237499b795906647e5f6e45e3399bdda1cc76022fa706ecdc7e38efcec3313",
   "dpr": {
     "1": {
       "density": 1,
@@ -152,24 +152,24 @@
   },
   "diagnostic": {
     "fit": {
-      "distance": 1180.0776,
+      "distance": 1179.8476,
       "padding": 34,
       "extentX": 0.412113,
       "extentY": 0.911458,
       "limitX": 0.933594,
       "limitY": 0.911458
     },
-    "hash": "6587b0b08de8b7b678669b8ff05dcc050baeffc7f1aca0cb64fb2dfb62709511",
+    "hash": "c0941188ab7ee1c367b051e33dc60a740d55db298ed09e9e823896da8e9d2637",
     "corners": [
       {
         "side": "left",
         "filename": "correction-room-corner-left-neutral.png",
-        "hash": "edb8ced794a4d86225438f13634f2354a0d7bb3da2d53fb17d370d777f6f689f"
+        "hash": "6d742cc9fc05bd2c5b206bf044d47548264a90751c4abfd2e1511add5e6003e3"
       },
       {
         "side": "right",
         "filename": "correction-room-corner-right-neutral.png",
-        "hash": "72879fa6477bb252d0781bb3c4975fa39b45be7b1685ed687b3e7e02adfccd3e"
+        "hash": "9e48bef04a031cb36496b0166c7231f6df4231e54e6bea3d0a42d9b1a40113c7"
       }
     ]
   },

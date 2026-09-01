@@ -298,3 +298,27 @@ I wrote the final screenshots to a new evidence directory instead of reusing
 the older `volumetric-device-correction` paths. This avoids the stale-image
 failure mode that had made an earlier browser pass look like a lighting
 regression after the source had already changed.
+
+## Tuesday, September 1, 2026 — independent review corrections
+
+The geometry reviewer reproduced an installed-renderer behavior the source
+tests had missed: Three replaces a material's environment gain with the scene
+gain when `envMap` is null. The screenshots were real, but the per-material
+response we said they represented was not. The fix publishes the PMREM texture
+per scene and binds it explicitly to front materials, with tests against the
+installed renderer source. The same review then found the larger structural
+miss: the shell crown moved but all front inserts stayed in the planar frame.
+Those parts now resolve from one sampled crowned-surface contract.
+
+The interaction reviewer found that the selection teardown itself was sound,
+but a thrown start or move callback could strand capture around it. Both throw
+sites now cancel before rethrowing, and planted callback failures prove the
+next gesture remains usable. The browser evidence was also strengthened from
+synthetic/programmatic end states to an observed active touch gesture, real
+detent, cancellation recovery, and real mouse selection outside the device.
+
+The immutable browser run reviews commit `4564973e10a655c4684189492afcdfaae042ca58`
+and tree `8fc7834ee389e60d1cfe1393c57e2980409de642`. The full repository sweep is
+11/11 TypeScript projects, lint clean, 1,006 tests and 50,930 expectations,
+production build clean apart from the existing chunk warning, and 16 automated
+gates passing. The separate LCD suite remains 3/3 at DPR 1/2/3.
