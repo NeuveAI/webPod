@@ -1,6 +1,6 @@
 import {
+  BufferAttribute,
   DynamicDrawUsage,
-  type BufferAttribute,
   type BufferGeometry,
   Vector3,
 } from "three";
@@ -33,6 +33,9 @@ export const WHEEL_CONTACT_FOOTPRINT_MODEL = Object.freeze({
   tangential: WHEEL_CONTACT_FOOTPRINT_MM.tangential * PX_PER_MM,
 });
 
+/** Immutable wheel normal consumed by the contact-local grazing response. */
+export const WHEEL_REST_NORMAL_ATTRIBUTE = "webpodWheelRestNormal";
+
 export const CONTROL_RELEASE_MS = Object.freeze({
   wheel: 120,
   select: 96,
@@ -44,6 +47,19 @@ export const CONTROL_STALLED_FRAME_LIMIT = 24;
 export type ControlContact = {
   readonly x: number;
   readonly y: number;
+};
+
+export type WheelReadabilitySample = {
+  readonly point: Readonly<{ x: number; y: number; z: number }>;
+  readonly normal: Readonly<{ x: number; y: number; z: number }>;
+  /** `1` while held, then the same monotonic release fraction as geometry. */
+  readonly engagement: number;
+};
+
+/** Wheel-only optical response driven by the physical contact lifecycle. */
+export type WheelContactReadability = {
+  readonly update: (sample: WheelReadabilitySample) => void;
+  readonly clear: () => void;
 };
 
 type MutableFloatAttribute = BufferAttribute & {
@@ -123,6 +139,37 @@ function restoreSurface(surface: BoundSurface): void {
   surface.position.array.set(surface.restPosition);
   surface.normal.array.set(surface.restNormal);
   markChanged(surface);
+}
+
+function readabilitySampleAt(
+  surface: BoundSurface,
+  contact: ControlContact,
+  engagement: number,
+): WheelReadabilitySample {
+  let nearestIndex = 0;
+  let nearestDistanceSq = Number.POSITIVE_INFINITY;
+  for (let index = 0; index < surface.restPosition.length; index += 3) {
+    const dx = componentAt(surface.restPosition, index) - contact.x;
+    const dy = componentAt(surface.restPosition, index + 1) - contact.y;
+    const distanceSq = dx * dx + dy * dy;
+    if (distanceSq < nearestDistanceSq) {
+      nearestDistanceSq = distanceSq;
+      nearestIndex = index;
+    }
+  }
+  return {
+    point: {
+      x: componentAt(surface.position.array, nearestIndex),
+      y: componentAt(surface.position.array, nearestIndex + 1),
+      z: componentAt(surface.position.array, nearestIndex + 2),
+    },
+    normal: {
+      x: componentAt(surface.normal.array, nearestIndex),
+      y: componentAt(surface.normal.array, nearestIndex + 1),
+      z: componentAt(surface.normal.array, nearestIndex + 2),
+    },
+    engagement: Math.max(0, Math.min(1, engagement)),
+  };
 }
 
 /** C2 compact support: smooth at the contact centre and exactly zero at edge. */
@@ -250,6 +297,7 @@ export class ControlPhysicsController {
   readonly #wheel = channel();
   readonly #select = channel();
   #wheelContact: ControlContact = { x: 0, y: 0 };
+  #wheelReadability: WheelContactReadability | null = null;
   #frame: ControlPhysicsFrame | null = null;
   #reducedMotion = false;
   #disposed = false;
@@ -258,8 +306,26 @@ export class ControlPhysicsController {
     this.#dependencies = dependencies;
   }
 
-  attachWheel(geometry: BufferGeometry): () => void {
-    return this.#attach(this.#wheel, geometry);
+  attachWheel(
+    geometry: BufferGeometry,
+    readability: WheelContactReadability | null = null,
+  ): () => void {
+    this.#wheelReadability?.clear();
+    this.#wheelReadability = readability;
+    const detach = this.#attach(
+      this.#wheel,
+      geometry,
+      WHEEL_REST_NORMAL_ATTRIBUTE,
+    );
+    return () => {
+      const isCurrent = this.#wheel.surface?.geometry === geometry;
+      detach();
+      if (!isCurrent) return;
+      readability?.clear();
+      if (this.#wheelReadability === readability) {
+        this.#wheelReadability = null;
+      }
+    };
   }
 
   attachSelect(geometry: BufferGeometry): () => void {
@@ -317,9 +383,19 @@ export class ControlPhysicsController {
     this.#settle(this.#select);
   }
 
-  #attach(channelState: Channel, geometry: BufferGeometry): () => void {
+  #attach(
+    channelState: Channel,
+    geometry: BufferGeometry,
+    restNormalAttributeName?: string,
+  ): () => void {
     if (channelState.surface !== null) restoreSurface(channelState.surface);
     const surface = bindSurface(geometry);
+    if (restNormalAttributeName !== undefined) {
+      geometry.setAttribute(
+        restNormalAttributeName,
+        new BufferAttribute(surface.restNormal.slice(), 3),
+      );
+    }
     channelState.surface = surface;
     channelState.depth = 0;
     channelState.release = null;
@@ -408,6 +484,13 @@ export class ControlPhysicsController {
       this.#wheelContact,
       this.#wheel.depth,
     );
+    this.#wheelReadability?.update(
+      readabilitySampleAt(
+        this.#wheel.surface,
+        this.#wheelContact,
+        this.#wheel.depth / CONTROL_TRAVEL.wheelModel,
+      ),
+    );
   }
 
   #renderSelect(): void {
@@ -423,6 +506,7 @@ export class ControlPhysicsController {
     channelState.depth = 0;
     channelState.release = null;
     if (channelState.surface !== null) restoreSurface(channelState.surface);
+    if (channelState === this.#wheel) this.#wheelReadability?.clear();
   }
 
   #cancelFrameWhenSettled(): void {

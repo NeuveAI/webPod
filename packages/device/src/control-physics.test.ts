@@ -7,7 +7,10 @@ import {
   CONTROL_TRAVEL,
   ControlPhysicsController,
   WHEEL_CONTACT_FOOTPRINT_MM,
+  WHEEL_REST_NORMAL_ATTRIBUTE,
   type ControlPhysicsDependencies,
+  type WheelContactReadability,
+  type WheelReadabilitySample,
 } from "./control-physics";
 import { createFrontControlPatchGeometry } from "./front-control-geometry";
 import { DEFAULT_DEVICE_FORM } from "./form";
@@ -80,6 +83,19 @@ class FrameHarness {
     if (entry === undefined) return;
     this.#callbacks.delete(entry[0]);
     entry[1](timestampMs);
+  }
+}
+
+class ReadabilityHarness implements WheelContactReadability {
+  readonly updates: Array<WheelReadabilitySample> = [];
+  clears = 0;
+
+  update(sample: WheelReadabilitySample): void {
+    this.updates.push(structuredClone(sample));
+  }
+
+  clear(): void {
+    this.clears += 1;
   }
 }
 
@@ -176,6 +192,86 @@ describe("transient physical click-wheel geometry", () => {
     second.dispose();
   });
 
+  test("wheel readability follows contact and shares the bounded demand lifecycle", () => {
+    const geometry = wheelGeometry();
+    const harness = new FrameHarness();
+    const readability = new ReadabilityHarness();
+    const controller = new ControlPhysicsController(harness.dependencies);
+    controller.attachWheel(geometry, readability);
+
+    expect(readability.updates).toHaveLength(0);
+    expect(readability.clears).toBe(0);
+    expect(harness.requests).toBe(0);
+
+    controller.wheelContact(angleContact(0));
+    const first = readability.updates.at(-1);
+    expect(first?.engagement).toBe(1);
+    expect(harness.invalidations).toBe(1);
+    expect(harness.requests).toBe(0);
+
+    controller.wheelContact(angleContact(90));
+    const second = readability.updates.at(-1);
+    expect(second?.point.x).not.toBe(first?.point.x);
+    expect(second?.point.y).not.toBe(first?.point.y);
+    expect(harness.invalidations).toBe(2);
+    expect(harness.requests).toBe(0);
+
+    controller.releaseWheel();
+    expect(harness.pending).toBe(1);
+    harness.step(60);
+    expect(readability.updates.at(-1)?.engagement).toBeCloseTo(0.125, 8);
+    expect(harness.invalidations).toBe(3);
+    expect(harness.pending).toBe(1);
+    harness.step(CONTROL_RELEASE_MS.wheel);
+    expect(readability.clears).toBe(1);
+    expect(harness.invalidations).toBe(4);
+    expect(harness.pending).toBe(0);
+    expect(harness.requests).toBe(2);
+
+    controller.dispose();
+    geometry.dispose();
+  });
+
+  test("Select cannot receive or activate the wheel-only grazing response", () => {
+    const ring = wheelGeometry();
+    const select = selectGeometry();
+    const harness = new FrameHarness();
+    const readability = new ReadabilityHarness();
+    const controller = new ControlPhysicsController(harness.dependencies);
+    controller.attachWheel(ring, readability);
+    controller.attachSelect(select);
+
+    controller.pressSelect();
+    controller.releaseSelect();
+    expect(readability.updates).toHaveLength(0);
+    expect(readability.clears).toBe(0);
+
+    controller.dispose();
+    ring.dispose();
+    select.dispose();
+  });
+
+  test("reduced motion keeps direct feedback and clears it without release frames", () => {
+    const geometry = wheelGeometry();
+    const harness = new FrameHarness();
+    const readability = new ReadabilityHarness();
+    const controller = new ControlPhysicsController(harness.dependencies);
+    controller.attachWheel(geometry, readability);
+    controller.setReducedMotion(true);
+    controller.wheelContact(angleContact(180));
+    expect(readability.updates.at(-1)?.engagement).toBe(1);
+    expect(harness.invalidations).toBe(1);
+    expect(harness.requests).toBe(0);
+
+    controller.releaseWheel();
+    expect(readability.clears).toBe(1);
+    expect(harness.invalidations).toBe(2);
+    expect(harness.pending).toBe(0);
+
+    controller.dispose();
+    geometry.dispose();
+  });
+
   test("Select travel is restrained but greater than wheel deformation", () => {
     const ring = wheelGeometry();
     const select = selectGeometry();
@@ -210,10 +306,15 @@ describe("transient physical click-wheel geometry", () => {
     const harness = new FrameHarness();
     const controller = new ControlPhysicsController(harness.dependencies);
     controller.attachWheel(geometry);
+    const immutableRestNormal = geometry.getAttribute(
+      WHEEL_REST_NORMAL_ATTRIBUTE,
+    );
+    expect(immutableRestNormal.array).toEqual(restNormal);
     controller.wheelContact(angleContact(90));
     expect(
       maximumTripletDelta(restNormal, snapshot(geometry, "normal")),
     ).toBeGreaterThan(0.001);
+    expect(immutableRestNormal.array).toEqual(restNormal);
     controller.setReducedMotion(true);
     controller.releaseWheel();
     expect(snapshot(geometry, "position")).toEqual(restPosition);
@@ -229,14 +330,17 @@ describe("transient physical click-wheel geometry", () => {
     const restPosition = snapshot(geometry, "position");
     const restNormal = snapshot(geometry, "normal");
     const harness = new FrameHarness();
+    const readability = new ReadabilityHarness();
     const controller = new ControlPhysicsController(harness.dependencies);
-    controller.attachWheel(geometry);
+    controller.attachWheel(geometry, readability);
     controller.wheelContact(angleContact(90));
     controller.releaseWheel();
     harness.step(32);
     expect(snapshot(geometry, "position")).not.toEqual(restPosition);
     expect(harness.invalidations).toBe(2);
     expect(harness.pending).toBe(1);
+    expect(readability.updates.at(-1)?.engagement).toBeGreaterThan(0);
+    expect(readability.clears).toBe(0);
 
     controller.setReducedMotion(true);
 
@@ -245,6 +349,7 @@ describe("transient physical click-wheel geometry", () => {
     expect(harness.invalidations).toBe(3);
     expect(harness.pending).toBe(0);
     expect(harness.cancels).toBe(1);
+    expect(readability.clears).toBe(1);
     controller.dispose();
     geometry.dispose();
   });
@@ -366,7 +471,9 @@ describe("transient physical click-wheel geometry", () => {
     expect(physics).not.toContain("uv");
     expect(physics).toContain("position.needsUpdate = true");
     expect(physics).toContain("normal.needsUpdate = true");
-    expect(device).toContain("controlPhysics?.attachWheel(ringGeometry)");
+    expect(device).toContain(
+      "controlPhysics?.attachWheel(ringGeometry, wheelGrazingResponse)",
+    );
     expect(device).toContain("controlPhysics?.attachSelect(selectGeometry)");
   });
 });

@@ -80,6 +80,10 @@ import {
 } from "./textures";
 import { ViewerLitDeviceFrame } from "./ViewerLitDeviceFrame";
 import {
+  createWheelGrazingMaterial,
+  WheelGrazingResponse,
+} from "./wheel-readability";
+import {
   FRONT_DEVICE_ORIENTATION,
   type DeviceOrientation,
 } from "./orientation";
@@ -146,6 +150,7 @@ export function Device({
 }: DeviceProps) {
   const invalidate = useThree((state) => state.invalidate);
   const controlPhysics = useControlPhysics();
+  const wheelGrazingResponse = useMemo(() => new WheelGrazingResponse(), []);
   // A getter, not a value: r3f swaps the camera on some prop changes and the
   // viewport changes on every resize, so the handle must read both at the
   // moment it projects rather than capture them (see `screen-mesh.ts`).
@@ -369,8 +374,8 @@ export function Device({
     [ringGeometry, selectGeometry, wheelGapGeometry],
   );
   useEffect(
-    () => controlPhysics?.attachWheel(ringGeometry),
-    [controlPhysics, ringGeometry],
+    () => controlPhysics?.attachWheel(ringGeometry, wheelGrazingResponse),
+    [controlPhysics, ringGeometry, wheelGrazingResponse],
   );
   useEffect(
     () => controlPhysics?.attachSelect(selectGeometry),
@@ -579,6 +584,19 @@ export function Device({
     () => () => whiteBodyPhysicalMaterial.dispose(),
     [whiteBodyPhysicalMaterial],
   );
+  const wheelPhysicalMaterial = useMemo(() => {
+    const material = createWheelGrazingMaterial(
+      withStudioEnvironment(ringMaterial, studio.intensity),
+      studio.texture,
+      wheelGrazingResponse,
+    );
+    material.name = isBlack ? "wheel-black" : "wheel-white";
+    return material;
+  }, [isBlack, ringMaterial, studio, wheelGrazingResponse]);
+  useEffect(
+    () => () => wheelPhysicalMaterial.dispose(),
+    [wheelPhysicalMaterial],
+  );
 
   const attachScreen = useCallback(
     (mesh: Mesh | null) => {
@@ -784,11 +802,7 @@ export function Device({
         geometry={ringGeometry}
         position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}
       >
-        <meshPhysicalMaterial
-          name={isBlack ? "wheel-black" : "wheel-white"}
-          {...spread(ringMaterial)}
-          {...studioEnvironmentProps(ringMaterial, studio)}
-        />
+        <primitive object={wheelPhysicalMaterial} attach="material" />
       </mesh>
 
       {/* §5.3 L8 — screen-printed ink. A separate transparent decal is
