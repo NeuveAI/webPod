@@ -118,6 +118,44 @@ describe('interaction audio scheduler', () => {
     expect(backend.specs).toHaveLength(0)
   })
 
+  test('a newer trusted activation wins over an older deferred blur suspension', async () => {
+    const suspend = Promise.withResolvers<void>()
+    const backend = new FakeBackend('running')
+    backend.suspendResult = suspend.promise.then(() => {
+      backend.state = 'suspended'
+    })
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+
+    const interruption = runtime.interrupt()
+    const activation = runtime.activate()
+    suspend.resolve()
+
+    await interruption
+    expect(await activation).toEqual({ status: 'running', reason: 'running' })
+    expect(runtime.snapshot().lifecycle).toBe('running')
+    expect(backend.state).toBe('running')
+  })
+
+  test('a newer trusted activation wins over an older deferred mute suspension', async () => {
+    const suspend = Promise.withResolvers<void>()
+    const backend = new FakeBackend('running')
+    backend.suspendResult = suspend.promise.then(() => {
+      backend.state = 'suspended'
+    })
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+
+    runtime.setEnabled(false)
+    runtime.setEnabled(true)
+    const activation = runtime.activate()
+    suspend.resolve()
+
+    expect(await activation).toEqual({ status: 'running', reason: 'running' })
+    expect(runtime.snapshot()).toMatchObject({ lifecycle: 'running', enabled: true })
+    expect(backend.state).toBe('running')
+  })
+
   test('one press schedules one restrained physical click', async () => {
     const backend = new FakeBackend('running')
     const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
@@ -174,14 +212,12 @@ describe('interaction audio scheduler', () => {
     ])
   })
 
-  test('zero budgets, silenced outcomes and the explicit mute seam create no voices', async () => {
+  test('zero budgets and the explicit mute seam create no voices', async () => {
     const backend = new FakeBackend('running')
     const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
     await runtime.activate()
 
     expect(runtime.consume(wheelEvent(0)).reason).toBe('budget-zero')
-    expect(runtime.consume({ ...wheelEvent(4), silenced: true, actor: 'agent:tool' }).reason)
-      .toBe('silenced')
     runtime.setEnabled(false)
     expect(runtime.consume(pressEvent('center', 3)).reason).toBe('disabled')
     expect(backend.specs).toHaveLength(0)
@@ -200,6 +236,23 @@ describe('interaction audio scheduler', () => {
       reason: 'interrupted',
     })
     expect(mutedConstructions).toBe(0)
+  })
+
+  test('malformed agent provenance remains silent even when its boolean is false', async () => {
+    const backend = new FakeBackend('running')
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+    const malformed = wheelEvent(1)
+    Reflect.set(malformed, 'actor', 'agent:review-plant')
+
+    expect(runtime.consume(malformed)).toEqual({
+      status: 'silent',
+      reason: 'silenced',
+      requested: 1,
+      scheduled: 0,
+      dropped: 1,
+    })
+    expect(backend.specs).toHaveLength(0)
   })
 
   test('rapid detents are articulate, bounded, and cannot build runaway gain', async () => {
@@ -258,6 +311,37 @@ describe('interaction audio scheduler', () => {
     })
   })
 
+  test('a stale resume rejection cannot overwrite disposal', async () => {
+    const resume = Promise.withResolvers<void>()
+    const backend = new FakeBackend('suspended', resume.promise)
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    const activation = runtime.activate()
+    runtime.consume(pressEvent('center'))
+
+    runtime.dispose()
+    resume.reject(new Error('late resume rejection'))
+
+    expect(await activation).toEqual({ status: 'disposed', reason: 'disposed' })
+    expect(runtime.snapshot()).toMatchObject({
+      lifecycle: 'disposed',
+      pendingEvents: 0,
+      activeVoices: 0,
+    })
+  })
+
+  test('a stale resume rejection cannot overwrite a newer interruption', async () => {
+    const resume = Promise.withResolvers<void>()
+    const backend = new FakeBackend('suspended', resume.promise)
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    const activation = runtime.activate()
+
+    await runtime.interrupt()
+    resume.reject(new Error('late resume rejection'))
+
+    expect(await activation).toEqual({ status: 'interrupted', reason: 'interrupted' })
+    expect(runtime.snapshot().lifecycle).toBe('suspended')
+  })
+
   test('graph scheduling failure returns a no-sound result instead of throwing', async () => {
     const backend = new FakeBackend('running')
     backend.failScheduling = true
@@ -275,6 +359,64 @@ describe('interaction audio scheduler', () => {
 })
 
 describe('store and browser lifecycle binding', () => {
+  test('duplicate bindings consume one authoritative sequence exactly once', async () => {
+    const store = createDeviceStore()
+    const backend = new FakeBackend('running')
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+    const targets = {
+      root: new EventTarget(),
+      documentTarget: Object.assign(new EventTarget(), { hidden: false }),
+      windowTarget: new EventTarget(),
+      isHumanActivation: () => true,
+    }
+    const detachFirst = attachInteractionAudioRuntime(runtime, store, targets)
+    const detachSecond = attachInteractionAudioRuntime(runtime, store, targets)
+
+    store.set(pressActionAtom, { button: 'center', source: 'human' })
+
+    expect(backend.specs).toHaveLength(1)
+    detachSecond()
+    detachFirst()
+    runtime.dispose()
+  })
+
+  test('multiple mounted runtimes share exact-once sequence ownership', async () => {
+    const store = createDeviceStore()
+    const firstBackend = new FakeBackend('running')
+    const secondBackend = new FakeBackend('running')
+    const first = createInteractionAudioRuntime({ createBackend: () => firstBackend })
+    const second = createInteractionAudioRuntime({ createBackend: () => secondBackend })
+    await first.activate()
+    await second.activate()
+    const common = {
+      documentTarget: Object.assign(new EventTarget(), { hidden: false }),
+      windowTarget: new EventTarget(),
+      isHumanActivation: () => true,
+    }
+    const detachFirst = attachInteractionAudioRuntime(first, store, {
+      ...common,
+      root: new EventTarget(),
+    })
+    const detachSecond = attachInteractionAudioRuntime(second, store, {
+      ...common,
+      root: new EventTarget(),
+    })
+
+    store.set(detentActionAtom, {
+      path: 'direct',
+      source: 'human',
+      detents: 3,
+      timestampMs: 1,
+    })
+
+    expect(firstBackend.specs.length + secondBackend.specs.length).toBe(3)
+    detachSecond()
+    detachFirst()
+    second.dispose()
+    first.dispose()
+  })
+
   test('trusted activation unlocks once, then authoritative events drive sound', async () => {
     const store = createDeviceStore()
     const backend = new FakeBackend('suspended')
@@ -396,6 +538,7 @@ class FakeBackend implements InteractionAudioBackend {
   suspendCalls = 0
   closeCalls = 0
   failScheduling = false
+  suspendResult: Promise<void> | null = null
   readonly specs: InteractionVoiceSpec[] = []
   readonly voices: FakeVoice[] = []
 
@@ -412,6 +555,7 @@ class FakeBackend implements InteractionAudioBackend {
 
   async suspend(): Promise<void> {
     this.suspendCalls += 1
+    if (this.suspendResult !== null) return this.suspendResult
     this.state = 'suspended'
   }
 

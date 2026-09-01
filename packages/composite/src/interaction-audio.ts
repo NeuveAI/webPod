@@ -1,5 +1,6 @@
 import {
   interactionFeedbackAtom,
+  isHumanActor,
   type DeviceStore,
   type InteractionFeedbackEvent,
 } from '@webpod/state'
@@ -19,8 +20,6 @@ export const WHEEL_PITCH_JITTER = 0.02
 const WHEEL_TICK_DURATION_SECONDS = 0.008
 const SELECT_CLICK_DURATION_SECONDS = 0.016
 const BUTTON_CLICK_DURATION_SECONDS = 0.012
-const MAX_WHEEL_QUEUE_AHEAD_SECONDS =
-  (MAX_INTERACTION_AUDIO_VOICES - 1) / WHEEL_TICK_RATE_HZ
 
 /** A sound that the backend can synthesize without an external asset. */
 export type InteractionVoiceKind = 'wheel' | 'select' | 'button'
@@ -68,7 +67,6 @@ export type InteractionAudioReason =
   | 'context-suspended'
   | 'context-closed'
   | 'voice-cap'
-  | 'rate-limit'
   | 'graph-failed'
   | 'disposed'
 
@@ -145,17 +143,21 @@ export function createInteractionAudioRuntime(
 ): InteractionAudioRuntime {
   const random = dependencies.random ?? Math.random
   let backend: InteractionAudioBackend | null = null
-  let activation: Promise<InteractionAudioActivationResult> | null = null
+  let activation: {
+    readonly operation: number
+    readonly promise: Promise<InteractionAudioActivationResult>
+  } | null = null
   let lifecycle: InteractionAudioSnapshot['lifecycle'] = 'locked'
   let enabled = true
   let disposed = false
-  let activationEpoch = 0
+  let lifecycleOperation = 0
   let nextWheelStartSeconds = 0
   let scheduledTotal = 0
   let droppedTotal = 0
   let lastResult: InteractionAudioResult | null = null
   const pending: InteractionFeedbackEvent[] = []
   const voices = new Set<InteractionAudioVoice>()
+  const suspensions = new Set<Promise<boolean>>()
 
   const remember = (result: InteractionAudioResult): InteractionAudioResult => {
     scheduledTotal += result.scheduled
@@ -178,7 +180,9 @@ export function createInteractionAudioRuntime(
   const scheduleEvent = (event: InteractionFeedbackEvent): InteractionAudioResult => {
     const requested = normalizedTicks(event.clickerTicks)
     if (requested === 0) return remember(silentResult('budget-zero', 0))
-    if (event.silenced) return remember(silentResult('silenced', requested))
+    if (event.silenced || !isHumanActor(event.actor)) {
+      return remember(silentResult('silenced', requested))
+    }
     if (!enabled) return remember(silentResult('disabled', requested))
     if (disposed) return remember({
       status: 'unavailable',
@@ -212,7 +216,7 @@ export function createInteractionAudioRuntime(
     if (backend.state !== 'running') {
       if (
         lifecycle === 'activating' &&
-        activation !== null &&
+        activation?.operation === lifecycleOperation &&
         pending.length < MAX_PENDING_FEEDBACK_EVENTS
       ) {
         pending.push(event)
@@ -238,14 +242,6 @@ export function createInteractionAudioRuntime(
       const now = backend.currentTime
       const startTimeSeconds =
         kind === 'wheel' ? Math.max(now, nextWheelStartSeconds) : now
-      if (
-        kind === 'wheel' &&
-        startTimeSeconds - now > MAX_WHEEL_QUEUE_AHEAD_SECONDS
-      ) {
-        limitedBy = 'rate-limit'
-        break
-      }
-
       const spec = voiceSpec(kind, startTimeSeconds, random)
       let voice: InteractionAudioVoice | null = null
       try {
@@ -278,6 +274,55 @@ export function createInteractionAudioRuntime(
     for (const event of queued) scheduleEvent(event)
   }
 
+  const isCurrentOperation = (operation: number): boolean =>
+    !disposed && operation === lifecycleOperation
+
+  const interruptedActivationResult = (): InteractionAudioActivationResult =>
+    disposed
+      ? { status: 'disposed', reason: 'disposed' }
+      : { status: 'interrupted', reason: 'interrupted' }
+
+  const requestSuspend = (
+    current: InteractionAudioBackend,
+    operation: number,
+  ): Promise<boolean> => {
+    let requested: Promise<void>
+    try {
+      requested = current.suspend()
+    } catch {
+      if (isCurrentOperation(operation)) lifecycle = 'failed'
+      return Promise.resolve(false)
+    }
+
+    const tracked: Promise<boolean> = requested.then(
+      () => {
+        if (isCurrentOperation(operation)) lifecycle = 'suspended'
+        return true
+      },
+      () => {
+        if (isCurrentOperation(operation)) lifecycle = 'failed'
+        return false
+      },
+    ).finally(() => {
+      suspensions.delete(tracked)
+    })
+    suspensions.add(tracked)
+    return tracked
+  }
+
+  const settleStaleActivation = (
+    current: InteractionAudioBackend,
+  ): InteractionAudioActivationResult => {
+    if (
+      !disposed &&
+      current.state === 'running' &&
+      (lifecycle === 'suspended' || !enabled)
+    ) {
+      void requestSuspend(current, lifecycleOperation)
+    }
+    return interruptedActivationResult()
+  }
+
   return {
     activate() {
       if (disposed) {
@@ -286,12 +331,10 @@ export function createInteractionAudioRuntime(
       if (!enabled) {
         return Promise.resolve({ status: 'interrupted', reason: 'interrupted' })
       }
-      if (activation !== null) return activation
-      if (backend?.state === 'running') {
-        lifecycle = 'running'
-        flushPending()
-        return Promise.resolve({ status: 'running', reason: 'running' })
-      }
+      if (activation?.operation === lifecycleOperation) return activation.promise
+
+      const operation = lifecycleOperation + 1
+      lifecycleOperation = operation
       if (backend?.state === 'closed') backend = null
       if (backend === null) {
         try {
@@ -306,7 +349,8 @@ export function createInteractionAudioRuntime(
         }
       }
 
-      if (backend.state === 'running') {
+      const earlierSuspensions = [...suspensions]
+      if (backend.state === 'running' && earlierSuspensions.length === 0) {
         lifecycle = 'running'
         flushPending()
         return Promise.resolve({ status: 'running', reason: 'running' })
@@ -314,69 +358,86 @@ export function createInteractionAudioRuntime(
 
       lifecycle = 'activating'
       const current = backend
-      const epoch = activationEpoch
-      activation = current.resume().then<
-        InteractionAudioActivationResult,
-        InteractionAudioActivationResult
-      >(
-        () => {
-          if (disposed) return { status: 'disposed', reason: 'disposed' }
-          if (epoch !== activationEpoch || !enabled) {
-            if (current.state === 'running') {
-              void current.suspend().catch(() => undefined)
-            }
-            lifecycle = 'suspended'
-            clearPending()
-            return { status: 'interrupted', reason: 'interrupted' }
-          }
-          if (current.state !== 'running') {
+      let initialResume: Promise<void>
+      try {
+        initialResume = current.resume()
+      } catch {
+        lifecycle = 'failed'
+        clearPending()
+        return Promise.resolve({ status: 'failed', reason: 'resume-failed' })
+      }
+
+      const run = async (): Promise<InteractionAudioActivationResult> => {
+        try {
+          await initialResume
+        } catch {
+          if (!isCurrentOperation(operation)) return interruptedActivationResult()
+          lifecycle = 'failed'
+          clearPending()
+          return { status: 'failed', reason: 'resume-failed' }
+        }
+
+        await Promise.all(earlierSuspensions)
+        if (!isCurrentOperation(operation)) return settleStaleActivation(current)
+
+        if (current.state !== 'running') {
+          try {
+            await current.resume()
+          } catch {
+            if (!isCurrentOperation(operation)) return interruptedActivationResult()
             lifecycle = 'failed'
             clearPending()
             return { status: 'failed', reason: 'resume-failed' }
           }
-          lifecycle = 'running'
-          flushPending()
-          return { status: 'running', reason: 'running' }
-        },
-        () => {
+        }
+
+        if (!isCurrentOperation(operation)) return settleStaleActivation(current)
+        if (current.state !== 'running') {
           lifecycle = 'failed'
           clearPending()
           return { status: 'failed', reason: 'resume-failed' }
-        },
-      ).finally(() => {
-        activation = null
+        }
+        lifecycle = 'running'
+        flushPending()
+        return { status: 'running', reason: 'running' }
+      }
+
+      const promise = run().finally(() => {
+        if (activation?.operation === operation) activation = null
       })
-      return activation
+      activation = { operation, promise }
+      return promise
     },
 
     consume: scheduleEvent,
 
     setEnabled(nextEnabled) {
+      if (enabled === nextEnabled) return
       enabled = nextEnabled
-      if (enabled) return
-      activationEpoch += 1
+      const operation = lifecycleOperation + 1
+      lifecycleOperation = operation
+      if (enabled) {
+        lifecycle = backend === null ? 'locked' : 'suspended'
+        return
+      }
       clearPending()
       stopVoices()
       if (backend?.state === 'running') {
-        void backend.suspend().catch(() => undefined)
+        void requestSuspend(backend, operation)
       }
       lifecycle = backend === null ? 'locked' : 'suspended'
     },
 
     async interrupt() {
       if (disposed) return
-      activationEpoch += 1
+      const operation = lifecycleOperation + 1
+      lifecycleOperation = operation
       clearPending()
       stopVoices()
+      lifecycle = backend === null ? 'locked' : 'suspended'
       if (backend !== null && backend.state === 'running') {
-        try {
-          await backend.suspend()
-        } catch {
-          lifecycle = 'failed'
-          return
-        }
+        await requestSuspend(backend, operation)
       }
-      if (backend !== null) lifecycle = 'suspended'
     },
 
     snapshot() {
@@ -394,7 +455,7 @@ export function createInteractionAudioRuntime(
     dispose() {
       if (disposed) return
       disposed = true
-      activationEpoch += 1
+      lifecycleOperation += 1
       lifecycle = 'disposed'
       clearPending()
       stopVoices()
@@ -416,6 +477,23 @@ export type InteractionAudioBrowserTargets = {
   readonly onSnapshot?: (snapshot: InteractionAudioSnapshot) => void
 }
 
+type InteractionAudioBinding = {
+  readonly runtime: InteractionAudioRuntime
+  readonly report: () => void
+  readonly attachmentOrder: number
+  activationOrder: number
+}
+
+type InteractionAudioBindingHub = {
+  readonly bindings: Set<InteractionAudioBinding>
+  lastConsumedSequence: number
+  unsubscribe: () => void
+}
+
+const interactionAudioBindingHubs = new WeakMap<DeviceStore, InteractionAudioBindingHub>()
+let nextAttachmentOrder = 0
+let nextActivationOrder = 0
+
 /**
  * Subscribes one runtime to the authoritative store stream and browser
  * lifecycle. Only trusted pointer/key events activate Web Audio by default.
@@ -435,6 +513,7 @@ export function attachInteractionAudioRuntime(
   }
   const activate: EventListener = (event) => {
     if (!isHumanActivation(event)) return
+    binding.markActivated()
     void runtime.activate().then(report)
   }
   const interrupt: EventListener = () => {
@@ -443,13 +522,7 @@ export function attachInteractionAudioRuntime(
   const visibility: EventListener = () => {
     if (targets.documentTarget.hidden) void runtime.interrupt().then(report)
   }
-  const unsubscribe = store.sub(interactionFeedbackAtom, () => {
-    const event = store.get(interactionFeedbackAtom)
-    if (event !== null) {
-      runtime.consume(event)
-      report()
-    }
-  })
+  const binding = registerInteractionAudioBinding(runtime, store, report)
 
   targets.root.addEventListener('pointerdown', activate, { capture: true })
   targets.root.addEventListener('keydown', activate, { capture: true })
@@ -458,12 +531,97 @@ export function attachInteractionAudioRuntime(
   report()
 
   return () => {
-    unsubscribe()
+    binding.detach()
     targets.root.removeEventListener('pointerdown', activate, { capture: true })
     targets.root.removeEventListener('keydown', activate, { capture: true })
     targets.documentTarget.removeEventListener('visibilitychange', visibility)
     targets.windowTarget.removeEventListener('blur', interrupt)
   }
+}
+
+function registerInteractionAudioBinding(
+  runtime: InteractionAudioRuntime,
+  store: DeviceStore,
+  report: () => void,
+): { readonly markActivated: () => void; readonly detach: () => void } {
+  let hub = interactionAudioBindingHubs.get(store)
+  if (hub === undefined) {
+    const current = store.get(interactionFeedbackAtom)
+    hub = {
+      bindings: new Set(),
+      lastConsumedSequence: current?.seq ?? 0,
+      unsubscribe: () => undefined,
+    }
+    const created = hub
+    created.unsubscribe = store.sub(interactionFeedbackAtom, () => {
+      const event = store.get(interactionFeedbackAtom)
+      if (event === null || event.seq <= created.lastConsumedSequence) return
+      created.lastConsumedSequence = event.seq
+      const owner = selectInteractionAudioOwner(created.bindings)
+      if (owner === null) return
+      owner.runtime.consume(event)
+      owner.report()
+    })
+    interactionAudioBindingHubs.set(store, created)
+  }
+
+  const binding: InteractionAudioBinding = {
+    runtime,
+    report,
+    attachmentOrder: nextAttachmentOrder + 1,
+    activationOrder: 0,
+  }
+  nextAttachmentOrder = binding.attachmentOrder
+  hub.bindings.add(binding)
+  let attached = true
+
+  return {
+    markActivated() {
+      if (!attached) return
+      nextActivationOrder += 1
+      binding.activationOrder = nextActivationOrder
+    },
+    detach() {
+      if (!attached) return
+      attached = false
+      hub.bindings.delete(binding)
+      if (hub.bindings.size !== 0) return
+      hub.unsubscribe()
+      interactionAudioBindingHubs.delete(store)
+    },
+  }
+}
+
+function selectInteractionAudioOwner(
+  bindings: ReadonlySet<InteractionAudioBinding>,
+): InteractionAudioBinding | null {
+  let owner: InteractionAudioBinding | null = null
+  let ownerRank = -1
+  for (const binding of bindings) {
+    const snapshot = binding.runtime.snapshot()
+    const rank = interactionAudioOwnerRank(snapshot)
+    if (rank < 0) continue
+    if (
+      owner === null ||
+      rank > ownerRank ||
+      (rank === ownerRank && binding.activationOrder > owner.activationOrder) ||
+      (rank === ownerRank &&
+        binding.activationOrder === owner.activationOrder &&
+        binding.attachmentOrder > owner.attachmentOrder)
+    ) {
+      owner = binding
+      ownerRank = rank
+    }
+  }
+  return owner
+}
+
+function interactionAudioOwnerRank(snapshot: InteractionAudioSnapshot): number {
+  if (!snapshot.enabled) return -1
+  if (snapshot.lifecycle === 'running') return 3
+  if (snapshot.lifecycle === 'activating') return 2
+  if (snapshot.lifecycle === 'locked' || snapshot.lifecycle === 'suspended') return 1
+  return -1
 }
 
 function normalizedTicks(value: number): number {
