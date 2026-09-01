@@ -1,7 +1,7 @@
 # Diary — W9b · interaction audio
 
-**Lane:** W9b · **Status:** technical re-review approved and all three remaining
-Minors fixed; owner sound-quality verdict remains.
+**Lane:** W9b · **Status:** technical re-review approved, all remaining Minors
+fixed, and owner sound-quality gate approved.
 
 ## What landed
 
@@ -70,7 +70,7 @@ activate Web Audio. The re-review's headless-Chromium `page.mouse.click()` did
 produce an `isTrusted` event and moved the runtime to `running`, which is valid
 browser behavior and demonstrates why `isTrusted` is not a human-provenance
 check. Agent silence instead comes from the authoritative actor/silence
-contract. Owner listening remains required for quality. A real Chromium
+contract. A real Chromium
 `OfflineAudioContext` renders the production graph into a reproducible WAV so
 the owner can judge the synthesis without relying on graph assertions.
 
@@ -102,12 +102,6 @@ returning a rejected promise, and asserts both the lifecycle and structured
 
 ## Owner listening pass
 
-**Verdict: pending owner.** Listen first to
-`evidence/w9b-interaction-audio-preview.wav`: Select occurs at 0.12s, six wheel
-ticks begin at 0.40s, and a secondary button occurs at 0.78s. Then open
-`http://localhost:3000/_spike/device` in the T1 browser, make one genuine
-click/tap to unlock audio, rotate the wheel slowly and rapidly, press Select,
-then background and restore the tab. The wheel should be lighter and shorter
-than Select, rapid detents should remain individual without a loud stack, and
-returning from background must not release queued sound. The `data-wp-audio-*`
-attributes on the composite root provide the accompanying event transcript.
+**Verdict: approved by owner.** After listening to the production-generated SFX,
+the owner stated in this thread on 2026-09-01: “sounds just like the real thing,
+great job.” This closes the W9b sound-taste gate.

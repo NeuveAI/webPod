@@ -126,9 +126,10 @@ still produces a structured `silenced` result.
 Deterministic graph tests remain necessary but do not establish taste. The same
 production graph can now render through `OfflineAudioContext` into a PCM WAV.
 That reproducible artifact and the live route are the human-quality gate. The
-owner must decide whether the result is restrained, plastic/mechanical, lighter
-on wheel than Select, and articulate under a flick; W9b does not self-approve
-that judgement.
+owner decides that judgement; W9b does not self-approve it. After listening to
+the production-generated SFX, the owner stated in this thread on 2026-09-01:
+“sounds just like the real thing, great job.” The owner sound-taste gate is
+therefore approved.
 
 ## W9b-D11 · The evidence renderer belongs to the composite typecheck
 
