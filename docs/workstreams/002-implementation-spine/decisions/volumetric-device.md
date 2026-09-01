@@ -446,3 +446,13 @@ gesture marker, a real touch detent, touch cancellation and a subsequent mouse
 gesture. It also performs native mouse selection on text outside the device
 instead of constructing a Range programmatically. The evidence summary records
 the exact reviewed commit and tree.
+
+## VD-35 · Injected form is part of the canvas interaction contract
+
+`Device.form` is a supported modelling input, so the invisible ray plane may
+not resolve from production defaults while the visible wheel resolves from an
+injected form. The canvas interaction context now carries the same form record
+used by `Device`; `ClickWheelInputSurface` derives its z position from that
+record. A mounted 6.2/6.2 crown plant moves the ray plane by more than five
+model units and proves it remains exactly 0.25 ahead of the corresponding
+visible wheel outer surface.

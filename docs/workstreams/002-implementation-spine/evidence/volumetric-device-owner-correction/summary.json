@@ -1,12 +1,12 @@
 {
   "route": "/_spike/device?capture",
   "health": {
-    "expected": "87ab3b953956718881e6486430214f91cbfadb003591f4a7673243153e1bbe53",
-    "current": "87ab3b953956718881e6486430214f91cbfadb003591f4a7673243153e1bbe53",
+    "expected": "044acfeaaa75ee9eb6dfb73990559df0ee691b811399e70bad32bf6cc8930155",
+    "current": "044acfeaaa75ee9eb6dfb73990559df0ee691b811399e70bad32bf6cc8930155",
     "expectedFileCount": 180,
     "fileCount": 180,
-    "reviewedCommit": "4564973e10a655c4684189492afcdfaae042ca58",
-    "reviewedTree": "8fc7834ee389e60d1cfe1393c57e2980409de642"
+    "reviewedCommit": "325e8e4eb8c070372b79ae7f12c59ae4eadc7244",
+    "reviewedTree": "2e67be51dc95456029aa2a88fc4ca5f3df8ebaa5"
   },
   "captures": [
     {
@@ -95,7 +95,7 @@
       "pose": "corner-left-beauty",
       "colourway": "black",
       "filename": "correction-room-corner-left-beauty.png",
-      "hash": "e8115de8d1693262993b0c66fb9a22a60ea83b1c3f759aecf813e55b5e33f660"
+      "hash": "f201fc5bab6fe5b43c18409e99defedd4449227c390b7e78f451a6b7a2bda96f"
     },
     {
       "pose": "corner-right-beauty",

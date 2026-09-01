@@ -317,8 +317,13 @@ next gesture remains usable. The browser evidence was also strengthened from
 synthetic/programmatic end states to an observed active touch gesture, real
 detent, cancellation recovery, and real mouse selection outside the device.
 
-The immutable browser run reviews commit `4564973e10a655c4684189492afcdfaae042ca58`
-and tree `8fc7834ee389e60d1cfe1393c57e2980409de642`. The full repository sweep is
-11/11 TypeScript projects, lint clean, 1,006 tests and 50,930 expectations,
+The geometry re-review then planted the old 6.2 crown through the public form
+input and found one remaining sibling escape: the visible wheel moved while
+the ray plane still read default depths. The canvas context now carries that
+same injected form, and a mounted plant proves both surfaces move together.
+
+The final immutable browser run reviews commit `325e8e4eb8c070372b79ae7f12c59ae4eadc7244`
+and tree `2e67be51dc95456029aa2a88fc4ca5f3df8ebaa5`. The full repository sweep is
+11/11 TypeScript projects, lint clean, 1,007 tests and 50,936 expectations,
 production build clean apart from the existing chunk warning, and 16 automated
 gates passing. The separate LCD suite remains 3/3 at DPR 1/2/3.
