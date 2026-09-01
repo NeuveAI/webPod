@@ -31,8 +31,8 @@ import {
 } from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
-import { curvedAnnulusGeometry } from "./curved-discs";
 import { frontCoreDepth, tessellateVerticalCrown } from "./curved-shell";
+import { createFrontControlPatchGeometry } from "./front-control-geometry";
 import {
   createRearShellGeometry,
   frontShellPlan,
@@ -44,7 +44,10 @@ import {
   type EnvRoomParams,
 } from "./env-map";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
-import { resolveFrontAssemblyDepths } from "./front-surface";
+import {
+  resolveFrontAssemblyDepths,
+  WHEEL_OUTER_SEAM_WIDTH,
+} from "./front-surface";
 import { DEVICE_LAYOUT, SCREEN_CORNER_R } from "./layout";
 import { DEFAULT_LIGHT_RIG, type LightRigParams } from "./light-rig";
 import { materialMapOwnership } from "./material-map-ownership";
@@ -306,31 +309,63 @@ export function Device({
   ]);
   useEffect(() => () => frontGeometry.dispose(), [frontGeometry]);
 
-  const ringGeometry = useMemo(
-    () =>
-      curvedAnnulusGeometry(
-        wheel.selectLipR,
-        wheel.outerR,
-        form.ringDishTiltDeg,
-        form.ringDishExponent,
+  const { ringGeometry, selectGeometry, wheelGapGeometry } = useMemo(() => {
+    const controlForm = {
+      seamWidth: form.seamWidth,
+      bodyCrown: form.bodyCrown,
+      bodyCrossCrown: form.bodyCrossCrown,
+      topEdgeCrown: form.topEdgeCrown,
+      bottomEdgeCrown: form.bottomEdgeCrown,
+      edgeCrownExtent: form.edgeCrownExtent,
+    };
+    return {
+      ringGeometry: createFrontControlPatchGeometry(
+        {
+          centerX: wheel.centerX,
+          centerY: wheel.centerY,
+          innerRadius: wheel.selectLipR,
+          outerRadius: wheel.outerR - WHEEL_OUTER_SEAM_WIDTH,
+          uvRadius: wheel.outerR,
+        },
+        controlForm,
       ),
-    [form.ringDishTiltDeg, form.ringDishExponent],
-  );
-  useEffect(() => () => ringGeometry.dispose(), [ringGeometry]);
-
-  const selectGeometry = useMemo(
-    () =>
-      new CylinderGeometry(
-        wheel.selectR,
-        wheel.selectR,
-        form.selectThickness,
-        128,
-        1,
-        false,
+      selectGeometry: createFrontControlPatchGeometry(
+        {
+          centerX: wheel.centerX,
+          centerY: wheel.centerY,
+          innerRadius: 0,
+          outerRadius: wheel.selectR,
+          uvRadius: wheel.outerR,
+        },
+        controlForm,
       ),
-    [form.selectThickness],
+      wheelGapGeometry: createFrontControlPatchGeometry(
+        {
+          centerX: wheel.centerX,
+          centerY: wheel.centerY,
+          innerRadius: 0,
+          outerRadius: wheel.outerR,
+          uvRadius: wheel.outerR,
+        },
+        controlForm,
+      ),
+    };
+  }, [
+    form.seamWidth,
+    form.bodyCrown,
+    form.bodyCrossCrown,
+    form.topEdgeCrown,
+    form.bottomEdgeCrown,
+    form.edgeCrownExtent,
+  ]);
+  useEffect(
+    () => () => {
+      ringGeometry.dispose();
+      selectGeometry.dispose();
+      wheelGapGeometry.dispose();
+    },
+    [ringGeometry, selectGeometry, wheelGapGeometry],
   );
-  useEffect(() => () => selectGeometry.dispose(), [selectGeometry]);
 
   const glassGeometry = useMemo(() => {
     const shape = roundedRectShape(
@@ -415,20 +450,6 @@ export function Device({
   }, [form.rearInlayInset]);
   useEffect(() => () => rearInlayGeometry.dispose(), [rearInlayGeometry]);
 
-  const wheelWellGeometry = useMemo(
-    () =>
-      new CylinderGeometry(
-        wheel.outerR,
-        wheel.outerR,
-        Math.max(0.1, form.recessDepth + form.wheelWellDepth),
-        128,
-        1,
-        true,
-      ),
-    [form.recessDepth, form.wheelWellDepth],
-  );
-  useEffect(() => () => wheelWellGeometry.dispose(), [wheelWellGeometry]);
-
   // The top controls are separate solids on the steel/plastic seam. Their
   // protrusion and recess remain visible when the full model rotates; no
   // front-facing decal can survive the product's edge and flip interactions.
@@ -497,9 +518,8 @@ export function Device({
     displayWellFrontZ,
     glassFrontZ,
     screenFrontZ,
-    wheelWellZ,
-    ringZ,
-    selectFaceZ,
+    wheelSurfaceBaseZ,
+    wheelGapFloorBaseZ,
   } = resolveFrontAssemblyDepths(form);
   const rearInlayZ = -body.depth / 2 + form.rearInlayInset;
 
@@ -728,14 +748,16 @@ export function Device({
         />
       </mesh>
 
+      {/* One zero-wall floor sits 0.05 model pixels behind the shared surface.
+          It is visible only through the two physical assembly hairlines; it
+          cannot form a trench, lip or cylindrical sidewall. */}
       <mesh
-        name="device-wheel-well"
-        geometry={wheelWellGeometry}
-        position={[wheel.centerX, wheel.centerY, wheelWellZ]}
-        rotation={[Math.PI / 2, 0, 0]}
+        name="device-wheel-gap-floor"
+        geometry={wheelGapGeometry}
+        position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}
       >
         <meshPhysicalMaterial
-          name={isBlack ? "wheel-well-black" : "wheel-well-white"}
+          name={isBlack ? "wheel-gap-black" : "wheel-gap-white"}
           {...spread(
             isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
           )}
@@ -746,11 +768,11 @@ export function Device({
         />
       </mesh>
 
-      {/* §5.3 — the dished ring, at the bottom of the recess. */}
+      {/* The wheel is a separate plastic patch on the faceplate surface. */}
       <mesh
         name="device-wheel"
         geometry={ringGeometry}
-        position={[wheel.centerX, wheel.centerY, ringZ]}
+        position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}
       >
         <meshPhysicalMaterial
           name={isBlack ? "wheel-black" : "wheel-white"}
@@ -764,7 +786,7 @@ export function Device({
       <mesh
         name={WHEEL_LABEL_DECAL_NAME}
         geometry={ringGeometry}
-        position={[wheel.centerX, wheel.centerY, ringZ + 0.08]}
+        position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ + 0.08]}
         renderOrder={2}
       >
         <meshBasicMaterial
@@ -777,18 +799,13 @@ export function Device({
         />
       </mesh>
 
-      {/* The Select control is a separate flat plug recessed below the ring.
-          Its narrow annular gap and independent material make the assembly
-          legible; no dome or proud side wall is allowed. */}
+      {/* Select is a separate matte plastic surface patch. Its crown, top plane
+          and normals match the wheel exactly; only the one-pixel assembly gap
+          and independent material identify the part. */}
       <mesh
         name="device-select"
         geometry={selectGeometry}
-        position={[
-          wheel.centerX,
-          wheel.centerY,
-          selectFaceZ - form.selectThickness / 2,
-        ]}
-        rotation={[Math.PI / 2, 0, 0]}
+        position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}
       >
         <meshPhysicalMaterial
           key={isBlack ? "select-flat-black" : "select-flat-white"}

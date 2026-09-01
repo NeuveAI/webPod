@@ -131,9 +131,12 @@ export {
 export {
   DEFAULT_FRONT_ASSEMBLY_DEPTHS,
   frontShellOffsetAt,
-  minimumFrontShellOffsetAroundCircle,
+  frontShellNormalAt,
   minimumFrontShellOffsetAroundRect,
   resolveFrontAssemblyDepths,
+  SELECT_SEAM_WIDTH,
+  WHEEL_GAP_FLOOR_OFFSET,
+  WHEEL_OUTER_SEAM_WIDTH,
   type FrontAssemblyDepths,
 } from "./front-surface";
 
@@ -156,7 +159,12 @@ export {
   silhouetteShape,
   silhouetteFrameShape,
 } from "./shapes";
-export { curvedAnnulusGeometry } from "./curved-discs";
+export {
+  createFrontControlPatchGeometry,
+  maximumCoincidentWallHeight,
+  patchNormalAt,
+  type FrontControlPatch,
+} from "./front-control-geometry";
 export {
   BODY_CROWN_ROW_STEP,
   horizontalCrownOffset,

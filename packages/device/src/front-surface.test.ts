@@ -4,9 +4,11 @@ import { DEFAULT_DEVICE_FORM } from "./form";
 import {
   DEFAULT_FRONT_ASSEMBLY_DEPTHS,
   frontShellOffsetAt,
-  minimumFrontShellOffsetAroundCircle,
   minimumFrontShellOffsetAroundRect,
   resolveFrontAssemblyDepths,
+  SELECT_SEAM_WIDTH,
+  WHEEL_GAP_FLOOR_OFFSET,
+  WHEEL_OUTER_SEAM_WIDTH,
 } from "./front-surface";
 import { DEVICE_LAYOUT } from "./layout";
 import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
@@ -51,38 +53,20 @@ describe("front assemblies share the crowned shell frame", () => {
     );
   });
 
-  test("the click wheel never pierces the shell around its full opening", () => {
+  test("the click wheel and Select share the shell's front surface", () => {
     const depths = resolveFrontAssemblyDepths();
-    const minimum = minimumFrontShellOffsetAroundCircle({
-      centerX: wheel.centerX,
-      centerY: wheel.centerY,
-      radius: wheel.outerR,
-    });
-    expect(depths.wheelReferenceZ).toBeCloseTo(body.depth / 2 + minimum, 12);
-    const wheelOuterSurfaceZ = depths.ringZ + depths.ringSag;
-    expect(depths.wheelReferenceZ - wheelOuterSurfaceZ).toBeCloseTo(1, 12);
-    expect(
-      depths.wheelWellZ +
-        (DEFAULT_DEVICE_FORM.recessDepth +
-          DEFAULT_DEVICE_FORM.wheelWellDepth) /
-          2,
-    ).toBeCloseTo(depths.wheelReferenceZ, 12);
-
-    for (let sample = 0; sample < 256; sample += 1) {
-      const angle = (sample / 256) * Math.PI * 2;
-      const localShellZ =
-        body.depth / 2 +
-        frontShellOffsetAt(
-          wheel.centerX + Math.cos(angle) * wheel.outerR,
-          wheel.centerY + Math.sin(angle) * wheel.outerR,
-        );
-      expect(localShellZ - wheelOuterSurfaceZ).toBeGreaterThanOrEqual(
-        DEFAULT_DEVICE_FORM.recessDepth - 1e-10,
-      );
-    }
-    expect(DEFAULT_FRONT_ASSEMBLY_DEPTHS.clickWheelInputZ).toBeCloseTo(
-      wheelOuterSurfaceZ + 0.25,
+    expect(depths.wheelSurfaceBaseZ).toBe(body.depth / 2);
+    expect(depths.wheelTopAtCenterZ).toBeCloseTo(
+      body.depth / 2 + frontShellOffsetAt(wheel.centerX, wheel.centerY),
       12,
+    );
+    expect(depths.selectTopAtCenterZ).toBe(depths.wheelTopAtCenterZ);
+    expect(depths.wheelSurfaceBaseZ - depths.wheelGapFloorBaseZ).toBeCloseTo(
+      WHEEL_GAP_FLOOR_OFFSET,
+      12,
+    );
+    expect(DEFAULT_FRONT_ASSEMBLY_DEPTHS.clickWheelInputZ).toBeGreaterThan(
+      depths.wheelTopAtCenterZ,
     );
   });
 
@@ -91,23 +75,17 @@ describe("front assemblies share the crowned shell frame", () => {
     const annularGap = wheel.selectLipR - wheel.selectR;
     expect(annularGap).toBe(1);
     expect(annularGap / (wheel.selectR * 2)).toBeLessThan(0.024);
-    expect(depths.selectFaceZ).toBeCloseTo(
-      depths.ringInnerZ - DEFAULT_DEVICE_FORM.selectRecess,
-      12,
-    );
-    expect(depths.selectFaceZ).toBeLessThan(depths.ringInnerZ);
-    expect(DEFAULT_DEVICE_FORM.selectRecess).toBe(0.5);
-    expect(DEFAULT_DEVICE_FORM.selectRecess).toBeLessThan(annularGap);
-    expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(1);
-    expect(DEFAULT_DEVICE_FORM.recessDepth / body.width).toBeLessThan(0.004);
-    expect(DEFAULT_DEVICE_FORM.selectThickness).toBeGreaterThan(0);
+    expect(annularGap).toBe(SELECT_SEAM_WIDTH);
+    expect(WHEEL_OUTER_SEAM_WIDTH).toBe(0.5);
+    expect(depths.selectTopAtCenterZ).toBe(depths.wheelTopAtCenterZ);
+    expect(WHEEL_GAP_FLOOR_OFFSET).toBeLessThan(WHEEL_OUTER_SEAM_WIDTH);
   });
 
   test("no renderer or calibration path can restore a dome or decorative Select border", async () => {
     const sources = await Promise.all(
       [
         "packages/device/src/Device.tsx",
-        "packages/device/src/curved-discs.ts",
+        "packages/device/src/front-control-geometry.ts",
         "packages/device/src/form.ts",
         "packages/device/calibration/apply-rig.ts",
         "packages/device/calibration/tune.ts",
@@ -121,6 +99,13 @@ describe("front assemblies share the crowned shell frame", () => {
       "selectProud",
       "selectRise",
       "selectThicknessMap",
+      "device-wheel-well",
+      "wheelWellGeometry",
+      "selectGeometry = useMemo(() => new CylinderGeometry",
+      "curvedAnnulusGeometry",
+      "ringDishTiltDeg",
+      "ringDishExponent",
+      "selectRecess",
       "device-select-border",
       "selectBorderGeometry",
       "selectBezelGeometry",
@@ -131,7 +116,9 @@ describe("front assemblies share the crowned shell frame", () => {
     const rig = JSON.parse(
       await Bun.file("packages/device/calibration/rig.json").text(),
     ) as Record<string, unknown>;
-    expect(rig["form.recessDepth"]).toBe(1);
+    expect(rig["form.recessDepth"]).toBeUndefined();
+    expect(rig["form.ringDishTiltDeg"]).toBeUndefined();
+    expect(rig["form.ringDishExponent"]).toBeUndefined();
   });
 
   test("the active LCD keeps its physical grid while only depth moves", () => {

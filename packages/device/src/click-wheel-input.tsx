@@ -48,7 +48,7 @@ export const CLICK_WHEEL_INPUT_RADII = Object.freeze({
 /**
  * The interaction plane sits just ahead of every visible front-face surface.
  * It is deliberately planar: the state adapter needs angular thumb travel,
- * while the rendered wheel's shallow dish remains a material/geometry concern.
+ * while the rendered patch follows less than one model pixel of shell crown.
  */
 export const CLICK_WHEEL_INPUT_POSITION = Object.freeze([
   DEVICE_LAYOUT.wheel.centerX,

@@ -231,9 +231,8 @@ describe("click-wheel mounted R3F event seam", () => {
       const depths = resolveFrontAssemblyDepths(plantedForm);
       expect(input).toBeDefined();
       expect(input?.position.z).toBeCloseTo(depths.clickWheelInputZ, 12);
-      expect(input?.position.z).toBeCloseTo(
-        depths.ringZ + depths.ringSag + 0.25,
-        12,
+      expect(input?.position.z).toBeGreaterThan(
+        depths.wheelTopAtCenterZ + 0.25,
       );
       expect(
         Math.abs(

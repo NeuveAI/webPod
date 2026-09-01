@@ -12,6 +12,11 @@ import {
 
 import { DEFAULT_DEVICE_FORM } from "./form";
 import {
+  SELECT_SEAM_WIDTH,
+  WHEEL_GAP_FLOOR_OFFSET,
+  WHEEL_OUTER_SEAM_WIDTH,
+} from "./front-surface";
+import {
   DEVICE_LAYOUT,
   LCD_ACTIVE_PHYSICAL_MM,
   LCD_PHYSICAL_TOLERANCE_MM,
@@ -81,29 +86,31 @@ describe("thin 30GB iPod 5G physical target", () => {
     expect(DEVICE_LAYOUT.wheel.selectLipR).toBe(38);
   });
 
-  test("keeps photo-derived profile estimates explicit and does not invent a Select depth", () => {
+  test("keeps photo-derived shell profile estimates explicit", () => {
     expect(DEFAULT_DEVICE_FORM.frontThickness / PX_PER_MM).toBeCloseTo(2.6, 1);
     expect(DEFAULT_DEVICE_FORM.rearCrownInset / PX_PER_MM).toBeCloseTo(1.6, 1);
     expect(IPOD_5G_30GB_PHYSICAL_SPEC.photoDerivedProfileMm).toEqual({
       frontShellDepth: 2.6,
       rearCrownInset: 1.6,
     });
-    expect(DEFAULT_DEVICE_FORM.selectRecess).toBe(0.5);
-    expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(1);
+    expect(WHEEL_GAP_FLOOR_OFFSET / PX_PER_MM).toBeLessThan(0.02);
   });
 
   test("bounds both visible assembly seams from multiple OEM references", () => {
     const bounds = IPOD_5G_30GB_PHYSICAL_SPEC.wheelAssemblyRasterBounds;
-    const selectGap = DEVICE_LAYOUT.wheel.selectLipR - DEVICE_LAYOUT.wheel.selectR;
+    const selectGap = SELECT_SEAM_WIDTH;
     const selectGapRatio = selectGap / (DEVICE_LAYOUT.wheel.selectR * 2);
     expect(selectGap).toBe(1);
     expect(selectGapRatio).toBeLessThanOrEqual(
       bounds.selectSeamMaxPx / bounds.selectDiameterPx,
     );
-    // The front opening and wheel share one radius. Their contact line comes
-    // from the shallow z-offset, not from an extra radial border mesh.
+    const outerGapRatio =
+      WHEEL_OUTER_SEAM_WIDTH / (DEVICE_LAYOUT.wheel.outerR * 2);
     expect(DEVICE_SURFACE_LAYOUT.front.wheel.outerDiameter / 2).toBe(
       DEVICE_LAYOUT.wheel.outerR,
+    );
+    expect(outerGapRatio).toBeLessThanOrEqual(
+      bounds.wheelSeamMaxPx / bounds.wheelDiameterPx,
     );
     expect(bounds.wheelSeamMaxPx / bounds.wheelDiameterPx).toBeLessThan(0.01);
   });

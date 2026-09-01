@@ -303,7 +303,7 @@ export type TargetOptions = {
   readonly bodyEdgeInset: number;
   /** Clear only the steel back's outer antialiasing edge. */
   readonly backEdgeInset: number;
-  /** Extra clearance from the recessed wheel/select walls. */
+  /** Extra clearance from the wheel and Select assembly seams. */
   readonly controlInset: number;
   /** How far the polycarbonate front is inset from the silhouette (§5.6). */
   readonly seamWidth: number;
@@ -314,7 +314,7 @@ export type TargetOptions = {
  *
  * The column is the outermost exposed polycarbonate on the row: `edgeInset`
  * inside the front shell's own silhouette, and pushed further out if the glass
- * window or the wheel recess reaches that far. A row where nothing is exposed
+ * window or the click-wheel opening reaches that far. A row where nothing is exposed
  * would be a spec that cannot be measured; none of the sixteen stops is.
  */
 function bodyTargets(

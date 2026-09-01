@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
 import { hexLuma255 } from "./colour";
-import { DEFAULT_DEVICE_FORM } from "./form";
 import { resolveFrontAssemblyDepths } from "./front-surface";
 import { DEVICE_LAYOUT } from "./layout";
 import {
@@ -32,20 +31,11 @@ describe("owner-primary OEM white 5G material relationships", () => {
     expect(selectSeam / (wheel.selectR * 2)).toBeLessThan(0.02);
   });
 
-  test("keeps the photographed faceplate → wheel → Select ordering near-coplanar", () => {
+  test("keeps the photographed faceplate, wheel and Select visually coplanar", () => {
     const depths = resolveFrontAssemblyDepths();
-    const wheelOuterFaceZ = depths.ringZ + depths.ringSag;
 
-    expect(depths.wheelReferenceZ).toBeGreaterThan(wheelOuterFaceZ);
-    expect(wheelOuterFaceZ).toBeGreaterThan(depths.selectFaceZ);
-    expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(1);
-    expect(DEFAULT_DEVICE_FORM.selectRecess).toBe(0.5);
-    expect(
-      DEFAULT_DEVICE_FORM.recessDepth / DEVICE_LAYOUT.body.width,
-    ).toBeLessThan(0.004);
-    expect(DEFAULT_DEVICE_FORM.selectRecess).toBeLessThan(
-      DEVICE_LAYOUT.wheel.selectLipR - DEVICE_LAYOUT.wheel.selectR,
-    );
+    expect(depths.wheelTopAtCenterZ).toBe(depths.selectTopAtCenterZ);
+    expect(depths.wheelSurfaceBaseZ).toBe(DEVICE_LAYOUT.body.depth / 2);
   });
 
   test("keeps the faceplate mildly warm and the wheel distinctly cool", () => {
@@ -80,6 +70,9 @@ describe("owner-primary OEM white 5G material relationships", () => {
     expect(select.color).not.toBe(DEFAULT_DEVICE_MATERIALS.bodyWhite.color);
     expect(select.roughness).not.toBe(ring.roughness);
     expect(select.clearcoat).not.toBe(ring.clearcoat);
+    expect(select.metalness).toBe(0);
+    expect(select.transmission).toBe(0);
+    expect(select.roughness).toBeGreaterThanOrEqual(0.7);
   });
 
   test("uses light legends on white hardware and never restores dark-grey ink", () => {

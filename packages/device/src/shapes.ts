@@ -242,7 +242,7 @@ export function roundedRectHole(
   return path;
 }
 
-/** A circular hole, for the click wheel recess opening. */
+/** A circular hole for the separate click-wheel assembly. */
 export function circleHole(
   cx: number,
   cy: number,

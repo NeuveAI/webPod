@@ -3,9 +3,10 @@
  *
  * §12.0 fixes the *plan* — radii and the vertical chain — because that is what
  * a 2D artboard can hold. Depth cannot be measured off an artboard, so the
- * third dimension is stated here: how far the Select plug is recessed, how
- * far the wheel is sunk, how wide the steel's rolled edge reads, how much the
- * ring is dished.
+ * third dimension is stated here: how wide the steel's rolled edge reads and
+ * how the display stack sits behind the front shell. The wheel and Select are
+ * intentionally absent: owner-primary OEM photographs establish them as
+ * zero-wall patches on the faceplate surface, not adjustable depth controls.
  *
  * ⚑ These are **inputs**, like the materials and the rig (D-012), and for the
  * same reason: they are the other half of what a tier would have to change.
@@ -49,29 +50,10 @@ export type DeviceFormParams = {
   readonly edgeCrownExtent: number;
   /** Maximum plan inset of the crowned steel rear face relative to its seam. */
   readonly rearCrownInset: number;
-  /** How far below the body face the wheel ring sits. */
-  readonly recessDepth: number;
-  /**
-   * Surface tilt at the ring's outer rim, degrees, **concave**. See
-   * `curved-discs.ts` for why the ring is dished and what it replaces.
-   */
-  readonly ringDishTiltDeg: number;
-  /**
-   * Profile exponent for the ring's dish. Higher keeps the middle flat and
-   * turns up near the rim, reaching the same rim tilt in less depth — see
-   * `curved-discs.ts`.
-   */
-  readonly ringDishExponent: number;
-  /** How far the flat Select face sits below the ring's inner edge. */
-  readonly selectRecess: number;
-  /** Physical depth behind that face; it must not project above the wheel. */
-  readonly selectThickness: number;
   /** How far below the body face the dark LCD well begins. */
   readonly displayWellInset: number;
   /** Physical thickness of the LCD well floor slab. */
   readonly displayWellDepth: number;
-  /** Extra wall height around the wheel recess before the ring begins. */
-  readonly wheelWellDepth: number;
   /** How far inward the rear Settings inlay sits from the mirror back shell. */
   readonly rearInlayInset: number;
   /** How far below the body face the cover glass front surface sits. */
@@ -93,20 +75,8 @@ export const DEFAULT_DEVICE_FORM: DeviceFormParams = {
   edgeCrownExtent: 20,
   rearCrownInset:
     Math.round(PHOTO_PROFILE.rearCrownInset * PX_PER_MM * 10) / 10,
-  // Apple, iFixit and contemporary assembled-hardware photographs all bound
-  // the wheel as near-flush. One model pixel is the conservative visual
-  // target inside that bound; it is not presented as an OEM millimetre datum.
-  recessDepth: 1,
-  ringDishTiltDeg: 4.1918,
-  ringDishExponent: 6.1283,
-  // Likewise, the sources establish ordering (Select below wheel) but not an
-  // exact depth. Half a model pixel keeps the separate part perceptible in an
-  // oblique view without rebuilding the owner's rejected dark annulus.
-  selectRecess: 0.5,
-  selectThickness: 1.2,
   displayWellInset: 1.8,
   displayWellDepth: 0.9,
-  wheelWellDepth: 1.2,
   rearInlayInset: 1.1,
   glassInset: 0.85,
   glassThickness: 2.4,

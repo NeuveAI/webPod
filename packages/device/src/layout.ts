@@ -70,7 +70,7 @@ const LABEL_BAND_OUTER_RADIUS = LABEL_BAND_INNER_RADIUS + 2;
  * remains a hairline rather than a decorative annular border.
  */
 const SELECT_LIP_RADIUS = SELECT_RADIUS + 1;
-const RECESS_SHADOW_REACH_RADIUS = WHEEL_RADIUS - 11;
+const CONTROL_PROBE_REACH_RADIUS = WHEEL_RADIUS - 11;
 
 /** Cover-glass lip beyond each active edge. */
 export const GLASS_SURROUND: number = 1;
@@ -165,14 +165,14 @@ export const DEVICE_LAYOUT = Object.freeze({
     centerX: 0,
     centerY: HALF_H - CHAIN.screenTopFromTop - PANEL_H / 2,
   }),
-  /** The click wheel recess and its photo-measured contents. */
+  /** The click-wheel assembly and its photo-measured contents. */
   wheel: Object.freeze({
     outerR: WHEEL_RADIUS,
     selectR: SELECT_RADIUS,
     selectLipR: SELECT_LIP_RADIUS,
     labelBandInnerR: LABEL_BAND_INNER_RADIUS,
     labelBandOuterR: LABEL_BAND_OUTER_RADIUS,
-    recessShadowReachR: RECESS_SHADOW_REACH_RADIUS,
+    controlProbeReachR: CONTROL_PROBE_REACH_RADIUS,
     centerX: 0,
     centerY: HALF_H - CHAIN.wheelCenterFromTop,
   }),

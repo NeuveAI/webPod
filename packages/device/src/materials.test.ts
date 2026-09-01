@@ -89,18 +89,15 @@ describe("§12.3 device material contract", () => {
     expect(DEFAULT_DEVICE_MATERIALS.selectBlack).toMatchObject({
       color: "#11151A",
       albedoScale: 0.78,
-      transmission: 0.03,
-      thickness: 1,
-      ior: 1.52,
-      attenuationColor: "#BAC4CE",
-      attenuationDistance: 1.4,
-      roughness: 0.5,
-      clearcoat: 0.08,
-      clearcoatRoughness: 0.46,
-      specularIntensity: 0.08,
-      envMapIntensity: 0.006,
+      transmission: 0,
+      metalness: 0,
+      roughness: 0.68,
+      clearcoat: 0.02,
+      clearcoatRoughness: 0.72,
+      specularIntensity: 0.06,
+      envMapIntensity: 0.004,
     });
-    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBe(0.006);
+    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBe(0.004);
     expect(DEFAULT_DEVICE_MATERIALS.rearInlay).toMatchObject({
       color: "#11161E",
       roughness: 0.58,
@@ -136,19 +133,28 @@ describe("§12.3 device material contract", () => {
   test("OEM black and white wheel assemblies are separate calibrations, not inversions", () => {
     expect(DEFAULT_WHEEL_COLOURWAYS.black).toMatchObject({
       ring: { color: "#24292F", roughness: 0.44 },
-      select: { color: "#11151A", roughness: 0.5 },
+      select: {
+        color: "#11151A",
+        roughness: 0.68,
+        metalness: 0,
+        transmission: 0,
+      },
       labelColor: "#B9BFC7",
     });
     expect(DEFAULT_WHEEL_COLOURWAYS.white).toMatchObject({
       ring: { color: "#D5DADD", roughness: 0.8 },
-      select: { color: "#F6F2E9", roughness: 0.6 },
+      select: {
+        color: "#F6F2E9",
+        roughness: 0.72,
+        metalness: 0,
+        transmission: 0,
+      },
       labelColor: "#FAF8F2",
     });
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color).toBe("#D5DADD");
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.roughness).toBeGreaterThan(
       DEFAULT_DEVICE_MATERIALS.wheelRingBlack.roughness,
     );
-    expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(1);
     expect(DEFAULT_DEVICE_FORM.bodyCrown).toBe(1.2);
     expect(DEFAULT_DEVICE_FORM.bodyCrossCrown).toBe(1.2);
     expect(DEFAULT_DEVICE_FORM.topEdgeCrown).toBe(0);

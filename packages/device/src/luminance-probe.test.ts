@@ -152,7 +152,7 @@ describe("D-067 probe geometry and identity", () => {
     }
   });
 
-  test("wheel and Select samples keep their separate recessed-surface margins", () => {
+  test("wheel and Select samples keep their separate surface margins", () => {
     const targets = probeTargets("black", "front", options);
     const wheel = DEVICE_LAYOUT.wheel;
     for (const target of targets) {

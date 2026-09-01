@@ -1,7 +1,12 @@
+import { Vector3 } from "three";
+
 import {
+  edgeCrownSlope,
   edgeCrownOffset,
   horizontalCrownOffset,
+  horizontalCrownSlope,
   verticalCrownOffset,
+  verticalCrownSlope,
 } from "./curved-shell";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import { DEVICE_LAYOUT } from "./layout";
@@ -9,13 +14,28 @@ import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 
 const { body, wheel } = DEVICE_LAYOUT;
 const INPUT_PLANE_OFFSET = 0.25;
-const CIRCLE_SAMPLES = 256;
+
+export type FrontSurfaceForm = Pick<
+  DeviceFormParams,
+  | "seamWidth"
+  | "bodyCrown"
+  | "bodyCrossCrown"
+  | "topEdgeCrown"
+  | "bottomEdgeCrown"
+  | "edgeCrownExtent"
+>;
+
+/** Model-space seam targets; converted to millimetres in physical gates. */
+export const WHEEL_OUTER_SEAM_WIDTH = 0.5;
+export const SELECT_SEAM_WIDTH = wheel.selectLipR - wheel.selectR;
+/** A depth-buffer separator, not a visible pocket. 0.05px ≈ 0.0094mm. */
+export const WHEEL_GAP_FLOOR_OFFSET = 0.05;
 
 /** Crown displacement of the physical front shell at one body-local point. */
 export function frontShellOffsetAt(
   x: number,
   y: number,
-  form: DeviceFormParams = DEFAULT_DEVICE_FORM,
+  form: FrontSurfaceForm = DEFAULT_DEVICE_FORM,
 ): number {
   const halfWidth = body.width / 2 - form.seamWidth;
   const halfHeight = body.height / 2 - form.seamWidth;
@@ -28,6 +48,25 @@ export function frontShellOffsetAt(
       extent: form.edgeCrownExtent,
     })
   );
+}
+
+/** Analytic normal shared by the shell and every flush front control patch. */
+export function frontShellNormalAt(
+  x: number,
+  y: number,
+  form: FrontSurfaceForm = DEFAULT_DEVICE_FORM,
+): Vector3 {
+  const halfWidth = body.width / 2 - form.seamWidth;
+  const halfHeight = body.height / 2 - form.seamWidth;
+  const slopeX = horizontalCrownSlope(x, halfWidth, form.bodyCrossCrown);
+  const slopeY =
+    verticalCrownSlope(y, halfHeight, form.bodyCrown) +
+    edgeCrownSlope(y, halfHeight, {
+      top: form.topEdgeCrown,
+      bottom: form.bottomEdgeCrown,
+      extent: form.edgeCrownExtent,
+    });
+  return new Vector3(-slopeX, -slopeY, 1).normalize();
 }
 
 /** Lowest shell point around a flat rectangular insert's outer boundary. */
@@ -66,57 +105,27 @@ export function minimumFrontShellOffsetAroundRect(
   );
 }
 
-/**
- * Lowest shell point around a circular insert.
- *
- * The bounded 256-point sweep is deterministic and intentionally shared by
- * production and tests. It keeps a planar wheel below every point on the
- * surrounding crowned opening instead of guessing that one cardinal point is
- * the minimum after future form changes.
- */
-export function minimumFrontShellOffsetAroundCircle(
-  circle: {
-    readonly centerX: number;
-    readonly centerY: number;
-    readonly radius: number;
-  },
-  form: DeviceFormParams = DEFAULT_DEVICE_FORM,
-): number {
-  let minimum = Number.POSITIVE_INFINITY;
-  for (let sample = 0; sample < CIRCLE_SAMPLES; sample += 1) {
-    const angle = (sample / CIRCLE_SAMPLES) * Math.PI * 2;
-    minimum = Math.min(
-      minimum,
-      frontShellOffsetAt(
-        circle.centerX + Math.cos(angle) * circle.radius,
-        circle.centerY + Math.sin(angle) * circle.radius,
-        form,
-      ),
-    );
-  }
-  return minimum;
-}
-
 export type FrontAssemblyDepths = {
   readonly displayReferenceZ: number;
   readonly displayWellFrontZ: number;
   readonly glassFrontZ: number;
   readonly screenFrontZ: number;
-  readonly wheelReferenceZ: number;
-  readonly wheelWellZ: number;
-  readonly ringZ: number;
-  readonly ringSag: number;
-  readonly ringInnerZ: number;
-  readonly selectFaceZ: number;
+  /** Shared base plane; local crown displacement is carried by each patch. */
+  readonly wheelSurfaceBaseZ: number;
+  readonly wheelGapFloorBaseZ: number;
+  readonly wheelTopAtCenterZ: number;
+  readonly selectTopAtCenterZ: number;
   readonly clickWheelInputZ: number;
 };
 
 /**
  * Resolve every front insert from the same physical shell frame.
  *
- * Flat glass and wheel components use the lowest crown point around their
- * opening. They therefore remain recessed everywhere instead of piercing the
- * shell where a global crown is shallower than at the component centre.
+ * Flat glass uses the lowest crown point around its opening. The wheel and
+ * Select are different: owner-primary OEM photographs establish that their
+ * installed top surfaces are flush with the faceplate. Their generated
+ * patches therefore use the shell's own crown and this resolver supplies only
+ * the common axial base plane.
  */
 export function resolveFrontAssemblyDepths(
   form: DeviceFormParams = DEFAULT_DEVICE_FORM,
@@ -128,38 +137,25 @@ export function resolveFrontAssemblyDepths(
       DEVICE_SURFACE_LAYOUT.front.displayWell,
       form,
     );
-  const wheelReferenceZ =
-    frontFaceZ +
-    minimumFrontShellOffsetAroundCircle(
-      {
-        centerX: wheel.centerX,
-        centerY: wheel.centerY,
-        radius: wheel.outerR,
-      },
-      form,
-    );
-  const ringSag =
-    (wheel.outerR * Math.tan((form.ringDishTiltDeg * Math.PI) / 180)) /
-    form.ringDishExponent;
-  const ringZ = wheelReferenceZ - form.recessDepth - ringSag;
-  const ringInnerZ =
-    ringZ +
-    ringSag * (wheel.selectLipR / wheel.outerR) ** form.ringDishExponent;
-  const selectFaceZ = ringInnerZ - form.selectRecess;
+  const wheelSurfaceBaseZ = frontFaceZ;
+  const wheelTopAtCenterZ =
+    wheelSurfaceBaseZ + frontShellOffsetAt(wheel.centerX, wheel.centerY, form);
   const glassFrontZ = displayReferenceZ - form.glassInset;
+  const maximumFrontOffset =
+    Math.max(0, form.bodyCrown) +
+    Math.max(0, form.bodyCrossCrown) +
+    Math.max(0, form.topEdgeCrown, form.bottomEdgeCrown);
   return {
     displayReferenceZ,
     displayWellFrontZ: displayReferenceZ - form.displayWellInset,
     glassFrontZ,
     screenFrontZ: glassFrontZ - form.glassThickness - form.glassToPanel,
-    wheelReferenceZ,
-    wheelWellZ:
-      wheelReferenceZ - (form.recessDepth + form.wheelWellDepth) / 2,
-    ringZ,
-    ringSag,
-    ringInnerZ,
-    selectFaceZ,
-    clickWheelInputZ: wheelReferenceZ - form.recessDepth + INPUT_PLANE_OFFSET,
+    wheelSurfaceBaseZ,
+    wheelGapFloorBaseZ: wheelSurfaceBaseZ - WHEEL_GAP_FLOOR_OFFSET,
+    wheelTopAtCenterZ,
+    selectTopAtCenterZ: wheelTopAtCenterZ,
+    clickWheelInputZ:
+      wheelSurfaceBaseZ + maximumFrontOffset + INPUT_PLANE_OFFSET,
   };
 }
 

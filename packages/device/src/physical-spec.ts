@@ -54,10 +54,7 @@ export const IPOD_5G_30GB_PHYSICAL_SPEC = Object.freeze({
   }),
   /**
    * Profile dimensions bounded by teardown/side photography, not an OEM
-   * drawing. The Select direction is superseded by the owner's direct
-   * correction capture: a separate flat part slightly below the wheel, never
-   * a proud cap. Keep that provenance explicit until a caliper/profile
-   * reference supplies the exact recess.
+   * drawing.
    */
   photoDerivedProfileMm: Object.freeze({
     frontShellDepth: 2.6,
@@ -66,13 +63,26 @@ export const IPOD_5G_30GB_PHYSICAL_SPEC = Object.freeze({
   /**
    * Projected seam bounds measured across Apple, iFixit and contemporary OEM
    * photographs. These are image-space limits, not an unsupported claim that
-   * either recess has a known millimetre depth.
+   * either assembly seam has a known millimetre depth.
    */
   wheelAssemblyRasterBounds: Object.freeze({
     wheelDiameterPx: 235,
     wheelSeamMaxPx: 2,
     selectDiameterPx: 84,
     selectSeamMaxPx: 2,
+  }),
+  /**
+   * Structural acceptance envelope from owner IMG_2239/2240/2242/2243/2248/
+   * 2249. These are maximum model tolerances, not claims of Apple machining
+   * dimensions: the production surfaces are exactly coincident and the floor
+   * is only a depth-buffer separator.
+   */
+  wheelAssemblyAcceptanceMm: Object.freeze({
+    topPlaneTolerance: 0.1,
+    outerSeamMaximum: 0.1,
+    selectSeamMaximum: 0.2,
+    visibleSidewallMaximum: 0.02,
+    referenceObliqueDegrees: 40,
   }),
 } as const);
 
