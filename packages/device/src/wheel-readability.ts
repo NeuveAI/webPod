@@ -176,7 +176,9 @@ const SHADER_STRUCTURE_ERROR =
  * parse GLSL. Optical targets are either a reflectedLight field, a named
  * Three accumulator ending in SpecularDirect/SpecularIndirect/Radiance, or
  * outgoingLight. An assignable target may then have no suffix or exactly one
- * 1–4 component swizzle from one GLSL namespace: xyzw, rgba, or stpq.
+ * 1–4 component swizzle from one GLSL namespace: xyzw, rgba, or stpq. Comments
+ * are blanked before scanning; semicolons and braces remain hard statement or
+ * block bounds, while ordinary GLSL whitespace may include newlines.
  */
 const OPTICAL_OUTPUT_TARGET =
   String.raw`(?:reflectedLight\.[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_]*(?:Specular(?:Direct|Indirect)|Radiance)|outgoingLight)`;
@@ -191,10 +193,17 @@ function isAssignableComponentSwizzle(swizzle: string): boolean {
   );
 }
 
+function withoutGlslComments(source: string): string {
+  return source.replace(
+    /\/\*[\s\S]*?\*\/|\/\/[^\r\n]*/g,
+    (comment) => comment.replace(/[^\r\n]/g, " "),
+  );
+}
+
 function opticalOutputWrites(source: string): readonly string[] {
-  const candidates = source.matchAll(
+  const candidates = withoutGlslComments(source).matchAll(
     new RegExp(
-      `(?<![A-Za-z0-9_])(${OPTICAL_OUTPUT_TARGET})([^;\\n{}]*?)(${OPTICAL_ASSIGNMENT})`,
+      `(?<![A-Za-z0-9_])(${OPTICAL_OUTPUT_TARGET})([^;{}]*?)(${OPTICAL_ASSIGNMENT})`,
       "g",
     ),
   );

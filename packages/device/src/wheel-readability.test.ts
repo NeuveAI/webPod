@@ -221,6 +221,22 @@ describe("wheel contact grazing readability", () => {
         "totalEmissiveRadiance.pts += webpodWheelGrazingColor.stp;\n// webpod-wheel-material-specular-end",
       ),
       shader.fragmentShader.replace(
+        "// webpod-wheel-material-specular-end",
+        "reflectedLight.directSpecular\n  .gr += webpodWheelGrazingColor.rg * webpodWheelGrazingIrradiance;\n// webpod-wheel-material-specular-end",
+      ),
+      shader.fragmentShader.replace(
+        "// webpod-wheel-material-specular-end",
+        "reflectedLight.directSpecular\n  += webpodWheelGrazingColor * webpodWheelGrazingIrradiance;\n// webpod-wheel-material-specular-end",
+      ),
+      shader.fragmentShader.replace(
+        "// webpod-wheel-material-specular-end",
+        "clearcoatSpecularDirect\n  .zyx += webpodWheelGrazingColor.rgb;\n// webpod-wheel-material-specular-end",
+      ),
+      shader.fragmentShader.replace(
+        "// webpod-wheel-material-specular-end",
+        "totalEmissiveRadiance\n  .pts += webpodWheelGrazingColor.stp;\n// webpod-wheel-material-specular-end",
+      ),
+      shader.fragmentShader.replace(
         "webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim",
         "webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim",
       ),
@@ -261,6 +277,17 @@ describe("wheel contact grazing readability", () => {
         "wheel grazing response must be fully gated and material-BRDF evaluated",
       );
     }
+
+    const commentsOnly = shader.fragmentShader.replace(
+      "// webpod-wheel-material-specular-end",
+      "/* reflectedLight.directSpecular\n  .gr += webpodWheelGrazingColor.rg; */\n// totalEmissiveRadiance.rgb += webpodWheelGrazingColor;\n// webpod-wheel-material-specular-end",
+    );
+    expect(() =>
+      assertWheelGrazingShaderStructure(
+        commentsOnly,
+        baselineFragmentShader,
+      ),
+    ).not.toThrow();
   });
 
   test("black and white evaluate through their distinct physical finishes", () => {
