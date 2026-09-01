@@ -21,13 +21,87 @@ import {
   SRGBColorSpace,
 } from "three";
 
-/** §5.3 L8's four printed legends, in the order they sit on the wheel. */
-const WHEEL_LABELS = [
-  { text: "MENU", angle: -Math.PI / 2 },
-  { text: "⏭", angle: 0 },
-  { text: "⏯", angle: Math.PI / 2 },
-  { text: "⏮", angle: Math.PI },
-] as const;
+export type WheelDecalBounds = {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+};
+
+export type WheelDecalLayout = {
+  readonly menu: WheelDecalBounds;
+  readonly previous: WheelDecalBounds;
+  readonly next: WheelDecalBounds;
+  readonly playPause: {
+    readonly bounds: WheelDecalBounds;
+    readonly play: WheelDecalBounds;
+    readonly pauseLeft: WheelDecalBounds;
+    readonly pauseRight: WheelDecalBounds;
+    readonly interSymbolGap: number;
+  };
+};
+
+/**
+ * Optical decal bounds measured against Apple's linked straight-on 5G image.
+ *
+ * Transport marks in that 235px source wheel occupy roughly 22×14 source
+ * pixels. At webPod's 206px wheel that resolves to approximately 20×13 model
+ * units. MENU keeps its established 13px weight and top-band placement.
+ */
+export function wheelDecalLayout(bandR: number): WheelDecalLayout {
+  if (!(bandR > 0) || !Number.isFinite(bandR)) {
+    throw new Error(
+      `wheel decal radius must be finite and positive; got ${bandR}`,
+    );
+  }
+  const at = (
+    centerX: number,
+    centerY: number,
+    width: number,
+    height: number,
+  ): WheelDecalBounds =>
+    Object.freeze({
+      x: centerX - width / 2,
+      y: centerY - height / 2,
+      width,
+      height,
+    });
+  const playPauseWidth = 19.5;
+  const playWidth = 8.5;
+  const interSymbolGap = 3.5;
+  const pauseBarWidth = 2.75;
+  const pauseBarGap = 2;
+  const playPauseX = -playPauseWidth / 2;
+  const pauseLeftX = playPauseX + playWidth + interSymbolGap;
+  const pauseRightX = pauseLeftX + pauseBarWidth + pauseBarGap;
+  return Object.freeze({
+    menu: at(0, -bandR, 44, 14),
+    previous: at(-bandR, 0, 20, 13),
+    next: at(bandR, 0, 20, 13),
+    playPause: Object.freeze({
+      bounds: at(0, bandR, playPauseWidth, 13),
+      play: Object.freeze({
+        x: playPauseX,
+        y: bandR - 6.5,
+        width: playWidth,
+        height: 13,
+      }),
+      pauseLeft: Object.freeze({
+        x: pauseLeftX,
+        y: bandR - 6.5,
+        width: pauseBarWidth,
+        height: 13,
+      }),
+      pauseRight: Object.freeze({
+        x: pauseRightX,
+        y: bandR - 6.5,
+        width: pauseBarWidth,
+        height: 13,
+      }),
+      interSymbolGap,
+    }),
+  });
+}
 
 /** Pencil zbTc3's authored back-face composition, in native body pixels. */
 export const BACK_COMPOSITION_LAYOUT = Object.freeze({
@@ -117,18 +191,30 @@ export function createBackCompositionMap(scale = 2): CanvasTexture | null {
   ctx.textAlign = "center";
   ctx.fillStyle = "#52606D";
   ctx.font = '400 9px "Source Sans 3", ui-sans-serif, system-ui';
-  ctx.fillText("Designed for the browser  ·  Plays Apple Music", 165, layout.legalY);
+  ctx.fillText(
+    "Designed for the browser  ·  Plays Apple Music",
+    165,
+    layout.legalY,
+  );
   ctx.font = '400 8.5px "IBM Plex Mono", ui-monospace, monospace';
-  ctx.fillText("Model WP-5G  ·  320 × 240  ·  24 detents per turn", 165, layout.serialY);
-  ctx.fillText("Assistant tools exposed · 18 · Session 5C4B 9A11", 165, layout.liveY);
+  ctx.fillText(
+    "Model WP-5G  ·  320 × 240  ·  24 detents per turn",
+    165,
+    layout.serialY,
+  );
+  ctx.fillText(
+    "Assistant tools exposed · 18 · Session 5C4B 9A11",
+    165,
+    layout.liveY,
+  );
 
   const texture = new CanvasTexture(canvas);
   return tuneEtchedTextTexture(texture);
 }
 
-export function tuneEtchedTextTexture<TCanvas extends HTMLCanvasElement | OffscreenCanvas>(
-  texture: CanvasTexture<TCanvas>,
-): CanvasTexture<TCanvas> {
+export function tuneEtchedTextTexture<
+  TCanvas extends HTMLCanvasElement | OffscreenCanvas,
+>(texture: CanvasTexture<TCanvas>): CanvasTexture<TCanvas> {
   texture.colorSpace = SRGBColorSpace;
   texture.generateMipmaps = false;
   texture.minFilter = LinearFilter;
@@ -178,6 +264,7 @@ export function createWheelLabelMap(
   const pxPerUnit = size / (outerR * 2);
   const bandR = ((bandInnerR + bandOuterR) / 2) * pxPerUnit;
   const centre = size / 2;
+  const decal = wheelDecalLayout((bandInnerR + bandOuterR) / 2);
 
   ctx.fillStyle = params.labelColor;
   ctx.textAlign = "center";
@@ -185,14 +272,14 @@ export function createWheelLabelMap(
   ctx.font = `600 ${fontPx * pxPerUnit}px "Source Sans 3", ui-sans-serif, system-ui, sans-serif`;
   if ("letterSpacing" in ctx)
     ctx.letterSpacing = `${0.14 * fontPx * pxPerUnit}px`;
+  ctx.fillText("MENU", centre, centre - bandR);
 
-  for (const label of WHEEL_LABELS) {
-    // The texture's v axis runs down; the layout frame's y runs up. Negating
-    // the sine here is the single place that flip happens for the labels.
-    const x = centre + bandR * Math.cos(label.angle);
-    const y = centre + bandR * Math.sin(label.angle);
-    ctx.fillText(label.text, x, y);
-  }
+  // Transport glyphs are explicit vector ink, not font-dependent Unicode.
+  // That gives play/pause a measurable gap and keeps every optical box stable
+  // across OS/browser font stacks.
+  drawSkipDecal(ctx, decal.previous, pxPerUnit, centre, "previous");
+  drawSkipDecal(ctx, decal.next, pxPerUnit, centre, "next");
+  drawPlayPauseDecal(ctx, decal.playPause, pxPerUnit, centre);
 
   const texture = new CanvasTexture(canvas);
   // ⚑ A colour map, so it must be tagged sRGB. `CanvasTexture` defaults to
@@ -202,6 +289,87 @@ export function createWheelLabelMap(
   texture.colorSpace = SRGBColorSpace;
   texture.anisotropy = 4;
   return texture;
+}
+
+function drawSkipDecal(
+  ctx: CanvasRenderingContext2D,
+  bounds: WheelDecalBounds,
+  scale: number,
+  centre: number,
+  direction: "previous" | "next",
+): void {
+  ctx.save();
+  ctx.translate(centre + (bounds.x + bounds.width / 2) * scale, centre);
+  ctx.scale(scale, scale);
+  const sign = direction === "next" ? 1 : -1;
+  const triangleHeight = 13;
+  const triangleGap = 0.5;
+  const barGap = 1;
+  const barWidth = 2.5;
+  const triangleWidth = (bounds.width - triangleGap - barGap - barWidth) / 2;
+  const occupied = bounds.width;
+  const start = -occupied / 2;
+  const firstCenter = start + triangleWidth / 2;
+  const secondCenter = firstCenter + triangleWidth + triangleGap;
+  drawTriangle(ctx, sign * firstCenter, 0, triangleWidth, triangleHeight, sign);
+  drawTriangle(
+    ctx,
+    sign * secondCenter,
+    0,
+    triangleWidth,
+    triangleHeight,
+    sign,
+  );
+  const barCenter = start + occupied - barWidth / 2;
+  ctx.fillRect(
+    sign * barCenter - barWidth / 2,
+    -triangleHeight / 2,
+    barWidth,
+    triangleHeight,
+  );
+  ctx.restore();
+}
+
+function drawPlayPauseDecal(
+  ctx: CanvasRenderingContext2D,
+  layout: WheelDecalLayout["playPause"],
+  scale: number,
+  centre: number,
+): void {
+  const localY = layout.bounds.y + layout.bounds.height / 2;
+  ctx.save();
+  ctx.translate(centre, centre + localY * scale);
+  ctx.scale(scale, scale);
+  drawTriangle(
+    ctx,
+    layout.play.x + layout.play.width / 2,
+    0,
+    layout.play.width,
+    layout.play.height,
+    1,
+  );
+  for (const bar of [layout.pauseLeft, layout.pauseRight]) {
+    ctx.fillRect(bar.x, -bar.height / 2, bar.width, bar.height);
+  }
+  ctx.restore();
+}
+
+function drawTriangle(
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  centerY: number,
+  width: number,
+  height: number,
+  direction: -1 | 1,
+): void {
+  const halfWidth = width / 2;
+  const halfHeight = height / 2;
+  ctx.beginPath();
+  ctx.moveTo(centerX + direction * halfWidth, centerY);
+  ctx.lineTo(centerX - direction * halfWidth, centerY - halfHeight);
+  ctx.lineTo(centerX - direction * halfWidth, centerY + halfHeight);
+  ctx.closePath();
+  ctx.fill();
 }
 
 /**
@@ -266,61 +434,6 @@ export function createSteelAnisotropyMap(size = 1024): DataTexture {
   return texture;
 }
 
-export const DEFAULT_SELECT_THICKNESS_PROFILE = Object.freeze({
-  center: 0.66,
-  shoulder: 1.0,
-  rim: 0.45,
-  shoulderRadius: 0.68,
-  shoulderWidth: 0.16,
-  rimStart: 0.82,
-});
-
-/**
- * The Select cap's volume, as non-color thickness data in the G channel.
- *
- * `MeshPhysicalMaterial` composes transmissive path length as
- * `thickness * thicknessMap.g`, so this map changes how much plastic the ray
- * travels through without painting light into the part. The profile is a thin
- * feathered rim, a thicker shoulder where the dome rises, and a slightly
- * thinner centre — the moulded part's own section, shared across colourways.
- */
-export function createSelectThicknessMap(
-  size = 512,
-  profile = DEFAULT_SELECT_THICKNESS_PROFILE,
-): DataTexture {
-  const data = new Uint8Array(size * size * 4);
-  const scale = 2 / size;
-  for (let y = 0; y < size; y += 1) {
-    const v = (y + 0.5) * scale - 1;
-    for (let x = 0; x < size; x += 1) {
-      const u = (x + 0.5) * scale - 1;
-      const r = Math.hypot(u, v);
-      const shoulder = Math.exp(
-        -(((r - profile.shoulderRadius) / profile.shoulderWidth) ** 2),
-      );
-      const rim = smoothstep(profile.rimStart, 1, Math.min(1, r));
-      const centerBlend = smoothstep(0, 0.42, Math.min(1, r));
-      const value = clamp01(
-        profile.center -
-          0.06 * (1 - centerBlend) +
-          (profile.shoulder - profile.center) * shoulder -
-          (profile.center - profile.rim) * rim,
-      );
-      const byte = Math.round(value * 255);
-      const offset = (y * size + x) * 4;
-      data[offset] = byte;
-      data[offset + 1] = byte;
-      data[offset + 2] = byte;
-      data[offset + 3] = 255;
-    }
-  }
-  const texture = new DataTexture(data, size, size, RGBAFormat);
-  texture.minFilter = LinearFilter;
-  texture.magFilter = LinearFilter;
-  texture.needsUpdate = true;
-  return texture;
-}
-
 function xorshift32(seed: number): () => number {
   let state = seed >>> 0 || 1;
   return () => {
@@ -329,13 +442,4 @@ function xorshift32(seed: number): () => number {
     state ^= state << 5;
     return (state >>> 0) / 0x1_0000_0000;
   };
-}
-
-function clamp01(value: number): number {
-  return Math.min(1, Math.max(0, value));
-}
-
-function smoothstep(edge0: number, edge1: number, value: number): number {
-  const t = clamp01((value - edge0) / Math.max(1e-6, edge1 - edge0));
-  return t * t * (3 - 2 * t);
 }

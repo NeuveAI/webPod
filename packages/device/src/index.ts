@@ -166,6 +166,9 @@ export {
   createMicroNoiseRoughnessMap,
   createSteelAnisotropyMap,
   createWheelLabelMap,
+  wheelDecalLayout,
+  type WheelDecalBounds,
+  type WheelDecalLayout,
 } from "./textures";
 
 export {
