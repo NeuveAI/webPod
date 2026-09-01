@@ -59,22 +59,30 @@ dropped rather than increasing gain or allocating indefinitely.
 The constants are asserted against literals so a future rewrite cannot move
 both implementation and expectation together.
 
-## W9b-D5 · Activation and backgrounding are state transitions
+## W9b-D5 · Activation and backgrounding are ordered operations
 
 Construction and resume happen only from the trusted pointer/key listener.
 Feedback before activation is not replayed. Feedback that arrives while that
 first resume is pending is bounded so the initiating physical click is not
-lost. Blur/hidden/mute invalidates the activation epoch, clears pending events,
-stops voices, and suspends. Dispose closes and disconnects.
+lost. Every activate, blur/hidden interrupt, mute change, and dispose gets a
+monotonic operation identity. An asynchronous completion may update lifecycle
+only while it remains current. A newer activation observes older pending
+suspensions, then confirms or restores `running`, so the physical context and
+the published lifecycle agree. Blur/hidden/mute clears pending events, stops
+voices, and suspends. Dispose closes and disconnects.
 
 Failures are data: `unsupported`, `resume-failed`, `context-suspended`,
-`voice-cap`, `rate-limit`, and `graph-failed`. Nothing logs to the console.
+`voice-cap`, and `graph-failed`. Nothing logs to the console. The first review
+proved `rate-limit` was unreachable behind the 12-voice cap, so the dead public
+reason and its contradictory claim were removed.
 
 ## W9b-D6 · Mute is a runtime seam, not invented settings UI
 
-No existing clicker mute setting exists. `setEnabled(boolean)` is the smallest
-explicit seam. Disabling stops voices and suspends; the next real activation
-can resume after re-enable. W9b adds no setting, label, persistence, or panel UI.
+No existing clicker mute setting exists. `setEnabled(boolean)` remains the
+runtime seam, and `CompositeDevice.interactionAudioEnabled` makes it reachable
+from the mounted product. Disabling stops voices and suspends; the next real
+activation can resume after re-enable. W9b adds no setting, label, persistence,
+or panel UI.
 
 ## W9b-D7 · Browser evidence is observable but not semantic feedback
 
@@ -83,3 +91,28 @@ The composite root mirrors lifecycle and bounded counters in
 navigation meaning and does not replace focus, selection, visual depression,
 screen movement, bumps, or announcements.
 
+## W9b-D8 · One store sequence has one audio owner
+
+One store-scoped subscription hub owns sequence consumption. It records the
+latest consumed `seq` before dispatch and chooses one eligible binding, biased
+toward a running/activating runtime and then the most recently activated
+boundary. Duplicate attachment of one runtime and multiple public device mounts
+therefore cannot replay one authoritative event. The hub is held in a `WeakMap`
+and releases its sole store subscription after the final binding detaches.
+
+## W9b-D9 · Eligible feedback is human by type and by runtime check
+
+`InteractionFeedbackEvent` now carries `HumanActor` and literal
+`silenced: false`; an agent-owned audible event cannot be constructed through
+the public type. The store publisher narrows again before writing, and the
+audio runtime defensively checks actor provenance so malformed JavaScript data
+still produces a structured `silenced` result.
+
+## W9b-D10 · Sound quality is owner-judged
+
+Deterministic graph tests remain necessary but do not establish taste. The same
+production graph can now render through `OfflineAudioContext` into a PCM WAV.
+That reproducible artifact and the live route are the human-quality gate. The
+owner must decide whether the result is restrained, plastic/mechanical, lighter
+on wheel than Select, and articulate under a flick; W9b does not self-approve
+that judgement.

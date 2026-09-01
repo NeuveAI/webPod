@@ -13,6 +13,11 @@
 | `5b44872` | internal audio status vocabulary passes the permission-copy gate |
 | `b013871` | muted construction guard and diagnostic-failure containment |
 | `59291a4` | physical Select release, browser diagnostics, and disposal proof |
+| `c6e7702` | human-only public feedback contract and defensive publisher |
+| `ea9d8e8` | ordered lifecycle operations and store-scoped exact-once owner |
+| `f12509a` | mounted mute prop and duplicate public-mount proof |
+| `fcc18a7` | production-graph offline renderer and audible WAV evidence |
+| `38c52ad` | reusable renderer output seam that satisfies naming hygiene |
 
 The Select-release bridge follows W9a's typed input seam in `2ec0861`, so both
 commits typecheck independently in dependency order.
@@ -33,22 +38,27 @@ bun test packages/composite/src/interaction-audio.test.ts \
   packages/composite/src/CompositeDevice.integration.test.tsx
 ```
 
-Result: **20 pass, 0 fail, 160 assertions**.
+Result: **30 pass, 0 fail, 187 assertions**.
 
 Covered claims:
 
 - no backend construction or replay before human activation;
 - suspended-context resume and bounded first-click queue;
 - interruption during resume cannot revive background audio;
+- deferred blur/mute suspension cannot defeat a newer activation;
+- stale resume rejection cannot overwrite interruption or disposal;
+- duplicate bindings and public mounts consume one sequence exactly once;
 - one eligible press produces one click;
 - N authoritative detents produce N budgeted 30Hz-spaced ticks;
-- zero for sub-detent, agent, silenced, and disabled paths;
+- zero for sub-detent, agent, malformed-agent, silenced, and disabled paths;
+- mounted `interactionAudioEnabled` reaches the live runtime;
 - 12-voice and eight-pending-event caps;
 - ±2% pitch bound and literal 30Hz/12/8/0.02 gates;
 - natural end, blur, hidden, detach, dispose, suspend, close, and graph failure;
 - source/filter/envelope/master/compressor topology;
 - 8ms wheel, 12ms secondary, 16ms Select envelopes;
 - deterministic, finite, decaying, ≤1 procedural buffers;
+- production-graph `OfflineAudioContext` rendering and PCM WAV encoding;
 - every per-voice node disconnects and completion is idempotent.
 
 State-specific command:
@@ -57,9 +67,19 @@ State-specific command:
 bun test packages/state/src/feedback.test.ts packages/state/src/store.test.ts
 ```
 
-Result from the implementation checkpoint: **35 pass, 0 fail**. The feedback
+Result after review fixes: **36 pass, 0 fail**. The feedback
 tests cover one press, N direct detents, sub-detent zero, agent/system zero,
-coast budget provenance, and sequence identity.
+coast budget provenance, sequence identity, and a type-level rejection of
+agent-owned eligible feedback.
+
+## Antagonistic plants
+
+Before implementation, the review plants ran alongside the prior suite as
+**18 pass / 9 fail**. The failures reproduced both deferred-suspend races,
+malformed agent playback, stale rejection after dispose and interrupt,
+duplicate binding, duplicate runtime/public mount consumption, and the
+unreachable mounted mute seam. After the fixes, the same permanent plants are
+included in the 30-pass focused result above.
 
 ## Browser event/audio transcript
 
@@ -88,6 +108,41 @@ The automated pointer remaining locked is expected: browser automation is not
 accepted as human activation. The wheel transcript proves that an authoritative
 feedback event cannot bypass the lock or generate an autoplay error.
 
+The post-review browser pass again mounted T3 at `locked`, with zero scheduled
+or dropped sounds. An automated click left it locked and the browser recorded
+no warning or error. That is autoplay evidence, not a listening verdict.
+
+## Audible artifact and human-quality gate
+
+Artifact: `w9b-interaction-audio-preview.wav`.
+
+It was generated in real Chromium by importing the production module through
+the running Vite route and rendering the same source → filter → envelope →
+master → compressor graph with `OfflineAudioContext`:
+
+```sh
+bun run packages/composite/scripts/render-interaction-audio-preview.ts \
+  docs/workstreams/002-implementation-spine/evidence/w9b-interaction-audio-preview.wav
+```
+
+Recorded output:
+
+```text
+bytes=96044
+sha256=b0f145861e0c022c7f58e00c5fd6f3f0364984a16a67e9644f545c15117ff30e
+WAVE PCM · mono · 48000 Hz · Int16 · 1.000000 seconds
+peak=0.046509 · rms=0.000972 · nonzero samples=1631/48000
+```
+
+Sequence: Select at 0.12s; six 30Hz-spaced wheel ticks beginning at 0.40s;
+secondary button at 0.78s.
+
+**Human-quality verdict: PENDING OWNER.** Pass only if the wheel reads as a
+lighter mechanical/plastic tick than Select, the sequence is articulate rather
+than a buzz, none of the voices read as a notification beep or digital pop, and
+the live route remains restrained through the owner's actual speakers. The WAV
+does not replace the live-route check and W9b does not approve its own taste.
+
 ## Manual audible preview
 
 1. Run `bun run dev` and open `http://localhost:3000/_spike/device` in the T1
@@ -112,7 +167,7 @@ feedback event cannot bypass the lock or generate an autoplay error.
 | Gate | Result |
 | --- | --- |
 | `bun run lint` | exit 0 |
-| `bun test` | 1,073 pass, 0 fail |
+| `bun test` | 1,086 pass, 0 fail |
 | `bun run build` | exit 0; existing large-chunk warning only |
 | state TypeScript | exit 0 |
 | composite TypeScript | exit 0 |
