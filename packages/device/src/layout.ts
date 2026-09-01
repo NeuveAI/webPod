@@ -45,6 +45,17 @@ import {
  */
 export const PX_PER_MM: number = BODY_W / 61.8;
 
+/** Apple/5G physical reference behind the canonical 272 × 204 Pencil slot. */
+export const LCD_ACTIVE_PHYSICAL_MM = Object.freeze({
+  width: 50.8,
+  height: 38.1,
+  semanticWidth: 320,
+  semanticHeight: 240,
+});
+
+/** Rounding allowance from physical millimetres to the integer Pencil grid. */
+export const LCD_PHYSICAL_TOLERANCE_MM = 0.2;
+
 /** §7.3 millimetre column — the real 5th generation, measured. */
 const MM = {
   /** Body depth, 30GB model. Sets the chassis extrusion. */

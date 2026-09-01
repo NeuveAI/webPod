@@ -110,7 +110,7 @@ export type DeviceProps = {
 };
 
 const { body, screen, wheel } = DEVICE_LAYOUT;
-const { displayWell, glass } = DEVICE_SURFACE_LAYOUT.front;
+const { displayWell, glass, mask } = DEVICE_SURFACE_LAYOUT.front;
 const rear = DEVICE_SURFACE_LAYOUT.rear;
 
 // D-067 puts VWaJS's circular 26px enclosure in DEVICE_LAYOUT; every shell
@@ -360,7 +360,7 @@ export function Device({
     const shape = roundedRectShape(
       glass.width,
       glass.height,
-      SCREEN_CORNER_R,
+      glass.cornerR,
       12,
     );
     const geometry = new ExtrudeGeometry(shape, {
@@ -372,6 +372,30 @@ export function Device({
     return geometry;
   }, [form.glassThickness]);
   useEffect(() => () => glassGeometry.dispose(), [glassGeometry]);
+
+  const displayMaskGeometry = useMemo(() => {
+    const shape = roundedRectFrameShape(
+      {
+        width: mask.width,
+        height: mask.height,
+        radius: mask.cornerR,
+      },
+      {
+        width: screen.width,
+        height: screen.height,
+        radius: screen.cornerR,
+      },
+      12,
+    );
+    const geometry = new ExtrudeGeometry(shape, {
+      depth: 0.08,
+      bevelEnabled: false,
+      curveSegments: 1,
+    });
+    geometry.translate(0, 0, -0.08);
+    return geometry;
+  }, []);
+  useEffect(() => () => displayMaskGeometry.dispose(), [displayMaskGeometry]);
 
   const displayWellGeometry = useMemo(() => {
     const shape = roundedRectFrameShape(
@@ -507,6 +531,8 @@ export function Device({
   const selectRimZ = ringInnerZ + form.selectProud;
   const displayWellFrontZ = frontFaceZ - form.displayWellInset;
   const glassFrontZ = frontFaceZ - form.glassInset;
+  const screenFrontZ =
+    glassFrontZ - form.glassThickness - form.glassToPanel;
   const wheelWellZ =
     frontFaceZ - (form.recessDepth + form.wheelWellDepth) / 2 + 0.15;
   const rearInlayZ = -body.depth / 2 + form.rearInlayInset;
@@ -585,6 +611,17 @@ export function Device({
           {...spread(materials.steelBack)}
           envMap={env}
           {...surfaceMaps.steel}
+        />
+      </mesh>
+
+      <mesh
+        name="device-display-mask"
+        geometry={displayMaskGeometry}
+        position={[mask.centerX, mask.centerY, screenFrontZ + 0.1]}
+      >
+        <meshPhysicalMaterial
+          name="display-mask"
+          {...spread(materials.displayWell)}
         />
       </mesh>
 
@@ -792,7 +829,7 @@ export function Device({
         position={[
           screen.centerX,
           screen.centerY,
-          glassFrontZ - form.glassThickness - form.glassToPanel,
+          screenFrontZ,
         ]}
         material={screenDefaultMaterial}
       />

@@ -9,6 +9,8 @@ import { DEVICE_LAYOUT } from "./layout";
  */
 const { body, screen, wheel } = DEVICE_LAYOUT;
 const DISPLAY_WELL_INSET = 4;
+const DISPLAY_GLASS_LIP = 2;
+const DISPLAY_MASK = 1;
 
 export const DEVICE_SURFACE_LAYOUT = Object.freeze({
   front: Object.freeze({
@@ -22,11 +24,19 @@ export const DEVICE_SURFACE_LAYOUT = Object.freeze({
       inset: DISPLAY_WELL_INSET,
     }),
     glass: Object.freeze({
-      width: screen.width,
-      height: screen.height,
-      cornerR: screen.cornerR,
+      width: screen.width + DISPLAY_GLASS_LIP * 2,
+      height: screen.height + DISPLAY_GLASS_LIP * 2,
+      cornerR: screen.cornerR + DISPLAY_GLASS_LIP,
       centerX: screen.centerX,
       centerY: screen.centerY,
+    }),
+    mask: Object.freeze({
+      width: screen.width + DISPLAY_MASK * 2,
+      height: screen.height + DISPLAY_MASK * 2,
+      cornerR: screen.cornerR + DISPLAY_MASK,
+      centerX: screen.centerX,
+      centerY: screen.centerY,
+      inset: DISPLAY_MASK,
     }),
     wheel: Object.freeze({
       centerX: wheel.centerX,

@@ -30,9 +30,16 @@ import {
   WHEEL_R,
 } from "@webpod/tokens";
 
-import { DEVICE_LAYOUT, PX_PER_MM, toCanvasTopLeft } from "./layout";
 import { DEFAULT_DEVICE_FORM } from "./form";
+import {
+  DEVICE_LAYOUT,
+  LCD_ACTIVE_PHYSICAL_MM,
+  LCD_PHYSICAL_TOLERANCE_MM,
+  PX_PER_MM,
+  toCanvasTopLeft,
+} from "./layout";
 import { silhouetteHalfWidth } from "./luminance-probe";
+import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 
 describe("§12.0 R5 geometry — the numbers the dispatch names", () => {
   test('wheelR is 115 (§12.0, "wheelR 106 → 115")', () => {
@@ -156,6 +163,42 @@ describe("the vertical chain, re-derived at wheelR 115", () => {
 
   test("body depth is 11.0mm (§7.3, 30GB)", () => {
     expect(DEVICE_LAYOUT.body.depth.toFixed(2)).toBe("58.74");
+  });
+});
+
+describe("measured 5G LCD aperture", () => {
+  test("the canonical 272 × 204 slot is the physical 50.8 × 38.1mm 4:3 panel", () => {
+    const physicalWidth = DEVICE_LAYOUT.screen.width / PX_PER_MM;
+    const physicalHeight = DEVICE_LAYOUT.screen.height / PX_PER_MM;
+    expect(DEVICE_LAYOUT.screen.width).toBe(272);
+    expect(DEVICE_LAYOUT.screen.height).toBe(204);
+    expect(DEVICE_LAYOUT.screen.width / DEVICE_LAYOUT.screen.height).toBe(4 / 3);
+    expect(Math.abs(physicalWidth - LCD_ACTIVE_PHYSICAL_MM.width)).toBeLessThanOrEqual(
+      LCD_PHYSICAL_TOLERANCE_MM,
+    );
+    expect(Math.abs(physicalHeight - LCD_ACTIVE_PHYSICAL_MM.height)).toBeLessThanOrEqual(
+      LCD_PHYSICAL_TOLERANCE_MM,
+    );
+    expect(DEVICE_LAYOUT.screen.width / DEVICE_LAYOUT.body.width).toBeCloseTo(0.8242, 4);
+    expect(DEVICE_LAYOUT.screen.height / DEVICE_LAYOUT.body.height).toBeCloseTo(0.3696, 4);
+    expect(LCD_ACTIVE_PHYSICAL_MM.semanticWidth).toBe(320);
+    expect(LCD_ACTIVE_PHYSICAL_MM.semanticHeight).toBe(240);
+  });
+
+  test("active pixels, 1px mask, glass lip, and recess are separate nested bounds", () => {
+    const { displayWell, glass, mask } = DEVICE_SURFACE_LAYOUT.front;
+    expect(mask.width - DEVICE_LAYOUT.screen.width).toBe(2);
+    expect(mask.height - DEVICE_LAYOUT.screen.height).toBe(2);
+    expect(glass.width - mask.width).toBe(2);
+    expect(glass.height - mask.height).toBe(2);
+    expect(displayWell.width - glass.width).toBe(4);
+    expect(displayWell.height - glass.height).toBe(4);
+    expect([
+      DEVICE_LAYOUT.screen.cornerR,
+      mask.cornerR,
+      glass.cornerR,
+      displayWell.cornerR,
+    ]).toEqual([4, 5, 6, 9]);
   });
 });
 
