@@ -607,9 +607,15 @@ state_value() {
   local key="$1"
   local count value
   count="$(grep -c "^${key}=" "$STATE_FILE")"
-  [[ "$count" == '1' ]] || fail "state key is missing or duplicated: $key"
+  if [[ "$count" != '1' ]]; then
+    fail "state key is missing or duplicated: $key"
+    return 1
+  fi
   value="$(sed -n "s/^${key}=//p" "$STATE_FILE")"
-  [[ -n "$value" ]] || fail "state key is empty: $key"
+  if [[ -z "$value" ]]; then
+    fail "state key is empty: $key"
+    return 1
+  fi
   print -r -- "$value"
 }
 
