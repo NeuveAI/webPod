@@ -158,3 +158,49 @@ What blocked the wider proof:
   fixture setup (`git`/temp-fixture `ENOENT`, fixture commit exit `143`) on this
   shared workspace session, so I did not claim a green full-suite result I did
   not have.
+
+## Tuesday, September 1, 2026 — true-3D rebuild
+
+The owner rejected the prior preview as flat, clipped, shimmery, and blurry.
+That criticism held up under inspection. The route used a fixed camera distance
+and a hand-painted LCD proxy; the compositing path rendered the panel above its
+native density, put a second optical plane over the screen, and then viewed it
+through a 12× transmission buffer. The body also consumed manufactured optical
+normal/roughness profiles whose bands only made sense from the canonical front.
+
+The replacement keeps the existing repo-native procedural shell, because it is
+already real topology rather than a raster prop, and removes the front-pose
+illusions around it:
+
+- `DeviceCanvas` measures the rotated `device-model` group with `Box3` and fits
+  a perspective camera from all eight bound corners and CSS-pixel safe margins.
+- `StudioEnvironment` converts Three's `RoomEnvironment` once through PMREM;
+  two broad world-fixed `RectAreaLight` softboxes reveal the volume while the
+  one device root rotates beneath them.
+- the front and rear shells, seam, display recess, wheel recess, dished wheel,
+  raised Select, cover glass, rear composition, HOLD control, and headphone jack
+  are separate bounded meshes with actual depth and occlusion.
+- the live `Device` no longer imports or consumes the old optical-profile maps.
+  Curvature and continuous normals come from its tessellated/extruded geometry.
+- `/_spike/device` now mounts `CompositeDevice` with the real DOM `Panel`; it no
+  longer paints a diagnostic UI into a `CanvasTexture`.
+- the HTML-in-canvas source uses exactly 320×240, 640×480, or 960×720 at DPR
+  1/2/3, no mipmaps, sRGB, and one linear-sampled screen plane. The cover glass
+  is a separate reflective transparent sheet with no refractive resampling.
+
+The flagged-Chrome proof is fresh and reproducible. It captured black and white
+fronts, a black three-quarter pose, white edge, steel rear, a top-control pose,
+and 375×812 mobile. Every pose's *measured live model bounds* projects inside
+the requested safe area. The mobile case is width-limited and centered; it no
+longer inherits a desktop aspect box. The panel remains real DOM and responds
+to keyboard navigation after being composited.
+
+All wider gates that the earlier addendum reported blocked are green on this
+tree: 11/11 TypeScript projects, repo lint, 989 tests, production build, and 16
+automated static gates. U14 and U15 remain correctly manual. The browser route
+is `http://localhost:3000/_spike/device`; the default is an uncluttered black
+three-quarter pose, with drag/keyboard rotation and external controls.
+
+The evidence is in `evidence/volumetric-device-true3d/`. The earlier
+transmission-12 and proxy-LCD notes above are historical failure records, not
+the current architecture.

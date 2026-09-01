@@ -195,3 +195,77 @@ at `http://localhost:3000/_spike/device` still rendered correctly.
 That discrepancy lives in the route/app verification path, not inside the
 device package. I recorded it as a blocker instead of claiming fresh flagged
 Chrome captures that were not reproducible from this workspace state.
+
+## VD-18 · Keep the repo-native procedural shell; replace the front-only assumptions around it
+
+Inspection overturned the premise that the entire old device was a raster
+composition. `Device.tsx` already had extruded front/back solids, a curved
+front, a dished wheel, a raised Select, holes, recesses, and one orientation
+group. Replacing that with an imported model would have discarded useful real
+geometry and introduced provenance risk. The rebuild keeps the procedural
+solid and removes the actual flatness sources: fixed camera, proxy panel,
+manufactured optical maps, striped room, and duplicate LCD planes.
+
+No third-party iPod mesh or texture ships. Pencil `VWaJS` and `zbTc3` remain the
+layout authority and were read only through MCP. The NekoMod iPod Video model
+(MIT) and iFixit 5G top-edge photography were mechanical references only; no
+geometry, texture, or source was copied from either.
+
+## VD-19 · Camera fit is solved from live bounds after orientation
+
+The previous `1160` distance was a calibration number pretending to be a
+responsive layout. The replacement runs after the model group's transform,
+measures its world `Box3`, and solves distance from each corner's x/y/depth
+requirements under the real perspective FOV. Safe margin is stated in CSS
+pixels and converted to NDC separately for each viewport dimension. Debug
+controls live outside the model frame and never enter the solve.
+
+An explicit camera distance remains only as a calibration override. The default
+preview, mobile, edge, rear, and custom orientations all use measured fit.
+
+## VD-20 · Studio reflections are world-space PBR inputs, not UV paint
+
+The environment is Three's `RoomEnvironment` filtered once through PMREM. Key
+and fill are broad `RectAreaLight` emitters, siblings of the rotating model.
+There is no `vUv` edge glow, camera/view-matrix band, additive outgoing-light
+term, or pose-specific light. Black/white polycarbonate, wheel, clear cover,
+and steel keep separate physical parameters and read differently under the same
+room.
+
+D-064 still governs acceptance: front/rear retain their canonical stop-table
+role; rotated poses are judged on silhouette, continuity, occlusion, material
+identity, and world-fixed highlights.
+
+## VD-21 · One native-density LCD plane, with glass optically separate
+
+The old route authored a separate fake LCD and the T1 source forced 2× at DPR1,
+then placed a second optical overlay over it and spent a 12× transmission pass
+looking through glass. The replacement mounts the real `Panel`, quantizes only
+to exact 1×/2×/3× native LCD rasters, disables mipmaps, marks the texture sRGB,
+and uses one screen plane. Linear filtering is retained because the perspective
+projection commonly lands the screen between device pixels; nearest filtering
+made that transform shimmer.
+
+The cover glass remains separate geometry, but its material is reflective and
+transparent rather than transmissive. It therefore catches the room without
+resampling the DOM texture behind it.
+
+## VD-22 · Edge controls are geometry and share the orientation root
+
+The HOLD recess, orange indicator, slider, headphone rim, and jack well are
+separate rounded/cylindrical solids on the top edge. They rotate with the same
+model group and contribute to camera bounds. This is deliberately small detail,
+but it makes the top/edge silhouette identifiable and prevents a future flip
+interaction from exposing an empty generic slab.
+
+## VD-23 · Composite changes are limited to screen integration and camera plumbing
+
+The scoped cross-package changes are exactly:
+
+- `packages/composite/src/html-in-canvas.ts` and its tests: native DPR raster,
+  no duplicate overlay, no mipmaps, sRGB/linear filtering.
+- `packages/composite/src/CompositeDevice.tsx`: forwards
+  `cameraSafePadding` to `DeviceCanvas`.
+
+No fallback or polyfill was added. T1 remains the main path as requested; T3/T4
+remain a later workstream.
