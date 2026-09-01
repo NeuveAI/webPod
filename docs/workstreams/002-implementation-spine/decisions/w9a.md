@@ -55,10 +55,16 @@ feedback. Optional Select start/end types are the only cross-lane seam for W9b.
 ## W9A-06 · Demand rendering is event-driven and release-bounded
 
 Holding a control writes geometry once and calls R3F `invalidate`; it does not
-start a loop. Only a changing release requests browser frames. The monotonic
-cubic return stops by elapsed time or 24 frames, whichever comes first. A
-reduced-motion release restores immediately while preserving the direct held
-pose.
+start a loop. Only a changing release requests browser frames. A healthy clock
+stops the monotonic cubic return by elapsed physical time; frame count never
+truncates it. The 24-frame escape counts only consecutive non-advancing or
+non-finite timestamps and resets as soon as time advances. This preserves a
+hostile/frozen-clock safety exit without changing 15–360 Hz motion.
+
+Switching reduced motion on during an active release restores both controls,
+invalidates that restored GPU state exactly once, and then cancels the obsolete
+scheduled callback. Reduced motion therefore preserves direct feedback without
+leaving a stale depressed demand-rendered frame.
 
 ## W9A-07 · Keyboard travel follows semantic Select ownership
 
@@ -68,12 +74,26 @@ navigation. Keyup, blur, visibility loss and unmount all release the visual
 travel. This gives keyboard parity without making arbitrary Enter presses look
 like hardware input.
 
-## W9A-08 · A typed capture pose is the minimal evidence exception
+## W9A-08 · Visual proof has no synthetic control seam
 
-The in-app browser resolves `CompositeDevice` to T3, while the direct
-production-surface route can render the physical model. `DeviceCanvas` now
-accepts the development-only `controlEvidencePose`; the spike route validates
-the finite query union and passes it only in production-surface capture mode.
-This is the one app-file exception to `packages/device/**`, and it exists so
-key/fill/combined held states are deterministic and reproducible rather than
-timed screenshots of synthetic pointer events.
+The first pass's typed evidence pose was not a valid exception to the binding
+scope. It bypassed `CompositeDevice` and the pointer event chain under review.
+It is deleted. `DeviceCanvas`, `ControlPhysicsScope` and the spike route expose
+no pose injection, reset hook or query-string control state for proof.
+
+Accepted visual evidence must use the existing real route and actual pointer
+down, hold, move and release lifecycle. If a browser environment cannot render
+T1, the result is an explicit evidence blocker—not permission to substitute a
+synthetic pose or the known blank T3 path.
+
+## W9A-09 · Historical coherence requires owner replay
+
+Commit `2ec0861` exports five symbols before their definitions land in
+`890b4f3`; an archive typecheck reproduces exactly those five errors. The
+current source is repaired and archive-green, but Git commit objects are
+immutable. No additive commit can make `2ec0861` standalone-green.
+
+Repo law reserves history rewriting and force-pushing to the owner. The lane
+therefore records a guarded local replay in
+`evidence/w9a-owner-history-rewrite.md` and stops. Until the owner runs and
+verifies it, historical standalone coherence remains open.
