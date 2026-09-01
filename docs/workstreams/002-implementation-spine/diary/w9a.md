@@ -137,3 +137,43 @@ The connected in-app browser still renders the known blank T3 canvas and was
 not counted as proof. A separately launched local Chrome 152 session with
 `CanvasDrawElement` enabled rendered T1 and produced the accepted correction
 captures. No audio path was read or changed by this correction.
+
+## Readability antagonistic re-review
+
+The review found that the accepted correction was continuous only in its mesh
+deformation, not in its optical source. I had sampled the nearest vertex, which
+turned a continuously moving thumb into a source that plateaued for 2.07° and
+jumped 3.448 pixels. The source now comes directly from the actual contact and
+the same analytic curved-shell functions that build the production face. A
+36,001-sample, 0.01° sweep over the production 128 × 24 topology moves on every
+sample, remains between 0.012872 and 0.012888 model pixels per step, and closes
+the signed seam to 1.78e-14 model pixels.
+
+The review also correctly rejected my shader test. Checking that my source did
+not spell `directDiffuse` proved nothing while it deliberately called
+`RE_Direct`, whose implementation adds Lambert diffuse. The revised shader
+never calls it. It writes a neutral, bounded edge return only to Three's direct
+specular accumulator, gated by the magnitude of the real live/rest normal
+difference. Replacing that difference with plain `geometryNormal` now fails the
+focused suite.
+
+The production browser exposed a second cause that code reading had missed.
+The warm/dark oval remained with response irradiance forced to zero. The
+0.05-pixel gap floor was physically intersecting the 0.42-pixel wheel travel.
+Deforming that existing floor with the same field removed the broad oval while
+preserving its exact rest separation. The final 0.06 specular edge return is
+small enough to avoid a spotlight disc but makes the real 0.08 mm depression
+read on black and white at front and quarter angles.
+
+Evidence now includes all twelve black/white × front/quarter rest/hold/release
+frames, a real held 1° seam sequence, a full active pointer trace and a two-
+second production idle trace. Every rest/release pair is byte-identical. The
+idle trace contains zero animation-frame requests, callbacks, begin/draw frames
+or paints. The browser recording command could not encode WebM because this
+host has no `ffmpeg`; the explicit sampled sequence is the accepted temporal
+alternative and is indexed with that limitation rather than a false recording
+claim.
+
+Detach/rebind now has an independent cleanup gate. Deleting only the current
+binding's `readability.clear()` fails exactly that test; stale detach remains
+unable to clear a replacement. No audio source was touched.

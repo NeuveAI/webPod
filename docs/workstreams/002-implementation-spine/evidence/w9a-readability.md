@@ -1,5 +1,11 @@
 # W9a owner readability correction evidence
 
+> Superseded on September 2, 2026 by
+> `evidence/w9a-readability-rereview.md`. The antagonistic review rejected the
+> nearest-vertex source, `RE_Direct` diffuse path, broad held oval and incomplete
+> browser matrix documented here. These artifacts remain as an honest record of
+> the rejected revision; they are not current acceptance evidence.
+
 ## Outcome
 
 The click-wheel contact is now easier to read without changing W9's physical

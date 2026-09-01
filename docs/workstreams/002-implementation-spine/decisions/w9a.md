@@ -120,3 +120,34 @@ irradiance. Intensity is exactly zero at rest. The existing pointer invalidation
 and 120 ms release frames update the uniforms; the response owns no frame loop.
 Reduced motion preserves direct held feedback and clears it on release without
 requesting a release animation.
+
+## W9A-11 · Continuous source and slope-only specular supersede W9A-10
+
+W9A-10's travel boundary remains binding, but its sampling and optical
+mechanism are rejected. A nearest production vertex is not the contact: it
+held the source still for up to 2.07° and then moved it 3.448 model pixels.
+The controller now samples the analytic front-shell point and normal at the
+actual body-local contact. At the compact height field's centre the deformation
+gradient is zero, so the live source point is that analytic point displaced by
+the current depth along its normalized rest normal. Tessellation no longer
+enters the source calculation.
+
+`RE_Direct` is also rejected because Three's physical direct-light function
+adds Lambert diffuse as well as specular. The wheel-only shader now contributes
+only to `reflectedLight.directSpecular`, and only where
+`length(liveNormal - restNormal)` crosses the literal 0.65°–0.9° slope window.
+The contact-local cone and range still bound the response spatially. There is
+no diffuse accumulator, ordinary scene light, UV mask, view-space source or
+flat-normal admission path. The reviewer's exact plain-`geometryNormal` plant
+is a failing test.
+
+The final visual calibration is 4 mm tangent offset, 5 mm surface lift, 12 mm
+range, 20°/42° cone and 0.06 peak neutral linear edge return. These are bounded
+visual values, not OEM measurements. Travel remains exactly 0.08 mm.
+
+Production diagnosis also found that the former broad dark centre survived at
+zero auxiliary irradiance: the static wheel-gap floor was only 0.05 model
+pixels behind a wheel moving about 0.42 model pixels, so it intersected the
+depressed patch. The existing floor now receives the same analytic local
+deformation as the ring. It remains at the established 0.05-pixel separation
+at rest and adds no new geometry, recess or render-order fake.
