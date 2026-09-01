@@ -3,13 +3,13 @@ import { RectAreaLight } from "three";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
 
 import {
-  fillSurfaceLightIntensity,
-  fillLightPosition,
+  areaLightIntensity,
+  keyLightPower,
   keyLightPosition,
-  surfaceLightIntensity,
+  kickLightPosition,
+  kickLightPower,
   type LightRigParams,
 } from "./light-rig";
-import { DEVICE_LAYOUT } from "./layout";
 import {
   FRONT_DEVICE_ORIENTATION,
   deviceOrientationToRotation,
@@ -28,7 +28,7 @@ type ViewerLitDeviceFrameProps = {
 };
 
 /**
- * Keeps LAW 2's lamps in viewer/world space while rotating only the device.
+ * Keeps the authored key and kick in world space while rotating only the device.
  *
  * The sibling relationship is load-bearing: putting either light below the
  * model group would bolt it to the iPod and reverse the rig in the back view.
@@ -39,29 +39,26 @@ export function ViewerLitDeviceFrame({
   children,
 }: ViewerLitDeviceFrameProps) {
   const keyPosition = keyLightPosition(lightRig.key);
-  const fillPosition = fillLightPosition(lightRig.fill);
+  const kickPosition = kickLightPosition(lightRig.kick);
   return (
     <>
       <rectAreaLight
         name="device-key-light"
         position={keyPosition}
         rotation={aimAreaLightAtOrigin(keyPosition)}
-        intensity={surfaceLightIntensity(
-          lightRig.key.intensity,
-          lightRig.key.distance,
-        )}
+        intensity={areaLightIntensity(keyLightPower(lightRig), lightRig.key.emitter)}
         color={lightRig.key.color}
-        width={DEVICE_LAYOUT.body.width * 1.65}
-        height={DEVICE_LAYOUT.body.height * 0.52}
+        width={lightRig.key.emitter.width}
+        height={lightRig.key.emitter.height}
       />
       <rectAreaLight
-        name="device-fill-light"
-        position={fillPosition}
-        rotation={aimAreaLightAtOrigin(fillPosition)}
-        intensity={fillSurfaceLightIntensity(lightRig)}
-        color={lightRig.fill.color}
-        width={DEVICE_LAYOUT.body.width * 1.2}
-        height={DEVICE_LAYOUT.body.height * 0.42}
+        name="device-kick-light"
+        position={kickPosition}
+        rotation={aimAreaLightAtOrigin(kickPosition)}
+        intensity={areaLightIntensity(kickLightPower(lightRig), lightRig.kick.emitter)}
+        color={lightRig.kick.color}
+        width={lightRig.kick.emitter.width}
+        height={lightRig.kick.emitter.height}
       />
       <group
         name={DEVICE_MODEL_NAME}

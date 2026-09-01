@@ -69,7 +69,7 @@ export type ScreenSurfaceParams = {
 /**
  * Every surface §12.3 hands to R3F, keyed by the name §12.3 uses.
  *
- * Both colourways are present at once because the light rig is shared (LAW 2)
+ * Both colourways are present at once because the physical light rig is shared
  * and the acceptance criterion samples both against §4.2 *and* §4.3 — a rig
  * tuned against one colourway alone is not tuned.
  */
@@ -120,43 +120,43 @@ export type DeviceMaterials = {
 export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   bodyBlack: {
     color: "#11161C",
-    albedoScale: 0.2,
-    roughness: 0.7824,
+    albedoScale: 0.34,
+    roughness: 0.68,
     metalness: 0,
-    clearcoat: 0.3384,
-    clearcoatRoughness: 0.2817,
-    reflectivity: 0.4215,
+    clearcoat: 0.32,
+    clearcoatRoughness: 0.46,
+    reflectivity: 0.38,
     // D-067: the black shell keeps a warm broad sheen, and the hierarchy must
     // come from real light and shape rather than from a painted front gradient.
     sheen: 0.15,
     sheenColor: "#6E4A2E",
     sheenRoughness: 1,
-    specularIntensity: 0.0945,
-    envMapIntensity: 0.0184,
+    specularIntensity: 0.16,
+    envMapIntensity: 0.008,
     // Three 0.185.1's WebGL physical material has no SSS term. These values
     // extend its per-direct-light loop using MeshSSSNodeMaterial's scattering
     // shape. Point-light color, intensity and distance attenuation remain
-    // Three-owned, so LAW 2 is still the sole source of illumination.
+    // Three-owned, so the real key/kick rig remains the sole direct source.
     subsurfaceColor: "#5C6876",
     subsurfaceDistortion: 0.2214,
-    subsurfaceAttenuation: 0.0715,
+    subsurfaceAttenuation: 0.1,
     subsurfacePower: 1,
-    subsurfaceScale: 1.2642,
+    subsurfaceScale: 1.4,
   },
   bodyWhite: {
     color: "#F4F7FA",
     // Preserve headroom for the key/clearcoat lobe. At 1.0 the diffuse term
     // clipped almost the whole face to white and erased Pencil's pearl trough.
     albedoScale: 0.6494,
-    roughness: 0.8468,
+    roughness: 0.78,
     metalness: 0,
-    clearcoat: 0.0187,
-    clearcoatRoughness: 0.7612,
+    clearcoat: 0.12,
+    clearcoatRoughness: 0.5,
     reflectivity: 0.1718,
     sheen: 0.0914,
     sheenColor: "#F2F6FA",
     sheenRoughness: 0.985,
-    specularIntensity: 0.0416,
+    specularIntensity: 0.08,
     envMapIntensity: 0.0024,
     subsurfaceColor: "#F4FAFF",
     subsurfaceDistortion: 0.1824,
@@ -248,17 +248,17 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   selectBlack: {
     // §4.5 `--select-k-2`, the plug's body value.
     color: "#1B1E23",
-    transmission: 0.6015,
-    thickness: 1.2321,
+    transmission: 0.05,
+    thickness: 1.1,
     ior: 1.52,
     attenuationColor: "#C0CCD8",
-    attenuationDistance: 1.2728,
-    roughness: 0.1305,
-    clearcoat: 0.6287,
-    clearcoatRoughness: 0.0798,
+    attenuationDistance: 1.4,
+    roughness: 0.46,
+    clearcoat: 0.12,
+    clearcoatRoughness: 0.4,
     metalness: 0,
-    specularIntensity: 0.3479,
-    envMapIntensity: 0.0353,
+    specularIntensity: 0.1,
+    envMapIntensity: 0.008,
   },
   selectWhite: {
     // §4.5 `--select-w-2`.

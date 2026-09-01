@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Texture } from "three";
+import { ShaderChunk, Texture } from "three";
 
 import { DEFAULT_DEVICE_FORM } from "./form";
 import { DEFAULT_LIGHT_RIG } from "./light-rig";
@@ -15,35 +15,35 @@ import {
 describe("§12.3 device material contract", () => {
   test("polycarbonate keeps the specified base response", () => {
     expect(DEFAULT_DEVICE_MATERIALS.bodyBlack).toMatchObject({
-      albedoScale: 0.2,
+      albedoScale: 0.34,
       color: "#11161C",
-      roughness: 0.7824,
+      roughness: 0.68,
       metalness: 0,
-      clearcoat: 0.3384,
-      clearcoatRoughness: 0.2817,
-      reflectivity: 0.4215,
+      clearcoat: 0.32,
+      clearcoatRoughness: 0.46,
+      reflectivity: 0.38,
       sheen: 0.15,
       sheenColor: "#6E4A2E",
       sheenRoughness: 1,
-      specularIntensity: 0.0945,
-      envMapIntensity: 0.0184,
+      specularIntensity: 0.16,
+      envMapIntensity: 0.008,
       subsurfaceColor: "#5C6876",
       subsurfaceDistortion: 0.2214,
-      subsurfaceAttenuation: 0.0715,
+      subsurfaceAttenuation: 0.1,
       subsurfacePower: 1,
-      subsurfaceScale: 1.2642,
+      subsurfaceScale: 1.4,
     });
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite).toMatchObject({
       color: "#F4F7FA",
       albedoScale: 0.6494,
-      roughness: 0.8468,
-      clearcoat: 0.0187,
-      clearcoatRoughness: 0.7612,
+      roughness: 0.78,
+      clearcoat: 0.12,
+      clearcoatRoughness: 0.5,
       reflectivity: 0.1718,
       sheen: 0.0914,
       sheenColor: "#F2F6FA",
       sheenRoughness: 0.985,
-      specularIntensity: 0.0416,
+      specularIntensity: 0.08,
       envMapIntensity: 0.0024,
       subsurfaceColor: "#F4FAFF",
       subsurfaceDistortion: 0.1824,
@@ -83,16 +83,16 @@ describe("§12.3 device material contract", () => {
       envMapIntensity: 0.0061,
     });
     expect(DEFAULT_DEVICE_MATERIALS.selectBlack).toMatchObject({
-      transmission: 0.6015,
-      thickness: 1.2321,
+      transmission: 0.05,
+      thickness: 1.1,
       ior: 1.52,
       attenuationColor: "#C0CCD8",
-      attenuationDistance: 1.2728,
-      roughness: 0.1305,
-      clearcoat: 0.6287,
-      clearcoatRoughness: 0.0798,
-      specularIntensity: 0.3479,
-      envMapIntensity: 0.0353,
+      attenuationDistance: 1.4,
+      roughness: 0.46,
+      clearcoat: 0.12,
+      clearcoatRoughness: 0.4,
+      specularIntensity: 0.1,
+      envMapIntensity: 0.008,
     });
     expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBe(0.0093);
     expect(DEFAULT_DEVICE_MATERIALS.rearInlay).toMatchObject({
@@ -181,13 +181,13 @@ describe("§12.3 device material contract", () => {
     );
     expect(material.transparent).toBe(false);
     expect(material.transmission).toBe(0);
-    expect(material.specularIntensity).toBe(0.0945);
+    expect(material.specularIntensity).toBe(0.16);
     expect(material.sheenColor.getHexString()).toBe("6e4a2e");
 
     const shader = {
       vertexShader: "",
       fragmentShader:
-        "#include <common>\nreflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );\nvec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;",
+        "#include <common>\nreflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution );\nvec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;",
     };
     patchBlackPolycarbonateShader(shader);
     expect(shader.fragmentShader).toContain("directLight.direction");
@@ -203,12 +203,31 @@ describe("§12.3 device material contract", () => {
     material.dispose();
   });
 
+  test("polycarbonate transport patches Three's installed direct and area-light chunks", () => {
+    const shader = {
+      vertexShader: "",
+      fragmentShader:
+        "#include <common>\n#include <lights_physical_pars_fragment>",
+    };
+    patchBlackPolycarbonateShader(shader);
+    expect(ShaderChunk.lights_physical_pars_fragment).toContain(
+      "RE_Direct_RectArea_Physical",
+    );
+    expect(shader.fragmentShader).not.toContain(
+      "#include <lights_physical_pars_fragment>",
+    );
+    expect(shader.fragmentShader).toContain("webpodScatteringHalf");
+    expect(shader.fragmentShader).toContain("webpodAreaScatteringHalf");
+    expect(shader.fragmentShader).toContain("webpodAreaIrradiance");
+    expect(shader.fragmentShader).toContain("LTC_Evaluate");
+  });
+
   test("white polycarbonate keeps depth in the direct-light transport path", () => {
     const material = createPolycarbonateMaterial(
       DEFAULT_DEVICE_MATERIALS.bodyWhite,
       new Texture(),
     );
-    expect(material.specularIntensity).toBe(0.0416);
+    expect(material.specularIntensity).toBe(0.08);
     expect(material.sheenColor.getHexString()).toBe("f2f6fa");
     expect(material.onBeforeCompile).toBeDefined();
     expect(material.customProgramCacheKey?.()).toContain("webpod-polycarbonate");
@@ -216,7 +235,7 @@ describe("§12.3 device material contract", () => {
     const shader = {
       vertexShader: "",
       fragmentShader:
-        "#include <common>\nreflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );",
+        "#include <common>\nreflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution );",
     };
     patchBlackPolycarbonateShader(shader);
     expect(shader.fragmentShader).toContain("webpodSssColor");
@@ -273,17 +292,20 @@ describe("§12.3 device material contract", () => {
   });
 });
 
-describe("LAW 2 light rig", () => {
-  test("keeps one 18° key and one 22% lower-left fill", () => {
-    expect(DEFAULT_LIGHT_RIG.key.tiltTowardViewerDeg).toBe(18);
-    expect(DEFAULT_LIGHT_RIG.key.distance).toBe(1_824.8831);
-    expect(DEFAULT_LIGHT_RIG.key.intensity).toBe(25_400_000);
-    expect(DEFAULT_LIGHT_RIG.fill.azimuthDeg).toBeLessThan(0);
-    expect(DEFAULT_LIGHT_RIG.fill.azimuthDeg).toBe(-44.2187);
-    expect(DEFAULT_LIGHT_RIG.fill.elevationDeg).toBeLessThan(0);
-    expect(DEFAULT_LIGHT_RIG.fill.elevationDeg).toBe(-74.1022);
-    expect(DEFAULT_LIGHT_RIG.fill.distance).toBe(730.2214);
-    expect(DEFAULT_LIGHT_RIG.fill.intensityRatio).toBe(0.22);
-    expect(DEFAULT_LIGHT_RIG.fill.color).toBe("#D7DEE7");
+describe("owner two-light studio rig", () => {
+  test("locks explicit key, kick, softness, ratio and linear exposure values", () => {
+    expect(DEFAULT_LIGHT_RIG.exposure).toBe(0.96);
+    expect(DEFAULT_LIGHT_RIG.key.viewerAzimuthDeg).toBe(28);
+    expect(DEFAULT_LIGHT_RIG.key.descentDeg).toBe(20);
+    expect(DEFAULT_LIGHT_RIG.key.distance).toBe(1_250);
+    expect(DEFAULT_LIGHT_RIG.key.power).toBe(5_800_000);
+    expect(DEFAULT_LIGHT_RIG.key.emitter).toEqual({ width: 620, height: 420 });
+    expect(DEFAULT_LIGHT_RIG.key.color).toBe("#FFF9F2");
+    expect(DEFAULT_LIGHT_RIG.kick.viewerAzimuthDeg).toBe(-18);
+    expect(DEFAULT_LIGHT_RIG.kick.elevationDeg).toBe(-14);
+    expect(DEFAULT_LIGHT_RIG.kick.distance).toBe(1_400);
+    expect(DEFAULT_LIGHT_RIG.kick.powerRatio).toBe(0.11);
+    expect(DEFAULT_LIGHT_RIG.kick.emitter).toEqual({ width: 600, height: 360 });
+    expect(DEFAULT_LIGHT_RIG.kick.color).toBe("#DCE7F2");
   });
 });

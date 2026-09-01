@@ -231,7 +231,7 @@ export const DEFAULT_ENV_ROOM: EnvRoomParams = {
   profileSharpenSigma2: 0.0095,
   sky: {
     // §4.1's room sweep originates at 28% 8% and §5.2 L3's blob at 26% 12% —
-    // both upper-left. LAW 2 keeps the *key light* at 12 o'clock; the room's
+    // both upper-left. The explicit key remains a separate real emitter; the room's
     // brightest patch is allowed to sit off to one side, and that asymmetry is
     // what §5.1 L5 draws the specular arc at x 32% from.
     azimuthDeg: -23.0654,

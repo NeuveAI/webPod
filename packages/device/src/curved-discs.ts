@@ -6,7 +6,7 @@
  * §4.5's ring table runs `#14161A` at 0% (top) to `#2C3037` at 100% (bottom):
  * **dark at the top, light at the bottom**, and §4.5 attributes the dark top to
  * "shadow from the recess lip". That attribution cannot survive the move to 3D.
- * The key light sits 18° off vertical (LAW 2), so a lip standing `h` above the
+ * The broad key descends at 20° from the horizontal, so a lip standing `h` above the
  * ring casts a shadow reaching `h / tan(72°) ≈ 0.32·h` down the ring face.
  * §5.3 puts the ring **1.5px** below the body plane, which buys 0.5px of
  * shadow; the ramp §4.5 specifies is spread over ~88px. Making the lip deep

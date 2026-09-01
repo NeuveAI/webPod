@@ -2,7 +2,13 @@ import { describe, expect, test } from "bun:test";
 import { Children, isValidElement, type ReactElement } from "react";
 import { Group, RectAreaLight, Vector3 } from "three";
 
-import { DEFAULT_LIGHT_RIG } from "./light-rig";
+import {
+  DEFAULT_LIGHT_RIG,
+  keyDescentAngleDeg,
+  keyLightPosition,
+  keyLightPower,
+  kickLightPower,
+} from "./light-rig";
 import {
   DEVICE_MODEL_NAME,
   ViewerLitDeviceFrame,
@@ -16,6 +22,7 @@ import {
 type LightElementProps = {
   readonly name: string;
   readonly position: readonly [number, number, number];
+  readonly intensity: number;
   readonly width: number;
   readonly height: number;
 };
@@ -48,7 +55,7 @@ function requireElement<Props>(
 function worldFrame(face: "front" | "back") {
   const children = frameChildren(face);
   const keyElement = requireElement<LightElementProps>(children[0], "rectAreaLight");
-  const fillElement = requireElement<LightElementProps>(
+  const kickElement = requireElement<LightElementProps>(
     children[1],
     "rectAreaLight",
   );
@@ -58,19 +65,19 @@ function worldFrame(face: "front" | "back") {
   const key = new RectAreaLight();
   key.name = keyElement.props.name;
   key.position.fromArray(keyElement.props.position);
-  const fill = new RectAreaLight();
-  fill.name = fillElement.props.name;
-  fill.position.fromArray(fillElement.props.position);
+  const kick = new RectAreaLight();
+  kick.name = kickElement.props.name;
+  kick.position.fromArray(kickElement.props.position);
   const model = new Group();
   model.name = modelElement.props.name;
   model.rotation.fromArray([...modelElement.props.rotation, "XYZ"]);
-  root.add(key, fill, model);
+  root.add(key, kick, model);
   root.updateWorldMatrix(true, true);
-  return { key, fill, model };
+  return { key, kick, model };
 }
 
 describe("viewer-lit device scene frame", () => {
-  test("keeps key and fill world positions invariant when only the model flips", () => {
+  test("keeps key and kick world positions invariant when only the model flips", () => {
     const front = worldFrame("front");
     const back = worldFrame("back");
     const position = new Vector3();
@@ -78,8 +85,8 @@ describe("viewer-lit device scene frame", () => {
     expect(front.key.getWorldPosition(position).toArray()).toEqual(
       back.key.getWorldPosition(new Vector3()).toArray(),
     );
-    expect(front.fill.getWorldPosition(position).toArray()).toEqual(
-      back.fill.getWorldPosition(new Vector3()).toArray(),
+    expect(front.kick.getWorldPosition(position).toArray()).toEqual(
+      back.kick.getWorldPosition(new Vector3()).toArray(),
     );
     expect(front.model.name).toBe(DEVICE_MODEL_NAME);
     expect(front.model.rotation.y).toBe(0);
@@ -110,10 +117,43 @@ describe("viewer-lit device scene frame", () => {
   test("uses broad softbox emitters rather than point highlights", () => {
     const children = frameChildren("front");
     const key = requireElement<LightElementProps>(children[0], "rectAreaLight");
-    const fill = requireElement<LightElementProps>(children[1], "rectAreaLight");
-    expect(key.props.width).toBeGreaterThan(500);
-    expect(key.props.height).toBeGreaterThan(250);
-    expect(fill.props.width).toBeGreaterThan(300);
-    expect(fill.props.height).toBeGreaterThan(200);
+    const kick = requireElement<LightElementProps>(children[1], "rectAreaLight");
+    expect(key.props.width).toBe(DEFAULT_LIGHT_RIG.key.emitter.width);
+    expect(key.props.height).toBe(DEFAULT_LIGHT_RIG.key.emitter.height);
+    expect(kick.props.width).toBe(DEFAULT_LIGHT_RIG.kick.emitter.width);
+    expect(kick.props.height).toBe(DEFAULT_LIGHT_RIG.kick.emitter.height);
+  });
+
+  test("puts a 15–25° key at viewer top-right and a subordinate kick below", () => {
+    const keyPosition = keyLightPosition(DEFAULT_LIGHT_RIG.key);
+    const descent = keyDescentAngleDeg(keyPosition);
+    const frame = frameChildren("front");
+    const key = requireElement<LightElementProps>(frame[0], "rectAreaLight");
+    const kick = requireElement<LightElementProps>(frame[1], "rectAreaLight");
+
+    expect(keyPosition[0]).toBeGreaterThan(0);
+    expect(keyPosition[1]).toBeGreaterThan(0);
+    expect(keyPosition[2]).toBeGreaterThan(0);
+    expect(descent).toBeGreaterThanOrEqual(15);
+    expect(descent).toBeLessThanOrEqual(25);
+    expect(descent).toBeCloseTo(DEFAULT_LIGHT_RIG.key.descentDeg, 8);
+    expect(kick.props.position[1]).toBeLessThan(0);
+    expect(kickLightPower(DEFAULT_LIGHT_RIG)).toBeLessThan(
+      keyLightPower(DEFAULT_LIGHT_RIG),
+    );
+    expect(
+      kickLightPower(DEFAULT_LIGHT_RIG) / keyLightPower(DEFAULT_LIGHT_RIG),
+    ).toBe(DEFAULT_LIGHT_RIG.kick.powerRatio);
+    const renderedKeyPower =
+      key.props.intensity * key.props.width * key.props.height * Math.PI;
+    const renderedKickPower =
+      kick.props.intensity * kick.props.width * kick.props.height * Math.PI;
+    expect(renderedKeyPower).toBeCloseTo(keyLightPower(DEFAULT_LIGHT_RIG), 6);
+    expect(renderedKickPower / renderedKeyPower).toBeCloseTo(
+      DEFAULT_LIGHT_RIG.kick.powerRatio,
+      8,
+    );
+    expect(key.props.name).toBe("device-key-light");
+    expect(kick.props.name).toBe("device-kick-light");
   });
 });

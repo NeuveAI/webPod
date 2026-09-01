@@ -90,7 +90,7 @@ export type DeviceProps = {
   readonly orientation?: DeviceOrientation;
   /** §12.3's parameter table. Injected (D-012); defaults to §12.3. */
   readonly materials?: DeviceMaterials;
-  /** LAW 2's rig. Injected; defaults to LAW 2. */
+  /** Owner-approved two-light rig. Injected for deterministic verification. */
   readonly lightRig?: LightRigParams;
   /** The room. Injected; defaults to §4.4 + §5.2 L3/L5. */
   readonly envRoom?: EnvRoomParams;

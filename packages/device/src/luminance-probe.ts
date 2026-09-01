@@ -28,7 +28,7 @@
  * outermost exposed point on that row.
  *
  * ⚑ **Every target is sampled as a mirrored pair and averaged.** The render is
- * not laterally symmetric: LAW 2's fill comes from the lower-left and §5.2 L3's
+ * not laterally symmetric: the lower kick comes from camera-left and §5.2 L3's
  * sky blob sits upper-left. A single column would read one side of that
  * asymmetry and grade a real, specified property of the light rig as error.
  * Averaging `±x` is what makes the measurement a *vertical* sample of a

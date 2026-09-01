@@ -1,116 +1,129 @@
 /**
- * LAW 2 — One Light, as numbers.
+ * The owner-approved two-light studio rig.
  *
- * > *"A single key light at 12 o'clock, 18° behind the viewer, plus one cool
- * > fill from the lower-left at 22% intensity. Every highlight, every shadow,
- * > every gradient direction in this document derives from it."*
+ * Both emitters are real world-space RectAreaLights. They remain siblings of
+ * the orientation group, so their reflections travel over the model's normals
+ * when the iPod turns. Nothing here is expressed in UV or camera shader space.
  *
- * ⚑ **There are exactly two lights and there is no ambient term.** The ambient
- * *is* the environment map — the room the object stands in (§4.1) — which is
- * also where §4.2's floor bounce at stops 5–7 comes from. Adding an
- * `ambientLight` or a `hemisphereLight` would be a third and a fourth light,
- * and it would let the body's vertical profile be dialled in by a knob that
- * corresponds to nothing in the room. Every unit of light on this object
- * arrives from the key, the fill, or the room.
- *
- * The key is a **point** light, not a directional one, and that is load-bearing
- * rather than incidental: on a flat face a directional light produces a
- * constant `N·L` and therefore no vertical profile at all, whereas a light at
- * a stated distance falls off across the 552px face exactly as a real one in a
- * room does. §4.2's "rapid falloff (gloss = short falloff)" and §4.3's broad
- * diffuse shoulder are the same rig seen through two different albedos.
+ * `descentDeg` is the geometric angle between the key-to-target ray and the
+ * horizontal x/z plane. The accepted range is 15–25°. `emitter` is both the
+ * physical source size and the softness control: a larger rectangle subtends a
+ * wider solid angle and therefore produces a broader highlight.
  */
 
+export type AreaEmitterSize = {
+  readonly width: number;
+  readonly height: number;
+};
+
 export type KeyLightParams = {
-  /**
-   * Degrees the light sits toward the viewer from straight up. LAW 2: **18°**.
-   * Not a free parameter.
-   */
-  readonly tiltTowardViewerDeg: number;
-  /** Distance from the body's face centre, in body px. */
+  /** Degrees camera-right from the viewer's +z axis. */
+  readonly viewerAzimuthDeg: number;
+  /** Downward incidence from the horizontal plane; owner range 15–25°. */
+  readonly descentDeg: number;
+  /** Source-centre distance from the model origin, in model units. */
   readonly distance: number;
-  /** Candela, three.js physical units — irradiance is `intensity / d²`. */
-  readonly intensity: number;
+  /** Luminous power in lumens, before the rig exposure multiplier. */
+  readonly power: number;
+  /** Physical softbox dimensions; these are the softness parameters. */
+  readonly emitter: AreaEmitterSize;
   readonly color: string;
 };
 
-export type FillLightParams = {
-  /** Degrees left of the viewer's forward axis. LAW 2: lower-**left**. */
-  readonly azimuthDeg: number;
-  /** Degrees **below** the horizon. LAW 2: **lower**-left. */
+export type KickLightParams = {
+  /** Degrees camera-right from the viewer's +z axis. Negative is camera-left. */
+  readonly viewerAzimuthDeg: number;
+  /** Elevation below the horizontal plane. Must remain negative. */
   readonly elevationDeg: number;
   readonly distance: number;
-  /**
-   * Fraction of the key's intensity. LAW 2: **0.22**. Not a free parameter —
-   * the tuner moves the key, and the fill follows it.
-   */
-  readonly intensityRatio: number;
-  /**
-   * The final Pencil-first ruling keeps this fill cool but neutral. The older
-   * saturated blue was derived from a superseded body-stop token and produced
-   * a cyan pool that does not exist on VWaJS's pearl shell.
-   */
+  /** Fraction of the key's luminous power. Must remain below 1. */
+  readonly powerRatio: number;
+  /** Physical softbox dimensions; these are the softness parameters. */
+  readonly emitter: AreaEmitterSize;
   readonly color: string;
 };
 
 export type LightRigParams = {
+  /** Linear scene exposure applied equally to both physical emitters. */
+  readonly exposure: number;
   readonly key: KeyLightParams;
-  readonly fill: FillLightParams;
+  readonly kick: KickLightParams;
 };
 
 export const DEFAULT_LIGHT_RIG: LightRigParams = {
+  // A small linear exposure adjustment keeps the output transform neutral;
+  // canonical stop-table measurements are not passed through a filmic curve.
+  exposure: 0.96,
   key: {
-    tiltTowardViewerDeg: 18,
-    // Shared front-light solve: close enough for direct falloff to recover the
-    // shell crown and wheel recess, but far enough away to behave like a soft
-    // studio key instead of painting hard horizontal bands across the front.
-    distance: 1824.8831,
-    intensity: 25400000,
-    color: "#FFFFFF",
+    viewerAzimuthDeg: 28,
+    descentDeg: 20,
+    distance: 1_250,
+    power: 5_800_000,
+    emitter: { width: 620, height: 420 },
+    color: "#FFF9F2",
   },
-  fill: {
-    azimuthDeg: -44.2187,
-    elevationDeg: -74.1022,
-    distance: 730.2214,
-    intensityRatio: 0.22,
-    color: "#D7DEE7",
+  kick: {
+    viewerAzimuthDeg: -18,
+    elevationDeg: -14,
+    distance: 1_400,
+    powerRatio: 0.11,
+    emitter: { width: 600, height: 360 },
+    color: "#DCE7F2",
   },
 };
 
-/** World position of the key light, body-local, +y up, +z toward the viewer. */
+/** World position of the top-right key, +y up and +z toward the viewer. */
 export function keyLightPosition(
   key: KeyLightParams,
 ): [number, number, number] {
-  const tilt = (key.tiltTowardViewerDeg * Math.PI) / 180;
-  return [0, Math.cos(tilt) * key.distance, Math.sin(tilt) * key.distance];
-}
-
-/** World position of the fill light. */
-export function fillLightPosition(
-  fill: FillLightParams,
-): [number, number, number] {
-  const az = (fill.azimuthDeg * Math.PI) / 180;
-  const el = (fill.elevationDeg * Math.PI) / 180;
+  const azimuth = (key.viewerAzimuthDeg * Math.PI) / 180;
+  const descent = (key.descentDeg * Math.PI) / 180;
+  const horizontal = Math.cos(descent) * key.distance;
   return [
-    Math.cos(el) * Math.sin(az) * fill.distance,
-    Math.sin(el) * fill.distance,
-    Math.cos(el) * Math.cos(az) * fill.distance,
+    Math.sin(azimuth) * horizontal,
+    Math.sin(descent) * key.distance,
+    Math.cos(azimuth) * horizontal,
   ];
 }
 
-/** The fill's absolute intensity, derived from the key so LAW 2's 22% holds. */
-export function fillLightIntensity(rig: LightRigParams): number {
-  const scale = (rig.fill.distance / rig.key.distance) ** 2;
-  return rig.key.intensity * rig.fill.intensityRatio * scale;
+/** World position of the subordinate lower kick. */
+export function kickLightPosition(
+  kick: KickLightParams,
+): [number, number, number] {
+  const azimuth = (kick.viewerAzimuthDeg * Math.PI) / 180;
+  const elevation = (kick.elevationDeg * Math.PI) / 180;
+  const horizontal = Math.cos(elevation) * kick.distance;
+  return [
+    Math.sin(azimuth) * horizontal,
+    Math.sin(elevation) * kick.distance,
+    Math.cos(azimuth) * horizontal,
+  ];
 }
 
-/** Convert the former point-source candela/distance pair into area-light gain. */
-export function surfaceLightIntensity(intensity: number, distance: number): number {
-  if (!(distance > 0)) throw new Error("surface light distance must be positive");
-  return intensity / (distance * distance);
+/** Recover the key's actual descent angle from its Cartesian position. */
+export function keyDescentAngleDeg(
+  position: readonly [number, number, number],
+): number {
+  const [x, y, z] = position;
+  return (Math.atan2(y, Math.hypot(x, z)) * 180) / Math.PI;
 }
 
-/** Direct-light ratio remains the authored 22% after changing emitter shape. */
-export function fillSurfaceLightIntensity(rig: LightRigParams): number {
-  return surfaceLightIntensity(fillLightIntensity(rig), rig.fill.distance);
+/** Convert RectAreaLight luminous power (lm) to its intensity (nit). */
+export function areaLightIntensity(
+  power: number,
+  emitter: AreaEmitterSize,
+): number {
+  if (!(power > 0)) throw new Error("area-light power must be positive");
+  if (!(emitter.width > 0 && emitter.height > 0)) {
+    throw new Error("area-light emitter dimensions must be positive");
+  }
+  return power / (emitter.width * emitter.height * Math.PI);
+}
+
+export function keyLightPower(rig: LightRigParams): number {
+  return rig.key.power * rig.exposure;
+}
+
+export function kickLightPower(rig: LightRigParams): number {
+  return keyLightPower(rig) * rig.kick.powerRatio;
 }

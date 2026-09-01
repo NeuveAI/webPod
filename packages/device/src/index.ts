@@ -9,7 +9,7 @@
  * ⚑ **The injection points, named once.** D-012 requires that a later fallback
  * tier could supply different textures, shaders or a renderer by *passing
  * different inputs*, not by editing this package. Those inputs are
- * {@link DeviceMaterials} (§12.3), {@link LightRigParams} (LAW 2),
+ * {@link DeviceMaterials} (§12.3), {@link LightRigParams} (owner studio rig),
  * {@link EnvRoomParams} (§4.4 + §5.2) and {@link DeviceFormParams} (the depths
  * §12.0 does not state) — each a prop on {@link Device} with a default. There
  * is one set of defaults and no registry, resolver or asset-pack loader, which
@@ -43,6 +43,7 @@ export {
   type DeviceFitViewport,
 } from "./camera-fit";
 export {
+  DEFAULT_STUDIO_ENVIRONMENT,
   StudioEnvironment,
   type StudioEnvironmentProps,
 } from "./StudioEnvironment";
@@ -91,11 +92,15 @@ export {
   type ScreenSurfaceParams,
 } from "./materials";
 export {
+  areaLightIntensity,
   DEFAULT_LIGHT_RIG,
-  fillLightIntensity,
-  fillLightPosition,
+  keyDescentAngleDeg,
+  keyLightPower,
   keyLightPosition,
-  type FillLightParams,
+  kickLightPosition,
+  kickLightPower,
+  type AreaEmitterSize,
+  type KickLightParams,
   type KeyLightParams,
   type LightRigParams,
 } from "./light-rig";

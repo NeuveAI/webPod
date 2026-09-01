@@ -48,6 +48,12 @@ export type StudioEnvironmentProps = {
   readonly intensity?: number;
 };
 
+/** Restrained IBL: enough for material identity, below the authored lamps. */
+export const DEFAULT_STUDIO_ENVIRONMENT = Object.freeze({
+  sigma: 0.04,
+  intensity: 0.34,
+});
+
 /**
  * Install a Three {@link RoomEnvironment} through one PMREM conversion.
  *
@@ -56,8 +62,8 @@ export type StudioEnvironmentProps = {
  * rotates, so no highlight is attached to a pose or to the camera.
  */
 export function StudioEnvironment({
-  sigma = 0.035,
-  intensity = 0.72,
+  sigma = DEFAULT_STUDIO_ENVIRONMENT.sigma,
+  intensity = DEFAULT_STUDIO_ENVIRONMENT.intensity,
 }: StudioEnvironmentProps) {
   const gl = useThree((state) => state.gl);
   const scene = useThree((state) => state.scene);

@@ -1,4 +1,4 @@
-import { Color, MeshPhysicalMaterial, type Texture } from "three";
+import { Color, MeshPhysicalMaterial, ShaderChunk, type Texture } from "three";
 
 import type { PhysicalSurfaceParams } from "./materials";
 
@@ -54,7 +54,39 @@ export function createBlackPolycarbonateMaterial(
 }
 
 export function patchBlackPolycarbonateShader(shader: CompilableShader): void {
-  shader.fragmentShader = shader.fragmentShader
+  const directDiffuse =
+    "reflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution );";
+  const areaDiffuse =
+    "reflectedLight.directDiffuse += lightColor * material.diffuseContribution * LTC_Evaluate( normal, viewDir, position, mat3( 1.0 ), rectCoords );";
+  const physicalChunkMarker = "#include <lights_physical_pars_fragment>";
+  const inputLighting = shader.fragmentShader.includes(physicalChunkMarker)
+    ? ShaderChunk.lights_physical_pars_fragment
+    : shader.fragmentShader;
+  const hasRectAreaPath = inputLighting.includes("void RE_Direct_RectArea_Physical");
+  const patchedLighting = inputLighting
+    .replace(
+      directDiffuse,
+      `vec3 webpodScatteringHalf = normalize( directLight.direction + geometryNormal * webpodSssDistortion );
+float webpodScatteringDot = pow( saturate( dot( geometryViewDir, -webpodScatteringHalf ) ), webpodSssPower ) * webpodSssScale;
+vec3 webpodScattering = webpodSssColor * webpodScatteringDot;
+reflectedLight.directDiffuse += webpodScattering * webpodSssAttenuation * directLight.color;
+${directDiffuse}`,
+    )
+    .replace(
+      areaDiffuse,
+      `vec3 webpodAreaDirection = normalize( lightPos - position );
+vec3 webpodAreaScatteringHalf = normalize( webpodAreaDirection + normal * webpodSssDistortion );
+float webpodAreaScatteringDot = pow( saturate( dot( viewDir, -webpodAreaScatteringHalf ) ), webpodSssPower ) * webpodSssScale;
+vec3 webpodAreaScattering = webpodSssColor * webpodAreaScatteringDot;
+vec3 webpodAreaIrradiance = lightColor * LTC_Evaluate( normal, viewDir, position, mat3( 1.0 ), rectCoords );
+reflectedLight.directDiffuse += webpodAreaScattering * webpodSssAttenuation * webpodAreaIrradiance;
+${areaDiffuse}`,
+    );
+
+  const fragmentWithLighting = shader.fragmentShader.includes(physicalChunkMarker)
+    ? shader.fragmentShader.replace(physicalChunkMarker, patchedLighting)
+    : patchedLighting;
+  shader.fragmentShader = fragmentWithLighting
     .replace(
       "#include <common>",
       `#include <common>
@@ -63,15 +95,17 @@ uniform float webpodSssDistortion;
 uniform float webpodSssAttenuation;
 uniform float webpodSssPower;
 uniform float webpodSssScale;`,
-    )
-    .replace(
-      "reflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );",
-      `vec3 webpodScatteringHalf = normalize( directLight.direction + geometryNormal * webpodSssDistortion );
-float webpodScatteringDot = pow( saturate( dot( geometryViewDir, -webpodScatteringHalf ) ), webpodSssPower ) * webpodSssScale;
-vec3 webpodScattering = webpodSssColor * webpodScatteringDot;
-reflectedLight.directDiffuse += webpodScattering * webpodSssAttenuation * directLight.color;
-reflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );`,
     );
+
+  if (!shader.fragmentShader.includes("webpodScatteringHalf")) {
+    throw new Error("Three physical direct-light shader changed; polycarbonate transport was not installed");
+  }
+  if (
+    hasRectAreaPath &&
+    !shader.fragmentShader.includes("webpodAreaScatteringHalf")
+  ) {
+    throw new Error("Three RectArea shader changed; polycarbonate transport was not installed");
+  }
 }
 
 /** Three-compliant transmissive cover that stays entirely inside Three's own glass model. */
