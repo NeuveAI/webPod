@@ -1,8 +1,16 @@
-# W9a browser evidence status
+# W9a browser evidence status — historical and superseded
+
+This document preserves the rejected first-pass provenance. Its interaction
+status is superseded by `w9a-material-brdf.md`, which records accepted ordinary-
+route wheel and combined-light Select evidence. The limitation remains real:
+key-only and fill-only interactive Select macros are not proved because the
+existing isolation branch renders `DeviceCanvas` and bypasses the production
+`CompositeDevice` pointer chain.
 
 ## Verdict
 
-No W9a browser capture is currently accepted as interaction proof.
+At the time of this rejected first pass, no W9a browser capture was accepted as
+interaction proof. This is a historical verdict, not the current W9a status.
 
 The first pass used a `controlEvidencePose` query/API that drove the physics
 controller directly. That bypassed the production `CompositeDevice` pointer
@@ -10,7 +18,7 @@ chain and violated the workstream ban on proof-only harnesses. The API and
 query branch are deleted. The old files remain only as rejected visual
 calibration artifacts so the evidence correction is auditable.
 
-## Browser provenance and blocker
+## Historical browser provenance and blocker
 
 - Attempt: September 1, 2026 at 21:46:44 +02:00
 - Required route: `http://localhost:3000/_spike/device`
@@ -25,7 +33,12 @@ does not claim the dispatch's pointer-down/hold/move/release trace, release
 sequence, or oblique macro frames. A reviewer or owner must provide that
 environment and run the real pointer lifecycle through the existing route.
 
-## Required acceptance capture, still open
+## Historical acceptance checklist
+
+The later ordinary-route evidence closes items 1–6 and 8 for the wheel and the
+combined-light Select lifecycle. Item 7 remains incomplete for isolated key and
+fill lighting for the production-path reason stated above; combined lighting is
+proved.
 
 For each accepted run, record the immutable browser version, launch flags,
 route, colourway, lighting mode, viewport and pointer type. Then capture:

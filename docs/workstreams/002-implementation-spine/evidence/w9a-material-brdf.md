@@ -59,11 +59,12 @@ not only in tests. It extracts one uniquely marked custom block and requires:
   `directSpecular`, one `clearcoatSpecularDirect`;
 - no diffuse, Lambert or generic `RE_Direct` path.
 
-The focused test runs nine adversarial shader plants. It rejects the reviewer's
-exact second raw `directSpecular` line, an emissive addition, missing cone,
-missing range, missing slope, missing base/clearcoat BRDF and constant base or
-clearcoat incidence. The same suite verifies that actual black/white materials
-carry distinct roughness and clearcoat into this common shader.
+The focused test runs twelve adversarial shader plants. It rejects the
+reviewer's bare and exact `.rgb` raw `directSpecular` lines, reverse-order
+`xyz` clearcoat and `stp` emissive writes, missing cone, missing range, missing
+slope, missing base/clearcoat BRDF and constant base or clearcoat incidence.
+The same suite verifies that actual black/white materials carry distinct
+roughness and clearcoat into this common shader.
 
 ## Production browser evidence
 
@@ -123,13 +124,13 @@ bypass. Combined-light Select evidence is present. No proof seam was added.
 
 ## Verification
 
-- focused readability suite: 8 pass, 0 fail, 83 expectations;
+- focused readability suite: 8 pass, 0 fail, 86 expectations;
 - device and web TypeScript: pass;
 - scoped ESLint: pass;
-- device package: 207 pass, 0 fail, 62,539 expectations;
-- full `bun run gates`: 11/11 typechecks, repository lint, 1,103 tests and
-  66,484 expectations pass; all 16 automated gates pass; U14/U15 remain the
-  workstream's explicit manual gates;
+- device package: 207 pass, 0 fail, 62,545 expectations;
+- prior full `bun run gates` at `9c5dea6`: 11/11 typechecks, repository lint,
+  1,103 tests and 66,484 expectations pass; all 16 automated gates pass;
+  U14/U15 remain the workstream's explicit manual gates;
 - client and SSR build: pass; existing client chunk-size advisory remains
   non-failing.
 

@@ -209,6 +209,18 @@ describe("wheel contact grazing readability", () => {
         "reflectedLight.directSpecular += webpodWheelGrazingColor * webpodWheelGrazingIrradiance;\n// webpod-wheel-material-specular-end",
       ),
       shader.fragmentShader.replace(
+        "// webpod-wheel-material-specular-end",
+        "reflectedLight.directSpecular.rgb += webpodWheelGrazingColor * webpodWheelGrazingIrradiance;\n// webpod-wheel-material-specular-end",
+      ),
+      shader.fragmentShader.replace(
+        "// webpod-wheel-material-specular-end",
+        "clearcoatSpecularDirect.zyx += webpodWheelGrazingColor.rgb;\n// webpod-wheel-material-specular-end",
+      ),
+      shader.fragmentShader.replace(
+        "// webpod-wheel-material-specular-end",
+        "totalEmissiveRadiance.pts += webpodWheelGrazingColor.stp;\n// webpod-wheel-material-specular-end",
+      ),
+      shader.fragmentShader.replace(
         "webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim",
         "webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim",
       ),

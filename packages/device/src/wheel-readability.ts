@@ -168,10 +168,53 @@ function occurrences(source: string, needle: string): number {
   return source.split(needle).length - 1;
 }
 
+const SHADER_STRUCTURE_ERROR =
+  "wheel grazing response must be fully gated and material-BRDF evaluated";
+
+/*
+ * This is intentionally a small fail-closed lvalue scanner, not a claim to
+ * parse GLSL. Optical targets are either a reflectedLight field, a named
+ * Three accumulator ending in SpecularDirect/SpecularIndirect/Radiance, or
+ * outgoingLight. An assignable target may then have no suffix or exactly one
+ * 1–4 component swizzle from one GLSL namespace: xyzw, rgba, or stpq.
+ */
+const OPTICAL_OUTPUT_TARGET =
+  String.raw`(?:reflectedLight\.[A-Za-z_][A-Za-z0-9_]*|[A-Za-z_][A-Za-z0-9_]*(?:Specular(?:Direct|Indirect)|Radiance)|outgoingLight)`;
+const OPTICAL_ASSIGNMENT =
+  String.raw`(?:<<=|>>=|\+=|-=|\*=|\/=|%=|&=|\|=|\^=|(?<![=!<>])=(?!=)|\+\+|--)`;
+const COMPONENT_SWIZZLE = /^(?:[xyzw]{1,4}|[rgba]{1,4}|[stpq]{1,4})$/;
+
+function isAssignableComponentSwizzle(swizzle: string): boolean {
+  return (
+    COMPONENT_SWIZZLE.test(swizzle) &&
+    new Set(swizzle).size === swizzle.length
+  );
+}
+
 function opticalOutputWrites(source: string): readonly string[] {
-  return source.match(
-    /(?:reflectedLight\.[A-Za-z]+|[A-Za-z][A-Za-z0-9]*(?:Specular(?:Direct|Indirect)|Radiance)|outgoingLight)\s*(?:\+=|=)/g,
-  ) ?? [];
+  const candidates = source.matchAll(
+    new RegExp(
+      `(?<![A-Za-z0-9_])(${OPTICAL_OUTPUT_TARGET})([^;\\n{}]*?)(${OPTICAL_ASSIGNMENT})`,
+      "g",
+    ),
+  );
+  const writes: string[] = [];
+
+  for (const candidate of candidates) {
+    const target = candidate[1];
+    const suffix = candidate[2]?.trim() ?? "";
+    const operator = candidate[3];
+    const swizzle = suffix.startsWith(".") ? suffix.slice(1) : null;
+    const hasValidSuffix =
+      suffix === "" ||
+      (swizzle !== null && isAssignableComponentSwizzle(swizzle));
+    if (target === undefined || operator === undefined || !hasValidSuffix) {
+      throw new Error(SHADER_STRUCTURE_ERROR);
+    }
+    writes.push(`${target}${suffix} ${operator}`);
+  }
+
+  return writes;
 }
 
 /**
@@ -217,9 +260,7 @@ export function assertWheelGrazingShaderStructure(
     !writesAreExhaustive ||
     hasForbiddenEnergyPath
   ) {
-    throw new Error(
-      "wheel grazing response must be fully gated and material-BRDF evaluated",
-    );
+    throw new Error(SHADER_STRUCTURE_ERROR);
   }
 }
 
