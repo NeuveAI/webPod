@@ -81,6 +81,7 @@ export type DeviceMaterials = {
   readonly chromeSeamBlack: PhysicalSurfaceParams;
   readonly displayWell: PhysicalSurfaceParams;
   readonly rearInlay: PhysicalSurfaceParams;
+  readonly holdIndicator: PhysicalSurfaceParams;
   readonly wheelRingBlack: PhysicalSurfaceParams;
   readonly wheelRingWhite: PhysicalSurfaceParams;
   readonly wheelWellBlack: PhysicalSurfaceParams;
@@ -200,6 +201,14 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoatRoughness: 0.26,
     envMapIntensity: 0.18,
   },
+  holdIndicator: {
+    color: "#F16A24",
+    roughness: 0.62,
+    metalness: 0,
+    clearcoat: 0.16,
+    clearcoatRoughness: 0.34,
+    envMapIntensity: 0.08,
+  },
   wheelRingBlack: {
     color: "#1D2128",
     albedoScale: 0.6094,
@@ -268,19 +277,19 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   coverGlass: {
     // §4.6's `--panel-bg` is behind the sheet; the sheet itself is colourless.
     color: "#FFFFFF",
-    transmission: 0.9,
-    ior: 1.33,
-    thickness: 0.001,
-    roughness: 0,
-    clearcoat: 0,
-    clearcoatRoughness: 0,
-    specularIntensity: 0.012,
+    transmission: 0,
+    ior: 1.5,
+    thickness: 0.2,
+    roughness: 0.08,
+    clearcoat: 1,
+    clearcoatRoughness: 0.06,
+    specularIntensity: 0.35,
     metalness: 0,
     attenuationColor: "#F5F8FC",
     attenuationDistance: 48,
-    opacity: 1,
-    transparent: false,
-    envMapIntensity: 0.00002,
+    opacity: 0.12,
+    transparent: true,
+    envMapIntensity: 0.16,
   },
   screen: {
     // The standalone default. W6 replaces the map; see `screen-mesh.ts`.

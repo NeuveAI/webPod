@@ -1,13 +1,12 @@
 /**
  * Device-local renderer tuning.
  *
- * Three 0.185 sizes the transmissive framebuffer from
- * `WebGLRenderer.transmissionResolutionScale`; leaving it at `1` keeps the
- * cover-glass pass at the base viewport resolution, which softens the HTML
- * panel once more after composite has already rendered it sharply.
+ * The LCD source already matches the drawing buffer at DPR 1/2/3. A larger
+ * transmission framebuffer creates an avoidable supersample/downsample pass
+ * over text; native scale keeps the glass and LCD on one pixel budget.
  */
 
-export const DEVICE_TRANSMISSION_RESOLUTION_SCALE = 12;
+export const DEVICE_TRANSMISSION_RESOLUTION_SCALE = 1;
 
 type TransmissionRenderer = { transmissionResolutionScale: number };
 

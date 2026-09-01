@@ -6,11 +6,11 @@ import {
 } from "./renderer-defaults";
 
 describe("device renderer defaults", () => {
-  test("raises the transmission pass above the base viewport resolution", () => {
-    const renderer = { transmissionResolutionScale: 1 };
+  test("keeps the transmission pass on the native drawing-buffer grid", () => {
+    const renderer = { transmissionResolutionScale: 12 };
     applyDeviceRendererDefaults(renderer);
-    expect(DEVICE_TRANSMISSION_RESOLUTION_SCALE).toBe(12);
-    expect(renderer.transmissionResolutionScale).toBe(12);
-    expect(renderer.transmissionResolutionScale).toBeGreaterThan(8);
+    expect(DEVICE_TRANSMISSION_RESOLUTION_SCALE).toBe(1);
+    expect(renderer.transmissionResolutionScale).toBe(1);
+    expect(renderer.transmissionResolutionScale).not.toBeGreaterThan(1);
   });
 });

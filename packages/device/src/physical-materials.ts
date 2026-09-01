@@ -81,8 +81,7 @@ export function createCoverGlassMaterial(
 ): MeshPhysicalMaterial {
   return new MeshPhysicalMaterial({
     ...params,
-    opacity: 1,
-    transparent: false,
+    depthWrite: false,
     envMap,
   });
 }

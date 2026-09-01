@@ -26,7 +26,9 @@ import {
   type Mesh,
   MeshBasicMaterial,
   type Texture,
+  TorusGeometry,
 } from "three";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
 import { curvedAnnulusGeometry, domedDiscGeometry } from "./curved-discs";
 import { frontCoreDepth, tessellateVerticalCrown } from "./curved-shell";
@@ -60,14 +62,6 @@ import {
   createCoverGlassMaterial,
 } from "./physical-materials";
 import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
-import {
-  addOpticalProfile,
-  applyOpticalProfile,
-  createBodyRoughnessMap,
-  createOpticalNormalMap,
-  DEFAULT_DEVICE_OPTICAL_PROFILES,
-  type DeviceOpticalProfiles,
-} from "./optical-profile";
 import {
   createBackCompositionMap,
   createMicroNoiseRoughnessMap,
@@ -109,7 +103,6 @@ export type DeviceProps = {
    * room passes it here and `env-map.ts` is not called.
    */
   readonly envMap?: Texture | null;
-  readonly opticalProfiles?: DeviceOpticalProfiles;
   /** Handed the screen quad once it exists. This is the W6 boundary (D-011). */
   readonly onScreenMeshReady?: ScreenMeshReady;
   /** Pre-installed material for the screen slot; `undefined` keeps the default. */
@@ -134,7 +127,6 @@ export function Device({
   envRoom = DEFAULT_ENV_ROOM,
   form = DEFAULT_DEVICE_FORM,
   envMap,
-  opticalProfiles = DEFAULT_DEVICE_OPTICAL_PROFILES,
   onScreenMeshReady,
   screenMaterial,
 }: DeviceProps) {
@@ -201,56 +193,10 @@ export function Device({
     ? materials.selectBlack
     : materials.selectWhite;
   const seamMaterial = isBlack ? materials.chromeSeamBlack : materials.chromeSeam;
-  const opticalSignature = JSON.stringify(opticalProfiles);
-  const parsedOptical = useMemo(
-    () => JSON.parse(opticalSignature) as DeviceOpticalProfiles,
-    [opticalSignature],
-  );
-  const opticalMaps = useMemo(() => {
-    const p = parsedOptical;
-    const bodyMap = createOpticalNormalMap(
-      isBlack ? p.bodyBlack : p.bodyWhite,
-      512,
-      isBlack ? p.bodyBlackLateral : p.bodyWhiteLateral,
-    );
-    bodyMap.repeat.set(1, 1 / body.height);
-    bodyMap.offset.set(0, 0.5);
-    return {
-      body: bodyMap,
-      ring: createOpticalNormalMap(
-        isBlack ? p.wheelBlack : p.wheelWhite,
-        512,
-        isBlack ? p.wheelBlackLateral : p.wheelWhiteLateral,
-      ),
-      select: createOpticalNormalMap(
-        isBlack ? p.selectBlack : p.selectWhite,
-        512,
-        isBlack ? p.selectBlackLateral : p.selectWhiteLateral,
-      ),
-    };
-  }, [isBlack, parsedOptical]);
-  useEffect(
-    () => () => {
-      opticalMaps.body.dispose();
-      opticalMaps.ring.dispose();
-      opticalMaps.select.dispose();
-    },
-    [opticalMaps],
-  );
   const surfaceMaps = materialMapOwnership({
     microNoise: noise,
     steelAnisotropy,
-    bodyNormal: opticalMaps.body,
   });
-  const bodyRoughness = useMemo(() => {
-    const map = createBodyRoughnessMap(
-      isBlack ? parsedOptical.bodyBlackRoughness : parsedOptical.bodyWhiteRoughness,
-    );
-    map.repeat.set(1 / 128, 1 / body.height);
-    map.offset.set(0, 0.5);
-    return map;
-  }, [isBlack, parsedOptical]);
-  useEffect(() => () => bodyRoughness.dispose(), [bodyRoughness]);
 
   // ── Geometry ───────────────────────────────────────────────────────────────
   // Built once per shape-affecting input. Under `frameloop="demand"` a rebuild
@@ -355,13 +301,7 @@ export function Device({
     );
     extrusion.dispose();
     geometry.translate(0, 0, plateBackZ + form.frontBevel);
-    return addOpticalProfile(
-      geometry,
-      isBlack ? parsedOptical.bodyBlack : parsedOptical.bodyWhite,
-      isBlack ? parsedOptical.bodyBlackLateral : parsedOptical.bodyWhiteLateral,
-      -body.height / 2 + seam,
-      body.height / 2 - seam,
-    );
+    return geometry;
   }, [
     form.seamWidth,
     form.frontThickness,
@@ -371,47 +311,29 @@ export function Device({
     form.bottomEdgeCrown,
     form.edgeCrownExtent,
     plateBackZ,
-    isBlack,
-    parsedOptical,
   ]);
   useEffect(() => () => frontGeometry.dispose(), [frontGeometry]);
 
   const ringGeometry = useMemo(
     () =>
-      applyOpticalProfile(
-        curvedAnnulusGeometry(
-          wheel.selectR - 1,
-          wheel.outerR,
-          form.ringDishTiltDeg,
-          form.ringDishExponent,
-        ),
-        isBlack ? parsedOptical.wheelBlack : parsedOptical.wheelWhite,
-        isBlack
-          ? parsedOptical.wheelBlackLateral
-          : parsedOptical.wheelWhiteLateral,
-        -wheel.outerR,
+      curvedAnnulusGeometry(
+        wheel.selectR - 1,
         wheel.outerR,
+        form.ringDishTiltDeg,
+        form.ringDishExponent,
       ),
-    [form.ringDishTiltDeg, form.ringDishExponent, isBlack, parsedOptical],
+    [form.ringDishTiltDeg, form.ringDishExponent],
   );
   useEffect(() => () => ringGeometry.dispose(), [ringGeometry]);
 
   const selectGeometry = useMemo(
     () =>
-      applyOpticalProfile(
-        domedDiscGeometry(
-          wheel.selectR,
-          form.selectDomeTiltDeg,
-          form.selectDomeExponent,
-        ),
-        isBlack ? parsedOptical.selectBlack : parsedOptical.selectWhite,
-        isBlack
-          ? parsedOptical.selectBlackLateral
-          : parsedOptical.selectWhiteLateral,
-        -wheel.selectR,
+      domedDiscGeometry(
         wheel.selectR,
+        form.selectDomeTiltDeg,
+        form.selectDomeExponent,
       ),
-    [form.selectDomeTiltDeg, form.selectDomeExponent, isBlack, parsedOptical],
+    [form.selectDomeTiltDeg, form.selectDomeExponent],
   );
   useEffect(() => () => selectGeometry.dispose(), [selectGeometry]);
 
@@ -501,6 +423,44 @@ export function Device({
     [form.recessDepth, form.wheelWellDepth],
   );
   useEffect(() => () => wheelWellGeometry.dispose(), [wheelWellGeometry]);
+
+  // The top controls are separate solids on the steel/plastic seam. Their
+  // protrusion and recess remain visible when the full model rotates; no
+  // front-facing decal can survive the edge and flip interactions W8 targets.
+  const holdRecessGeometry = useMemo(
+    () => new RoundedBoxGeometry(52, 2.2, 15, 4, 2.8),
+    [],
+  );
+  useEffect(() => () => holdRecessGeometry.dispose(), [holdRecessGeometry]);
+  const holdIndicatorGeometry = useMemo(
+    () => new RoundedBoxGeometry(36, 1.2, 8.5, 4, 1.8),
+    [],
+  );
+  useEffect(
+    () => () => holdIndicatorGeometry.dispose(),
+    [holdIndicatorGeometry],
+  );
+  const holdSliderGeometry = useMemo(
+    () => new RoundedBoxGeometry(20, 2.2, 10, 4, 2.1),
+    [],
+  );
+  useEffect(() => () => holdSliderGeometry.dispose(), [holdSliderGeometry]);
+  const headphoneRimGeometry = useMemo(
+    () => new TorusGeometry(7.1, 1.8, 24, 64),
+    [],
+  );
+  useEffect(
+    () => () => headphoneRimGeometry.dispose(),
+    [headphoneRimGeometry],
+  );
+  const headphoneWellGeometry = useMemo(
+    () => new CylinderGeometry(5.8, 5.8, 1.4, 64),
+    [],
+  );
+  useEffect(
+    () => () => headphoneWellGeometry.dispose(),
+    [headphoneWellGeometry],
+  );
 
   const screenGeometry = useMemo(
     () => createScreenGeometry(screen.width, screen.height, SCREEN_CORNER_R),
@@ -654,6 +614,64 @@ export function Device({
         />
       </mesh>
 
+      {/* The 5G's top-edge identity: recessed HOLD slider and 3.5mm jack. */}
+      <mesh
+        name="device-hold-recess"
+        geometry={holdRecessGeometry}
+        position={[-96, body.height / 2 + 0.4, 0]}
+      >
+        <meshPhysicalMaterial
+          name="hold-recess"
+          {...spread(materials.displayWell)}
+          envMap={env}
+        />
+      </mesh>
+      <mesh
+        name="device-hold-indicator"
+        geometry={holdIndicatorGeometry}
+        position={[-96, body.height / 2 + 1.35, 0]}
+      >
+        <meshPhysicalMaterial
+          name="hold-indicator"
+          {...spread(materials.holdIndicator)}
+          envMap={env}
+        />
+      </mesh>
+      <mesh
+        name="device-hold-slider"
+        geometry={holdSliderGeometry}
+        position={[-105, body.height / 2 + 2.15, 0]}
+      >
+        <meshPhysicalMaterial
+          name={isBlack ? "hold-slider-black" : "hold-slider-white"}
+          {...spread(isBlack ? materials.chromeSeamBlack : materials.chromeSeam)}
+          envMap={env}
+        />
+      </mesh>
+      <mesh
+        name="device-headphone-rim"
+        geometry={headphoneRimGeometry}
+        position={[108, body.height / 2 + 1.45, 0]}
+        rotation={[-Math.PI / 2, 0, 0]}
+      >
+        <meshPhysicalMaterial
+          name="headphone-rim"
+          {...spread(materials.steelBack)}
+          envMap={env}
+        />
+      </mesh>
+      <mesh
+        name="device-headphone-well"
+        geometry={headphoneWellGeometry}
+        position={[108, body.height / 2 + 1.25, 0]}
+      >
+        <meshPhysicalMaterial
+          name="headphone-well"
+          {...spread(materials.displayWell)}
+          envMap={env}
+        />
+      </mesh>
+
       {/* §5.1 / §4.3 — the polycarbonate front, inset by the seam. */}
       <mesh name="device-body" geometry={frontGeometry}>
         {isBlack ? (
@@ -661,16 +679,12 @@ export function Device({
             object={blackBodyPhysicalMaterial}
             attach="material"
             name="body-black"
-            {...surfaceMaps.body}
-            roughnessMap={bodyRoughness}
           />
         ) : (
           <primitive
             object={whiteBodyPhysicalMaterial}
             attach="material"
             name="body-white"
-            {...surfaceMaps.body}
-            roughnessMap={bodyRoughness}
           />
         )}
       </mesh>

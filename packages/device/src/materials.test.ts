@@ -102,19 +102,24 @@ describe("§12.3 device material contract", () => {
       clearcoatRoughness: 0.26,
       envMapIntensity: 0.18,
     });
+    expect(DEFAULT_DEVICE_MATERIALS.holdIndicator).toMatchObject({
+      color: "#F16A24",
+      roughness: 0.62,
+      metalness: 0,
+    });
     expect(DEFAULT_DEVICE_MATERIALS.coverGlass).toMatchObject({
-      transmission: 0.9,
-      thickness: 0.001,
-      ior: 1.33,
-      roughness: 0,
-      clearcoat: 0,
-      clearcoatRoughness: 0,
-      specularIntensity: 0.012,
+      transmission: 0,
+      thickness: 0.2,
+      ior: 1.5,
+      roughness: 0.08,
+      clearcoat: 1,
+      clearcoatRoughness: 0.06,
+      specularIntensity: 0.35,
       attenuationColor: "#F5F8FC",
       attenuationDistance: 48,
-      opacity: 1,
-      transparent: false,
-      envMapIntensity: 0.00002,
+      opacity: 0.12,
+      transparent: true,
+      envMapIntensity: 0.16,
     });
     expect(DEFAULT_DEVICE_MATERIALS.screen).toEqual({
       color: "#0B0D11",
@@ -142,16 +147,17 @@ describe("§12.3 device material contract", () => {
     );
   });
 
-  test("instantiated cover glass obeys transmission without authored edge light", () => {
+  test("instantiated cover glass stays reflective without resampling the LCD", () => {
     const material = createCoverGlassMaterial(
       DEFAULT_DEVICE_MATERIALS.coverGlass,
       new Texture(),
     );
-    expect(material.transmission).toBe(0.9);
-    expect(material.opacity).toBe(1);
-    expect(material.transparent).toBe(false);
-    expect(material.roughness).toBe(0);
-    expect(material.envMapIntensity).toBe(0.00002);
+    expect(material.transmission).toBe(0);
+    expect(material.opacity).toBe(0.12);
+    expect(material.transparent).toBe(true);
+    expect(material.depthWrite).toBe(false);
+    expect(material.roughness).toBe(0.08);
+    expect(material.envMapIntensity).toBe(0.16);
     const shader = {
       vertexShader: "#include <common>\n#include <begin_vertex>",
       fragmentShader: "#include <common>\n#include <opaque_fragment>",
@@ -250,12 +256,12 @@ describe("§12.3 device material contract", () => {
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.envMapIntensity).toBeLessThan(0.05);
     expect(DEFAULT_DEVICE_MATERIALS.selectBlack.envMapIntensity).toBeLessThan(0.05);
     expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBeLessThan(0.05);
-    expect(DEFAULT_DEVICE_MATERIALS.coverGlass.envMapIntensity).toBeLessThan(0.001);
+    expect(DEFAULT_DEVICE_MATERIALS.coverGlass.envMapIntensity).toBeLessThan(0.2);
     expect(Math.abs(DEFAULT_DEVICE_FORM.topEdgeCrown)).toBeLessThan(1.5);
     expect(Math.abs(DEFAULT_DEVICE_FORM.bottomEdgeCrown)).toBeLessThan(1.6);
     expect(DEFAULT_DEVICE_FORM.edgeCrownExtent).toBeLessThan(24);
-    expect(DEFAULT_DEVICE_MATERIALS.coverGlass.transmission).toBeLessThan(0.93);
-    expect(DEFAULT_DEVICE_MATERIALS.coverGlass.ior).toBeLessThan(1.4);
+    expect(DEFAULT_DEVICE_MATERIALS.coverGlass.transmission).toBe(0);
+    expect(DEFAULT_DEVICE_MATERIALS.coverGlass.ior).toBe(1.5);
 
     // Regression against the rejected striped/shimmery front pass.
     expect(DEFAULT_DEVICE_MATERIALS.bodyBlack.envMapIntensity).not.toBe(0.162);
