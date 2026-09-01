@@ -327,3 +327,48 @@ and tree `2e67be51dc95456029aa2a88fc4ca5f3df8ebaa5`. The full repository sweep i
 11/11 TypeScript projects, lint clean, 1,007 tests and 50,936 expectations,
 production build clean apart from the existing chunk warning, and 16 automated
 gates passing. The separate LCD suite remains 3/3 at DPR 1/2/3.
+
+## Tuesday, September 1, 2026 — physical iPod 5G geometry specialist pass
+
+The owner's front and exact-edge captures made the remaining defect class
+unambiguous. This was no longer a material-tuning problem: the front had
+stylised Pencil proportions, the Select had no physical rise, the front bevel
+expanded beyond the enclosure plan, and the rear and front were independently
+extruded solids. At exact edge they could only read as two slabs.
+
+I selected one physical target before changing a number: the thin 30GB A1136,
+103.5 × 61.8 × 11mm. Apple front photography supplied normalized screen,
+wheel, centre, and Select ratios. iFixit established the separated plastic and
+formed-steel assembly; iMods established that thin and thick backplates are
+incompatible; MobileTechReview supplied the contemporary side silhouette and
+thin envelope; Retrospekt was a secondary multi-angle check. Pencil MCP kept
+the 330 × 552 body, 26px corner, and exact 272 × 204 LCD, but the owner's
+explicit real-product correction superseded its 230px stylised wheel.
+
+The front chain now closes exactly: 24px forehead, 204px LCD, 59px gap, 206px
+wheel, 59px lower margin. The wheel shrank from 230 to 206px, moved to the
+photo-measured centre, and its separate 74px Select is approximately 1mm proud.
+The display trim is a thin nested physical stack rather than a second bezel.
+The live DOM mesh itself remains 272 × 204 and maps 320 × 240 without a second
+raster step.
+
+The shell repair was more structural. `productShellDepths()` now supplies one
+axial handoff. The rear is one indexed, normal-smoothed tray with eleven
+matched rounded-rectangle rings expanding from its inset rear face to the
+seam. The front starts at that same plane. The front's Three bevel is
+pre-compensated; this removed the 334.6-versus-330 lower-corner overshoot.
+Finally, shell crown displacement is zero at the rear handoff and grows only
+toward the face, so a planar steel seam is not asked to meet a wavy plastic
+boundary.
+
+The missing evidence is recorded rather than hidden. Public material did not
+provide an exact dimensioned front/rear depth split or Select rise. The current
+2.6mm / 1.6mm / 1.0mm profile values are photo-derived and the owner was asked
+for caliper or macro-profile references if tighter fidelity is wanted.
+
+The final Chrome run exercised CanvasDrawElement, native DOM interaction, DPR
+1/2/3, mobile fit, wheel selection suppression, and beauty plus neutral
+all-angle captures. Neutral exact-edge views now show one tapered rear tray,
+one thin plastic front, and one intentional seam; the front button visibly
+projects in quarter, top, and bottom views. Six independent mutation plants
+reintroduced the owner's defects and each went red.

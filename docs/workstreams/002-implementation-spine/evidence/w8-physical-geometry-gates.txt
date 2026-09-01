@@ -1,0 +1,34 @@
+W8 physical-geometry final verification
+Date: 2026-09-01 Europe/Stockholm
+Implementation commit: 909ad761e0729c5488ee5293081725f8376668ce
+
+Scoped implementation
+- bun test packages/device: 156 pass, 0 fail, 54,636 expectations
+- bunx tsc -p packages/device: pass
+- bunx eslint packages/device apps/web/src/routes/[_]spike.device.tsx: pass
+- scoped git diff --check: pass
+
+Repository
+- bun run typecheck: 11/11 projects clean
+- bun run lint: pass
+- bun test: 1,015 pass, 0 fail, 58,380 expectations
+- bun run --cwd apps/web build: client and SSR pass
+- build note: existing >500kB Three.js client-chunk warning remains
+- bun run gates: 16 automated pass, 0 automated fail
+- manual gates left open by the runner: U14 phone-in-hand thumb occlusion and U15 unsupported-control inspection
+
+Flagged Chrome / HTML in Canvas
+- source snapshot: 6e00b2809609f5373eef7a83f6c84c96fef9d07e4d2ad65f537f1771842e4649
+- 183 served source files; expected and current fingerprints matched
+- Playwright Chrome 151 with CanvasDrawElement: 1 pass, 0 fail
+- T1 compositing confirmed
+- DPR 1/2/3: 320x240, 640x480, 960x720 source rasters
+- desktop and 375x812 mobile model bounds remain inside the safe area
+- native DOM panel and projected LCD align; hit testing remains live
+- real mouse/touch wheel gesture does not select text; outside text remains selectable
+- page errors: none
+- captures: front black/white, quarter, edge, rear, top-control perspective,
+  mobile, LCD close-ups, neutral front/corners, and neutral left/right/top/bottom/rear/quarter
+
+Evidence directory
+docs/workstreams/002-implementation-spine/evidence/w8-physical-geometry/

@@ -456,3 +456,57 @@ used by `Device`; `ClickWheelInputSurface` derives its z position from that
 record. A mounted 6.2/6.2 crown plant moves the ray plane by more than five
 model units and proves it remains exactly 0.25 ahead of the corresponding
 visible wheel outer surface.
+
+## VD-36 · The enclosure target is the thin 30GB A1136 and no other rear shell
+
+The product model is the 103.5 × 61.8 × 11mm iPod Video 5G/5.5G 30GB thin
+housing. The 60/80GB 14mm / 0.55in rear is a different part and none of its
+depths may enter this geometry. Physical dimensions, Apple front-image
+measurements, and photo-derived profile estimates live in one named source
+record so the chosen variant cannot drift through unrelated constants.
+
+## VD-37 · Owner-observed real-product proportions supersede Pencil's stylised front
+
+The 330 × 552 body, 26px corner, and 272 × 204 active LCD remain Pencil and
+token authority. The owner's later request to match the physical iPod is the
+authority for the smaller wheel and reduced forehead: Apple image ratios map
+to a 24px forehead, 206px wheel centred 390px from the top, and 74px Select.
+The active LCD remains exactly 4:3 and 320 × 240; mask, glass, and recess expand
+by only 0.5, 1, and 2px per side.
+
+## VD-38 · Front and rear are material shells with one axial handoff
+
+The former construction used independently extruded front and steel slabs.
+Their unrelated caps, bevel expansion, and crown displacement caused the edge
+split and lower-corner kink in the owner's screenshots. `productShellDepths()`
+now owns one rear face, seam, and front face. A single indexed steel tray rolls
+from an inset rear face to that seam; the plastic shell begins at that exact
+plane. Three's outward front bevel is pre-inset so its projected outline stays
+inside the steel silhouette instead of growing to 334.6 units across a
+330-unit body.
+
+## VD-39 · Front crown deformation is zero at the rear handoff
+
+The old deformation added the complete face crown at every depth, including
+the nominal rear plane. A planar rear shell could not meet that wavy boundary.
+The crown now scales from zero at the material seam to full displacement at
+the front face, and normals use the corresponding inverse-transpose axial
+scale. The rear handoff is therefore planar while the face keeps its moulded
+compound crown.
+
+## VD-40 · Unmeasured profile values stay photo-derived and visible
+
+No reliable dimensioned public source established the exact front/rear shell
+split or Select rise. Current 2.6mm front depth, 1.6mm rear plan inset, and
+1.0mm Select rise are bounded by side/teardown photography and are explicitly
+named `photoDerivedProfileMm`; they are not OEM claims. The owner was asked for
+a caliper profile or macro side reference before any tighter claim is made.
+
+## VD-41 · Neutral all-angle evidence is a topology gate
+
+Beauty materials can hide seams in black and create false edges in steel.
+`diagnostic=neutral` now assigns the same matte response to both shells, wheel
+parts, screen well, seams, and rear inlay without changing the light rig. The
+browser evidence includes neutral front, quarter, rear, left/right edge, and
+top/bottom views. Camera bounds tests cover the same seven orientations on
+phone and desktop viewports.

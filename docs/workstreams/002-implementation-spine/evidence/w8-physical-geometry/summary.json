@@ -1,0 +1,257 @@
+{
+  "route": "/_spike/device?capture",
+  "health": {
+    "expected": "6e00b2809609f5373eef7a83f6c84c96fef9d07e4d2ad65f537f1771842e4649",
+    "current": "6e00b2809609f5373eef7a83f6c84c96fef9d07e4d2ad65f537f1771842e4649",
+    "expectedFileCount": 183,
+    "fileCount": 183,
+    "reviewedCommit": null,
+    "reviewedTree": null
+  },
+  "captures": [
+    {
+      "pose": "front",
+      "colourway": "black",
+      "filename": "correction-room-front-black.png",
+      "fit": {
+        "distance": 1171.1829,
+        "padding": 34,
+        "extentX": 0.406278,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "5e19371fb6006d692b8fa22c33a65bade35a926a6966b09528685d70e70a727c"
+    },
+    {
+      "pose": "screen-close",
+      "colourway": "black",
+      "filename": "correction-room-screen-close-black.png",
+      "hash": "cf31b4f773928401d9369f449862c5c9a0e17b33b60ebd1811dc26c68f8057bd"
+    },
+    {
+      "pose": "front",
+      "colourway": "white",
+      "filename": "correction-room-front-white.png",
+      "fit": {
+        "distance": 1171.1829,
+        "padding": 34,
+        "extentX": 0.406278,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "9ab5f3b0776309f975d09707417529329d7b77e01ab4797bd753e267477468ad"
+    },
+    {
+      "pose": "screen-close",
+      "colourway": "white",
+      "filename": "correction-room-screen-close-white.png",
+      "hash": "862f8ebd8f5bd9e707f4cef94f6b24f853ad054edb7aba9358c67f2ba3517475"
+    },
+    {
+      "pose": "three-quarter",
+      "colourway": "black",
+      "filename": "correction-room-quarter-black.png",
+      "fit": {
+        "distance": 1319.7229,
+        "padding": 34,
+        "extentX": 0.382334,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "35184d8b3f5c73412e7b87ae9164f888f4c2d09354fbf6be60624f6d976185b3"
+    },
+    {
+      "pose": "edge",
+      "colourway": "black",
+      "filename": "correction-room-edge-black.png",
+      "fit": {
+        "distance": 1301.7614,
+        "padding": 34,
+        "extentX": 0.084756,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "1c9f5b59c30e4afe7e899f3af30caba975487edf6477948a44bfb4b0ab4a54ab"
+    },
+    {
+      "pose": "rear",
+      "colourway": "white",
+      "filename": "correction-room-rear-steel.png",
+      "fit": {
+        "distance": 1171.1829,
+        "padding": 34,
+        "extentX": 0.406278,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "131368796a174dbe2ada67b900f8346e573eff052d623b1b5b6bf99670c42830"
+    },
+    {
+      "pose": "corner-left-beauty",
+      "colourway": "black",
+      "filename": "correction-room-corner-left-beauty.png",
+      "hash": "292d1d3e0f900c59037ea998397a7960ce00ea61ec332c432544534885ffb8a9"
+    },
+    {
+      "pose": "corner-right-beauty",
+      "colourway": "black",
+      "filename": "correction-room-corner-right-beauty.png",
+      "hash": "db76381992263469f2409cff5cfa540b48db769c36939c0443f04a4ba9e80066"
+    },
+    {
+      "pose": "top-controls",
+      "colourway": "black",
+      "filename": "correction-room-top-controls.png",
+      "fit": {
+        "distance": 1285.2797,
+        "padding": 34,
+        "extentX": 0.440023,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "fd01e11ce260f7449ce41cea9ecd6b86ec3013c0b45f36b606b814b9f40c973f"
+    }
+  ],
+  "mobileFit": {
+    "distance": 1725.8154,
+    "padding": 34,
+    "extentX": 0.818667,
+    "extentY": 0.675986,
+    "limitX": 0.818667,
+    "limitY": 0.916256
+  },
+  "mobileHash": "b108cfc925ab122e7104dd75725291f10ea3a5f0d632b1869ed84a8aba445a28",
+  "dpr": {
+    "1": {
+      "density": 1,
+      "rasterWidth": 320,
+      "rasterHeight": 240,
+      "webglWidth": 430,
+      "webglHeight": 932
+    },
+    "2": {
+      "density": 2,
+      "rasterWidth": 640,
+      "rasterHeight": 480,
+      "webglWidth": 860,
+      "webglHeight": 1864
+    },
+    "3": {
+      "density": 3,
+      "rasterWidth": 960,
+      "rasterHeight": 720,
+      "webglWidth": 1290,
+      "webglHeight": 2796
+    }
+  },
+  "diagnostic": {
+    "fit": {
+      "distance": 1171.1829,
+      "padding": 34,
+      "extentX": 0.406278,
+      "extentY": 0.911458,
+      "limitX": 0.933594,
+      "limitY": 0.911458
+    },
+    "hash": "2fb917b6a34c9b555438d6a46d114fe26ca6d136bcbe707b0b0e2cd791b89934",
+    "corners": [
+      {
+        "side": "left",
+        "filename": "correction-room-corner-left-neutral.png",
+        "hash": "ab74d37b16b460b5d63e8718fcf6c76bd4d857ab9a38ef242fa976c545e7eb1e"
+      },
+      {
+        "side": "right",
+        "filename": "correction-room-corner-right-neutral.png",
+        "hash": "83af79515df662f4713dc5633710c66740d70cb8d3093f064959d69e0eb8f055"
+      }
+    ],
+    "orthographic": [
+      {
+        "view": "quarter",
+        "filename": "physical-neutral-quarter.png",
+        "fit": {
+          "distance": 1319.7229,
+          "padding": 34,
+          "extentX": 0.382334,
+          "extentY": 0.911458,
+          "limitX": 0.933594,
+          "limitY": 0.911458
+        },
+        "hash": "f4ed1bba66a726ecc95d4d8bc4944947b0c84aff8a50692925c27a0b211de238"
+      },
+      {
+        "view": "left-edge",
+        "filename": "physical-neutral-left-edge.png",
+        "fit": {
+          "distance": 1301.7614,
+          "padding": 34,
+          "extentX": 0.084756,
+          "extentY": 0.911458,
+          "limitX": 0.933594,
+          "limitY": 0.911458
+        },
+        "hash": "d07256ad1d5c2be3b69efcd3bcd31aebe114547623f7c9dc25555b3f1ceaecde"
+      },
+      {
+        "view": "right-edge",
+        "filename": "physical-neutral-right-edge.png",
+        "fit": {
+          "distance": 1301.7614,
+          "padding": 34,
+          "extentX": 0.084756,
+          "extentY": 0.911458,
+          "limitX": 0.933594,
+          "limitY": 0.911458
+        },
+        "hash": "c25efb772b1ca3a836efd0ca44c766831d9524373e6194f24adbfcba2c7334e2"
+      },
+      {
+        "view": "rear",
+        "filename": "physical-neutral-rear.png",
+        "fit": {
+          "distance": 1171.1829,
+          "padding": 34,
+          "extentX": 0.406278,
+          "extentY": 0.911458,
+          "limitX": 0.933594,
+          "limitY": 0.911458
+        },
+        "hash": "3c96d609d958304e599b554c16318b6d16a101acf73c4a2145eb72327b90fdee"
+      },
+      {
+        "view": "top",
+        "filename": "physical-neutral-top.png",
+        "fit": {
+          "distance": 1096.4687,
+          "padding": 34,
+          "extentX": 0.524077,
+          "extentY": 0.911458,
+          "limitX": 0.933594,
+          "limitY": 0.911458
+        },
+        "hash": "a56dd174eccde7632b6d4fa80a482ac089de4b4d3ae9352add96396717c7a025"
+      },
+      {
+        "view": "bottom",
+        "filename": "physical-neutral-bottom.png",
+        "fit": {
+          "distance": 1096.4687,
+          "padding": 34,
+          "extentX": 0.524077,
+          "extentY": 0.911458,
+          "limitX": 0.933594,
+          "limitY": 0.911458
+        },
+        "hash": "49eb7fc84d7a294ce2a880e49e4b07c138e8f1da1dc3d02b97f1f399a5bf1954"
+      }
+    ]
+  },
+  "pageErrors": []
+}
