@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'bun:test'
-import { appendFileSync, existsSync, mkdtempSync, rmSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
 import {
+  BROWSER_SOURCE_METADATA_FILE,
   fingerprintBrowserSources,
   prepareBrowserSourceSnapshot,
 } from './browser-source-fingerprint'
@@ -19,6 +20,12 @@ describe('browser source snapshots', () => {
       expect(snapshot.reviewedCommit).toBeNull()
       expect(snapshot.reviewedTree).toBeNull()
       expect(snapshot.source).toEqual(fingerprintBrowserSources(snapshot.snapshotRoot))
+      expect(readSnapshotMetadata(snapshot.snapshotRoot)).toEqual({
+        expectedFingerprint: snapshot.source.digest,
+        expectedFileCount: snapshot.source.fileCount,
+        reviewedCommit: null,
+        reviewedTree: null,
+      })
       for (const excluded of ['cert', '.claude', 'design.pen', 'docs', '.env', '.env.local']) {
         expect(existsSync(resolve(snapshot.snapshotRoot, excluded))).toBe(false)
       }
@@ -37,6 +44,12 @@ describe('browser source snapshots', () => {
       expect(snapshot.reviewedCommit).toBe(reviewedCommit)
       expect(snapshot.reviewedTree).toBe(reviewedTree)
       expect(snapshot.source).toEqual(fingerprintBrowserSources(snapshot.snapshotRoot))
+      expect(readSnapshotMetadata(snapshot.snapshotRoot)).toEqual({
+        expectedFingerprint: snapshot.source.digest,
+        expectedFileCount: snapshot.source.fileCount,
+        reviewedCommit,
+        reviewedTree,
+      })
     } finally {
       rmSync(temporaryRoot, { recursive: true, force: true })
     }
@@ -70,4 +83,8 @@ function git(args: readonly string[]): string {
     throw new Error(`git ${args.join(' ')} failed: ${result.stderr.toString()}`)
   }
   return result.stdout.toString().trim()
+}
+
+function readSnapshotMetadata(snapshotRoot: string): unknown {
+  return JSON.parse(readFileSync(resolve(snapshotRoot, BROWSER_SOURCE_METADATA_FILE), 'utf8'))
 }

@@ -1,8 +1,9 @@
 import { createHash } from 'node:crypto'
-import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { relative, resolve } from 'node:path'
 
 const defaultRepositoryRoot = resolve(import.meta.dirname, '..')
+export const BROWSER_SOURCE_METADATA_FILE = '.webpod-browser-source.json'
 const ARCHIVE_INPUTS = [
   'package.json',
   'bun.lock',
@@ -86,12 +87,14 @@ export function prepareBrowserSourceSnapshot({
       })
     }
     assertExcludedSnapshot(target)
-    return {
+    const snapshot = {
       snapshotRoot: target,
       source: fingerprintBrowserSources(target),
       reviewedCommit: null,
       reviewedTree: null,
     }
+    writeSnapshotMetadata(snapshot)
+    return snapshot
   }
 
   const resolvedCommit = git(root, ['rev-parse', '--verify', `${reviewedCommit}^{commit}`]).trim()
@@ -108,12 +111,14 @@ export function prepareBrowserSourceSnapshot({
   run('tar', ['-xf', archivePath, '-C', target], root)
   rmSync(archivePath, { force: true })
   assertExcludedSnapshot(target)
-  return {
+  const snapshot = {
     snapshotRoot: target,
     source: fingerprintBrowserSources(target),
     reviewedCommit: resolvedCommit,
     reviewedTree,
   }
+  writeSnapshotMetadata(snapshot)
+  return snapshot
 }
 
 function walkFiles(root: string, repositoryRoot: string): readonly string[] {
@@ -164,4 +169,20 @@ function run(command: string, args: readonly string[], cwd: string): string {
     throw new Error(`${command} ${args.join(' ')} failed: ${result.stderr.toString()}`)
   }
   return result.stdout.toString()
+}
+
+function writeSnapshotMetadata(snapshot: BrowserSourceSnapshot): void {
+  writeFileSync(
+    resolve(snapshot.snapshotRoot, BROWSER_SOURCE_METADATA_FILE),
+    JSON.stringify(
+      {
+        expectedFingerprint: snapshot.source.digest,
+        expectedFileCount: snapshot.source.fileCount,
+        reviewedCommit: snapshot.reviewedCommit,
+        reviewedTree: snapshot.reviewedTree,
+      },
+      null,
+      2,
+    ),
+  )
 }
