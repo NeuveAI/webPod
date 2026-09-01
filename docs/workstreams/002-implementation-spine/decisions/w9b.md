@@ -1,0 +1,85 @@
+# Decisions — W9b · interaction audio
+
+## Sources read
+
+Repository sources were read before implementation: `AGENTS.md`, the complete
+W9 dispatch, workstream 002 scope/decisions/reviews, state detent/store/silence
+contracts and tests, composite click-wheel lifecycle, current app/provider
+surfaces, and the W9a input seam.
+
+The local dependency source was
+`/Users/vinicius/code/agentic-context/jotai/docs/core/store.mdx`; its
+`get`/`set`/`sub` store contract is the subscription boundary used here. The
+configured `global-patterns` reference points at the absent sibling
+`~/code/agent-context/global.md`, so no claim was taken from that broken alias.
+
+Browser behavior was grounded in the W3C Web Audio specification and MDN's Web
+Audio best-practices, `AudioContext.resume()`, `AudioContext.state`, GainNode,
+and OfflineAudioContext pages. The modern-web-guidance sources used were
+`accessibility` and `efficient-background-processing`. The current web design
+guidelines supplied the no-sound-only-feedback rule. Vercel React guidance was
+applied to stable external listeners and effect cleanup; no React state was
+introduced.
+
+## W9b-D1 · Feedback is published after state decides
+
+The state store is the one enforcement boundary. It publishes a read-only event
+after `pressActionAtom`, `detentActionAtom`, or `coastActionAtom` has produced an
+authoritative outcome. Composite consumes `clickerTicks` and `silenced`; it does
+not calculate detents, acceleration, coast, actor, or eligibility.
+
+This is why raw pointer samples cannot make sound and why coast emits only what
+the state budget returns. A second physics implementation in audio would drift.
+
+## W9b-D2 · The active W9 dispatch supersedes the older wheel-only sentence
+
+The older product specification says the clicker is wheel-detent-only. The
+owner's active direction and W9 decision 6 explicitly require one click per
+eligible human button press as well. W9b implements the narrower current
+instruction: Select/press outcomes click; generic UI activation and pointer
+movement do not.
+
+## W9b-D3 · Procedural transients, no sample assets
+
+Procedural Web Audio avoids network, preload, licensing, and decoding latency.
+Wheel is an 8ms decaying noise impulse through a 3kHz band-pass with ±2% pitch
+variation. Select and secondary buttons add a small decaying plastic body and
+use 16ms/12ms low-pass envelopes. This is deliberately mechanical and local,
+not a tonal alert. There are no assets to license or preload.
+
+## W9b-D4 · One compressed, bounded graph
+
+Every voice connects source → filter → envelope → master → compressor →
+destination. Peak voice gains are 0.05 wheel, 0.075 Select, and 0.06 secondary;
+master gain is 0.62. At most 12 voices can exist, and at most eight feedback
+events wait for first activation. Wheel starts are spaced at 1/30 second and
+cannot queue more than the voice cap permits. Excess work is reported and
+dropped rather than increasing gain or allocating indefinitely.
+
+The constants are asserted against literals so a future rewrite cannot move
+both implementation and expectation together.
+
+## W9b-D5 · Activation and backgrounding are state transitions
+
+Construction and resume happen only from the trusted pointer/key listener.
+Feedback before activation is not replayed. Feedback that arrives while that
+first resume is pending is bounded so the initiating physical click is not
+lost. Blur/hidden/mute invalidates the activation epoch, clears pending events,
+stops voices, and suspends. Dispose closes and disconnects.
+
+Failures are data: `unsupported`, `resume-failed`, `context-suspended`,
+`voice-cap`, `rate-limit`, and `graph-failed`. Nothing logs to the console.
+
+## W9b-D6 · Mute is a runtime seam, not invented settings UI
+
+No existing clicker mute setting exists. `setEnabled(boolean)` is the smallest
+explicit seam. Disabling stops voices and suspends; the next real activation
+can resume after re-enable. W9b adds no setting, label, persistence, or panel UI.
+
+## W9b-D7 · Browser evidence is observable but not semantic feedback
+
+The composite root mirrors lifecycle and bounded counters in
+`data-wp-audio-*`. These attributes are diagnostics only. Sound never carries
+navigation meaning and does not replace focus, selection, visual depression,
+screen movement, bumps, or announcements.
+
