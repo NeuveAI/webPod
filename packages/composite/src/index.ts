@@ -53,6 +53,7 @@ export {
   type InteractionVoiceKind,
   type InteractionVoiceSpec,
 } from './interaction-audio'
+export { renderInteractionAudioPreviewWav } from './web-audio-backend'
 
 export type {
   CapabilityReport,

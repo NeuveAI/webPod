@@ -242,7 +242,7 @@ export function createInteractionAudioRuntime(
       const now = backend.currentTime
       const startTimeSeconds =
         kind === 'wheel' ? Math.max(now, nextWheelStartSeconds) : now
-      const spec = voiceSpec(kind, startTimeSeconds, random)
+      const spec = createInteractionVoiceSpec(kind, startTimeSeconds, random)
       let voice: InteractionAudioVoice | null = null
       try {
         voice = backend.schedule(spec, () => {
@@ -634,7 +634,7 @@ function voiceKind(event: InteractionFeedbackEvent): InteractionVoiceKind {
   return event.button === 'center' ? 'select' : 'button'
 }
 
-function voiceSpec(
+export function createInteractionVoiceSpec(
   kind: InteractionVoiceKind,
   startTimeSeconds: number,
   random: () => number,

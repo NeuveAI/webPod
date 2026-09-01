@@ -1,16 +1,29 @@
 import { afterAll, beforeEach, describe, expect, test } from 'bun:test'
 
 import type { InteractionVoiceSpec } from './interaction-audio'
-import { createBrowserInteractionAudioBackend } from './web-audio-backend'
+import {
+  createBrowserInteractionAudioBackend,
+  renderInteractionAudioPreviewWav,
+} from './web-audio-backend'
 
 const originalAudioContext = Object.getOwnPropertyDescriptor(globalThis, 'AudioContext')
+const originalOfflineAudioContext = Object.getOwnPropertyDescriptor(
+  globalThis,
+  'OfflineAudioContext',
+)
 
 beforeEach(() => {
   FakeAudioContext.latest = null
+  FakeOfflineAudioContext.latest = null
   Object.defineProperty(globalThis, 'AudioContext', {
     configurable: true,
     writable: true,
     value: FakeAudioContext,
+  })
+  Object.defineProperty(globalThis, 'OfflineAudioContext', {
+    configurable: true,
+    writable: true,
+    value: FakeOfflineAudioContext,
   })
 })
 
@@ -19,6 +32,15 @@ afterAll(() => {
     Reflect.deleteProperty(globalThis, 'AudioContext')
   } else {
     Object.defineProperty(globalThis, 'AudioContext', originalAudioContext)
+  }
+  if (originalOfflineAudioContext === undefined) {
+    Reflect.deleteProperty(globalThis, 'OfflineAudioContext')
+  } else {
+    Object.defineProperty(
+      globalThis,
+      'OfflineAudioContext',
+      originalOfflineAudioContext,
+    )
   }
 })
 
@@ -104,6 +126,25 @@ describe('browser interaction audio graph', () => {
       )
     }
   })
+
+  test('the owner preview renders the production graph into a PCM WAV', async () => {
+    const wav = await renderInteractionAudioPreviewWav()
+    const context = FakeOfflineAudioContext.latest
+    if (context === null) throw new Error('Offline preview context did not construct')
+    const view = new DataView(wav)
+
+    expect(readAscii(view, 0, 4)).toBe('RIFF')
+    expect(readAscii(view, 8, 4)).toBe('WAVE')
+    expect(readAscii(view, 36, 4)).toBe('data')
+    expect(view.getUint16(20, true)).toBe(1)
+    expect(view.getUint16(22, true)).toBe(1)
+    expect(view.getUint32(24, true)).toBe(48_000)
+    expect(view.getUint16(34, true)).toBe(16)
+    expect(wav.byteLength).toBe(44 + 48_000 * 2)
+    expect(context.sources).toHaveLength(8)
+    expect(context.buffers).toHaveLength(3)
+    expect(context.compressors).toHaveLength(1)
+  })
 })
 
 function wheelSpec(): InteractionVoiceSpec {
@@ -123,6 +164,14 @@ function meanMagnitude(samples: Float32Array): number {
   let total = 0
   for (const sample of samples) total += Math.abs(sample)
   return total / samples.length
+}
+
+function readAscii(view: DataView, offset: number, length: number): string {
+  let value = ''
+  for (let index = 0; index < length; index += 1) {
+    value += String.fromCharCode(view.getUint8(offset + index))
+  }
+  return value
 }
 
 type ParamWrite = readonly [
@@ -270,5 +319,23 @@ class FakeAudioContext {
 
   async close(): Promise<void> {
     this.state = 'closed'
+  }
+}
+
+class FakeOfflineAudioContext extends FakeAudioContext {
+  static override latest: FakeOfflineAudioContext | null = null
+
+  constructor(
+    readonly channelCount: number,
+    readonly frameCount: number,
+    sampleRate: number,
+  ) {
+    super()
+    if (sampleRate !== this.sampleRate) throw new Error('Unexpected preview sample rate')
+    FakeOfflineAudioContext.latest = this
+  }
+
+  async startRendering(): Promise<FakeAudioBuffer> {
+    return new FakeAudioBuffer(this.channelCount, this.frameCount, this.sampleRate)
   }
 }
