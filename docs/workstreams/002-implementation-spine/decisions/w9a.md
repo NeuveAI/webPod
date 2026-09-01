@@ -151,3 +151,30 @@ pixels behind a wheel moving about 0.42 model pixels, so it intersected the
 depressed patch. The existing floor now receives the same analytic local
 deformation as the ring. It remains at the established 0.05-pixel separation
 at rest and adds no new geometry, recess or render-order fake.
+
+## W9A-12 · The contact card is incident energy evaluated by the wheel BRDF
+
+W9A-11's raw write to `reflectedLight.directSpecular` is rejected. An
+accumulator name does not turn an RGB mask into specular reflection. The
+contact source now supplies only cone/range/slope-gated incident irradiance.
+Three 0.185.1 evaluates that energy through `BRDF_GGX_Multiscatter`, which
+invokes `BRDF_GGX(lightDir, viewDir, normal, material)`, and through its
+separate `BRDF_GGX_Clearcoat` lobe. Roughness, Fresnel, the view direction,
+multi-scattering compensation and each colourway's actual clearcoat therefore
+remain owned by the installed physical material. No diffuse or emissive path
+exists.
+
+The source remains body-local but is now genuinely grazing: 8 mm along the
+wheel tangent and 1.5 mm above the surface. Its 8°/18° cone reaches only about
+2.65 mm at the contact plane, less than the 5.5 mm radial deformation support.
+The source's explicit peak of 40 linear scene-irradiance units is attenuated by
+incidence, that narrow cone, squared range falloff, the 0.65°–0.9° live/rest
+normal gate and the material BRDF. It is a visual calibration, not a physical
+lamp measurement. Production captures show an asymmetric edge crescent rather
+than the former broad pool. Wheel travel remains exactly 0.08 mm.
+
+The shader patch validates itself at compile installation. The marked block
+must contain exactly the base GGX and clearcoat accumulator writes, both in
+their exact gated forms; the patched shader must add exactly two optical output
+writes relative to its input. Any extra raw accumulator, emissive write,
+missing cone/range/slope/incidence factor or missing material BRDF fails closed.

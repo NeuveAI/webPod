@@ -1,5 +1,11 @@
 # W9a readability antagonistic re-review evidence
 
+> Historical evidence for commits `8a3a104` / `25178b8`. Its raw
+> `directSpecular` optical path was rejected by the next re-review and is
+> superseded by `w9a-material-brdf.md`. The continuous source, geometry,
+> teardown and demand-rendering measurements below remain the provenance for
+> those unchanged parts; the images here are not the final optical proof.
+
 ## Outcome
 
 All three Majors and the teardown Minor from the review section beginning at

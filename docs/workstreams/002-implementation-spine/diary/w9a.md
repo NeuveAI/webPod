@@ -177,3 +177,42 @@ claim.
 Detach/rebind now has an independent cleanup gate. Deleting only the current
 binding's `readability.clear()` fails exactly that test; stale detach remains
 unable to clear a replacement. No audio source was touched.
+
+## Material-BRDF correction
+
+The next review caught a category error in my use of Three's output names. I
+had put a bounded RGB mask into `reflectedLight.directSpecular` and called it a
+specular response. It still ignored the wheel's roughness, Fresnel, clearcoat
+and view direction, so the temporal frames showed a smooth-moving halo rather
+than a material glint. Smoothness had fixed the first defect while making the
+second easier to see.
+
+The installed Three 0.185.1 shader already contains the right contract. The
+wheel card now computes only incident irradiance, including physical incidence,
+then passes it to `BRDF_GGX_Multiscatter`; clearcoat uses
+`BRDF_GGX_Clearcoat`. The black 0.44-roughness / 0.08-clearcoat wheel and white
+0.8-roughness / 0.035-clearcoat wheel therefore answer differently without a
+colourway branch or independent tuning.
+
+The browser calibration changed source shape, not travel. A low lifted source
+8 mm along the tangent and a narrow 8°–18° cone turn the old pool into a small
+asymmetric crescent. The apparent peak source number is 40 in Three's linear
+scene units, but it reaches output only after incidence, cone, squared range,
+slope and physical BRDF attenuation. The 18° cone covers about 2.65 mm at the
+contact plane. The 0.08 mm deformation and all demand-rendering lifecycles are
+unchanged.
+
+The first substring test had another fail-open shape: a correct guarded line
+could coexist with an unguarded second line. The runtime installer now counts
+every optical output assignment relative to the input shader and requires the
+two exact GGX/clearcoat statements. Nine in-test plants remove individual
+gates/BRDFs or add raw direct-specular/emissive energy; all are rejected.
+
+Final evidence was recaptured through ordinary `CompositeDevice` pointer input
+in flagged Chrome, across both colourways and front/quarter views, plus a
+thirteen-frame signed-seam sequence. I also captured black/white Select
+rest/hold/release in front and quarter views through the same production path.
+Key-only and fill-only Select macros remain open: the existing light-isolation
+query renders `DeviceCanvas` in the production-surface diagnostic branch and
+therefore bypasses the production pointer chain. I did not add a proof API to
+manufacture them.
