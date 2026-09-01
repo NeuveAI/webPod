@@ -1,0 +1,55 @@
+Owner-primary OEM white 5G correction verification
+Date: 2026-09-01 Europe/Stockholm
+
+SOURCE / VISUAL
+- 9/9 original HEIC photographs inspected independently at 4032x3024.
+- Original filenames and SHA-256 identities: source-ledger.md.
+- Contact sheet: owner-contact-sheet.png (1500x1510 delivery PNG).
+- True pre-change captures: current-white-front.png, current-white-oblique.png.
+- Corrected captures: corrected-white-front.png, corrected-white-oblique.png.
+- Matched board: reference-current-corrected.png (1800x1330 delivery PNG).
+- Neutral sweep: left edge, right edge, top, bottom, rear three-quarter.
+- Production route: http://localhost:3000/_spike/device
+- Capture query: ?diagnostic=production-surface&capture&view=front&colourway=white
+
+MUTATIONS
+- cool/blue body regression: red, 1 failed / 5 passed
+- medium dark-grey legend regression: red, 1 failed / 5 passed
+- Select collapsed into wheel color: red, 1 failed / 5 passed
+- dark/cool painted seam floor: red, 1 failed / 5 passed
+- details: mutation-proof.md
+
+SCOPED
+$ bun test packages/device
+171 pass, 0 fail, 62,459 expectations
+
+$ bun run typecheck
+11/11 projects clean
+
+$ bunx --bun eslint packages/device/src/materials.ts packages/device/src/materials.test.ts packages/device/src/owner-oem-white.test.ts
+exit 0
+
+REPOSITORY
+$ bun test
+1,030 pass, 0 fail, 66,203 expectations
+
+$ bun run lint
+exit 0
+
+$ bun run build
+client: 230 modules, success
+server: 389 modules, success
+existing non-failing warning: client chunk above 500 kB
+
+$ bun run gates
+16 automated passed, 0 automated failed
+manual U14 and U15 remain owner/reviewer checks
+
+Notes
+- Geometry ratios and relative depth ordering were confirmed by the owner set;
+  no unsupported millimetre depth was invented.
+- The exact absolute wheel/Select recess still requires the calibrated macro
+  profile described in source-ledger.md.
+- Repo-wide git diff --check still reports pre-existing trailing whitespace in
+  docs/workstreams/002-implementation-spine/evidence/volumetric-device-browser.txt;
+  scoped changed-path whitespace checks are clean.

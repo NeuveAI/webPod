@@ -566,3 +566,43 @@ Black and white are separate material tables. Each independently specifies
 wheel, Select and printed ink response; no channel inversion or shared Select
 material can stand in for OEM colorway calibration. The comparison board is a
 required acceptance artifact for this correction, not optional presentation.
+
+## VD-46 · The lower source is a front-left fill, not a rear rim strip
+
+The approved key remains a broad card at 45° viewer azimuth and 40° elevation.
+The second RectAreaLight moves from −120° behind-left to −45° front-left and
+−18° elevation, aimed below the wheel centre. Its 640×440 emitter is larger
+than the 520×380 key while its power remains 9.5% of key and its surface
+intensity 6.67% of key. This is the professional large-and-quiet fill relation:
+it lifts the lower shell and wheel without announcing a lower hotspot.
+
+The PMREM room stays at 0.20 / 0.04 and the material tables do not move in this
+decision. Key-only, fill-only, combined and neutral proof modes disable
+emitters at zero intensity while preserving their world position and scene
+topology. A 24-render black/white front/quarter/edge matrix plus pixel gates
+must prove the fill reaches the lower assembly, remains smoother than a band,
+changes the lower assembly materially more than the upper shell, and stays
+world-fixed when the product rotates. Camera-, UV-, gradient- and additive-
+light paths remain prohibited.
+
+## VD-46 · Owner-original white hardware supersedes inferred white calibration
+
+Nine original HEIC photographs of the owner's known white 5G now outrank
+marketplace, refurbished and image-search material for the white colorway.
+Every original was inspected at 4032×3024 and is identified by filename and
+SHA-256 in the owner-primary ledger. Warm room light, display spill and phone
+processing prevent raw-pixel color sampling; only material relationships that
+repeat across exposures and angles are modeled.
+
+The white assembly is therefore a mild warm-ivory glossy faceplate, cooler and
+darker matte wheel, cream Select closer to the faceplate, and light/white
+printed legends. The wheel-well floor is light enough that its hairline reads
+from physical occlusion rather than a painted annular ring. Black remains its
+own independent table.
+
+The same owner set independently confirms the existing Apple-derived body,
+screen, wheel and Select ratios and the bounded ordering from VD-45. It does
+not supply calibrated millimetre depth, so wheel inset `1` and Select recess
+`0.5` remain explicitly model-space visual bounds rather than being retuned to
+invented precision. Exact depth still requires a stationary near-orthographic
+macro containing faceplate, wheel and Select with a common in-plane scale.

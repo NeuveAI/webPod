@@ -424,3 +424,37 @@ route let the unflagged browser render the real geometry/material stack without
 touching HTML-in-canvas. The evidence board places external reference, prior
 render and corrected render side by side for black, white and neutral oblique
 views.
+
+## Tuesday, September 1, 2026 — owner-primary OEM white correction
+
+The owner then supplied nine original photographs of their known white 5G,
+covering repeated front exposures, a wheel-depth oblique, both bottom corners,
+the top/front seam and the rear-steel roll. I converted every HEIC only for
+inspection, viewed each full 4032×3024 original independently, preserved all
+nine filenames and SHA-256 identities, and built the contact sheet before the
+next material edit. Marketplace and refurbished images remain secondary
+controls; they no longer calibrate the white product.
+
+The photos corrected one prior inference and confirmed the geometry. White
+`MENU` and transport marks are light/white, not medium dark grey. The shell is
+mild warm ivory relative to a cool light-grey wheel; Select is a separate
+cream piece closer to the shell. Because the room illumination is warm and a
+display reflects in the gloss, I encoded only those repeated relationships,
+not sampled pixels. The wheel-well floor was lightened so its one-unit gap is
+drawn by real occlusion instead of reading as a painted center annulus.
+
+Four near-front views independently keep the Apple-derived 62.33% wheel,
+22.28% Select, 70.65% wheel-center and 4.35% screen-top relationships inside
+their perspective bounds. The shallow oblique confirms faceplate → wheel →
+Select ordering and near-coplanarity but still cannot calibrate millimetre
+depth. I left the existing 1/0.5-unit visual depth bounds intact rather than
+turning an unscaled photograph into false precision. The missing image was
+reported immediately: a stationary near-orthographic macro containing all
+three surfaces plus a ruler or feeler gauge in the same focal plane.
+
+The final board places owner reference, true pre-change render and corrected
+render side by side at front and shallow-oblique angles. Neutral left/right,
+top, bottom and rear-quarter captures were also rechecked so the white material
+correction could not hide the continuous shell handoff or stamped rear roll.
+Four new mutation plants restore the cool shell, dark ink, collapsed Select
+color or painted-dark seam floor; each fails the owner-primary test.

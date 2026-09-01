@@ -39,11 +39,13 @@ Measurements are normalized before they reach the model:
   They support bounded relations only: wheel below faceplate, Select below
   wheel, and each offset materially smaller than its visible radial gap.
 - Apple A and Wikimedia B agree on the white hierarchy: glossy warm-white
-  body, cool pale-gray wheel and white Select. Their exposure does not support
-  numeric ink sampling; the owner's OEM correction bounds the legends to a
-  medium cool-neutral gray rather than the former dark value. Apple A and
-  ATPM C agree that black is not a simple inversion: the wheel is a textured
-  charcoal distinct from both glossy black faceplate and darker Select.
+  body, cool pale-gray wheel and white Select. The owner's nine original OEM
+  white-5G photographs now outrank both for that colorway and establish that
+  the legends are light/white, not medium dark grey. Their uncontrolled warm
+  illumination supports relative neutral relationships, not numeric pixel
+  sampling. Apple A and ATPM C agree that black is not a simple inversion: the
+  wheel is a textured charcoal distinct from both glossy black faceplate and
+  darker Select.
 
 ## Pencil cross-check
 
@@ -65,10 +67,10 @@ painted shadows is treated as physical depth or topology.
 - No Select torus, bezel, lip or annular material mesh exists. The Select's
   closed cylindrical side is physically necessary and shares its own material.
 - Black uses charcoal wheel `#24292F`, darker Select `#11151A`, and pale ink
-  `#B9BFC7`. White uses cool pale-gray wheel `#DEE3E7`, warmer Select
-  `#F7F8F7`, and medium cool-gray ink `#7B838E`. Roughness, coating,
-  transmission and albedo are independently specified for both colorways;
-  they are not inversions.
+  `#B9BFC7`. The white values recorded here were superseded after the owner
+  supplied nine originals of their known OEM white 5G; see
+  [`owner-primary/source-ledger.md`](./owner-primary/source-ledger.md). The
+  colorways remain independently specified rather than inverted.
 
 The matched comparison is
 [`reference-current-corrected.png`](./reference-current-corrected.png); its
