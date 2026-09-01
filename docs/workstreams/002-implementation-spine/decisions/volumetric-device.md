@@ -542,3 +542,27 @@ confirms separate play and pause marks with visible spacing. MENU keeps its
 explicit canvas paths rather than OS-dependent Unicode glyphs; play/pause has
 a locked 3.5-unit inter-symbol gap. These remain unlit decals above the wheel,
 never geometry.
+
+## VD-45 · Wheel fidelity begins with a provenance board, not owner-note transcription
+
+The prior 0.3mm Select recess and 4-unit opening were not established by the
+public references. The owner's correction does not turn them into known OEM
+numbers. External Apple, iFixit, contemporary review and owner-photograph
+sources are now recorded with model, angle, authenticity, perspective caveat,
+and supported property before a value changes. Refurbished and unknown listing
+parts are exclusion controls, not dimensional truth. Pencil remains a design
+source read through MCP, not an authority for physical depth.
+
+Multiple references support only bounded relations: wheel below faceplate,
+Select below wheel, both nearly flush, both seams narrow, and no decorative
+Select annulus. Production therefore uses a 1-unit wheel inset, 0.5-unit Select
+recess and 1-unit empty radial Select seam. The first two are visual targets
+inside observed upper bounds, not OEM millimetre claims; exact depth requires a
+near-orthographic macro of known-original assembled hardware with a common
+scale. The calibration rig may refine the wheel only within 0.5–1.5 model
+units and cannot restore the rejected 4.25-unit moat.
+
+Black and white are separate material tables. Each independently specifies
+wheel, Select and printed ink response; no channel inversion or shared Select
+material can stand in for OEM colorway calibration. The comparison board is a
+required acceptance artifact for this correction, not optional presentation.

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>W8 wheel reference / current / corrected</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0d1014;
+        color: #edf1f5;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; padding: 32px; }
+      header, main, footer { width: 1380px; margin-inline: auto; }
+      header { margin-bottom: 22px; }
+      h1 { margin: 0 0 8px; font-size: 28px; letter-spacing: -.025em; }
+      header p, footer { margin: 0; color: #9ba6b4; line-height: 1.5; }
+      .head, .row {
+        display: grid;
+        grid-template-columns: 160px repeat(3, 1fr);
+        gap: 12px;
+      }
+      .head { margin-bottom: 8px; color: #8994a3; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+      .row { margin-bottom: 14px; }
+      .label {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+        padding: 16px;
+        border: 1px solid #2b323d;
+        border-radius: 12px;
+        background: #161b22;
+      }
+      .label strong { font-size: 16px; }
+      .label span { color: #97a3b1; font-size: 12px; line-height: 1.45; }
+      figure {
+        position: relative;
+        height: 430px;
+        margin: 0;
+        overflow: hidden;
+        border: 1px solid #2b323d;
+        border-radius: 12px;
+        background: #1d232c;
+      }
+      figure > img { display: block; width: 100%; height: 100%; object-fit: contain; }
+      figure.reference > img { object-fit: cover; }
+      .apple-white { object-position: 0% 72%; transform: scale(2.1); transform-origin: 24% 72%; }
+      .apple-black { object-position: 100% 72%; transform: scale(2.1); transform-origin: 76% 72%; }
+      .wheel-macro { object-fit: cover; transform: scale(1.75); transform-origin: 50% 72%; }
+      .oem-oblique { object-position: 52% 80%; }
+      figcaption {
+        position: absolute;
+        inset: auto 10px 10px;
+        padding: 6px 8px;
+        border-radius: 7px;
+        color: #e6ebf1;
+        background: rgb(9 12 16 / .78);
+        font-size: 11px;
+        line-height: 1.35;
+      }
+      footer { margin-top: 20px; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>OEM evidence → prior render → source-bounded correction</h1>
+      <p>Camera matching is approximate. The board validates topology, visible seam width and colourway hierarchy; it does not claim an unmeasured OEM millimetre depth.</p>
+    </header>
+    <main>
+      <div class="head"><div></div><div>External reference</div><div>Prior render</div><div>Corrected render</div></div>
+      <section class="row">
+        <div class="label"><strong>Black front</strong><span>No center annulus; charcoal wheel; darker separate Select; pale ink.</span></div>
+        <figure class="reference"><img class="apple-black" src="https://cdsassets.apple.com/live/7WUAS350/images/ipod/ipod-classic/ipod-5th-gen.png" alt="Apple official black iPod 5G" /><figcaption>Apple official · straight-on product render</figcaption></figure>
+        <figure><img class="wheel-macro" src="../w8-physical-geometry/correction-room-front-black.png" alt="Prior black render" /><figcaption>Prior · 4-unit Select gap / 4.25-unit wheel inset</figcaption></figure>
+        <figure><img class="wheel-macro" src="corrected-black-front.png" alt="Corrected black render" /><figcaption>Corrected · 1-unit gap / 1-unit wheel inset</figcaption></figure>
+      </section>
+      <section class="row">
+        <div class="label"><strong>White front</strong><span>Pale cool-grey wheel; warm white Select; medium cool-neutral legends.</span></div>
+        <figure class="reference"><img class="apple-white" src="https://cdsassets.apple.com/live/7WUAS350/images/ipod/ipod-classic/ipod-5th-gen.png" alt="Apple official white iPod 5G" /><figcaption>Apple official · straight-on product render</figcaption></figure>
+        <figure><img class="wheel-macro" src="../w8-physical-geometry/correction-room-front-white.png" alt="Prior white render" /><figcaption>Prior · deep shadow moat and broad Select boundary</figcaption></figure>
+        <figure><img class="wheel-macro" src="corrected-white-front.png" alt="Corrected white render" /><figcaption>Corrected · independent wheel / Select / ink table</figcaption></figure>
+      </section>
+      <section class="row">
+        <div class="label"><strong>Oblique depth</strong><span>Near-flush ordering only. Exact depth remains explicitly unmeasured.</span></div>
+        <figure class="reference"><img class="oem-oblique" src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Ipod_5th_Generation_white.jpg" alt="Contemporary white iPod 5G oblique photograph" /><figcaption>Contemporary owner photo · perspective/highlight caveat</figcaption></figure>
+        <figure><img src="../w8-physical-geometry/physical-neutral-quarter.png" alt="Prior neutral oblique render" /><figcaption>Prior neutral geometry · button edge reads as a lip</figcaption></figure>
+        <figure><img src="corrected-neutral-oblique.png" alt="Corrected neutral oblique render" /><figcaption>Corrected neutral geometry · narrow empty seam, lower face</figcaption></figure>
+      </section>
+    </main>
+    <footer>Full provenance, authenticity judgements, exclusions and normalized constraints are in source-ledger.md.</footer>
+  </body>
+</html>

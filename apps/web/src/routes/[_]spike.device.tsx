@@ -252,7 +252,10 @@ function DeviceSpike() {
   const stageRef = useRef<HTMLDivElement>(null);
   const search = new URLSearchParams(window.location.search);
   const capture = search.has("capture");
-  const diagnostic = search.get("diagnostic") === "neutral";
+  const diagnosticMode = search.get("diagnostic");
+  const diagnostic = diagnosticMode === "neutral";
+  const productionSurfaceCapture =
+    capture && diagnosticMode === "production-surface";
   const requestedView = search.get("view");
   const evidenceOrientation =
     capture && isGeometryEvidenceView(requestedView)
@@ -310,6 +313,14 @@ function DeviceSpike() {
             materials={NEUTRAL_DIAGNOSTIC_MATERIALS}
             lightRig={NEUTRAL_DIAGNOSTIC_LIGHT_RIG}
             studioEnvironment={null}
+          />
+        ) : productionSurfaceCapture ? (
+          <DeviceCanvas
+            className="webpod-device-preview__device"
+            colourway={renderedState.colourway}
+            cameraFov={30}
+            cameraSafePadding={34}
+            orientation={renderedState.orientation}
           />
         ) : (
           <CompositeDevice

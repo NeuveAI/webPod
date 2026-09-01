@@ -1,0 +1,41 @@
+W8 wheel correction — final verification
+2026-09-01 Europe/Stockholm
+
+Scoped package verification
+- bun test packages/device
+  PASS: 162 tests, 0 failures, 62,403 expect() calls across 24 files
+- bun run typecheck
+  PASS: 11/11 projects clean
+- bun run lint
+  PASS: exit 0
+- bun run build
+  PASS: client and SSR production builds, exit 0
+
+Universal gates
+- bun run gates
+  PASS: 16 automated gates, 0 automated failures
+  PASS: 1,021 repo tests, 0 failures, 66,147 expect() calls across 60 files
+  MANUAL U14: thumb occlusion requires owner phone-in-hand validation
+  MANUAL U15: unsupported controls absent, reviewer inspection required
+
+Browser/evidence surfaces
+- GET http://127.0.0.1:4360/_spike/device -> 200
+- GET http://127.0.0.1:4360/_spike/device?diagnostic=production-surface&capture&view=front -> 200
+- corrected-black-front.png: 900 x 1100 RGB PNG
+- corrected-white-front.png: 900 x 1100 RGB PNG
+- corrected-neutral-oblique.png: 900 x 1100 RGB PNG
+- source-contact-sheet.png: 1280 x 980 RGB PNG
+- reference-current-corrected.png: 1500 x 1530 RGB PNG
+
+Diff hygiene
+- Scoped git diff --check for packages/device, the diagnostic route, owned diary,
+  owned decision record and this evidence directory: PASS
+- Repo-wide git diff --check remains red only on two pre-existing trailing spaces
+  in evidence/volumetric-device-browser.txt, an unrelated dirty lane left untouched.
+
+Mutation proof
+- Broad Select annulus: red, 3 failures
+- Deep wheel shadow moat: red, 3 failures
+- Flush Select: red, 2 failures
+- Dark white-product glyph ink: red, 1 failure
+- Production source restored after every plant

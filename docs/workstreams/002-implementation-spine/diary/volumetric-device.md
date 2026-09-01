@@ -398,3 +398,29 @@ image sets the 20×13 skip boxes after scale; Pencil MCP confirms a discrete
 play mark, pause bars, and visible space between them. MENU is unchanged. A
 flush Select, linear rear wedge, zero play/pause gap, and 13-unit skip box were
 each planted and all failed their owning tests.
+
+## Tuesday, September 1, 2026 — research-first wheel assembly correction
+
+The owner's process correction changed the order of work. Before touching a
+geometry or material value, I assembled a six-cell source sheet and ledger
+covering Apple official fronts, contemporary white and black hardware,
+iFixit's detached wheel/button, a stated 30GB side/rear, and explicit
+aftermarket/refurbished exclusions. Pencil was read only through MCP. The
+source sheet existed before this code diff; it is not an after-the-fact mood
+board.
+
+That evidence overturned two values from the prior pass. The 4-unit Select
+opening produced a decorative annulus where every OEM source shows only a
+hairline assembly seam, and the 4.25-unit wheel inset produced a shadow moat
+where independent shallow obliques show a near-flush stack. Production now
+uses a 1-unit Select seam, 1-unit wheel inset and 0.5-unit Select recess. These
+are model-space targets inside image-derived upper bounds, not invented OEM
+millimetres. Exact depth remains open pending a calibrated macro profile.
+
+The materials now encode two assemblies rather than a black/white inversion:
+black charcoal wheel + darker Select + pale ink; white cool pale-gray wheel +
+warmer white Select + medium cool-gray ink. A capture-only production-surface
+route let the unflagged browser render the real geometry/material stack without
+touching HTML-in-canvas. The evidence board places external reference, prior
+render and corrected render side by side for black, white and neutral oblique
+views.
