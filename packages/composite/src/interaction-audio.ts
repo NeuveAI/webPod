@@ -63,7 +63,7 @@ export type InteractionAudioReason =
   | 'silenced'
   | 'disabled'
   | 'not-activated'
-  | 'activation-pending'
+  | 'unlocking'
   | 'unsupported'
   | 'context-suspended'
   | 'context-closed'
@@ -125,7 +125,7 @@ const silentResult = (
   reason: InteractionAudioReason,
   requested: number,
 ): InteractionAudioResult => ({
-  status: reason === 'activation-pending' ? 'deferred' : 'silent',
+  status: reason === 'unlocking' ? 'deferred' : 'silent',
   reason,
   requested,
   scheduled: 0,
@@ -218,7 +218,7 @@ export function createInteractionAudioRuntime(
         pending.push(event)
         return remember({
           status: 'deferred',
-          reason: 'activation-pending',
+          reason: 'unlocking',
           requested,
           scheduled: 0,
           dropped: 0,

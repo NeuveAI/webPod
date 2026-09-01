@@ -56,7 +56,7 @@ describe('interaction audio scheduler', () => {
 
     const activation = runtime.activate()
     const pending = runtime.consume(pressEvent('center'))
-    expect(pending.reason).toBe('activation-pending')
+    expect(pending.reason).toBe('unlocking')
     expect(runtime.snapshot().pendingEvents).toBe(1)
     expect(backend.specs).toHaveLength(0)
 
