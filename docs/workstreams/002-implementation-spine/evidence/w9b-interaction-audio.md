@@ -11,6 +11,7 @@
 | `6004bc9` | injected Web Audio graph proof |
 | `754f643` | literal product-budget gates |
 | `5b44872` | internal audio status vocabulary passes the permission-copy gate |
+| `b013871` | muted construction guard and diagnostic-failure containment |
 
 The Select-release bridge and browser diagnostics are awaiting the concurrent
 W9a input-seam commit before their path-scoped W9b commit; this evidence entry
@@ -26,7 +27,7 @@ bun test packages/composite/src/interaction-audio.test.ts \
   packages/composite/src/CompositeDevice.integration.test.tsx
 ```
 
-Result: **19 pass, 0 fail, 156 assertions**.
+Result: **20 pass, 0 fail, 160 assertions**.
 
 Covered claims:
 
@@ -105,7 +106,7 @@ feedback event cannot bypass the lock or generate an autoplay error.
 | Gate | Result |
 | --- | --- |
 | `bun run lint` | exit 0 |
-| `bun test` | 1,072 pass, 0 fail |
+| `bun test` | 1,073 pass, 0 fail |
 | `bun run build` | exit 0; existing large-chunk warning only |
 | state TypeScript | exit 0 |
 | composite TypeScript | exit 0 |

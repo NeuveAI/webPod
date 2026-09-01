@@ -54,8 +54,8 @@ step, not something the test driver spoofs.
 
 ## Current gates
 
-- W9b focused tests: 19 pass, 0 fail, 156 assertions.
-- Repo tests: 1,072 pass, 0 fail.
+- W9b focused tests: 20 pass, 0 fail, 160 assertions.
+- Repo tests: 1,073 pass, 0 fail.
 - Repo lint: clean.
 - Production build: clean; Vite retains its existing large-chunk warning.
 - State and composite TypeScript: clean.
