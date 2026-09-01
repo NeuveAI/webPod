@@ -21,6 +21,16 @@ export const Route = createFileRoute("/_spike/device")({
 
 type PreviewRoom = "dark" | "light";
 
+type GeometryEvidenceView =
+  | "front"
+  | "three-quarter"
+  | "left-edge"
+  | "right-edge"
+  | "rear"
+  | "rear-three-quarter"
+  | "top"
+  | "bottom";
+
 type PreviewState = {
   readonly colourway: Colourway;
   readonly pose: DevicePosePreset | "custom";
@@ -33,6 +43,19 @@ const INITIAL: PreviewState = Object.freeze({
   pose: "three-quarter",
   orientation: DEVICE_ORIENTATION_PRESETS["three-quarter"],
   room: "dark",
+});
+
+const GEOMETRY_EVIDENCE_ORIENTATIONS: Readonly<
+  Record<GeometryEvidenceView, DeviceOrientation>
+> = Object.freeze({
+  front: DEVICE_ORIENTATION_PRESETS.front,
+  "three-quarter": DEVICE_ORIENTATION_PRESETS["three-quarter"],
+  "left-edge": Object.freeze({ pitchDeg: 0, yawDeg: 90, rollDeg: 0 }),
+  "right-edge": DEVICE_ORIENTATION_PRESETS.edge,
+  rear: DEVICE_ORIENTATION_PRESETS.rear,
+  "rear-three-quarter": Object.freeze({ pitchDeg: 10, yawDeg: 146, rollDeg: -2 }),
+  top: Object.freeze({ pitchDeg: 90, yawDeg: 0, rollDeg: 0 }),
+  bottom: Object.freeze({ pitchDeg: -90, yawDeg: 0, rollDeg: 0 }),
 });
 
 let preview = INITIAL;
@@ -111,6 +134,13 @@ const NEUTRAL_SURFACE = Object.freeze({
   specularIntensity: 0.08,
 });
 
+const NEUTRAL_SELECT_SURFACE = Object.freeze({
+  ...NEUTRAL_SURFACE,
+  color: "#989EA5",
+  albedoScale: 0.7,
+  roughness: 0.58,
+});
+
 const NEUTRAL_DIAGNOSTIC_MATERIALS: DeviceMaterials = Object.freeze({
   ...DEFAULT_DEVICE_MATERIALS,
   bodyBlack: NEUTRAL_SURFACE,
@@ -120,8 +150,8 @@ const NEUTRAL_DIAGNOSTIC_MATERIALS: DeviceMaterials = Object.freeze({
   wheelRingWhite: NEUTRAL_SURFACE,
   wheelWellBlack: NEUTRAL_SURFACE,
   wheelWellWhite: NEUTRAL_SURFACE,
-  selectBlack: NEUTRAL_SURFACE,
-  selectWhite: NEUTRAL_SURFACE,
+  selectBlack: NEUTRAL_SELECT_SURFACE,
+  selectWhite: NEUTRAL_SELECT_SURFACE,
   chromeSeam: NEUTRAL_SURFACE,
   chromeSeamBlack: NEUTRAL_SURFACE,
   displayWell: NEUTRAL_SURFACE,
@@ -223,6 +253,14 @@ function DeviceSpike() {
   const search = new URLSearchParams(window.location.search);
   const capture = search.has("capture");
   const diagnostic = search.get("diagnostic") === "neutral";
+  const requestedView = search.get("view");
+  const evidenceOrientation =
+    capture && isGeometryEvidenceView(requestedView)
+      ? GEOMETRY_EVIDENCE_ORIENTATIONS[requestedView]
+      : null;
+  const renderedState = evidenceOrientation === null
+    ? state
+    : { ...state, pose: "custom" as const, orientation: evidenceOrientation };
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -246,13 +284,14 @@ function DeviceSpike() {
 
   if (!import.meta.env.DEV) return <main>Not available.</main>;
 
-  const panelTone = state.colourway === "white" ? "light" : "dark";
+  const panelTone = renderedState.colourway === "white" ? "light" : "dark";
   return (
     <main
       className="webpod-device-preview"
-      data-room={state.room}
-      data-colourway={state.colourway}
-      data-pose={state.pose}
+      data-room={renderedState.room}
+      data-colourway={renderedState.colourway}
+      data-pose={renderedState.pose}
+      data-evidence-view={evidenceOrientation === null ? undefined : requestedView}
     >
       <style>{DEVICE_PREVIEW_CSS}</style>
       <div
@@ -264,10 +303,10 @@ function DeviceSpike() {
         {diagnostic ? (
           <DeviceCanvas
             className="webpod-device-preview__device"
-            colourway={state.colourway}
+            colourway={renderedState.colourway}
             cameraFov={30}
             cameraSafePadding={capture ? 34 : 48}
-            orientation={state.orientation}
+            orientation={renderedState.orientation}
             materials={NEUTRAL_DIAGNOSTIC_MATERIALS}
             lightRig={NEUTRAL_DIAGNOSTIC_LIGHT_RIG}
             studioEnvironment={null}
@@ -275,11 +314,11 @@ function DeviceSpike() {
         ) : (
           <CompositeDevice
             className="webpod-device-preview__device"
-            colourway={state.colourway}
+            colourway={renderedState.colourway}
             panelTone={panelTone}
             cameraFov={30}
             cameraSafePadding={capture ? 34 : 48}
-            orientation={state.orientation}
+            orientation={renderedState.orientation}
             panel={<Panel colourway={panelTone} state="ready" />}
           />
         )}
@@ -294,6 +333,12 @@ function DeviceSpike() {
       )}
     </main>
   );
+}
+
+function isGeometryEvidenceView(
+  value: string | null,
+): value is GeometryEvidenceView {
+  return value !== null && value in GEOMETRY_EVIDENCE_ORIENTATIONS;
 }
 
 function PreviewControls({ state }: { readonly state: PreviewState }) {
