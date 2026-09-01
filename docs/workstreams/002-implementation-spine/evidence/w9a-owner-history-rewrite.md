@@ -41,6 +41,12 @@ than `main`. The script switches to and asserts that branch before recording
 commit, an unexpected parent/subject, a stale state file or an existing backup
 ref before it creates the backup or begins detached commit construction.
 
+The publication policy is intentionally one-way: the fetched remote tip must
+equal local `OLD_HEAD` or be an ancestor of it. A local branch may contain
+unpublished descendants, but a remote-ahead or divergent branch aborts before
+any rewrite. The owner must first integrate every remote-only commit normally;
+the history repair must never be used to discard it.
+
 ## Phase 1 — owner rewrite and verification
 
 Run this entire block in zsh from one terminal. It is fail-fast. Its traps print
@@ -95,6 +101,7 @@ on_failure() {
   print -u2 -- "No publication command has run. Inspect 'git status' first."
   print -u2 -- "If a rebase is active:      git rebase --abort"
   print -u2 -- "If a cherry-pick is active: git cherry-pick --abort"
+  print -u2 -- "If detached with staged changes: use the path-bounded recovery section"
   print -u2 -- "Target branch: ${TARGET_BRANCH:-unset}"
   print -u2 -- "Backup branch: ${BACKUP_BRANCH:-not-created}"
   print -u2 -- "See the Recovery section before moving any ref."
@@ -120,9 +127,18 @@ git switch "$TARGET_BRANCH"
 [[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] ||
   fail "target branch is not clean"
 
-readonly OLD_HEAD="$(git rev-parse "$TARGET_BRANCH")"
-readonly OLD_COUNT="$(git rev-list --count "$OLD_BASE..$OLD_HEAD")"
-readonly STATE_FILE="$(git rev-parse --git-path w9a-history-repair.state)"
+OLD_HEAD="$(git rev-parse "$TARGET_BRANCH")" ||
+  fail "could not resolve target branch head"
+[[ "$OLD_HEAD" =~ '^[0-9a-f]{40}$' ]] || fail "OLD_HEAD is not a commit hash"
+readonly OLD_HEAD
+OLD_COUNT="$(git rev-list --count "$OLD_BASE..$OLD_HEAD")" ||
+  fail "could not count the original range"
+[[ "$OLD_COUNT" =~ '^[0-9]+$' ]] || fail "OLD_COUNT is not numeric"
+readonly OLD_COUNT
+STATE_FILE="$(git rev-parse --git-path w9a-history-repair.state)" ||
+  fail "could not resolve repair state path"
+[[ -n "$STATE_FILE" ]] || fail "repair state path is empty"
+readonly STATE_FILE
 BACKUP_BRANCH="backup/w9a-before-history-repair-$OLD_HEAD"
 readonly BACKUP_BRANCH
 
@@ -151,12 +167,25 @@ git merge-base --is-ancestor "$OLD_CORE" "$OLD_HEAD"
 git merge-base --is-ancestor "$OLD_INPUT" "$OLD_HEAD"
 git merge-base --is-ancestor "$OLD_CORRECTION" "$OLD_HEAD"
 
-readonly REMOTE_LINE="$(git ls-remote --exit-code --heads "$REMOTE" "$TARGET_BRANCH")"
+# Fetch exactly the target ref so the captured remote object is available for
+# ancestry inspection. FETCH_HEAD is the lease snapshot used in Phase 2.
+git fetch --no-tags "$REMOTE" "refs/heads/$TARGET_BRANCH"
+REMOTE_LINE="$(git ls-remote --exit-code --heads "$REMOTE" "$TARGET_BRANCH")" ||
+  fail "could not read remote target"
 [[ "$(print -r -- "$REMOTE_LINE" | wc -l | tr -d ' ')" == '1' ]] ||
   fail "remote target did not resolve to exactly one ref"
-readonly EXPECTED_REMOTE_HEAD="${REMOTE_LINE%%[[:space:]]*}"
+EXPECTED_REMOTE_HEAD="${REMOTE_LINE%%[[:space:]]*}"
 [[ "$EXPECTED_REMOTE_HEAD" =~ '^[0-9a-f]{40}$' ]] ||
   fail "remote lease value is not a commit hash"
+[[ "$(git rev-parse FETCH_HEAD)" == "$EXPECTED_REMOTE_HEAD" ]] ||
+  fail "fetched target and captured remote lease disagree"
+git cat-file -e "$EXPECTED_REMOTE_HEAD^{commit}"
+
+if [[ "$EXPECTED_REMOTE_HEAD" != "$OLD_HEAD" ]]; then
+  git merge-base --is-ancestor "$EXPECTED_REMOTE_HEAD" "$OLD_HEAD" ||
+    fail "remote is ahead or divergent; integrate remote-only history before repair"
+fi
+readonly EXPECTED_REMOTE_HEAD
 
 # Every precondition is now complete. Only now create a recovery ref.
 git branch "$BACKUP_BRANCH" "$OLD_HEAD"
@@ -192,7 +221,9 @@ GIT_COMMITTER_NAME='Vinicius Dallacqua' \
 GIT_COMMITTER_EMAIL='vinicius.dallacqua@mpyadigital.com' \
 GIT_COMMITTER_DATE='2026-09-01T21:11:56+02:00' \
   git commit --amend --no-edit --date='2026-09-01T21:11:56+02:00'
-readonly NEW_CORE="$(git rev-parse HEAD)"
+NEW_CORE="$(git rev-parse HEAD)" || fail "could not resolve rewritten core"
+[[ "$NEW_CORE" =~ '^[0-9a-f]{40}$' ]] || fail "NEW_CORE is not a commit hash"
+readonly NEW_CORE
 [[ "$NEW_CORE" != "$OLD_CORE" ]] || fail "core hash did not change"
 [[ "$(git rev-parse "$NEW_CORE^")" == "$OLD_BASE" ]] ||
   fail "rewritten core parent changed"
@@ -238,7 +269,9 @@ GIT_COMMITTER_NAME='Vinicius Dallacqua' \
 GIT_COMMITTER_EMAIL='vinicius.dallacqua@mpyadigital.com' \
 GIT_COMMITTER_DATE='2026-09-01T21:12:03+02:00' \
   git commit --amend --no-edit --date='2026-09-01T21:12:03+02:00'
-readonly NEW_INPUT="$(git rev-parse HEAD)"
+NEW_INPUT="$(git rev-parse HEAD)" || fail "could not resolve rewritten input"
+[[ "$NEW_INPUT" =~ '^[0-9a-f]{40}$' ]] || fail "NEW_INPUT is not a commit hash"
+readonly NEW_INPUT
 [[ "$NEW_INPUT" != "$OLD_INPUT" ]] || fail "input hash did not change"
 [[ "$(git rev-parse "$NEW_INPUT^")" == "$NEW_CORE" ]] ||
   fail "rewritten input parent is not NEW_CORE"
@@ -268,8 +301,13 @@ git rebase --rebase-merges --committer-date-is-author-date \
 if operation_in_progress; then
   fail "Git operation remained active after rebase"
 fi
-readonly NEW_HEAD="$(git rev-parse HEAD)"
-readonly NEW_COUNT="$(git rev-list --count "$OLD_BASE..$NEW_HEAD")"
+NEW_HEAD="$(git rev-parse HEAD)" || fail "could not resolve rewritten target head"
+[[ "$NEW_HEAD" =~ '^[0-9a-f]{40}$' ]] || fail "NEW_HEAD is not a commit hash"
+readonly NEW_HEAD
+NEW_COUNT="$(git rev-list --count "$OLD_BASE..$NEW_HEAD")" ||
+  fail "could not count rewritten range"
+[[ "$NEW_COUNT" =~ '^[0-9]+$' ]] || fail "NEW_COUNT is not numeric"
+readonly NEW_COUNT
 [[ "$NEW_HEAD" != "$OLD_HEAD" ]] || fail "target head did not change"
 [[ "$NEW_COUNT" == "$OLD_COUNT" ]] || fail "commit count changed"
 [[ "$(git merge-base "$OLD_BASE" "$NEW_HEAD")" == "$OLD_BASE" ]] ||
@@ -279,10 +317,15 @@ git merge-base --is-ancestor "$NEW_INPUT" "$NEW_HEAD"
 git diff --quiet "$OLD_HEAD" "$NEW_HEAD" -- ||
   fail "final tree differs from the pre-rewrite target tree"
 
-readonly OLD_SEQUENCE="$(git log --reverse \
-  --format='%an%x09%ae%x09%aI%x09%s' "$OLD_BASE..$OLD_HEAD")"
-readonly NEW_SEQUENCE="$(git log --reverse \
-  --format='%an%x09%ae%x09%aI%x09%s' "$OLD_BASE..$NEW_HEAD")"
+OLD_SEQUENCE="$(git log --reverse \
+  --format='%an%x09%ae%x09%aI%x09%s' "$OLD_BASE..$OLD_HEAD")" ||
+  fail "could not read original commit sequence"
+NEW_SEQUENCE="$(git log --reverse \
+  --format='%an%x09%ae%x09%aI%x09%s' "$OLD_BASE..$NEW_HEAD")" ||
+  fail "could not read rewritten commit sequence"
+[[ -n "$OLD_SEQUENCE" && -n "$NEW_SEQUENCE" ]] ||
+  fail "commit sequence is unexpectedly empty"
+readonly OLD_SEQUENCE NEW_SEQUENCE
 [[ "$NEW_SEQUENCE" == "$OLD_SEQUENCE" ]] ||
   fail "author/date/subject sequence changed"
 
@@ -385,6 +428,8 @@ the state file and publication phase are available.
 
 Phase 1 must establish all of these before publication:
 
+- fetched `EXPECTED_REMOTE_HEAD` equals `OLD_HEAD` or is its ancestor; a
+  remote-ahead or divergent target is rejected before backup/rewrite work;
 - `NEW_CORE != OLD_CORE`, with parent exactly `OLD_BASE`;
 - only `packages/device/src/index.ts` differs between old and new core;
 - none of the five premature exports exists in `NEW_CORE`;
@@ -426,21 +471,119 @@ git cherry-pick --abort  # only when CHERRY_PICK_HEAD exists
 git switch main
 ```
 
+If an apply, amend or post-amend guard fails while detached and no Git operation
+is active, the planned index patch can remain staged. Inspect first; do not run
+a broad restore. This block prints the complete status and both diffs before it
+will accept the explicit cleanup confirmation. It then refuses every changed or
+untracked path except the one planned index file and restores only that path:
+
+```zsh
+set -euo pipefail
+
+readonly REPO_ROOT='/Users/vinicius/code/webPod'
+readonly TARGET_BRANCH='main'
+readonly EXPECTED_PATH='packages/device/src/index.ts'
+readonly OWNER_CONFIRMS_PATH_BOUNDED_CLEANUP='NO' # owner changes to YES after inspection
+
+fail() {
+  print -u2 -- "ERROR: $*"
+  return 1
+}
+
+cd "$REPO_ROOT"
+[[ "$(git rev-parse --show-toplevel)" == "$REPO_ROOT" ]] ||
+  fail "not at the asserted repository root"
+
+git status --short --branch
+git diff -- "$EXPECTED_PATH"
+git diff --cached -- "$EXPECTED_PATH"
+
+[[ "$OWNER_CONFIRMS_PATH_BOUNDED_CLEANUP" == 'YES' ]] ||
+  fail "owner has not approved cleanup after inspecting status and diffs"
+[[ -z "$(git branch --show-current)" ]] ||
+  fail "this recovery applies only to detached HEAD"
+[[ ! -d "$(git rev-parse --git-path rebase-merge)" &&
+   ! -d "$(git rev-parse --git-path rebase-apply)" &&
+   ! -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" &&
+   ! -f "$(git rev-parse --git-path MERGE_HEAD)" &&
+   ! -f "$(git rev-parse --git-path REVERT_HEAD)" ]] ||
+  fail "a Git operation is active; use its abort command instead"
+
+unstaged_paths="$(git diff --name-only)" || fail "could not inspect unstaged paths"
+staged_paths="$(git diff --cached --name-only)" || fail "could not inspect staged paths"
+untracked_paths="$(git ls-files --others --exclude-standard)" ||
+  fail "could not inspect untracked paths"
+[[ -z "$unstaged_paths" || "$unstaged_paths" == "$EXPECTED_PATH" ]] ||
+  fail "unexpected unstaged path; preserve it and stop"
+[[ -z "$staged_paths" || "$staged_paths" == "$EXPECTED_PATH" ]] ||
+  fail "unexpected staged path; preserve it and stop"
+[[ -z "$untracked_paths" ]] ||
+  fail "untracked files exist; preserve them and stop"
+[[ -n "$unstaged_paths" || -n "$staged_paths" ]] ||
+  fail "there is no planned path change to clean"
+
+git restore --source=HEAD --staged --worktree -- "$EXPECTED_PATH"
+[[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] ||
+  fail "path-bounded cleanup did not produce a clean detached tree"
+git switch "$TARGET_BRANCH"
+[[ "$(git branch --show-current)" == "$TARGET_BRANCH" ]] ||
+  fail "target branch was not restored"
+```
+
 Before the descendant rebase completes, `main` still points to `OLD_HEAD`. If
 verification fails after the rebase completed, inspect and preserve any new
 work first. With a clean tree, the owner can restore the backup without using
 `reset --hard`:
 
 ```zsh
-cd /Users/vinicius/code/webPod
-git status --short
-git switch --detach "backup/w9a-before-history-repair-<OLD_HEAD>"
-git branch -f main "backup/w9a-before-history-repair-<OLD_HEAD>"
-git switch main
+set -euo pipefail
+
+readonly REPO_ROOT='/Users/vinicius/code/webPod'
+readonly TARGET_BRANCH='main'
+readonly OLD_HEAD='REPLACE_WITH_EXACT_40_HEX_OLD_HEAD'
+readonly OWNER_CONFIRMS_COMPLETED_REBASE_RESTORE='NO' # owner changes to YES
+
+fail() {
+  print -u2 -- "ERROR: $*"
+  return 1
+}
+
+cd "$REPO_ROOT"
+[[ "$(git rev-parse --show-toplevel)" == "$REPO_ROOT" ]] ||
+  fail "not at the asserted repository root"
+[[ "$OWNER_CONFIRMS_COMPLETED_REBASE_RESTORE" == 'YES' ]] ||
+  fail "owner has not approved restoring the completed rebase"
+[[ "$OLD_HEAD" =~ '^[0-9a-f]{40}$' ]] ||
+  fail "replace OLD_HEAD with the exact Phase 1 value"
+BACKUP_BRANCH="backup/w9a-before-history-repair-$OLD_HEAD"
+git check-ref-format --branch "$BACKUP_BRANCH" >/dev/null
+readonly BACKUP_BRANCH
+
+[[ "$(git branch --show-current)" == "$TARGET_BRANCH" ]] ||
+  fail "completed-rebase recovery must start on the target branch"
+[[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] ||
+  fail "tree/index must be clean before moving the target branch"
+[[ ! -d "$(git rev-parse --git-path rebase-merge)" &&
+   ! -d "$(git rev-parse --git-path rebase-apply)" &&
+   ! -f "$(git rev-parse --git-path CHERRY_PICK_HEAD)" &&
+   ! -f "$(git rev-parse --git-path MERGE_HEAD)" &&
+   ! -f "$(git rev-parse --git-path REVERT_HEAD)" ]] ||
+  fail "a Git operation is active; abort it before completed-rebase recovery"
+[[ "$(git rev-parse "$BACKUP_BRANCH")" == "$OLD_HEAD" ]] ||
+  fail "backup branch does not name OLD_HEAD"
+
+git switch --detach "$BACKUP_BRANCH"
+git branch -f "$TARGET_BRANCH" "$BACKUP_BRANCH"
+git switch "$TARGET_BRANCH"
+[[ "$(git rev-parse HEAD)" == "$OLD_HEAD" ]] ||
+  fail "target branch was not restored to OLD_HEAD"
+[[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] ||
+  fail "restore did not finish cleanly"
 ```
 
-Replace `<OLD_HEAD>` with the exact value printed by Phase 1. Do not delete the
-backup until publication and collaborator recovery are complete.
+Replace the `OLD_HEAD` sentinel with the exact value printed by Phase 1. Both
+confirmation sentinels are deliberately inert. Do not delete the backup until
+publication and collaborator recovery are complete.
 
 ## Phase 2 — owner-only publication
 
@@ -475,19 +618,27 @@ cd "$REPO_ROOT"
   fail "not at the asserted repository root"
 [[ -f "$STATE_FILE" ]] || fail "verified Phase 1 state is absent"
 
-readonly TARGET_BRANCH="$(state_value TARGET_BRANCH)"
-readonly REMOTE="$(state_value REMOTE)"
-readonly OLD_HEAD="$(state_value OLD_HEAD)"
-readonly EXPECTED_REMOTE_HEAD="$(state_value EXPECTED_REMOTE_HEAD)"
-readonly BACKUP_BRANCH="$(state_value BACKUP_BRANCH)"
-readonly NEW_HEAD="$(state_value NEW_HEAD)"
+TARGET_BRANCH="$(state_value TARGET_BRANCH)" ||
+  fail "could not parse TARGET_BRANCH"
+REMOTE="$(state_value REMOTE)" || fail "could not parse REMOTE"
+OLD_HEAD="$(state_value OLD_HEAD)" || fail "could not parse OLD_HEAD"
+EXPECTED_REMOTE_HEAD="$(state_value EXPECTED_REMOTE_HEAD)" ||
+  fail "could not parse EXPECTED_REMOTE_HEAD"
+BACKUP_BRANCH="$(state_value BACKUP_BRANCH)" ||
+  fail "could not parse BACKUP_BRANCH"
+NEW_HEAD="$(state_value NEW_HEAD)" || fail "could not parse NEW_HEAD"
 
-[[ "$OWNER_RANGE_DIFF_APPROVED" == 'YES' ]] ||
-  fail "owner has not approved the range-diff"
+git check-ref-format --branch "$TARGET_BRANCH" >/dev/null
+git remote get-url "$REMOTE" >/dev/null
+git check-ref-format --branch "$BACKUP_BRANCH" >/dev/null
 [[ "$OLD_HEAD" =~ '^[0-9a-f]{40}$' &&
    "$EXPECTED_REMOTE_HEAD" =~ '^[0-9a-f]{40}$' &&
    "$NEW_HEAD" =~ '^[0-9a-f]{40}$' ]] ||
   fail "state contains an invalid hash"
+readonly TARGET_BRANCH REMOTE OLD_HEAD EXPECTED_REMOTE_HEAD BACKUP_BRANCH NEW_HEAD
+
+[[ "$OWNER_RANGE_DIFF_APPROVED" == 'YES' ]] ||
+  fail "owner has not approved the range-diff"
 [[ "$(git branch --show-current)" == "$TARGET_BRANCH" ]] ||
   fail "wrong branch checked out"
 [[ "$(git rev-parse HEAD)" == "$NEW_HEAD" ]] ||
@@ -529,6 +680,9 @@ print -r -- "Keep $BACKUP_BRANCH until every collaborator has recovered."
   plan are replayed with new parent identities; the range-diff must show them.
 - The exact force-with-lease rejects publication if the remote branch changed
   after Phase 1 captured `EXPECTED_REMOTE_HEAD`.
+- Before rewrite work begins, the fetched remote tip must equal `OLD_HEAD` or
+  already be contained by it. Remote-ahead/divergent history is never dropped;
+  the owner must integrate it and restart with a new clean preflight.
 - Collaborators must save local work, fetch the rewritten branch, and explicitly
   rebase or reset their local branch onto `NEW_HEAD`. Their old descendant hashes
   must not be merged back.
