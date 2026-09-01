@@ -1,7 +1,7 @@
 # Diary — W9b · interaction audio
 
-**Lane:** W9b · **Status:** review fixes complete; owner sound-quality verdict
-and antagonistic re-review remain.
+**Lane:** W9b · **Status:** technical re-review approved and all three remaining
+Minors fixed; owner sound-quality verdict remains.
 
 ## What landed
 
@@ -26,14 +26,18 @@ enough.
 
 ## Lifecycle
 
-No `AudioContext` exists before activation. The composite listens for a trusted
-pointer-down or key-down, constructs/resumes the context there, and keeps only a
-bounded activation queue. Blur, hidden documents, explicit mute, and disposal
-clear pending feedback, stop active/scheduled sources, and suspend or close the
-context. A monotonic lifecycle-operation identity covers activation, blur,
-hidden, mute, and disposal. Older suspension or resume completions cannot
-overwrite newer intent; a newer activation waits out and repairs any older
-pending suspension before it reports `running`.
+No `AudioContext` exists before activation. The composite uses `Event.isTrusted`
+on pointer-down or key-down as its default browser-autoplay eligibility signal,
+constructs/resumes the context there, and keeps only a bounded activation queue.
+That flag identifies user-agent dispatch; it is not proof that a person caused
+the event. Human/agent sound eligibility remains state-owned. Blur, hidden
+documents, explicit mute, and disposal clear pending feedback, stop
+active/scheduled sources, and suspend or close the context. A monotonic
+lifecycle-operation identity covers activation, blur, hidden, mute, and
+disposal. Older suspension or resume completions cannot overwrite newer intent;
+a newer activation waits out and repairs any older pending suspension before it
+reports `running`. Terminal `unsupported`, `failed`, and `disposed` diagnostics
+survive later mute changes and blur/hidden/unmount interruption calls.
 
 The runtime returns structured scheduled/silent/deferred/unavailable results.
 It does not log failures. The mounted root mirrors bounded diagnostics through
@@ -59,19 +63,28 @@ fixes and now pass as permanent tests. The public feedback shape is human-only,
 the mounted component exposes `interactionAudioEnabled`, and the unreachable
 `rate-limit` reason is gone.
 
-The browser-control pass could not produce a human activation—and should not be
-able to. In the available T3 in-app browser, an automated 10-detent wheel input
-left the runtime locked and produced `silent:not-activated:0/10`, with no
-warning or error. The audible `running` path is therefore an owner listening
-step, not something the test driver spoofs. A real Chromium
-`OfflineAudioContext` now renders the production graph into a reproducible WAV
-so the owner can judge the actual synthesis without relying on graph assertions.
+The available T3 in-app-browser attempt happened to leave the runtime locked: an
+automated 10-detent input produced `silent:not-activated:0/10`, with no warning
+or error. That observation proves only that this particular event path did not
+activate Web Audio. The re-review's headless-Chromium `page.mouse.click()` did
+produce an `isTrusted` event and moved the runtime to `running`, which is valid
+browser behavior and demonstrates why `isTrusted` is not a human-provenance
+check. Agent silence instead comes from the authoritative actor/silence
+contract. Owner listening remains required for quality. A real Chromium
+`OfflineAudioContext` renders the production graph into a reproducible WAV so
+the owner can judge the synthesis without relying on graph assertions.
+
+The technical re-review's final plants also changed the implementation in three
+small ways: terminal lifecycle labels can no longer be overwritten by mute or
+interruption; the renderer under `packages/composite/scripts/` is now included
+in the package's normal TypeScript project; and the public activation predicate
+is named and documented as event eligibility rather than human provenance.
 
 ## Current gates
 
-- W9b focused tests: 30 pass, 0 fail, 187 assertions.
-- State + W9b focused tests: 66 pass, 0 fail, 272 assertions.
-- Repo tests: 1,086 pass, 0 fail.
+- W9b focused tests: 32 pass, 0 fail, 195 assertions.
+- State + W9b focused tests: 68 pass, 0 fail, 280 assertions.
+- Repo tests: 1,088 pass, 0 fail.
 - Repo lint: clean.
 - Production build: clean; Vite retains its existing large-chunk warning.
 - State and composite TypeScript: clean.

@@ -15,7 +15,7 @@ configured `global-patterns` reference points at the absent sibling
 
 Browser behavior was grounded in the W3C Web Audio specification and MDN's Web
 Audio best-practices, `AudioContext.resume()`, `AudioContext.state`, GainNode,
-and OfflineAudioContext pages. The modern-web-guidance sources used were
+OfflineAudioContext, and `Event.isTrusted` pages. The modern-web-guidance sources used were
 `accessibility` and `efficient-background-processing`. The current web design
 guidelines supplied the no-sound-only-feedback rule. Vercel React guidance was
 applied to stable external listeners and effect cleanup; no React state was
@@ -61,7 +61,12 @@ both implementation and expectation together.
 
 ## W9b-D5 · Activation and backgrounding are ordered operations
 
-Construction and resume happen only from the trusted pointer/key listener.
+Construction and resume happen only from an activation-eligible pointer/key
+listener. Its default `Event.isTrusted` check is an autoplay eligibility signal:
+it rejects ordinary script dispatch, but user-agent automation may still create
+trusted events. It is not proof of human origin. The state-owned actor and
+silence fields remain the provenance boundary.
+
 Feedback before activation is not replayed. Feedback that arrives while that
 first resume is pending is bounded so the initiating physical click is not
 lost. Every activate, blur/hidden interrupt, mute change, and dispose gets a
@@ -70,6 +75,10 @@ only while it remains current. A newer activation observes older pending
 suspensions, then confirms or restores `running`, so the physical context and
 the published lifecycle agree. Blur/hidden/mute clears pending events, stops
 voices, and suspends. Dispose closes and disconnects.
+
+Terminal lifecycle labels are authoritative: `unsupported`, `failed`, and
+`disposed` survive later mute changes and blur/hidden/unmount interruption, so
+diagnostics do not relabel terminal disposal as ordinary suspension or lock.
 
 Failures are data: `unsupported`, `resume-failed`, `context-suspended`,
 `voice-cap`, and `graph-failed`. Nothing logs to the console. The first review
@@ -116,3 +125,11 @@ That reproducible artifact and the live route are the human-quality gate. The
 owner must decide whether the result is restrained, plastic/mechanical, lighter
 on wheel than Select, and articulate under a flick; W9b does not self-approve
 that judgement.
+
+## W9b-D11 · The evidence renderer belongs to the composite typecheck
+
+The renderer imports and executes the production graph, so drift in that script
+would invalidate reproducibility even if runtime code stayed green. The
+composite TypeScript project therefore includes both `src/**/*.ts(x)` and
+`scripts/**/*.ts`; the ordinary package and repo typechecks now cover the
+renderer rather than relying on an exceptional one-off command.

@@ -18,15 +18,20 @@
 | `f12509a` | mounted mute prop and duplicate public-mount proof |
 | `fcc18a7` | production-graph offline renderer and audible WAV evidence |
 | `38c52ad` | reusable renderer output seam that satisfies naming hygiene |
+| `628d9f1` | terminal diagnostics, activation semantics, and renderer typecheck coverage |
 
 The Select-release bridge follows W9a's typed input seam in `2ec0861`, so both
 commits typecheck independently in dependency order.
 
-Each W9b implementation commit was also extracted with `git archive` into a
-fresh temporary directory and typechecked against its package configuration.
-All nine passed independently: `0c1f6fc` against `packages/state/tsconfig.json`
-and `d05019e` through `59291a4` against
-`packages/composite/tsconfig.json`.
+The original W9b implementation commits were extracted with `git archive` into
+fresh temporary directories and typechecked against their package
+configurations. All nine source-package checks passed independently: `0c1f6fc`
+against `packages/state/tsconfig.json` and `d05019e` through `59291a4` against
+`packages/composite/tsconfig.json`. At `fcc18a7` and `38c52ad`, that composite
+configuration did not yet include `scripts/`; those archive results therefore
+did not validate the renderer script. The technical re-review separately ran a
+strict direct typecheck on the script, and `628d9f1` closes the structural gap by
+including `scripts/**/*.ts` in the normal composite project.
 
 ## Deterministic proof
 
@@ -38,13 +43,14 @@ bun test packages/composite/src/interaction-audio.test.ts \
   packages/composite/src/CompositeDevice.integration.test.tsx
 ```
 
-Result: **30 pass, 0 fail, 187 assertions**.
+Result: **32 pass, 0 fail, 195 assertions**.
 
 Covered claims:
 
-- no backend construction or replay before human activation;
+- no backend construction or replay before an activation request;
 - suspended-context resume and bounded first-click queue;
 - interruption during resume cannot revive background audio;
+- terminal unsupported/failed/disposed diagnostics survive mute and interruption;
 - deferred blur/mute suspension cannot defeat a newer activation;
 - stale resume rejection cannot overwrite interruption or disposal;
 - duplicate bindings and public mounts consume one sequence exactly once;
@@ -72,6 +78,9 @@ tests cover one press, N direct detents, sub-detent zero, agent/system zero,
 coast budget provenance, sequence identity, and a type-level rejection of
 agent-owned eligible feedback.
 
+The combined state + W9b command passed **68 tests, 0 failures, 280
+assertions**.
+
 ## Antagonistic plants
 
 Before implementation, the review plants ran alongside the prior suite as
@@ -79,7 +88,7 @@ Before implementation, the review plants ran alongside the prior suite as
 malformed agent playback, stale rejection after dispose and interrupt,
 duplicate binding, duplicate runtime/public mount consumption, and the
 unreachable mounted mute seam. After the fixes, the same permanent plants are
-included in the 30-pass focused result above.
+included in the 32-pass focused result above.
 
 ## Browser event/audio transcript
 
@@ -104,13 +113,18 @@ automated wheel input, authoritative budget 10
   warnings/errors=[]
 ```
 
-The automated pointer remaining locked is expected: browser automation is not
-accepted as human activation. The wheel transcript proves that an authoritative
-feedback event cannot bypass the lock or generate an autoplay error.
+This particular automated pointer path remained locked. It proves that ordinary
+script-dispatched input on that path did not satisfy the default activation
+gate, and that an authoritative feedback event could not bypass the lock or
+generate an autoplay error. It does **not** prove human provenance.
 
-The post-review browser pass again mounted T3 at `locked`, with zero scheduled
-or dropped sounds. An automated click left it locked and the browser recorded
-no warning or error. That is autoplay evidence, not a listening verdict.
+The post-review in-app-browser pass likewise stayed `locked` with no warning or
+error. During technical re-review, a real headless-Chromium
+`page.mouse.click()` produced an `isTrusted` event and moved the same route to
+`running`. Both observations are consistent: `Event.isTrusted` means the user
+agent dispatched the event, not that a human necessarily originated it. Agent
+silence is proved by the state actor/silence contract and malformed-agent plant,
+not by this browser flag. None of these observations is a listening verdict.
 
 ## Audible artifact and human-quality gate
 
@@ -167,18 +181,27 @@ does not replace the live-route check and W9b does not approve its own taste.
 | Gate | Result |
 | --- | --- |
 | `bun run lint` | exit 0 |
-| `bun test` | 1,086 pass, 0 fail |
+| `bun test` | 1,088 pass, 0 fail |
 | `bun run build` | exit 0; existing large-chunk warning only |
 | state TypeScript | exit 0 |
 | composite TypeScript | exit 0 |
+| renderer in composite TypeScript file list | present |
 | `bun run typecheck` | 11/11 projects clean |
 | `bun run gates` | 16 automated pass, 0 fail; manual U14/U15 outstanding |
 
-Each implementation commit was also extracted with `git archive`, installed
-from the frozen lockfile in its own temporary directory, and typechecked against
-its owning package configuration. `c6e7702`, `ea9d8e8`, `f12509a`, `fcc18a7`,
-and `38c52ad` each passed independently. This check does not borrow source files
+The correction source commits `c6e7702`, `ea9d8e8`, `f12509a`, `fcc18a7`, and
+`38c52ad` each passed their historical owning-package archive checks. As noted
+above, the two renderer commits required the technical re-review's separate
+direct script check because their historical config omitted `scripts/`.
+`628d9f1` was then extracted with `git archive`, installed from the frozen
+lockfile in its own temporary directory, and passed the normal composite
+typecheck with the renderer included. None of these checks borrowed source files
 or workspace-package links from the final working tree.
+
+As a negative control, a temporary `number`-to-`string` error was planted in
+`render-interaction-audio-preview.ts`. `bun run --cwd packages/composite
+typecheck` failed with `TS2322` and `TS6133`; removing the plant restored a clean
+typecheck. `tsc --listFiles` also names the renderer explicitly.
 
 The manual gates are not W9b audio claims: U14 is owner thumb-occlusion
 validation and U15 is reviewer inspection of unsupported controls.
