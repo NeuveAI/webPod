@@ -3,7 +3,11 @@ import { ShaderChunk, Texture } from "three";
 
 import { DEFAULT_DEVICE_FORM } from "./form";
 import { DEFAULT_LIGHT_RIG } from "./light-rig";
-import { DEFAULT_DEVICE_MATERIALS } from "./materials";
+import { hexLuma255 } from "./colour";
+import {
+  DEFAULT_DEVICE_MATERIALS,
+  DEFAULT_WHEEL_COLOURWAYS,
+} from "./materials";
 import {
   createBlackPolycarbonateMaterial,
   createPolycarbonateMaterial,
@@ -74,27 +78,29 @@ describe("§12.3 device material contract", () => {
 
   test("wheel, Select, glass and screen keep their physical distinctions", () => {
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingBlack).toMatchObject({
-      color: "#1D2128",
-      albedoScale: 0.6094,
-      roughness: 0.3692,
+      color: "#24292F",
+      albedoScale: 0.62,
+      roughness: 0.44,
       metalness: 0,
-      clearcoat: 0.1009,
-      clearcoatRoughness: 0.5013,
-      envMapIntensity: 0.0061,
+      clearcoat: 0.08,
+      clearcoatRoughness: 0.56,
+      envMapIntensity: 0.006,
     });
     expect(DEFAULT_DEVICE_MATERIALS.selectBlack).toMatchObject({
-      transmission: 0.05,
-      thickness: 1.1,
+      color: "#11151A",
+      albedoScale: 0.78,
+      transmission: 0.03,
+      thickness: 1,
       ior: 1.52,
-      attenuationColor: "#C0CCD8",
+      attenuationColor: "#BAC4CE",
       attenuationDistance: 1.4,
-      roughness: 0.46,
-      clearcoat: 0.12,
-      clearcoatRoughness: 0.4,
-      specularIntensity: 0.1,
-      envMapIntensity: 0.008,
+      roughness: 0.5,
+      clearcoat: 0.08,
+      clearcoatRoughness: 0.46,
+      specularIntensity: 0.08,
+      envMapIntensity: 0.006,
     });
-    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBe(0.0093);
+    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBe(0.006);
     expect(DEFAULT_DEVICE_MATERIALS.rearInlay).toMatchObject({
       color: "#11161E",
       roughness: 0.58,
@@ -127,15 +133,22 @@ describe("§12.3 device material contract", () => {
     });
   });
 
-  test("the Pencil-first white wheel remains visibly below the pearl body", () => {
-    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color).toBe("#E7EDF3");
-    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.albedoScale).toBeLessThan(
-      DEFAULT_DEVICE_MATERIALS.bodyWhite.albedoScale ?? 0,
-    );
+  test("OEM black and white wheel assemblies are separate calibrations, not inversions", () => {
+    expect(DEFAULT_WHEEL_COLOURWAYS.black).toMatchObject({
+      ring: { color: "#24292F", roughness: 0.44 },
+      select: { color: "#11151A", roughness: 0.5 },
+      labelColor: "#B9BFC7",
+    });
+    expect(DEFAULT_WHEEL_COLOURWAYS.white).toMatchObject({
+      ring: { color: "#DEE3E7", roughness: 0.8 },
+      select: { color: "#F7F8F7", roughness: 0.6 },
+      labelColor: "#7B838E",
+    });
+    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color).toBe("#DEE3E7");
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.roughness).toBeGreaterThan(
-      DEFAULT_DEVICE_MATERIALS.bodyWhite.roughness,
+      DEFAULT_DEVICE_MATERIALS.wheelRingBlack.roughness,
     );
-    expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(4.25);
+    expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(1);
     expect(DEFAULT_DEVICE_FORM.bodyCrown).toBe(1.2);
     expect(DEFAULT_DEVICE_FORM.bodyCrossCrown).toBe(1.2);
     expect(DEFAULT_DEVICE_FORM.topEdgeCrown).toBe(0);
@@ -146,6 +159,17 @@ describe("§12.3 device material contract", () => {
     );
     expect(DEFAULT_DEVICE_MATERIALS.selectWhite.clearcoat).toBeLessThan(
       DEFAULT_DEVICE_MATERIALS.bodyWhite.clearcoat ?? 0,
+    );
+    expect(hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelLabelBlack)).toBeGreaterThan(
+      hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelRingBlack.color) + 100,
+    );
+    const whiteInk = hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelLabelWhite);
+    expect(whiteInk).toBeGreaterThan(hexLuma255("#5E646D"));
+    expect(whiteInk).toBeLessThan(
+      hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color) - 45,
+    );
+    expect(DEFAULT_DEVICE_MATERIALS.wheelLabelWhite).not.toBe(
+      DEFAULT_DEVICE_MATERIALS.wheelLabelBlack,
     );
   });
 

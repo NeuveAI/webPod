@@ -84,9 +84,11 @@ export {
 
 export {
   DEFAULT_DEVICE_MATERIALS,
+  DEFAULT_WHEEL_COLOURWAYS,
   type DeviceMaterials,
   type PhysicalSurfaceParams,
   type ScreenSurfaceParams,
+  type WheelColourwayParams,
 } from "./materials";
 export {
   areaLightIntensity,

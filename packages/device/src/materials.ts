@@ -88,9 +88,82 @@ export type DeviceMaterials = {
   readonly wheelWellWhite: PhysicalSurfaceParams;
   readonly selectBlack: PhysicalSurfaceParams;
   readonly selectWhite: PhysicalSurfaceParams;
+  /** Screen-printed ink is colourway-calibrated, not a material inversion. */
+  readonly wheelLabelBlack: string;
+  readonly wheelLabelWhite: string;
   readonly coverGlass: PhysicalSurfaceParams;
   readonly screen: ScreenSurfaceParams;
 };
+
+export type WheelColourwayParams = {
+  readonly ring: PhysicalSurfaceParams;
+  readonly select: PhysicalSurfaceParams;
+  readonly labelColor: string;
+};
+
+/**
+ * OEM wheel assemblies are two independently finished plastic parts plus ink.
+ * The white model is not the black response inverted: its wheel is a cool,
+ * pale matte grey, the Select is warmer and brighter, and its legends use a
+ * medium cool grey. The black model uses charcoal-on-black parts and pale ink.
+ * The supporting OEM image ledger records each colour and finish decision.
+ */
+export const DEFAULT_WHEEL_COLOURWAYS: Readonly<
+  Record<"black" | "white", WheelColourwayParams>
+> = Object.freeze({
+  black: Object.freeze({
+    ring: Object.freeze({
+      color: "#24292F",
+      albedoScale: 0.62,
+      roughness: 0.44,
+      metalness: 0,
+      clearcoat: 0.08,
+      clearcoatRoughness: 0.56,
+      envMapIntensity: 0.006,
+    }),
+    select: Object.freeze({
+      color: "#11151A",
+      albedoScale: 0.78,
+      transmission: 0.03,
+      thickness: 1,
+      ior: 1.52,
+      attenuationColor: "#BAC4CE",
+      attenuationDistance: 1.4,
+      roughness: 0.5,
+      clearcoat: 0.08,
+      clearcoatRoughness: 0.46,
+      metalness: 0,
+      specularIntensity: 0.08,
+      envMapIntensity: 0.006,
+    }),
+    labelColor: "#B9BFC7",
+  }),
+  white: Object.freeze({
+    ring: Object.freeze({
+      color: "#DEE3E7",
+      albedoScale: 0.7,
+      roughness: 0.8,
+      metalness: 0,
+      clearcoat: 0.035,
+      clearcoatRoughness: 0.66,
+      envMapIntensity: 0.004,
+    }),
+    select: Object.freeze({
+      color: "#F7F8F7",
+      albedoScale: 0.9,
+      transmission: 0.025,
+      thickness: 0.9,
+      ior: 1.52,
+      roughness: 0.6,
+      clearcoat: 0.045,
+      clearcoatRoughness: 0.5,
+      metalness: 0,
+      specularIntensity: 0.045,
+      envMapIntensity: 0.006,
+    }),
+    labelColor: "#7B838E",
+  }),
+});
 
 /**
  * §12.3 verbatim.
@@ -209,24 +282,8 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoatRoughness: 0.34,
     envMapIntensity: 0.08,
   },
-  wheelRingBlack: {
-    color: "#1D2128",
-    albedoScale: 0.6094,
-    roughness: 0.3692,
-    metalness: 0,
-    clearcoat: 0.1009,
-    clearcoatRoughness: 0.5013,
-    envMapIntensity: 0.0061,
-  },
-  wheelRingWhite: {
-    color: "#E7EDF3",
-    albedoScale: 0.5928,
-    roughness: 0.8675,
-    metalness: 0,
-    clearcoat: 0.0435,
-    clearcoatRoughness: 0.6217,
-    envMapIntensity: 0.0056,
-  },
+  wheelRingBlack: DEFAULT_WHEEL_COLOURWAYS.black.ring,
+  wheelRingWhite: DEFAULT_WHEEL_COLOURWAYS.white.ring,
   wheelWellBlack: {
     color: "#0E1218",
     albedoScale: 0.8391,
@@ -245,35 +302,10 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoatRoughness: 0.5518,
     envMapIntensity: 0.0028,
   },
-  selectBlack: {
-    // §4.5 `--select-k-2`, the plug's body value.
-    color: "#1B1E23",
-    transmission: 0.05,
-    thickness: 1.1,
-    ior: 1.52,
-    attenuationColor: "#C0CCD8",
-    attenuationDistance: 1.4,
-    roughness: 0.46,
-    clearcoat: 0.12,
-    clearcoatRoughness: 0.4,
-    metalness: 0,
-    specularIntensity: 0.1,
-    envMapIntensity: 0.008,
-  },
-  selectWhite: {
-    // §4.5 `--select-w-2`.
-    color: "#FAFCFE",
-    albedoScale: 0.9041,
-    transmission: 0.0516,
-    thickness: 0.992,
-    ior: 1.52,
-    roughness: 0.5484,
-    clearcoat: 0.0612,
-    clearcoatRoughness: 0.4686,
-    metalness: 0,
-    specularIntensity: 0.0514,
-    envMapIntensity: 0.0093,
-  },
+  selectBlack: DEFAULT_WHEEL_COLOURWAYS.black.select,
+  selectWhite: DEFAULT_WHEEL_COLOURWAYS.white.select,
+  wheelLabelBlack: DEFAULT_WHEEL_COLOURWAYS.black.labelColor,
+  wheelLabelWhite: DEFAULT_WHEEL_COLOURWAYS.white.labelColor,
   coverGlass: {
     // §4.6's `--panel-bg` is behind the sheet; the sheet itself is colourless.
     color: "#FFFFFF",

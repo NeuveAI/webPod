@@ -473,21 +473,22 @@ export function Device({
   );
   useEffect(() => () => screenGeometry.dispose(), [screenGeometry]);
 
-  // §5.3 L8's printed legends. `--wheel-k-label` / `--wheel-w-label` are §4.5
-  // tokens; they are the only two colours written in this file, and they are
-  // ink rather than material parameters.
+  // OEM black and white wheels use independently calibrated ink. Keeping it
+  // in the injected material table prevents a white model from becoming a
+  // mechanical inversion of the black one.
   const labelMap = useMemo(
     () =>
       createWheelLabelMap({
         outerR: wheel.outerR,
         bandInnerR: wheel.labelBandInnerR,
         bandOuterR: wheel.labelBandOuterR,
-        labelColor: isBlack ? "#A9AFB7" : "#5E646D",
-        ringColor: ringMaterial.color,
+        labelColor: isBlack
+          ? materials.wheelLabelBlack
+          : materials.wheelLabelWhite,
         fontPx: 13,
         size: 1024,
       }),
-    [isBlack, ringMaterial.color],
+    [isBlack, materials.wheelLabelBlack, materials.wheelLabelWhite],
   );
   useEffect(() => () => labelMap?.dispose(), [labelMap]);
 

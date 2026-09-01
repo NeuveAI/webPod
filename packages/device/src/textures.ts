@@ -231,8 +231,6 @@ export type WheelLabelMapParams = {
   readonly bandOuterR: number;
   /** §5.3 L8: `--wheel-k-label` / `--wheel-w-label`. */
   readonly labelColor: string;
-  /** The ring's own §12.3 base colour, so the map is neutral off the glyphs. */
-  readonly ringColor: string;
   /** §5.3 L8: 13px on mobile, Source Sans 3 600, letter-spacing +0.14em. */
   readonly fontPx: number;
   /** Texture edge length. */
