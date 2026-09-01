@@ -56,6 +56,16 @@ export type WheelReadabilitySample = {
   readonly engagement: number;
 };
 
+export type WheelRestSurfaceSample = {
+  readonly point: Readonly<{ x: number; y: number; z: number }>;
+  readonly normal: Readonly<{ x: number; y: number; z: number }>;
+};
+
+/** Analytic rest surface at the actual body-local pointer contact. */
+export type WheelRestSurfaceSampler = (
+  contact: ControlContact,
+) => WheelRestSurfaceSample;
+
 /** Wheel-only optical response driven by the physical contact lifecycle. */
 export type WheelContactReadability = {
   readonly update: (sample: WheelReadabilitySample) => void;
@@ -141,32 +151,47 @@ function restoreSurface(surface: BoundSurface): void {
   markChanged(surface);
 }
 
-function readabilitySampleAt(
-  surface: BoundSurface,
+/**
+ * Resolve the optical source from the actual contact, not mesh vertices.
+ *
+ * The compact depression has zero gradient at its centre, so the live centre
+ * normal is the analytic rest normal and its live point is exactly one depth
+ * inward along that normal. Keeping this independent of tessellation prevents
+ * the grazing source from snapping while the deforming mesh remains finite.
+ */
+export function wheelReadabilitySampleAt(
+  sampleRestSurface: WheelRestSurfaceSampler,
   contact: ControlContact,
+  depth: number,
   engagement: number,
 ): WheelReadabilitySample {
-  let nearestIndex = 0;
-  let nearestDistanceSq = Number.POSITIVE_INFINITY;
-  for (let index = 0; index < surface.restPosition.length; index += 3) {
-    const dx = componentAt(surface.restPosition, index) - contact.x;
-    const dy = componentAt(surface.restPosition, index + 1) - contact.y;
-    const distanceSq = dx * dx + dy * dy;
-    if (distanceSq < nearestDistanceSq) {
-      nearestDistanceSq = distanceSq;
-      nearestIndex = index;
-    }
+  const rest = sampleRestSurface(contact);
+  const normal = new Vector3(
+    rest.normal.x,
+    rest.normal.y,
+    rest.normal.z,
+  );
+  if (
+    !Number.isFinite(rest.point.x) ||
+    !Number.isFinite(rest.point.y) ||
+    !Number.isFinite(rest.point.z) ||
+    !Number.isFinite(depth) ||
+    normal.lengthSq() === 0 ||
+    !Number.isFinite(normal.lengthSq())
+  ) {
+    throw new Error("wheel readability requires a finite analytic surface");
   }
+  normal.normalize();
   return {
     point: {
-      x: componentAt(surface.position.array, nearestIndex),
-      y: componentAt(surface.position.array, nearestIndex + 1),
-      z: componentAt(surface.position.array, nearestIndex + 2),
+      x: rest.point.x - normal.x * depth,
+      y: rest.point.y - normal.y * depth,
+      z: rest.point.z - normal.z * depth,
     },
     normal: {
-      x: componentAt(surface.normal.array, nearestIndex),
-      y: componentAt(surface.normal.array, nearestIndex + 1),
-      z: componentAt(surface.normal.array, nearestIndex + 2),
+      x: normal.x,
+      y: normal.y,
+      z: normal.z,
     },
     engagement: Math.max(0, Math.min(1, engagement)),
   };
@@ -296,8 +321,10 @@ export class ControlPhysicsController {
   readonly #dependencies: ControlPhysicsDependencies;
   readonly #wheel = channel();
   readonly #select = channel();
+  #wheelBacking: BoundSurface | null = null;
   #wheelContact: ControlContact = { x: 0, y: 0 };
   #wheelReadability: WheelContactReadability | null = null;
+  #wheelRestSurface: WheelRestSurfaceSampler | null = null;
   #frame: ControlPhysicsFrame | null = null;
   #reducedMotion = false;
   #disposed = false;
@@ -309,9 +336,20 @@ export class ControlPhysicsController {
   attachWheel(
     geometry: BufferGeometry,
     readability: WheelContactReadability | null = null,
+    sampleRestSurface: WheelRestSurfaceSampler | null = null,
+    backingGeometry: BufferGeometry | null = null,
   ): () => void {
+    if ((readability === null) !== (sampleRestSurface === null)) {
+      throw new Error(
+        "wheel readability requires its analytic rest-surface sampler",
+      );
+    }
     this.#wheelReadability?.clear();
     this.#wheelReadability = readability;
+    this.#wheelRestSurface = sampleRestSurface;
+    if (this.#wheelBacking !== null) restoreSurface(this.#wheelBacking);
+    this.#wheelBacking =
+      backingGeometry === null ? null : bindSurface(backingGeometry);
     const detach = this.#attach(
       this.#wheel,
       geometry,
@@ -322,8 +360,13 @@ export class ControlPhysicsController {
       detach();
       if (!isCurrent) return;
       readability?.clear();
+      if (this.#wheelBacking !== null) {
+        restoreSurface(this.#wheelBacking);
+        this.#wheelBacking = null;
+      }
       if (this.#wheelReadability === readability) {
         this.#wheelReadability = null;
+        this.#wheelRestSurface = null;
       }
     };
   }
@@ -477,6 +520,7 @@ export class ControlPhysicsController {
     if (this.#wheel.surface === null) return;
     if (this.#wheel.depth === 0) {
       restoreSurface(this.#wheel.surface);
+      if (this.#wheelBacking !== null) restoreSurface(this.#wheelBacking);
       return;
     }
     deformWheelSurface(
@@ -484,13 +528,23 @@ export class ControlPhysicsController {
       this.#wheelContact,
       this.#wheel.depth,
     );
-    this.#wheelReadability?.update(
-      readabilitySampleAt(
-        this.#wheel.surface,
+    if (this.#wheelBacking !== null) {
+      deformWheelSurface(
+        this.#wheelBacking,
         this.#wheelContact,
-        this.#wheel.depth / CONTROL_TRAVEL.wheelModel,
-      ),
-    );
+        this.#wheel.depth,
+      );
+    }
+    if (this.#wheelReadability !== null && this.#wheelRestSurface !== null) {
+      this.#wheelReadability.update(
+        wheelReadabilitySampleAt(
+          this.#wheelRestSurface,
+          this.#wheelContact,
+          this.#wheel.depth,
+          this.#wheel.depth / CONTROL_TRAVEL.wheelModel,
+        ),
+      );
+    }
   }
 
   #renderSelect(): void {
@@ -506,7 +560,10 @@ export class ControlPhysicsController {
     channelState.depth = 0;
     channelState.release = null;
     if (channelState.surface !== null) restoreSurface(channelState.surface);
-    if (channelState === this.#wheel) this.#wheelReadability?.clear();
+    if (channelState === this.#wheel) {
+      if (this.#wheelBacking !== null) restoreSurface(this.#wheelBacking);
+      this.#wheelReadability?.clear();
+    }
   }
 
   #cancelFrameWhenSettled(): void {

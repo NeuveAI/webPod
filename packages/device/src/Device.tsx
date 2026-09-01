@@ -33,6 +33,7 @@ import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeom
 
 import { frontCoreDepth, tessellateVerticalCrown } from "./curved-shell";
 import { useControlPhysics } from "./ControlPhysicsScope";
+import type { WheelRestSurfaceSampler } from "./control-physics";
 import { createFrontControlPatchGeometry } from "./front-control-geometry";
 import {
   createRearShellGeometry,
@@ -46,6 +47,8 @@ import {
 } from "./env-map";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import {
+  frontShellNormalAt,
+  frontShellOffsetAt,
   resolveFrontAssemblyDepths,
   WHEEL_OUTER_SEAM_WIDTH,
 } from "./front-surface";
@@ -151,6 +154,36 @@ export function Device({
   const invalidate = useThree((state) => state.invalidate);
   const controlPhysics = useControlPhysics();
   const wheelGrazingResponse = useMemo(() => new WheelGrazingResponse(), []);
+  const wheelRestSurface = useMemo<WheelRestSurfaceSampler>(() => {
+    const surfaceForm = {
+      seamWidth: form.seamWidth,
+      bodyCrown: form.bodyCrown,
+      bodyCrossCrown: form.bodyCrossCrown,
+      topEdgeCrown: form.topEdgeCrown,
+      bottomEdgeCrown: form.bottomEdgeCrown,
+      edgeCrownExtent: form.edgeCrownExtent,
+    };
+    return (contact) => {
+      const globalX = wheel.centerX + contact.x;
+      const globalY = wheel.centerY + contact.y;
+      const normal = frontShellNormalAt(globalX, globalY, surfaceForm);
+      return {
+        point: {
+          x: contact.x,
+          y: contact.y,
+          z: frontShellOffsetAt(globalX, globalY, surfaceForm),
+        },
+        normal: { x: normal.x, y: normal.y, z: normal.z },
+      };
+    };
+  }, [
+    form.seamWidth,
+    form.bodyCrown,
+    form.bodyCrossCrown,
+    form.topEdgeCrown,
+    form.bottomEdgeCrown,
+    form.edgeCrownExtent,
+  ]);
   // A getter, not a value: r3f swaps the camera on some prop changes and the
   // viewport changes on every resize, so the handle must read both at the
   // moment it projects rather than capture them (see `screen-mesh.ts`).
@@ -374,8 +407,20 @@ export function Device({
     [ringGeometry, selectGeometry, wheelGapGeometry],
   );
   useEffect(
-    () => controlPhysics?.attachWheel(ringGeometry, wheelGrazingResponse),
-    [controlPhysics, ringGeometry, wheelGrazingResponse],
+    () =>
+      controlPhysics?.attachWheel(
+        ringGeometry,
+        wheelGrazingResponse,
+        wheelRestSurface,
+        wheelGapGeometry,
+      ),
+    [
+      controlPhysics,
+      ringGeometry,
+      wheelGapGeometry,
+      wheelGrazingResponse,
+      wheelRestSurface,
+    ],
   );
   useEffect(
     () => controlPhysics?.attachSelect(selectGeometry),

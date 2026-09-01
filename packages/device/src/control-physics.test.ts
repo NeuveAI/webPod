@@ -8,14 +8,21 @@ import {
   ControlPhysicsController,
   WHEEL_CONTACT_FOOTPRINT_MM,
   WHEEL_REST_NORMAL_ATTRIBUTE,
+  wheelReadabilitySampleAt,
   type ControlPhysicsDependencies,
   type WheelContactReadability,
   type WheelReadabilitySample,
+  type WheelRestSurfaceSampler,
 } from "./control-physics";
 import { createFrontControlPatchGeometry } from "./front-control-geometry";
 import { DEFAULT_DEVICE_FORM } from "./form";
-import { WHEEL_OUTER_SEAM_WIDTH } from "./front-surface";
+import {
+  frontShellNormalAt,
+  frontShellOffsetAt,
+  WHEEL_OUTER_SEAM_WIDTH,
+} from "./front-surface";
 import { DEVICE_LAYOUT } from "./layout";
+import { wheelGrazingPose } from "./wheel-readability";
 
 const { wheel } = DEVICE_LAYOUT;
 
@@ -39,6 +46,19 @@ function selectGeometry() {
       centerY: wheel.centerY,
       innerRadius: 0,
       outerRadius: wheel.selectR,
+      uvRadius: wheel.outerR,
+    },
+    DEFAULT_DEVICE_FORM,
+  );
+}
+
+function wheelBackingGeometry() {
+  return createFrontControlPatchGeometry(
+    {
+      centerX: wheel.centerX,
+      centerY: wheel.centerY,
+      innerRadius: 0,
+      outerRadius: wheel.outerR,
       uvRadius: wheel.outerR,
     },
     DEFAULT_DEVICE_FORM,
@@ -124,6 +144,20 @@ function angleContact(angleDeg: number) {
   return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
 }
 
+const wheelRestSurface: WheelRestSurfaceSampler = (contact) => {
+  const globalX = wheel.centerX + contact.x;
+  const globalY = wheel.centerY + contact.y;
+  const normal = frontShellNormalAt(globalX, globalY, DEFAULT_DEVICE_FORM);
+  return {
+    point: {
+      x: contact.x,
+      y: contact.y,
+      z: frontShellOffsetAt(globalX, globalY, DEFAULT_DEVICE_FORM),
+    },
+    normal: { x: normal.x, y: normal.y, z: normal.z },
+  };
+};
+
 describe("transient physical click-wheel geometry", () => {
   test("the bounded visual calibration is explicit and mutation-gated", () => {
     expect(CONTROL_TRAVEL.wheelMm).toBe(0.08);
@@ -197,7 +231,7 @@ describe("transient physical click-wheel geometry", () => {
     const harness = new FrameHarness();
     const readability = new ReadabilityHarness();
     const controller = new ControlPhysicsController(harness.dependencies);
-    controller.attachWheel(geometry, readability);
+    controller.attachWheel(geometry, readability, wheelRestSurface);
 
     expect(readability.updates).toHaveLength(0);
     expect(readability.clears).toBe(0);
@@ -232,13 +266,52 @@ describe("transient physical click-wheel geometry", () => {
     geometry.dispose();
   });
 
+  test("the production source is continuous through a dense tessellation sweep and seam", () => {
+    const geometry = wheelGeometry();
+    expect(geometry.getAttribute("position").count).toBe(25 * 129);
+    const stepDeg = 0.01;
+    let previous: Vector3 | null = null;
+    let minimumStep = Number.POSITIVE_INFINITY;
+    let maximumStep = 0;
+
+    for (let step = 0; step <= 36_000; step += 1) {
+      const angleDeg = -180 + step * stepDeg;
+      const contact = angleContact(angleDeg);
+      const sample = wheelReadabilitySampleAt(
+        wheelRestSurface,
+        contact,
+        CONTROL_TRAVEL.wheelModel,
+        1,
+      );
+      const pose = wheelGrazingPose(sample);
+      const source = new Vector3(
+        pose.position.x,
+        pose.position.y,
+        pose.position.z,
+      );
+      if (previous !== null) {
+        const distance = source.distanceTo(previous);
+        minimumStep = Math.min(minimumStep, distance);
+        maximumStep = Math.max(maximumStep, distance);
+      }
+      previous = source;
+    }
+
+    // The former nearest-vertex source plateaued for 2.07° and then jumped
+    // 3.448px. A 0.01° analytic sweep moves every sample and stays sub-pixel,
+    // including the -180°/+180° topology seam.
+    expect(minimumStep).toBeGreaterThan(0.005);
+    expect(maximumStep).toBeLessThan(0.05);
+    geometry.dispose();
+  });
+
   test("Select cannot receive or activate the wheel-only grazing response", () => {
     const ring = wheelGeometry();
     const select = selectGeometry();
     const harness = new FrameHarness();
     const readability = new ReadabilityHarness();
     const controller = new ControlPhysicsController(harness.dependencies);
-    controller.attachWheel(ring, readability);
+    controller.attachWheel(ring, readability, wheelRestSurface);
     controller.attachSelect(select);
 
     controller.pressSelect();
@@ -256,7 +329,7 @@ describe("transient physical click-wheel geometry", () => {
     const harness = new FrameHarness();
     const readability = new ReadabilityHarness();
     const controller = new ControlPhysicsController(harness.dependencies);
-    controller.attachWheel(geometry, readability);
+    controller.attachWheel(geometry, readability, wheelRestSurface);
     controller.setReducedMotion(true);
     controller.wheelContact(angleContact(180));
     expect(readability.updates.at(-1)?.engagement).toBe(1);
@@ -299,6 +372,37 @@ describe("transient physical click-wheel geometry", () => {
     select.dispose();
   });
 
+  test("the shallow seam floor follows contact and never cuts through the wheel", () => {
+    const ring = wheelGeometry();
+    const backing = wheelBackingGeometry();
+    const ringRest = snapshot(ring, "position");
+    const backingRest = snapshot(backing, "position");
+    const harness = new FrameHarness();
+    const controller = new ControlPhysicsController(harness.dependencies);
+    controller.attachWheel(ring, null, null, backing);
+
+    controller.wheelContact(angleContact(90));
+    const ringTravel = maximumTripletDelta(
+      ringRest,
+      snapshot(ring, "position"),
+    );
+    const backingTravel = maximumTripletDelta(
+      backingRest,
+      snapshot(backing, "position"),
+    );
+    expect(ringTravel).toBeCloseTo(CONTROL_TRAVEL.wheelModel, 1);
+    expect(backingTravel).toBeCloseTo(CONTROL_TRAVEL.wheelModel, 1);
+    expect(Math.abs(ringTravel - backingTravel)).toBeLessThan(0.01);
+
+    controller.setReducedMotion(true);
+    controller.releaseWheel();
+    expect(snapshot(ring, "position")).toEqual(ringRest);
+    expect(snapshot(backing, "position")).toEqual(backingRest);
+    controller.dispose();
+    ring.dispose();
+    backing.dispose();
+  });
+
   test("the depression changes real normals and returns byte-exactly to rest", () => {
     const geometry = wheelGeometry();
     const restPosition = snapshot(geometry, "position");
@@ -332,7 +436,7 @@ describe("transient physical click-wheel geometry", () => {
     const harness = new FrameHarness();
     const readability = new ReadabilityHarness();
     const controller = new ControlPhysicsController(harness.dependencies);
-    controller.attachWheel(geometry, readability);
+    controller.attachWheel(geometry, readability, wheelRestSurface);
     controller.wheelContact(angleContact(90));
     controller.releaseWheel();
     harness.step(32);
@@ -352,6 +456,40 @@ describe("transient physical click-wheel geometry", () => {
     expect(readability.clears).toBe(1);
     controller.dispose();
     geometry.dispose();
+  });
+
+  test("detach and rebind clear the current response without clearing its replacement", () => {
+    const first = wheelGeometry();
+    const second = wheelGeometry();
+    const harness = new FrameHarness();
+    const firstReadability = new ReadabilityHarness();
+    const secondReadability = new ReadabilityHarness();
+    const controller = new ControlPhysicsController(harness.dependencies);
+    const detachFirst = controller.attachWheel(
+      first,
+      firstReadability,
+      wheelRestSurface,
+    );
+    controller.wheelContact(angleContact(45));
+    expect(firstReadability.updates).toHaveLength(1);
+
+    const detachSecond = controller.attachWheel(
+      second,
+      secondReadability,
+      wheelRestSurface,
+    );
+    expect(firstReadability.clears).toBe(1);
+    controller.wheelContact(angleContact(46));
+    expect(secondReadability.updates).toHaveLength(1);
+
+    detachFirst();
+    expect(secondReadability.clears).toBe(0);
+    detachSecond();
+    expect(secondReadability.clears).toBe(1);
+
+    controller.dispose();
+    first.dispose();
+    second.dispose();
   });
 
   test("Select displacement follows the curved local normal after rotation", () => {
@@ -472,7 +610,7 @@ describe("transient physical click-wheel geometry", () => {
     expect(physics).toContain("position.needsUpdate = true");
     expect(physics).toContain("normal.needsUpdate = true");
     expect(device).toContain(
-      "controlPhysics?.attachWheel(ringGeometry, wheelGrazingResponse)",
+      "ringGeometry,\n        wheelGrazingResponse,\n        wheelRestSurface,\n        wheelGapGeometry,",
     );
     expect(device).toContain("controlPhysics?.attachSelect(selectGeometry)");
   });

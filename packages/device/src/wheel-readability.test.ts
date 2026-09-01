@@ -47,20 +47,20 @@ function numberUniform(
 describe("wheel contact grazing readability", () => {
   test("the bounded calibration is explicit and does not increase travel", () => {
     expect(WHEEL_GRAZING_RESPONSE).toEqual({
-      tangentOffsetMm: 7.5,
-      surfaceLiftMm: 1.2,
-      rangeMm: 16,
+      tangentOffsetMm: 4,
+      surfaceLiftMm: 5,
+      rangeMm: 12,
       innerConeDeg: 20,
       outerConeDeg: 42,
-      normalSlopeStartDeg: 1,
-      normalSlopeFullDeg: 1.35,
+      normalSlopeStartDeg: 0.65,
+      normalSlopeFullDeg: 0.9,
       peakLinearIrradiance: 0.06,
-      color: "#FFF9F2",
+      color: "#FFFFFF",
     });
     expect(CONTROL_TRAVEL.wheelMm).toBe(0.08);
   });
 
-  test("the low grazing source follows all four contact angles in model space", () => {
+  test("the contact-local source follows all four angles in model space", () => {
     for (const angleDeg of [0, 90, 180, 270]) {
       const sample = sampleAt(angleDeg);
       const pose = wheelGrazingPose(sample);
@@ -95,7 +95,7 @@ describe("wheel contact grazing readability", () => {
         expectedDistanceMm,
         8,
       );
-      expect(grazingAngleDeg).toBeLessThan(10);
+      expect(grazingAngleDeg).toBeLessThan(55);
       expect(direction.dot(point.clone().sub(source).normalize())).toBeCloseTo(
         1,
         8,
@@ -117,15 +117,15 @@ describe("wheel contact grazing readability", () => {
     expect(overdriven.irradiance).toBe(
       WHEEL_GRAZING_RESPONSE.peakLinearIrradiance,
     );
-    expect(overdriven.irradiance).toBeLessThan(0.25);
+    expect(overdriven.irradiance).toBeLessThan(0.1);
     expect(rest.range).toBe(WHEEL_GRAZING_RESPONSE.rangeMm * PX_PER_MM);
     expect(rest.innerConeCos).toBeGreaterThan(rest.outerConeCos);
     expect(WHEEL_GRAZING_RESPONSE.outerConeDeg).toBeLessThan(45);
     expect(WHEEL_GRAZING_RESPONSE.normalSlopeStartDeg).toBeGreaterThan(0);
-    expect(WHEEL_GRAZING_RESPONSE.normalSlopeFullDeg).toBeLessThan(1.5);
+    expect(WHEEL_GRAZING_RESPONSE.normalSlopeFullDeg).toBeLessThan(1);
   });
 
-  test("the wheel-only physical shader has no UV, camera, or time-locked proxy", () => {
+  test("the wheel-only shader is slope-gated specular with no diffuse blob path", () => {
     const uniforms: Record<string, { value: unknown }> = {};
     const shader = {
       uniforms,
@@ -148,10 +148,17 @@ describe("wheel contact grazing readability", () => {
     expect(numberUniform(shader.uniforms, "webpodWheelGrazingIrradiance")).toBe(
       0,
     );
-    expect(shader.fragmentShader).toContain("RE_Direct(");
-    expect(shader.fragmentShader).toContain("geometryNormal");
-    expect(shader.fragmentShader).toContain("webpodWheelNormalRim");
+    expect(shader.fragmentShader).not.toContain("RE_Direct(");
     expect(shader.fragmentShader).not.toContain("directDiffuse");
+    expect(shader.fragmentShader).toContain(
+      "reflectedLight.directSpecular += webpodWheelEdgeSpecular;",
+    );
+    // Load-bearing against the reviewer's exact broad-front-light plant: a
+    // plain geometryNormal term no longer satisfies this assertion.
+    expect(shader.fragmentShader).toContain(
+      "length( geometryNormal - webpodWheelRestNormal )",
+    );
+    expect(shader.fragmentShader).toContain("webpodWheelNormalRim");
     expect(shader.fragmentShader).not.toMatch(
       /cameraPosition|vUv|webpod.*(?:Time|Random)|frontFacing/i,
     );
@@ -197,7 +204,7 @@ describe("wheel contact grazing readability", () => {
     ).text();
 
     expect(device).toContain(
-      "controlPhysics?.attachWheel(ringGeometry, wheelGrazingResponse)",
+      "ringGeometry,\n        wheelGrazingResponse,\n        wheelRestSurface,\n        wheelGapGeometry,",
     );
     expect(device.match(/createWheelGrazingMaterial\(/g)).toHaveLength(1);
     expect(device).not.toContain("attachSelect(selectGeometry, wheelGrazingResponse)");

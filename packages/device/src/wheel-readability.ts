@@ -17,22 +17,23 @@ import {
 /**
  * Contact-local grazing response, in physical units where possible.
  *
- * This is a deliberately weak virtual product-light card, not extra control
- * travel. It sits almost tangent to the wheel and reaches Three's physical
- * BRDF only where the real displaced normals turn away from the contact-centre
- * normal. That slope gate prevents a diffuse spotlight disc on flat plastic.
- * Other meshes cannot receive this term, and zero rest intensity removes it.
+ * This is a restrained contact-local product-light card, not extra control
+ * travel. It adds a bounded edge return to Three's direct-specular accumulator
+ * only where the real displaced normals turn away from the contact-centre
+ * normal. It cannot contribute Lambert diffuse, and the slope gate prevents
+ * an ordinary front light or flat spotlight disc on plastic. Other meshes
+ * cannot receive this term, and zero rest intensity removes it.
  */
 export const WHEEL_GRAZING_RESPONSE = Object.freeze({
-  tangentOffsetMm: 7.5,
-  surfaceLiftMm: 1.2,
-  rangeMm: 16,
+  tangentOffsetMm: 4,
+  surfaceLiftMm: 5,
+  rangeMm: 12,
   innerConeDeg: 20,
   outerConeDeg: 42,
-  normalSlopeStartDeg: 1,
-  normalSlopeFullDeg: 1.35,
+  normalSlopeStartDeg: 0.65,
+  normalSlopeFullDeg: 0.9,
   peakLinearIrradiance: 0.06,
-  color: "#FFF9F2",
+  color: "#FFFFFF",
 });
 
 export type WheelGrazingPose = {
@@ -134,13 +135,10 @@ const FRAGMENT_LIGHT = `#include <lights_fragment_begin>
     float webpodWheelCone = smoothstep( webpodWheelGrazingOuterCos, webpodWheelGrazingInnerCos, webpodWheelConeCos );
     float webpodWheelRangeWindow = saturate( 1.0 - webpodWheelLightDistance / webpodWheelGrazingRange );
     vec3 webpodWheelRestNormal = normalize( webpodWheelRestNormalView );
-    float webpodWheelFacingSlope = max( 0.0, dot( geometryNormal - webpodWheelRestNormal, webpodWheelLightDirection ) );
-    float webpodWheelNormalRim = smoothstep( webpodWheelGrazingSlopeStart, webpodWheelGrazingSlopeFull, webpodWheelFacingSlope );
-    IncidentLight webpodWheelGrazingLight;
-    webpodWheelGrazingLight.color = webpodWheelGrazingColor * webpodWheelGrazingIrradiance * webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim;
-    webpodWheelGrazingLight.direction = webpodWheelLightDirection;
-    webpodWheelGrazingLight.visible = webpodWheelCone > 0.0 && webpodWheelRangeWindow > 0.0 && webpodWheelNormalRim > 0.0;
-    RE_Direct( webpodWheelGrazingLight, geometryPosition, geometryNormal, geometryViewDir, geometryClearcoatNormal, material, reflectedLight );
+    float webpodWheelPhysicalSlope = length( geometryNormal - webpodWheelRestNormal );
+    float webpodWheelNormalRim = smoothstep( webpodWheelGrazingSlopeStart, webpodWheelGrazingSlopeFull, webpodWheelPhysicalSlope );
+    vec3 webpodWheelEdgeSpecular = webpodWheelGrazingColor * webpodWheelGrazingIrradiance * webpodWheelCone * webpodWheelRangeWindow * webpodWheelRangeWindow * webpodWheelNormalRim;
+    reflectedLight.directSpecular += webpodWheelEdgeSpecular;
   }
 #endif`;
 
@@ -239,6 +237,6 @@ export function createWheelGrazingMaterial(
     response.install(shader);
   };
   material.customProgramCacheKey = () =>
-    `${baseCacheKey}|webpod-wheel-grazing-v2`;
+    `${baseCacheKey}|webpod-wheel-grazing-v3`;
   return material;
 }
