@@ -174,5 +174,11 @@ does not replace the live-route check and W9b does not approve its own taste.
 | `bun run typecheck` | 11/11 projects clean |
 | `bun run gates` | 16 automated pass, 0 fail; manual U14/U15 outstanding |
 
+Each implementation commit was also extracted with `git archive`, installed
+from the frozen lockfile in its own temporary directory, and typechecked against
+its owning package configuration. `c6e7702`, `ea9d8e8`, `f12509a`, `fcc18a7`,
+and `38c52ad` each passed independently. This check does not borrow source files
+or workspace-package links from the final working tree.
+
 The manual gates are not W9b audio claims: U14 is owner thumb-occlusion
 validation and U15 is reviewer inspection of unsupported controls.
