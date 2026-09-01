@@ -97,3 +97,26 @@ Repo law reserves history rewriting and force-pushing to the owner. The lane
 therefore records a guarded local replay in
 `evidence/w9a-owner-history-rewrite.md` and stops. Until the owner runs and
 verifies it, historical standalone coherence remains open.
+
+## W9A-10 · Readability is a wheel-material grazing response, not more travel
+
+Owner acceptance keeps the W9 physical calibration intact: the wheel still
+moves at most 0.08 mm inside the same 5.5 × 8 mm compact thumb footprint. The
+readability correction is instead a weak body-local product-light card whose
+position and target follow the live deformed contact point.
+
+An ordinary Three scene light cannot provide the required isolation: scene
+lights are collected for the render pass and would also reach the faceplate,
+Select and screen surround. The response therefore lives only in the wheel's
+physical material and enters Three's direct physical BRDF there. The wheel
+geometry carries an immutable rest-normal attribute; the response is admitted
+only on the displaced slope facing the grazing source. That makes the real
+normal delta—not a UV, camera direction, screen coordinate or painted mask—the
+readability signal, while preventing a flat diffuse spotlight on white plastic.
+
+The bounded calibration is 7.5 mm tangent offset, 1.2 mm surface lift, 16 mm
+range, 20°/42° cone, 1°/1.35° displaced-slope window and 0.06 peak linear
+irradiance. Intensity is exactly zero at rest. The existing pointer invalidation
+and 120 ms release frames update the uniforms; the response owns no frame loop.
+Reduced motion preserves direct held feedback and clears it on release without
+requesting a release animation.

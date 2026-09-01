@@ -107,3 +107,33 @@ contains an owner-only local replay plan; no rewrite or force-push was executed
 by this lane.
 
 No audio code was touched by the W9a correction.
+
+## Owner readability correction
+
+The owner approved W9b audio and asked for the shallow wheel load to read more
+clearly without increasing travel. The first implementation mistake was useful:
+a full diffuse auxiliary light produced a pale contact disc on white hardware.
+The production browser caught it before commit. A specular-only response removed
+the disc but was too weak front-on. The final response uses the real difference
+between each live displaced normal and an immutable rest normal to admit only
+the source-facing grazing slope into Three's physical direct-light BRDF.
+
+Travel remains 0.08 mm. The response is material-local to the wheel, begins at
+1° of real normal deflection, reaches full strength at 1.35°, and peaks at 0.06
+linear irradiance. A temporary zero-intensity production run confirmed that the
+dark held lobe in oblique views is the existing W9 geometry under the approved
+key/fill rig, not an auxiliary spotlight. The correction adds a restrained edge
+cue rather than making a deeper or brighter front-facing dent.
+
+Unlike the earlier synthetic evidence attempt, this correction was exercised
+through the ordinary `/_spike/device` route with real Chrome mouse down, move
+and up events. Moving from the right to bottom wheel positions changed the
+screen selection through the existing composite/state path while the material
+response followed the same contact. No query parameter or proof API was added.
+The exact browser provenance, image index, deterministic lifecycle assertions
+and mutation plants are recorded in `evidence/w9a-readability.md`.
+
+The connected in-app browser still renders the known blank T3 canvas and was
+not counted as proof. A separately launched local Chrome 152 session with
+`CanvasDrawElement` enabled rendered T1 and produced the accepted correction
+captures. No audio path was read or changed by this correction.
