@@ -32,6 +32,7 @@ import {
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
 import { frontCoreDepth, tessellateVerticalCrown } from "./curved-shell";
+import { useControlPhysics } from "./ControlPhysicsScope";
 import { createFrontControlPatchGeometry } from "./front-control-geometry";
 import {
   createRearShellGeometry,
@@ -144,6 +145,7 @@ export function Device({
   screenMaterial,
 }: DeviceProps) {
   const invalidate = useThree((state) => state.invalidate);
+  const controlPhysics = useControlPhysics();
   // A getter, not a value: r3f swaps the camera on some prop changes and the
   // viewport changes on every resize, so the handle must read both at the
   // moment it projects rather than capture them (see `screen-mesh.ts`).
@@ -365,6 +367,14 @@ export function Device({
       wheelGapGeometry.dispose();
     },
     [ringGeometry, selectGeometry, wheelGapGeometry],
+  );
+  useEffect(
+    () => controlPhysics?.attachWheel(ringGeometry),
+    [controlPhysics, ringGeometry],
+  );
+  useEffect(
+    () => controlPhysics?.attachSelect(selectGeometry),
+    [controlPhysics, selectGeometry],
   );
 
   const glassGeometry = useMemo(() => {

@@ -31,6 +31,7 @@ export {
   DeviceCanvas,
   type DeviceCanvasProps,
 } from "./DeviceCanvas";
+export type { ControlPhysicsEvidencePose } from "./ControlPhysicsScope";
 export {
   applyDeviceCameraFit,
   fitPerspectiveCameraToBounds,
@@ -76,11 +77,28 @@ export {
   clockwiseWheelAngleDeg,
   shortestWheelDeltaDeg,
   wheelAngleFromRay,
+  wheelContactFromRay,
+  clampWheelContactToRing,
   type ClickWheelArcEnd,
   type ClickWheelArcSample,
   type ClickWheelInputSurfaceProps,
   type ClickWheelPointerType,
+  type ClickWheelSelectEnd,
+  type ClickWheelSelectStart,
+  type WheelContactSample,
 } from "./click-wheel-input";
+
+export {
+  CONTROL_RELEASE_FRAME_LIMIT,
+  CONTROL_RELEASE_MS,
+  CONTROL_TRAVEL,
+  ControlPhysicsController,
+  WHEEL_CONTACT_FOOTPRINT_MM,
+  WHEEL_CONTACT_FOOTPRINT_MODEL,
+  compactContactWeight,
+  type ControlContact,
+  type ControlPhysicsDependencies,
+} from "./control-physics";
 
 export {
   DEFAULT_DEVICE_MATERIALS,

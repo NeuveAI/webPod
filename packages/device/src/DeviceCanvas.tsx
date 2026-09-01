@@ -25,6 +25,11 @@ import { Box3, PerspectiveCamera, Vector3 } from "three";
 import { Device, type DeviceProps } from "./Device";
 import { CanvasPixelDensity } from "./CanvasPixelDensity";
 import {
+  ControlPhysicsEvidence,
+  ControlPhysicsScope,
+  type ControlPhysicsEvidencePose,
+} from "./ControlPhysicsScope";
+import {
   applyDeviceCameraFit,
   fitPerspectiveCameraToBounds,
   projectedBoundsExtent,
@@ -53,6 +58,8 @@ export type DeviceCanvasProps = DeviceProps & {
   readonly studioEnvironment?: StudioEnvironmentProps | null;
   /** Receives the measured fit after mount and every viewport/pose change. */
   readonly onCameraFit?: (fit: DeviceCameraFit) => void;
+  /** Development-only held pose for deterministic macro evidence. */
+  readonly controlEvidencePose?: ControlPhysicsEvidencePose;
   /**
    * Device pixel ratio. `[1, 2]` for looking at; **`1` for measuring** — the
    * luminance probe reads the drawing buffer, and at dpr 2 one body px is four
@@ -114,6 +121,7 @@ export function DeviceCanvas({
   cameraSafePadding = DEFAULT_CAMERA_SAFE_PADDING,
   studioEnvironment = {},
   onCameraFit,
+  controlEvidencePose,
   dpr = [1, 3],
   orientation = FRONT_DEVICE_ORIENTATION,
   children,
@@ -146,21 +154,26 @@ export function DeviceCanvas({
         position: [0, 0, initialDistance],
       }}
     >
-      <DeviceCanvasOrientationContext.Provider value={orientationState}>
-        <CanvasPixelDensity enabled={Array.isArray(dpr)} />
-        {studioEnvironment === null ? null : (
-          <StudioEnvironment {...studioEnvironment} />
-        )}
-        <Device {...device} orientation={orientation} />
-        <ResponsiveDeviceCamera
-          explicitDistance={cameraDistance}
-          fov={cameraFov}
-          orientation={orientation}
-          safePadding={cameraSafePadding}
-          onFit={onCameraFit}
-        />
-        {children}
-      </DeviceCanvasOrientationContext.Provider>
+      <ControlPhysicsScope>
+        <DeviceCanvasOrientationContext.Provider value={orientationState}>
+          <CanvasPixelDensity enabled={Array.isArray(dpr)} />
+          {studioEnvironment === null ? null : (
+            <StudioEnvironment {...studioEnvironment} />
+          )}
+          <Device {...device} orientation={orientation} />
+          {controlEvidencePose === undefined ? null : (
+            <ControlPhysicsEvidence pose={controlEvidencePose} />
+          )}
+          <ResponsiveDeviceCamera
+            explicitDistance={cameraDistance}
+            fov={cameraFov}
+            orientation={orientation}
+            safePadding={cameraSafePadding}
+            onFit={onCameraFit}
+          />
+          {children}
+        </DeviceCanvasOrientationContext.Provider>
+      </ControlPhysicsScope>
     </Canvas>
   );
 }
