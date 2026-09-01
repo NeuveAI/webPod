@@ -4,6 +4,7 @@ import {
   detentAccumulatorAtom,
   deviceStore,
   highlightIndexAtom,
+  pressActionAtom,
   type PanelRow,
   type ScreenFrame,
   pushScreenActionAtom,
@@ -20,6 +21,10 @@ import type {
   ReducedMotionQuery,
   RuntimeEventTarget,
 } from './click-wheel-runtime'
+import type {
+  InteractionAudioResult,
+  InteractionAudioRuntime,
+} from './interaction-audio'
 import type { ClickWheelArcEnd, ClickWheelArcSample } from '@webpod/device'
 
 GlobalRegistrator.register()
@@ -152,6 +157,58 @@ describe('mounted composite input boundary', () => {
     expect(boundary.style.userSelect).toBe('')
     outside.remove()
     selection.removeAllRanges()
+  })
+
+  test('the mounted boundary consumes the store feedback stream once and disposes audio', async () => {
+    const environment = makeEnvironment()
+    const consumed: number[] = []
+    let disposals = 0
+    const scheduled: InteractionAudioResult = {
+      status: 'scheduled',
+      reason: 'scheduled',
+      requested: 1,
+      scheduled: 1,
+      dropped: 0,
+    }
+    const audio: InteractionAudioRuntime = {
+      activate: async () => ({ status: 'running', reason: 'running' }),
+      consume(event) {
+        consumed.push(event.seq)
+        return scheduled
+      },
+      setEnabled() {},
+      interrupt: async () => undefined,
+      snapshot: () => ({
+        lifecycle: 'running',
+        enabled: true,
+        activeVoices: 0,
+        pendingEvents: 0,
+        scheduledTotal: consumed.length,
+        droppedTotal: 0,
+        lastResult: consumed.length === 0 ? null : scheduled,
+      }),
+      dispose() {
+        disposals += 1
+      },
+    }
+
+    await act(async () => {
+      root.render(
+        <CompositeInputBoundary
+          createDependencies={() => environment.dependencies}
+          createAudioRuntime={() => audio}
+        >
+          {() => <div role="application">Audio panel</div>}
+        </CompositeInputBoundary>,
+      )
+    })
+    deviceStore.set(pressActionAtom, { button: 'center', source: 'human' })
+    expect(consumed).toHaveLength(1)
+
+    await act(async () => root.render(<div>Detached</div>))
+    deviceStore.set(pressActionAtom, { button: 'center', source: 'human' })
+    expect(consumed).toHaveLength(1)
+    expect(disposals).toBe(1)
   })
 })
 

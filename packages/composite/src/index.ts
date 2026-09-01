@@ -34,6 +34,25 @@ export {
   HtmlInCanvasPixelSource,
   type PanelOverlayTone,
 } from './html-in-canvas'
+export {
+  MAX_INTERACTION_AUDIO_VOICES,
+  MAX_PENDING_FEEDBACK_EVENTS,
+  WHEEL_PITCH_JITTER,
+  WHEEL_TICK_RATE_HZ,
+  attachInteractionAudioRuntime,
+  createInteractionAudioRuntime,
+  type InteractionAudioActivationResult,
+  type InteractionAudioBackend,
+  type InteractionAudioBrowserTargets,
+  type InteractionAudioDependencies,
+  type InteractionAudioReason,
+  type InteractionAudioResult,
+  type InteractionAudioRuntime,
+  type InteractionAudioSnapshot,
+  type InteractionAudioVoice,
+  type InteractionVoiceKind,
+  type InteractionVoiceSpec,
+} from './interaction-audio'
 
 export type {
   CapabilityReport,

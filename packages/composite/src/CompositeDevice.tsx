@@ -37,6 +37,12 @@ import {
   type ClickWheelRuntimeDependencies,
 } from './click-wheel-runtime'
 import { ScopedGestureSelection } from './gesture-selection'
+import {
+  attachInteractionAudioRuntime,
+  createInteractionAudioRuntime,
+  type InteractionAudioRuntime,
+} from './interaction-audio'
+import { createBrowserInteractionAudioBackend } from './web-audio-backend'
 
 export interface CompositeDeviceProps {
   readonly panel: ReactNode
@@ -133,6 +139,7 @@ type CompositeInputBoundaryProps = {
   readonly 'data-composite-tier'?: string
   readonly 'data-composite-ready'?: boolean
   readonly createDependencies?: () => ClickWheelRuntimeDependencies
+  readonly createAudioRuntime?: () => InteractionAudioRuntime
 }
 
 /**
@@ -146,11 +153,12 @@ export function CompositeInputBoundary({
   'data-composite-tier': tier,
   'data-composite-ready': ready,
   createDependencies = defaultRuntimeDependencies,
+  createAudioRuntime = defaultInteractionAudioRuntime,
 }: CompositeInputBoundaryProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const controller = useMemo(
-    () => new CompositeInputController(createDependencies),
-    [createDependencies],
+    () => new CompositeInputController(createDependencies, createAudioRuntime),
+    [createAudioRuntime, createDependencies],
   )
 
   useEffect(() => {
@@ -213,16 +221,29 @@ class CompositeInputController {
     },
   }
 
-  constructor(private readonly createDependencies: () => ClickWheelRuntimeDependencies) {}
+  constructor(
+    private readonly createDependencies: () => ClickWheelRuntimeDependencies,
+    private readonly createAudioRuntime: () => InteractionAudioRuntime,
+  ) {}
 
   attach(root: HTMLDivElement): () => void {
-    const runtime = createClickWheelRuntime(this.createDependencies())
+    const runtimeDependencies = this.createDependencies()
+    const runtime = createClickWheelRuntime(runtimeDependencies)
+    const audio = this.createAudioRuntime()
+    const ownerWindow = root.ownerDocument.defaultView ?? window
+    const detachAudio = attachInteractionAudioRuntime(audio, runtimeDependencies.store, {
+      root,
+      documentTarget: root.ownerDocument,
+      windowTarget: ownerWindow,
+    })
     const selection = new ScopedGestureSelection(root, root.ownerDocument, window)
     this.runtime = runtime
     this.selection = selection
     const detachWheel = attachCompositeWheelListener(root, runtime)
     return () => {
       detachWheel()
+      detachAudio()
+      audio.dispose()
       selection.dispose()
       runtime.dispose()
       if (this.runtime === runtime) this.runtime = null
@@ -244,6 +265,12 @@ class CompositeInputController {
 
 function defaultRuntimeDependencies(): ClickWheelRuntimeDependencies {
   return browserClickWheelRuntimeDependencies(deviceStore, DEVICE_LAYOUT.screen.height)
+}
+
+function defaultInteractionAudioRuntime(): InteractionAudioRuntime {
+  return createInteractionAudioRuntime({
+    createBackend: createBrowserInteractionAudioBackend,
+  })
 }
 
 const SERVER_TIER = Object.freeze({
