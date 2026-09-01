@@ -17,6 +17,12 @@
 The Select-release bridge follows W9a's typed input seam in `2ec0861`, so both
 commits typecheck independently in dependency order.
 
+Each W9b implementation commit was also extracted with `git archive` into a
+fresh temporary directory and typechecked against its package configuration.
+All nine passed independently: `0c1f6fc` against `packages/state/tsconfig.json`
+and `d05019e` through `59291a4` against
+`packages/composite/tsconfig.json`.
+
 ## Deterministic proof
 
 Command:
