@@ -5,6 +5,7 @@ import {
   deviceStore,
   highlightIndexAtom,
   pressActionAtom,
+  type InteractionFeedbackEvent,
   type PanelRow,
   type ScreenFrame,
   pushScreenActionAtom,
@@ -25,7 +26,12 @@ import type {
   InteractionAudioResult,
   InteractionAudioRuntime,
 } from './interaction-audio'
-import type { ClickWheelArcEnd, ClickWheelArcSample } from '@webpod/device'
+import type {
+  ClickWheelArcEnd,
+  ClickWheelArcSample,
+  ClickWheelSelectEnd,
+  ClickWheelSelectStart,
+} from '@webpod/device'
 
 GlobalRegistrator.register()
 Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { value: true })
@@ -161,7 +167,11 @@ describe('mounted composite input boundary', () => {
 
   test('the mounted boundary consumes the store feedback stream once and disposes audio', async () => {
     const environment = makeEnvironment()
-    const consumed: number[] = []
+    const consumed: InteractionFeedbackEvent[] = []
+    const mounted: {
+      selectStart: ((start: ClickWheelSelectStart) => void) | null
+      selectEnd: ((end: ClickWheelSelectEnd) => void) | null
+    } = { selectStart: null, selectEnd: null }
     let disposals = 0
     const scheduled: InteractionAudioResult = {
       status: 'scheduled',
@@ -173,7 +183,7 @@ describe('mounted composite input boundary', () => {
     const audio: InteractionAudioRuntime = {
       activate: async () => ({ status: 'running', reason: 'running' }),
       consume(event) {
-        consumed.push(event.seq)
+        consumed.push(event)
         return scheduled
       },
       setEnabled() {},
@@ -198,14 +208,46 @@ describe('mounted composite input boundary', () => {
           createDependencies={() => environment.dependencies}
           createAudioRuntime={() => audio}
         >
-          {() => <div role="application">Audio panel</div>}
+          {(handlers) => {
+            mounted.selectStart = handlers.onSelectStart
+            mounted.selectEnd = handlers.onSelectEnd
+            return <div role="application">Audio panel</div>
+          }}
         </CompositeInputBoundary>,
       )
     })
-    deviceStore.set(pressActionAtom, { button: 'center', source: 'human' })
+
+    const selectStart = mounted.selectStart
+    const selectEnd = mounted.selectEnd
+    const boundary = container.firstElementChild
+    if (
+      selectStart === null ||
+      selectEnd === null ||
+      !(boundary instanceof HTMLElement)
+    ) throw new Error('Select bridge did not mount')
+    expect(boundary.dataset['wpAudioLifecycle']).toBe('running')
+    expect(boundary.dataset['wpAudioScheduledTotal']).toBe('0')
+    selectStart({ pointerId: 40, pointerType: 'mouse', timestampMs: 100 })
+    selectEnd({ pointerId: 40, timestampMs: 112, reason: 'cancel' })
+    expect(consumed).toHaveLength(0)
+
+    selectStart({ pointerId: 41, pointerType: 'mouse', timestampMs: 120 })
+    selectEnd({ pointerId: 41, timestampMs: 132, reason: 'release' })
+    selectEnd({ pointerId: 41, timestampMs: 133, reason: 'release' })
     expect(consumed).toHaveLength(1)
+    expect(consumed[0]).toMatchObject({
+      control: 'press',
+      origin: 'press',
+      button: 'center',
+      clickerTicks: 1,
+      silenced: false,
+      actor: 'human:touch',
+    })
+    expect(boundary.dataset['wpAudioScheduledTotal']).toBe('1')
+    expect(boundary.dataset['wpAudioLastResult']).toBe('scheduled:scheduled:1/1')
 
     await act(async () => root.render(<div>Detached</div>))
+    expect(boundary.dataset['wpAudioLifecycle']).toBeUndefined()
     deviceStore.set(pressActionAtom, { button: 'center', source: 'human' })
     expect(consumed).toHaveLength(1)
     expect(disposals).toBe(1)

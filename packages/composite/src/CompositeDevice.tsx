@@ -6,11 +6,13 @@ import {
   FRONT_DEVICE_ORIENTATION,
   type ClickWheelArcEnd,
   type ClickWheelArcSample,
+  type ClickWheelSelectEnd,
+  type ClickWheelSelectStart,
   type Colourway,
   type DeviceOrientation,
   type ScreenMeshHandle,
 } from '@webpod/device'
-import { deviceStore } from '@webpod/state'
+import { deviceStore, pressActionAtom, type DeviceStore } from '@webpod/state'
 import {
   useCallback,
   useEffect,
@@ -41,6 +43,7 @@ import {
   attachInteractionAudioRuntime,
   createInteractionAudioRuntime,
   type InteractionAudioRuntime,
+  type InteractionAudioSnapshot,
 } from './interaction-audio'
 import { createBrowserInteractionAudioBackend } from './web-audio-backend'
 
@@ -101,7 +104,7 @@ export function CompositeDevice({
       data-composite-tier={tier.tier}
       data-composite-ready={host !== null}
     >
-      {({ onArcStart, onArcMove, onArcEnd }) => (
+      {({ onArcStart, onArcMove, onArcEnd, onSelectStart, onSelectEnd }) => (
         <>
           {host !== null && tier.tier === 'T1' ? createPortal(panel, host) : null}
           {shouldMountCanvas ? (
@@ -118,6 +121,8 @@ export function CompositeDevice({
                 onArcStart={onArcStart}
                 onArcMove={onArcMove}
                 onArcEnd={onArcEnd}
+                onSelectStart={onSelectStart}
+                onSelectEnd={onSelectEnd}
               />
             </DeviceCanvas>
           ) : null}
@@ -131,6 +136,8 @@ type CompositeArcHandlers = {
   readonly onArcStart: (sample: ClickWheelArcSample) => void
   readonly onArcMove: (sample: ClickWheelArcSample) => void
   readonly onArcEnd: (end: ClickWheelArcEnd) => void
+  readonly onSelectStart: (start: ClickWheelSelectStart) => void
+  readonly onSelectEnd: (end: ClickWheelSelectEnd) => void
 }
 
 type CompositeInputBoundaryProps = {
@@ -196,6 +203,8 @@ export function CompositeInputBoundary({
 
 class CompositeInputController {
   private runtime: ClickWheelRuntime | null = null
+  private store: DeviceStore | null = null
+  private activeSelectPointerId: number | null = null
   private applicationFocus: HTMLElement | null = null
   private selection: ScopedGestureSelection | null = null
 
@@ -219,6 +228,19 @@ class CompositeInputController {
       }
       this.restoreApplicationFocus()
     },
+    onSelectStart: (start) => {
+      if (this.activeSelectPointerId !== null) return
+      this.activeSelectPointerId = start.pointerId
+      queueMicrotask(() => this.restoreApplicationFocus())
+    },
+    onSelectEnd: (end) => {
+      if (this.activeSelectPointerId !== end.pointerId) return
+      this.activeSelectPointerId = null
+      if (end.reason === 'release') {
+        this.store?.set(pressActionAtom, { button: 'center', source: 'human' })
+      }
+      this.restoreApplicationFocus()
+    },
   }
 
   constructor(
@@ -231,22 +253,31 @@ class CompositeInputController {
     const runtime = createClickWheelRuntime(runtimeDependencies)
     const audio = this.createAudioRuntime()
     const ownerWindow = root.ownerDocument.defaultView ?? window
+    let audioAttached = true
     const detachAudio = attachInteractionAudioRuntime(audio, runtimeDependencies.store, {
       root,
       documentTarget: root.ownerDocument,
       windowTarget: ownerWindow,
+      onSnapshot: (snapshot) => {
+        if (audioAttached) publishInteractionAudioDiagnostics(root, snapshot)
+      },
     })
-    const selection = new ScopedGestureSelection(root, root.ownerDocument, window)
+    const selection = new ScopedGestureSelection(root, root.ownerDocument, ownerWindow)
     this.runtime = runtime
+    this.store = runtimeDependencies.store
     this.selection = selection
     const detachWheel = attachCompositeWheelListener(root, runtime)
     return () => {
+      audioAttached = false
       detachWheel()
       detachAudio()
       audio.dispose()
+      clearInteractionAudioDiagnostics(root)
       selection.dispose()
       runtime.dispose()
       if (this.runtime === runtime) this.runtime = null
+      if (this.store === runtimeDependencies.store) this.store = null
+      this.activeSelectPointerId = null
       if (this.selection === selection) this.selection = null
     }
   }
@@ -261,6 +292,32 @@ class CompositeInputController {
       this.applicationFocus.focus({ preventScroll: true })
     }
   }
+}
+
+function publishInteractionAudioDiagnostics(
+  root: HTMLElement,
+  snapshot: InteractionAudioSnapshot,
+): void {
+  root.dataset['wpAudioLifecycle'] = snapshot.lifecycle
+  root.dataset['wpAudioScheduledTotal'] = String(snapshot.scheduledTotal)
+  root.dataset['wpAudioDroppedTotal'] = String(snapshot.droppedTotal)
+  const result = snapshot.lastResult
+  if (result === null) {
+    delete root.dataset['wpAudioLastResult']
+  } else {
+    root.dataset['wpAudioLastResult'] = [
+      result.status,
+      result.reason,
+      `${result.scheduled}/${result.requested}`,
+    ].join(':')
+  }
+}
+
+function clearInteractionAudioDiagnostics(root: HTMLElement): void {
+  delete root.dataset['wpAudioLifecycle']
+  delete root.dataset['wpAudioScheduledTotal']
+  delete root.dataset['wpAudioDroppedTotal']
+  delete root.dataset['wpAudioLastResult']
 }
 
 function defaultRuntimeDependencies(): ClickWheelRuntimeDependencies {
@@ -295,11 +352,15 @@ function CompositeSceneBridge({
   onArcStart,
   onArcMove,
   onArcEnd,
+  onSelectStart,
+  onSelectEnd,
 }: {
   readonly coordinator: CompositeCoordinator
   readonly onArcStart: (sample: ClickWheelArcSample) => void
   readonly onArcMove: (sample: ClickWheelArcSample) => void
   readonly onArcEnd: (end: ClickWheelArcEnd) => void
+  readonly onSelectStart: (start: ClickWheelSelectStart) => void
+  readonly onSelectEnd: (end: ClickWheelSelectEnd) => void
 }) {
   const renderer = useThree((state) => state.gl)
   const camera = useThree((state) => state.camera)
@@ -323,6 +384,8 @@ function CompositeSceneBridge({
       onArcStart={onArcStart}
       onArcMove={onArcMove}
       onArcEnd={onArcEnd}
+      onSelectStart={onSelectStart}
+      onSelectEnd={onSelectEnd}
     />
   )
 }
