@@ -347,7 +347,9 @@ explicit real-product correction superseded its 230px stylised wheel.
 
 The front chain now closes exactly: 24px forehead, 204px LCD, 59px gap, 206px
 wheel, 59px lower margin. The wheel shrank from 230 to 206px, moved to the
-photo-measured centre, and its separate 74px Select is approximately 1mm proud.
+photo-measured centre, and its separate 74px Select was initially modelled
+approximately 1mm proud; that last assumption is superseded by the owner
+correction below.
 The display trim is a thin nested physical stack rather than a second bezel.
 The live DOM mesh itself remains 272 × 204 and maps 320 × 240 without a second
 raster step.
@@ -362,13 +364,37 @@ toward the face, so a planar steel seam is not asked to meet a wavy plastic
 boundary.
 
 The missing evidence is recorded rather than hidden. Public material did not
-provide an exact dimensioned front/rear depth split or Select rise. The current
-2.6mm / 1.6mm / 1.0mm profile values are photo-derived and the owner was asked
+provide an exact dimensioned front/rear depth split or Select offset. The
+current 2.6mm / 1.6mm profile values are photo-derived and the owner was asked
 for caliper or macro-profile references if tighter fidelity is wanted.
 
 The final Chrome run exercised CanvasDrawElement, native DOM interaction, DPR
 1/2/3, mobile fit, wheel selection suppression, and beauty plus neutral
 all-angle captures. Neutral exact-edge views now show one tapered rear tray,
 one thin plastic front, and one intentional seam; the front button visibly
-projects in quarter, top, and bottom views. Six independent mutation plants
-reintroduced the owner's defects and each went red.
+projected in quarter, top, and bottom views before the owner correction below.
+Six independent mutation plants reintroduced the owner's defects and each went
+red.
+
+## Tuesday, September 1, 2026 — owner Select, rear-roll, and decal correction
+
+The owner corrected the one profile inference the public sources had not
+settled: Select is not raised. I deleted the dome geometry, proud wall,
+calibration parameters, and radial thickness map rather than tuning their
+appearance. The replacement is a closed flat part 0.3mm below the ring's inner
+edge, separated by the existing 4-unit Select lip. The first neutral front
+render found that the ring still overlapped the Select by one unit; switching
+the annulus to `selectLipR` made the seam real and visible.
+
+The rear correction was not more bevel subdivision. A smootherstep profile had
+the wrong endpoint tangent and produced the owner's wedge at the rear cap. The
+new 48-section quarter ellipse leaves the stamped plate in-plane, rolls around
+the perimeter, and arrives parallel to the side wall. Neutral left/right edge,
+top, bottom, rear, and rear-three-quarter views show no pointed lip or corner
+slope break.
+
+The wheel marks are now deterministic vector decals. Apple's physical front
+image sets the 20×13 skip boxes after scale; Pencil MCP confirms a discrete
+play mark, pause bars, and visible space between them. MENU is unchanged. A
+flush Select, linear rear wedge, zero play/pause gap, and 13-unit skip box were
+each planted and all failed their owning tests.

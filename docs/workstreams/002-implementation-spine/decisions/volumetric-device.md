@@ -497,10 +497,11 @@ compound crown.
 ## VD-40 · Unmeasured profile values stay photo-derived and visible
 
 No reliable dimensioned public source established the exact front/rear shell
-split or Select rise. Current 2.6mm front depth, 1.6mm rear plan inset, and
-1.0mm Select rise are bounded by side/teardown photography and are explicitly
-named `photoDerivedProfileMm`; they are not OEM claims. The owner was asked for
-a caliper profile or macro side reference before any tighter claim is made.
+split or Select offset. Current 2.6mm front depth and 1.6mm rear plan inset are
+bounded by side/teardown photography and are explicitly named
+`photoDerivedProfileMm`; they are not OEM claims. The original 1.0mm Select
+rise is superseded by VD-42. The owner was asked for a caliper profile or macro
+side reference before any tighter claim is made.
 
 ## VD-41 · Neutral all-angle evidence is a topology gate
 
@@ -510,3 +511,34 @@ parts, screen well, seams, and rear inlay without changing the light rig. The
 browser evidence includes neutral front, quarter, rear, left/right edge, and
 top/bottom views. Camera bounds tests cover the same seven orientations on
 phone and desktop viewports.
+
+## VD-42 · Select is flat, separate, and recessed—not raised
+
+The owner's direct profile correction supersedes the earlier Pencil-era
+"raised Select" assumption. The production Select is one closed flat cylinder
+whose front face sits 0.3mm below the wheel's inner edge. Its 4-unit annular
+gap is physical empty space, and the Select keeps its own material; a radial
+thickness map or domed geometry would recreate the rejected bulge and is no
+longer reachable from the renderer or calibration rig. The 0.3mm amount
+remains a photo-derived estimate until a caliper reference exists; the recess
+direction and absence of a proud wall are owner-settled.
+
+## VD-43 · The stamped rear perimeter is a quarter-ellipse roll
+
+The former scalar smootherstep left the rear cap axially, so its first strip
+met the flat steel back at nearly 90 degrees despite having a numerically zero
+scalar derivative. The rear tray now samples a quarter ellipse uniformly by
+angle over 48 sections. It leaves the rear plate in the plate plane and reaches
+the material seam parallel to the side wall. Shared indexed vertices and
+computed normals keep adjacent roll normals below 0.23 radians; a linear
+terminal wedge plant reaches 1.383 radians and fails.
+
+## VD-44 · Wheel controls are measured vector decals
+
+Apple's straight-on 235px wheel gives an approximately 22×14px transport box;
+on the 206px production wheel the skip boxes are 20×13 model units. Pencil MCP
+confirms separate play and pause marks with visible spacing. MENU keeps its
+13px Source Sans treatment and placement. Previous/next and play/pause are now
+explicit canvas paths rather than OS-dependent Unicode glyphs; play/pause has
+a locked 3.5-unit inter-symbol gap. These remain unlit decals above the wheel,
+never geometry.

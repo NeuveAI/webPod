@@ -54,11 +54,13 @@ HTML-in-canvas surface.
 The 11mm product depth becomes 58.74 model units. Side/teardown photography
 bounds the current profile to a 2.6mm / 14-unit polycarbonate front, a formed
 steel rear that occupies the remaining 8.4mm, a 1.6mm maximum rear plan inset,
-and a 1.0mm Select rise. Those four numbers are labelled
+and a 0.3mm Select recess. Those three profile estimates are labelled
 `photoDerivedProfileMm`; they are not represented as OEM drawing dimensions.
+The owner's direct correction settles the Select direction and flatness, but
+not the exact 0.3mm amount.
 
 No reliable public dimensioned source was found for the exact front/rear depth
-split or Select-button rise. The owner was told this immediately and invited
+split or Select-button recess. The owner was told this immediately and invited
 to supply a caliper profile or macro side photograph. The implementation may
 be refined from that evidence without changing the declared 30GB envelope or
 front ratios.
@@ -69,4 +71,15 @@ Pencil MCP reported the mobile device component `VWaJS` at 330 × 552, the
 screen slot at 272 × 204, and the earlier stylised wheel at 230px. The body,
 corner, and exact 4:3 LCD remain authoritative. The owner's later explicit
 request for real-product proportions supersedes Pencil only for the front
-forehead, trim, wheel diameter/placement, and Select diameter/rise.
+forehead, trim, wheel diameter/placement, and Select diameter/recess.
+
+## Owner correction and wheel graphics
+
+The owner's profile capture is authoritative for the Select relationship: one
+separate, visually flat part slightly below the click-wheel face, with a narrow
+physical seam. The old 1.0mm proud estimate is withdrawn. Pencil MCP reports
+the authored skip frames at 17×17 on a 230px wheel and separate 15×15 play and
+pause frames with a 3px frame gap. Apple's physical straight-on image measures
+the skip ink at roughly 22×14px on a 235px wheel. Production therefore uses a
+20×13 box on the 206px physical wheel, keeps MENU at 13px, and draws play and
+pause separately with a 3.5-unit optical gap.
