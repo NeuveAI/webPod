@@ -83,8 +83,8 @@ export type InteractionAudioResult = {
 
 /** Result of creating or resuming the audio context after human activation. */
 export type InteractionAudioActivationResult = {
-  readonly status: 'running' | 'unavailable' | 'failed' | 'disposed'
-  readonly reason: 'running' | 'unsupported' | 'resume-failed' | 'disposed'
+  readonly status: 'running' | 'unavailable' | 'failed' | 'interrupted' | 'disposed'
+  readonly reason: 'running' | 'unsupported' | 'resume-failed' | 'interrupted' | 'disposed'
 }
 
 /** Inspectable bounded counters used by diagnostics and leak tests. */
@@ -149,6 +149,7 @@ export function createInteractionAudioRuntime(
   let lifecycle: InteractionAudioSnapshot['lifecycle'] = 'locked'
   let enabled = true
   let disposed = false
+  let activationEpoch = 0
   let nextWheelStartSeconds = 0
   let scheduledTotal = 0
   let droppedTotal = 0
@@ -186,6 +187,20 @@ export function createInteractionAudioRuntime(
       scheduled: 0,
       dropped: requested,
     })
+    if (lifecycle === 'unsupported') return remember({
+      status: 'unavailable',
+      reason: 'unsupported',
+      requested,
+      scheduled: 0,
+      dropped: requested,
+    })
+    if (lifecycle === 'failed' && backend === null) return remember({
+      status: 'unavailable',
+      reason: 'graph-failed',
+      requested,
+      scheduled: 0,
+      dropped: requested,
+    })
     if (backend === null) return remember(silentResult('not-activated', requested))
     if (backend.state === 'closed') return remember({
       status: 'unavailable',
@@ -195,7 +210,11 @@ export function createInteractionAudioRuntime(
       dropped: requested,
     })
     if (backend.state !== 'running') {
-      if (activation !== null && pending.length < MAX_PENDING_FEEDBACK_EVENTS) {
+      if (
+        lifecycle === 'activating' &&
+        activation !== null &&
+        pending.length < MAX_PENDING_FEEDBACK_EVENTS
+      ) {
         pending.push(event)
         return remember({
           status: 'deferred',
@@ -292,12 +311,21 @@ export function createInteractionAudioRuntime(
 
       lifecycle = 'activating'
       const current = backend
+      const epoch = activationEpoch
       activation = current.resume().then<
         InteractionAudioActivationResult,
         InteractionAudioActivationResult
       >(
         () => {
           if (disposed) return { status: 'disposed', reason: 'disposed' }
+          if (epoch !== activationEpoch || !enabled) {
+            if (current.state === 'running') {
+              void current.suspend().catch(() => undefined)
+            }
+            lifecycle = 'suspended'
+            clearPending()
+            return { status: 'interrupted', reason: 'interrupted' }
+          }
           if (current.state !== 'running') {
             lifecycle = 'failed'
             clearPending()
@@ -323,6 +351,7 @@ export function createInteractionAudioRuntime(
     setEnabled(nextEnabled) {
       enabled = nextEnabled
       if (enabled) return
+      activationEpoch += 1
       clearPending()
       stopVoices()
       if (backend?.state === 'running') {
@@ -333,6 +362,7 @@ export function createInteractionAudioRuntime(
 
     async interrupt() {
       if (disposed) return
+      activationEpoch += 1
       clearPending()
       stopVoices()
       if (backend !== null && backend.state === 'running') {
@@ -361,6 +391,7 @@ export function createInteractionAudioRuntime(
     dispose() {
       if (disposed) return
       disposed = true
+      activationEpoch += 1
       lifecycle = 'disposed'
       clearPending()
       stopVoices()
@@ -379,6 +410,7 @@ export type InteractionAudioBrowserTargets = {
   readonly documentTarget: EventTarget & { readonly hidden: boolean }
   readonly windowTarget: EventTarget
   readonly isHumanActivation?: (event: Event) => boolean
+  readonly onSnapshot?: (snapshot: InteractionAudioSnapshot) => void
 }
 
 /**
@@ -391,25 +423,30 @@ export function attachInteractionAudioRuntime(
   targets: InteractionAudioBrowserTargets,
 ): () => void {
   const isHumanActivation = targets.isHumanActivation ?? ((event: Event) => event.isTrusted)
+  const report = () => targets.onSnapshot?.(runtime.snapshot())
   const activate: EventListener = (event) => {
     if (!isHumanActivation(event)) return
-    void runtime.activate()
+    void runtime.activate().then(report)
   }
   const interrupt: EventListener = () => {
-    void runtime.interrupt()
+    void runtime.interrupt().then(report)
   }
   const visibility: EventListener = () => {
-    if (targets.documentTarget.hidden) void runtime.interrupt()
+    if (targets.documentTarget.hidden) void runtime.interrupt().then(report)
   }
   const unsubscribe = store.sub(interactionFeedbackAtom, () => {
     const event = store.get(interactionFeedbackAtom)
-    if (event !== null) runtime.consume(event)
+    if (event !== null) {
+      runtime.consume(event)
+      report()
+    }
   })
 
   targets.root.addEventListener('pointerdown', activate, { capture: true })
   targets.root.addEventListener('keydown', activate, { capture: true })
   targets.documentTarget.addEventListener('visibilitychange', visibility)
   targets.windowTarget.addEventListener('blur', interrupt)
+  report()
 
   return () => {
     unsubscribe()

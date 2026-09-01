@@ -8,6 +8,7 @@ import { createDeviceStore } from '@webpod/state/testing'
 
 import {
   MAX_INTERACTION_AUDIO_VOICES,
+  MAX_PENDING_FEEDBACK_EVENTS,
   WHEEL_PITCH_JITTER,
   WHEEL_TICK_RATE_HZ,
   attachInteractionAudioRuntime,
@@ -58,6 +59,56 @@ describe('interaction audio scheduler', () => {
     expect(backend.specs).toHaveLength(1)
     expect(backend.specs[0]?.kind).toBe('select')
     expect(runtime.snapshot().pendingEvents).toBe(0)
+  })
+
+  test('bounds activation-time feedback and reports unsupported audio precisely', async () => {
+    const resume = Promise.withResolvers<void>()
+    const backend = new FakeBackend('suspended', resume.promise)
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    const activation = runtime.activate()
+
+    for (let seq = 1; seq <= MAX_PENDING_FEEDBACK_EVENTS + 3; seq += 1) {
+      runtime.consume(pressEvent('center', seq))
+    }
+    expect(runtime.snapshot().pendingEvents).toBe(MAX_PENDING_FEEDBACK_EVENTS)
+    expect(runtime.snapshot().droppedTotal).toBe(3)
+    runtime.dispose()
+    resume.resolve()
+    expect(await activation).toEqual({ status: 'disposed', reason: 'disposed' })
+
+    const unsupported = createInteractionAudioRuntime({ createBackend: () => null })
+    expect(await unsupported.activate()).toEqual({
+      status: 'unavailable',
+      reason: 'unsupported',
+    })
+    expect(unsupported.consume(pressEvent('center'))).toEqual({
+      status: 'unavailable',
+      reason: 'unsupported',
+      requested: 1,
+      scheduled: 0,
+      dropped: 1,
+    })
+  })
+
+  test('an interruption during resume cannot revive audio in the background', async () => {
+    const resume = Promise.withResolvers<void>()
+    const backend = new FakeBackend('suspended', resume.promise)
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    const activation = runtime.activate()
+    runtime.consume(pressEvent('center'))
+
+    await runtime.interrupt()
+    expect(runtime.snapshot()).toMatchObject({
+      lifecycle: 'suspended',
+      pendingEvents: 0,
+      activeVoices: 0,
+    })
+    backend.state = 'running'
+    resume.resolve()
+    expect(await activation).toEqual({ status: 'interrupted', reason: 'interrupted' })
+    await Promise.resolve()
+    expect(backend.suspendCalls).toBe(1)
+    expect(backend.specs).toHaveLength(0)
   })
 
   test('one press schedules one restrained physical click', async () => {
