@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 import {
   expect,
   test,
-  type Locator,
+  type Browser,
   type Page,
 } from "../../../packages/panel/node_modules/@playwright/test/index.js";
 
@@ -13,424 +13,199 @@ const evidenceDirectory = resolve(
   process.env["VOLUMETRIC_DEVICE_BROWSER_EVIDENCE_DIR"] ??
     resolve(import.meta.dirname, "test-results/volumetric-device-browser"),
 );
+const baseURL = `http://127.0.0.1:${String(Number(process.env["W5B_PORT"] ?? "4317"))}`;
 
-type DevicePoseSummary = {
-  readonly name: string;
-  readonly pose: string;
-  readonly colourway: "black" | "white";
-  readonly probeFace: string;
-  readonly screenshot: string;
-  readonly hash: string;
-};
-
-type CanonicalPoseSummary = DevicePoseSummary & {
-  readonly verificationMode: "canonical-luminance";
-  readonly readingCount: number;
-  readonly failTokens: readonly string[];
-  readonly maxAbsDelta: number;
-};
-
-type PhysicalPoseSummary = DevicePoseSummary & {
-  readonly verificationMode: "physical-continuity";
-  readonly sampleError: string;
-};
-
-type AnimatedFrameSummary = {
-  readonly index: number;
-  readonly orientation: {
-    readonly pitchDeg: number;
-    readonly yawDeg: number;
-    readonly rollDeg: number;
-  };
-  readonly pose: string;
-  readonly probeFace: string;
-  readonly screenshot: string;
-  readonly hash: string;
-};
+type Pose = "front" | "three-quarter" | "edge" | "rear";
+type Colourway = "black" | "white";
 
 test.use({
   channel: "chrome",
-  launchOptions: {
-    args: ["--enable-blink-features=CanvasDrawElement"],
-  },
+  launchOptions: { args: ["--enable-blink-features=CanvasDrawElement"] },
 });
 
-async function freezeVisuals(page: Page): Promise<void> {
+async function prepare(page: Page, width: number, height: number): Promise<void> {
+  await page.setViewportSize({ width, height });
+  await page.goto("/_spike/device?capture", { waitUntil: "domcontentloaded" });
   await page.addStyleTag({
-    content:
-      "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}",
+    content: "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}",
   });
-}
-
-async function afterTwoFrames(page: Page): Promise<void> {
-  await page.evaluate(
-    () =>
-      new Promise<void>((resolve) => {
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
-      }),
-  );
-}
-
-async function settleDevicePaint(page: Page): Promise<void> {
+  const root = page.locator(".webpod-device-preview__device");
+  await expect(root).toHaveAttribute("data-composite-tier", "T1");
+  await expect(root.locator("canvas")).toBeVisible();
   await expect
-    .poll(() =>
-      page.evaluate(() => {
-        const calibration = Reflect.get(window, "__deviceCalibration");
-        return typeof calibration === "object" && calibration !== null;
-      }),
-    )
-    .toBe(true);
-  const readingCount = await page.evaluate(() => {
-    const calibration = Reflect.get(window, "__deviceCalibration");
-    if (typeof calibration !== "object" || calibration === null) {
-      throw new Error("Device calibration API is not mounted");
-    }
-    const sample = Reflect.get(calibration, "sample");
-    if (typeof sample !== "function") {
-      throw new Error("Device sample command is absent");
-    }
-    const result = Reflect.apply(sample, calibration, []);
-    return Array.isArray(result) ? result.length : 0;
-  });
-  expect(readingCount).toBeGreaterThan(0);
-  await afterTwoFrames(page);
+    .poll(() => root.locator("canvas").getAttribute("data-wp-composite-source-state"))
+    .toBe("painted");
+  await expect.poll(() => root.locator("canvas").getAttribute("data-wp-camera-fit-distance")).not.toBeNull();
 }
 
-async function expectNoViewportOverflow(page: Page): Promise<void> {
+async function setPreview(
+  page: Page,
+  pose: Pose,
+  colourway: Colourway,
+): Promise<void> {
+  await page.evaluate(({ nextPose, nextColourway }) => {
+    const api = window.__webpodDevicePreview;
+    if (api === undefined) throw new Error("device preview API is absent");
+    api.setColourway(nextColourway);
+    api.setPose(nextPose);
+  }, { nextPose: pose, nextColourway: colourway });
+  await expect(page.locator(".webpod-device-preview")).toHaveAttribute("data-pose", pose);
+  await expect(page.locator(".webpod-device-preview")).toHaveAttribute("data-colourway", colourway);
+  await page.waitForTimeout(80);
+}
+
+async function expectFitInsideSafeArea(page: Page): Promise<Record<string, number>> {
+  const canvas = page.locator(".webpod-device-preview canvas");
+  const diagnostics = await canvas.evaluate((element) => {
+    const value = (name: string): number => {
+      const raw = element.getAttribute(name);
+      if (raw === null) throw new Error(`missing ${name}`);
+      return Number(raw);
+    };
+    return {
+      distance: value("data-wp-camera-fit-distance"),
+      padding: value("data-wp-camera-fit-padding"),
+      extentX: value("data-wp-projected-extent-x"),
+      extentY: value("data-wp-projected-extent-y"),
+      limitX: value("data-wp-projected-limit-x"),
+      limitY: value("data-wp-projected-limit-y"),
+    };
+  });
+  expect(diagnostics.extentX).toBeLessThanOrEqual(diagnostics.limitX + 0.000002);
+  expect(diagnostics.extentY).toBeLessThanOrEqual(diagnostics.limitY + 0.000002);
+  expect(diagnostics.padding).toBe(34);
+  expect(diagnostics.distance).toBeGreaterThan(0);
+  return diagnostics;
+}
+
+async function expectNoOverflow(page: Page): Promise<void> {
   const dimensions = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
+    clientHeight: document.documentElement.clientHeight,
     scrollWidth: document.documentElement.scrollWidth,
+    scrollHeight: document.documentElement.scrollHeight,
   }));
   expect(dimensions.scrollWidth).toBe(dimensions.clientWidth);
+  expect(dimensions.scrollHeight).toBe(dimensions.clientHeight);
 }
 
-async function expectCentred(locator: Locator, page: Page): Promise<void> {
-  const box = await locator.boundingBox();
-  expect(box).not.toBeNull();
-  const viewport = page.viewportSize();
-  expect(viewport).not.toBeNull();
-  if (box === null || viewport === null) return;
-  const elementCentre = box.x + box.width / 2;
-  expect(Math.abs(elementCentre - viewport.width / 2)).toBeLessThanOrEqual(1);
+async function capture(page: Page, filename: string): Promise<string> {
+  const path = resolve(evidenceDirectory, filename);
+  const bytes = await page.screenshot({ path });
+  return createHash("sha256").update(bytes).digest("hex");
 }
 
-async function expectAuthoredDeviceRatio(locator: Locator): Promise<void> {
-  const box = await locator.boundingBox();
-  expect(box).not.toBeNull();
-  if (box === null) return;
-  expect(box.width).toBeLessThanOrEqual(330.01);
-  expect(box.height).toBeLessThanOrEqual(552.01);
-  expect(Math.abs(box.width / box.height - 330 / 552)).toBeLessThan(0.002);
-}
-
-async function expectContainedVertically(
-  locator: Locator,
-  viewportHeight: number,
-): Promise<void> {
-  const box = await locator.boundingBox();
-  expect(box).not.toBeNull();
-  if (box === null) return;
-  expect(box.y).toBeGreaterThanOrEqual(0);
-  expect(box.y + box.height).toBeLessThanOrEqual(viewportHeight);
-}
-
-function hashBuffer(buffer: Buffer): string {
-  return createHash("sha256").update(buffer).digest("hex");
-}
-
-async function captureStage(
-  stage: Locator,
-  filename: string,
-): Promise<{ readonly screenshot: string; readonly hash: string }> {
-  const screenshot = resolve(evidenceDirectory, filename);
-  const buffer = await stage.screenshot({ path: screenshot });
-  return { screenshot, hash: hashBuffer(buffer) };
-}
-
-async function setDevicePose(
-  page: Page,
-  patch: Record<string, unknown>,
-): Promise<{ readonly pose: string; readonly probeFace: string }> {
-  return page.evaluate((nextPatch) => {
-    const calibration = Reflect.get(window, "__deviceCalibration");
-    if (typeof calibration !== "object" || calibration === null) {
-      throw new Error("Device calibration API is not mounted");
-    }
-    const setParams = Reflect.get(calibration, "setParams");
-    const getParams = Reflect.get(calibration, "getParams");
-    if (typeof setParams !== "function" || typeof getParams !== "function") {
-      throw new Error("Device calibration API is incomplete");
-    }
-    Reflect.apply(setParams, calibration, [nextPatch]);
-    const params = Reflect.apply(getParams, calibration, []);
-    if (typeof params !== "object" || params === null) {
-      throw new Error("Device calibration state is unreadable");
-    }
-    const pose = Reflect.get(params, "pose");
-    const probeFace = Reflect.get(params, "probeFace");
-    if (typeof pose !== "string" || typeof probeFace !== "string") {
-      throw new Error("Device calibration state omitted pose identity");
-    }
-    return { pose, probeFace };
-  }, patch);
-}
-
-async function readCanonicalSample(page: Page): Promise<{
-  readonly readingCount: number;
-  readonly failTokens: readonly string[];
-  readonly maxAbsDelta: number;
-}> {
-  return page.evaluate(() => {
-    const calibration = Reflect.get(window, "__deviceCalibration");
-    if (typeof calibration !== "object" || calibration === null) {
-      throw new Error("Device calibration API is not mounted");
-    }
-    const sample = Reflect.get(calibration, "sample");
-    if (typeof sample !== "function") {
-      throw new Error("Device sample command is absent");
-    }
-    const results = Reflect.apply(sample, calibration, []);
-    if (!Array.isArray(results)) {
-      throw new Error("Device sample command did not return an array");
-    }
-    const failTokens = results
-      .filter((result) => {
-        const pass = Reflect.get(result, "pass");
-        return pass !== true;
-      })
-      .map((result) => String(Reflect.get(result, "token")));
-    const maxAbsDelta = results.reduce((max, result) => {
-      const delta = Number(Reflect.get(result, "delta"));
-      return Math.max(max, Math.abs(delta));
-    }, 0);
-    return {
-      readingCount: results.length,
-      failTokens,
-      maxAbsDelta,
-    };
-  });
-}
-
-async function readNonCanonicalSampleError(page: Page): Promise<string> {
-  return page.evaluate(() => {
-    const calibration = Reflect.get(window, "__deviceCalibration");
-    if (typeof calibration !== "object" || calibration === null) {
-      throw new Error("Device calibration API is not mounted");
-    }
-    const sample = Reflect.get(calibration, "sample");
-    if (typeof sample !== "function") {
-      throw new Error("Device sample command is absent");
-    }
-    try {
-      Reflect.apply(sample, calibration, []);
-      throw new Error("non-canonical sample unexpectedly succeeded");
-    } catch (error) {
-      if (!(error instanceof Error)) return String(error);
-      return error.message;
-    }
-  });
-}
-
-async function readSourceHealth(page: Page): Promise<{
-  readonly expected: string;
-  readonly current: string;
-  readonly fileCount: number;
-}> {
+async function sourceHealth(page: Page): Promise<{ expected: string; current: string }> {
   return page.evaluate(async () => {
     const response = await fetch("/__webpod_health", { cache: "no-store" });
-    if (!response.ok) {
-      throw new Error(`source health returned ${String(response.status)}`);
-    }
-    return response.json() as Promise<{
-      readonly expected: string;
-      readonly current: string;
-      readonly fileCount: number;
-    }>;
+    if (!response.ok) throw new Error(`source health returned ${String(response.status)}`);
+    return response.json() as Promise<{ expected: string; current: string }>;
   });
 }
 
-test.describe("volumetric device verification", () => {
-  test.beforeAll(async () => {
-    await mkdir(evidenceDirectory, { recursive: true });
+async function verifyDpr(browser: Browser, dpr: 1 | 2 | 3): Promise<Record<string, number>> {
+  const context = await browser.newContext({
+    baseURL,
+    deviceScaleFactor: dpr,
+    viewport: { width: 430, height: 932 },
   });
+  const page = await context.newPage();
+  try {
+    await prepare(page, 430, 932);
+    const result = await page.locator(".webpod-device-preview canvas").evaluate((canvas) => ({
+      density: Number(canvas.getAttribute("data-wp-raster-density")),
+      rasterWidth: Number(canvas.getAttribute("data-wp-raster-pixel-width")),
+      rasterHeight: Number(canvas.getAttribute("data-wp-raster-pixel-height")),
+      webglWidth: (canvas as HTMLCanvasElement).width,
+      webglHeight: (canvas as HTMLCanvasElement).height,
+    }));
+    expect(result.density).toBe(dpr);
+    expect(result.rasterWidth).toBe(320 * dpr);
+    expect(result.rasterHeight).toBe(240 * dpr);
+    expect(result.webglWidth).toBe(430 * dpr);
+    expect(result.webglHeight).toBe(932 * dpr);
+    return result;
+  } finally {
+    await context.close();
+  }
+}
 
-  test("keeps canonical luminance and rotated physical-continuity verification distinct", async ({
+test.describe("true-3D device route", () => {
+  test.beforeAll(async () => mkdir(evidenceDirectory, { recursive: true }));
+
+  test("fits real model bounds, preserves T1 acuity, and captures every physical pose", async ({
     page,
+    browser,
   }) => {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto("/_spike/device?capture", { waitUntil: "domcontentloaded" });
-    await freezeVisuals(page);
-
-    const stage = page.locator(".webpod-device-spike__stage");
-    await expect(stage).toBeVisible();
-    await expect(stage.locator("canvas")).toBeVisible();
-    await settleDevicePaint(page);
-    await expectNoViewportOverflow(page);
-    await expectCentred(stage, page);
-    await expectAuthoredDeviceRatio(stage);
-    await expectContainedVertically(stage, 844);
-
-    const sourceHealth = await readSourceHealth(page);
-    expect(sourceHealth.current).toBe(sourceHealth.expected);
     const pageErrors: string[] = [];
     page.on("pageerror", (error) => pageErrors.push(error.message));
+    await prepare(page, 1024, 768);
+    const health = await sourceHealth(page);
+    expect(health.current).toBe(health.expected);
+    await expectNoOverflow(page);
 
-    const canonicalCases = [
-      {
-        name: "black-front",
-        colourway: "black" as const,
-        patch: { colourway: "black", face: "front" },
-        expectedPose: "front",
-        expectedProbeFace: "front",
-        screenshot: "device-front-black.png",
-      },
-      {
-        name: "white-front",
-        colourway: "white" as const,
-        patch: { colourway: "white", face: "front" },
-        expectedPose: "front",
-        expectedProbeFace: "front",
-        screenshot: "device-front-white.png",
-      },
-      {
-        name: "steel-rear",
-        colourway: "white" as const,
-        patch: { colourway: "white", face: "back" },
-        expectedPose: "rear",
-        expectedProbeFace: "back",
-        screenshot: "device-rear-white.png",
-      },
+    const captures: Array<Record<string, unknown>> = [];
+    const cases: ReadonlyArray<{
+      pose: Pose;
+      colourway: Colourway;
+      filename: string;
+    }> = [
+      { pose: "front", colourway: "black", filename: "true3d-front-black.png" },
+      { pose: "front", colourway: "white", filename: "true3d-front-white.png" },
+      { pose: "three-quarter", colourway: "black", filename: "true3d-quarter-black.png" },
+      { pose: "edge", colourway: "white", filename: "true3d-edge-white.png" },
+      { pose: "rear", colourway: "white", filename: "true3d-rear-steel.png" },
     ];
-
-    const canonical: CanonicalPoseSummary[] = [];
-    for (const item of canonicalCases) {
-      const state = await setDevicePose(page, item.patch);
-      expect(state.pose).toBe(item.expectedPose);
-      expect(state.probeFace).toBe(item.expectedProbeFace);
-      const sample = await readCanonicalSample(page);
-      expect(sample.readingCount).toBeGreaterThan(0);
-      expect(sample.failTokens).toEqual([]);
-      expect(sample.maxAbsDelta).toBeLessThanOrEqual(4);
-      const capture = await captureStage(stage, item.screenshot);
-      canonical.push({
-        name: item.name,
-        pose: state.pose,
-        colourway: item.colourway,
-        probeFace: state.probeFace,
-        verificationMode: "canonical-luminance",
-        readingCount: sample.readingCount,
-        failTokens: sample.failTokens,
-        maxAbsDelta: sample.maxAbsDelta,
-        screenshot: capture.screenshot,
-        hash: capture.hash,
-      });
+    for (const item of cases) {
+      await setPreview(page, item.pose, item.colourway);
+      const fit = await expectFitInsideSafeArea(page);
+      const hash = await capture(page, item.filename);
+      captures.push({ ...item, fit, hash });
     }
 
-    const rotatedCases = [
-      {
-        name: "three-quarter-black",
-        colourway: "black" as const,
-        patch: { colourway: "black", pose: "three-quarter" },
-        expectedPose: "three-quarter",
-        expectedProbeFace: "front",
-        screenshot: "device-three-quarter-black.png",
-      },
-      {
-        name: "edge-white",
-        colourway: "white" as const,
-        patch: { colourway: "white", pose: "edge" },
-        expectedPose: "edge",
-        expectedProbeFace: "right",
-        screenshot: "device-edge-white.png",
-      },
-      {
-        name: "custom-flip-white",
-        colourway: "white" as const,
-        patch: {
-          colourway: "white",
-          orientation: { pitchDeg: 12, yawDeg: -128, rollDeg: 0 },
-        },
-        expectedPose: "custom",
-        expectedProbeFace: "back",
-        screenshot: "device-custom-flip-white.png",
-      },
-    ];
+    await page.evaluate(() => {
+      const api = window.__webpodDevicePreview;
+      if (api === undefined) throw new Error("device preview API is absent");
+      api.setColourway("black");
+      api.setOrientation({ pitchDeg: 42, yawDeg: -20, rollDeg: 0 });
+    });
+    await expect(page.locator(".webpod-device-preview")).toHaveAttribute(
+      "data-pose",
+      "custom",
+    );
+    await page.waitForTimeout(80);
+    const topFit = await expectFitInsideSafeArea(page);
+    const topHash = await capture(page, "true3d-top-controls.png");
+    captures.push({
+      pose: "top-controls",
+      colourway: "black",
+      filename: "true3d-top-controls.png",
+      fit: topFit,
+      hash: topHash,
+    });
 
-    const physical: PhysicalPoseSummary[] = [];
-    for (const item of rotatedCases) {
-      const state = await setDevicePose(page, item.patch);
-      expect(state.pose).toBe(item.expectedPose);
-      expect(state.probeFace).toBe(item.expectedProbeFace);
-      await expectNoViewportOverflow(page);
-      await expectCentred(stage, page);
-      await expectAuthoredDeviceRatio(stage);
-      await expectContainedVertically(stage, 844);
-      const sampleError = await readNonCanonicalSampleError(page);
-      expect(sampleError).toContain(
-        "canonical luminance sampling applies only to the front and rear reference poses",
-      );
-      expect(sampleError).toContain("physical-continuity validation instead");
-      const capture = await captureStage(stage, item.screenshot);
-      physical.push({
-        name: item.name,
-        pose: state.pose,
-        colourway: item.colourway,
-        probeFace: state.probeFace,
-        verificationMode: "physical-continuity",
-        sampleError,
-        screenshot: capture.screenshot,
-        hash: capture.hash,
-      });
-    }
+    await page.setViewportSize({ width: 375, height: 812 });
+    await setPreview(page, "three-quarter", "black");
+    const mobileFit = await expectFitInsideSafeArea(page);
+    await expectNoOverflow(page);
+    const mobileHash = await capture(page, "true3d-mobile-375x812.png");
 
-    const animatedOrientations = [
-      { pitchDeg: 0, yawDeg: -12, rollDeg: 0 },
-      { pitchDeg: 6, yawDeg: -44, rollDeg: 1.5 },
-      { pitchDeg: 4, yawDeg: -88, rollDeg: 0.5 },
-      { pitchDeg: 10, yawDeg: -132, rollDeg: -1.5 },
-      { pitchDeg: 0, yawDeg: -168, rollDeg: 0 },
-    ] as const;
+    const panel = page.locator('[role="application"][aria-label="webPod music player"]');
+    await panel.focus();
+    const before = await page.locator('[aria-current="true"]').textContent();
+    await panel.press("ArrowDown");
+    const after = await page.locator('[aria-current="true"]').textContent();
+    expect(after).not.toBe(before);
 
-    const animated: AnimatedFrameSummary[] = [];
-    let previousHash: string | null = null;
-    for (const [index, orientation] of animatedOrientations.entries()) {
-      const state = await setDevicePose(page, {
-        colourway: "white",
-        orientation,
-      });
-      await expectNoViewportOverflow(page);
-      await expectCentred(stage, page);
-      await expectAuthoredDeviceRatio(stage);
-      const capture = await captureStage(
-        stage,
-        `device-animated-${String(index).padStart(2, "0")}.png`,
-      );
-      if (previousHash !== null) expect(capture.hash).not.toBe(previousHash);
-      previousHash = capture.hash;
-      animated.push({
-        index,
-        orientation,
-        pose: state.pose,
-        probeFace: state.probeFace,
-        screenshot: capture.screenshot,
-        hash: capture.hash,
-      });
-    }
-
-    expect(pageErrors).toEqual([]);
-
-    const summary = {
-      recordedAt: "2026-08-31",
-      route: "/_spike/device?capture",
-      sourceHealth,
-      canonical,
-      physical,
-      animated,
-      pageErrors,
+    const dpr = {
+      1: await verifyDpr(browser, 1),
+      2: await verifyDpr(browser, 2),
+      3: await verifyDpr(browser, 3),
     };
+    expect(pageErrors).toEqual([]);
     await writeFile(
       resolve(evidenceDirectory, "summary.json"),
-      `${JSON.stringify(summary, null, 2)}\n`,
+      `${JSON.stringify({ route: "/_spike/device?capture", health, captures, mobileFit, mobileHash, dpr, pageErrors }, null, 2)}\n`,
     );
   });
 });
