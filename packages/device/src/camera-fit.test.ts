@@ -7,7 +7,7 @@ import {
   fitPerspectiveCameraToBounds,
   projectedBoundsExtent,
 } from "./camera-fit";
-import { DEFAULT_FRONT_ASSEMBLY_DEPTHS } from "./front-surface";
+import { DEFAULT_DEVICE_FORM } from "./form";
 import { DEVICE_LAYOUT } from "./layout";
 import {
   DEVICE_ORIENTATION_PRESETS,
@@ -28,20 +28,27 @@ function modelBounds(orientation: DeviceOrientation): Box3 {
     new Vector3(
       body.width / 2 + 4,
       body.height / 2 + 4,
-      DEFAULT_FRONT_ASSEMBLY_DEPTHS.selectRimZ +
-        DEFAULT_FRONT_ASSEMBLY_DEPTHS.selectSag,
+      body.depth / 2 +
+        DEFAULT_DEVICE_FORM.bodyCrown +
+        DEFAULT_DEVICE_FORM.bodyCrossCrown,
     ),
   );
   const rotation = deviceOrientationToRotation(orientation);
-  const matrix = new Matrix4().makeRotationFromEuler(new Euler(...rotation, "XYZ"));
+  const matrix = new Matrix4().makeRotationFromEuler(
+    new Euler(...rotation, "XYZ"),
+  );
   const rotated = new Box3();
-  for (const corner of boxCorners(local)) rotated.expandByPoint(corner.applyMatrix4(matrix));
+  for (const corner of boxCorners(local))
+    rotated.expandByPoint(corner.applyMatrix4(matrix));
   return rotated;
 }
 
 const PHYSICAL_VIEWS = [
   { name: "front", orientation: DEVICE_ORIENTATION_PRESETS.front },
-  { name: "three-quarter", orientation: DEVICE_ORIENTATION_PRESETS["three-quarter"] },
+  {
+    name: "three-quarter",
+    orientation: DEVICE_ORIENTATION_PRESETS["three-quarter"],
+  },
   { name: "left-edge", orientation: { pitchDeg: 0, yawDeg: -90, rollDeg: 0 } },
   { name: "right-edge", orientation: { pitchDeg: 0, yawDeg: 90, rollDeg: 0 } },
   { name: "rear", orientation: DEVICE_ORIENTATION_PRESETS.rear },

@@ -43,10 +43,26 @@ export function minimumFrontShellOffsetAroundRect(
   const halfWidth = rect.width / 2;
   const halfHeight = rect.height / 2;
   return Math.min(
-    frontShellOffsetAt(rect.centerX - halfWidth, rect.centerY - halfHeight, form),
-    frontShellOffsetAt(rect.centerX + halfWidth, rect.centerY - halfHeight, form),
-    frontShellOffsetAt(rect.centerX - halfWidth, rect.centerY + halfHeight, form),
-    frontShellOffsetAt(rect.centerX + halfWidth, rect.centerY + halfHeight, form),
+    frontShellOffsetAt(
+      rect.centerX - halfWidth,
+      rect.centerY - halfHeight,
+      form,
+    ),
+    frontShellOffsetAt(
+      rect.centerX + halfWidth,
+      rect.centerY - halfHeight,
+      form,
+    ),
+    frontShellOffsetAt(
+      rect.centerX - halfWidth,
+      rect.centerY + halfHeight,
+      form,
+    ),
+    frontShellOffsetAt(
+      rect.centerX + halfWidth,
+      rect.centerY + halfHeight,
+      form,
+    ),
   );
 }
 
@@ -68,7 +84,7 @@ export function minimumFrontShellOffsetAroundCircle(
 ): number {
   let minimum = Number.POSITIVE_INFINITY;
   for (let sample = 0; sample < CIRCLE_SAMPLES; sample += 1) {
-    const angle = sample / CIRCLE_SAMPLES * Math.PI * 2;
+    const angle = (sample / CIRCLE_SAMPLES) * Math.PI * 2;
     minimum = Math.min(
       minimum,
       frontShellOffsetAt(
@@ -91,8 +107,7 @@ export type FrontAssemblyDepths = {
   readonly ringZ: number;
   readonly ringSag: number;
   readonly ringInnerZ: number;
-  readonly selectSag: number;
-  readonly selectRimZ: number;
+  readonly selectFaceZ: number;
   readonly clickWheelInputZ: number;
 };
 
@@ -124,16 +139,13 @@ export function resolveFrontAssemblyDepths(
       form,
     );
   const ringSag =
-    wheel.outerR * Math.tan(form.ringDishTiltDeg * Math.PI / 180) /
+    (wheel.outerR * Math.tan((form.ringDishTiltDeg * Math.PI) / 180)) /
     form.ringDishExponent;
   const ringZ = wheelReferenceZ - form.recessDepth - ringSag;
   const ringInnerZ =
     ringZ +
-    ringSag * ((wheel.selectR - 1) / wheel.outerR) ** form.ringDishExponent;
-  const selectSag =
-    wheel.selectR * Math.tan(form.selectDomeTiltDeg * Math.PI / 180) /
-    form.selectDomeExponent;
-  const selectRimZ = ringInnerZ + form.selectProud;
+    ringSag * (wheel.selectLipR / wheel.outerR) ** form.ringDishExponent;
+  const selectFaceZ = ringInnerZ - form.selectRecess;
   const glassFrontZ = displayReferenceZ - form.glassInset;
   return {
     displayReferenceZ,
@@ -142,14 +154,11 @@ export function resolveFrontAssemblyDepths(
     screenFrontZ: glassFrontZ - form.glassThickness - form.glassToPanel,
     wheelReferenceZ,
     wheelWellZ:
-      wheelReferenceZ -
-      (form.recessDepth + form.wheelWellDepth) / 2 +
-      0.15,
+      wheelReferenceZ - (form.recessDepth + form.wheelWellDepth) / 2 + 0.15,
     ringZ,
     ringSag,
     ringInnerZ,
-    selectSag,
-    selectRimZ,
+    selectFaceZ,
     clickWheelInputZ: wheelReferenceZ - form.recessDepth + INPUT_PLANE_OFFSET,
   };
 }

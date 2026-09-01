@@ -28,9 +28,10 @@
  * criterion and L4's sheen is a 9%-white overlay. Recorded in
  * `decisions/w4.md` W4-D4.
  *
- * The centre Select button keeps §4.5's stated geometry — "the only *raised*
- * element on the wheel", highlight top and shadow bottom — so it is **convex**,
- * and the deliberate inversion against the dish around it is what makes it pop.
+ * The centre Select button is deliberately absent from this module. The
+ * owner's profile correction establishes it as a separate, flat part recessed
+ * below the wheel. It therefore uses a closed cylinder in `Device.tsx`, not a
+ * deformation of this annular surface.
  */
 import { BufferAttribute, BufferGeometry } from "three";
 
@@ -115,28 +116,4 @@ export function curvedAnnulusGeometry(
   geometry.setIndex(indices);
   geometry.computeBoundingSphere();
   return geometry;
-}
-
-/**
- * A convex cap over a full disc — the Select button's face.
- *
- * Same profile as {@link curvedAnnulusGeometry} with `innerR = 0` and the sign
- * forced negative, so the caller cannot accidentally dish the one element
- * §4.5 defines as raised.
- */
-export function domedDiscGeometry(
-  radius: number,
-  edgeTiltDeg: number,
-  exponent = 3,
-  radialSegments = 128,
-  ringSegments = 18,
-): BufferGeometry {
-  return curvedAnnulusGeometry(
-    0,
-    radius,
-    -Math.abs(edgeTiltDeg),
-    exponent,
-    radialSegments,
-    ringSegments,
-  );
 }

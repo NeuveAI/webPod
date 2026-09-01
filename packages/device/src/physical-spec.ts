@@ -52,20 +52,19 @@ export const IPOD_5G_30GB_PHYSICAL_SPEC = Object.freeze({
   }),
   /**
    * Profile dimensions bounded by teardown/side photography, not an OEM
-   * drawing. Keep that provenance explicit until the owner supplies a
-   * caliper/profile reference.
+   * drawing. The Select direction is superseded by the owner's direct
+   * correction capture: a separate flat part slightly below the wheel, never
+   * a proud cap. Keep that provenance explicit until a caliper/profile
+   * reference supplies the exact recess.
    */
   photoDerivedProfileMm: Object.freeze({
     frontShellDepth: 2.6,
     rearCrownInset: 1.6,
-    selectRise: 1,
+    selectRecess: 0.3,
   }),
 } as const);
 
-export function rasterRatio(
-  measurement: number,
-  reference: number,
-): number {
+export function rasterRatio(measurement: number, reference: number): number {
   if (!(measurement > 0) || !(reference > 0)) {
     throw new Error("physical reference ratios require positive measurements");
   }

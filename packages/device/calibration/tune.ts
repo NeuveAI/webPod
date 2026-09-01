@@ -274,10 +274,7 @@ const FRONT_KNOBS: ReadonlyArray<Knob> = [
   // The depths §12.0 does not state.
   { path: "form.ringDishTiltDeg", min: 0, max: 26, step: 0.8 },
   { path: "form.ringDishExponent", min: 1.2, max: 8, step: 0.3 },
-  { path: "form.selectDomeTiltDeg", min: 0, max: 26, step: 0.8 },
-  { path: "form.selectDomeExponent", min: 1.2, max: 8, step: 0.3 },
   { path: "form.recessDepth", min: 0.5, max: 14, step: 0.5 },
-  { path: "form.selectProud", min: 0.5, max: 8, step: 0.4 },
   // §4.2 stop 0 ("top edge") and stop 7 ("bottom edge caustic") are rolled-edge
   // phenomena, not face phenomena — §5.1 L7 calls stop 0 a 1px inner stroke on
   // the top edge. How much of the edge catches the key is the bevel's size.

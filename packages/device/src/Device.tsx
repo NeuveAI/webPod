@@ -31,7 +31,7 @@ import {
 } from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
-import { curvedAnnulusGeometry, domedDiscGeometry } from "./curved-discs";
+import { curvedAnnulusGeometry } from "./curved-discs";
 import { frontCoreDepth, tessellateVerticalCrown } from "./curved-shell";
 import {
   createRearShellGeometry,
@@ -71,7 +71,6 @@ import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 import {
   createBackCompositionMap,
   createMicroNoiseRoughnessMap,
-  createSelectThicknessMap,
   createSteelAnisotropyMap,
   createWheelLabelMap,
 } from "./textures";
@@ -310,7 +309,7 @@ export function Device({
   const ringGeometry = useMemo(
     () =>
       curvedAnnulusGeometry(
-        wheel.selectR - 1,
+        wheel.selectLipR,
         wheel.outerR,
         form.ringDishTiltDeg,
         form.ringDishExponent,
@@ -321,28 +320,17 @@ export function Device({
 
   const selectGeometry = useMemo(
     () =>
-      domedDiscGeometry(
-        wheel.selectR,
-        form.selectDomeTiltDeg,
-        form.selectDomeExponent,
-      ),
-    [form.selectDomeTiltDeg, form.selectDomeExponent],
-  );
-  useEffect(() => () => selectGeometry.dispose(), [selectGeometry]);
-
-  const selectWallGeometry = useMemo(
-    () =>
       new CylinderGeometry(
         wheel.selectR,
         wheel.selectR,
-        form.selectProud,
+        form.selectThickness,
         128,
         1,
-        true,
+        false,
       ),
-    [form.selectProud],
+    [form.selectThickness],
   );
-  useEffect(() => () => selectWallGeometry.dispose(), [selectWallGeometry]);
+  useEffect(() => () => selectGeometry.dispose(), [selectGeometry]);
 
   const glassGeometry = useMemo(() => {
     const shape = roundedRectShape(
@@ -502,8 +490,6 @@ export function Device({
     [isBlack, ringMaterial.color],
   );
   useEffect(() => () => labelMap?.dispose(), [labelMap]);
-  const selectThicknessMap = useMemo(() => createSelectThicknessMap(), []);
-  useEffect(() => () => selectThicknessMap.dispose(), [selectThicknessMap]);
 
   // ── Every front insert is resolved from the same crowned shell ─────────────
   const {
@@ -512,8 +498,7 @@ export function Device({
     screenFrontZ,
     wheelWellZ,
     ringZ,
-    selectSag,
-    selectRimZ,
+    selectFaceZ,
   } = resolveFrontAssemblyDepths(form);
   const rearInlayZ = -body.depth / 2 + form.rearInlayInset;
 
@@ -791,32 +776,21 @@ export function Device({
         />
       </mesh>
 
-      {/* §5.4 — the translucent plug, the one raised element on the wheel. */}
+      {/* The Select control is a separate flat plug recessed below the ring.
+          Its narrow annular gap and independent material make the assembly
+          legible; no dome or proud side wall is allowed. */}
       <mesh
         name="device-select"
-        geometry={selectWallGeometry}
+        geometry={selectGeometry}
         position={[
           wheel.centerX,
           wheel.centerY,
-          selectRimZ - form.selectProud / 2,
+          selectFaceZ - form.selectThickness / 2,
         ]}
         rotation={[Math.PI / 2, 0, 0]}
       >
         <meshPhysicalMaterial
-          key={isBlack ? "select-cap-black" : "select-cap-white"}
-          name={isBlack ? "select-black" : "select-white"}
-          {...spread(selectMaterial)}
-          {...studioEnvironmentProps(selectMaterial, studio)}
-          {...(isBlack ? { thicknessMap: selectThicknessMap } : {})}
-        />
-      </mesh>
-      <mesh
-        name="device-select"
-        geometry={selectGeometry}
-        position={[wheel.centerX, wheel.centerY, selectRimZ + selectSag]}
-      >
-        <meshPhysicalMaterial
-          key={isBlack ? "select-wall-black" : "select-wall-white"}
+          key={isBlack ? "select-flat-black" : "select-flat-white"}
           name={isBlack ? "select-black" : "select-white"}
           {...spread(selectMaterial)}
           {...studioEnvironmentProps(selectMaterial, studio)}

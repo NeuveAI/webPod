@@ -69,18 +69,7 @@ const TARGETS: ReadonlyArray<readonly [string, string, string]> = [
   ],
   ["form.ringDishTiltDeg", "packages/device/src/form.ts", "ringDishTiltDeg"],
   ["form.ringDishExponent", "packages/device/src/form.ts", "ringDishExponent"],
-  [
-    "form.selectDomeTiltDeg",
-    "packages/device/src/form.ts",
-    "selectDomeTiltDeg",
-  ],
-  [
-    "form.selectDomeExponent",
-    "packages/device/src/form.ts",
-    "selectDomeExponent",
-  ],
   ["form.recessDepth", "packages/device/src/form.ts", "recessDepth"],
-  ["form.selectProud", "packages/device/src/form.ts", "selectProud"],
   ["form.frontBevel", "packages/device/src/form.ts", "frontBevel"],
   ["form.bodyCrown", "packages/device/src/form.ts", "bodyCrown"],
   ["form.topEdgeCrown", "packages/device/src/form.ts", "topEdgeCrown"],
@@ -203,7 +192,9 @@ for (const surface of MATERIAL_KEYS) {
   const entries = Object.entries(RIG)
     .filter(
       ([key, value]) =>
-        key.startsWith(prefix) && typeof value === "number" && Number.isFinite(value),
+        key.startsWith(prefix) &&
+        typeof value === "number" &&
+        Number.isFinite(value),
     )
     .sort(([a], [b]) => a.localeCompare(b));
   let block = materials.slice(scope, scopeEnd);

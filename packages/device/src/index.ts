@@ -15,11 +15,7 @@
  * is one set of defaults and no registry, resolver or asset-pack loader, which
  * is the other half of D-012.
  */
-export {
-  Device,
-  type Colourway,
-  type DeviceProps,
-} from "./Device";
+export { Device, type Colourway, type DeviceProps } from "./Device";
 export type {
   CanonicalLuminancePose,
   DeviceFace,
@@ -117,10 +113,7 @@ export {
   type SkyBlobParams,
 } from "./env-map";
 export { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
-export {
-  IPOD_5G_30GB_PHYSICAL_SPEC,
-  rasterRatio,
-} from "./physical-spec";
+export { IPOD_5G_30GB_PHYSICAL_SPEC, rasterRatio } from "./physical-spec";
 export {
   createRearShellGeometry,
   frontShellPlan,
@@ -159,7 +152,7 @@ export {
   silhouetteShape,
   silhouetteFrameShape,
 } from "./shapes";
-export { curvedAnnulusGeometry, domedDiscGeometry } from "./curved-discs";
+export { curvedAnnulusGeometry } from "./curved-discs";
 export {
   BODY_CROWN_ROW_STEP,
   horizontalCrownOffset,

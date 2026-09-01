@@ -3,9 +3,9 @@
  *
  * §12.0 fixes the *plan* — radii and the vertical chain — because that is what
  * a 2D artboard can hold. Depth cannot be measured off an artboard, so the
- * third dimension is stated here: how proud the Select plug stands, how far
- * the wheel is sunk, how wide the steel's rolled edge reads, how much the ring
- * is dished.
+ * third dimension is stated here: how far the Select plug is recessed, how
+ * far the wheel is sunk, how wide the steel's rolled edge reads, how much the
+ * ring is dished.
  *
  * ⚑ These are **inputs**, like the materials and the rig (D-012), and for the
  * same reason: they are the other half of what a tier would have to change.
@@ -62,12 +62,10 @@ export type DeviceFormParams = {
    * `curved-discs.ts`.
    */
   readonly ringDishExponent: number;
-  /** Surface tilt at the Select plug's rim, degrees, **convex**. */
-  readonly selectDomeTiltDeg: number;
-  /** Profile exponent for the Select plug's dome. */
-  readonly selectDomeExponent: number;
-  /** How far the Select plug stands proud of the ring's inner edge. */
-  readonly selectProud: number;
+  /** How far the flat Select face sits below the ring's inner edge. */
+  readonly selectRecess: number;
+  /** Physical depth behind that face; it must not project above the wheel. */
+  readonly selectThickness: number;
   /** How far below the body face the dark LCD well begins. */
   readonly displayWellInset: number;
   /** Physical thickness of the LCD well floor slab. */
@@ -98,9 +96,8 @@ export const DEFAULT_DEVICE_FORM: DeviceFormParams = {
   recessDepth: 4.25,
   ringDishTiltDeg: 4.1918,
   ringDishExponent: 6.1283,
-  selectDomeTiltDeg: 19.1951,
-  selectDomeExponent: 1.4989,
-  selectProud: Math.round(PHOTO_PROFILE.selectRise * PX_PER_MM * 100) / 100,
+  selectRecess: Math.round(PHOTO_PROFILE.selectRecess * PX_PER_MM * 100) / 100,
+  selectThickness: 1.2,
   displayWellInset: 1.8,
   displayWellDepth: 0.9,
   wheelWellDepth: 1.2,

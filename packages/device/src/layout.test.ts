@@ -79,17 +79,17 @@ describe("thin 30GB iPod 5G physical target", () => {
     expect(DEVICE_LAYOUT.wheel.selectR * 2).toBe(74);
     expect((DEVICE_LAYOUT.wheel.selectR * 2) / BODY_W).toBeCloseTo(84 / 377, 2);
     expect(DEVICE_LAYOUT.wheel.selectLipR).toBe(41);
-    expect(DEFAULT_DEVICE_FORM.selectProud / PX_PER_MM).toBeCloseTo(1, 2);
+    expect(DEFAULT_DEVICE_FORM.selectRecess / PX_PER_MM).toBeCloseTo(0.3, 2);
   });
 
   test("keeps photo-derived profile estimates explicit and separate from OEM dimensions", () => {
     expect(DEFAULT_DEVICE_FORM.frontThickness / PX_PER_MM).toBeCloseTo(2.6, 1);
     expect(DEFAULT_DEVICE_FORM.rearCrownInset / PX_PER_MM).toBeCloseTo(1.6, 1);
-    expect(DEFAULT_DEVICE_FORM.selectProud / PX_PER_MM).toBeCloseTo(1, 2);
+    expect(DEFAULT_DEVICE_FORM.selectRecess / PX_PER_MM).toBeCloseTo(0.3, 2);
     expect(IPOD_5G_30GB_PHYSICAL_SPEC.photoDerivedProfileMm).toEqual({
       frontShellDepth: 2.6,
       rearCrownInset: 1.6,
-      selectRise: 1,
+      selectRecess: 0.3,
     });
   });
 
@@ -103,12 +103,12 @@ describe("physical LCD and restrained trim", () => {
   test("the active panel is the physical 50.8 × 38.1mm 4:3 aperture", () => {
     const physicalWidth = DEVICE_LAYOUT.screen.width / PX_PER_MM;
     const physicalHeight = DEVICE_LAYOUT.screen.height / PX_PER_MM;
-    expect(Math.abs(physicalWidth - LCD_ACTIVE_PHYSICAL_MM.width)).toBeLessThanOrEqual(
-      LCD_PHYSICAL_TOLERANCE_MM,
-    );
-    expect(Math.abs(physicalHeight - LCD_ACTIVE_PHYSICAL_MM.height)).toBeLessThanOrEqual(
-      LCD_PHYSICAL_TOLERANCE_MM,
-    );
+    expect(
+      Math.abs(physicalWidth - LCD_ACTIVE_PHYSICAL_MM.width),
+    ).toBeLessThanOrEqual(LCD_PHYSICAL_TOLERANCE_MM);
+    expect(
+      Math.abs(physicalHeight - LCD_ACTIVE_PHYSICAL_MM.height),
+    ).toBeLessThanOrEqual(LCD_PHYSICAL_TOLERANCE_MM);
     expect(LCD_ACTIVE_PHYSICAL_MM.semanticWidth).toBe(320);
     expect(LCD_ACTIVE_PHYSICAL_MM.semanticHeight).toBe(240);
   });
