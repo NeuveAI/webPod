@@ -19,6 +19,13 @@ import {
 } from './interaction-audio'
 
 describe('interaction audio scheduler', () => {
+  test('keeps the clicker budgets literal and reviewable', () => {
+    expect(WHEEL_TICK_RATE_HZ).toBe(30)
+    expect(MAX_INTERACTION_AUDIO_VOICES).toBe(12)
+    expect(MAX_PENDING_FEEDBACK_EVENTS).toBe(8)
+    expect(WHEEL_PITCH_JITTER).toBe(0.02)
+  })
+
   test('does not construct audio or replay feedback before human activation', () => {
     const backend = new FakeBackend('running')
     let constructions = 0
