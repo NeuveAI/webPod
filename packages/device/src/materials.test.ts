@@ -38,18 +38,18 @@ describe("§12.3 device material contract", () => {
       subsurfaceScale: 1.4,
     });
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite).toMatchObject({
-      color: "#F4F7FA",
+      color: "#F6F3EC",
       albedoScale: 0.6494,
       roughness: 0.78,
       clearcoat: 0.12,
       clearcoatRoughness: 0.5,
       reflectivity: 0.1718,
       sheen: 0.0914,
-      sheenColor: "#F2F6FA",
+      sheenColor: "#FFF8EE",
       sheenRoughness: 0.985,
       specularIntensity: 0.08,
       envMapIntensity: 0.0024,
-      subsurfaceColor: "#F4FAFF",
+      subsurfaceColor: "#FFF4E8",
       subsurfaceDistortion: 0.1824,
       subsurfaceAttenuation: 0.0479,
       subsurfacePower: 1,
@@ -140,11 +140,11 @@ describe("§12.3 device material contract", () => {
       labelColor: "#B9BFC7",
     });
     expect(DEFAULT_WHEEL_COLOURWAYS.white).toMatchObject({
-      ring: { color: "#DEE3E7", roughness: 0.8 },
-      select: { color: "#F7F8F7", roughness: 0.6 },
-      labelColor: "#7B838E",
+      ring: { color: "#D5DADD", roughness: 0.8 },
+      select: { color: "#F6F2E9", roughness: 0.6 },
+      labelColor: "#FAF8F2",
     });
-    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color).toBe("#DEE3E7");
+    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color).toBe("#D5DADD");
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.roughness).toBeGreaterThan(
       DEFAULT_DEVICE_MATERIALS.wheelRingBlack.roughness,
     );
@@ -164,10 +164,10 @@ describe("§12.3 device material contract", () => {
       hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelRingBlack.color) + 100,
     );
     const whiteInk = hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelLabelWhite);
-    expect(whiteInk).toBeGreaterThan(hexLuma255("#5E646D"));
-    expect(whiteInk).toBeLessThan(
-      hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color) - 45,
+    expect(whiteInk).toBeGreaterThan(
+      hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color) + 20,
     );
+    expect(whiteInk).toBeGreaterThan(hexLuma255("#7B838E") + 80);
     expect(DEFAULT_DEVICE_MATERIALS.wheelLabelWhite).not.toBe(
       DEFAULT_DEVICE_MATERIALS.wheelLabelBlack,
     );
@@ -254,7 +254,7 @@ describe("§12.3 device material contract", () => {
       new Texture(),
     );
     expect(material.specularIntensity).toBe(0.08);
-    expect(material.sheenColor.getHexString()).toBe("f2f6fa");
+    expect(material.sheenColor.getHexString()).toBe("fff8ee");
     expect(material.onBeforeCompile).toBeDefined();
     expect(material.customProgramCacheKey?.()).toContain("webpod-polycarbonate");
 

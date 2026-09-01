@@ -104,9 +104,12 @@ export type WheelColourwayParams = {
 /**
  * OEM wheel assemblies are two independently finished plastic parts plus ink.
  * The white model is not the black response inverted: its wheel is a cool,
- * pale matte grey, the Select is warmer and brighter, and its legends use a
- * medium cool grey. The black model uses charcoal-on-black parts and pale ink.
- * The supporting OEM image ledger records each colour and finish decision.
+ * pale matte grey, the Select is warmer and brighter, and its legends are a
+ * light warm-neutral ink. Nine original photographs of the owner's known OEM
+ * white 5G establish that relationship under several angles/exposures; the
+ * table preserves the repeated relationship rather than sampling their warm
+ * room light as an RGB swatch. The black model uses charcoal-on-black parts
+ * and pale ink. The supporting OEM image ledger records every source.
  */
 export const DEFAULT_WHEEL_COLOURWAYS: Readonly<
   Record<"black" | "white", WheelColourwayParams>
@@ -140,7 +143,7 @@ export const DEFAULT_WHEEL_COLOURWAYS: Readonly<
   }),
   white: Object.freeze({
     ring: Object.freeze({
-      color: "#DEE3E7",
+      color: "#D5DADD",
       albedoScale: 0.7,
       roughness: 0.8,
       metalness: 0,
@@ -149,7 +152,7 @@ export const DEFAULT_WHEEL_COLOURWAYS: Readonly<
       envMapIntensity: 0.004,
     }),
     select: Object.freeze({
-      color: "#F7F8F7",
+      color: "#F6F2E9",
       albedoScale: 0.9,
       transmission: 0.025,
       thickness: 0.9,
@@ -161,7 +164,7 @@ export const DEFAULT_WHEEL_COLOURWAYS: Readonly<
       specularIntensity: 0.045,
       envMapIntensity: 0.006,
     }),
-    labelColor: "#7B838E",
+    labelColor: "#FAF8F2",
   }),
 });
 
@@ -217,7 +220,10 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     subsurfaceScale: 1.4,
   },
   bodyWhite: {
-    color: "#F4F7FA",
+    // Owner-primary OEM photographs establish warm ivory relative to the
+    // cooler wheel. The shift is deliberately mild: the warm room light is a
+    // property of the references, not pigment to bake into the shell.
+    color: "#F6F3EC",
     // Preserve headroom for the key/clearcoat lobe. At 1.0 the diffuse term
     // clipped almost the whole face to white and erased Pencil's pearl trough.
     albedoScale: 0.6494,
@@ -227,11 +233,11 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     clearcoatRoughness: 0.5,
     reflectivity: 0.1718,
     sheen: 0.0914,
-    sheenColor: "#F2F6FA",
+    sheenColor: "#FFF8EE",
     sheenRoughness: 0.985,
     specularIntensity: 0.08,
     envMapIntensity: 0.0024,
-    subsurfaceColor: "#F4FAFF",
+    subsurfaceColor: "#FFF4E8",
     subsurfaceDistortion: 0.1824,
     subsurfaceAttenuation: 0.0479,
     subsurfacePower: 1,
@@ -294,8 +300,10 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     envMapIntensity: 0.0069,
   },
   wheelWellWhite: {
-    color: "#D9E1E9",
-    albedoScale: 0.6214,
+    // The assembly gap is a hairline cavity, not a painted dark annulus. A
+    // light warm-neutral floor lets real occlusion create the contact line.
+    color: "#E8E5DF",
+    albedoScale: 0.72,
     roughness: 0.8164,
     metalness: 0,
     clearcoat: 0.0224,
