@@ -12,10 +12,10 @@
 | `754f643` | literal product-budget gates |
 | `5b44872` | internal audio status vocabulary passes the permission-copy gate |
 | `b013871` | muted construction guard and diagnostic-failure containment |
+| `59291a4` | physical Select release, browser diagnostics, and disposal proof |
 
-The Select-release bridge and browser diagnostics are awaiting the concurrent
-W9a input-seam commit before their path-scoped W9b commit; this evidence entry
-will be updated with that hash.
+The Select-release bridge follows W9a's typed input seam in `2ec0861`, so both
+commits typecheck independently in dependency order.
 
 ## Deterministic proof
 
