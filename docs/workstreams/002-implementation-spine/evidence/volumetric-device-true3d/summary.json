@@ -1,12 +1,12 @@
 {
   "route": "/_spike/device?capture",
   "health": {
-    "expected": "e030c024d853397ca31f21bcab6eb90af140defb5104589ebb4bc6f2bdd7eac6",
-    "current": "e030c024d853397ca31f21bcab6eb90af140defb5104589ebb4bc6f2bdd7eac6",
+    "expected": "f9b073c556cb8ba93a39a58ef117a4a367039c42ec9f1e491e7c16e8b6133353",
+    "current": "f9b073c556cb8ba93a39a58ef117a4a367039c42ec9f1e491e7c16e8b6133353",
     "expectedFileCount": 177,
     "fileCount": 177,
-    "reviewedCommit": "",
-    "reviewedTree": ""
+    "reviewedCommit": null,
+    "reviewedTree": null
   },
   "captures": [
     {
@@ -21,7 +21,7 @@
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "5d46bb16f5d9797e812285739db3e88ba6370260256a06f4e3379a9ba6693638"
+      "hash": "bc28985aab20e73f4a29d5b0a01c635f35886cce5996da226e499d0e27a0a4d8"
     },
     {
       "pose": "front",
@@ -35,7 +35,7 @@
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "b40b0c1ca827f7f17b65716890090abcc950efff7325861c585c8c47710fc694"
+      "hash": "fd51417bc88ba3378faef788c86b62932a450924651c8f25adfab914265cd983"
     },
     {
       "pose": "three-quarter",
@@ -49,12 +49,12 @@
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "99f8fc248d0d88bbf43b624e0fcc1a5f7b5cfd3e38e6c52bbd619300f3231d17"
+      "hash": "8c52b48b9f15c1398a4916d746b4cf2188389eadd4aa375acbe8acc07d0b3bd2"
     },
     {
       "pose": "edge",
-      "colourway": "white",
-      "filename": "true3d-edge-white.png",
+      "colourway": "black",
+      "filename": "true3d-edge-black.png",
       "fit": {
         "distance": 1312.9387,
         "padding": 34,
@@ -63,7 +63,7 @@
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "826b79a03103c5c2e936c1b6d56931ec29f71e2b043568814ecfe99e06ab65e8"
+      "hash": "bbfd9fbaee08712a6f93b2d5a7289f3d91a061e099220da5646629c2495d2706"
     },
     {
       "pose": "rear",
@@ -77,7 +77,7 @@
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "0245293e29ce418ebf13e5d7c896acd98a06f136edf04888882f58d869519600"
+      "hash": "d8916a758d606c99846135967d6d4f32b1a58baaa28b18d1bb1eb2993521f62b"
     },
     {
       "pose": "top-controls",
@@ -91,7 +91,7 @@
         "limitX": 0.933594,
         "limitY": 0.911458
       },
-      "hash": "30ee155498716c5e3571b47c9cc9ed282f119b413076d2422fefa46733f540ac"
+      "hash": "93935aa9622c0e6da9cad6d615c6d2a7f9685bcb02326b1a447ee84f1e92116e"
     }
   ],
   "mobileFit": {
@@ -102,7 +102,7 @@
     "limitX": 0.818667,
     "limitY": 0.916256
   },
-  "mobileHash": "6e8d91002098524907f8d2fffc52dd9eee344ea4cda7a689acca587a36b3c99d",
+  "mobileHash": "544df81f49e04cb0d52abccf7ea15773aa67db45204324233bbfad0e7ec6dd52",
   "dpr": {
     "1": {
       "density": 1,

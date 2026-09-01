@@ -226,7 +226,7 @@ preview, mobile, edge, rear, and custom orientations all use measured fit.
 ## VD-20 · Studio reflections are world-space PBR inputs, not UV paint
 
 The environment is Three's `RoomEnvironment` filtered once through PMREM. Key
-and fill are broad `RectAreaLight` emitters, siblings of the rotating model.
+and kick are broad `RectAreaLight` emitters, siblings of the rotating model.
 There is no `vUv` edge glow, camera/view-matrix band, additive outgoing-light
 term, or pose-specific light. Black/white polycarbonate, wheel, clear cover,
 and steel keep separate physical parameters and read differently under the same
@@ -269,3 +269,62 @@ The scoped cross-package changes are exactly:
 
 No fallback or polyfill was added. T1 remains the main path as requested; T3/T4
 remain a later workstream.
+
+## VD-24 · Patch the installed physical-light chunk and fail closed on Three drift
+
+The old polycarbonate patch was source-shaped evidence against an obsolete
+Three diffuse line. Installed 0.185.1 no longer contains that expression, and
+the studio softboxes enter through `RE_Direct_RectArea_Physical`, a second path
+the patch did not touch. The visual result could therefore look acceptable
+while none of the claimed transport executed.
+
+The patch now expands and edits the installed
+`ShaderChunk.lights_physical_pars_fragment` at compile time, adding bounded
+transport to both ordinary direct lights and RectArea lights. It throws if the
+known direct splice is absent, and separately throws if an installed RectArea
+function no longer contains its splice. Tests consume the installed chunk and
+the real flagged-Chrome shader compile closes the integration half.
+
+## VD-25 · Acuity and native interaction share one HTMLTexture DOM tree
+
+A hidden 2D raster canvas can make a sharp texture, but moving the panel under
+that hidden canvas detaches native hit-testing and accessibility geometry from
+the LCD. Duplicating or cloning the UI would restore pixels at the cost of a
+second representation. Neither is acceptable.
+
+The final path keeps one panel as a direct `layoutsubtree` child of the WebGL
+canvas. Three `HTMLTexture` uploads it, and Three `InteractionManager` writes
+the same element's CSS `matrix3d`. The 272×204 panel content is scaled once into
+the canonical 320×240 authoring box before the browser snapshot; the texture is
+sRGB, linear-filtered, and mipmap-free. Browser tests at DPR 1/2/3 measure the
+rendered edge gradients, plant a 1px blur that fails the gate, compare semantic
+DOM bounds to the projected screen, click-focus the real application, and run
+keyboard navigation.
+
+## VD-26 · Preview pose drag is modified so it cannot steal product input
+
+The entire device orientation remains one group transform, but the preview
+stage previously captured every primary pointer before the click wheel could
+own it. Shift-drag now rotates the product model; ordinary pointer and touch
+input remain product input. Arrow keys and the preview orientation API retain
+keyboard, automation, accelerometer, and future flip seams without baking a
+camera assumption into the model.
+
+## VD-27 · The owner two-light rig is geometric, power-based, and explicit
+
+The accepted scene uses exactly two authored direct emitters. The key sits
+camera-right at a 28° viewer azimuth and descends 20° onto the device, inside
+the owner's 15–25° range. Its 620×420 model-unit rectangle is the softness
+control, and its 5.8M-lumen pre-exposure power is scaled by the rig's 0.96
+linear exposure. The kick sits below the horizon at −14° and camera-left at
+−18°, uses a 600×360 rectangle, and receives exactly 11% of the key's rendered
+luminous power. Three's installed `RectAreaLight` relation
+`power = intensity × width × height × π` is used to derive each intensity.
+
+The restrained RoomEnvironment remains at 0.34 only to preserve material
+identity between poses; it is not a third directional look. The model alone
+rotates. Tests reconstruct the key angle from its Cartesian position, recover
+both rendered powers from the mounted light props, and require the kick to stay
+subordinate. The black Select material now uses a broad, low-energy dielectric
+response rather than the former transmissive, low-roughness lens that produced
+an isolated vertical hotspot.

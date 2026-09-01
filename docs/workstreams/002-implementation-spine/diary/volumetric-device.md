@@ -196,7 +196,7 @@ longer inherits a desktop aspect box. The panel remains real DOM and responds
 to keyboard navigation after being composited.
 
 All wider gates that the earlier addendum reported blocked are green on this
-tree: 11/11 TypeScript projects, repo lint, 989 tests, production build, and 16
+tree: 11/11 TypeScript projects, repo lint, 991 tests, production build, and 16
 automated static gates. U14 and U15 remain correctly manual. The browser route
 is `http://localhost:3000/_spike/device`; the default is an uncluttered black
 three-quarter pose, with drag/keyboard rotation and external controls.
@@ -204,3 +204,53 @@ three-quarter pose, with drag/keyboard rotation and external controls.
 The evidence is in `evidence/volumetric-device-true3d/`. The earlier
 transmission-12 and proxy-LCD notes above are historical failure records, not
 the current architecture.
+
+## Tuesday, September 1, 2026 — strict-audit corrections
+
+Two implementation defects survived the first visual pass and were found by
+testing the mechanism instead of accepting the screenshot.
+
+First, the polycarbonate transport patch still searched for a physical-light
+line removed before installed Three 0.185.1, and it only knew the ordinary
+direct-light function while the studio uses `RectAreaLight`. The material
+therefore looked plausible while the intended bounded transport was dead. The
+repair patches the installed `ShaderChunk.lights_physical_pars_fragment`, covers
+both ordinary and area-light functions, and throws if either known splice point
+changes. The flagged browser compile is clean and the test consumes the
+installed chunk rather than a hand-written surrogate.
+
+Second, the first acuity repair made a sharp `CanvasTexture` by moving the live
+panel below a hidden raster canvas. That fixed pixels but broke the standing
+native-interaction thesis: the semantic panel no longer shared the projected
+LCD geometry. A nested-canvas experiment restored paint but applied geometry
+twice. The final path returns to Three's native `HTMLTexture` and
+`InteractionManager`: one live panel is the direct `layoutsubtree` child, its
+320×240 authoring box maps to the 272×204 LCD mesh, and the same element receives
+the per-pose `matrix3d`. It has no mipmaps, is sRGB, and uses linear filtering
+for fractional perspective samples. The DPR 1/2/3 browser gradient gate passes,
+and DOM bounds match the projected screen to under 2px.
+
+Preview rotation now requires Shift-drag. Plain pointer and touch input remain
+available to the product click wheel; arrow/Home/End controls and the external
+orientation API still exercise the stable whole-model transform. During the
+proof, the immutable-source health endpoint also exposed a null-coalescing bug
+that serialized an absent reviewed commit as an empty string. The Vite test
+health endpoint now preserves an explicit metadata `null`; this was a verifier
+repair, not a rendering change.
+
+## Tuesday, September 1, 2026 — owner two-light direction
+
+The owner's next-preview ruling replaced the inherited top-centre/fill values
+with a disciplined photographic rig. The first pass moved the key to
+camera-right at the required 20° descent and softened the old Select hotspot,
+but the rendered lower source still read as a band and the black front remained
+compressed. The second pass made the key larger and closer, reduced the kick
+from 18% to 11% of key power, broadened both emitters, restrained the PMREM room
+to 0.34, and brought the Select into the wheel's rough dielectric family.
+
+The rendered result has no blown centre-button stripe. The wide key describes
+the top crown and moves to the right rolled edge in the three-quarter pose; the
+lower source remains visible at the shell separation without lifting the whole
+black face. Black/white front, black three-quarter, black edge, rear, top, and
+375×812 mobile are captured from the same two world-fixed lights. The browser
+test still proves mobile containment and exact 1×/2×/3× LCD source grids.

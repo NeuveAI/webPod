@@ -1,0 +1,102 @@
+{
+  "reviewedSource": {
+    "expectedFingerprint": "f9b073c556cb8ba93a39a58ef117a4a367039c42ec9f1e491e7c16e8b6133353",
+    "expectedFileCount": 177,
+    "reviewedCommit": null,
+    "reviewedTree": null
+  },
+  "healthAfter": {
+    "expected": "f9b073c556cb8ba93a39a58ef117a4a367039c42ec9f1e491e7c16e8b6133353",
+    "current": "f9b073c556cb8ba93a39a58ef117a4a367039c42ec9f1e491e7c16e8b6133353",
+    "expectedFileCount": 177,
+    "fileCount": 177,
+    "reviewedCommit": null,
+    "reviewedTree": null
+  },
+  "results": [
+    {
+      "dpr": 1,
+      "bare": {
+        "edge": {
+          "p95": 136.52610298049234,
+          "p99": 236.18697014094576
+        },
+        "file": "bare-dpr-1.png"
+      },
+      "composite": {
+        "edge": {
+          "p95": 78.6298,
+          "p99": 140.2214464727846
+        },
+        "file": "composite-dpr-1.png",
+        "host": {
+          "pixelWidth": 320,
+          "pixelHeight": 240,
+          "rasterDensity": "1"
+        },
+        "canvas": {
+          "pixelWidth": 330,
+          "pixelHeight": 552
+        }
+      },
+      "retentionP95": 0.5759323549375397,
+      "retentionP99": 0.593688324081158
+    },
+    {
+      "dpr": 2,
+      "bare": {
+        "edge": {
+          "p95": 144.647,
+          "p99": 254.983891554898
+        },
+        "file": "bare-dpr-2.png"
+      },
+      "composite": {
+        "edge": {
+          "p95": 97.0263222223743,
+          "p99": 159.9621477571491
+        },
+        "file": "composite-dpr-2.png",
+        "host": {
+          "pixelWidth": 640,
+          "pixelHeight": 480,
+          "rasterDensity": "2"
+        },
+        "canvas": {
+          "pixelWidth": 660,
+          "pixelHeight": 1104
+        }
+      },
+      "retentionP95": 0.6707800522815842,
+      "retentionP99": 0.6273421696629383
+    },
+    {
+      "dpr": 3,
+      "bare": {
+        "edge": {
+          "p95": 152.2046,
+          "p99": 253.7585620362789
+        },
+        "file": "bare-dpr-3.png"
+      },
+      "composite": {
+        "edge": {
+          "p95": 102.98039999999997,
+          "p99": 163.3192337385894
+        },
+        "file": "composite-dpr-3.png",
+        "host": {
+          "pixelWidth": 960,
+          "pixelHeight": 720,
+          "rasterDensity": "3"
+        },
+        "canvas": {
+          "pixelWidth": 990,
+          "pixelHeight": 1656
+        }
+      },
+      "retentionP95": 0.6765919032670495,
+      "retentionP99": 0.6436008796236805
+    }
+  ]
+}
