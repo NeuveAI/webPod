@@ -38,8 +38,8 @@ export const CONTROL_RELEASE_MS = Object.freeze({
   select: 96,
 });
 
-/** Safety cap if a hostile scheduler supplies frozen frame timestamps. */
-export const CONTROL_RELEASE_FRAME_LIMIT = 24;
+/** Consecutive non-advancing timestamps tolerated before a safety settle. */
+export const CONTROL_STALLED_FRAME_LIMIT = 24;
 
 export type ControlContact = {
   readonly x: number;
@@ -62,7 +62,8 @@ type Release = {
   readonly startedAtMs: number;
   readonly initialDepth: number;
   readonly durationMs: number;
-  frames: number;
+  lastTimestampMs: number;
+  stalledFrames: number;
 };
 
 type Channel = {
@@ -295,18 +296,16 @@ export class ControlPhysicsController {
   setReducedMotion(reduced: boolean): void {
     this.#reducedMotion = reduced;
     if (!reduced) return;
-    if (this.#wheel.release !== null) this.#settle(this.#wheel);
-    if (this.#select.release !== null) this.#settle(this.#select);
+    const wheelWasReleasing = this.#wheel.release !== null;
+    const selectWasReleasing = this.#select.release !== null;
+    if (wheelWasReleasing) this.#settle(this.#wheel);
+    if (selectWasReleasing) this.#settle(this.#select);
+    if (wheelWasReleasing || selectWasReleasing) {
+      // BufferAttribute.needsUpdate uploads restored arrays, but a demand
+      // canvas still needs one explicit render request to present them.
+      this.#dependencies.invalidate();
+    }
     this.#cancelFrameWhenSettled();
-  }
-
-  /** Deterministic evidence/unmount reset; ordinary releases use the travel. */
-  reset(): void {
-    if (this.#frame !== null) this.#dependencies.cancelFrame(this.#frame);
-    this.#frame = null;
-    this.#settle(this.#wheel);
-    this.#settle(this.#select);
-    this.#dependencies.invalidate();
   }
 
   dispose(): void {
@@ -342,11 +341,13 @@ export class ControlPhysicsController {
       this.#cancelFrameWhenSettled();
       return;
     }
+    const startedAtMs = this.#dependencies.now();
     channelState.release = {
-      startedAtMs: this.#dependencies.now(),
+      startedAtMs,
       initialDepth: channelState.depth,
       durationMs,
-      frames: 0,
+      lastTimestampMs: startedAtMs,
+      stalledFrames: 0,
     };
     this.#requestFrame();
   }
@@ -372,12 +373,21 @@ export class ControlPhysicsController {
   #advance(channelState: Channel, timestampMs: number): boolean {
     const release = channelState.release;
     if (release === null) return false;
-    release.frames += 1;
-    const elapsed = Math.max(0, timestampMs - release.startedAtMs);
+    const timestampAdvanced =
+      Number.isFinite(timestampMs) && timestampMs > release.lastTimestampMs;
+    if (timestampAdvanced) {
+      release.lastTimestampMs = timestampMs;
+      release.stalledFrames = 0;
+    } else {
+      release.stalledFrames += 1;
+    }
+    const elapsed = Number.isFinite(timestampMs)
+      ? Math.max(0, timestampMs - release.startedAtMs)
+      : 0;
     const progress = Math.min(1, elapsed / release.durationMs);
     if (
       progress >= 1 ||
-      release.frames >= CONTROL_RELEASE_FRAME_LIMIT
+      release.stalledFrames >= CONTROL_STALLED_FRAME_LIMIT
     ) {
       this.#settle(channelState);
       return true;

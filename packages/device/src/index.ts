@@ -31,7 +31,6 @@ export {
   DeviceCanvas,
   type DeviceCanvasProps,
 } from "./DeviceCanvas";
-export type { ControlPhysicsEvidencePose } from "./ControlPhysicsScope";
 export {
   applyDeviceCameraFit,
   fitPerspectiveCameraToBounds,
@@ -89,8 +88,8 @@ export {
 } from "./click-wheel-input";
 
 export {
-  CONTROL_RELEASE_FRAME_LIMIT,
   CONTROL_RELEASE_MS,
+  CONTROL_STALLED_FRAME_LIMIT,
   CONTROL_TRAVEL,
   ControlPhysicsController,
   WHEEL_CONTACT_FOOTPRINT_MM,

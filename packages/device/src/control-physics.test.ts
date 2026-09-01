@@ -2,8 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { Euler, Matrix4, Vector3 } from "three";
 
 import {
-  CONTROL_RELEASE_FRAME_LIMIT,
   CONTROL_RELEASE_MS,
+  CONTROL_STALLED_FRAME_LIMIT,
   CONTROL_TRAVEL,
   ControlPhysicsController,
   WHEEL_CONTACT_FOOTPRINT_MM,
@@ -117,7 +117,7 @@ describe("transient physical click-wheel geometry", () => {
       tangential: 8,
     });
     expect(CONTROL_RELEASE_MS).toEqual({ wheel: 120, select: 96 });
-    expect(CONTROL_RELEASE_FRAME_LIMIT).toBe(24);
+    expect(CONTROL_STALLED_FRAME_LIMIT).toBe(24);
   });
 
   test("locality follows the live thumb at all four cardinal angles", () => {
@@ -219,6 +219,32 @@ describe("transient physical click-wheel geometry", () => {
     expect(snapshot(geometry, "position")).toEqual(restPosition);
     expect(snapshot(geometry, "normal")).toEqual(restNormal);
     expect(harness.pending).toBe(0);
+    expect(harness.invalidations).toBe(2);
+    controller.dispose();
+    geometry.dispose();
+  });
+
+  test("enabling reduced motion during release presents the restored GPU frame", () => {
+    const geometry = wheelGeometry();
+    const restPosition = snapshot(geometry, "position");
+    const restNormal = snapshot(geometry, "normal");
+    const harness = new FrameHarness();
+    const controller = new ControlPhysicsController(harness.dependencies);
+    controller.attachWheel(geometry);
+    controller.wheelContact(angleContact(90));
+    controller.releaseWheel();
+    harness.step(32);
+    expect(snapshot(geometry, "position")).not.toEqual(restPosition);
+    expect(harness.invalidations).toBe(2);
+    expect(harness.pending).toBe(1);
+
+    controller.setReducedMotion(true);
+
+    expect(snapshot(geometry, "position")).toEqual(restPosition);
+    expect(snapshot(geometry, "normal")).toEqual(restNormal);
+    expect(harness.invalidations).toBe(3);
+    expect(harness.pending).toBe(0);
+    expect(harness.cancels).toBe(1);
     controller.dispose();
     geometry.dispose();
   });
@@ -253,7 +279,47 @@ describe("transient physical click-wheel geometry", () => {
     geometry.dispose();
   });
 
-  test("release is demand-driven, bounded and has zero idle frames", () => {
+  test("release duration is frame-rate invariant from 15 through 360 Hz", () => {
+    for (const refreshHz of [15, 30, 60, 120, 240, 360]) {
+      for (const control of ["wheel", "select"] as const) {
+        const geometry =
+          control === "wheel" ? wheelGeometry() : selectGeometry();
+        const rest = snapshot(geometry, "position");
+        const harness = new FrameHarness();
+        const controller = new ControlPhysicsController(harness.dependencies);
+        if (control === "wheel") {
+          controller.attachWheel(geometry);
+          controller.wheelContact(angleContact(0));
+          controller.releaseWheel();
+        } else {
+          controller.attachSelect(geometry);
+          controller.pressSelect();
+          controller.releaseSelect();
+        }
+        const duration = CONTROL_RELEASE_MS[control];
+        const interval = 1_000 / refreshHz;
+        let frame = 0;
+        while (harness.pending > 0 && frame < 200) {
+          frame += 1;
+          harness.step(frame * interval);
+        }
+        const settledAtMs = frame * interval;
+        expect(settledAtMs).toBeGreaterThanOrEqual(duration);
+        expect(settledAtMs).toBeLessThan(duration + interval + 1e-9);
+        expect(snapshot(geometry, "position")).toEqual(rest);
+        expect(harness.pending).toBe(0);
+        if (refreshHz === 360 && control === "wheel") {
+          expect(harness.requests).toBeGreaterThan(
+            CONTROL_STALLED_FRAME_LIMIT,
+          );
+        }
+        controller.dispose();
+        geometry.dispose();
+      }
+    }
+  });
+
+  test("release is demand-driven and a frozen clock has a bounded escape", () => {
     const geometry = wheelGeometry();
     const rest = snapshot(geometry, "position");
     const harness = new FrameHarness();
@@ -264,11 +330,11 @@ describe("transient physical click-wheel geometry", () => {
     expect(harness.requests).toBe(0);
     controller.releaseWheel();
     expect(harness.pending).toBe(1);
-    for (let frame = 0; frame < CONTROL_RELEASE_FRAME_LIMIT; frame += 1) {
+    for (let frame = 0; frame < CONTROL_STALLED_FRAME_LIMIT; frame += 1) {
       harness.step(0);
     }
     expect(harness.pending).toBe(0);
-    expect(harness.requests).toBe(CONTROL_RELEASE_FRAME_LIMIT);
+    expect(harness.requests).toBe(CONTROL_STALLED_FRAME_LIMIT);
     expect(snapshot(geometry, "position")).toEqual(rest);
     controller.dispose();
     geometry.dispose();
@@ -281,10 +347,20 @@ describe("transient physical click-wheel geometry", () => {
     const scope = await Bun.file(
       "packages/device/src/ControlPhysicsScope.tsx",
     ).text();
+    const canvas = await Bun.file(
+      "packages/device/src/DeviceCanvas.tsx",
+    ).text();
+    const route = await Bun.file(
+      "apps/web/src/routes/[_]spike.device.tsx",
+    ).text();
     const device = await Bun.file("packages/device/src/Device.tsx").text();
     expect(scope).not.toContain("import { useFrame");
     expect(scope).not.toContain("useFrame(");
     expect(scope).not.toContain("setInterval");
+    expect(scope).not.toContain("ControlPhysicsEvidence");
+    expect(canvas).not.toContain("controlEvidencePose");
+    expect(route).not.toContain("requestedControlPose");
+    expect(route).not.toContain("controlEvidencePose");
     expect(physics).not.toContain("ShaderMaterial");
     expect(physics).not.toContain("uniform");
     expect(physics).not.toContain("uv");

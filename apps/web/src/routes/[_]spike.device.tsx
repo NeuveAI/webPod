@@ -7,7 +7,6 @@ import {
   DEFAULT_LIGHT_RIG,
   lightRigForContribution,
   type Colourway,
-  type ControlPhysicsEvidencePose,
   type DeviceMaterials,
   type DeviceOrientation,
   type DevicePosePreset,
@@ -31,19 +30,6 @@ function lightingContribution(value: string | null): LightContribution {
 
 function isColourway(value: string | null): value is Colourway {
   return value === "black" || value === "white";
-}
-
-function isControlEvidencePose(
-  value: string | null,
-): value is ControlPhysicsEvidencePose {
-  return (
-    value === "rest" ||
-    value === "select-press" ||
-    value === "wheel-0" ||
-    value === "wheel-90" ||
-    value === "wheel-180" ||
-    value === "wheel-270"
-  );
 }
 
 const PRODUCTION_LIGHT_RIGS = {
@@ -293,10 +279,6 @@ function DeviceSpike() {
   const productionLightRig = PRODUCTION_LIGHT_RIGS[lightContribution];
   const requestedView = search.get("view");
   const requestedColourway = search.get("colourway");
-  const requestedControlPose = search.get("control");
-  const controlEvidencePose = isControlEvidencePose(requestedControlPose)
-    ? requestedControlPose
-    : "rest";
   const evidenceOrientation =
     capture && isGeometryEvidenceView(requestedView)
       ? GEOMETRY_EVIDENCE_ORIENTATIONS[requestedView]
@@ -371,7 +353,6 @@ function DeviceSpike() {
             cameraSafePadding={34}
             orientation={renderedState.orientation}
             lightRig={productionLightRig}
-            controlEvidencePose={controlEvidencePose}
             studioEnvironment={lightContribution === "combined" ? undefined : null}
           />
         ) : (

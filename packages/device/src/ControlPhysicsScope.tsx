@@ -8,7 +8,6 @@ import {
 } from "react";
 
 import { ControlPhysicsController } from "./control-physics";
-import { DEVICE_LAYOUT } from "./layout";
 
 const ControlPhysicsContext = createContext<ControlPhysicsController | null>(
   null,
@@ -78,39 +77,4 @@ export function ControlPhysicsScope({
 
 export function useControlPhysics(): ControlPhysicsController | null {
   return useContext(ControlPhysicsContext);
-}
-
-export type ControlPhysicsEvidencePose =
-  | "rest"
-  | "select-press"
-  | "wheel-0"
-  | "wheel-90"
-  | "wheel-180"
-  | "wheel-270";
-
-/** Deterministic held-contact pose for the development evidence route only. */
-export function ControlPhysicsEvidence({
-  pose,
-}: {
-  readonly pose: ControlPhysicsEvidencePose;
-}) {
-  const controller = useControlPhysics();
-  useEffect(() => {
-    if (controller === null) return;
-    controller.reset();
-    if (pose === "select-press") {
-      controller.pressSelect();
-    } else if (pose !== "rest") {
-      const angleDeg = Number(pose.slice("wheel-".length));
-      const radius =
-        (DEVICE_LAYOUT.wheel.selectLipR + DEVICE_LAYOUT.wheel.outerR) / 2;
-      const angle = (-angleDeg * Math.PI) / 180;
-      controller.wheelContact({
-        x: Math.cos(angle) * radius,
-        y: Math.sin(angle) * radius,
-      });
-    }
-    return () => controller.reset();
-  }, [controller, pose]);
-  return null;
 }
