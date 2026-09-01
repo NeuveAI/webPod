@@ -55,6 +55,17 @@ async function prepareDiagnostic(page: Page, width: number, height: number): Pro
     .not.toBeNull();
 }
 
+async function prepareInteractive(page: Page, width: number, height: number): Promise<void> {
+  await page.setViewportSize({ width, height });
+  await page.goto("/_spike/device", { waitUntil: "domcontentloaded" });
+  await expect(page.locator(".webpod-device-preview__device")).toBeVisible();
+  await expect
+    .poll(() =>
+      page.locator(".webpod-device-preview canvas").getAttribute("data-wp-camera-fit-distance")
+    )
+    .not.toBeNull();
+}
+
 async function setPreview(
   page: Page,
   pose: Pose,
@@ -197,61 +208,114 @@ async function expectWheelGestureDoesNotSelect(page: Page): Promise<void> {
   };
   const radius = 88 * deviceScale;
   const activeRow = page.locator('[aria-current="true"]');
+  const dragMouseArc = async (counterClockwise = false): Promise<void> => {
+    const startX = center.x + (counterClockwise ? -radius : radius);
+    const endX = center.x + (counterClockwise ? radius : -radius);
+    await page.mouse.move(startX, center.y);
+    await page.mouse.down();
+    await page.mouse.move(center.x, center.y + radius, { steps: 12 });
+    await page.mouse.move(endX, center.y, { steps: 12 });
+    await page.mouse.up();
+  };
   const before = await activeRow.textContent();
   await page.evaluate(() => document.getSelection()?.removeAllRanges());
-  await page.mouse.move(center.x + radius, center.y);
-  await page.mouse.down();
-  await page.mouse.move(center.x, center.y + radius, { steps: 12 });
-  await page.mouse.move(center.x - radius, center.y, { steps: 12 });
-  await page.mouse.up();
+  await dragMouseArc();
   expect(await page.evaluate(() => document.getSelection()?.rangeCount ?? -1)).toBe(0);
   expect(await activeRow.textContent()).not.toBe(before);
 
-  const cdp = await page.context().newCDPSession(page);
-  await cdp.send("Emulation.setTouchEmulationEnabled", {
-    enabled: true,
-    maxTouchPoints: 1,
-  });
-  await cdp.send("Input.dispatchTouchEvent", {
-    type: "touchStart",
-    touchPoints: [{ x: center.x + radius, y: center.y, id: 71 }],
-  });
-  await cdp.send("Input.dispatchTouchEvent", {
-    type: "touchMove",
-    touchPoints: [{ x: center.x, y: center.y + radius, id: 71 }],
-  });
-  await cdp.send("Input.dispatchTouchEvent", {
-    type: "touchCancel",
-    touchPoints: [],
-  });
-  await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: false });
-  await cdp.detach();
+  const beforeTouch = await activeRow.textContent();
   const root = page.locator(".webpod-device-preview__device");
+  const cdp = await page.context().newCDPSession(page);
+  try {
+    await cdp.send("Emulation.setTouchEmulationEnabled", {
+      enabled: true,
+      maxTouchPoints: 1,
+    });
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ x: center.x - radius, y: center.y, id: 71 }],
+    });
+    await expect(root).toHaveAttribute("data-wp-wheel-gesture", "active");
+    expect(await root.evaluate((element) => getComputedStyle(element).userSelect)).toBe("none");
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: [{ x: center.x, y: center.y + radius, id: 71 }],
+    });
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: [{ x: center.x + radius, y: center.y, id: 71 }],
+    });
+    await expect.poll(() => activeRow.textContent()).not.toBe(beforeTouch);
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchCancel",
+      touchPoints: [],
+    });
+  } finally {
+    await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: false });
+    await cdp.detach();
+  }
   await expect(root).not.toHaveAttribute("data-wp-wheel-gesture", "active");
   expect(await root.evaluate((element) => getComputedStyle(element).userSelect)).not.toBe("none");
   expect(await page.evaluate(() => document.getSelection()?.rangeCount ?? -1)).toBe(0);
 
-  expect(
-    await page.evaluate(() => {
-      const outside = document.createElement("p");
-      outside.textContent = "Outside selectable proof";
-      document.body.append(outside);
-      const text = outside.firstChild;
-      const selection = document.getSelection();
-      if (text === null || selection === null) return "missing";
-      const range = document.createRange();
-      range.selectNodeContents(text);
-      selection.removeAllRanges();
-      selection.addRange(range);
-      const selected = selection.toString();
-      outside.remove();
-      selection.removeAllRanges();
-      return selected;
-    }),
-  ).toBe("Outside selectable proof");
+  const beforeRecovery = await activeRow.textContent();
+  await dragMouseArc();
+  expect(await activeRow.textContent()).not.toBe(beforeRecovery);
+
+  await prepareInteractive(page, 1024, 768);
+  await setPreview(page, "front", "black");
+  const note = page.locator(".webpod-device-preview__selection-note");
+  const noteBounds = await note.boundingBox();
+  if (noteBounds === null) throw new Error("outside selection note has no bounds");
+  await page.evaluate(() => document.getSelection()?.removeAllRanges());
+  await page.mouse.move(noteBounds.x + 1, noteBounds.y + noteBounds.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(
+    noteBounds.x + noteBounds.width - 1,
+    noteBounds.y + noteBounds.height / 2,
+    { steps: 20 },
+  );
+  await page.mouse.up();
+  const outsideSelection = await page.evaluate(
+    () => document.getSelection()?.toString() ?? "",
+  );
+  expect(outsideSelection).toContain("Outside text remains selectable");
+
+  const interactiveCanvas = page.locator(".webpod-device-preview canvas");
+  const interactiveBox = await interactiveCanvas.boundingBox();
+  if (interactiveBox === null) throw new Error("interactive wheel canvas has no bounds");
+  const interactiveExtentY = Number(
+    await interactiveCanvas.getAttribute("data-wp-projected-extent-y"),
+  );
+  const interactiveScale = interactiveBox.height * interactiveExtentY / 552;
+  const interactiveCenter = {
+    x: interactiveBox.x + interactiveBox.width / 2,
+    y: interactiveBox.y + interactiveBox.height / 2 + 134 * interactiveScale,
+  };
+  const interactiveRadius = 88 * interactiveScale;
+  const beforeOutsideGesture = await activeRow.textContent();
+  await page.mouse.move(interactiveCenter.x - interactiveRadius, interactiveCenter.y);
+  await page.mouse.down();
+  await page.mouse.move(interactiveCenter.x, interactiveCenter.y + interactiveRadius, {
+    steps: 12,
+  });
+  await page.mouse.move(interactiveCenter.x + interactiveRadius, interactiveCenter.y, {
+    steps: 12,
+  });
+  await page.mouse.up();
+  expect(await activeRow.textContent()).not.toBe(beforeOutsideGesture);
+  expect(await page.evaluate(() => document.getSelection()?.toString() ?? "")).toBe(
+    outsideSelection,
+  );
+  await page.evaluate(() => document.getSelection()?.removeAllRanges());
 }
 
-async function sourceHealth(page: Page): Promise<{ expected: string; current: string }> {
+async function sourceHealth(page: Page): Promise<{
+  expected: string;
+  current: string;
+  reviewedCommit: string | null;
+  reviewedTree: string | null;
+}> {
   return page.evaluate(async () => {
     const response = await fetch("/__webpod_health", { cache: "no-store" });
     if (!response.ok) throw new Error(`source health returned ${String(response.status)}`);
@@ -298,6 +362,10 @@ test.describe("true-3D device route", () => {
     await prepare(page, 1024, 768);
     const health = await sourceHealth(page);
     expect(health.current).toBe(health.expected);
+    if (process.env["W5B_SOURCE_COMMIT"] !== undefined) {
+      expect(health.reviewedCommit).toMatch(/^[0-9a-f]{40}$/);
+      expect(health.reviewedTree).toMatch(/^[0-9a-f]{40}$/);
+    }
     await expectNoOverflow(page);
 
     const captures: Array<Record<string, unknown>> = [];

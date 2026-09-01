@@ -13,6 +13,7 @@ import {
   wheelAngleFromRay,
 } from "./click-wheel-input";
 import { DEVICE_LAYOUT } from "./layout";
+import { DEFAULT_FRONT_ASSEMBLY_DEPTHS } from "./front-surface";
 
 function wheelMesh() {
   const mesh = new Mesh(
@@ -42,8 +43,8 @@ describe("click-wheel input geometry", () => {
     });
     expect(CLICK_WHEEL_INPUT_POSITION[0]).toBe(DEVICE_LAYOUT.wheel.centerX);
     expect(CLICK_WHEEL_INPUT_POSITION[1]).toBe(DEVICE_LAYOUT.wheel.centerY);
-    expect(CLICK_WHEEL_INPUT_POSITION[2]).toBeGreaterThan(
-      DEVICE_LAYOUT.body.depth / 2,
+    expect(CLICK_WHEEL_INPUT_POSITION[2]).toBe(
+      DEFAULT_FRONT_ASSEMBLY_DEPTHS.clickWheelInputZ,
     );
   });
 

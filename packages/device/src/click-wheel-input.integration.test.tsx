@@ -43,6 +43,12 @@ type MountedSurface = {
   readonly restoreAnimationFrame: () => void;
 };
 
+type CallbackPlants = {
+  readonly onArcStart?: (sample: ClickWheelArcSample) => void;
+  readonly onArcMove?: (sample: ClickWheelArcSample) => void;
+  readonly onArcEnd?: (end: ClickWheelArcEnd) => void;
+};
+
 function installAnimationFrameStub(): () => void {
   const previous = globalThis.requestAnimationFrame;
   globalThis.requestAnimationFrame = () => 1;
@@ -57,6 +63,7 @@ function installAnimationFrameStub(): () => void {
 
 async function mountSurface(
   face: "front" | "back" = "front",
+  plants: CallbackPlants = {},
 ): Promise<MountedSurface> {
   const canvas = document.createElement("canvas");
   const camera = new THREE.OrthographicCamera(
@@ -100,9 +107,18 @@ async function mountSurface(
         }}
       >
         <ClickWheelInputSurface
-          onArcStart={(sample) => starts.push(sample)}
-          onArcMove={(sample) => moves.push(sample)}
-          onArcEnd={(end) => ends.push(end)}
+          onArcStart={(sample) => {
+            starts.push(sample);
+            plants.onArcStart?.(sample);
+          }}
+          onArcMove={(sample) => {
+            moves.push(sample);
+            plants.onArcMove?.(sample);
+          }}
+          onArcEnd={(end) => {
+            ends.push(end);
+            plants.onArcEnd?.(end);
+          }}
         />
       </DeviceCanvasOrientationContext.Provider>,
     );
@@ -161,6 +177,26 @@ async function dispatch(
     mounted.canvas.dispatchEvent(event);
     await Promise.resolve();
   });
+}
+
+async function dispatchExpectingWindowError(
+  mounted: MountedSurface,
+  event: PointerEvent,
+  message: string,
+): Promise<void> {
+  const reported: { current: Error | null } = { current: null };
+  const onError = (error: ErrorEvent): void => {
+    if (error.message !== message) return;
+    reported.current = error.error instanceof Error ? error.error : new Error(error.message);
+    error.preventDefault();
+  };
+  window.addEventListener("error", onError);
+  try {
+    await dispatch(mounted, event);
+  } finally {
+    window.removeEventListener("error", onError);
+  }
+  expect(reported.current?.message).toBe(message);
 }
 
 async function unmount(mounted: MountedSurface): Promise<void> {
@@ -234,6 +270,74 @@ describe("click-wheel mounted R3F event seam", () => {
       );
       expect(mounted.starts.at(-1)?.pointerType).toBe("touch");
       expect(mounted.moves.at(-1)?.angleDeg).toBeCloseTo(90, 8);
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("a thrown start callback releases capture and leaves the next gesture usable", async () => {
+    let startsToThrow = 1;
+    const mounted = await mountSurface("front", {
+      onArcStart: () => {
+        if (startsToThrow > 0) {
+          startsToThrow -= 1;
+          throw new Error("planted start failure");
+        }
+      },
+    });
+    const pointerId = 41;
+    try {
+      await dispatchExpectingWindowError(
+        mounted,
+        pointerEvent("pointerdown", pointerId, 80, 0),
+        "planted start failure",
+      );
+      expect(startsToThrow).toBe(0);
+      expect(mounted.canvas.hasPointerCapture(pointerId)).toBeFalse();
+      expect(mounted.ends.map((end) => end.reason)).toEqual(["cancel"]);
+
+      await dispatch(mounted, pointerEvent("pointerdown", 42, 80, 0));
+      await dispatch(mounted, pointerEvent("pointerup", 42, 0, -80));
+      expect(mounted.starts).toHaveLength(2);
+      expect(mounted.ends.map((end) => end.reason)).toEqual([
+        "cancel",
+        "release",
+      ]);
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("a thrown move callback cancels listeners and capture before rethrowing", async () => {
+    let movesToThrow = 1;
+    const mounted = await mountSurface("front", {
+      onArcMove: () => {
+        if (movesToThrow > 0) {
+          movesToThrow -= 1;
+          throw new Error("planted move failure");
+        }
+      },
+    });
+    const pointerId = 43;
+    try {
+      await dispatch(mounted, pointerEvent("pointerdown", pointerId, 80, 0));
+      await dispatchExpectingWindowError(
+        mounted,
+        pointerEvent("pointermove", pointerId, 0, -80),
+        "planted move failure",
+      );
+      expect(movesToThrow).toBe(0);
+      expect(mounted.canvas.hasPointerCapture(pointerId)).toBeFalse();
+      expect(mounted.ends.map((end) => end.reason)).toEqual(["cancel"]);
+
+      await dispatch(mounted, pointerEvent("pointerdown", 44, 80, 0));
+      await dispatch(mounted, pointerEvent("pointermove", 44, 0, -80));
+      await dispatch(mounted, pointerEvent("pointerup", 44, 0, -80));
+      expect(mounted.moves).toHaveLength(2);
+      expect(mounted.ends.map((end) => end.reason)).toEqual([
+        "cancel",
+        "release",
+      ]);
     } finally {
       await unmount(mounted);
     }

@@ -279,7 +279,14 @@ function DeviceSpike() {
           />
         )}
       </div>
-      {capture ? null : <PreviewControls state={state} />}
+      {capture ? null : (
+        <>
+          <p className="webpod-device-preview__selection-note">
+            Outside text remains selectable.
+          </p>
+          <PreviewControls state={state} />
+        </>
+      )}
     </main>
   );
 }
@@ -354,6 +361,17 @@ const DEVICE_PREVIEW_CSS = `
     justify-content: safe center;
     gap: 6px;
     pointer-events: none;
+  }
+  .webpod-device-preview__selection-note {
+    position: absolute;
+    z-index: 4;
+    inset-block-start: max(12px, env(safe-area-inset-top));
+    inset-inline-start: max(14px, env(safe-area-inset-left));
+    margin: 0;
+    color: inherit;
+    font: 500 12px/1.4 ui-sans-serif, system-ui, sans-serif;
+    user-select: text;
+    pointer-events: auto;
   }
   .webpod-device-preview__controls button {
     min-block-size: 36px;

@@ -9,6 +9,7 @@ import {
 
 import { DEVICE_LAYOUT } from "./layout";
 import { DeviceCanvasOrientationContext } from "./DeviceCanvas";
+import { DEFAULT_FRONT_ASSEMBLY_DEPTHS } from "./front-surface";
 
 export type ClickWheelPointerType = "mouse" | "touch" | "pen";
 
@@ -34,8 +35,6 @@ export type ClickWheelInputSurfaceProps = {
   readonly onArcEnd: (end: ClickWheelArcEnd) => void;
 };
 
-const INPUT_PLANE_OFFSET = 0.25;
-
 /** Canonical annulus dimensions, exported so geometry drift is testable. */
 export const CLICK_WHEEL_INPUT_RADII = Object.freeze({
   inner: DEVICE_LAYOUT.wheel.selectR,
@@ -50,7 +49,7 @@ export const CLICK_WHEEL_INPUT_RADII = Object.freeze({
 export const CLICK_WHEEL_INPUT_POSITION = Object.freeze([
   DEVICE_LAYOUT.wheel.centerX,
   DEVICE_LAYOUT.wheel.centerY,
-  DEVICE_LAYOUT.body.depth / 2 + INPUT_PLANE_OFFSET,
+  DEFAULT_FRONT_ASSEMBLY_DEPTHS.clickWheelInputZ,
 ] as const);
 
 type CaptureApi = {
@@ -237,6 +236,20 @@ export function ClickWheelInputSurface({
     );
   };
 
+  const cancelAfterCallbackError = (
+    pointerId: number,
+    timestampMs: number,
+    error: unknown,
+  ): never => {
+    try {
+      finish(pointerId, timestampMs, "cancel", true);
+    } catch {
+      // Capture/listener cleanup happens before onArcEnd. Preserve the first
+      // callback failure if a secondary cancellation callback also throws.
+    }
+    throw error;
+  };
+
   useEffect(
     () => () => {
       const active = captureSlotRef.current.current;
@@ -319,7 +332,11 @@ export function ClickWheelInputSurface({
     host.addEventListener("pointercancel", onCancel);
     host.addEventListener("lostpointercapture", onLostCapture);
     blurHost?.addEventListener("blur", onBlur);
-    callbacksRef.current.onArcStart(first);
+    try {
+      callbacksRef.current.onArcStart(first);
+    } catch (error) {
+      cancelAfterCallbackError(event.pointerId, event.timeStamp, error);
+    }
   };
 
   const onPointerMove = (event: ThreeEvent<PointerEvent>) => {
@@ -328,7 +345,13 @@ export function ClickWheelInputSurface({
     event.stopPropagation();
     preventNativeDefault(event);
     const next = sample(event, active.pointerType);
-    if (next !== null) callbacksRef.current.onArcMove(next);
+    if (next !== null) {
+      try {
+        callbacksRef.current.onArcMove(next);
+      } catch (error) {
+        cancelAfterCallbackError(event.pointerId, event.timeStamp, error);
+      }
+    }
   };
 
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
