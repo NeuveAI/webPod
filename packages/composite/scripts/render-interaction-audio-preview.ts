@@ -3,11 +3,8 @@ import { chromium } from '@playwright/test'
 const route = process.env['WEBPOD_PREVIEW_URL'] ?? 'http://localhost:3000/_spike/device'
 const modulePath = new URL('../src/web-audio-backend.ts', import.meta.url).pathname
 const moduleUrl = `/@fs${modulePath}`
-const outputUrl = new URL(
-  '../../../docs/workstreams/002-implementation-spine/evidence/' +
-    'w9b-interaction-audio-preview.wav',
-  import.meta.url,
-)
+const outputPath = process.argv[2]
+if (outputPath === undefined) throw new Error('Provide an output WAV path.')
 
 const browser = await chromium.launch({ headless: true })
 try {
@@ -25,10 +22,10 @@ try {
     return btoa(binary)
   }, moduleUrl)
   const bytes = Uint8Array.from(Buffer.from(encoded, 'base64'))
-  await Bun.write(outputUrl, bytes)
+  await Bun.write(outputPath, bytes)
   const sha256 = new Bun.CryptoHasher('sha256').update(bytes).digest('hex')
   process.stdout.write(JSON.stringify({
-    output: outputUrl.pathname,
+    output: outputPath,
     bytes: bytes.length,
     sha256,
   }) + '\n')
