@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  Euler,
   ExtrudeGeometry,
   Float32BufferAttribute,
   Shape,
@@ -11,11 +12,18 @@ import {
   edgeCrownOffset,
   edgeCrownSlope,
   frontCoreDepth,
+  horizontalCrownOffset,
+  horizontalCrownSlope,
   tessellateVerticalCrown,
   verticalCrownOffset,
   verticalCrownSlope,
 } from "./curved-shell";
 import { DEVICE_LAYOUT, GLASS_CORNER_R } from "./layout";
+import { DEFAULT_DEVICE_FORM } from "./form";
+import {
+  DEVICE_ORIENTATION_PRESETS,
+  deviceOrientationToRotation,
+} from "./orientation";
 import { circleHole, roundedRectHole, silhouetteShape } from "./shapes";
 
 function rectangle(width: number, height: number) {
@@ -55,6 +63,8 @@ function maxNormalSplitOnFront(
   frontBaseZ: number,
   halfHeight: number,
   crown: number,
+  edge = { top: 0, bottom: 0, extent: 1 },
+  cross = { halfWidth: 1, crown: 0 },
 ) {
   const positions = geometry.getAttribute("position");
   const normals = geometry.getAttribute("normal");
@@ -62,7 +72,11 @@ function maxNormalSplitOnFront(
   const byPosition = new Map<string, Array<Vector3>>();
   for (let index = 0; index < positions.count; index += 1) {
     const y = positions.getY(index);
-    const expectedZ = frontBaseZ + verticalCrownOffset(y, halfHeight, crown);
+    const expectedZ =
+      frontBaseZ +
+      verticalCrownOffset(y, halfHeight, crown) +
+      horizontalCrownOffset(positions.getX(index), cross.halfWidth, cross.crown) +
+      edgeCrownOffset(y, halfHeight, edge);
     if (Math.abs(positions.getZ(index) - expectedZ) > 1e-4) continue;
     if (capFaces !== undefined && capFaces.getX(index) !== 1) continue;
     if (normals.getZ(index) < 0.9) continue;
@@ -112,6 +126,201 @@ function markOriginalFrontCap(geometry: ExtrudeGeometry) {
 }
 
 describe("tessellated vertical shell crown", () => {
+  test("macro and edge profiles meet every shell join with a zero tangent", () => {
+    const halfHeight = DEVICE_LAYOUT.body.height / 2 - DEFAULT_DEVICE_FORM.seamWidth;
+    const edge = {
+      top: DEFAULT_DEVICE_FORM.topEdgeCrown,
+      bottom: DEFAULT_DEVICE_FORM.bottomEdgeCrown,
+      extent: DEFAULT_DEVICE_FORM.edgeCrownExtent,
+    };
+    const epsilon = 1e-4;
+
+    for (const side of [-1, 1] as const) {
+      const outer = side * halfHeight;
+      const inner = side * (halfHeight - edge.extent);
+      expect(verticalCrownSlope(outer, halfHeight, DEFAULT_DEVICE_FORM.bodyCrown)).toBe(0);
+      expect(edgeCrownOffset(outer, halfHeight, edge)).toBeCloseTo(0, 12);
+      expect(edgeCrownSlope(outer, halfHeight, edge)).toBeCloseTo(0, 12);
+      expect(edgeCrownOffset(inner, halfHeight, edge)).toBeCloseTo(0, 12);
+      expect(edgeCrownSlope(inner, halfHeight, edge)).toBeCloseTo(0, 12);
+
+      const macroApproach =
+        (verticalCrownOffset(outer, halfHeight, DEFAULT_DEVICE_FORM.bodyCrown) -
+          verticalCrownOffset(outer - side * epsilon, halfHeight, DEFAULT_DEVICE_FORM.bodyCrown)) /
+        (side * epsilon);
+      const outerEdgeApproach =
+        (edgeCrownOffset(outer, halfHeight, edge) -
+          edgeCrownOffset(outer - side * epsilon, halfHeight, edge)) /
+        (side * epsilon);
+      const innerEdgeApproach =
+        (edgeCrownOffset(inner + side * epsilon, halfHeight, edge) -
+          edgeCrownOffset(inner, halfHeight, edge)) /
+        (side * epsilon);
+      expect(Math.abs(macroApproach)).toBeLessThan(1e-5);
+      expect(Math.abs(outerEdgeApproach)).toBeLessThan(1e-5);
+      expect(Math.abs(innerEdgeApproach)).toBeLessThan(1e-5);
+    }
+  });
+
+  test("all four corner joins remain normal-continuous in every rotated pose", () => {
+    const halfHeight = DEVICE_LAYOUT.body.height / 2 - DEFAULT_DEVICE_FORM.seamWidth;
+    const edge = {
+      top: DEFAULT_DEVICE_FORM.topEdgeCrown,
+      bottom: DEFAULT_DEVICE_FORM.bottomEdgeCrown,
+      extent: DEFAULT_DEVICE_FORM.edgeCrownExtent,
+    };
+    const halfWidth = DEVICE_LAYOUT.body.width / 2 - DEFAULT_DEVICE_FORM.seamWidth;
+    const epsilon = 1e-4;
+    const joinedNormal = (x: number, y: number) =>
+      new Vector3(
+        -horizontalCrownSlope(x, halfWidth, DEFAULT_DEVICE_FORM.bodyCrossCrown),
+        -(verticalCrownSlope(y, halfHeight, DEFAULT_DEVICE_FORM.bodyCrown) +
+          edgeCrownSlope(y, halfHeight, edge)),
+        1,
+      ).normalize();
+
+    for (const sideY of [-1, 1] as const) {
+      const joins = [
+        sideY * halfHeight,
+        sideY * (halfHeight - edge.extent),
+      ];
+      for (const sideX of [-1, 1] as const) {
+        for (const orientation of Object.values(DEVICE_ORIENTATION_PRESETS)) {
+          const rotation = new Euler(...deviceOrientationToRotation(orientation), "XYZ");
+          for (const join of joins) {
+            const towardCenter = join - sideY * epsilon;
+            const awayFromCenter = join + sideY * epsilon;
+            const cornerX = sideX * halfWidth;
+            const before = joinedNormal(cornerX, towardCenter).applyEuler(rotation);
+            const after = joinedNormal(cornerX, awayFromCenter).applyEuler(rotation);
+            expect(before.angleTo(after)).toBeLessThan(1e-5);
+
+            const xBefore = joinedNormal(
+              cornerX - sideX * epsilon,
+              towardCenter,
+            ).applyEuler(rotation);
+            const xAfter = joinedNormal(
+              cornerX + sideX * epsilon,
+              towardCenter,
+            ).applyEuler(rotation);
+            expect(xBefore.angleTo(xAfter)).toBeLessThan(1e-5);
+          }
+        }
+      }
+    }
+  });
+
+  test("the production front cap has no corner triangulation or duplicate-normal split", () => {
+    const form = DEFAULT_DEVICE_FORM;
+    const halfHeight = DEVICE_LAYOUT.body.height / 2 - form.seamWidth;
+    const halfWidth = DEVICE_LAYOUT.body.width / 2 - form.seamWidth;
+    const edge = {
+      top: form.topEdgeCrown,
+      bottom: form.bottomEdgeCrown,
+      extent: form.edgeCrownExtent,
+    };
+    const cross = {
+      halfWidth,
+      crown: form.bodyCrossCrown,
+    };
+    const source = new ExtrudeGeometry(actualFrontShape(), {
+      depth: frontCoreDepth(form.frontThickness, form.frontBevel),
+      bevelEnabled: true,
+      bevelThickness: form.frontBevel,
+      bevelSize: form.frontBevel,
+      bevelSegments: 6,
+      curveSegments: 1,
+    });
+    source.computeBoundingBox();
+    const frontBaseZ = source.boundingBox?.max.z;
+    if (frontBaseZ === undefined) throw new Error("production front has no bounds");
+    const geometry = tessellateVerticalCrown(
+      source,
+      halfHeight,
+      form.bodyCrown,
+      BODY_CROWN_ROW_STEP,
+      edge,
+      cross,
+    );
+    const positions = geometry.getAttribute("position");
+    const normals = geometry.getAttribute("normal");
+    const caps = geometry.getAttribute("crownCap");
+    const cornerGroups = new Map<string, Map<string, Array<Vector3>>>();
+    for (const sx of [-1, 1]) {
+      for (const sy of [-1, 1]) cornerGroups.set(`${sx}:${sy}`, new Map());
+    }
+
+    for (let index = 0; index < positions.count; index += 1) {
+      if (caps.getX(index) !== 1) continue;
+      const x = positions.getX(index);
+      const y = positions.getY(index);
+      if (
+        Math.abs(x) < halfWidth - DEVICE_LAYOUT.body.cornerR - 1 ||
+        Math.abs(y) < halfHeight - DEVICE_LAYOUT.body.cornerR - 1
+      ) continue;
+      const corner = `${Math.sign(x)}:${Math.sign(y)}`;
+      const groups = cornerGroups.get(corner);
+      if (groups === undefined) continue;
+      const key = [x, y, positions.getZ(index)].map((value) => value.toFixed(4)).join(":");
+      const entries = groups.get(key) ?? [];
+      entries.push(
+        new Vector3(normals.getX(index), normals.getY(index), normals.getZ(index)).normalize(),
+      );
+      groups.set(key, entries);
+    }
+
+    for (const groups of cornerGroups.values()) {
+      expect(groups.size).toBeGreaterThan(12);
+      let duplicateCount = 0;
+      for (const entries of groups.values()) {
+        if (entries.length < 2) continue;
+        duplicateCount += 1;
+        const first = entries[0];
+        if (first === undefined) continue;
+        for (const normal of entries.slice(1)) {
+          expect(first.angleTo(normal)).toBeLessThan(1e-6);
+        }
+      }
+      expect(duplicateCount).toBeGreaterThan(4);
+    }
+    expect(
+      maxNormalSplitOnFront(
+        geometry,
+        frontBaseZ,
+        halfHeight,
+        form.bodyCrown,
+        edge,
+        cross,
+      ),
+    ).toBeLessThan(1e-6);
+
+    const capNormalNear = (targetX: number): Vector3 => {
+      let bestIndex = -1;
+      let bestDistance = Infinity;
+      for (let index = 0; index < positions.count; index += 1) {
+        if (caps.getX(index) !== 1) continue;
+        const distance = Math.hypot(
+          positions.getX(index) - targetX,
+          positions.getY(index),
+        );
+        if (distance < bestDistance) {
+          bestIndex = index;
+          bestDistance = distance;
+        }
+      }
+      if (bestIndex < 0) throw new Error("front cap normal sample is absent");
+      return new Vector3(
+        normals.getX(bestIndex),
+        normals.getY(bestIndex),
+        normals.getZ(bestIndex),
+      ).normalize();
+    };
+    expect(capNormalNear(-halfWidth / 2).x).toBeLessThan(-0.005);
+    expect(capNormalNear(halfWidth / 2).x).toBeGreaterThan(0.005);
+    source.dispose();
+    geometry.dispose();
+  });
+
   test("zero secondary crown is byte-identical", () => {
     const source = new ExtrudeGeometry(rectangle(40, 80), { depth: 14, bevelEnabled: false });
     const baseline = tessellateVerticalCrown(source, 40, -6, 4);
@@ -153,10 +362,10 @@ describe("tessellated vertical shell crown", () => {
     expect(verticalCrownOffset(-100, 100, 12)).toBe(0);
     expect(verticalCrownOffset(0, 100, 12)).toBe(12);
     expect(verticalCrownOffset(100, 100, 12)).toBe(0);
-    expect(verticalCrownOffset(-50, 100, 12)).toBe(9);
-    expect(verticalCrownOffset(50, 100, 12)).toBe(9);
-    expect(verticalCrownSlope(-50, 100, 12)).toBeCloseTo(0.12, 12);
-    expect(verticalCrownSlope(50, 100, 12)).toBeCloseTo(-0.12, 12);
+    expect(verticalCrownOffset(-50, 100, 12)).toBeCloseTo(9, 12);
+    expect(verticalCrownOffset(50, 100, 12)).toBeCloseTo(9, 12);
+    expect(verticalCrownSlope(-50, 100, 12)).toBeCloseTo(0.15, 12);
+    expect(verticalCrownSlope(50, 100, 12)).toBeCloseTo(-0.15, 12);
   });
 
   test("refuses the old clamped bevel/thickness combination", () => {

@@ -8,8 +8,10 @@ import {
   keyLightPosition,
   keyLightPower,
   kickLightPower,
+  viewerAzimuthAngleDeg,
 } from "./light-rig";
 import {
+  aimAreaLightAtTarget,
   DEVICE_MODEL_NAME,
   ViewerLitDeviceFrame,
 } from "./ViewerLitDeviceFrame";
@@ -25,6 +27,7 @@ type LightElementProps = {
   readonly intensity: number;
   readonly width: number;
   readonly height: number;
+  readonly rotation: readonly [number, number, number];
 };
 
 type GroupElementProps = {
@@ -124,9 +127,10 @@ describe("viewer-lit device scene frame", () => {
     expect(kick.props.height).toBe(DEFAULT_LIGHT_RIG.kick.emitter.height);
   });
 
-  test("puts a 15–25° key at viewer top-right and a subordinate kick below", () => {
+  test("puts a 35–45° / 45° key at viewer front-right and a subordinate strip below", () => {
     const keyPosition = keyLightPosition(DEFAULT_LIGHT_RIG.key);
     const descent = keyDescentAngleDeg(keyPosition);
+    const azimuth = viewerAzimuthAngleDeg(keyPosition);
     const frame = frameChildren("front");
     const key = requireElement<LightElementProps>(frame[0], "rectAreaLight");
     const kick = requireElement<LightElementProps>(frame[1], "rectAreaLight");
@@ -134,10 +138,18 @@ describe("viewer-lit device scene frame", () => {
     expect(keyPosition[0]).toBeGreaterThan(0);
     expect(keyPosition[1]).toBeGreaterThan(0);
     expect(keyPosition[2]).toBeGreaterThan(0);
-    expect(descent).toBeGreaterThanOrEqual(15);
-    expect(descent).toBeLessThanOrEqual(25);
+    expect(descent).toBeGreaterThanOrEqual(35);
+    expect(descent).toBeLessThanOrEqual(45);
     expect(descent).toBeCloseTo(DEFAULT_LIGHT_RIG.key.descentDeg, 8);
+    expect(azimuth).toBeGreaterThanOrEqual(40);
+    expect(azimuth).toBeLessThanOrEqual(50);
+    expect(azimuth).toBeCloseTo(DEFAULT_LIGHT_RIG.key.viewerAzimuthDeg, 8);
     expect(kick.props.position[1]).toBeLessThan(0);
+    expect(kick.props.position[2]).toBeLessThan(0);
+    expect(kick.props.height / kick.props.width).toBeGreaterThan(3);
+    expect(kick.props.rotation).toEqual(
+      aimAreaLightAtTarget(kick.props.position, DEFAULT_LIGHT_RIG.kick.target),
+    );
     expect(kickLightPower(DEFAULT_LIGHT_RIG)).toBeLessThan(
       keyLightPower(DEFAULT_LIGHT_RIG),
     );

@@ -51,7 +51,7 @@ export type StudioEnvironmentProps = {
 /** Restrained IBL: enough for material identity, below the authored lamps. */
 export const DEFAULT_STUDIO_ENVIRONMENT = Object.freeze({
   sigma: 0.04,
-  intensity: 0.34,
+  intensity: 0.2,
 });
 
 /**

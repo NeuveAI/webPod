@@ -298,6 +298,10 @@ export function Device({
       form.bodyCrown,
       undefined,
       { top: form.topEdgeCrown, bottom: form.bottomEdgeCrown, extent: form.edgeCrownExtent },
+      {
+        halfWidth: body.width / 2 - seam,
+        crown: form.bodyCrossCrown,
+      },
     );
     extrusion.dispose();
     geometry.translate(0, 0, plateBackZ + form.frontBevel);
@@ -307,6 +311,7 @@ export function Device({
     form.frontThickness,
     form.frontBevel,
     form.bodyCrown,
+    form.bodyCrossCrown,
     form.topEdgeCrown,
     form.bottomEdgeCrown,
     form.edgeCrownExtent,
@@ -520,21 +525,21 @@ export function Device({
     [screenDefaultMaterial],
   );
   const coverGlassMaterial = useMemo(
-    () => createCoverGlassMaterial(materials.coverGlass, env),
-    [env, materials.coverGlass],
+    () => createCoverGlassMaterial(materials.coverGlass, null),
+    [materials.coverGlass],
   );
   useEffect(() => () => coverGlassMaterial.dispose(), [coverGlassMaterial]);
   const blackBodyPhysicalMaterial = useMemo(
-    () => createBlackPolycarbonateMaterial(materials.bodyBlack, env),
-    [env, materials.bodyBlack],
+    () => createBlackPolycarbonateMaterial(materials.bodyBlack, null),
+    [materials.bodyBlack],
   );
   useEffect(
     () => () => blackBodyPhysicalMaterial.dispose(),
     [blackBodyPhysicalMaterial],
   );
   const whiteBodyPhysicalMaterial = useMemo(
-    () => createPolycarbonateMaterial(materials.bodyWhite, env),
-    [env, materials.bodyWhite],
+    () => createPolycarbonateMaterial(materials.bodyWhite, null),
+    [materials.bodyWhite],
   );
   useEffect(
     () => () => whiteBodyPhysicalMaterial.dispose(),
@@ -609,7 +614,6 @@ export function Device({
         <meshPhysicalMaterial
           name={isBlack ? "chrome-seam-black" : "chrome-seam"}
           {...spread(seamMaterial)}
-          envMap={env}
           roughnessMap={noise}
         />
       </mesh>
@@ -623,7 +627,6 @@ export function Device({
         <meshPhysicalMaterial
           name="hold-recess"
           {...spread(materials.displayWell)}
-          envMap={env}
         />
       </mesh>
       <mesh
@@ -634,7 +637,6 @@ export function Device({
         <meshPhysicalMaterial
           name="hold-indicator"
           {...spread(materials.holdIndicator)}
-          envMap={env}
         />
       </mesh>
       <mesh
@@ -645,7 +647,6 @@ export function Device({
         <meshPhysicalMaterial
           name={isBlack ? "hold-slider-black" : "hold-slider-white"}
           {...spread(isBlack ? materials.chromeSeamBlack : materials.chromeSeam)}
-          envMap={env}
         />
       </mesh>
       <mesh
@@ -657,7 +658,6 @@ export function Device({
         <meshPhysicalMaterial
           name="headphone-rim"
           {...spread(materials.steelBack)}
-          envMap={env}
         />
       </mesh>
       <mesh
@@ -668,7 +668,6 @@ export function Device({
         <meshPhysicalMaterial
           name="headphone-well"
           {...spread(materials.displayWell)}
-          envMap={env}
         />
       </mesh>
 
@@ -697,7 +696,6 @@ export function Device({
         <meshPhysicalMaterial
           name="rear-inlay"
           {...spread(materials.rearInlay)}
-          envMap={env}
           side={DoubleSide}
         />
       </mesh>
@@ -710,7 +708,6 @@ export function Device({
         <meshPhysicalMaterial
           name="display-well"
           {...spread(materials.displayWell)}
-          envMap={env}
         />
       </mesh>
 
@@ -725,7 +722,6 @@ export function Device({
           {...spread(
             isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
           )}
-          envMap={env}
         />
       </mesh>
 
@@ -738,7 +734,6 @@ export function Device({
         <meshPhysicalMaterial
           name={isBlack ? "wheel-black" : "wheel-white"}
           {...spread(ringMaterial)}
-          envMap={env}
         />
       </mesh>
 
@@ -775,7 +770,6 @@ export function Device({
           key={isBlack ? "select-cap-black" : "select-cap-white"}
           name={isBlack ? "select-black" : "select-white"}
           {...spread(selectMaterial)}
-          envMap={env}
           {...(isBlack ? { thicknessMap: selectThicknessMap } : {})}
         />
       </mesh>
@@ -788,7 +782,6 @@ export function Device({
           key={isBlack ? "select-wall-black" : "select-wall-white"}
           name={isBlack ? "select-black" : "select-white"}
           {...spread(selectMaterial)}
-          envMap={env}
         />
       </mesh>
 

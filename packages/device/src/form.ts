@@ -34,6 +34,8 @@ export type DeviceFormParams = {
   readonly frontBevel: number;
   /** Maximum forward sag of the front plate's smooth vertical crown. */
   readonly bodyCrown: number;
+  /** Shallow side-to-side crown; gives the key real x-normal travel. */
+  readonly bodyCrossCrown: number;
   /** Secondary molded crown depth near the top edge; zero removes it exactly. */
   readonly topEdgeCrown: number;
   /** Secondary molded crown depth near the bottom edge; zero removes it exactly. */
@@ -82,8 +84,9 @@ export const DEFAULT_DEVICE_FORM: DeviceFormParams = {
   frontThickness: 14,
   frontBevel: 3.5,
   bodyCrown: 6.2,
-  topEdgeCrown: 1.1,
-  bottomEdgeCrown: -1.35,
+  bodyCrossCrown: 6.2,
+  topEdgeCrown: 0,
+  bottomEdgeCrown: 0,
   edgeCrownExtent: 20,
   backBevel: 3.5,
   recessDepth: 4.25,

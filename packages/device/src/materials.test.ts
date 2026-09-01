@@ -136,14 +136,15 @@ describe("§12.3 device material contract", () => {
       DEFAULT_DEVICE_MATERIALS.bodyWhite.roughness,
     );
     expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(4.25);
-    expect(DEFAULT_DEVICE_FORM.topEdgeCrown).toBe(1.1);
-    expect(DEFAULT_DEVICE_FORM.bottomEdgeCrown).toBe(-1.35);
+    expect(DEFAULT_DEVICE_FORM.bodyCrossCrown).toBe(6.2);
+    expect(DEFAULT_DEVICE_FORM.topEdgeCrown).toBe(0);
+    expect(DEFAULT_DEVICE_FORM.bottomEdgeCrown).toBe(0);
     expect(DEFAULT_DEVICE_FORM.edgeCrownExtent).toBe(20);
     expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBeGreaterThan(
       DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity ?? 0,
     );
-    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.clearcoatRoughness).toBeLessThan(
-      DEFAULT_DEVICE_MATERIALS.bodyWhite.clearcoatRoughness ?? 0,
+    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.clearcoat).toBeLessThan(
+      DEFAULT_DEVICE_MATERIALS.bodyWhite.clearcoat ?? 0,
     );
   });
 
@@ -294,18 +295,19 @@ describe("§12.3 device material contract", () => {
 
 describe("owner two-light studio rig", () => {
   test("locks explicit key, kick, softness, ratio and linear exposure values", () => {
-    expect(DEFAULT_LIGHT_RIG.exposure).toBe(0.96);
-    expect(DEFAULT_LIGHT_RIG.key.viewerAzimuthDeg).toBe(28);
-    expect(DEFAULT_LIGHT_RIG.key.descentDeg).toBe(20);
-    expect(DEFAULT_LIGHT_RIG.key.distance).toBe(1_250);
-    expect(DEFAULT_LIGHT_RIG.key.power).toBe(5_800_000);
-    expect(DEFAULT_LIGHT_RIG.key.emitter).toEqual({ width: 620, height: 420 });
+    expect(DEFAULT_LIGHT_RIG.exposure).toBe(0.92);
+    expect(DEFAULT_LIGHT_RIG.key.viewerAzimuthDeg).toBe(45);
+    expect(DEFAULT_LIGHT_RIG.key.descentDeg).toBe(40);
+    expect(DEFAULT_LIGHT_RIG.key.distance).toBe(720);
+    expect(DEFAULT_LIGHT_RIG.key.power).toBe(9_000_000);
+    expect(DEFAULT_LIGHT_RIG.key.emitter).toEqual({ width: 520, height: 380 });
     expect(DEFAULT_LIGHT_RIG.key.color).toBe("#FFF9F2");
-    expect(DEFAULT_LIGHT_RIG.kick.viewerAzimuthDeg).toBe(-18);
-    expect(DEFAULT_LIGHT_RIG.kick.elevationDeg).toBe(-14);
-    expect(DEFAULT_LIGHT_RIG.kick.distance).toBe(1_400);
-    expect(DEFAULT_LIGHT_RIG.kick.powerRatio).toBe(0.11);
-    expect(DEFAULT_LIGHT_RIG.kick.emitter).toEqual({ width: 600, height: 360 });
+    expect(DEFAULT_LIGHT_RIG.kick.viewerAzimuthDeg).toBe(-120);
+    expect(DEFAULT_LIGHT_RIG.kick.elevationDeg).toBe(-10);
+    expect(DEFAULT_LIGHT_RIG.kick.distance).toBe(650);
+    expect(DEFAULT_LIGHT_RIG.kick.target).toEqual([-110, -210, -20]);
+    expect(DEFAULT_LIGHT_RIG.kick.powerRatio).toBe(0.03);
+    expect(DEFAULT_LIGHT_RIG.kick.emitter).toEqual({ width: 85, height: 300 });
     expect(DEFAULT_LIGHT_RIG.kick.color).toBe("#DCE7F2");
   });
 });

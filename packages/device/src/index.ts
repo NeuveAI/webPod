@@ -99,6 +99,7 @@ export {
   keyLightPosition,
   kickLightPosition,
   kickLightPower,
+  viewerAzimuthAngleDeg,
   type AreaEmitterSize,
   type KickLightParams,
   type KeyLightParams,
@@ -136,6 +137,8 @@ export {
 export { curvedAnnulusGeometry, domedDiscGeometry } from "./curved-discs";
 export {
   BODY_CROWN_ROW_STEP,
+  horizontalCrownOffset,
+  horizontalCrownSlope,
   frontCoreDepth,
   tessellateVerticalCrown,
   verticalCrownOffset,

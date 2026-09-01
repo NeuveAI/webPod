@@ -6,9 +6,11 @@
  * when the iPod turns. Nothing here is expressed in UV or camera shader space.
  *
  * `descentDeg` is the geometric angle between the key-to-target ray and the
- * horizontal x/z plane. The accepted range is 15–25°. `emitter` is both the
+ * horizontal x/z plane. The accepted range is 35–45°. `emitter` is both the
  * physical source size and the softness control: a larger rectangle subtends a
- * wider solid angle and therefore produces a broader highlight.
+ * wider solid angle and therefore produces a broader highlight. Three's
+ * RectAreaLight integrates that finite source in world space, so illumination
+ * falls with its shrinking solid angle rather than a view-locked paint pass.
  */
 
 export type AreaEmitterSize = {
@@ -19,7 +21,7 @@ export type AreaEmitterSize = {
 export type KeyLightParams = {
   /** Degrees camera-right from the viewer's +z axis. */
   readonly viewerAzimuthDeg: number;
-  /** Downward incidence from the horizontal plane; owner range 15–25°. */
+  /** Downward incidence from the horizontal plane; owner range 35–45°. */
   readonly descentDeg: number;
   /** Source-centre distance from the model origin, in model units. */
   readonly distance: number;
@@ -36,6 +38,8 @@ export type KickLightParams = {
   /** Elevation below the horizontal plane. Must remain negative. */
   readonly elevationDeg: number;
   readonly distance: number;
+  /** World-space aim point near one lower corner, so the strip rakes rather than bands. */
+  readonly target: readonly [number, number, number];
   /** Fraction of the key's luminous power. Must remain below 1. */
   readonly powerRatio: number;
   /** Physical softbox dimensions; these are the softness parameters. */
@@ -53,21 +57,22 @@ export type LightRigParams = {
 export const DEFAULT_LIGHT_RIG: LightRigParams = {
   // A small linear exposure adjustment keeps the output transform neutral;
   // canonical stop-table measurements are not passed through a filmic curve.
-  exposure: 0.96,
+  exposure: 0.92,
   key: {
-    viewerAzimuthDeg: 28,
-    descentDeg: 20,
-    distance: 1_250,
-    power: 5_800_000,
-    emitter: { width: 620, height: 420 },
+    viewerAzimuthDeg: 45,
+    descentDeg: 40,
+    distance: 720,
+    power: 9_000_000,
+    emitter: { width: 520, height: 380 },
     color: "#FFF9F2",
   },
   kick: {
-    viewerAzimuthDeg: -18,
-    elevationDeg: -14,
-    distance: 1_400,
-    powerRatio: 0.11,
-    emitter: { width: 600, height: 360 },
+    viewerAzimuthDeg: -120,
+    elevationDeg: -10,
+    distance: 650,
+    target: [-110, -210, -20],
+    powerRatio: 0.03,
+    emitter: { width: 85, height: 300 },
     color: "#DCE7F2",
   },
 };
@@ -106,6 +111,14 @@ export function keyDescentAngleDeg(
 ): number {
   const [x, y, z] = position;
   return (Math.atan2(y, Math.hypot(x, z)) * 180) / Math.PI;
+}
+
+/** Recover camera-right azimuth from +z, in viewer coordinates. */
+export function viewerAzimuthAngleDeg(
+  position: readonly [number, number, number],
+): number {
+  const [x, , z] = position;
+  return (Math.atan2(x, z) * 180) / Math.PI;
 }
 
 /** Convert RectAreaLight luminous power (lm) to its intensity (nit). */

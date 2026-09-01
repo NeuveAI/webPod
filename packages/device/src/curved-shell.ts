@@ -22,14 +22,37 @@ type Vertex = {
   readonly nz: number;
 };
 
-/** Smooth cylindrical crown shared by renderer tests and calibration evidence. */
+/**
+ * Smooth cylindrical crown shared by renderer tests and calibration evidence.
+ *
+ * The even sixth-order profile preserves the authored centre and half-height
+ * values while meeting the top and bottom bevels with zero first derivative.
+ * The previous quadratic reached the edge with a non-zero tangent and then
+ * reported a zero normal there, producing a real C1 kink at every corner.
+ */
 export function verticalCrownOffset(
   y: number,
   halfHeight: number,
   crown: number,
 ): number {
   const unitY = Math.min(1, Math.max(-1, y / halfHeight));
-  return crown * (1 - unitY * unitY);
+  if (Math.abs(unitY) === 1) return 0;
+  const unitYSquared = unitY * unitY;
+  const profile =
+    1 -
+    (2 / 3) * unitYSquared -
+    (5 / 3) * unitYSquared * unitYSquared +
+    (4 / 3) * unitYSquared * unitYSquared * unitYSquared;
+  return crown * profile;
+}
+
+/** Side-to-side counterpart of {@link verticalCrownOffset}. */
+export function horizontalCrownOffset(
+  x: number,
+  halfWidth: number,
+  crown: number,
+): number {
+  return verticalCrownOffset(x, halfWidth, crown);
 }
 
 /** Derivative `dz/dy` of {@link verticalCrownOffset}. */
@@ -39,8 +62,28 @@ export function verticalCrownSlope(
   crown: number,
 ): number {
   if (y <= -halfHeight || y >= halfHeight) return 0;
-  return (-2 * crown * y) / (halfHeight * halfHeight);
+  const unitY = y / halfHeight;
+  const unitYSquared = unitY * unitY;
+  const derivative =
+    -(4 / 3) * unitY -
+    (20 / 3) * unitY * unitYSquared +
+    8 * unitY * unitYSquared * unitYSquared;
+  return (crown * derivative) / halfHeight;
 }
+
+/** Derivative `dz/dx` of {@link horizontalCrownOffset}. */
+export function horizontalCrownSlope(
+  x: number,
+  halfWidth: number,
+  crown: number,
+): number {
+  return verticalCrownSlope(x, halfWidth, crown);
+}
+
+export type CrossCrown = {
+  readonly halfWidth: number;
+  readonly crown: number;
+};
 
 export type EdgeCrown = {
   readonly top: number;
@@ -48,16 +91,20 @@ export type EdgeCrown = {
   readonly extent: number;
 };
 
-/** Z-only molded edge lip; applying it to both faces preserves shell thickness. */
+/**
+ * Z-only molded edge lip; applying it to both faces preserves shell thickness.
+ * `sin²` is load-bearing: unlike the rejected sine lobe, both ends are zero in
+ * value and tangent, so the lip cannot create an inboard band or corner pinch.
+ */
 export function edgeCrownOffset(y: number, halfHeight: number, edge: EdgeCrown): number {
   if (edge.top === 0 && edge.bottom === 0) return 0;
   if (!(edge.extent > 0) || !Number.isFinite(edge.extent)) {
     throw new Error(`edge crown extent must be finite and positive; got ${edge.extent}`);
   }
   const distance = halfHeight - Math.abs(y);
-  if (distance < 0 || distance > edge.extent) return 0;
-  return (y >= 0 ? edge.top : edge.bottom) *
-    Math.sin((Math.PI * distance) / edge.extent);
+  if (distance <= 0 || distance >= edge.extent) return 0;
+  const lobe = Math.sin((Math.PI * distance) / edge.extent);
+  return (y >= 0 ? edge.top : edge.bottom) * lobe * lobe;
 }
 
 /** Derivative dz/dy of {@link edgeCrownOffset}. */
@@ -67,9 +114,9 @@ export function edgeCrownSlope(y: number, halfHeight: number, edge: EdgeCrown): 
     throw new Error(`edge crown extent must be finite and positive; got ${edge.extent}`);
   }
   const distance = halfHeight - Math.abs(y);
-  if (distance < 0 || distance > edge.extent) return 0;
+  if (distance <= 0 || distance >= edge.extent) return 0;
   return (y >= 0 ? edge.top : edge.bottom) * (Math.PI / edge.extent) *
-    Math.cos((Math.PI * distance) / edge.extent) * (y >= 0 ? -1 : 1);
+    Math.sin((2 * Math.PI * distance) / edge.extent) * (y >= 0 ? -1 : 1);
 }
 
 /**
@@ -152,6 +199,36 @@ function clipAtY(
   return output;
 }
 
+function clipAtX(
+  polygon: ReadonlyArray<Vertex>,
+  boundary: number,
+  keepRight: boolean,
+): Array<Vertex> {
+  if (polygon.length === 0) return [];
+  const output: Array<Vertex> = [];
+  let previous = polygon[polygon.length - 1];
+  if (previous === undefined) return output;
+  let previousInside = keepRight
+    ? previous.x >= boundary - EPSILON
+    : previous.x <= boundary + EPSILON;
+
+  for (const current of polygon) {
+    const currentInside = keepRight
+      ? current.x >= boundary - EPSILON
+      : current.x <= boundary + EPSILON;
+    if (currentInside !== previousInside) {
+      const span = current.x - previous.x;
+      if (Math.abs(span) > EPSILON) {
+        output.push(mix(previous, current, (boundary - previous.x) / span));
+      }
+    }
+    if (currentInside) output.push(current);
+    previous = current;
+    previousInside = currentInside;
+  }
+  return output;
+}
+
 function rowCuts(
   minY: number,
   maxY: number,
@@ -171,16 +248,21 @@ function rowCuts(
 
 function transformedNormal(
   vertex: Vertex,
-  slope: number,
+  slopeX: number,
+  slopeY: number,
   capFacing: -1 | 0 | 1,
 ): Vector3 {
   if (capFacing !== 0) {
-    return new Vector3(0, -slope * capFacing, capFacing).normalize();
+    return new Vector3(
+      -slopeX * capFacing,
+      -slopeY * capFacing,
+      capFacing,
+    ).normalize();
   }
-  // Inverse-transpose of F(x,y,z) = (x,y,z + crown(y)).
+  // Inverse-transpose of F(x,y,z) = (x,y,z + crownX(x) + crownY(y)).
   return new Vector3(
-    vertex.nx,
-    vertex.ny - slope * vertex.nz,
+    vertex.nx - slopeX * vertex.nz,
+    vertex.ny - slopeY * vertex.nz,
     vertex.nz,
   ).normalize();
 }
@@ -202,11 +284,15 @@ export function tessellateVerticalCrown(
   crown: number,
   rowStep = BODY_CROWN_ROW_STEP,
   edge: EdgeCrown = { top: 0, bottom: 0, extent: 1 },
+  cross: CrossCrown = { halfWidth: 1, crown: 0 },
 ): BufferGeometry {
   if (!(rowStep > 0) || !Number.isFinite(rowStep)) {
     throw new Error(
       `crown row step must be finite and positive; got ${rowStep}`,
     );
+  }
+  if (cross.crown !== 0 && (!(cross.halfWidth > 0) || !Number.isFinite(cross.halfWidth))) {
+    throw new Error(`cross crown half-width must be finite and positive; got ${cross.halfWidth}`);
   }
   const position = source.getAttribute("position");
   const normal = source.getAttribute("normal");
@@ -233,10 +319,14 @@ export function tessellateVerticalCrown(
   const emit = (a: Vertex, b: Vertex, c: Vertex, capFacing: -1 | 0 | 1) => {
     const transformed = [a, b, c].map((vertex) => ({
       vertex,
-      z: vertex.z + verticalCrownOffset(vertex.y, halfHeight, crown) +
+      z:
+        vertex.z +
+        verticalCrownOffset(vertex.y, halfHeight, crown) +
+        horizontalCrownOffset(vertex.x, cross.halfWidth, cross.crown) +
         edgeCrownOffset(vertex.y, halfHeight, edge),
       normal: transformedNormal(
         vertex,
+        horizontalCrownSlope(vertex.x, cross.halfWidth, cross.crown),
         verticalCrownSlope(vertex.y, halfHeight, crown) +
           edgeCrownSlope(vertex.y, halfHeight, edge),
         capFacing,
@@ -266,6 +356,41 @@ export function tessellateVerticalCrown(
     }
   };
 
+  const emitPolygon = (
+    polygon: ReadonlyArray<Vertex>,
+    capFacing: -1 | 0 | 1,
+  ) => {
+    const anchor = polygon[0];
+    if (anchor === undefined) return;
+    for (let vertex = 1; vertex < polygon.length - 1; vertex += 1) {
+      const b = polygon[vertex];
+      const c = polygon[vertex + 1];
+      if (b !== undefined && c !== undefined) emit(anchor, b, c, capFacing);
+    }
+  };
+
+  const emitCrossTessellated = (
+    polygon: ReadonlyArray<Vertex>,
+    capFacing: -1 | 0 | 1,
+  ) => {
+    if (cross.crown === 0) {
+      emitPolygon(polygon, capFacing);
+      return;
+    }
+    const minX = Math.min(...polygon.map((vertex) => vertex.x));
+    const maxX = Math.max(...polygon.map((vertex) => vertex.x));
+    const cuts = rowCuts(minX, maxX, cross.halfWidth, rowStep);
+    for (let cut = 0; cut < cuts.length - 1; cut += 1) {
+      const left = cuts[cut];
+      const right = cuts[cut + 1];
+      if (left === undefined || right === undefined) continue;
+      emitPolygon(
+        clipAtX(clipAtX(polygon, left, true), right, false),
+        capFacing,
+      );
+    }
+  };
+
   for (let index = 0; index < position.count; index += 3) {
     const triangle = [
       vertexAt(position, normal, uv, index),
@@ -283,10 +408,7 @@ export function tessellateVerticalCrown(
     const capFacing: -1 | 0 | 1 = allAtMaxZ ? 1 : allAtMinZ ? -1 : 0;
 
     if (maxY - minY <= EPSILON) {
-      const [a, b, c] = triangle;
-      if (a !== undefined && b !== undefined && c !== undefined) {
-        emit(a, b, c, capFacing);
-      }
+      emitCrossTessellated(triangle, capFacing);
       continue;
     }
 
@@ -300,13 +422,7 @@ export function tessellateVerticalCrown(
         upper,
         false,
       );
-      const anchor = polygon[0];
-      if (anchor === undefined) continue;
-      for (let vertex = 1; vertex < polygon.length - 1; vertex += 1) {
-        const b = polygon[vertex];
-        const c = polygon[vertex + 1];
-        if (b !== undefined && c !== undefined) emit(anchor, b, c, capFacing);
-      }
+      emitCrossTessellated(polygon, capFacing);
     }
   }
 

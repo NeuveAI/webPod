@@ -54,7 +54,7 @@ export function ViewerLitDeviceFrame({
       <rectAreaLight
         name="device-kick-light"
         position={kickPosition}
-        rotation={aimAreaLightAtOrigin(kickPosition)}
+        rotation={aimAreaLightAtTarget(kickPosition, lightRig.kick.target)}
         intensity={areaLightIntensity(kickLightPower(lightRig), lightRig.kick.emitter)}
         color={lightRig.kick.color}
         width={lightRig.kick.emitter.width}
@@ -74,8 +74,16 @@ export function ViewerLitDeviceFrame({
 export function aimAreaLightAtOrigin(
   position: readonly [number, number, number],
 ): readonly [number, number, number] {
+  return aimAreaLightAtTarget(position, [0, 0, 0]);
+}
+
+/** XYZ radians that point a RectAreaLight's emitting face at a world target. */
+export function aimAreaLightAtTarget(
+  position: readonly [number, number, number],
+  target: readonly [number, number, number],
+): readonly [number, number, number] {
   const light = new RectAreaLight();
   light.position.fromArray(position);
-  light.lookAt(0, 0, 0);
+  light.lookAt(...target);
   return [light.rotation.x, light.rotation.y, light.rotation.z];
 }
