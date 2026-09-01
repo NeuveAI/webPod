@@ -124,13 +124,6 @@ export function DeviceCanvas({
     [orientation],
   );
   const initialDistance = cameraDistance ?? DEFAULT_CAMERA_DISTANCE;
-  const resolvedEnvMap =
-    device.envMap !== undefined
-      ? device.envMap
-      : studioEnvironment === null
-        ? undefined
-        : null;
-
   return (
     <Canvas
       className={className}
@@ -153,7 +146,7 @@ export function DeviceCanvas({
         {studioEnvironment === null ? null : (
           <StudioEnvironment {...studioEnvironment} />
         )}
-        <Device {...device} envMap={resolvedEnvMap} orientation={orientation} />
+        <Device {...device} orientation={orientation} />
         <ResponsiveDeviceCamera
           explicitDistance={cameraDistance}
           fov={cameraFov}

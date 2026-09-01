@@ -116,6 +116,14 @@ export {
   type SkyBlobParams,
 } from "./env-map";
 export { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
+export {
+  DEFAULT_FRONT_ASSEMBLY_DEPTHS,
+  frontShellOffsetAt,
+  minimumFrontShellOffsetAroundCircle,
+  minimumFrontShellOffsetAroundRect,
+  resolveFrontAssemblyDepths,
+  type FrontAssemblyDepths,
+} from "./front-surface";
 
 export {
   BODY_D,

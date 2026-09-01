@@ -1,6 +1,10 @@
 import { expect, test } from "bun:test";
 
-import { DEFAULT_STUDIO_ENVIRONMENT } from "./StudioEnvironment";
+import { DEFAULT_DEVICE_MATERIALS } from "./materials";
+import {
+  DEFAULT_STUDIO_ENVIRONMENT,
+  effectiveStudioEnvironmentIntensity,
+} from "./StudioEnvironment";
 
 test("studio lighting is a PMREM RoomEnvironment and contains no view-locked shading hook", async () => {
   const source = await Bun.file(new URL("./StudioEnvironment.tsx", import.meta.url)).text();
@@ -15,9 +19,47 @@ test("studio lighting is a PMREM RoomEnvironment and contains no view-locked sha
 
 test("the striped calibration map belongs only to the mirror-steel rear", async () => {
   const source = await Bun.file(new URL("./Device.tsx", import.meta.url)).text();
+  const canvasSource = await Bun.file(
+    new URL("./DeviceCanvas.tsx", import.meta.url),
+  ).text();
   expect(source.match(/envMap=\{env\}/g)).toHaveLength(1);
   expect(source).toMatch(/name="steel-back"[\s\S]*?envMap=\{env\}/);
-  expect(source).toContain("createBlackPolycarbonateMaterial(materials.bodyBlack, null)");
-  expect(source).toContain("createPolycarbonateMaterial(materials.bodyWhite, null)");
-  expect(source).toContain("createCoverGlassMaterial(materials.coverGlass, null)");
+  expect(source).toContain("useStudioEnvironmentSnapshot()");
+  expect(source).toContain("envMap: studio.texture");
+  expect(source).toContain("effectiveStudioEnvironmentIntensity(");
+  expect(source).toContain("const env = envMap ?? builtEnv");
+  expect(canvasSource).not.toContain("resolvedEnvMap");
+});
+
+test("front materials explicitly retain per-surface gain under installed Three", async () => {
+  const rendererSource = await Bun.file(
+    new URL("../node_modules/three/src/renderers/WebGLRenderer.js", import.meta.url),
+  ).text();
+  expect(rendererSource).toContain(
+    "material.envMap === null && scene.environment !== null",
+  );
+  expect(rendererSource).toContain(
+    "m_uniforms.envMapIntensity.value = scene.environmentIntensity",
+  );
+
+  const room = DEFAULT_STUDIO_ENVIRONMENT.intensity;
+  expect(
+    effectiveStudioEnvironmentIntensity(
+      DEFAULT_DEVICE_MATERIALS.bodyBlack.envMapIntensity,
+      room,
+    ),
+  ).toBeCloseTo(0.008, 12);
+  expect(
+    effectiveStudioEnvironmentIntensity(
+      DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity,
+      room,
+    ),
+  ).toBeCloseTo(0.0024, 12);
+  expect(
+    effectiveStudioEnvironmentIntensity(
+      DEFAULT_DEVICE_MATERIALS.coverGlass.envMapIntensity,
+      room,
+    ),
+  ).toBeCloseTo(0.16, 12);
+  expect(effectiveStudioEnvironmentIntensity(undefined, room)).toBe(room);
 });

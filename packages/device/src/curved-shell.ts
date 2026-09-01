@@ -268,13 +268,13 @@ function transformedNormal(
 }
 
 /**
- * Tessellates an extrusion in horizontal strips, then applies one smooth crown.
+ * Tessellates an extrusion in both axes, then applies smooth X/Y crowns.
  *
  * Three 0.185's `ExtrudeGeometry` is non-indexed. Its own
  * `computeVertexNormals()` therefore assigns one face normal to each Earcut
  * triangle. This function never calls it: every cap vertex receives the
- * analytic normal of the quadratic, independent of Earcut's hole triangles.
- * Horizontal strip clipping makes the actual mesh approximate that quadratic
+ * analytic normal of the sixth-order deformation, independent of Earcut's hole
+ * triangles. X/Y strip clipping makes the actual mesh approximate both crowns
  * to a deterministic sub-pixel bound while preserving the original bevel,
  * side walls, holes, UVs, and shell thickness.
  */

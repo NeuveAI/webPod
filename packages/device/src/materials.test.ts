@@ -136,7 +136,8 @@ describe("§12.3 device material contract", () => {
       DEFAULT_DEVICE_MATERIALS.bodyWhite.roughness,
     );
     expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(4.25);
-    expect(DEFAULT_DEVICE_FORM.bodyCrossCrown).toBe(6.2);
+    expect(DEFAULT_DEVICE_FORM.bodyCrown).toBe(1.2);
+    expect(DEFAULT_DEVICE_FORM.bodyCrossCrown).toBe(1.2);
     expect(DEFAULT_DEVICE_FORM.topEdgeCrown).toBe(0);
     expect(DEFAULT_DEVICE_FORM.bottomEdgeCrown).toBe(0);
     expect(DEFAULT_DEVICE_FORM.edgeCrownExtent).toBe(20);

@@ -3,7 +3,8 @@
  *
  * ⚑ **Nothing in this file contains a material number, a light number, a
  * §12.0 radius or a room colour.** Materials come from `materials.ts`, the rig
- * from `light-rig.ts`, the room from `env-map.ts`, the plan from `layout.ts`
+ * from `light-rig.ts`, the studio from `StudioEnvironment.tsx`, the calibrated
+ * mirror-rear room from `env-map.ts`, the plan from `layout.ts`
  * (which imports `@webpod/tokens`) and the depths from `form.ts` — and every
  * one of them arrives as a prop with a default, per D-012. There is exactly
  * one set of defaults and no mechanism for choosing between sets; the test of
@@ -38,6 +39,7 @@ import {
   type EnvRoomParams,
 } from "./env-map";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
+import { resolveFrontAssemblyDepths } from "./front-surface";
 import { DEVICE_LAYOUT, SCREEN_CORNER_R } from "./layout";
 import { DEFAULT_LIGHT_RIG, type LightRigParams } from "./light-rig";
 import { materialMapOwnership } from "./material-map-ownership";
@@ -75,6 +77,11 @@ import {
   type DeviceOrientation,
 } from "./orientation";
 import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
+import {
+  effectiveStudioEnvironmentIntensity,
+  useStudioEnvironmentSnapshot,
+  type StudioEnvironmentSnapshot,
+} from "./StudioEnvironment";
 
 /** LAW 5: both modes are the product, so both colourways are first class. */
 export type Colourway = "black" | "white";
@@ -92,12 +99,12 @@ export type DeviceProps = {
   readonly materials?: DeviceMaterials;
   /** Owner-approved two-light rig. Injected for deterministic verification. */
   readonly lightRig?: LightRigParams;
-  /** The room. Injected; defaults to §4.4 + §5.2 L3/L5. */
+  /** Mirror-rear calibration room. Injected; defaults to §4.4 + §5.2 L3/L5. */
   readonly envRoom?: EnvRoomParams;
   /** Depths and curvatures §12.0 does not state. */
   readonly form?: DeviceFormParams;
   /**
-   * An environment map to use instead of the one built from `envRoom`.
+   * A mirror-rear environment map to use instead of the one built from `envRoom`.
    *
    * The renderer-specific escape hatch: a tier with a captured HDR of a real
    * room passes it here and `env-map.ts` is not called.
@@ -161,6 +168,7 @@ export function Device({
   }, [envMap, envSignature]);
   useEffect(() => () => builtEnv?.dispose(), [builtEnv]);
   const env = envMap ?? builtEnv;
+  const studio = useStudioEnvironmentSnapshot();
 
   const noise = useMemo(() => {
     const map = createMicroNoiseRoughnessMap();
@@ -455,7 +463,7 @@ export function Device({
 
   // The top controls are separate solids on the steel/plastic seam. Their
   // protrusion and recess remain visible when the full model rotates; no
-  // front-facing decal can survive the edge and flip interactions W8 targets.
+  // front-facing decal can survive the product's edge and flip interactions.
   const holdRecessGeometry = useMemo(
     () => new RoundedBoxGeometry(52, 2.2, 15, 4, 2.8),
     [],
@@ -517,24 +525,16 @@ export function Device({
   const selectThicknessMap = useMemo(() => createSelectThicknessMap(), []);
   useEffect(() => () => selectThicknessMap.dispose(), [selectThicknessMap]);
 
-  // ── Depths derived from the dish profiles ─────────────────────────────────
-  const ringSag =
-    (wheel.outerR * Math.tan((form.ringDishTiltDeg * Math.PI) / 180)) /
-    form.ringDishExponent;
-  const ringZ = frontFaceZ - form.recessDepth - ringSag;
-  const ringInnerZ =
-    ringZ +
-    ringSag * ((wheel.selectR - 1) / wheel.outerR) ** form.ringDishExponent;
-  const selectSag =
-    (wheel.selectR * Math.tan((form.selectDomeTiltDeg * Math.PI) / 180)) /
-    form.selectDomeExponent;
-  const selectRimZ = ringInnerZ + form.selectProud;
-  const displayWellFrontZ = frontFaceZ - form.displayWellInset;
-  const glassFrontZ = frontFaceZ - form.glassInset;
-  const screenFrontZ =
-    glassFrontZ - form.glassThickness - form.glassToPanel;
-  const wheelWellZ =
-    frontFaceZ - (form.recessDepth + form.wheelWellDepth) / 2 + 0.15;
+  // ── Every front insert is resolved from the same crowned shell ─────────────
+  const {
+    displayWellFrontZ,
+    glassFrontZ,
+    screenFrontZ,
+    wheelWellZ,
+    ringZ,
+    selectSag,
+    selectRimZ,
+  } = resolveFrontAssemblyDepths(form);
   const rearInlayZ = -body.depth / 2 + form.rearInlayInset;
 
   // ── The screen mesh boundary (D-011) ──────────────────────────────────────
@@ -551,21 +551,33 @@ export function Device({
     [screenDefaultMaterial],
   );
   const coverGlassMaterial = useMemo(
-    () => createCoverGlassMaterial(materials.coverGlass, null),
-    [materials.coverGlass],
+    () =>
+      createCoverGlassMaterial(
+        withStudioEnvironment(materials.coverGlass, studio.intensity),
+        studio.texture,
+      ),
+    [materials.coverGlass, studio],
   );
   useEffect(() => () => coverGlassMaterial.dispose(), [coverGlassMaterial]);
   const blackBodyPhysicalMaterial = useMemo(
-    () => createBlackPolycarbonateMaterial(materials.bodyBlack, null),
-    [materials.bodyBlack],
+    () =>
+      createBlackPolycarbonateMaterial(
+        withStudioEnvironment(materials.bodyBlack, studio.intensity),
+        studio.texture,
+      ),
+    [materials.bodyBlack, studio],
   );
   useEffect(
     () => () => blackBodyPhysicalMaterial.dispose(),
     [blackBodyPhysicalMaterial],
   );
   const whiteBodyPhysicalMaterial = useMemo(
-    () => createPolycarbonateMaterial(materials.bodyWhite, null),
-    [materials.bodyWhite],
+    () =>
+      createPolycarbonateMaterial(
+        withStudioEnvironment(materials.bodyWhite, studio.intensity),
+        studio.texture,
+      ),
+    [materials.bodyWhite, studio],
   );
   useEffect(
     () => () => whiteBodyPhysicalMaterial.dispose(),
@@ -622,6 +634,7 @@ export function Device({
         <meshPhysicalMaterial
           name="display-mask"
           {...spread(materials.displayWell)}
+          {...studioEnvironmentProps(materials.displayWell, studio)}
         />
       </mesh>
 
@@ -651,6 +664,7 @@ export function Device({
         <meshPhysicalMaterial
           name={isBlack ? "chrome-seam-black" : "chrome-seam"}
           {...spread(seamMaterial)}
+          {...studioEnvironmentProps(seamMaterial, studio)}
           roughnessMap={noise}
         />
       </mesh>
@@ -664,6 +678,7 @@ export function Device({
         <meshPhysicalMaterial
           name="hold-recess"
           {...spread(materials.displayWell)}
+          {...studioEnvironmentProps(materials.displayWell, studio)}
         />
       </mesh>
       <mesh
@@ -674,6 +689,7 @@ export function Device({
         <meshPhysicalMaterial
           name="hold-indicator"
           {...spread(materials.holdIndicator)}
+          {...studioEnvironmentProps(materials.holdIndicator, studio)}
         />
       </mesh>
       <mesh
@@ -684,6 +700,10 @@ export function Device({
         <meshPhysicalMaterial
           name={isBlack ? "hold-slider-black" : "hold-slider-white"}
           {...spread(isBlack ? materials.chromeSeamBlack : materials.chromeSeam)}
+          {...studioEnvironmentProps(
+            isBlack ? materials.chromeSeamBlack : materials.chromeSeam,
+            studio,
+          )}
         />
       </mesh>
       <mesh
@@ -695,6 +715,7 @@ export function Device({
         <meshPhysicalMaterial
           name="headphone-rim"
           {...spread(materials.steelBack)}
+          {...studioEnvironmentProps(materials.steelBack, studio)}
         />
       </mesh>
       <mesh
@@ -705,6 +726,7 @@ export function Device({
         <meshPhysicalMaterial
           name="headphone-well"
           {...spread(materials.displayWell)}
+          {...studioEnvironmentProps(materials.displayWell, studio)}
         />
       </mesh>
 
@@ -733,6 +755,7 @@ export function Device({
         <meshPhysicalMaterial
           name="rear-inlay"
           {...spread(materials.rearInlay)}
+          {...studioEnvironmentProps(materials.rearInlay, studio)}
           side={DoubleSide}
         />
       </mesh>
@@ -745,6 +768,7 @@ export function Device({
         <meshPhysicalMaterial
           name="display-well"
           {...spread(materials.displayWell)}
+          {...studioEnvironmentProps(materials.displayWell, studio)}
         />
       </mesh>
 
@@ -759,6 +783,10 @@ export function Device({
           {...spread(
             isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
           )}
+          {...studioEnvironmentProps(
+            isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
+            studio,
+          )}
         />
       </mesh>
 
@@ -771,6 +799,7 @@ export function Device({
         <meshPhysicalMaterial
           name={isBlack ? "wheel-black" : "wheel-white"}
           {...spread(ringMaterial)}
+          {...studioEnvironmentProps(ringMaterial, studio)}
         />
       </mesh>
 
@@ -807,6 +836,7 @@ export function Device({
           key={isBlack ? "select-cap-black" : "select-cap-white"}
           name={isBlack ? "select-black" : "select-white"}
           {...spread(selectMaterial)}
+          {...studioEnvironmentProps(selectMaterial, studio)}
           {...(isBlack ? { thicknessMap: selectThicknessMap } : {})}
         />
       </mesh>
@@ -819,6 +849,7 @@ export function Device({
           key={isBlack ? "select-wall-black" : "select-wall-white"}
           name={isBlack ? "select-black" : "select-white"}
           {...spread(selectMaterial)}
+          {...studioEnvironmentProps(selectMaterial, studio)}
         />
       </mesh>
 
@@ -854,4 +885,33 @@ export function Device({
 function spread(params: PhysicalSurfaceParams): Record<string, unknown> {
   const { albedoScale = 1, color, ...physical } = params;
   return { ...physical, color: new Color(color).multiplyScalar(albedoScale) };
+}
+
+function withStudioEnvironment(
+  params: PhysicalSurfaceParams,
+  intensity: number,
+): PhysicalSurfaceParams {
+  return {
+    ...params,
+    envMapIntensity: effectiveStudioEnvironmentIntensity(
+      params.envMapIntensity,
+      intensity,
+    ),
+  };
+}
+
+function studioEnvironmentProps(
+  params: PhysicalSurfaceParams,
+  studio: StudioEnvironmentSnapshot,
+): {
+  readonly envMap: Texture | null;
+  readonly envMapIntensity: number;
+} {
+  return {
+    envMap: studio.texture,
+    envMapIntensity: effectiveStudioEnvironmentIntensity(
+      params.envMapIntensity,
+      studio.intensity,
+    ),
+  };
 }
