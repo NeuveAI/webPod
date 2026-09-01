@@ -19,6 +19,8 @@ export type AreaEmitterSize = {
 };
 
 export type KeyLightParams = {
+  /** Proof-pass switch. A disabled emitter remains mounted at zero intensity. */
+  readonly enabled: boolean;
   /** Degrees camera-right from the viewer's +z axis. */
   readonly viewerAzimuthDeg: number;
   /** Downward incidence from the horizontal plane; owner range 35–45°. */
@@ -33,12 +35,14 @@ export type KeyLightParams = {
 };
 
 export type KickLightParams = {
+  /** Proof-pass switch. A disabled emitter remains mounted at zero intensity. */
+  readonly enabled: boolean;
   /** Degrees camera-right from the viewer's +z axis. Negative is camera-left. */
   readonly viewerAzimuthDeg: number;
   /** Elevation below the horizontal plane. Must remain negative. */
   readonly elevationDeg: number;
   readonly distance: number;
-  /** World-space aim point near one lower corner, so the strip rakes rather than bands. */
+  /** World-space aim point on the lower assembly, below the click-wheel centre. */
   readonly target: readonly [number, number, number];
   /** Fraction of the key's luminous power. Must remain below 1. */
   readonly powerRatio: number;
@@ -54,11 +58,14 @@ export type LightRigParams = {
   readonly kick: KickLightParams;
 };
 
+export type LightContribution = "combined" | "key-only" | "fill-only";
+
 export const DEFAULT_LIGHT_RIG: LightRigParams = {
   // A small linear exposure adjustment keeps the output transform neutral;
   // canonical stop-table measurements are not passed through a filmic curve.
   exposure: 0.92,
   key: {
+    enabled: true,
     viewerAzimuthDeg: 45,
     descentDeg: 40,
     distance: 720,
@@ -67,15 +74,32 @@ export const DEFAULT_LIGHT_RIG: LightRigParams = {
     color: "#FFF9F2",
   },
   kick: {
-    viewerAzimuthDeg: -120,
-    elevationDeg: -10,
-    distance: 650,
-    target: [-110, -210, -20],
-    powerRatio: 0.03,
-    emitter: { width: 85, height: 300 },
+    enabled: true,
+    viewerAzimuthDeg: -45,
+    elevationDeg: -18,
+    distance: 620,
+    target: [-70, -160, 20],
+    powerRatio: 0.095,
+    emitter: { width: 640, height: 440 },
     color: "#DCE7F2",
   },
 };
+
+/**
+ * Isolate authored emitters without changing their position, dimensions, or
+ * power. Keeping both lights mounted makes comparison renders differ only in
+ * contribution, never scene topology.
+ */
+export function lightRigForContribution(
+  rig: LightRigParams,
+  contribution: LightContribution,
+): LightRigParams {
+  return {
+    ...rig,
+    key: { ...rig.key, enabled: contribution !== "fill-only" },
+    kick: { ...rig.kick, enabled: contribution !== "key-only" },
+  };
+}
 
 /** World position of the top-right key, +y up and +z toward the viewer. */
 export function keyLightPosition(
@@ -91,7 +115,7 @@ export function keyLightPosition(
   ];
 }
 
-/** World position of the subordinate lower kick. */
+/** World position of the subordinate lower kick/fill. */
 export function kickLightPosition(
   kick: KickLightParams,
 ): [number, number, number] {
@@ -126,7 +150,7 @@ export function areaLightIntensity(
   power: number,
   emitter: AreaEmitterSize,
 ): number {
-  if (!(power > 0)) throw new Error("area-light power must be positive");
+  if (!(power >= 0)) throw new Error("area-light power must be non-negative");
   if (!(emitter.width > 0 && emitter.height > 0)) {
     throw new Error("area-light emitter dimensions must be positive");
   }
@@ -134,9 +158,9 @@ export function areaLightIntensity(
 }
 
 export function keyLightPower(rig: LightRigParams): number {
-  return rig.key.power * rig.exposure;
+  return rig.key.enabled ? rig.key.power * rig.exposure : 0;
 }
 
 export function kickLightPower(rig: LightRigParams): number {
-  return keyLightPower(rig) * rig.kick.powerRatio;
+  return rig.kick.enabled ? rig.key.power * rig.exposure * rig.kick.powerRatio : 0;
 }

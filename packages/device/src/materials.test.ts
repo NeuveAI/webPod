@@ -321,18 +321,20 @@ describe("§12.3 device material contract", () => {
 describe("owner two-light studio rig", () => {
   test("locks explicit key, kick, softness, ratio and linear exposure values", () => {
     expect(DEFAULT_LIGHT_RIG.exposure).toBe(0.92);
+    expect(DEFAULT_LIGHT_RIG.key.enabled).toBe(true);
     expect(DEFAULT_LIGHT_RIG.key.viewerAzimuthDeg).toBe(45);
     expect(DEFAULT_LIGHT_RIG.key.descentDeg).toBe(40);
     expect(DEFAULT_LIGHT_RIG.key.distance).toBe(720);
     expect(DEFAULT_LIGHT_RIG.key.power).toBe(9_000_000);
     expect(DEFAULT_LIGHT_RIG.key.emitter).toEqual({ width: 520, height: 380 });
     expect(DEFAULT_LIGHT_RIG.key.color).toBe("#FFF9F2");
-    expect(DEFAULT_LIGHT_RIG.kick.viewerAzimuthDeg).toBe(-120);
-    expect(DEFAULT_LIGHT_RIG.kick.elevationDeg).toBe(-10);
-    expect(DEFAULT_LIGHT_RIG.kick.distance).toBe(650);
-    expect(DEFAULT_LIGHT_RIG.kick.target).toEqual([-110, -210, -20]);
-    expect(DEFAULT_LIGHT_RIG.kick.powerRatio).toBe(0.03);
-    expect(DEFAULT_LIGHT_RIG.kick.emitter).toEqual({ width: 85, height: 300 });
+    expect(DEFAULT_LIGHT_RIG.kick.enabled).toBe(true);
+    expect(DEFAULT_LIGHT_RIG.kick.viewerAzimuthDeg).toBe(-45);
+    expect(DEFAULT_LIGHT_RIG.kick.elevationDeg).toBe(-18);
+    expect(DEFAULT_LIGHT_RIG.kick.distance).toBe(620);
+    expect(DEFAULT_LIGHT_RIG.kick.target).toEqual([-70, -160, 20]);
+    expect(DEFAULT_LIGHT_RIG.kick.powerRatio).toBe(0.095);
+    expect(DEFAULT_LIGHT_RIG.kick.emitter).toEqual({ width: 640, height: 440 });
     expect(DEFAULT_LIGHT_RIG.kick.color).toBe("#DCE7F2");
   });
 });

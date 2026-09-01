@@ -93,6 +93,7 @@ export {
 export {
   areaLightIntensity,
   DEFAULT_LIGHT_RIG,
+  lightRigForContribution,
   keyDescentAngleDeg,
   keyLightPower,
   keyLightPosition,
@@ -103,6 +104,7 @@ export {
   type KickLightParams,
   type KeyLightParams,
   type LightRigParams,
+  type LightContribution,
 } from "./light-rig";
 export { DEVICE_MODEL_NAME } from "./ViewerLitDeviceFrame";
 export {

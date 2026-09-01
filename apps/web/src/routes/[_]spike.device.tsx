@@ -4,11 +4,14 @@ import {
   DEVICE_ORIENTATION_PRESETS,
   DeviceCanvas,
   clampDeviceOrientation,
+  DEFAULT_LIGHT_RIG,
+  lightRigForContribution,
   type Colourway,
   type DeviceMaterials,
   type DeviceOrientation,
   type DevicePosePreset,
   type LightRigParams,
+  type LightContribution,
 } from "@webpod/device";
 import { Panel } from "@webpod/panel";
 import { createFileRoute } from "@tanstack/react-router";
@@ -20,6 +23,20 @@ export const Route = createFileRoute("/_spike/device")({
 });
 
 type PreviewRoom = "dark" | "light";
+
+function lightingContribution(value: string | null): LightContribution {
+  return value === "key-only" || value === "fill-only" ? value : "combined";
+}
+
+function isColourway(value: string | null): value is Colourway {
+  return value === "black" || value === "white";
+}
+
+const PRODUCTION_LIGHT_RIGS = {
+  combined: lightRigForContribution(DEFAULT_LIGHT_RIG, "combined"),
+  "key-only": lightRigForContribution(DEFAULT_LIGHT_RIG, "key-only"),
+  "fill-only": lightRigForContribution(DEFAULT_LIGHT_RIG, "fill-only"),
+} satisfies Readonly<Record<LightContribution, LightRigParams>>;
 
 type GeometryEvidenceView =
   | "front"
@@ -161,6 +178,7 @@ const NEUTRAL_DIAGNOSTIC_MATERIALS: DeviceMaterials = Object.freeze({
 const NEUTRAL_DIAGNOSTIC_LIGHT_RIG: LightRigParams = Object.freeze({
   exposure: 1,
   key: {
+    enabled: true,
     viewerAzimuthDeg: 35,
     descentDeg: 35,
     distance: 1_000,
@@ -169,6 +187,7 @@ const NEUTRAL_DIAGNOSTIC_LIGHT_RIG: LightRigParams = Object.freeze({
     color: "#FFFFFF",
   },
   kick: {
+    enabled: true,
     viewerAzimuthDeg: -35,
     elevationDeg: -35,
     distance: 1_000,
@@ -256,14 +275,25 @@ function DeviceSpike() {
   const diagnostic = diagnosticMode === "neutral";
   const productionSurfaceCapture =
     capture && diagnosticMode === "production-surface";
+  const lightContribution = lightingContribution(search.get("lighting"));
+  const productionLightRig = PRODUCTION_LIGHT_RIGS[lightContribution];
   const requestedView = search.get("view");
+  const requestedColourway = search.get("colourway");
   const evidenceOrientation =
     capture && isGeometryEvidenceView(requestedView)
       ? GEOMETRY_EVIDENCE_ORIENTATIONS[requestedView]
       : null;
-  const renderedState = evidenceOrientation === null
-    ? state
-    : { ...state, pose: "custom" as const, orientation: evidenceOrientation };
+  const evidenceColourway =
+    capture && isColourway(requestedColourway)
+      ? requestedColourway
+      : null;
+  const renderedState = {
+    ...state,
+    ...(evidenceOrientation === null
+      ? {}
+      : { pose: "custom" as const, orientation: evidenceOrientation }),
+    ...(evidenceColourway === null ? {} : { colourway: evidenceColourway }),
+  };
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -295,6 +325,7 @@ function DeviceSpike() {
       data-colourway={renderedState.colourway}
       data-pose={renderedState.pose}
       data-evidence-view={evidenceOrientation === null ? undefined : requestedView}
+      data-lighting-pass={diagnostic ? "neutral" : lightContribution}
     >
       <style>{DEVICE_PREVIEW_CSS}</style>
       <div
@@ -321,6 +352,8 @@ function DeviceSpike() {
             cameraFov={30}
             cameraSafePadding={34}
             orientation={renderedState.orientation}
+            lightRig={productionLightRig}
+            studioEnvironment={lightContribution === "combined" ? undefined : null}
           />
         ) : (
           <CompositeDevice

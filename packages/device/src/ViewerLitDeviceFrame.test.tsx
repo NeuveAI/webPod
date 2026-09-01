@@ -3,11 +3,14 @@ import { Children, isValidElement, type ReactElement } from "react";
 import { Group, RectAreaLight, Vector3 } from "three";
 
 import {
+  areaLightIntensity,
   DEFAULT_LIGHT_RIG,
   keyDescentAngleDeg,
   keyLightPosition,
   keyLightPower,
+  kickLightPosition,
   kickLightPower,
+  lightRigForContribution,
   viewerAzimuthAngleDeg,
 } from "./light-rig";
 import {
@@ -127,10 +130,13 @@ describe("viewer-lit device scene frame", () => {
     expect(kick.props.height).toBe(DEFAULT_LIGHT_RIG.kick.emitter.height);
   });
 
-  test("puts a 35–45° / 45° key at viewer front-right and a subordinate strip below", () => {
+  test("puts the approved key front-right and the broad subordinate fill front-left below", () => {
     const keyPosition = keyLightPosition(DEFAULT_LIGHT_RIG.key);
+    const kickPosition = kickLightPosition(DEFAULT_LIGHT_RIG.kick);
     const descent = keyDescentAngleDeg(keyPosition);
     const azimuth = viewerAzimuthAngleDeg(keyPosition);
+    const kickElevation = keyDescentAngleDeg(kickPosition);
+    const kickAzimuth = viewerAzimuthAngleDeg(kickPosition);
     const frame = frameChildren("front");
     const key = requireElement<LightElementProps>(frame[0], "rectAreaLight");
     const kick = requireElement<LightElementProps>(frame[1], "rectAreaLight");
@@ -144,9 +150,16 @@ describe("viewer-lit device scene frame", () => {
     expect(azimuth).toBeGreaterThanOrEqual(40);
     expect(azimuth).toBeLessThanOrEqual(50);
     expect(azimuth).toBeCloseTo(DEFAULT_LIGHT_RIG.key.viewerAzimuthDeg, 8);
+    expect(kick.props.position[0]).toBeLessThan(0);
     expect(kick.props.position[1]).toBeLessThan(0);
-    expect(kick.props.position[2]).toBeLessThan(0);
-    expect(kick.props.height / kick.props.width).toBeGreaterThan(3);
+    expect(kick.props.position[2]).toBeGreaterThan(0);
+    expect(kickElevation).toBeCloseTo(-18, 8);
+    expect(kickAzimuth).toBeCloseTo(-45, 8);
+    expect(kick.props.width).toBeGreaterThan(key.props.width);
+    expect(kick.props.width * kick.props.height).toBeGreaterThan(
+      key.props.width * key.props.height,
+    );
+    expect(kick.props.width / kick.props.height).toBeLessThan(1.6);
     expect(kick.props.rotation).toEqual(
       aimAreaLightAtTarget(kick.props.position, DEFAULT_LIGHT_RIG.kick.target),
     );
@@ -167,5 +180,57 @@ describe("viewer-lit device scene frame", () => {
     );
     expect(key.props.name).toBe("device-key-light");
     expect(kick.props.name).toBe("device-kick-light");
+  });
+
+  test("keeps the broad fill soft and subordinate instead of making a hotspot or band", () => {
+    const keyIntensity = areaLightIntensity(
+      keyLightPower(DEFAULT_LIGHT_RIG),
+      DEFAULT_LIGHT_RIG.key.emitter,
+    );
+    const fillIntensity = areaLightIntensity(
+      kickLightPower(DEFAULT_LIGHT_RIG),
+      DEFAULT_LIGHT_RIG.kick.emitter,
+    );
+
+    expect(DEFAULT_LIGHT_RIG.kick.powerRatio).toBeLessThan(0.1);
+    expect(fillIntensity / keyIntensity).toBeLessThan(0.08);
+    expect(DEFAULT_LIGHT_RIG.kick.emitter.width).toBeGreaterThan(330);
+    expect(DEFAULT_LIGHT_RIG.kick.emitter.height).toBeGreaterThan(330);
+    expect(DEFAULT_LIGHT_RIG.kick.emitter).not.toEqual({ width: 85, height: 300 });
+    expect(DEFAULT_LIGHT_RIG.kick.viewerAzimuthDeg).not.toBe(-120);
+  });
+
+  test("isolates key and fill for proof without moving either emitter", () => {
+    const combined = lightRigForContribution(DEFAULT_LIGHT_RIG, "combined");
+    const keyOnly = lightRigForContribution(DEFAULT_LIGHT_RIG, "key-only");
+    const fillOnly = lightRigForContribution(DEFAULT_LIGHT_RIG, "fill-only");
+
+    expect(keyLightPower(combined)).toBeGreaterThan(0);
+    expect(kickLightPower(combined)).toBeGreaterThan(0);
+    expect(keyLightPower(keyOnly)).toBeGreaterThan(0);
+    expect(kickLightPower(keyOnly)).toBe(0);
+    expect(keyLightPower(fillOnly)).toBe(0);
+    expect(kickLightPower(fillOnly)).toBeGreaterThan(0);
+    expect(keyLightPosition(keyOnly.key)).toEqual(keyLightPosition(combined.key));
+    expect(kickLightPosition(fillOnly.kick)).toEqual(
+      kickLightPosition(combined.kick),
+    );
+    expect(areaLightIntensity(0, DEFAULT_LIGHT_RIG.key.emitter)).toBe(0);
+    expect(() => areaLightIntensity(-1, DEFAULT_LIGHT_RIG.key.emitter)).toThrow(
+      "area-light power must be non-negative",
+    );
+  });
+
+  test("contains no view-locked, UV, ambient, or painted-light escape", async () => {
+    const frameSource = await Bun.file(
+      new URL("./ViewerLitDeviceFrame.tsx", import.meta.url),
+    ).text();
+    const rigSource = await Bun.file(new URL("./light-rig.ts", import.meta.url)).text();
+    const source = `${frameSource}\n${rigSource}`;
+
+    expect(frameSource.match(/<rectAreaLight/g)).toHaveLength(2);
+    expect(source).not.toMatch(
+      /<pointLight|<spotLight|<directionalLight|<ambientLight|camera(?:Position|Direction)|viewMatrix|vUv|outgoingLight|linear-gradient|radial-gradient/,
+    );
   });
 });
