@@ -103,3 +103,14 @@ export function fillLightIntensity(rig: LightRigParams): number {
   const scale = (rig.fill.distance / rig.key.distance) ** 2;
   return rig.key.intensity * rig.fill.intensityRatio * scale;
 }
+
+/** Convert the former point-source candela/distance pair into area-light gain. */
+export function surfaceLightIntensity(intensity: number, distance: number): number {
+  if (!(distance > 0)) throw new Error("surface light distance must be positive");
+  return intensity / (distance * distance);
+}
+
+/** Direct-light ratio remains the authored 22% after changing emitter shape. */
+export function fillSurfaceLightIntensity(rig: LightRigParams): number {
+  return surfaceLightIntensity(fillLightIntensity(rig), rig.fill.distance);
+}

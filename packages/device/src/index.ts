@@ -31,9 +31,21 @@ export type {
 export {
   DEFAULT_CAMERA_DISTANCE,
   DEFAULT_CAMERA_FOV,
+  DEFAULT_CAMERA_SAFE_PADDING,
   DeviceCanvas,
   type DeviceCanvasProps,
 } from "./DeviceCanvas";
+export {
+  applyDeviceCameraFit,
+  fitPerspectiveCameraToBounds,
+  projectedBoundsExtent,
+  type DeviceCameraFit,
+  type DeviceFitViewport,
+} from "./camera-fit";
+export {
+  StudioEnvironment,
+  type StudioEnvironmentProps,
+} from "./StudioEnvironment";
 export {
   clampDeviceOrientation,
   DEVICE_FRONT_VISIBILITY_THRESHOLD,

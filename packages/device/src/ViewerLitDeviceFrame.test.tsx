@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { Children, isValidElement, type ReactElement } from "react";
-import { Group, PointLight, Vector3 } from "three";
+import { Group, RectAreaLight, Vector3 } from "three";
 
 import { DEFAULT_LIGHT_RIG } from "./light-rig";
 import {
@@ -16,6 +16,8 @@ import {
 type LightElementProps = {
   readonly name: string;
   readonly position: readonly [number, number, number];
+  readonly width: number;
+  readonly height: number;
 };
 
 type GroupElementProps = {
@@ -45,18 +47,18 @@ function requireElement<Props>(
 
 function worldFrame(face: "front" | "back") {
   const children = frameChildren(face);
-  const keyElement = requireElement<LightElementProps>(children[0], "pointLight");
+  const keyElement = requireElement<LightElementProps>(children[0], "rectAreaLight");
   const fillElement = requireElement<LightElementProps>(
     children[1],
-    "pointLight",
+    "rectAreaLight",
   );
   const modelElement = requireElement<GroupElementProps>(children[2], "group");
 
   const root = new Group();
-  const key = new PointLight();
+  const key = new RectAreaLight();
   key.name = keyElement.props.name;
   key.position.fromArray(keyElement.props.position);
-  const fill = new PointLight();
+  const fill = new RectAreaLight();
   fill.name = fillElement.props.name;
   fill.position.fromArray(fillElement.props.position);
   const model = new Group();
@@ -97,11 +99,21 @@ describe("viewer-lit device scene frame", () => {
     });
     const frontChildren = Children.toArray(front.props.children);
     const edgeChildren = Children.toArray(edge.props.children);
-    const frontKey = requireElement<LightElementProps>(frontChildren[0], "pointLight");
-    const edgeKey = requireElement<LightElementProps>(edgeChildren[0], "pointLight");
+    const frontKey = requireElement<LightElementProps>(frontChildren[0], "rectAreaLight");
+    const edgeKey = requireElement<LightElementProps>(edgeChildren[0], "rectAreaLight");
     const edgeModel = requireElement<GroupElementProps>(edgeChildren[2], "group");
 
     expect(frontKey.props.position).toEqual(edgeKey.props.position);
     expect(edgeModel.props.rotation[1]).toBeCloseTo(-Math.PI / 2, 8);
+  });
+
+  test("uses broad softbox emitters rather than point highlights", () => {
+    const children = frameChildren("front");
+    const key = requireElement<LightElementProps>(children[0], "rectAreaLight");
+    const fill = requireElement<LightElementProps>(children[1], "rectAreaLight");
+    expect(key.props.width).toBeGreaterThan(500);
+    expect(key.props.height).toBeGreaterThan(250);
+    expect(fill.props.width).toBeGreaterThan(300);
+    expect(fill.props.height).toBeGreaterThan(200);
   });
 });

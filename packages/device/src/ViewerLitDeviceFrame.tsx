@@ -1,11 +1,15 @@
 import type { ReactNode } from "react";
+import { RectAreaLight } from "three";
+import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
 
 import {
-  fillLightIntensity,
+  fillSurfaceLightIntensity,
   fillLightPosition,
   keyLightPosition,
+  surfaceLightIntensity,
   type LightRigParams,
 } from "./light-rig";
+import { DEVICE_LAYOUT } from "./layout";
 import {
   FRONT_DEVICE_ORIENTATION,
   deviceOrientationToRotation,
@@ -14,6 +18,8 @@ import {
 
 /** Stable scene-graph identity used by the calibration probe. */
 export const DEVICE_MODEL_NAME = "device-model";
+
+RectAreaLightUniformsLib.init();
 
 type ViewerLitDeviceFrameProps = {
   readonly orientation?: DeviceOrientation;
@@ -32,21 +38,30 @@ export function ViewerLitDeviceFrame({
   lightRig,
   children,
 }: ViewerLitDeviceFrameProps) {
+  const keyPosition = keyLightPosition(lightRig.key);
+  const fillPosition = fillLightPosition(lightRig.fill);
   return (
     <>
-      <pointLight
+      <rectAreaLight
         name="device-key-light"
-        position={keyLightPosition(lightRig.key)}
-        intensity={lightRig.key.intensity}
+        position={keyPosition}
+        rotation={aimAreaLightAtOrigin(keyPosition)}
+        intensity={surfaceLightIntensity(
+          lightRig.key.intensity,
+          lightRig.key.distance,
+        )}
         color={lightRig.key.color}
-        decay={2}
+        width={DEVICE_LAYOUT.body.width * 1.65}
+        height={DEVICE_LAYOUT.body.height * 0.52}
       />
-      <pointLight
+      <rectAreaLight
         name="device-fill-light"
-        position={fillLightPosition(lightRig.fill)}
-        intensity={fillLightIntensity(lightRig)}
+        position={fillPosition}
+        rotation={aimAreaLightAtOrigin(fillPosition)}
+        intensity={fillSurfaceLightIntensity(lightRig)}
         color={lightRig.fill.color}
-        decay={2}
+        width={DEVICE_LAYOUT.body.width * 1.2}
+        height={DEVICE_LAYOUT.body.height * 0.42}
       />
       <group
         name={DEVICE_MODEL_NAME}
@@ -56,4 +71,14 @@ export function ViewerLitDeviceFrame({
       </group>
     </>
   );
+}
+
+/** XYZ radians that point a RectAreaLight's emitting face at model origin. */
+export function aimAreaLightAtOrigin(
+  position: readonly [number, number, number],
+): readonly [number, number, number] {
+  const light = new RectAreaLight();
+  light.position.fromArray(position);
+  light.lookAt(0, 0, 0);
+  return [light.rotation.x, light.rotation.y, light.rotation.z];
 }
