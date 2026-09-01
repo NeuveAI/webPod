@@ -1,12 +1,8 @@
-import { DEFAULT_DEVICE_FORM, type ScreenTransform } from '@webpod/device'
+import type { ScreenTransform } from '@webpod/device'
 import {
   CanvasTexture,
-  FrontSide,
-  Matrix4,
-  Mesh,
   MeshBasicMaterial,
-  NearestFilter,
-  PlaneGeometry,
+  LinearFilter,
   SRGBColorSpace,
 } from 'three'
 
@@ -38,15 +34,6 @@ type DrawElementContext = CanvasRenderingContext2D & {
   ): void
 }
 
-const LCD_OPTICAL_OVERLAY_OPACITY = 0.88
-const LCD_OPTICAL_OVERLAY_OFFSET =
-  DEFAULT_DEVICE_FORM.glassThickness + DEFAULT_DEVICE_FORM.glassToPanel + 0.1
-const LCD_OPTICAL_OVERLAY_TRANSLATION = new Matrix4().makeTranslation(
-  0,
-  0,
-  LCD_OPTICAL_OVERLAY_OFFSET,
-)
-
 function canRequestPaint(canvas: HTMLCanvasElement): canvas is RequestPaintCanvas {
   return 'requestPaint' in canvas && typeof Reflect.get(canvas, 'requestPaint') === 'function'
 }
@@ -74,9 +61,6 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
 
   private attachment: PanelPixelAttachment<'webgl'> | null = null
   private captureViewport: HTMLDivElement | null = null
-  private overlayGeometry: PlaneGeometry | null = null
-  private overlayMaterial: MeshBasicMaterial | null = null
-  private overlayMesh: Mesh | null = null
   private texture: CanvasTexture | null = null
   private material: MeshBasicMaterial | null = null
   private rasterCanvas: RequestPaintCanvas | null = null
@@ -142,34 +126,15 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     const texture = new CanvasTexture(rasterCanvas)
     texture.colorSpace = SRGBColorSpace
     texture.generateMipmaps = false
-    texture.minFilter = NearestFilter
-    texture.magFilter = NearestFilter
+    texture.minFilter = LinearFilter
+    texture.magFilter = LinearFilter
     texture.name = `webpod-lcd-${this.tone}-texture`
 
     const material = new MeshBasicMaterial({ map: texture, toneMapped: false })
     material.name = `webpod-lcd-${this.tone}`
-    const overlayGeometry = new PlaneGeometry(screen.size.width, screen.size.height)
-    const overlayMaterial = new MeshBasicMaterial({
-      map: texture,
-      toneMapped: false,
-      transparent: true,
-      opacity: LCD_OPTICAL_OVERLAY_OPACITY,
-      side: FrontSide,
-      depthWrite: false,
-    })
-    overlayMaterial.name = `webpod-lcd-${this.tone}-overlay`
-    const overlayMesh = new Mesh(overlayGeometry, overlayMaterial)
-    overlayMesh.name = `webpod-lcd-${this.tone}-overlay-mesh`
-    overlayMesh.matrixAutoUpdate = false
-    overlayMesh.frustumCulled = false
-    overlayMesh.renderOrder = 12
-    attachment.scene.add(overlayMesh)
 
     this.rasterCanvas = rasterCanvas
     this.captureViewport = captureViewport
-    this.overlayGeometry = overlayGeometry
-    this.overlayMaterial = overlayMaterial
-    this.overlayMesh = overlayMesh
     this.texture = texture
     this.material = material
     this.hasPaintRecord = false
@@ -304,12 +269,6 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
   syncGeometry(transform: ScreenTransform): void {
     const canvas = this.attachment?.renderer.domElement
     if (canvas === undefined) return
-    if (this.overlayMesh !== null) {
-      this.overlayMesh.matrix.copy(transform.worldMatrix).multiply(
-        LCD_OPTICAL_OVERLAY_TRANSLATION,
-      )
-      this.overlayMesh.matrixWorldNeedsUpdate = true
-    }
     const corners = transform.viewport.corners
     const xs = [
       corners.topLeft.x,
@@ -358,12 +317,6 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     attachment?.screen.setMaterial(null)
     this.material?.dispose()
     this.material = null
-    this.overlayMaterial?.dispose()
-    this.overlayMaterial = null
-    this.overlayGeometry?.dispose()
-    this.overlayGeometry = null
-    this.overlayMesh?.removeFromParent()
-    this.overlayMesh = null
     this.texture?.dispose()
     this.texture = null
     this.rasterCanvas = null
@@ -407,7 +360,7 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
 }
 
 export function resolvePanelRasterDensity(pixelRatio: number): 1 | 2 | 3 {
-  if (!Number.isFinite(pixelRatio) || pixelRatio <= 1) return 2
+  if (!Number.isFinite(pixelRatio) || pixelRatio <= 1) return 1
   if (pixelRatio <= 2) return 2
   return 3
 }

@@ -8,7 +8,7 @@ import {
 
 describe('html-in-canvas invariants', () => {
   test('quantizes the authored LCD into stable 1×/2×/3× raster sources', () => {
-    expect(resolvePanelRasterDensity(1)).toBe(2)
+    expect(resolvePanelRasterDensity(1)).toBe(1)
     expect(resolvePanelRasterDensity(1.25)).toBe(2)
     expect(resolvePanelRasterDensity(2)).toBe(2)
     expect(resolvePanelRasterDensity(2.01)).toBe(3)
@@ -56,11 +56,10 @@ describe('html-in-canvas invariants', () => {
     expect(source).toContain('panelElement.style.transform = `scale(${String(scaleX)}, ${String(scaleY)})`')
     expect(source).toContain('new CanvasTexture(rasterCanvas)')
     expect(source).toContain('texture.generateMipmaps = false')
-    expect(source).toContain('texture.minFilter = NearestFilter')
-    expect(source).toContain('texture.magFilter = NearestFilter')
-    expect(source).toContain('new PlaneGeometry(screen.size.width, screen.size.height)')
-    expect(source).toContain('opacity: LCD_OPTICAL_OVERLAY_OPACITY')
-    expect(source).toContain('overlayMesh.matrix.copy(transform.worldMatrix).multiply(')
+    expect(source).toContain('texture.minFilter = LinearFilter')
+    expect(source).toContain('texture.magFilter = LinearFilter')
+    expect(source).not.toContain('LCD_OPTICAL_OVERLAY')
+    expect(source).not.toContain('overlayMesh')
     expect(source).toContain('resolvePanelRasterFrame(')
     expect(source).toContain('screen.panel.scale')
     expect(source).toContain('rasterContext.drawElementImage(')

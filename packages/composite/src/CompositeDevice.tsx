@@ -44,6 +44,7 @@ export interface CompositeDeviceProps {
   readonly panelTone?: PanelOverlayTone
   readonly cameraFov?: number
   readonly cameraDistance?: number
+  readonly cameraSafePadding?: number
   readonly orientation?: DeviceOrientation
 }
 
@@ -60,6 +61,7 @@ export function CompositeDevice({
   panelTone = 'dark',
   cameraFov,
   cameraDistance,
+  cameraSafePadding,
   orientation = FRONT_DEVICE_ORIENTATION,
 }: CompositeDeviceProps) {
   const canUseDom = typeof document !== 'undefined'
@@ -100,6 +102,7 @@ export function CompositeDevice({
               colourway={colourway}
               cameraFov={cameraFov}
               cameraDistance={cameraDistance}
+              cameraSafePadding={cameraSafePadding}
               orientation={orientation}
               onScreenMeshReady={onScreenMeshReady}
             >
