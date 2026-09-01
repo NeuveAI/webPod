@@ -90,6 +90,9 @@ export type Actor =
   | `agent:${string}`
   | 'system'
 
+/** An actor that may own physical clicker or haptic feedback. */
+export type HumanActor = Extract<Actor, `human:${string}`>
+
 /* ────────────────────────────────────────────────────────────────────────────
  * Device state
  * ────────────────────────────────────────────────────────────────────────── */
@@ -1091,16 +1094,16 @@ export type InteractionFeedbackEvent =
       readonly origin: 'press'
       readonly button: PressButton
       readonly clickerTicks: number
-      readonly silenced: boolean
-      readonly actor: Actor
+      readonly silenced: false
+      readonly actor: HumanActor
     }
   | {
       readonly seq: number
       readonly control: 'wheel'
       readonly origin: 'detent' | 'coast'
       readonly clickerTicks: number
-      readonly silenced: boolean
-      readonly actor: Actor
+      readonly silenced: false
+      readonly actor: HumanActor
     }
 
 /* ────────────────────────────────────────────────────────────────────────────

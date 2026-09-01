@@ -19,7 +19,12 @@
  * for it.
  */
 
-import type { Actor, DetentSource, InputPath } from './contract'
+import type { Actor, DetentSource, HumanActor, InputPath } from './contract'
+
+/** Whether provenance belongs to a physical human input path. */
+export function isHumanActor(actor: Actor): actor is HumanActor {
+  return actor === 'human:touch' || actor === 'human:mouse' || actor === 'human:key'
+}
 
 /**
  * Whether movement from this source is silent.

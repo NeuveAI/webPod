@@ -52,6 +52,7 @@ import type {
   DetentOutcome,
   DeviceStore,
   InteractionFeedbackEvent,
+  Actor,
   MenuVisibility,
   PressInput,
   PressOutcome,
@@ -65,18 +66,31 @@ import {
   interactionFeedbackStateAtom,
 } from './internal'
 import { MENU_ROOT, menuFrame } from './menu'
-import { actorFor, isSilenced } from './silence'
+import { actorFor, isHumanActor, isSilenced } from './silence'
 import { moveHighlight, pageHighlight, popScreen, pushScreen } from './screen'
 
 type InteractionFeedbackDraft =
-  | Omit<Extract<InteractionFeedbackEvent, { readonly control: 'press' }>, 'seq'>
-  | Omit<Extract<InteractionFeedbackEvent, { readonly control: 'wheel' }>, 'seq'>
+  | {
+      readonly control: 'press'
+      readonly origin: 'press'
+      readonly button: Extract<InteractionFeedbackEvent, { control: 'press' }>['button']
+      readonly clickerTicks: number
+      readonly silenced: boolean
+      readonly actor: Actor
+    }
+  | {
+      readonly control: 'wheel'
+      readonly origin: 'detent' | 'coast'
+      readonly clickerTicks: number
+      readonly silenced: boolean
+      readonly actor: Actor
+    }
 
 /** Publishes one nonzero, non-silenced feedback budget with a fresh sequence. */
 const publishInteractionFeedbackAtom = atom(
   null,
   (get, set, draft: InteractionFeedbackDraft): InteractionFeedbackEvent | null => {
-    if (draft.silenced || draft.clickerTicks <= 0) return null
+    if (draft.silenced || draft.clickerTicks <= 0 || !isHumanActor(draft.actor)) return null
     const seq = (get(interactionFeedbackAtom)?.seq ?? 0) + 1
     const event: InteractionFeedbackEvent =
       draft.control === 'press'
@@ -86,7 +100,7 @@ const publishInteractionFeedbackAtom = atom(
             origin: 'press',
             button: draft.button,
             clickerTicks: draft.clickerTicks,
-            silenced: draft.silenced,
+            silenced: false,
             actor: draft.actor,
           }
         : {
@@ -94,7 +108,7 @@ const publishInteractionFeedbackAtom = atom(
             control: 'wheel',
             origin: draft.origin,
             clickerTicks: draft.clickerTicks,
-            silenced: draft.silenced,
+            silenced: false,
             actor: draft.actor,
           }
     set(interactionFeedbackStateAtom, event)

@@ -15,6 +15,19 @@ import {
 import { createDeviceStore } from './testing'
 
 describe('authoritative interaction feedback stream', () => {
+  test('the public event shape cannot represent agent-owned audible feedback', () => {
+    const malformed: InteractionFeedbackEvent = {
+      seq: 1,
+      control: 'wheel',
+      origin: 'detent',
+      clickerTicks: 1,
+      silenced: false,
+      // @ts-expect-error Only human actors can inhabit an eligible feedback event.
+      actor: 'agent:review-plant',
+    }
+    void malformed
+  })
+
   test('one eligible human press publishes exactly one click budget', () => {
     const store = createDeviceStore()
     const seen: InteractionFeedbackEvent[] = []
