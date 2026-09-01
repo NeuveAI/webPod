@@ -133,6 +133,18 @@ describe('interaction audio scheduler', () => {
     expect(disposed.consume(pressEvent('center')).reason).toBe('disposed')
   })
 
+  test('a synchronous suspend throw during mute remains terminal failed', async () => {
+    const backend = new FakeBackend('running')
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+    backend.throwOnSuspend = true
+
+    runtime.setEnabled(false)
+
+    expect(runtime.snapshot()).toMatchObject({ lifecycle: 'failed', enabled: false })
+    expect(runtime.consume(pressEvent('center')).reason).toBe('graph-failed')
+  })
+
   test('an interruption during resume cannot revive audio in the background', async () => {
     const resume = Promise.withResolvers<void>()
     const backend = new FakeBackend('suspended', resume.promise)
@@ -599,6 +611,7 @@ class FakeBackend implements InteractionAudioBackend {
   suspendCalls = 0
   closeCalls = 0
   failScheduling = false
+  throwOnSuspend = false
   suspendResult: Promise<void> | null = null
   readonly specs: InteractionVoiceSpec[] = []
   readonly voices: FakeVoice[] = []
@@ -614,10 +627,12 @@ class FakeBackend implements InteractionAudioBackend {
     this.state = 'running'
   }
 
-  async suspend(): Promise<void> {
+  suspend(): Promise<void> {
     this.suspendCalls += 1
+    if (this.throwOnSuspend) throw new Error('synchronous suspend failure')
     if (this.suspendResult !== null) return this.suspendResult
     this.state = 'suspended'
+    return Promise.resolve()
   }
 
   async close(): Promise<void> {

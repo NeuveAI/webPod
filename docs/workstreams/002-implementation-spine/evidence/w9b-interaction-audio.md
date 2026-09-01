@@ -43,7 +43,7 @@ bun test packages/composite/src/interaction-audio.test.ts \
   packages/composite/src/CompositeDevice.integration.test.tsx
 ```
 
-Result: **32 pass, 0 fail, 195 assertions**.
+Result: **33 pass, 0 fail, 197 assertions**.
 
 Covered claims:
 
@@ -51,6 +51,7 @@ Covered claims:
 - suspended-context resume and bounded first-click queue;
 - interruption during resume cannot revive background audio;
 - terminal unsupported/failed/disposed diagnostics survive mute and interruption;
+- synchronous and asynchronous suspend failures remain terminal `failed`;
 - deferred blur/mute suspension cannot defeat a newer activation;
 - stale resume rejection cannot overwrite interruption or disposal;
 - duplicate bindings and public mounts consume one sequence exactly once;
@@ -78,7 +79,7 @@ tests cover one press, N direct detents, sub-detent zero, agent/system zero,
 coast budget provenance, sequence identity, and a type-level rejection of
 agent-owned eligible feedback.
 
-The combined state + W9b command passed **68 tests, 0 failures, 280
+The combined state + W9b command passed **69 tests, 0 failures, 282
 assertions**.
 
 ## Antagonistic plants
@@ -88,7 +89,13 @@ Before implementation, the review plants ran alongside the prior suite as
 malformed agent playback, stale rejection after dispose and interrupt,
 duplicate binding, duplicate runtime/public mount consumption, and the
 unreachable mounted mute seam. After the fixes, the same permanent plants are
-included in the 32-pass focused result above.
+included in the 33-pass focused result above.
+
+The final technical re-review planted a genuinely synchronous `suspend()` throw
+during mute. Before the ordering fix, the focused runtime suite reported **24
+pass / 1 fail** because lifecycle ended `suspended`. After moving the
+provisional muted label before the platform call, the permanent plant reports
+`failed` and `graph-failed`; it is included in the 33-pass focused result.
 
 ## Browser event/audio transcript
 
@@ -181,7 +188,7 @@ does not replace the live-route check and W9b does not approve its own taste.
 | Gate | Result |
 | --- | --- |
 | `bun run lint` | exit 0 |
-| `bun test` | 1,088 pass, 0 fail |
+| `bun test` | 1,089 pass, 0 fail |
 | `bun run build` | exit 0; existing large-chunk warning only |
 | state TypeScript | exit 0 |
 | composite TypeScript | exit 0 |

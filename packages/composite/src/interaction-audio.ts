@@ -430,11 +430,11 @@ export function createInteractionAudioRuntime(
       }
       clearPending()
       stopVoices()
-      if (backend?.state === 'running') {
-        void requestSuspend(backend, operation, terminalLifecycle ?? 'suspended')
-      }
       if (terminalLifecycle === null) {
         lifecycle = backend === null ? 'locked' : 'suspended'
+      }
+      if (backend?.state === 'running') {
+        void requestSuspend(backend, operation, terminalLifecycle ?? 'suspended')
       }
     },
 

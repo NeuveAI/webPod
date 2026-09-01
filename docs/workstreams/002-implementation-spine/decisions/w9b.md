@@ -79,6 +79,10 @@ voices, and suspends. Dispose closes and disconnects.
 Terminal lifecycle labels are authoritative: `unsupported`, `failed`, and
 `disposed` survive later mute changes and blur/hidden/unmount interruption, so
 diagnostics do not relabel terminal disposal as ordinary suspension or lock.
+When muting a running backend, the provisional `suspended` label is assigned
+before calling `suspend()`. A synchronous throw or asynchronous rejection can
+therefore supersede that provisional state with terminal `failed`; the caller
+never writes an ordinary label after the failure boundary returns.
 
 Failures are data: `unsupported`, `resume-failed`, `context-suspended`,
 `voice-cap`, and `graph-failed`. Nothing logs to the console. The first review

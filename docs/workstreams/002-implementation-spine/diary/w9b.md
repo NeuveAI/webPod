@@ -80,11 +80,20 @@ interruption; the renderer under `packages/composite/scripts/` is now included
 in the package's normal TypeScript project; and the public activation predicate
 is named and documented as event eligibility rather than human provenance.
 
+A final closure plant exposed one ordering hole inside that first claim:
+`setEnabled(false)` wrote the ordinary `suspended` label after
+`requestSuspend()` returned from a synchronous throw, erasing the terminal
+`failed` result. The muted provisional label is now written before the platform
+request, so either synchronous or asynchronous suspend failure supersedes it
+with `failed`. The permanent fake backend throws synchronously rather than
+returning a rejected promise, and asserts both the lifecycle and structured
+`graph-failed` result.
+
 ## Current gates
 
-- W9b focused tests: 32 pass, 0 fail, 195 assertions.
-- State + W9b focused tests: 68 pass, 0 fail, 280 assertions.
-- Repo tests: 1,088 pass, 0 fail.
+- W9b focused tests: 33 pass, 0 fail, 197 assertions.
+- State + W9b focused tests: 69 pass, 0 fail, 282 assertions.
+- Repo tests: 1,089 pass, 0 fail.
 - Repo lint: clean.
 - Production build: clean; Vite retains its existing large-chunk warning.
 - State and composite TypeScript: clean.
