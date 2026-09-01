@@ -1,11 +1,15 @@
 import type { ScreenMeshHandle } from '@webpod/device'
-import type { Camera, WebGLRenderer } from 'three'
+import type { Camera, Scene, WebGLRenderer } from 'three'
 
 import { createPanelPixelSource, type PanelOverlayTone } from './html-in-canvas'
 import type { PanelPixelSource } from './pixel-source'
 import { markCompositeContextLost, refreshCompositeTier } from './tier-store'
 
-export type RenderContext = { readonly renderer: WebGLRenderer; readonly camera: Camera }
+export type RenderContext = {
+  readonly renderer: WebGLRenderer
+  readonly camera: Camera
+  readonly scene: Scene
+}
 type PixelSourceFactory = (tone: PanelOverlayTone) => PanelPixelSource<'webgl'>
 type CompositeLifecycle = {
   readonly markContextLost: () => void
@@ -67,12 +71,14 @@ export class CompositeCoordinator {
     this.source?.detach()
     this.source = null
     this.removeContextListeners()
+    clearCompositeSourceDiagnostics(renderer.domElement)
     this.context = null
   }
 
   dispose(): void {
     this.source?.detach()
     this.source = null
+    if (this.context !== null) clearCompositeSourceDiagnostics(this.context.renderer.domElement)
     this.removeContextListeners()
     this.panel = null
     this.screen = null
@@ -88,6 +94,8 @@ export class CompositeCoordinator {
       this.context === null
     ) return
     const source = this.createSource(this.tone)
+    this.context.renderer.domElement.dataset['wpCompositeSourceState'] = 'attaching'
+    delete this.context.renderer.domElement.dataset['wpCompositeSourceError']
     try {
       source.attach({
         kind: 'webgl',
@@ -95,9 +103,14 @@ export class CompositeCoordinator {
         screen: this.screen,
         renderer: this.context.renderer,
         camera: this.context.camera,
+        scene: this.context.scene,
       })
+      this.context.renderer.domElement.dataset['wpCompositeSourceState'] = 'attached'
       this.source = source
     } catch (error) {
+      this.context.renderer.domElement.dataset['wpCompositeSourceState'] = 'attach-error'
+      this.context.renderer.domElement.dataset['wpCompositeSourceError'] =
+        error instanceof Error ? error.message : String(error)
       source.detach()
       throw error
     }
@@ -132,4 +145,9 @@ export class CompositeCoordinator {
     this.contextLostListener = null
     this.contextRestoredListener = null
   }
+}
+
+function clearCompositeSourceDiagnostics(canvas: HTMLCanvasElement): void {
+  delete canvas.dataset['wpCompositeSourceState']
+  delete canvas.dataset['wpCompositeSourceError']
 }

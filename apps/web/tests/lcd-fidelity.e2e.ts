@@ -2,15 +2,34 @@ import { expect, test, type Page } from '../../../packages/panel/node_modules/@p
 import { mkdir } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
+import { assertBrowserSourceIdentity } from './source-identity'
+
 const evidenceDirectory = resolve(
   process.env['LCD_FIDELITY_EVIDENCE_DIR'] ??
     resolve(import.meta.dirname, 'test-results/lcd-fidelity'),
 )
+const CHROME_EXECUTABLE =
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 
 test.use({
-  channel: 'chrome',
-  launchOptions: { args: ['--enable-blink-features=CanvasDrawElement'] },
+  launchOptions: {
+    executablePath: CHROME_EXECUTABLE,
+    args: ['--enable-blink-features=CanvasDrawElement'],
+  },
 })
+
+const COMPOSITE_ROUTE =
+  '/_probe/composite?colourway=black&state=ready&scale=1&fov=30&mode=composited&pose=front'
+const BARE_ROUTE =
+  '/_probe/composite?colourway=black&state=ready&scale=1&fov=30&mode=bare&pose=front'
+
+async function gotoRoute(page: Page, url: string): Promise<void> {
+  await page.goto(url, { waitUntil: 'domcontentloaded' })
+  await page.waitForFunction(
+    () => document.body !== null && document.querySelector('main') !== null,
+  )
+  await assertBrowserSourceIdentity(page)
+}
 
 async function freezeVisuals(page: Page): Promise<void> {
   await page.addStyleTag({
@@ -19,18 +38,43 @@ async function freezeVisuals(page: Page): Promise<void> {
 }
 
 async function settleCompositePaint(page: Page): Promise<void> {
-  const host = page.locator('.wp-composite-panel-host')
-  await expect.poll(() => host.evaluate((element) =>
-    element.parentElement instanceof HTMLCanvasElement &&
-    getComputedStyle(element).transform !== 'none')).toBe(true)
-  await page.evaluate(() => new Promise<void>((resolvePaint) => {
-    const canvas = document.querySelector<HTMLCanvasElement>('.wp-composite-preview__device canvas')
-    if (canvas === null || !('requestPaint' in canvas)) throw new Error('T1 paint is unavailable')
-    const requestPaint = Reflect.get(canvas, 'requestPaint')
-    if (typeof requestPaint !== 'function') throw new Error('T1 requestPaint is not callable')
-    canvas.addEventListener('paint', () => resolvePaint(), { once: true })
-    Reflect.apply(requestPaint, canvas, [])
-  }))
+  await page.waitForFunction(() => document.querySelector('.wp-composite-preview') !== null)
+  await page.waitForFunction(() => document.querySelector('.wp-composite-preview__device canvas') !== null)
+  await page.waitForFunction(() => {
+    const canvas = document.querySelector('.wp-composite-preview__device canvas')
+    if (!(canvas instanceof HTMLCanvasElement)) return false
+    const state = canvas.dataset['wpCompositeSourceState']
+    if (state === 'attach-error') {
+      throw new Error(canvas.dataset['wpCompositeSourceError'] ?? 'Composite attach failed')
+    }
+    return state !== undefined
+  })
+  await page.locator('.wp-composite-raster-canvas').waitFor({ state: 'attached', timeout: 30_000 })
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const host = document.querySelector<HTMLElement>('.wp-composite-panel-host')
+        const rasterCanvas = document.querySelector<HTMLCanvasElement>('.wp-composite-raster-canvas')
+        return host !== null && rasterCanvas !== null && rasterCanvas.contains(host)
+      }),
+    )
+    .toBe(true)
+  await page.evaluate(() => {
+    const rasterCanvas = document.querySelector<HTMLCanvasElement>('.wp-composite-raster-canvas')
+    if (rasterCanvas === null || !('requestPaint' in rasterCanvas)) throw new Error('T1 raster paint is unavailable')
+    const requestPaint = Reflect.get(rasterCanvas, 'requestPaint')
+    if (typeof requestPaint !== 'function') throw new Error('T1 raster requestPaint is not callable')
+    Reflect.apply(requestPaint, rasterCanvas, [])
+  })
+  await page.waitForFunction(() => {
+    const canvas = document.querySelector('.wp-composite-preview__device canvas')
+    if (!(canvas instanceof HTMLCanvasElement)) return false
+    const state = canvas.dataset['wpCompositeSourceState']
+    if (state === 'attach-error') {
+      throw new Error(canvas.dataset['wpCompositeSourceError'] ?? 'Composite attach failed')
+    }
+    return state === 'painted'
+  })
   await page.evaluate(() => new Promise<void>((resolveFrame) =>
     requestAnimationFrame(() => requestAnimationFrame(() => resolveFrame()))))
 }
@@ -39,11 +83,14 @@ test.beforeAll(async () => mkdir(evidenceDirectory, { recursive: true }))
 
 test('LCD keeps the authored title, row, split, artwork, and icon geometry', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/_probe/composite?colourway=black&mode=composited')
+  await gotoRoute(page, COMPOSITE_ROUTE)
   await freezeVisuals(page)
   await settleCompositePaint(page)
 
-  const panel = page.getByRole('application', { name: 'webPod music player' })
+  const panel = page.getByRole('application', {
+    name: 'webPod music player',
+    includeHidden: true,
+  })
   const geometry = await panel.evaluate((element) => {
     const rect = (selector: string) => {
       const target = element.querySelector(selector)
@@ -72,14 +119,17 @@ test('LCD keeps the authored title, row, split, artwork, and icon geometry', asy
 })
 
 test('selection and Now Playing retain native hierarchy through interaction', async ({ page }) => {
-  await page.goto('/_probe/composite?colourway=black&mode=composited')
+  await gotoRoute(page, COMPOSITE_ROUTE)
   await freezeVisuals(page)
   await settleCompositePaint(page)
-  const panel = page.getByRole('application', { name: 'webPod music player' })
+  const panel = page.getByRole('application', {
+    name: 'webPod music player',
+    includeHidden: true,
+  })
   await panel.focus()
-  await expect(panel.getByRole('option', { selected: true })).toContainText('Albums')
+  await expect(panel.getByRole('option', { selected: true, includeHidden: true })).toContainText('Albums')
   await panel.press('ArrowDown')
-  await expect(panel.getByRole('option', { selected: true })).toContainText('Songs')
+  await expect(panel.getByRole('option', { selected: true, includeHidden: true })).toContainText('Songs')
   await panel.press('ArrowUp')
   await panel.press('Enter')
   await expect(panel).toHaveAttribute('data-screen', 'S08')
@@ -90,7 +140,9 @@ test('selection and Now Playing retain native hierarchy through interaction', as
   await expect(panel.locator('.wp-now-meta p')).toHaveCount(2)
   await expect(panel.locator('.wp-art--large')).toHaveCSS('width', '88px')
   await expect(panel.locator('.wp-actions .wp-icon')).toHaveCount(5)
-  await expect(panel.getByRole('button', { name: 'Love track' })).toHaveAttribute('aria-pressed', 'false')
+  await expect(
+    panel.getByRole('button', { name: 'Love track', includeHidden: true }),
+  ).toHaveAttribute('aria-pressed', 'false')
 })
 
 for (const viewport of [
@@ -99,7 +151,7 @@ for (const viewport of [
 ] as const) {
   test(`captures the LCD presentation at ${viewport.name}`, async ({ page }) => {
     await page.setViewportSize(viewport)
-    await page.goto('/_probe/composite?colourway=black&mode=bare')
+    await gotoRoute(page, BARE_ROUTE)
     await freezeVisuals(page)
     const barePanel = page.getByRole('application', { name: 'webPod music player' })
     await expect(barePanel).toBeVisible()
@@ -114,7 +166,7 @@ for (const viewport of [
       path: resolve(evidenceDirectory, `source-now-playing-${viewport.name}.png`),
     })
 
-    await page.goto('/_probe/composite?colourway=black&mode=composited')
+    await gotoRoute(page, COMPOSITE_ROUTE)
     await freezeVisuals(page)
     await settleCompositePaint(page)
     await page.screenshot({
@@ -122,7 +174,10 @@ for (const viewport of [
       fullPage: true,
     })
 
-    const panel = page.getByRole('application', { name: 'webPod music player' })
+    const panel = page.getByRole('application', {
+      name: 'webPod music player',
+      includeHidden: true,
+    })
     await panel.focus()
     await panel.press('Enter')
     await panel.press('Enter')

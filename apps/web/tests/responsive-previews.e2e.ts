@@ -7,10 +7,14 @@ import {
 import { mkdir } from 'node:fs/promises'
 import { resolve } from 'node:path'
 
+import { assertBrowserSourceIdentity } from './source-identity'
+
 const evidenceDirectory = resolve(
   process.env['RESPONSIVE_PREVIEW_EVIDENCE_DIR'] ??
     resolve(import.meta.dirname, 'test-results/responsive-previews'),
 )
+const CHROME_EXECUTABLE =
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 
 const mobileViewports = [
   { name: '320x568', width: 320, height: 568 },
@@ -25,11 +29,25 @@ const screenshotViewports = [
 ] as const
 
 test.use({
-  channel: 'chrome',
   launchOptions: {
+    executablePath: CHROME_EXECUTABLE,
     args: ['--enable-blink-features=CanvasDrawElement'],
   },
 })
+
+const COMPOSITE_ROUTE =
+  '/_probe/composite?colourway=black&state=ready&scale=1&fov=30&mode=composited&pose=front'
+const BARE_ROUTE =
+  '/_probe/composite?colourway=white&state=ready&scale=1&fov=30&mode=bare&pose=front'
+const SPIKE_ROUTE = '/_spike/device'
+
+async function gotoRoute(page: Page, url: string): Promise<void> {
+  await page.goto(url, { waitUntil: 'domcontentloaded' })
+  await page.waitForFunction(
+    () => document.body !== null && document.querySelector('main') !== null,
+  )
+  await assertBrowserSourceIdentity(page)
+}
 
 async function freezeVisuals(page: Page): Promise<void> {
   await page.addStyleTag({
@@ -47,31 +65,51 @@ async function afterTwoFrames(page: Page): Promise<void> {
 }
 
 async function settleCompositePaint(page: Page): Promise<void> {
-  const host = page.locator('.wp-composite-panel-host')
+  await page.waitForFunction(
+    () => document.querySelector('.wp-composite-preview__device canvas') instanceof HTMLCanvasElement,
+    { timeout: 30_000 },
+  )
+  await page.waitForFunction(() => {
+    const canvas = document.querySelector('.wp-composite-preview__device canvas')
+    if (!(canvas instanceof HTMLCanvasElement)) return false
+    const state = canvas.dataset['wpCompositeSourceState']
+    if (state === 'attach-error') {
+      throw new Error(canvas.dataset['wpCompositeSourceError'] ?? 'Composite attach failed')
+    }
+    return state !== undefined
+  })
+  await page.locator('.wp-composite-raster-canvas').waitFor({ state: 'attached', timeout: 30_000 })
   await expect
     .poll(() =>
-      host.evaluate((element) =>
-        element.parentElement instanceof HTMLCanvasElement &&
-        getComputedStyle(element).transform !== 'none',
-      ),
+      page.evaluate(() => {
+        const host = document.querySelector<HTMLElement>('.wp-composite-panel-host')
+        const rasterCanvas = document.querySelector<HTMLCanvasElement>('.wp-composite-raster-canvas')
+        return host !== null && rasterCanvas !== null && rasterCanvas.contains(host)
+      }),
     )
     .toBe(true)
-  await page.evaluate(
-    () => new Promise<void>((resolve) => {
-      const canvas = document.querySelector<HTMLCanvasElement>(
-        '.wp-composite-preview__device canvas',
-      )
-      if (canvas === null || !('requestPaint' in canvas)) {
-        throw new Error('T1 canvas cannot request an HTML paint')
-      }
-      const requestPaint = Reflect.get(canvas, 'requestPaint')
-      if (typeof requestPaint !== 'function') {
-        throw new Error('T1 canvas requestPaint member is not callable')
-      }
-      canvas.addEventListener('paint', () => resolve(), { once: true })
-      Reflect.apply(requestPaint, canvas, [])
-    }),
-  )
+  await page.evaluate(() => {
+    const rasterCanvas = document.querySelector<HTMLCanvasElement>(
+      '.wp-composite-raster-canvas',
+    )
+    if (rasterCanvas === null || !('requestPaint' in rasterCanvas)) {
+      throw new Error('T1 canvas cannot request an HTML paint')
+    }
+    const requestPaint = Reflect.get(rasterCanvas, 'requestPaint')
+    if (typeof requestPaint !== 'function') {
+      throw new Error('T1 canvas requestPaint member is not callable')
+    }
+    Reflect.apply(requestPaint, rasterCanvas, [])
+  })
+  await page.waitForFunction(() => {
+    const canvas = document.querySelector('.wp-composite-preview__device canvas')
+    if (!(canvas instanceof HTMLCanvasElement)) return false
+    const state = canvas.dataset['wpCompositeSourceState']
+    if (state === 'attach-error') {
+      throw new Error(canvas.dataset['wpCompositeSourceError'] ?? 'Composite attach failed')
+    }
+    return state === 'painted'
+  })
   await afterTwoFrames(page)
 }
 
@@ -166,7 +204,7 @@ test.describe('responsive diagnostic previews', () => {
   for (const viewport of mobileViewports) {
     test(`composite remains centred and contained at ${viewport.name}`, async ({ page }) => {
       await page.setViewportSize(viewport)
-      await page.goto('/_probe/composite?colourway=black&mode=composited')
+      await gotoRoute(page, COMPOSITE_ROUTE)
       await freezeVisuals(page)
 
       const preview = page.locator('.wp-composite-preview')
@@ -211,7 +249,7 @@ test.describe('responsive diagnostic previews', () => {
 
     test(`device spike remains centred and contained at ${viewport.name}`, async ({ page }) => {
       await page.setViewportSize(viewport)
-      await page.goto('/_spike/device')
+      await gotoRoute(page, SPIKE_ROUTE)
       await freezeVisuals(page)
 
       const stage = page.locator('.webpod-device-spike__stage')
@@ -246,15 +284,16 @@ test.describe('responsive diagnostic previews', () => {
 
       test('backs both the LCD source and WebGL canvas with physical pixels', async ({ page }) => {
         await page.setViewportSize({ width: 390, height: 844 })
-        await page.goto('/_spike/device')
+        await gotoRoute(page, SPIKE_ROUTE)
         await settleDevicePaint(page)
 
         const pixels = await readDevicePixelMetrics(page)
+        const sourceDensity = Math.max(2, deviceScaleFactor)
         expect(pixels.browserDpr).toBe(deviceScaleFactor)
         expect(pixels.source.logicalWidth).toBe(320)
         expect(pixels.source.logicalHeight).toBe(240)
-        expect(pixels.source.pixelWidth).toBe(320 * deviceScaleFactor)
-        expect(pixels.source.pixelHeight).toBe(240 * deviceScaleFactor)
+        expect(pixels.source.pixelWidth).toBe(320 * sourceDensity)
+        expect(pixels.source.pixelHeight).toBe(240 * sourceDensity)
         expect(pixels.webgl.pixelWidth).toBeGreaterThanOrEqual(
           Math.floor(pixels.webgl.cssWidth * deviceScaleFactor),
         )
@@ -273,13 +312,16 @@ test.describe('responsive diagnostic previews', () => {
 
   test('composite refits after dynamic mobile-height changes without losing interaction', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/_probe/composite?colourway=black&mode=composited')
+    await gotoRoute(page, COMPOSITE_ROUTE)
     await freezeVisuals(page)
     await settleCompositePaint(page)
 
-    const application = page.getByRole('application', { name: 'webPod music player' })
+    const application = page.getByRole('application', {
+      name: 'webPod music player',
+      includeHidden: true,
+    })
     const frame = page.locator('.wp-composite-preview__device-frame')
-    const selected = page.getByRole('option', { selected: true })
+    const selected = page.getByRole('option', { selected: true, includeHidden: true })
     await expect(selected).toContainText('Albums')
     await application.focus()
     await application.press('ArrowDown')
@@ -300,7 +342,7 @@ test.describe('responsive diagnostic previews', () => {
 
   test('bare panel preserves its authored raster on a narrow viewport', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 })
-    await page.goto('/_probe/composite?colourway=white&mode=bare')
+    await gotoRoute(page, BARE_ROUTE)
     await freezeVisuals(page)
     const frame = page.locator('.wp-composite-preview__bare-frame')
     const panel = page.getByRole('application', { name: 'webPod music player' })
@@ -320,7 +362,7 @@ test.describe('responsive diagnostic previews', () => {
     test(`captures responsive previews at ${viewport.name}`, async ({ page }) => {
       await page.setViewportSize(viewport)
 
-      await page.goto('/_probe/composite?colourway=black&mode=composited')
+      await gotoRoute(page, COMPOSITE_ROUTE)
       await freezeVisuals(page)
       await expect(page.locator('.wp-composite-preview__device')).toHaveAttribute(
         'data-composite-tier',
@@ -332,7 +374,7 @@ test.describe('responsive diagnostic previews', () => {
         fullPage: true,
       })
 
-      await page.goto('/_spike/device')
+      await gotoRoute(page, SPIKE_ROUTE)
       await freezeVisuals(page)
       await expect(page.locator('.webpod-device-spike__stage canvas')).toBeVisible()
       await settleDevicePaint(page)

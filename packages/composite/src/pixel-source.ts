@@ -1,5 +1,5 @@
 import type { ScreenMeshHandle, ScreenTransform } from '@webpod/device'
-import type { Camera, WebGLRenderer } from 'three'
+import type { Camera, Scene, WebGLRenderer } from 'three'
 
 import type { Tier } from './capabilities'
 
@@ -25,6 +25,7 @@ export interface WebGlPanelPixelAttachment {
   readonly panelElement: HTMLElement
   readonly renderer: WebGLRenderer
   readonly camera: Camera
+  readonly scene: Scene
 }
 
 export type PanelPixelAttachment<Renderer extends PanelPixelRenderer = PanelPixelRenderer> =
@@ -49,7 +50,7 @@ export interface PanelPixelSource<Renderer extends PanelPixelRenderer = PanelPix
 /** T1's end-to-end requirements. One concrete set, not a variant registry. */
 export const HTML_IN_CANVAS_REQUIREMENTS: PanelPixelRequirements<'webgl'> = Object.freeze({
   renderer: 'webgl',
-  materialVariant: 'html-texture-lcd',
-  shaderVariants: Object.freeze(['lcd-scanline-subpixel']),
-  textureSet: Object.freeze(['panel-dom']),
+  materialVariant: 'canvas-raster-lcd',
+  shaderVariants: Object.freeze([]),
+  textureSet: Object.freeze(['panel-raster-canvas']),
 })

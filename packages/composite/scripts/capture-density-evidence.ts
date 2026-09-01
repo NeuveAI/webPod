@@ -1,89 +1,118 @@
-import { mkdirSync } from "node:fs";
-import { resolve } from "node:path";
-import { chromium } from "@playwright/test";
+import { mkdirSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { chromium } from '@playwright/test'
 
-const outputArgument = process.argv[2];
-if (outputArgument === undefined) throw new Error("Pass an evidence output directory");
-const output = resolve(outputArgument);
-mkdirSync(output, { recursive: true });
+const outputArgument = process.argv[2]
+if (outputArgument === undefined) throw new Error('Pass an evidence output directory')
+const output = resolve(outputArgument)
+const baseUrl = process.env['WEBPOD_CAPTURE_BASE_URL'] ?? 'http://127.0.0.1:3000'
+const COMPOSITE_ROUTE =
+  '/_probe/composite?colourway=white&state=ready&scale=1&fov=30&mode=composited&pose=front'
+mkdirSync(output, { recursive: true })
 
 const browser = await chromium.launch({
-  executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   headless: true,
-  args: ["--enable-blink-features=CanvasDrawElement"],
-});
+  args: ['--enable-blink-features=CanvasDrawElement'],
+})
 
 try {
   for (const deviceScaleFactor of [1, 2, 3] as const) {
+    const compositeSourceDensity = Math.max(2, deviceScaleFactor)
     const context = await browser.newContext({
       deviceScaleFactor,
       viewport: { width: 390, height: 844 },
-    });
-    const page = await context.newPage();
-    const errors: string[] = [];
-    page.on("pageerror", (error) => errors.push(error.message));
-    await page.goto(
-      "http://127.0.0.1:3000/_probe/composite?colourway=white&state=ready&scale=1&fov=30&mode=composited",
-      { waitUntil: "domcontentloaded" },
-    );
-    await page.locator('[data-composite-tier="T1"] canvas').waitFor();
-    await page.waitForTimeout(250);
+    })
+    const page = await context.newPage()
+    const errors: string[] = []
+    page.on('pageerror', (error) => errors.push(error.message))
+    await page.goto(`${baseUrl}${COMPOSITE_ROUTE}`, { waitUntil: 'domcontentloaded' })
+    await page.waitForFunction(() => document.body !== null && document.querySelector('main') !== null)
+    await page.waitForFunction(
+      () =>
+        document.querySelector<HTMLCanvasElement>('.wp-composite-preview__device canvas')?.dataset['wpRasterDensity'] ===
+        String(compositeSourceDensity),
+      compositeSourceDensity,
+    )
+    await page.waitForFunction(() => {
+      const canvas = document.querySelector('.wp-composite-preview__device canvas')
+      if (!(canvas instanceof HTMLCanvasElement)) return false
+      const state = canvas.dataset['wpCompositeSourceState']
+      if (state === 'attach-error') {
+        throw new Error(canvas.dataset['wpCompositeSourceError'] ?? 'Composite attach failed')
+      }
+      return state === 'painted'
+    })
+    await page.waitForTimeout(250)
 
     const metrics = await page.evaluate(() => {
-      const root = document.querySelector<HTMLElement>("[data-composite-tier='T1']");
-      const canvas = root?.querySelector("canvas");
-      const panel = canvas?.querySelector<HTMLElement>("[data-raster-density]");
-      if (root === null || root === undefined || canvas === null) throw new Error("T1 canvas missing");
-      if (panel === null || panel === undefined) throw new Error("DPR-aware panel source missing");
-      const bounds = root.getBoundingClientRect();
+      const root = document.querySelector<HTMLElement>("[data-composite-tier='T1']")
+      const canvas = document.querySelector<HTMLCanvasElement>('.wp-composite-preview__device canvas')
+      const rasterCanvas = document.querySelector<HTMLCanvasElement>('.wp-composite-raster-canvas')
+      if (root === null || canvas === null || rasterCanvas === null) {
+        throw new Error('Composite raster diagnostics are missing')
+      }
+      const bounds = root.getBoundingClientRect()
       return {
         devicePixelRatio: window.devicePixelRatio,
         viewportWidth: document.documentElement.clientWidth,
         scrollWidth: document.documentElement.scrollWidth,
         root: { x: bounds.x, width: bounds.width },
-        canvas: {
+        webgl: {
           cssWidth: canvas.clientWidth,
           cssHeight: canvas.clientHeight,
           width: canvas.width,
           height: canvas.height,
         },
-        panel: {
-          density: Number(panel.dataset["rasterDensity"]),
-          width: panel.offsetWidth,
-          height: panel.offsetHeight,
+        rasterCanvas: {
+          cssWidth: rasterCanvas.clientWidth,
+          cssHeight: rasterCanvas.clientHeight,
+          width: rasterCanvas.width,
+          height: rasterCanvas.height,
         },
-      };
-    });
+        host: {
+          density: Number(canvas.dataset['wpRasterDensity'] ?? '0'),
+          pixelWidth: Number(canvas.dataset['wpRasterPixelWidth'] ?? '0'),
+          pixelHeight: Number(canvas.dataset['wpRasterPixelHeight'] ?? '0'),
+        },
+      }
+    })
 
-    const expectedWidth = Math.round(metrics.canvas.cssWidth * deviceScaleFactor);
-    const expectedHeight = Math.round(metrics.canvas.cssHeight * deviceScaleFactor);
-    if (metrics.canvas.width !== expectedWidth || metrics.canvas.height !== expectedHeight) {
-      throw new Error(`DPR ${String(deviceScaleFactor)} backing store mismatch: ${JSON.stringify(metrics.canvas)}`);
+    const expectedWidth = Math.round(metrics.webgl.cssWidth * deviceScaleFactor)
+    const expectedHeight = Math.round(metrics.webgl.cssHeight * deviceScaleFactor)
+    if (metrics.webgl.width !== expectedWidth || metrics.webgl.height !== expectedHeight) {
+      throw new Error(`DPR ${String(deviceScaleFactor)} backing store mismatch: ${JSON.stringify(metrics.webgl)}`)
     }
     if (
-      metrics.panel.density !== deviceScaleFactor ||
-      metrics.panel.width !== 320 * deviceScaleFactor ||
-      metrics.panel.height !== 240 * deviceScaleFactor
+      metrics.host.density !== compositeSourceDensity ||
+      metrics.host.pixelWidth !== 320 * compositeSourceDensity ||
+      metrics.host.pixelHeight !== 240 * compositeSourceDensity
     ) {
-      throw new Error(`DPR ${String(deviceScaleFactor)} panel raster mismatch: ${JSON.stringify(metrics.panel)}`);
+      throw new Error(`DPR ${String(deviceScaleFactor)} host raster mismatch: ${JSON.stringify(metrics.host)}`)
+    }
+    if (
+      metrics.rasterCanvas.width !== 320 * compositeSourceDensity ||
+      metrics.rasterCanvas.height !== 240 * compositeSourceDensity
+    ) {
+      throw new Error(`DPR ${String(deviceScaleFactor)} raster canvas mismatch: ${JSON.stringify(metrics.rasterCanvas)}`)
     }
     if (metrics.scrollWidth !== metrics.viewportWidth) {
-      throw new Error(`DPR ${String(deviceScaleFactor)} overflowed horizontally: ${JSON.stringify(metrics)}`);
+      throw new Error(`DPR ${String(deviceScaleFactor)} overflowed horizontally: ${JSON.stringify(metrics)}`)
     }
-    const left = metrics.root.x;
-    const right = metrics.viewportWidth - metrics.root.x - metrics.root.width;
+    const left = metrics.root.x
+    const right = metrics.viewportWidth - metrics.root.x - metrics.root.width
     if (Math.abs(left - right) > 1) {
-      throw new Error(`DPR ${String(deviceScaleFactor)} composite is not centered: ${JSON.stringify(metrics.root)}`);
+      throw new Error(`DPR ${String(deviceScaleFactor)} composite is not centered: ${JSON.stringify(metrics.root)}`)
     }
-    if (errors.length > 0) throw new Error(`DPR ${String(deviceScaleFactor)} page errors: ${errors.join(" | ")}`);
+    if (errors.length > 0) throw new Error(`DPR ${String(deviceScaleFactor)} page errors: ${errors.join(' | ')}`)
 
     await page.screenshot({
       path: resolve(output, `white-mobile-dpr-${String(deviceScaleFactor)}.png`),
       fullPage: false,
-    });
-    process.stdout.write(`${JSON.stringify({ deviceScaleFactor, metrics })}\n`);
-    await context.close();
+    })
+    process.stdout.write(`${JSON.stringify({ deviceScaleFactor, metrics })}\n`)
+    await context.close()
   }
 } finally {
-  await browser.close();
+  await browser.close()
 }

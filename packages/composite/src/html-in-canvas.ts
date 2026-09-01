@@ -1,14 +1,14 @@
-import type { ScreenTransform } from '@webpod/device'
+import { DEFAULT_DEVICE_FORM, type ScreenTransform } from '@webpod/device'
 import {
-  HTMLTexture,
-  LinearFilter,
+  CanvasTexture,
+  FrontSide,
+  Matrix4,
   Mesh,
   MeshBasicMaterial,
   NearestFilter,
   PlaneGeometry,
   SRGBColorSpace,
 } from 'three'
-import { InteractionManager } from 'three/addons/interaction/InteractionManager.js'
 
 import { getCompositeTierSnapshot } from './tier-store'
 import {
@@ -20,7 +20,32 @@ import {
 export type PanelOverlayTone = 'dark' | 'light'
 
 type RequestPaintCanvas = HTMLCanvasElement & { requestPaint(): void }
+type PaintAwareCanvas = RequestPaintCanvas & { onpaint: ((event: Event) => void) | null }
 type CanvasPaintEvent = Event & { readonly changedElements?: readonly Element[] }
+type DrawElementOptions = { readonly preserveElementGeometry?: boolean }
+type DrawElementContext = CanvasRenderingContext2D & {
+  drawElementImage(
+    element: Element,
+    sx: number,
+    sy: number,
+    sWidth: number,
+    sHeight: number,
+    dx: number,
+    dy: number,
+    dWidth: number,
+    dHeight: number,
+    options?: DrawElementOptions,
+  ): void
+}
+
+const LCD_OPTICAL_OVERLAY_OPACITY = 0.88
+const LCD_OPTICAL_OVERLAY_OFFSET =
+  DEFAULT_DEVICE_FORM.glassThickness + DEFAULT_DEVICE_FORM.glassToPanel + 0.1
+const LCD_OPTICAL_OVERLAY_TRANSLATION = new Matrix4().makeTranslation(
+  0,
+  0,
+  LCD_OPTICAL_OVERLAY_OFFSET,
+)
 
 function canRequestPaint(canvas: HTMLCanvasElement): canvas is RequestPaintCanvas {
   return 'requestPaint' in canvas && typeof Reflect.get(canvas, 'requestPaint') === 'function'
@@ -38,33 +63,30 @@ export function createPanelPixelSource(tone: PanelOverlayTone): PanelPixelSource
 /**
  * The sole pixel strategy in this slice.
  *
- * Three's `HTMLTexture` owns the unstable WebGL upload call. Three's
- * `InteractionManager` owns the CSS `matrix3d` projection. This class owns
- * their shared lifetime and asks R3F for a frame only when DOM pixels or the
- * screen transform change.
+ * The visible screen stays a WebGL material, but the DOM→pixel bridge happens
+ * through a dedicated offscreen 2D html-in-canvas raster canvas. That keeps
+ * the authored panel on the native 320×240 LCD grid instead of letting the
+ * WebGL upload path blur a second scaled copy.
  */
 export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
   readonly tier = 'T1' as const
   readonly requires = HTML_IN_CANVAS_REQUIREMENTS
 
   private attachment: PanelPixelAttachment<'webgl'> | null = null
-  private texture: HTMLTexture | null = null
+  private captureViewport: HTMLDivElement | null = null
+  private overlayGeometry: PlaneGeometry | null = null
+  private overlayMaterial: MeshBasicMaterial | null = null
+  private overlayMesh: Mesh | null = null
+  private texture: CanvasTexture | null = null
   private material: MeshBasicMaterial | null = null
-  private proxy: Mesh<PlaneGeometry, MeshBasicMaterial> | null = null
-  private interactions: InteractionManager | null = null
+  private rasterCanvas: RequestPaintCanvas | null = null
   private unsubscribeTransform: (() => void) | null = null
   private mutationObserver: MutationObserver | null = null
   private resizeObserver: ResizeObserver | null = null
-  private canvasResizeObserver: ResizeObserver | null = null
+  private resolutionCleanup: (() => void) | null = null
   private paintListener: EventListener | null = null
-  private contrastQuery: MediaQueryList | null = null
-  private contrastListener: ((event: MediaQueryListEvent) => void) | null = null
   private attachmentGeneration = 0
   private hasPaintRecord = false
-  private scaledContent: HTMLElement | null = null
-  private scaledContentTransform = ''
-  private scaledContentTransformOrigin = ''
-  private appliedRasterDensity: 1 | 2 | 3 | null = null
 
   constructor(private readonly tone: PanelOverlayTone) {}
 
@@ -72,107 +94,137 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     this.detach()
     this.attachment = attachment
     const generation = this.attachmentGeneration
+    const { panelElement, renderer, screen } = attachment
 
-    const { panelElement, renderer, camera, screen } = attachment
-    this.hasPaintRecord = false
+    const rasterCanvas = document.createElement('canvas')
+    if (!canRequestPaint(rasterCanvas)) {
+      throw new Error('T1 html-in-canvas canvas cannot requestPaint()')
+    }
+    rasterCanvas.className = 'wp-composite-raster-canvas'
+    rasterCanvas.setAttribute('layoutsubtree', 'true')
+    rasterCanvas.setAttribute('aria-hidden', 'true')
+    rasterCanvas.style.position = 'fixed'
+    rasterCanvas.style.insetInlineStart = '0'
+    rasterCanvas.style.insetBlockStart = '0'
+    rasterCanvas.style.opacity = '0.001'
+    rasterCanvas.style.pointerEvents = 'none'
+    rasterCanvas.style.zIndex = '-1'
+    rasterCanvas.style.contain = 'layout style paint size'
+
     panelElement.style.position = 'absolute'
-    panelElement.style.left = '0'
-    panelElement.style.top = '0'
+    panelElement.style.insetInlineStart = '0'
+    panelElement.style.insetBlockStart = '0'
     panelElement.style.transformOrigin = 'top left'
-    panelElement.style.transform = 'none'
+    panelElement.style.display = 'block'
     panelElement.style.overflow = 'hidden'
     panelElement.setAttribute('drawable', '')
     panelElement.dataset['pixelSource'] = 'html-in-canvas'
 
-    const canvas = renderer.domElement
-    canvas.setAttribute('layoutsubtree', 'true')
-    canvas.appendChild(panelElement)
-    const texture = new HTMLTexture(panelElement)
+    const captureViewport = document.createElement('div')
+    captureViewport.className = 'wp-composite-raster-viewport'
+    captureViewport.style.position = 'absolute'
+    captureViewport.style.insetInlineStart = '0'
+    captureViewport.style.insetBlockStart = '0'
+    captureViewport.style.display = 'block'
+    captureViewport.style.overflow = 'hidden'
+    captureViewport.setAttribute('drawable', '')
+
+    panelElement.ownerDocument.body.appendChild(rasterCanvas)
+    rasterCanvas.appendChild(captureViewport)
+    captureViewport.appendChild(panelElement)
+
+    const rasterContext = getDrawElementContext(rasterCanvas)
+    if (rasterContext === null) {
+      throw new Error('T1 html-in-canvas 2D drawElementImage() is unavailable')
+    }
+    rasterContext.imageSmoothingEnabled = false
+
+    const texture = new CanvasTexture(rasterCanvas)
     texture.colorSpace = SRGBColorSpace
     texture.generateMipmaps = false
-    // The panel is authored as a pixel grid and rasterized at the resolved
-    // physical density. Linear sampling averages adjacent glyph and divider
-    // pixels a second time after Chrome has rasterized them.
-    texture.minFilter = LinearFilter
+    texture.minFilter = NearestFilter
     texture.magFilter = NearestFilter
-    texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy())
-    const material = createLcdMaterial(
-      texture,
-      this.tone,
-      panelElement.offsetWidth,
-      panelElement.offsetHeight,
-    )
-    const geometry = new PlaneGeometry(screen.size.width, screen.size.height)
-    const proxy = new Mesh(geometry, material)
-    proxy.matrixAutoUpdate = false
+    texture.name = `webpod-lcd-${this.tone}-texture`
 
-    const interactions = new InteractionManager()
-    interactions.connect(renderer, camera)
-    interactions.add(proxy)
+    const material = new MeshBasicMaterial({ map: texture, toneMapped: false })
+    material.name = `webpod-lcd-${this.tone}`
+    const overlayGeometry = new PlaneGeometry(screen.size.width, screen.size.height)
+    const overlayMaterial = new MeshBasicMaterial({
+      map: texture,
+      toneMapped: false,
+      transparent: true,
+      opacity: LCD_OPTICAL_OVERLAY_OPACITY,
+      side: FrontSide,
+      depthWrite: false,
+    })
+    overlayMaterial.name = `webpod-lcd-${this.tone}-overlay`
+    const overlayMesh = new Mesh(overlayGeometry, overlayMaterial)
+    overlayMesh.name = `webpod-lcd-${this.tone}-overlay-mesh`
+    overlayMesh.matrixAutoUpdate = false
+    overlayMesh.frustumCulled = false
+    overlayMesh.renderOrder = 12
+    attachment.scene.add(overlayMesh)
 
+    this.rasterCanvas = rasterCanvas
+    this.captureViewport = captureViewport
+    this.overlayGeometry = overlayGeometry
+    this.overlayMaterial = overlayMaterial
+    this.overlayMesh = overlayMesh
     this.texture = texture
     this.material = material
-    this.proxy = proxy
-    this.interactions = interactions
+    this.hasPaintRecord = false
 
-    const applyRasterDensity = (): boolean => {
-      const content = panelElement.firstElementChild
-      if (!(content instanceof HTMLElement)) return false
-      const density = resolvePanelRasterDensity(renderer.getPixelRatio())
-      if (this.scaledContent === content && this.appliedRasterDensity === density) return false
-      if (this.scaledContent !== content) {
-        this.restoreScaledContent()
-        this.scaledContent = content
-        this.scaledContentTransform = content.style.transform
-        this.scaledContentTransformOrigin = content.style.transformOrigin
-      }
+    const fitRasterCanvasToPanel = (): {
+      readonly changed: boolean
+      readonly surfaceWidth: number
+      readonly surfaceHeight: number
+    } => {
+      const content = resolveRasterContent(panelElement)
+      const { width: contentWidth, height: contentHeight } = measurePanelElement(content)
+      const density = resolvePanelRasterDensity(
+        Math.max(window.devicePixelRatio, renderer.getPixelRatio()),
+      )
       const rasterFrame = resolvePanelRasterFrame(
-        positiveDimension(content.scrollWidth || content.offsetWidth),
-        positiveDimension(content.scrollHeight || content.offsetHeight),
+        contentWidth,
+        contentHeight,
         density,
         screen.panel.scale,
       )
-      content.style.transformOrigin = 'top left'
-      content.style.transform = appendScaleTransform(
-        this.scaledContentTransform,
-        rasterFrame.scale,
-      )
-      panelElement.style.width = `${rasterFrame.width}px`
-      panelElement.style.height = `${rasterFrame.height}px`
-      panelElement.dataset['rasterDensity'] = String(density)
-      this.appliedRasterDensity = density
-      return true
+      const surfaceWidth = Math.max(1, Math.round(rasterFrame.width / density))
+      const surfaceHeight = Math.max(1, Math.round(rasterFrame.height / density))
+      const scaleX = surfaceWidth / Math.max(1, contentWidth)
+      const scaleY = surfaceHeight / Math.max(1, contentHeight)
+      rasterCanvas.style.width = `${String(surfaceWidth)}px`
+      rasterCanvas.style.height = `${String(surfaceHeight)}px`
+      captureViewport.style.width = `${String(surfaceWidth)}px`
+      captureViewport.style.height = `${String(surfaceHeight)}px`
+      panelElement.style.width = `${String(contentWidth)}px`
+      panelElement.style.height = `${String(contentHeight)}px`
+      panelElement.style.transform = `scale(${String(scaleX)}, ${String(scaleY)})`
+      renderer.domElement.dataset['wpRasterDensity'] = String(density)
+      renderer.domElement.dataset['wpRasterPixelWidth'] = String(rasterFrame.width)
+      renderer.domElement.dataset['wpRasterPixelHeight'] = String(rasterFrame.height)
+      const changed =
+        rasterCanvas.width !== rasterFrame.width ||
+        rasterCanvas.height !== rasterFrame.height
+      if (changed) {
+        rasterCanvas.width = rasterFrame.width
+        rasterCanvas.height = rasterFrame.height
+        rasterContext.imageSmoothingEnabled = false
+      }
+      return { changed, surfaceWidth, surfaceHeight }
     }
-    applyRasterDensity()
 
-    this.unsubscribeTransform = screen.onTransformChange((transform) => {
-      this.syncGeometry(transform)
-    })
-
-    const fitHostToContent = (): void => {
-      applyRasterDensity()
-      const content = panelElement.firstElementChild
-      const contentWidth = content instanceof HTMLElement ? content.scrollWidth : 0
-      const contentHeight = content instanceof HTMLElement ? content.scrollHeight : 0
-      material.userData['wpWidth'] = Math.max(screen.panel.width, contentWidth)
-      material.userData['wpHeight'] = Math.max(screen.panel.height, contentHeight)
-    }
     const requestPixels = (): void => {
       if (this.attachmentGeneration !== generation || this.attachment !== attachment) return
-      fitHostToContent()
-      // Painting before Three reparents the element can emit a canvas paint
-      // event that has no record for this panel. The first WebGL texture pass
-      // performs that reparent and requests the authoritative paint itself.
-      if (panelElement.parentNode === canvas && canRequestPaint(canvas)) canvas.requestPaint()
-      if (this.hasPaintRecord) {
-        texture.needsUpdate = true
-        screen.invalidate()
-      }
+      fitRasterCanvasToPanel()
+      renderer.domElement.dataset['wpCompositeSourceState'] = this.hasPaintRecord
+        ? 'repaint-requested'
+        : 'snapshot-requested'
+      rasterCanvas.requestPaint()
     }
 
     this.mutationObserver = new MutationObserver((records) => {
-      // InteractionManager writes the host's transform. Treating that geometry
-      // write as new panel pixels creates a requestPaint -> invalidate loop.
       const pixelsChanged = records.some((record) =>
         mutationAffectsPanelPixels(panelElement, record.target, record.attributeName),
       )
@@ -186,54 +238,99 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     })
 
     this.resizeObserver = new ResizeObserver(() => {
-      fitHostToContent()
-      material.needsUpdate = true
-      this.syncGeometry(screen.readTransform())
+      fitRasterCanvasToPanel()
       requestPixels()
     })
     this.resizeObserver.observe(panelElement)
+    const initialContent = resolveRasterContent(panelElement)
+    if (initialContent !== panelElement) this.resizeObserver.observe(initialContent)
 
-    this.canvasResizeObserver = new ResizeObserver(() => {
-      const rasterDensityChanged = applyRasterDensity()
-      this.syncGeometry(screen.readTransform())
-      if (rasterDensityChanged) requestPixels()
-      screen.invalidate()
+    this.resolutionCleanup = subscribeBrowserPixelRatio(() => {
+      fitRasterCanvasToPanel()
+      requestPixels()
     })
-    this.canvasResizeObserver.observe(canvas)
+    this.unsubscribeTransform = screen.onTransformChange((transform) => {
+      this.syncGeometry(transform)
+    })
 
     this.paintListener = (event) => {
       if (this.attachmentGeneration !== generation || this.attachment !== attachment) return
       const changedElements = (event as CanvasPaintEvent).changedElements
-      if (changedElements !== undefined && !changedElements.includes(panelElement)) return
+      if (!paintTouchesPanel(captureViewport, changedElements)) return
+      const frame = fitRasterCanvasToPanel()
+      rasterContext.clearRect(0, 0, rasterCanvas.width, rasterCanvas.height)
+      try {
+        rasterContext.drawElementImage(
+          captureViewport,
+          0,
+          0,
+          frame.surfaceWidth,
+          frame.surfaceHeight,
+          0,
+          0,
+          rasterCanvas.width,
+          rasterCanvas.height,
+          { preserveElementGeometry: true },
+        )
+      } catch (error) {
+        if (!this.hasPaintRecord) {
+          renderer.domElement.dataset['wpCompositeSourceState'] = 'snapshot-awaiting-paint'
+          requestAnimationFrame(() => {
+            if (this.attachmentGeneration === generation && this.attachment === attachment) {
+              requestPixels()
+            }
+          })
+          return
+        }
+        throw error
+      }
       if (!this.hasPaintRecord) screen.setMaterial(material)
       this.hasPaintRecord = true
+      renderer.domElement.dataset['wpCompositeSourceState'] = 'painted'
       texture.needsUpdate = true
       screen.invalidate()
     }
-    canvas.addEventListener('paint', this.paintListener)
+    ;(rasterCanvas as PaintAwareCanvas).onpaint = this.paintListener
 
-    this.contrastQuery = window.matchMedia('(prefers-contrast: more)')
-    this.contrastListener = () => {
-      material.userData['wpContrastMore'] = this.contrastQuery?.matches === true
-      material.needsUpdate = true
-      screen.invalidate()
-    }
-    this.contrastQuery.addEventListener('change', this.contrastListener)
-    this.contrastListener(new MediaQueryListEvent('change', { matches: this.contrastQuery.matches }))
-
-    this.syncGeometry(screen.readTransform())
-    // The screen material stays detached until Chrome confirms the panel has
-    // a paint record. This prevents Three from uploading an element that has
-    // been adopted by the canvas but is not raster-ready yet.
     requestPixels()
+    requestAnimationFrame(() => {
+      if (this.attachmentGeneration === generation && this.attachment === attachment) {
+        requestPixels()
+      }
+    })
+    this.syncGeometry(screen.readTransform())
   }
 
   syncGeometry(transform: ScreenTransform): void {
-    const proxy = this.proxy
-    const interactions = this.interactions
-    if (proxy === null || interactions === null) return
-    proxy.matrixWorld.copy(transform.worldMatrix)
-    interactions.update()
+    const canvas = this.attachment?.renderer.domElement
+    if (canvas === undefined) return
+    if (this.overlayMesh !== null) {
+      this.overlayMesh.matrix.copy(transform.worldMatrix).multiply(
+        LCD_OPTICAL_OVERLAY_TRANSLATION,
+      )
+      this.overlayMesh.matrixWorldNeedsUpdate = true
+    }
+    const corners = transform.viewport.corners
+    const xs = [
+      corners.topLeft.x,
+      corners.topRight.x,
+      corners.bottomRight.x,
+      corners.bottomLeft.x,
+    ]
+    const ys = [
+      corners.topLeft.y,
+      corners.topRight.y,
+      corners.bottomRight.y,
+      corners.bottomLeft.y,
+    ]
+    const left = Math.min(...xs)
+    const top = Math.min(...ys)
+    const right = Math.max(...xs)
+    const bottom = Math.max(...ys)
+    canvas.dataset['wpScreenClipLeft'] = String(left)
+    canvas.dataset['wpScreenClipTop'] = String(top)
+    canvas.dataset['wpScreenClipWidth'] = String(right - left)
+    canvas.dataset['wpScreenClipHeight'] = String(bottom - top)
   }
 
   detach(): void {
@@ -241,6 +338,8 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     const attachment = this.attachment
     const panel = attachment?.panelElement ?? null
     const canvas = attachment?.renderer.domElement ?? null
+    const rasterCanvas = this.rasterCanvas
+    const captureViewport = this.captureViewport
 
     this.unsubscribeTransform?.()
     this.unsubscribeTransform = null
@@ -248,66 +347,67 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     this.mutationObserver = null
     this.resizeObserver?.disconnect()
     this.resizeObserver = null
-    this.canvasResizeObserver?.disconnect()
-    this.canvasResizeObserver = null
+    this.resolutionCleanup?.()
+    this.resolutionCleanup = null
 
-    if (canvas !== null && this.paintListener !== null) {
-      canvas.removeEventListener('paint', this.paintListener)
+    if (rasterCanvas !== null) {
+      ;(rasterCanvas as PaintAwareCanvas).onpaint = null
     }
     this.paintListener = null
 
-    if (this.contrastQuery !== null && this.contrastListener !== null) {
-      this.contrastQuery.removeEventListener('change', this.contrastListener)
-    }
-    this.contrastQuery = null
-    this.contrastListener = null
-
-    if (this.interactions !== null && this.proxy !== null) this.interactions.remove(this.proxy)
-    this.interactions?.disconnect()
-    this.interactions = null
-
     attachment?.screen.setMaterial(null)
-    this.proxy?.geometry.dispose()
-    this.proxy = null
     this.material?.dispose()
     this.material = null
+    this.overlayMaterial?.dispose()
+    this.overlayMaterial = null
+    this.overlayGeometry?.dispose()
+    this.overlayGeometry = null
+    this.overlayMesh?.removeFromParent()
+    this.overlayMesh = null
     this.texture?.dispose()
     this.texture = null
+    this.rasterCanvas = null
+    this.captureViewport = null
     this.hasPaintRecord = false
-    this.restoreScaledContent()
 
     if (panel !== null) {
       panel.style.removeProperty('position')
-      panel.style.removeProperty('left')
-      panel.style.removeProperty('top')
+      panel.style.removeProperty('inset-inline-start')
+      panel.style.removeProperty('inset-block-start')
       panel.style.removeProperty('transform-origin')
       panel.style.removeProperty('transform')
+      panel.style.removeProperty('display')
       panel.style.removeProperty('width')
       panel.style.removeProperty('height')
       panel.style.removeProperty('overflow')
       panel.removeAttribute('drawable')
       delete panel.dataset['pixelSource']
-      delete panel.dataset['rasterDensity']
-      if (canvas?.contains(panel) === true) canvas.removeChild(panel)
+      if (captureViewport?.contains(panel) === true) captureViewport.removeChild(panel)
+    }
+
+    if (captureViewport !== null) {
+      captureViewport.removeAttribute('drawable')
+    }
+    if (rasterCanvas?.isConnected === true) rasterCanvas.remove()
+
+    if (canvas !== null) {
+      delete canvas.dataset['wpRasterDensity']
+      delete canvas.dataset['wpRasterPixelWidth']
+      delete canvas.dataset['wpRasterPixelHeight']
+      delete canvas.dataset['wpScreenClipLeft']
+      delete canvas.dataset['wpScreenClipTop']
+      delete canvas.dataset['wpScreenClipWidth']
+      delete canvas.dataset['wpScreenClipHeight']
+      delete canvas.dataset['wpCompositeSourceState']
+      delete canvas.dataset['wpCompositeSourceError']
     }
 
     this.attachment = null
   }
-
-  private restoreScaledContent(): void {
-    if (this.scaledContent !== null) {
-      this.scaledContent.style.transform = this.scaledContentTransform
-      this.scaledContent.style.transformOrigin = this.scaledContentTransformOrigin
-    }
-    this.scaledContent = null
-    this.scaledContentTransform = ''
-    this.scaledContentTransformOrigin = ''
-    this.appliedRasterDensity = null
-  }
 }
 
 export function resolvePanelRasterDensity(pixelRatio: number): 1 | 2 | 3 {
-  if (!Number.isFinite(pixelRatio) || pixelRatio <= 1) return 1
+  if (!Number.isFinite(pixelRatio) || pixelRatio <= 1) return 2
   if (pixelRatio <= 2) return 2
   return 3
 }
@@ -318,9 +418,7 @@ export function resolvePanelRasterFrame(
   density: 1 | 2 | 3,
   panelScale: number,
 ): { readonly width: number; readonly height: number; readonly scale: number } {
-  const resolvedScale =
-    Number.isFinite(panelScale) && panelScale > 0 ? panelScale : 1
-  const scale = density / resolvedScale
+  const scale = density / positiveScale(panelScale)
   return {
     width: Math.max(1, Math.round(contentWidth * scale)),
     height: Math.max(1, Math.round(contentHeight * scale)),
@@ -336,28 +434,60 @@ export function mutationAffectsPanelPixels(
   return !(target === panelElement && attributeName === 'style')
 }
 
-function createLcdMaterial(
-  texture: HTMLTexture,
-  tone: PanelOverlayTone,
-  width: number,
-  height: number,
-): MeshBasicMaterial {
-  const material = new MeshBasicMaterial({ map: texture, toneMapped: false })
-  material.name = `webpod-lcd-${tone}`
-  material.userData['wpWidth'] = positiveDimension(width)
-  material.userData['wpHeight'] = positiveDimension(height)
-  return material
+function getDrawElementContext(canvas: HTMLCanvasElement): DrawElementContext | null {
+  const context = canvas.getContext('2d', { alpha: true, willReadFrequently: true })
+  if (context === null) return null
+  const drawElementImage = Reflect.get(context, 'drawElementImage')
+  return typeof drawElementImage === 'function'
+    ? (context as DrawElementContext)
+    : null
+}
+
+function resolveRasterContent(panelElement: HTMLElement): HTMLElement {
+  return panelElement.firstElementChild instanceof HTMLElement
+    ? panelElement.firstElementChild
+    : panelElement
+}
+
+function measurePanelElement(element: HTMLElement): { readonly width: number; readonly height: number } {
+  return {
+    width: positiveDimension(element.scrollWidth || element.offsetWidth),
+    height: positiveDimension(element.scrollHeight || element.offsetHeight),
+  }
+}
+
+function paintTouchesPanel(
+  sourceElement: HTMLElement,
+  changedElements: readonly Element[] | undefined,
+): boolean {
+  if (changedElements === undefined || changedElements.length === 0) return true
+  return changedElements.some(
+    (element) => element === sourceElement || sourceElement.contains(element),
+  )
+}
+
+function subscribeBrowserPixelRatio(listener: () => void): () => void {
+  let resolution = window.matchMedia(`(resolution: ${String(window.devicePixelRatio)}dppx)`)
+  const onChange = (): void => {
+    resolution.removeEventListener('change', onChange)
+    resolution = window.matchMedia(`(resolution: ${String(window.devicePixelRatio)}dppx)`)
+    resolution.addEventListener('change', onChange)
+    listener()
+  }
+  resolution.addEventListener('change', onChange)
+  window.visualViewport?.addEventListener('resize', listener)
+  return () => {
+    resolution.removeEventListener('change', onChange)
+    window.visualViewport?.removeEventListener('resize', listener)
+  }
 }
 
 function positiveDimension(value: unknown): number {
-  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? value : 1
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? Math.round(value)
+    : 1
 }
 
-function appendScaleTransform(base: string, scale: number): string {
-  const normalized = base.trim()
-  if (Math.abs(scale - 1) <= 1e-9) return normalized
-  const next = `scale(${String(scale)})`
-  return normalized.length === 0 || normalized === 'none'
-    ? next
-    : `${normalized} ${next}`
+function positiveScale(value: number): number {
+  return Number.isFinite(value) && value > 0 ? value : 1
 }

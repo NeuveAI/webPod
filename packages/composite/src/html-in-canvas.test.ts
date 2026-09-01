@@ -7,14 +7,15 @@ import {
 } from './html-in-canvas'
 
 describe('html-in-canvas invariants', () => {
-  test('quantizes the logical 320×240 panel into stable 1×/2×/3× raster sources', () => {
-    expect(resolvePanelRasterDensity(1)).toBe(1)
+  test('quantizes the authored LCD into stable 1×/2×/3× raster sources', () => {
+    expect(resolvePanelRasterDensity(1)).toBe(2)
     expect(resolvePanelRasterDensity(1.25)).toBe(2)
     expect(resolvePanelRasterDensity(2)).toBe(2)
     expect(resolvePanelRasterDensity(2.01)).toBe(3)
     expect(resolvePanelRasterDensity(3)).toBe(3)
   })
-  test('ignores only InteractionManager geometry writes on the panel host', () => {
+
+  test('ignores host style writes so raster sizing does not request itself forever', () => {
     const panel = {} as HTMLElement
     const child = {} as Node
 
@@ -24,7 +25,7 @@ describe('html-in-canvas invariants', () => {
     expect(mutationAffectsPanelPixels(panel, child, null)).toBe(true)
   })
 
-  test('upscales the 272×204 authored LCD to the 320×240 html-in-canvas grid before raster quantization', () => {
+  test('keeps the native 320×240 LCD source on stable 1×/2×/3× raster grids', () => {
     expect(resolvePanelRasterFrame(272, 204, 1, 0.85)).toEqual({
       width: 320,
       height: 240,
@@ -42,20 +43,33 @@ describe('html-in-canvas invariants', () => {
     })
   })
 
-  test('delegates experimental upload and geometry APIs to Three', async () => {
+  test('uses an offscreen 2D raster canvas, preserves the 320×240 source grid, and keeps shader sharpness out of the path', async () => {
     const source = await Bun.file(new URL('./html-in-canvas.ts', import.meta.url)).text()
 
-    expect(source).toContain('new HTMLTexture(')
+    expect(source).toContain("rasterCanvas.className = 'wp-composite-raster-canvas'")
+    expect(source).toContain("captureViewport.className = 'wp-composite-raster-viewport'")
+    expect(source).toContain("rasterCanvas.setAttribute('layoutsubtree', 'true')")
+    expect(source).toContain("captureViewport.setAttribute('drawable', '')")
+    expect(source).toContain("panelElement.setAttribute('drawable', '')")
+    expect(source).toContain("panelElement.dataset['pixelSource'] = 'html-in-canvas'")
+    expect(source).toContain('const surfaceWidth = Math.max(1, Math.round(rasterFrame.width / density))')
+    expect(source).toContain('panelElement.style.transform = `scale(${String(scaleX)}, ${String(scaleY)})`')
+    expect(source).toContain('new CanvasTexture(rasterCanvas)')
     expect(source).toContain('texture.generateMipmaps = false')
-    expect(source).toContain('texture.minFilter = LinearFilter')
+    expect(source).toContain('texture.minFilter = NearestFilter')
     expect(source).toContain('texture.magFilter = NearestFilter')
-    expect(source).toContain('texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy())')
+    expect(source).toContain('new PlaneGeometry(screen.size.width, screen.size.height)')
+    expect(source).toContain('opacity: LCD_OPTICAL_OVERLAY_OPACITY')
+    expect(source).toContain('overlayMesh.matrix.copy(transform.worldMatrix).multiply(')
     expect(source).toContain('resolvePanelRasterFrame(')
     expect(source).toContain('screen.panel.scale')
-    expect(source).not.toContain('wpScanline')
-    expect(source).not.toContain('wpTriad')
-    expect(source).toContain('new InteractionManager()')
-    expect(source).not.toMatch(/texElement(?:Sub)?Image2D\s*\(/)
+    expect(source).toContain('rasterContext.drawElementImage(')
+    expect(source).toContain('captureViewport,')
+    expect(source).toContain("rasterCanvas.requestPaint()")
+    expect(source).not.toContain('new HTMLTexture(')
+    expect(source).not.toContain('new InteractionManager()')
+    expect(source).not.toContain('appendScaleTransform(')
     expect(source).not.toContain('updateElementGeometry')
+    expect(source).not.toMatch(/texElement(?:Sub)?Image2D\s*\(/)
   })
 })

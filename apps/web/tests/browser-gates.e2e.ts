@@ -23,7 +23,10 @@ interface TextContrast {
 interface SourceHealth {
   readonly expected: string
   readonly current: string
+  readonly expectedFileCount: number
   readonly fileCount: number
+  readonly reviewedCommit: string | null
+  readonly reviewedTree: string | null
 }
 
 interface TransparencySnapshot {
@@ -46,8 +49,22 @@ function parseSourceHealth(serialized: string): SourceHealth {
   if (typeof value !== 'object' || value === null) throw new Error('Source health did not return an object')
   if (!('expected' in value) || typeof value.expected !== 'string') throw new Error('Source health omitted expected digest')
   if (!('current' in value) || typeof value.current !== 'string') throw new Error('Source health omitted current digest')
+  if (!('expectedFileCount' in value) || typeof value.expectedFileCount !== 'number') throw new Error('Source health omitted expected file count')
   if (!('fileCount' in value) || typeof value.fileCount !== 'number') throw new Error('Source health omitted file count')
-  return { expected: value.expected, current: value.current, fileCount: value.fileCount }
+  return {
+    expected: value.expected,
+    current: value.current,
+    expectedFileCount: value.expectedFileCount,
+    fileCount: value.fileCount,
+    reviewedCommit:
+      'reviewedCommit' in value && typeof value.reviewedCommit === 'string'
+        ? value.reviewedCommit
+        : null,
+    reviewedTree:
+      'reviewedTree' in value && typeof value.reviewedTree === 'string'
+        ? value.reviewedTree
+        : null,
+  }
 }
 
 const landPlant = async (page: Page, gate: string, apply: () => Promise<void>, verify: () => Promise<boolean>): Promise<void> => {
@@ -92,7 +109,14 @@ const assertSourceIdentity = async (page: Page): Promise<void> => {
   if (plant === 'SOURCE') {
     await page.route('**/__webpod_health', (route) => route.fulfill({
       contentType: 'application/json',
-      body: JSON.stringify({ expected, current: 'source-mismatch-plant', fileCount: expectedFileCount }),
+      body: JSON.stringify({
+        expected,
+        current: 'source-mismatch-plant',
+        expectedFileCount,
+        fileCount: expectedFileCount,
+        reviewedCommit: process.env['W5B_REVIEWED_COMMIT'] || null,
+        reviewedTree: process.env['W5B_REVIEWED_TREE'] || null,
+      }),
     }))
   }
   const result = await page.evaluate(async () => {
@@ -106,7 +130,10 @@ const assertSourceIdentity = async (page: Page): Promise<void> => {
     console.log('[W5B PLANT SOURCE LANDED]')
   }
   expect(health.fileCount).toBe(expectedFileCount)
+  expect(health.expectedFileCount).toBe(expectedFileCount)
   expect(health.expected).toBe(expected)
+  expect(health.reviewedCommit ?? null).toBe(process.env['W5B_REVIEWED_COMMIT'] || null)
+  expect(health.reviewedTree ?? null).toBe(process.env['W5B_REVIEWED_TREE'] || null)
   expect(health.current, 'served runtime source changed after the isolated server started').toBe(expected)
 }
 

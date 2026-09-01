@@ -24,9 +24,9 @@ describe('panel pixel source seam', () => {
   test('declares the one T1 variant that flows end to end', () => {
     expect(HTML_IN_CANVAS_REQUIREMENTS).toEqual({
       renderer: 'webgl',
-      materialVariant: 'html-texture-lcd',
-      shaderVariants: ['lcd-scanline-subpixel'],
-      textureSet: ['panel-dom'],
+      materialVariant: 'canvas-raster-lcd',
+      shaderVariants: [],
+      textureSet: ['panel-raster-canvas'],
     })
   })
 

@@ -2,7 +2,7 @@ import { CompositeDevice } from '@webpod/composite'
 import { DEVICE_ORIENTATION_PRESETS, type DevicePosePreset } from '@webpod/device'
 import { Panel, type PanelState } from '@webpod/panel'
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useLayoutEffect, useRef } from 'react'
+import { useLayoutEffect, useRef, type CSSProperties } from 'react'
 
 const STATES: readonly PanelState[] = [
   'ready',
@@ -14,6 +14,8 @@ const STATES: readonly PanelState[] = [
   'agent-active',
   'success-confirmation',
 ]
+
+const COMPOSITE_PREVIEW_CAMERA_DISTANCE = 1054
 
 export const Route = createFileRoute('/_probe/composite')({
   ssr: false,
@@ -46,14 +48,21 @@ function CompositePreview() {
   const { colourway, state, scale, fov, mode, pose } = Route.useSearch()
   const stageRef = useRef<HTMLDivElement>(null)
   const panelTone = colourway === 'white' ? 'light' : 'dark'
-  const panel = <Panel colourway={panelTone} state={state} dynamicTypeScale={scale} />
+  const authored =
+    mode === 'bare'
+      ? { inlineSize: 272, blockSize: 204 }
+      : { inlineSize: 330, blockSize: 552 }
+  const panel = (
+    <Panel
+      colourway={panelTone}
+      state={state}
+      dynamicTypeScale={scale}
+    />
+  )
   const orientation = DEVICE_ORIENTATION_PRESETS[pose]
   useLayoutEffect(() => {
     const stage = stageRef.current
     if (stage === null) return
-    const authored = mode === 'bare'
-      ? { inlineSize: 272, blockSize: 204 }
-      : { inlineSize: 330, blockSize: 552 }
     const fit = (): void => {
       const availableInline = stage.clientWidth
       const availableBlock = stage.clientHeight
@@ -75,7 +84,7 @@ function CompositePreview() {
     const observer = new ResizeObserver(fit)
     observer.observe(stage)
     return () => observer.disconnect()
-  }, [mode])
+  }, [authored.blockSize, authored.inlineSize, mode])
   return (
     <main className="wp-composite-preview">
       <style>{COMPOSITE_PREVIEW_CSS}</style>
@@ -98,7 +107,14 @@ function CompositePreview() {
           <Link to="/_probe/composite" search={{ colourway, state, scale, fov, mode: 'composited', pose }}>Composited</Link>
         </nav>
       </header>
-      <div ref={stageRef} className="wp-composite-preview__stage">
+      <div
+        ref={stageRef}
+        className="wp-composite-preview__stage"
+        style={{
+          '--wp-preview-inline': `${String(authored.inlineSize)}px`,
+          '--wp-preview-block': `${String(authored.blockSize)}px`,
+        } as CSSProperties}
+      >
         {mode === 'bare' ? (
           <div className="wp-composite-preview__bare-frame">
             <div className="wp-composite-preview__bare">{panel}</div>
@@ -110,6 +126,7 @@ function CompositePreview() {
               colourway={colourway}
               panelTone={panelTone}
               cameraFov={fov}
+              cameraDistance={COMPOSITE_PREVIEW_CAMERA_DISTANCE}
               orientation={orientation}
               panel={panel}
             />

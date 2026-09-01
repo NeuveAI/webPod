@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import type { ScreenMeshHandle } from '@webpod/device'
 import { renderToString } from 'react-dom/server'
-import type { Camera, WebGLRenderer } from 'three'
+import type { Camera, Scene, WebGLRenderer } from 'three'
 
 import { CompositeDevice } from './CompositeDevice'
 import { CompositeCoordinator } from './coordinator'
@@ -157,10 +157,13 @@ function makeSourceRecord(): SourceRecord {
 }
 
 function makeContext() {
-  const canvas = new EventTarget() as HTMLCanvasElement
+  const canvas = Object.assign(new EventTarget() as HTMLCanvasElement, {
+    dataset: {} as DOMStringMap,
+  })
   const renderer = { domElement: canvas } as WebGLRenderer
   const camera = {} as Camera
-  return { renderer, camera, canvas }
+  const scene = {} as Scene
+  return { renderer, camera, scene, canvas }
 }
 
 function makeScreen(): ScreenMeshHandle {

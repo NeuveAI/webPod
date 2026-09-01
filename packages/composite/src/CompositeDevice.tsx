@@ -26,6 +26,7 @@ import { CompositeCoordinator } from './coordinator'
 import type { PanelOverlayTone } from './html-in-canvas'
 import {
   getCompositeTierSnapshot,
+  refreshCompositeTier,
   subscribeCompositeTier,
 } from './tier-store'
 import {
@@ -42,6 +43,7 @@ export interface CompositeDeviceProps {
   readonly className?: string
   readonly panelTone?: PanelOverlayTone
   readonly cameraFov?: number
+  readonly cameraDistance?: number
   readonly orientation?: DeviceOrientation
 }
 
@@ -57,9 +59,10 @@ export function CompositeDevice({
   className,
   panelTone = 'dark',
   cameraFov,
+  cameraDistance,
   orientation = FRONT_DEVICE_ORIENTATION,
 }: CompositeDeviceProps) {
-  const canUseDom = useSyncExternalStore(subscribeToClientRuntime, readClientRuntime, readServerRuntime)
+  const canUseDom = typeof document !== 'undefined'
   const tier = useSyncExternalStore(
     subscribeCompositeTier,
     getCompositeTierSnapshot,
@@ -67,6 +70,10 @@ export function CompositeDevice({
   )
   const host = useMemo(() => (canUseDom ? createPanelHost() : null), [canUseDom])
   const coordinator = useMemo(() => new CompositeCoordinator(panelTone), [panelTone])
+  useEffect(() => {
+    if (!canUseDom) return
+    refreshCompositeTier()
+  }, [canUseDom])
   useLayoutEffect(() => {
     if (host === null) return
     coordinator.setPanel(host)
@@ -92,6 +99,7 @@ export function CompositeDevice({
             <DeviceCanvas
               colourway={colourway}
               cameraFov={cameraFov}
+              cameraDistance={cameraDistance}
               orientation={orientation}
               onScreenMeshReady={onScreenMeshReady}
             >
@@ -226,18 +234,6 @@ const SERVER_TIER = Object.freeze({
   contextLost: false,
 } as const)
 
-function subscribeToClientRuntime(): () => void {
-  return () => undefined
-}
-
-function readClientRuntime(): boolean {
-  return typeof document !== 'undefined'
-}
-
-function readServerRuntime(): boolean {
-  return false
-}
-
 function readServerTier() {
   return SERVER_TIER
 }
@@ -261,15 +257,16 @@ function CompositeSceneBridge({
 }) {
   const renderer = useThree((state) => state.gl)
   const camera = useThree((state) => state.camera)
+  const scene = useThree((state) => state.scene)
   const width = useThree((state) => state.size.width)
   const height = useThree((state) => state.size.height)
   void width
   void height
 
   useEffect(() => {
-    coordinator.setRenderContext({ renderer, camera })
+    coordinator.setRenderContext({ renderer, camera, scene })
     return () => coordinator.clearRenderContext(renderer)
-  }, [camera, coordinator, renderer])
+  }, [camera, coordinator, renderer, scene])
 
   useLayoutEffect(() => {
     coordinator.resyncGeometry()

@@ -70,7 +70,6 @@ import {
   CanvasTexture,
   Group,
   Light,
-  LinearFilter,
   Mesh,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
@@ -649,7 +648,7 @@ const PREVIEW_SOURCE_SCALE =
   PREVIEW_SOURCE_SIZE.width / PREVIEW_VISIBLE_SIZE.width;
 
 function resolvePreviewPixelRatio(devicePixelRatio: number): number {
-  return Math.min(3, Math.max(1, devicePixelRatio));
+  return Math.min(3, Math.max(2, devicePixelRatio));
 }
 
 function paintPreviewScreen(
@@ -711,13 +710,6 @@ function paintPreviewScreen(
   background.addColorStop(1, palette.panelBottom);
   context.fillStyle = background;
   context.fillRect(0, 0, PREVIEW_VISIBLE_SIZE.width, PREVIEW_VISIBLE_SIZE.height);
-
-  context.globalAlpha = tone === "dark" ? 0.08 : 0.06;
-  for (let y = 0; y < PREVIEW_VISIBLE_SIZE.height; y += 3) {
-    context.fillStyle = tone === "dark" ? "#FFFFFF" : "#0F172A";
-    context.fillRect(0, y, PREVIEW_VISIBLE_SIZE.width, 1);
-  }
-  context.globalAlpha = 1;
 
   const title = context.createLinearGradient(0, 0, 0, 21);
   title.addColorStop(0, palette.titleTop);
@@ -848,7 +840,7 @@ function getPreviewScreen(
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
   texture.generateMipmaps = false;
-  texture.minFilter = LinearFilter;
+  texture.minFilter = NearestFilter;
   texture.magFilter = NearestFilter;
   texture.name = "webpod-preview-screen-texture";
   texture.needsUpdate = true;
