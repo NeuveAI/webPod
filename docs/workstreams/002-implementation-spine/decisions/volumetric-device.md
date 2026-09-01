@@ -328,3 +328,75 @@ both rendered powers from the mounted light props, and require the kick to stay
 subordinate. The black Select material now uses a broad, low-energy dielectric
 response rather than the former transmissive, low-roughness lens that produced
 an isolated vertical hotspot.
+
+## VD-28 · Corner continuity is a topology contract, not a material adjustment
+
+The lower-corner pinch came from two structural discontinuities. The vertical
+quadratic crown reached the top and bottom bevels with a non-zero first
+derivative while its reported join normal was flat. The secondary sine edge
+lobe also reached one boundary with a non-zero tangent, creating the visible
+horizontal band. Neither defect belongs in roughness, exposure, or framing.
+
+The shell now uses an even sixth-order C1 profile with zero value and tangent at
+both joins. Its side-to-side counterpart is tessellated into the same cap and
+the normals use the inverse transpose of both x and y derivatives. Optional
+edge lobes use `sin²`; the production top and bottom lobes are zero. Tests cover
+all four corners in every named orientation, reject degenerate production
+triangles and duplicated-position normal splits, and verify the world-space
+normal joins after rotation.
+
+## VD-29 · The product-photo rig is one close softbox, one low strip, and negative fill
+
+The owner correction supersedes VD-27's earlier 28°/20° placement. The final
+named rig is:
+
+- key: 45° viewer azimuth, 40° elevation/descent, 720 model-unit distance,
+  520×380 emitter, 9,000,000 lm, warm-neutral `#FFF9F2`
+- kick: −120° viewer azimuth and −10° elevation, 650 model-unit distance,
+  85×300 vertical strip aimed at `[-110, -210, -20]`, 3% of key power,
+  cool-neutral `#DCE7F2`
+- linear exposure: 0.92
+- PMREM RoomEnvironment intensity: 0.20, sigma 0.04
+
+The key is therefore front-right-above, inside the required 35–45° elevation
+and approximately 45° azimuth windows. The kick sits behind-left-below and
+rakes the lower shell instead of acting as frontal fill. The opposite side is
+left unfilled so black polycarbonate retains contrast.
+
+The room is now the front materials' restrained scene environment. The old
+striped calibration environment is assigned only to the mirror-steel rear,
+where D-064's canonical stop-table calibration still requires it. This is the
+architectural correction that removed the full-width front bands; changing
+roughness would only have hidden the dead scene environment.
+
+## VD-30 · The LCD aperture is physical geometry and matches the Pencil canonical slot
+
+The active panel is fixed at 272×204 model units, exactly 4:3 and semantically
+320×240. Against the 330px / 61.8mm body scale, that is 50.95×38.20mm—within
+0.15mm and 0.10mm of the 50.8×38.1mm 2.5-inch reference. Its width is 82.42%
+of the body and its height is 36.96%, matching the owner's measured target.
+
+Pencil MCP inspection found the same canonical geometry: body `VWaJS` is
+330×552, display well is 280×212, and active panel/screen slot/glass reference
+is 272×204. There is therefore no conflict to escalate and no DOM scale was
+changed.
+
+The physical stack is now four explicit nested bounds: 272×204 active pixels,
+274×206 thin black mask, 276×208 cover-glass lip, and 280×212 recess. The
+screen mesh and HTMLTexture mapping remain 272×204, so raycasts, native DOM
+geometry, and the 320×240 semantic source all share one aperture.
+
+## VD-31 · Selection suppression belongs to the active wheel gesture only
+
+The click wheel uses pointer capture and cancelable-event `preventDefault()`.
+On arc start, a scoped controller snapshots the existing selection, marks only
+the device interaction root, and prevents `selectstart` inside that root. A
+selection caused during the gesture is restored to the snapshot rather than
+clearing unrelated document selection. Pointer up, pointer cancel, lost
+capture, window blur, unmount, and thrown arc callbacks all run the same
+teardown.
+
+The root keeps `touch-action: none` as the pre-gesture pointer-routing contract;
+`user-select: none` exists only while the active gesture attribute is present.
+Outside text remains selectable, and focus, keyboard input, live DOM screen
+geometry, button presses, and assistive semantics remain unchanged.

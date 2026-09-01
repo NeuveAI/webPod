@@ -254,3 +254,47 @@ lower source remains visible at the shell separation without lifting the whole
 black face. Black/white front, black three-quarter, black edge, rear, top, and
 375×812 mobile are captured from the same two world-fixed lights. The browser
 test still proves mobile containment and exact 1×/2×/3× LCD source grids.
+
+## Tuesday, September 1, 2026 — owner geometry, lighting, LCD, and wheel corrections
+
+I began with neutral diagnostic light rather than the beauty materials. That
+made the lower-corner defect reproducible on both sides and separated it from
+the white-shell reflection. The first plant restored the quadratic crown and
+measured a 0.16536-radian rotated join-normal error. A second plant showed the
+old edge sine reached its join with a non-zero derivative. Replacing both
+profiles and adding x-crown tessellation removed the pinch in neutral and
+beauty close crops without changing camera framing or roughness.
+
+The first beauty render after that repair still carried horizontal bands. The
+unexpected cause was architectural: every front material explicitly supplied
+the legacy striped calibration environment, so the new RoomEnvironment was
+mostly dead. Material tuning briefly appeared to improve the screenshot, but
+it did not explain the mechanism. I reverted those values, allowed front
+materials to inherit the PMREM scene environment, and retained the custom map
+only on the calibrated steel rear. That removed the front band while preserving
+the original body material values.
+
+The final product-photo rig uses a close 520×380 key at 45°/40° and a narrow
+behind-left low strip at 3% power. The fresh front, three-quarter, and edge
+captures show the highlight moving over real normals. The center button no
+longer carries an isolated blown stripe, and the lower shell separates without
+an under-light band or lifted black face.
+
+For the LCD, the owner's physical calculation and Pencil MCP agreed. The
+272×204 canonical slot is 50.95×38.20mm at the existing body scale. I left the
+HTML source and screen mesh unchanged, then made the mask, glass lip, and recess
+separate thin bounds around it. Browser evidence still reports native
+320×240, 640×480, and 960×720 raster grids at DPR 1/2/3, with DOM and projected
+mesh alignment under 2px.
+
+The wheel-selection browser proof initially tried to synthesize pointer events
+inside the page. That did not exercise Chromium's real pointer capture or touch
+default-action path. The final test uses Playwright mouse input and a CDP touch
+start/move/cancel sequence, verifies detents still move the highlighted row,
+observes zero Selection ranges, and confirms ordinary outside text remains
+selectable afterward.
+
+I wrote the final screenshots to a new evidence directory instead of reusing
+the older `volumetric-device-correction` paths. This avoids the stale-image
+failure mode that had made an earlier browser pass look like a lighting
+regression after the source had already changed.
