@@ -1,10 +1,14 @@
 import { CompositeDevice } from "@webpod/composite";
 import {
+  DEFAULT_DEVICE_MATERIALS,
   DEVICE_ORIENTATION_PRESETS,
+  DeviceCanvas,
   clampDeviceOrientation,
   type Colourway,
+  type DeviceMaterials,
   type DeviceOrientation,
   type DevicePosePreset,
+  type LightRigParams,
 } from "@webpod/device";
 import { Panel } from "@webpod/panel";
 import { createFileRoute } from "@tanstack/react-router";
@@ -96,6 +100,50 @@ type Drag = {
 const YAW_PER_PIXEL = 0.42;
 const PITCH_PER_PIXEL = 0.28;
 
+const NEUTRAL_SURFACE = Object.freeze({
+  color: "#7D8288",
+  albedoScale: 0.62,
+  roughness: 0.72,
+  metalness: 0,
+  clearcoat: 0,
+  envMapIntensity: 0,
+  sheen: 0,
+  specularIntensity: 0.08,
+});
+
+const NEUTRAL_DIAGNOSTIC_MATERIALS: DeviceMaterials = Object.freeze({
+  ...DEFAULT_DEVICE_MATERIALS,
+  bodyBlack: NEUTRAL_SURFACE,
+  bodyWhite: NEUTRAL_SURFACE,
+  wheelRingBlack: NEUTRAL_SURFACE,
+  wheelRingWhite: NEUTRAL_SURFACE,
+  selectBlack: NEUTRAL_SURFACE,
+  selectWhite: NEUTRAL_SURFACE,
+  chromeSeam: NEUTRAL_SURFACE,
+  chromeSeamBlack: NEUTRAL_SURFACE,
+});
+
+const NEUTRAL_DIAGNOSTIC_LIGHT_RIG: LightRigParams = Object.freeze({
+  exposure: 1,
+  key: {
+    viewerAzimuthDeg: 35,
+    descentDeg: 35,
+    distance: 1_000,
+    power: 2_400_000,
+    emitter: { width: 700, height: 500 },
+    color: "#FFFFFF",
+  },
+  kick: {
+    viewerAzimuthDeg: -35,
+    elevationDeg: -35,
+    distance: 1_000,
+    target: [0, 0, 0] as const,
+    powerRatio: 1,
+    emitter: { width: 700, height: 500 },
+    color: "#FFFFFF",
+  },
+});
+
 function bindOrientationControls(stage: HTMLElement): () => void {
   const drag: { current: Drag | null } = { current: null };
   const onPointerDown = (event: PointerEvent): void => {
@@ -167,7 +215,9 @@ function bindOrientationControls(stage: HTMLElement): () => void {
 function DeviceSpike() {
   const state = useSyncExternalStore(subscribe, snapshot, snapshot);
   const stageRef = useRef<HTMLDivElement>(null);
-  const capture = new URLSearchParams(window.location.search).has("capture");
+  const search = new URLSearchParams(window.location.search);
+  const capture = search.has("capture");
+  const diagnostic = search.get("diagnostic") === "neutral";
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -206,15 +256,28 @@ function DeviceSpike() {
         tabIndex={0}
         aria-label="Three-dimensional iPod preview. Shift-drag or use arrow keys to rotate; Home and End show front and rear."
       >
-        <CompositeDevice
-          className="webpod-device-preview__device"
-          colourway={state.colourway}
-          panelTone={panelTone}
-          cameraFov={30}
-          cameraSafePadding={capture ? 34 : 48}
-          orientation={state.orientation}
-          panel={<Panel colourway={panelTone} state="ready" />}
-        />
+        {diagnostic ? (
+          <DeviceCanvas
+            className="webpod-device-preview__device"
+            colourway={state.colourway}
+            cameraFov={30}
+            cameraSafePadding={capture ? 34 : 48}
+            orientation={state.orientation}
+            materials={NEUTRAL_DIAGNOSTIC_MATERIALS}
+            lightRig={NEUTRAL_DIAGNOSTIC_LIGHT_RIG}
+            studioEnvironment={null}
+          />
+        ) : (
+          <CompositeDevice
+            className="webpod-device-preview__device"
+            colourway={state.colourway}
+            panelTone={panelTone}
+            cameraFov={30}
+            cameraSafePadding={capture ? 34 : 48}
+            orientation={state.orientation}
+            panel={<Panel colourway={panelTone} state="ready" />}
+          />
+        )}
       </div>
       {capture ? null : <PreviewControls state={state} />}
     </main>
