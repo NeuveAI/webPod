@@ -23,13 +23,13 @@ function sourceIdentityHealth(): Plugin {
         snapshotMetadata?.expectedFileCount ??
         Number(process.env['W5B_EXPECTED_SOURCE_FILE_COUNT'])
       const reviewedCommit =
-        snapshotMetadata?.reviewedCommit ??
-        process.env['W5B_REVIEWED_COMMIT'] ??
-        null
+        snapshotMetadata === null
+          ? process.env['W5B_REVIEWED_COMMIT'] || null
+          : snapshotMetadata.reviewedCommit
       const reviewedTree =
-        snapshotMetadata?.reviewedTree ??
-        process.env['W5B_REVIEWED_TREE'] ??
-        null
+        snapshotMetadata === null
+          ? process.env['W5B_REVIEWED_TREE'] || null
+          : snapshotMetadata.reviewedTree
       if (expected === undefined) return
       server.middlewares.use('/__webpod_health', (_request, response) => {
         const current = fingerprintBrowserSources()

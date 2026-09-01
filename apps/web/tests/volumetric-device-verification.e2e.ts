@@ -89,6 +89,40 @@ async function expectNoOverflow(page: Page): Promise<void> {
   expect(dimensions.scrollHeight).toBe(dimensions.clientHeight);
 }
 
+async function expectNativePanelGeometryAligned(page: Page): Promise<void> {
+  const alignment = await page.evaluate(() => {
+    const canvas = document.querySelector<HTMLCanvasElement>(
+      ".webpod-device-preview__device canvas",
+    );
+    const panel = document.querySelector<HTMLElement>(".wp-composite-panel-host");
+    if (canvas === null || panel === null) throw new Error("composite geometry is absent");
+    const canvasRect = canvas.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
+    const number = (key: string): number => {
+      const raw = canvas.dataset[key];
+      if (raw === undefined) throw new Error(`missing ${key}`);
+      return Number(raw);
+    };
+    return {
+      panel: {
+        left: panelRect.left,
+        top: panelRect.top,
+        width: panelRect.width,
+        height: panelRect.height,
+      },
+      projected: {
+        left: canvasRect.left + number("wpScreenClipLeft"),
+        top: canvasRect.top + number("wpScreenClipTop"),
+        width: number("wpScreenClipWidth"),
+        height: number("wpScreenClipHeight"),
+      },
+    };
+  });
+  for (const key of ["left", "top", "width", "height"] as const) {
+    expect(Math.abs(alignment.panel[key] - alignment.projected[key])).toBeLessThan(2);
+  }
+}
+
 async function capture(page: Page, filename: string): Promise<string> {
   const path = resolve(evidenceDirectory, filename);
   const bytes = await page.screenshot({ path });
@@ -153,7 +187,7 @@ test.describe("true-3D device route", () => {
       { pose: "front", colourway: "black", filename: "true3d-front-black.png" },
       { pose: "front", colourway: "white", filename: "true3d-front-white.png" },
       { pose: "three-quarter", colourway: "black", filename: "true3d-quarter-black.png" },
-      { pose: "edge", colourway: "white", filename: "true3d-edge-white.png" },
+      { pose: "edge", colourway: "black", filename: "true3d-edge-black.png" },
       { pose: "rear", colourway: "white", filename: "true3d-rear-steel.png" },
     ];
     for (const item of cases) {
@@ -196,6 +230,34 @@ test.describe("true-3D device route", () => {
     await panel.press("ArrowDown");
     const after = await page.locator('[aria-current="true"]').textContent();
     expect(after).not.toBe(before);
+
+    await setPreview(page, "front", "black");
+    await expectNativePanelGeometryAligned(page);
+    const panelBounds = await panel.boundingBox();
+    if (panelBounds === null) throw new Error("native panel has no hit-test bounds");
+    await page.mouse.click(
+      panelBounds.x + panelBounds.width / 2,
+      panelBounds.y + panelBounds.height / 2,
+    );
+    await expect(panel).toBeFocused();
+
+    const orientationBeforePlainDrag = await page.evaluate(
+      () => window.__webpodDevicePreview?.get().orientation,
+    );
+    await page.mouse.move(18, 18);
+    await page.mouse.down();
+    await page.mouse.move(88, 52);
+    await page.mouse.up();
+    expect(await page.evaluate(() => window.__webpodDevicePreview?.get().orientation))
+      .toEqual(orientationBeforePlainDrag);
+
+    await page.keyboard.down("Shift");
+    await page.mouse.move(18, 18);
+    await page.mouse.down();
+    await page.mouse.move(88, 52);
+    await page.mouse.up();
+    await page.keyboard.up("Shift");
+    expect(await page.evaluate(() => window.__webpodDevicePreview?.get().pose)).toBe("custom");
 
     const dpr = {
       1: await verifyDpr(browser, 1),

@@ -99,7 +99,10 @@ const PITCH_PER_PIXEL = 0.28;
 function bindOrientationControls(stage: HTMLElement): () => void {
   const drag: { current: Drag | null } = { current: null };
   const onPointerDown = (event: PointerEvent): void => {
-    if (event.button !== 0) return;
+    // The canvas also owns the real click-wheel input surface. Requiring a
+    // modifier keeps ordinary pointer/touch input on the iPod instead of
+    // letting the preview camera steal capture from the product interaction.
+    if (event.button !== 0 || !event.shiftKey) return;
     drag.current = {
       pointerId: event.pointerId,
       x: event.clientX,
@@ -201,7 +204,7 @@ function DeviceSpike() {
         ref={stageRef}
         className="webpod-device-preview__stage"
         tabIndex={0}
-        aria-label="Three-dimensional iPod preview. Drag or use arrow keys to rotate; Home and End show front and rear."
+        aria-label="Three-dimensional iPod preview. Shift-drag or use arrow keys to rotate; Home and End show front and rear."
       >
         <CompositeDevice
           className="webpod-device-preview__device"
@@ -261,10 +264,9 @@ const DEVICE_PREVIEW_CSS = `
     inset: 0;
     min-inline-size: 0;
     outline: none;
-    cursor: grab;
+    cursor: default;
     touch-action: none;
   }
-  .webpod-device-preview__stage:active { cursor: grabbing; }
   .webpod-device-preview__stage:focus-visible::after {
     content: "";
     position: absolute;

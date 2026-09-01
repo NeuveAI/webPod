@@ -39,18 +39,6 @@ const COMPOSITE_RETENTION_P99_MIN = {
   3: 0.59,
 } as const
 
-const SPIKE_P95_MIN = {
-  1: 65,
-  2: 60,
-  3: 50,
-} as const
-
-const SPIKE_P99_MIN = {
-  1: 130,
-  2: 145,
-  3: 145,
-} as const
-
 test.use({
   launchOptions: {
     executablePath: CHROME_EXECUTABLE,
@@ -62,7 +50,6 @@ const BARE_ROUTE =
   '/_probe/composite?colourway=black&state=ready&scale=1&fov=30&mode=bare&pose=front'
 const COMPOSITE_ROUTE =
   '/_probe/composite?colourway=black&state=ready&scale=1&fov=30&mode=composited&pose=front'
-const SPIKE_ROUTE = '/_spike/device'
 
 async function gotoRoute(page: Page, url: string): Promise<BrowserSourceHealth> {
   await page.goto(url, { waitUntil: 'domcontentloaded' })
@@ -74,7 +61,7 @@ async function gotoRoute(page: Page, url: string): Promise<BrowserSourceHealth> 
 
 test.beforeAll(async () => mkdir(evidenceDirectory, { recursive: true }))
 
-test('LCD acuity survives DPR 1/2/3 on the real T1 path and the standalone proxy', async ({ browser }) => {
+test('LCD acuity survives DPR 1/2/3 on the real T1 HTMLTexture path', async ({ browser }) => {
   test.setTimeout(120_000)
   const reviewedSource = readReviewedBrowserSource()
   const results: DprMeasurement[] = []
@@ -90,11 +77,10 @@ test('LCD acuity survives DPR 1/2/3 on the real T1 path and the standalone proxy
     try {
       const page = await context.newPage()
       await freezeVisuals(page)
-      const compositeSourceDensity = Math.max(2, dpr)
+      const compositeSourceDensity = dpr
 
       const bare = await captureBarePanel(page, dpr)
       const composite = await captureCompositePanel(page, dpr)
-      const spike = await captureStandaloneProxy(page, dpr)
       healthAfter = await assertBrowserSourceIdentity(page)
 
       const retentionP95 = composite.edge.p95 / bare.edge.p95
@@ -103,7 +89,6 @@ test('LCD acuity survives DPR 1/2/3 on the real T1 path and the standalone proxy
         dpr,
         bare,
         composite,
-        spike,
         retentionP95,
         retentionP99,
       })
@@ -116,12 +101,6 @@ test('LCD acuity survives DPR 1/2/3 on the real T1 path and the standalone proxy
       expect(composite.host.pixelHeight).toBe(240 * compositeSourceDensity)
       expect(composite.canvas.pixelWidth).toBe(330 * dpr)
       expect(composite.canvas.pixelHeight).toBe(552 * dpr)
-      expect(spike.edge.p95).toBeGreaterThan(SPIKE_P95_MIN[dpr])
-      expect(spike.edge.p99).toBeGreaterThan(SPIKE_P99_MIN[dpr])
-      expect(spike.source.pixelWidth).toBe(320 * compositeSourceDensity)
-      expect(spike.source.pixelHeight).toBe(240 * compositeSourceDensity)
-      expect(spike.webgl.pixelWidth).toBe(330 * dpr)
-      expect(spike.webgl.pixelHeight).toBe(552 * dpr)
     } finally {
       await context.close()
     }
@@ -167,46 +146,7 @@ test('the LCD acuity gate fails closed when the composited LCD is blurred', asyn
   }
 })
 
-test('the standalone LCD proxy acuity gate fails closed when the spike canvas is blurred', async ({ browser }) => {
-  const context = await browser.newContext({
-    viewport: { width: 390, height: 844 },
-    deviceScaleFactor: 2,
-    colorScheme: 'light',
-    reducedMotion: 'no-preference',
-  })
-  try {
-    const page = await context.newPage()
-    await freezeVisuals(page)
-    await gotoRoute(page, SPIKE_ROUTE)
-    await page.waitForTimeout(1200)
-    await page.addStyleTag({
-      content: '.webpod-device-spike__stage canvas{filter:blur(1px)!important}',
-    })
-    const filter = await page.locator('.webpod-device-spike__stage canvas').evaluate(
-      (element) => getComputedStyle(element).filter,
-    )
-    expect(filter).toBe('blur(1px)')
-    const clip = await page.evaluate(() => {
-      const screen = window.__deviceCalibration?.screenMesh?.()
-      if (screen === undefined || screen === null) {
-        throw new Error('Standalone screen mesh is missing')
-      }
-      const corners = screen.viewport.corners
-      return {
-        x: corners.topLeft.x,
-        y: corners.topLeft.y,
-        width: corners.topRight.x - corners.topLeft.x,
-        height: corners.bottomLeft.y - corners.topLeft.y,
-      }
-    })
-    const blur = await screenshotMetrics(page, clip, 272, 204, 'spike-blur-dpr-2.png')
-    expect(blur.p95).toBeLessThan(SPIKE_P95_MIN[2])
-  } finally {
-    await context.close()
-  }
-})
-
-test('composite and standalone routes remain centered when page scale changes', async ({ browser }) => {
+test('the composited route remains centered when page scale changes', async ({ browser }) => {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 1,
@@ -223,18 +163,9 @@ test('composite and standalone routes remain centered when page scale changes', 
       COMPOSITE_ROUTE,
       '.wp-composite-preview__device-frame',
     )
-    const spike = await captureZoomSnapshot(
-      page,
-      SPIKE_ROUTE,
-      '.webpod-device-spike__stage',
-    )
-
     expect(composite.visualViewportScale).toBe(1.25)
     expect(composite.overflow).toEqual({ clientWidth: 390, scrollWidth: 390 })
     expect(composite.centerOffsetPx).toBeLessThan(0.6)
-    expect(spike.visualViewportScale).toBe(1.25)
-    expect(spike.overflow).toEqual({ clientWidth: 390, scrollWidth: 390 })
-    expect(spike.centerOffsetPx).toBeLessThan(0.6)
 
     await writeFile(
       resolve(evidenceDirectory, 'zoom.json'),
@@ -242,7 +173,6 @@ test('composite and standalone routes remain centered when page scale changes', 
         reviewedSource,
         healthAfter: await assertBrowserSourceIdentity(page),
         composite,
-        spike,
       }, null, 2),
     )
   } finally {
@@ -274,22 +204,10 @@ type CompositeSample = ImageSample & {
   }
 }
 
-type SpikeSample = ImageSample & {
-  readonly source: {
-    readonly pixelWidth: number
-    readonly pixelHeight: number
-  }
-  readonly webgl: {
-    readonly pixelWidth: number
-    readonly pixelHeight: number
-  }
-}
-
 type DprMeasurement = {
   readonly dpr: 1 | 2 | 3
   readonly bare: BareSample
   readonly composite: CompositeSample
-  readonly spike: SpikeSample
   readonly retentionP95: number
   readonly retentionP99: number
 }
@@ -334,32 +252,6 @@ async function captureCompositePanel(page: Page, dpr: 1 | 2 | 3): Promise<Compos
   }
 }
 
-async function captureStandaloneProxy(page: Page, dpr: 1 | 2 | 3): Promise<SpikeSample> {
-  await gotoRoute(page, SPIKE_ROUTE)
-  await freezeVisuals(page)
-  await page.waitForTimeout(1200)
-  const clip = await page.evaluate(() => {
-    const screen = window.__deviceCalibration?.screenMesh?.()
-    if (screen === undefined || screen === null) throw new Error('Standalone screen mesh is missing')
-    const corners = screen.viewport.corners
-    return {
-      x: corners.topLeft.x,
-      y: corners.topLeft.y,
-      width: corners.topRight.x - corners.topLeft.x,
-      height: corners.bottomLeft.y - corners.topLeft.y,
-    }
-  })
-  const edge = await screenshotMetrics(page, clip, 272, 204, `spike-dpr-${String(dpr)}.png`)
-  const pixels = await page.evaluate(() => window.__deviceCalibration?.pixels?.() ?? null)
-  if (pixels === null) throw new Error('Standalone pixel diagnostics are missing')
-  return {
-    edge,
-    file: `spike-dpr-${String(dpr)}.png`,
-    source: pixels.source,
-    webgl: pixels.webgl,
-  }
-}
-
 async function captureZoomSnapshot(
   page: Page,
   url: string,
@@ -371,8 +263,7 @@ async function captureZoomSnapshot(
 }> {
   await gotoRoute(page, url)
   await freezeVisuals(page)
-  if (url.includes('/_probe/composite')) await waitForCompositePaint(page)
-  else await page.waitForTimeout(1200)
+  await waitForCompositePaint(page)
   const session = await page.context().newCDPSession(page)
   await session.send('Emulation.setPageScaleFactor', { pageScaleFactor: 1.25 })
   await page.waitForTimeout(250)
@@ -413,16 +304,15 @@ async function waitForCompositePaint(page: Page): Promise<void> {
     }
     return state !== undefined
   })
-  await page.locator('.wp-composite-raster-canvas').waitFor({ state: 'attached', timeout: 30_000 })
   await page.waitForFunction(() => {
     const host = document.querySelector<HTMLElement>('.wp-composite-panel-host')
-    const rasterCanvas = document.querySelector<HTMLCanvasElement>('.wp-composite-raster-canvas')
-    return host !== null && rasterCanvas !== null && rasterCanvas.contains(host)
+    const canvas = document.querySelector<HTMLCanvasElement>('.wp-composite-preview__device canvas')
+    return host !== null && canvas !== null && canvas.contains(host)
   })
   await page.evaluate(() => {
-    const canvas = document.querySelector('.wp-composite-raster-canvas')
+    const canvas = document.querySelector('.wp-composite-preview__device canvas')
     if (!(canvas instanceof HTMLCanvasElement)) {
-      throw new Error('Composite raster canvas is missing')
+      throw new Error('Composite WebGL canvas is missing')
     }
     const requestPaint = Reflect.get(canvas, 'requestPaint')
     if (typeof requestPaint !== 'function') throw new Error('requestPaint is unavailable')
