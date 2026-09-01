@@ -585,7 +585,7 @@ changes the lower assembly materially more than the upper shell, and stays
 world-fixed when the product rotates. Camera-, UV-, gradient- and additive-
 light paths remain prohibited.
 
-## VD-46 · Owner-original white hardware supersedes inferred white calibration
+## VD-47 · Owner-original white hardware supersedes inferred white calibration
 
 Nine original HEIC photographs of the owner's known white 5G now outrank
 marketplace, refurbished and image-search material for the white colorway.
