@@ -122,3 +122,73 @@ The shell/material evidence and the LCD evidence should not be conflated. W8
 closes the volumetric shell and its canonical-vs-rotated proof boundary. The
 inner LCD content visible on `/_spike/device` remains a diagnostic proxy for
 the panel/composite system, not the final panel-fidelity acceptance surface.
+
+## Tuesday, September 1, 2026 — device-owned physical-lighting repair addendum
+
+This addendum covers the follow-up device-only material/lighting repair done in
+the shared workspace after the owner rejected the prior white and black fronts
+for shimmer, broad bands, clipped lift, and insufficient product depth.
+
+### Owned changes
+
+- `packages/device/src/light-rig.ts`
+- `packages/device/src/materials.ts`
+- `packages/device/src/materials.test.ts`
+- `packages/device/src/renderer-defaults.ts`
+- `packages/device/src/renderer-defaults.test.ts`
+
+These changes stayed within physical light/material controls:
+
+- no additive glass shader
+- no view-locked front gradient
+- no pose-specific light
+- no change to the canonical ±4 stop-table expectations
+
+### Device-local verification that did pass
+
+- `bun test packages/device/src/materials.test.ts packages/device/src/renderer-defaults.test.ts packages/device/src/optical-profile.test.ts`
+  → **18 pass / 0 fail**
+- `bun run build`
+  → **exit 0**
+- `bun run typecheck`
+  → **11/11 projects clean**
+- earlier same-session integrated-browser check at `http://localhost:3000/_spike/device`
+  → the route was visible enough to confirm the fake glass lift was gone and
+  the wheel/select recess read more clearly than the rejected pass
+- final fresh integrated-browser reload after the last crown/material retune
+  → **not reproducible**. The connector saw an empty `<body>` on the shared
+  route, so no new final screenshot is claimed for this exact tree
+
+### Verification surfaces that stayed blocked or red
+
+- fresh browser verifier:
+  `bunx playwright test volumetric-device-verification.e2e.ts --config apps/web/tests/playwright.config.ts`
+  → **failed before grading the device**. The harness served the shell on
+  `127.0.0.1:4317`, but `.webpod-device-spike__stage` never mounted and the
+  integrated browser showed the same blank page on that fresh-server URL. Later
+  shared-route reloads also returned an empty body.
+- repo lint:
+  `bun run lint`
+  → **exit 1 outside W8's owned surface**
+  - `apps/web/src/routes/[_]probe.composite.tsx`: `react-hooks/exhaustive-deps`
+    warning
+  - `apps/web/tests/lcd-acuity.e2e.ts`: unused `Browser` import error
+- repo tests:
+  `bun test`
+  → **red in `scripts/gates.test.ts` fixture setup on this session**, including
+  temp-fixture `ENOENT`, `git` spawn `ENOENT`, and fixture baseline commit exit
+  `143`
+- repo gates:
+  `bun run gates`
+  → re-ran typecheck green, then stopped at the same out-of-slice lint failure
+  and the same `scripts/gates.test.ts` fixture failures above
+
+### Supporting references used for the repair
+
+- Pencil MCP components `VWaJS` and `zbTc3`
+- Retrospekt product photos:
+  `https://retrospekt.com/products/apple-ipod-5th-generation-white-mp3-player`
+  and
+  `https://retrospekt.com/products/apple-ipod-5th-generation-mp3-player`
+- iFixit front-face reference:
+  `https://www.ifixit.com/Guide/iPod+5th+Generation+(Video)+Front+Faceplate+Replacement/159192`

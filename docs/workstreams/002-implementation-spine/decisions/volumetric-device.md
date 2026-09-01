@@ -149,3 +149,49 @@ materials separately so a black-only physical input cannot leak into white.
 - `~/code/agentic-context/html-in-canvas/README.md`
 - `~/code/agentic-context/html-in-canvas/Examples/webGL.html`
 - Pencil MCP reads of `design.pen` components `VWaJS` and `zbTc3`
+
+## VD-15 · White-front repair stays in physical light/material terms, not geometry or paint
+
+The owner rejection was about the front reading like a raster-lit card:
+shimmer, broad horizontal slabs, clipped white lift, and a wheel that did not
+sit materially below the pearl shell. I kept the fix inside the W8-owned
+physical terms:
+
+- no pose lights
+- no painted front gradients
+- no fake glass emission
+- no route-side screen sharpen pass
+
+The repair space was therefore LAW 2's light placement plus the front-surface
+material parameters already owned by `packages/device`. The current pass moves
+the key/fill farther into a softer studio arrangement, lowers front dielectric
+room gain, roughens the white wheel stack, and keeps the white body/shader on
+the direct-light transport path rather than adding a new visual trick.
+
+## VD-16 · LCD crispness is treated as a transmission-budget problem
+
+The preview screen inside `/_spike/device` is already authored as a nearest
+filtered 320×240 raster in the route. The extra softness the owner still sees
+there is therefore mostly the cost of looking through the transmissive cover,
+not a panel paint bug inside W8's surface.
+
+I answered that inside the device package by raising
+`DEVICE_TRANSMISSION_RESOLUTION_SCALE` from `4` to `12` and keeping the
+cover's environment contribution near zero. That spends real render resolution
+on the glass pass instead of hiding it behind a post-process or CSS sharpen
+trick.
+
+## VD-17 · Record cross-slice verifier failures instead of laundering them into W8 proof
+
+On Tuesday, September 1, 2026, the fresh Playwright verifier invocation
+
+- `bunx playwright test volumetric-device-verification.e2e.ts --config apps/web/tests/playwright.config.ts`
+
+did not reach the device stage on its own `127.0.0.1:4317` Vite server. The
+page shell served, but the client route mounted blank; the integrated browser
+showed the same blank page on that fresh-server URL. The live shared dev server
+at `http://localhost:3000/_spike/device` still rendered correctly.
+
+That discrepancy lives in the route/app verification path, not inside the
+device package. I recorded it as a blocker instead of claiming fresh flagged
+Chrome captures that were not reproducible from this workspace state.

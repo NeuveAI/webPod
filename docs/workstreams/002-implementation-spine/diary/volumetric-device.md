@@ -115,3 +115,46 @@ Fresh flagged-Chrome proof is also back in place:
 The raw logs and screenshots are in the `volumetric-device-*` evidence files.
 What remains manual is unchanged: U14 thumb occlusion and U15 unsupported
 controls absent on the real object.
+
+## Tuesday, September 1, 2026 — physical-lighting repair addendum
+
+I stayed inside `packages/device/**` and the W8 device paperwork only. No route,
+panel, composite, token, history, or cert edits.
+
+What I changed in the device package:
+
+- kept the cover glass on Three's own transmission path with no additive UV-edge
+  light
+- kept the white shell on the same direct-light polycarbonate transport path as
+  black, then retuned the light rig and front materials toward quieter studio
+  product lighting
+- pushed `DEVICE_TRANSMISSION_RESOLUTION_SCALE` to `12` so the LCD seen through
+  the cover stays as sharp as the current route can honestly show
+- made the white wheel ring materially subordinate to the pearl body again
+  instead of reading glossier than the shell
+
+What I checked live:
+
+- earlier in this same session `http://localhost:3000/_spike/device` rendered
+  visibly enough to confirm the fake glass lift was gone and the wheel/select
+  recess read more clearly than the rejected pass
+- after the final crown/material retune, fresh integrated-browser reloads no
+  longer produced a mounted stage, so I am not claiming a new final screenshot
+  for this exact tree
+- final owner aesthetic acceptance is still open
+
+What blocked the wider proof:
+
+- the fresh Playwright verifier path on `http://127.0.0.1:4317/_spike/device?capture`
+  mounted a blank page in both Playwright and the integrated browser, and later
+  reloads of the shared `3000` route also returned an empty body. That
+  route/app surface is outside this ownership boundary, so I recorded it
+  instead of patching around it from W8.
+- repo-wide lint stayed red outside this slice:
+  `apps/web/src/routes/[_]probe.composite.tsx` has a
+  `react-hooks/exhaustive-deps` warning and
+  `apps/web/tests/lcd-acuity.e2e.ts` has an unused `Browser` import error.
+- repo-wide `bun test` / `bun run gates` also stayed red in `scripts/gates.test.ts`
+  fixture setup (`git`/temp-fixture `ENOENT`, fixture commit exit `143`) on this
+  shared workspace session, so I did not claim a green full-suite result I did
+  not have.

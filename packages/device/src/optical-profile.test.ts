@@ -5,20 +5,20 @@ import { addOpticalProfile, applyOpticalProfile, createBodyRoughnessMap, createO
 describe("moulded-surface optical profile", () => {
   test("the Pencil-first white moulding has a real non-flat light hierarchy", () => {
     expect(DEFAULT_DEVICE_OPTICAL_PROFILES.bodyWhite).toEqual([
-      [0, -3.568719020420686],
-      [0.06, -7],
-      [0.21, -4],
-      [0.47, -0.36104928688146165],
-      [0.64, 0.35638991348445437],
-      [0.82, -3.6461996299587183],
+      [0, -2.2],
+      [0.06, -4.4],
+      [0.21, -3],
+      [0.47, -0.25],
+      [0.64, 0.22],
+      [0.82, -2],
       [0.94, 0],
-      [1, 5.811169121414422],
+      [1, 3.6],
     ]);
     expect(DEFAULT_DEVICE_OPTICAL_PROFILES.wheelBlack).toEqual([
-      [0, -12],
-      [0.38, -7.235359379315376],
-      [0.62, 2.2841668515175577],
-      [1, 8],
+      [0, -8.921],
+      [0.38, -5.676],
+      [0.62, 1.9704],
+      [1, 8.2946],
     ]);
     expect(DEFAULT_DEVICE_OPTICAL_PROFILES.wheelWhite).toEqual([
       [0, 0.375],
@@ -32,6 +32,33 @@ describe("moulded-surface optical profile", () => {
       [0.7, -7.586523023024202],
       [1, -1.845465837329626],
     ]);
+  });
+
+  test("front-body roughness stays broad enough to avoid striped room banding", () => {
+    expect(DEFAULT_DEVICE_OPTICAL_PROFILES.bodyBlackRoughness).toEqual([
+      [0, 0.9],
+      [0.25, 0.68],
+      [0.5, 0.26],
+      [0.75, 0.56],
+      [1, 0.94],
+    ]);
+    expect(DEFAULT_DEVICE_OPTICAL_PROFILES.bodyWhiteRoughness).toEqual([
+      [0, 0.95],
+      [0.25, 0.91],
+      [0.5, 0.58],
+      [0.75, 0.84],
+      [1, 0.94],
+    ]);
+    const blackValues = DEFAULT_DEVICE_OPTICAL_PROFILES.bodyBlackRoughness.map(
+      ([, value]) => value,
+    );
+    const whiteValues = DEFAULT_DEVICE_OPTICAL_PROFILES.bodyWhiteRoughness.map(
+      ([, value]) => value,
+    );
+    expect(Math.min(...blackValues)).toBeGreaterThanOrEqual(0.18);
+    expect(Math.min(...whiteValues)).toBeGreaterThanOrEqual(0.58);
+    expect(DEFAULT_DEVICE_OPTICAL_PROFILES.bodyWhite[1]?.[1]).toBeGreaterThan(-5);
+    expect(DEFAULT_DEVICE_OPTICAL_PROFILES.bodyWhite.at(-1)?.[1]).toBeLessThan(4);
   });
   test("body roughness is encoded in Three's green channel", () => {
     const map = createBodyRoughnessMap([[0, 0.25], [1, 1]], 2, 3);

@@ -61,16 +61,17 @@ export type LightRigParams = {
 export const DEFAULT_LIGHT_RIG: LightRigParams = {
   key: {
     tiltTowardViewerDeg: 18,
-    distance: 1375,
-    // Keeps the white diffuse term below clipping while leaving the clearcoat
-    // and rolled edges enough headroom to carry VWaJS's authored highlights.
-    intensity: 19500000,
+    // Shared front-light solve: close enough for direct falloff to recover the
+    // shell crown and wheel recess, but far enough away to behave like a soft
+    // studio key instead of painting hard horizontal bands across the front.
+    distance: 1824.8831,
+    intensity: 25400000,
     color: "#FFFFFF",
   },
   fill: {
-    azimuthDeg: -42.7116,
-    elevationDeg: -59.0468,
-    distance: 459.375,
+    azimuthDeg: -44.2187,
+    elevationDeg: -74.1022,
+    distance: 730.2214,
     intensityRatio: 0.22,
     color: "#D7DEE7",
   },

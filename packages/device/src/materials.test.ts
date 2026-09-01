@@ -6,6 +6,7 @@ import { DEFAULT_LIGHT_RIG } from "./light-rig";
 import { DEFAULT_DEVICE_MATERIALS } from "./materials";
 import {
   createBlackPolycarbonateMaterial,
+  createPolycarbonateMaterial,
   createCoverGlassMaterial,
   patchBlackPolycarbonateShader,
   patchGlassShader,
@@ -16,31 +17,39 @@ describe("§12.3 device material contract", () => {
     expect(DEFAULT_DEVICE_MATERIALS.bodyBlack).toMatchObject({
       albedoScale: 0.2,
       color: "#11161C",
-      roughness: 0.7075,
+      roughness: 0.7824,
       metalness: 0,
-      clearcoat: 1,
-      clearcoatRoughness: 0.0527,
-      reflectivity: 0.76,
-      sheen: 0,
-      sheenColor: "#748395",
-      sheenRoughness: 0.5899,
-      specularIntensity: 0.1288,
-      envMapIntensity: 0.162,
-      subsurfaceColor: "#6B7888",
-      subsurfaceDistortion: 0.3969,
-      subsurfaceAttenuation: 0.0757,
+      clearcoat: 0.3384,
+      clearcoatRoughness: 0.2817,
+      reflectivity: 0.4215,
+      sheen: 0.15,
+      sheenColor: "#6E4A2E",
+      sheenRoughness: 1,
+      specularIntensity: 0.0945,
+      envMapIntensity: 0.0184,
+      subsurfaceColor: "#5C6876",
+      subsurfaceDistortion: 0.2214,
+      subsurfaceAttenuation: 0.0715,
       subsurfacePower: 1,
-      subsurfaceScale: 1.5353,
+      subsurfaceScale: 1.2642,
     });
     expect(DEFAULT_DEVICE_MATERIALS.bodyWhite).toMatchObject({
       color: "#F4F7FA",
-      albedoScale: 0.7396,
-      roughness: 0.4678,
-      clearcoat: 1,
-      clearcoatRoughness: 0.1735,
-      reflectivity: 0.5158,
-      specularIntensity: 0.4204,
-      envMapIntensity: 0.1127,
+      albedoScale: 0.6494,
+      roughness: 0.8468,
+      clearcoat: 0.0187,
+      clearcoatRoughness: 0.7612,
+      reflectivity: 0.1718,
+      sheen: 0.0914,
+      sheenColor: "#F2F6FA",
+      sheenRoughness: 0.985,
+      specularIntensity: 0.0416,
+      envMapIntensity: 0.0024,
+      subsurfaceColor: "#F4FAFF",
+      subsurfaceDistortion: 0.1824,
+      subsurfaceAttenuation: 0.0479,
+      subsurfacePower: 1,
+      subsurfaceScale: 1.0416,
     });
   });
 
@@ -66,25 +75,26 @@ describe("§12.3 device material contract", () => {
   test("wheel, Select, glass and screen keep their physical distinctions", () => {
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingBlack).toMatchObject({
       color: "#1D2128",
-      roughness: 0.18,
+      albedoScale: 0.6094,
+      roughness: 0.3692,
       metalness: 0,
-      clearcoat: 1,
-      clearcoatRoughness: 0.14,
-      envMapIntensity: 0.005,
+      clearcoat: 0.1009,
+      clearcoatRoughness: 0.5013,
+      envMapIntensity: 0.0061,
     });
     expect(DEFAULT_DEVICE_MATERIALS.selectBlack).toMatchObject({
-      transmission: 0.7,
-      thickness: 1.48,
+      transmission: 0.6015,
+      thickness: 1.2321,
       ior: 1.52,
       attenuationColor: "#C0CCD8",
-      attenuationDistance: 0.84,
-      roughness: 0.08,
-      clearcoat: 0.8857,
-      clearcoatRoughness: 0.0555,
-      specularIntensity: 0.5815,
-      envMapIntensity: 0.4475,
+      attenuationDistance: 1.2728,
+      roughness: 0.1305,
+      clearcoat: 0.6287,
+      clearcoatRoughness: 0.0798,
+      specularIntensity: 0.3479,
+      envMapIntensity: 0.0353,
     });
-    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBe(0.4785);
+    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBe(0.0093);
     expect(DEFAULT_DEVICE_MATERIALS.rearInlay).toMatchObject({
       color: "#11161E",
       roughness: 0.58,
@@ -93,13 +103,18 @@ describe("§12.3 device material contract", () => {
       envMapIntensity: 0.18,
     });
     expect(DEFAULT_DEVICE_MATERIALS.coverGlass).toMatchObject({
-      transmission: 0.98,
-      thickness: 0.08,
-      ior: 1.52,
+      transmission: 0.9,
+      thickness: 0.001,
+      ior: 1.33,
       roughness: 0,
-      clearcoat: 1,
+      clearcoat: 0,
+      clearcoatRoughness: 0,
+      specularIntensity: 0.012,
+      attenuationColor: "#F5F8FC",
+      attenuationDistance: 48,
       opacity: 1,
       transparent: false,
+      envMapIntensity: 0.00002,
     });
     expect(DEFAULT_DEVICE_MATERIALS.screen).toEqual({
       color: "#0B0D11",
@@ -116,7 +131,9 @@ describe("§12.3 device material contract", () => {
       DEFAULT_DEVICE_MATERIALS.bodyWhite.roughness,
     );
     expect(DEFAULT_DEVICE_FORM.recessDepth).toBe(4.25);
-    expect(DEFAULT_DEVICE_FORM.bottomEdgeCrown).toBe(-2.5);
+    expect(DEFAULT_DEVICE_FORM.topEdgeCrown).toBe(1.1);
+    expect(DEFAULT_DEVICE_FORM.bottomEdgeCrown).toBe(-1.35);
+    expect(DEFAULT_DEVICE_FORM.edgeCrownExtent).toBe(20);
     expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBeGreaterThan(
       DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity ?? 0,
     );
@@ -125,26 +142,29 @@ describe("§12.3 device material contract", () => {
     );
   });
 
-  test("instantiated cover glass obeys transmission and carries two-hue dispersion", () => {
+  test("instantiated cover glass obeys transmission without authored edge light", () => {
     const material = createCoverGlassMaterial(
       DEFAULT_DEVICE_MATERIALS.coverGlass,
       new Texture(),
-      {
-        width: 284,
-        height: 216,
-      },
     );
-    expect(material.transmission).toBe(0.98);
+    expect(material.transmission).toBe(0.9);
     expect(material.opacity).toBe(1);
     expect(material.transparent).toBe(false);
+    expect(material.roughness).toBe(0);
+    expect(material.envMapIntensity).toBe(0.00002);
     const shader = {
       vertexShader: "#include <common>\n#include <begin_vertex>",
       fragmentShader: "#include <common>\n#include <opaque_fragment>",
     };
+    const beforeVertex = shader.vertexShader;
+    const beforeFragment = shader.fragmentShader;
     patchGlassShader(shader, { width: 284, height: 216 });
-    expect(shader.fragmentShader).toContain("glassEdgeCool");
-    expect(shader.fragmentShader).toContain("glassEdgeWarm");
-    expect(shader.fragmentShader).toContain("webpodFresnel");
+    expect(shader.vertexShader).toBe(beforeVertex);
+    expect(shader.fragmentShader).toBe(beforeFragment);
+    expect(shader.fragmentShader).not.toContain("glassEdgeCool");
+    expect(shader.fragmentShader).not.toContain("glassEdgeWarm");
+    expect(shader.fragmentShader).not.toContain("vWebpodGlassUv");
+    expect(shader.fragmentShader).not.toContain("outgoingLight +=");
     material.dispose();
   });
 
@@ -155,8 +175,8 @@ describe("§12.3 device material contract", () => {
     );
     expect(material.transparent).toBe(false);
     expect(material.transmission).toBe(0);
-    expect(material.specularIntensity).toBe(0.1288);
-    expect(material.sheenColor.getHexString()).toBe("748395");
+    expect(material.specularIntensity).toBe(0.0945);
+    expect(material.sheenColor.getHexString()).toBe("6e4a2e");
 
     const shader = {
       vertexShader: "",
@@ -177,12 +197,33 @@ describe("§12.3 device material contract", () => {
     material.dispose();
   });
 
+  test("white polycarbonate keeps depth in the direct-light transport path", () => {
+    const material = createPolycarbonateMaterial(
+      DEFAULT_DEVICE_MATERIALS.bodyWhite,
+      new Texture(),
+    );
+    expect(material.specularIntensity).toBe(0.0416);
+    expect(material.sheenColor.getHexString()).toBe("f2f6fa");
+    expect(material.onBeforeCompile).toBeDefined();
+    expect(material.customProgramCacheKey?.()).toContain("webpod-polycarbonate");
+
+    const shader = {
+      vertexShader: "",
+      fragmentShader:
+        "#include <common>\nreflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );",
+    };
+    patchBlackPolycarbonateShader(shader);
+    expect(shader.fragmentShader).toContain("webpodSssColor");
+    expect(shader.fragmentShader).toContain("directLight.color");
+    material.dispose();
+  });
+
   test("the seam is a restrained blue-gray boundary, not mirror-back material", () => {
     expect(DEFAULT_DEVICE_MATERIALS.chromeSeam).toMatchObject({
       color: "#A6AFBA",
       metalness: 0.35,
-      roughness: 0.32,
-      envMapIntensity: 0.25,
+      roughness: 0.4986,
+      envMapIntensity: 0.045,
     });
     expect(DEFAULT_DEVICE_MATERIALS.chromeSeam.envMapIntensity).toBeLessThan(
       DEFAULT_DEVICE_MATERIALS.steelBack.envMapIntensity ?? 0,
@@ -190,24 +231,52 @@ describe("§12.3 device material contract", () => {
     expect(DEFAULT_DEVICE_MATERIALS.chromeSeamBlack).toMatchObject({
       color: "#252A31",
       metalness: 0.2,
-      roughness: 0.24,
-      specularIntensity: 0.34,
-      envMapIntensity: 0.38,
+      roughness: 0.5398,
+      specularIntensity: 0.1774,
+      envMapIntensity: 0.0363,
     });
     expect(DEFAULT_DEVICE_MATERIALS.chromeSeamBlack.color).not.toBe(
       DEFAULT_DEVICE_MATERIALS.chromeSeam.color,
     );
+  });
+
+  test("front dielectrics keep the room as a whisper, not as chrome banding", () => {
+    expect(DEFAULT_DEVICE_MATERIALS.bodyBlack.envMapIntensity).toBeLessThan(0.05);
+    expect(DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity).toBeLessThan(0.02);
+    expect(DEFAULT_DEVICE_MATERIALS.displayWell.envMapIntensity).toBeLessThan(0.02);
+    expect(DEFAULT_DEVICE_MATERIALS.wheelWellBlack.envMapIntensity).toBeLessThan(0.02);
+    expect(DEFAULT_DEVICE_MATERIALS.wheelWellWhite.envMapIntensity).toBeLessThan(0.02);
+    expect(DEFAULT_DEVICE_MATERIALS.wheelRingBlack.envMapIntensity).toBeLessThan(0.02);
+    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.envMapIntensity).toBeLessThan(0.05);
+    expect(DEFAULT_DEVICE_MATERIALS.selectBlack.envMapIntensity).toBeLessThan(0.05);
+    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBeLessThan(0.05);
+    expect(DEFAULT_DEVICE_MATERIALS.coverGlass.envMapIntensity).toBeLessThan(0.001);
+    expect(Math.abs(DEFAULT_DEVICE_FORM.topEdgeCrown)).toBeLessThan(1.5);
+    expect(Math.abs(DEFAULT_DEVICE_FORM.bottomEdgeCrown)).toBeLessThan(1.6);
+    expect(DEFAULT_DEVICE_FORM.edgeCrownExtent).toBeLessThan(24);
+    expect(DEFAULT_DEVICE_MATERIALS.coverGlass.transmission).toBeLessThan(0.93);
+    expect(DEFAULT_DEVICE_MATERIALS.coverGlass.ior).toBeLessThan(1.4);
+
+    // Regression against the rejected striped/shimmery front pass.
+    expect(DEFAULT_DEVICE_MATERIALS.bodyBlack.envMapIntensity).not.toBe(0.162);
+    expect(DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity).not.toBe(0.1127);
+    expect(DEFAULT_DEVICE_MATERIALS.selectBlack.envMapIntensity).not.toBe(0.4475);
+    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).not.toBe(0.4785);
+    expect(DEFAULT_DEVICE_FORM.topEdgeCrown).not.toBe(2);
+    expect(DEFAULT_DEVICE_FORM.bottomEdgeCrown).not.toBe(-2.5);
   });
 });
 
 describe("LAW 2 light rig", () => {
   test("keeps one 18° key and one 22% lower-left fill", () => {
     expect(DEFAULT_LIGHT_RIG.key.tiltTowardViewerDeg).toBe(18);
-    expect(DEFAULT_LIGHT_RIG.key.distance).toBeGreaterThan(1_000);
-    expect(DEFAULT_LIGHT_RIG.key.intensity).toBe(19_500_000);
+    expect(DEFAULT_LIGHT_RIG.key.distance).toBe(1_824.8831);
+    expect(DEFAULT_LIGHT_RIG.key.intensity).toBe(25_400_000);
     expect(DEFAULT_LIGHT_RIG.fill.azimuthDeg).toBeLessThan(0);
-    expect(DEFAULT_LIGHT_RIG.fill.azimuthDeg).toBe(-42.7116);
+    expect(DEFAULT_LIGHT_RIG.fill.azimuthDeg).toBe(-44.2187);
     expect(DEFAULT_LIGHT_RIG.fill.elevationDeg).toBeLessThan(0);
+    expect(DEFAULT_LIGHT_RIG.fill.elevationDeg).toBe(-74.1022);
+    expect(DEFAULT_LIGHT_RIG.fill.distance).toBe(730.2214);
     expect(DEFAULT_LIGHT_RIG.fill.intensityRatio).toBe(0.22);
     expect(DEFAULT_LIGHT_RIG.fill.color).toBe("#D7DEE7");
   });

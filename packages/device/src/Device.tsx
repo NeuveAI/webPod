@@ -55,6 +55,7 @@ import {
 import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
 import { createScreenGeometry } from "./screen-geometry";
 import {
+  createPolycarbonateMaterial,
   createBlackPolycarbonateMaterial,
   createCoverGlassMaterial,
 } from "./physical-materials";
@@ -193,7 +194,6 @@ export function Device({
   );
 
   const isBlack = colourway === "black";
-  const bodyMaterial = isBlack ? materials.bodyBlack : materials.bodyWhite;
   const ringMaterial = isBlack
     ? materials.wheelRingBlack
     : materials.wheelRingWhite;
@@ -560,25 +560,25 @@ export function Device({
     [screenDefaultMaterial],
   );
   const coverGlassMaterial = useMemo(
-    () =>
-      createCoverGlassMaterial(materials.coverGlass, env, {
-        width: glass.width,
-        height: glass.height,
-      }),
+    () => createCoverGlassMaterial(materials.coverGlass, env),
     [env, materials.coverGlass],
   );
   useEffect(() => () => coverGlassMaterial.dispose(), [coverGlassMaterial]);
   const blackBodyPhysicalMaterial = useMemo(
-    () =>
-      createBlackPolycarbonateMaterial(
-        materials.bodyBlack,
-        env,
-      ),
+    () => createBlackPolycarbonateMaterial(materials.bodyBlack, env),
     [env, materials.bodyBlack],
   );
   useEffect(
     () => () => blackBodyPhysicalMaterial.dispose(),
     [blackBodyPhysicalMaterial],
+  );
+  const whiteBodyPhysicalMaterial = useMemo(
+    () => createPolycarbonateMaterial(materials.bodyWhite, env),
+    [env, materials.bodyWhite],
+  );
+  useEffect(
+    () => () => whiteBodyPhysicalMaterial.dispose(),
+    [whiteBodyPhysicalMaterial],
   );
 
   const attachScreen = useCallback(
@@ -665,10 +665,10 @@ export function Device({
             roughnessMap={bodyRoughness}
           />
         ) : (
-          <meshPhysicalMaterial
+          <primitive
+            object={whiteBodyPhysicalMaterial}
+            attach="material"
             name="body-white"
-            {...spread(bodyMaterial)}
-            envMap={env}
             {...surfaceMaps.body}
             roughnessMap={bodyRoughness}
           />

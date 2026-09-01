@@ -24,6 +24,7 @@ import { createContext, useMemo, type ReactNode } from "react";
 import { Device, type DeviceProps } from "./Device";
 import { CanvasPixelDensity } from "./CanvasPixelDensity";
 import { DEVICE_LAYOUT } from "./layout";
+import { applyDeviceRendererDefaults } from "./renderer-defaults";
 import {
   FRONT_DEVICE_ORIENTATION,
   deviceScreenIsInteractable,
@@ -102,6 +103,9 @@ export function DeviceCanvas({
       flat
       dpr={dpr}
       gl={{ antialias: true, alpha: true, preserveDrawingBuffer: false }}
+      onCreated={({ gl }) => {
+        applyDeviceRendererDefaults(gl);
+      }}
       camera={{
         fov: cameraFov,
         near: cameraDistance - DEVICE_LAYOUT.body.height,
