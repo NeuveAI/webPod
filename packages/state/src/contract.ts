@@ -38,7 +38,11 @@
 import type { Atom, PrimitiveAtom, WritableAtom } from 'jotai/vanilla'
 import { atom } from 'jotai/vanilla'
 
-import { densityOverrideStateAtom, dynamicTypeScaleStateAtom } from './internal'
+import {
+  densityOverrideStateAtom,
+  dynamicTypeScaleStateAtom,
+  interactionFeedbackStateAtom,
+} from './internal'
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Actors
@@ -1071,6 +1075,34 @@ export type PressOutcome = {
   readonly clickerTicks: number
 }
 
+/**
+ * One authoritative, eligible feedback budget published by a store action.
+ *
+ * This is deliberately smaller than {@link DetentOutcome} and
+ * {@link PressOutcome}: the effect layer needs the already-decided count and
+ * provenance, not another copy of the movement physics or screen transition.
+ * Zero-tick and silenced outcomes are not published, so raw sub-detent travel
+ * and non-human actions cannot wake an audio subscriber.
+ */
+export type InteractionFeedbackEvent =
+  | {
+      readonly seq: number
+      readonly control: 'press'
+      readonly origin: 'press'
+      readonly button: PressButton
+      readonly clickerTicks: number
+      readonly silenced: boolean
+      readonly actor: Actor
+    }
+  | {
+      readonly seq: number
+      readonly control: 'wheel'
+      readonly origin: 'detent' | 'coast'
+      readonly clickerTicks: number
+      readonly silenced: boolean
+      readonly actor: Actor
+    }
+
 /* ────────────────────────────────────────────────────────────────────────────
  * Announcements
  * ────────────────────────────────────────────────────────────────────────── */
@@ -1402,6 +1434,16 @@ export const bumpAtom: PrimitiveAtom<BumpEvent | null> = atom<BumpEvent | null>(
  * a screen reader.
  */
 export const liveRegionAtom: PrimitiveAtom<Announcement | null> = atom<Announcement | null>(null)
+
+/**
+ * The most recent eligible press or wheel feedback budget.
+ *
+ * Read-only outside the state package. Sound and haptic runtimes subscribe to
+ * this atom, while only the authoritative press/detent/coast actions can write
+ * its private backing atom. `seq` makes identical consecutive ticks distinct.
+ */
+export const interactionFeedbackAtom: Atom<InteractionFeedbackEvent | null> =
+  interactionFeedbackStateAtom
 
 /* ── Derived atoms ───────────────────────────────────────────────────────── */
 

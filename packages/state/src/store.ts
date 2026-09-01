@@ -38,6 +38,7 @@ import {
   faceAtom,
   highlightIndexAtom,
   liveRegionAtom,
+  interactionFeedbackAtom,
   screenStackAtom,
   visibleRowCountAtom,
 } from './contract'
@@ -50,6 +51,7 @@ import type {
   DetentInput,
   DetentOutcome,
   DeviceStore,
+  InteractionFeedbackEvent,
   MenuVisibility,
   PressInput,
   PressOutcome,
@@ -57,10 +59,48 @@ import type {
   ScreenSnapshotSource,
 } from './contract'
 import { coastStep, detent, endGesture } from './detent'
-import { densityOverrideStateAtom, dynamicTypeScaleStateAtom } from './internal'
+import {
+  densityOverrideStateAtom,
+  dynamicTypeScaleStateAtom,
+  interactionFeedbackStateAtom,
+} from './internal'
 import { MENU_ROOT, menuFrame } from './menu'
 import { actorFor, isSilenced } from './silence'
 import { moveHighlight, pageHighlight, popScreen, pushScreen } from './screen'
+
+type InteractionFeedbackDraft =
+  | Omit<Extract<InteractionFeedbackEvent, { readonly control: 'press' }>, 'seq'>
+  | Omit<Extract<InteractionFeedbackEvent, { readonly control: 'wheel' }>, 'seq'>
+
+/** Publishes one nonzero, non-silenced feedback budget with a fresh sequence. */
+const publishInteractionFeedbackAtom = atom(
+  null,
+  (get, set, draft: InteractionFeedbackDraft): InteractionFeedbackEvent | null => {
+    if (draft.silenced || draft.clickerTicks <= 0) return null
+    const seq = (get(interactionFeedbackAtom)?.seq ?? 0) + 1
+    const event: InteractionFeedbackEvent =
+      draft.control === 'press'
+        ? {
+            seq,
+            control: 'press',
+            origin: 'press',
+            button: draft.button,
+            clickerTicks: draft.clickerTicks,
+            silenced: draft.silenced,
+            actor: draft.actor,
+          }
+        : {
+            seq,
+            control: 'wheel',
+            origin: draft.origin,
+            clickerTicks: draft.clickerTicks,
+            silenced: draft.silenced,
+            actor: draft.actor,
+          }
+    set(interactionFeedbackStateAtom, event)
+    return event
+  },
+)
 
 /**
  * Publishes a bump, stamping it with a monotonic sequence number.
@@ -186,7 +226,7 @@ export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOu
 
   if (bump !== null) set(publishBumpAtom, bump)
 
-  return {
+  const outcome: PressOutcome = {
     button: input.button,
     stack: get(screenStackAtom),
     bump,
@@ -195,6 +235,15 @@ export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOu
     silenced,
     clickerTicks: silenced ? 0 : 1,
   }
+  set(publishInteractionFeedbackAtom, {
+    control: 'press',
+    origin: 'press',
+    button: outcome.button,
+    clickerTicks: outcome.clickerTicks,
+    silenced: outcome.silenced,
+    actor: outcome.actor,
+  })
+  return outcome
 })
 
 /**
@@ -397,7 +446,15 @@ export const detentActionAtom = atom(null, (get, set, input: DetentInput): Deten
     totalRows: get(currentScreenAtom)?.rows.length ?? 0,
   })
   set(detentAccumulatorAtom, outcome.accumulator)
-  return applyMovement(get, set, outcome, input.source)
+  const applied = applyMovement(get, set, outcome, input.source)
+  set(publishInteractionFeedbackAtom, {
+    control: 'wheel',
+    origin: 'detent',
+    clickerTicks: applied.clickerTicks,
+    silenced: applied.silenced,
+    actor: applied.actor,
+  })
+  return applied
 })
 
 /**
@@ -416,7 +473,15 @@ export const coastActionAtom = atom(null, (get, set, frameSeconds: number): Dete
     totalRows: get(currentScreenAtom)?.rows.length ?? 0,
   })
   set(detentAccumulatorAtom, outcome.accumulator)
-  return applyMovement(get, set, outcome, accumulator.source ?? 'human')
+  const applied = applyMovement(get, set, outcome, accumulator.source ?? 'human')
+  set(publishInteractionFeedbackAtom, {
+    control: 'wheel',
+    origin: 'coast',
+    clickerTicks: applied.clickerTicks,
+    silenced: applied.silenced,
+    actor: applied.actor,
+  })
+  return applied
 })
 
 /**

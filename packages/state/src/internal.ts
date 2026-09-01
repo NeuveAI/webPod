@@ -26,7 +26,7 @@
 import { atom } from 'jotai/vanilla'
 import type { PrimitiveAtom } from 'jotai/vanilla'
 
-import type { Density } from './contract'
+import type { Density, InteractionFeedbackEvent } from './contract'
 
 /**
  * The human's density setting, writable. Published read-only as
@@ -39,3 +39,11 @@ export const densityOverrideStateAtom: PrimitiveAtom<Density | null> = atom<Dens
  * `dynamicTypeScaleAtom`; changed through `setDynamicTypeScaleActionAtom`.
  */
 export const dynamicTypeScaleStateAtom: PrimitiveAtom<number> = atom(1)
+
+/**
+ * The latest eligible physical-feedback budget, writable only by store actions.
+ * Published read-only as `interactionFeedbackAtom`; consumers subscribe and
+ * perform the side effect without gaining a second route to manufacture one.
+ */
+export const interactionFeedbackStateAtom: PrimitiveAtom<InteractionFeedbackEvent | null> =
+  atom<InteractionFeedbackEvent | null>(null)
