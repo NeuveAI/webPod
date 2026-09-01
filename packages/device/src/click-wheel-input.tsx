@@ -66,6 +66,8 @@ type ActivePointer = {
   readonly host: EventTarget;
   readonly onCancel: EventListener;
   readonly onLostCapture: EventListener;
+  readonly blurHost?: EventTarget;
+  readonly onBlur?: EventListener;
 };
 
 export type ClickWheelCaptureSlot = {
@@ -93,10 +95,13 @@ export function finishClickWheelCapture(
   slot.current = null;
   active.host.removeEventListener("pointercancel", active.onCancel);
   active.host.removeEventListener("lostpointercapture", active.onLostCapture);
-  onArcEnd({ pointerId, timestampMs, reason });
+  if (active.blurHost !== undefined && active.onBlur !== undefined) {
+    active.blurHost.removeEventListener("blur", active.onBlur);
+  }
   if (releaseCapture && active.capture.hasPointerCapture(pointerId)) {
     active.capture.releasePointerCapture(pointerId);
   }
+  onArcEnd({ pointerId, timestampMs, reason });
   return true;
 }
 
@@ -193,6 +198,10 @@ function captureApiOf(target: EventTarget | null): CaptureApi | null {
   };
 }
 
+function preventNativeDefault(event: ThreeEvent<PointerEvent>): void {
+  if (event.nativeEvent.cancelable) event.nativeEvent.preventDefault();
+}
+
 /**
  * Invisible front-face annulus that owns R3F ray conversion and capture only.
  * State, acceleration, coast, haptics and tier policy remain outside device.
@@ -274,6 +283,7 @@ export function ClickWheelInputSurface({
     if (first === null) return;
 
     event.stopPropagation();
+    preventNativeDefault(event);
     capture.setPointerCapture(event.pointerId);
 
     const onCancel: EventListener = (nativeEvent) => {
@@ -291,6 +301,10 @@ export function ClickWheelInputSurface({
         false,
       );
     };
+    const blurHost = typeof window === "undefined" ? undefined : window;
+    const onBlur: EventListener = () => {
+      finish(event.pointerId, performance.now(), "cancel", true);
+    };
     const active: ActivePointer = {
       pointerId: event.pointerId,
       pointerType,
@@ -298,10 +312,13 @@ export function ClickWheelInputSurface({
       host,
       onCancel,
       onLostCapture,
+      blurHost,
+      onBlur,
     };
     captureSlotRef.current.current = active;
     host.addEventListener("pointercancel", onCancel);
     host.addEventListener("lostpointercapture", onLostCapture);
+    blurHost?.addEventListener("blur", onBlur);
     callbacksRef.current.onArcStart(first);
   };
 
@@ -309,6 +326,7 @@ export function ClickWheelInputSurface({
     const active = captureSlotRef.current.current;
     if (active === null || active.pointerId !== event.pointerId) return;
     event.stopPropagation();
+    preventNativeDefault(event);
     const next = sample(event, active.pointerType);
     if (next !== null) callbacksRef.current.onArcMove(next);
   };
@@ -317,6 +335,7 @@ export function ClickWheelInputSurface({
     const active = captureSlotRef.current.current;
     if (active === null || active.pointerId !== event.pointerId) return;
     event.stopPropagation();
+    preventNativeDefault(event);
     finish(event.pointerId, event.timeStamp, "release", true);
   };
 

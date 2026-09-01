@@ -36,6 +36,7 @@ import {
   type ClickWheelRuntime,
   type ClickWheelRuntimeDependencies,
 } from './click-wheel-runtime'
+import { ScopedGestureSelection } from './gesture-selection'
 
 export interface CompositeDeviceProps {
   readonly panel: ReactNode
@@ -188,15 +189,26 @@ export function CompositeInputBoundary({
 class CompositeInputController {
   private runtime: ClickWheelRuntime | null = null
   private applicationFocus: HTMLElement | null = null
+  private selection: ScopedGestureSelection | null = null
 
   readonly handlers: CompositeArcHandlers = {
     onArcStart: (sample) => {
-      this.runtime?.arcStart(sample)
+      this.selection?.start()
+      try {
+        this.runtime?.arcStart(sample)
+      } catch (error) {
+        this.selection?.stop()
+        throw error
+      }
       queueMicrotask(() => this.restoreApplicationFocus())
     },
     onArcMove: (sample) => this.runtime?.arcMove(sample),
     onArcEnd: (end) => {
-      this.runtime?.arcEnd(end)
+      try {
+        this.runtime?.arcEnd(end)
+      } finally {
+        this.selection?.stop()
+      }
       this.restoreApplicationFocus()
     },
   }
@@ -205,12 +217,16 @@ class CompositeInputController {
 
   attach(root: HTMLDivElement): () => void {
     const runtime = createClickWheelRuntime(this.createDependencies())
+    const selection = new ScopedGestureSelection(root, root.ownerDocument, window)
     this.runtime = runtime
+    this.selection = selection
     const detachWheel = attachCompositeWheelListener(root, runtime)
     return () => {
       detachWheel()
+      selection.dispose()
       runtime.dispose()
       if (this.runtime === runtime) this.runtime = null
+      if (this.selection === selection) this.selection = null
     }
   }
 

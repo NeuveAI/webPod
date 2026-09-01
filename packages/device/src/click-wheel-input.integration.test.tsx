@@ -140,6 +140,7 @@ function pointerEvent(
   const point = wheelViewportPoint(localX, localY);
   const event = new PointerEvent(type, {
     bubbles: true,
+    cancelable: true,
     button: init.button ?? 0,
     isPrimary: true,
     pointerId,
@@ -175,20 +176,64 @@ describe("click-wheel mounted R3F event seam", () => {
     const mounted = await mountSurface();
     const pointerId = 31;
     try {
-      await dispatch(mounted, pointerEvent("pointerdown", pointerId, 80, 0));
+      const down = pointerEvent("pointerdown", pointerId, 80, 0);
+      let downPreventions = 0;
+      const preventDown = down.preventDefault.bind(down);
+      Object.defineProperty(down, "preventDefault", {
+        value: () => {
+          downPreventions += 1;
+          preventDown();
+        },
+      });
+      await dispatch(mounted, down);
+      expect(downPreventions).toBeGreaterThan(0);
       expect(mounted.canvas.hasPointerCapture(pointerId)).toBeTrue();
       expect(mounted.starts).toHaveLength(1);
       expect(mounted.starts[0]?.angleDeg).toBeCloseTo(0, 8);
 
       // Radius 145 is outside the 115px annulus. Fiber's captured event must
       // still reach production, which recomputes the angle from the live ray.
-      await dispatch(mounted, pointerEvent("pointermove", pointerId, 0, -145));
+      const move = pointerEvent("pointermove", pointerId, 0, -145);
+      let movePreventions = 0;
+      const preventMove = move.preventDefault.bind(move);
+      Object.defineProperty(move, "preventDefault", {
+        value: () => {
+          movePreventions += 1;
+          preventMove();
+        },
+      });
+      await dispatch(mounted, move);
+      expect(movePreventions).toBeGreaterThan(0);
       expect(mounted.moves).toHaveLength(1);
       expect(mounted.moves[0]?.angleDeg).toBeCloseTo(90, 8);
 
       await dispatch(mounted, pointerEvent("pointerup", pointerId, 0, -145));
       expect(mounted.ends.map((end) => end.reason)).toEqual(["release"]);
       expect(mounted.canvas.hasPointerCapture(pointerId)).toBeFalse();
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("window blur cancels capture and leaves the next gesture usable", async () => {
+    const mounted = await mountSurface();
+    try {
+      await dispatch(mounted, pointerEvent("pointerdown", 36, 80, 0));
+      expect(mounted.canvas.hasPointerCapture(36)).toBeTrue();
+      window.dispatchEvent(new Event("blur"));
+      expect(mounted.ends.map((end) => end.reason)).toEqual(["cancel"]);
+      expect(mounted.canvas.hasPointerCapture(36)).toBeFalse();
+
+      await dispatch(
+        mounted,
+        pointerEvent("pointerdown", 37, 80, 0, { pointerType: "touch" }),
+      );
+      await dispatch(
+        mounted,
+        pointerEvent("pointermove", 37, 0, -80, { pointerType: "touch" }),
+      );
+      expect(mounted.starts.at(-1)?.pointerType).toBe("touch");
+      expect(mounted.moves.at(-1)?.angleDeg).toBeCloseTo(90, 8);
     } finally {
       await unmount(mounted);
     }

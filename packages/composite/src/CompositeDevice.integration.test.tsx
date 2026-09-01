@@ -76,6 +76,83 @@ describe('mounted composite input boundary', () => {
     expect(deviceStore.get(detentAccumulatorAtom).path).toBeNull()
     expect(document.activeElement).toBe(application)
   })
+
+  test('selection suppression is gesture-scoped and restores prior outside ranges', async () => {
+    const environment = makeEnvironment()
+    const mounted: { handlers: {
+      onArcStart(sample: ClickWheelArcSample): void
+      onArcMove(sample: ClickWheelArcSample): void
+      onArcEnd(end: ClickWheelArcEnd): void
+    } | null } = { handlers: null }
+    const outside = document.createElement('p')
+    outside.textContent = 'Outside text remains selectable'
+    document.body.append(outside)
+
+    await act(async () => {
+      root.render(
+        <CompositeInputBoundary createDependencies={() => environment.dependencies}>
+          {(nextHandlers) => {
+            mounted.handlers = nextHandlers
+            return <div role="application">Selectable panel text</div>
+          }}
+        </CompositeInputBoundary>,
+      )
+    })
+
+    const boundary = container.firstElementChild
+    const panel = container.querySelector<HTMLElement>('[role="application"]')
+    const handlers = mounted.handlers
+    const outsideText = outside.firstChild
+    const panelText = panel?.firstChild
+    if (
+      !(boundary instanceof HTMLElement) ||
+      panel === null ||
+      handlers === null ||
+      outsideText === null ||
+      panelText === null ||
+      panelText === undefined
+    ) throw new Error('Selection fixture did not mount')
+
+    const selection = document.getSelection()
+    if (selection === null) throw new Error('Selection API unavailable')
+    const prior = document.createRange()
+    prior.setStart(outsideText, 0)
+    prior.setEnd(outsideText, 7)
+    selection.removeAllRanges()
+    selection.addRange(prior)
+
+    handlers.onArcStart({ pointerId: 8, pointerType: 'mouse', angleDeg: 0, timestampMs: 0 })
+    expect(boundary.dataset['wpWheelGesture']).toBe('active')
+    expect(boundary.style.userSelect).toBe('none')
+
+    const selectInside = new Event('selectstart', { bubbles: true, cancelable: true })
+    panel.dispatchEvent(selectInside)
+    expect(selectInside.defaultPrevented).toBeTrue()
+    const selectOutside = new Event('selectstart', { bubbles: true, cancelable: true })
+    outside.dispatchEvent(selectOutside)
+    expect(selectOutside.defaultPrevented).toBeFalse()
+
+    const accidental = document.createRange()
+    accidental.selectNodeContents(panelText)
+    selection.removeAllRanges()
+    selection.addRange(accidental)
+    document.dispatchEvent(new Event('selectionchange'))
+    expect(selection.toString()).toBe('Outside')
+
+    handlers.onArcEnd({ pointerId: 8, timestampMs: 20, reason: 'cancel' })
+    expect(boundary.dataset['wpWheelGesture']).toBeUndefined()
+    expect(boundary.style.userSelect).toBe('')
+    const after = new Event('selectstart', { bubbles: true, cancelable: true })
+    panel.dispatchEvent(after)
+    expect(after.defaultPrevented).toBeFalse()
+
+    handlers.onArcStart({ pointerId: 9, pointerType: 'touch', angleDeg: 0, timestampMs: 30 })
+    window.dispatchEvent(new Event('blur'))
+    expect(boundary.dataset['wpWheelGesture']).toBeUndefined()
+    expect(boundary.style.userSelect).toBe('')
+    outside.remove()
+    selection.removeAllRanges()
+  })
 })
 
 class FakeTarget implements RuntimeEventTarget {
