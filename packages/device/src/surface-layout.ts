@@ -8,9 +8,9 @@ import { DEVICE_LAYOUT } from "./layout";
  * volumetric device consumes without changing those exported token facts.
  */
 const { body, screen, wheel } = DEVICE_LAYOUT;
-const DISPLAY_WELL_INSET = 4;
-const DISPLAY_GLASS_LIP = 2;
-const DISPLAY_MASK = 1;
+const DISPLAY_WELL_INSET = 2;
+const DISPLAY_GLASS_LIP = 1;
+const DISPLAY_MASK = 0.5;
 
 export const DEVICE_SURFACE_LAYOUT = Object.freeze({
   front: Object.freeze({
@@ -18,7 +18,7 @@ export const DEVICE_SURFACE_LAYOUT = Object.freeze({
     displayWell: Object.freeze({
       width: screen.width + DISPLAY_WELL_INSET * 2,
       height: screen.height + DISPLAY_WELL_INSET * 2,
-      cornerR: 9,
+      cornerR: screen.cornerR + DISPLAY_WELL_INSET,
       centerX: screen.centerX,
       centerY: screen.centerY,
       inset: DISPLAY_WELL_INSET,

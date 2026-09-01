@@ -250,19 +250,24 @@ function transformedNormal(
   vertex: Vertex,
   slopeX: number,
   slopeY: number,
+  depthScale: number,
+  axialScale: number,
   capFacing: -1 | 0 | 1,
 ): Vector3 {
   if (capFacing !== 0) {
     return new Vector3(
-      -slopeX * capFacing,
-      -slopeY * capFacing,
+      -slopeX * depthScale * capFacing,
+      -slopeY * depthScale * capFacing,
       capFacing,
     ).normalize();
   }
-  // Inverse-transpose of F(x,y,z) = (x,y,z + crownX(x) + crownY(y)).
+  // Inverse-transpose of
+  // F(x,y,z) = (x,y,z + q(z) * (crownX(x) + crownY(y))). Multiplying the
+  // result by the positive axial scale avoids a division without changing its
+  // direction.
   return new Vector3(
-    vertex.nx - slopeX * vertex.nz,
-    vertex.ny - slopeY * vertex.nz,
+    axialScale * vertex.nx - slopeX * depthScale * vertex.nz,
+    axialScale * vertex.ny - slopeY * depthScale * vertex.nz,
     vertex.nz,
   ).normalize();
 }
@@ -274,9 +279,12 @@ function transformedNormal(
  * `computeVertexNormals()` therefore assigns one face normal to each Earcut
  * triangle. This function never calls it: every cap vertex receives the
  * analytic normal of the sixth-order deformation, independent of Earcut's hole
- * triangles. X/Y strip clipping makes the actual mesh approximate both crowns
- * to a deterministic sub-pixel bound while preserving the original bevel,
- * side walls, holes, UVs, and shell thickness.
+ * triangles. The crown is zero at the rear handoff and reaches full depth only
+ * at the face. That keeps the material seam planar; applying the full offset
+ * to every layer creates an open, visibly undulating gap against the steel.
+ * X/Y strip clipping makes the mesh approximate both crowns to a deterministic
+ * sub-pixel bound while preserving the original bevel, side walls, holes and
+ * UVs.
  */
 export function tessellateVerticalCrown(
   source: BufferGeometry,
@@ -309,6 +317,10 @@ export function tessellateVerticalCrown(
   if (box === null) throw new Error("crowned shell has no bounds");
   const minZ = box.min.z;
   const maxZ = box.max.z;
+  const depthSpan = maxZ - minZ;
+  if (!(depthSpan > EPSILON)) {
+    throw new Error("crowned shell requires non-zero source depth");
+  }
   const positions: Array<number> = [];
   const normals: Array<number> = [];
   const uvs: Array<number> = [];
@@ -317,21 +329,26 @@ export function tessellateVerticalCrown(
   const edgeB = new Vector3();
 
   const emit = (a: Vertex, b: Vertex, c: Vertex, capFacing: -1 | 0 | 1) => {
-    const transformed = [a, b, c].map((vertex) => ({
-      vertex,
-      z:
-        vertex.z +
+    const transformed = [a, b, c].map((vertex) => {
+      const depthScale = (vertex.z - minZ) / depthSpan;
+      const crownOffset =
         verticalCrownOffset(vertex.y, halfHeight, crown) +
         horizontalCrownOffset(vertex.x, cross.halfWidth, cross.crown) +
-        edgeCrownOffset(vertex.y, halfHeight, edge),
-      normal: transformedNormal(
+        edgeCrownOffset(vertex.y, halfHeight, edge);
+      return {
         vertex,
-        horizontalCrownSlope(vertex.x, cross.halfWidth, cross.crown),
-        verticalCrownSlope(vertex.y, halfHeight, crown) +
-          edgeCrownSlope(vertex.y, halfHeight, edge),
-        capFacing,
-      ),
-    }));
+        z: vertex.z + depthScale * crownOffset,
+        normal: transformedNormal(
+          vertex,
+          horizontalCrownSlope(vertex.x, cross.halfWidth, cross.crown),
+          verticalCrownSlope(vertex.y, halfHeight, crown) +
+            edgeCrownSlope(vertex.y, halfHeight, edge),
+          depthScale,
+          1 + crownOffset / depthSpan,
+          capFacing,
+        ),
+      };
+    });
     const first = transformed[0];
     const second = transformed[1];
     const third = transformed[2];

@@ -118,6 +118,20 @@ export {
 } from "./env-map";
 export { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 export {
+  IPOD_5G_30GB_PHYSICAL_SPEC,
+  rasterRatio,
+} from "./physical-spec";
+export {
+  createRearShellGeometry,
+  frontShellPlan,
+  productShellDepths,
+  rearShellSections,
+  type FrontShellPlan,
+  type ProductShellDepths,
+  type RearShellParams,
+  type RearShellSection,
+} from "./product-shell";
+export {
   DEFAULT_FRONT_ASSEMBLY_DEPTHS,
   frontShellOffsetAt,
   minimumFrontShellOffsetAroundCircle,

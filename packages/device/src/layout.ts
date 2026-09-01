@@ -1,17 +1,10 @@
 /**
  * Where each part sits on the body face.
  *
- * ⚑ Every §12.0 number is **imported** from `@webpod/tokens`, never re-typed.
- * W0 exported and test-locked them; a second copy that drifts is the failure
- * this module exists to make impossible. What is computed here is only the
- * *arrangement* — the vertical chain and the two centres — and each step of
- * it is derived from an imported constant or from a §7.3 millimetre figure
- * put through the one scale factor.
- *
- * ⚠ §7.3's **desktop** column is stale (D-021). Desktop is a non-goal for W4
- * and nothing below reads it. The millimetre column of §7.3 is *not* stale —
- * it is measurements of the real 5th generation — and is the only thing taken
- * from that section.
+ * Body and active-LCD canvas dimensions remain imported from the design-system
+ * tokens. Product placement and wheel proportions come from the declared thin
+ * 30GB physical target in `physical-spec.ts`; this is the owner-requested
+ * correction to the oversized Pencil wheel and excessive screen forehead.
  *
  * Coordinate frame: body-local CSS pixels, origin at the **centre** of the
  * body face, +x right, +y **up**, +z toward the viewer. Three.js is
@@ -24,16 +17,15 @@ import {
   BODY_CORNER_R,
   BODY_H,
   BODY_W,
-  LABEL_BAND_INNER_R,
-  LABEL_BAND_OUTER_R,
   PANEL_H,
   PANEL_SCALE,
   PANEL_W,
-  RECESS_SHADOW_REACH_R,
-  SELECT_LIP_R,
-  SELECT_R,
-  WHEEL_R,
 } from "@webpod/tokens";
+
+import {
+  IPOD_5G_30GB_PHYSICAL_SPEC,
+  rasterRatio,
+} from "./physical-spec";
 
 /**
  * Millimetres per CSS pixel, mobile — §7.3's "Scale" row, stated as the
@@ -43,31 +35,40 @@ import {
  * authoritative; that division is reproduced rather than the rounded constant
  * transcribed.
  */
-export const PX_PER_MM: number = BODY_W / 61.8;
+export const PX_PER_MM: number =
+  BODY_W / IPOD_5G_30GB_PHYSICAL_SPEC.bodyMm.width;
 
 /** Apple/5G physical reference behind the canonical 272 × 204 Pencil slot. */
 export const LCD_ACTIVE_PHYSICAL_MM = Object.freeze({
-  width: 50.8,
-  height: 38.1,
-  semanticWidth: 320,
-  semanticHeight: 240,
+  width: IPOD_5G_30GB_PHYSICAL_SPEC.display.activeWidthMm,
+  height: IPOD_5G_30GB_PHYSICAL_SPEC.display.activeHeightMm,
+  semanticWidth: IPOD_5G_30GB_PHYSICAL_SPEC.display.semanticWidth,
+  semanticHeight: IPOD_5G_30GB_PHYSICAL_SPEC.display.semanticHeight,
 });
 
 /** Rounding allowance from physical millimetres to the integer Pencil grid. */
 export const LCD_PHYSICAL_TOLERANCE_MM = 0.2;
 
-/** §7.3 millimetre column — the real 5th generation, measured. */
-const MM = {
-  /** Body depth, 30GB model. Sets the chassis extrusion. */
-  bodyDepth: 11.0,
-  /** Top edge → glass top. */
-  topToGlass: 9.0,
-  /** Glass bottom → wheel top. */
-  glassToWheel: 8.0,
-} as const;
+const FRONT_RASTER = IPOD_5G_30GB_PHYSICAL_SPEC.appleFrontRaster;
 
-/** §5.5: the printed black surround extends 6px beyond the active area. */
-export const GLASS_SURROUND: number = 6;
+/** Device-local physical wheel plan, measured from Apple's straight-on image. */
+const WHEEL_DIAMETER = Math.round(
+  BODY_W * rasterRatio(FRONT_RASTER.wheelDiameter, FRONT_RASTER.body.width),
+);
+const WHEEL_RADIUS = WHEEL_DIAMETER / 2;
+const SELECT_DIAMETER = Math.round(
+  BODY_W * rasterRatio(FRONT_RASTER.selectDiameter, FRONT_RASTER.body.width),
+);
+const SELECT_RADIUS = SELECT_DIAMETER / 2;
+
+/** Label placement measured at roughly 79% of the physical wheel radius. */
+const LABEL_BAND_INNER_RADIUS = Math.round(WHEEL_RADIUS * 0.78);
+const LABEL_BAND_OUTER_RADIUS = LABEL_BAND_INNER_RADIUS + 2;
+const SELECT_LIP_RADIUS = SELECT_RADIUS + 4;
+const RECESS_SHADOW_REACH_RADIUS = WHEEL_RADIUS - 11;
+
+/** Cover-glass lip beyond each active edge. */
+export const GLASS_SURROUND: number = 1;
 
 /** §7.1: screen glass window radius, mobile. */
 export const GLASS_CORNER_R: number = 7;
@@ -76,44 +77,46 @@ export const GLASS_CORNER_R: number = 7;
 export const SCREEN_CORNER_R: number = 4;
 
 /** Body depth in CSS px. */
-export const BODY_D: number = MM.bodyDepth * PX_PER_MM;
+export const BODY_D: number =
+  IPOD_5G_30GB_PHYSICAL_SPEC.bodyMm.depth * PX_PER_MM;
 
 /**
  * The vertical chain, in body-local coordinates (+y up, origin at centre).
  *
- * §7.3 states the chain as `48 + 204 + 43 + 212 + 45 = 552` — but that is the
- * `wheelR` 106 chain, and §12.0 raised the wheel to 115. §7.3 says in the same
- * breath that the wheel is 8.1% small and that "the real ratio gives 28px" for
- * the bottom margin. Re-derived at `wheelR` 115 the chain closes on the
- * measured millimetres instead of on a residual:
+ * Apple's straight-on 5G product image is the proportion source. The active
+ * 4:3 LCD remains fixed by its physical 2.5-inch diagonal; only its placement
+ * and the wheel plan come from raster ratios:
  *
  * ```
- *   48  top → glass    (9.0mm × 5.3398)
+ *   24  top → screen   (27 / 629 of the body height)
  *  204  active area    (PANEL_H)
- *   43  glass → wheel  (8.0mm × 5.3398)
- *  230  wheel          (WHEEL_R × 2)
- *   27  wheel → bottom (the remainder — and 5.2mm × 5.3398 = 27.8, §7.3's
- *                       "real ratio gives 28px")
+ *   59  screen → wheel (wheel centre at 444 / 629 of body height)
+ *  206  wheel          (235 / 377 of body width)
+ *   59  wheel → bottom (remainder)
  *  ---
  *  552  BODY_H         ✓
  * ```
  *
- * The bottom margin is left as the remainder so the chain closes on `BODY_H`
- * by construction; that it independently lands on the measured 5.2mm is the
- * check that `wheelR` 115 is the self-consistent geometry, not a patch.
+ * Values are rounded once onto the 330 × 552 device grid. The source image's
+ * anti-aliased edges carry ±2 source pixels of uncertainty, which is wider
+ * than any of these final one-pixel roundings.
  */
 function verticalChain() {
-  const topToGlass = Math.round(MM.topToGlass * PX_PER_MM);
-  const glassToWheel = Math.round(MM.glassToWheel * PX_PER_MM);
-  const screenTopFromTop = topToGlass;
-  const wheelTopFromTop = topToGlass + PANEL_H + glassToWheel;
-  const wheelBottomFromTop = wheelTopFromTop + WHEEL_R * 2;
+  const screenTopFromTop = Math.round(
+    BODY_H * rasterRatio(FRONT_RASTER.screenTop, FRONT_RASTER.body.height),
+  );
+  const wheelCenterFromTop = Math.round(
+    BODY_H *
+      rasterRatio(FRONT_RASTER.wheelCenterFromTop, FRONT_RASTER.body.height),
+  );
+  const wheelTopFromTop = wheelCenterFromTop - WHEEL_RADIUS;
+  const screenToWheel = wheelTopFromTop - (screenTopFromTop + PANEL_H);
+  const wheelBottomFromTop = wheelCenterFromTop + WHEEL_RADIUS;
   return {
-    topToGlass,
-    glassToWheel,
     screenTopFromTop,
+    screenToWheel,
+    wheelCenterFromTop,
     wheelTopFromTop,
-    /** Left as the remainder so the chain closes on `BODY_H` exactly. */
     bottomMargin: BODY_H - wheelBottomFromTop,
   };
 }
@@ -127,8 +130,8 @@ const HALF_H = BODY_H / 2;
 /**
  * The device layout, body-local, +y up, origin at the face centre.
  *
- * Frozen because it is a derived fact, not a configuration point: a caller
- * that wants a different arrangement wants different §12.0 tokens.
+ * Frozen because it is a derived fact, not a configuration point: a different
+ * arrangement requires a different declared physical target.
  */
 export const DEVICE_LAYOUT = Object.freeze({
   body: Object.freeze({
@@ -148,7 +151,7 @@ export const DEVICE_LAYOUT = Object.freeze({
     centerX: 0,
     centerY: HALF_H - CHAIN.screenTopFromTop - PANEL_H / 2,
   }),
-  /** The cover glass sheet: active area + a 6px printed surround (§5.5 L2). */
+  /** The cover glass sheet: active area plus a restrained physical lip. */
   glass: Object.freeze({
     width: PANEL_W + GLASS_SURROUND * 2,
     height: PANEL_H + GLASS_SURROUND * 2,
@@ -157,16 +160,16 @@ export const DEVICE_LAYOUT = Object.freeze({
     centerX: 0,
     centerY: HALF_H - CHAIN.screenTopFromTop - PANEL_H / 2,
   }),
-  /** The click wheel recess and its contents (§12.0 radii). */
+  /** The click wheel recess and its photo-measured contents. */
   wheel: Object.freeze({
-    outerR: WHEEL_R,
-    selectR: SELECT_R,
-    selectLipR: SELECT_LIP_R,
-    labelBandInnerR: LABEL_BAND_INNER_R,
-    labelBandOuterR: LABEL_BAND_OUTER_R,
-    recessShadowReachR: RECESS_SHADOW_REACH_R,
+    outerR: WHEEL_RADIUS,
+    selectR: SELECT_RADIUS,
+    selectLipR: SELECT_LIP_RADIUS,
+    labelBandInnerR: LABEL_BAND_INNER_RADIUS,
+    labelBandOuterR: LABEL_BAND_OUTER_RADIUS,
+    recessShadowReachR: RECESS_SHADOW_REACH_RADIUS,
     centerX: 0,
-    centerY: HALF_H - CHAIN.wheelTopFromTop - WHEEL_R,
+    centerY: HALF_H - CHAIN.wheelCenterFromTop,
   }),
   chain: Object.freeze(CHAIN),
 } as const);

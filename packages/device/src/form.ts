@@ -14,6 +14,11 @@
  * a number here is a modelling decision and is.
  */
 
+import { PX_PER_MM } from "./layout";
+import { IPOD_5G_30GB_PHYSICAL_SPEC } from "./physical-spec";
+
+const PHOTO_PROFILE = IPOD_5G_30GB_PHYSICAL_SPEC.photoDerivedProfileMm;
+
 export type DeviceFormParams = {
   /**
    * How far the polycarbonate front is inset from the silhouette, letting the
@@ -42,8 +47,8 @@ export type DeviceFormParams = {
   readonly bottomEdgeCrown: number;
   /** Inboard reach of both secondary edge crowns. */
   readonly edgeCrownExtent: number;
-  /** Radius of the rolled edge on the steel back's face. */
-  readonly backBevel: number;
+  /** Maximum plan inset of the crowned steel rear face relative to its seam. */
+  readonly rearCrownInset: number;
   /** How far below the body face the wheel ring sits. §5.3: "1.5px below". */
   readonly recessDepth: number;
   /**
@@ -80,21 +85,22 @@ export type DeviceFormParams = {
 };
 
 export const DEFAULT_DEVICE_FORM: DeviceFormParams = {
-  seamWidth: 1.5,
-  frontThickness: 14,
+  seamWidth: 1.2,
+  frontThickness: Math.round(PHOTO_PROFILE.frontShellDepth * PX_PER_MM),
   frontBevel: 3.5,
   bodyCrown: 1.2,
   bodyCrossCrown: 1.2,
   topEdgeCrown: 0,
   bottomEdgeCrown: 0,
   edgeCrownExtent: 20,
-  backBevel: 3.5,
+  rearCrownInset:
+    Math.round(PHOTO_PROFILE.rearCrownInset * PX_PER_MM * 10) / 10,
   recessDepth: 4.25,
   ringDishTiltDeg: 4.1918,
   ringDishExponent: 6.1283,
   selectDomeTiltDeg: 19.1951,
   selectDomeExponent: 1.4989,
-  selectProud: 6.5848,
+  selectProud: Math.round(PHOTO_PROFILE.selectRise * PX_PER_MM * 100) / 100,
   displayWellInset: 1.8,
   displayWellDepth: 0.9,
   wheelWellDepth: 1.2,

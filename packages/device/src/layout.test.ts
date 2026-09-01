@@ -1,17 +1,3 @@
-/**
- * §12.0's geometry, asserted against the section's own literals.
- *
- * ⚑ **D-050.** Every expected value below is a number **read off design-system
- * §12.0 / §7.3 and written here by hand**, with the section cited. Nothing is
- * recomputed from `@webpod/tokens` — a test that derives both sides from the
- * symbol under test moves with the bug and reports green while the constant is
- * wrong, which is exactly how W2's planted flat-7 page size passed 93 tests.
- * The implementation imports the tokens; the test asserts the spec. If those
- * two ever disagree, one of them is wrong and this file says which.
- *
- * Falsification, run and recorded in `evidence/w4-geometry.txt`: each token was
- * given a wrong value in turn and this file went red for it.
- */
 import { describe, expect, test } from "bun:test";
 
 import {
@@ -19,15 +5,9 @@ import {
   BODY_CORNER_R,
   BODY_H,
   BODY_W,
-  LABEL_BAND_INNER_R,
-  LABEL_BAND_OUTER_R,
   PANEL_H,
   PANEL_SCALE,
   PANEL_W,
-  RECESS_SHADOW_REACH_R,
-  SELECT_LIP_R,
-  SELECT_R,
-  WHEEL_R,
 } from "@webpod/tokens";
 
 import { DEFAULT_DEVICE_FORM } from "./form";
@@ -39,179 +19,124 @@ import {
   toCanvasTopLeft,
 } from "./layout";
 import { silhouetteHalfWidth } from "./luminance-probe";
+import { IPOD_5G_30GB_PHYSICAL_SPEC } from "./physical-spec";
 import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 
-describe("§12.0 R5 geometry — the numbers the dispatch names", () => {
-  test('wheelR is 115 (§12.0, "wheelR 106 → 115")', () => {
-    expect(WHEEL_R).toBe(115);
-    expect(DEVICE_LAYOUT.wheel.outerR).toBe(115);
+describe("thin 30GB iPod 5G physical target", () => {
+  test("declares one variant and cannot silently become the thick 60/80GB case", () => {
+    expect(IPOD_5G_30GB_PHYSICAL_SPEC.variant).toBe(
+      "iPod 5G/5.5G 30GB thin (A1136)",
+    );
+    expect(IPOD_5G_30GB_PHYSICAL_SPEC.bodyMm).toEqual({
+      width: 61.8,
+      height: 103.5,
+      depth: 11,
+    });
+    expect(IPOD_5G_30GB_PHYSICAL_SPEC.bodyMm.depth).not.toBe(14);
   });
 
-  test('body is 330 × 552 (§12.0, "body 330 × 552")', () => {
-    expect(BODY_W).toBe(330);
-    expect(BODY_H).toBe(552);
-    expect(DEVICE_LAYOUT.body.width).toBe(330);
-    expect(DEVICE_LAYOUT.body.height).toBe(552);
-  });
-
-  test("wheel/body is 0.697, against the real 5G’s 0.699 (§12.0)", () => {
-    // §12.0: "Wheel/body = 230/330 = 0.697 vs real 0.699."
-    expect(((WHEEL_R * 2) / BODY_W).toFixed(3)).toBe("0.697");
-  });
-
-  test("Select r 42, lip to 46 (§12.0 R5 table)", () => {
-    expect(SELECT_R).toBe(42);
-    expect(SELECT_LIP_R).toBe(46);
-    expect(DEVICE_LAYOUT.wheel.selectR).toBe(42);
-    expect(DEVICE_LAYOUT.wheel.selectLipR).toBe(46);
-  });
-
-  test("label band r 77–79 (§12.0 R5 table, measured)", () => {
-    expect(LABEL_BAND_INNER_R).toBe(77);
-    expect(LABEL_BAND_OUTER_R).toBe(79);
-    expect(DEVICE_LAYOUT.wheel.labelBandInnerR).toBe(77);
-    expect(DEVICE_LAYOUT.wheel.labelBandOuterR).toBe(79);
-  });
-
-  test("the label band constant is innerR + ringW × 0.493, not × 0.57 (§12.0)", () => {
-    // §12.0: "The constant is `innerR + ringW × 0.493`, not ×0.57 (which would
-    // give r 83.6) and certainly not ×0.30." Both halves are asserted: the
-    // multiplier must land inside the measured band, and the one §7.3 states
-    // must land outside it. Checking only the first would pass for 0.50, 0.51
-    // and every other value that happens to fall in a 2px window.
-    const inner = 42;
-    const ringW = 115 - 42;
-    expect(inner + ringW * 0.493).toBeGreaterThanOrEqual(77);
-    expect(inner + ringW * 0.493).toBeLessThanOrEqual(79);
-    expect(inner + ringW * 0.57).toBeGreaterThan(79);
-  });
-
-  test("recess-shadow reach r 104 (§12.0 R5 table)", () => {
-    expect(RECESS_SHADOW_REACH_R).toBe(104);
-    expect(DEVICE_LAYOUT.wheel.recessShadowReachR).toBe(104);
-  });
-
-  test("panel active area 272 × 204 at scale 0.85 (§7.3 mobile column, §7.4)", () => {
-    expect(PANEL_W).toBe(272);
-    expect(PANEL_H).toBe(204);
-    expect(PANEL_SCALE).toBe(0.85);
-    // §7.3(b): rounding the active area to 272 × 204 gives exactly 17/20.
+  test("keeps the authored body and exact 320×240 LCD semantics", () => {
+    expect([BODY_W, BODY_H, BODY_CORNER_R, BODY_CORNER_EXPONENT]).toEqual([
+      330, 552, 26, 2,
+    ]);
+    expect([PANEL_W, PANEL_H, PANEL_SCALE]).toEqual([272, 204, 0.85]);
+    expect(PANEL_W / PANEL_H).toBe(4 / 3);
     expect(PANEL_W / PANEL_SCALE).toBe(320);
     expect(PANEL_H / PANEL_SCALE).toBe(240);
   });
 
-  test("D-067 uses Pencil VWaJS's circular 26px enclosure", () => {
-    expect(BODY_CORNER_R).toBe(26);
-    expect(BODY_CORNER_EXPONENT).toBe(2);
-    expect(DEVICE_LAYOUT.body.exponent).toBe(BODY_CORNER_EXPONENT);
-  });
-
-  test("the saved Pencil seam remains a thin 1.5px material boundary", () => {
-    expect(DEFAULT_DEVICE_FORM.seamWidth).toBe(1.5);
-  });
-});
-
-describe("the vertical chain, re-derived at wheelR 115", () => {
-  test("scale is 5.3398 px/mm (§7.3, body 330px / 61.8mm)", () => {
-    expect(PX_PER_MM.toFixed(4)).toBe("5.3398");
-  });
-
-  test("48 + 204 + 43 + 230 + 27 = 552 (§7.3 millimetres, §12.0 wheel)", () => {
+  test("maps the official front raster to a 24px forehead", () => {
     const chain = DEVICE_LAYOUT.chain;
-    expect(chain.topToGlass).toBe(48);
-    expect(chain.glassToWheel).toBe(43);
-    expect(chain.bottomMargin).toBe(27);
-    expect(
-      chain.topToGlass + 204 + chain.glassToWheel + 230 + chain.bottomMargin,
-    ).toBe(552);
-  });
-
-  test("the bottom margin lands on §7.3’s measured 5.2mm", () => {
-    // §7.3: "pushes the wheel-bottom-to-body-bottom gap to 45px where the real
-    // ratio gives 28px". 5.2mm × 5.3398 = 27.8. The chain closes on 27 as a
-    // remainder and independently agrees with the measurement — which is the
-    // check that wheelR 115 is self-consistent geometry rather than a patch.
-    expect(
-      Math.abs(DEVICE_LAYOUT.chain.bottomMargin - 5.2 * PX_PER_MM),
-    ).toBeLessThan(1);
-  });
-
-  test("screen centre sits 126px above the body centre", () => {
-    // 552/2 − 48 − 204/2 = 126, from the chain above.
-    expect(DEVICE_LAYOUT.screen.centerY).toBe(126);
-    expect(DEVICE_LAYOUT.screen.centerX).toBe(0);
+    expect(chain.screenTopFromTop).toBe(24);
+    expect(chain.screenTopFromTop / BODY_H).toBeCloseTo(27 / 629, 2);
+    expect(chain.screenTopFromTop).not.toBe(48);
+    expect(DEVICE_LAYOUT.screen.centerY).toBe(150);
     expect(toCanvasTopLeft(0, DEVICE_LAYOUT.screen.centerY)).toEqual({
       x: 165,
-      y: 150,
+      y: 126,
     });
   });
 
-  test("wheel centre sits 134px below the body centre", () => {
-    // 552/2 − (48 + 204 + 43) − 115 = −134.
-    expect(DEVICE_LAYOUT.wheel.centerY).toBe(-134);
-    expect(DEVICE_LAYOUT.wheel.centerX).toBe(0);
-    expect(toCanvasTopLeft(0, DEVICE_LAYOUT.wheel.centerY)).toEqual({
-      x: 165,
-      y: 410,
+  test("maps the official front raster to the smaller 206px wheel", () => {
+    expect(DEVICE_LAYOUT.wheel.outerR).toBe(103);
+    expect(DEVICE_LAYOUT.wheel.outerR * 2).toBe(206);
+    expect((DEVICE_LAYOUT.wheel.outerR * 2) / BODY_W).toBeCloseTo(235 / 377, 2);
+    expect(DEVICE_LAYOUT.wheel.outerR * 2).not.toBe(230);
+  });
+
+  test("places the wheel at the measured centre with balanced lower whitespace", () => {
+    const chain = DEVICE_LAYOUT.chain;
+    expect(chain.wheelCenterFromTop).toBe(390);
+    expect(chain.wheelTopFromTop).toBe(287);
+    expect(chain.screenToWheel).toBe(59);
+    expect(chain.bottomMargin).toBe(59);
+    expect(24 + 204 + 59 + 206 + 59).toBe(552);
+    expect(DEVICE_LAYOUT.wheel.centerY).toBe(-114);
+  });
+
+  test("scales the separate Select part from the same official front raster", () => {
+    expect(DEVICE_LAYOUT.wheel.selectR).toBe(37);
+    expect(DEVICE_LAYOUT.wheel.selectR * 2).toBe(74);
+    expect((DEVICE_LAYOUT.wheel.selectR * 2) / BODY_W).toBeCloseTo(84 / 377, 2);
+    expect(DEVICE_LAYOUT.wheel.selectLipR).toBe(41);
+    expect(DEFAULT_DEVICE_FORM.selectProud / PX_PER_MM).toBeCloseTo(1, 2);
+  });
+
+  test("keeps photo-derived profile estimates explicit and separate from OEM dimensions", () => {
+    expect(DEFAULT_DEVICE_FORM.frontThickness / PX_PER_MM).toBeCloseTo(2.6, 1);
+    expect(DEFAULT_DEVICE_FORM.rearCrownInset / PX_PER_MM).toBeCloseTo(1.6, 1);
+    expect(DEFAULT_DEVICE_FORM.selectProud / PX_PER_MM).toBeCloseTo(1, 2);
+    expect(IPOD_5G_30GB_PHYSICAL_SPEC.photoDerivedProfileMm).toEqual({
+      frontShellDepth: 2.6,
+      rearCrownInset: 1.6,
+      selectRise: 1,
     });
   });
 
-  test("glass window is the active area plus a 6px surround (§5.5 L2)", () => {
-    expect(DEVICE_LAYOUT.glass.width).toBe(284);
-    expect(DEVICE_LAYOUT.glass.height).toBe(216);
-  });
-
-  test("body depth is 11.0mm (§7.3, 30GB)", () => {
-    expect(DEVICE_LAYOUT.body.depth.toFixed(2)).toBe("58.74");
+  test("retains a thin intentional material seam", () => {
+    expect(DEFAULT_DEVICE_FORM.seamWidth).toBe(1.2);
+    expect(DEFAULT_DEVICE_FORM.seamWidth).toBeLessThan(2);
   });
 });
 
-describe("measured 5G LCD aperture", () => {
-  test("the canonical 272 × 204 slot is the physical 50.8 × 38.1mm 4:3 panel", () => {
+describe("physical LCD and restrained trim", () => {
+  test("the active panel is the physical 50.8 × 38.1mm 4:3 aperture", () => {
     const physicalWidth = DEVICE_LAYOUT.screen.width / PX_PER_MM;
     const physicalHeight = DEVICE_LAYOUT.screen.height / PX_PER_MM;
-    expect(DEVICE_LAYOUT.screen.width).toBe(272);
-    expect(DEVICE_LAYOUT.screen.height).toBe(204);
-    expect(DEVICE_LAYOUT.screen.width / DEVICE_LAYOUT.screen.height).toBe(4 / 3);
     expect(Math.abs(physicalWidth - LCD_ACTIVE_PHYSICAL_MM.width)).toBeLessThanOrEqual(
       LCD_PHYSICAL_TOLERANCE_MM,
     );
     expect(Math.abs(physicalHeight - LCD_ACTIVE_PHYSICAL_MM.height)).toBeLessThanOrEqual(
       LCD_PHYSICAL_TOLERANCE_MM,
     );
-    expect(DEVICE_LAYOUT.screen.width / DEVICE_LAYOUT.body.width).toBeCloseTo(0.8242, 4);
-    expect(DEVICE_LAYOUT.screen.height / DEVICE_LAYOUT.body.height).toBeCloseTo(0.3696, 4);
     expect(LCD_ACTIVE_PHYSICAL_MM.semanticWidth).toBe(320);
     expect(LCD_ACTIVE_PHYSICAL_MM.semanticHeight).toBe(240);
   });
 
-  test("active pixels, 1px mask, glass lip, and recess are separate nested bounds", () => {
+  test("keeps mask, glass and recess distinct without rebuilding a heavy bezel", () => {
     const { displayWell, glass, mask } = DEVICE_SURFACE_LAYOUT.front;
-    expect(mask.width - DEVICE_LAYOUT.screen.width).toBe(2);
-    expect(mask.height - DEVICE_LAYOUT.screen.height).toBe(2);
-    expect(glass.width - mask.width).toBe(2);
-    expect(glass.height - mask.height).toBe(2);
-    expect(displayWell.width - glass.width).toBe(4);
-    expect(displayWell.height - glass.height).toBe(4);
-    expect([
-      DEVICE_LAYOUT.screen.cornerR,
-      mask.cornerR,
-      glass.cornerR,
-      displayWell.cornerR,
-    ]).toEqual([4, 5, 6, 9]);
+    expect(mask.width - DEVICE_LAYOUT.screen.width).toBe(1);
+    expect(glass.width - mask.width).toBe(1);
+    expect(displayWell.width - glass.width).toBe(2);
+    expect(mask.height - DEVICE_LAYOUT.screen.height).toBe(1);
+    expect(glass.height - mask.height).toBe(1);
+    expect(displayWell.height - glass.height).toBe(2);
+    expect(DEVICE_LAYOUT.glass.width).toBe(274);
+    expect(DEVICE_LAYOUT.glass.height).toBe(206);
   });
 });
 
-describe("the D-067 circular enclosure", () => {
-  test("matches the analytic 26px circular corner", () => {
+describe("enclosure plan and depth", () => {
+  test("uses the thin 11mm depth at the one body scale", () => {
+    expect(PX_PER_MM.toFixed(4)).toBe("5.3398");
+    expect(DEVICE_LAYOUT.body.depth.toFixed(2)).toBe("58.74");
+  });
+
+  test("preserves the analytic 26px circular corner", () => {
     const y = 276 - 26 + 26 * Math.SQRT1_2;
     const actual = silhouetteHalfWidth(y, 165, 276, 26, 2);
     const expected = 165 - 26 + 26 * Math.SQRT1_2;
     expect(actual).toBeCloseTo(expected, 10);
-  });
-
-  test("keeps the full box width on its straight sides", () => {
     expect(silhouetteHalfWidth(0, 165, 276, 26, 2)).toBe(165);
-    expect(silhouetteHalfWidth(240, 165, 276, 26, 2)).toBe(165);
   });
 });

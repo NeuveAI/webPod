@@ -5,8 +5,9 @@ import {
 } from "./curved-shell";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import { DEVICE_LAYOUT } from "./layout";
+import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 
-const { body, screen, wheel } = DEVICE_LAYOUT;
+const { body, wheel } = DEVICE_LAYOUT;
 const INPUT_PLANE_OFFSET = 0.25;
 const CIRCLE_SAMPLES = 256;
 
@@ -109,12 +110,7 @@ export function resolveFrontAssemblyDepths(
   const displayReferenceZ =
     frontFaceZ +
     minimumFrontShellOffsetAroundRect(
-      {
-        centerX: screen.centerX,
-        centerY: screen.centerY,
-        width: screen.width + 8,
-        height: screen.height + 8,
-      },
+      DEVICE_SURFACE_LAYOUT.front.displayWell,
       form,
     );
   const wheelReferenceZ =

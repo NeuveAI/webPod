@@ -18,13 +18,15 @@ import {
   verticalCrownOffset,
   verticalCrownSlope,
 } from "./curved-shell";
-import { DEVICE_LAYOUT, GLASS_CORNER_R } from "./layout";
+import { DEVICE_LAYOUT } from "./layout";
 import { DEFAULT_DEVICE_FORM } from "./form";
 import {
   DEVICE_ORIENTATION_PRESETS,
   deviceOrientationToRotation,
 } from "./orientation";
 import { circleHole, roundedRectHole, silhouetteShape } from "./shapes";
+import { frontShellPlan } from "./product-shell";
+import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 
 function rectangle(width: number, height: number) {
   const shape = new Shape();
@@ -37,21 +39,29 @@ function rectangle(width: number, height: number) {
 }
 
 function actualFrontShape() {
-  const { body, glass, wheel } = DEVICE_LAYOUT;
-  const seam = 2;
+  const { body, wheel } = DEVICE_LAYOUT;
+  const { displayWell } = DEVICE_SURFACE_LAYOUT.front;
+  const form = DEFAULT_DEVICE_FORM;
+  const plan = frontShellPlan(
+    body.width,
+    body.height,
+    body.cornerR,
+    form.seamWidth,
+    form.frontBevel,
+  );
   const shape = silhouetteShape(
-    body.width - 2 * seam,
-    body.height - 2 * seam,
-    body.cornerR - seam,
+    plan.faceWidth,
+    plan.faceHeight,
+    plan.faceCornerR,
     body.exponent,
   );
   shape.holes.push(
     roundedRectHole(
-      glass.centerX,
-      glass.centerY,
-      glass.width,
-      glass.height,
-      GLASS_CORNER_R,
+      displayWell.centerX,
+      displayWell.centerY,
+      displayWell.width,
+      displayWell.height,
+      displayWell.cornerR,
     ),
   );
   shape.holes.push(circleHole(wheel.centerX, wheel.centerY, wheel.outerR));
@@ -331,7 +341,7 @@ describe("tessellated vertical shell crown", () => {
     source.dispose(); baseline.dispose(); zero.dispose();
   });
 
-  test("bounded edge crown is local, manifold, smooth, and thickness-preserving", () => {
+  test("bounded edge crown is local, manifold, smooth, and rear-plane anchored", () => {
     const edge = { top: 3, bottom: -3, extent: 36 };
     expect(edgeCrownOffset(0, 40, edge)).toBe(0);
     expect(edgeCrownSlope(0, 40, edge)).toBe(0);
@@ -348,7 +358,8 @@ describe("tessellated vertical shell crown", () => {
       expect(new Vector3(normals.getX(index), normals.getY(index), normals.getZ(index)).length()).toBeCloseTo(1, 5);
     }
     for (const span of [...spans.values()].filter((value) => value.max - value.min > 13)) {
-      expect(span.max - span.min).toBeCloseTo(14, 5);
+      expect(span.min).toBeCloseTo(0, 5);
+      expect(span.max).toBeGreaterThanOrEqual(8);
     }
     for (let index = 0; index < positions.count; index += 3) {
       const a = new Vector3().fromBufferAttribute(positions, index);
@@ -475,7 +486,7 @@ describe("tessellated vertical shell crown", () => {
     geometry.dispose();
   });
 
-  test("preserves shell thickness while bending both faces", () => {
+  test("keeps the rear seam planar while the crown grows only toward the face", () => {
     const source = new ExtrudeGeometry(rectangle(40, 80), {
       depth: 14,
       bevelEnabled: false,
@@ -491,13 +502,16 @@ describe("tessellated vertical shell crown", () => {
       span.max = Math.max(span.max, z);
       spans.set(key, span);
     }
-    const fullDepthSpans = [...spans.values()].filter(
-      (span) => span.max - span.min > 13,
-    );
-    expect(fullDepthSpans.length).toBeGreaterThan(20);
+    const fullDepthSpans = [...spans.values()].filter((span) => span.max > 13);
+    expect(fullDepthSpans.length).toBeGreaterThan(8);
     for (const span of fullDepthSpans) {
-      expect(span.max - span.min).toBeCloseTo(14, 5);
+      expect(span.min).toBeCloseTo(0, 5);
     }
+    const centreRow = [...spans.entries()].find(([key]) =>
+      key.endsWith(":0.0000"),
+    )?.[1];
+    expect(centreRow?.min).toBeCloseTo(0, 5);
+    expect(centreRow?.max).toBeCloseTo(8, 5);
     source.dispose();
     geometry.dispose();
   });

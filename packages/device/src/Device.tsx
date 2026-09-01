@@ -34,6 +34,11 @@ import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeom
 import { curvedAnnulusGeometry, domedDiscGeometry } from "./curved-discs";
 import { frontCoreDepth, tessellateVerticalCrown } from "./curved-shell";
 import {
+  createRearShellGeometry,
+  frontShellPlan,
+  productShellDepths,
+} from "./product-shell";
+import {
   createRoomEnvMap,
   DEFAULT_ENV_ROOM,
   type EnvRoomParams,
@@ -53,7 +58,6 @@ import {
   roundedRectFrameShape,
   roundedRectHole,
   roundedRectShape,
-  silhouetteFrameShape,
   silhouetteShape,
 } from "./shapes";
 import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
@@ -200,7 +204,6 @@ export function Device({
   const selectMaterial = isBlack
     ? materials.selectBlack
     : materials.selectWhite;
-  const seamMaterial = isBlack ? materials.chromeSeamBlack : materials.chromeSeam;
   const surfaceMaps = materialMapOwnership({
     microNoise: noise,
     steelAnisotropy,
@@ -210,64 +213,34 @@ export function Device({
   // Built once per shape-affecting input. Under `frameloop="demand"` a rebuild
   // is also a re-render, so the memo keys are the whole render trigger.
 
-  const frontFaceZ = body.depth / 2;
+  const shellDepths = productShellDepths(body.depth, form.frontThickness);
 
-  // ⚑ **The chassis is three parts, and the split is load-bearing.** A single
-  // solid steel slab is the obvious model and it is wrong: the click wheel is a
-  // *recess*, so the ring surface lives several pixels **behind** the body face
-  // — inside the slab. The first build of this scene did exactly that and the
-  // wheel sampled at 210 units against a §4.5 target of 22, because what the
-  // probe was reading through the recess opening was the steel's own front cap.
-  // The openings therefore have to be cut through the steel as well as through
-  // the plastic, which means the steel that shows at the perimeter and the
-  // steel that shows when the device is flipped cannot be the same mesh.
+  // The thin 30GB chassis is two material shells meeting at one seam plane:
   //
-  //   steelShell     [splitZ … faceZ]   perimeter frame
-  //   steelBackPlate [−D/2 … splitZ]    §5.2's mirror, uncut
-  //   frontPlate     [plateBackZ … faceZ]  §5.1/§4.3, inset by the seam
-  const splitZ = 0;
-  const plateBackZ = frontFaceZ - form.frontThickness;
+  //   formed steel rear [−D/2 … plateBackZ]
+  //   polycarbonate front [plateBackZ … faceZ]
+  //
+  // The previous full-depth steel perimeter continued from z=0 all the way to
+  // the face and then placed the plastic extrusion beside it. At edge-on that
+  // read as two unrelated slabs. The rear tray now rolls once from its inset
+  // back face into a continuous side wall and terminates exactly where the
+  // front shell starts. The only plan difference is the intentional 1.2px
+  // material seam.
+  const plateBackZ = shellDepths.seamZ;
 
-  const steelShellGeometry = useMemo(() => {
-    const shape = silhouetteFrameShape(
-      body.width,
-      body.height,
-      body.cornerR,
-      form.seamWidth,
-      body.exponent,
-    );
-    const geometry = new ExtrudeGeometry(shape, {
-      depth: Math.max(0.1, frontFaceZ - splitZ - 2 * form.frontBevel),
-      bevelEnabled: true,
-      bevelThickness: form.frontBevel,
-      bevelSize: form.frontBevel,
-      bevelSegments: BEVEL_SEGMENTS,
-      curveSegments: 1,
-    });
-    geometry.translate(0, 0, splitZ + form.frontBevel);
-    return geometry;
-  }, [form.frontBevel, form.seamWidth, frontFaceZ]);
-  useEffect(() => () => steelShellGeometry.dispose(), [steelShellGeometry]);
-
-  const backGeometry = useMemo(() => {
-    const shape = silhouetteShape(
-      body.width,
-      body.height,
-      body.cornerR,
-      body.exponent,
-    );
-    const depth = frontFaceZ + splitZ - 2 * form.backBevel;
-    const geometry = new ExtrudeGeometry(shape, {
-      depth: Math.max(0.1, depth),
-      bevelEnabled: true,
-      bevelThickness: form.backBevel,
-      bevelSize: form.backBevel,
-      bevelSegments: BEVEL_SEGMENTS,
-      curveSegments: 1,
-    });
-    geometry.translate(0, 0, -body.depth / 2 + form.backBevel);
-    return geometry;
-  }, [form.backBevel, frontFaceZ]);
+  const backGeometry = useMemo(
+    () =>
+      createRearShellGeometry({
+        width: body.width,
+        height: body.height,
+        depth: body.depth,
+        cornerR: body.cornerR,
+        exponent: body.exponent,
+        frontThickness: form.frontThickness,
+        rearCrownInset: form.rearCrownInset,
+      }),
+    [form.frontThickness, form.rearCrownInset],
+  );
   useEffect(() => () => backGeometry.dispose(), [backGeometry]);
 
   const frontGeometry = useMemo(() => {
@@ -276,10 +249,17 @@ export function Device({
     // rolled edge, presenting a different angle to the light at every point of
     // the silhouette — §10.4 prevention #6, for free.
     const seam = form.seamWidth;
+    const plan = frontShellPlan(
+      body.width,
+      body.height,
+      body.cornerR,
+      seam,
+      form.frontBevel,
+    );
     const shape = silhouetteShape(
-      body.width - 2 * seam,
-      body.height - 2 * seam,
-      body.cornerR - seam,
+      plan.faceWidth,
+      plan.faceHeight,
+      plan.faceCornerR,
       body.exponent,
     );
     shape.holes.push(
@@ -656,16 +636,6 @@ export function Device({
           side={DoubleSide}
           polygonOffset
           polygonOffsetFactor={-1}
-        />
-      </mesh>
-
-      {/* §5.6 — the steel shell: the perimeter seam and the opening walls. */}
-      <mesh name="device-steel-shell" geometry={steelShellGeometry}>
-        <meshPhysicalMaterial
-          name={isBlack ? "chrome-seam-black" : "chrome-seam"}
-          {...spread(seamMaterial)}
-          {...studioEnvironmentProps(seamMaterial, studio)}
-          roughnessMap={noise}
         />
       </mesh>
 

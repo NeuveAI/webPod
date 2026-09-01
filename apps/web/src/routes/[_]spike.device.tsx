@@ -115,12 +115,17 @@ const NEUTRAL_DIAGNOSTIC_MATERIALS: DeviceMaterials = Object.freeze({
   ...DEFAULT_DEVICE_MATERIALS,
   bodyBlack: NEUTRAL_SURFACE,
   bodyWhite: NEUTRAL_SURFACE,
+  steelBack: NEUTRAL_SURFACE,
   wheelRingBlack: NEUTRAL_SURFACE,
   wheelRingWhite: NEUTRAL_SURFACE,
+  wheelWellBlack: NEUTRAL_SURFACE,
+  wheelWellWhite: NEUTRAL_SURFACE,
   selectBlack: NEUTRAL_SURFACE,
   selectWhite: NEUTRAL_SURFACE,
   chromeSeam: NEUTRAL_SURFACE,
   chromeSeamBlack: NEUTRAL_SURFACE,
+  displayWell: NEUTRAL_SURFACE,
+  rearInlay: NEUTRAL_SURFACE,
 });
 
 const NEUTRAL_DIAGNOSTIC_LIGHT_RIG: LightRigParams = Object.freeze({
