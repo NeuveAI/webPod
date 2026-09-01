@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   ExtrudeGeometry,
+  Vector3,
   type BufferAttribute,
   type InterleavedBufferAttribute,
 } from "three";
@@ -12,6 +13,9 @@ import {
   createRearShellGeometry,
   frontShellPlan,
   productShellDepths,
+  REAR_ROLL_SEGMENTS,
+  rearRollInsetAt,
+  rearRollInsetSlopeAt,
   rearShellSections,
 } from "./product-shell";
 import { silhouetteShape } from "./shapes";
@@ -91,7 +95,7 @@ describe("formed-steel rear shell", () => {
     expect(rearDepth).toBeCloseTo(body.depth - 14, 10);
     expect(rearDepth / body.depth).toBeGreaterThan(0.7);
     expect(DEFAULT_DEVICE_FORM.frontThickness / body.depth).toBeLessThan(0.3);
-    expect(sections).toHaveLength(11);
+    expect(sections).toHaveLength(REAR_ROLL_SEGMENTS + 1);
     expect(sections[0]).toEqual({ z: -body.depth / 2, inset: 8.5 });
     expect(sections.at(-1)).toEqual({ z: seamZ, inset: 0 });
     for (let index = 1; index < sections.length; index += 1) {
@@ -101,17 +105,49 @@ describe("formed-steel rear shell", () => {
       expect(current.z).toBeGreaterThan(previous.z);
       expect(current.inset).toBeLessThan(previous.inset);
     }
-    expect(sections[5]?.inset).toBeCloseTo(4.25, 10);
+    const middle = sections[REAR_ROLL_SEGMENTS / 2];
+    expect(middle?.z).toBeCloseTo(
+      -body.depth / 2 + rearDepth * (1 - Math.SQRT1_2),
+      10,
+    );
+    expect(middle?.inset).toBeCloseTo(8.5 * (1 - Math.SQRT1_2), 10);
+  });
+
+  test("uses a broad stamped-steel roll with no terminal chamfer", () => {
+    const { body } = DEVICE_LAYOUT;
+    const { seamZ } = productShellDepths(
+      body.depth,
+      DEFAULT_DEVICE_FORM.frontThickness,
+    );
+    const span = seamZ + body.depth / 2;
+    const inset = DEFAULT_DEVICE_FORM.rearCrownInset;
+    expect(rearRollInsetAt(0, inset)).toBe(inset);
+    expect(rearRollInsetAt(0.5, inset)).toBeCloseTo(
+      inset * (1 - Math.sqrt(3) / 2),
+      12,
+    );
+    expect(rearRollInsetAt(1, inset)).toBeCloseTo(0, 12);
+    expect(rearRollInsetSlopeAt(0, inset, span)).toBe(Number.NEGATIVE_INFINITY);
+    expect(rearRollInsetSlopeAt(1, inset, span)).toBeCloseTo(0, 12);
+
+    // A finite zero slope at the rear is the old 90° cap-to-chamfer kink.
+    const rejectedRearSlope = 0;
+    expect(Number.isFinite(rejectedRearSlope)).toBe(true);
   });
 
   test("keeps every open boundary edge on the intentional front seam", () => {
     const { geometry, seamZ } = productionRearShell();
     const position = geometry.getAttribute("position");
     const index = geometry.getIndex();
-    if (index === null) throw new Error("production rear shell must be indexed");
+    if (index === null)
+      throw new Error("production rear shell must be indexed");
     const edges = new Map<string, { count: number; a: number; b: number }>();
     for (let cursor = 0; cursor < index.count; cursor += 3) {
-      const triangle = [index.getX(cursor), index.getX(cursor + 1), index.getX(cursor + 2)];
+      const triangle = [
+        index.getX(cursor),
+        index.getX(cursor + 1),
+        index.getX(cursor + 2),
+      ];
       for (let edge = 0; edge < 3; edge += 1) {
         const a = triangle[edge];
         const b = triangle[(edge + 1) % 3];
@@ -140,8 +176,7 @@ describe("formed-steel rear shell", () => {
   test("shares finite unit normals across the rear roll", () => {
     const { geometry } = productionRearShell();
     const normal = geometry.getAttribute("normal") as
-      | BufferAttribute
-      | InterleavedBufferAttribute;
+      BufferAttribute | InterleavedBufferAttribute;
     for (let index = 0; index < normal.count; index += 1) {
       const length = Math.hypot(
         normal.getX(index),
@@ -151,6 +186,36 @@ describe("formed-steel rear shell", () => {
       expect(Number.isFinite(length)).toBe(true);
       expect(length).toBeCloseTo(1, 5);
     }
+    geometry.dispose();
+  });
+
+  test("changes roll normals continuously without a pointed bottom lip", () => {
+    const { geometry } = productionRearShell();
+    const normal = geometry.getAttribute("normal") as
+      BufferAttribute | InterleavedBufferAttribute;
+    const sectionCount = REAR_ROLL_SEGMENTS + 1;
+    const ringSize = (normal.count - 1) / sectionCount;
+    expect(Number.isInteger(ringSize)).toBe(true);
+
+    let greatestTurn = 0;
+    for (let section = 1; section < sectionCount; section += 1) {
+      for (let ringIndex = 0; ringIndex < ringSize; ringIndex += 1) {
+        const previousIndex = (section - 1) * ringSize + ringIndex;
+        const currentIndex = section * ringSize + ringIndex;
+        const previous = new Vector3(
+          normal.getX(previousIndex),
+          normal.getY(previousIndex),
+          normal.getZ(previousIndex),
+        );
+        const current = new Vector3(
+          normal.getX(currentIndex),
+          normal.getY(currentIndex),
+          normal.getZ(currentIndex),
+        );
+        greatestTurn = Math.max(greatestTurn, previous.angleTo(current));
+      }
+    }
+    expect(greatestTurn).toBeLessThan(0.23);
     geometry.dispose();
   });
 
@@ -225,8 +290,7 @@ describe("polycarbonate front roll", () => {
 
     // The rejected construction fed Three the already-final inset plan, then
     // let its bevel expand it a second time: 334.6 > 330.
-    const rejectedWidth =
-      body.width - 2 * form.seamWidth + 2 * form.frontBevel;
+    const rejectedWidth = body.width - 2 * form.seamWidth + 2 * form.frontBevel;
     expect(rejectedWidth).toBeCloseTo(334.6, 10);
     expect(rejectedWidth).toBeGreaterThan(body.width);
     source.dispose();

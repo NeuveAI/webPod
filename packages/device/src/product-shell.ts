@@ -1,8 +1,4 @@
-import {
-  BufferGeometry,
-  Float32BufferAttribute,
-  type Vector2,
-} from "three";
+import { BufferGeometry, Float32BufferAttribute, type Vector2 } from "three";
 
 import { silhouetteShape } from "./shapes";
 
@@ -42,6 +38,7 @@ export type ProductShellDepths = {
 };
 
 const EPSILON = 1e-6;
+export const REAR_ROLL_SEGMENTS = 48;
 
 /** One axial contract shared by the steel rear and polycarbonate front. */
 export function productShellDepths(
@@ -96,7 +93,9 @@ export function frontShellPlan(
   const faceHeight = height - 2 * inset;
   const faceCornerR = cornerR - inset;
   if (!(faceWidth > 0) || !(faceHeight > 0) || !(faceCornerR > 0)) {
-    throw new Error("front shell seam and face bevel must fit the enclosure plan");
+    throw new Error(
+      "front shell seam and face bevel must fit the enclosure plan",
+    );
   }
   return Object.freeze({
     faceWidth,
@@ -119,10 +118,12 @@ export function rearShellSections(
   depth: number,
   seamZ: number,
   rearCrownInset: number,
-  segments = 10,
+  segments = REAR_ROLL_SEGMENTS,
 ): readonly RearShellSection[] {
   if (!(depth > 0) || !Number.isFinite(depth)) {
-    throw new Error(`rear shell depth must be finite and positive; got ${depth}`);
+    throw new Error(
+      `rear shell depth must be finite and positive; got ${depth}`,
+    );
   }
   if (!(rearCrownInset > 0) || !Number.isFinite(rearCrownInset)) {
     throw new Error(
@@ -130,27 +131,75 @@ export function rearShellSections(
     );
   }
   if (!Number.isInteger(segments) || segments < 4) {
-    throw new Error(`rear shell requires at least four crown segments; got ${segments}`);
+    throw new Error(
+      `rear shell requires at least four crown segments; got ${segments}`,
+    );
   }
   const rearZ = -depth / 2;
   if (!(seamZ > rearZ) || seamZ > depth / 2 + EPSILON) {
-    throw new Error(
-      `rear shell seam must stay inside the body; got ${seamZ}`,
-    );
+    throw new Error(`rear shell seam must stay inside the body; got ${seamZ}`);
   }
   const span = seamZ - rearZ;
   return Object.freeze(
     Array.from({ length: segments + 1 }, (_, index) => {
-      const t = index / segments;
-      // Smootherstep has zero first and second derivatives at both ends. The
-      // steel therefore reaches both rear face and front seam without a kink.
-      const smooth = t * t * t * (t * (t * 6 - 15) + 10);
+      // Sample the quarter ellipse uniformly by angle, not axial Z. This keeps
+      // tessellation dense where the stamped back turns out of its rear face
+      // and prevents the first face from becoming a long triangular chamfer.
+      const angle = ((index / segments) * Math.PI) / 2;
+      const normalizedDepth = 1 - Math.cos(angle);
       return Object.freeze({
-        z: rearZ + span * t,
-        inset: rearCrownInset * (1 - smooth),
+        z: index === segments ? seamZ : rearZ + span * normalizedDepth,
+        inset: index === segments ? 0 : rearCrownInset * (1 - Math.sin(angle)),
       });
     }),
   );
+}
+
+/**
+ * Quarter-ellipse roll used by the stamped-steel rear perimeter.
+ *
+ * At the rear face its axial tangent is zero, so the roll leaves the plate in
+ * the plate's own plane. At the seam its plan-inset tangent is zero, so it
+ * arrives parallel to the side wall. The rejected smootherstep did the exact
+ * opposite at the rear: it left the plate axially and formed a 90° terminal
+ * chamfer even though its scalar slope looked numerically smooth.
+ */
+export function rearRollInsetAt(
+  normalizedDepth: number,
+  rearCrownInset: number,
+): number {
+  if (!(normalizedDepth >= 0 && normalizedDepth <= 1)) {
+    throw new Error(
+      `rear roll depth must be normalized to 0..1; got ${normalizedDepth}`,
+    );
+  }
+  if (!(rearCrownInset > 0) || !Number.isFinite(rearCrownInset)) {
+    throw new Error(
+      `rear crown inset must be finite and positive; got ${rearCrownInset}`,
+    );
+  }
+  const rearAxis = 1 - normalizedDepth;
+  return rearCrownInset * (1 - Math.sqrt(Math.max(0, 1 - rearAxis * rearAxis)));
+}
+
+/** Change in plan inset per unit of axial Z at one point on the rear roll. */
+export function rearRollInsetSlopeAt(
+  normalizedDepth: number,
+  rearCrownInset: number,
+  axialSpan: number,
+): number {
+  if (!(axialSpan > 0) || !Number.isFinite(axialSpan)) {
+    throw new Error(
+      `rear roll span must be finite and positive; got ${axialSpan}`,
+    );
+  }
+  // Call through the value function so both normalized-depth and inset
+  // validation remain one contract.
+  rearRollInsetAt(normalizedDepth, rearCrownInset);
+  if (normalizedDepth === 0) return Number.NEGATIVE_INFINITY;
+  const rearAxis = 1 - normalizedDepth;
+  const radialAxis = Math.sqrt(Math.max(0, 1 - rearAxis * rearAxis));
+  return (-rearCrownInset * rearAxis) / (axialSpan * radialAxis);
 }
 
 /**
@@ -175,7 +224,9 @@ export function createRearShellGeometry({
     throw new Error("rear crown inset must fit inside the enclosure plan");
   }
   if (!(cornerR > rearCrownInset)) {
-    throw new Error("rear crown inset must stay below the enclosure corner radius");
+    throw new Error(
+      "rear crown inset must stay below the enclosure corner radius",
+    );
   }
 
   const { seamZ } = productShellDepths(depth, frontThickness);
@@ -196,7 +247,11 @@ export function createRearShellGeometry({
 
   const positions: number[] = [];
   const uvs: number[] = [];
-  for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex += 1) {
+  for (
+    let sectionIndex = 0;
+    sectionIndex < sections.length;
+    sectionIndex += 1
+  ) {
     const section = sections[sectionIndex];
     const ring = rings[sectionIndex];
     if (section === undefined || ring === undefined) continue;
@@ -213,7 +268,11 @@ export function createRearShellGeometry({
   uvs.push(0.5, 0.5);
 
   const indices: number[] = [];
-  for (let sectionIndex = 0; sectionIndex < sections.length - 1; sectionIndex += 1) {
+  for (
+    let sectionIndex = 0;
+    sectionIndex < sections.length - 1;
+    sectionIndex += 1
+  ) {
     const lower = sectionIndex * ringSize;
     const upper = (sectionIndex + 1) * ringSize;
     for (let index = 0; index < ringSize; index += 1) {
@@ -233,10 +292,7 @@ export function createRearShellGeometry({
   }
 
   const geometry = new BufferGeometry();
-  geometry.setAttribute(
-    "position",
-    new Float32BufferAttribute(positions, 3),
-  );
+  geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
   geometry.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
   geometry.computeVertexNormals();
@@ -261,7 +317,11 @@ function sampleSilhouette(
   ).getPoints();
   const first = points[0];
   const last = points.at(-1);
-  if (first !== undefined && last !== undefined && first.distanceTo(last) < EPSILON) {
+  if (
+    first !== undefined &&
+    last !== undefined &&
+    first.distanceTo(last) < EPSILON
+  ) {
     points.pop();
   }
   return points;
