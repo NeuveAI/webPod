@@ -1,10 +1,13 @@
 import type { ScreenTransform } from '@webpod/device'
 import {
-  CanvasTexture,
+  HTMLTexture,
+  Mesh,
   MeshBasicMaterial,
   LinearFilter,
+  PlaneGeometry,
   SRGBColorSpace,
 } from 'three'
+import { InteractionManager } from 'three/addons/interaction/InteractionManager.js'
 
 import { getCompositeTierSnapshot } from './tier-store'
 import {
@@ -16,23 +19,7 @@ import {
 export type PanelOverlayTone = 'dark' | 'light'
 
 type RequestPaintCanvas = HTMLCanvasElement & { requestPaint(): void }
-type PaintAwareCanvas = RequestPaintCanvas & { onpaint: ((event: Event) => void) | null }
 type CanvasPaintEvent = Event & { readonly changedElements?: readonly Element[] }
-type DrawElementOptions = { readonly preserveElementGeometry?: boolean }
-type DrawElementContext = CanvasRenderingContext2D & {
-  drawElementImage(
-    element: Element,
-    sx: number,
-    sy: number,
-    sWidth: number,
-    sHeight: number,
-    dx: number,
-    dy: number,
-    dWidth: number,
-    dHeight: number,
-    options?: DrawElementOptions,
-  ): void
-}
 
 function canRequestPaint(canvas: HTMLCanvasElement): canvas is RequestPaintCanvas {
   return 'requestPaint' in canvas && typeof Reflect.get(canvas, 'requestPaint') === 'function'
@@ -50,23 +37,25 @@ export function createPanelPixelSource(tone: PanelOverlayTone): PanelPixelSource
 /**
  * The sole pixel strategy in this slice.
  *
- * The visible screen stays a WebGL material, but the DOM→pixel bridge happens
- * through a dedicated offscreen 2D html-in-canvas raster canvas. That keeps
- * the authored panel on the native 320×240 LCD grid instead of letting the
- * WebGL upload path blur a second scaled copy.
+ * The panel remains the one live, interactive DOM tree below the WebGL canvas.
+ * Three's HTMLTexture owns the experimental upload, while InteractionManager
+ * writes the same element's CSS matrix3d so native hit testing, focus and
+ * accessibility geometry follow the physical screen.
  */
 export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
   readonly tier = 'T1' as const
   readonly requires = HTML_IN_CANVAS_REQUIREMENTS
 
   private attachment: PanelPixelAttachment<'webgl'> | null = null
-  private captureViewport: HTMLDivElement | null = null
-  private texture: CanvasTexture | null = null
+  private texture: HTMLTexture | null = null
   private material: MeshBasicMaterial | null = null
-  private rasterCanvas: RequestPaintCanvas | null = null
+  private proxy: Mesh<PlaneGeometry, MeshBasicMaterial> | null = null
+  private interactions: InteractionManager | null = null
+  private scaledContent: HTMLElement | null = null
   private unsubscribeTransform: (() => void) | null = null
   private mutationObserver: MutationObserver | null = null
   private resizeObserver: ResizeObserver | null = null
+  private canvasResizeObserver: ResizeObserver | null = null
   private resolutionCleanup: (() => void) | null = null
   private paintListener: EventListener | null = null
   private attachmentGeneration = 0
@@ -80,50 +69,24 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     const generation = this.attachmentGeneration
     const { panelElement, renderer, screen } = attachment
 
-    const rasterCanvas = document.createElement('canvas')
-    if (!canRequestPaint(rasterCanvas)) {
+    const canvas = renderer.domElement
+    if (!canRequestPaint(canvas)) {
       throw new Error('T1 html-in-canvas canvas cannot requestPaint()')
     }
-    rasterCanvas.className = 'wp-composite-raster-canvas'
-    rasterCanvas.setAttribute('layoutsubtree', 'true')
-    rasterCanvas.setAttribute('aria-hidden', 'true')
-    rasterCanvas.style.position = 'fixed'
-    rasterCanvas.style.insetInlineStart = '0'
-    rasterCanvas.style.insetBlockStart = '0'
-    rasterCanvas.style.opacity = '0.001'
-    rasterCanvas.style.pointerEvents = 'none'
-    rasterCanvas.style.zIndex = '-1'
-    rasterCanvas.style.contain = 'layout style paint size'
 
     panelElement.style.position = 'absolute'
-    panelElement.style.insetInlineStart = '0'
-    panelElement.style.insetBlockStart = '0'
+    panelElement.style.left = '0'
+    panelElement.style.top = '0'
     panelElement.style.transformOrigin = 'top left'
     panelElement.style.display = 'block'
     panelElement.style.overflow = 'hidden'
     panelElement.setAttribute('drawable', '')
     panelElement.dataset['pixelSource'] = 'html-in-canvas'
 
-    const captureViewport = document.createElement('div')
-    captureViewport.className = 'wp-composite-raster-viewport'
-    captureViewport.style.position = 'absolute'
-    captureViewport.style.insetInlineStart = '0'
-    captureViewport.style.insetBlockStart = '0'
-    captureViewport.style.display = 'block'
-    captureViewport.style.overflow = 'hidden'
-    captureViewport.setAttribute('drawable', '')
+    canvas.setAttribute('layoutsubtree', 'true')
+    canvas.appendChild(panelElement)
 
-    panelElement.ownerDocument.body.appendChild(rasterCanvas)
-    rasterCanvas.appendChild(captureViewport)
-    captureViewport.appendChild(panelElement)
-
-    const rasterContext = getDrawElementContext(rasterCanvas)
-    if (rasterContext === null) {
-      throw new Error('T1 html-in-canvas 2D drawElementImage() is unavailable')
-    }
-    rasterContext.imageSmoothingEnabled = false
-
-    const texture = new CanvasTexture(rasterCanvas)
+    const texture = new HTMLTexture(panelElement)
     texture.colorSpace = SRGBColorSpace
     texture.generateMipmaps = false
     texture.minFilter = LinearFilter
@@ -132,18 +95,23 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
 
     const material = new MeshBasicMaterial({ map: texture, toneMapped: false })
     material.name = `webpod-lcd-${this.tone}`
+    const proxy = new Mesh(
+      new PlaneGeometry(screen.size.width, screen.size.height),
+      material,
+    )
+    proxy.matrixAutoUpdate = false
+    proxy.frustumCulled = false
+    const interactions = new InteractionManager()
+    interactions.connect(renderer, attachment.camera)
+    interactions.add(proxy)
 
-    this.rasterCanvas = rasterCanvas
-    this.captureViewport = captureViewport
     this.texture = texture
     this.material = material
+    this.proxy = proxy
+    this.interactions = interactions
     this.hasPaintRecord = false
 
-    const fitRasterCanvasToPanel = (): {
-      readonly changed: boolean
-      readonly surfaceWidth: number
-      readonly surfaceHeight: number
-    } => {
+    const fitPanelToNativeGrid = (): void => {
       const content = resolveRasterContent(panelElement)
       const { width: contentWidth, height: contentHeight } = measurePanelElement(content)
       const density = resolvePanelRasterDensity(
@@ -155,38 +123,31 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
         density,
         screen.panel.scale,
       )
-      const surfaceWidth = Math.max(1, Math.round(rasterFrame.width / density))
-      const surfaceHeight = Math.max(1, Math.round(rasterFrame.height / density))
-      const scaleX = surfaceWidth / Math.max(1, contentWidth)
-      const scaleY = surfaceHeight / Math.max(1, contentHeight)
-      rasterCanvas.style.width = `${String(surfaceWidth)}px`
-      rasterCanvas.style.height = `${String(surfaceHeight)}px`
-      captureViewport.style.width = `${String(surfaceWidth)}px`
-      captureViewport.style.height = `${String(surfaceHeight)}px`
-      panelElement.style.width = `${String(contentWidth)}px`
-      panelElement.style.height = `${String(contentHeight)}px`
-      panelElement.style.transform = `scale(${String(scaleX)}, ${String(scaleY)})`
-      renderer.domElement.dataset['wpRasterDensity'] = String(density)
-      renderer.domElement.dataset['wpRasterPixelWidth'] = String(rasterFrame.width)
-      renderer.domElement.dataset['wpRasterPixelHeight'] = String(rasterFrame.height)
-      const changed =
-        rasterCanvas.width !== rasterFrame.width ||
-        rasterCanvas.height !== rasterFrame.height
-      if (changed) {
-        rasterCanvas.width = rasterFrame.width
-        rasterCanvas.height = rasterFrame.height
-        rasterContext.imageSmoothingEnabled = false
+      panelElement.style.width = `${String(screen.panel.width)}px`
+      panelElement.style.height = `${String(screen.panel.height)}px`
+      if (content.style.transformOrigin !== 'left top') {
+        content.style.transformOrigin = 'top left'
       }
-      return { changed, surfaceWidth, surfaceHeight }
+      const scale =
+        `scale(${String(screen.panel.width / contentWidth)}, ${String(screen.panel.height / contentHeight)})`
+      if (content.style.transform !== scale) content.style.transform = scale
+      this.scaledContent = content
+      canvas.dataset['wpRasterDensity'] = String(density)
+      canvas.dataset['wpRasterPixelWidth'] = String(rasterFrame.width)
+      canvas.dataset['wpRasterPixelHeight'] = String(rasterFrame.height)
     }
 
     const requestPixels = (): void => {
       if (this.attachmentGeneration !== generation || this.attachment !== attachment) return
-      fitRasterCanvasToPanel()
-      renderer.domElement.dataset['wpCompositeSourceState'] = this.hasPaintRecord
+      fitPanelToNativeGrid()
+      canvas.dataset['wpCompositeSourceState'] = this.hasPaintRecord
         ? 'repaint-requested'
         : 'snapshot-requested'
-      rasterCanvas.requestPaint()
+      canvas.requestPaint()
+      if (this.hasPaintRecord) {
+        texture.needsUpdate = true
+        screen.invalidate()
+      }
     }
 
     this.mutationObserver = new MutationObserver((records) => {
@@ -203,15 +164,21 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     })
 
     this.resizeObserver = new ResizeObserver(() => {
-      fitRasterCanvasToPanel()
+      fitPanelToNativeGrid()
       requestPixels()
     })
     this.resizeObserver.observe(panelElement)
     const initialContent = resolveRasterContent(panelElement)
     if (initialContent !== panelElement) this.resizeObserver.observe(initialContent)
 
+    this.canvasResizeObserver = new ResizeObserver(() => {
+      this.syncGeometry(screen.readTransform())
+      screen.invalidate()
+    })
+    this.canvasResizeObserver.observe(canvas)
+
     this.resolutionCleanup = subscribeBrowserPixelRatio(() => {
-      fitRasterCanvasToPanel()
+      fitPanelToNativeGrid()
       requestPixels()
     })
     this.unsubscribeTransform = screen.onTransformChange((transform) => {
@@ -221,41 +188,16 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     this.paintListener = (event) => {
       if (this.attachmentGeneration !== generation || this.attachment !== attachment) return
       const changedElements = (event as CanvasPaintEvent).changedElements
-      if (!paintTouchesPanel(captureViewport, changedElements)) return
-      const frame = fitRasterCanvasToPanel()
-      rasterContext.clearRect(0, 0, rasterCanvas.width, rasterCanvas.height)
-      try {
-        rasterContext.drawElementImage(
-          captureViewport,
-          0,
-          0,
-          frame.surfaceWidth,
-          frame.surfaceHeight,
-          0,
-          0,
-          rasterCanvas.width,
-          rasterCanvas.height,
-          { preserveElementGeometry: true },
-        )
-      } catch (error) {
-        if (!this.hasPaintRecord) {
-          renderer.domElement.dataset['wpCompositeSourceState'] = 'snapshot-awaiting-paint'
-          requestAnimationFrame(() => {
-            if (this.attachmentGeneration === generation && this.attachment === attachment) {
-              requestPixels()
-            }
-          })
-          return
-        }
-        throw error
-      }
+      if (!paintTouchesPanel(panelElement, changedElements)) return
+      fitPanelToNativeGrid()
       if (!this.hasPaintRecord) screen.setMaterial(material)
       this.hasPaintRecord = true
-      renderer.domElement.dataset['wpCompositeSourceState'] = 'painted'
+      canvas.dataset['wpCompositeSourceState'] = 'painted'
+      delete canvas.dataset['wpCompositeSourceError']
       texture.needsUpdate = true
       screen.invalidate()
     }
-    ;(rasterCanvas as PaintAwareCanvas).onpaint = this.paintListener
+    canvas.addEventListener('paint', this.paintListener)
 
     requestPixels()
     requestAnimationFrame(() => {
@@ -268,7 +210,11 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
 
   syncGeometry(transform: ScreenTransform): void {
     const canvas = this.attachment?.renderer.domElement
-    if (canvas === undefined) return
+    const proxy = this.proxy
+    const interactions = this.interactions
+    if (canvas === undefined || proxy === null || interactions === null) return
+    proxy.matrixWorld.copy(transform.worldMatrix)
+    interactions.update()
     const corners = transform.viewport.corners
     const xs = [
       corners.topLeft.x,
@@ -297,8 +243,6 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     const attachment = this.attachment
     const panel = attachment?.panelElement ?? null
     const canvas = attachment?.renderer.domElement ?? null
-    const rasterCanvas = this.rasterCanvas
-    const captureViewport = this.captureViewport
 
     this.unsubscribeTransform?.()
     this.unsubscribeTransform = null
@@ -306,27 +250,40 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     this.mutationObserver = null
     this.resizeObserver?.disconnect()
     this.resizeObserver = null
+    this.canvasResizeObserver?.disconnect()
+    this.canvasResizeObserver = null
     this.resolutionCleanup?.()
     this.resolutionCleanup = null
 
-    if (rasterCanvas !== null) {
-      ;(rasterCanvas as PaintAwareCanvas).onpaint = null
+    if (canvas !== null && this.paintListener !== null) {
+      canvas.removeEventListener('paint', this.paintListener)
     }
     this.paintListener = null
 
     attachment?.screen.setMaterial(null)
+    if (this.interactions !== null && this.proxy !== null) {
+      this.interactions.remove(this.proxy)
+    }
+    this.interactions?.disconnect()
+    this.interactions = null
+    this.proxy?.geometry.dispose()
+    this.proxy = null
     this.material?.dispose()
     this.material = null
     this.texture?.dispose()
     this.texture = null
-    this.rasterCanvas = null
-    this.captureViewport = null
     this.hasPaintRecord = false
+
+    if (this.scaledContent !== null) {
+      this.scaledContent.style.removeProperty('transform-origin')
+      this.scaledContent.style.removeProperty('transform')
+    }
+    this.scaledContent = null
 
     if (panel !== null) {
       panel.style.removeProperty('position')
-      panel.style.removeProperty('inset-inline-start')
-      panel.style.removeProperty('inset-block-start')
+      panel.style.removeProperty('left')
+      panel.style.removeProperty('top')
       panel.style.removeProperty('transform-origin')
       panel.style.removeProperty('transform')
       panel.style.removeProperty('display')
@@ -335,15 +292,11 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
       panel.style.removeProperty('overflow')
       panel.removeAttribute('drawable')
       delete panel.dataset['pixelSource']
-      if (captureViewport?.contains(panel) === true) captureViewport.removeChild(panel)
+      if (canvas?.contains(panel) === true) canvas.removeChild(panel)
     }
-
-    if (captureViewport !== null) {
-      captureViewport.removeAttribute('drawable')
-    }
-    if (rasterCanvas?.isConnected === true) rasterCanvas.remove()
 
     if (canvas !== null) {
+      canvas.removeAttribute('layoutsubtree')
       delete canvas.dataset['wpRasterDensity']
       delete canvas.dataset['wpRasterPixelWidth']
       delete canvas.dataset['wpRasterPixelHeight']
@@ -385,15 +338,6 @@ export function mutationAffectsPanelPixels(
   attributeName: string | null,
 ): boolean {
   return !(target === panelElement && attributeName === 'style')
-}
-
-function getDrawElementContext(canvas: HTMLCanvasElement): DrawElementContext | null {
-  const context = canvas.getContext('2d', { alpha: true, willReadFrequently: true })
-  if (context === null) return null
-  const drawElementImage = Reflect.get(context, 'drawElementImage')
-  return typeof drawElementImage === 'function'
-    ? (context as DrawElementContext)
-    : null
 }
 
 function resolveRasterContent(panelElement: HTMLElement): HTMLElement {

@@ -50,7 +50,7 @@ export interface PanelPixelSource<Renderer extends PanelPixelRenderer = PanelPix
 /** T1's end-to-end requirements. One concrete set, not a variant registry. */
 export const HTML_IN_CANVAS_REQUIREMENTS: PanelPixelRequirements<'webgl'> = Object.freeze({
   renderer: 'webgl',
-  materialVariant: 'canvas-raster-lcd',
+  materialVariant: 'native-html-texture-lcd',
   shaderVariants: Object.freeze([]),
-  textureSet: Object.freeze(['panel-raster-canvas']),
+  textureSet: Object.freeze(['panel-html-texture']),
 })

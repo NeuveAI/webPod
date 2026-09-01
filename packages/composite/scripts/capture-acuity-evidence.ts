@@ -93,22 +93,21 @@ async function settleCompositePaint(page: Page): Promise<void> {
     }
     return state !== undefined
   })
-  await page.waitForSelector('.wp-composite-raster-canvas')
   await page.waitForFunction(() => {
     const host = document.querySelector<HTMLElement>('.wp-composite-panel-host')
-    const rasterCanvas = document.querySelector<HTMLCanvasElement>('.wp-composite-raster-canvas')
-    return host !== null && rasterCanvas !== null && rasterCanvas.contains(host)
+    const canvas = document.querySelector<HTMLCanvasElement>('.wp-composite-preview__device canvas')
+    return host !== null && canvas !== null && canvas.contains(host)
   })
   await page.evaluate(() => {
-    const rasterCanvas = document.querySelector<HTMLCanvasElement>('.wp-composite-raster-canvas')
-    if (rasterCanvas === null || !('requestPaint' in rasterCanvas)) {
-      throw new Error('T1 raster canvas cannot request an HTML paint')
+    const canvas = document.querySelector<HTMLCanvasElement>('.wp-composite-preview__device canvas')
+    if (canvas === null || !('requestPaint' in canvas)) {
+      throw new Error('T1 WebGL canvas cannot request an HTML paint')
     }
-    const requestPaint = Reflect.get(rasterCanvas, 'requestPaint')
+    const requestPaint = Reflect.get(canvas, 'requestPaint')
     if (typeof requestPaint !== 'function') {
-      throw new Error('T1 raster canvas requestPaint member is not callable')
+      throw new Error('T1 WebGL canvas requestPaint member is not callable')
     }
-    Reflect.apply(requestPaint, rasterCanvas, [])
+    Reflect.apply(requestPaint, canvas, [])
   })
   await page.waitForFunction(() => {
     const canvas = document.querySelector('.wp-composite-preview__device canvas')

@@ -18,7 +18,7 @@ const browser = await chromium.launch({
 
 try {
   for (const deviceScaleFactor of [1, 2, 3] as const) {
-    const compositeSourceDensity = Math.max(2, deviceScaleFactor)
+    const compositeSourceDensity = deviceScaleFactor
     const context = await browser.newContext({
       deviceScaleFactor,
       viewport: { width: 390, height: 844 },
@@ -48,9 +48,8 @@ try {
     const metrics = await page.evaluate(() => {
       const root = document.querySelector<HTMLElement>("[data-composite-tier='T1']")
       const canvas = document.querySelector<HTMLCanvasElement>('.wp-composite-preview__device canvas')
-      const rasterCanvas = document.querySelector<HTMLCanvasElement>('.wp-composite-raster-canvas')
-      if (root === null || canvas === null || rasterCanvas === null) {
-        throw new Error('Composite raster diagnostics are missing')
+      if (root === null || canvas === null) {
+        throw new Error('Composite texture diagnostics are missing')
       }
       const bounds = root.getBoundingClientRect()
       return {
@@ -63,12 +62,6 @@ try {
           cssHeight: canvas.clientHeight,
           width: canvas.width,
           height: canvas.height,
-        },
-        rasterCanvas: {
-          cssWidth: rasterCanvas.clientWidth,
-          cssHeight: rasterCanvas.clientHeight,
-          width: rasterCanvas.width,
-          height: rasterCanvas.height,
         },
         host: {
           density: Number(canvas.dataset['wpRasterDensity'] ?? '0'),
@@ -89,12 +82,6 @@ try {
       metrics.host.pixelHeight !== 240 * compositeSourceDensity
     ) {
       throw new Error(`DPR ${String(deviceScaleFactor)} host raster mismatch: ${JSON.stringify(metrics.host)}`)
-    }
-    if (
-      metrics.rasterCanvas.width !== 320 * compositeSourceDensity ||
-      metrics.rasterCanvas.height !== 240 * compositeSourceDensity
-    ) {
-      throw new Error(`DPR ${String(deviceScaleFactor)} raster canvas mismatch: ${JSON.stringify(metrics.rasterCanvas)}`)
     }
     if (metrics.scrollWidth !== metrics.viewportWidth) {
       throw new Error(`DPR ${String(deviceScaleFactor)} overflowed horizontally: ${JSON.stringify(metrics)}`)
