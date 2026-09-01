@@ -14,7 +14,14 @@ import {
   ClickWheelInputSurface,
   type ClickWheelArcEnd,
   type ClickWheelArcSample,
+  type ClickWheelSelectEnd,
+  type ClickWheelSelectStart,
 } from "./click-wheel-input";
+import { ControlPhysicsScope } from "./ControlPhysicsScope";
+import {
+  ControlPhysicsController,
+  type ControlPhysicsDependencies,
+} from "./control-physics";
 import {
   FRONT_DEVICE_ORIENTATION,
   REAR_DEVICE_ORIENTATION,
@@ -36,6 +43,7 @@ extend({
   Mesh: THREE.Mesh,
   MeshBasicMaterial: THREE.MeshBasicMaterial,
   RingGeometry: THREE.RingGeometry,
+  CircleGeometry: THREE.CircleGeometry,
 });
 
 type MountedSurface = {
@@ -45,8 +53,48 @@ type MountedSurface = {
   readonly starts: Array<ClickWheelArcSample>;
   readonly moves: Array<ClickWheelArcSample>;
   readonly ends: Array<ClickWheelArcEnd>;
+  readonly selectStarts: Array<ClickWheelSelectStart>;
+  readonly selectEnds: Array<ClickWheelSelectEnd>;
   readonly restoreAnimationFrame: () => void;
+  readonly controlPhysics: RecordingControlPhysics;
 };
+
+class RecordingControlPhysics extends ControlPhysicsController {
+  wheelContacts = 0;
+  wheelReleases = 0;
+  selectPresses = 0;
+  selectReleases = 0;
+
+  constructor() {
+    const dependencies: ControlPhysicsDependencies = {
+      invalidate: () => undefined,
+      now: () => performance.now(),
+      requestFrame: () => 1,
+      cancelFrame: () => undefined,
+    };
+    super(dependencies);
+  }
+
+  override wheelContact(contact: { readonly x: number; readonly y: number }): void {
+    this.wheelContacts += 1;
+    super.wheelContact(contact);
+  }
+
+  override releaseWheel(): void {
+    this.wheelReleases += 1;
+    super.releaseWheel();
+  }
+
+  override pressSelect(): void {
+    this.selectPresses += 1;
+    super.pressSelect();
+  }
+
+  override releaseSelect(): void {
+    this.selectReleases += 1;
+    super.releaseSelect();
+  }
+}
 
 type CallbackPlants = {
   readonly onArcStart?: (sample: ClickWheelArcSample) => void;
@@ -100,34 +148,41 @@ async function mountSurface(
   const starts: Array<ClickWheelArcSample> = [];
   const moves: Array<ClickWheelArcSample> = [];
   const ends: Array<ClickWheelArcEnd> = [];
+  const selectStarts: Array<ClickWheelSelectStart> = [];
+  const selectEnds: Array<ClickWheelSelectEnd> = [];
   const mountedStore: { current: RootStore | null } = { current: null };
+  const controlPhysics = new RecordingControlPhysics();
   const restoreAnimationFrame = installAnimationFrameStub();
   await act(async () => {
     mountedStore.current = root.render(
-      <DeviceCanvasOrientationContext.Provider
-        value={{
-          orientation:
-            face === "back" ? REAR_DEVICE_ORIENTATION : FRONT_DEVICE_ORIENTATION,
-          visibleFace: face,
-          frontInteractive: face === "front",
-          form,
-        }}
-      >
-        <ClickWheelInputSurface
-          onArcStart={(sample) => {
-            starts.push(sample);
-            plants.onArcStart?.(sample);
+      <ControlPhysicsScope controller={controlPhysics}>
+        <DeviceCanvasOrientationContext.Provider
+          value={{
+            orientation:
+              face === "back" ? REAR_DEVICE_ORIENTATION : FRONT_DEVICE_ORIENTATION,
+            visibleFace: face,
+            frontInteractive: face === "front",
+            form,
           }}
-          onArcMove={(sample) => {
-            moves.push(sample);
-            plants.onArcMove?.(sample);
-          }}
-          onArcEnd={(end) => {
-            ends.push(end);
-            plants.onArcEnd?.(end);
-          }}
-        />
-      </DeviceCanvasOrientationContext.Provider>,
+        >
+          <ClickWheelInputSurface
+            onArcStart={(sample) => {
+              starts.push(sample);
+              plants.onArcStart?.(sample);
+            }}
+            onArcMove={(sample) => {
+              moves.push(sample);
+              plants.onArcMove?.(sample);
+            }}
+            onArcEnd={(end) => {
+              ends.push(end);
+              plants.onArcEnd?.(end);
+            }}
+            onSelectStart={(start) => selectStarts.push(start)}
+            onSelectEnd={(end) => selectEnds.push(end)}
+          />
+        </DeviceCanvasOrientationContext.Provider>
+      </ControlPhysicsScope>,
     );
     await Promise.resolve();
   });
@@ -142,7 +197,10 @@ async function mountSurface(
     starts,
     moves,
     ends,
+    selectStarts,
+    selectEnds,
     restoreAnimationFrame,
+    controlPhysics,
   };
 }
 
@@ -212,6 +270,7 @@ async function unmount(mounted: MountedSurface): Promise<void> {
     await Promise.resolve();
   });
   mounted.restoreAnimationFrame();
+  mounted.controlPhysics.dispose();
 }
 
 describe("click-wheel mounted R3F event seam", () => {
@@ -283,7 +342,108 @@ describe("click-wheel mounted R3F event seam", () => {
       await dispatch(mounted, pointerEvent("pointerup", pointerId, 0, -145));
       expect(mounted.ends.map((end) => end.reason)).toEqual(["release"]);
       expect(mounted.canvas.hasPointerCapture(pointerId)).toBeFalse();
+      expect(mounted.controlPhysics.wheelContacts).toBe(2);
+      expect(mounted.controlPhysics.wheelReleases).toBe(1);
     } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("Select captures mouse, touch and pen and never enters the arc runtime", async () => {
+    const mounted = await mountSurface();
+    try {
+      for (const [index, pointerType] of ["mouse", "touch", "pen"].entries()) {
+        const pointerId = 70 + index;
+        await dispatch(
+          mounted,
+          pointerEvent("pointerdown", pointerId, 0, 0, { pointerType }),
+        );
+        expect(mounted.canvas.hasPointerCapture(pointerId)).toBeTrue();
+        await dispatch(
+          mounted,
+          pointerEvent("pointerup", pointerId, 0, 0, { pointerType }),
+        );
+      }
+      expect(mounted.starts).toHaveLength(0);
+      expect(mounted.moves).toHaveLength(0);
+      expect(mounted.selectStarts.map((start) => start.pointerType)).toEqual([
+        "mouse",
+        "touch",
+        "pen",
+      ]);
+      expect(mounted.selectEnds.map((end) => end.reason)).toEqual([
+        "release",
+        "release",
+        "release",
+      ]);
+      expect(mounted.controlPhysics.selectPresses).toBe(3);
+      expect(mounted.controlPhysics.selectReleases).toBe(3);
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("Select cancel, lost capture and blur each return capture exactly once", async () => {
+    const mounted = await mountSurface();
+    try {
+      await dispatch(mounted, pointerEvent("pointerdown", 80, 0, 0));
+      await dispatch(mounted, pointerEvent("pointercancel", 80, 0, 0));
+      await dispatch(mounted, pointerEvent("lostpointercapture", 80, 0, 0));
+
+      await dispatch(mounted, pointerEvent("pointerdown", 81, 0, 0));
+      await dispatch(mounted, pointerEvent("lostpointercapture", 81, 0, 0));
+
+      await dispatch(mounted, pointerEvent("pointerdown", 82, 0, 0));
+      window.dispatchEvent(new Event("blur"));
+
+      expect(mounted.selectEnds.map((end) => end.reason)).toEqual([
+        "cancel",
+        "lost-capture",
+        "cancel",
+      ]);
+      expect(mounted.canvas.hasPointerCapture(82)).toBeFalse();
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("Enter travel is scoped to the focused semantic application", async () => {
+    const mounted = await mountSurface();
+    const application = document.createElement("div");
+    application.setAttribute("role", "application");
+    const unrelated = document.createElement("button");
+    document.body.append(application, unrelated);
+    try {
+      application.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      );
+      application.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          key: "Enter",
+          bubbles: true,
+          repeat: true,
+        }),
+      );
+      expect(mounted.controlPhysics.selectPresses).toBe(1);
+      application.dispatchEvent(
+        new KeyboardEvent("keyup", { key: "Enter", bubbles: true }),
+      );
+      expect(mounted.controlPhysics.selectReleases).toBe(1);
+
+      unrelated.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      );
+      expect(mounted.controlPhysics.selectPresses).toBe(1);
+
+      application.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+      );
+      window.dispatchEvent(new Event("blur"));
+      expect(mounted.controlPhysics.selectPresses).toBe(2);
+      expect(mounted.controlPhysics.selectReleases).toBe(2);
+    } finally {
+      application.remove();
+      unrelated.remove();
       await unmount(mounted);
     }
   });
@@ -424,6 +584,16 @@ describe("click-wheel mounted R3F event seam", () => {
     expect(mounted.canvas.hasPointerCapture(pointerId)).toBeTrue();
     await unmount(mounted);
     expect(mounted.ends.map((end) => end.reason)).toEqual(["cancel"]);
+    expect(mounted.canvas.hasPointerCapture(pointerId)).toBeFalse();
+  });
+
+  test("reconciler unmount returns an active Select press", async () => {
+    const mounted = await mountSurface();
+    const pointerId = 83;
+    await dispatch(mounted, pointerEvent("pointerdown", pointerId, 0, 0));
+    expect(mounted.canvas.hasPointerCapture(pointerId)).toBeTrue();
+    await unmount(mounted);
+    expect(mounted.selectEnds.map((end) => end.reason)).toEqual(["cancel"]);
     expect(mounted.canvas.hasPointerCapture(pointerId)).toBeFalse();
   });
 

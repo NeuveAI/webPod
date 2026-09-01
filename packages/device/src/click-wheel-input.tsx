@@ -8,6 +8,7 @@ import {
 } from "three";
 
 import { DEVICE_LAYOUT } from "./layout";
+import { useControlPhysics } from "./ControlPhysicsScope";
 import { DeviceCanvasOrientationContext } from "./DeviceCanvas";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import {
@@ -33,10 +34,26 @@ export type ClickWheelArcEnd = {
   readonly reason: "release" | "cancel" | "lost-capture";
 };
 
+/** Physical Select contact; semantic selection remains outside this package. */
+export type ClickWheelSelectStart = {
+  readonly pointerId: number;
+  readonly pointerType: ClickWheelPointerType;
+  readonly timestampMs: number;
+};
+
+export type ClickWheelSelectEnd = {
+  readonly pointerId: number;
+  readonly timestampMs: number;
+  readonly reason: ClickWheelArcEnd["reason"];
+};
+
 export type ClickWheelInputSurfaceProps = {
   readonly onArcStart: (sample: ClickWheelArcSample) => void;
   readonly onArcMove: (sample: ClickWheelArcSample) => void;
   readonly onArcEnd: (end: ClickWheelArcEnd) => void;
+  /** Optional typed seam for the runtime that owns Select semantics/SFX. */
+  readonly onSelectStart?: (start: ClickWheelSelectStart) => void;
+  readonly onSelectEnd?: (end: ClickWheelSelectEnd) => void;
 };
 
 /** Canonical annulus dimensions, exported so geometry drift is testable. */
@@ -44,6 +61,27 @@ export const CLICK_WHEEL_INPUT_RADII = Object.freeze({
   inner: DEVICE_LAYOUT.wheel.selectR,
   outer: DEVICE_LAYOUT.wheel.outerR,
 });
+
+const WHEEL_DEFORMATION_RADII = Object.freeze({
+  inner:
+    CLICK_WHEEL_INPUT_RADII.inner +
+    (CLICK_WHEEL_INPUT_RADII.outer - CLICK_WHEEL_INPUT_RADII.inner) * 0.2,
+  outer:
+    CLICK_WHEEL_INPUT_RADII.outer -
+    (CLICK_WHEEL_INPUT_RADII.outer - CLICK_WHEEL_INPUT_RADII.inner) * 0.2,
+});
+
+/** Keeps a captured pointer's travelling depression on physical wheel plastic. */
+export function clampWheelContactToRing(
+  sample: WheelContactSample,
+): { readonly x: number; readonly y: number } {
+  const radius = Math.min(
+    WHEEL_DEFORMATION_RADII.outer,
+    Math.max(WHEEL_DEFORMATION_RADII.inner, sample.radius),
+  );
+  const angle = (-sample.angleDeg * Math.PI) / 180;
+  return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+}
 
 /**
  * The interaction plane sits just ahead of every visible front-face surface.
@@ -132,6 +170,21 @@ export function clockwiseWheelAngleDeg(x: number, y: number): number {
  * accepts only a ray and recomputes the intersection after every transform.
  */
 export function wheelAngleFromRay(mesh: Mesh, ray: Ray): number | null {
+  return wheelContactFromRay(mesh, ray)?.angleDeg ?? null;
+}
+
+export type WheelContactSample = {
+  readonly angleDeg: number;
+  readonly x: number;
+  readonly y: number;
+  readonly radius: number;
+};
+
+/** Current body-local contact, independent of R3F's captured stale hit point. */
+export function wheelContactFromRay(
+  mesh: Mesh,
+  ray: Ray,
+): WheelContactSample | null {
   mesh.updateWorldMatrix(true, false);
   const plane = new Plane();
   const planeNormal = new Vector3();
@@ -143,7 +196,12 @@ export function wheelAngleFromRay(mesh: Mesh, ray: Ray): number | null {
   const hit = ray.intersectPlane(plane, planeHit);
   if (hit === null) return null;
   mesh.worldToLocal(hit);
-  return clockwiseWheelAngleDeg(hit.x, hit.y);
+  return {
+    angleDeg: clockwiseWheelAngleDeg(hit.x, hit.y),
+    x: hit.x,
+    y: hit.y,
+    radius: Math.hypot(hit.x, hit.y),
+  };
 }
 
 /** Shortest signed angular travel, including the ±180° seam. */
@@ -224,13 +282,17 @@ export function ClickWheelInputSurface({
   onArcStart,
   onArcMove,
   onArcEnd,
+  onSelectStart,
+  onSelectEnd,
 }: ClickWheelInputSurfaceProps) {
   const orientationState = useContext(DeviceCanvasOrientationContext);
+  const controlPhysics = useControlPhysics();
   const inputPosition = useMemo(
     () => clickWheelInputPosition(orientationState.form),
     [orientationState.form],
   );
   const meshRef = useRef<Mesh>(null);
+  const keyboardSelectRef = useRef(false);
   const captureSlotRef = useRef<ClickWheelCaptureSlot>(
     createClickWheelCaptureSlot(),
   );
@@ -238,6 +300,44 @@ export function ClickWheelInputSurface({
   useEffect(() => {
     callbacksRef.current = { onArcStart, onArcMove, onArcEnd };
   }, [onArcEnd, onArcMove, onArcStart]);
+
+  useEffect(() => {
+    if (controlPhysics === null || typeof window === "undefined") return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.key !== "Enter" ||
+        event.repeat ||
+        keyboardSelectRef.current ||
+        !(event.target instanceof Element) ||
+        event.target.getAttribute("role") !== "application"
+      )
+        return;
+      keyboardSelectRef.current = true;
+      controlPhysics.pressSelect();
+    };
+    const release = () => {
+      if (!keyboardSelectRef.current) return;
+      keyboardSelectRef.current = false;
+      controlPhysics.releaseSelect();
+    };
+    const onKeyUp = (event: KeyboardEvent) => {
+      if (event.key === "Enter") release();
+    };
+    const onVisibilityChange = () => {
+      if (document.hidden) release();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("blur", release);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("blur", release);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      release();
+    };
+  }, [controlPhysics]);
 
   const finish = (
     pointerId: number,
@@ -251,7 +351,10 @@ export function ClickWheelInputSurface({
       timestampMs,
       reason,
       releaseCapture,
-      callbacksRef.current.onArcEnd,
+      (end) => {
+        controlPhysics?.releaseWheel();
+        callbacksRef.current.onArcEnd(end);
+      },
     );
   };
 
@@ -279,25 +382,34 @@ export function ClickWheelInputSurface({
         performance.now(),
         "cancel",
         true,
-        callbacksRef.current.onArcEnd,
+        (end) => {
+          controlPhysics?.releaseWheel();
+          callbacksRef.current.onArcEnd(end);
+        },
       );
     },
-    [],
+    [controlPhysics],
   );
 
   const sample = (
     event: ThreeEvent<PointerEvent>,
     pointerType: ClickWheelPointerType,
-  ): ClickWheelArcSample | null => {
+  ): {
+    readonly arc: ClickWheelArcSample;
+    readonly contact: { readonly x: number; readonly y: number };
+  } | null => {
     const mesh = meshRef.current;
     if (mesh === null) return null;
-    const angleDeg = wheelAngleFromRay(mesh, event.ray);
-    if (angleDeg === null) return null;
+    const hit = wheelContactFromRay(mesh, event.ray);
+    if (hit === null) return null;
     return {
-      pointerId: event.pointerId,
-      pointerType,
-      angleDeg,
-      timestampMs: event.timeStamp,
+      arc: {
+        pointerId: event.pointerId,
+        pointerType,
+        angleDeg: hit.angleDeg,
+        timestampMs: event.timeStamp,
+      },
+      contact: clampWheelContactToRing(hit),
     };
   };
 
@@ -351,8 +463,9 @@ export function ClickWheelInputSurface({
     host.addEventListener("pointercancel", onCancel);
     host.addEventListener("lostpointercapture", onLostCapture);
     blurHost?.addEventListener("blur", onBlur);
+    controlPhysics?.wheelContact(first.contact);
     try {
-      callbacksRef.current.onArcStart(first);
+      callbacksRef.current.onArcStart(first.arc);
     } catch (error) {
       cancelAfterCallbackError(event.pointerId, event.timeStamp, error);
     }
@@ -365,8 +478,9 @@ export function ClickWheelInputSurface({
     preventNativeDefault(event);
     const next = sample(event, active.pointerType);
     if (next !== null) {
+      controlPhysics?.wheelContact(next.contact);
       try {
-        callbacksRef.current.onArcMove(next);
+        callbacksRef.current.onArcMove(next.arc);
       } catch (error) {
         cancelAfterCallbackError(event.pointerId, event.timeStamp, error);
       }
@@ -384,22 +498,178 @@ export function ClickWheelInputSurface({
   if (!orientationState.frontInteractive) return null;
 
   return (
+    <>
+      <mesh
+        ref={meshRef}
+        name="click-wheel-input"
+        position={inputPosition}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        renderOrder={-1}
+      >
+        <ringGeometry
+          args={[
+            CLICK_WHEEL_INPUT_RADII.inner,
+            CLICK_WHEEL_INPUT_RADII.outer,
+            128,
+          ]}
+        />
+        <meshBasicMaterial
+          transparent
+          opacity={0}
+          depthWrite={false}
+          colorWrite={false}
+        />
+      </mesh>
+      <SelectInputSurface
+        position={inputPosition}
+        onSelectStart={onSelectStart}
+        onSelectEnd={onSelectEnd}
+      />
+    </>
+  );
+}
+
+function SelectInputSurface({
+  position,
+  onSelectStart,
+  onSelectEnd,
+}: {
+  readonly position: readonly [number, number, number];
+  readonly onSelectStart: ((start: ClickWheelSelectStart) => void) | undefined;
+  readonly onSelectEnd: ((end: ClickWheelSelectEnd) => void) | undefined;
+}) {
+  const controlPhysics = useControlPhysics();
+  const captureSlotRef = useRef<ClickWheelCaptureSlot>(
+    createClickWheelCaptureSlot(),
+  );
+  const callbacksRef = useRef({ onSelectStart, onSelectEnd });
+  useEffect(() => {
+    callbacksRef.current = { onSelectStart, onSelectEnd };
+  }, [onSelectEnd, onSelectStart]);
+
+  const finish = (
+    pointerId: number,
+    timestampMs: number,
+    reason: ClickWheelSelectEnd["reason"],
+    releaseCapture: boolean,
+  ) => {
+    finishClickWheelCapture(
+      captureSlotRef.current,
+      pointerId,
+      timestampMs,
+      reason,
+      releaseCapture,
+      (end) => {
+        controlPhysics?.releaseSelect();
+        callbacksRef.current.onSelectEnd?.(end);
+      },
+    );
+  };
+
+  useEffect(
+    () => () => {
+      const active = captureSlotRef.current.current;
+      if (active === null) return;
+      finishClickWheelCapture(
+        captureSlotRef.current,
+        active.pointerId,
+        performance.now(),
+        "cancel",
+        true,
+        (end) => {
+          controlPhysics?.releaseSelect();
+          callbacksRef.current.onSelectEnd?.(end);
+        },
+      );
+    },
+    [controlPhysics],
+  );
+
+  const onPointerDown = (event: ThreeEvent<PointerEvent>) => {
+    if (
+      !acceptsClickWheelPointer(event) ||
+      captureSlotRef.current.current !== null
+    )
+      return;
+    const pointerType = pointerTypeOf(event.pointerType);
+    const host = nativeHost(event);
+    const capture = captureApiOf(event.target);
+    if (pointerType === null || host === null || capture === null) return;
+
+    event.stopPropagation();
+    preventNativeDefault(event);
+    capture.setPointerCapture(event.pointerId);
+    const onCancel: EventListener = (nativeEvent) => {
+      const pointer = pointerIdentity(nativeEvent);
+      if (pointer === null) return;
+      finish(pointer.pointerId, pointer.timestampMs, "cancel", false);
+    };
+    const onLostCapture: EventListener = (nativeEvent) => {
+      const pointer = pointerIdentity(nativeEvent);
+      if (pointer === null) return;
+      finish(pointer.pointerId, pointer.timestampMs, "lost-capture", false);
+    };
+    const blurHost = typeof window === "undefined" ? undefined : window;
+    const onBlur: EventListener = () => {
+      finish(event.pointerId, performance.now(), "cancel", true);
+    };
+    captureSlotRef.current.current = {
+      pointerId: event.pointerId,
+      pointerType,
+      capture,
+      host,
+      onCancel,
+      onLostCapture,
+      blurHost,
+      onBlur,
+    };
+    host.addEventListener("pointercancel", onCancel);
+    host.addEventListener("lostpointercapture", onLostCapture);
+    blurHost?.addEventListener("blur", onBlur);
+    controlPhysics?.pressSelect();
+    try {
+      callbacksRef.current.onSelectStart?.({
+        pointerId: event.pointerId,
+        pointerType,
+        timestampMs: event.timeStamp,
+      });
+    } catch (error) {
+      try {
+        finish(event.pointerId, event.timeStamp, "cancel", true);
+      } catch {
+        // Cleanup precedes the secondary callback, so retain the first error.
+      }
+      throw error;
+    }
+  };
+
+  const onPointerMove = (event: ThreeEvent<PointerEvent>) => {
+    const active = captureSlotRef.current.current;
+    if (active === null || active.pointerId !== event.pointerId) return;
+    event.stopPropagation();
+    preventNativeDefault(event);
+  };
+
+  const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
+    const active = captureSlotRef.current.current;
+    if (active === null || active.pointerId !== event.pointerId) return;
+    event.stopPropagation();
+    preventNativeDefault(event);
+    finish(event.pointerId, event.timeStamp, "release", true);
+  };
+
+  return (
     <mesh
-      ref={meshRef}
-      name="click-wheel-input"
-      position={inputPosition}
+      name="click-wheel-select-input"
+      position={position}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       renderOrder={-1}
     >
-      <ringGeometry
-        args={[
-          CLICK_WHEEL_INPUT_RADII.inner,
-          CLICK_WHEEL_INPUT_RADII.outer,
-          128,
-        ]}
-      />
+      <circleGeometry args={[CLICK_WHEEL_INPUT_RADII.inner, 128]} />
       <meshBasicMaterial
         transparent
         opacity={0}
