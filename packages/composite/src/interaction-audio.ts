@@ -79,7 +79,7 @@ export type InteractionAudioResult = {
   readonly dropped: number
 }
 
-/** Result of creating or resuming the audio context after human activation. */
+/** Result of creating or resuming the audio context after an eligible activation event. */
 export type InteractionAudioActivationResult = {
   readonly status: 'running' | 'unavailable' | 'failed' | 'interrupted' | 'disposed'
   readonly reason: 'running' | 'unsupported' | 'resume-failed' | 'interrupted' | 'disposed'
@@ -134,9 +134,11 @@ const silentResult = (
  * Creates the bounded clicker scheduler.
  *
  * It never constructs an audio backend until {@link InteractionAudioRuntime.activate}
- * runs from a trusted browser activation. Feedback before activation is not
- * replayed later; feedback arriving while that activation is resolving is held
- * in a small bounded queue so the first physical click is not lost.
+ * runs from an eligible browser activation event. Event eligibility satisfies
+ * autoplay policy; authoritative actor provenance still comes from state.
+ * Feedback before activation is not replayed later; feedback arriving while
+ * that activation is resolving is held in a small bounded queue so the first
+ * physical click is not lost.
  */
 export function createInteractionAudioRuntime(
   dependencies: InteractionAudioDependencies,
@@ -180,10 +182,6 @@ export function createInteractionAudioRuntime(
   const scheduleEvent = (event: InteractionFeedbackEvent): InteractionAudioResult => {
     const requested = normalizedTicks(event.clickerTicks)
     if (requested === 0) return remember(silentResult('budget-zero', 0))
-    if (event.silenced || !isHumanActor(event.actor)) {
-      return remember(silentResult('silenced', requested))
-    }
-    if (!enabled) return remember(silentResult('disabled', requested))
     if (disposed) return remember({
       status: 'unavailable',
       reason: 'disposed',
@@ -198,13 +196,17 @@ export function createInteractionAudioRuntime(
       scheduled: 0,
       dropped: requested,
     })
-    if (lifecycle === 'failed' && backend === null) return remember({
+    if (lifecycle === 'failed') return remember({
       status: 'unavailable',
       reason: 'graph-failed',
       requested,
       scheduled: 0,
       dropped: requested,
     })
+    if (event.silenced || !isHumanActor(event.actor)) {
+      return remember(silentResult('silenced', requested))
+    }
+    if (!enabled) return remember(silentResult('disabled', requested))
     if (backend === null) return remember(silentResult('not-activated', requested))
     if (backend.state === 'closed') return remember({
       status: 'unavailable',
@@ -285,6 +287,7 @@ export function createInteractionAudioRuntime(
   const requestSuspend = (
     current: InteractionAudioBackend,
     operation: number,
+    successLifecycle: InteractionAudioSnapshot['lifecycle'] = 'suspended',
   ): Promise<boolean> => {
     let requested: Promise<void>
     try {
@@ -296,7 +299,7 @@ export function createInteractionAudioRuntime(
 
     const tracked: Promise<boolean> = requested.then(
       () => {
-        if (isCurrentOperation(operation)) lifecycle = 'suspended'
+        if (isCurrentOperation(operation)) lifecycle = successLifecycle
         return true
       },
       () => {
@@ -412,31 +415,42 @@ export function createInteractionAudioRuntime(
     consume: scheduleEvent,
 
     setEnabled(nextEnabled) {
+      if (disposed) return
       if (enabled === nextEnabled) return
+      const terminalLifecycle =
+        lifecycle === 'unsupported' || lifecycle === 'failed' ? lifecycle : null
       enabled = nextEnabled
       const operation = lifecycleOperation + 1
       lifecycleOperation = operation
       if (enabled) {
-        lifecycle = backend === null ? 'locked' : 'suspended'
+        if (terminalLifecycle === null) {
+          lifecycle = backend === null ? 'locked' : 'suspended'
+        }
         return
       }
       clearPending()
       stopVoices()
       if (backend?.state === 'running') {
-        void requestSuspend(backend, operation)
+        void requestSuspend(backend, operation, terminalLifecycle ?? 'suspended')
       }
-      lifecycle = backend === null ? 'locked' : 'suspended'
+      if (terminalLifecycle === null) {
+        lifecycle = backend === null ? 'locked' : 'suspended'
+      }
     },
 
     async interrupt() {
       if (disposed) return
+      const terminalLifecycle =
+        lifecycle === 'unsupported' || lifecycle === 'failed' ? lifecycle : null
       const operation = lifecycleOperation + 1
       lifecycleOperation = operation
       clearPending()
       stopVoices()
-      lifecycle = backend === null ? 'locked' : 'suspended'
+      if (terminalLifecycle === null) {
+        lifecycle = backend === null ? 'locked' : 'suspended'
+      }
       if (backend !== null && backend.state === 'running') {
-        await requestSuspend(backend, operation)
+        await requestSuspend(backend, operation, terminalLifecycle ?? 'suspended')
       }
     },
 
@@ -473,7 +487,12 @@ export type InteractionAudioBrowserTargets = {
   readonly root: EventTarget
   readonly documentTarget: EventTarget & { readonly hidden: boolean }
   readonly windowTarget: EventTarget
-  readonly isHumanActivation?: (event: Event) => boolean
+  /**
+   * Selects events eligible to request Web Audio activation. The default uses
+   * `Event.isTrusted`, which identifies user-agent dispatch but does not prove
+   * that a human originated the event.
+   */
+  readonly isActivationEligible?: (event: Event) => boolean
   readonly onSnapshot?: (snapshot: InteractionAudioSnapshot) => void
 }
 
@@ -496,14 +515,16 @@ let nextActivationOrder = 0
 
 /**
  * Subscribes one runtime to the authoritative store stream and browser
- * lifecycle. Only trusted pointer/key events activate Web Audio by default.
+ * lifecycle. By default `Event.isTrusted` gates activation for autoplay; actor
+ * provenance and sound eligibility remain authoritative state decisions.
  */
 export function attachInteractionAudioRuntime(
   runtime: InteractionAudioRuntime,
   store: DeviceStore,
   targets: InteractionAudioBrowserTargets,
 ): () => void {
-  const isHumanActivation = targets.isHumanActivation ?? ((event: Event) => event.isTrusted)
+  const isActivationEligible =
+    targets.isActivationEligible ?? ((event: Event) => event.isTrusted)
   const report = () => {
     try {
       targets.onSnapshot?.(runtime.snapshot())
@@ -512,7 +533,7 @@ export function attachInteractionAudioRuntime(
     }
   }
   const activate: EventListener = (event) => {
-    if (!isHumanActivation(event)) return
+    if (!isActivationEligible(event)) return
     binding.markActivated()
     void runtime.activate().then(report)
   }

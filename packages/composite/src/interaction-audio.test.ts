@@ -26,7 +26,7 @@ describe('interaction audio scheduler', () => {
     expect(WHEEL_PITCH_JITTER).toBe(0.02)
   })
 
-  test('does not construct audio or replay feedback before human activation', () => {
+  test('does not construct audio or replay feedback before activation', () => {
     const backend = new FakeBackend('running')
     let constructions = 0
     const runtime = createInteractionAudioRuntime({
@@ -97,6 +97,42 @@ describe('interaction audio scheduler', () => {
     })
   })
 
+  test('terminal diagnostics survive mute changes and interruption', async () => {
+    const unsupported = createInteractionAudioRuntime({ createBackend: () => null })
+    await unsupported.activate()
+    unsupported.setEnabled(false)
+    await unsupported.interrupt()
+    unsupported.setEnabled(true)
+
+    expect(unsupported.snapshot().lifecycle).toBe('unsupported')
+    expect(unsupported.consume(pressEvent('center')).reason).toBe('unsupported')
+
+    const failed = createInteractionAudioRuntime({
+      createBackend: () => {
+        throw new Error('graph construction failed')
+      },
+    })
+    await failed.activate()
+    failed.setEnabled(false)
+    await failed.interrupt()
+    failed.setEnabled(true)
+
+    expect(failed.snapshot().lifecycle).toBe('failed')
+    expect(failed.consume(pressEvent('center')).reason).toBe('graph-failed')
+
+    const disposed = createInteractionAudioRuntime({
+      createBackend: () => new FakeBackend('running'),
+    })
+    await disposed.activate()
+    disposed.setEnabled(false)
+    disposed.dispose()
+    disposed.setEnabled(true)
+    await disposed.interrupt()
+
+    expect(disposed.snapshot().lifecycle).toBe('disposed')
+    expect(disposed.consume(pressEvent('center')).reason).toBe('disposed')
+  })
+
   test('an interruption during resume cannot revive audio in the background', async () => {
     const resume = Promise.withResolvers<void>()
     const backend = new FakeBackend('suspended', resume.promise)
@@ -118,7 +154,7 @@ describe('interaction audio scheduler', () => {
     expect(backend.specs).toHaveLength(0)
   })
 
-  test('a newer trusted activation wins over an older deferred blur suspension', async () => {
+  test('a newer activation wins over an older deferred blur suspension', async () => {
     const suspend = Promise.withResolvers<void>()
     const backend = new FakeBackend('running')
     backend.suspendResult = suspend.promise.then(() => {
@@ -137,7 +173,7 @@ describe('interaction audio scheduler', () => {
     expect(backend.state).toBe('running')
   })
 
-  test('a newer trusted activation wins over an older deferred mute suspension', async () => {
+  test('a newer activation wins over an older deferred mute suspension', async () => {
     const suspend = Promise.withResolvers<void>()
     const backend = new FakeBackend('running')
     backend.suspendResult = suspend.promise.then(() => {
@@ -359,6 +395,31 @@ describe('interaction audio scheduler', () => {
 })
 
 describe('store and browser lifecycle binding', () => {
+  test('the default gate rejects script-dispatched events without proving provenance', async () => {
+    const store = createDeviceStore()
+    let constructions = 0
+    const runtime = createInteractionAudioRuntime({
+      createBackend: () => {
+        constructions += 1
+        return new FakeBackend('running')
+      },
+    })
+    const root = new EventTarget()
+    const detach = attachInteractionAudioRuntime(runtime, store, {
+      root,
+      documentTarget: Object.assign(new EventTarget(), { hidden: false }),
+      windowTarget: new EventTarget(),
+    })
+
+    root.dispatchEvent(new Event('pointerdown'))
+    await Promise.resolve()
+
+    expect(constructions).toBe(0)
+    expect(runtime.snapshot().lifecycle).toBe('locked')
+    detach()
+    runtime.dispose()
+  })
+
   test('duplicate bindings consume one authoritative sequence exactly once', async () => {
     const store = createDeviceStore()
     const backend = new FakeBackend('running')
@@ -368,7 +429,7 @@ describe('store and browser lifecycle binding', () => {
       root: new EventTarget(),
       documentTarget: Object.assign(new EventTarget(), { hidden: false }),
       windowTarget: new EventTarget(),
-      isHumanActivation: () => true,
+      isActivationEligible: () => true,
     }
     const detachFirst = attachInteractionAudioRuntime(runtime, store, targets)
     const detachSecond = attachInteractionAudioRuntime(runtime, store, targets)
@@ -392,7 +453,7 @@ describe('store and browser lifecycle binding', () => {
     const common = {
       documentTarget: Object.assign(new EventTarget(), { hidden: false }),
       windowTarget: new EventTarget(),
-      isHumanActivation: () => true,
+      isActivationEligible: () => true,
     }
     const detachFirst = attachInteractionAudioRuntime(first, store, {
       ...common,
@@ -417,7 +478,7 @@ describe('store and browser lifecycle binding', () => {
     first.dispose()
   })
 
-  test('trusted activation unlocks once, then authoritative events drive sound', async () => {
+  test('an eligible activation signal unlocks once, then state drives sound', async () => {
     const store = createDeviceStore()
     const backend = new FakeBackend('suspended')
     const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
@@ -428,7 +489,7 @@ describe('store and browser lifecycle binding', () => {
       root,
       documentTarget,
       windowTarget,
-      isHumanActivation: () => true,
+      isActivationEligible: () => true,
     })
 
     root.dispatchEvent(new Event('pointerdown'))
@@ -477,7 +538,7 @@ describe('store and browser lifecycle binding', () => {
       root: new EventTarget(),
       documentTarget,
       windowTarget: new EventTarget(),
-      isHumanActivation: () => true,
+      isActivationEligible: () => true,
     })
     store.set(pressActionAtom, { button: 'center', source: 'human' })
 

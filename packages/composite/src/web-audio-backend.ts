@@ -18,7 +18,8 @@ const PREVIEW_DURATION_SECONDS = 1
 /**
  * Creates the real browser backend, or `null` when Web Audio is unavailable.
  * Calling this function constructs `AudioContext`, so callers must invoke it
- * only inside a trusted human activation path.
+ * only from an event eligible for browser autoplay activation. That event is
+ * not proof of human provenance; actor eligibility remains state-owned.
  */
 export function createBrowserInteractionAudioBackend(): InteractionAudioBackend | null {
   if (typeof AudioContext === 'undefined') return null
