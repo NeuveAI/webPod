@@ -1,5 +1,9 @@
 # W9a rigid click-wheel correction evidence
 
+> Historical owner-rejected result. Uniform negative-Z translation was
+> superseded by the contact-following rigid-disc tilt in
+> `w9a-rigid-wheel-tilt.md`. This file remains only as provenance.
+
 Date: 2026-09-02
 
 ## Outcome

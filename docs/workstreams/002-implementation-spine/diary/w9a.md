@@ -311,3 +311,29 @@ The final browser run served immutable commit
 down/hold/up produced all twelve black/white × front/quarter
 rest/held/released frames. Every release hash equals rest; held frames differ
 without the former travelling oval or changing silhouette.
+
+## Owner correction — contact-following rigid wheel rock
+
+The owner corrected the remaining physical model: the click wheel does not
+translate as one slab. The rigid disc rocks by a tiny amount toward the live
+thumb angle around its centre pivot. I replaced the whole-wheel translation
+with a quaternion-only rigid transform. Pointer down supplies the initial
+body-local angle and captured pointer movement updates only the tilt axis;
+navigation, detents and audio remain in their existing runtimes.
+
+The wheel ring and ink now sit in a group whose origin is the flush wheel
+centre. The fixed under-floor and separate Select are outside it. The group
+position and scale remain exact while one bounded local rotation changes. No
+position or normal attribute is written. A complete production-tessellation
+test proves every pairwise vertex distance survives the live transform, and a
+2° sweep proves the contact radius is always the low side while the opposite
+radius is high and the perpendicular radius stays neutral.
+
+The first immutable 0.018 mm route capture exposed a collision that the rigid
+matrix tests could not: the low side exceeded the existing 0.05-model-unit
+hairline clearance, allowing the fixed floor to clip through as a diagonal
+wedge. That capture was rejected and overwritten before evidence commit. I
+reduced the bounded low-side rim travel to 0.006 mm and added an executable
+clearance gate. The final immutable black/white front/quarter captures have no
+wedge, changing silhouette, travelling stamp or auxiliary optical response.
+Every released capture is byte-identical to rest.

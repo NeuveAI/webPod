@@ -256,3 +256,34 @@ reduced motion preserves direct held feedback and restores rest immediately.
 
 No auxiliary shader or light is present. The ordinary black/white wheel
 materials and world-space studio rig reveal only the rigid seam-depth change.
+
+## W9A-16 · The rigid wheel rocks toward contact around its centre
+
+The owner superseded W9A-15's uniform translation. The click wheel is one
+rigid plastic disc that rocks toward the thumb contact point; it neither flexes
+locally nor shifts as a parallel slab. W9A-15 remains above as rejected review
+history.
+
+The production ring and printed ink share a group pivoted at the wheel's flush
+surface centre. At clockwise pointer angle θ, the group rotates around the
+body-local in-plane axis `(sin θ, cos θ, 0)`. This makes the contact radius the
+low side, the opposite radius the high side and the perpendicular radii
+neutral. The transform copies the immutable rest position and scale and
+post-multiplies one bounded quaternion onto the immutable rest quaternion.
+Geometry positions, geometry normals, UVs, materials and all pairwise vertex
+distances are unchanged. The fixed gap floor and independent Select do not
+inherit the wheel transform.
+
+Low-side rim travel is 0.006 mm. This is bounded visual calibration, not a
+published OEM measurement. It is lower than both rejected 0.08 mm deformation
+and 0.03 mm slab translation, and its model-space depth is strictly below the
+existing 0.05-unit under-floor clearance. The latter is an executable gate:
+the first 0.018 mm immutable capture revealed a real depth collision, so the
+clearance—not subjective brightness—sets the upper bound.
+
+Pointer down and captured pointer movement update the rigid tilt axis through
+the ordinary production path. They do not create detents or audio; the
+composite/state runtime remains authoritative. Release keeps the existing
+120 ms time-based demand frames, reduced motion settles immediately, and
+cancel/lost capture/blur/unmount restore the exact rest quaternion. There is no
+idle loop, geometry rewrite, shader patch, moving light or proof-only API.
