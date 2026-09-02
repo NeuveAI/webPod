@@ -23,10 +23,17 @@ export const CONTROL_TRAVEL = Object.freeze({
   selectModel: 0.36 * PX_PER_MM,
 });
 
-/** Compact thumb footprint, wider along the ring than across its plastic. */
+/**
+ * Compact isotropic thumb footprint in the immutable body-local XY plane.
+ *
+ * An elongated tangential footprint turned the approved oblique softbox into
+ * a broad diagonal stamp even though positions were already depth-only. A
+ * circular scalar support keeps the visible response centred under contact
+ * and gives the height-field normal no preferred radial/tangential direction.
+ */
 export const WHEEL_CONTACT_FOOTPRINT_MM = Object.freeze({
   radial: 5.5,
-  tangential: 8,
+  tangential: 5.5,
 });
 export const WHEEL_CONTACT_FOOTPRINT_MODEL = Object.freeze({
   radial: WHEEL_CONTACT_FOOTPRINT_MM.radial * PX_PER_MM,

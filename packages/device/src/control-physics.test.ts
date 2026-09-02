@@ -238,7 +238,10 @@ describe("transient physical click-wheel geometry", () => {
   test("the bounded visual calibration and fixed ring boundaries are explicit", () => {
     expect(CONTROL_TRAVEL.wheelMm).toBe(0.08);
     expect(CONTROL_TRAVEL.selectMm).toBe(0.36);
-    expect(WHEEL_CONTACT_FOOTPRINT_MM).toEqual({ radial: 5.5, tangential: 8 });
+    expect(WHEEL_CONTACT_FOOTPRINT_MM).toEqual({
+      radial: 5.5,
+      tangential: 5.5,
+    });
     expect(WHEEL_DEFORMATION_RADII_MODEL).toEqual({ inner: 38, outer: 102.5 });
     expect(WHEEL_BOUNDARY_EPSILON_MODEL).toBe(1e-4);
     expect(CONTROL_RELEASE_MS).toEqual({ wheel: 120, select: 96 });
@@ -324,6 +327,69 @@ describe("transient physical click-wheel geometry", () => {
       movedNormal,
       "monotonic basin",
     );
+
+    controller.dispose();
+    geometry.dispose();
+  });
+
+  test("the midpoint basin is isotropic instead of a tangential optical stamp", () => {
+    const contact = contactAt(0);
+    const contactRadius = Math.hypot(contact.x, contact.y);
+    const radial = {
+      x: contact.x / contactRadius,
+      y: contact.y / contactRadius,
+    };
+    const tangent = { x: -radial.y, y: radial.x };
+
+    expect(WHEEL_CONTACT_FOOTPRINT_MODEL.radial).toBe(
+      WHEEL_CONTACT_FOOTPRINT_MODEL.tangential,
+    );
+    for (const distanceRatio of [0, 0.1, 0.25, 0.5, 0.75, 0.95]) {
+      const distance =
+        WHEEL_CONTACT_FOOTPRINT_MODEL.radial * distanceRatio;
+      const radialWeight = independentWeight(
+        contact.x + radial.x * distance,
+        contact.y + radial.y * distance,
+        contact,
+      );
+      const tangentialWeight = independentWeight(
+        contact.x + tangent.x * distance,
+        contact.y + tangent.y * distance,
+        contact,
+      );
+      expect(radialWeight).toBeCloseTo(tangentialWeight, 12);
+    }
+
+    const geometry = wheelGeometry();
+    const rest = snapshot(geometry, "position");
+    const controller = new ControlPhysicsController(
+      new FrameHarness().dependencies,
+    );
+    controller.attachWheel(geometry);
+    controller.wheelContact(contact);
+    const moved = snapshot(geometry, "position");
+    let radialExtent = 0;
+    let tangentialExtent = 0;
+    for (let index = 0; index < moved.length; index += 3) {
+      const depth = (rest[index + 2] ?? 0) - (moved[index + 2] ?? 0);
+      if (depth <= 0) continue;
+      const dx = (moved[index] ?? 0) - contact.x;
+      const dy = (moved[index + 1] ?? 0) - contact.y;
+      radialExtent = Math.max(
+        radialExtent,
+        Math.abs(dx * radial.x + dy * radial.y),
+      );
+      tangentialExtent = Math.max(
+        tangentialExtent,
+        Math.abs(dx * tangent.x + dy * tangent.y),
+      );
+    }
+    expect(radialExtent).toBeGreaterThan(0);
+    expect(tangentialExtent).toBeGreaterThan(0);
+    expect(
+      Math.max(radialExtent, tangentialExtent) /
+        Math.min(radialExtent, tangentialExtent),
+    ).toBeLessThan(1.12);
 
     controller.dispose();
     geometry.dispose();
