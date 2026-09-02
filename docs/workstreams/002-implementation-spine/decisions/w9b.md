@@ -33,6 +33,8 @@ the state budget returns. A second physics implementation in audio would drift.
 
 ## W9b-D2 · The active W9 dispatch supersedes the older wheel-only sentence
 
+**Historical; physical-button composition is superseded by W9b-D12–D14.**
+
 The older product specification says the clicker is wheel-detent-only. The
 owner's active direction and W9 decision 6 explicitly require one click per
 eligible human button press as well. W9b implements the narrower current
@@ -41,6 +43,9 @@ movement do not.
 
 ## W9b-D3 · Procedural transients, no sample assets
 
+**Historical calibration; physical-button voice values are superseded by
+W9b-D12–D14.**
+
 Procedural Web Audio avoids network, preload, licensing, and decoding latency.
 Wheel is an 8ms decaying noise impulse through a 3kHz band-pass with ±2% pitch
 variation. Select and secondary buttons add a small decaying plastic body and
@@ -48,6 +53,9 @@ use 16ms/12ms low-pass envelopes. This is deliberately mechanical and local,
 not a tonal alert. There are no assets to license or preload.
 
 ## W9b-D4 · One compressed, bounded graph
+
+**Historical admission model; button-pair admission is superseded by
+W9b-D12–D14.**
 
 Every voice connects source → filter → envelope → master → compressor →
 destination. Peak voice gains are 0.05 wheel, 0.075 Select, and 0.06 secondary;
@@ -138,3 +146,48 @@ would invalidate reproducibility even if runtime code stayed green. The
 composite TypeScript project therefore includes both `src/**/*.ts(x)` and
 `scripts/**/*.ts`; the ordinary package and repo typechecks now cover the
 renderer rather than relying on an exceptional one-off command.
+
+## W9b-D12 · Owner recording splits button sound into contact phases
+
+The owner's 2026-09-02 recording supersedes D2–D4 only for physical-button
+composition. The approved digital detent timbre remains unchanged. Rotation is
+still digital-only. Center, Menu, Previous, Next and Play/Pause now actuate the
+same three-edge audio gesture: digital clicker plus a quieter plastic down
+transient at contact, followed by a distinct lighter plastic up transient at
+the real terminal edge. The reference's isolated button examples place that
+second transient roughly 145–184ms after the first; it is therefore not a
+fixed-delay echo. A long hold moves the up transient by the full hold duration.
+
+The physical lifecycle crosses device → composite directly because state owns
+semantic acceptance after release and cannot reconstruct the earlier down edge
+or hold duration. State remains the sole owner of navigation, detents and actor
+provenance. Its press feedback is intentionally budget-zero in the audio
+subscriber so an accepted release cannot replay a second button sound. Agent
+actions never enter the physical lifecycle and remain silent.
+
+## W9b-D13 · Every admitted down reserves its mechanical release
+
+One button down atomically admits two voices and reserves one of the twelve
+bounded voice slots for its future up edge. Wheel traffic counts reservations
+as occupied capacity. This prevents a busy detent train from accepting an
+audible down and later dropping its matching release. Duplicate down identity
+and duplicate/orphan release identity are structured no-sound results.
+
+Normal pointer/key release schedules the up edge. Pointer cancel and lost
+capture also release the mechanical switch once while suppressing semantics.
+Drag-off invalidates the semantic cardinal candidate but the captured physical
+contact ends at its real pointer terminal. Blur, hidden-document, explicit mute
+and disposal interrupt the graph and clear the active contact/reservation; no
+synthetic sound is emitted after the product has backgrounded or muted.
+
+## W9b-D14 · Physical support is quieter than the approved digital voice
+
+The digital voice retains its exact 8ms, 3kHz band-pass, 0.05 peak-gain
+specification. Physical down is 14ms at 0.026 peak gain; physical up is 10ms at
+0.017, with a lighter 4.6kHz band-pass character. Both remain deterministic
+procedural plastic/noise transients through the existing master and compressor.
+The production preview peaks at -33.96dBFS with no clipping. These are bounded
+visual-audio calibration values inferred from the owner recording, not measured
+iPod switch force/travel data. The revised physical balance remains subject to
+owner listening; the earlier approval still applies to the unchanged digital
+detent.

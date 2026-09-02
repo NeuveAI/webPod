@@ -1,0 +1,58 @@
+W9b owner recording and production-preview evidence
+Date: 2026-09-02
+
+Reference
+  path: /Users/vinicius/Downloads/clickwheel-sounds.m4a
+  sha256: 64e76f14b90e5a6421522e62f564d15309a2350b0de6681d859fa49ad7308842
+  codec: AAC
+  duration: 21.461333 s
+  sample rate: 24000 Hz
+  channels: 1
+
+Reference interpretation
+  - rotational detents are single digital clicks
+  - physical buttons combine digital + physical down at actuation
+  - physical up is a distinct terminal transient
+  - isolated reference clusters place up about 145-184 ms after down
+  - the timing separation follows hold duration; it is not a fixed echo
+
+Production preview
+  WAV: button-lifecycle-preview.wav
+  WAV sha256: 9a117409e44618160b3d007c283d812c9ec27cf86f3bad349a89c5f913305c60
+  JSON: button-lifecycle-preview.json
+  JSON sha256: 994e2dbfa26f0abcd9f0482c36dcc238dcd0b498b8ddb5baa58e96faab52935e
+  format: PCM16, mono, 48000 Hz, 3.4 s
+  peak: -33.957426 dBFS
+  RMS across full 3.4 s including labeled silence: -68.166690 dBFS
+  clipped samples: 0
+
+Sequence
+  - six fast detents at 30 Hz
+  - three isolated detents
+  - Center short: down 1.52 s, up 1.68 s
+  - Center long: down 1.98 s, up 2.63 s
+  - Menu tap: down 2.94 s, up 3.11 s
+
+The JSON is the machine-readable phase index. The WAV is rendered by the same
+InteractionAudioGraph and voice specifications used by the production route.
+Owner auditory validation of the revised physical balance remains required.
+
+Production browser lifecycle
+  browser: Google Chrome, flagged CanvasDrawElement route
+  route: /_spike/device?capture=&view=front&colourway=black
+  source fingerprint: de7d6b20ca3f9208ea5989990af85eed1b78d0adb7b73e7587b7060de2d91a2d
+  result: 1 passed
+  asserted: pointer down schedules digital + physical-down before release;
+    pointer up schedules one physical-up; keyboard holds cover the remaining
+    physical buttons; drag-off keeps the physical pair while suppressing the
+    semantic cardinal action.
+
+Verification
+  focused device/composite: 60 pass, 0 fail
+  repo tests: 1181 pass, 0 fail, 78076 assertions
+  repo typecheck: 11/11 projects clean
+  repo lint: clean
+  production build: clean
+  automated gates: 16 pass, 0 fail
+  manual gates: U14 and U15 remain outstanding
+  implementation commit: 009fdd2

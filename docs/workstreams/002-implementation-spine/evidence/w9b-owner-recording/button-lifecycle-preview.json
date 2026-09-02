@@ -1,0 +1,114 @@
+{
+  "source": "production procedural interaction graph",
+  "reference": "/Users/vinicius/Downloads/clickwheel-sounds.m4a",
+  "cues": [
+    {
+      "label": "fast-detent.1",
+      "kind": "wheel",
+      "startTimeSeconds": 0.15,
+      "random": 0.25
+    },
+    {
+      "label": "fast-detent.2",
+      "kind": "wheel",
+      "startTimeSeconds": 0.18333333333333332,
+      "random": 0.6
+    },
+    {
+      "label": "fast-detent.3",
+      "kind": "wheel",
+      "startTimeSeconds": 0.21666666666666667,
+      "random": 0.4
+    },
+    {
+      "label": "fast-detent.4",
+      "kind": "wheel",
+      "startTimeSeconds": 0.25,
+      "random": 0.7
+    },
+    {
+      "label": "fast-detent.5",
+      "kind": "wheel",
+      "startTimeSeconds": 0.2833333333333333,
+      "random": 0.3
+    },
+    {
+      "label": "fast-detent.6",
+      "kind": "wheel",
+      "startTimeSeconds": 0.31666666666666665,
+      "random": 0.55
+    },
+    {
+      "label": "isolated-detent.1",
+      "kind": "wheel",
+      "startTimeSeconds": 0.62,
+      "random": 0.35
+    },
+    {
+      "label": "isolated-detent.2",
+      "kind": "wheel",
+      "startTimeSeconds": 0.88,
+      "random": 0.65
+    },
+    {
+      "label": "isolated-detent.3",
+      "kind": "wheel",
+      "startTimeSeconds": 1.14,
+      "random": 0.45
+    },
+    {
+      "label": "center-short.digital-down",
+      "kind": "wheel",
+      "startTimeSeconds": 1.52,
+      "random": 0.5
+    },
+    {
+      "label": "center-short.physical-down",
+      "kind": "button-down",
+      "startTimeSeconds": 1.52,
+      "random": 0.5
+    },
+    {
+      "label": "center-short.physical-up",
+      "kind": "button-up",
+      "startTimeSeconds": 1.68,
+      "random": 0.5
+    },
+    {
+      "label": "center-long.digital-down",
+      "kind": "wheel",
+      "startTimeSeconds": 1.98,
+      "random": 0.5
+    },
+    {
+      "label": "center-long.physical-down",
+      "kind": "button-down",
+      "startTimeSeconds": 1.98,
+      "random": 0.5
+    },
+    {
+      "label": "center-long.physical-up",
+      "kind": "button-up",
+      "startTimeSeconds": 2.63,
+      "random": 0.5
+    },
+    {
+      "label": "menu-tap.digital-down",
+      "kind": "wheel",
+      "startTimeSeconds": 2.94,
+      "random": 0.5
+    },
+    {
+      "label": "menu-tap.physical-down",
+      "kind": "button-down",
+      "startTimeSeconds": 2.94,
+      "random": 0.5
+    },
+    {
+      "label": "menu-tap.physical-up",
+      "kind": "button-up",
+      "startTimeSeconds": 3.11,
+      "random": 0.5
+    }
+  ]
+}

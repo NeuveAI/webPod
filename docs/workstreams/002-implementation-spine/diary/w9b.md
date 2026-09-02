@@ -11,6 +11,10 @@ The event carries the already-decided `clickerTicks`, `silenced`, actor, origin,
 and button. Sub-detent travel, raw pointer movement, agent movement, and zero
 budgets therefore never reach the audible path.
 
+The implementation summary below records the original 2026-09-01 model. The
+2026-09-02 owner-recording section supersedes its physical-button composition
+and gain values while preserving the approved digital detent.
+
 The composite package owns one store-scoped exact-once subscription hub across
 all mounted devices. Each boundary may hold a lazy Web Audio runtime, but one
 sequence has one selected audio owner. It makes three short procedural voices: an 8ms,
@@ -105,3 +109,37 @@ returning a rejected promise, and asserts both the lifecycle and structured
 **Verdict: approved by owner.** After listening to the production-generated SFX,
 the owner stated in this thread on 2026-09-01: “sounds just like the real thing,
 great job.” This closes the W9b sound-taste gate.
+
+## 2026-09-02 · Owner-recorded switch lifecycle correction
+
+The owner supplied `clickwheel-sounds.m4a` and clarified a mistaken model in the
+first implementation. The wheel itself is one digital detent. Every physical
+button combines that digital actuation with a quieter switch-down transient and
+a separate switch-up transient on actual release. The recording is 21.461333s,
+mono AAC at 24kHz. Its isolated button clusters expose the second phase roughly
+145–184ms after the first, which ruled out synthesizing a fixed-delay double
+click.
+
+The correction adds stable pointer/key contact identities across device and
+composite. Down is exact-once, release is exact-once, hold timing is retained
+while initial AudioContext activation resolves, and an admitted down reserves
+capacity for its future up. Cardinal semantic acceptance still occurs only on
+release; drag-off/cancel/lost capture cannot navigate. Store press feedback is
+now deliberately silent in the audio runtime to prevent the direct lifecycle
+from being replayed after state accepts the action. Rotational detents continue
+through the authoritative state stream unchanged.
+
+The owner preview now contains six fast detents, three isolated detents, a
+160ms Center tap, a 650ms Center hold and a 170ms Menu tap. A companion JSON
+labels every digital-down, physical-down and physical-up onset. The generated
+WAV is 3.4s/48kHz mono PCM16, peaks at -33.957426dBFS, and has no clipped
+sample. The physical balance still needs the owner's auditory validation; no
+claim extends the prior approval beyond the unchanged digital voice.
+
+Correction commit: `009fdd2` (`feat(audio): model physical button contact
+phases`). Focused device/composite tests are 60 pass / 0 fail. Repo tests are
+1,181 pass / 0 fail with 78,076 assertions. TypeScript is 11/11 clean, repo
+lint is clean, the production build is clean, and `bun run gates` reports 16
+automated pass / 0 fail with the standing manual U14/U15 checks still open. A
+flagged production Chrome run of `cardinal-audio.e2e.ts` passed against source
+fingerprint `de7d6b20ca3f9208ea5989990af85eed1b78d0adb7b73e7587b7060de2d91a2d`.
