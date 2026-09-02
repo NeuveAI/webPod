@@ -1,10 +1,14 @@
-import { CompositeDevice } from '@webpod/composite'
 import { DEVICE_ORIENTATION_PRESETS, type DevicePosePreset } from '@webpod/device'
-import { Panel, type PanelState } from '@webpod/panel'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useLayoutEffect, useRef, type CSSProperties } from 'react'
 
-const STATES: readonly PanelState[] = [
+import {
+  ProductionDeviceView,
+  ProductionPanelView,
+  type ProductionPanelState,
+} from '../production-device-view'
+
+const STATES: readonly ProductionPanelState[] = [
   'ready',
   'loading',
   'empty',
@@ -21,15 +25,15 @@ export const Route = createFileRoute('/_probe/composite')({
   ssr: false,
   validateSearch: (search: Record<string, unknown>): {
     readonly colourway: 'black' | 'white'
-    readonly state: PanelState
+    readonly state: ProductionPanelState
     readonly scale: 1 | 1.3 | 2
     readonly fov: 24 | 30 | 36
     readonly mode: 'bare' | 'composited'
     readonly pose: DevicePosePreset
   } => ({
     colourway: search['colourway'] === 'white' ? 'white' : 'black',
-    state: STATES.includes(search['state'] as PanelState)
-      ? (search['state'] as PanelState)
+    state: STATES.includes(search['state'] as ProductionPanelState)
+      ? (search['state'] as ProductionPanelState)
       : 'ready',
     scale: search['scale'] === 2 ? 2 : search['scale'] === 1.3 ? 1.3 : 1,
     fov: search['fov'] === 24 ? 24 : search['fov'] === 36 ? 36 : 30,
@@ -47,18 +51,10 @@ export const Route = createFileRoute('/_probe/composite')({
 function CompositePreview() {
   const { colourway, state, scale, fov, mode, pose } = Route.useSearch()
   const stageRef = useRef<HTMLDivElement>(null)
-  const panelTone = colourway === 'white' ? 'light' : 'dark'
   const authored =
     mode === 'bare'
       ? { inlineSize: 272, blockSize: 204 }
       : { inlineSize: 330, blockSize: 552 }
-  const panel = (
-    <Panel
-      colourway={panelTone}
-      state={state}
-      dynamicTypeScale={scale}
-    />
-  )
   const orientation = DEVICE_ORIENTATION_PRESETS[pose]
   useLayoutEffect(() => {
     const stage = stageRef.current
@@ -117,18 +113,24 @@ function CompositePreview() {
       >
         {mode === 'bare' ? (
           <div className="wp-composite-preview__bare-frame">
-            <div className="wp-composite-preview__bare">{panel}</div>
+            <div className="wp-composite-preview__bare">
+              <ProductionPanelView
+                colourway={colourway}
+                state={state}
+                dynamicTypeScale={scale}
+              />
+            </div>
           </div>
         ) : (
           <div className="wp-composite-preview__device-frame">
-            <CompositeDevice
+            <ProductionDeviceView
               className="wp-composite-preview__device"
               colourway={colourway}
-              panelTone={panelTone}
+              state={state}
+              dynamicTypeScale={scale}
               cameraFov={fov}
               cameraDistance={COMPOSITE_PREVIEW_CAMERA_DISTANCE}
               orientation={orientation}
-              panel={panel}
             />
           </div>
         )}

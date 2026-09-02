@@ -1,4 +1,3 @@
-import { CompositeDevice } from "@webpod/composite";
 import {
   DEFAULT_DEVICE_MATERIALS,
   DEVICE_ORIENTATION_PRESETS,
@@ -13,9 +12,10 @@ import {
   type LightRigParams,
   type LightContribution,
 } from "@webpod/device";
-import { Panel } from "@webpod/panel";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useSyncExternalStore } from "react";
+
+import { ProductionDeviceView } from "../production-device-view";
 
 export const Route = createFileRoute("/_spike/device")({
   ssr: false,
@@ -317,7 +317,6 @@ function DeviceSpike() {
 
   if (!import.meta.env.DEV) return <main>Not available.</main>;
 
-  const panelTone = renderedState.colourway === "white" ? "light" : "dark";
   return (
     <main
       className="webpod-device-preview"
@@ -356,14 +355,12 @@ function DeviceSpike() {
             studioEnvironment={lightContribution === "combined" ? undefined : null}
           />
         ) : (
-          <CompositeDevice
+          <ProductionDeviceView
             className="webpod-device-preview__device"
             colourway={renderedState.colourway}
-            panelTone={panelTone}
             cameraFov={30}
             cameraSafePadding={capture ? 34 : 48}
             orientation={renderedState.orientation}
-            panel={<Panel colourway={panelTone} state="ready" />}
           />
         )}
       </div>
