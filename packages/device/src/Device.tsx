@@ -27,6 +27,7 @@ import {
   type Material,
   type Mesh,
   MeshBasicMaterial,
+  ShapeGeometry,
   type Texture,
   TorusGeometry,
 } from "three";
@@ -67,6 +68,7 @@ import {
 } from "./shapes";
 import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
 import { createScreenGeometry } from "./screen-geometry";
+import { squareRoundedRectApertureWalls } from "./screen-aperture";
 import {
   createPolycarbonateMaterial,
   createBlackPolycarbonateMaterial,
@@ -148,6 +150,7 @@ export function Device({
   const invalidate = useThree((state) => state.invalidate);
   const controlPhysics = useControlPhysics();
   const wheelAssemblyRef = useRef<Group>(null);
+  const selectRef = useRef<Mesh>(null);
   // A getter, not a value: r3f swaps the camera on some prop changes and the
   // viewport changes on every resize, so the handle must read both at the
   // moment it projects rather than capture them (see `screen-mesh.ts`).
@@ -286,6 +289,20 @@ export function Device({
       bevelSegments: BEVEL_SEGMENTS,
       curveSegments: 1,
     });
+    // Three applies the outer-shell bevel to holes as well. The real 5G LCD
+    // opening is square to the glossy face, so collapse only this hole's
+    // generated slope before the shell crown is applied.
+    squareRoundedRectApertureWalls(
+      extrusion,
+      {
+        centerX: displayWell.centerX,
+        centerY: displayWell.centerY,
+        width: displayWell.width,
+        height: displayWell.height,
+        cornerR: displayWell.cornerR,
+      },
+      form.frontBevel,
+    );
     const geometry = tessellateVerticalCrown(
       extrusion,
       body.height / 2 - seam,
@@ -376,8 +393,12 @@ export function Device({
     return controlPhysics?.attachWheel(assembly);
   }, [controlPhysics]);
   useEffect(
-    () => controlPhysics?.attachSelect(selectGeometry),
-    [controlPhysics, selectGeometry],
+    () => {
+      const select = selectRef.current;
+      if (select === null) return;
+      return controlPhysics?.attachSelect(select);
+    },
+    [controlPhysics],
   );
 
   const glassGeometry = useMemo(() => {
@@ -387,14 +408,11 @@ export function Device({
       glass.cornerR,
       12,
     );
-    const geometry = new ExtrudeGeometry(shape, {
-      depth: form.glassThickness,
-      bevelEnabled: false,
-      curveSegments: 1,
-    });
-    geometry.translate(0, 0, -form.glassThickness);
-    return geometry;
-  }, [form.glassThickness]);
+    // The cover sheet contributes reflection across its face, not a raised
+    // perimeter. A planar shape keeps its thickness from becoming a visible
+    // silver lip around the LCD opening at oblique viewing angles.
+    return new ShapeGeometry(shape, 1);
+  }, []);
   useEffect(() => () => glassGeometry.dispose(), [glassGeometry]);
 
   const displayMaskGeometry = useMemo(() => {
@@ -436,13 +454,15 @@ export function Device({
       12,
     );
     const geometry = new ExtrudeGeometry(shape, {
-      depth: Math.max(0.1, form.displayWellDepth),
+      // Fill the complete opening depth with black so the glossy face's own
+      // hole wall never becomes a reflective bezel at a quarter view.
+      depth: Math.max(0.1, form.displayWellInset),
       bevelEnabled: false,
       curveSegments: 1,
     });
-    geometry.translate(0, 0, -Math.max(0.1, form.displayWellDepth));
+    geometry.translate(0, 0, -Math.max(0.1, form.displayWellInset));
     return geometry;
-  }, [form.displayWellDepth]);
+  }, [form.displayWellInset]);
   useEffect(() => () => displayWellGeometry.dispose(), [displayWellGeometry]);
 
   const rearInlayGeometry = useMemo(() => {
@@ -528,7 +548,7 @@ export function Device({
 
   // ── Every front insert is resolved from the same crowned shell ─────────────
   const {
-    displayWellFrontZ,
+    displayReferenceZ,
     glassFrontZ,
     screenFrontZ,
     wheelSurfaceBaseZ,
@@ -643,10 +663,10 @@ export function Device({
         geometry={displayMaskGeometry}
         position={[mask.centerX, mask.centerY, screenFrontZ + 0.1]}
       >
-        <meshPhysicalMaterial
-          name="display-mask"
-          {...spread(materials.displayWell)}
-          {...studioEnvironmentProps(materials.displayWell, studio)}
+        <meshBasicMaterial
+          name="display-reveal"
+          color={materials.screenReveal.color}
+          toneMapped={materials.screenReveal.toneMapped}
         />
       </mesh>
 
@@ -765,12 +785,12 @@ export function Device({
       <mesh
         name="device-display-well"
         geometry={displayWellGeometry}
-        position={[glass.centerX, glass.centerY, displayWellFrontZ]}
+        position={[glass.centerX, glass.centerY, displayReferenceZ]}
       >
-        <meshPhysicalMaterial
-          name="display-well"
-          {...spread(materials.displayWell)}
-          {...studioEnvironmentProps(materials.displayWell, studio)}
+        <meshBasicMaterial
+          name="display-reveal-wall"
+          color={materials.screenReveal.color}
+          toneMapped={materials.screenReveal.toneMapped}
         />
       </mesh>
 
@@ -833,6 +853,7 @@ export function Device({
           and normals match the wheel exactly; only the one-pixel assembly gap
           and independent material identify the part. */}
       <mesh
+        ref={selectRef}
         name="device-select"
         geometry={selectGeometry}
         position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}

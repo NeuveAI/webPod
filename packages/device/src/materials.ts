@@ -92,6 +92,8 @@ export type DeviceMaterials = {
   readonly wheelLabelBlack: string;
   readonly wheelLabelWhite: string;
   readonly coverGlass: PhysicalSurfaceParams;
+  /** Non-reflective black assembly reveal between the face opening and LCD. */
+  readonly screenReveal: ScreenSurfaceParams;
   readonly screen: ScreenSurfaceParams;
 };
 
@@ -324,6 +326,10 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     opacity: 0.12,
     transparent: true,
     envMapIntensity: 0.16,
+  },
+  screenReveal: {
+    color: "#050608",
+    toneMapped: false,
   },
   screen: {
     // The standalone default. W6 replaces the map; see `screen-mesh.ts`.

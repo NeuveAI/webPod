@@ -1,5 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { Euler, Group, Matrix4, Mesh, Quaternion, Vector3 } from "three";
+import {
+  Group,
+  Matrix4,
+  Mesh,
+  MeshPhysicalMaterial,
+  Quaternion,
+  Vector3,
+} from "three";
 
 import {
   CONTROL_RELEASE_MS,
@@ -55,6 +62,20 @@ function selectGeometry() {
     },
     DEFAULT_DEVICE_FORM,
   );
+}
+
+function productionSelectControl() {
+  const geometry = selectGeometry();
+  const material = new MeshPhysicalMaterial({
+    color: "#F6F2E9",
+    metalness: 0,
+    roughness: 0.72,
+  });
+  const select = new Mesh(geometry, material);
+  select.name = "device-select";
+  select.position.set(4.5, -6.25, 3.75);
+  select.updateMatrix();
+  return { select, geometry, material };
 }
 
 function productionWheelAssembly() {
@@ -119,20 +140,6 @@ function snapshot(
   return attribute.array.slice();
 }
 
-function maximumTripletDelta(
-  before: Float32Array,
-  after: Float32Array,
-): number {
-  let maximum = 0;
-  for (let index = 0; index < before.length; index += 3) {
-    const dx = (after[index] ?? 0) - (before[index] ?? 0);
-    const dy = (after[index + 1] ?? 0) - (before[index + 1] ?? 0);
-    const dz = (after[index + 2] ?? 0) - (before[index + 2] ?? 0);
-    maximum = Math.max(maximum, Math.hypot(dx, dy, dz));
-  }
-  return maximum;
-}
-
 function transformedPositions(
   positions: Float32Array,
   matrix: Matrix4,
@@ -192,7 +199,8 @@ describe("rigid physical click-wheel tilt", () => {
     expect(CONTROL_TRAVEL.wheelModel).toBeLessThan(
       WHEEL_GAP_FLOOR_OFFSET,
     );
-    expect(CONTROL_TRAVEL.selectMm).toBe(0.36);
+    expect(CONTROL_TRAVEL.selectMm).toBe(0.12);
+    expect(CONTROL_TRAVEL.selectMm).toBeLessThan(0.15);
     expect(CONTROL_RELEASE_MS).toEqual({ wheel: 120, select: 96 });
     expect(CONTROL_STALLED_FRAME_LIMIT).toBe(24);
   });
@@ -407,11 +415,15 @@ describe("rigid physical click-wheel tilt", () => {
     second.backing.dispose();
   });
 
-  test("Select remains a separate deeper local-normal press", () => {
+  test("Select is one restrained device-local Z press with invariant plastic", () => {
     const { assembly, ring, backing } = productionWheelAssembly();
-    const select = selectGeometry();
-    const selectRest = snapshot(select, "position");
-    const selectNormal = snapshot(select, "normal");
+    const { select, geometry, material } = productionSelectControl();
+    const selectRest = select.position.clone();
+    const selectRestQuaternion = select.quaternion.clone();
+    const selectRestScale = select.scale.clone();
+    const geometryPosition = snapshot(geometry, "position");
+    const geometryNormal = snapshot(geometry, "normal");
+    const materialSnapshot = material.toJSON();
     const controller = new ControlPhysicsController(
       new FrameHarness().dependencies,
     );
@@ -419,41 +431,34 @@ describe("rigid physical click-wheel tilt", () => {
     controller.attachSelect(select);
     controller.pressWheel(0);
     controller.pressSelect();
-    const selectMoved = snapshot(select, "position");
 
-    expect(maximumTripletDelta(selectRest, selectMoved)).toBeCloseTo(
-      CONTROL_TRAVEL.selectModel,
-      4,
+    expect(select.position.x).toBe(selectRest.x);
+    expect(select.position.y).toBe(selectRest.y);
+    expect(select.position.z).toBeCloseTo(
+      selectRest.z - CONTROL_TRAVEL.selectModel,
+      12,
     );
+    expect(select.quaternion.toArray()).toEqual(selectRestQuaternion.toArray());
+    expect(select.scale.toArray()).toEqual(selectRestScale.toArray());
     expect(CONTROL_TRAVEL.selectModel).toBeGreaterThan(
       CONTROL_TRAVEL.wheelModel * 10,
     );
-    const index = Math.floor(select.getAttribute("position").count * 0.73) * 3;
-    const localTravel = new Vector3(
-      (selectMoved[index] ?? 0) - (selectRest[index] ?? 0),
-      (selectMoved[index + 1] ?? 0) - (selectRest[index + 1] ?? 0),
-      (selectMoved[index + 2] ?? 0) - (selectRest[index + 2] ?? 0),
-    );
-    const localNormal = new Vector3(
-      selectNormal[index] ?? 0,
-      selectNormal[index + 1] ?? 0,
-      selectNormal[index + 2] ?? 0,
-    );
-    const rotation = new Matrix4().makeRotationFromEuler(
-      new Euler(0.41, -0.63, 0.22, "XYZ"),
-    );
-    expect(
-      localTravel
-        .clone()
-        .transformDirection(rotation)
-        .normalize()
-        .dot(localNormal.clone().transformDirection(rotation)),
-    ).toBeCloseTo(-1, 6);
+    expect(select.material).toBe(material);
+    expect(material.toJSON()).toEqual(materialSnapshot);
+    expect([...snapshot(geometry, "position")]).toEqual([...geometryPosition]);
+    expect([...snapshot(geometry, "normal")]).toEqual([...geometryNormal]);
+
+    controller.releaseSelect();
+    controller.setReducedMotion(true);
+    expect(select.position.toArray()).toEqual(selectRest.toArray());
+    expect(select.material).toBe(material);
+    expect(material.toJSON()).toEqual(materialSnapshot);
 
     controller.dispose();
     ring.dispose();
     backing.dispose();
-    select.dispose();
+    geometry.dispose();
+    material.dispose();
   });
 
   test("wheel and Select release durations are invariant from 15 through 360 Hz", () => {
@@ -462,9 +467,10 @@ describe("rigid physical click-wheel tilt", () => {
         const harness = new FrameHarness();
         const controller = new ControlPhysicsController(harness.dependencies);
         const assemblyBundle = productionWheelAssembly();
-        const select = selectGeometry();
+        const selectBundle = productionSelectControl();
+        const select = selectBundle.select;
         const wheelRest = assemblyBundle.assembly.quaternion.clone();
-        const selectRest = snapshot(select, "position");
+        const selectRest = select.position.clone();
         if (control === "wheel") {
           controller.attachWheel(assemblyBundle.assembly);
           controller.pressWheel(45);
@@ -489,7 +495,7 @@ describe("rigid physical click-wheel tilt", () => {
             wheelRest.toArray(),
           );
         } else {
-          expect([...snapshot(select, "position")]).toEqual([...selectRest]);
+          expect(select.position.toArray()).toEqual(selectRest.toArray());
         }
         expect(harness.pending).toBe(0);
         if (refreshHz === 360 && control === "wheel") {
@@ -498,7 +504,8 @@ describe("rigid physical click-wheel tilt", () => {
         controller.dispose();
         assemblyBundle.ring.dispose();
         assemblyBundle.backing.dispose();
-        select.dispose();
+        selectBundle.geometry.dispose();
+        selectBundle.material.dispose();
       }
     }
   });
@@ -579,6 +586,14 @@ describe("rigid physical click-wheel tilt", () => {
     expect(
       await Bun.file("packages/device/src/wheel-readability.ts").exists(),
     ).toBeFalse();
-    expect(device).toContain("controlPhysics?.attachSelect(selectGeometry)");
+    expect(device).toContain("controlPhysics?.attachSelect(select)");
+    expect(physics).not.toMatch(
+      /deformSelectSurface|position\.array|normal\.array|Mesh(?:Basic|Standard|Physical)Material|new Color|opacity|emissive|onBeforeCompile/i,
+    );
+    const selectMesh = device.slice(
+      device.indexOf('name="device-select"'),
+      device.indexOf("{/* ⚑ The W6 boundary"),
+    );
+    expect(selectMesh).not.toMatch(/pressed|activeMaterial|opacity|emissive|shader/i);
   });
 });

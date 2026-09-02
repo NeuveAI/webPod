@@ -1,7 +1,4 @@
 import {
-  type BufferAttribute,
-  type BufferGeometry,
-  DynamicDrawUsage,
   type Object3D,
   Quaternion,
   Vector3,
@@ -24,9 +21,11 @@ export const CONTROL_TRAVEL = Object.freeze({
   // both the rejected 0.08 mm basin and rejected 0.03 mm whole-wheel shift.
   // It remains bounded visual calibration, not an OEM dimension.
   wheelMm: 0.006,
-  selectMm: 0.36,
+  // Select is a separate plastic part, but its live travel must remain a
+  // restrained near-flush device-local translation rather than a deep pocket.
+  selectMm: 0.12,
   wheelModel: 0.006 * PX_PER_MM,
-  selectModel: 0.36 * PX_PER_MM,
+  selectModel: 0.12 * PX_PER_MM,
 });
 
 const WHEEL_VISIBLE_RADIUS_MODEL =
@@ -48,18 +47,6 @@ export const CONTROL_RELEASE_MS = Object.freeze({
 /** Consecutive non-advancing timestamps tolerated before a safety settle. */
 export const CONTROL_STALLED_FRAME_LIMIT = 24;
 
-type MutableFloatAttribute = BufferAttribute & {
-  readonly array: Float32Array;
-};
-
-type BoundSurface = {
-  readonly geometry: BufferGeometry;
-  readonly position: MutableFloatAttribute;
-  readonly normal: MutableFloatAttribute;
-  readonly restPosition: Float32Array;
-  readonly restNormal: Float32Array;
-};
-
 type BoundRigidAssembly = {
   readonly object: Object3D;
   readonly restX: number;
@@ -71,6 +58,15 @@ type BoundRigidAssembly = {
   readonly tiltQuaternion: Quaternion;
 };
 
+type BoundAxialControl = {
+  readonly object: Object3D;
+  readonly restX: number;
+  readonly restY: number;
+  readonly restZ: number;
+  readonly restQuaternion: Quaternion;
+  readonly restScale: Vector3;
+};
+
 type Release = {
   readonly startedAtMs: number;
   readonly initialDepth: number;
@@ -80,7 +76,6 @@ type Release = {
 };
 
 type Channel = {
-  surface: BoundSurface | null;
   depth: number;
   release: Release | null;
 };
@@ -96,50 +91,6 @@ export type ControlPhysicsDependencies = {
   readonly cancelFrame: (frame: ControlPhysicsFrame) => void;
 };
 
-function mutableFloatAttribute(
-  geometry: BufferGeometry,
-  name: "position" | "normal",
-): MutableFloatAttribute {
-  const attribute = geometry.getAttribute(name);
-  if (!(attribute.array instanceof Float32Array) || attribute.itemSize !== 3) {
-    throw new Error(`control physics requires a Float32 ${name} attribute`);
-  }
-  return attribute as MutableFloatAttribute;
-}
-
-function bindSurface(geometry: BufferGeometry): BoundSurface {
-  const position = mutableFloatAttribute(geometry, "position");
-  const normal = mutableFloatAttribute(geometry, "normal");
-  position.setUsage(DynamicDrawUsage);
-  normal.setUsage(DynamicDrawUsage);
-  return {
-    geometry,
-    position,
-    normal,
-    restPosition: position.array.slice(),
-    restNormal: normal.array.slice(),
-  };
-}
-
-function markChanged(surface: BoundSurface): void {
-  surface.position.needsUpdate = true;
-  surface.normal.needsUpdate = true;
-}
-
-function componentAt(array: Float32Array, index: number): number {
-  const value = array[index];
-  if (value === undefined) {
-    throw new Error("control physics attribute triplet is incomplete");
-  }
-  return value;
-}
-
-function restoreSurface(surface: BoundSurface): void {
-  surface.position.array.set(surface.restPosition);
-  surface.normal.array.set(surface.restNormal);
-  markChanged(surface);
-}
-
 function bindRigidAssembly(object: Object3D): BoundRigidAssembly {
   return {
     object,
@@ -151,6 +102,28 @@ function bindRigidAssembly(object: Object3D): BoundRigidAssembly {
     tiltAxis: new Vector3(),
     tiltQuaternion: new Quaternion(),
   };
+}
+
+function bindAxialControl(object: Object3D): BoundAxialControl {
+  return {
+    object,
+    restX: object.position.x,
+    restY: object.position.y,
+    restZ: object.position.z,
+    restQuaternion: object.quaternion.clone(),
+    restScale: object.scale.clone(),
+  };
+}
+
+function translateAxialControl(control: BoundAxialControl, depth: number): void {
+  control.object.position.set(control.restX, control.restY, control.restZ - depth);
+  control.object.quaternion.copy(control.restQuaternion);
+  control.object.scale.copy(control.restScale);
+  control.object.updateMatrix();
+}
+
+function restoreAxialControl(control: BoundAxialControl): void {
+  translateAxialControl(control, 0);
 }
 
 function normalizeAngleDeg(angleDeg: number): number {
@@ -197,34 +170,8 @@ function restoreRigidAssembly(assembly: BoundRigidAssembly): void {
   assembly.object.updateMatrix();
 }
 
-/** Uniform Select travel still follows every vertex's curved local normal. */
-export function deformSelectSurface(
-  surface: BoundSurface,
-  depth: number,
-): void {
-  const p = surface.position.array;
-  const n = surface.normal.array;
-  const p0 = surface.restPosition;
-  const n0 = surface.restNormal;
-  for (let index = 0; index < p.length; index += 3) {
-    const px = componentAt(p0, index);
-    const py = componentAt(p0, index + 1);
-    const pz = componentAt(p0, index + 2);
-    const nx = componentAt(n0, index);
-    const ny = componentAt(n0, index + 1);
-    const nz = componentAt(n0, index + 2);
-    p[index] = px - nx * depth;
-    p[index + 1] = py - ny * depth;
-    p[index + 2] = pz - nz * depth;
-    n[index] = nx;
-    n[index + 1] = ny;
-    n[index + 2] = nz;
-  }
-  markChanged(surface);
-}
-
 function channel(): Channel {
-  return { surface: null, depth: 0, release: null };
+  return { depth: 0, release: null };
 }
 
 /**
@@ -237,6 +184,7 @@ export class ControlPhysicsController {
   readonly #wheel = channel();
   readonly #select = channel();
   #wheelAssembly: BoundRigidAssembly | null = null;
+  #selectControl: BoundAxialControl | null = null;
   #frame: ControlPhysicsFrame | null = null;
   #reducedMotion = false;
   #disposed = false;
@@ -267,8 +215,21 @@ export class ControlPhysicsController {
     };
   }
 
-  attachSelect(geometry: BufferGeometry): () => void {
-    return this.#attach(this.#select, geometry);
+  attachSelect(object: Object3D): () => void {
+    if (this.#selectControl !== null) restoreAxialControl(this.#selectControl);
+    const control = bindAxialControl(object);
+    this.#selectControl = control;
+    this.#select.depth = 0;
+    this.#select.release = null;
+    this.#cancelFrameWhenSettled();
+    return () => {
+      if (this.#selectControl !== control) return;
+      restoreAxialControl(control);
+      this.#selectControl = null;
+      this.#select.depth = 0;
+      this.#select.release = null;
+      this.#cancelFrameWhenSettled();
+    };
   }
 
   pressWheel(contactAngleDeg: number): void {
@@ -334,23 +295,6 @@ export class ControlPhysicsController {
     this.#frame = null;
     this.#settle(this.#wheel);
     this.#settle(this.#select);
-  }
-
-  #attach(channelState: Channel, geometry: BufferGeometry): () => void {
-    if (channelState.surface !== null) restoreSurface(channelState.surface);
-    const surface = bindSurface(geometry);
-    channelState.surface = surface;
-    channelState.depth = 0;
-    channelState.release = null;
-    this.#cancelFrameWhenSettled();
-    return () => {
-      if (channelState.surface !== surface) return;
-      restoreSurface(surface);
-      channelState.surface = null;
-      channelState.depth = 0;
-      channelState.release = null;
-      this.#cancelFrameWhenSettled();
-    };
   }
 
   #release(channelState: Channel, durationMs: number): void {
@@ -425,22 +369,19 @@ export class ControlPhysicsController {
   }
 
   #renderSelect(): void {
-    if (this.#select.surface === null) return;
-    if (this.#select.depth === 0) {
-      restoreSurface(this.#select.surface);
-      return;
-    }
-    deformSelectSurface(this.#select.surface, this.#select.depth);
+    if (this.#selectControl === null) return;
+    translateAxialControl(this.#selectControl, this.#select.depth);
   }
 
   #settle(channelState: Channel): void {
     channelState.depth = 0;
     channelState.release = null;
-    if (channelState.surface !== null) restoreSurface(channelState.surface);
     if (channelState === this.#wheel) {
       if (this.#wheelAssembly !== null) {
         restoreRigidAssembly(this.#wheelAssembly);
       }
+    } else if (this.#selectControl !== null) {
+      restoreAxialControl(this.#selectControl);
     }
   }
 
