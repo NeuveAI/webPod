@@ -45,6 +45,25 @@ describe('typed navigation graph', () => {
     expect(facets?.rows.map((row) => row.label)).toEqual(['Artists', 'Albums', 'Songs'])
   })
 
+  test('every supported root row resolves to its declared real section', async () => {
+    const root = navigationRoot(fixtureNavigationSource, provider)
+    const expected = ['cover-flow', 'playlists', 'artists', 'albums', 'songs', 'genres', 'stations', 'search-entry']
+    const resolved = await Promise.all(root.rows.map(async (_row, index) =>
+      (await selectNavigation(highlight(root, index), fixtureNavigationSource, provider)).frame?.route?.kind))
+    expect(resolved).toEqual(expected)
+  })
+
+  test('search entry retains the provider result LocalKeys into playback', async () => {
+    const root = navigationRoot(fixtureNavigationSource, provider)
+    const entry = (await selectNavigation(highlight(root, root.rows.length - 1), fixtureNavigationSource, provider)).frame
+    if (entry === null) throw new Error('search entry missing')
+    const results = (await selectNavigation(entry, fixtureNavigationSource, provider)).frame
+    expect(results?.route?.kind).toBe('search-results')
+    if (results === null) throw new Error('search results missing')
+    await selectNavigation(results, fixtureNavigationSource, provider)
+    expect(provider.playback.now?.key).toBe(fixtureNavigationSource.songs[0]?.key)
+  })
+
   test('unsupported radio is absent instead of disabled', () => {
     const withoutRadio = createFixtureProvider({ supports: { stations: false } })
     const root = navigationRoot(fixtureNavigationSource, withoutRadio)
