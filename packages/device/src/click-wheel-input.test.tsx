@@ -5,14 +5,12 @@ import {
   CLICK_WHEEL_INPUT_POSITION,
   CLICK_WHEEL_INPUT_RADII,
   acceptsClickWheelPointer,
-  clampWheelContactToRing,
   clockwiseWheelAngleDeg,
   createClickWheelCaptureSlot,
   finishClickWheelCapture,
   shortestWheelDeltaDeg,
   type ClickWheelArcEnd,
   wheelAngleFromRay,
-  wheelContactFromRay,
 } from "./click-wheel-input";
 import { DEVICE_LAYOUT } from "./layout";
 import { DEFAULT_FRONT_ASSEMBLY_DEPTHS } from "./front-surface";
@@ -92,42 +90,18 @@ describe("click-wheel input geometry", () => {
     expect(clockwiseQuarter).toBeCloseTo(90, 8);
   });
 
-  test("returns transformed body-local contact without moving the hit plane", () => {
+  test("returns the transformed body-local angle without moving the hit plane", () => {
     const parent = new Group();
     const mesh = wheelMesh();
     parent.add(mesh);
     parent.rotation.set(0.31, -0.47, 0.18);
     parent.updateWorldMatrix(true, true);
-    const hit = wheelContactFromRay(
+    const angle = wheelAngleFromRay(
       mesh,
       rayAtExpectedMatrix(mesh.matrixWorld, 0, -82),
     );
-    expect(hit?.angleDeg).toBeCloseTo(90, 8);
-    expect(hit?.x).toBeCloseTo(0, 8);
-    expect(hit?.y).toBeCloseTo(-82, 8);
-    expect(hit?.radius).toBeCloseTo(82, 8);
+    expect(angle).toBeCloseTo(90, 8);
     expect(mesh.position.toArray()).toEqual([...CLICK_WHEEL_INPUT_POSITION]);
-  });
-
-  test("captured contacts remain on wheel plastic at any pointer radius", () => {
-    const outside = clampWheelContactToRing({
-      angleDeg: 90,
-      x: 0,
-      y: -900,
-      radius: 900,
-    });
-    const inside = clampWheelContactToRing({
-      angleDeg: -90,
-      x: 0,
-      y: 1,
-      radius: 1,
-    });
-    expect(outside.x).toBeCloseTo(0, 8);
-    expect(outside.y).toBeLessThan(-CLICK_WHEEL_INPUT_RADII.inner);
-    expect(Math.hypot(outside.x, outside.y)).toBeLessThan(
-      CLICK_WHEEL_INPUT_RADII.outer,
-    );
-    expect(inside.y).toBeGreaterThan(CLICK_WHEEL_INPUT_RADII.inner);
   });
 
   test("returns null when the current ray is parallel to the wheel plane", () => {

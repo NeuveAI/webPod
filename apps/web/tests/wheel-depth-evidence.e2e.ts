@@ -9,12 +9,13 @@ import {
 } from "../../../packages/panel/node_modules/@playwright/test/index.js";
 
 const evidenceDirectory = resolve(
-  process.env["W9A_DEPTH_EVIDENCE_DIR"] ??
-    resolve(import.meta.dirname, "test-results/w9a-wheel-depth"),
+  process.env["W9A_RIGID_EVIDENCE_DIR"] ??
+    resolve(import.meta.dirname, "test-results/w9a-rigid-wheel"),
 );
 
 type Colourway = "black" | "white";
 type Pose = "front" | "three-quarter";
+type State = "rest" | "held" | "released";
 
 test.use({
   channel: "chrome",
@@ -26,12 +27,16 @@ async function setPreview(
   colourway: Colourway,
   pose: Pose,
 ): Promise<void> {
-  await page.evaluate(({ colourway: nextColourway, pose: nextPose }) => {
-    const preview = window.__webpodDevicePreview;
-    if (preview === undefined) throw new Error("device preview API is absent");
-    preview.setColourway(nextColourway);
-    preview.setPose(nextPose);
-  }, { colourway, pose });
+  await page.evaluate(
+    ({ colourway: nextColourway, pose: nextPose }) => {
+      const preview = window.__webpodDevicePreview;
+      if (preview === undefined)
+        throw new Error("device preview API is absent");
+      preview.setColourway(nextColourway);
+      preview.setPose(nextPose);
+    },
+    { colourway, pose },
+  );
   await expect(page.locator(".webpod-device-preview")).toHaveAttribute(
     "data-colourway",
     colourway,
@@ -61,128 +66,7 @@ async function wheelContactPoint(page: Page): Promise<{
   return { x: centerX + diagonal, y: centerY - diagonal };
 }
 
-type DifferenceShape = {
-  readonly changedPixels: number;
-  readonly width: number;
-  readonly height: number;
-  readonly principalAspect: number;
-};
-
-/** Immutable metrics from the owner-rejected, committed quarter-view pair. */
-const REJECTED_WHITE_QUARTER = Object.freeze({
-  restSha256: "797e7037171e7f64610de4bfc25457d605c5e1fabe167f5233df9cd7d01f1104",
-  heldSha256: "f2d5f92a2ac6637ed34fe6547622eff487e3b1475e695982b3212c6c6fc18a79",
-  shape: Object.freeze({
-    changedPixels: 3355,
-    width: 67,
-    height: 100,
-    principalAspect: 1.7435991261850328,
-  }),
-});
-
-async function differenceShape(
-  page: Page,
-  restPng: Buffer,
-  heldPng: Buffer,
-): Promise<DifferenceShape> {
-  return page.evaluate(
-    async ({ restBase64, heldBase64 }) => {
-      const decode = async (base64: string): Promise<ImageData> => {
-        const image = new Image();
-        const ready = new Promise<void>((resolveImage, rejectImage) => {
-          image.onload = () => resolveImage();
-          image.onerror = () =>
-            rejectImage(new Error("wheel evidence image decode failed"));
-        });
-        image.src = `data:image/png;base64,${base64}`;
-        await ready;
-        const canvas = document.createElement("canvas");
-        canvas.width = image.naturalWidth;
-        canvas.height = image.naturalHeight;
-        const context = canvas.getContext("2d");
-        if (context === null) {
-          throw new Error("wheel evidence comparison requires a 2D context");
-        }
-        context.drawImage(image, 0, 0);
-        return context.getImageData(0, 0, canvas.width, canvas.height);
-      };
-      const [rest, held] = await Promise.all([
-        decode(restBase64),
-        decode(heldBase64),
-      ]);
-      if (rest.width !== held.width || rest.height !== held.height) {
-        throw new Error("wheel evidence images have different dimensions");
-      }
-
-      // A sub-pixel luma threshold removes codec-free antialias noise while
-      // retaining the deliberately shallow 0.08 mm lighting response.
-      const threshold = 0.75;
-      let changedPixels = 0;
-      let left = rest.width;
-      let top = rest.height;
-      let right = -1;
-      let bottom = -1;
-      let totalWeight = 0;
-      let weightedX = 0;
-      let weightedY = 0;
-      let weightedXX = 0;
-      let weightedXY = 0;
-      let weightedYY = 0;
-      for (let y = 0; y < rest.height; y += 1) {
-        for (let x = 0; x < rest.width; x += 1) {
-          const offset = (y * rest.width + x) * 4;
-          const luma = (data: Uint8ClampedArray): number =>
-            0.2126 * (data[offset] ?? 0) +
-            0.7152 * (data[offset + 1] ?? 0) +
-            0.0722 * (data[offset + 2] ?? 0);
-          const difference = Math.abs(luma(rest.data) - luma(held.data));
-          if (difference <= threshold) continue;
-          const weight = difference - threshold;
-          changedPixels += 1;
-          left = Math.min(left, x);
-          top = Math.min(top, y);
-          right = Math.max(right, x);
-          bottom = Math.max(bottom, y);
-          totalWeight += weight;
-          weightedX += weight * x;
-          weightedY += weight * y;
-          weightedXX += weight * x * x;
-          weightedXY += weight * x * y;
-          weightedYY += weight * y * y;
-        }
-      }
-      if (changedPixels === 0 || totalWeight === 0) {
-        return { changedPixels: 0, width: 0, height: 0, principalAspect: 1 };
-      }
-      const meanX = weightedX / totalWeight;
-      const meanY = weightedY / totalWeight;
-      const covarianceXX = weightedXX / totalWeight - meanX * meanX;
-      const covarianceXY = weightedXY / totalWeight - meanX * meanY;
-      const covarianceYY = weightedYY / totalWeight - meanY * meanY;
-      const trace = covarianceXX + covarianceYY;
-      const discriminant = Math.sqrt(
-        Math.max(
-          0,
-          (covarianceXX - covarianceYY) ** 2 + 4 * covarianceXY ** 2,
-        ),
-      );
-      const major = Math.max(0, (trace + discriminant) / 2);
-      const minor = Math.max(1e-9, (trace - discriminant) / 2);
-      return {
-        changedPixels,
-        width: right - left + 1,
-        height: bottom - top + 1,
-        principalAspect: Math.sqrt(major / minor),
-      };
-    },
-    {
-      restBase64: restPng.toString("base64"),
-      heldBase64: heldPng.toString("base64"),
-    },
-  );
-}
-
-test("production pointer proves depth-only wheel geometry in both finishes and poses", async ({
+test("production pointer proves one rigid wheel press in both finishes and poses", async ({
   page,
 }) => {
   await mkdir(evidenceDirectory, { recursive: true });
@@ -198,7 +82,8 @@ test("production pointer proves depth-only wheel geometry in both finishes and p
 
   const health = await page.evaluate(async () => {
     const response = await fetch("/__webpod_health", { cache: "no-store" });
-    if (!response.ok) throw new Error(`health returned ${String(response.status)}`);
+    if (!response.ok)
+      throw new Error(`health returned ${String(response.status)}`);
     return response.json() as Promise<{
       expected: string;
       current: string;
@@ -211,31 +96,24 @@ test("production pointer proves depth-only wheel geometry in both finishes and p
   const captures: Array<{
     readonly colourway: Colourway;
     readonly pose: Pose;
-    readonly state: "rest" | "held" | "released";
+    readonly state: State;
     readonly filename: string;
     readonly sha256: string;
   }> = [];
-  const captureBytes = new Map<string, Buffer>();
-
+  const hashes = new Map<string, string>();
   const recordCapture = async (
     colourway: Colourway,
     pose: Pose,
-    state: "rest" | "held" | "released",
+    state: State,
   ): Promise<void> => {
     const filename = `${colourway}-${pose}-${state}.png`;
-    const path = resolve(evidenceDirectory, filename);
     const bytes = await root.screenshot({
-      path,
+      path: resolve(evidenceDirectory, filename),
       animations: "disabled",
     });
-    captureBytes.set(`${colourway}-${pose}-${state}`, bytes);
-    captures.push({
-      colourway,
-      pose,
-      state,
-      filename,
-      sha256: createHash("sha256").update(bytes).digest("hex"),
-    });
+    const sha256 = createHash("sha256").update(bytes).digest("hex");
+    hashes.set(`${colourway}-${pose}-${state}`, sha256);
+    captures.push({ colourway, pose, state, filename, sha256 });
   };
 
   for (const colourway of ["black", "white"] as const) {
@@ -250,7 +128,6 @@ test("production pointer proves depth-only wheel geometry in both finishes and p
     await page.mouse.down();
     await expect(root).toHaveAttribute("data-wp-wheel-gesture", "active");
     await page.waitForTimeout(80);
-
     await recordCapture(colourway, "front", "held");
 
     await setPreview(page, colourway, "three-quarter");
@@ -266,36 +143,18 @@ test("production pointer proves depth-only wheel geometry in both finishes and p
   }
 
   expect(captures).toHaveLength(12);
-  const visualComparisons: Array<{
-    readonly colourway: Colourway;
-    readonly pose: Pose;
-    readonly corrected: DifferenceShape;
-  }> = [];
   for (const colourway of ["black", "white"] as const) {
     for (const pose of ["front", "three-quarter"] as const) {
-      const rest = captureBytes.get(`${colourway}-${pose}-rest`);
-      const held = captureBytes.get(`${colourway}-${pose}-held`);
-      if (rest === undefined || held === undefined) {
-        throw new Error("corrected wheel evidence is incomplete");
-      }
-      const corrected = await differenceShape(page, rest, held);
-      expect(corrected.changedPixels).toBeGreaterThan(0);
-      visualComparisons.push({ colourway, pose, corrected });
+      const rest = hashes.get(`${colourway}-${pose}-rest`);
+      const held = hashes.get(`${colourway}-${pose}-held`);
+      const released = hashes.get(`${colourway}-${pose}-released`);
+      expect(rest).toBeDefined();
+      expect(held).toBeDefined();
+      expect(released).toBe(rest);
+      expect(held).not.toBe(rest);
     }
   }
-  const rejectedWhiteQuarter = visualComparisons.find(
-    ({ colourway, pose }) =>
-      colourway === "white" && pose === "three-quarter",
-  );
-  if (rejectedWhiteQuarter === undefined) {
-    throw new Error("white three-quarter comparison is absent");
-  }
-  expect(rejectedWhiteQuarter.corrected.changedPixels).toBeLessThan(
-    REJECTED_WHITE_QUARTER.shape.changedPixels * 0.8,
-  );
-  expect(rejectedWhiteQuarter.corrected.principalAspect).toBeLessThan(
-    REJECTED_WHITE_QUARTER.shape.principalAspect,
-  );
+
   await writeFile(
     resolve(evidenceDirectory, "summary.json"),
     `${JSON.stringify(
@@ -308,17 +167,15 @@ test("production pointer proves depth-only wheel geometry in both finishes and p
           "data-wp-wheel-gesture=active",
           "hold",
           "mouse.up",
-          "release settle",
+          "120ms demand-driven release settle",
         ],
         syntheticControlPose: false,
         controlQueryParameter: false,
-        wheelTravelMm: 0.08,
-        visualComparison: {
-          rejectedBaseline: "evidence/w9a-depth-only",
-          rejectedWhiteQuarter: REJECTED_WHITE_QUARTER,
-          thresholdLuma: 0.75,
-          visualComparisons,
-        },
+        wheelTravelMm: 0.03,
+        wheelMotion: "one rigid device-local negative-Z assembly translation",
+        geometryMutation: false,
+        normalMutation: false,
+        auxiliaryOpticalCue: false,
         health,
         captures,
       },

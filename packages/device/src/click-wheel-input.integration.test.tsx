@@ -60,7 +60,7 @@ type MountedSurface = {
 };
 
 class RecordingControlPhysics extends ControlPhysicsController {
-  wheelContacts = 0;
+  wheelPresses = 0;
   wheelReleases = 0;
   selectPresses = 0;
   selectReleases = 0;
@@ -75,9 +75,9 @@ class RecordingControlPhysics extends ControlPhysicsController {
     super(dependencies);
   }
 
-  override wheelContact(contact: { readonly x: number; readonly y: number }): void {
-    this.wheelContacts += 1;
-    super.wheelContact(contact);
+  override pressWheel(): void {
+    this.wheelPresses += 1;
+    super.pressWheel();
   }
 
   override releaseWheel(): void {
@@ -342,7 +342,9 @@ describe("click-wheel mounted R3F event seam", () => {
       await dispatch(mounted, pointerEvent("pointerup", pointerId, 0, -145));
       expect(mounted.ends.map((end) => end.reason)).toEqual(["release"]);
       expect(mounted.canvas.hasPointerCapture(pointerId)).toBeFalse();
-      expect(mounted.controlPhysics.wheelContacts).toBe(2);
+      // Pointer movement still reaches the navigation runtime, but physical
+      // wheel travel is one rigid press rather than a travelling deformation.
+      expect(mounted.controlPhysics.wheelPresses).toBe(1);
       expect(mounted.controlPhysics.wheelReleases).toBe(1);
     } finally {
       await unmount(mounted);

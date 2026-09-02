@@ -17,12 +17,13 @@
  * off `onBeforeRender` instead (see `screen-mesh.ts`).
  */
 import { useThree } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Color,
   CylinderGeometry,
   DoubleSide,
   ExtrudeGeometry,
+  type Group,
   type Material,
   type Mesh,
   MeshBasicMaterial,
@@ -146,6 +147,7 @@ export function Device({
 }: DeviceProps) {
   const invalidate = useThree((state) => state.invalidate);
   const controlPhysics = useControlPhysics();
+  const wheelAssemblyRef = useRef<Group>(null);
   // A getter, not a value: r3f swaps the camera on some prop changes and the
   // viewport changes on every resize, so the handle must read both at the
   // moment it projects rather than capture them (see `screen-mesh.ts`).
@@ -368,11 +370,11 @@ export function Device({
     },
     [ringGeometry, selectGeometry, wheelGapGeometry],
   );
-  useEffect(
-    () =>
-      controlPhysics?.attachWheel(ringGeometry, wheelGapGeometry),
-    [controlPhysics, ringGeometry, wheelGapGeometry],
-  );
+  useEffect(() => {
+    const assembly = wheelAssemblyRef.current;
+    if (assembly === null) return;
+    return controlPhysics?.attachWheel(assembly);
+  }, [controlPhysics]);
   useEffect(
     () => controlPhysics?.attachSelect(selectGeometry),
     [controlPhysics, selectGeometry],
@@ -771,52 +773,56 @@ export function Device({
         />
       </mesh>
 
-      {/* One zero-wall floor sits 0.05 model pixels behind the shared surface.
-          It is visible only through the two physical assembly hairlines; it
-          cannot form a trench, lip or cylindrical sidewall. */}
-      <mesh
-        name="device-wheel-gap-floor"
-        geometry={wheelGapGeometry}
-        position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}
-      >
-        <meshPhysicalMaterial
-          name={isBlack ? "wheel-gap-black" : "wheel-gap-white"}
-          {...spread(
-            isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
-          )}
-          {...studioEnvironmentProps(
-            isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
-            studio,
-          )}
-        />
-      </mesh>
+      {/* The floor, plastic ring and ink move as one rigid control. The group
+          has no rotation or scale animation: a press changes device-local Z
+          only, so wheel geometry, normals and both circular seams stay exact. */}
+      <group ref={wheelAssemblyRef} name="device-wheel-assembly">
+        {/* One zero-wall floor sits 0.05 model pixels behind the shared
+            surface. It is visible only through the physical hairlines. */}
+        <mesh
+          name="device-wheel-gap-floor"
+          geometry={wheelGapGeometry}
+          position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}
+        >
+          <meshPhysicalMaterial
+            name={isBlack ? "wheel-gap-black" : "wheel-gap-white"}
+            {...spread(
+              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
+            )}
+            {...studioEnvironmentProps(
+              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
+              studio,
+            )}
+          />
+        </mesh>
 
-      {/* The wheel is a separate plastic patch on the faceplate surface. */}
-      <mesh
-        name="device-wheel"
-        geometry={ringGeometry}
-        position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}
-      >
-        <primitive object={wheelPhysicalMaterial} attach="material" />
-      </mesh>
+        {/* The wheel is a separate plastic patch on the faceplate surface. */}
+        <mesh
+          name="device-wheel"
+          geometry={ringGeometry}
+          position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}
+        >
+          <primitive object={wheelPhysicalMaterial} attach="material" />
+        </mesh>
 
-      {/* §5.3 L8 — screen-printed ink. A separate transparent decal is
-          required because a multiplicative map cannot lighten the black ring. */}
-      <mesh
-        name={WHEEL_LABEL_DECAL_NAME}
-        geometry={ringGeometry}
-        position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ + 0.08]}
-        renderOrder={2}
-      >
-        <meshBasicMaterial
-          map={labelMap}
-          transparent
-          depthWrite={false}
-          toneMapped={false}
-          polygonOffset
-          polygonOffsetFactor={-1}
-        />
-      </mesh>
+        {/* §5.3 L8 — screen-printed ink. A separate transparent decal is
+            required because a multiplicative map cannot lighten black. */}
+        <mesh
+          name={WHEEL_LABEL_DECAL_NAME}
+          geometry={ringGeometry}
+          position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ + 0.08]}
+          renderOrder={2}
+        >
+          <meshBasicMaterial
+            map={labelMap}
+            transparent
+            depthWrite={false}
+            toneMapped={false}
+            polygonOffset
+            polygonOffsetFactor={-1}
+          />
+        </mesh>
+      </group>
 
       {/* Select is a separate matte plastic surface patch. Its crown, top plane
           and normals match the wheel exactly; only the one-pixel assembly gap

@@ -62,27 +62,6 @@ export const CLICK_WHEEL_INPUT_RADII = Object.freeze({
   outer: DEVICE_LAYOUT.wheel.outerR,
 });
 
-const WHEEL_DEFORMATION_RADII = Object.freeze({
-  inner:
-    CLICK_WHEEL_INPUT_RADII.inner +
-    (CLICK_WHEEL_INPUT_RADII.outer - CLICK_WHEEL_INPUT_RADII.inner) * 0.2,
-  outer:
-    CLICK_WHEEL_INPUT_RADII.outer -
-    (CLICK_WHEEL_INPUT_RADII.outer - CLICK_WHEEL_INPUT_RADII.inner) * 0.2,
-});
-
-/** Keeps a captured pointer's travelling depression on physical wheel plastic. */
-export function clampWheelContactToRing(
-  sample: WheelContactSample,
-): { readonly x: number; readonly y: number } {
-  const radius = Math.min(
-    WHEEL_DEFORMATION_RADII.outer,
-    Math.max(WHEEL_DEFORMATION_RADII.inner, sample.radius),
-  );
-  const angle = (-sample.angleDeg * Math.PI) / 180;
-  return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
-}
-
 /**
  * The interaction plane sits just ahead of every visible front-face surface.
  * It is deliberately planar: the state adapter needs angular thumb travel,
@@ -170,21 +149,6 @@ export function clockwiseWheelAngleDeg(x: number, y: number): number {
  * accepts only a ray and recomputes the intersection after every transform.
  */
 export function wheelAngleFromRay(mesh: Mesh, ray: Ray): number | null {
-  return wheelContactFromRay(mesh, ray)?.angleDeg ?? null;
-}
-
-export type WheelContactSample = {
-  readonly angleDeg: number;
-  readonly x: number;
-  readonly y: number;
-  readonly radius: number;
-};
-
-/** Current body-local contact, independent of R3F's captured stale hit point. */
-export function wheelContactFromRay(
-  mesh: Mesh,
-  ray: Ray,
-): WheelContactSample | null {
   mesh.updateWorldMatrix(true, false);
   const plane = new Plane();
   const planeNormal = new Vector3();
@@ -196,12 +160,7 @@ export function wheelContactFromRay(
   const hit = ray.intersectPlane(plane, planeHit);
   if (hit === null) return null;
   mesh.worldToLocal(hit);
-  return {
-    angleDeg: clockwiseWheelAngleDeg(hit.x, hit.y),
-    x: hit.x,
-    y: hit.y,
-    radius: Math.hypot(hit.x, hit.y),
-  };
+  return clockwiseWheelAngleDeg(hit.x, hit.y);
 }
 
 /** Shortest signed angular travel, including the ±180° seam. */
@@ -394,22 +353,16 @@ export function ClickWheelInputSurface({
   const sample = (
     event: ThreeEvent<PointerEvent>,
     pointerType: ClickWheelPointerType,
-  ): {
-    readonly arc: ClickWheelArcSample;
-    readonly contact: { readonly x: number; readonly y: number };
-  } | null => {
+  ): ClickWheelArcSample | null => {
     const mesh = meshRef.current;
     if (mesh === null) return null;
-    const hit = wheelContactFromRay(mesh, event.ray);
-    if (hit === null) return null;
+    const angleDeg = wheelAngleFromRay(mesh, event.ray);
+    if (angleDeg === null) return null;
     return {
-      arc: {
-        pointerId: event.pointerId,
-        pointerType,
-        angleDeg: hit.angleDeg,
-        timestampMs: event.timeStamp,
-      },
-      contact: clampWheelContactToRing(hit),
+      pointerId: event.pointerId,
+      pointerType,
+      angleDeg,
+      timestampMs: event.timeStamp,
     };
   };
 
@@ -463,9 +416,9 @@ export function ClickWheelInputSurface({
     host.addEventListener("pointercancel", onCancel);
     host.addEventListener("lostpointercapture", onLostCapture);
     blurHost?.addEventListener("blur", onBlur);
-    controlPhysics?.wheelContact(first.contact);
+    controlPhysics?.pressWheel();
     try {
-      callbacksRef.current.onArcStart(first.arc);
+      callbacksRef.current.onArcStart(first);
     } catch (error) {
       cancelAfterCallbackError(event.pointerId, event.timeStamp, error);
     }
@@ -478,9 +431,8 @@ export function ClickWheelInputSurface({
     preventNativeDefault(event);
     const next = sample(event, active.pointerType);
     if (next !== null) {
-      controlPhysics?.wheelContact(next.contact);
       try {
-        callbacksRef.current.onArcMove(next.arc);
+        callbacksRef.current.onArcMove(next);
       } catch (error) {
         cancelAfterCallbackError(event.pointerId, event.timeStamp, error);
       }

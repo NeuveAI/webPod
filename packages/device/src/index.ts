@@ -76,15 +76,12 @@ export {
   clockwiseWheelAngleDeg,
   shortestWheelDeltaDeg,
   wheelAngleFromRay,
-  wheelContactFromRay,
-  clampWheelContactToRing,
   type ClickWheelArcEnd,
   type ClickWheelArcSample,
   type ClickWheelInputSurfaceProps,
   type ClickWheelPointerType,
   type ClickWheelSelectEnd,
   type ClickWheelSelectStart,
-  type WheelContactSample,
 } from "./click-wheel-input";
 
 export {
@@ -92,12 +89,6 @@ export {
   CONTROL_STALLED_FRAME_LIMIT,
   CONTROL_TRAVEL,
   ControlPhysicsController,
-  WHEEL_BOUNDARY_EPSILON_MODEL,
-  WHEEL_CONTACT_FOOTPRINT_MM,
-  WHEEL_CONTACT_FOOTPRINT_MODEL,
-  WHEEL_DEFORMATION_RADII_MODEL,
-  compactContactWeight,
-  type ControlContact,
   type ControlPhysicsDependencies,
 } from "./control-physics";
 
