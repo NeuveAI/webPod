@@ -11,10 +11,12 @@
 - Added pointer and keyboard 600 ms Menu-hold handling while retaining tap-to-pop.
 - Browser testing exposed duplicate Enter activation inside the composite; fixed it by separating composite-captured input from the bare-panel fallback.
 - Verified the canonical flagged T1 route in Chrome. Visual completion remains owner-only.
+- Independent review requested changes for fixture coupling, empty hard-coded search, unbranded relationship keys, label-driven routing, and a widened test literal.
+- Corrected the slice in `e3492ef`: `Panel` now accepts the provider and navigation source at its rendered boundary; Now Playing subscribes and writes through that provider; search holds its query in the shared Jotai store, queries both library and catalogue, and re-resolves catalogue-only results; rows carry typed destinations; routes retain `LocalKey` identity.
+- Added adversarial tests proving presentation-copy changes cannot change routing and a catalogue-only search result can play.
 
 ## Verification
 
 - Targeted state/panel/composite tests: 340 pass, 0 fail.
-- Full `bun run gates`: 11/11 TypeScript projects, lint clean, 1141 tests pass, 16 automated gates pass, 0 fail.
+- Full `bun run gates` after review correction: 11/11 TypeScript projects, lint clean, 1145 tests pass, 16 automated gates pass, 0 fail.
 - Manual gates remain U14 and U15/owner visual sign-off.
-
