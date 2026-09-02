@@ -43,6 +43,7 @@ import { coastStep, detent, endGesture } from './detent'
 import {
   createDeviceStore,
   detentActionAtom,
+  moveHighlightActionAtom,
   popScreenActionAtom,
   pressActionAtom,
   pushScreenActionAtom,
@@ -274,10 +275,17 @@ describe('R2 — one clock stamps every published time', () => {
     return createDeviceStore({ now: () => 500_000 })
   }
 
-  test('a wheel bump is stamped from the device clock', () => {
+  test('an intentional list bump is stamped from the device clock', () => {
     const store = pinnedDevice()
     store.set(pushScreenActionAtom, listFrame(3, 'compact'))
-    // Push into the top of the list so the movement clamps and bumps.
+    store.set(moveHighlightActionAtom, -5)
+
+    expect(store.get(bumpAtom)?.at).toBe(500_000)
+  })
+
+  test('a wheel detent at an exhausted boundary is not a bump', () => {
+    const store = pinnedDevice()
+    store.set(pushScreenActionAtom, listFrame(3, 'compact'))
     store.set(detentActionAtom, {
       path: 'direct',
       source: 'human',
@@ -285,7 +293,7 @@ describe('R2 — one clock stamps every published time', () => {
       timestampMs: 1_700_000_000_000,
     })
 
-    expect(store.get(bumpAtom)?.at).toBe(500_000)
+    expect(store.get(bumpAtom)).toBeNull()
   })
 
   test('a Menu bump at the root is stamped from the device clock', () => {
@@ -312,12 +320,7 @@ describe('R2 — one clock stamps every published time', () => {
     store.set(pushScreenActionAtom, listFrame(3, 'compact'))
     const stamps: Array<number | undefined> = []
 
-    store.set(detentActionAtom, {
-      path: 'direct',
-      source: 'human',
-      detents: -5,
-      timestampMs: 1_700_000_000_000,
-    })
+    store.set(moveHighlightActionAtom, -5)
     stamps.push(store.get(bumpAtom)?.at)
 
     store.set(pressActionAtom, { button: 'next', source: 'human' })

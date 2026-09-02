@@ -27,6 +27,7 @@ import type { Getter, Setter } from 'jotai/vanilla'
 
 import { flushAnnouncer, noteMovement } from './announce'
 import {
+  DETENT,
   IDLE_DETENT_ACCUMULATOR,
   agentActiveAtom,
   announcerAtom,
@@ -36,7 +37,6 @@ import {
   detentAccumulatorAtom,
   effectiveDensityAtom,
   faceAtom,
-  highlightIndexAtom,
   liveRegionAtom,
   interactionFeedbackAtom,
   screenStackAtom,
@@ -48,6 +48,7 @@ import type {
   BumpEvent,
   Clock,
   Density,
+  DetentAccumulator,
   DetentInput,
   DetentOutcome,
   DeviceStore,
@@ -442,9 +443,10 @@ export function resetInputState(store: DeviceStore): void {
  * place to forget them.
  *
  * A movement that changes nothing announces nothing. Running into the end of a
- * list already says so physically, with a bump; repeating "Row 18 of 18" for
- * every further detent of the same flick would be the live-region spam this
- * whole module exists to prevent, in a smaller costume.
+ * list is a true wheel no-op: no accepted detent, bump, click, pulse or spoken
+ * repetition. Button-owned boundary bumps remain separate actions. That
+ * distinction matters because a raw wheel attempt is not proof that the list
+ * accepted movement.
  *
  * @returns The reducer's outcome, so the caller can play the clicker, the
  *   haptic and the FX it describes.
@@ -459,8 +461,8 @@ export const detentActionAtom = atom(null, (get, set, input: DetentInput): Deten
     // a twelve-row menu because somebody passed the wrong number.
     totalRows: get(currentScreenAtom)?.rows.length ?? 0,
   })
-  set(detentAccumulatorAtom, outcome.accumulator)
   const applied = applyMovement(get, set, outcome, input.source)
+  set(detentAccumulatorAtom, applied.accumulator)
   set(publishInteractionFeedbackAtom, {
     control: 'wheel',
     origin: 'detent',
@@ -486,8 +488,8 @@ export const coastActionAtom = atom(null, (get, set, frameSeconds: number): Dete
   const outcome = coastStep(accumulator, frameSeconds, {
     totalRows: get(currentScreenAtom)?.rows.length ?? 0,
   })
-  set(detentAccumulatorAtom, outcome.accumulator)
   const applied = applyMovement(get, set, outcome, accumulator.source ?? 'human')
+  set(detentAccumulatorAtom, applied.accumulator)
   set(publishInteractionFeedbackAtom, {
     control: 'wheel',
     origin: 'coast',
@@ -502,9 +504,11 @@ export const coastActionAtom = atom(null, (get, set, frameSeconds: number): Dete
  * The half of a movement that touches the screen: move the highlight, then
  * decide what gets said about it.
  *
- * Shared by the detent path and the coast path so that a coasted detent is
- * indistinguishable from a driven one everywhere it matters — same clamping,
- * same bump, same announcement policy.
+ * Shared by the detent path and the coast path so both publish only accepted
+ * movement. The input reducer measures wheel travel; this function owns the
+ * list boundary and therefore has the final word on detents, rows, feedback
+ * and momentum. Nothing downstream is allowed to infer acceptance from raw
+ * angle, pixels or attempted detents.
  *
  * ⚑ The announcement is stamped with the **device clock**, not with the
  * caller's `timestampMs`. That is the whole fix for the two-clock bug: the
@@ -520,11 +524,27 @@ function applyMovement(
   if (outcome.rowDelta === 0) return outcome
 
   const now = get(clockAtom).now()
-  const before = get(highlightIndexAtom)
-  set(moveHighlightActionAtom, outcome.rowDelta)
+  const beforeFrame = get(currentScreenAtom)
+  const transition = moveHighlight(
+    get(screenStackAtom),
+    outcome.rowDelta,
+    get(visibleRowCountAtom),
+  )
+  set(screenStackAtom, transition.stack)
   const frame = get(currentScreenAtom)
+  const acceptedRows =
+    beforeFrame === null || frame === null
+      ? 0
+      : frame.highlightIndex - beforeFrame.highlightIndex
+  const applied = acceptedMovement(outcome, acceptedRows)
 
-  if (frame === null || get(highlightIndexAtom) === before) return outcome
+  // A partial accelerated/page movement may land on the edge and retain the
+  // screen machine's bump. An attempt made while already exhausted is a true
+  // no-op: publishing a bump there would merely replace forbidden audio with
+  // a different feedback channel for the same rejected detent.
+  if (transition.bump !== null && acceptedRows !== 0) set(publishBumpAtom, transition.bump)
+
+  if (frame === null || acceptedRows === 0) return applied
 
   const snapshot: ScreenSnapshotSource = {
     face: get(faceAtom),
@@ -535,14 +555,103 @@ function applyMovement(
 
   const noted = noteMovement(get(announcerAtom), {
     snapshot,
-    urgency: outcome.announce,
+    urgency: applied.announce,
     source,
     atMs: now,
   })
   set(announcerAtom, noted.state)
   if (noted.announcement !== null) set(liveRegionAtom, noted.announcement)
 
-  return outcome
+  return applied
+}
+
+/**
+ * Reconciles measured wheel travel with rows the list actually accepted.
+ *
+ * One accelerated detent can move several rows, so a partial clamp counts the
+ * smallest prefix of attempted detents needed to explain the accepted rows.
+ * Detents beyond that prefix are rejected and cannot reach feedback consumers.
+ */
+function acceptedMovement(outcome: DetentOutcome, acceptedRows: number): DetentOutcome {
+  const attemptedCount = Math.abs(outcome.detents)
+  const acceptedCount = acceptedDetentCount(outcome, acceptedRows)
+  const acceptedDetents = acceptedRows < 0 ? -acceptedCount : acceptedCount
+  const wasClamped = acceptedRows !== outcome.rowDelta
+  const acceptedTrace = acceptedRowTrace(outcome.rowDeltasByDetent, acceptedRows, acceptedCount)
+
+  return {
+    ...outcome,
+    ...(acceptedTrace === undefined ? {} : { rowDeltasByDetent: acceptedTrace }),
+    accumulator: wasClamped
+      ? neutralizeRejectedMomentum(outcome.accumulator)
+      : outcome.accumulator,
+    detents: acceptedDetents,
+    rowDelta: acceptedRows,
+    multiplier: acceptedCount === 0 ? DETENT.rowsSlow : outcome.multiplier,
+    accelerated: acceptedCount === 0 ? false : outcome.accelerated,
+    detentsPerSecond:
+      acceptedCount === 0 || attemptedCount === 0
+        ? 0
+        : outcome.detentsPerSecond * (acceptedCount / attemptedCount),
+    clickerTicks: Math.min(outcome.clickerTicks, acceptedCount),
+    hapticPulses: Math.min(outcome.hapticPulses, acceptedCount),
+  }
+}
+
+/** Counts the prefix of candidate detents that contributed accepted rows. */
+function acceptedDetentCount(outcome: DetentOutcome, acceptedRows: number): number {
+  const attemptedCount = Math.abs(outcome.detents)
+  if (acceptedRows === 0 || attemptedCount === 0) return 0
+
+  if (outcome.rowDeltasByDetent !== undefined) {
+    let rows = 0
+    let count = 0
+    while (count < outcome.rowDeltasByDetent.length && rows < Math.abs(acceptedRows)) {
+      rows += Math.abs(outcome.rowDeltasByDetent[count] ?? 0)
+      count += 1
+    }
+    return Math.min(attemptedCount, count)
+  }
+
+  return Math.min(
+    attemptedCount,
+    Math.ceil(Math.abs(acceptedRows) / Math.max(DETENT.rowsSlow, outcome.multiplier)),
+  )
+}
+
+/** Makes a variable-multiplier coast trace sum to the accepted row delta. */
+function acceptedRowTrace(
+  candidate: readonly number[] | undefined,
+  acceptedRows: number,
+  acceptedCount: number,
+): readonly number[] | undefined {
+  if (candidate === undefined) return undefined
+  if (acceptedCount === 0) return []
+
+  const accepted = candidate.slice(0, acceptedCount)
+  const priorRows = accepted
+    .slice(0, -1)
+    .reduce((sum, rowDelta) => sum + Math.abs(rowDelta), 0)
+  accepted[accepted.length - 1] =
+    Math.sign(acceptedRows) * (Math.abs(acceptedRows) - priorRows)
+  return accepted
+}
+
+/**
+ * Stops rejected travel without making the reversing detent repay a dead zone.
+ *
+ * Keeping the path and `armed` bit makes the next full detent in the valid
+ * direction immediate. Clearing residual, direction, speed and smoothing is
+ * what prevents an exhausted-direction flick from escaping later when the
+ * hand reverses.
+ */
+function neutralizeRejectedMomentum(accumulator: DetentAccumulator): DetentAccumulator {
+  return {
+    ...IDLE_DETENT_ACCUMULATOR,
+    path: accumulator.path,
+    source: accumulator.source,
+    armed: accumulator.armed,
+  }
 }
 
 /**

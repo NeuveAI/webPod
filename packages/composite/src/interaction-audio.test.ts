@@ -540,6 +540,42 @@ describe('store and browser lifecycle binding', () => {
     runtime.dispose()
   })
 
+  test('audio consumes accepted list movement, never raw outward detent attempts', async () => {
+    const store = createDeviceStore()
+    const backend = new FakeBackend('running')
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+    const detach = attachInteractionAudioRuntime(runtime, store, {
+      root: new EventTarget(),
+      documentTarget: Object.assign(new EventTarget(), { hidden: false }),
+      windowTarget: new EventTarget(),
+      isActivationEligible: () => true,
+    })
+
+    // The default screen starts on its first row. This exact plant must fail
+    // if the binding or store publishes the reducer's raw attempted ticks.
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      store.set(detentActionAtom, {
+        path: 'direct',
+        source: 'human',
+        detents: -3,
+        timestampMs: attempt + 1,
+      })
+    }
+    expect(backend.specs).toHaveLength(0)
+
+    store.set(detentActionAtom, {
+      path: 'direct',
+      source: 'human',
+      detents: 1,
+      timestampMs: 5,
+    })
+    expect(backend.specs.map((spec) => spec.kind)).toEqual(['wheel'])
+
+    detach()
+    runtime.dispose()
+  })
+
   test('hidden documents interrupt and clean the graph deterministically', async () => {
     const store = createDeviceStore()
     const backend = new FakeBackend('running')

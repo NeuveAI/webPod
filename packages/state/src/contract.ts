@@ -728,13 +728,28 @@ export const IDLE_DETENT_ACCUMULATOR: DetentAccumulator = {
 export type DetentOutcome = {
   /** The accumulator to carry into the next event. */
   readonly accumulator: DetentAccumulator
-  /** Signed detents fired by this event. Zero is normal and common. */
+  /**
+   * Signed detents represented by this stage. The pure input reducer reports
+   * measured candidates; `detentActionAtom` and `coastActionAtom` reconcile
+   * them to the count accepted by the current list before returning or
+   * publishing feedback. Zero is normal and common.
+   */
   readonly detents: number
   /**
-   * Signed rows the highlight should move: `detents × multiplier`, except on
-   * the key path with Shift, where it is one full viewport.
+   * Signed rows represented by this stage. Store action outcomes contain only
+   * accepted rows. Usually `detents × multiplier`; a final accelerated detent
+   * may move fewer rows when it lands on an edge.
    */
   readonly rowDelta: number
+  /**
+   * Candidate row contribution of each detent when one outcome can contain
+   * different multipliers.
+   *
+   * Present on coasts, whose speed can cross an acceleration threshold within
+   * one display frame. The store truncates and clamps this trace with the
+   * accepted movement; consumers must never treat it as feedback by itself.
+   */
+  readonly rowDeltasByDetent?: readonly number[]
   /**
    * Rows moved per detent by this event.
    *
@@ -761,10 +776,10 @@ export type DetentOutcome = {
    * the threshold is a rendering decision and stays out of here.
    */
   readonly detentsPerSecond: number
-  /** Clicker ticks to play. `0` when silenced. */
+  /** Clicker ticks to play for accepted detents. `0` when rejected or silenced. */
   readonly clickerTicks: number
   /**
-   * Candidate `selection` pulses requested by human touch detents.
+   * Candidate `selection` pulses requested by accepted human touch detents.
    *
    * `0` when silenced or when the input path has no touch actuator. This is
    * deliberately pre-policy: D-063 defers whether a high-rate stream is
@@ -1084,8 +1099,9 @@ export type PressOutcome = {
  * This is deliberately smaller than {@link DetentOutcome} and
  * {@link PressOutcome}: the effect layer needs the already-decided count and
  * provenance, not another copy of the movement physics or screen transition.
- * Zero-tick and silenced outcomes are not published, so raw sub-detent travel
- * and non-human actions cannot wake an audio subscriber.
+ * Zero-tick and silenced outcomes are not published, so raw sub-detent travel,
+ * rejected boundary attempts and non-human actions cannot wake an audio
+ * subscriber.
  */
 export type InteractionFeedbackEvent =
   | {

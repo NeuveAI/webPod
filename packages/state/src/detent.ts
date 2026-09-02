@@ -450,12 +450,14 @@ export const coastStep: CoastStepFn = (accumulator, frameSeconds, screen) => {
   const fired = Math.abs(drained.detents)
   const carriedDeg = Math.abs(accumulator.residualDeg)
   let rowDelta = 0
+  const rowDeltasByDetent: number[] = []
   let multiplier = smoothMultiplier(accumulator.recentMultipliers)
   for (let i = 0; i < fired; i += 1) {
     const travelledDeg = (i + 1) * DETENT.arcDegPerDetent - carriedDeg
     const speedAtDetent = accumulator.speedDegPerSec - COAST_DECAY_PER_SEC * travelledDeg
     multiplier = rawMultiplier(path, speedAtDetent, totalRows)
     rowDelta += multiplier
+    rowDeltasByDetent.push(multiplier * accumulator.direction)
   }
   rowDelta *= accumulator.direction
 
@@ -471,6 +473,7 @@ export const coastStep: CoastStepFn = (accumulator, frameSeconds, screen) => {
     accumulator: next,
     detents: drained.detents,
     rowDelta,
+    rowDeltasByDetent,
     multiplier,
     accelerated: multiplier > DETENT.rowsSlow,
     detentsPerSecond,
