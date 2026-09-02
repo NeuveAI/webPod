@@ -35,7 +35,9 @@ Sequence
 
 The JSON is the machine-readable phase index. The WAV is rendered by the same
 InteractionAudioGraph and voice specifications used by the production route.
-Owner auditory validation of the revised physical balance remains required.
+Owner auditory verdict (2026-09-02): approved. Exact quote: “sunds good”.
+Scope: center/cardinal digital + quieter physical-down + physical-up balance.
+The unchanged digital-only wheel detent retains its 2026-09-01 approval.
 
 Production browser lifecycle
   browser: Google Chrome, flagged CanvasDrawElement route

@@ -133,8 +133,10 @@ The owner preview now contains six fast detents, three isolated detents, a
 160ms Center tap, a 650ms Center hold and a 170ms Menu tap. A companion JSON
 labels every digital-down, physical-down and physical-up onset. The generated
 WAV is 3.4s/48kHz mono PCM16, peaks at -33.957426dBFS, and has no clipped
-sample. The physical balance still needs the owner's auditory validation; no
-claim extends the prior approval beyond the unchanged digital voice.
+sample. After listening to the revised preview, the owner stated in this thread
+on 2026-09-02: “sunds good”. This approves the center/cardinal digital + quieter
+physical-down + physical-up balance. The prior approval continues to cover the
+unchanged digital-only wheel detent.
 
 Correction commit: `009fdd2` (`feat(audio): model physical button contact
 phases`). Focused device/composite tests are 60 pass / 0 fail. Repo tests are

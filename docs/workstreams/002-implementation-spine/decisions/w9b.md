@@ -188,6 +188,7 @@ specification. Physical down is 14ms at 0.026 peak gain; physical up is 10ms at
 procedural plastic/noise transients through the existing master and compressor.
 The production preview peaks at -33.96dBFS with no clipping. These are bounded
 visual-audio calibration values inferred from the owner recording, not measured
-iPod switch force/travel data. The revised physical balance remains subject to
-owner listening; the earlier approval still applies to the unchanged digital
-detent.
+iPod switch force/travel data. After listening to this revised preview, the
+owner stated in this thread on 2026-09-02: “sunds good”. That approves the
+center/cardinal digital + quieter physical-down + physical-up balance. The
+2026-09-01 approval continues to cover the unchanged digital-only wheel detent.

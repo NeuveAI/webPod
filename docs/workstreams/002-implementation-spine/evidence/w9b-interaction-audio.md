@@ -158,10 +158,12 @@ peak=0.046509 · rms=0.000972 · nonzero samples=1631/48000
 Sequence: Select at 0.12s; six 30Hz-spaced wheel ticks beginning at 0.40s;
 secondary button at 0.78s.
 
-**Human-quality verdict: APPROVED BY OWNER.** After listening to the
-production-generated SFX, the owner stated in this thread on 2026-09-01:
-“sounds just like the real thing, great job.” This closes the pending W9b manual
-audio taste gate.
+**Human-quality verdict: APPROVED BY OWNER.** The 2026-09-01 verdict — “sounds
+just like the real thing, great job” — continues to approve the unchanged
+digital-only wheel detent. After listening to the corrected button-lifecycle
+preview, the owner stated in this thread on 2026-09-02: “sunds good”. That
+approves the center/cardinal digital + quieter physical-down + physical-up
+balance and closes the corrected W9b manual audio taste gate.
 
 ## Manual audible preview
 
@@ -194,7 +196,7 @@ audio taste gate.
 | renderer in composite TypeScript file list | present |
 | `bun run typecheck` | 11/11 projects clean |
 | `bun run gates` | 16 automated pass, 0 fail; manual U14/U15 outstanding |
-| W9b owner sound-taste gate | approved via this thread's 2026-09-01 feedback |
+| W9b owner sound-taste gate | approved: unchanged wheel detent on 2026-09-01; corrected physical-button balance on 2026-09-02 |
 
 The correction source commits `c6e7702`, `ea9d8e8`, `f12509a`, `fcc18a7`, and
 `38c52ad` each passed their historical owning-package archive checks. As noted
