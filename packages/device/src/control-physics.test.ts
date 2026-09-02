@@ -10,7 +10,10 @@ import {
 } from "./control-physics";
 import { createFrontControlPatchGeometry } from "./front-control-geometry";
 import { DEFAULT_DEVICE_FORM } from "./form";
-import { WHEEL_OUTER_SEAM_WIDTH } from "./front-surface";
+import {
+  WHEEL_GAP_FLOOR_OFFSET,
+  WHEEL_OUTER_SEAM_WIDTH,
+} from "./front-surface";
 import { DEVICE_LAYOUT } from "./layout";
 
 const { wheel } = DEVICE_LAYOUT;
@@ -184,8 +187,11 @@ function pointAtClockwiseAngle(
 
 describe("rigid physical click-wheel tilt", () => {
   test("the restrained rigid calibration and release laws are explicit", () => {
-    expect(CONTROL_TRAVEL.wheelMm).toBe(0.018);
+    expect(CONTROL_TRAVEL.wheelMm).toBe(0.006);
     expect(CONTROL_TRAVEL.wheelMm).toBeLessThan(0.03);
+    expect(CONTROL_TRAVEL.wheelModel).toBeLessThan(
+      WHEEL_GAP_FLOOR_OFFSET,
+    );
     expect(CONTROL_TRAVEL.selectMm).toBe(0.36);
     expect(CONTROL_RELEASE_MS).toEqual({ wheel: 120, select: 96 });
     expect(CONTROL_STALLED_FRAME_LIMIT).toBe(24);

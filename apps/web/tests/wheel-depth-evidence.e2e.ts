@@ -171,7 +171,7 @@ test("production pointer proves one contact-following rigid wheel tilt in both f
         ],
         syntheticControlPose: false,
         controlQueryParameter: false,
-        wheelLowSideRimTravelMm: 0.018,
+        wheelLowSideRimTravelMm: 0.006,
         wheelMotion:
           "one center-pivot rigid-disc tilt whose low side follows pointer angle",
         geometryMutation: false,

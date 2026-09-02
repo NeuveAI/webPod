@@ -23,9 +23,9 @@ export const CONTROL_TRAVEL = Object.freeze({
   // Low-side rim travel for the rigid wheel rock. This is deliberately below
   // both the rejected 0.08 mm basin and rejected 0.03 mm whole-wheel shift.
   // It remains bounded visual calibration, not an OEM dimension.
-  wheelMm: 0.018,
+  wheelMm: 0.006,
   selectMm: 0.36,
-  wheelModel: 0.018 * PX_PER_MM,
+  wheelModel: 0.006 * PX_PER_MM,
   selectModel: 0.36 * PX_PER_MM,
 });
 
