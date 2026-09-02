@@ -1,0 +1,104 @@
+{
+  "route": "/_spike/device",
+  "mainMenu": {
+    "totalRows": 8,
+    "visibleRows": 8,
+    "indicatorCount": 0
+  },
+  "album": {
+    "totalRows": 11,
+    "visibleRows": 8,
+    "start": {
+      "trackWidth": 6,
+      "thumbRatio": 0.7309725527544267,
+      "progress": 0.0006334008256180788,
+      "trailingInset": 1.09038769851273,
+      "thumbMaterial": "linear-gradient(90deg, rgba(255, 255, 255, 0.74) 0px, rgba(255, 255, 255, 0.74) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgb(159, 242, 255), rgb(60, 197, 223) 48%, rgb(7, 135, 168))",
+      "trackMaterial": "repeating-linear-gradient(rgb(99, 112, 124) 0px, rgb(99, 112, 124) 1px, rgb(48, 59, 70) 1px, rgb(48, 59, 70) 2px)",
+      "trackPosition": "0px 0px",
+      "outerBackground": "rgb(23, 33, 43)"
+    },
+    "afterNineWheelDetents": {
+      "trackWidth": 6,
+      "thumbRatio": 0.7255379156062995,
+      "progress": 0.6738571301450933,
+      "trailingInset": 1.09038769851273,
+      "thumbMaterial": "linear-gradient(90deg, rgba(255, 255, 255, 0.74) 0px, rgba(255, 255, 255, 0.74) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgb(159, 242, 255), rgb(60, 197, 223) 48%, rgb(7, 135, 168))",
+      "trackMaterial": "repeating-linear-gradient(rgb(99, 112, 124) 0px, rgb(99, 112, 124) 1px, rgb(48, 59, 70) 1px, rgb(48, 59, 70) 2px)",
+      "trackPosition": "0px 0px",
+      "outerBackground": "rgb(23, 33, 43)"
+    },
+    "light": {
+      "trackWidth": 6,
+      "thumbRatio": 0.7309725527544267,
+      "progress": 0.0006334008256180788,
+      "trailingInset": 1.09038769851273,
+      "thumbMaterial": "linear-gradient(90deg, rgba(255, 255, 255, 0.82) 0px, rgba(255, 255, 255, 0.82) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgb(214, 251, 255), rgb(100, 217, 236) 48%, rgb(10, 145, 176))",
+      "trackMaterial": "repeating-linear-gradient(rgb(200, 208, 214) 0px, rgb(200, 208, 214) 1px, rgb(141, 155, 166) 1px, rgb(141, 155, 166) 2px)",
+      "trackPosition": "0px 0px",
+      "outerBackground": "rgb(113, 128, 140)"
+    },
+    "fixedTrackProof": {
+      "start": {
+        "compositeSha256": "338719561bdfa91dcbb453e3b132ac93a2c6499caba5fd034b8367455af13de9",
+        "trackStripeSha256": "1a76b45b74248681718d3328875b4e16ff9407d1cb0b3d5f418dec31f4dcfaa8"
+      },
+      "middle": {
+        "compositeSha256": "888bd8ce6dc09bafad3b15d948dfa6ec6f70cfe1fdfb17fc37783e0a764c05ed",
+        "trackStripeSha256": "1a76b45b74248681718d3328875b4e16ff9407d1cb0b3d5f418dec31f4dcfaa8"
+      },
+      "end": {
+        "compositeSha256": "52d9b1d6b5c84fb83f8de12c7aeeb05527f48ebb8eed93686740eb00a7ff72b2",
+        "trackStripeSha256": "1a76b45b74248681718d3328875b4e16ff9407d1cb0b3d5f418dec31f4dcfaa8"
+      }
+    },
+    "selectedRows": {
+      "black": {
+        "first": {
+          "label": "Syndicate",
+          "number": "1",
+          "foreground": "rgb(255, 255, 255)",
+          "material": "linear-gradient(rgb(169, 239, 255) 0px, rgb(169, 239, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(13, 115, 147) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(36, 127, 155) 0%, rgb(13, 115, 147) 54%, rgb(7, 84, 111) 100%)",
+          "depth": "rgba(238, 252, 255, 0.32) 0px 1px 0px 0px inset, rgb(4, 47, 66) 0px -1px 0px 0px inset, rgba(0, 19, 28, 0.66) 0px 1px 0px 0px"
+        },
+        "middle": {
+          "label": "Where the Story Ends",
+          "number": "6",
+          "foreground": "rgb(255, 255, 255)",
+          "material": "linear-gradient(rgb(169, 239, 255) 0px, rgb(169, 239, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(13, 115, 147) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(36, 127, 155) 0%, rgb(13, 115, 147) 54%, rgb(7, 84, 111) 100%)",
+          "depth": "rgba(238, 252, 255, 0.32) 0px 1px 0px 0px inset, rgb(4, 47, 66) 0px -1px 0px 0px inset, rgba(0, 19, 28, 0.66) 0px 1px 0px 0px"
+        },
+        "end": {
+          "label": "Happiness",
+          "number": "11",
+          "foreground": "rgb(255, 255, 255)",
+          "material": "linear-gradient(rgb(169, 239, 255) 0px, rgb(169, 239, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(13, 115, 147) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(36, 127, 155) 0%, rgb(13, 115, 147) 54%, rgb(7, 84, 111) 100%)",
+          "depth": "rgba(238, 252, 255, 0.32) 0px 1px 0px 0px inset, rgb(4, 47, 66) 0px -1px 0px 0px inset, rgba(0, 19, 28, 0.66) 0px 1px 0px 0px"
+        }
+      },
+      "white": {
+        "first": {
+          "label": "Syndicate",
+          "number": "1",
+          "foreground": "rgb(23, 48, 71)",
+          "material": "linear-gradient(rgb(255, 255, 255) 0px, rgb(255, 255, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(169, 223, 235) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(217, 244, 251) 0%, rgb(169, 223, 235) 54%, rgb(121, 198, 215) 100%)",
+          "depth": "rgba(255, 255, 255, 0.76) 0px 1px 0px 0px inset, rgb(59, 145, 167) 0px -1px 0px 0px inset, rgba(27, 72, 86, 0.34) 0px 1px 0px 0px"
+        },
+        "middle": {
+          "label": "Where the Story Ends",
+          "number": "6",
+          "foreground": "rgb(23, 48, 71)",
+          "material": "linear-gradient(rgb(255, 255, 255) 0px, rgb(255, 255, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(169, 223, 235) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(217, 244, 251) 0%, rgb(169, 223, 235) 54%, rgb(121, 198, 215) 100%)",
+          "depth": "rgba(255, 255, 255, 0.76) 0px 1px 0px 0px inset, rgb(59, 145, 167) 0px -1px 0px 0px inset, rgba(27, 72, 86, 0.34) 0px 1px 0px 0px"
+        },
+        "end": {
+          "label": "Happiness",
+          "number": "11",
+          "foreground": "rgb(23, 48, 71)",
+          "material": "linear-gradient(rgb(255, 255, 255) 0px, rgb(255, 255, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(169, 223, 235) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(217, 244, 251) 0%, rgb(169, 223, 235) 54%, rgb(121, 198, 215) 100%)",
+          "depth": "rgba(255, 255, 255, 0.76) 0px 1px 0px 0px inset, rgb(59, 145, 167) 0px -1px 0px 0px inset, rgba(27, 72, 86, 0.34) 0px 1px 0px 0px"
+        }
+      }
+    }
+  }
+}
