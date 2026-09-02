@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Euler, Group, Matrix4, Mesh, Vector3 } from "three";
+import { Euler, Group, Matrix4, Mesh, Quaternion, Vector3 } from "three";
 
 import {
   CONTROL_RELEASE_MS,
@@ -130,108 +130,108 @@ function maximumTripletDelta(
   return maximum;
 }
 
-function assertTranslationOnlyMatrix(
-  rest: Matrix4,
-  live: Matrix4,
-  expectedDepth: number,
-): void {
-  const delta = live.clone().premultiply(rest.clone().invert());
-  const expected = new Matrix4().makeTranslation(0, 0, -expectedDepth);
-  for (let index = 0; index < delta.elements.length; index += 1) {
-    if (index === 14) {
-      expect(delta.elements[index]).toBeCloseTo(
-        expected.elements[index] ?? 0,
-        14,
+function transformedPositions(
+  positions: Float32Array,
+  matrix: Matrix4,
+): Float64Array {
+  const transformed = new Float64Array(positions.length);
+  const point = new Vector3();
+  for (let index = 0; index < positions.length; index += 3) {
+    point
+      .set(
+        positions[index] ?? 0,
+        positions[index + 1] ?? 0,
+        positions[index + 2] ?? 0,
+      )
+      .applyMatrix4(matrix);
+    transformed[index] = point.x;
+    transformed[index + 1] = point.y;
+    transformed[index + 2] = point.z;
+  }
+  return transformed;
+}
+
+function maximumPairwiseDistanceError(
+  rest: Float64Array,
+  live: Float64Array,
+): number {
+  let maximum = 0;
+  for (let left = 0; left < rest.length; left += 3) {
+    for (let right = left + 3; right < rest.length; right += 3) {
+      const restDistance = Math.hypot(
+        (rest[left] ?? 0) - (rest[right] ?? 0),
+        (rest[left + 1] ?? 0) - (rest[right + 1] ?? 0),
+        (rest[left + 2] ?? 0) - (rest[right + 2] ?? 0),
       );
-    } else {
-      expect(delta.elements[index]).toBe(expected.elements[index]);
+      const liveDistance = Math.hypot(
+        (live[left] ?? 0) - (live[right] ?? 0),
+        (live[left + 1] ?? 0) - (live[right + 1] ?? 0),
+        (live[left + 2] ?? 0) - (live[right + 2] ?? 0),
+      );
+      maximum = Math.max(maximum, Math.abs(liveDistance - restDistance));
     }
   }
+  return maximum;
 }
 
-function assertDenseRigidTranslation(
-  geometry: ReturnType<typeof wheelGeometry>,
-  restPosition: Float32Array,
-  restNormal: Float32Array,
-  restAssembly: Readonly<{ x: number; y: number; z: number }>,
-  liveAssembly: Readonly<{ x: number; y: number; z: number }>,
-  expectedDepth: number,
-): void {
-  const livePosition = snapshot(geometry, "position");
-  const liveNormal = snapshot(geometry, "normal");
-  expect([...livePosition]).toEqual([...restPosition]);
-  expect([...liveNormal]).toEqual([...restNormal]);
-  expect(liveAssembly.x).toBe(restAssembly.x);
-  expect(liveAssembly.y).toBe(restAssembly.y);
-  expect(liveAssembly.z).toBe(restAssembly.z - expectedDepth);
-
-  // The immutable production tessellation is sampled vertex by vertex. Since
-  // the sole live transform is one translation matrix, every point receives
-  // the same device-local delta and every radius is exactly unchanged.
-  for (let index = 0; index < restPosition.length; index += 3) {
-    const x = restPosition[index] ?? 0;
-    const y = restPosition[index + 1] ?? 0;
-    const z = restPosition[index + 2] ?? 0;
-    expect(x + liveAssembly.x).toBe(x + restAssembly.x);
-    expect(y + liveAssembly.y).toBe(y + restAssembly.y);
-    expect(z + liveAssembly.z).toBe(z + restAssembly.z - expectedDepth);
-  }
+function pointAtClockwiseAngle(
+  angleDeg: number,
+  radius = wheel.outerR - WHEEL_OUTER_SEAM_WIDTH,
+): Vector3 {
+  const angle = (angleDeg * Math.PI) / 180;
+  return new Vector3(radius * Math.cos(angle), -radius * Math.sin(angle), 0);
 }
 
-describe("rigid physical click-wheel travel", () => {
+describe("rigid physical click-wheel tilt", () => {
   test("the restrained rigid calibration and release laws are explicit", () => {
-    expect(CONTROL_TRAVEL.wheelMm).toBe(0.03);
-    expect(CONTROL_TRAVEL.wheelMm).toBeLessThan(0.08 / 2);
+    expect(CONTROL_TRAVEL.wheelMm).toBe(0.018);
+    expect(CONTROL_TRAVEL.wheelMm).toBeLessThan(0.03);
     expect(CONTROL_TRAVEL.selectMm).toBe(0.36);
     expect(CONTROL_RELEASE_MS).toEqual({ wheel: 120, select: 96 });
     expect(CONTROL_STALLED_FRAME_LIMIT).toBe(24);
   });
 
-  test("every production wheel vertex shares one Z delta while XY and normals stay immutable", () => {
+  test("the complete production tessellation receives one distance-preserving rigid transform", () => {
     const { assembly, ring, backing } = productionWheelAssembly();
     const ringPosition = snapshot(ring, "position");
     const ringNormal = snapshot(ring, "normal");
     const backingPosition = snapshot(backing, "position");
     const backingNormal = snapshot(backing, "normal");
-    const rest = assembly.position.clone();
+    const restPosition = assembly.position.clone();
+    const restQuaternion = assembly.quaternion.clone();
+    const restScale = assembly.scale.clone();
     const restMatrix = assembly.matrix.clone();
     const controller = new ControlPhysicsController(
       new FrameHarness().dependencies,
     );
     controller.attachWheel(assembly);
 
-    controller.pressWheel();
-    assertTranslationOnlyMatrix(
-      restMatrix,
-      assembly.matrix,
-      CONTROL_TRAVEL.wheelModel,
-    );
-    assertDenseRigidTranslation(
-      ring,
-      ringPosition,
-      ringNormal,
-      rest,
-      assembly.position,
-      CONTROL_TRAVEL.wheelModel,
-    );
-    assertDenseRigidTranslation(
-      backing,
-      backingPosition,
-      backingNormal,
-      rest,
-      assembly.position,
-      CONTROL_TRAVEL.wheelModel,
+    controller.pressWheel(37);
+    expect(assembly.position).toEqual(restPosition);
+    expect(assembly.scale).toEqual(restScale);
+    expect(assembly.quaternion.angleTo(restQuaternion)).toBeGreaterThan(0);
+    expect([...snapshot(ring, "position")]).toEqual([...ringPosition]);
+    expect([...snapshot(ring, "normal")]).toEqual([...ringNormal]);
+    expect([...snapshot(backing, "position")]).toEqual([...backingPosition]);
+    expect([...snapshot(backing, "normal")]).toEqual([...backingNormal]);
+
+    const restWorld = transformedPositions(ringPosition, restMatrix);
+    const liveWorld = transformedPositions(ringPosition, assembly.matrix);
+    expect(maximumPairwiseDistanceError(restWorld, liveWorld)).toBeLessThan(
+      1e-10,
     );
 
     controller.dispose();
-    expect(assembly.position).toEqual(rest);
+    expect(assembly.position).toEqual(restPosition);
+    expect(assembly.quaternion.toArray()).toEqual(restQuaternion.toArray());
+    expect(assembly.scale).toEqual(restScale);
     expect(snapshot(ring, "position")).toEqual(ringPosition);
     expect(snapshot(ring, "normal")).toEqual(ringNormal);
     ring.dispose();
     backing.dispose();
   });
 
-  test("inner and outer circular boundaries cannot pinch, bulge or crawl", () => {
+  test("the low side follows contact continuously while object-space circles never change", () => {
     const { assembly, ring, backing } = productionWheelAssembly();
     const position = snapshot(ring, "position");
     const boundaryRadii = new Set<number>();
@@ -247,15 +247,31 @@ describe("rigid physical click-wheel travel", () => {
       new FrameHarness().dependencies,
     );
     controller.attachWheel(assembly);
-    controller.pressWheel();
+    controller.pressWheel(0);
 
-    const live = snapshot(ring, "position");
-    expect(live).toEqual(position);
-    for (let index = 0; index < live.length; index += 3) {
-      const radius = Math.hypot(live[index] ?? 0, live[index + 1] ?? 0);
-      expect(radius).toBe(
-        Math.hypot(position[index] ?? 0, position[index + 1] ?? 0),
+    for (let angle = 0; angle <= 360; angle += 2) {
+      controller.moveWheel(angle);
+      const contact = pointAtClockwiseAngle(angle);
+      const opposite = pointAtClockwiseAngle(angle + 180);
+      const perpendicular = pointAtClockwiseAngle(angle + 90);
+      const liveContact = contact.clone().applyMatrix4(assembly.matrix);
+      const liveOpposite = opposite.clone().applyMatrix4(assembly.matrix);
+      const livePerpendicular = perpendicular
+        .clone()
+        .applyMatrix4(assembly.matrix);
+      const restContact = contact.clone().add(assembly.position);
+      const restOpposite = opposite.clone().add(assembly.position);
+      const restPerpendicular = perpendicular.clone().add(assembly.position);
+      expect(liveContact.z - restContact.z).toBeCloseTo(
+        -CONTROL_TRAVEL.wheelModel,
+        10,
       );
+      expect(liveOpposite.z - restOpposite.z).toBeCloseTo(
+        CONTROL_TRAVEL.wheelModel,
+        10,
+      );
+      expect(livePerpendicular.z - restPerpendicular.z).toBeCloseTo(0, 10);
+      expect([...snapshot(ring, "position")]).toEqual([...position]);
     }
     expect(inner).toBeCloseTo(wheel.selectLipR, 4);
     expect(outer).toBeCloseTo(wheel.outerR - WHEEL_OUTER_SEAM_WIDTH, 4);
@@ -265,29 +281,37 @@ describe("rigid physical click-wheel travel", () => {
     backing.dispose();
   });
 
-  test("a rotated device still travels only along its own local depth axis", () => {
+  test("a rotated device applies the same rigid rotation to vertices and normals", () => {
     const { assembly, ring, backing } = productionWheelAssembly();
     const ringNormal = snapshot(ring, "normal");
     const parent = new Group();
     parent.rotation.set(0.37, -0.58, 0.21, "XYZ");
     parent.add(assembly);
     parent.updateWorldMatrix(true, true);
-    const restWorld = assembly.getWorldPosition(new Vector3());
-    const expectedDirection = new Vector3(0, 0, -1).transformDirection(
-      parent.matrixWorld,
-    );
+    const restPosition = assembly.position.clone();
+    const restScale = assembly.scale.clone();
+    const restAssemblyQuaternion = assembly.quaternion.clone();
+    const parentWorldQuaternion = parent.getWorldQuaternion(new Quaternion());
     const controller = new ControlPhysicsController(
       new FrameHarness().dependencies,
     );
     controller.attachWheel(assembly);
 
-    controller.pressWheel();
+    controller.pressWheel(90);
     parent.updateWorldMatrix(true, true);
-    const travel = assembly
-      .getWorldPosition(new Vector3())
-      .sub(restWorld);
-    expect(travel.length()).toBeCloseTo(CONTROL_TRAVEL.wheelModel, 12);
-    expect(travel.clone().normalize().dot(expectedDirection)).toBeCloseTo(1, 12);
+    const liveNormal = new Vector3(0, 0, 1).applyQuaternion(
+      assembly.getWorldQuaternion(assembly.quaternion.clone()),
+    );
+    const expectedNormal = new Vector3(0, 0, 1)
+      .applyAxisAngle(new Vector3(1, 0, 0), Math.asin(
+        CONTROL_TRAVEL.wheelModel /
+          (wheel.outerR - WHEEL_OUTER_SEAM_WIDTH),
+      ))
+      .applyQuaternion(restAssemblyQuaternion)
+      .applyQuaternion(parentWorldQuaternion);
+    expect(assembly.position).toEqual(restPosition);
+    expect(assembly.scale).toEqual(restScale);
+    expect(liveNormal.angleTo(expectedNormal)).toBeLessThan(1e-7);
     expect([...snapshot(ring, "normal")]).toEqual([...ringNormal]);
 
     controller.dispose();
@@ -295,25 +319,25 @@ describe("rigid physical click-wheel travel", () => {
     backing.dispose();
   });
 
-  test("wheel release is monotonic in local Z and restores exact rest", () => {
+  test("wheel release is monotonic in tilt and restores exact rest", () => {
     const { assembly, ring, backing } = productionWheelAssembly();
     const harness = new FrameHarness();
     const controller = new ControlPhysicsController(harness.dependencies);
-    const rest = assembly.position.clone();
+    const restPosition = assembly.position.clone();
+    const restQuaternion = assembly.quaternion.clone();
     controller.attachWheel(assembly);
-    controller.pressWheel();
+    controller.pressWheel(143);
     controller.releaseWheel();
-    let previousZ = assembly.position.z;
+    let previousAngle = assembly.quaternion.angleTo(restQuaternion);
 
     for (const elapsed of [15, 45, 90, CONTROL_RELEASE_MS.wheel]) {
       harness.step(elapsed);
-      expect(assembly.position.x).toBe(rest.x);
-      expect(assembly.position.y).toBe(rest.y);
-      expect(assembly.position.z).toBeGreaterThanOrEqual(previousZ);
-      expect(assembly.position.z).toBeLessThanOrEqual(rest.z);
-      previousZ = assembly.position.z;
+      const liveAngle = assembly.quaternion.angleTo(restQuaternion);
+      expect(assembly.position).toEqual(restPosition);
+      expect(liveAngle).toBeLessThanOrEqual(previousAngle);
+      previousAngle = liveAngle;
     }
-    expect(assembly.position).toEqual(rest);
+    expect(assembly.quaternion.toArray()).toEqual(restQuaternion.toArray());
     expect(harness.pending).toBe(0);
 
     controller.dispose();
@@ -323,20 +347,22 @@ describe("rigid physical click-wheel travel", () => {
 
   test("reduced motion during release restores and presents the exact rest transform", () => {
     const { assembly, ring, backing } = productionWheelAssembly();
-    const rest = assembly.position.clone();
+    const restPosition = assembly.position.clone();
+    const restQuaternion = assembly.quaternion.clone();
     const harness = new FrameHarness();
     const controller = new ControlPhysicsController(harness.dependencies);
     controller.attachWheel(assembly);
-    controller.pressWheel();
+    controller.pressWheel(225);
     controller.releaseWheel();
     harness.step(32);
-    expect(assembly.position).not.toEqual(rest);
+    expect(assembly.quaternion.angleTo(restQuaternion)).toBeGreaterThan(0);
     expect(harness.invalidations).toBe(2);
     expect(harness.pending).toBe(1);
 
     controller.setReducedMotion(true);
 
-    expect(assembly.position).toEqual(rest);
+    expect(assembly.position).toEqual(restPosition);
+    expect(assembly.quaternion.toArray()).toEqual(restQuaternion.toArray());
     expect(harness.invalidations).toBe(3);
     expect(harness.pending).toBe(0);
     expect(harness.cancels).toBe(1);
@@ -350,23 +376,23 @@ describe("rigid physical click-wheel travel", () => {
     const second = productionWheelAssembly();
     second.assembly.position.set(-4, 6, 2.5);
     second.assembly.updateMatrix();
-    const firstRest = first.assembly.position.clone();
-    const secondRest = second.assembly.position.clone();
+    const firstRest = first.assembly.quaternion.clone();
+    const secondRest = second.assembly.quaternion.clone();
     const controller = new ControlPhysicsController(
       new FrameHarness().dependencies,
     );
     const detachFirst = controller.attachWheel(first.assembly);
-    controller.pressWheel();
-    expect(first.assembly.position).not.toEqual(firstRest);
+    controller.pressWheel(12);
+    expect(first.assembly.quaternion.angleTo(firstRest)).toBeGreaterThan(0);
 
     const detachSecond = controller.attachWheel(second.assembly);
-    expect(first.assembly.position).toEqual(firstRest);
-    controller.pressWheel();
-    const secondMoved = second.assembly.position.clone();
+    expect(first.assembly.quaternion.toArray()).toEqual(firstRest.toArray());
+    controller.pressWheel(281);
+    const secondMoved = second.assembly.quaternion.clone();
     detachFirst();
-    expect(second.assembly.position).toEqual(secondMoved);
+    expect(second.assembly.quaternion.toArray()).toEqual(secondMoved.toArray());
     detachSecond();
-    expect(second.assembly.position).toEqual(secondRest);
+    expect(second.assembly.quaternion.toArray()).toEqual(secondRest.toArray());
 
     controller.dispose();
     first.ring.dispose();
@@ -385,7 +411,7 @@ describe("rigid physical click-wheel travel", () => {
     );
     controller.attachWheel(assembly);
     controller.attachSelect(select);
-    controller.pressWheel();
+    controller.pressWheel(0);
     controller.pressSelect();
     const selectMoved = snapshot(select, "position");
 
@@ -431,11 +457,11 @@ describe("rigid physical click-wheel travel", () => {
         const controller = new ControlPhysicsController(harness.dependencies);
         const assemblyBundle = productionWheelAssembly();
         const select = selectGeometry();
-        const wheelRest = assemblyBundle.assembly.position.clone();
+        const wheelRest = assemblyBundle.assembly.quaternion.clone();
         const selectRest = snapshot(select, "position");
         if (control === "wheel") {
           controller.attachWheel(assemblyBundle.assembly);
-          controller.pressWheel();
+          controller.pressWheel(45);
           controller.releaseWheel();
         } else {
           controller.attachSelect(select);
@@ -453,7 +479,9 @@ describe("rigid physical click-wheel travel", () => {
         expect(settledAtMs).toBeGreaterThanOrEqual(duration);
         expect(settledAtMs).toBeLessThan(duration + interval + 1e-9);
         if (control === "wheel") {
-          expect(assemblyBundle.assembly.position).toEqual(wheelRest);
+          expect(assemblyBundle.assembly.quaternion.toArray()).toEqual(
+            wheelRest.toArray(),
+          );
         } else {
           expect([...snapshot(select, "position")]).toEqual([...selectRest]);
         }
@@ -471,12 +499,12 @@ describe("rigid physical click-wheel travel", () => {
 
   test("release is demand-driven and a frozen clock has a bounded escape", () => {
     const { assembly, ring, backing } = productionWheelAssembly();
-    const rest = assembly.position.clone();
+    const rest = assembly.quaternion.clone();
     const harness = new FrameHarness();
     const controller = new ControlPhysicsController(harness.dependencies);
     controller.attachWheel(assembly);
     expect(harness.requests).toBe(0);
-    controller.pressWheel();
+    controller.pressWheel(315);
     expect(harness.requests).toBe(0);
     controller.releaseWheel();
     expect(harness.pending).toBe(1);
@@ -485,13 +513,13 @@ describe("rigid physical click-wheel travel", () => {
     }
     expect(harness.pending).toBe(0);
     expect(harness.requests).toBe(CONTROL_STALLED_FRAME_LIMIT);
-    expect(assembly.position).toEqual(rest);
+    expect(assembly.quaternion.toArray()).toEqual(rest.toArray());
     controller.dispose();
     ring.dispose();
     backing.dispose();
   });
 
-  test("production has one rigid wheel transform and no deformation or optical proxy", async () => {
+  test("production has one contact-following rigid wheel transform and no deformation or optical proxy", async () => {
     const physics = await Bun.file(
       "packages/device/src/control-physics.ts",
     ).text();
@@ -525,14 +553,18 @@ describe("rigid physical click-wheel travel", () => {
       /wheelHeightField|compactContact|deformWheelSurface|derivativeX|derivativeY/,
     );
     expect(renderWheel).toContain(
-      "positionRigidAssembly(this.#wheelAssembly, this.#wheel.depth)",
+      "tiltRigidAssembly(\n      this.#wheelAssembly,",
     );
-    expect(renderWheel).not.toMatch(/position\.array|normal\.array|contact/);
-    expect(input.match(/controlPhysics\?\.pressWheel\(\)/g)).toHaveLength(1);
-    expect(pointerMove).not.toMatch(/pressWheel|wheelContact|controlPhysics/);
+    expect(renderWheel).not.toMatch(/position\.array|normal\.array/);
+    expect(input.match(/controlPhysics\?\.pressWheel\(first\.angleDeg\)/g)).toHaveLength(1);
+    expect(pointerMove).toContain("controlPhysics?.moveWheel(next.angleDeg)");
     expect(physics).not.toMatch(/ShaderMaterial|uniform|wheelReadability/);
+    expect(device).toContain('name="device-wheel-assembly"');
     expect(device).toContain(
-      '<group ref={wheelAssemblyRef} name="device-wheel-assembly">',
+      "position={[wheel.centerX, wheel.centerY, wheelTopAtCenterZ]}",
+    );
+    expect(device.indexOf('name="device-wheel-gap-floor"')).toBeLessThan(
+      device.indexOf('name="device-wheel-assembly"'),
     );
     expect(device).toContain("controlPhysics?.attachWheel(assembly)");
     expect(device).not.toMatch(

@@ -88,6 +88,7 @@ export {
   CONTROL_RELEASE_MS,
   CONTROL_STALLED_FRAME_LIMIT,
   CONTROL_TRAVEL,
+  WHEEL_TILT,
   ControlPhysicsController,
   type ControlPhysicsDependencies,
 } from "./control-physics";

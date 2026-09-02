@@ -3,9 +3,12 @@ import {
   type BufferGeometry,
   DynamicDrawUsage,
   type Object3D,
+  Quaternion,
+  Vector3,
 } from "three";
 
-import { PX_PER_MM } from "./layout";
+import { WHEEL_OUTER_SEAM_WIDTH } from "./front-surface";
+import { DEVICE_LAYOUT, PX_PER_MM } from "./layout";
 
 /**
  * Transient control travel, expressed in physical millimetres and converted
@@ -17,12 +20,24 @@ import { PX_PER_MM } from "./layout";
  * presented as OEM dimensions.
  */
 export const CONTROL_TRAVEL = Object.freeze({
-  // A rigid wheel moves less than the former flexible 0.08 mm calibration.
-  // This restrained 0.03 mm is visual calibration, not an OEM dimension.
-  wheelMm: 0.03,
+  // Low-side rim travel for the rigid wheel rock. This is deliberately below
+  // both the rejected 0.08 mm basin and rejected 0.03 mm whole-wheel shift.
+  // It remains bounded visual calibration, not an OEM dimension.
+  wheelMm: 0.018,
   selectMm: 0.36,
-  wheelModel: 0.03 * PX_PER_MM,
+  wheelModel: 0.018 * PX_PER_MM,
   selectModel: 0.36 * PX_PER_MM,
+});
+
+const WHEEL_VISIBLE_RADIUS_MODEL =
+  DEVICE_LAYOUT.wheel.outerR - WHEEL_OUTER_SEAM_WIDTH;
+
+/** One rigid-disc tilt derived from its bounded low-side rim travel. */
+export const WHEEL_TILT = Object.freeze({
+  radiusModel: WHEEL_VISIBLE_RADIUS_MODEL,
+  maxAngleRad: Math.asin(
+    CONTROL_TRAVEL.wheelModel / WHEEL_VISIBLE_RADIUS_MODEL,
+  ),
 });
 
 export const CONTROL_RELEASE_MS = Object.freeze({
@@ -50,6 +65,10 @@ type BoundRigidAssembly = {
   readonly restX: number;
   readonly restY: number;
   readonly restZ: number;
+  readonly restQuaternion: Quaternion;
+  readonly restScale: Vector3;
+  readonly tiltAxis: Vector3;
+  readonly tiltQuaternion: Quaternion;
 };
 
 type Release = {
@@ -127,24 +146,54 @@ function bindRigidAssembly(object: Object3D): BoundRigidAssembly {
     restX: object.position.x,
     restY: object.position.y,
     restZ: object.position.z,
+    restQuaternion: object.quaternion.clone(),
+    restScale: object.scale.clone(),
+    tiltAxis: new Vector3(),
+    tiltQuaternion: new Quaternion(),
   };
 }
 
-function positionRigidAssembly(
+function normalizeAngleDeg(angleDeg: number): number {
+  return ((angleDeg % 360) + 360) % 360;
+}
+
+function tiltRigidAssembly(
   assembly: BoundRigidAssembly,
-  depth: number,
+  lowSideTravel: number,
+  contactAngleDeg: number,
 ): void {
-  const boundedDepth = Math.max(0, Math.min(depth, CONTROL_TRAVEL.wheelModel));
+  const boundedTravel = Math.max(
+    0,
+    Math.min(lowSideTravel, CONTROL_TRAVEL.wheelModel),
+  );
+  const tiltAngle = Math.asin(boundedTravel / WHEEL_TILT.radiusModel);
+  const contactAngleRad =
+    (normalizeAngleDeg(contactAngleDeg) * Math.PI) / 180;
+  // Clockwise wheel angle maps to (cos θ, -sin θ). The in-plane axis
+  // perpendicular to that radius makes that exact contact side the low side.
+  assembly.tiltAxis.set(
+    Math.sin(contactAngleRad),
+    Math.cos(contactAngleRad),
+    0,
+  );
+  assembly.tiltQuaternion.setFromAxisAngle(assembly.tiltAxis, tiltAngle);
   assembly.object.position.set(
     assembly.restX,
     assembly.restY,
-    assembly.restZ - boundedDepth,
+    assembly.restZ,
   );
+  assembly.object.quaternion
+    .copy(assembly.restQuaternion)
+    .multiply(assembly.tiltQuaternion)
+    .normalize();
+  assembly.object.scale.copy(assembly.restScale);
   assembly.object.updateMatrix();
 }
 
 function restoreRigidAssembly(assembly: BoundRigidAssembly): void {
   assembly.object.position.set(assembly.restX, assembly.restY, assembly.restZ);
+  assembly.object.quaternion.copy(assembly.restQuaternion);
+  assembly.object.scale.copy(assembly.restScale);
   assembly.object.updateMatrix();
 }
 
@@ -191,6 +240,7 @@ export class ControlPhysicsController {
   #frame: ControlPhysicsFrame | null = null;
   #reducedMotion = false;
   #disposed = false;
+  #wheelAngleDeg = 0;
 
   constructor(dependencies: ControlPhysicsDependencies) {
     this.#dependencies = dependencies;
@@ -204,6 +254,7 @@ export class ControlPhysicsController {
     this.#wheelAssembly = assembly;
     this.#wheel.depth = 0;
     this.#wheel.release = null;
+    this.#wheelAngleDeg = 0;
     this.#cancelFrameWhenSettled();
     return () => {
       if (this.#wheelAssembly !== assembly) return;
@@ -211,6 +262,7 @@ export class ControlPhysicsController {
       this.#wheelAssembly = null;
       this.#wheel.depth = 0;
       this.#wheel.release = null;
+      this.#wheelAngleDeg = 0;
       this.#cancelFrameWhenSettled();
     };
   }
@@ -219,13 +271,28 @@ export class ControlPhysicsController {
     return this.#attach(this.#select, geometry);
   }
 
-  pressWheel(): void {
-    if (this.#disposed) return;
+  pressWheel(contactAngleDeg: number): void {
+    if (this.#disposed || !Number.isFinite(contactAngleDeg)) return;
     this.#wheel.release = null;
+    this.#wheelAngleDeg = normalizeAngleDeg(contactAngleDeg);
     this.#wheel.depth = CONTROL_TRAVEL.wheelModel;
     this.#renderWheel();
     this.#dependencies.invalidate();
     this.#cancelFrameWhenSettled();
+  }
+
+  moveWheel(contactAngleDeg: number): void {
+    if (
+      this.#disposed ||
+      this.#wheel.depth === 0 ||
+      !Number.isFinite(contactAngleDeg)
+    )
+      return;
+    const nextAngle = normalizeAngleDeg(contactAngleDeg);
+    if (nextAngle === this.#wheelAngleDeg) return;
+    this.#wheelAngleDeg = nextAngle;
+    this.#renderWheel();
+    this.#dependencies.invalidate();
   }
 
   releaseWheel(): void {
@@ -350,7 +417,11 @@ export class ControlPhysicsController {
 
   #renderWheel(): void {
     if (this.#wheelAssembly === null) return;
-    positionRigidAssembly(this.#wheelAssembly, this.#wheel.depth);
+    tiltRigidAssembly(
+      this.#wheelAssembly,
+      this.#wheel.depth,
+      this.#wheelAngleDeg,
+    );
   }
 
   #renderSelect(): void {

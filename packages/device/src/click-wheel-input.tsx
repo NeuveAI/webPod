@@ -416,7 +416,7 @@ export function ClickWheelInputSurface({
     host.addEventListener("pointercancel", onCancel);
     host.addEventListener("lostpointercapture", onLostCapture);
     blurHost?.addEventListener("blur", onBlur);
-    controlPhysics?.pressWheel();
+    controlPhysics?.pressWheel(first.angleDeg);
     try {
       callbacksRef.current.onArcStart(first);
     } catch (error) {
@@ -431,6 +431,7 @@ export function ClickWheelInputSurface({
     preventNativeDefault(event);
     const next = sample(event, active.pointerType);
     if (next !== null) {
+      controlPhysics?.moveWheel(next.angleDeg);
       try {
         callbacksRef.current.onArcMove(next);
       } catch (error) {

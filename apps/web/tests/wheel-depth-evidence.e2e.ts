@@ -9,8 +9,8 @@ import {
 } from "../../../packages/panel/node_modules/@playwright/test/index.js";
 
 const evidenceDirectory = resolve(
-  process.env["W9A_RIGID_EVIDENCE_DIR"] ??
-    resolve(import.meta.dirname, "test-results/w9a-rigid-wheel"),
+  process.env["W9A_TILT_EVIDENCE_DIR"] ??
+    resolve(import.meta.dirname, "test-results/w9a-rigid-wheel-tilt"),
 );
 
 type Colourway = "black" | "white";
@@ -66,7 +66,7 @@ async function wheelContactPoint(page: Page): Promise<{
   return { x: centerX + diagonal, y: centerY - diagonal };
 }
 
-test("production pointer proves one rigid wheel press in both finishes and poses", async ({
+test("production pointer proves one contact-following rigid wheel tilt in both finishes and poses", async ({
   page,
 }) => {
   await mkdir(evidenceDirectory, { recursive: true });
@@ -171,8 +171,9 @@ test("production pointer proves one rigid wheel press in both finishes and poses
         ],
         syntheticControlPose: false,
         controlQueryParameter: false,
-        wheelTravelMm: 0.03,
-        wheelMotion: "one rigid device-local negative-Z assembly translation",
+        wheelLowSideRimTravelMm: 0.018,
+        wheelMotion:
+          "one center-pivot rigid-disc tilt whose low side follows pointer angle",
         geometryMutation: false,
         normalMutation: false,
         auxiliaryOpticalCue: false,

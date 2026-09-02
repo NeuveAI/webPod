@@ -533,6 +533,7 @@ export function Device({
     screenFrontZ,
     wheelSurfaceBaseZ,
     wheelGapFloorBaseZ,
+    wheelTopAtCenterZ,
   } = resolveFrontAssemblyDepths(form);
   const rearInlayZ = -body.depth / 2 + form.rearInlayInset;
 
@@ -773,34 +774,38 @@ export function Device({
         />
       </mesh>
 
-      {/* The floor, plastic ring and ink move as one rigid control. The group
-          has no rotation or scale animation: a press changes device-local Z
-          only, so wheel geometry, normals and both circular seams stay exact. */}
-      <group ref={wheelAssemblyRef} name="device-wheel-assembly">
-        {/* One zero-wall floor sits 0.05 model pixels behind the shared
-            surface. It is visible only through the physical hairlines. */}
-        <mesh
-          name="device-wheel-gap-floor"
-          geometry={wheelGapGeometry}
-          position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}
-        >
-          <meshPhysicalMaterial
-            name={isBlack ? "wheel-gap-black" : "wheel-gap-white"}
-            {...spread(
-              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
-            )}
-            {...studioEnvironmentProps(
-              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
-              studio,
-            )}
-          />
-        </mesh>
+      {/* The zero-wall floor belongs to the fixed faceplate and remains behind
+          the two physical hairlines while the rigid wheel rocks above it. */}
+      <mesh
+        name="device-wheel-gap-floor"
+        geometry={wheelGapGeometry}
+        position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}
+      >
+        <meshPhysicalMaterial
+          name={isBlack ? "wheel-gap-black" : "wheel-gap-white"}
+          {...spread(
+            isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
+          )}
+          {...studioEnvironmentProps(
+            isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
+            studio,
+          )}
+        />
+      </mesh>
 
+      {/* The ring and its ink are one rigid plastic disc. Its group origin is
+          the wheel's flush surface centre, so contact changes only one tiny
+          center-pivot rotation; child geometry, normals and scale stay exact. */}
+      <group
+        ref={wheelAssemblyRef}
+        name="device-wheel-assembly"
+        position={[wheel.centerX, wheel.centerY, wheelTopAtCenterZ]}
+      >
         {/* The wheel is a separate plastic patch on the faceplate surface. */}
         <mesh
           name="device-wheel"
           geometry={ringGeometry}
-          position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}
+          position={[0, 0, wheelSurfaceBaseZ - wheelTopAtCenterZ]}
         >
           <primitive object={wheelPhysicalMaterial} attach="material" />
         </mesh>
@@ -810,7 +815,7 @@ export function Device({
         <mesh
           name={WHEEL_LABEL_DECAL_NAME}
           geometry={ringGeometry}
-          position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ + 0.08]}
+          position={[0, 0, wheelSurfaceBaseZ - wheelTopAtCenterZ + 0.08]}
           renderOrder={2}
         >
           <meshBasicMaterial

@@ -61,6 +61,8 @@ type MountedSurface = {
 
 class RecordingControlPhysics extends ControlPhysicsController {
   wheelPresses = 0;
+  readonly wheelPressAngles: Array<number> = [];
+  readonly wheelMoveAngles: Array<number> = [];
   wheelReleases = 0;
   selectPresses = 0;
   selectReleases = 0;
@@ -75,9 +77,15 @@ class RecordingControlPhysics extends ControlPhysicsController {
     super(dependencies);
   }
 
-  override pressWheel(): void {
+  override pressWheel(contactAngleDeg: number): void {
     this.wheelPresses += 1;
-    super.pressWheel();
+    this.wheelPressAngles.push(contactAngleDeg);
+    super.pressWheel(contactAngleDeg);
+  }
+
+  override moveWheel(contactAngleDeg: number): void {
+    this.wheelMoveAngles.push(contactAngleDeg);
+    super.moveWheel(contactAngleDeg);
   }
 
   override releaseWheel(): void {
@@ -342,9 +350,12 @@ describe("click-wheel mounted R3F event seam", () => {
       await dispatch(mounted, pointerEvent("pointerup", pointerId, 0, -145));
       expect(mounted.ends.map((end) => end.reason)).toEqual(["release"]);
       expect(mounted.canvas.hasPointerCapture(pointerId)).toBeFalse();
-      // Pointer movement still reaches the navigation runtime, but physical
-      // wheel travel is one rigid press rather than a travelling deformation.
+      // Pointer movement reaches both the navigation runtime and the rigid
+      // wheel's tilt axis. It never creates a second semantic press/detent.
       expect(mounted.controlPhysics.wheelPresses).toBe(1);
+      expect(mounted.controlPhysics.wheelPressAngles[0]).toBeCloseTo(0, 8);
+      expect(mounted.controlPhysics.wheelMoveAngles).toHaveLength(1);
+      expect(mounted.controlPhysics.wheelMoveAngles[0]).toBeCloseTo(90, 8);
       expect(mounted.controlPhysics.wheelReleases).toBe(1);
     } finally {
       await unmount(mounted);
