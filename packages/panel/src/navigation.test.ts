@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
-import { APPLE_SUPPORTS, createFixtureProvider } from '@webpod/providers'
+import { APPLE_SUPPORTS, createFixtureProvider, mintLocalKey } from '@webpod/providers'
+import type { NavigationRoute } from '@webpod/state'
 
 import { fixtureNavigationSource } from './model'
 import { navigationRoot, selectNavigation } from './navigation'
@@ -47,7 +48,7 @@ describe('typed navigation graph', () => {
 
   test('every supported root row resolves to its declared real section', async () => {
     const root = navigationRoot(fixtureNavigationSource, provider)
-    const expected = ['cover-flow', 'playlists', 'artists', 'albums', 'songs', 'genres', 'stations', 'search-entry']
+    const expected: NavigationRoute['kind'][] = ['cover-flow', 'playlists', 'artists', 'albums', 'songs', 'genres', 'stations', 'search-entry']
     const resolved = await Promise.all(root.rows.map(async (_row, index) =>
       (await selectNavigation(highlight(root, index), fixtureNavigationSource, provider)).frame?.route?.kind))
     expect(resolved).toEqual(expected)
@@ -57,11 +58,50 @@ describe('typed navigation graph', () => {
     const root = navigationRoot(fixtureNavigationSource, provider)
     const entry = (await selectNavigation(highlight(root, root.rows.length - 1), fixtureNavigationSource, provider)).frame
     if (entry === null) throw new Error('search entry missing')
-    const results = (await selectNavigation(entry, fixtureNavigationSource, provider)).frame
+    const results = (await selectNavigation(entry, fixtureNavigationSource, provider, 'night')).frame
     expect(results?.route?.kind).toBe('search-results')
     if (results === null) throw new Error('search results missing')
     await selectNavigation(results, fixtureNavigationSource, provider)
     expect(provider.playback.now?.key).toBe(fixtureNavigationSource.songs[0]?.key)
+  })
+
+  test('routes by typed destination even when presentation copy changes', async () => {
+    const root = navigationRoot(fixtureNavigationSource, provider)
+    const renamed = { ...root, rows: root.rows.map((row) => row.destination?.kind === 'artists' ? { ...row, label: 'Performers' } : row) }
+    const artistIndex = renamed.rows.findIndex((row) => row.destination?.kind === 'artists')
+    const selected = await selectNavigation(highlight(renamed, artistIndex), fixtureNavigationSource, provider)
+    expect(selected.frame?.route?.kind).toBe('artists')
+  })
+
+  test('queries library and catalogue and can play a catalogue-only result', async () => {
+    const seed = fixtureNavigationSource.songs[0]
+    if (seed === undefined) throw new Error('fixture song missing')
+    const catalogueOnly = { ...seed, key: mintLocalKey(), title: 'Outside the Library' }
+    const scopes: string[] = []
+    const searchProvider = {
+      ...provider,
+      search: async (query: Parameters<typeof provider.search>[0]) => {
+        scopes.push(`${query.scope}:${query.term}`)
+        return {
+          tracks: query.scope === 'catalog' ? [catalogueOnly] : [],
+          albums: [], artists: [], playlists: [], stations: [], next: null,
+        }
+      },
+    }
+    const source = {
+      ...fixtureNavigationSource,
+      trackByKey: (key: typeof catalogueOnly.key) => key === catalogueOnly.key ? catalogueOnly : fixtureNavigationSource.trackByKey(key),
+    }
+    const root = navigationRoot(source, searchProvider)
+    const entry = (await selectNavigation(highlight(root, root.rows.length - 1), source, searchProvider)).frame
+    if (entry === null) throw new Error('search entry missing')
+    const results = (await selectNavigation(entry, source, searchProvider, 'outside')).frame
+    if (results === null) throw new Error('search results missing')
+    expect(scopes).toEqual(['library:outside', 'catalog:outside'])
+    expect(results.rows.map((row) => [row.label, row.sublabel])).toEqual([['Outside the Library', 'Apple Music']])
+    const played = await selectNavigation(results, source, searchProvider)
+    expect(played.played).toBe(true)
+    expect(provider.playback.now?.key).toBe(catalogueOnly.key)
   })
 
   test('unsupported radio is absent instead of disabled', () => {

@@ -1,4 +1,5 @@
 import { Provider, atom, useAtomValue, useSetAtom } from 'jotai'
+import type { FixtureProvider, MusicProvider } from '@webpod/providers'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import {
   currentScreenAtom,
@@ -32,7 +33,7 @@ import {
   type NowPlayingMode,
   type PanelState,
 } from './model'
-import { navigationRoot, selectNavigation } from './navigation'
+import { navigationRoot, selectNavigation, type NavigationDataSource } from './navigation'
 import { acquireAnnouncer, acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import menuArtworkUrl from './assets/music-menu-art.png'
 import nowPlayingArtworkUrl from './assets/now-playing-art.png'
@@ -43,7 +44,10 @@ const nowPlayingModeAtom = atom<NowPlayingMode>('volume')
 const sampledArtworkAtom = atom<{ readonly url: string; readonly samples: ArtworkSamples } | null>(null)
 const successResultAtom = atom<SuccessResult | null>(null)
 const lovedTrackKeyAtom = atom<string | null>(null)
+export const searchQueryAtom = atom('')
 let initializedDocument: Document | null = null
+let initializedProvider: MusicProvider | null = null
+let initializedSource: NavigationDataSource | null = null
 const libraryCountLabels = new Set(['Playlists', 'Artists', 'Albums', 'Songs', 'Genres'])
 const successOperations = new WeakMap<Document, Map<string, Promise<SuccessResult>>>()
 const artworkRequests = new Map<string, Promise<ArtworkSamples>>()
@@ -71,6 +75,8 @@ export interface PanelProps {
   readonly artworkTone?: ArtworkTone | null
   readonly density?: Density | null
   readonly longList?: boolean
+  readonly provider?: MusicProvider
+  readonly navigationSource?: NavigationDataSource
 }
 
 export function Panel({
@@ -82,20 +88,24 @@ export function Panel({
   artworkTone = null,
   density = null,
   longList = false,
+  provider = fixtureProvider,
+  navigationSource = fixtureNavigationSource,
 }: PanelProps) {
   const rasterScale = Math.min(1.25, Math.max(1, dynamicTypeScale))
   useEffect(() => {
-    if (initializedDocument !== document) {
-      deviceStore.set(resetStackActionAtom, [navigationRoot(fixtureNavigationSource, fixtureProvider)])
+    if (initializedDocument !== document || initializedProvider !== provider || initializedSource !== navigationSource) {
+      deviceStore.set(resetStackActionAtom, [navigationRoot(navigationSource, provider)])
       initializedDocument = document
+      initializedProvider = provider
+      initializedSource = navigationSource
     }
     deviceStore.set(setDensityActionAtom, density)
     deviceStore.set(setDynamicTypeScaleActionAtom, dynamicTypeScale)
-  }, [actor, density, dynamicTypeScale, state])
+  }, [actor, density, dynamicTypeScale, navigationSource, provider, state])
   return (
     <div className="wp-panel-stage" style={{ '--wp-raster-scale': rasterScale } as CSSProperties}>
       <Provider store={deviceStore}>
-        <PanelSurface colourway={colourway} state={state} className={className} actor={actor} artworkTone={artworkTone} longList={longList} />
+        <PanelSurface colourway={colourway} state={state} className={className} actor={actor} artworkTone={artworkTone} longList={longList} provider={provider} navigationSource={navigationSource} />
       </Provider>
     </div>
   )
@@ -108,6 +118,8 @@ function PanelSurface({
   actor,
   artworkTone,
   longList,
+  provider,
+  navigationSource,
 }: {
   readonly colourway: Colourway
   readonly state: PanelState
@@ -115,6 +127,8 @@ function PanelSurface({
   readonly actor: 'human' | 'agent'
   readonly artworkTone: ArtworkTone | null
   readonly longList: boolean
+  readonly provider: MusicProvider
+  readonly navigationSource: NavigationDataSource
 }) {
   void longList
   const panelId = useId()
@@ -138,13 +152,13 @@ function PanelSurface({
       return
     }
     let live = true
-    void selectNavigation(frame, fixtureNavigationSource, fixtureProvider).then((selection) => {
+    void selectNavigation(frame, navigationSource, provider, deviceStore.get(searchQueryAtom)).then((selection) => {
       if (live && selection.frame !== null) push(selection.frame)
     }).catch(() => {
       if (live) push({ screenId: 'S27', title: 'Unavailable', route: { kind: 'status', state: 'error' }, density: 'airy', rows: [], highlightIndex: -1, windowStart: 0 })
     })
     return () => { live = false }
-  }, [frame, navigationIntent, push])
+  }, [frame, navigationIntent, navigationSource, provider, push])
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget) return
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -213,15 +227,15 @@ function PanelSurface({
       <span className="wp-sr-only" aria-live="polite" aria-atomic="true" data-announcement-seq={announcement?.seq}>
         {announcement?.text ?? ''}
       </span>
-      {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state, colourway, artworkTone, visibleRows, actor, panelId)}
+      {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state, colourway, artworkTone, visibleRows, actor, panelId, provider, navigationSource)}
     </div>
   )
 }
 
-function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone | null, visibleRows: number, actor: 'human' | 'agent', panelId: string) {
+function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone | null, visibleRows: number, actor: 'human' | 'agent', panelId: string, provider: MusicProvider, navigationSource: NavigationDataSource) {
   if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
   if (frame.screenId === 'S08') return <AlbumTracks frame={frame} state={state} visibleRows={visibleRows} />
-  if (frame.screenId === 'S13') return <NowPlaying state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} />
+  if (frame.screenId === 'S13') return <NowPlaying state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} provider={provider} navigationSource={navigationSource} />
   if (frame.screenId === 'S27') return <section className="wp-screen"><TitleBar title={frame.title} /><PanelError message="Couldn't load this section." /></section>
   return <BrowserList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
 }
@@ -301,10 +315,13 @@ function MainMenu({ frame, state, visibleRows, panelId }: { readonly frame: Scre
 }
 
 function BrowserList({ frame, state, visibleRows, panelId }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string }) {
+  const query = useAtomValue(searchQueryAtom)
+  const setQuery = useSetAtom(searchQueryAtom)
   const rows = frame.rows.slice(frame.windowStart, frame.windowStart + visibleRows)
   return (
     <section className="wp-screen wp-browser-list" aria-label={frame.title} aria-busy={state === 'loading'}>
       <TitleBar title={frame.title} />
+      {frame.route?.kind === 'search-entry' ? <label className="wp-search-field"><span className="wp-sr-only">Search query</span><input value={query} onChange={(event) => setQuery(event.currentTarget.value)} placeholder="Artists, albums, songs" autoComplete="off" /></label> : null}
       {state === 'loading' ? <div className="wp-list-loading" aria-label={`Loading ${frame.title}`}>{Array.from({ length: visibleRows }, (_, index) => <i className="wp-skeleton" key={index} />)}</div>
         : state === 'error' ? <PanelError message={`Couldn't load ${frame.title}.`} />
           : state === 'permission-denied' ? <PanelError message="Sign in to browse your music." detail="Press Menu to go back." />
@@ -414,7 +431,7 @@ function TrackRow({
   )
 }
 
-function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone | null; readonly actor: 'human' | 'agent' }) {
+function NowPlaying({ state, colourway, artworkTone, actor, provider, navigationSource }: { readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone | null; readonly actor: 'human' | 'agent'; readonly provider: MusicProvider; readonly navigationSource: NavigationDataSource }) {
   const mode = useAtomValue(nowPlayingModeAtom)
   const sampledArtwork = useAtomValue(sampledArtworkAtom)
   const setSampledArtwork = useSetAtom(sampledArtworkAtom)
@@ -422,18 +439,18 @@ function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: 
   const setSuccess = useSetAtom(successResultAtom)
   const lovedTrackKey = useAtomValue(lovedTrackKeyAtom)
   const setLovedTrackKey = useSetAtom(lovedTrackKeyAtom)
-  useSyncExternalStore(fixtureProvider.onPlaybackChange, playbackVersion, serverPlaybackVersion)
-  useSyncExternalStore(fixtureProvider.onProgress, progressVersion, serverProgressVersion)
-  const playback = fixtureProvider.playback
+  useSyncExternalStore(provider.onPlaybackChange, () => JSON.stringify(provider.playback), () => JSON.stringify(provider.playback))
+  useSyncExternalStore(provider.onProgress, () => `${provider.playback.positionMs}/${provider.playback.durationMs}`, () => `0/${provider.playback.durationMs}`)
+  const playback = provider.playback
   const progressTick = { positionMs: playback.positionMs, durationMs: playback.durationMs }
-  const track = playback.now ?? currentTrack()
+  const track = playback.now ?? navigationSource.songs[0] ?? currentTrack()
   const art = sharpArtwork(track, 176)
   const artUrl = art?.url ?? null
-  useEffect(() => acquirePlaybackClock(document, fixtureProvider, {
+  useEffect(() => isClockDrivenProvider(provider) ? acquirePlaybackClock(document, provider, {
     now: () => performance.now(),
     setInterval: (callback, intervalMs) => window.setInterval(callback, intervalMs),
     clearInterval: (handle) => window.clearInterval(handle),
-  }), [])
+  }) : undefined, [provider])
   useEffect(() => {
     if (artworkTone !== null || artUrl === null) return
     let live = true
@@ -450,12 +467,12 @@ function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: 
     if (state !== 'success-confirmation') return
     let live = true
     const operation = successOperation(document, 'S13', async () => {
-      await fixtureProvider.setVolume(actor === 'human' ? 72 : 68)
+      await provider.setVolume(actor === 'human' ? 72 : 68)
       return { screenId: 'S13', text: 'Volume changed.', objectKey: 'playback.volume' }
     })
     void operation.then((result) => { if (live) setSuccess(result) })
     return () => { live = false }
-  }, [actor, setSuccess, state])
+  }, [actor, provider, setSuccess, state])
   let samples: ArtworkSamples | null = null
   if (artworkTone !== null) {
     samples = artworkSampleFixture(artworkTone)
@@ -475,7 +492,7 @@ function NowPlaying({ state, colourway, artworkTone, actor }: { readonly state: 
     (progressTick.positionMs / progressTick.durationMs) * 100,
   )
   const loveTrack = async () => {
-    await fixtureProvider.ratingSet(track, { love: 'love' })
+    await provider.ratingSet(track, { love: 'love' })
     setLovedTrackKey(track.key)
   }
   if (state === 'loading') return <section className="wp-screen" aria-busy="true"><TitleBar title="Now Playing" /><span className="wp-sr-only">Loading the song.</span><div className="wp-now-loading"><Artwork state="loading" /><i /><i /><i /></div></section>
@@ -584,10 +601,8 @@ function PanelError({ message, detail = 'Press Menu and try again.' }: { readonl
   return <div className="wp-message" role="alert"><strong>{message}</strong><span>{detail}</span></div>
 }
 
-const playbackVersion = () => JSON.stringify(fixtureProvider.playback)
-const serverPlaybackVersion = () => JSON.stringify(fixtureProvider.playback)
-const progressVersion = () => `${fixtureProvider.playback.positionMs}/${fixtureProvider.playback.durationMs}`
-const serverProgressVersion = () => `0/${fixtureProvider.playback.durationMs}`
+const isClockDrivenProvider = (provider: MusicProvider): provider is FixtureProvider => 'tick' in provider && typeof provider.tick === 'function'
+
 const formatTime = (milliseconds: number) => {
   const seconds = Math.floor(milliseconds / 1000)
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`

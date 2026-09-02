@@ -105,8 +105,8 @@ describe('the bare DOM panel', () => {
     const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
     expect(source).toContain('selectNavigation(')
     expect(readFileSync(new URL('./navigation.ts', import.meta.url), 'utf8')).toContain('provider.play(')
-    expect(source).toContain('fixtureProvider.onPlaybackChange')
-    expect(source).toContain('fixtureProvider.onProgress')
+    expect(source).toContain('provider.onPlaybackChange')
+    expect(source).toContain('provider.onProgress')
     expect(source).toContain('useVirtualizer(')
   })
 

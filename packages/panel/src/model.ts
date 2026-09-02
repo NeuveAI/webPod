@@ -1,5 +1,6 @@
 import {
   artworkUrl,
+  mintLocalKey,
   createFixtureProvider,
   type FixtureProvider,
   type TrackRef,
@@ -127,6 +128,9 @@ export const fixtureNavigationSource: NavigationDataSource = {
   playlists: fixtureProvider.catalog.playlists,
   songs: fixtureProvider.catalog.tracks,
   stations: fixtureProvider.catalog.stations,
+  trackByKey(trackKey) {
+    return fixtureProvider.catalog.tracks.find((track) => track.key === trackKey) ?? null
+  },
   tracksForAlbum(albumKey) {
     const album = fixtureProvider.catalog.albums.find((item) => item.key === albumKey)
     return album === undefined ? [] : fixtureProvider.catalog.tracksByAlbum.get(album.key) ?? []
@@ -179,7 +183,7 @@ export function mainMenuFrame(provider: FixtureProvider = fixtureProvider): Scre
 export function albumTracksFrame(provider: FixtureProvider = fixtureProvider, minimumRows = 0): ScreenFrame {
   const album = provider.catalog.albums[0]
   if (album === undefined) {
-    return { screenId: 'S08', title: 'Album', route: { kind: 'album-tracks', albumKey: 'missing' }, density: 'compact', rows: [], highlightIndex: -1, windowStart: 0 }
+    return { screenId: 'S08', title: 'Album', route: { kind: 'album-tracks', albumKey: mintLocalKey() }, density: 'compact', rows: [], highlightIndex: -1, windowStart: 0 }
   }
   const tracks = provider.catalog.tracksByAlbum.get(album.key) ?? []
   const rowCount = Math.max(tracks.length, minimumRows)

@@ -1,4 +1,5 @@
-export { Panel, type PanelProps } from './Panel'
+export { Panel, searchQueryAtom, type PanelProps } from './Panel'
+export type { NavigationDataSource } from './navigation'
 export {
   albumTracksFrame,
   artworkSampleFixture,

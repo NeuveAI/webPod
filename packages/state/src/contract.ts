@@ -37,6 +37,7 @@
 
 import type { Atom, PrimitiveAtom, WritableAtom } from 'jotai/vanilla'
 import { atom } from 'jotai/vanilla'
+import type { LocalKey } from '@webpod/providers'
 
 import {
   densityOverrideStateAtom,
@@ -279,6 +280,8 @@ export type PanelRow = {
   readonly sublabel: string | null
   readonly glyphs: readonly RowGlyph[]
   readonly provenance: RowProvenance
+  /** Stable behavior identity. Display copy is never executable state. */
+  readonly destination?: NavigationRoute
 }
 
 /**
@@ -337,20 +340,21 @@ export type NavigationRoute =
   | { readonly kind: 'root' }
   | { readonly kind: 'cover-flow' }
   | { readonly kind: 'playlists' }
-  | { readonly kind: 'playlist-tracks'; readonly playlistKey: string }
+  | { readonly kind: 'playlist-tracks'; readonly playlistKey: LocalKey }
   | { readonly kind: 'artists' }
-  | { readonly kind: 'artist-albums'; readonly artistKey: string }
+  | { readonly kind: 'artist-albums'; readonly artistKey: LocalKey }
   | { readonly kind: 'albums' }
-  | { readonly kind: 'album-tracks'; readonly albumKey: string }
+  | { readonly kind: 'album-tracks'; readonly albumKey: LocalKey }
   | { readonly kind: 'songs' }
   | { readonly kind: 'genres' }
-  | { readonly kind: 'genre-facets'; readonly genreKey: string }
-  | { readonly kind: 'genre-artists'; readonly genreKey: string }
-  | { readonly kind: 'genre-albums'; readonly genreKey: string }
-  | { readonly kind: 'genre-tracks'; readonly genreKey: string }
+  | { readonly kind: 'genre-facets'; readonly genreKey: LocalKey }
+  | { readonly kind: 'genre-artists'; readonly genreKey: LocalKey }
+  | { readonly kind: 'genre-albums'; readonly genreKey: LocalKey }
+  | { readonly kind: 'genre-tracks'; readonly genreKey: LocalKey }
   | { readonly kind: 'stations' }
   | { readonly kind: 'search-entry' }
-  | { readonly kind: 'search-results'; readonly query: string; readonly trackKeys: readonly string[] }
+  | { readonly kind: 'search-request' }
+  | { readonly kind: 'search-results'; readonly query: string; readonly trackKeys: readonly LocalKey[] }
   | { readonly kind: 'now-playing' }
   | { readonly kind: 'status'; readonly state: 'loading' | 'empty' | 'error' | 'signed-out' }
 

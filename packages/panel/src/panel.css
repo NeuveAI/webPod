@@ -236,3 +236,19 @@
   .wp-list-loading > i { display: block; border-radius: 3px; }
   @media (forced-colors: active) { .wp-panel { border: 1px solid CanvasText; } .wp-menu-row[aria-current="true"], .wp-track-row[aria-current="true"], .wp-browser-row[aria-selected="true"] { color: HighlightText; background: Highlight; } }
 }
+.wp-search-field {
+  display: block;
+  padding: 6px 8px;
+}
+
+.wp-search-field input {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 30px;
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, Canvas 88%, transparent);
+  color: inherit;
+  font: inherit;
+  padding-inline: 8px;
+}
