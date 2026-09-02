@@ -47,7 +47,9 @@ describe('typed navigation graph', () => {
 
   test('unsupported radio is absent instead of disabled', () => {
     const withoutRadio = createFixtureProvider({ supports: { stations: false } })
-    expect(navigationRoot(fixtureNavigationSource, withoutRadio).rows.some((row) => row.label === 'Radio')).toBe(false)
+    const root = navigationRoot(fixtureNavigationSource, withoutRadio)
+    expect(root.rows.some((row) => row.label === 'Radio')).toBe(false)
+    expect(root.rows.map((row) => row.index)).toEqual(root.rows.map((_row, index) => index))
   })
 
   test('empty relationships are represented by an empty typed frame', async () => {

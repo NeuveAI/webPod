@@ -25,7 +25,6 @@ import {
   deriveArtworkTreatment,
   fixtureProvider,
   fixtureNavigationSource,
-  mainMenuFrame,
   nextNowPlayingMode,
   sharpArtwork,
   type Colourway,
@@ -33,7 +32,7 @@ import {
   type NowPlayingMode,
   type PanelState,
 } from './model'
-import { selectNavigation } from './navigation'
+import { navigationRoot, selectNavigation } from './navigation'
 import { acquireAnnouncer, acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import menuArtworkUrl from './assets/music-menu-art.png'
 import nowPlayingArtworkUrl from './assets/now-playing-art.png'
@@ -87,7 +86,7 @@ export function Panel({
   const rasterScale = Math.min(1.25, Math.max(1, dynamicTypeScale))
   useEffect(() => {
     if (initializedDocument !== document) {
-      deviceStore.set(resetStackActionAtom, [mainMenuFrame()])
+      deviceStore.set(resetStackActionAtom, [navigationRoot(fixtureNavigationSource, fixtureProvider)])
       initializedDocument = document
     }
     deviceStore.set(setDensityActionAtom, density)

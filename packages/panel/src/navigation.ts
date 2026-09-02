@@ -74,12 +74,13 @@ export function navigationRoot(source: NavigationDataSource, provider: MusicProv
     ...(provider.supports('stations') ? [['Radio', source.stations.length] as const] : []),
     ['Search', null],
   ] as const
-  return frame(
+  const root = frame(
     'S03',
     'Music',
     { kind: 'root' },
     destinations.map(([label, count], index) => descendRow(index, label, count === null ? null : String(count))),
   )
+  return { ...root, highlightIndex: Math.min(3, root.rows.length - 1) }
 }
 
 /** Resolves one center-button selection through the typed route graph. */
