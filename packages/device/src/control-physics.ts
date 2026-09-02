@@ -1,11 +1,11 @@
 import {
-  BufferAttribute,
-  DynamicDrawUsage,
+  type BufferAttribute,
   type BufferGeometry,
-  Vector3,
+  DynamicDrawUsage,
 } from "three";
 
-import { PX_PER_MM } from "./layout";
+import { WHEEL_OUTER_SEAM_WIDTH } from "./front-surface";
+import { DEVICE_LAYOUT, PX_PER_MM } from "./layout";
 
 /**
  * Transient control travel, expressed in physical millimetres and converted
@@ -33,8 +33,14 @@ export const WHEEL_CONTACT_FOOTPRINT_MODEL = Object.freeze({
   tangential: WHEEL_CONTACT_FOOTPRINT_MM.tangential * PX_PER_MM,
 });
 
-/** Immutable wheel normal consumed by the contact-local grazing response. */
-export const WHEEL_REST_NORMAL_ATTRIBUTE = "webpodWheelRestNormal";
+/** The visible ring boundaries stay on the immutable rest surface. */
+export const WHEEL_DEFORMATION_RADII_MODEL = Object.freeze({
+  inner: DEVICE_LAYOUT.wheel.selectLipR,
+  outer: DEVICE_LAYOUT.wheel.outerR - WHEEL_OUTER_SEAM_WIDTH,
+});
+
+/** Covers only Float32 polar reconstruction noise at a tessellated boundary. */
+export const WHEEL_BOUNDARY_EPSILON_MODEL = 1e-4;
 
 export const CONTROL_RELEASE_MS = Object.freeze({
   wheel: 120,
@@ -47,29 +53,6 @@ export const CONTROL_STALLED_FRAME_LIMIT = 24;
 export type ControlContact = {
   readonly x: number;
   readonly y: number;
-};
-
-export type WheelReadabilitySample = {
-  readonly point: Readonly<{ x: number; y: number; z: number }>;
-  readonly normal: Readonly<{ x: number; y: number; z: number }>;
-  /** `1` while held, then the same monotonic release fraction as geometry. */
-  readonly engagement: number;
-};
-
-export type WheelRestSurfaceSample = {
-  readonly point: Readonly<{ x: number; y: number; z: number }>;
-  readonly normal: Readonly<{ x: number; y: number; z: number }>;
-};
-
-/** Analytic rest surface at the actual body-local pointer contact. */
-export type WheelRestSurfaceSampler = (
-  contact: ControlContact,
-) => WheelRestSurfaceSample;
-
-/** Wheel-only optical response driven by the physical contact lifecycle. */
-export type WheelContactReadability = {
-  readonly update: (sample: WheelReadabilitySample) => void;
-  readonly clear: () => void;
 };
 
 type MutableFloatAttribute = BufferAttribute & {
@@ -151,52 +134,6 @@ function restoreSurface(surface: BoundSurface): void {
   markChanged(surface);
 }
 
-/**
- * Resolve the optical source from the actual contact, not mesh vertices.
- *
- * The compact depression has zero gradient at its centre, so the live centre
- * normal is the analytic rest normal and its live point is exactly one depth
- * inward along that normal. Keeping this independent of tessellation prevents
- * the grazing source from snapping while the deforming mesh remains finite.
- */
-export function wheelReadabilitySampleAt(
-  sampleRestSurface: WheelRestSurfaceSampler,
-  contact: ControlContact,
-  depth: number,
-  engagement: number,
-): WheelReadabilitySample {
-  const rest = sampleRestSurface(contact);
-  const normal = new Vector3(
-    rest.normal.x,
-    rest.normal.y,
-    rest.normal.z,
-  );
-  if (
-    !Number.isFinite(rest.point.x) ||
-    !Number.isFinite(rest.point.y) ||
-    !Number.isFinite(rest.point.z) ||
-    !Number.isFinite(depth) ||
-    normal.lengthSq() === 0 ||
-    !Number.isFinite(normal.lengthSq())
-  ) {
-    throw new Error("wheel readability requires a finite analytic surface");
-  }
-  normal.normalize();
-  return {
-    point: {
-      x: rest.point.x - normal.x * depth,
-      y: rest.point.y - normal.y * depth,
-      z: rest.point.z - normal.z * depth,
-    },
-    normal: {
-      x: normal.x,
-      y: normal.y,
-      z: normal.z,
-    },
-    engagement: Math.max(0, Math.min(1, engagement)),
-  };
-}
-
 /** C2 compact support: smooth at the contact centre and exactly zero at edge. */
 export function compactContactWeight(distance: number, radius: number): number {
   if (!(radius > 0) || distance >= radius) return 0;
@@ -205,13 +142,90 @@ export function compactContactWeight(distance: number, radius: number): number {
   return base * base * base;
 }
 
+type WheelHeightFieldSample = {
+  readonly weight: number;
+  readonly derivativeX: number;
+  readonly derivativeY: number;
+};
+
+const ZERO_HEIGHT_FIELD: WheelHeightFieldSample = Object.freeze({
+  weight: 0,
+  derivativeX: 0,
+  derivativeY: 0,
+});
+
+/**
+ * One compact scalar height field in the device's immutable XY plane.
+ *
+ * The radial support contracts when a contact approaches either assembly
+ * hairline. The depression therefore remains centred under the real contact,
+ * while the Select and outer silhouettes are exact Dirichlet boundaries:
+ * their position and normal can never crawl around the ring.
+ */
+function wheelHeightFieldAt(
+  x: number,
+  y: number,
+  contact: ControlContact,
+  footprint: Readonly<{ radial: number; tangential: number }>,
+): WheelHeightFieldSample {
+  const vertexRadius = Math.hypot(x, y);
+  if (
+    vertexRadius <=
+      WHEEL_DEFORMATION_RADII_MODEL.inner + WHEEL_BOUNDARY_EPSILON_MODEL ||
+    vertexRadius >=
+      WHEEL_DEFORMATION_RADII_MODEL.outer - WHEEL_BOUNDARY_EPSILON_MODEL
+  ) {
+    return ZERO_HEIGHT_FIELD;
+  }
+
+  const contactRadius = Math.hypot(contact.x, contact.y);
+  const boundaryMargin = Math.min(
+    contactRadius - WHEEL_DEFORMATION_RADII_MODEL.inner,
+    WHEEL_DEFORMATION_RADII_MODEL.outer - contactRadius,
+  );
+  const radialRadius = Math.min(footprint.radial, boundaryMargin);
+  const tangentialRadius = footprint.tangential;
+  if (!(radialRadius > 0) || !(tangentialRadius > 0)) {
+    return ZERO_HEIGHT_FIELD;
+  }
+
+  const radialX = contactRadius === 0 ? 1 : contact.x / contactRadius;
+  const radialY = contactRadius === 0 ? 0 : contact.y / contactRadius;
+  const tangentX = -radialY;
+  const tangentY = radialX;
+  const dx = x - contact.x;
+  const dy = y - contact.y;
+  const radialDistance = dx * radialX + dy * radialY;
+  const tangentialDistance = dx * tangentX + dy * tangentY;
+  const radialRadiusSq = radialRadius * radialRadius;
+  const tangentialRadiusSq = tangentialRadius * tangentialRadius;
+  const normalizedDistanceSq =
+    (radialDistance * radialDistance) / radialRadiusSq +
+    (tangentialDistance * tangentialDistance) / tangentialRadiusSq;
+  if (normalizedDistanceSq >= 1) return ZERO_HEIGHT_FIELD;
+
+  const base = 1 - normalizedDistanceSq;
+  const derivativeScale = -6 * base * base;
+  return {
+    weight: base * base * base,
+    derivativeX:
+      derivativeScale *
+      ((radialDistance * radialX) / radialRadiusSq +
+        (tangentialDistance * tangentX) / tangentialRadiusSq),
+    derivativeY:
+      derivativeScale *
+      ((radialDistance * radialY) / radialRadiusSq +
+        (tangentialDistance * tangentY) / tangentialRadiusSq),
+  };
+}
+
 /**
  * Applies one body-local thumb depression from immutable rest geometry.
  *
- * Positions move along each vertex's own rest normal. Normals use the analytic
- * gradient of the same compact displacement field projected into the local
- * tangent plane, so the travelling light response is coupled to the actual
- * surface instead of painted in UV or view space.
+ * X and Y are copied byte-for-byte from immutable rest geometry. Only local Z
+ * decreases. Normals are the exact analytic gradient of that scalar Z field,
+ * combined with the front shell's immutable rest slope. No radial/tangential
+ * displacement, scaling or view-dependent optical proxy participates.
  */
 export function deformWheelSurface(
   surface: BoundSurface,
@@ -223,61 +237,40 @@ export function deformWheelSurface(
   const n = surface.normal.array;
   const p0 = surface.restPosition;
   const n0 = surface.restNormal;
-  const radialFootprintSq = footprint.radial * footprint.radial;
-  const tangentialFootprintSq = footprint.tangential * footprint.tangential;
-  const contactLength = Math.hypot(contact.x, contact.y);
-  const radialX = contactLength === 0 ? 1 : contact.x / contactLength;
-  const radialY = contactLength === 0 ? 0 : contact.y / contactLength;
-  const tangentX = -radialY;
-  const tangentY = radialX;
-  const normal = new Vector3();
-  const gradient = new Vector3();
+  const boundedDepth = Math.max(
+    0,
+    Math.min(depth, CONTROL_TRAVEL.wheelModel),
+  );
 
   for (let index = 0; index < p.length; index += 3) {
     const px = componentAt(p0, index);
     const py = componentAt(p0, index + 1);
     const pz = componentAt(p0, index + 2);
-    const dx = px - contact.x;
-    const dy = py - contact.y;
-    const radialDistance = dx * radialX + dy * radialY;
-    const tangentialDistance = dx * tangentX + dy * tangentY;
-    const normalizedDistanceSq =
-      (radialDistance * radialDistance) / radialFootprintSq +
-      (tangentialDistance * tangentialDistance) / tangentialFootprintSq;
-    const base = Math.max(0, 1 - normalizedDistanceSq);
-    const weight = base * base * base;
+    const field = wheelHeightFieldAt(px, py, contact, footprint);
     const nx = componentAt(n0, index);
     const ny = componentAt(n0, index + 1);
     const nz = componentAt(n0, index + 2);
 
-    p[index] = px - nx * depth * weight;
-    p[index + 1] = py - ny * depth * weight;
-    p[index + 2] = pz - nz * depth * weight;
+    p[index] = px;
+    p[index + 1] = py;
+    p[index + 2] = pz - boundedDepth * field.weight;
 
-    if (weight === 0 || normalizedDistanceSq === 0 || depth === 0) {
+    if (field.weight === 0 || boundedDepth === 0) {
       n[index] = nx;
       n[index + 1] = ny;
       n[index + 2] = nz;
       continue;
     }
 
-    // w=(1-q²)³ over an ellipse; this is its exact body-local gradient.
-    const derivativeScale = -6 * base * base;
-    gradient.set(
-      derivativeScale *
-        ((radialDistance * radialX) / radialFootprintSq +
-          (tangentialDistance * tangentX) / tangentialFootprintSq),
-      derivativeScale *
-        ((radialDistance * radialY) / radialFootprintSq +
-          (tangentialDistance * tangentY) / tangentialFootprintSq),
-      0,
-    );
-    normal.set(nx, ny, nz);
-    gradient.addScaledVector(normal, -gradient.dot(normal));
-    normal.addScaledVector(gradient, depth).normalize();
-    n[index] = normal.x;
-    n[index + 1] = normal.y;
-    n[index + 2] = normal.z;
+    // n0 = normalize(-dz0/dx, -dz0/dy, 1). For
+    // z = z0 - depth*w, the exact normal is therefore proportional to
+    // (n0.x/n0.z + depth*dw/dx, n0.y/n0.z + depth*dw/dy, 1).
+    const normalX = nx / nz + boundedDepth * field.derivativeX;
+    const normalY = ny / nz + boundedDepth * field.derivativeY;
+    const inverseNormalLength = 1 / Math.hypot(normalX, normalY, 1);
+    n[index] = normalX * inverseNormalLength;
+    n[index + 1] = normalY * inverseNormalLength;
+    n[index + 2] = inverseNormalLength;
   }
   markChanged(surface);
 }
@@ -323,8 +316,6 @@ export class ControlPhysicsController {
   readonly #select = channel();
   #wheelBacking: BoundSurface | null = null;
   #wheelContact: ControlContact = { x: 0, y: 0 };
-  #wheelReadability: WheelContactReadability | null = null;
-  #wheelRestSurface: WheelRestSurfaceSampler | null = null;
   #frame: ControlPhysicsFrame | null = null;
   #reducedMotion = false;
   #disposed = false;
@@ -335,38 +326,19 @@ export class ControlPhysicsController {
 
   attachWheel(
     geometry: BufferGeometry,
-    readability: WheelContactReadability | null = null,
-    sampleRestSurface: WheelRestSurfaceSampler | null = null,
     backingGeometry: BufferGeometry | null = null,
   ): () => void {
-    if ((readability === null) !== (sampleRestSurface === null)) {
-      throw new Error(
-        "wheel readability requires its analytic rest-surface sampler",
-      );
-    }
-    this.#wheelReadability?.clear();
-    this.#wheelReadability = readability;
-    this.#wheelRestSurface = sampleRestSurface;
     if (this.#wheelBacking !== null) restoreSurface(this.#wheelBacking);
     this.#wheelBacking =
       backingGeometry === null ? null : bindSurface(backingGeometry);
-    const detach = this.#attach(
-      this.#wheel,
-      geometry,
-      WHEEL_REST_NORMAL_ATTRIBUTE,
-    );
+    const detach = this.#attach(this.#wheel, geometry);
     return () => {
       const isCurrent = this.#wheel.surface?.geometry === geometry;
       detach();
       if (!isCurrent) return;
-      readability?.clear();
       if (this.#wheelBacking !== null) {
         restoreSurface(this.#wheelBacking);
         this.#wheelBacking = null;
-      }
-      if (this.#wheelReadability === readability) {
-        this.#wheelReadability = null;
-        this.#wheelRestSurface = null;
       }
     };
   }
@@ -426,19 +398,9 @@ export class ControlPhysicsController {
     this.#settle(this.#select);
   }
 
-  #attach(
-    channelState: Channel,
-    geometry: BufferGeometry,
-    restNormalAttributeName?: string,
-  ): () => void {
+  #attach(channelState: Channel, geometry: BufferGeometry): () => void {
     if (channelState.surface !== null) restoreSurface(channelState.surface);
     const surface = bindSurface(geometry);
-    if (restNormalAttributeName !== undefined) {
-      geometry.setAttribute(
-        restNormalAttributeName,
-        new BufferAttribute(surface.restNormal.slice(), 3),
-      );
-    }
     channelState.surface = surface;
     channelState.depth = 0;
     channelState.release = null;
@@ -535,16 +497,6 @@ export class ControlPhysicsController {
         this.#wheel.depth,
       );
     }
-    if (this.#wheelReadability !== null && this.#wheelRestSurface !== null) {
-      this.#wheelReadability.update(
-        wheelReadabilitySampleAt(
-          this.#wheelRestSurface,
-          this.#wheelContact,
-          this.#wheel.depth,
-          this.#wheel.depth / CONTROL_TRAVEL.wheelModel,
-        ),
-      );
-    }
   }
 
   #renderSelect(): void {
@@ -562,7 +514,6 @@ export class ControlPhysicsController {
     if (channelState.surface !== null) restoreSurface(channelState.surface);
     if (channelState === this.#wheel) {
       if (this.#wheelBacking !== null) restoreSurface(this.#wheelBacking);
-      this.#wheelReadability?.clear();
     }
   }
 
