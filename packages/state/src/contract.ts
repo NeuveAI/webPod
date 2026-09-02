@@ -356,7 +356,7 @@ export type NavigationRoute =
   | { readonly kind: 'search-request' }
   | { readonly kind: 'search-results'; readonly query: string; readonly trackKeys: readonly LocalKey[] }
   | { readonly kind: 'now-playing' }
-  | { readonly kind: 'status'; readonly state: 'loading' | 'empty' | 'error' | 'signed-out' }
+  | { readonly kind: 'status'; readonly state: 'loading' | 'empty' | 'error' | 'offline' | 'signed-out' | 'playback-permission' }
 
 /** A semantic request emitted by physical controls for the data-owning layer. */
 export type NavigationIntent = {

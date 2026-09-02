@@ -3,7 +3,7 @@ import { APPLE_SUPPORTS, createFixtureProvider, mintLocalKey } from '@webpod/pro
 import type { NavigationRoute } from '@webpod/state'
 
 import { fixtureNavigationSource } from './model'
-import { navigationRoot, selectNavigation } from './navigation'
+import { navigationRoot, providerStatusFrame, selectNavigation } from './navigation'
 
 const provider = createFixtureProvider({ supports: APPLE_SUPPORTS })
 
@@ -117,5 +117,14 @@ describe('typed navigation graph', () => {
     expect(playlists?.route?.kind).toBe('playlists')
     expect(playlists?.rows).toEqual([])
     expect(playlists?.highlightIndex).toBe(-1)
+  })
+
+  test('provider session postures are typed frames without caller display state', async () => {
+    const signedOut = createFixtureProvider()
+    await signedOut.unauthorize()
+    expect(providerStatusFrame(signedOut)?.route).toEqual({ kind: 'status', state: 'signed-out' })
+    const browseOnly = createFixtureProvider({ canPlay: false })
+    expect(providerStatusFrame(browseOnly)?.route).toEqual({ kind: 'status', state: 'playback-permission' })
+    expect(providerStatusFrame(provider)).toBeNull()
   })
 })

@@ -1,5 +1,6 @@
 export { Panel, searchQueryAtom, type PanelProps } from './Panel'
 export type { NavigationDataSource } from './navigation'
+export { providerStatusFrame, statusFrame } from './navigation'
 export {
   albumTracksFrame,
   artworkSampleFixture,

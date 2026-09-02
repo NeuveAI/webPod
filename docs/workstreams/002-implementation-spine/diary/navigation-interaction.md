@@ -14,6 +14,7 @@
 - Independent review requested changes for fixture coupling, empty hard-coded search, unbranded relationship keys, label-driven routing, and a widened test literal.
 - Corrected the slice in `e3492ef`: `Panel` now accepts the provider and navigation source at its rendered boundary; Now Playing subscribes and writes through that provider; search holds its query in the shared Jotai store, queries both library and catalogue, and re-resolves catalogue-only results; rows carry typed destinations; routes retain `LocalKey` identity.
 - Added adversarial tests proving presentation-copy changes cannot change routing and a catalogue-only search result can play.
+- Re-review closed those five findings and identified provider account posture as the remaining acceptance gap. Added provider-session subscription and typed S27 transitions for signed-out and playback-permission states; authorized sessions return to the capability-filtered root.
 
 ## Verification
 

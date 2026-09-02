@@ -32,6 +32,31 @@ export interface NavigationSelection {
   readonly played: boolean
 }
 
+export type NavigationStatus = Extract<NavigationRoute, { readonly kind: 'status' }>['state']
+
+/** Creates a typed terminal posture; provider/session events never bypass the route model. */
+export function statusFrame(state: NavigationStatus, providerName = 'Music'): ScreenFrame {
+  const title = state === 'signed-out'
+    ? `Sign in to ${providerName}`
+    : state === 'playback-permission'
+      ? 'Playback unavailable'
+      : state === 'offline'
+        ? 'Offline'
+        : state === 'loading'
+          ? 'Loading'
+          : state === 'empty'
+            ? 'Nothing here'
+            : 'Unavailable'
+  return frame('S27', title, { kind: 'status', state }, [], 'airy')
+}
+
+/** Maps the provider's observable account posture to a typed navigation frame. */
+export function providerStatusFrame(provider: MusicProvider): ScreenFrame | null {
+  if (provider.session === null) return statusFrame('signed-out', provider.displayName)
+  if (!provider.session.canPlay) return statusFrame('playback-permission', provider.displayName)
+  return null
+}
+
 const descendRow = (index: number, label: string, sublabel: string | null = null, destination?: NavigationRoute): PanelRow => ({
   index,
   label,

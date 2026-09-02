@@ -33,7 +33,7 @@ import {
   type NowPlayingMode,
   type PanelState,
 } from './model'
-import { navigationRoot, selectNavigation, type NavigationDataSource } from './navigation'
+import { navigationRoot, providerStatusFrame, selectNavigation, statusFrame, type NavigationDataSource } from './navigation'
 import { acquireAnnouncer, acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import menuArtworkUrl from './assets/music-menu-art.png'
 import nowPlayingArtworkUrl from './assets/now-playing-art.png'
@@ -48,6 +48,7 @@ export const searchQueryAtom = atom('')
 let initializedDocument: Document | null = null
 let initializedProvider: MusicProvider | null = null
 let initializedSource: NavigationDataSource | null = null
+let initializedSession: MusicProvider['session'] | undefined
 const libraryCountLabels = new Set(['Playlists', 'Artists', 'Albums', 'Songs', 'Genres'])
 const successOperations = new WeakMap<Document, Map<string, Promise<SuccessResult>>>()
 const artworkRequests = new Map<string, Promise<ArtworkSamples>>()
@@ -91,17 +92,20 @@ export function Panel({
   provider = fixtureProvider,
   navigationSource = fixtureNavigationSource,
 }: PanelProps) {
+  const session = useSyncExternalStore(provider.onSessionChange, () => provider.session, () => provider.session)
   const rasterScale = Math.min(1.25, Math.max(1, dynamicTypeScale))
   useEffect(() => {
-    if (initializedDocument !== document || initializedProvider !== provider || initializedSource !== navigationSource) {
-      deviceStore.set(resetStackActionAtom, [navigationRoot(navigationSource, provider)])
+    const accountFrame = providerStatusFrame(provider)
+    if (initializedDocument !== document || initializedProvider !== provider || initializedSource !== navigationSource || initializedSession !== session) {
+      deviceStore.set(resetStackActionAtom, [accountFrame ?? navigationRoot(navigationSource, provider)])
       initializedDocument = document
       initializedProvider = provider
       initializedSource = navigationSource
+      initializedSession = session
     }
     deviceStore.set(setDensityActionAtom, density)
     deviceStore.set(setDynamicTypeScaleActionAtom, dynamicTypeScale)
-  }, [actor, density, dynamicTypeScale, navigationSource, provider, state])
+  }, [actor, density, dynamicTypeScale, navigationSource, provider, session, state])
   return (
     <div className="wp-panel-stage" style={{ '--wp-raster-scale': rasterScale } as CSSProperties}>
       <Provider store={deviceStore}>
@@ -155,7 +159,7 @@ function PanelSurface({
     void selectNavigation(frame, navigationSource, provider, deviceStore.get(searchQueryAtom)).then((selection) => {
       if (live && selection.frame !== null) push(selection.frame)
     }).catch(() => {
-      if (live) push({ screenId: 'S27', title: 'Unavailable', route: { kind: 'status', state: 'error' }, density: 'airy', rows: [], highlightIndex: -1, windowStart: 0 })
+      if (live) push(statusFrame('error'))
     })
     return () => { live = false }
   }, [frame, navigationIntent, navigationSource, provider, push])
@@ -236,8 +240,22 @@ function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourwa
   if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
   if (frame.screenId === 'S08') return <AlbumTracks frame={frame} state={state} visibleRows={visibleRows} />
   if (frame.screenId === 'S13') return <NowPlaying state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} provider={provider} navigationSource={navigationSource} />
-  if (frame.screenId === 'S27') return <section className="wp-screen"><TitleBar title={frame.title} /><PanelError message="Couldn't load this section." /></section>
+  if (frame.route?.kind === 'status') return <StatusScreen frame={frame} />
   return <BrowserList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
+}
+
+function StatusScreen({ frame }: { readonly frame: ScreenFrame }) {
+  if (frame.route?.kind !== 'status') return null
+  const copy = {
+    loading: ['Loading your music.', 'Please wait.'],
+    empty: ['Nothing here yet.', 'Press Menu to go back.'],
+    error: ["Couldn't load this section.", 'Press Menu and try again.'],
+    offline: ['Music is offline.', 'Cached metadata remains available.'],
+    'signed-out': [frame.title, 'Sign in, then return to your music.'],
+    'playback-permission': ['Playback needs a paid music subscription.', 'You can still browse your library.'],
+  } as const
+  const [message, detail] = copy[frame.route.state]
+  return <section className="wp-screen"><TitleBar title={frame.title} /><PanelError message={message} detail={detail} /></section>
 }
 
 type PanelIconName = 'battery' | 'chevron' | 'shuffle' | 'repeat' | 'heart' | 'star' | 'queue'
