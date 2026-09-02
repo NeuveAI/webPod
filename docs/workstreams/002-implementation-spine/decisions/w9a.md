@@ -332,3 +332,38 @@ quaternion and scale are invariant. There is no pressed colour, opacity,
 emissive, shader or auxiliary-light state. Release restores the exact rest
 transform. The click-wheel's independently owned rigid tilt and the existing
 interaction/SFX callbacks are unchanged.
+
+## W9A-19 · Select rest placement and live travel have separate owners
+
+W9A-18 described the intended transform but left the mounted ownership
+ambiguous. R3F declarative props are reapplied on a React rerender. Because the
+semantic Select callback may rerender during an active pointer hold, a single
+mesh cannot safely have both a declarative rest `position` and an imperative
+live `position`.
+
+The authored placement now belongs to a fixed parent group. The child Select
+mesh has no declarative position prop; its local X/Y/Z, quaternion and scale are
+captured and restored by `ControlPhysicsController`. Press changes only child
+local Z from zero to `-0.12 mm`, including across semantic rerenders. This is a
+transform-ownership rule, not an animation flourish.
+
+The wheel opening floor may occupy only the two physical hairlines. It cannot
+be a disk behind either control because Select travels farther inward than the
+hairline floor offset. A full disk would become the nearest surface and hide
+the separate plastic button. The depressed Select must remain the first visible
+surface throughout its entire face while the two seam strips retain their own
+material and depth.
+
+The reference hierarchy is explicit:
+
+1. Owner HEIC photographs `IMG_2239`, `2240`, `2242`–`2246`, `2248`, and
+   `2249` establish the real white 5G's separate matte-plastic button,
+   near-flush rest plane, uniform narrow seam and lack of a decorative chamfer.
+2. iFixit's 5G click-wheel-button guide and replacement part establish that the
+   center is a removable plastic-only part acting on electronics below it.
+3. Apple manuals establish interaction semantics but publish no button travel.
+
+None of those sources publishes a 5G Select travel dimension. The retained
+0.12 mm remains bounded visual calibration under the production camera and
+key/fill rig. It must not be represented as an OEM measurement. Owner visual
+acceptance remains a separate manual decision.

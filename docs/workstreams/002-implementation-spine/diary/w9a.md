@@ -402,3 +402,42 @@ final immutable browser run served commit
 `c487ae746f64cfa6c5f464d0b6faa174db2f7860`, and captured black/white ×
 front/quarter × rest/held/released through the ordinary pointer path. Every
 release image is byte-identical to rest.
+
+## Owner correction — Select press must remain visible through semantic rerenders
+
+The prior axial model was correct in isolation but not in the mounted product.
+The Select mesh carried its rest `position` declaratively. A real pointer down
+first applied the imperative negative-Z press and then invoked the semantic
+Select callback; the resulting React/R3F rerender reapplied the rest position
+while the pointer was still held. The visible result was effectively no press.
+
+I split the control into a fixed parent rest frame and a child mesh whose local
+transform belongs exclusively to the physics controller. The child has no JSX
+`position`, so semantic rerenders cannot overwrite held travel. The existing
+0.12 mm calibration is unchanged. X/Y, quaternion, scale, geometry, normals and
+the material object and parameters remain exact.
+
+The second masking defect was the nominal wheel-gap floor. It was a complete
+disk only 0.05 model units behind the rest plane, while Select travels
+0.640776699 model units. A held button therefore passed behind that disk and
+could be visually replaced by the well material. The fixed floor is now only
+the actual Select and outer hairline annuli. Production ray tests at four
+angles and three radii prove the depressed plastic remains the first visible
+surface; a seam ray still reaches the seam floor.
+
+Mounted tests now drive the real Select hit target through down, hold, semantic
+rerender, move, up, cancel, lost capture, blur and keyboard Enter. They prove
+center input reaches Select physics rather than wheel tilt, and every terminal
+path restores the exact rest transform without changing material. Three
+adversarial plants—restoring a declarative child position, restoring the full
+floor disk, and routing center input to `pressWheel(0)`—produce respectively
+one, two and three focused failures.
+
+The immutable production-browser capture served implementation commit
+`024c15137ccf7bb0587a7706629f555d02728dbe`, tree
+`228d352097efdf6b85c45d4493962490cd553caa`, through the ordinary T1 route and
+real Chrome mouse down/hold/up lifecycle. It includes full and tight Select
+crops for black/white × front/quarter × rest/held/released. Every released full
+frame and close crop is byte-identical to rest. The held close crops show the
+same plastic with only a restrained seam/depth response, most legible in the
+quarter pose. This is implementation evidence, not owner visual acceptance.

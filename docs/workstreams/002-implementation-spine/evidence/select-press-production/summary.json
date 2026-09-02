@@ -1,0 +1,136 @@
+{
+  "route": "/_spike/device",
+  "browser": "Chrome with CanvasDrawElement enabled",
+  "productionPointerLifecycle": [
+    "mouse.move to physical Select center",
+    "mouse.down",
+    "hold",
+    "mouse.up",
+    "96ms demand-driven release settle"
+  ],
+  "syntheticControlPose": false,
+  "controlQueryParameter": false,
+  "selectTravelMm": 0.12,
+  "selectMotion": "device-local Z translation only",
+  "selectMaterialMutation": false,
+  "selectGeometryMutation": false,
+  "screenOpening": "square aperture wall, flat black unlit reveal, planar cover sheet",
+  "health": {
+    "expected": "298b7aaf8a29006b2942f427a83c8f2561002e3b0e3ccec38aa7a8f3587ff294",
+    "current": "298b7aaf8a29006b2942f427a83c8f2561002e3b0e3ccec38aa7a8f3587ff294",
+    "expectedFileCount": 200,
+    "fileCount": 200,
+    "reviewedCommit": "024c15137ccf7bb0587a7706629f555d02728dbe",
+    "reviewedTree": "228d352097efdf6b85c45d4493962490cd553caa"
+  },
+  "captures": [
+    {
+      "colourway": "black",
+      "pose": "front",
+      "state": "rest",
+      "filename": "black-front-rest.png",
+      "sha256": "63e97c0073b5d079ec06bc544dff9b1c1c1d9365f54ac1623c76fe6070b468d5",
+      "closeFilename": "black-front-rest-select-close.png",
+      "closeSha256": "5c754612d564817972d9423d31dc895cfa2d3cf7c8eedf37d9d1dcdcfe2a1709"
+    },
+    {
+      "colourway": "black",
+      "pose": "three-quarter",
+      "state": "rest",
+      "filename": "black-three-quarter-rest.png",
+      "sha256": "a33b0a7c3b12d222b412517f5a0d289f7a3e5347b067d9bda14be1cd2c7edf10",
+      "closeFilename": "black-three-quarter-rest-select-close.png",
+      "closeSha256": "3e375d9b086d5408b8ced2b7d7b78ec91fc58cd3a264b9a811c23481c4ff009c"
+    },
+    {
+      "colourway": "black",
+      "pose": "front",
+      "state": "held",
+      "filename": "black-front-held.png",
+      "sha256": "ea929cbf52725a8211bb1ce9fc1d61a4fa450607b1bdd602fb127713372f7569",
+      "closeFilename": "black-front-held-select-close.png",
+      "closeSha256": "cbb244c497e01f51ed5628ab73f433628678b4218d6ebd9c865bdf1ea20e0d70"
+    },
+    {
+      "colourway": "black",
+      "pose": "three-quarter",
+      "state": "held",
+      "filename": "black-three-quarter-held.png",
+      "sha256": "f454c2d02f07409433dbccc0c51725caf851f02a51491245436f58177ea27eef",
+      "closeFilename": "black-three-quarter-held-select-close.png",
+      "closeSha256": "e38d58d316d44eb17826d9bb379c4aa85ed6f378c63a2c227100093081cdbca2"
+    },
+    {
+      "colourway": "black",
+      "pose": "three-quarter",
+      "state": "released",
+      "filename": "black-three-quarter-released.png",
+      "sha256": "a33b0a7c3b12d222b412517f5a0d289f7a3e5347b067d9bda14be1cd2c7edf10",
+      "closeFilename": "black-three-quarter-released-select-close.png",
+      "closeSha256": "3e375d9b086d5408b8ced2b7d7b78ec91fc58cd3a264b9a811c23481c4ff009c"
+    },
+    {
+      "colourway": "black",
+      "pose": "front",
+      "state": "released",
+      "filename": "black-front-released.png",
+      "sha256": "63e97c0073b5d079ec06bc544dff9b1c1c1d9365f54ac1623c76fe6070b468d5",
+      "closeFilename": "black-front-released-select-close.png",
+      "closeSha256": "5c754612d564817972d9423d31dc895cfa2d3cf7c8eedf37d9d1dcdcfe2a1709"
+    },
+    {
+      "colourway": "white",
+      "pose": "front",
+      "state": "rest",
+      "filename": "white-front-rest.png",
+      "sha256": "564de7ca2eec5b1003f25dec700bbd90d3d1c8252c0555694f3c079fcb3eeb75",
+      "closeFilename": "white-front-rest-select-close.png",
+      "closeSha256": "4895b472bbd4a6ac30a3600ab0c2eada2b890f2f0e5cf24dfeb6c953a52873da"
+    },
+    {
+      "colourway": "white",
+      "pose": "three-quarter",
+      "state": "rest",
+      "filename": "white-three-quarter-rest.png",
+      "sha256": "d4dbf938d3f1f2517e9334828eac4a27cf486dfdd74ead306cbd8672552a6897",
+      "closeFilename": "white-three-quarter-rest-select-close.png",
+      "closeSha256": "ce53b53e01cc7790ac84ea516ba122792a54a8b190a1a11f3de376f0c8599ae6"
+    },
+    {
+      "colourway": "white",
+      "pose": "front",
+      "state": "held",
+      "filename": "white-front-held.png",
+      "sha256": "2729c8b491d4a5d5add23a97eeca9b5f965cf783ccf3ddf38518b5b805ce6917",
+      "closeFilename": "white-front-held-select-close.png",
+      "closeSha256": "1b993bf5aab2c8ac2f6561301ab121baeedbc750e74845c43d54fe7250e1f805"
+    },
+    {
+      "colourway": "white",
+      "pose": "three-quarter",
+      "state": "held",
+      "filename": "white-three-quarter-held.png",
+      "sha256": "325951886cfd1117b967f33f0d07e4a9a2046577ec0beccae28568df4ee80886",
+      "closeFilename": "white-three-quarter-held-select-close.png",
+      "closeSha256": "bfa62b9b9e3665ddd27894a7a7640f03dc8b6d5ff7fef9a12d7d40e32d64dd6a"
+    },
+    {
+      "colourway": "white",
+      "pose": "three-quarter",
+      "state": "released",
+      "filename": "white-three-quarter-released.png",
+      "sha256": "d4dbf938d3f1f2517e9334828eac4a27cf486dfdd74ead306cbd8672552a6897",
+      "closeFilename": "white-three-quarter-released-select-close.png",
+      "closeSha256": "ce53b53e01cc7790ac84ea516ba122792a54a8b190a1a11f3de376f0c8599ae6"
+    },
+    {
+      "colourway": "white",
+      "pose": "front",
+      "state": "released",
+      "filename": "white-front-released.png",
+      "sha256": "564de7ca2eec5b1003f25dec700bbd90d3d1c8252c0555694f3c079fcb3eeb75",
+      "closeFilename": "white-front-released-select-close.png",
+      "closeSha256": "4895b472bbd4a6ac30a3600ab0c2eada2b890f2f0e5cf24dfeb6c953a52873da"
+    }
+  ]
+}
