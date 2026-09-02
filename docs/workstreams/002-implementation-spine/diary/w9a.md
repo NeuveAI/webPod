@@ -216,3 +216,36 @@ Key-only and fill-only Select macros remain open: the existing light-isolation
 query renders `DeviceCanvas` in the production-surface diagnostic branch and
 therefore bypasses the production pointer chain. I did not add a proof API to
 manufacture them.
+
+## Owner depth-axis correction
+
+The owner identified the defect more directly than the preceding shader
+reviews: the ring looked warped because it was warped. `deformWheelSurface`
+subtracted `normal.x * depth` and `normal.y * depth` from every affected
+vertex. On a crowned front shell those components are non-zero, so a nominal
+press also pinched and expanded the ring laterally as contact travelled.
+
+I replaced that vector displacement with one scalar body-local Z field. The
+implementation rewrites X/Y from immutable rest arrays on every frame, lowers
+only Z, and derives normals from the exact field gradient plus the existing
+shell slope. I also made the visible inner and outer radii fixed boundaries;
+the support narrows as the pointer approaches either seam instead of pulling a
+gap around the ring. Travel remains 0.08 mm.
+
+I removed the entire grazing-response shader and its custom material. Even
+after it had become BRDF-correct, it was still an extra travelling optical
+shape and could make a shallow depression read as an oval stamp. Production
+now uses the ordinary black/white polycarbonate materials and the existing
+world-space key/fill rig.
+
+The focused suite sweeps 72 angles at three production contact radii, every
+3,225 wheel vertex, release samples, both circular boundaries and an
+independent finite-difference normal oracle. Three deliberate plants restore
+lateral normal motion, release the fixed boundaries, and delete the height
+gradient; they fail four, one, and one tests respectively.
+
+Flagged Chrome then exercised the ordinary `/_spike/device` route using a real
+mouse down/hold/up lifecycle. Twelve black/white × front/quarter
+rest/hold/release PNGs were captured. Every released image is byte-identical to
+its matching rest image. No query-controlled physics state or proof API was
+added.

@@ -178,3 +178,29 @@ must contain exactly the base GGX and clearcoat accumulator writes, both in
 their exact gated forms; the patched shader must add exactly two optical output
 writes relative to its input. Any extra raw accumulator, emissive write,
 missing cone/range/slope/incidence factor or missing material BRDF fails closed.
+
+## W9A-13 · Owner correction: wheel motion is a scalar local-Z height field
+
+The owner rejected the W9A-10 through W9A-12 result because motion along the
+crowned rest normal changed local X/Y and read as a travelling lateral warp.
+That rejection supersedes those sections' wheel deformation and auxiliary
+optical mechanism. Their review history remains above; none is production law.
+
+The wheel's immutable front-plane X/Y coordinates now define its shape. For
+every held and releasing sample, each vertex copies rest X and Y exactly and
+only local Z decreases. The depression is the C2 scalar field
+`z = z0 - depth * (1 - q²)³`, capped at the established 0.08 mm. Its live
+normal is exactly `normalize(-dz/dx, -dz/dy, 1)`, combined analytically with
+the crowned rest surface slope. No normal-projected position, radial motion,
+tangential motion, scaling, shearing, UV mask or view-dependent proxy remains.
+
+The field's radial support contracts near the Select and outer hairlines. Both
+circular boundaries are zero-height/zero-gradient constraints, so the inner
+gap, outer silhouette and their normals remain byte-identical while contact
+moves. The existing shallow floor receives the same Z field only beneath the
+visible annulus and cannot intersect the wheel.
+
+The contact-local shader card is removed, not recalibrated. Black and white
+wheel surfaces use their ordinary physical materials under the approved key
+and fill. Lighting now reveals only the true height-field normals; it cannot
+stamp a travelling oval or substitute optical energy for geometry.
