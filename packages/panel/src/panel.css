@@ -197,7 +197,7 @@
   @keyframes wp-success-dark { 50% { box-shadow: inset 0 0 0 2px rgb(56 189 248 / 72%); } }
   @keyframes wp-success-light { 50% { box-shadow: inset 0 0 0 2px rgb(3 105 161 / 68%); } }
   @keyframes wp-actor-pulse { 50% { box-shadow: inset 0 0 0 2px var(--wp-accent); } }
-  @media (prefers-reduced-motion: reduce) {
+@media (prefers-reduced-motion: reduce) {
     .wp-panel,
     .wp-panel *,
     .wp-panel *::before,
@@ -225,5 +225,14 @@
     .wp-panel[data-colourway="light"] .wp-now-meta { background: var(--wp-meta-solid); }
   }
   @media (prefers-contrast: more) { .wp-panel { --wp-bg: #000; --wp-text: #fff; --wp-divider: currentColor; } .wp-panel[data-colourway="light"] { --wp-bg: #fff; --wp-text: #000; } }
-  @media (forced-colors: active) { .wp-panel { border: 1px solid CanvasText; } .wp-menu-row[aria-current="true"], .wp-track-row[aria-current="true"] { color: HighlightText; background: Highlight; } }
+  .wp-browser-list { display: grid; grid-template-rows: 21px minmax(0, 1fr); }
+  .wp-full-list { position: relative; min-block-size: 0; overflow: hidden; }
+  .wp-full-list > ol { display: grid; grid-auto-rows: calc(183px / var(--wp-visible-rows, 8)); block-size: 100%; margin: 0; padding: 0 7px 0 5px; list-style: none; }
+  .wp-browser-row { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto 12px; align-items: center; gap: 4px; min-block-size: 0; padding-inline: 7px 3px; border-block-end: 1px solid var(--wp-divider); color: var(--wp-text); font-size: 12px; font-weight: 650; }
+  .wp-browser-row > span, .wp-browser-row > small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .wp-browser-row > small { color: var(--wp-text-2); font-size: 11px; font-weight: 500; }
+  .wp-browser-row > .wp-icon { inline-size: 11px; block-size: 11px; }
+  .wp-list-loading { display: grid; grid-template-rows: repeat(var(--wp-visible-rows, 8), 1fr); gap: 2px; padding: 5px; }
+  .wp-list-loading > i { display: block; border-radius: 3px; }
+  @media (forced-colors: active) { .wp-panel { border: 1px solid CanvasText; } .wp-menu-row[aria-current="true"], .wp-track-row[aria-current="true"], .wp-browser-row[aria-selected="true"] { color: HighlightText; background: Highlight; } }
 }

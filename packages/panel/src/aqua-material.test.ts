@@ -121,7 +121,7 @@ describe('the period Aqua LCD material', () => {
     expect(material.match(/linear-gradient\(/g)).toHaveLength(2)
     expect(material).toContain('var(--wp-selection-glass-band) 48%')
     expect(material).toContain('var(--wp-selection-glass-bottom) 100%')
-    expect(panelSource.match(/className="wp-selection-rim"/g)).toHaveLength(2)
+    expect(panelSource.match(/className="wp-selection-rim"/g)).toHaveLength(3)
 
     const selectedRule = rule(/\.wp-menu-row\[aria-current="true"\], \.wp-track-row\[aria-current="true"\] \{([^}]*)\}/)
     expect(selectedRule).toContain('color: var(--wp-selection-fg)')

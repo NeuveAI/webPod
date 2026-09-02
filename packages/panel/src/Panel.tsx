@@ -6,7 +6,9 @@ import {
   deviceStore,
   effectiveDensityAtom,
   liveRegionAtom,
+  navigationIntentAtom,
   popScreenActionAtom,
+  pressActionAtom,
   pushScreenActionAtom,
   resetStackActionAtom,
   setDynamicTypeScaleActionAtom,
@@ -18,20 +20,20 @@ import {
 import { useEffect, useId, useRef, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode, type WheelEvent } from 'react'
 
 import {
-  albumTracksFrame,
   artworkSampleFixture,
   currentTrack,
   deriveArtworkTreatment,
   fixtureProvider,
+  fixtureNavigationSource,
   mainMenuFrame,
   nextNowPlayingMode,
-  nowPlayingFrame,
   sharpArtwork,
   type Colourway,
   type ArtworkTone,
   type NowPlayingMode,
   type PanelState,
 } from './model'
+import { selectNavigation } from './navigation'
 import { acquireAnnouncer, acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import menuArtworkUrl from './assets/music-menu-art.png'
 import nowPlayingArtworkUrl from './assets/now-playing-art.png'
@@ -115,15 +117,35 @@ function PanelSurface({
   readonly artworkTone: ArtworkTone | null
   readonly longList: boolean
 }) {
+  void longList
   const panelId = useId()
   const frame = useAtomValue(currentScreenAtom)
   const announcement = useAtomValue(liveRegionAtom)
   const move = useSetAtom(detentActionAtom)
   const push = useSetAtom(pushScreenActionAtom)
   const pop = useSetAtom(popScreenActionAtom)
+  const press = useSetAtom(pressActionAtom)
+  const navigationIntent = useAtomValue(navigationIntentAtom)
+  const handledNavigationSeq = useRef(0)
   const visibleRows = useAtomValue(visibleRowCountAtom)
   const density = useAtomValue(effectiveDensityAtom)
   useEffect(() => acquireAnnouncer(document, deviceStore), [])
+  useEffect(() => {
+    if (navigationIntent === null || navigationIntent.seq <= handledNavigationSeq.current) return
+    handledNavigationSeq.current = navigationIntent.seq
+    if (navigationIntent.kind !== 'select' || frame === null) return
+    if (frame.route?.kind === 'now-playing') {
+      deviceStore.set(nowPlayingModeAtom, nextNowPlayingMode(deviceStore.get(nowPlayingModeAtom)))
+      return
+    }
+    let live = true
+    void selectNavigation(frame, fixtureNavigationSource, fixtureProvider).then((selection) => {
+      if (live && selection.frame !== null) push(selection.frame)
+    }).catch(() => {
+      if (live) push({ screenId: 'S27', title: 'Unavailable', route: { kind: 'status', state: 'error' }, density: 'airy', rows: [], highlightIndex: -1, windowStart: 0 })
+    })
+    return () => { live = false }
+  }, [frame, navigationIntent, push])
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget) return
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -143,8 +165,10 @@ function PanelSurface({
       return
     }
     if (event.key === 'Enter') {
+      const handledByComposite = event.defaultPrevented
       event.preventDefault()
-      select(frame, push, longList)
+      if (handledByComposite) return
+      press({ button: 'center', source: 'human', path: 'key' })
     }
   }
   const onWheel = (event: WheelEvent<HTMLDivElement>) => {
@@ -181,7 +205,7 @@ function PanelSurface({
       role="application"
       aria-label="webPod music player"
       aria-roledescription="click wheel music player"
-      aria-activedescendant={frame?.screenId === 'S03' ? `${panelId}-menu-${frame.highlightIndex}` : undefined}
+      aria-activedescendant={frame !== null && frame.rows.length > 0 ? `${panelId}-row-${frame.highlightIndex}` : undefined}
       onKeyDown={onKeyDown}
       onWheel={onWheel}
       onPointerDown={onPointerDown}
@@ -195,29 +219,12 @@ function PanelSurface({
   )
 }
 
-function select(frame: ScreenFrame | null, push: (frame: ScreenFrame) => void, longList: boolean) {
-  if (frame === null) return
-  if (frame.screenId === 'S03') {
-    const selected = frame.rows[frame.highlightIndex]
-    if (selected?.label === 'Albums') push(albumTracksFrame(fixtureProvider, longList ? 120 : 0))
-    return
-  }
-  if (frame.screenId === 'S08') {
-    const album = fixtureProvider.catalog.albums[0]
-    const tracks = album === undefined ? [] : fixtureProvider.catalog.tracksByAlbum.get(album.key) ?? []
-    void fixtureProvider.play({ kind: 'tracks', tracks, startIndex: Math.max(0, frame.highlightIndex) })
-    push(nowPlayingFrame())
-  }
-  if (frame.screenId === 'S13') {
-    deviceStore.set(nowPlayingModeAtom, nextNowPlayingMode(deviceStore.get(nowPlayingModeAtom)))
-  }
-}
-
 function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone | null, visibleRows: number, actor: 'human' | 'agent', panelId: string) {
   if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
   if (frame.screenId === 'S08') return <AlbumTracks frame={frame} state={state} visibleRows={visibleRows} />
   if (frame.screenId === 'S13') return <NowPlaying state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} />
-  return <PanelError message="This screen is not part of the MVP preview." />
+  if (frame.screenId === 'S27') return <section className="wp-screen"><TitleBar title={frame.title} /><PanelError message="Couldn't load this section." /></section>
+  return <BrowserList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
 }
 
 type PanelIconName = 'battery' | 'chevron' | 'shuffle' | 'repeat' | 'heart' | 'star' | 'queue'
@@ -258,7 +265,7 @@ function MainMenu({ frame, state, visibleRows, panelId }: { readonly frame: Scre
           <ol className="wp-menu-list" aria-label="Music categories" role="listbox">
             {windowedRows.map((row) => (
               <li
-                id={`${panelId}-menu-${row.index}`}
+                id={`${panelId}-row-${row.index}`}
                 role="option"
                 aria-selected={row.index === frame.highlightIndex}
                 data-empty={state === 'empty' && libraryCountLabels.has(row.label) ? 'true' : undefined}
@@ -291,6 +298,21 @@ function MainMenu({ frame, state, visibleRows, panelId }: { readonly frame: Scre
         {state === 'loading' ? <span className="wp-sr-only">Loading your library counts.</span> : null}
       </div>
     </div>
+  )
+}
+
+function BrowserList({ frame, state, visibleRows, panelId }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string }) {
+  const rows = frame.rows.slice(frame.windowStart, frame.windowStart + visibleRows)
+  return (
+    <section className="wp-screen wp-browser-list" aria-label={frame.title} aria-busy={state === 'loading'}>
+      <TitleBar title={frame.title} />
+      {state === 'loading' ? <div className="wp-list-loading" aria-label={`Loading ${frame.title}`}>{Array.from({ length: visibleRows }, (_, index) => <i className="wp-skeleton" key={index} />)}</div>
+        : state === 'error' ? <PanelError message={`Couldn't load ${frame.title}.`} />
+          : state === 'permission-denied' ? <PanelError message="Sign in to browse your music." detail="Press Menu to go back." />
+            : frame.rows.length === 0 || state === 'empty' ? <PanelEmpty title={`No ${frame.title.toLocaleLowerCase()} here.`} detail="Press Menu to go back." />
+              : <div className="wp-full-list"><ol role="listbox" aria-label={frame.title}>{rows.map((row) => <li id={`${panelId}-row-${row.index}`} role="option" aria-selected={row.index === frame.highlightIndex} className="wp-browser-row" key={row.index}>{row.index === frame.highlightIndex ? <i className="wp-selection-rim" aria-hidden="true" /> : null}<span>{row.label}</span><small>{row.sublabel}</small>{row.glyphs.includes('descend') ? <PanelIcon name="chevron" /> : null}</li>)}</ol><ListScrollIndicator totalRows={frame.rows.length} visibleRows={visibleRows} windowStart={frame.windowStart} /></div>}
+      {state === 'offline' ? <FooterReceipt>Offline. Showing cached library metadata.</FooterReceipt> : null}
+    </section>
   )
 }
 
