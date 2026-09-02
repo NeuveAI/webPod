@@ -61,6 +61,16 @@ export {
   wrapDegrees,
 } from "./orientation";
 export {
+  DEVICE_ORIENTATION_GRAB_BAND,
+  acceptsDeviceOrientationHover,
+  acceptsDeviceOrientationPointer,
+  isDeviceOuterGrabPoint,
+  isFirstVisibleDeviceShellHit,
+  type DeviceOrientationGrabStart,
+  type DeviceOrientationPointerCapture,
+  type DeviceOrientationPointerType,
+} from "./orientation-grab";
+export {
   DEVICE_DPR_RANGE,
   firstDevicePixelBox,
   resolveCanvasPixelRatio,

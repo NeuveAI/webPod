@@ -16,7 +16,7 @@
  * have nothing that could poll. The screen mesh's change notification hangs
  * off `onBeforeRender` instead (see `screen-mesh.ts`).
  */
-import { useThree } from "@react-three/fiber";
+import { useThree, type ThreeEvent } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Color,
@@ -90,6 +90,14 @@ import {
   FRONT_DEVICE_ORIENTATION,
   type DeviceOrientation,
 } from "./orientation";
+import {
+  acceptsDeviceOrientationHover,
+  acceptsDeviceOrientationPointer,
+  isDeviceOuterGrabPoint,
+  isFirstVisibleDeviceShellHit,
+  type DeviceOrientationGrabStart,
+  type DeviceOrientationPointerCapture,
+} from "./orientation-grab";
 import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 import {
   effectiveStudioEnvironmentIntensity,
@@ -128,6 +136,15 @@ export type DeviceProps = {
   readonly onScreenMeshReady?: ScreenMeshReady;
   /** Pre-installed material for the screen slot; `undefined` keeps the default. */
   readonly screenMaterial?: Material | null;
+  /**
+   * Begins free preview orientation from a ray-confirmed enclosure edge.
+   * Returning false leaves the pointer untouched for another product control.
+   */
+  readonly onOrientationGrabStart?: (
+    start: DeviceOrientationGrabStart,
+  ) => boolean;
+  /** Cursor affordance for the currently ray-confirmed enclosure edge. */
+  readonly onOrientationGrabHoverChange?: (grabbable: boolean) => void;
 };
 
 const { body, screen, wheel } = DEVICE_LAYOUT;
@@ -150,6 +167,8 @@ export function Device({
   envMap,
   onScreenMeshReady,
   screenMaterial,
+  onOrientationGrabStart,
+  onOrientationGrabHoverChange,
 }: DeviceProps) {
   const invalidate = useThree((state) => state.invalidate);
   const controlPhysics = useControlPhysics();
@@ -166,6 +185,35 @@ export function Device({
     }),
     [store],
   );
+  const onShellPointerDown = useCallback(
+    (event: ThreeEvent<PointerEvent>) => {
+      if (onOrientationGrabStart === undefined) return;
+      const start = orientationGrabStart(event);
+      if (start === null || !onOrientationGrabStart(start)) return;
+      event.stopPropagation();
+      if (event.nativeEvent.cancelable) event.nativeEvent.preventDefault();
+    },
+    [onOrientationGrabStart],
+  );
+  const onShellPointerMove = useCallback(
+    (event: ThreeEvent<PointerEvent>) => {
+      if (onOrientationGrabHoverChange === undefined) return;
+      if (
+        !acceptsDeviceOrientationHover(event) ||
+        !isFirstVisibleDeviceShellHit(event.object, event.intersections)
+      ) {
+        return;
+      }
+      const localPoint = event.object.worldToLocal(event.point.clone());
+      onOrientationGrabHoverChange(
+        isDeviceOuterGrabPoint(localPoint.x, localPoint.y),
+      );
+    },
+    [onOrientationGrabHoverChange],
+  );
+  const onShellPointerOut = useCallback(() => {
+    onOrientationGrabHoverChange?.(false);
+  }, [onOrientationGrabHoverChange]);
 
   // ⚑ Keyed on the room's **values**, not on the object's identity. Building
   // the room is the most expensive thing this package does — a 2048 × 1024
@@ -650,7 +698,23 @@ export function Device({
   return (
     <ViewerLitDeviceFrame orientation={orientation} lightRig={lightRig}>
       {/* §5.2 — the mirror-polished back plate, uncut. */}
-      <mesh name="device-steel-back" geometry={backGeometry}>
+      <mesh
+        name="device-steel-back"
+        geometry={backGeometry}
+        onPointerDown={
+          onOrientationGrabStart === undefined ? undefined : onShellPointerDown
+        }
+        onPointerMove={
+          onOrientationGrabHoverChange === undefined
+            ? undefined
+            : onShellPointerMove
+        }
+        onPointerOut={
+          onOrientationGrabHoverChange === undefined
+            ? undefined
+            : onShellPointerOut
+        }
+      >
         <meshPhysicalMaterial
           name="steel-back"
           {...spread(materials.steelBack)}
@@ -754,7 +818,23 @@ export function Device({
       </mesh>
 
       {/* §5.1 / §4.3 — the polycarbonate front, inset by the seam. */}
-      <mesh name="device-body" geometry={frontGeometry}>
+      <mesh
+        name="device-body"
+        geometry={frontGeometry}
+        onPointerDown={
+          onOrientationGrabStart === undefined ? undefined : onShellPointerDown
+        }
+        onPointerMove={
+          onOrientationGrabHoverChange === undefined
+            ? undefined
+            : onShellPointerMove
+        }
+        onPointerOut={
+          onOrientationGrabHoverChange === undefined
+            ? undefined
+            : onShellPointerOut
+        }
+      >
         {isBlack ? (
           <primitive
             object={blackBodyPhysicalMaterial}
@@ -904,6 +984,73 @@ export function Device({
       />
     </ViewerLitDeviceFrame>
   );
+}
+
+function isOrientationGrabHit(event: ThreeEvent<PointerEvent>): boolean {
+  if (
+    !acceptsDeviceOrientationPointer(event) ||
+    !isFirstVisibleDeviceShellHit(event.object, event.intersections)
+  ) {
+    return false;
+  }
+  const localPoint = event.object.worldToLocal(event.point.clone());
+  return isDeviceOuterGrabPoint(localPoint.x, localPoint.y);
+}
+
+function orientationGrabStart(
+  event: ThreeEvent<PointerEvent>,
+): DeviceOrientationGrabStart | null {
+  if (!isOrientationGrabHit(event)) return null;
+  const host = event.nativeEvent.currentTarget;
+  const capture = orientationPointerCapture(event.target);
+  const pointerType = orientationPointerType(event.pointerType);
+  if (host === null || capture === null || pointerType === null) return null;
+  return {
+    pointerId: event.pointerId,
+    pointerType,
+    clientX: event.clientX,
+    clientY: event.clientY,
+    timestampMs: event.timeStamp,
+    rollMode: event.altKey,
+    host,
+    capture,
+  };
+}
+
+function orientationPointerType(
+  value: string,
+): DeviceOrientationGrabStart["pointerType"] | null {
+  if (value === "mouse" || value === "pen" || value === "touch") return value;
+  return null;
+}
+
+function orientationPointerCapture(
+  target: EventTarget | null,
+): DeviceOrientationPointerCapture | null {
+  if (
+    target === null ||
+    !("hasPointerCapture" in target) ||
+    !("setPointerCapture" in target) ||
+    !("releasePointerCapture" in target) ||
+    typeof target.hasPointerCapture !== "function" ||
+    typeof target.setPointerCapture !== "function" ||
+    typeof target.releasePointerCapture !== "function"
+  ) {
+    return null;
+  }
+  const hasPointerCapture = target.hasPointerCapture;
+  const setPointerCapture = target.setPointerCapture;
+  const releasePointerCapture = target.releasePointerCapture;
+  return {
+    hasPointerCapture: (pointerId) =>
+      Reflect.apply(hasPointerCapture, target, [pointerId]) === true,
+    setPointerCapture: (pointerId) => {
+      Reflect.apply(setPointerCapture, target, [pointerId]);
+    },
+    releasePointerCapture: (pointerId) => {
+      Reflect.apply(releasePointerCapture, target, [pointerId]);
+    },
+  };
 }
 
 /**

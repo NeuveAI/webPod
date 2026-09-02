@@ -2,27 +2,32 @@ import {
   DEFAULT_DEVICE_MATERIALS,
   DEVICE_ORIENTATION_PRESETS,
   DeviceCanvas,
-  clampDeviceOrientation,
   DEFAULT_LIGHT_RIG,
   lightRigForContribution,
   type Colourway,
   type DeviceMaterials,
   type DeviceOrientation,
+  type DeviceOrientationGrabStart,
   type DevicePosePreset,
   type LightRigParams,
   type LightContribution,
 } from "@webpod/device";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
+import {
+  bindDeviceOrientationControls,
+  createDevicePreviewStore,
+  type DeviceOrientationControls,
+  type DevicePreviewRoom,
+  type DevicePreviewState,
+} from "../device-preview-orientation";
 import { ProductionDeviceView } from "../production-device-view";
 
 export const Route = createFileRoute("/_spike/device")({
   ssr: false,
   component: DeviceSpike,
 });
-
-type PreviewRoom = "dark" | "light";
 
 function lightingContribution(value: string | null): LightContribution {
   return value === "key-only" || value === "fill-only" ? value : "combined";
@@ -48,20 +53,6 @@ type GeometryEvidenceView =
   | "top"
   | "bottom";
 
-type PreviewState = {
-  readonly colourway: Colourway;
-  readonly pose: DevicePosePreset | "custom";
-  readonly orientation: DeviceOrientation;
-  readonly room: PreviewRoom;
-};
-
-const INITIAL: PreviewState = Object.freeze({
-  colourway: "black",
-  pose: "three-quarter",
-  orientation: DEVICE_ORIENTATION_PRESETS["three-quarter"],
-  room: "dark",
-});
-
 const GEOMETRY_EVIDENCE_ORIENTATIONS: Readonly<
   Record<GeometryEvidenceView, DeviceOrientation>
 > = Object.freeze({
@@ -75,53 +66,15 @@ const GEOMETRY_EVIDENCE_ORIENTATIONS: Readonly<
   bottom: Object.freeze({ pitchDeg: -90, yawDeg: 0, rollDeg: 0 }),
 });
 
-let preview = INITIAL;
-const listeners = new Set<() => void>();
-
-function subscribe(listener: () => void): () => void {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
-
-function snapshot(): PreviewState {
-  return preview;
-}
-
-function publish(next: PreviewState): PreviewState {
-  preview = next;
-  for (const listener of listeners) listener();
-  return preview;
-}
-
-function setPose(pose: DevicePosePreset): PreviewState {
-  return publish({ ...preview, pose, orientation: DEVICE_ORIENTATION_PRESETS[pose] });
-}
-
-function setOrientation(orientation: DeviceOrientation): PreviewState {
-  const next = clampDeviceOrientation(orientation);
-  return publish({ ...preview, pose: poseFor(next), orientation: next });
-}
-
-function poseFor(orientation: DeviceOrientation): DevicePosePreset | "custom" {
-  for (const [pose, candidate] of Object.entries(DEVICE_ORIENTATION_PRESETS)) {
-    if (
-      candidate.pitchDeg === orientation.pitchDeg &&
-      candidate.yawDeg === orientation.yawDeg &&
-      candidate.rollDeg === orientation.rollDeg
-    ) {
-      return pose as DevicePosePreset;
-    }
-  }
-  return "custom";
-}
+const previewStore = createDevicePreviewStore();
 
 type PreviewApi = {
-  readonly get: () => PreviewState;
-  readonly reset: () => PreviewState;
-  readonly setColourway: (colourway: Colourway) => PreviewState;
-  readonly setOrientation: (orientation: DeviceOrientation) => PreviewState;
-  readonly setPose: (pose: DevicePosePreset) => PreviewState;
-  readonly setRoom: (room: PreviewRoom) => PreviewState;
+  readonly get: () => DevicePreviewState;
+  readonly reset: () => DevicePreviewState;
+  readonly setColourway: (colourway: Colourway) => DevicePreviewState;
+  readonly setOrientation: (orientation: DeviceOrientation) => DevicePreviewState;
+  readonly setPose: (pose: DevicePosePreset) => DevicePreviewState;
+  readonly setRoom: (room: DevicePreviewRoom) => DevicePreviewState;
 };
 
 declare global {
@@ -129,16 +82,6 @@ declare global {
     __webpodDevicePreview?: PreviewApi;
   }
 }
-
-type Drag = {
-  readonly pointerId: number;
-  readonly x: number;
-  readonly y: number;
-  readonly orientation: DeviceOrientation;
-};
-
-const YAW_PER_PIXEL = 0.42;
-const PITCH_PER_PIXEL = 0.28;
 
 const NEUTRAL_SURFACE = Object.freeze({
   color: "#7D8288",
@@ -198,77 +141,22 @@ const NEUTRAL_DIAGNOSTIC_LIGHT_RIG: LightRigParams = Object.freeze({
   },
 });
 
-function bindOrientationControls(stage: HTMLElement): () => void {
-  const drag: { current: Drag | null } = { current: null };
-  const onPointerDown = (event: PointerEvent): void => {
-    // The canvas also owns the real click-wheel input surface. Requiring a
-    // modifier keeps ordinary pointer/touch input on the iPod instead of
-    // letting the preview camera steal capture from the product interaction.
-    if (event.button !== 0 || !event.shiftKey) return;
-    drag.current = {
-      pointerId: event.pointerId,
-      x: event.clientX,
-      y: event.clientY,
-      orientation: preview.orientation,
-    };
-    stage.setPointerCapture(event.pointerId);
-    stage.focus({ preventScroll: true });
-    event.preventDefault();
-  };
-  const onPointerMove = (event: PointerEvent): void => {
-    const active = drag.current;
-    if (active === null || event.pointerId !== active.pointerId) return;
-    setOrientation({
-      pitchDeg: active.orientation.pitchDeg + (event.clientY - active.y) * PITCH_PER_PIXEL,
-      yawDeg: active.orientation.yawDeg + (event.clientX - active.x) * YAW_PER_PIXEL,
-      rollDeg: active.orientation.rollDeg,
-    });
-    event.preventDefault();
-  };
-  const release = (event: PointerEvent): void => {
-    if (drag.current?.pointerId === event.pointerId) drag.current = null;
-  };
-  const onKeyDown = (event: KeyboardEvent): void => {
-    const delta = event.shiftKey ? 12 : 5;
-    if (event.key === "ArrowLeft") {
-      setOrientation({ ...preview.orientation, yawDeg: preview.orientation.yawDeg - delta });
-    } else if (event.key === "ArrowRight") {
-      setOrientation({ ...preview.orientation, yawDeg: preview.orientation.yawDeg + delta });
-    } else if (event.key === "ArrowUp") {
-      setOrientation({ ...preview.orientation, pitchDeg: preview.orientation.pitchDeg + delta });
-    } else if (event.key === "ArrowDown") {
-      setOrientation({ ...preview.orientation, pitchDeg: preview.orientation.pitchDeg - delta });
-    } else if (event.key === "Home" || event.key === "1") {
-      setPose("front");
-    } else if (event.key === "3") {
-      setPose("three-quarter");
-    } else if (event.key === "9") {
-      setPose("edge");
-    } else if (event.key === "End" || event.key === "0") {
-      setPose("rear");
-    } else {
-      return;
-    }
-    event.preventDefault();
-  };
-
-  stage.addEventListener("pointerdown", onPointerDown);
-  stage.addEventListener("pointermove", onPointerMove, { passive: false });
-  stage.addEventListener("pointerup", release);
-  stage.addEventListener("pointercancel", release);
-  stage.addEventListener("keydown", onKeyDown);
-  return () => {
-    stage.removeEventListener("pointerdown", onPointerDown);
-    stage.removeEventListener("pointermove", onPointerMove);
-    stage.removeEventListener("pointerup", release);
-    stage.removeEventListener("pointercancel", release);
-    stage.removeEventListener("keydown", onKeyDown);
-  };
-}
-
 function DeviceSpike() {
-  const state = useSyncExternalStore(subscribe, snapshot, snapshot);
+  const state = useSyncExternalStore(
+    previewStore.subscribe,
+    previewStore.getSnapshot,
+    previewStore.getSnapshot,
+  );
   const stageRef = useRef<HTMLDivElement>(null);
+  const orientationControlsRef = useRef<DeviceOrientationControls | null>(null);
+  const onOrientationGrabStart = useCallback(
+    (start: DeviceOrientationGrabStart): boolean =>
+      orientationControlsRef.current?.begin(start) ?? false,
+    [],
+  );
+  const onOrientationGrabHoverChange = useCallback((grabbable: boolean) => {
+    orientationControlsRef.current?.setGrabbable(grabbable);
+  }, []);
   const search = new URLSearchParams(window.location.search);
   const capture = search.has("capture");
   const diagnosticMode = search.get("diagnostic");
@@ -298,17 +186,22 @@ function DeviceSpike() {
   useEffect(() => {
     const stage = stageRef.current;
     if (stage === null) return;
-    return bindOrientationControls(stage);
+    const controls = bindDeviceOrientationControls(stage, previewStore);
+    orientationControlsRef.current = controls;
+    return () => {
+      orientationControlsRef.current = null;
+      controls.dispose();
+    };
   }, []);
 
   useEffect(() => {
     window.__webpodDevicePreview = {
-      get: snapshot,
-      reset: () => publish(INITIAL),
-      setColourway: (colourway) => publish({ ...preview, colourway }),
-      setOrientation,
-      setPose,
-      setRoom: (room) => publish({ ...preview, room }),
+      get: previewStore.getSnapshot,
+      reset: previewStore.resetOrientation,
+      setColourway: previewStore.setColourway,
+      setOrientation: previewStore.setOrientation,
+      setPose: previewStore.setPose,
+      setRoom: previewStore.setRoom,
     };
     return () => {
       delete window.__webpodDevicePreview;
@@ -330,8 +223,9 @@ function DeviceSpike() {
       <div
         ref={stageRef}
         className="webpod-device-preview__stage"
+        role="region"
         tabIndex={0}
-        aria-label="Three-dimensional iPod preview. Shift-drag or use arrow keys to rotate; Home and End show front and rear."
+        aria-label="Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset."
       >
         {diagnostic ? (
           <DeviceCanvas
@@ -343,6 +237,8 @@ function DeviceSpike() {
             materials={NEUTRAL_DIAGNOSTIC_MATERIALS}
             lightRig={NEUTRAL_DIAGNOSTIC_LIGHT_RIG}
             studioEnvironment={null}
+            onOrientationGrabStart={onOrientationGrabStart}
+            onOrientationGrabHoverChange={onOrientationGrabHoverChange}
           />
         ) : productionSurfaceCapture ? (
           <DeviceCanvas
@@ -353,6 +249,8 @@ function DeviceSpike() {
             orientation={renderedState.orientation}
             lightRig={productionLightRig}
             studioEnvironment={lightContribution === "combined" ? undefined : null}
+            onOrientationGrabStart={onOrientationGrabStart}
+            onOrientationGrabHoverChange={onOrientationGrabHoverChange}
           />
         ) : (
           <ProductionDeviceView
@@ -361,13 +259,15 @@ function DeviceSpike() {
             cameraFov={30}
             cameraSafePadding={capture ? 34 : 48}
             orientation={renderedState.orientation}
+            onOrientationGrabStart={onOrientationGrabStart}
+            onOrientationGrabHoverChange={onOrientationGrabHoverChange}
           />
         )}
       </div>
       {capture ? null : (
         <>
           <p className="webpod-device-preview__selection-note">
-            Outside text remains selectable.
+            Drag a visible edge to rotate · Option/Alt-drag to roll
           </p>
           <PreviewControls state={state} />
         </>
@@ -382,20 +282,34 @@ function isGeometryEvidenceView(
   return value !== null && value in GEOMETRY_EVIDENCE_ORIENTATIONS;
 }
 
-function PreviewControls({ state }: { readonly state: PreviewState }) {
+function PreviewControls({ state }: { readonly state: DevicePreviewState }) {
   return (
     <nav className="webpod-device-preview__controls" aria-label="Device preview controls">
-      <button type="button" onClick={() => publish({ ...state, colourway: "black" })}>Black</button>
-      <button type="button" onClick={() => publish({ ...state, colourway: "white" })}>White</button>
-      <button type="button" onClick={() => setPose("front")}>Front</button>
-      <button type="button" onClick={() => setPose("three-quarter")}>Quarter</button>
-      <button type="button" onClick={() => setPose("edge")}>Edge</button>
-      <button type="button" onClick={() => setPose("rear")}>Rear</button>
       <button
         type="button"
-        onClick={() => publish({ ...state, room: state.room === "dark" ? "light" : "dark" })}
+        aria-pressed={state.colourway === "black"}
+        onClick={() => previewStore.setColourway("black")}
       >
-        {state.room === "dark" ? "Light room" : "Dark room"}
+        Black
+      </button>
+      <button
+        type="button"
+        aria-pressed={state.colourway === "white"}
+        onClick={() => previewStore.setColourway("white")}
+      >
+        White
+      </button>
+      <button type="button" onClick={previewStore.resetOrientation}>
+        Reset view
+      </button>
+      <button
+        type="button"
+        aria-pressed={state.room === "light"}
+        onClick={() =>
+          previewStore.setRoom(state.room === "dark" ? "light" : "dark")
+        }
+      >
+        Light room
       </button>
     </nav>
   );
@@ -426,7 +340,15 @@ const DEVICE_PREVIEW_CSS = `
     min-inline-size: 0;
     outline: none;
     cursor: default;
-    touch-action: none;
+  }
+  .webpod-device-preview__stage[data-orientation-grab="ready"] canvas {
+    cursor: grab;
+  }
+  .webpod-device-preview__stage[data-orientation-grab="active"] {
+    user-select: none;
+  }
+  .webpod-device-preview__stage[data-orientation-grab="active"] canvas {
+    cursor: grabbing;
   }
   .webpod-device-preview__stage:focus-visible::after {
     content: "";

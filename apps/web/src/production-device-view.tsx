@@ -1,5 +1,8 @@
 import { CompositeDevice } from '@webpod/composite'
-import type { DeviceOrientation } from '@webpod/device'
+import type {
+  DeviceOrientation,
+  DeviceOrientationGrabStart,
+} from '@webpod/device'
 import { Panel, type PanelState } from '@webpod/panel'
 
 export type ProductionPanelState = PanelState
@@ -17,6 +20,8 @@ export interface ProductionDeviceViewProps extends ProductionPanelViewProps {
   readonly cameraDistance?: number
   readonly cameraSafePadding?: number
   readonly orientation?: DeviceOrientation
+  readonly onOrientationGrabStart?: (start: DeviceOrientationGrabStart) => boolean
+  readonly onOrientationGrabHoverChange?: (grabbable: boolean) => void
   readonly interactionAudioEnabled?: boolean
 }
 
@@ -55,6 +60,8 @@ export function ProductionDeviceView({
   cameraDistance,
   cameraSafePadding,
   orientation,
+  onOrientationGrabStart,
+  onOrientationGrabHoverChange,
   interactionAudioEnabled,
 }: ProductionDeviceViewProps) {
   return (
@@ -66,6 +73,8 @@ export function ProductionDeviceView({
       cameraDistance={cameraDistance}
       cameraSafePadding={cameraSafePadding}
       orientation={orientation}
+      onOrientationGrabStart={onOrientationGrabStart}
+      onOrientationGrabHoverChange={onOrientationGrabHoverChange}
       interactionAudioEnabled={interactionAudioEnabled}
       panel={(
         <ProductionPanelView

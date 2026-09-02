@@ -9,6 +9,7 @@ import {
   type ClickWheelSelectEnd,
   type ClickWheelSelectStart,
   type Colourway,
+  type DeviceOrientationGrabStart,
   type DeviceOrientation,
   type ScreenMeshHandle,
 } from '@webpod/device'
@@ -56,6 +57,10 @@ export interface CompositeDeviceProps {
   readonly cameraDistance?: number
   readonly cameraSafePadding?: number
   readonly orientation?: DeviceOrientation
+  /** Ray-confirmed outer-shell grab seam for diagnostic free orientation. */
+  readonly onOrientationGrabStart?: (start: DeviceOrientationGrabStart) => boolean
+  /** Cursor affordance for a visible, ray-confirmed shell edge. */
+  readonly onOrientationGrabHoverChange?: (grabbable: boolean) => void
   /** Explicit mounted-product seam for muting interaction SFX. */
   readonly interactionAudioEnabled?: boolean
 }
@@ -75,6 +80,8 @@ export function CompositeDevice({
   cameraDistance,
   cameraSafePadding,
   orientation = FRONT_DEVICE_ORIENTATION,
+  onOrientationGrabStart,
+  onOrientationGrabHoverChange,
   interactionAudioEnabled = true,
 }: CompositeDeviceProps) {
   const canUseDom = typeof document !== 'undefined'
@@ -118,6 +125,8 @@ export function CompositeDevice({
               cameraDistance={cameraDistance}
               cameraSafePadding={cameraSafePadding}
               orientation={orientation}
+              onOrientationGrabStart={onOrientationGrabStart}
+              onOrientationGrabHoverChange={onOrientationGrabHoverChange}
               onScreenMeshReady={onScreenMeshReady}
             >
               <CompositeSceneBridge
