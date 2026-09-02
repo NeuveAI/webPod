@@ -637,3 +637,30 @@ claims of Apple machining dimensions. Black and white keep independently
 calibrated plastics; Select is matte dielectric in both. The light rig is
 unchanged. The required board and eight-pass light matrix are stored under
 `evidence/w8-wheel-correction/owner-primary/flush-correction/`.
+
+## VD-49 · Free orientation begins on the ray-confirmed physical perimeter
+
+The owner replaced pose buttons with direct manipulation of the object. This
+supersedes VD-26's broad Shift-drag stage listener: the stage no longer owns a
+pointer-down seam. Only the front polycarbonate shell and continuous formed-
+steel rear shell can propose a grab, their mesh must be the nearest R3F ray
+intersection, and the body-local hit must fall inside an 18-model-unit band
+around the analytic rounded enclosure silhouette. The band is an interaction
+target, not a new visible dimension or an OEM measurement.
+
+Normal drag maps viewport movement to bounded pitch and wrapped yaw.
+Option/Alt-drag deliberately substitutes bounded roll for yaw. The existing
+orientation clamp remains authoritative at ±45° pitch, continuous wrapped yaw,
+and ±18° roll. Pointer capture continues after leaving the narrow edge and is
+released on up, cancel, lost capture, window blur, disposal, or a browser-
+initiated capture loss. Mouse, pen, and touch use the same path.
+
+LCD, click wheel, Select, printed labels, and the broad face centre are excluded
+by nearest-hit plus perimeter tests; failed and unrelated pointers are not
+prevented. Selection is suppressed only while a confirmed grab is active, and
+the idle stage does not disable page touch behavior. Orientation continues to
+live in the module-external preview store shared by React, browser diagnostics,
+and tool callbacks. R3F remains `frameloop="demand"`; no animation loop is added.
+The visible Front/Quarter/Edge/Rear controls are removed, while exact presets
+remain in the diagnostic API for immutable evidence and one Reset view control
+restores only front orientation without discarding colourway or room.

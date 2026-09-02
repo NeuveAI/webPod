@@ -485,3 +485,46 @@ fill-only and combined macros all retain a neutral hairline without exposing a
 wall. Six mutations independently restored the axial pocket, Select offset,
 wide outer seam, Select cylinder, metallic Select or deep gap floor; every one
 failed its owning gate before the source was restored.
+
+## Wednesday, September 2, 2026 — physical-edge free orientation
+
+The owner rejected preset camera buttons as the primary way to inspect a real
+3D product. The old fallback was also too broad: a Shift-modified listener on
+the full preview stage knew nothing about the rendered geometry. It avoided
+ordinary wheel input only by requiring a modifier, not by proving which object
+the user had touched.
+
+The replacement starts inside R3F. The front and rear shell meshes expose one
+optional grab seam. A primary mouse, pen, or touch contact is accepted only
+when that shell is the raycaster's first visible intersection and the shell-
+local point lies in a narrow rounded-perimeter band. The LCD, wheel ring,
+Select, labels, and face centre therefore fail before capture rather than being
+recovered after a broad stage listener has already stolen the event. The same
+local test works after arbitrary model rotation, including on the rear tray.
+
+The route owns lifecycle, not geometry. One controller captures the accepted
+pointer, writes pitch/yaw or deliberate Option/Alt roll directly to the
+existing external preview store, and tears down on release, cancel, lost
+capture, blur, or disposal. Only the active pointer is prevented; an unrelated
+second pointer remains untouched. The stage advertises grab/grabbing cursors,
+suppresses selection only during the active gesture, and retains a stage-
+scoped arrow-key/Home fallback. Non-finite diagnostics are refused before they
+can poison the shared orientation snapshot, and snapshots are deeply frozen.
+
+The first real-Chrome probe exposed a subtle hover bug that unit math did not:
+pointer-move reports `button = -1`, so the primary-button predicate correctly
+used for pointer-down also suppressed every mouse hover affordance. Splitting
+hover eligibility from activation fixed the cursor without widening starts.
+R3F's documented propagation behavior can synthesize `pointerout` for farther
+intersections after `stopPropagation`, so hover does not stop propagation and a
+non-nearest shell move leaves the nearest shell's decision alone.
+
+The focused suite covers analytic edge/corner admission, nearest-hit rejection,
+mouse/pen/touch activation, capture, unrelated pointers, cancel, blur, disposal,
+already-lost capture, exact gains, rear yaw, pitch/roll limits, malformed input,
+keyboard reset, removed pose controls, and idle demand rendering. Real Chrome
+adds projected front edge and corner starts, front control exclusions, actual
+CDP touch with no scroll, movement beyond the edge, rear-shell continuation,
+Option roll, cancellation, preserved appearance on reset, cursor state, and
+idle text selection. Plants that made the whole face grabbable, ignored the
+nearest ray hit, or removed orientation clamping each failed their owning test.
