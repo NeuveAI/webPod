@@ -91,6 +91,6 @@ layout independently. `summary.json` contains the machine-readable readings.
 - immutable production-view browser suite: 2 pass, 0 fail;
 - repo typecheck: 11/11 projects clean;
 - repo lint: exit 0;
-- repo tests: 1,111 pass, 0 fail, 77,592 assertions;
+- repo tests in the detached committed worktree: 1,108 pass, 0 fail, 77,544 assertions;
 - production build: exit 0;
 - static gates: 16 automated pass, 0 fail; standing manual U14/U15 unchanged.
