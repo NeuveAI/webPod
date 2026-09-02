@@ -337,3 +337,40 @@ reduced the bounded low-side rim travel to 0.006 mm and added an executable
 clearance gate. The final immutable black/white front/quarter captures have no
 wedge, changing silhouette, travelling stamp or auxiliary optical response.
 Every released capture is byte-identical to rest.
+
+## Exhausted list boundaries — accepted movement owns feedback
+
+The boundary defect sat between two individually reasonable layers. The input
+reducer measured real detents and budgeted their click/haptic feedback before
+the screen machine clamped row movement. The store then returned and published
+that raw budget even when the highlight and window had not moved. Audio was
+correctly consuming the authoritative feedback atom; the atom itself was not
+yet authoritative about list acceptance.
+
+I moved the final decision into the one store path shared by driven detents and
+coasts. It applies the requested rows through the screen machine, measures the
+actual highlight delta, and reconciles detents, rows, clicker ticks, haptic
+pulses, rate and acceleration before publishing anything. A fully rejected
+outward attempt returns zero accepted movement and publishes no bump, feedback
+event or announcement. Intentional `moveHighlightActionAtom`, transport and
+root-Menu boundary bumps remain unchanged.
+
+A rejected or partially clamped event also clears residual travel, direction,
+speed and acceleration history while retaining the active path and its paid
+dead zone. That combination stops flick/coast momentum at the edge without
+making the first valid reversing detent feel delayed. Coasts required one extra
+piece of provenance: a frame can cross acceleration tiers, so it now carries a
+small per-detent row trace. The store truncates that exact prefix instead of
+guessing accepted clicks from the frame's final multiplier.
+
+The tests cover first/last boundaries on short, one-viewport and 100-row lists,
+repeated outward attempts, touch reversal, immediate keyboard announcements,
+accelerated partial clamps, mixed-tier coasts and coast termination in both
+directions. The composite audio test drives the real store binding and proves
+four raw outward attempts create zero voices while the first inward detent
+creates exactly one.
+
+Modern Web Guidance returned only unrelated scroll-snap/carousel guidance. The
+configured `agent-context` global/Jotai reference files were absent, so the
+implementation was grounded in the repository's actual Jotai store, reducer,
+screen and audio contracts.

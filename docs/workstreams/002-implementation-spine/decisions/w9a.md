@@ -287,3 +287,30 @@ composite/state runtime remains authoritative. Release keeps the existing
 120 ms time-based demand frames, reduced motion settles immediately, and
 cancel/lost capture/blur/unmount restore the exact rest quaternion. There is no
 idle loop, geometry rewrite, shader patch, moving light or proof-only API.
+
+## W9A-17 · List acceptance, not measured travel, authorizes wheel feedback
+
+The detent reducer remains the authority for converting angle, pixels and keys
+into candidate detents. The store action is the authority for whether the
+current list accepted them. Only the reconciled store outcome may reach
+navigation feedback, announcements, haptics or interaction audio.
+
+At an exhausted first/last row, an outward candidate is represented to every
+downstream consumer as zero detents, zero rows, zero rate, zero clicker ticks
+and zero haptic pulses. It publishes neither `interactionFeedbackAtom` nor a
+wheel bump. This does not alter separately owned boundary semantics:
+`moveHighlightActionAtom`, transport paging and Menu-at-root continue to
+publish their specified bumps and button clicks.
+
+When an event partly reaches an edge, the accepted detent count is the smallest
+ordered prefix that explains the actual row movement. Ordinary events have one
+multiplier; a coast may cross tiers within one frame and therefore carries
+`rowDeltasByDetent`. The store truncates that trace and clamps its final entry
+to the accepted row total. Raw trace entries are candidate provenance, never a
+feedback seam.
+
+Any clamp neutralizes residual, direction, speed, coast state and multiplier
+history. It preserves only path, source and `armed`, so an already-paid touch
+dead zone is not charged again and the first valid reversing detent responds
+immediately. This is the boundary between stopping stale momentum and making
+the control sticky.
