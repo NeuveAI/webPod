@@ -277,3 +277,37 @@ The first full gate run caught a documentation path literal in the browser
 test's implementation source. I replaced the path lookup with the rejected
 pair's immutable hashes and measured baseline. The final full gate run is 16
 automated pass, zero automated fail; U14/U15 remain the standing manual gates.
+
+## Owner correction — rigid click-wheel assembly
+
+The owner rejected the localized basin itself: it still looked like the wheel
+surface was warping under a thumb. I initially treated “only Z changes” as the
+physical invariant, but that was incomplete. A spatially varying Z field is a
+flexible surface. The actual control has to move as one rigid plastic part.
+
+I removed the wheel height field, footprint, gradient-normal rewrite, boundary
+contraction, contact clamp and pointer-move physics update. The wheel gap floor,
+visible ring and legend decal now share one group. `pressWheel()` translates
+that group from rest by 0.03 mm along device-local negative Z and changes no
+geometry. Select remains an independently deforming part.
+
+The replacement tests inspect every vertex in the production ring and backing,
+prove their position and normal arrays remain exact, prove the live matrix is
+identity plus one local-Z translation, recheck both circular radii, and rotate
+the parent to show travel follows the device rather than world Z. Release,
+reduced-motion live transition, detach/rebind, 15–360 Hz timing and frozen-clock
+escape retain their prior gates. The mounted input test proves a captured move
+still reaches navigation while physical press count remains one.
+
+Four scratch-tree plants were run against committed source: restore 0.08 mm,
+add lateral X travel, add control rotation (normal transform), and re-press on
+pointer move. Each produced two focused failures. Package/device, composite
+runtime/audio integration, full typecheck, lint, tests, build and automated
+gates are green.
+
+The final browser run served immutable commit
+`ee920aa6fb62ec8eeba97540ba7f3a43c4bcce2d` and tree
+`ef93e2bb35cd393b25c4b44a59c0fbe3243cd59d`. Ordinary Chrome pointer
+down/hold/up produced all twelve black/white × front/quarter
+rest/held/released frames. Every release hash equals rest; held frames differ
+without the former travelling oval or changing silhouette.

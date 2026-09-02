@@ -1,5 +1,10 @@
 # W9a localized depth-basin correction evidence
 
+> Historical owner-rejected evidence. The localized basin was the wrong
+> physical model even after its in-plane directionality was removed. It is
+> superseded by [w9a-rigid-wheel.md](w9a-rigid-wheel.md). None of the basin,
+> footprint, moving-normal or 0.08 mm wheel-travel claims below are current.
+
 Date: 2026-09-02
 
 ## Outcome

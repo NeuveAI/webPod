@@ -225,3 +225,34 @@ new held-vs-rest image response with the immutable owner-rejected white quarter
 pair. That gate measures affected area and principal aspect, so restoring the
 8 mm tangent support is both a geometry-test failure and a visual-comparison
 failure rather than a subjective documentation edit.
+
+## W9A-15 · Owner correction: the click wheel is one rigid control
+
+The owner rejected W9A-13 and W9A-14 as the wrong physical model. A localized
+scalar height field is still a flexible dent, even when every vertex keeps its
+rest X/Y. The click wheel is rigid plastic. This ruling supersedes every W9a
+wheel basin, footprint, moving-normal and contact-following optical decision.
+Those sections remain above only as review history.
+
+Production no longer edits wheel vertex or normal attributes. The zero-wall
+floor, plastic ring and printed legend decal are children of one R3F group.
+Pressing changes only that group's device-local Z position, so every production
+vertex receives one identical rigid transform; local X/Y, tessellation,
+normals, inner/outer radii, silhouette and intra-wheel spacing remain immutable.
+Select stays outside the group as a separate part with its existing deeper
+independent interaction.
+
+The wheel travel is reduced from the rejected 0.08 mm basin to a restrained
+0.03 mm rigid translation. This is bounded visual calibration against the
+owner photographs, not an OEM measurement. It remains nearly flush and is
+substantially shallower than Select's 0.36 mm travel.
+
+The pointer runtime now starts one physical press on pointer down. Captured
+pointer movement continues to supply angular navigation/detents but does not
+update physical wheel travel, a moving light or a contact coordinate. The
+contact-coordinate clamp and public contact sample were removed with the
+basin. Release remains the existing 120 ms time-based, demand-rendered settle;
+reduced motion preserves direct held feedback and restores rest immediately.
+
+No auxiliary shader or light is present. The ordinary black/white wheel
+materials and world-space studio rig reveal only the rigid seam-depth change.
