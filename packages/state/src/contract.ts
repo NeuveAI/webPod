@@ -322,7 +322,46 @@ export type ScreenFrame = {
    * over a still list rather than the list sliding under a fixed highlight.
    */
   readonly windowStart: number
+  /** Typed destination identity used by the data-owning navigation layer. */
+  readonly route?: NavigationRoute
 }
+
+/**
+ * Provider-neutral route identity carried by every navigable frame.
+ *
+ * Entity handles are webPod `LocalKey` strings, never provider catalogue ids.
+ * The state machine deliberately stores identity but no provider objects: the
+ * panel owns data resolution while this package owns stack semantics.
+ */
+export type NavigationRoute =
+  | { readonly kind: 'root' }
+  | { readonly kind: 'cover-flow' }
+  | { readonly kind: 'playlists' }
+  | { readonly kind: 'playlist-tracks'; readonly playlistKey: string }
+  | { readonly kind: 'artists' }
+  | { readonly kind: 'artist-albums'; readonly artistKey: string }
+  | { readonly kind: 'albums' }
+  | { readonly kind: 'album-tracks'; readonly albumKey: string }
+  | { readonly kind: 'songs' }
+  | { readonly kind: 'genres' }
+  | { readonly kind: 'genre-facets'; readonly genreKey: string }
+  | { readonly kind: 'genre-artists'; readonly genreKey: string }
+  | { readonly kind: 'genre-albums'; readonly genreKey: string }
+  | { readonly kind: 'genre-tracks'; readonly genreKey: string }
+  | { readonly kind: 'stations' }
+  | { readonly kind: 'search-entry' }
+  | { readonly kind: 'search-results'; readonly query: string }
+  | { readonly kind: 'now-playing' }
+  | { readonly kind: 'status'; readonly state: 'loading' | 'empty' | 'error' | 'signed-out' }
+
+/** A semantic request emitted by physical controls for the data-owning layer. */
+export type NavigationIntent = {
+  readonly kind: 'select' | 'root'
+  readonly seq: number
+}
+
+/** Latest semantic navigation request, or `null` before the first request. */
+export const navigationIntentAtom: PrimitiveAtom<NavigationIntent | null> = atom<NavigationIntent | null>(null)
 
 /**
  * The complete, enumerable description of what is on the screen.

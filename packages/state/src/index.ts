@@ -36,6 +36,7 @@ export {
   pushScreenActionAtom,
   resetInputState,
   resetStackActionAtom,
+  returnToRootActionAtom,
   setDensityActionAtom,
   setDynamicTypeScaleActionAtom,
   startAnnouncer,

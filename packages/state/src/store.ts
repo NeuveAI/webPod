@@ -39,6 +39,7 @@ import {
   faceAtom,
   liveRegionAtom,
   interactionFeedbackAtom,
+  navigationIntentAtom,
   screenStackAtom,
   visibleRowCountAtom,
 } from './contract'
@@ -196,6 +197,15 @@ export const resetStackActionAtom = atom(
   },
 )
 
+/** Jumps to a supplied root frame and publishes the semantic root intent. */
+export const returnToRootActionAtom = atom(null, (get, set): void => {
+  const existingRoot = get(screenStackAtom)[0]
+  const root = existingRoot ?? menuFrame(MENU_ROOT, 'medium')
+  set(screenStackAtom, pushScreen([], root).stack)
+  const previous = get(navigationIntentAtom)
+  set(navigationIntentAtom, { kind: 'root', seq: (previous?.seq ?? 0) + 1 })
+})
+
 /**
  * Applies a button press to the screen stack.
  *
@@ -242,6 +252,8 @@ export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOu
     handled = stack.length > 0
   } else {
     handled = false
+    const previous = get(navigationIntentAtom)
+    set(navigationIntentAtom, { kind: 'select', seq: (previous?.seq ?? 0) + 1 })
   }
 
   if (bump !== null) set(publishBumpAtom, bump)
