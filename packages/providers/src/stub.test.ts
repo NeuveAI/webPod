@@ -60,10 +60,8 @@ const CALLS: readonly (readonly [string, string, (p: MusicProvider) => unknown])
   ['saveToggle', 'saveToggle', (p) => p.saveToggle(TRACK, true)],
 ]
 
-for (const [providerName, make] of [
-  ['apple', createAppleProvider],
-  ['spotify', createSpotifyProvider],
-] as const) {
+// Apple graduated to a real MusicKit adapter; only Spotify remains a stub.
+for (const [providerName, make] of [['spotify', createSpotifyProvider]] as const) {
   describe(`${providerName} adapter — a compiling stub with a real matrix`, () => {
     const provider = make()
 
