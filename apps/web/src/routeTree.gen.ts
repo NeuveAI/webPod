@@ -14,6 +14,7 @@ import { Route as ArtworkRouteImport } from './routes/artwork'
 import { Route as ProbeCapabilitiesRouteImport } from './routes/[_]probe.capabilities'
 import { Route as ProbeCompositeRouteImport } from './routes/[_]probe.composite'
 import { Route as SpikeDeviceRouteImport } from './routes/[_]spike.device'
+import { Route as ApiAppleDeveloperTokenRouteImport } from './routes/api.apple.developer-token'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const SpikeDeviceRoute = SpikeDeviceRouteImport.update({
   path: '/_spike/device',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAppleDeveloperTokenRoute = ApiAppleDeveloperTokenRouteImport.update({
+  id: '/api/apple/developer-token',
+  path: '/api/apple/developer-token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/_probe/capabilities': typeof ProbeCapabilitiesRoute
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
+  '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/_probe/capabilities': typeof ProbeCapabilitiesRoute
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
+  '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,6 +70,7 @@ export interface FileRoutesById {
   '/_probe/capabilities': typeof ProbeCapabilitiesRoute
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
+  '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -71,6 +80,7 @@ export interface FileRouteTypes {
     | '/_probe/capabilities'
     | '/_probe/composite'
     | '/_spike/device'
+    | '/api/apple/developer-token'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -78,6 +88,7 @@ export interface FileRouteTypes {
     | '/_probe/capabilities'
     | '/_probe/composite'
     | '/_spike/device'
+    | '/api/apple/developer-token'
   id:
     | '__root__'
     | '/'
@@ -85,6 +96,7 @@ export interface FileRouteTypes {
     | '/_probe/capabilities'
     | '/_probe/composite'
     | '/_spike/device'
+    | '/api/apple/developer-token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -93,6 +105,7 @@ export interface RootRouteChildren {
   ProbeCapabilitiesRoute: typeof ProbeCapabilitiesRoute
   ProbeCompositeRoute: typeof ProbeCompositeRoute
   SpikeDeviceRoute: typeof SpikeDeviceRoute
+  ApiAppleDeveloperTokenRoute: typeof ApiAppleDeveloperTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -132,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpikeDeviceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/apple/developer-token': {
+      id: '/api/apple/developer-token'
+      path: '/api/apple/developer-token'
+      fullPath: '/api/apple/developer-token'
+      preLoaderRoute: typeof ApiAppleDeveloperTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -141,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProbeCapabilitiesRoute: ProbeCapabilitiesRoute,
   ProbeCompositeRoute: ProbeCompositeRoute,
   SpikeDeviceRoute: SpikeDeviceRoute,
+  ApiAppleDeveloperTokenRoute: ApiAppleDeveloperTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
