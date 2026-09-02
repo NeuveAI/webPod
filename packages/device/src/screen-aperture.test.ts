@@ -145,10 +145,9 @@ describe("square LCD aperture and flat assembly reveal", () => {
       device.indexOf("const rearInlayGeometry"),
     );
     expect(revealBuild).toContain(
-      "depth: Math.max(0.1, form.displayWellInset)",
+      "form.displayWellInset + form.displayWellDepth",
     );
     expect(revealBuild).toContain("bevelEnabled: false");
-    expect(revealBuild).not.toContain("form.displayWellDepth");
     expect(device).toContain(
       "position={[glass.centerX, glass.centerY, displayReferenceZ]}",
     );

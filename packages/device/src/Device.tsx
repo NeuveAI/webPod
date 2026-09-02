@@ -456,13 +456,20 @@ export function Device({
     const geometry = new ExtrudeGeometry(shape, {
       // Fill the complete opening depth with black so the glossy face's own
       // hole wall never becomes a reflective bezel at a quarter view.
-      depth: Math.max(0.1, form.displayWellInset),
+      depth: Math.max(
+        0.1,
+        form.displayWellInset + form.displayWellDepth,
+      ),
       bevelEnabled: false,
       curveSegments: 1,
     });
-    geometry.translate(0, 0, -Math.max(0.1, form.displayWellInset));
+    geometry.translate(
+      0,
+      0,
+      -Math.max(0.1, form.displayWellInset + form.displayWellDepth),
+    );
     return geometry;
-  }, [form.displayWellInset]);
+  }, [form.displayWellDepth, form.displayWellInset]);
   useEffect(() => () => displayWellGeometry.dispose(), [displayWellGeometry]);
 
   const rearInlayGeometry = useMemo(() => {
