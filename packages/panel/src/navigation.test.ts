@@ -124,7 +124,7 @@ describe('typed navigation graph', () => {
     await signedOut.unauthorize()
     expect(providerStatusFrame(signedOut)?.route).toEqual({ kind: 'status', state: 'signed-out' })
     const browseOnly = createFixtureProvider({ canPlay: false })
-    expect(providerStatusFrame(browseOnly)?.route).toEqual({ kind: 'status', state: 'playback-permission' })
+    expect(providerStatusFrame(browseOnly)?.route).toEqual({ kind: 'status', state: 'playback-unavailable' })
     expect(providerStatusFrame(provider)).toBeNull()
   })
 })

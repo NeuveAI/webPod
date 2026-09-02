@@ -252,7 +252,7 @@ function StatusScreen({ frame }: { readonly frame: ScreenFrame }) {
     error: ["Couldn't load this section.", 'Press Menu and try again.'],
     offline: ['Music is offline.', 'Cached metadata remains available.'],
     'signed-out': [frame.title, 'Sign in, then return to your music.'],
-    'playback-permission': ['Playback needs a paid music subscription.', 'You can still browse your library.'],
+    'playback-unavailable': ['Playback needs a paid music subscription.', 'You can still browse your library.'],
   } as const
   const [message, detail] = copy[frame.route.state]
   return <section className="wp-screen"><TitleBar title={frame.title} /><PanelError message={message} detail={detail} /></section>

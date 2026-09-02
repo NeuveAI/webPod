@@ -38,7 +38,7 @@ export type NavigationStatus = Extract<NavigationRoute, { readonly kind: 'status
 export function statusFrame(state: NavigationStatus, providerName = 'Music'): ScreenFrame {
   const title = state === 'signed-out'
     ? `Sign in to ${providerName}`
-    : state === 'playback-permission'
+    : state === 'playback-unavailable'
       ? 'Playback unavailable'
       : state === 'offline'
         ? 'Offline'
@@ -53,7 +53,7 @@ export function statusFrame(state: NavigationStatus, providerName = 'Music'): Sc
 /** Maps the provider's observable account posture to a typed navigation frame. */
 export function providerStatusFrame(provider: MusicProvider): ScreenFrame | null {
   if (provider.session === null) return statusFrame('signed-out', provider.displayName)
-  if (!provider.session.canPlay) return statusFrame('playback-permission', provider.displayName)
+  if (!provider.session.canPlay) return statusFrame('playback-unavailable', provider.displayName)
   return null
 }
 
