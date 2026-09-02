@@ -44,23 +44,22 @@ describe('the bare DOM panel', () => {
     expect(css).toMatch(/\.wp-art--large\s*\{[^}]*88px/s)
   })
 
-  test('forced-airy menus use four ruled rows without changing compact row geometry', () => {
+  test('the menu viewport fills the LCD while every density keeps fixed row geometry', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
-    const airyListRule = css.match(
-      /\.wp-panel\[data-density="airy"\]\[data-visible-rows="4"\] \.wp-menu-list\s*\{([^}]*)\}/s,
-    )?.[1]
-    const airyRule = css.match(
-      /\.wp-panel\[data-density="airy"\]\[data-visible-rows="4"\] \.wp-menu-row\s*\{([^}]*)\}/s,
-    )?.[1]
+    const splitRule = css.match(/\.wp-menu-split\s*\{([^}]*)\}/s)?.[1]
+    const listRule = css.match(/\.wp-menu-list\s*\{([^}]*)\}/s)?.[1]
+    const previewRule = css.match(/\.wp-menu-preview\s*\{([^}]*)\}/s)?.[1]
 
-    expect(airyListRule).toBeDefined()
-    expect(airyListRule).toMatch(/display:\s*grid/)
-    expect(airyListRule).toMatch(/grid-template-rows:\s*repeat\(4, 44px\)/)
-    expect(airyRule).toBeDefined()
-    expect(airyRule).toMatch(/block-size:\s*auto/)
-    expect(airyRule).toMatch(/font-size:\s*17px/)
+    expect(splitRule).toMatch(/block-size:\s*183px/)
+    expect(splitRule).toMatch(/min-block-size:\s*0/)
+    expect(listRule).toMatch(/block-size:\s*100%/)
+    expect(listRule).toMatch(/overflow-y:\s*auto/)
+    expect(listRule).toMatch(/background:\s*var\(--wp-bg\)/)
+    expect(previewRule).toMatch(/block-size:\s*100%/)
+    expect(previewRule).toMatch(/overflow:\s*clip/)
     expect(css).toMatch(/\.wp-menu-row\s*\{[^}]*block-size:\s*21px/s)
     expect(css).toMatch(/\.wp-menu-row\s*\{[^}]*font-size:\s*11px/s)
+    expect(css).not.toMatch(/data-density=[^}]+\.wp-menu-(?:list|row)/s)
   })
 
   test('never authors final panel text below eleven pixels', () => {

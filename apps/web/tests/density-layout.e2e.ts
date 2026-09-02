@@ -22,135 +22,147 @@ type Scale = 1 | 1.3 | 2
 interface MenuLayout {
   readonly density: string | undefined
   readonly visibleRows: string | undefined
+  readonly screenHeight: number
+  readonly titleHeight: number
+  readonly splitHeight: number
   readonly listHeight: number
-  readonly usedHeight: number
+  readonly previewHeight: number
   readonly rowHeights: readonly number[]
   readonly fontSizes: readonly number[]
-  readonly rowTextClipped: readonly boolean[]
-  readonly hasPreview: boolean
-  readonly hasRail: boolean
-  readonly titleHeight: number
+  readonly labels: readonly string[]
+  readonly listOverflowY: string
+  readonly listBackground: string
+  readonly railBottomGap: number
+  readonly rasterScale: number
 }
 
 const route = (colourway: Colourway, scale: Scale, mode: Mode, pose: Pose): string =>
   `/_probe/composite?colourway=${colourway}&state=ready&scale=${String(scale)}&fov=30&mode=${mode}&pose=${pose}`
 
-const measureMenu = async (page: Page): Promise<MenuLayout> =>
-  page.locator('.wp-panel').evaluate((panel) => {
-    const list = panel.querySelector('.wp-menu-list')
+const measureMenu = async (page: Page, panelIndex = 0): Promise<MenuLayout> =>
+  page.locator('.wp-panel').nth(panelIndex).evaluate((panel) => {
+    const screen = panel.querySelector('.wp-screen')
     const title = panel.querySelector('.wp-titlebar')
+    const split = panel.querySelector('.wp-menu-split')
+    const list = panel.querySelector('.wp-menu-list')
+    const preview = panel.querySelector('.wp-menu-preview')
+    const rail = panel.querySelector('.wp-menu-preview__rail')
+    const panelStage = panel.parentElement
     const rows = [...panel.querySelectorAll<HTMLElement>('.wp-menu-row')]
-    if (!(list instanceof HTMLElement) || !(title instanceof HTMLElement)) {
-      throw new Error('The main-menu layout surface is incomplete')
+    if (
+      !(panel instanceof HTMLElement) ||
+      !(screen instanceof HTMLElement) ||
+      !(title instanceof HTMLElement) ||
+      !(split instanceof HTMLElement) ||
+      !(list instanceof HTMLElement) ||
+      !(preview instanceof HTMLElement) ||
+      !(rail instanceof HTMLElement) ||
+      !(panelStage instanceof HTMLElement)
+    ) {
+      throw new Error('The main-menu viewport is incomplete')
     }
-    const firstTop = rows.at(0)?.offsetTop ?? 0
-    const last = rows.at(-1)
+    const listStyle = getComputedStyle(list)
     return {
-      density: panel instanceof HTMLElement ? panel.dataset.density : undefined,
-      visibleRows: panel instanceof HTMLElement ? panel.dataset.visibleRows : undefined,
+      density: panel.dataset.density,
+      visibleRows: panel.dataset.visibleRows,
+      screenHeight: screen.clientHeight,
+      titleHeight: title.offsetHeight,
+      splitHeight: split.clientHeight,
       listHeight: list.clientHeight,
-      usedHeight: last === undefined ? 0 : last.offsetTop + last.offsetHeight - firstTop,
+      previewHeight: preview.clientHeight,
       rowHeights: rows.map((row) => row.offsetHeight),
       fontSizes: rows.map((row) => Number.parseFloat(getComputedStyle(row).fontSize)),
-      rowTextClipped: rows.map(
-        (row) => row.scrollHeight > row.clientHeight || row.scrollWidth > row.clientWidth,
+      labels: rows.map((row) => row.querySelector('span')?.textContent ?? ''),
+      listOverflowY: listStyle.overflowY,
+      listBackground: listStyle.backgroundColor,
+      railBottomGap: preview.clientHeight - rail.offsetTop - rail.offsetHeight,
+      rasterScale: Number.parseFloat(
+        getComputedStyle(panelStage).getPropertyValue('--wp-raster-scale'),
       ),
-      hasPreview: panel.querySelector('.wp-menu-preview') !== null,
-      hasRail: panel.querySelector('.wp-menu-preview__rail') !== null,
-      titleHeight: title.offsetHeight,
     }
   })
 
-const measureBareFit = async (page: Page) =>
-  page.locator('.wp-composite-preview__bare-frame').evaluate((frame) => {
-    const panelStage = frame.querySelector('.wp-panel-stage')
-    if (!(panelStage instanceof HTMLElement)) throw new Error('The bare panel stage is absent')
-    const frameRect = frame.getBoundingClientRect()
-    const panelRect = panelStage.getBoundingClientRect()
-    return {
-      frameWidth: frameRect.width,
-      frameHeight: frameRect.height,
-      panelWidth: panelRect.width,
-      panelHeight: panelRect.height,
-    }
-  })
+const expectFixedRowsInFullViewport = (
+  layout: MenuLayout,
+  expectedDensity: 'compact' | 'medium' | 'airy',
+  expectedRows: number,
+  expectedRasterScale: 1 | 1.25,
+): void => {
+  expect(layout.density).toBe(expectedDensity)
+  expect(layout.visibleRows).toBe(String(expectedRows))
+  expect(layout.screenHeight).toBe(204)
+  expect(layout.titleHeight).toBe(21)
+  expect(layout.splitHeight).toBe(183)
+  expect(layout.listHeight).toBe(183)
+  expect(layout.previewHeight).toBe(183)
+  expect(layout.titleHeight + layout.listHeight).toBe(layout.screenHeight)
+  expect(layout.rowHeights).toEqual(Array.from({ length: expectedRows }, () => 21))
+  expect(layout.fontSizes).toEqual(Array.from({ length: expectedRows }, () => 11))
+  expect(layout.listOverflowY).toBe('auto')
+  expect(layout.listBackground).not.toBe('rgba(0, 0, 0, 0)')
+  expect(layout.railBottomGap).toBe(7)
+  expect(layout.rasterScale).toBe(expectedRasterScale)
+}
 
-test('forced-airy rows fill the menu viewport across the public composite matrix', async ({ page }) => {
+test('the full-height menu viewport keeps fixed rows across scale and composite variants', async ({ page }) => {
   for (const colourway of ['black', 'white'] as const) {
-    for (const scale of [1.3, 2] as const) {
+    for (const scale of [1, 1.3, 2] as const) {
       for (const mode of ['bare', 'composited'] as const) {
         for (const pose of ['front', 'three-quarter'] as const) {
           await page.goto(route(colourway, scale, mode, pose))
-          const panel = page.locator('.wp-panel')
-          await expect(panel).toHaveAttribute('data-density', 'airy')
-          await expect(panel).toHaveAttribute('data-visible-rows', '4')
-
           const layout = await measureMenu(page)
-          expect(layout.rowHeights, `${colourway}/${String(scale)}/${mode}/${pose}`).toEqual([
-            44,
-            44,
-            44,
-            44,
-          ])
-          expect(layout.fontSizes).toEqual([17, 17, 17, 17])
-          expect(layout.usedHeight).toBe(176)
-          expect(layout.usedHeight / layout.listHeight).toBeGreaterThan(0.95)
-          expect(layout.listHeight - layout.usedHeight).toBeLessThanOrEqual(7)
-          expect(layout.rowTextClipped).toEqual([false, false, false, false])
-          expect(layout.hasPreview).toBe(true)
-          expect(layout.hasRail).toBe(true)
-          expect(layout.titleHeight).toBe(21)
-          if (mode === 'bare') {
-            const fit = await measureBareFit(page)
-            expect(fit.panelWidth).toBeLessThanOrEqual(fit.frameWidth + 0.5)
-            expect(fit.panelHeight).toBeLessThanOrEqual(fit.frameHeight + 0.5)
-          }
+          expectFixedRowsInFullViewport(
+            layout,
+            scale === 1 ? 'compact' : 'airy',
+            scale === 1 ? 8 : 4,
+            scale === 1 ? 1 : 1.25,
+          )
         }
       }
     }
   }
 })
 
-test('forced-airy bare previews fit a mobile viewport without clipping the raster', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 })
-  for (const colourway of ['black', 'white'] as const) {
-    for (const scale of [1.3, 2] as const) {
-      await page.goto(route(colourway, scale, 'bare', 'front'))
-      await expect(page.locator('.wp-panel')).toHaveAttribute('data-density', 'airy')
-      const fit = await measureBareFit(page)
-      expect(fit.panelWidth).toBeLessThanOrEqual(fit.frameWidth + 0.5)
-      expect(fit.panelHeight).toBeLessThanOrEqual(fit.frameHeight + 0.5)
-      expect(fit.frameWidth).toBeLessThanOrEqual(366)
-      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
-    }
-  }
+test('medium density uses the same full viewport and fixed row dimensions', async ({ page }) => {
+  await page.goto('/?scale=1&density=medium')
+  await expect(page.locator('.wp-panel').first()).toHaveAttribute('data-density', 'medium')
+  expectFixedRowsInFullViewport(await measureMenu(page), 'medium', 6, 1)
 })
 
-test('one-hundred-percent compact menus retain eight 21px rows', async ({ page }) => {
-  for (const colourway of ['black', 'white'] as const) {
-    for (const mode of ['bare', 'composited'] as const) {
-      for (const pose of ['front', 'three-quarter'] as const) {
-        await page.goto(route(colourway, 1, mode, pose))
-        const panel = page.locator('.wp-panel')
-        await expect(panel).toHaveAttribute('data-density', 'compact')
-        await expect(panel).toHaveAttribute('data-visible-rows', '8')
+test('the composite probe and device spike share the fixed-row LCD viewport', async ({ page }) => {
+  await page.goto('/_spike/device')
+  const spike = await measureMenu(page)
+  expectFixedRowsInFullViewport(spike, 'compact', 8, 1)
 
-        const layout = await measureMenu(page)
-        expect(layout.rowHeights).toEqual([21, 21, 21, 21, 21, 21, 21, 21])
-        expect(layout.fontSizes).toEqual([11, 11, 11, 11, 11, 11, 11, 11])
-        expect(layout.usedHeight).toBe(168)
-        expect(layout.listHeight).toBe(183)
-        expect(layout.rowTextClipped).toEqual([
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-          false,
-        ])
-      }
-    }
-  }
+  await page.goto(route('black', 1, 'composited', 'front'))
+  const probe = await measureMenu(page)
+  expectFixedRowsInFullViewport(probe, 'compact', 8, 1)
+  expect(probe.rowHeights).toEqual(spike.rowHeights)
+  expect(probe.fontSizes).toEqual(spike.fontSizes)
+  expect(probe.listHeight).toBe(spike.listHeight)
+  expect(probe.previewHeight).toBe(spike.previewHeight)
+})
+
+test('airy state windowing reveals later rows without stretching the four rendered rows', async ({ page }) => {
+  await page.goto(route('black', 1.3, 'bare', 'front'))
+  const panel = page.locator('.wp-panel')
+  await panel.focus()
+
+  const initial = await measureMenu(page)
+  expectFixedRowsInFullViewport(initial, 'airy', 4, 1.25)
+  expect(initial.labels).toEqual(['Cover Flow', 'Playlists', 'Artists', 'Albums'])
+
+  await panel.press('ArrowDown')
+  const advanced = await measureMenu(page)
+  expect(advanced.labels).toEqual(['Playlists', 'Artists', 'Albums', 'Songs'])
+  expect(advanced.rowHeights).toEqual([21, 21, 21, 21])
+  expect(advanced.listHeight).toBe(183)
+
+  await panel.press('ArrowDown')
+  await panel.press('ArrowDown')
+  await panel.press('ArrowDown')
+  const finalWindow = await measureMenu(page)
+  expect(finalWindow.labels).toEqual(['Songs', 'Genres', 'Radio', 'Search'])
+  expect(finalWindow.rowHeights).toEqual([21, 21, 21, 21])
+  expect(finalWindow.listHeight).toBe(183)
 })
