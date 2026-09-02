@@ -1,0 +1,23 @@
+{
+  "routes": {
+    "probe": "/_probe/composite",
+    "spike": "/_spike/device?capture&view=front&colourway=black"
+  },
+  "authoredLcd": {
+    "width": 272,
+    "height": 204
+  },
+  "probe": {
+    "screenshotSha256": "6d9044256f255bc9d9912c4a643303ce1f7f8c539d56e192033d3520d5947b07",
+    "normalizedPixelSha256": "98fe270a5cf15f1746bf3d9106d3951ed6bd1e0ee537d8a7756c0838cb08180c"
+  },
+  "spike": {
+    "screenshotSha256": "43be1b912c79b297656c43e931957449e916c884805ccaf34472254a98a357bc",
+    "normalizedPixelSha256": "2d46aa64cbeb432923d4fdc93d6d834a9dc907ea6602f6c129932be6625686f7"
+  },
+  "difference": {
+    "meanChannelDelta": 3.7366037101114955,
+    "changedPixelRatio": 0.06624855824682814,
+    "maximumChannelDelta": 107
+  }
+}
