@@ -17,8 +17,10 @@ import {
   type ClickWheelSelectEnd,
   type ClickWheelSelectStart,
 } from "./click-wheel-input";
+import { AxialSelectControl } from "./AxialSelectControl";
 import { ControlPhysicsScope } from "./ControlPhysicsScope";
 import {
+  CONTROL_TRAVEL,
   ControlPhysicsController,
   type ControlPhysicsDependencies,
 } from "./control-physics";
@@ -40,8 +42,10 @@ const HEIGHT = DEVICE_LAYOUT.body.height;
 GlobalRegistrator.register();
 Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", { value: true });
 extend({
+  Group: THREE.Group,
   Mesh: THREE.Mesh,
   MeshBasicMaterial: THREE.MeshBasicMaterial,
+  MeshPhysicalMaterial: THREE.MeshPhysicalMaterial,
   RingGeometry: THREE.RingGeometry,
   CircleGeometry: THREE.CircleGeometry,
 });
@@ -57,6 +61,9 @@ type MountedSurface = {
   readonly selectEnds: Array<ClickWheelSelectEnd>;
   readonly restoreAnimationFrame: () => void;
   readonly controlPhysics: RecordingControlPhysics;
+  readonly selectControl: THREE.Mesh;
+  readonly selectMaterial: THREE.MeshPhysicalMaterial;
+  readonly rerender: () => Promise<void>;
 };
 
 class RecordingControlPhysics extends ControlPhysicsController {
@@ -160,8 +167,13 @@ async function mountSurface(
   const selectEnds: Array<ClickWheelSelectEnd> = [];
   const mountedStore: { current: RootStore | null } = { current: null };
   const controlPhysics = new RecordingControlPhysics();
+  const selectGeometry = new THREE.CircleGeometry(
+    DEVICE_LAYOUT.wheel.selectR,
+    128,
+  );
   const restoreAnimationFrame = installAnimationFrameStub();
-  await act(async () => {
+  let revision = 0;
+  const renderSurface = (): void => {
     mountedStore.current = root.render(
       <ControlPhysicsScope controller={controlPhysics}>
         <DeviceCanvasOrientationContext.Provider
@@ -189,15 +201,40 @@ async function mountSurface(
             onSelectStart={(start) => selectStarts.push(start)}
             onSelectEnd={(end) => selectEnds.push(end)}
           />
+          <AxialSelectControl
+            geometry={selectGeometry}
+            position={[2.5, -4.25, 3.75]}
+          >
+            <meshPhysicalMaterial
+              name="select-integration-plastic"
+              color="#F6F2E9"
+              metalness={0}
+              roughness={0.72}
+            />
+          </AxialSelectControl>
+          <group name={`select-rerender-revision-${String(revision)}`} />
         </DeviceCanvasOrientationContext.Provider>
       </ControlPhysicsScope>,
     );
+  };
+  await act(async () => {
+    renderSurface();
     await Promise.resolve();
   });
   const store = mountedStore.current;
   if (store === null) throw new Error("R3F surface did not mount");
   store.getState().camera.updateMatrixWorld(true);
   store.getState().scene.updateMatrixWorld(true);
+  const selectControl = store
+    .getState()
+    .scene.getObjectByName("device-select");
+  if (!(selectControl instanceof THREE.Mesh)) {
+    throw new Error("axial Select control did not mount");
+  }
+  const selectMaterial = selectControl.material;
+  if (!(selectMaterial instanceof THREE.MeshPhysicalMaterial)) {
+    throw new Error("Select integration material is not physical plastic");
+  }
   return {
     canvas,
     root,
@@ -209,6 +246,15 @@ async function mountSurface(
     selectEnds,
     restoreAnimationFrame,
     controlPhysics,
+    selectControl,
+    selectMaterial,
+    rerender: async () => {
+      revision += 1;
+      await act(async () => {
+        renderSurface();
+        await Promise.resolve();
+      });
+    },
   };
 }
 
@@ -396,18 +442,76 @@ describe("click-wheel mounted R3F event seam", () => {
     }
   });
 
+  test("the production Select target holds the bound plastic at its axial travel until release", async () => {
+    const mounted = await mountSurface();
+    const rest = mounted.selectControl.position.clone();
+    const materialSnapshot = mounted.selectMaterial.toJSON();
+    const pointerId = 74;
+    try {
+      await dispatch(mounted, pointerEvent("pointerdown", pointerId, 0, 0));
+      expect(mounted.controlPhysics.selectPresses).toBe(1);
+      expect(mounted.controlPhysics.wheelPresses).toBe(0);
+      expect(mounted.selectControl.position.x).toBe(rest.x);
+      expect(mounted.selectControl.position.y).toBe(rest.y);
+      expect(mounted.selectControl.position.z).toBe(
+        rest.z - CONTROL_TRAVEL.selectModel,
+      );
+      expect(mounted.selectControl.material).toBe(mounted.selectMaterial);
+      expect(mounted.selectMaterial.toJSON()).toEqual(materialSnapshot);
+
+      await mounted.rerender();
+      expect(mounted.selectControl.position.x).toBe(rest.x);
+      expect(mounted.selectControl.position.y).toBe(rest.y);
+      expect(mounted.selectControl.position.z).toBe(
+        rest.z - CONTROL_TRAVEL.selectModel,
+      );
+      expect(mounted.selectControl.material).toBe(mounted.selectMaterial);
+
+      await dispatch(mounted, pointerEvent("pointermove", pointerId, 12, 0));
+      expect(mounted.selectControl.position.z).toBe(
+        rest.z - CONTROL_TRAVEL.selectModel,
+      );
+      expect(mounted.controlPhysics.wheelMoveAngles).toHaveLength(0);
+
+      await dispatch(mounted, pointerEvent("pointerup", pointerId, 12, 0));
+      expect(mounted.controlPhysics.selectReleases).toBe(1);
+      mounted.controlPhysics.setReducedMotion(true);
+      expect(mounted.selectControl.position.toArray()).toEqual(rest.toArray());
+      expect(mounted.selectControl.material).toBe(mounted.selectMaterial);
+      expect(mounted.selectMaterial.toJSON()).toEqual(materialSnapshot);
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
   test("Select cancel, lost capture and blur each return capture exactly once", async () => {
     const mounted = await mountSurface();
+    const rest = mounted.selectControl.position.clone();
+    const materialSnapshot = mounted.selectMaterial.toJSON();
     try {
       await dispatch(mounted, pointerEvent("pointerdown", 80, 0, 0));
+      expect(mounted.selectControl.position.z).toBe(
+        rest.z - CONTROL_TRAVEL.selectModel,
+      );
       await dispatch(mounted, pointerEvent("pointercancel", 80, 0, 0));
+      mounted.controlPhysics.setReducedMotion(true);
+      expect(mounted.selectControl.position.toArray()).toEqual(rest.toArray());
       await dispatch(mounted, pointerEvent("lostpointercapture", 80, 0, 0));
+      expect(mounted.selectControl.position.toArray()).toEqual(rest.toArray());
 
       await dispatch(mounted, pointerEvent("pointerdown", 81, 0, 0));
+      expect(mounted.selectControl.position.z).toBe(
+        rest.z - CONTROL_TRAVEL.selectModel,
+      );
       await dispatch(mounted, pointerEvent("lostpointercapture", 81, 0, 0));
+      expect(mounted.selectControl.position.toArray()).toEqual(rest.toArray());
 
       await dispatch(mounted, pointerEvent("pointerdown", 82, 0, 0));
+      expect(mounted.selectControl.position.z).toBe(
+        rest.z - CONTROL_TRAVEL.selectModel,
+      );
       window.dispatchEvent(new Event("blur"));
+      expect(mounted.selectControl.position.toArray()).toEqual(rest.toArray());
 
       expect(mounted.selectEnds.map((end) => end.reason)).toEqual([
         "cancel",
@@ -415,6 +519,8 @@ describe("click-wheel mounted R3F event seam", () => {
         "cancel",
       ]);
       expect(mounted.canvas.hasPointerCapture(82)).toBeFalse();
+      expect(mounted.selectControl.material).toBe(mounted.selectMaterial);
+      expect(mounted.selectMaterial.toJSON()).toEqual(materialSnapshot);
     } finally {
       await unmount(mounted);
     }
@@ -422,6 +528,7 @@ describe("click-wheel mounted R3F event seam", () => {
 
   test("Enter travel is scoped to the focused semantic application", async () => {
     const mounted = await mountSurface();
+    const rest = mounted.selectControl.position.clone();
     const application = document.createElement("div");
     application.setAttribute("role", "application");
     const unrelated = document.createElement("button");
@@ -438,10 +545,15 @@ describe("click-wheel mounted R3F event seam", () => {
         }),
       );
       expect(mounted.controlPhysics.selectPresses).toBe(1);
+      expect(mounted.selectControl.position.z).toBe(
+        rest.z - CONTROL_TRAVEL.selectModel,
+      );
       application.dispatchEvent(
         new KeyboardEvent("keyup", { key: "Enter", bubbles: true }),
       );
       expect(mounted.controlPhysics.selectReleases).toBe(1);
+      mounted.controlPhysics.setReducedMotion(true);
+      expect(mounted.selectControl.position.toArray()).toEqual(rest.toArray());
 
       unrelated.dispatchEvent(
         new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
@@ -454,6 +566,7 @@ describe("click-wheel mounted R3F event seam", () => {
       window.dispatchEvent(new Event("blur"));
       expect(mounted.controlPhysics.selectPresses).toBe(2);
       expect(mounted.controlPhysics.selectReleases).toBe(2);
+      expect(mounted.selectControl.position.toArray()).toEqual(rest.toArray());
     } finally {
       application.remove();
       unrelated.remove();

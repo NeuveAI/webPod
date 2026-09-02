@@ -3,8 +3,10 @@ import { BufferAttribute, BufferGeometry, Vector3 } from "three";
 import {
   frontShellNormalAt,
   frontShellOffsetAt,
+  WHEEL_OUTER_SEAM_WIDTH,
   type FrontSurfaceForm,
 } from "./front-surface";
+import { DEVICE_LAYOUT } from "./layout";
 
 export type FrontControlPatch = {
   readonly centerX: number;
@@ -167,6 +169,44 @@ export function createFrontControlPatchGeometry(
     }
   }
   return finishGeometry(attributes, indices);
+}
+
+/**
+ * The wheel backing is two seam strips, never a disk behind the controls.
+ *
+ * Select travels farther inward than the hairline floor offset. A disk spanning
+ * its face would therefore become the nearest rendered surface during a press
+ * and replace the button's plastic instead of revealing its axial travel.
+ */
+export function createWheelGapFloorGeometries(
+  form: FrontSurfaceForm,
+): {
+  readonly selectSeam: BufferGeometry;
+  readonly outerSeam: BufferGeometry;
+} {
+  const { wheel } = DEVICE_LAYOUT;
+  return {
+    selectSeam: createFrontControlPatchGeometry(
+      {
+        centerX: wheel.centerX,
+        centerY: wheel.centerY,
+        innerRadius: wheel.selectR,
+        outerRadius: wheel.selectLipR,
+        uvRadius: wheel.outerR,
+      },
+      form,
+    ),
+    outerSeam: createFrontControlPatchGeometry(
+      {
+        centerX: wheel.centerX,
+        centerY: wheel.centerY,
+        innerRadius: wheel.outerR - WHEEL_OUTER_SEAM_WIDTH,
+        outerRadius: wheel.outerR,
+        uvRadius: wheel.outerR,
+      },
+      form,
+    ),
+  };
 }
 
 /** Maximum axial duplication at one XY boundary; non-zero means a sidewall. */

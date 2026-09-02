@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
+import { CONTROL_TRAVEL } from "@webpod/device";
 import {
   expect,
   test,
@@ -105,6 +106,8 @@ test("production screen reveal and restrained Select press survive both finishes
     readonly state: State;
     readonly filename: string;
     readonly sha256: string;
+    readonly closeFilename: string;
+    readonly closeSha256: string;
   }> = [];
   const hashes = new Map<string, string>();
   const recordCapture = async (
@@ -117,9 +120,34 @@ test("production screen reveal and restrained Select press survive both finishes
       path: resolve(evidenceDirectory, filename),
       animations: "disabled",
     });
+    const canvasBox = await canvas.boundingBox();
+    if (canvasBox === null) throw new Error("device canvas has no bounds");
+    const closeFilename = `${colourway}-${pose}-${state}-select-close.png`;
+    const closeBytes = await page.screenshot({
+      path: resolve(evidenceDirectory, closeFilename),
+      animations: "disabled",
+      clip: {
+        x: canvasBox.x + canvasBox.width / 2 - 110,
+        y: canvasBox.y + canvasBox.height / 2 + 60,
+        width: 220,
+        height: 220,
+      },
+    });
     const sha256 = createHash("sha256").update(bytes).digest("hex");
+    const closeSha256 = createHash("sha256")
+      .update(closeBytes)
+      .digest("hex");
     hashes.set(`${colourway}-${pose}-${state}`, sha256);
-    captures.push({ colourway, pose, state, filename, sha256 });
+    hashes.set(`${colourway}-${pose}-${state}-select-close`, closeSha256);
+    captures.push({
+      colourway,
+      pose,
+      state,
+      filename,
+      sha256,
+      closeFilename,
+      closeSha256,
+    });
   };
 
   for (const colourway of ["black", "white"] as const) {
@@ -156,6 +184,19 @@ test("production screen reveal and restrained Select press survive both finishes
       expect(held).toBeDefined();
       expect(released).toBe(rest);
       expect(held).not.toBe(rest);
+      const closeRest = hashes.get(
+        `${colourway}-${pose}-rest-select-close`,
+      );
+      const closeHeld = hashes.get(
+        `${colourway}-${pose}-held-select-close`,
+      );
+      const closeReleased = hashes.get(
+        `${colourway}-${pose}-released-select-close`,
+      );
+      expect(closeRest).toBeDefined();
+      expect(closeHeld).toBeDefined();
+      expect(closeReleased).toBe(closeRest);
+      expect(closeHeld).not.toBe(closeRest);
     }
   }
 
@@ -174,7 +215,7 @@ test("production screen reveal and restrained Select press survive both finishes
         ],
         syntheticControlPose: false,
         controlQueryParameter: false,
-        selectTravelMm: 0.12,
+        selectTravelMm: CONTROL_TRAVEL.selectMm,
         selectMotion: "device-local Z translation only",
         selectMaterialMutation: false,
         selectGeometryMutation: false,

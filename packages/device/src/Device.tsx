@@ -35,7 +35,11 @@ import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeom
 
 import { frontCoreDepth, tessellateVerticalCrown } from "./curved-shell";
 import { useControlPhysics } from "./ControlPhysicsScope";
-import { createFrontControlPatchGeometry } from "./front-control-geometry";
+import { AxialSelectControl } from "./AxialSelectControl";
+import {
+  createFrontControlPatchGeometry,
+  createWheelGapFloorGeometries,
+} from "./front-control-geometry";
 import {
   createRearShellGeometry,
   frontShellPlan,
@@ -150,7 +154,6 @@ export function Device({
   const invalidate = useThree((state) => state.invalidate);
   const controlPhysics = useControlPhysics();
   const wheelAssemblyRef = useRef<Group>(null);
-  const selectRef = useRef<Mesh>(null);
   // A getter, not a value: r3f swaps the camera on some prop changes and the
   // viewport changes on every resize, so the handle must read both at the
   // moment it projects rather than capture them (see `screen-mesh.ts`).
@@ -330,7 +333,12 @@ export function Device({
   ]);
   useEffect(() => () => frontGeometry.dispose(), [frontGeometry]);
 
-  const { ringGeometry, selectGeometry, wheelGapGeometry } = useMemo(() => {
+  const {
+    ringGeometry,
+    selectGeometry,
+    selectSeamGeometry,
+    outerSeamGeometry,
+  } = useMemo(() => {
     const controlForm = {
       seamWidth: form.seamWidth,
       bodyCrown: form.bodyCrown,
@@ -339,6 +347,7 @@ export function Device({
       bottomEdgeCrown: form.bottomEdgeCrown,
       edgeCrownExtent: form.edgeCrownExtent,
     };
+    const gapFloor = createWheelGapFloorGeometries(controlForm);
     return {
       ringGeometry: createFrontControlPatchGeometry(
         {
@@ -360,16 +369,8 @@ export function Device({
         },
         controlForm,
       ),
-      wheelGapGeometry: createFrontControlPatchGeometry(
-        {
-          centerX: wheel.centerX,
-          centerY: wheel.centerY,
-          innerRadius: 0,
-          outerRadius: wheel.outerR,
-          uvRadius: wheel.outerR,
-        },
-        controlForm,
-      ),
+      selectSeamGeometry: gapFloor.selectSeam,
+      outerSeamGeometry: gapFloor.outerSeam,
     };
   }, [
     form.seamWidth,
@@ -383,23 +384,16 @@ export function Device({
     () => () => {
       ringGeometry.dispose();
       selectGeometry.dispose();
-      wheelGapGeometry.dispose();
+      selectSeamGeometry.dispose();
+      outerSeamGeometry.dispose();
     },
-    [ringGeometry, selectGeometry, wheelGapGeometry],
+    [outerSeamGeometry, ringGeometry, selectGeometry, selectSeamGeometry],
   );
   useEffect(() => {
     const assembly = wheelAssemblyRef.current;
     if (assembly === null) return;
     return controlPhysics?.attachWheel(assembly);
   }, [controlPhysics]);
-  useEffect(
-    () => {
-      const select = selectRef.current;
-      if (select === null) return;
-      return controlPhysics?.attachSelect(select);
-    },
-    [controlPhysics],
-  );
 
   const glassGeometry = useMemo(() => {
     const shape = roundedRectShape(
@@ -801,24 +795,43 @@ export function Device({
         />
       </mesh>
 
-      {/* The zero-wall floor belongs to the fixed faceplate and remains behind
-          the two physical hairlines while the rigid wheel rocks above it. */}
-      <mesh
-        name="device-wheel-gap-floor"
-        geometry={wheelGapGeometry}
-        position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}
-      >
-        <meshPhysicalMaterial
-          name={isBlack ? "wheel-gap-black" : "wheel-gap-white"}
-          {...spread(
-            isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
-          )}
-          {...studioEnvironmentProps(
-            isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
-            studio,
-          )}
-        />
-      </mesh>
+      {/* The fixed floor exists only under the two physical hairlines. A full
+          backing disk would sit in front of Select as soon as the separate
+          button travels inward, visually replacing its plastic with the well. */}
+      <group name="device-wheel-gap-floor">
+        <mesh
+          name="device-select-seam-floor"
+          geometry={selectSeamGeometry}
+          position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}
+        >
+          <meshPhysicalMaterial
+            name={isBlack ? "wheel-gap-black" : "wheel-gap-white"}
+            {...spread(
+              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
+            )}
+            {...studioEnvironmentProps(
+              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
+              studio,
+            )}
+          />
+        </mesh>
+        <mesh
+          name="device-outer-seam-floor"
+          geometry={outerSeamGeometry}
+          position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}
+        >
+          <meshPhysicalMaterial
+            name={isBlack ? "wheel-gap-black" : "wheel-gap-white"}
+            {...spread(
+              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
+            )}
+            {...studioEnvironmentProps(
+              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
+              studio,
+            )}
+          />
+        </mesh>
+      </group>
 
       {/* The ring and its ink are one rigid plastic disc. Its group origin is
           the wheel's flush surface centre, so contact changes only one tiny
@@ -859,9 +872,7 @@ export function Device({
       {/* Select is a separate matte plastic surface patch. Its crown, top plane
           and normals match the wheel exactly; only the one-pixel assembly gap
           and independent material identify the part. */}
-      <mesh
-        ref={selectRef}
-        name="device-select"
+      <AxialSelectControl
         geometry={selectGeometry}
         position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}
       >
@@ -871,7 +882,7 @@ export function Device({
           {...spread(selectMaterial)}
           {...studioEnvironmentProps(selectMaterial, studio)}
         />
-      </mesh>
+      </AxialSelectControl>
 
       {/* ⚑ The W6 boundary. §12.3: MeshBasicMaterial, toneMapped false. */}
       <mesh

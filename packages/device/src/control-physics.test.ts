@@ -549,6 +549,9 @@ describe("rigid physical click-wheel tilt", () => {
       "apps/web/src/routes/[_]spike.device.tsx",
     ).text();
     const device = await Bun.file("packages/device/src/Device.tsx").text();
+    const axialSelect = await Bun.file(
+      "packages/device/src/AxialSelectControl.tsx",
+    ).text();
     const renderWheel = physics.slice(
       physics.indexOf("#renderWheel(): void"),
       physics.indexOf("#renderSelect(): void"),
@@ -586,13 +589,17 @@ describe("rigid physical click-wheel tilt", () => {
     expect(
       await Bun.file("packages/device/src/wheel-readability.ts").exists(),
     ).toBeFalse();
-    expect(device).toContain("controlPhysics?.attachSelect(select)");
+    expect(axialSelect).toContain("controlPhysics?.attachSelect(select)");
+    const selectChild = axialSelect.slice(
+      axialSelect.indexOf("<mesh ref={selectRef}"),
+      axialSelect.indexOf("{children}"),
+    );
+    expect(selectChild).not.toContain("position=");
     expect(physics).not.toMatch(
       /deformSelectSurface|position\.array|normal\.array|Mesh(?:Basic|Standard|Physical)Material|new Color|opacity|emissive|onBeforeCompile/i,
     );
-    const selectMesh = device.slice(
-      device.indexOf('name="device-select"'),
-      device.indexOf("{/* ⚑ The W6 boundary"),
+    const selectMesh = axialSelect.slice(
+      axialSelect.indexOf('name="device-select"'),
     );
     expect(selectMesh).not.toMatch(/pressed|activeMaterial|opacity|emissive|shader/i);
   });
