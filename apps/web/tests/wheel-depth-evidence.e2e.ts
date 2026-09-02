@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import {
@@ -11,10 +11,6 @@ import {
 const evidenceDirectory = resolve(
   process.env["W9A_DEPTH_EVIDENCE_DIR"] ??
     resolve(import.meta.dirname, "test-results/w9a-wheel-depth"),
-);
-const rejectedEvidenceDirectory = resolve(
-  import.meta.dirname,
-  "../../../docs/workstreams/002-implementation-spine/evidence/w9a-depth-only",
 );
 
 type Colourway = "black" | "white";
@@ -71,6 +67,18 @@ type DifferenceShape = {
   readonly height: number;
   readonly principalAspect: number;
 };
+
+/** Immutable metrics from the owner-rejected, committed quarter-view pair. */
+const REJECTED_WHITE_QUARTER = Object.freeze({
+  restSha256: "797e7037171e7f64610de4bfc25457d605c5e1fabe167f5233df9cd7d01f1104",
+  heldSha256: "f2d5f92a2ac6637ed34fe6547622eff487e3b1475e695982b3212c6c6fc18a79",
+  shape: Object.freeze({
+    changedPixels: 3355,
+    width: 67,
+    height: 100,
+    principalAspect: 1.7435991261850328,
+  }),
+});
 
 async function differenceShape(
   page: Page,
@@ -262,7 +270,6 @@ test("production pointer proves depth-only wheel geometry in both finishes and p
     readonly colourway: Colourway;
     readonly pose: Pose;
     readonly corrected: DifferenceShape;
-    readonly rejected: DifferenceShape;
   }> = [];
   for (const colourway of ["black", "white"] as const) {
     for (const pose of ["front", "three-quarter"] as const) {
@@ -271,16 +278,9 @@ test("production pointer proves depth-only wheel geometry in both finishes and p
       if (rest === undefined || held === undefined) {
         throw new Error("corrected wheel evidence is incomplete");
       }
-      const rejectedRest = await readFile(
-        resolve(rejectedEvidenceDirectory, `${colourway}-${pose}-rest.png`),
-      );
-      const rejectedHeld = await readFile(
-        resolve(rejectedEvidenceDirectory, `${colourway}-${pose}-held.png`),
-      );
       const corrected = await differenceShape(page, rest, held);
-      const rejected = await differenceShape(page, rejectedRest, rejectedHeld);
       expect(corrected.changedPixels).toBeGreaterThan(0);
-      visualComparisons.push({ colourway, pose, corrected, rejected });
+      visualComparisons.push({ colourway, pose, corrected });
     }
   }
   const rejectedWhiteQuarter = visualComparisons.find(
@@ -291,10 +291,10 @@ test("production pointer proves depth-only wheel geometry in both finishes and p
     throw new Error("white three-quarter comparison is absent");
   }
   expect(rejectedWhiteQuarter.corrected.changedPixels).toBeLessThan(
-    rejectedWhiteQuarter.rejected.changedPixels * 0.8,
+    REJECTED_WHITE_QUARTER.shape.changedPixels * 0.8,
   );
   expect(rejectedWhiteQuarter.corrected.principalAspect).toBeLessThan(
-    rejectedWhiteQuarter.rejected.principalAspect,
+    REJECTED_WHITE_QUARTER.shape.principalAspect,
   );
   await writeFile(
     resolve(evidenceDirectory, "summary.json"),
@@ -315,6 +315,7 @@ test("production pointer proves depth-only wheel geometry in both finishes and p
         wheelTravelMm: 0.08,
         visualComparison: {
           rejectedBaseline: "evidence/w9a-depth-only",
+          rejectedWhiteQuarter: REJECTED_WHITE_QUARTER,
           thresholdLuma: 0.75,
           visualComparisons,
         },
