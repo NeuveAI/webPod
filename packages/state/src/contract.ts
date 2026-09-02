@@ -350,7 +350,7 @@ export type NavigationRoute =
   | { readonly kind: 'genre-tracks'; readonly genreKey: string }
   | { readonly kind: 'stations' }
   | { readonly kind: 'search-entry' }
-  | { readonly kind: 'search-results'; readonly query: string }
+  | { readonly kind: 'search-results'; readonly query: string; readonly trackKeys: readonly string[] }
   | { readonly kind: 'now-playing' }
   | { readonly kind: 'status'; readonly state: 'loading' | 'empty' | 'error' | 'signed-out' }
 

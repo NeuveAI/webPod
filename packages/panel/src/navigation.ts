@@ -190,11 +190,15 @@ function tracksForRoute(route: NavigationRoute, source: NavigationDataSource): r
   if (route.kind === 'album-tracks') return source.tracksForAlbum(route.albumKey)
   if (route.kind === 'playlist-tracks') return source.tracksForPlaylist(route.playlistKey)
   if (route.kind === 'genre-tracks') return source.tracksForGenre(route.genreKey)
+  if (route.kind === 'search-results') {
+    const keys = new Set(route.trackKeys)
+    return source.songs.filter((track) => keys.has(track.key))
+  }
   return source.songs
 }
 
 function searchResultsFrame(query: string, tracks: readonly TrackRef[]): ScreenFrame {
-  return listFrame('S12', query === '' ? 'All Songs' : query, { kind: 'search-results', query }, tracks.map(trackRow))
+  return listFrame('S12', query === '' ? 'All Songs' : query, { kind: 'search-results', query, trackKeys: tracks.map((track) => track.key) }, tracks.map(trackRow))
 }
 
 function nowPlayingFrame(): ScreenFrame {
