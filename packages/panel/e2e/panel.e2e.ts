@@ -326,6 +326,28 @@ test('a 120-row fixture is rendered through TanStack Virtual', async ({ page }) 
   expect(await list.locator('.wp-track-row').count()).toBeLessThan(30)
 })
 
+test('wheel navigation moves one list-owned indicator and never decorates the preview', async ({ page }) => {
+  const panel = await openScreen(page, 's03')
+  await expect(panel.locator('.wp-list-scroll')).toHaveCount(0)
+  await expect(panel.locator('.wp-menu-preview__rail')).toHaveCount(0)
+
+  await panel.press('Enter')
+  const indicator = panel.locator('.wp-album-list > .wp-list-scroll')
+  await expect(indicator).toHaveCount(1)
+  await expect(panel.locator('.wp-album-preview .wp-list-scroll')).toHaveCount(0)
+  await expect(indicator).toHaveAttribute('data-total-rows', '11')
+  await expect(indicator).toHaveAttribute('data-visible-rows', '8')
+  await expect(indicator).toHaveAttribute('data-window-start', '0')
+  await expect(indicator).toHaveAttribute('data-thumb-size', '72.727%')
+
+  for (let detent = 0; detent < 9; detent += 1) {
+    await panel.dispatchEvent('wheel', { deltaY: 40, deltaMode: 0 })
+  }
+
+  await expect(indicator).toHaveAttribute('data-window-start', '2')
+  await expect(indicator).toHaveAttribute('data-thumb-offset', '18.182%')
+})
+
 test('the virtual list sustains a frame-paced scroll under mid-tier CPU throttling', async ({ page }) => {
   const session = await page.context().newCDPSession(page)
   await session.send('Emulation.setCPUThrottlingRate', { rate: 4 })

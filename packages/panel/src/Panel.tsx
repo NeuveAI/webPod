@@ -35,6 +35,7 @@ import {
 import { acquireAnnouncer, acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import menuArtworkUrl from './assets/music-menu-art.png'
 import nowPlayingArtworkUrl from './assets/now-playing-art.png'
+import { ListScrollIndicator } from './list-scroll-indicator'
 import './panel.css'
 
 const nowPlayingModeAtom = atom<NowPlayingMode>('volume')
@@ -213,7 +214,7 @@ function select(frame: ScreenFrame | null, push: (frame: ScreenFrame) => void, l
 
 function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone | null, visibleRows: number, actor: 'human' | 'agent', panelId: string) {
   if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
-  if (frame.screenId === 'S08') return <AlbumTracks frame={frame} state={state} />
+  if (frame.screenId === 'S08') return <AlbumTracks frame={frame} state={state} visibleRows={visibleRows} />
   if (frame.screenId === 'S13') return <NowPlaying state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} />
   return <PanelError message="This screen is not part of the MVP preview." />
 }
@@ -252,30 +253,32 @@ function MainMenu({ frame, state, visibleRows, panelId }: { readonly frame: Scre
     <div className="wp-screen">
       <TitleBar title={frame.title} />
       <div className="wp-menu-split">
-        <ol className="wp-menu-list" aria-label="Music categories" role="listbox">
-          {windowedRows.map((row) => (
-            <li
-              id={`${panelId}-menu-${row.index}`}
-              role="option"
-              aria-selected={row.index === frame.highlightIndex}
-              data-empty={state === 'empty' && libraryCountLabels.has(row.label) ? 'true' : undefined}
-              data-success={success?.screenId === 'S03' && row.label === 'Playlists' ? 'true' : undefined}
-              data-unavailable={(state === 'offline' && (row.label === 'Radio' || row.label === 'Search')) || (state === 'permission-denied' && row.label === 'Radio') ? 'true' : undefined}
-              key={row.index}
-              className="wp-menu-row"
-              aria-current={row.index === frame.highlightIndex ? 'true' : undefined}
-            >
-              <span>{row.label}</span>
-              <span className="wp-row-meta">{state === 'error' && row.sublabel !== null ? '—' : state === 'loading' && row.sublabel !== null ? '…' : state === 'empty' && libraryCountLabels.has(row.label) ? '0' : row.sublabel}</span>
-              <span className="wp-menu-row__tail" aria-hidden="true">{state === 'offline' && (row.label === 'Radio' || row.label === 'Search') ? '☁︎' : state === 'permission-denied' && row.label === 'Radio' ? '🔒' : <PanelIcon name="chevron" />}</span>
-            </li>
-          ))}
-        </ol>
+        <div className="wp-menu-list-pane">
+          <ol className="wp-menu-list" aria-label="Music categories" role="listbox">
+            {windowedRows.map((row) => (
+              <li
+                id={`${panelId}-menu-${row.index}`}
+                role="option"
+                aria-selected={row.index === frame.highlightIndex}
+                data-empty={state === 'empty' && libraryCountLabels.has(row.label) ? 'true' : undefined}
+                data-success={success?.screenId === 'S03' && row.label === 'Playlists' ? 'true' : undefined}
+                data-unavailable={(state === 'offline' && (row.label === 'Radio' || row.label === 'Search')) || (state === 'permission-denied' && row.label === 'Radio') ? 'true' : undefined}
+                key={row.index}
+                className="wp-menu-row"
+                aria-current={row.index === frame.highlightIndex ? 'true' : undefined}
+              >
+                <span>{row.label}</span>
+                <span className="wp-row-meta">{state === 'error' && row.sublabel !== null ? '—' : state === 'loading' && row.sublabel !== null ? '…' : state === 'empty' && libraryCountLabels.has(row.label) ? '0' : row.sublabel}</span>
+                <span className="wp-menu-row__tail" aria-hidden="true">{state === 'offline' && (row.label === 'Radio' || row.label === 'Search') ? '☁︎' : state === 'permission-denied' && row.label === 'Radio' ? '🔒' : <PanelIcon name="chevron" />}</span>
+              </li>
+            ))}
+          </ol>
+          <ListScrollIndicator totalRows={baseRows.length} visibleRows={visibleRows} windowStart={frame.windowStart} />
+        </div>
         <div className="wp-menu-preview" aria-label={`${selected?.label ?? 'Music'} preview`} role="group">
           <Artwork state={state === 'loading' || state === 'error' ? 'loading' : 'ready'} variant="menu" />
           <strong>{state === 'error' ? "Couldn't load your library." : selected?.sublabel === null || selected === null ? selected?.label ?? 'Music' : `${selected.sublabel} ${selected.label.toLocaleLowerCase()}`}</strong>
           <span>{state === 'error' ? 'Retry' : 'Rotate to browse'}</span>
-          <span className="wp-menu-preview__rail" aria-hidden="true"><span className="wp-scroll-track"><i /></span></span>
           {state === 'offline' ? <small>Cached library</small> : null}
           {state === 'agent-active' ? <small className="wp-agent-note">Assistant browsing</small> : null}
         </div>
@@ -289,11 +292,11 @@ function MainMenu({ frame, state, visibleRows, panelId }: { readonly frame: Scre
   )
 }
 
-function AlbumTracks({ frame, state }: { readonly frame: ScreenFrame; readonly state: PanelState }) {
+function AlbumTracks({ frame, state, visibleRows }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number }) {
   const success = useLibrarySuccess('S08', frame.title, state)
   const rows = state === 'loading'
-    ? Array.from({ length: 8 }, (_, index) => index)
-    : frame.rows.slice(frame.windowStart, frame.windowStart + 8)
+    ? Array.from({ length: visibleRows }, (_, index) => index)
+    : frame.rows.slice(frame.windowStart, frame.windowStart + visibleRows)
   return (
     <section className="wp-screen" aria-label="Album tracks" aria-busy={state === 'loading'} data-success-object={success?.objectKey} data-library-total={success?.libraryTotal}>
       <TitleBar title={frame.title} index={state === 'offline' ? 'Cached metadata' : undefined} />
@@ -301,8 +304,9 @@ function AlbumTracks({ frame, state }: { readonly frame: ScreenFrame; readonly s
         <div className="wp-album-layout">
           <div className="wp-album-list">
             {state === 'loading' || state === 'error' || frame.rows.length <= 100
-              ? <StaticTrackList rows={state === 'error' ? Array.from({ length: 8 }, (_, index) => index) : rows} frame={frame} state={state} success={success !== null} />
+              ? <StaticTrackList rows={state === 'error' ? Array.from({ length: visibleRows }, (_, index) => index) : rows} frame={frame} state={state} success={success !== null} />
               : <VirtualTrackList frame={frame} state={state} />}
+            <ListScrollIndicator totalRows={frame.rows.length} visibleRows={visibleRows} windowStart={frame.windowStart} />
           </div>
           <div className="wp-album-preview" role="group" aria-label="Album details">
             <Artwork state={state === 'loading' || state === 'error' ? 'loading' : 'ready'} />

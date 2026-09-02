@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { currentScreenAtom, deviceStore, resetStackActionAtom } from '@webpod/state'
 
 import { Panel } from './Panel'
-import { nowPlayingFrame } from './model'
+import { albumTracksFrame, mainMenuFrame, nowPlayingFrame } from './model'
 
 describe('the bare DOM panel', () => {
   test('mounts as a bare semantic DOM surface', () => {
@@ -32,7 +32,7 @@ describe('the bare DOM panel', () => {
     expect(css).toContain('block-size: 204px')
     expect(css).toContain('block-size: 26px')
     const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
-    expect(source).toMatch(/Array\.from\(\{ length: 8 \}/)
+    expect(source).toMatch(/Array\.from\(\{ length: visibleRows \}/)
   })
 
   test('locks the authored iPod screen hierarchy and split-panel rhythm', () => {
@@ -53,13 +53,28 @@ describe('the bare DOM panel', () => {
     expect(splitRule).toMatch(/block-size:\s*183px/)
     expect(splitRule).toMatch(/min-block-size:\s*0/)
     expect(listRule).toMatch(/block-size:\s*100%/)
-    expect(listRule).toMatch(/overflow-y:\s*auto/)
+    expect(listRule).toMatch(/overflow:\s*hidden/)
     expect(listRule).toMatch(/background:\s*var\(--wp-bg\)/)
     expect(previewRule).toMatch(/block-size:\s*100%/)
     expect(previewRule).toMatch(/overflow:\s*clip/)
     expect(css).toMatch(/\.wp-menu-row\s*\{[^}]*block-size:\s*21px/s)
     expect(css).toMatch(/\.wp-menu-row\s*\{[^}]*font-size:\s*11px/s)
     expect(css).not.toMatch(/data-density=[^}]+\.wp-menu-(?:list|row)/s)
+  })
+
+  test('owns scroll indication in list panes and never in the preview pane', () => {
+    deviceStore.set(resetStackActionAtom, [mainMenuFrame()])
+    const main = renderToStaticMarkup(<Panel state="ready" />)
+    expect(main).not.toContain('wp-list-scroll')
+    expect(main).not.toContain('wp-menu-preview__rail')
+
+    deviceStore.set(resetStackActionAtom, [albumTracksFrame()])
+    const album = renderToStaticMarkup(<Panel state="ready" />)
+    expect(album).toMatch(/class="wp-album-list">[\s\S]*class="wp-list-scroll"/)
+    expect(album).not.toMatch(/class="wp-album-preview"[\s\S]*class="wp-list-scroll"/)
+
+    const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
+    expect(source).not.toContain('wp-menu-preview__rail')
   })
 
   test('never authors final panel text below eleven pixels', () => {
