@@ -99,6 +99,7 @@ import {
   type DeviceOrientationPointerCapture,
 } from "./orientation-grab";
 import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
+import { DEVICE_TOP_CONTROLS } from "./top-controls";
 import {
   effectiveStudioEnvironmentIntensity,
   useStudioEnvironmentSnapshot,
@@ -535,36 +536,64 @@ export function Device({
   // The top controls are separate solids on the steel/plastic seam. Their
   // protrusion and recess remain visible when the full model rotates; no
   // front-facing decal can survive the product's edge and flip interactions.
-  const holdRecessGeometry = useMemo(
-    () => new RoundedBoxGeometry(52, 2.2, 15, 4, 2.8),
-    [],
-  );
+  const holdRecessGeometry = useMemo(() => {
+    const control = DEVICE_TOP_CONTROLS.holdRecess;
+    return new RoundedBoxGeometry(
+      control.width,
+      control.height,
+      control.depth,
+      control.segments,
+      control.radius,
+    );
+  }, []);
   useEffect(() => () => holdRecessGeometry.dispose(), [holdRecessGeometry]);
-  const holdIndicatorGeometry = useMemo(
-    () => new RoundedBoxGeometry(36, 1.2, 8.5, 4, 1.8),
-    [],
-  );
+  const holdIndicatorGeometry = useMemo(() => {
+    const control = DEVICE_TOP_CONTROLS.holdIndicator;
+    return new RoundedBoxGeometry(
+      control.width,
+      control.height,
+      control.depth,
+      control.segments,
+      control.radius,
+    );
+  }, []);
   useEffect(
     () => () => holdIndicatorGeometry.dispose(),
     [holdIndicatorGeometry],
   );
-  const holdSliderGeometry = useMemo(
-    () => new RoundedBoxGeometry(20, 2.2, 10, 4, 2.1),
-    [],
-  );
+  const holdSliderGeometry = useMemo(() => {
+    const control = DEVICE_TOP_CONTROLS.holdSlider;
+    return new RoundedBoxGeometry(
+      control.width,
+      control.height,
+      control.depth,
+      control.segments,
+      control.radius,
+    );
+  }, []);
   useEffect(() => () => holdSliderGeometry.dispose(), [holdSliderGeometry]);
-  const headphoneRimGeometry = useMemo(
-    () => new TorusGeometry(7.1, 1.8, 24, 64),
-    [],
-  );
+  const headphoneRimGeometry = useMemo(() => {
+    const control = DEVICE_TOP_CONTROLS.headphoneRim;
+    return new TorusGeometry(
+      control.majorRadius,
+      control.tubeRadius,
+      control.radialSegments,
+      control.tubularSegments,
+    );
+  }, []);
   useEffect(
     () => () => headphoneRimGeometry.dispose(),
     [headphoneRimGeometry],
   );
-  const headphoneWellGeometry = useMemo(
-    () => new CylinderGeometry(5.8, 5.8, 1.4, 64),
-    [],
-  );
+  const headphoneWellGeometry = useMemo(() => {
+    const control = DEVICE_TOP_CONTROLS.headphoneWell;
+    return new CylinderGeometry(
+      control.radius,
+      control.radius,
+      control.height,
+      control.radialSegments,
+    );
+  }, []);
   useEffect(
     () => () => headphoneWellGeometry.dispose(),
     [headphoneWellGeometry],
@@ -696,7 +725,11 @@ export function Device({
   );
 
   return (
-    <ViewerLitDeviceFrame orientation={orientation} lightRig={lightRig}>
+    <ViewerLitDeviceFrame
+      orientation={orientation}
+      lightRig={lightRig}
+      form={form}
+    >
       {/* §5.2 — the mirror-polished back plate, uncut. */}
       <mesh
         name="device-steel-back"
@@ -760,7 +793,11 @@ export function Device({
       <mesh
         name="device-hold-recess"
         geometry={holdRecessGeometry}
-        position={[-96, body.height / 2 + 0.4, 0]}
+        position={[
+          DEVICE_TOP_CONTROLS.holdRecess.position[0],
+          DEVICE_TOP_CONTROLS.holdRecess.position[1],
+          DEVICE_TOP_CONTROLS.holdRecess.position[2],
+        ]}
       >
         <meshPhysicalMaterial
           name="hold-recess"
@@ -771,7 +808,11 @@ export function Device({
       <mesh
         name="device-hold-indicator"
         geometry={holdIndicatorGeometry}
-        position={[-96, body.height / 2 + 1.35, 0]}
+        position={[
+          DEVICE_TOP_CONTROLS.holdIndicator.position[0],
+          DEVICE_TOP_CONTROLS.holdIndicator.position[1],
+          DEVICE_TOP_CONTROLS.holdIndicator.position[2],
+        ]}
       >
         <meshPhysicalMaterial
           name="hold-indicator"
@@ -782,7 +823,11 @@ export function Device({
       <mesh
         name="device-hold-slider"
         geometry={holdSliderGeometry}
-        position={[-105, body.height / 2 + 2.15, 0]}
+        position={[
+          DEVICE_TOP_CONTROLS.holdSlider.position[0],
+          DEVICE_TOP_CONTROLS.holdSlider.position[1],
+          DEVICE_TOP_CONTROLS.holdSlider.position[2],
+        ]}
       >
         <meshPhysicalMaterial
           name={isBlack ? "hold-slider-black" : "hold-slider-white"}
@@ -796,7 +841,11 @@ export function Device({
       <mesh
         name="device-headphone-rim"
         geometry={headphoneRimGeometry}
-        position={[108, body.height / 2 + 1.45, 0]}
+        position={[
+          DEVICE_TOP_CONTROLS.headphoneRim.position[0],
+          DEVICE_TOP_CONTROLS.headphoneRim.position[1],
+          DEVICE_TOP_CONTROLS.headphoneRim.position[2],
+        ]}
         rotation={[-Math.PI / 2, 0, 0]}
       >
         <meshPhysicalMaterial
@@ -808,7 +857,11 @@ export function Device({
       <mesh
         name="device-headphone-well"
         geometry={headphoneWellGeometry}
-        position={[108, body.height / 2 + 1.25, 0]}
+        position={[
+          DEVICE_TOP_CONTROLS.headphoneWell.position[0],
+          DEVICE_TOP_CONTROLS.headphoneWell.position[1],
+          DEVICE_TOP_CONTROLS.headphoneWell.position[2],
+        ]}
       >
         <meshPhysicalMaterial
           name="headphone-well"

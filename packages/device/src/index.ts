@@ -33,11 +33,28 @@ export {
 } from "./DeviceCanvas";
 export {
   applyDeviceCameraFit,
+  DEFAULT_DEVICE_CAMERA_SAFE_MARGIN_RATIO,
+  DEVICE_CAMERA_PITCH_OVERSHOOT_DEG,
   fitPerspectiveCameraToBounds,
+  fitPerspectiveCameraToRotationalEnvelope,
   projectedBoundsExtent,
+  projectedBoundsMetrics,
+  projectedPointsMetrics,
   type DeviceCameraFit,
   type DeviceFitViewport,
 } from "./camera-fit";
+export {
+  completeDeviceEnvelope,
+  DEFAULT_DEVICE_ENVELOPE,
+  deviceEnvelopeBounds,
+  type DeviceEnvelope,
+} from "./device-envelope";
+export {
+  DEFAULT_DEVICE_TOP_CONTROL_BOUNDS,
+  DEVICE_TOP_CONTROLS,
+  deviceTopControlBounds,
+  type DeviceTopControlBounds,
+} from "./top-controls";
 export {
   DEFAULT_STUDIO_ENVIRONMENT,
   StudioEnvironment,
@@ -46,6 +63,7 @@ export {
 export {
   clampDeviceOrientation,
   DEVICE_FRONT_VISIBILITY_THRESHOLD,
+  DEVICE_ORIENTATION_LIMITS,
   DEVICE_ORIENTATION_PRESETS,
   deviceFrontVisibility,
   deviceOrientationToRotation,
@@ -127,7 +145,10 @@ export {
   type LightRigParams,
   type LightContribution,
 } from "./light-rig";
-export { DEVICE_MODEL_NAME } from "./ViewerLitDeviceFrame";
+export {
+  DEVICE_CONTENT_NAME,
+  DEVICE_MODEL_NAME,
+} from "./ViewerLitDeviceFrame";
 export {
   createRoomEnvMap,
   DEFAULT_ENV_ROOM,

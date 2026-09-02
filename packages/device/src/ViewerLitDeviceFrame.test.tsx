@@ -15,9 +15,11 @@ import {
 } from "./light-rig";
 import {
   aimAreaLightAtTarget,
+  DEVICE_CONTENT_NAME,
   DEVICE_MODEL_NAME,
   ViewerLitDeviceFrame,
 } from "./ViewerLitDeviceFrame";
+import { DEFAULT_DEVICE_ENVELOPE } from "./device-envelope";
 import {
   EDGE_DEVICE_ORIENTATION,
   FRONT_DEVICE_ORIENTATION,
@@ -36,6 +38,9 @@ type LightElementProps = {
 type GroupElementProps = {
   readonly name: string;
   readonly rotation: readonly [number, number, number];
+  readonly position?: readonly [number, number, number];
+  readonly scale?: readonly [number, number, number];
+  readonly children?: unknown;
 };
 
 function frameChildren(face: "front" | "back") {
@@ -118,6 +123,39 @@ describe("viewer-lit device scene frame", () => {
 
     expect(frontKey.props.position).toEqual(edgeKey.props.position);
     expect(edgeModel.props.rotation[1]).toBeCloseTo(-Math.PI / 2, 8);
+    expect(edgeModel.props.position).toBeUndefined();
+    expect(edgeModel.props.scale).toBeUndefined();
+  });
+
+  test("rotates one root around the complete immutable enclosure center", () => {
+    for (const orientation of [
+      FRONT_DEVICE_ORIENTATION,
+      EDGE_DEVICE_ORIENTATION,
+      REAR_DEVICE_ORIENTATION,
+      { pitchDeg: 45, yawDeg: 137, rollDeg: 18 },
+    ]) {
+      const frame = ViewerLitDeviceFrame({
+        orientation,
+        lightRig: DEFAULT_LIGHT_RIG,
+        children: null,
+      });
+      const children = Children.toArray(frame.props.children);
+      const model = requireElement<GroupElementProps>(children[2], "group");
+      const content = requireElement<GroupElementProps>(
+        Children.only(model.props.children),
+        "group",
+      );
+
+      expect(model.props.name).toBe(DEVICE_MODEL_NAME);
+      expect(model.props.position).toBeUndefined();
+      expect(model.props.scale).toBeUndefined();
+      expect(content.props.name).toBe(DEVICE_CONTENT_NAME);
+      expect(content.props.position).toEqual([
+        -DEFAULT_DEVICE_ENVELOPE.center[0],
+        -DEFAULT_DEVICE_ENVELOPE.center[1],
+        -DEFAULT_DEVICE_ENVELOPE.center[2],
+      ]);
+    }
   });
 
   test("uses broad softbox emitters rather than point highlights", () => {

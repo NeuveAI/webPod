@@ -66,6 +66,14 @@ export const DEVICE_ORIENTATION_PRESETS: Record<
 
 export const DEVICE_FRONT_VISIBILITY_THRESHOLD = 0.18;
 
+/** One limit contract shared by pointer input, camera fit, and motion tests. */
+export const DEVICE_ORIENTATION_LIMITS = Object.freeze({
+  pitchMin: -45,
+  pitchMax: 45,
+  rollMin: -18,
+  rollMax: 18,
+});
+
 export function deviceOrientationToRotation(
   orientation: DeviceOrientation,
 ): readonly [number, number, number] {
@@ -141,14 +149,14 @@ export function clampDeviceOrientation(
   return {
     pitchDeg: clamp(
       orientation.pitchDeg,
-      limits.pitchMin ?? -45,
-      limits.pitchMax ?? 45,
+      limits.pitchMin ?? DEVICE_ORIENTATION_LIMITS.pitchMin,
+      limits.pitchMax ?? DEVICE_ORIENTATION_LIMITS.pitchMax,
     ),
     yawDeg: wrapDegrees(orientation.yawDeg),
     rollDeg: clamp(
       orientation.rollDeg,
-      limits.rollMin ?? -18,
-      limits.rollMax ?? 18,
+      limits.rollMin ?? DEVICE_ORIENTATION_LIMITS.rollMin,
+      limits.rollMax ?? DEVICE_ORIENTATION_LIMITS.rollMax,
     ),
   };
 }

@@ -20,21 +20,28 @@
  */
 import { Canvas, useThree } from "@react-three/fiber";
 import { createContext, useLayoutEffect, useMemo, type ReactNode } from "react";
-import { Box3, PerspectiveCamera, Vector3 } from "three";
+import { Box3, PerspectiveCamera } from "three";
 
 import { Device, type DeviceProps } from "./Device";
 import { CanvasPixelDensity } from "./CanvasPixelDensity";
 import { ControlPhysicsScope } from "./ControlPhysicsScope";
 import {
   applyDeviceCameraFit,
-  fitPerspectiveCameraToBounds,
-  projectedBoundsExtent,
+  boxCorners,
+  DEFAULT_DEVICE_CAMERA_SAFE_MARGIN_RATIO,
+  fitPerspectiveCameraToRotationalEnvelope,
+  projectedPointsMetrics,
   type DeviceCameraFit,
 } from "./camera-fit";
 import { applyDeviceRendererDefaults } from "./renderer-defaults";
 import { StudioEnvironment, type StudioEnvironmentProps } from "./StudioEnvironment";
-import { DEVICE_MODEL_NAME } from "./ViewerLitDeviceFrame";
+import { DEVICE_CONTENT_NAME } from "./ViewerLitDeviceFrame";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
+import {
+  completeDeviceEnvelope,
+  deviceEnvelopeBounds,
+  type DeviceEnvelope,
+} from "./device-envelope";
 import {
   FRONT_DEVICE_ORIENTATION,
   deviceScreenIsInteractable,
@@ -52,7 +59,7 @@ export type DeviceCanvasProps = DeviceProps & {
   readonly cameraSafePadding?: number;
   /** RoomEnvironment/PMREM parameters; `null` disables the studio environment. */
   readonly studioEnvironment?: StudioEnvironmentProps | null;
-  /** Receives the measured fit after mount and every viewport/pose change. */
+  /** Receives the immutable-envelope fit after mount and viewport changes. */
   readonly onCameraFit?: (fit: DeviceCameraFit) => void;
   /**
    * Device pixel ratio. `[1, 2]` for looking at; **`1` for measuring** — the
@@ -64,26 +71,38 @@ export type DeviceCanvasProps = DeviceProps & {
   readonly children?: ReactNode;
 };
 
-/** Initial camera only; responsive canvases replace it from actual model bounds. */
+/** Initial camera only; responsive canvases replace it from the fixed envelope. */
 export const DEFAULT_CAMERA_DISTANCE = 1160;
 export const DEFAULT_CAMERA_FOV = 30;
 export const DEFAULT_CAMERA_SAFE_PADDING = 28;
 
 function publishCameraFitDiagnostics(
   canvas: HTMLCanvasElement,
-  bounds: Box3,
   fit: DeviceCameraFit,
-  projected: { readonly x: number; readonly y: number },
   safePadding: number,
 ) {
   canvas.dataset["wpCameraFitDistance"] = fit.distance.toFixed(4);
   canvas.dataset["wpCameraFitPadding"] = String(safePadding);
-  canvas.dataset["wpModelBoundsMin"] = bounds.min.toArray().join(",");
-  canvas.dataset["wpModelBoundsMax"] = bounds.max.toArray().join(",");
-  canvas.dataset["wpProjectedExtentX"] = projected.x.toFixed(6);
-  canvas.dataset["wpProjectedExtentY"] = projected.y.toFixed(6);
+  canvas.dataset["wpCameraFitMarginRatio"] = String(
+    DEFAULT_DEVICE_CAMERA_SAFE_MARGIN_RATIO,
+  );
   canvas.dataset["wpProjectedLimitX"] = fit.maxNdcX.toFixed(6);
   canvas.dataset["wpProjectedLimitY"] = fit.maxNdcY.toFixed(6);
+}
+
+function publishProjectionDiagnostics(
+  canvas: HTMLCanvasElement,
+  bounds: Box3,
+  projected: ReturnType<typeof projectedPointsMetrics>,
+) {
+  canvas.dataset["wpModelBoundsMin"] = bounds.min.toArray().join(",");
+  canvas.dataset["wpModelBoundsMax"] = bounds.max.toArray().join(",");
+  canvas.dataset["wpProjectedExtentX"] = projected.maxAbsX.toFixed(6);
+  canvas.dataset["wpProjectedExtentY"] = projected.maxAbsY.toFixed(6);
+  canvas.dataset["wpProjectedCenterX"] = projected.centerX.toFixed(6);
+  canvas.dataset["wpProjectedCenterY"] = projected.centerY.toFixed(6);
+  canvas.dataset["wpProjectedWidth"] = projected.width.toFixed(6);
+  canvas.dataset["wpProjectedHeight"] = projected.height.toFixed(6);
 }
 
 export type DeviceCanvasOrientationState = {
@@ -120,14 +139,16 @@ export function DeviceCanvas({
   children,
   ...device
 }: DeviceCanvasProps) {
+  const form = device.form ?? DEFAULT_DEVICE_FORM;
+  const envelope = useMemo(() => completeDeviceEnvelope(form), [form]);
   const orientationState = useMemo<DeviceCanvasOrientationState>(
     () => ({
       orientation,
       visibleFace: resolveDeviceVisibleFace(orientation),
       frontInteractive: deviceScreenIsInteractable(orientation),
-      form: device.form ?? DEFAULT_DEVICE_FORM,
+      form,
     }),
-    [device.form, orientation],
+    [form, orientation],
   );
   const initialDistance = cameraDistance ?? DEFAULT_CAMERA_DISTANCE;
   return (
@@ -153,13 +174,17 @@ export function DeviceCanvas({
           {studioEnvironment === null ? null : (
             <StudioEnvironment {...studioEnvironment} />
           )}
-          <Device {...device} orientation={orientation} />
+          <Device {...device} form={form} orientation={orientation} />
           <ResponsiveDeviceCamera
             explicitDistance={cameraDistance}
             fov={cameraFov}
-            orientation={orientation}
+            envelope={envelope}
             safePadding={cameraSafePadding}
             onFit={onCameraFit}
+          />
+          <DeviceProjectionDiagnostics
+            envelope={envelope}
+            orientation={orientation}
           />
           {children}
         </DeviceCanvasOrientationContext.Provider>
@@ -171,46 +196,48 @@ export function DeviceCanvas({
 function ResponsiveDeviceCamera({
   explicitDistance,
   fov,
-  orientation,
+  envelope,
   safePadding,
   onFit,
 }: {
   readonly explicitDistance: number | undefined;
   readonly fov: number;
-  readonly orientation: DeviceOrientation;
+  readonly envelope: DeviceEnvelope;
   readonly safePadding: number;
   readonly onFit: ((fit: DeviceCameraFit) => void) | undefined;
 }) {
   const camera = useThree((state) => state.camera);
-  const scene = useThree((state) => state.scene);
   const canvas = useThree((state) => state.gl.domElement);
   const size = useThree((state) => state.size);
   const invalidate = useThree((state) => state.invalidate);
 
   useLayoutEffect(() => {
-    const model = scene.getObjectByName(DEVICE_MODEL_NAME);
-    if (model === undefined || !(camera instanceof PerspectiveCamera)) return;
-    model.updateWorldMatrix(true, true);
-    const bounds = new Box3().setFromObject(model, true);
-    if (bounds.isEmpty()) return;
+    if (!(camera instanceof PerspectiveCamera)) return;
     const viewport = {
       width: size.width,
       height: size.height,
       safePadding,
+      safeMarginRatio: DEFAULT_DEVICE_CAMERA_SAFE_MARGIN_RATIO,
     };
-    const measured = fitPerspectiveCameraToBounds(bounds, viewport, fov);
+    const measured = fitPerspectiveCameraToRotationalEnvelope(
+      deviceEnvelopeBounds(envelope),
+      viewport,
+      fov,
+    );
     const fit =
       explicitDistance === undefined
         ? measured
         : {
             ...measured,
             distance: explicitDistance,
-            near: Math.max(0.1, explicitDistance - bounds.getSize(new Vector3()).length()),
-            far: explicitDistance + bounds.getSize(new Vector3()).length() * 2,
+            near: Math.max(
+              0.1,
+              (explicitDistance - envelope.boundingRadius) * 0.5,
+            ),
+            far: explicitDistance + envelope.boundingRadius * 2,
           };
     applyDeviceCameraFit(camera, fit, viewport);
-    const projected = projectedBoundsExtent(bounds, camera);
-    publishCameraFitDiagnostics(canvas, bounds, fit, projected, safePadding);
+    publishCameraFitDiagnostics(canvas, fit, safePadding);
     onFit?.(fit);
     invalidate();
   }, [
@@ -219,14 +246,48 @@ function ResponsiveDeviceCamera({
     explicitDistance,
     fov,
     invalidate,
+    envelope,
     onFit,
+    safePadding,
+    size.height,
+    size.width,
+  ]);
+
+  return null;
+}
+
+function DeviceProjectionDiagnostics({
+  envelope,
+  orientation,
+}: {
+  readonly envelope: DeviceEnvelope;
+  readonly orientation: DeviceOrientation;
+}) {
+  const camera = useThree((state) => state.camera);
+  const scene = useThree((state) => state.scene);
+  const canvas = useThree((state) => state.gl.domElement);
+
+  useLayoutEffect(() => {
+    const content = scene.getObjectByName(DEVICE_CONTENT_NAME);
+    if (content === undefined || !(camera instanceof PerspectiveCamera)) return;
+    content.updateWorldMatrix(true, true);
+    const points = boxCorners(deviceEnvelopeBounds(envelope)).map((corner) =>
+      corner.applyMatrix4(content.matrixWorld),
+    );
+    const bounds = new Box3().setFromPoints(points);
+    publishProjectionDiagnostics(
+      canvas,
+      bounds,
+      projectedPointsMetrics(points, camera),
+    );
+  }, [
+    camera,
+    canvas,
+    envelope,
     orientation.pitchDeg,
     orientation.rollDeg,
     orientation.yawDeg,
-    safePadding,
     scene,
-    size.height,
-    size.width,
   ]);
 
   return null;
