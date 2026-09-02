@@ -55,16 +55,26 @@ describe('interaction audio scheduler', () => {
     const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
 
     const activation = runtime.activate()
-    const pending = runtime.consume(pressEvent('center'))
+    const pending = runtime.buttonDown(buttonDown('center', 'pointer:1:center', 100))
+    const release = runtime.buttonUp({
+      id: 'pointer:1:center',
+      timestampMs: 260,
+      reason: 'release',
+    })
     expect(pending.reason).toBe('unlocking')
+    expect(release.reason).toBe('unlocking')
     expect(runtime.snapshot().pendingEvents).toBe(1)
     expect(backend.specs).toHaveLength(0)
 
     backend.state = 'running'
     resume.resolve()
     expect(await activation).toEqual({ status: 'running', reason: 'running' })
-    expect(backend.specs).toHaveLength(1)
-    expect(backend.specs[0]?.kind).toBe('select')
+    expect(backend.specs.map(({ kind }) => kind)).toEqual([
+      'wheel',
+      'button-down',
+      'button-up',
+    ])
+    expect(backend.specs[2]?.startTimeSeconds).toBe(0.16)
     expect(runtime.snapshot().pendingEvents).toBe(0)
   })
 
@@ -75,7 +85,7 @@ describe('interaction audio scheduler', () => {
     const activation = runtime.activate()
 
     for (let seq = 1; seq <= MAX_PENDING_FEEDBACK_EVENTS + 3; seq += 1) {
-      runtime.consume(pressEvent('center', seq))
+      runtime.consume(wheelEvent(1, seq))
     }
     expect(runtime.snapshot().pendingEvents).toBe(MAX_PENDING_FEEDBACK_EVENTS)
     expect(runtime.snapshot().droppedTotal).toBe(3)
@@ -88,7 +98,7 @@ describe('interaction audio scheduler', () => {
       status: 'unavailable',
       reason: 'unsupported',
     })
-    expect(unsupported.consume(pressEvent('center'))).toEqual({
+    expect(unsupported.consume(wheelEvent(1))).toEqual({
       status: 'unavailable',
       reason: 'unsupported',
       requested: 1,
@@ -105,7 +115,7 @@ describe('interaction audio scheduler', () => {
     unsupported.setEnabled(true)
 
     expect(unsupported.snapshot().lifecycle).toBe('unsupported')
-    expect(unsupported.consume(pressEvent('center')).reason).toBe('unsupported')
+    expect(unsupported.consume(wheelEvent(1)).reason).toBe('unsupported')
 
     const failed = createInteractionAudioRuntime({
       createBackend: () => {
@@ -118,7 +128,7 @@ describe('interaction audio scheduler', () => {
     failed.setEnabled(true)
 
     expect(failed.snapshot().lifecycle).toBe('failed')
-    expect(failed.consume(pressEvent('center')).reason).toBe('graph-failed')
+    expect(failed.consume(wheelEvent(1)).reason).toBe('graph-failed')
 
     const disposed = createInteractionAudioRuntime({
       createBackend: () => new FakeBackend('running'),
@@ -130,7 +140,7 @@ describe('interaction audio scheduler', () => {
     await disposed.interrupt()
 
     expect(disposed.snapshot().lifecycle).toBe('disposed')
-    expect(disposed.consume(pressEvent('center')).reason).toBe('disposed')
+    expect(disposed.consume(wheelEvent(1)).reason).toBe('disposed')
   })
 
   test('a synchronous suspend throw during mute remains terminal failed', async () => {
@@ -142,7 +152,7 @@ describe('interaction audio scheduler', () => {
     runtime.setEnabled(false)
 
     expect(runtime.snapshot()).toMatchObject({ lifecycle: 'failed', enabled: false })
-    expect(runtime.consume(pressEvent('center')).reason).toBe('graph-failed')
+    expect(runtime.consume(wheelEvent(1)).reason).toBe('graph-failed')
   })
 
   test('an interruption during resume cannot revive audio in the background', async () => {
@@ -150,7 +160,7 @@ describe('interaction audio scheduler', () => {
     const backend = new FakeBackend('suspended', resume.promise)
     const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
     const activation = runtime.activate()
-    runtime.consume(pressEvent('center'))
+    runtime.buttonDown(buttonDown('center', 'pointer:2:center', 200))
 
     await runtime.interrupt()
     expect(runtime.snapshot()).toMatchObject({
@@ -204,21 +214,149 @@ describe('interaction audio scheduler', () => {
     expect(backend.state).toBe('running')
   })
 
-  test('one press schedules one restrained physical click', async () => {
+  test('center and cardinal switches share digital-down plus two physical phases', async () => {
     const backend = new FakeBackend('running')
     const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
     await runtime.activate()
 
-    const select = runtime.consume(pressEvent('center'))
-    backend.currentTime = 0.1
-    const secondary = runtime.consume(pressEvent('menu', 2))
+    const buttons = ['center', 'menu', 'previous', 'next', 'play-pause'] as const
+    for (const [index, button] of buttons.entries()) {
+      backend.currentTime = index
+      const id = `pointer:${index}:${button}`
+      expect(runtime.buttonDown(buttonDown(button, id, index * 1000))).toMatchObject({
+        requested: 2,
+        scheduled: 2,
+        dropped: 0,
+      })
+      backend.currentTime = index + 0.16
+      expect(runtime.buttonUp({
+        id,
+        timestampMs: index * 1000 + 160,
+        reason: 'release',
+      })).toMatchObject({ requested: 1, scheduled: 1, dropped: 0 })
+      for (const voice of backend.voices) voice.finish()
+    }
+    for (let index = 0; index < backend.specs.length; index += 3) {
+      const digital = backend.specs[index]
+      const physicalDown = backend.specs[index + 1]
+      const physicalUp = backend.specs[index + 2]
+      expect(digital).toMatchObject({ kind: 'wheel', peakGain: 0.05 })
+      expect(physicalDown).toMatchObject({
+        kind: 'button-down',
+        durationSeconds: 0.014,
+        peakGain: 0.026,
+      })
+      expect(physicalUp).toMatchObject({
+        kind: 'button-up',
+        durationSeconds: 0.01,
+        peakGain: 0.017,
+      })
+      expect(physicalDown?.startTimeSeconds).toBe(digital?.startTimeSeconds)
+      expect(physicalUp?.startTimeSeconds).toBe((digital?.startTimeSeconds ?? 0) + 0.16)
+    }
+  })
 
-    expect(select.scheduled).toBe(1)
-    expect(secondary.scheduled).toBe(1)
-    expect(backend.specs.map((spec) => spec.kind)).toEqual(['select', 'button'])
-    expect(backend.specs[0]?.durationSeconds).toBe(0.016)
-    expect(backend.specs[1]?.durationSeconds).toBe(0.012)
-    expect(backend.specs[0]?.peakGain).toBeLessThan(0.08)
+  test('actual hold duration shifts release and duplicate edges stay exact-once', async () => {
+    const backend = new FakeBackend('running')
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+
+    runtime.buttonDown(buttonDown('center', 'pointer:20:center', 100))
+    expect(runtime.buttonDown(buttonDown('center', 'pointer:20:center', 101)).reason)
+      .toBe('duplicate-contact')
+    backend.currentTime = 0.12
+    runtime.buttonUp({
+      id: 'pointer:20:center',
+      timestampMs: 220,
+      reason: 'release',
+    })
+    expect(runtime.buttonUp({
+      id: 'pointer:20:center',
+      timestampMs: 221,
+      reason: 'release',
+    }).reason).toBe('orphan-release')
+
+    backend.currentTime = 1
+    runtime.buttonDown(buttonDown('menu', 'key:Escape:menu', 1000, 'key'))
+    backend.currentTime = 1.7
+    runtime.buttonUp({
+      id: 'key:Escape:menu',
+      timestampMs: 1700,
+      reason: 'release',
+    })
+
+    const ups = backend.specs.filter(({ kind }) => kind === 'button-up')
+    expect(ups.map(({ startTimeSeconds }) => startTimeSeconds)).toEqual([0.12, 1.7])
+    expect(backend.specs.filter(({ kind }) => kind === 'button-down')).toHaveLength(2)
+  })
+
+  test('state press feedback and agent actions cannot duplicate physical voices', async () => {
+    const backend = new FakeBackend('running')
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+
+    expect(runtime.consume(pressEvent('center')).reason).toBe('budget-zero')
+    const malformed = pressEvent('menu', 2)
+    Reflect.set(malformed, 'actor', 'agent:tool')
+    expect(runtime.consume(malformed).reason).toBe('budget-zero')
+    expect(backend.specs).toHaveLength(0)
+  })
+
+  test('interruption clears a held switch and its reserved release', async () => {
+    const backend = new FakeBackend('running')
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+    runtime.buttonDown(buttonDown('next', 'pointer:21:next', 0))
+
+    expect(runtime.snapshot()).toMatchObject({
+      activeButtonContacts: 1,
+      reservedButtonReleases: 1,
+    })
+    await runtime.interrupt()
+    expect(runtime.snapshot()).toMatchObject({
+      activeButtonContacts: 0,
+      reservedButtonReleases: 0,
+      activeVoices: 0,
+    })
+    expect(runtime.buttonUp({
+      id: 'pointer:21:next',
+      timestampMs: 300,
+      reason: 'blur',
+    }).reason).toBe('orphan-release')
+    expect(backend.specs.filter(({ kind }) => kind === 'button-up')).toHaveLength(0)
+  })
+
+  test('the voice cap reserves every admitted button release atomically', async () => {
+    const backend = new FakeBackend('running')
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+
+    runtime.consume(wheelEvent(MAX_INTERACTION_AUDIO_VOICES - 3))
+    const admitted = runtime.buttonDown(buttonDown('menu', 'pointer:9:menu', 0))
+    expect(admitted).toMatchObject({ requested: 2, scheduled: 2, dropped: 0 })
+    expect(runtime.snapshot()).toMatchObject({
+      activeVoices: MAX_INTERACTION_AUDIO_VOICES - 1,
+      reservedButtonReleases: 1,
+    })
+    expect(backend.specs.slice(-2).map(({ kind }) => kind)).toEqual([
+      'wheel',
+      'button-down',
+    ])
+
+    const rejected = runtime.buttonDown(buttonDown('next', 'pointer:10:next', 1))
+    expect(rejected).toMatchObject({
+      reason: 'voice-cap',
+      requested: 2,
+      scheduled: 0,
+      dropped: 2,
+    })
+    backend.currentTime = 0.2
+    expect(runtime.buttonUp({
+      id: 'pointer:9:menu',
+      timestampMs: 200,
+      reason: 'release',
+    })).toMatchObject({ scheduled: 1, dropped: 0 })
+    expect(backend.specs.at(-1)?.kind).toBe('button-up')
   })
 
   test('N detents schedule N lighter, 30Hz-spaced ticks with ±2% jitter', async () => {
@@ -267,7 +405,8 @@ describe('interaction audio scheduler', () => {
 
     expect(runtime.consume(wheelEvent(0)).reason).toBe('budget-zero')
     runtime.setEnabled(false)
-    expect(runtime.consume(pressEvent('center', 3)).reason).toBe('disabled')
+    expect(runtime.buttonDown(buttonDown('center', 'pointer:3:center', 3)).reason)
+      .toBe('disabled')
     expect(backend.specs).toHaveLength(0)
     expect(backend.suspendCalls).toBe(1)
 
@@ -284,6 +423,28 @@ describe('interaction audio scheduler', () => {
       reason: 'interrupted',
     })
     expect(mutedConstructions).toBe(0)
+  })
+
+  test('muting a held button clears both voices and its release reservation', async () => {
+    const backend = new FakeBackend('running')
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    await runtime.activate()
+    runtime.buttonDown(buttonDown('center', 'pointer:30:center', 0))
+
+    runtime.setEnabled(false)
+
+    expect(runtime.snapshot()).toMatchObject({
+      enabled: false,
+      activeVoices: 0,
+      activeButtonContacts: 0,
+      reservedButtonReleases: 0,
+    })
+    expect(backend.voices.filter(({ stopped }) => stopped)).toHaveLength(2)
+    expect(runtime.buttonUp({
+      id: 'pointer:30:center',
+      timestampMs: 200,
+      reason: 'release',
+    }).scheduled).toBe(0)
   })
 
   test('malformed agent provenance remains silent even when its boolean is false', async () => {
@@ -349,7 +510,7 @@ describe('interaction audio scheduler', () => {
     const backend = new FakeBackend('suspended', Promise.reject(new Error('blocked')))
     const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
     const activation = runtime.activate()
-    runtime.consume(pressEvent('center'))
+    runtime.buttonDown(buttonDown('center', 'pointer:4:center', 4))
 
     expect(await activation).toEqual({ status: 'failed', reason: 'resume-failed' })
     expect(runtime.snapshot()).toMatchObject({
@@ -364,7 +525,7 @@ describe('interaction audio scheduler', () => {
     const backend = new FakeBackend('suspended', resume.promise)
     const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
     const activation = runtime.activate()
-    runtime.consume(pressEvent('center'))
+    runtime.buttonDown(buttonDown('center', 'pointer:5:center', 5))
 
     runtime.dispose()
     resume.reject(new Error('late resume rejection'))
@@ -446,7 +607,12 @@ describe('store and browser lifecycle binding', () => {
     const detachFirst = attachInteractionAudioRuntime(runtime, store, targets)
     const detachSecond = attachInteractionAudioRuntime(runtime, store, targets)
 
-    store.set(pressActionAtom, { button: 'center', source: 'human' })
+    store.set(detentActionAtom, {
+      path: 'direct',
+      source: 'human',
+      detents: 1,
+      timestampMs: 1,
+    })
 
     expect(backend.specs).toHaveLength(1)
     detachSecond()
@@ -522,7 +688,6 @@ describe('store and browser lifecycle binding', () => {
 
     expect(backend.resumeCalls).toBe(1)
     expect(backend.specs.map((spec) => spec.kind)).toEqual([
-      'select',
       'wheel',
       'wheel',
       'wheel',
@@ -536,7 +701,7 @@ describe('store and browser lifecycle binding', () => {
     detach()
     backend.state = 'running'
     store.set(pressActionAtom, { button: 'menu', source: 'human' })
-    expect(backend.specs).toHaveLength(4)
+    expect(backend.specs).toHaveLength(3)
     runtime.dispose()
   })
 
@@ -588,14 +753,29 @@ describe('store and browser lifecycle binding', () => {
       windowTarget: new EventTarget(),
       isActivationEligible: () => true,
     })
-    store.set(pressActionAtom, { button: 'center', source: 'human' })
+    store.set(detentActionAtom, {
+      path: 'direct',
+      source: 'human',
+      detents: 1,
+      timestampMs: 1,
+    })
+    runtime.buttonDown(buttonDown('menu', 'pointer:31:menu', 20))
+    expect(runtime.snapshot()).toMatchObject({
+      activeButtonContacts: 1,
+      reservedButtonReleases: 1,
+    })
 
     documentTarget.hidden = true
     documentTarget.dispatchEvent(new Event('visibilitychange'))
     await Promise.resolve()
 
     expect(backend.suspendCalls).toBe(1)
-    expect(runtime.snapshot()).toMatchObject({ lifecycle: 'suspended', activeVoices: 0 })
+    expect(runtime.snapshot()).toMatchObject({
+      lifecycle: 'suspended',
+      activeVoices: 0,
+      activeButtonContacts: 0,
+      reservedButtonReleases: 0,
+    })
     detach()
     runtime.dispose()
   })
@@ -617,7 +797,7 @@ describe('store and browser lifecycle binding', () => {
     expect(() => {
       store.set(pressActionAtom, { button: 'center', source: 'human' })
     }).not.toThrow()
-    expect(backend.specs).toHaveLength(1)
+    expect(backend.specs).toHaveLength(0)
     detach()
     runtime.dispose()
   })
@@ -697,7 +877,7 @@ function wheelEvent(ticks: number, seq = 1): InteractionFeedbackEvent {
 }
 
 function pressEvent(
-  button: 'center' | 'menu' | 'next' | 'previous',
+  button: 'center' | 'menu' | 'next' | 'previous' | 'play-pause',
   seq = 1,
 ): InteractionFeedbackEvent {
   return {
@@ -709,4 +889,13 @@ function pressEvent(
     silenced: false,
     actor: 'human:touch',
   }
+}
+
+function buttonDown(
+  button: 'center' | 'menu' | 'next' | 'previous' | 'play-pause',
+  id: string,
+  timestampMs: number,
+  source: 'pointer' | 'key' = 'pointer',
+) {
+  return { id, button, source, timestampMs } as const
 }

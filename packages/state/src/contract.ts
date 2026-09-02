@@ -919,11 +919,34 @@ export type CoastStepFn = (
  */
 export type PressButton = 'center' | 'menu' | 'next' | 'previous'
 
+/** A provider-owned physical press whose semantic action is accepted above state. */
+export type ExternalPressButton = 'play-pause'
+
+/** Every physical control name that may appear in interaction feedback. */
+export type InteractionPressButton = PressButton | ExternalPressButton
+
 /** One button press, with the same actor seam the detent reducer carries. */
 export type PressInput = {
   readonly button: PressButton
   readonly source: DetentSource
+  /** Physical press path; defaults to touch for backwards-compatible callers. */
+  readonly path?: Extract<InputPath, 'touch-arc' | 'mouse-arc' | 'key'>
   /** Origin label for an agent-sourced press. See {@link DetentInput}. */
+  readonly agentOrigin?: string
+}
+
+/**
+ * Confirmation from the layer that owns an external control's semantic action.
+ *
+ * Playback does not belong to the screen-stack machine, so state cannot decide
+ * whether Play/Pause succeeded. The provider-owning layer publishes this only
+ * after the operation resolves successfully; rejected/no-op operations never
+ * enter the interaction-feedback stream.
+ */
+export type AcceptedExternalPressInput = {
+  readonly button: ExternalPressButton
+  readonly source: DetentSource
+  readonly path?: Extract<InputPath, 'touch-arc' | 'mouse-arc' | 'key'>
   readonly agentOrigin?: string
 }
 
@@ -1108,7 +1131,7 @@ export type InteractionFeedbackEvent =
       readonly seq: number
       readonly control: 'press'
       readonly origin: 'press'
-      readonly button: PressButton
+      readonly button: InteractionPressButton
       readonly clickerTicks: number
       readonly silenced: false
       readonly actor: HumanActor

@@ -4,7 +4,10 @@ import { Group, Matrix4, Mesh, Ray, RingGeometry, Vector3 } from "three";
 import {
   CLICK_WHEEL_INPUT_POSITION,
   CLICK_WHEEL_INPUT_RADII,
+  CLICK_WHEEL_CARDINAL_HIT_RADIUS,
+  CLICK_WHEEL_CARDINAL_SLOP,
   acceptsClickWheelPointer,
+  cardinalButtonAtWheelPoint,
   clockwiseWheelAngleDeg,
   createClickWheelCaptureSlot,
   finishClickWheelCapture,
@@ -153,6 +156,28 @@ describe("click-wheel input geometry", () => {
         button: 0,
       }),
     ).toBeFalse();
+  });
+
+  test("maps only the four bounded cardinal label targets", () => {
+    const band =
+      (DEVICE_LAYOUT.wheel.labelBandInnerR +
+        DEVICE_LAYOUT.wheel.labelBandOuterR) /
+      2;
+    expect(cardinalButtonAtWheelPoint(0, band)).toBe("menu");
+    expect(cardinalButtonAtWheelPoint(band, 0)).toBe("next");
+    expect(cardinalButtonAtWheelPoint(0, -band)).toBe("play-pause");
+    expect(cardinalButtonAtWheelPoint(-band, 0)).toBe("previous");
+    expect(cardinalButtonAtWheelPoint(band / Math.SQRT2, band / Math.SQRT2))
+      .toBeNull();
+    expect(cardinalButtonAtWheelPoint(0, band + CLICK_WHEEL_CARDINAL_HIT_RADIUS))
+      .toBe("menu");
+    expect(
+      cardinalButtonAtWheelPoint(
+        0,
+        band + CLICK_WHEEL_CARDINAL_HIT_RADIUS + Number.EPSILON * 100,
+      ),
+    ).toBeNull();
+    expect(CLICK_WHEEL_CARDINAL_SLOP).toBe(10);
   });
 });
 

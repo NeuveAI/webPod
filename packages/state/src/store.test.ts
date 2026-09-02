@@ -29,11 +29,13 @@ import {
   holdEngagedAtom,
   screenSnapshotAtom,
   screenStackAtom,
+  interactionFeedbackAtom,
   visibleRowsAtom,
 } from './contract'
 import type { PanelRow, ScreenFrame } from './contract'
 import { MENU_ROOT, menuFrame } from './menu'
 import {
+  acceptedExternalPressActionAtom,
   createDeviceStore,
   deviceStore,
   setDensityActionAtom,
@@ -264,6 +266,42 @@ describe('actions', () => {
     expect(byHuman.silenced).toBe(false)
     expect(byHuman.clickerTicks).toBe(1)
     expect(byHuman.actor).toBe('human:touch')
+  })
+
+  test('an empty-stack cardinal no-op is rejected before feedback publication', () => {
+    const store = createDeviceStore({ initialStack: [] })
+    const outcome = store.set(pressActionAtom, {
+      button: 'menu',
+      source: 'human',
+      path: 'mouse-arc',
+    })
+
+    expect(outcome).toMatchObject({ handled: false, clickerTicks: 0 })
+    expect(store.get(interactionFeedbackAtom)).toBeNull()
+  })
+
+  test('provider-owned Play/Pause publishes only an accepted external press', () => {
+    const store = createDeviceStore()
+    expect(store.get(interactionFeedbackAtom)).toBeNull()
+
+    store.set(acceptedExternalPressActionAtom, {
+      button: 'play-pause',
+      source: 'agent',
+      path: 'key',
+    })
+    expect(store.get(interactionFeedbackAtom)).toBeNull()
+
+    store.set(acceptedExternalPressActionAtom, {
+      button: 'play-pause',
+      source: 'human',
+      path: 'key',
+    })
+    expect(store.get(interactionFeedbackAtom)).toMatchObject({
+      control: 'press',
+      button: 'play-pause',
+      clickerTicks: 1,
+      actor: 'human:key',
+    })
   })
 
   test('a custom initial stack replaces the default main menu', () => {

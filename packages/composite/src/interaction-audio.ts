@@ -18,11 +18,34 @@ export const MAX_PENDING_FEEDBACK_EVENTS = 8
 export const WHEEL_PITCH_JITTER = 0.02
 
 const WHEEL_TICK_DURATION_SECONDS = 0.008
-const SELECT_CLICK_DURATION_SECONDS = 0.016
-const BUTTON_CLICK_DURATION_SECONDS = 0.012
+const BUTTON_DOWN_DURATION_SECONDS = 0.014
+const BUTTON_UP_DURATION_SECONDS = 0.01
 
 /** A sound that the backend can synthesize without an external asset. */
-export type InteractionVoiceKind = 'wheel' | 'select' | 'button'
+export type InteractionVoiceKind = 'wheel' | 'button-down' | 'button-up'
+
+/** The five switches physically actuated by a human hand on the click wheel. */
+export type InteractionAudioButton =
+  | 'center'
+  | 'menu'
+  | 'previous'
+  | 'next'
+  | 'play-pause'
+
+/** Stable identity and timing for one physical button contact. */
+export type InteractionAudioButtonDown = {
+  readonly id: string
+  readonly button: InteractionAudioButton
+  readonly source: 'pointer' | 'key'
+  readonly timestampMs: number
+}
+
+/** The actual terminal edge of an admitted physical button contact. */
+export type InteractionAudioButtonUp = {
+  readonly id: string
+  readonly timestampMs: number
+  readonly reason: 'release' | 'cancel' | 'lost-capture' | 'blur' | 'hidden'
+}
 
 /**
  * Complete, deterministic instructions for one short procedural voice.
@@ -68,6 +91,8 @@ export type InteractionAudioReason =
   | 'context-closed'
   | 'voice-cap'
   | 'graph-failed'
+  | 'duplicate-contact'
+  | 'orphan-release'
   | 'disposed'
 
 /** Structured result for every request; failures never need console output. */
@@ -97,6 +122,8 @@ export type InteractionAudioSnapshot = {
     | 'disposed'
   readonly enabled: boolean
   readonly activeVoices: number
+  readonly activeButtonContacts: number
+  readonly reservedButtonReleases: number
   readonly pendingEvents: number
   readonly scheduledTotal: number
   readonly droppedTotal: number
@@ -113,6 +140,8 @@ export type InteractionAudioDependencies = {
 export type InteractionAudioRuntime = {
   activate(): Promise<InteractionAudioActivationResult>
   consume(event: InteractionFeedbackEvent): InteractionAudioResult
+  buttonDown(contact: InteractionAudioButtonDown): InteractionAudioResult
+  buttonUp(contact: InteractionAudioButtonUp): InteractionAudioResult
   setEnabled(enabled: boolean): void
   interrupt(): Promise<void>
   snapshot(): InteractionAudioSnapshot
@@ -135,7 +164,8 @@ const silentResult = (
  *
  * It never constructs an audio backend until {@link InteractionAudioRuntime.activate}
  * runs from an eligible browser activation event. Event eligibility satisfies
- * autoplay policy; authoritative actor provenance still comes from state.
+ * autoplay policy. Wheel actor provenance comes from state; physical button
+ * phases enter only through the typed human pointer/key seam.
  * Feedback before activation is not replayed later; feedback arriving while
  * that activation is resolving is held in a small bounded queue so the first
  * physical click is not lost.
@@ -157,8 +187,18 @@ export function createInteractionAudioRuntime(
   let scheduledTotal = 0
   let droppedTotal = 0
   let lastResult: InteractionAudioResult | null = null
-  const pending: InteractionFeedbackEvent[] = []
+  type ActiveButtonContact = {
+    readonly down: InteractionAudioButtonDown
+    admitted: boolean
+    downStartTimeSeconds: number | null
+    up: InteractionAudioButtonUp | null
+  }
+  type PendingRequest =
+    | { readonly kind: 'wheel'; readonly event: InteractionFeedbackEvent }
+    | { readonly kind: 'button-down'; readonly id: string }
+  const pending: PendingRequest[] = []
   const voices = new Set<InteractionAudioVoice>()
+  const buttonContacts = new Map<string, ActiveButtonContact>()
   const suspensions = new Set<Promise<boolean>>()
 
   const remember = (result: InteractionAudioResult): InteractionAudioResult => {
@@ -171,16 +211,60 @@ export function createInteractionAudioRuntime(
   const stopVoices = () => {
     for (const voice of [...voices]) voice.stop()
     voices.clear()
+    buttonContacts.clear()
     nextWheelStartSeconds = 0
   }
 
   const clearPending = () => {
-    for (const event of pending) droppedTotal += normalizedTicks(event.clickerTicks)
+    for (const request of pending) {
+      if (request.kind === 'wheel') {
+        droppedTotal += requestedVoiceCount(request.event)
+      } else {
+        const contact = buttonContacts.get(request.id)
+        droppedTotal += contact?.up === null ? 2 : 3
+        buttonContacts.delete(request.id)
+      }
+    }
     pending.length = 0
   }
 
-  const scheduleEvent = (event: InteractionFeedbackEvent): InteractionAudioResult => {
-    const requested = normalizedTicks(event.clickerTicks)
+  const reservedButtonReleases = (): number => {
+    let count = 0
+    for (const contact of buttonContacts.values()) {
+      if (contact.admitted) count += 1
+    }
+    return count
+  }
+
+  const scheduleKinds = (
+    kinds: readonly InteractionVoiceKind[],
+    startTimeSeconds: number,
+  ): { readonly scheduled: number; readonly failed: boolean } => {
+    const scheduled: InteractionAudioVoice[] = []
+    try {
+      for (const kind of kinds) {
+        const spec = createInteractionVoiceSpec(kind, startTimeSeconds, random)
+        let voice: InteractionAudioVoice | null = null
+        voice = backend?.schedule(spec, () => {
+          if (voice !== null) voices.delete(voice)
+        }) ?? null
+        if (voice === null) throw new Error('Audio backend unavailable')
+        voices.add(voice)
+        scheduled.push(voice)
+      }
+      return { scheduled: scheduled.length, failed: false }
+    } catch {
+      for (const voice of scheduled) {
+        voices.delete(voice)
+        voice.stop()
+      }
+      return { scheduled: 0, failed: true }
+    }
+  }
+
+  const scheduleWheelEvent = (event: InteractionFeedbackEvent): InteractionAudioResult => {
+    const ticks = normalizedTicks(event.clickerTicks)
+    const requested = event.control === 'wheel' ? ticks : 0
     if (requested === 0) return remember(silentResult('budget-zero', 0))
     if (disposed) return remember({
       status: 'unavailable',
@@ -221,7 +305,7 @@ export function createInteractionAudioRuntime(
         activation?.operation === lifecycleOperation &&
         pending.length < MAX_PENDING_FEEDBACK_EVENTS
       ) {
-        pending.push(event)
+        pending.push({ kind: 'wheel', event })
         return remember({
           status: 'deferred',
           reason: 'unlocking',
@@ -233,32 +317,25 @@ export function createInteractionAudioRuntime(
       return remember(silentResult('context-suspended', requested))
     }
 
-    const kind = voiceKind(event)
     let scheduled = 0
     let limitedBy: InteractionAudioReason = 'scheduled'
-    for (let index = 0; index < requested; index += 1) {
-      if (voices.size >= MAX_INTERACTION_AUDIO_VOICES) {
+    for (let index = 0; index < ticks; index += 1) {
+      if (
+        voices.size + reservedButtonReleases() + 1 >
+        MAX_INTERACTION_AUDIO_VOICES
+      ) {
         limitedBy = 'voice-cap'
         break
       }
       const now = backend.currentTime
-      const startTimeSeconds =
-        kind === 'wheel' ? Math.max(now, nextWheelStartSeconds) : now
-      const spec = createInteractionVoiceSpec(kind, startTimeSeconds, random)
-      let voice: InteractionAudioVoice | null = null
-      try {
-        voice = backend.schedule(spec, () => {
-          if (voice !== null) voices.delete(voice)
-        })
-      } catch {
+      const startTimeSeconds = Math.max(now, nextWheelStartSeconds)
+      const outcome = scheduleKinds(['wheel'], startTimeSeconds)
+      if (outcome.failed) {
         limitedBy = 'graph-failed'
         break
       }
-      voices.add(voice)
-      scheduled += 1
-      if (kind === 'wheel') {
-        nextWheelStartSeconds = startTimeSeconds + 1 / WHEEL_TICK_RATE_HZ
-      }
+      scheduled += outcome.scheduled
+      nextWheelStartSeconds = startTimeSeconds + 1 / WHEEL_TICK_RATE_HZ
     }
 
     const dropped = requested - scheduled
@@ -271,9 +348,98 @@ export function createInteractionAudioRuntime(
     })
   }
 
+  const scheduleButtonUp = (
+    contact: ActiveButtonContact,
+  ): InteractionAudioResult => {
+    const requested = 1
+    buttonContacts.delete(contact.down.id)
+    if (!contact.admitted || contact.downStartTimeSeconds === null) {
+      return remember(silentResult('orphan-release', requested))
+    }
+    if (backend === null || backend.state !== 'running') {
+      return remember(silentResult('context-suspended', requested))
+    }
+    const holdSeconds = Math.max(
+      0,
+      ((contact.up?.timestampMs ?? contact.down.timestampMs) -
+        contact.down.timestampMs) /
+        1000,
+    )
+    const startTimeSeconds = Math.max(
+      backend.currentTime,
+      contact.downStartTimeSeconds + holdSeconds,
+    )
+    const outcome = scheduleKinds(['button-up'], startTimeSeconds)
+    if (outcome.failed) {
+      return remember({
+        status: 'unavailable',
+        reason: 'graph-failed',
+        requested,
+        scheduled: 0,
+        dropped: requested,
+      })
+    }
+    return remember({
+      status: 'scheduled',
+      reason: 'scheduled',
+      requested,
+      scheduled: 1,
+      dropped: 0,
+    })
+  }
+
+  const scheduleButtonDown = (
+    contact: ActiveButtonContact,
+  ): InteractionAudioResult => {
+    const requested = 2
+    // Two immediate transients plus one reserved release are one physical
+    // admission unit. Wheel traffic can use neither half of that reservation.
+    if (
+      voices.size + reservedButtonReleases() + 3 >
+      MAX_INTERACTION_AUDIO_VOICES
+    ) {
+      buttonContacts.delete(contact.down.id)
+      return remember(silentResult('voice-cap', requested))
+    }
+    if (backend === null || backend.state !== 'running') {
+      buttonContacts.delete(contact.down.id)
+      return remember(silentResult('context-suspended', requested))
+    }
+    const startTimeSeconds = backend.currentTime
+    const outcome = scheduleKinds(['wheel', 'button-down'], startTimeSeconds)
+    if (outcome.failed) {
+      buttonContacts.delete(contact.down.id)
+      return remember({
+        status: 'unavailable',
+        reason: 'graph-failed',
+        requested,
+        scheduled: 0,
+        dropped: requested,
+      })
+    }
+    contact.admitted = true
+    contact.downStartTimeSeconds = startTimeSeconds
+    const result = remember({
+      status: 'scheduled',
+      reason: 'scheduled',
+      requested,
+      scheduled: 2,
+      dropped: 0,
+    })
+    if (contact.up !== null) scheduleButtonUp(contact)
+    return result
+  }
+
   const flushPending = () => {
     const queued = pending.splice(0)
-    for (const event of queued) scheduleEvent(event)
+    for (const request of queued) {
+      if (request.kind === 'wheel') {
+        scheduleWheelEvent(request.event)
+        continue
+      }
+      const contact = buttonContacts.get(request.id)
+      if (contact !== undefined) scheduleButtonDown(contact)
+    }
   }
 
   const isCurrentOperation = (operation: number): boolean =>
@@ -324,6 +490,88 @@ export function createInteractionAudioRuntime(
       void requestSuspend(current, lifecycleOperation)
     }
     return interruptedActivationResult()
+  }
+
+  const unavailableButtonDown = (
+    reason: InteractionAudioReason,
+  ): InteractionAudioResult => {
+    const result = silentResult(reason, 2)
+    return remember(
+      reason === 'unsupported' || reason === 'graph-failed' || reason === 'disposed'
+        ? { ...result, status: 'unavailable' }
+        : result,
+    )
+  }
+
+  const requestButtonDown = (
+    down: InteractionAudioButtonDown,
+  ): InteractionAudioResult => {
+    if (buttonContacts.has(down.id)) {
+      return unavailableButtonDown('duplicate-contact')
+    }
+    if (disposed) return unavailableButtonDown('disposed')
+    if (lifecycle === 'unsupported') return unavailableButtonDown('unsupported')
+    if (lifecycle === 'failed') return unavailableButtonDown('graph-failed')
+    if (!enabled) return unavailableButtonDown('disabled')
+    if (backend === null) return unavailableButtonDown('not-activated')
+    if (backend.state === 'closed') return unavailableButtonDown('context-closed')
+
+    const contact: ActiveButtonContact = {
+      down,
+      admitted: false,
+      downStartTimeSeconds: null,
+      up: null,
+    }
+    if (backend.state !== 'running') {
+      if (
+        lifecycle === 'activating' &&
+        activation?.operation === lifecycleOperation &&
+        pending.length < MAX_PENDING_FEEDBACK_EVENTS
+      ) {
+        buttonContacts.set(down.id, contact)
+        pending.push({ kind: 'button-down', id: down.id })
+        return remember({
+          status: 'deferred',
+          reason: 'unlocking',
+          requested: 2,
+          scheduled: 0,
+          dropped: 0,
+        })
+      }
+      return unavailableButtonDown('context-suspended')
+    }
+
+    buttonContacts.set(down.id, contact)
+    return scheduleButtonDown(contact)
+  }
+
+  const requestButtonUp = (
+    up: InteractionAudioButtonUp,
+  ): InteractionAudioResult => {
+    if (disposed) {
+      return remember({
+        status: 'unavailable',
+        reason: 'disposed',
+        requested: 1,
+        scheduled: 0,
+        dropped: 1,
+      })
+    }
+    const contact = buttonContacts.get(up.id)
+    if (contact === undefined || contact.up !== null) {
+      return remember(silentResult('orphan-release', 1))
+    }
+    contact.up = up
+    if (!contact.admitted) {
+      return remember({
+        status: 'deferred',
+        reason: 'unlocking',
+        requested: 1,
+        scheduled: 0,
+        dropped: 0,
+      })
+    }
+    return scheduleButtonUp(contact)
   }
 
   return {
@@ -412,7 +660,11 @@ export function createInteractionAudioRuntime(
       return promise
     },
 
-    consume: scheduleEvent,
+    consume: scheduleWheelEvent,
+
+    buttonDown: requestButtonDown,
+
+    buttonUp: requestButtonUp,
 
     setEnabled(nextEnabled) {
       if (disposed) return
@@ -459,6 +711,8 @@ export function createInteractionAudioRuntime(
         lifecycle,
         enabled,
         activeVoices: voices.size,
+        activeButtonContacts: buttonContacts.size,
+        reservedButtonReleases: reservedButtonReleases(),
         pendingEvents: pending.length,
         scheduledTotal,
         droppedTotal,
@@ -650,9 +904,8 @@ function normalizedTicks(value: number): number {
   return Math.max(0, Math.trunc(value))
 }
 
-function voiceKind(event: InteractionFeedbackEvent): InteractionVoiceKind {
-  if (event.control === 'wheel') return 'wheel'
-  return event.button === 'center' ? 'select' : 'button'
+function requestedVoiceCount(event: InteractionFeedbackEvent): number {
+  return event.control === 'wheel' ? normalizedTicks(event.clickerTicks) : 0
 }
 
 export function createInteractionVoiceSpec(
@@ -673,27 +926,27 @@ export function createInteractionVoiceSpec(
       playbackRate: 1 - WHEEL_PITCH_JITTER + boundedRandom * WHEEL_PITCH_JITTER * 2,
     }
   }
-  if (kind === 'select') {
+  if (kind === 'button-down') {
     return {
       kind,
       startTimeSeconds,
-      durationSeconds: SELECT_CLICK_DURATION_SECONDS,
+      durationSeconds: BUTTON_DOWN_DURATION_SECONDS,
       filter: 'lowpass',
-      filterFrequencyHz: 4200,
-      filterQ: 0.7,
-      peakGain: 0.075,
+      filterFrequencyHz: 3400,
+      filterQ: 0.65,
+      peakGain: 0.026,
       playbackRate: 1,
     }
   }
   return {
     kind,
     startTimeSeconds,
-    durationSeconds: BUTTON_CLICK_DURATION_SECONDS,
-    filter: 'lowpass',
-    filterFrequencyHz: 4800,
-    filterQ: 0.7,
-    peakGain: 0.06,
-    playbackRate: 1,
+    durationSeconds: BUTTON_UP_DURATION_SECONDS,
+    filter: 'bandpass',
+    filterFrequencyHz: 4600,
+    filterQ: 0.8,
+    peakGain: 0.017,
+    playbackRate: 1.04,
   }
 }
 

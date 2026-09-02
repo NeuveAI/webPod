@@ -12,6 +12,9 @@ import * as THREE from "three";
 
 import {
   ClickWheelInputSurface,
+  type ClickWheelCardinalEnd,
+  type ClickWheelCardinalPress,
+  type ClickWheelCardinalStart,
   type ClickWheelArcEnd,
   type ClickWheelArcSample,
   type ClickWheelSelectEnd,
@@ -59,6 +62,9 @@ type MountedSurface = {
   readonly ends: Array<ClickWheelArcEnd>;
   readonly selectStarts: Array<ClickWheelSelectStart>;
   readonly selectEnds: Array<ClickWheelSelectEnd>;
+  readonly cardinalPresses: Array<ClickWheelCardinalPress>;
+  readonly cardinalStarts: Array<ClickWheelCardinalStart>;
+  readonly cardinalEnds: Array<ClickWheelCardinalEnd>;
   readonly restoreAnimationFrame: () => void;
   readonly controlPhysics: RecordingControlPhysics;
   readonly selectControl: THREE.Mesh;
@@ -165,6 +171,9 @@ async function mountSurface(
   const ends: Array<ClickWheelArcEnd> = [];
   const selectStarts: Array<ClickWheelSelectStart> = [];
   const selectEnds: Array<ClickWheelSelectEnd> = [];
+  const cardinalPresses: Array<ClickWheelCardinalPress> = [];
+  const cardinalStarts: Array<ClickWheelCardinalStart> = [];
+  const cardinalEnds: Array<ClickWheelCardinalEnd> = [];
   const mountedStore: { current: RootStore | null } = { current: null };
   const controlPhysics = new RecordingControlPhysics();
   const selectGeometry = new THREE.CircleGeometry(
@@ -200,6 +209,9 @@ async function mountSurface(
             }}
             onSelectStart={(start) => selectStarts.push(start)}
             onSelectEnd={(end) => selectEnds.push(end)}
+            onCardinalPress={(press) => cardinalPresses.push(press)}
+            onCardinalStart={(start) => cardinalStarts.push(start)}
+            onCardinalEnd={(end) => cardinalEnds.push(end)}
           />
           <AxialSelectControl
             geometry={selectGeometry}
@@ -244,6 +256,9 @@ async function mountSurface(
     ends,
     selectStarts,
     selectEnds,
+    cardinalPresses,
+    cardinalStarts,
+    cardinalEnds,
     restoreAnimationFrame,
     controlPhysics,
     selectControl,
@@ -403,6 +418,116 @@ describe("click-wheel mounted R3F event seam", () => {
       expect(mounted.controlPhysics.wheelMoveAngles).toHaveLength(1);
       expect(mounted.controlPhysics.wheelMoveAngles[0]).toBeCloseTo(90, 8);
       expect(mounted.controlPhysics.wheelReleases).toBe(1);
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("release-qualified cardinal sectors map mouse, touch and pen exactly once", async () => {
+    const mounted = await mountSurface();
+    const band =
+      (DEVICE_LAYOUT.wheel.labelBandInnerR +
+        DEVICE_LAYOUT.wheel.labelBandOuterR) /
+      2;
+    const sectors = [
+      { button: "menu", x: 0, y: band },
+      { button: "next", x: band, y: 0 },
+      { button: "play-pause", x: 0, y: -band },
+      { button: "previous", x: -band, y: 0 },
+    ] as const;
+    try {
+      let pointerId = 200;
+      for (const pointerType of ["mouse", "touch", "pen"] as const) {
+        for (const sector of sectors) {
+          await dispatch(
+            mounted,
+            pointerEvent("pointerdown", pointerId, sector.x, sector.y, {
+              pointerType,
+            }),
+          );
+          expect(mounted.cardinalPresses).toHaveLength(pointerId - 200);
+          await dispatch(
+            mounted,
+            pointerEvent("pointerup", pointerId, sector.x, sector.y, {
+              pointerType,
+            }),
+          );
+          pointerId += 1;
+        }
+      }
+
+      expect(mounted.cardinalPresses.map(({ button }) => button)).toEqual([
+        "menu",
+        "next",
+        "play-pause",
+        "previous",
+        "menu",
+        "next",
+        "play-pause",
+        "previous",
+        "menu",
+        "next",
+        "play-pause",
+        "previous",
+      ]);
+      expect(mounted.cardinalPresses.map(({ pointerType }) => pointerType))
+        .toEqual([
+          "mouse", "mouse", "mouse", "mouse",
+          "touch", "touch", "touch", "touch",
+          "pen", "pen", "pen", "pen",
+        ]);
+      expect(mounted.cardinalStarts).toHaveLength(12);
+      expect(mounted.cardinalEnds).toHaveLength(12);
+      expect(mounted.cardinalEnds.every(({ accepted }) => accepted)).toBeTrue();
+      expect(mounted.cardinalEnds.every(({ reason }) => reason === "release"))
+        .toBeTrue();
+
+      // A raw DOM click is not an input seam and cannot double-fire release.
+      mounted.canvas.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      expect(mounted.cardinalPresses).toHaveLength(12);
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("cancel, lost capture, blur and drag-off reject cardinal presses", async () => {
+    const mounted = await mountSurface();
+    const band =
+      (DEVICE_LAYOUT.wheel.labelBandInnerR +
+        DEVICE_LAYOUT.wheel.labelBandOuterR) /
+      2;
+    try {
+      await dispatch(mounted, pointerEvent("pointerdown", 220, 0, band));
+      await dispatch(mounted, pointerEvent("pointercancel", 220, 0, band));
+
+      await dispatch(mounted, pointerEvent("pointerdown", 221, band, 0));
+      await dispatch(
+        mounted,
+        pointerEvent("lostpointercapture", 221, band, 0),
+      );
+
+      await dispatch(mounted, pointerEvent("pointerdown", 222, 0, -band));
+      window.dispatchEvent(new Event("blur"));
+
+      await dispatch(mounted, pointerEvent("pointerdown", 223, -band, 0));
+      await dispatch(mounted, pointerEvent("pointermove", 223, 0, band));
+      await dispatch(mounted, pointerEvent("pointerup", 223, 0, band));
+
+      await dispatch(mounted, pointerEvent("pointerdown", 224, 0, band));
+      await dispatch(mounted, pointerEvent("pointermove", 224, 0, band - 12));
+      await dispatch(mounted, pointerEvent("pointerup", 224, 0, band - 12));
+
+      expect(mounted.cardinalPresses).toHaveLength(0);
+      expect(mounted.cardinalStarts).toHaveLength(5);
+      expect(mounted.cardinalEnds).toHaveLength(5);
+      expect(mounted.cardinalEnds.map(({ reason }) => reason)).toEqual([
+        "cancel",
+        "lost-capture",
+        "cancel",
+        "release",
+        "release",
+      ]);
+      expect(mounted.cardinalEnds.every(({ accepted }) => !accepted)).toBeTrue();
     } finally {
       await unmount(mounted);
     }

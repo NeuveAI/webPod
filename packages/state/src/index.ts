@@ -24,6 +24,7 @@ export * from './silence'
 export * from './screen'
 
 export {
+  acceptedExternalPressActionAtom,
   coastActionAtom,
   detentActionAtom,
   deviceStore,

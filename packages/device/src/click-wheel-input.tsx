@@ -47,6 +47,30 @@ export type ClickWheelSelectEnd = {
   readonly reason: ClickWheelArcEnd["reason"];
 };
 
+/** The four physical buttons printed into the click-wheel ring. */
+export type ClickWheelCardinalButton =
+  | "menu"
+  | "previous"
+  | "next"
+  | "play-pause";
+
+/** One release-qualified physical cardinal-button press. */
+export type ClickWheelCardinalPress = {
+  readonly pointerId: number;
+  readonly pointerType: ClickWheelPointerType;
+  readonly button: ClickWheelCardinalButton;
+  readonly timestampMs: number;
+};
+
+/** Physical down edge for one cardinal switch, before semantic acceptance. */
+export type ClickWheelCardinalStart = ClickWheelCardinalPress;
+
+/** Terminal edge for a cardinal switch, including drag-off acceptance. */
+export type ClickWheelCardinalEnd = ClickWheelCardinalPress & {
+  readonly reason: ClickWheelArcEnd["reason"];
+  readonly accepted: boolean;
+};
+
 export type ClickWheelInputSurfaceProps = {
   readonly onArcStart: (sample: ClickWheelArcSample) => void;
   readonly onArcMove: (sample: ClickWheelArcSample) => void;
@@ -54,6 +78,10 @@ export type ClickWheelInputSurfaceProps = {
   /** Optional typed seam for the runtime that owns Select semantics/SFX. */
   readonly onSelectStart?: (start: ClickWheelSelectStart) => void;
   readonly onSelectEnd?: (end: ClickWheelSelectEnd) => void;
+  /** Fires once on release only when a cardinal hit survives pointer slop. */
+  readonly onCardinalPress?: (press: ClickWheelCardinalPress) => void;
+  readonly onCardinalStart?: (start: ClickWheelCardinalStart) => void;
+  readonly onCardinalEnd?: (end: ClickWheelCardinalEnd) => void;
 };
 
 /** Canonical annulus dimensions, exported so geometry drift is testable. */
@@ -72,6 +100,50 @@ export const CLICK_WHEEL_INPUT_POSITION = Object.freeze([
   DEVICE_LAYOUT.wheel.centerY,
   DEFAULT_FRONT_ASSEMBLY_DEPTHS.clickWheelInputZ,
 ] as const);
+
+/** Physical label-centre hit radius: 26 model px = 4.87mm. */
+export const CLICK_WHEEL_CARDINAL_HIT_RADIUS = 26;
+
+/** Pointer slop before a labelled press becomes an arc-only gesture. */
+export const CLICK_WHEEL_CARDINAL_SLOP = 10;
+
+const CLICK_WHEEL_CARDINAL_RADIUS =
+  (DEVICE_LAYOUT.wheel.labelBandInnerR + DEVICE_LAYOUT.wheel.labelBandOuterR) / 2;
+
+type WheelLocalPoint = {
+  readonly x: number;
+  readonly y: number;
+  readonly angleDeg: number;
+  readonly radius: number;
+};
+
+type CardinalCandidate = {
+  readonly pointerId: number;
+  readonly pointerType: ClickWheelPointerType;
+  readonly button: ClickWheelCardinalButton;
+  readonly startX: number;
+  readonly startY: number;
+};
+
+/** Maps the four printed label centres to their physical button semantics. */
+export function cardinalButtonAtWheelPoint(
+  x: number,
+  y: number,
+): ClickWheelCardinalButton | null {
+  const targets = [
+    { button: "menu" as const, x: 0, y: CLICK_WHEEL_CARDINAL_RADIUS },
+    { button: "next" as const, x: CLICK_WHEEL_CARDINAL_RADIUS, y: 0 },
+    { button: "play-pause" as const, x: 0, y: -CLICK_WHEEL_CARDINAL_RADIUS },
+    { button: "previous" as const, x: -CLICK_WHEEL_CARDINAL_RADIUS, y: 0 },
+  ];
+  const limitSquared = CLICK_WHEEL_CARDINAL_HIT_RADIUS ** 2;
+  for (const target of targets) {
+    if ((x - target.x) ** 2 + (y - target.y) ** 2 <= limitSquared) {
+      return target.button;
+    }
+  }
+  return null;
+}
 
 /** Resolve the ray plane from the same injectable solid form as the wheel. */
 export function clickWheelInputPosition(
@@ -149,6 +221,11 @@ export function clockwiseWheelAngleDeg(x: number, y: number): number {
  * accepts only a ray and recomputes the intersection after every transform.
  */
 export function wheelAngleFromRay(mesh: Mesh, ray: Ray): number | null {
+  return wheelPointFromRay(mesh, ray)?.angleDeg ?? null;
+}
+
+/** Resolves the complete body-local plane hit used by arc and button logic. */
+export function wheelPointFromRay(mesh: Mesh, ray: Ray): WheelLocalPoint | null {
   mesh.updateWorldMatrix(true, false);
   const plane = new Plane();
   const planeNormal = new Vector3();
@@ -160,7 +237,12 @@ export function wheelAngleFromRay(mesh: Mesh, ray: Ray): number | null {
   const hit = ray.intersectPlane(plane, planeHit);
   if (hit === null) return null;
   mesh.worldToLocal(hit);
-  return clockwiseWheelAngleDeg(hit.x, hit.y);
+  return {
+    x: hit.x,
+    y: hit.y,
+    angleDeg: clockwiseWheelAngleDeg(hit.x, hit.y),
+    radius: Math.hypot(hit.x, hit.y),
+  };
 }
 
 /** Shortest signed angular travel, including the ±180° seam. */
@@ -243,6 +325,9 @@ export function ClickWheelInputSurface({
   onArcEnd,
   onSelectStart,
   onSelectEnd,
+  onCardinalPress,
+  onCardinalStart,
+  onCardinalEnd,
 }: ClickWheelInputSurfaceProps) {
   const orientationState = useContext(DeviceCanvasOrientationContext);
   const controlPhysics = useControlPhysics();
@@ -255,10 +340,33 @@ export function ClickWheelInputSurface({
   const captureSlotRef = useRef<ClickWheelCaptureSlot>(
     createClickWheelCaptureSlot(),
   );
-  const callbacksRef = useRef({ onArcStart, onArcMove, onArcEnd });
+  const cardinalCandidateRef = useRef<CardinalCandidate | null>(null);
+  const cardinalContactRef = useRef<CardinalCandidate | null>(null);
+  const callbacksRef = useRef({
+    onArcStart,
+    onArcMove,
+    onArcEnd,
+    onCardinalPress,
+    onCardinalStart,
+    onCardinalEnd,
+  });
   useEffect(() => {
-    callbacksRef.current = { onArcStart, onArcMove, onArcEnd };
-  }, [onArcEnd, onArcMove, onArcStart]);
+    callbacksRef.current = {
+      onArcStart,
+      onArcMove,
+      onArcEnd,
+      onCardinalPress,
+      onCardinalStart,
+      onCardinalEnd,
+    };
+  }, [
+    onArcEnd,
+    onArcMove,
+    onArcStart,
+    onCardinalEnd,
+    onCardinalPress,
+    onCardinalStart,
+  ]);
 
   useEffect(() => {
     if (controlPhysics === null || typeof window === "undefined") return;
@@ -303,8 +411,25 @@ export function ClickWheelInputSurface({
     timestampMs: number,
     reason: ClickWheelArcEnd["reason"],
     releaseCapture: boolean,
+    releasePoint: WheelLocalPoint | null = null,
   ) => {
-    finishClickWheelCapture(
+    const candidate = cardinalCandidateRef.current;
+    const contact = cardinalContactRef.current;
+    cardinalCandidateRef.current = null;
+    cardinalContactRef.current = null;
+    const acceptedCardinal =
+      reason === "release" &&
+      candidate?.pointerId === pointerId &&
+      releasePoint !== null &&
+      cardinalButtonAtWheelPoint(releasePoint.x, releasePoint.y) ===
+        candidate.button &&
+      Math.hypot(
+        releasePoint.x - candidate.startX,
+        releasePoint.y - candidate.startY,
+      ) <= CLICK_WHEEL_CARDINAL_SLOP
+        ? candidate
+        : null;
+    const ended = finishClickWheelCapture(
       captureSlotRef.current,
       pointerId,
       timestampMs,
@@ -315,6 +440,24 @@ export function ClickWheelInputSurface({
         callbacksRef.current.onArcEnd(end);
       },
     );
+    if (ended && contact?.pointerId === pointerId) {
+      callbacksRef.current.onCardinalEnd?.({
+        pointerId,
+        pointerType: contact.pointerType,
+        button: contact.button,
+        timestampMs,
+        reason,
+        accepted: acceptedCardinal !== null,
+      });
+    }
+    if (ended && acceptedCardinal !== null) {
+      callbacksRef.current.onCardinalPress?.({
+        pointerId,
+        pointerType: acceptedCardinal.pointerType,
+        button: acceptedCardinal.button,
+        timestampMs,
+      });
+    }
   };
 
   const cancelAfterCallbackError = (
@@ -335,7 +478,10 @@ export function ClickWheelInputSurface({
     () => () => {
       const active = captureSlotRef.current.current;
       if (active === null) return;
-      finishClickWheelCapture(
+      const contact = cardinalContactRef.current;
+      cardinalCandidateRef.current = null;
+      cardinalContactRef.current = null;
+      const ended = finishClickWheelCapture(
         captureSlotRef.current,
         active.pointerId,
         performance.now(),
@@ -346,22 +492,38 @@ export function ClickWheelInputSurface({
           callbacksRef.current.onArcEnd(end);
         },
       );
+      if (ended && contact?.pointerId === active.pointerId) {
+        callbacksRef.current.onCardinalEnd?.({
+          pointerId: active.pointerId,
+          pointerType: contact.pointerType,
+          button: contact.button,
+          timestampMs: performance.now(),
+          reason: "cancel",
+          accepted: false,
+        });
+      }
     },
     [controlPhysics],
   );
+
+  const point = (
+    event: ThreeEvent<PointerEvent>,
+  ): WheelLocalPoint | null => {
+    const mesh = meshRef.current;
+    if (mesh === null) return null;
+    return wheelPointFromRay(mesh, event.ray);
+  };
 
   const sample = (
     event: ThreeEvent<PointerEvent>,
     pointerType: ClickWheelPointerType,
   ): ClickWheelArcSample | null => {
-    const mesh = meshRef.current;
-    if (mesh === null) return null;
-    const angleDeg = wheelAngleFromRay(mesh, event.ray);
-    if (angleDeg === null) return null;
+    const local = point(event);
+    if (local === null) return null;
     return {
       pointerId: event.pointerId,
       pointerType,
-      angleDeg,
+      angleDeg: local.angleDeg,
       timestampMs: event.timeStamp,
     };
   };
@@ -377,7 +539,8 @@ export function ClickWheelInputSurface({
     const capture = captureApiOf(event.target);
     if (pointerType === null || host === null || capture === null) return;
     const first = sample(event, pointerType);
-    if (first === null) return;
+    const firstPoint = point(event);
+    if (first === null || firstPoint === null) return;
 
     event.stopPropagation();
     preventNativeDefault(event);
@@ -413,11 +576,34 @@ export function ClickWheelInputSurface({
       onBlur,
     };
     captureSlotRef.current.current = active;
+    const cardinalButton = cardinalButtonAtWheelPoint(
+      firstPoint.x,
+      firstPoint.y,
+    );
+    cardinalCandidateRef.current =
+      cardinalButton === null
+        ? null
+        : {
+            pointerId: event.pointerId,
+            pointerType,
+            button: cardinalButton,
+            startX: firstPoint.x,
+            startY: firstPoint.y,
+          };
+    cardinalContactRef.current = cardinalCandidateRef.current;
     host.addEventListener("pointercancel", onCancel);
     host.addEventListener("lostpointercapture", onLostCapture);
     blurHost?.addEventListener("blur", onBlur);
     controlPhysics?.pressWheel(first.angleDeg);
     try {
+      if (cardinalButton !== null) {
+        callbacksRef.current.onCardinalStart?.({
+          pointerId: event.pointerId,
+          pointerType,
+          button: cardinalButton,
+          timestampMs: event.timeStamp,
+        });
+      }
       callbacksRef.current.onArcStart(first);
     } catch (error) {
       cancelAfterCallbackError(event.pointerId, event.timeStamp, error);
@@ -430,6 +616,20 @@ export function ClickWheelInputSurface({
     event.stopPropagation();
     preventNativeDefault(event);
     const next = sample(event, active.pointerType);
+    const nextPoint = point(event);
+    const candidate = cardinalCandidateRef.current;
+    if (
+      candidate?.pointerId === event.pointerId &&
+      (nextPoint === null ||
+        cardinalButtonAtWheelPoint(nextPoint.x, nextPoint.y) !==
+          candidate.button ||
+        Math.hypot(
+          nextPoint.x - candidate.startX,
+          nextPoint.y - candidate.startY,
+        ) > CLICK_WHEEL_CARDINAL_SLOP)
+    ) {
+      cardinalCandidateRef.current = null;
+    }
     if (next !== null) {
       controlPhysics?.moveWheel(next.angleDeg);
       try {
@@ -445,7 +645,13 @@ export function ClickWheelInputSurface({
     if (active === null || active.pointerId !== event.pointerId) return;
     event.stopPropagation();
     preventNativeDefault(event);
-    finish(event.pointerId, event.timeStamp, "release", true);
+    finish(
+      event.pointerId,
+      event.timeStamp,
+      "release",
+      true,
+      point(event),
+    );
   };
 
   if (!orientationState.frontInteractive) return null;

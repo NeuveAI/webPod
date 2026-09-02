@@ -10,7 +10,7 @@ const browser = await chromium.launch({ headless: true })
 try {
   const page = await browser.newPage()
   await page.goto(route, { waitUntil: 'domcontentloaded' })
-  const encoded = await page.evaluate(async (previewModuleUrl) => {
+  const rendered = await page.evaluate(async (previewModuleUrl) => {
     const previewModule = await import(/* @vite-ignore */ previewModuleUrl)
     const wav: ArrayBuffer = await previewModule.renderInteractionAudioPreviewWav()
     const bytes = new Uint8Array(wav)
@@ -19,13 +19,26 @@ try {
     for (let offset = 0; offset < bytes.length; offset += chunkSize) {
       binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize))
     }
-    return btoa(binary)
+    return {
+      encoded: btoa(binary),
+      timeline: previewModule.interactionAudioPreviewTimeline(),
+    }
   }, moduleUrl)
-  const bytes = Uint8Array.from(Buffer.from(encoded, 'base64'))
+  const bytes = Uint8Array.from(Buffer.from(rendered.encoded, 'base64'))
   await Bun.write(outputPath, bytes)
+  const timelinePath = outputPath.replace(/\.wav$/i, '') + '.json'
+  await Bun.write(
+    timelinePath,
+    JSON.stringify({
+      source: 'production procedural interaction graph',
+      reference: '/Users/vinicius/Downloads/clickwheel-sounds.m4a',
+      cues: rendered.timeline,
+    }, null, 2) + '\n',
+  )
   const sha256 = new Bun.CryptoHasher('sha256').update(bytes).digest('hex')
   process.stdout.write(JSON.stringify({
     output: outputPath,
+    timeline: timelinePath,
     bytes: bytes.length,
     sha256,
   }) + '\n')

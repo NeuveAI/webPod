@@ -53,6 +53,7 @@ import type {
   DetentOutcome,
   DeviceStore,
   InteractionFeedbackEvent,
+  AcceptedExternalPressInput,
   Actor,
   MenuVisibility,
   PressInput,
@@ -217,30 +218,35 @@ export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOu
   // cannot go through `detent()` — it is not a detent — so this is a second
   // *caller* of the rule, which is fine; what would not be fine is a second
   // copy of the rule.
-  const actor = actorFor(input.source, 'touch-arc', input.agentOrigin)
+  const actor = actorFor(input.source, input.path ?? 'touch-arc', input.agentOrigin)
   const silenced = isSilenced(input.source)
 
   let bump: BumpDirection | null = null
-  let handled = true
+  let handled: boolean
 
   if (input.button === 'menu') {
-    const transition = popScreen(get(screenStackAtom))
+    const stack = get(screenStackAtom)
+    const transition = popScreen(stack)
     set(screenStackAtom, transition.stack)
     bump = transition.bump
+    handled = stack.length > 0
   } else if (input.button === 'next' || input.button === 'previous') {
+    const stack = get(screenStackAtom)
     const transition = pageHighlight(
-      get(screenStackAtom),
+      stack,
       input.button === 'next' ? 1 : -1,
       get(visibleRowCountAtom),
     )
     set(screenStackAtom, transition.stack)
     bump = transition.bump
+    handled = stack.length > 0
   } else {
     handled = false
   }
 
   if (bump !== null) set(publishBumpAtom, bump)
 
+  const feedbackAccepted = handled || input.button === 'center'
   const outcome: PressOutcome = {
     button: input.button,
     stack: get(screenStackAtom),
@@ -248,18 +254,42 @@ export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOu
     handled,
     actor,
     silenced,
-    clickerTicks: silenced ? 0 : 1,
+    clickerTicks: silenced || !feedbackAccepted ? 0 : 1,
   }
-  set(publishInteractionFeedbackAtom, {
-    control: 'press',
-    origin: 'press',
-    button: outcome.button,
-    clickerTicks: outcome.clickerTicks,
-    silenced: outcome.silenced,
-    actor: outcome.actor,
-  })
+  if (feedbackAccepted) {
+    set(publishInteractionFeedbackAtom, {
+      control: 'press',
+      origin: 'press',
+      button: outcome.button,
+      clickerTicks: outcome.clickerTicks,
+      silenced: outcome.silenced,
+      actor: outcome.actor,
+    })
+  }
   return outcome
 })
+
+/**
+ * Publishes feedback only after a provider-owned physical press was accepted.
+ * The caller cannot submit a generic button or a tick count: this seam is the
+ * one external Play/Pause acknowledgement, with provenance derived in state.
+ */
+export const acceptedExternalPressActionAtom = atom(
+  null,
+  (get, set, input: AcceptedExternalPressInput): InteractionFeedbackEvent | null => {
+    void get
+    const actor = actorFor(input.source, input.path ?? 'touch-arc', input.agentOrigin)
+    const silenced = isSilenced(input.source)
+    return set(publishInteractionFeedbackAtom, {
+      control: 'press',
+      origin: 'press',
+      button: input.button,
+      clickerTicks: silenced ? 0 : 1,
+      silenced,
+      actor,
+    })
+  },
+)
 
 /**
  * Sets the human's density preference, or clears it back to per-screen.

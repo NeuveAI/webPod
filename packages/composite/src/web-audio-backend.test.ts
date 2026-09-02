@@ -1,8 +1,12 @@
 import { afterAll, beforeEach, describe, expect, test } from 'bun:test'
 
-import type { InteractionVoiceSpec } from './interaction-audio'
+import {
+  createInteractionVoiceSpec,
+  type InteractionVoiceSpec,
+} from './interaction-audio'
 import {
   createBrowserInteractionAudioBackend,
+  interactionAudioPreviewTimeline,
   renderInteractionAudioPreviewWav,
 } from './web-audio-backend'
 
@@ -108,8 +112,18 @@ describe('browser interaction audio graph', () => {
     const specs: InteractionVoiceSpec[] = [
       wheelSpec(),
       { ...wheelSpec(), startTimeSeconds: 1.04 },
-      { ...wheelSpec(), kind: 'select', durationSeconds: 0.016, filter: 'lowpass' },
-      { ...wheelSpec(), kind: 'button', durationSeconds: 0.012, filter: 'lowpass' },
+      {
+        ...wheelSpec(),
+        kind: 'button-down',
+        durationSeconds: 0.014,
+        filter: 'lowpass',
+      },
+      {
+        ...wheelSpec(),
+        kind: 'button-up',
+        durationSeconds: 0.01,
+        filter: 'bandpass',
+      },
     ]
     for (const spec of specs) backend.schedule(spec, () => undefined)
 
@@ -127,6 +141,17 @@ describe('browser interaction audio graph', () => {
     }
   })
 
+  test('the physical switch supports rather than masks the digital actuation', () => {
+    const digital = createInteractionVoiceSpec('wheel', 0, () => 0.5)
+    const down = createInteractionVoiceSpec('button-down', 0, () => 0.5)
+    const up = createInteractionVoiceSpec('button-up', 0.16, () => 0.5)
+
+    expect(down.peakGain).toBeLessThan(digital.peakGain)
+    expect(up.peakGain).toBeLessThan(down.peakGain)
+    expect(digital.peakGain + down.peakGain).toBeLessThan(0.08)
+    expect(up.startTimeSeconds).toBeGreaterThan(down.startTimeSeconds)
+  })
+
   test('the owner preview renders the production graph into a PCM WAV', async () => {
     const wav = await renderInteractionAudioPreviewWav()
     const context = FakeOfflineAudioContext.latest
@@ -140,10 +165,19 @@ describe('browser interaction audio graph', () => {
     expect(view.getUint16(22, true)).toBe(1)
     expect(view.getUint32(24, true)).toBe(48_000)
     expect(view.getUint16(34, true)).toBe(16)
-    expect(wav.byteLength).toBe(44 + 48_000 * 2)
-    expect(context.sources).toHaveLength(8)
+    expect(wav.byteLength).toBe(44 + 48_000 * 3.4 * 2)
+    expect(context.sources).toHaveLength(interactionAudioPreviewTimeline().length)
     expect(context.buffers).toHaveLength(3)
     expect(context.compressors).toHaveLength(1)
+    const timeline = interactionAudioPreviewTimeline()
+    expect(timeline.filter(({ label }) => label.includes('fast-detent'))).toHaveLength(6)
+    expect(timeline.find(({ label }) => label === 'center-short.physical-up')?.startTimeSeconds)
+      .toBe(1.68)
+    expect(timeline.find(({ label }) => label === 'center-long.physical-up')?.startTimeSeconds)
+      .toBe(2.63)
+    const shortDown = timeline.filter(({ label }) => label.startsWith('center-short.') &&
+      label.endsWith('down'))
+    expect(shortDown.map(({ startTimeSeconds }) => startTimeSeconds)).toEqual([1.52, 1.52])
   })
 })
 

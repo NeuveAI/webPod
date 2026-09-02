@@ -43,6 +43,9 @@ export {
   createInteractionAudioRuntime,
   type InteractionAudioActivationResult,
   type InteractionAudioBackend,
+  type InteractionAudioButton,
+  type InteractionAudioButtonDown,
+  type InteractionAudioButtonUp,
   type InteractionAudioBrowserTargets,
   type InteractionAudioDependencies,
   type InteractionAudioReason,
@@ -53,7 +56,11 @@ export {
   type InteractionVoiceKind,
   type InteractionVoiceSpec,
 } from './interaction-audio'
-export { renderInteractionAudioPreviewWav } from './web-audio-backend'
+export {
+  interactionAudioPreviewTimeline,
+  renderInteractionAudioPreviewWav,
+  type InteractionAudioPreviewCue,
+} from './web-audio-backend'
 
 export type {
   CapabilityReport,

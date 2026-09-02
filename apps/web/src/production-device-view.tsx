@@ -3,7 +3,8 @@ import type {
   DeviceOrientation,
   DeviceOrientationGrabStart,
 } from '@webpod/device'
-import { Panel, type PanelState } from '@webpod/panel'
+import { fixtureProvider, Panel, type PanelState } from '@webpod/panel'
+import { useCallback } from 'react'
 
 export type ProductionPanelState = PanelState
 
@@ -64,6 +65,10 @@ export function ProductionDeviceView({
   onOrientationGrabHoverChange,
   interactionAudioEnabled,
 }: ProductionDeviceViewProps) {
+  const onPlayPausePress = useCallback(
+    () => toggleProductionPlayback(),
+    [],
+  )
   return (
     <CompositeDevice
       className={className}
@@ -76,6 +81,7 @@ export function ProductionDeviceView({
       onOrientationGrabStart={onOrientationGrabStart}
       onOrientationGrabHoverChange={onOrientationGrabHoverChange}
       interactionAudioEnabled={interactionAudioEnabled}
+      onPlayPausePress={onPlayPausePress}
       panel={(
         <ProductionPanelView
           colourway={colourway}
@@ -85,4 +91,33 @@ export function ProductionDeviceView({
       )}
     />
   )
+}
+
+/** Executes the provider-owned transport action before feedback is admitted. */
+export async function toggleProductionPlayback(): Promise<boolean> {
+  const session = fixtureProvider.session
+  if (
+    !fixtureProvider.supports('transport') ||
+    session?.status !== 'authorized' ||
+    !session.canPlay ||
+    fixtureProvider.playback.status === 'loading'
+  ) return false
+
+  try {
+    if (fixtureProvider.playback.status === 'playing') {
+      await fixtureProvider.pause()
+    } else if (fixtureProvider.playback.now === null) {
+      if (fixtureProvider.catalog.tracks.length === 0) return false
+      await fixtureProvider.play({
+        kind: 'tracks',
+        tracks: fixtureProvider.catalog.tracks,
+        startIndex: 0,
+      })
+    } else {
+      await fixtureProvider.play()
+    }
+    return true
+  } catch {
+    return false
+  }
 }

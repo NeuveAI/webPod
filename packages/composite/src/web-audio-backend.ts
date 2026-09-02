@@ -4,7 +4,10 @@ import type {
   InteractionVoiceKind,
   InteractionVoiceSpec,
 } from './interaction-audio'
-import { createInteractionVoiceSpec } from './interaction-audio'
+import {
+  WHEEL_TICK_RATE_HZ,
+  createInteractionVoiceSpec,
+} from './interaction-audio'
 
 const MASTER_GAIN = 0.62
 const COMPRESSOR_THRESHOLD_DB = -18
@@ -13,13 +16,54 @@ const COMPRESSOR_RATIO = 8
 const COMPRESSOR_ATTACK_SECONDS = 0.002
 const COMPRESSOR_RELEASE_SECONDS = 0.05
 const PREVIEW_SAMPLE_RATE = 48_000
-const PREVIEW_DURATION_SECONDS = 1
+const PREVIEW_DURATION_SECONDS = 3.4
+
+export type InteractionAudioPreviewCue = {
+  readonly label: string
+  readonly kind: InteractionVoiceKind
+  readonly startTimeSeconds: number
+  readonly random: number
+}
+
+/** Human-readable production-graph sequence accompanying the owner preview. */
+export function interactionAudioPreviewTimeline(): readonly InteractionAudioPreviewCue[] {
+  const cues: InteractionAudioPreviewCue[] = []
+  const add = (
+    label: string,
+    kind: InteractionVoiceKind,
+    startTimeSeconds: number,
+    random = 0.5,
+  ) => cues.push({ label, kind, startTimeSeconds, random })
+  const addButton = (label: string, down: number, up: number) => {
+    add(`${label}.digital-down`, 'wheel', down)
+    add(`${label}.physical-down`, 'button-down', down)
+    add(`${label}.physical-up`, 'button-up', up)
+  }
+
+  const fastPitch = [0.25, 0.6, 0.4, 0.7, 0.3, 0.55]
+  for (let index = 0; index < fastPitch.length; index += 1) {
+    add(
+      `fast-detent.${index + 1}`,
+      'wheel',
+      0.15 + index / WHEEL_TICK_RATE_HZ,
+      fastPitch[index] ?? 0.5,
+    )
+  }
+  add('isolated-detent.1', 'wheel', 0.62, 0.35)
+  add('isolated-detent.2', 'wheel', 0.88, 0.65)
+  add('isolated-detent.3', 'wheel', 1.14, 0.45)
+  addButton('center-short', 1.52, 1.68)
+  addButton('center-long', 1.98, 2.63)
+  addButton('menu-tap', 2.94, 3.11)
+  return cues
+}
 
 /**
  * Creates the real browser backend, or `null` when Web Audio is unavailable.
  * Calling this function constructs `AudioContext`, so callers must invoke it
  * only from an event eligible for browser autoplay activation. That event is
- * not proof of human provenance; actor eligibility remains state-owned.
+ * not proof of human provenance; wheel actor eligibility remains state-owned
+ * and button phases enter through the physical input boundary.
  */
 export function createBrowserInteractionAudioBackend(): InteractionAudioBackend | null {
   if (typeof AudioContext === 'undefined') return null
@@ -63,8 +107,9 @@ class WebAudioInteractionBackend implements InteractionAudioBackend {
 
 /**
  * Renders the live procedural graph into a short PCM WAV for the owner-quality
- * listening gate. The artifact contains Select, a six-detent wheel run, and a
- * secondary button in that order; it is evidence, not a substitute for hearing
+ * listening gate. Its companion timeline names fast and isolated detents plus
+ * short/long button holds so the second mechanical phase cannot be mistaken
+ * for a fixed-delay double click. It is evidence, not a substitute for hearing
  * the mounted route through the owner's actual output device.
  */
 export async function renderInteractionAudioPreviewWav(): Promise<ArrayBuffer> {
@@ -74,20 +119,12 @@ export async function renderInteractionAudioPreviewWav(): Promise<ArrayBuffer> {
   const frameCount = PREVIEW_SAMPLE_RATE * PREVIEW_DURATION_SECONDS
   const context = new OfflineAudioContext(1, frameCount, PREVIEW_SAMPLE_RATE)
   const graph = new InteractionAudioGraph(context)
-  graph.schedule(createInteractionVoiceSpec('select', 0.12, () => 0.5), () => undefined)
-  const pitchSequence = [0.25, 0.6, 0.4, 0.7, 0.3, 0.55]
-  for (let index = 0; index < pitchSequence.length; index += 1) {
-    const pitch = pitchSequence[index] ?? 0.5
+  for (const cue of interactionAudioPreviewTimeline()) {
     graph.schedule(
-      createInteractionVoiceSpec(
-        'wheel',
-        0.4 + index / 30,
-        () => pitch,
-      ),
+      createInteractionVoiceSpec(cue.kind, cue.startTimeSeconds, () => cue.random),
       () => undefined,
     )
   }
-  graph.schedule(createInteractionVoiceSpec('button', 0.78, () => 0.5), () => undefined)
   const rendered = await context.startRendering()
   graph.dispose()
   return encodeMonoPcm16Wav(rendered)
@@ -175,18 +212,27 @@ class InteractionAudioGraph {
     const frameCount = Math.max(1, Math.ceil(this.context.sampleRate * durationSeconds))
     const buffer = this.context.createBuffer(1, frameCount, this.context.sampleRate)
     const samples = buffer.getChannelData(0)
-    let seed = kind === 'wheel' ? 0x51f15e : kind === 'select' ? 0x5e1ec7 : 0xb0770
+    let seed =
+      kind === 'wheel'
+        ? 0x51f15e
+        : kind === 'button-down'
+          ? 0x5e1ec7
+          : 0x0f17e1
     for (let index = 0; index < samples.length; index += 1) {
       seed = (seed * 1664525 + 1013904223) >>> 0
       const noise = (seed / 0xffffffff) * 2 - 1
       const progress = index / Math.max(1, samples.length - 1)
-      const decay = Math.exp(-progress * (kind === 'wheel' ? 11 : 7))
+      const decay = Math.exp(
+        -progress * (kind === 'wheel' ? 11 : kind === 'button-down' ? 7.8 : 9.5),
+      )
+      const bodyFrequencyHz = kind === 'button-down' ? 980 : 1480
       const plasticBody =
         kind === 'wheel'
           ? 0
-          : Math.sin((2 * Math.PI * (kind === 'select' ? 1100 : 1500) * index) /
-              this.context.sampleRate) * 0.24
-      samples[index] = (noise * (kind === 'wheel' ? 0.9 : 0.55) + plasticBody) * decay
+          : Math.sin((2 * Math.PI * bodyFrequencyHz * index) /
+              this.context.sampleRate) * (kind === 'button-down' ? 0.2 : 0.13)
+      const noiseGain = kind === 'wheel' ? 0.9 : kind === 'button-down' ? 0.48 : 0.4
+      samples[index] = (noise * noiseGain + plasticBody) * decay
     }
     this.buffers.set(kind, buffer)
     return buffer

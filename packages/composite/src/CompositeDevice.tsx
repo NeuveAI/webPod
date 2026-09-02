@@ -6,6 +6,10 @@ import {
   FRONT_DEVICE_ORIENTATION,
   type ClickWheelArcEnd,
   type ClickWheelArcSample,
+  type ClickWheelCardinalButton,
+  type ClickWheelCardinalEnd,
+  type ClickWheelCardinalPress,
+  type ClickWheelCardinalStart,
   type ClickWheelSelectEnd,
   type ClickWheelSelectStart,
   type Colourway,
@@ -13,7 +17,12 @@ import {
   type DeviceOrientation,
   type ScreenMeshHandle,
 } from '@webpod/device'
-import { deviceStore, pressActionAtom, type DeviceStore } from '@webpod/state'
+import {
+  acceptedExternalPressActionAtom,
+  deviceStore,
+  pressActionAtom,
+  type DeviceStore,
+} from '@webpod/state'
 import {
   useCallback,
   useEffect,
@@ -63,6 +72,8 @@ export interface CompositeDeviceProps {
   readonly onOrientationGrabHoverChange?: (grabbable: boolean) => void
   /** Explicit mounted-product seam for muting interaction SFX. */
   readonly interactionAudioEnabled?: boolean
+  /** Provider-owned Play/Pause action; `true` confirms the press was accepted. */
+  readonly onPlayPausePress?: () => boolean | Promise<boolean>
 }
 
 /**
@@ -83,6 +94,7 @@ export function CompositeDevice({
   onOrientationGrabStart,
   onOrientationGrabHoverChange,
   interactionAudioEnabled = true,
+  onPlayPausePress,
 }: CompositeDeviceProps) {
   const canUseDom = typeof document !== 'undefined'
   const tier = useSyncExternalStore(
@@ -114,8 +126,18 @@ export function CompositeDevice({
       data-composite-tier={tier.tier}
       data-composite-ready={host !== null}
       interactionAudioEnabled={interactionAudioEnabled}
+      onPlayPausePress={onPlayPausePress}
     >
-      {({ onArcStart, onArcMove, onArcEnd, onSelectStart, onSelectEnd }) => (
+      {({
+        onArcStart,
+        onArcMove,
+        onArcEnd,
+        onSelectStart,
+        onSelectEnd,
+        onCardinalStart,
+        onCardinalEnd,
+        onCardinalPress,
+      }) => (
         <>
           {host !== null && tier.tier === 'T1' ? createPortal(panel, host) : null}
           {shouldMountCanvas ? (
@@ -136,6 +158,9 @@ export function CompositeDevice({
                 onArcEnd={onArcEnd}
                 onSelectStart={onSelectStart}
                 onSelectEnd={onSelectEnd}
+                onCardinalStart={onCardinalStart}
+                onCardinalEnd={onCardinalEnd}
+                onCardinalPress={onCardinalPress}
               />
             </DeviceCanvas>
           ) : null}
@@ -151,6 +176,9 @@ type CompositeArcHandlers = {
   readonly onArcEnd: (end: ClickWheelArcEnd) => void
   readonly onSelectStart: (start: ClickWheelSelectStart) => void
   readonly onSelectEnd: (end: ClickWheelSelectEnd) => void
+  readonly onCardinalStart: (start: ClickWheelCardinalStart) => void
+  readonly onCardinalEnd: (end: ClickWheelCardinalEnd) => void
+  readonly onCardinalPress: (press: ClickWheelCardinalPress) => void
 }
 
 type CompositeInputBoundaryProps = {
@@ -161,6 +189,7 @@ type CompositeInputBoundaryProps = {
   readonly createDependencies?: () => ClickWheelRuntimeDependencies
   readonly createAudioRuntime?: () => InteractionAudioRuntime
   readonly interactionAudioEnabled?: boolean
+  readonly onPlayPausePress?: () => boolean | Promise<boolean>
 }
 
 /**
@@ -176,6 +205,7 @@ export function CompositeInputBoundary({
   createDependencies = defaultRuntimeDependencies,
   createAudioRuntime = defaultInteractionAudioRuntime,
   interactionAudioEnabled = true,
+  onPlayPausePress,
 }: CompositeInputBoundaryProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const controller = useMemo(
@@ -186,6 +216,10 @@ export function CompositeInputBoundary({
   useEffect(() => {
     controller.setInteractionAudioEnabled(interactionAudioEnabled)
   }, [controller, interactionAudioEnabled])
+
+  useEffect(() => {
+    controller.setPlayPauseHandler(onPlayPausePress)
+  }, [controller, onPlayPausePress])
 
   useEffect(() => {
     const root = rootRef.current
@@ -227,7 +261,10 @@ class CompositeInputController {
   private applicationFocus: HTMLElement | null = null
   private selection: ScopedGestureSelection | null = null
   private audio: InteractionAudioRuntime | null = null
+  private audioRoot: HTMLDivElement | null = null
   private interactionAudioEnabled = true
+  private onPlayPausePress: (() => boolean | Promise<boolean>) | undefined
+  private attachmentGeneration = 0
 
   readonly handlers: CompositeArcHandlers = {
     onArcStart: (sample) => {
@@ -252,14 +289,44 @@ class CompositeInputController {
     onSelectStart: (start) => {
       if (this.activeSelectPointerId !== null) return
       this.activeSelectPointerId = start.pointerId
+      this.audioButtonDown(
+        pointerAudioContactId(start.pointerId, 'center'),
+        'center',
+        'pointer',
+        start.timestampMs,
+      )
       queueMicrotask(() => this.restoreApplicationFocus())
     },
     onSelectEnd: (end) => {
       if (this.activeSelectPointerId !== end.pointerId) return
       this.activeSelectPointerId = null
+      this.audioButtonUp(
+        pointerAudioContactId(end.pointerId, 'center'),
+        end.timestampMs,
+        end.reason,
+      )
       if (end.reason === 'release') {
         this.store?.set(pressActionAtom, { button: 'center', source: 'human' })
       }
+      this.restoreApplicationFocus()
+    },
+    onCardinalStart: (start) => {
+      this.audioButtonDown(
+        pointerAudioContactId(start.pointerId, start.button),
+        start.button,
+        'pointer',
+        start.timestampMs,
+      )
+    },
+    onCardinalEnd: (end) => {
+      this.audioButtonUp(
+        pointerAudioContactId(end.pointerId, end.button),
+        end.timestampMs,
+        end.reason,
+      )
+    },
+    onCardinalPress: (press) => {
+      this.dispatchPhysicalPress(press.button, pointerPressPath(press))
       this.restoreApplicationFocus()
     },
   }
@@ -270,6 +337,8 @@ class CompositeInputController {
   ) {}
 
   attach(root: HTMLDivElement): () => void {
+    const generation = this.attachmentGeneration + 1
+    this.attachmentGeneration = generation
     const runtimeDependencies = this.createDependencies()
     const runtime = createClickWheelRuntime(runtimeDependencies)
     const audio = this.createAudioRuntime()
@@ -289,9 +358,13 @@ class CompositeInputController {
     this.store = runtimeDependencies.store
     this.selection = selection
     this.audio = audio
+    this.audioRoot = root
     const detachWheel = attachCompositeWheelListener(root, runtime)
+    const detachKeyboard = this.attachKeyboardControls(root)
     return () => {
+      this.attachmentGeneration += 1
       audioAttached = false
+      detachKeyboard()
       detachWheel()
       detachAudio()
       audio.dispose()
@@ -303,12 +376,19 @@ class CompositeInputController {
       this.activeSelectPointerId = null
       if (this.selection === selection) this.selection = null
       if (this.audio === audio) this.audio = null
+      if (this.audioRoot === root) this.audioRoot = null
     }
   }
 
   setInteractionAudioEnabled(enabled: boolean): void {
     this.interactionAudioEnabled = enabled
     this.audio?.setEnabled(enabled)
+  }
+
+  setPlayPauseHandler(
+    handler: (() => boolean | Promise<boolean>) | undefined,
+  ): void {
+    this.onPlayPausePress = handler
   }
 
   rememberApplicationFocus(target: HTMLElement, root: HTMLDivElement): void {
@@ -321,6 +401,176 @@ class CompositeInputController {
       this.applicationFocus.focus({ preventScroll: true })
     }
   }
+
+  private audioButtonDown(
+    id: string,
+    button: ClickWheelCardinalButton | 'center',
+    source: 'pointer' | 'key',
+    timestampMs: number,
+  ): void {
+    const audio = this.audio
+    if (audio === null) return
+    audio.buttonDown({ id, button, source, timestampMs })
+    this.publishAudioSnapshot(audio)
+  }
+
+  private audioButtonUp(
+    id: string,
+    timestampMs: number,
+    reason: ClickWheelSelectEnd['reason'] | 'blur' | 'hidden',
+  ): void {
+    const audio = this.audio
+    if (audio === null) return
+    audio.buttonUp({ id, timestampMs, reason })
+    this.publishAudioSnapshot(audio)
+  }
+
+  private publishAudioSnapshot(audio: InteractionAudioRuntime): void {
+    if (this.audio === audio && this.audioRoot !== null) {
+      publishInteractionAudioDiagnostics(this.audioRoot, audio.snapshot())
+    }
+  }
+
+  private dispatchPhysicalPress(
+    button: ClickWheelCardinalButton | 'center',
+    path: 'touch-arc' | 'mouse-arc' | 'key',
+  ): void {
+    const store = this.store
+    if (store === null) return
+    if (button !== 'play-pause') {
+      store.set(pressActionAtom, { button, source: 'human', path })
+      return
+    }
+
+    const handler = this.onPlayPausePress
+    if (handler === undefined) return
+    const generation = this.attachmentGeneration
+    let result: boolean | Promise<boolean>
+    try {
+      result = handler()
+    } catch {
+      return
+    }
+    if (typeof result === 'boolean') {
+      if (result) {
+        store.set(acceptedExternalPressActionAtom, {
+          button: 'play-pause',
+          source: 'human',
+          path,
+        })
+      }
+      return
+    }
+    void result.then(
+      (accepted) => {
+        if (
+          !accepted ||
+          generation !== this.attachmentGeneration ||
+          this.store !== store
+        ) return
+        store.set(acceptedExternalPressActionAtom, {
+          button: 'play-pause',
+          source: 'human',
+          path,
+        })
+      },
+      () => undefined,
+    )
+  }
+
+  private attachKeyboardControls(root: HTMLDivElement): () => void {
+    const ownerWindow = root.ownerDocument.defaultView ?? window
+    let active: {
+      readonly key: string
+      readonly button: ClickWheelCardinalButton | 'center'
+      readonly audioId: string
+    } | null = null
+    const clear = () => {
+      active = null
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      const button = physicalButtonForKey(event)
+      if (
+        button === null ||
+        event.repeat ||
+        active !== null ||
+        !isApplicationKeyboardTarget(event.target, root)
+      ) return
+      const audioId = keyAudioContactId(event.key, button)
+      active = { key: event.key, button, audioId }
+      event.preventDefault()
+      if (button !== 'center') event.stopPropagation()
+      this.audioButtonDown(audioId, button, 'key', event.timeStamp)
+    }
+    const onKeyUp = (event: KeyboardEvent) => {
+      const current = active
+      if (current === null || event.key !== current.key) return
+      active = null
+      event.preventDefault()
+      if (current.button !== 'center') event.stopPropagation()
+      this.audioButtonUp(current.audioId, event.timeStamp, 'release')
+      this.dispatchPhysicalPress(current.button, 'key')
+      this.restoreApplicationFocus()
+    }
+    const onVisibilityChange = () => {
+      if (root.ownerDocument.hidden) clear()
+    }
+    root.addEventListener('keydown', onKeyDown, { capture: true })
+    root.addEventListener('keyup', onKeyUp, { capture: true })
+    ownerWindow.addEventListener('blur', clear)
+    root.ownerDocument.addEventListener('visibilitychange', onVisibilityChange)
+    return () => {
+      clear()
+      root.removeEventListener('keydown', onKeyDown, { capture: true })
+      root.removeEventListener('keyup', onKeyUp, { capture: true })
+      ownerWindow.removeEventListener('blur', clear)
+      root.ownerDocument.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+  }
+}
+
+function pointerPressPath(
+  press: ClickWheelCardinalPress,
+): 'touch-arc' | 'mouse-arc' {
+  return press.pointerType === 'mouse' ? 'mouse-arc' : 'touch-arc'
+}
+
+function pointerAudioContactId(
+  pointerId: number,
+  button: ClickWheelCardinalButton | 'center',
+): string {
+  return `pointer:${pointerId}:${button}`
+}
+
+function keyAudioContactId(
+  key: string,
+  button: ClickWheelCardinalButton | 'center',
+): string {
+  return `key:${key}:${button}`
+}
+
+/** Keyboard equivalents for the five physical click-wheel buttons. */
+export function physicalButtonForKey(
+  event: Pick<KeyboardEvent, 'key' | 'altKey' | 'ctrlKey' | 'metaKey'>,
+): ClickWheelCardinalButton | 'center' | null {
+  if (event.altKey || event.ctrlKey || event.metaKey) return null
+  if (event.key === 'Enter') return 'center'
+  if (event.key === 'Escape' || event.key === 'Backspace') return 'menu'
+  if (event.key === 'PageUp') return 'previous'
+  if (event.key === 'PageDown') return 'next'
+  if (event.key === ' ' || event.key === 'Spacebar') return 'play-pause'
+  return null
+}
+
+function isApplicationKeyboardTarget(
+  target: EventTarget | null,
+  root: HTMLElement,
+): boolean {
+  return (
+    target instanceof Element &&
+    target.getAttribute('role') === 'application' &&
+    root.contains(target)
+  )
 }
 
 function publishInteractionAudioDiagnostics(
@@ -383,6 +633,9 @@ function CompositeSceneBridge({
   onArcEnd,
   onSelectStart,
   onSelectEnd,
+  onCardinalStart,
+  onCardinalEnd,
+  onCardinalPress,
 }: {
   readonly coordinator: CompositeCoordinator
   readonly onArcStart: (sample: ClickWheelArcSample) => void
@@ -390,6 +643,9 @@ function CompositeSceneBridge({
   readonly onArcEnd: (end: ClickWheelArcEnd) => void
   readonly onSelectStart: (start: ClickWheelSelectStart) => void
   readonly onSelectEnd: (end: ClickWheelSelectEnd) => void
+  readonly onCardinalStart: (start: ClickWheelCardinalStart) => void
+  readonly onCardinalEnd: (end: ClickWheelCardinalEnd) => void
+  readonly onCardinalPress: (press: ClickWheelCardinalPress) => void
 }) {
   const renderer = useThree((state) => state.gl)
   const camera = useThree((state) => state.camera)
@@ -415,6 +671,9 @@ function CompositeSceneBridge({
       onArcEnd={onArcEnd}
       onSelectStart={onSelectStart}
       onSelectEnd={onSelectEnd}
+      onCardinalStart={onCardinalStart}
+      onCardinalEnd={onCardinalEnd}
+      onCardinalPress={onCardinalPress}
     />
   )
 }
