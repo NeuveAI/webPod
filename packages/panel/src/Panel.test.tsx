@@ -44,6 +44,25 @@ describe('the bare DOM panel', () => {
     expect(css).toMatch(/\.wp-art--large\s*\{[^}]*88px/s)
   })
 
+  test('forced-airy menus use four ruled rows without changing compact row geometry', () => {
+    const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
+    const airyListRule = css.match(
+      /\.wp-panel\[data-density="airy"\]\[data-visible-rows="4"\] \.wp-menu-list\s*\{([^}]*)\}/s,
+    )?.[1]
+    const airyRule = css.match(
+      /\.wp-panel\[data-density="airy"\]\[data-visible-rows="4"\] \.wp-menu-row\s*\{([^}]*)\}/s,
+    )?.[1]
+
+    expect(airyListRule).toBeDefined()
+    expect(airyListRule).toMatch(/display:\s*grid/)
+    expect(airyListRule).toMatch(/grid-template-rows:\s*repeat\(4, 44px\)/)
+    expect(airyRule).toBeDefined()
+    expect(airyRule).toMatch(/block-size:\s*auto/)
+    expect(airyRule).toMatch(/font-size:\s*17px/)
+    expect(css).toMatch(/\.wp-menu-row\s*\{[^}]*block-size:\s*21px/s)
+    expect(css).toMatch(/\.wp-menu-row\s*\{[^}]*font-size:\s*11px/s)
+  })
+
   test('never authors final panel text below eleven pixels', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
     const sizes = [...css.matchAll(/font-size:\s*([\d.]+)px/g)].map((match) => Number(match[1]))

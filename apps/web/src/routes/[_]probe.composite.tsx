@@ -48,9 +48,10 @@ function CompositePreview() {
   const { colourway, state, scale, fov, mode, pose } = Route.useSearch()
   const stageRef = useRef<HTMLDivElement>(null)
   const panelTone = colourway === 'white' ? 'light' : 'dark'
+  const panelRasterScale = Math.min(1.25, Math.max(1, scale))
   const authored =
     mode === 'bare'
-      ? { inlineSize: 272, blockSize: 204 }
+      ? { inlineSize: 272 * panelRasterScale, blockSize: 204 * panelRasterScale }
       : { inlineSize: 330, blockSize: 552 }
   const panel = (
     <Panel
@@ -78,6 +79,10 @@ function CompositePreview() {
       }
       if (stage.style.getPropertyValue('--wp-preview-block') !== blockValue) {
         stage.style.setProperty('--wp-preview-block', blockValue)
+      }
+      const factorValue = factor.toFixed(6)
+      if (stage.style.getPropertyValue('--wp-preview-factor') !== factorValue) {
+        stage.style.setProperty('--wp-preview-factor', factorValue)
       }
     }
     fit()
@@ -113,6 +118,9 @@ function CompositePreview() {
         style={{
           '--wp-preview-inline': `${String(authored.inlineSize)}px`,
           '--wp-preview-block': `${String(authored.blockSize)}px`,
+          '--wp-preview-factor': '1',
+          '--wp-preview-authored-inline': `${String(authored.inlineSize)}px`,
+          '--wp-preview-authored-block': `${String(authored.blockSize)}px`,
         } as CSSProperties}
       >
         {mode === 'bare' ? (
@@ -187,6 +195,9 @@ const COMPOSITE_PREVIEW_CSS = `
   .wp-composite-preview__stage {
     --wp-preview-inline: 0px;
     --wp-preview-block: 0px;
+    --wp-preview-factor: 1;
+    --wp-preview-authored-inline: 0px;
+    --wp-preview-authored-block: 0px;
     display: grid;
     place-items: safe center;
     inline-size: 100%;
@@ -210,7 +221,13 @@ const COMPOSITE_PREVIEW_CSS = `
     block-size: var(--wp-preview-block);
     place-self: center;
   }
-  .wp-composite-preview__bare { inline-size: 100%; block-size: 100%; overflow: clip; }
+  .wp-composite-preview__bare {
+    inline-size: var(--wp-preview-authored-inline);
+    block-size: var(--wp-preview-authored-block);
+    overflow: clip;
+    transform: scale(var(--wp-preview-factor));
+    transform-origin: top left;
+  }
   .wp-composite-preview__help {
     max-inline-size: 52ch;
     margin: 0;
