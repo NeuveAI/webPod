@@ -46,6 +46,7 @@ let initializedDocument: Document | null = null
 const libraryCountLabels = new Set(['Playlists', 'Artists', 'Albums', 'Songs', 'Genres'])
 const successOperations = new WeakMap<Document, Map<string, Promise<SuccessResult>>>()
 const artworkRequests = new Map<string, Promise<ArtworkSamples>>()
+const LIST_VIEWPORT_SIZE_PX = 183
 
 interface SuccessResult {
   readonly screenId: 'S03' | 'S08' | 'S13'
@@ -267,6 +268,7 @@ function MainMenu({ frame, state, visibleRows, panelId }: { readonly frame: Scre
                 className="wp-menu-row"
                 aria-current={row.index === frame.highlightIndex ? 'true' : undefined}
               >
+                {row.index === frame.highlightIndex ? <i className="wp-selection-rim" aria-hidden="true" /> : null}
                 <span>{row.label}</span>
                 <span className="wp-row-meta">{state === 'error' && row.sublabel !== null ? '—' : state === 'loading' && row.sublabel !== null ? '…' : state === 'empty' && libraryCountLabels.has(row.label) ? '0' : row.sublabel}</span>
                 <span className="wp-menu-row__tail" aria-hidden="true">{state === 'offline' && (row.label === 'Radio' || row.label === 'Search') ? '☁︎' : state === 'permission-denied' && row.label === 'Radio' ? '🔒' : <PanelIcon name="chevron" />}</span>
@@ -297,15 +299,18 @@ function AlbumTracks({ frame, state, visibleRows }: { readonly frame: ScreenFram
   const rows = state === 'loading'
     ? Array.from({ length: visibleRows }, (_, index) => index)
     : frame.rows.slice(frame.windowStart, frame.windowStart + visibleRows)
+  const listStyle = {
+    '--wp-track-row-size': `${LIST_VIEWPORT_SIZE_PX / Math.max(1, visibleRows)}px`,
+  } as CSSProperties
   return (
     <section className="wp-screen" aria-label="Album tracks" aria-busy={state === 'loading'} data-success-object={success?.objectKey} data-library-total={success?.libraryTotal}>
       <TitleBar title={frame.title} index={state === 'offline' ? 'Cached metadata' : undefined} />
       {state === 'empty' ? <PanelEmpty title="Nothing here plays in your region." detail="Search for it · Go to artist" /> : (
-        <div className="wp-album-layout">
+        <div className="wp-album-layout" style={listStyle}>
           <div className="wp-album-list">
             {state === 'loading' || state === 'error' || frame.rows.length <= 100
               ? <StaticTrackList rows={state === 'error' ? Array.from({ length: visibleRows }, (_, index) => index) : rows} frame={frame} state={state} success={success !== null} />
-              : <VirtualTrackList frame={frame} state={state} />}
+              : <VirtualTrackList frame={frame} state={state} visibleRows={visibleRows} />}
             <ListScrollIndicator totalRows={frame.rows.length} visibleRows={visibleRows} windowStart={frame.windowStart} />
           </div>
           <div className="wp-album-preview" role="group" aria-label="Album details">
@@ -340,10 +345,10 @@ function StaticTrackList({
   )
 }
 
-function VirtualTrackList({ frame, state }: { readonly frame: ScreenFrame; readonly state: PanelState }) {
+function VirtualTrackList({ frame, state, visibleRows }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number }) {
   const scrollRef = useRef<HTMLOListElement>(null)
   // eslint-disable-next-line react-hooks/incompatible-library
-  const virtualizer = useVirtualizer({ count: frame.rows.length, getScrollElement: () => scrollRef.current, estimateSize: () => 26, overscan: 4 })
+  const virtualizer = useVirtualizer({ count: frame.rows.length, getScrollElement: () => scrollRef.current, estimateSize: () => LIST_VIEWPORT_SIZE_PX / Math.max(1, visibleRows), overscan: 4 })
   useEffect(() => virtualizer.scrollToIndex(frame.highlightIndex, { align: 'auto' }), [frame.highlightIndex, virtualizer])
   return (
     <ol ref={scrollRef} className="wp-track-list wp-track-list--virtual" data-virtual-count={frame.rows.length}>
@@ -380,6 +385,7 @@ function TrackRow({
       aria-current={row.index === frame.highlightIndex ? 'true' : undefined}
       style={style}
     >
+      {row.index === frame.highlightIndex ? <i className="wp-selection-rim" aria-hidden="true" /> : null}
       <span className="wp-track-number">{success && row.index === frame.highlightIndex ? '✓' : displayIndex}</span>
       <span className="wp-track-title">{row.label}</span>
       <span className="wp-row-meta">{state === 'offline' ? '☁︎' : row.sublabel}</span>

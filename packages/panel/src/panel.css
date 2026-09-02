@@ -18,7 +18,6 @@
     --wp-title-solid: #1c2127;
     --wp-meta-solid: #0a0f15;
     --wp-selection-fg: #ffffff;
-    --wp-selection-top-rim: #a9efff;
     --wp-selection-glass-top: #247f9b;
     --wp-selection-glass-band: #0d7393;
     --wp-selection-glass-bottom: #07546f;
@@ -26,7 +25,6 @@
     --wp-selection-lower-edge: #042f42;
     --wp-selection-occlusion: rgb(0 19 28 / 66%);
     --wp-selection-material:
-      linear-gradient(180deg, var(--wp-selection-top-rim) 0 1px, transparent 1px),
       linear-gradient(180deg, transparent 0 22%, var(--wp-selection-glass-band) 48%, transparent 74%),
       linear-gradient(180deg, var(--wp-selection-glass-top) 0%, var(--wp-selection-glass-band) 54%, var(--wp-selection-glass-bottom) 100%);
     --wp-selection-depth:
@@ -76,7 +74,6 @@
     --wp-title-solid: #eef2f7;
     --wp-meta-solid: #f2f6fb;
     --wp-selection-fg: #173047;
-    --wp-selection-top-rim: #ffffff;
     --wp-selection-glass-top: #d9f4fb;
     --wp-selection-glass-band: #a9dfeb;
     --wp-selection-glass-bottom: #79c6d7;
@@ -113,7 +110,9 @@
   .wp-menu-list-pane { position: relative; min-inline-size: 0; min-block-size: 0; overflow: hidden; }
   .wp-menu-list { min-block-size: 0; block-size: 100%; overflow: hidden; background: var(--wp-bg); }
   .wp-menu-row { display: grid; grid-template-columns: minmax(0, 1fr) auto 12px; align-items: center; block-size: 21px; padding-inline: 8px 6px; border-block-end: 1px solid var(--wp-divider); background: var(--wp-bg); font-size: 11px; line-height: 1; font-weight: 500; }
-  .wp-menu-row[aria-current="true"], .wp-track-row[aria-current="true"] { color: var(--wp-selection-fg); background: var(--wp-selection-material); box-shadow: var(--wp-selection-depth); font-weight: 700; }
+  .wp-menu-row[aria-current="true"], .wp-track-row[aria-current="true"] { position: relative; color: var(--wp-selection-fg); background: var(--wp-selection-material); box-shadow: var(--wp-selection-depth); font-weight: 700; }
+  .wp-selection-rim { position: absolute; z-index: 1; inset-block-start: 0; inset-inline: 0; display: block; block-size: 1px; background: #a9efff; pointer-events: none; }
+  .wp-panel[data-colourway="light"] .wp-selection-rim { background: #ffffff; }
   .wp-menu-preview { position: relative; display: flex; min-inline-size: 0; min-block-size: 0; block-size: 100%; overflow: clip; flex-direction: column; align-items: center; gap: 5px; padding: 8px; border-inline-start: 1px solid var(--wp-divider); background: linear-gradient(90deg, rgb(255 255 255 / 8%), transparent 26%), var(--wp-pane); color: var(--wp-text-2); }
   .wp-panel[data-state="agent-active"] .wp-menu-preview { border-inline-start: 2px solid #22c55e; }
   .wp-panel[data-colourway="dark"] .wp-menu-row[data-unavailable="true"], .wp-panel[data-colourway="dark"] .wp-menu-row[data-empty="true"] { opacity: .45; }
@@ -127,12 +126,13 @@
   .wp-art__fallback { color: rgb(255 255 255 / 72%); font-size: 32px; }
   .wp-list-scroll { position: absolute; z-index: 2; inset-block: 4px; inset-inline-end: 2px; inline-size: 6px; overflow: hidden; border-radius: 3px; background: var(--wp-scroll-well-edge); pointer-events: none; }
   .wp-list-scroll__well { position: absolute; inset: 0; display: block; overflow: hidden; border: 1px solid var(--wp-scroll-well-edge); border-radius: 3px; background: repeating-linear-gradient(180deg, var(--wp-scroll-well-light) 0 1px, var(--wp-scroll-well-dark) 1px 2px); background-position: 0 0; box-shadow: inset 1px 0 var(--wp-scroll-well-inset), inset -1px 0 rgb(0 0 0 / 22%); }
-  .wp-list-scroll__thumb { position: absolute; inset-inline: 1px; inset-block-start: var(--wp-list-scroll-thumb-offset); display: block; min-block-size: 5px; block-size: var(--wp-list-scroll-thumb-size); border: 1px solid var(--wp-scroll-thumb-edge); border-radius: 3px; background: linear-gradient(90deg, var(--wp-scroll-thumb-highlight) 0 1px, transparent 1px), linear-gradient(180deg, var(--wp-scroll-thumb-top), var(--wp-scroll-thumb-mid) 48%, var(--wp-scroll-thumb-bottom)); box-shadow: 0 1px 1px var(--wp-scroll-thumb-shadow), inset 0 1px rgb(255 255 255 / 48%), inset -1px 0 rgb(0 62 80 / 30%); }
+  .wp-list-scroll__well::before, .wp-list-scroll__well::after { content: none !important; display: none !important; }
+  .wp-list-scroll__thumb { position: absolute; inset-inline: 1px; inset-block-start: var(--wp-list-scroll-thumb-offset); display: block; block-size: var(--wp-list-scroll-thumb-size); border: 1px solid var(--wp-scroll-thumb-edge); border-radius: 3px; background: linear-gradient(90deg, var(--wp-scroll-thumb-highlight) 0 1px, transparent 1px), linear-gradient(180deg, var(--wp-scroll-thumb-top), var(--wp-scroll-thumb-mid) 48%, var(--wp-scroll-thumb-bottom)); box-shadow: 0 1px 1px var(--wp-scroll-thumb-shadow), inset 0 1px rgb(255 255 255 / 48%), inset -1px 0 rgb(0 62 80 / 30%); }
   .wp-menu-row__tail { display: grid; place-items: center; color: var(--wp-text-3); }
   .wp-menu-row__tail .wp-icon { inline-size: 12px; block-size: 12px; stroke-width: 1.5; }
   [aria-current="true"] .wp-menu-row__tail { color: currentColor; }
   .wp-row-meta { color: var(--wp-text-2); font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 11px; font-weight: 500; }
-  [aria-current="true"] .wp-row-meta { color: currentColor; opacity: .84; }
+  [aria-current="true"] .wp-row-meta { color: currentColor; opacity: 1; }
   [aria-current="true"] .wp-track-number { color: currentColor; }
   .wp-track-list { block-size: 183px; overflow: hidden; }
   .wp-album-layout { display: grid; grid-template-columns: 184px 88px; block-size: 183px; }
@@ -144,7 +144,7 @@
   .wp-track-list--virtual::-webkit-scrollbar { display: none; inline-size: 0; block-size: 0; }
   .wp-track-list--virtual .wp-track-row { position: absolute; inset-block-start: 0; inset-inline: 0; }
   .wp-virtual-space { display: block; inline-size: 1px; }
-  .wp-track-row { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; block-size: 26px; padding-inline: 8px; border-block-end: 1px solid var(--wp-divider); }
+  .wp-track-row { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; block-size: var(--wp-track-row-size); padding-inline: 8px; border-block-end: 1px solid var(--wp-divider); }
   .wp-track-row[data-unavailable="true"] { opacity: .52; }
   .wp-panel[data-colourway="dark"] .wp-track-row[data-unavailable="true"] { opacity: .45; }
   .wp-track-row[data-agent="true"] { background: color-mix(in oklab, var(--wp-bg), #22c55e 8%); }

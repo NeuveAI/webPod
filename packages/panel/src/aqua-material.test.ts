@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 
 const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
+const panelSource = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
 
 function rule(pattern: RegExp): string {
   return ruleFrom(css, pattern)
@@ -18,10 +19,19 @@ function selectionMaterialViolations(source: string): readonly string[] {
   const light = ruleFrom(source, /\.wp-panel\[data-colourway="light"\] \{([\s\S]*?)\n {2}\}/)
   const material = property(dark, '--wp-selection-material')
   const violations: string[] = []
-  if ((material.match(/linear-gradient\(/g)?.length ?? 0) !== 3) {
+  if ((material.match(/linear-gradient\(/g)?.length ?? 0) !== 2) {
     violations.push('selection must retain three material layers')
   }
-  if (!material.includes('var(--wp-selection-top-rim) 0 1px')) {
+  const rimRules = [...source.matchAll(/([^{}]*\.wp-selection-rim[^{}]*)\{([^{}]*)\}/g)]
+  const rimIsStructural = rimRules.some(([, selector = '', body = '']) =>
+    !selector.includes('::') &&
+    body.includes('block-size: 1px') &&
+    body.includes('position: absolute'),
+  )
+  const rimCanDisappear = rimRules.some(([, , body = '']) =>
+    /(?:background|background-color):\s*transparent(?:\s*!important)?\s*;/.test(body),
+  )
+  if (!rimIsStructural || rimCanDisappear || source.includes('--wp-selection-top-rim')) {
     violations.push('selection must retain its crisp one-pixel top rim')
   }
 
@@ -34,12 +44,14 @@ function selectionMaterialViolations(source: string): readonly string[] {
     ['dark', dark, darkForeground],
     ['light', light, lightForeground],
   ] as const) {
+    const selectedMetadata = ruleFrom(source, /\[aria-current="true"\] \.wp-row-meta \{([^}]*)\}/)
+    const metadataOpacity = Number(property(selectedMetadata, 'opacity'))
     for (const backgroundToken of [
       '--wp-selection-glass-top',
       '--wp-selection-glass-band',
       '--wp-selection-glass-bottom',
     ]) {
-      if (contrast(foreground, property(tokens, backgroundToken)) < 4.5) {
+      if (contrastWithOpacity(foreground, property(tokens, backgroundToken), metadataOpacity) < 4.5) {
         violations.push(`${theme} selection foreground misses 4.5:1 contrast`)
       }
     }
@@ -70,17 +82,46 @@ function contrast(foreground: string, background: string): number {
   )
 }
 
+function contrastWithOpacity(foreground: string, background: string, opacity: number): number {
+  const foregroundRgb = rgb(foreground)
+  const backgroundRgb = rgb(background)
+  const composited = foregroundRgb.map((channel, index) =>
+    Math.round(channel * opacity + (backgroundRgb[index] ?? 0) * (1 - opacity)),
+  )
+  return contrast(
+    `#${composited.map((channel) => channel.toString(16).padStart(2, '0')).join('')}`,
+    background,
+  )
+}
+
+function rgb(hex: string): readonly number[] {
+  return [1, 3, 5].map((offset) => Number.parseInt(hex.slice(offset, offset + 2), 16))
+}
+
+function stationaryWellViolations(source: string): readonly string[] {
+  const violations: string[] = []
+  if ((source.match(/--wp-list-scroll-thumb-offset/g)?.length ?? 0) !== 1) {
+    violations.push('only the thumb may consume the authoritative offset')
+  }
+  if (!source.includes(
+    '.wp-list-scroll__well::before, .wp-list-scroll__well::after { content: none !important; display: none !important; }',
+  )) {
+    violations.push('well overlays must remain structurally disabled')
+  }
+  return violations
+}
+
 describe('the period Aqua LCD material', () => {
   const darkTokens = rule(/(?:^|\n) {2}\.wp-panel \{([\s\S]*?)\n {2}\}/)
   const lightTokens = rule(/\.wp-panel\[data-colourway="light"\] \{([\s\S]*?)\n {2}\}/)
 
-  test('builds selection from three crisp layers rather than one flat color', () => {
+  test('builds selection from two glass gradients and one structural rim rather than one flat color', () => {
     expect(selectionMaterialViolations(css)).toEqual([])
     const material = property(darkTokens, '--wp-selection-material')
-    expect(material.match(/linear-gradient\(/g)).toHaveLength(3)
-    expect(material).toContain('var(--wp-selection-top-rim) 0 1px')
+    expect(material.match(/linear-gradient\(/g)).toHaveLength(2)
     expect(material).toContain('var(--wp-selection-glass-band) 48%')
     expect(material).toContain('var(--wp-selection-glass-bottom) 100%')
+    expect(panelSource.match(/className="wp-selection-rim"/g)).toHaveLength(2)
 
     const selectedRule = rule(/\.wp-menu-row\[aria-current="true"\], \.wp-track-row\[aria-current="true"\] \{([^}]*)\}/)
     expect(selectedRule).toContain('color: var(--wp-selection-fg)')
@@ -93,19 +134,21 @@ describe('the period Aqua LCD material', () => {
       /--wp-selection-material:[\s\S]*?;\n {4}--wp-selection-depth/,
       '--wp-selection-material: #0a84b8;\n    --wp-selection-depth',
     )
-    const noRim = css.replace(
-      'linear-gradient(180deg, var(--wp-selection-top-rim) 0 1px, transparent 1px),',
-      '',
-    )
+    const noRim = `${css}\n.wp-panel .wp-selection-rim { background: transparent !important; }`
     const sharedForeground = css.replace(
       '--wp-selection-fg: #173047;',
       '--wp-selection-fg: #ffffff;',
+    )
+    const translucentMetadata = css.replace(
+      '[aria-current="true"] .wp-row-meta { color: currentColor; opacity: 1; }',
+      '[aria-current="true"] .wp-row-meta { color: currentColor; opacity: .84; }',
     )
 
     expect(selectionMaterialViolations(flat)).toContain('selection must retain three material layers')
     expect(selectionMaterialViolations(noRim)).toContain('selection must retain its crisp one-pixel top rim')
     expect(selectionMaterialViolations(sharedForeground)).toContain('colourways require independent selection foregrounds')
     expect(selectionMaterialViolations(sharedForeground)).toContain('light selection foreground misses 4.5:1 contrast')
+    expect(selectionMaterialViolations(translucentMetadata)).toContain('dark selection foreground misses 4.5:1 contrast')
   })
 
   test('uses independently legible foregrounds for light and dark Aqua', () => {
@@ -127,6 +170,7 @@ describe('the period Aqua LCD material', () => {
     expect(css).toContain('[aria-current="true"] .wp-menu-row__tail { color: currentColor; }')
     expect(css).toContain('[aria-current="true"] .wp-row-meta { color: currentColor;')
     expect(css).toContain('[aria-current="true"] .wp-track-number { color: currentColor; }')
+    expect(css).toContain('[aria-current="true"] .wp-row-meta { color: currentColor; opacity: 1; }')
   })
 
   test('keeps agent attribution without flattening the selected material', () => {
@@ -144,7 +188,22 @@ describe('the period Aqua LCD material', () => {
     expect(well).toContain('1px 2px')
     expect(well).toContain('background-position: 0 0')
     expect(well).not.toContain('--wp-list-scroll-thumb-offset')
+    expect(stationaryWellViolations(css)).toEqual([])
+    expect(css).toContain('.wp-list-scroll__well::before, .wp-list-scroll__well::after { content: none !important; display: none !important; }')
     expect(thumb).toContain('inset-block-start: var(--wp-list-scroll-thumb-offset)')
     expect(thumb.match(/linear-gradient\(/g)).toHaveLength(2)
+  })
+
+  test('rejects a moving stripe overlay anywhere across the full well', () => {
+    const movingOverlay = `${css}\n.wp-list-scroll__well::after {
+      content: "";
+      position: absolute;
+      inset: 0 0 0 2px;
+      background: repeating-linear-gradient(180deg, #fff 0 1px, #000 1px 2px);
+      background-position: 0 var(--wp-list-scroll-thumb-offset);
+    }`
+    expect(stationaryWellViolations(movingOverlay)).toContain(
+      'only the thumb may consume the authoritative offset',
+    )
   })
 })

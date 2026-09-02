@@ -1,12 +1,19 @@
 import type { CSSProperties } from 'react'
 
+/** Fixed Aqua well travel in authored panel pixels (183px pane minus 4px insets). */
+export const LIST_SCROLL_TRACK_SIZE_PX = 175
+
+/** Smallest thumb that remains legible in the six-pixel Aqua well. */
+export const LIST_SCROLL_MINIMUM_THUMB_SIZE_PX = 5
+
+/** Effective thumb geometry after row-window and minimum-size clamping. */
 export interface ListScrollGeometry {
-  readonly thumbSizePercent: number
-  readonly thumbOffsetPercent: number
+  readonly thumbSizePx: number
+  readonly thumbOffsetPx: number
   readonly windowStart: number
 }
 
-/** Maps an authoritative row window onto a compact, non-native list indicator. */
+/** Maps an authoritative row window onto the fixed-size, non-native Aqua well. */
 export function listScrollGeometry(
   totalRows: number,
   visibleRows: number,
@@ -18,14 +25,25 @@ export function listScrollGeometry(
 
   const maximumStart = total - visible
   const start = Math.min(maximumStart, Math.max(0, Math.floor(windowStart)))
-  const thumbSizePercent = (visible / total) * 100
+  const thumbSizePx = Math.max(
+    LIST_SCROLL_MINIMUM_THUMB_SIZE_PX,
+    (visible / total) * LIST_SCROLL_TRACK_SIZE_PX,
+  )
   return {
-    thumbSizePercent,
-    thumbOffsetPercent: (start / maximumStart) * (100 - thumbSizePercent),
+    thumbSizePx,
+    thumbOffsetPx:
+      (start / maximumStart) * (LIST_SCROLL_TRACK_SIZE_PX - thumbSizePx),
     windowStart: start,
   }
 }
 
+/**
+ * Renders the panel-owned Aqua scroll well for an authoritative row window.
+ *
+ * The component has no local state: changing any of the three row-window
+ * inputs immediately recomputes both the effective (minimum-clamped) thumb
+ * size and its travel. It stays absent when the complete list fits.
+ */
 export function ListScrollIndicator({
   totalRows,
   visibleRows,
@@ -38,8 +56,8 @@ export function ListScrollIndicator({
   const geometry = listScrollGeometry(totalRows, visibleRows, windowStart)
   if (geometry === null) return null
 
-  const size = `${geometry.thumbSizePercent.toFixed(3)}%`
-  const offset = `${geometry.thumbOffsetPercent.toFixed(3)}%`
+  const size = `${geometry.thumbSizePx.toFixed(3)}px`
+  const offset = `${geometry.thumbOffsetPx.toFixed(3)}px`
   const style = {
     '--wp-list-scroll-thumb-size': size,
     '--wp-list-scroll-thumb-offset': offset,

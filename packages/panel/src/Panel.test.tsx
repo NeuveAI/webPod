@@ -30,9 +30,18 @@ describe('the bare DOM panel', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
     expect(css).toContain('inline-size: 272px')
     expect(css).toContain('block-size: 204px')
-    expect(css).toContain('block-size: 26px')
+    expect(css).toMatch(/\.wp-track-row\s*\{[^}]*block-size:\s*var\(--wp-track-row-size\)/s)
     const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
     expect(source).toMatch(/Array\.from\(\{ length: visibleRows \}/)
+    expect(source).toContain('LIST_VIEWPORT_SIZE_PX / Math.max(1, visibleRows)')
+  })
+
+  test('fits every declared album row completely inside the fixed list viewport', () => {
+    deviceStore.set(resetStackActionAtom, [albumTracksFrame()])
+    const html = renderToStaticMarkup(<Panel state="ready" />)
+    expect(html).toContain('data-visible-rows="8"')
+    expect(html).toContain('--wp-track-row-size:22.875px')
+    expect(html.match(/class="wp-track-row"/g)).toHaveLength(8)
   })
 
   test('locks the authored iPod screen hierarchy and split-panel rhythm', () => {

@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
+    "@happy-dom/global-registrator": "^20.11.15",
     "@playwright/test": "^1.58.2",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0"

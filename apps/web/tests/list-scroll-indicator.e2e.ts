@@ -67,13 +67,17 @@ test('production list indication is absent at 8/8 and follows an overflowing alb
   expect(darkVisual.thumbRatio).toBeCloseTo(8 / 11, 2)
   expect(darkVisual.trailingInset).toBeGreaterThanOrEqual(0)
   expect(darkVisual.trailingInset).toBeLessThanOrEqual(2.5)
+  const tenThousandRowEnd = await measureTenThousandRowEnd(indicator)
+  expect(tenThousandRowEnd.thumbSize).toBe(5)
+  expect(tenThousandRowEnd.thumbOffset).toBe(170)
+  expect(tenThousandRowEnd.thumbBottom).toBe(tenThousandRowEnd.trackBottom)
 
   await dispatchDetents(panel, 5)
   const blackMiddle = await captureSelectedRow(stage, panel, 'black', 'middle')
 
   await dispatchDetents(panel, 4)
   await expect(indicator).toHaveAttribute('data-window-start', '2')
-  await expect(indicator).toHaveAttribute('data-thumb-offset', '18.182%')
+  await expect(indicator).toHaveAttribute('data-thumb-offset', '31.818px')
   const movedVisual = await measureIndicator(indicator)
   expect(movedVisual.progress).toBeCloseTo(2 / 3, 1)
   const middleLayers = await captureIndicatorLayers(indicator, 'middle')
@@ -83,8 +87,8 @@ test('production list indication is absent at 8/8 and follows an overflowing alb
   const blackEnd = await captureSelectedRow(stage, panel, 'black', 'end')
   const endLayers = await captureIndicatorLayers(indicator, 'end')
 
-  expect(middleLayers.trackStripeSha256).toBe(startLayers.trackStripeSha256)
-  expect(endLayers.trackStripeSha256).toBe(startLayers.trackStripeSha256)
+  expect(middleLayers.trackSha256).toBe(startLayers.trackSha256)
+  expect(endLayers.trackSha256).toBe(startLayers.trackSha256)
   expect(new Set([
     startLayers.compositeSha256,
     middleLayers.compositeSha256,
@@ -103,6 +107,7 @@ test('production list indication is absent at 8/8 and follows an overflowing alb
   expect(lightVisual.trackMaterial).not.toBe(darkVisual.trackMaterial)
   expect(whiteFirst.foreground).not.toBe(blackFirst.foreground)
   expect(whiteFirst.material).not.toBe(blackFirst.material)
+  expect(whiteFirst.rim).not.toBe(blackFirst.rim)
 
   await writeFile(
     resolve(evidenceDirectory, 'summary.json'),
@@ -113,6 +118,7 @@ test('production list indication is absent at 8/8 and follows an overflowing alb
         totalRows: 11,
         visibleRows: 8,
         start: darkVisual,
+        tenThousandRowEnd,
         afterNineWheelDetents: movedVisual,
         light: lightVisual,
         fixedTrackProof: {
@@ -148,16 +154,37 @@ async function captureSelectedRow(
   await expect(selected).toHaveCount(1)
   const visual = await selected.evaluate((row) => {
     const style = getComputedStyle(row)
+    const list = row.closest('.wp-track-list')
+    const rim = row.querySelector('.wp-selection-rim')
+    const metadata = row.querySelector('.wp-row-meta')
+    if (!(list instanceof HTMLElement) || !(rim instanceof HTMLElement) || !(metadata instanceof HTMLElement)) {
+      throw new Error('Selected track is missing its list, structural rim, or metadata')
+    }
+    const rowRect = row.getBoundingClientRect()
+    const listRect = list.getBoundingClientRect()
+    const rimStyle = getComputedStyle(rim)
     return {
       label: row.querySelector('.wp-track-title')?.textContent ?? '',
       number: row.querySelector('.wp-track-number')?.textContent ?? '',
       foreground: style.color,
       material: style.backgroundImage,
       depth: style.boxShadow,
+      rim: rimStyle.backgroundColor,
+      rimSize: rimStyle.height,
+      metadataOpacity: getComputedStyle(metadata).opacity,
+      contained: rowRect.top >= listRect.top - 0.5 && rowRect.bottom <= listRect.bottom + 0.5,
+      rowTop: rowRect.top,
+      rowBottom: rowRect.bottom,
+      listTop: listRect.top,
+      listBottom: listRect.bottom,
     }
   })
   expect(visual.number).toBe({ first: '1', middle: '6', end: '11' }[position])
-  expect(visual.material.split('linear-gradient').length - 1).toBeGreaterThanOrEqual(3)
+  expect(visual.material.split('linear-gradient').length - 1).toBeGreaterThanOrEqual(2)
+  expect(visual.rim).not.toBe('rgba(0, 0, 0, 0)')
+  expect(visual.rimSize).toBe('1px')
+  expect(visual.metadataOpacity).toBe('1')
+  expect(visual.contained).toBe(true)
   await stage.screenshot({
     path: resolve(evidenceDirectory, `${colourway}-selected-${position}.png`),
   })
@@ -168,62 +195,59 @@ async function captureIndicatorLayers(indicator: Locator, position: 'start' | 'm
   const composite = await indicator.screenshot({
     path: resolve(evidenceDirectory, `indicator-${position}.png`),
   })
-  const previousStyles = await indicator.evaluate((track) => {
+  const proofId = await indicator.evaluate((track, proofPosition) => {
     if (!(track instanceof HTMLElement)) throw new Error('Aqua indicator is absent')
     const panel = track.closest('.wp-panel')
-    const thumb = track.querySelector('.wp-list-scroll__thumb')
-    if (!(panel instanceof HTMLElement) || !(thumb instanceof HTMLElement)) {
+    if (!(panel instanceof HTMLElement)) {
       throw new Error('Aqua indicator layers are incomplete')
     }
-    const previous = {
-      panel: panel.getAttribute('style'),
-      track: track.getAttribute('style'),
-      thumb: thumb.getAttribute('style'),
-    }
-    panel.style.transform = 'none'
-    track.style.position = 'fixed'
-    track.style.inset = 'auto'
-    track.style.left = '0'
-    track.style.top = '0'
-    track.style.width = '6px'
-    track.style.height = '175px'
-    thumb.style.visibility = 'hidden'
-    return previous
+    const proofId = `wp-list-scroll-proof-${proofPosition}`
+    const host = document.createElement('div')
+    host.id = proofId
+    host.className = 'wp-panel'
+    host.dataset['colourway'] = panel.dataset['colourway']
+    host.style.cssText = 'position:fixed;left:0;top:0;width:6px;height:175px;transform:none;overflow:hidden;'
+    const proofTrack = document.createElement('span')
+    proofTrack.className = 'wp-list-scroll'
+    proofTrack.style.cssText = 'position:absolute;inset:0;width:6px;height:175px;'
+    proofTrack.style.setProperty(
+      '--wp-list-scroll-thumb-size',
+      track.style.getPropertyValue('--wp-list-scroll-thumb-size'),
+    )
+    proofTrack.style.setProperty(
+      '--wp-list-scroll-thumb-offset',
+      track.style.getPropertyValue('--wp-list-scroll-thumb-offset'),
+    )
+    const proofWell = document.createElement('i')
+    proofWell.className = 'wp-list-scroll__well'
+    proofTrack.append(proofWell)
+    host.append(proofTrack)
+    document.body.append(host)
+    return proofId
+  }, position)
+  const well = indicator.page().locator(`#${proofId} .wp-list-scroll__well`)
+  const pseudo = await well.evaluate((element) => ({
+    beforeContent: getComputedStyle(element, '::before').content,
+    beforeDisplay: getComputedStyle(element, '::before').display,
+    afterContent: getComputedStyle(element, '::after').content,
+    afterDisplay: getComputedStyle(element, '::after').display,
+  }))
+  expect(pseudo).toEqual({
+    beforeContent: 'none',
+    beforeDisplay: 'none',
+    afterContent: 'none',
+    afterDisplay: 'none',
   })
-  const well = indicator.locator('.wp-list-scroll__well')
-  await well.screenshot({
+  const track = await well.screenshot({
     path: resolve(evidenceDirectory, `indicator-track-${position}.png`),
   })
-  const wellBounds = await well.boundingBox()
-  if (wellBounds === null) throw new Error('Aqua track has no pixel bounds')
-  const trackStripe = await indicator.page().screenshot({
-    clip: {
-      x: wellBounds.x,
-      y: wellBounds.y,
-      width: Math.max(1, Math.floor(wellBounds.width / 3)),
-      height: wellBounds.height,
-    },
+  await well.screenshot({
     path: resolve(evidenceDirectory, `indicator-track-stripes-${position}.png`),
   })
-  await indicator.evaluate((trackElement, previous) => {
-    if (!(trackElement instanceof HTMLElement)) throw new Error('Aqua indicator is absent')
-    const panel = trackElement.closest('.wp-panel')
-    const thumb = trackElement.querySelector('.wp-list-scroll__thumb')
-    if (!(panel instanceof HTMLElement) || !(thumb instanceof HTMLElement)) {
-      throw new Error('Aqua indicator layers are incomplete')
-    }
-    restoreStyle(panel, previous.panel)
-    restoreStyle(trackElement, previous.track)
-    restoreStyle(thumb, previous.thumb)
-
-    function restoreStyle(element: HTMLElement, value: string | null) {
-      if (value === null) element.removeAttribute('style')
-      else element.setAttribute('style', value)
-    }
-  }, previousStyles)
+  await indicator.page().locator(`#${proofId}`).evaluate((host) => host.remove())
   return {
     compositeSha256: createHash('sha256').update(composite).digest('hex'),
-    trackStripeSha256: createHash('sha256').update(trackStripe).digest('hex'),
+    trackSha256: createHash('sha256').update(track).digest('hex'),
   }
 }
 
@@ -261,6 +285,39 @@ async function settleCompositePaint(page: Page): Promise<void> {
     () => new Promise<void>((resolveFrame) =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolveFrame()))),
   )
+}
+
+async function measureTenThousandRowEnd(indicator: Locator) {
+  return indicator.evaluate((source) => {
+    const panel = source.closest('.wp-panel')
+    if (!(source instanceof HTMLElement) || !(panel instanceof HTMLElement)) {
+      throw new Error('List indicator proof source is missing')
+    }
+    const host = document.createElement('div')
+    host.className = 'wp-panel'
+    host.dataset['colourway'] = panel.dataset['colourway']
+    host.style.cssText = 'position:fixed;left:8px;top:8px;width:6px;height:175px;transform:none;overflow:hidden;'
+    const track = document.createElement('span')
+    track.className = 'wp-list-scroll'
+    track.style.cssText = 'position:absolute;inset:0;width:6px;height:175px;--wp-list-scroll-thumb-size:5px;--wp-list-scroll-thumb-offset:170px;'
+    const well = document.createElement('i')
+    well.className = 'wp-list-scroll__well'
+    const thumb = document.createElement('i')
+    thumb.className = 'wp-list-scroll__thumb'
+    track.append(well, thumb)
+    host.append(track)
+    document.body.append(host)
+    const trackRect = track.getBoundingClientRect()
+    const thumbRect = thumb.getBoundingClientRect()
+    const measured = {
+      thumbSize: thumbRect.height,
+      thumbOffset: thumbRect.top - trackRect.top,
+      thumbBottom: thumbRect.bottom,
+      trackBottom: trackRect.bottom,
+    }
+    host.remove()
+    return measured
+  })
 }
 
 async function measureIndicator(indicator: Locator) {
