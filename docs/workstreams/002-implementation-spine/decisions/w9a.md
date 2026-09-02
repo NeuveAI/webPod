@@ -204,3 +204,24 @@ The contact-local shader card is removed, not recalibrated. Black and white
 wheel surfaces use their ordinary physical materials under the approved key
 and fill. Lighting now reveals only the true height-field normals; it cannot
 stamp a travelling oval or substitute optical energy for geometry.
+
+## W9A-14 · The visible basin has no preferred in-plane direction
+
+W9A-13 fixed position but retained W9A-02's 5.5 × 8 mm footprint. That
+anisotropy was not lateral motion, yet it made the analytic normal lobe almost
+twice as long around the ring as across it. At the 45° contact and quarter
+camera, the approved oblique softbox therefore rendered several parallel
+diagonal bands. The owner rejected that result as a stamped warp.
+
+The footprint is now a 5.5 mm-radius circle in immutable body-local XY. The C2
+height profile, 0.08 mm maximum depth, exact rest X/Y, fixed boundaries,
+ordinary wheel materials and approved key/fill rig are unchanged. Near a
+physical ring boundary only the existing radial support contraction may break
+isotropy, because preserving the Select gap and outer silhouette is the harder
+constraint there.
+
+No optical correction was reintroduced. The production browser compares the
+new held-vs-rest image response with the immutable owner-rejected white quarter
+pair. That gate measures affected area and principal aspect, so restoring the
+8 mm tangent support is both a geometry-test failure and a visual-comparison
+failure rather than a subjective documentation edit.

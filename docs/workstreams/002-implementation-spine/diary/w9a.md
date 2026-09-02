@@ -249,3 +249,31 @@ mouse down/hold/up lifecycle. Twelve black/white × front/quarter
 rest/hold/release PNGs were captured. Every released image is byte-identical to
 its matching rest image. No query-controlled physics state or proof API was
 added.
+
+## Owner visual rejection follow-up — isotropic depth basin
+
+The strict W9A-13 mesh tests were green, but the owner was right to reject the
+render. The committed white quarter hold still showed a broad multi-band
+diagonal stamp. With the auxiliary shader already absent, the remaining cause
+was the scalar field itself: its 5.5 mm radial × 8 mm tangential support made
+the true normal gradient strongly directional, and the 45° softbox made that
+directionality obvious.
+
+I changed only the tangential support to 5.5 mm. Depth remains 0.08 mm and the
+field is still `(1-q²)³`; no light, material, shader, release timing, hit plane
+or tessellation changed. A new production-mesh gate measures radial versus
+tangential support and an independent scalar oracle samples equal distances in
+both directions. Restoring the rejected 8 mm value fails two focused tests.
+
+The first browser run used a worktree snapshot only for visual calibration.
+After the source and test commits, I reran the ordinary production pointer path
+from exact commit `7baedf9f7039911e619de8fabed71d4fa3197f88` and tree
+`b30cd16bd5691f99fbeb2ea92fe9382e872e9118`. The immutable white quarter
+response fell from 3,355 to 2,278 changed pixels, from 67 × 100 px to 54 × 70
+px, and from 1.744 to 1.393 principal aspect. All four release captures are
+byte-identical to rest.
+
+The first full gate run caught a documentation path literal in the browser
+test's implementation source. I replaced the path lookup with the rejected
+pair's immutable hashes and measured baseline. The final full gate run is 16
+automated pass, zero automated fail; U14/U15 remain the standing manual gates.

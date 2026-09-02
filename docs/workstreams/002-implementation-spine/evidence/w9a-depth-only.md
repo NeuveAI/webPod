@@ -2,6 +2,11 @@
 
 Date: 2026-09-02
 
+> **Owner-rejected visual baseline.** The depth-axis invariants in this record
+> remain valid, but the 5.5 × 8 mm anisotropic footprint rendered as a broad
+> diagonal stamp in the white three-quarter held frame. It is superseded by
+> `w9a-depth-basin.md` and retained only as the immutable comparison baseline.
+
 ## Production correction
 
 - Wheel maximum remains `0.08 mm` (`0.4271844660` model units).
