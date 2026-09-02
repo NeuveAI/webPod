@@ -21,6 +21,7 @@ import {
   acceptedExternalPressActionAtom,
   deviceStore,
   pressActionAtom,
+  returnToRootActionAtom,
   type DeviceStore,
 } from '@webpod/state'
 import {
@@ -265,6 +266,8 @@ class CompositeInputController {
   private interactionAudioEnabled = true
   private onPlayPausePress: (() => boolean | Promise<boolean>) | undefined
   private attachmentGeneration = 0
+  private readonly cardinalStartTimes = new Map<number, number>()
+  private suppressedCardinalPointerId: number | null = null
 
   readonly handlers: CompositeArcHandlers = {
     onArcStart: (sample) => {
@@ -311,6 +314,7 @@ class CompositeInputController {
       this.restoreApplicationFocus()
     },
     onCardinalStart: (start) => {
+      this.cardinalStartTimes.set(start.pointerId, start.timestampMs)
       this.audioButtonDown(
         pointerAudioContactId(start.pointerId, start.button),
         start.button,
@@ -324,8 +328,19 @@ class CompositeInputController {
         end.timestampMs,
         end.reason,
       )
+      const startedAt = this.cardinalStartTimes.get(end.pointerId)
+      this.cardinalStartTimes.delete(end.pointerId)
+      if (end.accepted && end.button === 'menu' && startedAt !== undefined && end.timestampMs - startedAt >= 600) {
+        this.store?.set(returnToRootActionAtom)
+        this.suppressedCardinalPointerId = end.pointerId
+      }
     },
     onCardinalPress: (press) => {
+      if (this.suppressedCardinalPointerId === press.pointerId) {
+        this.suppressedCardinalPointerId = null
+        this.restoreApplicationFocus()
+        return
+      }
       this.dispatchPhysicalPress(press.button, pointerPressPath(press))
       this.restoreApplicationFocus()
     },
@@ -374,6 +389,8 @@ class CompositeInputController {
       if (this.runtime === runtime) this.runtime = null
       if (this.store === runtimeDependencies.store) this.store = null
       this.activeSelectPointerId = null
+      this.cardinalStartTimes.clear()
+      this.suppressedCardinalPointerId = null
       if (this.selection === selection) this.selection = null
       if (this.audio === audio) this.audio = null
       if (this.audioRoot === root) this.audioRoot = null
@@ -484,6 +501,7 @@ class CompositeInputController {
       readonly key: string
       readonly button: ClickWheelCardinalButton | 'center'
       readonly audioId: string
+      readonly startedAt: number
     } | null = null
     const clear = () => {
       active = null
@@ -497,7 +515,7 @@ class CompositeInputController {
         !isApplicationKeyboardTarget(event.target, root)
       ) return
       const audioId = keyAudioContactId(event.key, button)
-      active = { key: event.key, button, audioId }
+      active = { key: event.key, button, audioId, startedAt: event.timeStamp }
       event.preventDefault()
       if (button !== 'center') event.stopPropagation()
       this.audioButtonDown(audioId, button, 'key', event.timeStamp)
@@ -509,7 +527,11 @@ class CompositeInputController {
       event.preventDefault()
       if (current.button !== 'center') event.stopPropagation()
       this.audioButtonUp(current.audioId, event.timeStamp, 'release')
-      this.dispatchPhysicalPress(current.button, 'key')
+      if (current.button === 'menu' && event.timeStamp - current.startedAt >= 600) {
+        this.store?.set(returnToRootActionAtom)
+      } else {
+        this.dispatchPhysicalPress(current.button, 'key')
+      }
       this.restoreApplicationFocus()
     }
     const onVisibilityChange = () => {

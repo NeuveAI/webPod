@@ -3,6 +3,7 @@ import { GlobalRegistrator } from '@happy-dom/global-registrator'
 import { readFileSync } from 'node:fs'
 import {
   detentAccumulatorAtom,
+  currentScreenAtom,
   deviceStore,
   highlightIndexAtom,
   pressActionAtom,
@@ -357,6 +358,35 @@ describe('mounted composite input boundary', () => {
     expect(contacts.ups.map(({ timestampMs }) => timestampMs)).toEqual([
       60, 160, 260, 360,
     ])
+  })
+
+  test('holding Menu for 600ms returns to root without also popping it', async () => {
+    const environment = makeEnvironment()
+    const mounted: {
+      start: ((start: ClickWheelCardinalStart) => void) | null
+      end: ((end: ClickWheelCardinalEnd) => void) | null
+      press: ((press: ClickWheelCardinalPress) => void) | null
+    } = { start: null, end: null, press: null }
+    seedSingletonScreen()
+    deviceStore.set(pushScreenActionAtom, { screenId: 'S08', title: 'Deep', density: 'compact', rows: [], highlightIndex: -1, windowStart: 0 })
+
+    await act(async () => root.render(
+      <CompositeInputBoundary createDependencies={() => environment.dependencies} createAudioRuntime={() => recordingAudio([], true)}>
+        {(handlers) => {
+          mounted.start = handlers.onCardinalStart
+          mounted.end = handlers.onCardinalEnd
+          mounted.press = handlers.onCardinalPress
+          return <div role="application" tabIndex={0}>Long Menu panel</div>
+        }}
+      </CompositeInputBoundary>,
+    ))
+    if (mounted.start === null || mounted.end === null || mounted.press === null) throw new Error('Cardinal bridge did not mount')
+    const contact = { pointerId: 905, pointerType: 'touch' as const, button: 'menu' as const }
+    mounted.start({ ...contact, timestampMs: 100 })
+    mounted.end({ ...contact, timestampMs: 700, reason: 'release', accepted: true })
+    mounted.press({ ...contact, timestampMs: 700 })
+
+    expect(deviceStore.get(currentScreenAtom)?.title).toBe('Mounted composite test')
   })
 
   test('rejected Play/Pause, mute and raw DOM click never enter audio', async () => {
