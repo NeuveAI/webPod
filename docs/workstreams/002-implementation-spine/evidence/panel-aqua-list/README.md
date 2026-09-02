@@ -1,10 +1,10 @@
 # Panel Aqua list evidence
 
-This evidence was generated from immutable source commit
-`da038dab6b5bdc696e7dd64f9d2002b8270ea32d`, tree
-`af0a323bdf3d1b20e537c29e06a240b44eefbad9`, on the production
+This corrected evidence was generated from immutable source commit
+`7bb9906ef40388ebbb5ebc4de2edc4f666e1980d`, tree
+`a9394e66c9ce33d422d8fea4cf412c350d99ff53`, on the production
 `/_spike/device` route. The browser source fingerprint was
-`d17d1401bf60daee0394673a3a6139869c0bdfb726dc8a5a1a501849cba8c829`
+`4d570e7d2d1783b0fe034aa50bf65bcdbfc686eee68ecca9ace51fee8e9b57d0`
 across 211 served files.
 
 ## Result
@@ -14,20 +14,32 @@ across 211 served files.
   pane has none.
 - The thumb is 8/11 of the authored track and follows the authoritative
   `windowStart` after real wheel events.
+- All eight declared album rows fit the 183px list viewport. The selected
+  first, middle, and final rows report `contained: true` in both colourways;
+  the final row bottom and list bottom agree within the browser's subpixel
+  precision.
+- A 10,000-row end-state mounts an effective 5px thumb at 170px on the 175px
+  track. Its bottom is exactly the track bottom, so the CSS minimum and travel
+  equation cannot diverge.
 - The recessed track and glossy thumb are separate DOM/CSS layers. The track
-  uses a fixed `0 0` stripe phase; only the thumb consumes the offset variable.
-- The fixed-coordinate stripe sample has the same SHA-256 at start, middle,
-  and end:
-  `1a76b45b74248681718d3328875b4e16ff9407d1cb0b3d5f418dec31f4dcfaa8`.
+  uses a fixed `0 0` stripe phase; pseudo overlays are disabled; only the thumb
+  consumes the offset variable.
+- The full fixed-coordinate 6×175px track—not a sampled strip—has the same
+  SHA-256 at start, middle, and end:
+  `c8b2ad542d8191cb293e795d5a24d0b212c357d4e4b2934bc70caa2e0e78d79c`.
   The three complete indicator hashes differ, proving the thumb moved while
-  the sampled track pixels did not.
+  every track pixel stayed fixed.
 - Black and white selected rows were captured at rows 1, 6, and 11. Black uses
   a deep graphite/aqua material with white content; white uses a separately
   authored pale ice/aqua material with slate content.
-- Every authored selection foreground clears 4.5:1 against all three base
-  material stops. Metadata, row numbers, and chevrons inherit that foreground.
-- Three executable plants reject a flat one-color selection, removal of the
-  1px top rim, and a shared unsuitable foreground.
+- The Aqua rim is a separate one-pixel DOM layer. The production browser reads
+  its effective color as `rgb(169, 239, 255)` in black and `rgb(255, 255, 255)`
+  in white.
+- Selected metadata renders at opacity 1. Its effective foreground therefore
+  preserves the tested 4.5:1 minimum against all three base material stops.
+- Executable plants reject flat selection, an effectively transparent rim,
+  a moving right-side track overlay, shared foregrounds, `.84` selected
+  metadata, 26px clipped rows, and unclamped 10,000-row thumb geometry.
 
 [`summary.json`](./summary.json) records the computed materials, geometry,
 selected labels, source observations, and hashes.
@@ -47,7 +59,7 @@ Indicator movement:
   [`middle`](./indicator-middle.png), [`end`](./indicator-end.png)
 - isolated fixed track: [`start`](./indicator-track-start.png),
   [`middle`](./indicator-track-middle.png), [`end`](./indicator-track-end.png)
-- byte-compared stripe samples: [`start`](./indicator-track-stripes-start.png),
+- byte-compared full-track aliases: [`start`](./indicator-track-stripes-start.png),
   [`middle`](./indicator-track-stripes-middle.png),
   [`end`](./indicator-track-stripes-end.png)
 
@@ -71,15 +83,15 @@ the committed tokens are authored for legibility at the fixed 272×204 raster.
 
 ## Verification
 
-An exact detached Git worktree at `da038da` produced:
+An exact detached source snapshot at `7bb9906` produced:
 
 - `bun run typecheck`: 11/11 projects clean
 - `bun run lint`: clean
-- `bun test`: 1,152 pass, 0 fail
+- `bun test`: 1,185 pass, 0 fail
 - `bun run build`: client and SSR builds clean
 - `bun run gates`: 16 automated pass, 0 fail; the standing U14/U15 manual
   checks remain unrelated to this panel slice
-- focused panel unit/material tests: 28 pass, 0 fail
+- focused panel unit/material tests: 43 pass, 0 fail
 - focused panel wheel-navigation browser test: 1 pass, 0 fail
 - immutable production-route Aqua evidence test: 1 pass, 0 fail
 

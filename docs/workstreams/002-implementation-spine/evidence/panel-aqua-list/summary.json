@@ -18,6 +18,12 @@
       "trackPosition": "0px 0px",
       "outerBackground": "rgb(23, 33, 43)"
     },
+    "tenThousandRowEnd": {
+      "thumbSize": 5,
+      "thumbOffset": 170,
+      "thumbBottom": 183,
+      "trackBottom": 183
+    },
     "afterNineWheelDetents": {
       "trackWidth": 6,
       "thumbRatio": 0.7255379156062995,
@@ -40,16 +46,16 @@
     },
     "fixedTrackProof": {
       "start": {
-        "compositeSha256": "338719561bdfa91dcbb453e3b132ac93a2c6499caba5fd034b8367455af13de9",
-        "trackStripeSha256": "1a76b45b74248681718d3328875b4e16ff9407d1cb0b3d5f418dec31f4dcfaa8"
+        "compositeSha256": "9e715e83e2044e235ff4f4f679ab6fc31871920e39617e2f63d1afa920d81313",
+        "trackSha256": "c8b2ad542d8191cb293e795d5a24d0b212c357d4e4b2934bc70caa2e0e78d79c"
       },
       "middle": {
-        "compositeSha256": "888bd8ce6dc09bafad3b15d948dfa6ec6f70cfe1fdfb17fc37783e0a764c05ed",
-        "trackStripeSha256": "1a76b45b74248681718d3328875b4e16ff9407d1cb0b3d5f418dec31f4dcfaa8"
+        "compositeSha256": "0d0469777526f75036a113b4f93f3a3cb62bc1d417cc314c228edb6069466996",
+        "trackSha256": "c8b2ad542d8191cb293e795d5a24d0b212c357d4e4b2934bc70caa2e0e78d79c"
       },
       "end": {
-        "compositeSha256": "52d9b1d6b5c84fb83f8de12c7aeeb05527f48ebb8eed93686740eb00a7ff72b2",
-        "trackStripeSha256": "1a76b45b74248681718d3328875b4e16ff9407d1cb0b3d5f418dec31f4dcfaa8"
+        "compositeSha256": "f24c1434760026911c60a4641f024ffc25291c9289e0e1dd2dc6c5bfe20ac451",
+        "trackSha256": "c8b2ad542d8191cb293e795d5a24d0b212c357d4e4b2934bc70caa2e0e78d79c"
       }
     },
     "selectedRows": {
@@ -58,22 +64,46 @@
           "label": "Syndicate",
           "number": "1",
           "foreground": "rgb(255, 255, 255)",
-          "material": "linear-gradient(rgb(169, 239, 255) 0px, rgb(169, 239, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(13, 115, 147) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(36, 127, 155) 0%, rgb(13, 115, 147) 54%, rgb(7, 84, 111) 100%)",
-          "depth": "rgba(238, 252, 255, 0.32) 0px 1px 0px 0px inset, rgb(4, 47, 66) 0px -1px 0px 0px inset, rgba(0, 19, 28, 0.66) 0px 1px 0px 0px"
+          "material": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(13, 115, 147) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(36, 127, 155) 0%, rgb(13, 115, 147) 54%, rgb(7, 84, 111) 100%)",
+          "depth": "rgba(238, 252, 255, 0.32) 0px 1px 0px 0px inset, rgb(4, 47, 66) 0px -1px 0px 0px inset, rgba(0, 19, 28, 0.66) 0px 1px 0px 0px",
+          "rim": "rgb(169, 239, 255)",
+          "rimSize": "1px",
+          "metadataOpacity": "1",
+          "contained": true,
+          "rowTop": 203.07667541503906,
+          "rowBottom": 245.32086181640625,
+          "listTop": 203.07667541503906,
+          "listBottom": 489.48268127441406
         },
         "middle": {
           "label": "Where the Story Ends",
           "number": "6",
           "foreground": "rgb(255, 255, 255)",
-          "material": "linear-gradient(rgb(169, 239, 255) 0px, rgb(169, 239, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(13, 115, 147) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(36, 127, 155) 0%, rgb(13, 115, 147) 54%, rgb(7, 84, 111) 100%)",
-          "depth": "rgba(238, 252, 255, 0.32) 0px 1px 0px 0px inset, rgb(4, 47, 66) 0px -1px 0px 0px inset, rgba(0, 19, 28, 0.66) 0px 1px 0px 0px"
+          "material": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(13, 115, 147) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(36, 127, 155) 0%, rgb(13, 115, 147) 54%, rgb(7, 84, 111) 100%)",
+          "depth": "rgba(238, 252, 255, 0.32) 0px 1px 0px 0px inset, rgb(4, 47, 66) 0px -1px 0px 0px inset, rgba(0, 19, 28, 0.66) 0px 1px 0px 0px",
+          "rim": "rgb(169, 239, 255)",
+          "rimSize": "1px",
+          "metadataOpacity": "1",
+          "contained": true,
+          "rowTop": 378.8554992675781,
+          "rowBottom": 419.02801513671875,
+          "listTop": 203.07667541503906,
+          "listBottom": 489.48268127441406
         },
         "end": {
           "label": "Happiness",
           "number": "11",
           "foreground": "rgb(255, 255, 255)",
-          "material": "linear-gradient(rgb(169, 239, 255) 0px, rgb(169, 239, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(13, 115, 147) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(36, 127, 155) 0%, rgb(13, 115, 147) 54%, rgb(7, 84, 111) 100%)",
-          "depth": "rgba(238, 252, 255, 0.32) 0px 1px 0px 0px inset, rgb(4, 47, 66) 0px -1px 0px 0px inset, rgba(0, 19, 28, 0.66) 0px 1px 0px 0px"
+          "material": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(13, 115, 147) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(36, 127, 155) 0%, rgb(13, 115, 147) 54%, rgb(7, 84, 111) 100%)",
+          "depth": "rgba(238, 252, 255, 0.32) 0px 1px 0px 0px inset, rgb(4, 47, 66) 0px -1px 0px 0px inset, rgba(0, 19, 28, 0.66) 0px 1px 0px 0px",
+          "rim": "rgb(169, 239, 255)",
+          "rimSize": "1px",
+          "metadataOpacity": "1",
+          "contained": true,
+          "rowTop": 444.6327209472656,
+          "rowBottom": 489.482666015625,
+          "listTop": 203.07667541503906,
+          "listBottom": 489.48268127441406
         }
       },
       "white": {
@@ -81,22 +111,46 @@
           "label": "Syndicate",
           "number": "1",
           "foreground": "rgb(23, 48, 71)",
-          "material": "linear-gradient(rgb(255, 255, 255) 0px, rgb(255, 255, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(169, 223, 235) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(217, 244, 251) 0%, rgb(169, 223, 235) 54%, rgb(121, 198, 215) 100%)",
-          "depth": "rgba(255, 255, 255, 0.76) 0px 1px 0px 0px inset, rgb(59, 145, 167) 0px -1px 0px 0px inset, rgba(27, 72, 86, 0.34) 0px 1px 0px 0px"
+          "material": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(169, 223, 235) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(217, 244, 251) 0%, rgb(169, 223, 235) 54%, rgb(121, 198, 215) 100%)",
+          "depth": "rgba(255, 255, 255, 0.76) 0px 1px 0px 0px inset, rgb(59, 145, 167) 0px -1px 0px 0px inset, rgba(27, 72, 86, 0.34) 0px 1px 0px 0px",
+          "rim": "rgb(255, 255, 255)",
+          "rimSize": "1px",
+          "metadataOpacity": "1",
+          "contained": true,
+          "rowTop": 203.07667541503906,
+          "rowBottom": 245.32086181640625,
+          "listTop": 203.07667541503906,
+          "listBottom": 489.48268127441406
         },
         "middle": {
           "label": "Where the Story Ends",
           "number": "6",
           "foreground": "rgb(23, 48, 71)",
-          "material": "linear-gradient(rgb(255, 255, 255) 0px, rgb(255, 255, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(169, 223, 235) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(217, 244, 251) 0%, rgb(169, 223, 235) 54%, rgb(121, 198, 215) 100%)",
-          "depth": "rgba(255, 255, 255, 0.76) 0px 1px 0px 0px inset, rgb(59, 145, 167) 0px -1px 0px 0px inset, rgba(27, 72, 86, 0.34) 0px 1px 0px 0px"
+          "material": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(169, 223, 235) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(217, 244, 251) 0%, rgb(169, 223, 235) 54%, rgb(121, 198, 215) 100%)",
+          "depth": "rgba(255, 255, 255, 0.76) 0px 1px 0px 0px inset, rgb(59, 145, 167) 0px -1px 0px 0px inset, rgba(27, 72, 86, 0.34) 0px 1px 0px 0px",
+          "rim": "rgb(255, 255, 255)",
+          "rimSize": "1px",
+          "metadataOpacity": "1",
+          "contained": true,
+          "rowTop": 275.8373718261719,
+          "rowBottom": 312.4215087890625,
+          "listTop": 203.07667541503906,
+          "listBottom": 489.48268127441406
         },
         "end": {
           "label": "Happiness",
           "number": "11",
           "foreground": "rgb(23, 48, 71)",
-          "material": "linear-gradient(rgb(255, 255, 255) 0px, rgb(255, 255, 255) 1px, rgba(0, 0, 0, 0) 1px), linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(169, 223, 235) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(217, 244, 251) 0%, rgb(169, 223, 235) 54%, rgb(121, 198, 215) 100%)",
-          "depth": "rgba(255, 255, 255, 0.76) 0px 1px 0px 0px inset, rgb(59, 145, 167) 0px -1px 0px 0px inset, rgba(27, 72, 86, 0.34) 0px 1px 0px 0px"
+          "material": "linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) 22%, rgb(169, 223, 235) 48%, rgba(0, 0, 0, 0) 74%), linear-gradient(rgb(217, 244, 251) 0%, rgb(169, 223, 235) 54%, rgb(121, 198, 215) 100%)",
+          "depth": "rgba(255, 255, 255, 0.76) 0px 1px 0px 0px inset, rgb(59, 145, 167) 0px -1px 0px 0px inset, rgba(27, 72, 86, 0.34) 0px 1px 0px 0px",
+          "rim": "rgb(255, 255, 255)",
+          "rimSize": "1px",
+          "metadataOpacity": "1",
+          "contained": true,
+          "rowTop": 444.6327209472656,
+          "rowBottom": 489.482666015625,
+          "listTop": 203.07667541503906,
+          "listBottom": 489.48268127441406
         }
       }
     }
