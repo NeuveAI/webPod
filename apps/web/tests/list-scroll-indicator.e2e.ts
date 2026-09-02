@@ -191,7 +191,7 @@ async function captureIndicatorLayers(indicator: Locator, position: 'start' | 'm
     return previous
   })
   const well = indicator.locator('.wp-list-scroll__well')
-  const track = await well.screenshot({
+  await well.screenshot({
     path: resolve(evidenceDirectory, `indicator-track-${position}.png`),
   })
   const wellBounds = await well.boundingBox()
@@ -223,7 +223,6 @@ async function captureIndicatorLayers(indicator: Locator, position: 'start' | 'm
   }, previousStyles)
   return {
     compositeSha256: createHash('sha256').update(composite).digest('hex'),
-    trackSha256: createHash('sha256').update(track).digest('hex'),
     trackStripeSha256: createHash('sha256').update(trackStripe).digest('hex'),
   }
 }
