@@ -19,7 +19,17 @@ const evidenceDirectory = resolve(
 )
 
 const PROBE_ROUTE = '/_probe/composite'
-const SPIKE_ROUTE = '/_spike/device?capture&view=front&colourway=black'
+const SPIKE_ROUTE = '/_spike/device'
+const LEGACY_PROBE_ROUTES = [
+  '/_probe/composite?colourway=black&state=ready&scale=1&fov=24&mode=bare&pose=front',
+  '/_probe/composite?colourway=white&state=loading&scale=1.3&fov=30&mode=composited&pose=three-quarter',
+  '/_probe/composite?colourway=black&state=empty&scale=2&fov=36&mode=bare&pose=edge',
+  '/_probe/composite?colourway=white&state=error&scale=1&fov=24&mode=composited&pose=rear',
+  '/_probe/composite?colourway=black&state=offline&scale=1.3&fov=30&mode=bare&pose=front',
+  '/_probe/composite?colourway=white&state=permission-denied&scale=2&fov=36&mode=composited&pose=three-quarter',
+  '/_probe/composite?colourway=black&state=agent-active&scale=1&fov=24&mode=bare&pose=edge',
+  '/_probe/composite?colourway=white&state=success-confirmation&scale=2&fov=36&mode=composited&pose=rear',
+] as const
 
 test.use({
   launchOptions: {
@@ -104,6 +114,20 @@ test('the default probe and spike render one production eight-row LCD view', asy
   }
 })
 
+test('every legacy product-semantic query resolves to the canonical eight-row view', async ({ context }) => {
+  for (const route of LEGACY_PROBE_ROUTES) {
+    const page = await openRoute(context, route)
+    try {
+      const finalUrl = new URL(page.url())
+      expect(finalUrl.pathname).toBe('/_spike/device')
+      expect(finalUrl.search).toBe('')
+      expectProductionDefault(await measureMenu(page))
+    } finally {
+      await page.close()
+    }
+  }
+})
+
 test('cropped LCD pixels remain equivalent across the shared route boundary', async ({ context }) => {
   const probe = await openRoute(context, PROBE_ROUTE)
   const spike = await openRoute(context, SPIKE_ROUTE)
@@ -113,9 +137,9 @@ test('cropped LCD pixels remain equivalent across the shared route boundary', as
     const spikeLcd = await captureNormalizedLcd(spike, 'spike-front-lcd.png')
     const difference = comparePixels(probeLcd.pixels, spikeLcd.pixels)
 
-    // Different outer stages produce different projected LCD sizes. After both
-    // crops are normalized to the authored 272×204 grid, only projection and
-    // resampling noise may differ.
+    // Both URLs resolve to the same queryless product route. After both crops
+    // are normalized to the authored 272×204 grid, only resampling noise may
+    // differ.
     expect(difference.meanChannelDelta).toBeLessThanOrEqual(5)
     expect(difference.changedPixelRatio).toBeLessThanOrEqual(0.1)
 
