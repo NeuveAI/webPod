@@ -374,3 +374,31 @@ Modern Web Guidance returned only unrelated scroll-snap/carousel guidance. The
 configured `agent-context` global/Jotai reference files were absent, so the
 implementation was grounded in the repository's actual Jotai store, reducer,
 screen and audio contracts.
+
+## Owner correction — flat LCD reveal and axial Select press
+
+The owner identified two residual false-depth cues. Three's front-shell
+extrusion applied the outer body bevel to the LCD hole too, so the face grew a
+reflective screen lip that the real assembly does not have. Select press also
+deformed every vertex along its curved normal, changing X/Y and surface shape
+instead of moving the separate plastic part into the device.
+
+The display fix retains the outer shell roll and collapses only the screen
+hole's generated bevel back onto the authored rounded-rectangle contour. A
+full-depth, unlit black reveal now covers the opening wall; the transparent
+cover sheet is planar and contributes no visible side perimeter. The T1 DOM
+screen and its dimensions are unchanged.
+
+Select now binds the actual mesh rather than its geometry. Pressing translates
+that mesh by a restrained 0.12 mm along device-local negative Z. Geometry,
+normals, material, X/Y, quaternion and scale remain immutable; release restores
+the exact rest transform. Wheel tilt, pointer capture, navigation and SFX paths
+were not changed.
+
+Owner photographs plus Apple and iFixit references supplied the necessary
+front, quarter and assembly evidence. No relevant angle remained missing. The
+final immutable browser run served commit
+`16cbf4a2705417f19c375b97b6819eb13f4d777e`, tree
+`c487ae746f64cfa6c5f464d0b6faa174db2f7860`, and captured black/white ×
+front/quarter × rest/held/released through the ordinary pointer path. Every
+release image is byte-identical to rest.

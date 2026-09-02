@@ -314,3 +314,21 @@ history. It preserves only path, source and `armed`, so an already-paid touch
 dead zone is not charged again and the first valid reversing detent responds
 immediately. This is the boundary between stopping stale momentum and making
 the control sticky.
+
+## W9A-18 · The LCD reveal is flat; Select press is an axial rigid transform
+
+The glossy front remains one continuous moulded face around the display, but
+its outer-shell bevel does not apply to the LCD opening. The opening wall is
+square to the face and covered by one unlit, near-black assembly reveal. The
+cover sheet is a planar reflective surface without side geometry. Neither the
+reveal nor the cover may create a raised bezel, chamfer or reflective edge.
+The active LCD dimensions and T1 DOM compositing boundary remain unchanged.
+
+Select is a separate matte-plastic mesh whose rest surface remains essentially
+flush with the wheel. Press changes only the mesh's device-local Z position by
+0.12 mm. The value is a restrained visual calibration, not an OEM dimension.
+Its geometry, normals, material object and parameters, X/Y position,
+quaternion and scale are invariant. There is no pressed colour, opacity,
+emissive, shader or auxiliary-light state. Release restores the exact rest
+transform. The click-wheel's independently owned rigid tilt and the existing
+interaction/SFX callbacks are unchanged.

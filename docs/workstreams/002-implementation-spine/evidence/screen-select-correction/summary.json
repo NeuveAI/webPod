@@ -1,0 +1,112 @@
+{
+  "route": "/_spike/device",
+  "browser": "Chrome with CanvasDrawElement enabled",
+  "productionPointerLifecycle": [
+    "mouse.move to physical Select center",
+    "mouse.down",
+    "hold",
+    "mouse.up",
+    "96ms demand-driven release settle"
+  ],
+  "syntheticControlPose": false,
+  "controlQueryParameter": false,
+  "selectTravelMm": 0.12,
+  "selectMotion": "device-local Z translation only",
+  "selectMaterialMutation": false,
+  "selectGeometryMutation": false,
+  "screenOpening": "square aperture wall, flat black unlit reveal, planar cover sheet",
+  "health": {
+    "expected": "923e404d95d02554d6678c65b6b6224a1f34373f2f5497061a7fc40ba4b3f21f",
+    "current": "923e404d95d02554d6678c65b6b6224a1f34373f2f5497061a7fc40ba4b3f21f",
+    "expectedFileCount": 197,
+    "fileCount": 197,
+    "reviewedCommit": "16cbf4a2705417f19c375b97b6819eb13f4d777e",
+    "reviewedTree": "c487ae746f64cfa6c5f464d0b6faa174db2f7860"
+  },
+  "captures": [
+    {
+      "colourway": "black",
+      "pose": "front",
+      "state": "rest",
+      "filename": "black-front-rest.png",
+      "sha256": "d07b6d5da7d629e2455ded71d7a9198b1f5c864f4c8f1477edc9253abf8df92d"
+    },
+    {
+      "colourway": "black",
+      "pose": "three-quarter",
+      "state": "rest",
+      "filename": "black-three-quarter-rest.png",
+      "sha256": "4fc9237528f8fbf0c2e9878a58777ce7c7d7e637fa1db03962d557e87235aeb9"
+    },
+    {
+      "colourway": "black",
+      "pose": "front",
+      "state": "held",
+      "filename": "black-front-held.png",
+      "sha256": "40f832b82f7726196c24c725d7bc7460767625db74d526bfb72bdd6ffc46fb4d"
+    },
+    {
+      "colourway": "black",
+      "pose": "three-quarter",
+      "state": "held",
+      "filename": "black-three-quarter-held.png",
+      "sha256": "19c2ef21aa8994f94ac663d1e5c238eba207b6df1b8f24b824c77efc19230d7d"
+    },
+    {
+      "colourway": "black",
+      "pose": "three-quarter",
+      "state": "released",
+      "filename": "black-three-quarter-released.png",
+      "sha256": "4fc9237528f8fbf0c2e9878a58777ce7c7d7e637fa1db03962d557e87235aeb9"
+    },
+    {
+      "colourway": "black",
+      "pose": "front",
+      "state": "released",
+      "filename": "black-front-released.png",
+      "sha256": "d07b6d5da7d629e2455ded71d7a9198b1f5c864f4c8f1477edc9253abf8df92d"
+    },
+    {
+      "colourway": "white",
+      "pose": "front",
+      "state": "rest",
+      "filename": "white-front-rest.png",
+      "sha256": "e8e604a2a0ec4f4fdbf185495d8a7f38eb17c337ad109768ef99fcbd22cfb3a1"
+    },
+    {
+      "colourway": "white",
+      "pose": "three-quarter",
+      "state": "rest",
+      "filename": "white-three-quarter-rest.png",
+      "sha256": "3834fa52fd72cc4d65763563c88ba57104ddf880dfde0a29676478d95f60ba29"
+    },
+    {
+      "colourway": "white",
+      "pose": "front",
+      "state": "held",
+      "filename": "white-front-held.png",
+      "sha256": "1fc1e3e7126d713c41aae9ce4c9a3d569a86ad8435fbe518394ff172708610c2"
+    },
+    {
+      "colourway": "white",
+      "pose": "three-quarter",
+      "state": "held",
+      "filename": "white-three-quarter-held.png",
+      "sha256": "c7c7d7ca2ee3f1324656b360059f8a15c5edf9903c21bff6c853fe28909c6f08"
+    },
+    {
+      "colourway": "white",
+      "pose": "three-quarter",
+      "state": "released",
+      "filename": "white-three-quarter-released.png",
+      "sha256": "3834fa52fd72cc4d65763563c88ba57104ddf880dfde0a29676478d95f60ba29"
+    },
+    {
+      "colourway": "white",
+      "pose": "front",
+      "state": "released",
+      "filename": "white-front-released.png",
+      "sha256": "e8e604a2a0ec4f4fdbf185495d8a7f38eb17c337ad109768ef99fcbd22cfb3a1"
+    }
+  ]
+}
