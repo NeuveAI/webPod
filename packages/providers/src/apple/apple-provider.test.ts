@@ -1,9 +1,9 @@
 import { describe, expect, test } from 'bun:test'
 import { createAppleProvider, MUSICKIT_SCRIPT_URL, type MusicKitGlobalLike, type MusicKitInstanceLike } from './apple-provider.ts'
 
-function fakeMusic(): MusicKitInstanceLike & { emit(name: string): void; setNowPlaying(item: unknown): void; setQueuePosition(position: number | undefined): void; removed: string[]; calls: string[]; queueDescriptors: Readonly<Record<string, unknown>>[] } {
+function fakeMusic(): MusicKitInstanceLike & { emit(name: string): void; setNowPlaying(item: unknown): void; setQueueItems(items: readonly unknown[]): void; setQueuePosition(position: number | undefined): void; removed: string[]; calls: string[]; queueDescriptors: Readonly<Record<string, unknown>>[] } {
   const listeners = new Map<string, Set<(event: unknown) => void>>(); const calls: string[] = []; const removed: string[] = []
-  const queueDescriptors: Readonly<Record<string, unknown>>[] = []; let nowPlaying: unknown; let queuePosition: number | undefined
+  const queueDescriptors: Readonly<Record<string, unknown>>[] = []; let nowPlaying: unknown; let queueItems: readonly unknown[] = []; let queuePosition: number | undefined
   const empty = async () => ({ data: { data: [] } })
   const tracks = async () => [{ id: 'song.1', type: 'library-songs', attributes: { name: 'Night', artistName: 'Artist', durationInMillis: 180000, playParams: { catalogId: 'catalog-song.1' } } }]
   const albums = async () => [{ id: 'album.1', type: 'library-albums', attributes: { name: 'Album', artistName: 'Artist', trackCount: 1 } }]
@@ -18,9 +18,9 @@ function fakeMusic(): MusicKitInstanceLike & { emit(name: string): void; setNowP
     },
     isAuthorized: true, storefrontId: 'se', volume: 0.5, shuffleMode: 0, repeatMode: 0, playbackState: 3, currentPlaybackTime: 12, currentPlaybackDuration: 240,
     get nowPlayingItem() { return nowPlaying },
-    get queue() { return queuePosition === undefined ? undefined : { position: queuePosition } },
+    get queue() { return queueItems.length === 0 && queuePosition === undefined ? undefined : { items: queueItems, position: queuePosition } },
     async authorize() { calls.push('authorize'); return 'opaque-user' }, async unauthorize() { calls.push('unauthorize') }, async setQueue(descriptor) { calls.push('setQueue'); queueDescriptors.push(descriptor) }, async play() { calls.push('play') }, async pause() { calls.push('pause') }, async skipToNextItem() { calls.push('next') }, async skipToPreviousItem() { calls.push('previous') }, async seekToTime(value) { calls.push(`seek:${String(value)}`) }, async playLater() { calls.push('later') }, async playNext() { calls.push('nextQueue') },
-    addEventListener(name, callback) { const set = listeners.get(name) ?? new Set(); set.add(callback); listeners.set(name, set) }, removeEventListener(name, callback) { listeners.get(name)?.delete(callback); removed.push(name) }, emit(name) { for (const callback of listeners.get(name) ?? []) callback({}) }, setNowPlaying(item) { nowPlaying = item }, setQueuePosition(position) { queuePosition = position }, removed, calls, queueDescriptors,
+    addEventListener(name, callback) { const set = listeners.get(name) ?? new Set(); set.add(callback); listeners.set(name, set) }, removeEventListener(name, callback) { listeners.get(name)?.delete(callback); removed.push(name) }, emit(name) { for (const callback of listeners.get(name) ?? []) callback({}) }, setNowPlaying(item) { nowPlaying = item }, setQueueItems(items) { queueItems = items }, setQueuePosition(position) { queuePosition = position }, removed, calls, queueDescriptors,
   }
 }
 function setup(timing: Pick<NonNullable<Parameters<typeof createAppleProvider>[0]>, 'playbackConfirmationTimeoutMs' | 'setTimeout' | 'clearTimeout'> = {}) { const music = fakeMusic(); const kit: MusicKitGlobalLike = { async configure() { return music }, getInstance() { return music }, PlaybackStates: { playing: 3 }, PlayerShuffleMode: { off: 0, songs: 1, albums: 2 }, PlayerRepeatMode: { off: 0, one: 1, all: 2 } }; return { music, provider: createAppleProvider({ async loadMusicKit() { return kit }, async fetchDeveloperToken() { return { token: 'test-token-never-logged', expiresAt: 2_000 } }, setTimeout: () => 1, clearTimeout() {}, ...timing }) } }
@@ -108,7 +108,10 @@ describe('Apple provider', () => {
   test('requires a post-request queue transition to confirm collection targets', async () => {
     for (const kind of ['album', 'playlist', 'station'] as const) {
       const { provider, music } = setup(); await provider.configure()
-      music.setNowPlaying({ id: 'old-song', type: 'songs', attributes: { name: 'Old', artistName: 'Artist', durationInMillis: 1000 } })
+      const oldSong = { id: 'old-song', type: 'songs', attributes: { name: 'Old', artistName: 'Artist', durationInMillis: 1000 } }
+      const newSong = { id: `${kind}-song`, type: 'songs', attributes: { name: 'New', artistName: 'Artist', durationInMillis: 1000 } }
+      music.setQueueItems([oldSong])
+      music.setNowPlaying(oldSong)
       music.emit('nowPlayingItemDidChange')
       const album = (await provider.libraryList('albums')).items[0]
       const playlist = (await provider.libraryList('playlists')).items[0]
@@ -125,7 +128,14 @@ describe('Apple provider', () => {
       music.emit('queueItemsDidChange')
       expect(provider.playback.status).toBe('loading')
       music.emit('nowPlayingItemDidChange')
+      expect(provider.playback.status).toBe('loading')
+      music.setQueueItems([newSong])
+      music.emit('queueItemsDidChange')
+      expect(provider.playback.status).toBe('loading')
+      music.setNowPlaying(newSong)
+      music.emit('nowPlayingItemDidChange')
       expect(provider.playback.status).toBe('playing')
+      expect(provider.playback.now?.catalogId).toBe(`${kind}-song`)
     }
   })
   test('times out an unconfirmed selection and permits an identical retry', async () => {
@@ -172,6 +182,21 @@ describe('Apple provider', () => {
     expect(clears).toBe(1)
     expect(provider.playback).toMatchObject({ status: 'idle', now: null })
     expect(states).toHaveLength(stateCountAfterSignOut)
+  })
+  test('a rejected sign-out preserves the authorized playback transaction and event stream', async () => {
+    const { provider, music } = setup(); await provider.configure()
+    const track = (await provider.libraryList('songs')).items[0]
+    if (track?.kind !== 'track') throw new Error('library track missing')
+    await provider.play({ kind: 'tracks', tracks: [track], startIndex: 0 })
+    music.unauthorize = async () => { throw new Error('sign-out rejected') }
+
+    await expect(provider.unauthorize()).rejects.toThrow('sign-out rejected')
+    expect(provider.session?.status).toBe('authorized')
+    expect(provider.playback.status).toBe('loading')
+    music.setNowPlaying({ id: 'catalog-song.1', type: 'songs', attributes: { name: 'Night', artistName: 'Artist', durationInMillis: 180000 } })
+    music.emit('nowPlayingItemDidChange')
+
+    expect(provider.playback).toMatchObject({ status: 'playing', now: { catalogId: 'catalog-song.1' } })
   })
   test('propagates queue and playback rejections without inventing playback state', async () => {
     const queueFailure = setup(); await queueFailure.provider.configure(); queueFailure.music.setQueue = async () => { throw new Error('queue rejected') }
