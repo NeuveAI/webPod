@@ -46,9 +46,56 @@ describe('Apple provider', () => {
     expect(music.queueDescriptors).toEqual([{ songs: ['catalog-song.1', 'catalog-song.2'], startPosition: 1 }])
     expect(music.calls.slice(-2)).toEqual(['setQueue', 'play'])
   })
+  test('coalesces duplicate selections and stays loading until MusicKit confirms the item', async () => {
+    const { provider, music } = setup(); await provider.configure()
+    const track = (await provider.libraryList('songs')).items[0]
+    if (track?.kind !== 'track') throw new Error('library track missing')
+    let releaseQueue: (() => void) | undefined
+    music.setQueue = async (descriptor) => {
+      music.calls.push('setQueue')
+      music.queueDescriptors.push(descriptor)
+      await new Promise<void>((resolve) => { releaseQueue = resolve })
+    }
+    const states: string[] = []
+    provider.onPlaybackChange((playback) => states.push(`${playback.status}:${playback.now?.catalogId ?? 'none'}`))
+
+    const first = provider.play({ kind: 'tracks', tracks: [track], startIndex: 0 })
+    const duplicate = provider.play({ kind: 'tracks', tracks: [track], startIndex: 0 })
+    expect(provider.playback).toMatchObject({ status: 'loading', now: null })
+    expect(music.calls.filter((call) => call === 'setQueue')).toHaveLength(1)
+    releaseQueue?.()
+    await Promise.all([first, duplicate])
+    await provider.play({ kind: 'tracks', tracks: [track], startIndex: 0 })
+    expect(music.calls.filter((call) => call === 'setQueue')).toHaveLength(1)
+    expect(music.calls.filter((call) => call === 'play')).toHaveLength(1)
+
+    music.emit('playbackStateDidChange')
+    expect(provider.playback).toMatchObject({ status: 'loading', now: null })
+    music.setNowPlaying({ id: 'catalog-song.1', type: 'songs', attributes: { name: 'Night', artistName: 'Artist', durationInMillis: 180000 } })
+    music.emit('nowPlayingItemDidChange')
+    expect(provider.playback).toMatchObject({ status: 'playing', now: { catalogId: 'catalog-song.1' } })
+    expect(states).toEqual(['loading:none', 'loading:none', 'playing:catalog-song.1'])
+  })
+  test('does not let a stale item confirm a newly selected queue', async () => {
+    const { provider, music } = setup(); await provider.configure()
+    const track = (await provider.libraryList('songs')).items[0]
+    if (track?.kind !== 'track') throw new Error('library track missing')
+    music.setNowPlaying({ id: 'old-song', type: 'songs', attributes: { name: 'Old', artistName: 'Artist', durationInMillis: 1000 } })
+    music.emit('nowPlayingItemDidChange')
+    await provider.play({ kind: 'tracks', tracks: [track], startIndex: 0 })
+
+    music.emit('playbackStateDidChange')
+
+    expect(provider.playback.status).toBe('loading')
+    expect(provider.playback.now?.catalogId).toBe('old-song')
+    music.setNowPlaying({ id: 'catalog-song.1', type: 'songs', attributes: { name: 'Night', artistName: 'Artist', durationInMillis: 180000 } })
+    music.emit('nowPlayingItemDidChange')
+    expect(provider.playback).toMatchObject({ status: 'playing', now: { catalogId: 'catalog-song.1' } })
+  })
   test('propagates queue and playback rejections without inventing playback state', async () => {
     const queueFailure = setup(); await queueFailure.provider.configure(); queueFailure.music.setQueue = async () => { throw new Error('queue rejected') }
     await expect(queueFailure.provider.play({ kind: 'tracks', tracks: [], startIndex: 0 })).rejects.toThrow('queue rejected')
+    expect(queueFailure.provider.playback.status).not.toBe('loading')
     expect(queueFailure.provider.playback.now).toBeNull()
     const playFailure = setup(); await playFailure.provider.configure(); playFailure.music.play = async () => { throw new Error('play rejected') }
     await expect(playFailure.provider.play()).rejects.toThrow('play rejected')

@@ -135,7 +135,9 @@ export async function toggleProductionPlayback(): Promise<boolean> {
       await provider.play()
     }
     return true
-  } catch {
+  } catch (cause) {
+    const detail = cause instanceof Error ? cause.message : 'Unknown playback failure'
+    console.error(`Music playback failed: ${detail}`)
     return false
   }
 }

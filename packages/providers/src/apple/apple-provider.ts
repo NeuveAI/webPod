@@ -118,6 +118,9 @@ function unsupported(capability: Capability): never { throw new CapabilityUnsupp
 export function createAppleProvider(options?: AppleProviderOptions): AppleMusicProvider {
   const configuredOptions = options ?? browserAppleProviderOptions(); let kit: MusicKitGlobalLike | null = null; let music: MusicKitInstanceLike | null = null; let currentSession: Session | null = null
   let configurePromise: Promise<void> | null = null
+  let playPromise: Promise<void> | null = null
+  let awaitingNowPlayingItem = false
+  let pendingPlayKey: string | null = null
   let appleState: AppleSessionState = { status: 'signed-out' }
   let currentPlayback: PlaybackState = { status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0, volume0to100: 100, shuffle: 'off', repeat: 'off' }
   const sessions = new Set<(value: Session | null) => void>(); const appleStates = new Set<(value: AppleSessionState) => void>(); const playback = new Set<(value: PlaybackState) => void>(); const progress = new Set<(value: ProgressTick) => void>(); const cursors = new Set<string>(); const keyFor = identityCache()
@@ -131,12 +134,21 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     const raw = value.playbackState; const states = kit?.PlaybackStates; const status = raw === states?.['playing'] ? 'playing' : raw === states?.['paused'] ? 'paused' : raw === states?.['loading'] || raw === states?.['waiting'] ? 'loading' : now === null ? 'idle' : 'stopped'
     const queuePosition = value.queue?.position
     const queueIndex = now !== null && queuePosition !== undefined && Number.isInteger(queuePosition) && queuePosition >= 0 ? queuePosition : null
-    return { status, now, queueIndex, positionMs: Math.max(0, (value.currentPlaybackTime ?? 0) * 1_000), durationMs: Math.max(0, (value.currentPlaybackDuration ?? 0) * 1_000), volume0to100: Math.round(Math.min(1, Math.max(0, value.volume)) * 100), shuffle: value.shuffleMode === kit?.PlayerShuffleMode?.['songs'] ? 'songs' : value.shuffleMode === kit?.PlayerShuffleMode?.['albums'] ? 'albums' : 'off', repeat: value.repeatMode === kit?.PlayerRepeatMode?.['one'] ? 'one' : value.repeatMode === kit?.PlayerRepeatMode?.['all'] ? 'all' : 'off' }
+    return { status: awaitingNowPlayingItem ? 'loading' : status, now, queueIndex, positionMs: Math.max(0, (value.currentPlaybackTime ?? 0) * 1_000), durationMs: Math.max(0, (value.currentPlaybackDuration ?? 0) * 1_000), volume0to100: Math.round(Math.min(1, Math.max(0, value.volume)) * 100), shuffle: value.shuffleMode === kit?.PlayerShuffleMode?.['songs'] ? 'songs' : value.shuffleMode === kit?.PlayerShuffleMode?.['albums'] ? 'albums' : 'off', repeat: value.repeatMode === kit?.PlayerRepeatMode?.['one'] ? 'one' : value.repeatMode === kit?.PlayerRepeatMode?.['all'] ? 'all' : 'off' }
   }
+  const emitPlayback = (value: PlaybackState): void => { currentPlayback = value; for (const listener of playback) listener(value) }
   const bind = (value: MusicKitInstanceLike): void => {
-    const changed = (): void => { currentPlayback = stateOf(value); for (const listener of playback) listener(currentPlayback) }
+    const changed = (): void => { emitPlayback(stateOf(value)) }
+    const nowPlayingChanged = (): void => {
+      if (value.nowPlayingItem !== undefined) {
+        awaitingNowPlayingItem = false
+        pendingPlayKey = null
+      }
+      changed()
+    }
     const tick = (): void => { const state = stateOf(value); for (const listener of progress) listener({ positionMs: state.positionMs, durationMs: state.durationMs, interpolated: false }) }
-    for (const name of ['playbackStateDidChange', 'nowPlayingItemDidChange', 'queueItemsDidChange']) value.addEventListener(name, changed)
+    for (const name of ['playbackStateDidChange', 'queueItemsDidChange']) value.addEventListener(name, changed)
+    value.addEventListener('nowPlayingItemDidChange', nowPlayingChanged)
     value.addEventListener('playbackTimeDidChange', tick)
   }
   const api = async (path: string, parameters?: Readonly<Record<string, string>>): Promise<unknown> => {
@@ -200,7 +212,38 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     async relatedTracks(ref) { const path = ref.libraryId === undefined ? `/v1/catalog/${storefront('relatedTracks')}/${ref.kind}s/${encodeURIComponent(ref.catalogId)}/tracks` : `/v1/me/library/${ref.kind}s/${encodeURIComponent(ref.libraryId)}/tracks`; return relationships<TrackRef>(path, 'track') },
     async relatedAlbums(ref) { const path = ref.libraryId === undefined ? `/v1/catalog/${storefront('relatedAlbums')}/artists/${encodeURIComponent(ref.catalogId)}/albums` : `/v1/me/library/artists/${encodeURIComponent(ref.libraryId)}/albums`; return relationships<AlbumRef>(path, 'album') },
     async libraryAdd() { throw new NotImplementedError('apple', 'libraryAdd (writes are out of scope)') }, async libraryRemove() { return unsupported('libraryRemove') }, async playlistCreate() { throw new NotImplementedError('apple', 'playlistCreate (writes are out of scope)') }, async playlistAddTracks() { throw new NotImplementedError('apple', 'playlistAddTracks (writes are out of scope)') }, async playlistRemoveTracks() { return unsupported('playlistRemoveTracks') }, async playlistReorder() { return unsupported('playlistReorder') },
-    async play(target) { const value = authorized('play'); if (target !== undefined) { let descriptor: Readonly<Record<string, unknown>>; switch (target.kind) { case 'tracks': descriptor = { songs: target.tracks.map((track) => track.catalogId), startPosition: target.startIndex ?? 0 }; break; case 'album': descriptor = { album: target.album.catalogId }; break; case 'playlist': descriptor = { playlist: target.playlist.catalogId }; break; case 'station': descriptor = { station: target.station.catalogId }; break } await value.setQueue(descriptor) } await value.play() }, async pause() { await instance('pause').pause() }, async skip(direction, count = 1) { const value = instance('skip'); for (let index = 0; index < Math.max(1, count); index += 1) await (direction === 'next' ? value.skipToNextItem() : value.skipToPreviousItem()) }, async seek(positionMs) { const value = instance('seek'); await value.seekToTime(Math.min(Math.max(0, value.currentPlaybackDuration ?? 0), Math.max(0, positionMs / 1_000))) }, async setVolume(level) { instance('setVolume').volume = Math.min(100, Math.max(0, level)) / 100 }, async setShuffle(mode) { instance('setShuffle').shuffleMode = kit?.PlayerShuffleMode?.[mode] ?? 0 }, async setRepeat(mode) { instance('setRepeat').repeatMode = kit?.PlayerRepeatMode?.[mode] ?? 0 }, get playback() { return currentPlayback }, onPlaybackChange(callback) { playback.add(callback); return () => { playback.delete(callback) } }, onProgress(callback) { progress.add(callback); return () => { progress.delete(callback) } },
+    async play(target) {
+      const targetKey = target === undefined ? null : JSON.stringify(target.kind === 'tracks'
+        ? [target.kind, target.tracks.map((track) => track.catalogId), target.startIndex ?? 0]
+        : [target.kind, target.kind === 'album' ? target.album.catalogId : target.kind === 'playlist' ? target.playlist.catalogId : target.station.catalogId])
+      if (targetKey !== null && awaitingNowPlayingItem && pendingPlayKey === targetKey) return playPromise ?? Promise.resolve()
+      if (playPromise !== null) return playPromise
+      const value = authorized('play')
+      const previous = currentPlayback
+      if (target !== undefined) {
+        awaitingNowPlayingItem = true
+        pendingPlayKey = targetKey
+        emitPlayback({ ...currentPlayback, status: 'loading', now: null, queueIndex: null, positionMs: 0, durationMs: 0 })
+      }
+      playPromise = (async () => {
+        try {
+          if (target !== undefined) {
+            let descriptor: Readonly<Record<string, unknown>>
+            switch (target.kind) { case 'tracks': descriptor = { songs: target.tracks.map((track) => track.catalogId), startPosition: target.startIndex ?? 0 }; break; case 'album': descriptor = { album: target.album.catalogId }; break; case 'playlist': descriptor = { playlist: target.playlist.catalogId }; break; case 'station': descriptor = { station: target.station.catalogId }; break }
+            await value.setQueue(descriptor)
+          }
+          await value.play()
+        } catch (cause) {
+          awaitingNowPlayingItem = false
+          pendingPlayKey = null
+          emitPlayback(previous)
+          throw cause
+        } finally {
+          playPromise = null
+        }
+      })()
+      return playPromise
+    }, async pause() { await instance('pause').pause() }, async skip(direction, count = 1) { const value = instance('skip'); for (let index = 0; index < Math.max(1, count); index += 1) await (direction === 'next' ? value.skipToNextItem() : value.skipToPreviousItem()) }, async seek(positionMs) { const value = instance('seek'); await value.seekToTime(Math.min(Math.max(0, value.currentPlaybackDuration ?? 0), Math.max(0, positionMs / 1_000))) }, async setVolume(level) { instance('setVolume').volume = Math.min(100, Math.max(0, level)) / 100 }, async setShuffle(mode) { instance('setShuffle').shuffleMode = kit?.PlayerShuffleMode?.[mode] ?? 0 }, async setRepeat(mode) { instance('setRepeat').repeatMode = kit?.PlayerRepeatMode?.[mode] ?? 0 }, get playback() { return currentPlayback }, onPlaybackChange(callback) { playback.add(callback); return () => { playback.delete(callback) } }, onProgress(callback) { progress.add(callback); return () => { progress.delete(callback) } },
     async queueRead() { const queue = instance('queueRead').queue; const items = (queue?.items ?? []).map((item) => normalize(item, keyFor)).filter((item): item is TrackRef => item.kind === 'track'); const position = Math.max(0, queue?.position ?? 0); return { now: currentPlayback.now, history: items.slice(0, position), next: items.slice(position + 1) } satisfies QueueSnapshot }, async queueAppend(tracks) { await instance('queueAppend').playLater({ songs: tracks.map((track) => track.catalogId) }) }, async queueInsertNext(tracks) { await instance('queueInsertNext').playNext({ songs: tracks.map((track) => track.catalogId) }) }, async queueRemove() { return unsupported('queueRemove') }, async queueReorder() { return unsupported('queueReorder') },
     async stationsList() { const response = await api(`/v1/catalog/${storefront('stationsList')}/stations`); return resources(response).map((item) => normalize(item, keyFor)).filter((item): item is StationRef => item.kind === 'station') },
     async stationStart(seed) { let station: StationRef; if (seed.type === 'track') { const response = await api(`/v1/catalog/${storefront('stationStart')}/songs/${encodeURIComponent(seed.ref)}/station`); const entity = normalize(resources(response)[0], keyFor); if (entity.kind !== 'station') throw new Error('Apple station response is invalid'); station = entity } else { station = { kind: 'station', key: keyFor('stations', seed.ref), provider: 'apple', catalogId: seed.ref, name: 'Apple Music station', live: false } } const value = instance('stationStart'); await value.setQueue({ station: station.catalogId }); await value.play(); return station },

@@ -208,6 +208,20 @@ describe('the bare DOM panel', () => {
     expect(html).not.toContain(idleProvider.catalog.tracks[0]?.title ?? 'fixture track absent')
   })
 
+  test('renders provider-owned pending playback as loading rather than empty', () => {
+    const idleProvider = createFixtureProvider()
+    const pendingProvider: MusicProvider = {
+      ...idleProvider,
+      get playback() { return { ...idleProvider.playback, status: 'loading' as const, now: null, queueIndex: null } },
+    }
+    deviceStore.set(resetStackActionAtom, [nowPlayingFrame()])
+    const html = renderToStaticMarkup(<Panel state="ready" provider={pendingProvider} />)
+
+    expect(html).toContain('aria-busy="true"')
+    expect(html).toContain('Loading the song.')
+    expect(html).not.toContain('Nothing is playing.')
+  })
+
   test('renders provider playback with queue context produced by the selected frame', async () => {
     const playbackProvider = createFixtureProvider()
     const root = navigationRoot(fixtureNavigationSource, playbackProvider)
