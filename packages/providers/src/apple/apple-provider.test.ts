@@ -90,15 +90,15 @@ describe('Apple provider', () => {
     music.setNowPlaying({ id: 'catalog-song.1', type: 'songs', attributes: { name: 'Night', artistName: 'Artist', durationInMillis: 180000 } })
     music.emit('mediaItemDidChange')
     expect(provider.playback.status).toBe('playing')
-    music.emit('mediaPlaybackError', { detail: { error: { name: 'NotSupportedError', message: 'The media could not be decoded' } } })
+    music.emit('mediaPlaybackError', new Error('The media could not be decoded'))
 
     expect(provider.playback.status).toBe('error')
-    expect(providerStates).toEqual(['Apple Music playback failed: NotSupportedError: The media could not be decoded'])
+    expect(providerStates).toEqual(['Apple Music playback failed: Error: The media could not be decoded'])
     music.emit('mediaItemDidChange')
     music.emit('playbackStateDidChange')
     expect(provider.playback.status).toBe('error')
   })
-  test('does not attribute a delayed error from selection A to pending selection B', async () => {
+  test('treats a raw SDK error during pending B as provider-level and blocks stale success events', async () => {
     const { provider, music } = setup(); await provider.configure()
     const first = (await provider.libraryList('songs')).items[0]
     if (first?.kind !== 'track') throw new Error('library track missing')
@@ -111,16 +111,14 @@ describe('Apple provider', () => {
     music.emit('mediaItemDidChange')
     await provider.play({ kind: 'tracks', tracks: [second], startIndex: 0 })
 
-    music.emit('mediaPlaybackError', { detail: { item: firstItem, error: { name: 'AbortError', message: 'Previous stream ended' } } })
-    expect(provider.playback.status).toBe('loading')
-    music.emit('mediaPlaybackError', { detail: { error: { name: 'AbortError', message: 'Anonymous previous stream error' } } })
-    expect(provider.playback.status).toBe('loading')
-    expect(provider.appleSessionState).toMatchObject({ status: 'error', message: 'Apple Music reported an unidentifiable playback error while a newer selection was pending.' })
+    music.emit('mediaPlaybackError', { name: 'AbortError', message: 'Media playback stopped' })
+    expect(provider.playback.status).toBe('error')
+    expect(provider.appleSessionState).toMatchObject({ status: 'error', message: 'Apple Music playback failed: AbortError: Media playback stopped' })
 
     music.setNowPlaying(secondItem)
     music.emit('mediaItemDidChange')
-    expect(provider.playback).toMatchObject({ status: 'playing', now: { catalogId: second.catalogId } })
-    expect(provider.appleSessionState.status).toBe('authorized')
+    music.emit('playbackStateDidChange')
+    expect(provider.playback.status).toBe('error')
   })
   test('uses MusicKit v1 media events and detaches every SDK listener across sign-out and reauthorization', async () => {
     const { provider, music } = setup(); await provider.configure()
