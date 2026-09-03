@@ -36,29 +36,70 @@ describe('the canonical panel list view', () => {
     expect(source).toContain('wp-list-row__chevron')
     expect(css).toMatch(/\.wp-list-row\s*\{[^}]*padding-inline:\s*8px 6px[^}]*border-block-end:\s*1px solid var\(--wp-divider\)/s)
     expect(css).toMatch(/\.wp-list-row__primary, \.wp-list-row__secondary \{[^}]*text-overflow:\s*ellipsis/s)
+    expect(css).toMatch(/\.wp-list-row__primary \{ grid-column: 2; \}/)
+    expect(css).toMatch(/\.wp-list-row__chevron \{ grid-column: 6; \}/)
     expect(css).toMatch(/\.wp-list-row\[aria-current="true"\]\s*\{[^}]*background:\s*var\(--wp-selection-material\)/s)
   })
 
-  test('every collection family renders the same current row primitive and follows a wheel detent', async () => {
+  test('every named collection family renders the same current row primitive and follows a wheel detent when scrollable', async () => {
     const root = navigationRoot(fixtureNavigationSource, fixtureProvider)
-    const frames: ScreenFrame[] = [root]
-    for (const row of root.rows) {
-      const selection = await selectNavigation({ ...root, highlightIndex: row.index }, fixtureNavigationSource, fixtureProvider)
-      if (selection.frame !== null && selection.frame.rows.length > 1) frames.push(selection.frame)
+    const choose = async (frame: ScreenFrame, index: number, searchQuery = '') => {
+      const result = await selectNavigation({ ...frame, highlightIndex: index }, fixtureNavigationSource, fixtureProvider, searchQuery)
+      if (result.frame === null) throw new Error(`expected destination from ${frame.route?.kind ?? 'root'} row ${index}`)
+      return result.frame
     }
-    const playlists = frames.find((frame) => frame.route?.kind === 'playlists')
-    if (playlists !== undefined) {
-      const nested = await selectNavigation(playlists, fixtureNavigationSource, fixtureProvider)
-      if (nested.frame !== null) frames.push(nested.frame)
+    const rootFrame = async (label: string) => {
+      const index = root.rows.findIndex((row) => row.label === label)
+      if (index < 0) throw new Error(`missing ${label} root row`)
+      return choose(root, index)
     }
-    for (const frame of frames) {
+    const playlists = await rootFrame('Playlists')
+    const artists = await rootFrame('Artists')
+    const albums = await rootFrame('Albums')
+    const genres = await rootFrame('Genres')
+    const searchEntry = await rootFrame('Search')
+    const genreFacets = await choose(genres, 0)
+    const namedFrames: readonly (readonly [string, ScreenFrame])[] = [
+      ['root', root],
+      ['playlists', playlists],
+      ['artists', artists],
+      ['albums', albums],
+      ['songs', await rootFrame('Songs')],
+      ['genres', genres],
+      ['radio', await rootFrame('Radio')],
+      ['search entry', searchEntry],
+      ['search results', await choose(searchEntry, 0)],
+      ['artist albums', await choose(artists, 0)],
+      ['genre facets', genreFacets],
+      ['genre artists', await choose(genreFacets, 0)],
+      ['genre albums', await choose(genreFacets, 1)],
+      ['genre tracks', await choose(genreFacets, 2)],
+      ['album tracks', await choose(albums, 0)],
+      ['playlist tracks', await choose(playlists, 0)],
+    ]
+    expect(namedFrames.map(([name]) => name)).toEqual(['root', 'playlists', 'artists', 'albums', 'songs', 'genres', 'radio', 'search entry', 'search results', 'artist albums', 'genre facets', 'genre artists', 'genre albums', 'genre tracks', 'album tracks', 'playlist tracks'])
+    for (const [name, frame] of namedFrames) {
       const before = renderFrame({ ...frame, highlightIndex: 0, windowStart: 0 })
       expect(before).toMatch(/class="wp-list-row"[^>]*aria-current="true"/)
-      deviceStore.set(detentActionAtom, { path: 'direct', source: 'human', detents: 1, timestampMs: 1 })
-      const moved = deviceStore.get(currentScreenAtom)
-      expect(moved?.highlightIndex).toBe(1)
-      const after = renderToStaticMarkup(<Panel />)
-      expect(after).toMatch(/class="wp-list-row"[^>]*aria-current="true"/)
+      expect(`${name}:${before}`).toContain('data-list-viewport="true"')
+      if (frame.rows.length > 1) {
+        deviceStore.set(detentActionAtom, { path: 'direct', source: 'human', detents: 1, timestampMs: 1 })
+        const moved = deviceStore.get(currentScreenAtom)
+        expect(`${name}:${moved?.highlightIndex}`).toBe(`${name}:1`)
+        const after = renderToStaticMarkup(<Panel />)
+        expect(after).toMatch(/class="wp-list-row"[^>]*aria-current="true"/)
+      }
+    }
+  })
+
+  test('loading skeleton tracks the active 8, 6 and 4 row viewport geometry', () => {
+    const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
+    expect(css).toMatch(/\.wp-list-loading \{[^}]*repeat\(var\(--wp-list-visible-rows, 8\), 1fr\)/s)
+    expect(css).not.toContain('--wp-visible-rows')
+    for (const visibleRows of [8, 6, 4]) {
+      const markup = renderToStaticMarkup(<ListViewport rows={rows(visibleRows)} highlightIndex={0} windowStart={0} visibleRows={visibleRows} label={`${visibleRows} rows`} panelId={`rows-${visibleRows}`} message={<div className="wp-list-loading">{Array.from({ length: visibleRows }, (_, index) => <i key={index} />)}</div>} />)
+      expect(markup).toContain(`--wp-list-visible-rows:${visibleRows}`)
+      expect(markup.match(/<i><\/i>/g)).toHaveLength(visibleRows)
     }
   })
 

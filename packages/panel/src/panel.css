@@ -130,6 +130,12 @@
   .wp-list-scroll__well::before, .wp-list-scroll__well::after { content: none !important; display: none !important; }
   .wp-list-scroll__thumb { position: absolute; inset-inline: 1px; inset-block-start: var(--wp-list-scroll-thumb-offset); display: block; block-size: var(--wp-list-scroll-thumb-size); border: 1px solid var(--wp-scroll-thumb-edge); border-radius: 3px; background: linear-gradient(90deg, var(--wp-scroll-thumb-highlight) 0 1px, transparent 1px), linear-gradient(180deg, var(--wp-scroll-thumb-top), var(--wp-scroll-thumb-mid) 48%, var(--wp-scroll-thumb-bottom)); box-shadow: 0 1px 1px var(--wp-scroll-thumb-shadow), inset 0 1px rgb(255 255 255 / 48%), inset -1px 0 rgb(0 62 80 / 30%); }
   .wp-list-row__primary, .wp-list-row__secondary { min-inline-size: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .wp-list-row__leading { grid-column: 1; }
+  .wp-list-row__primary { grid-column: 2; }
+  .wp-list-row__secondary { grid-column: 3; }
+  .wp-list-row__count { grid-column: 4; }
+  .wp-list-row__status { grid-column: 5; }
+  .wp-list-row__chevron { grid-column: 6; }
   .wp-list-row__leading, .wp-list-row__count, .wp-list-row__status { color: var(--wp-text-2); font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; font-size: 11px; font-variant-numeric: tabular-nums; font-weight: 500; }
   .wp-list-row__secondary { color: var(--wp-text-2); font-size: 11px; font-weight: 500; }
   .wp-list-row__chevron { display: grid; place-items: center; color: var(--wp-text-3); }
@@ -215,7 +221,7 @@
   }
   @media (prefers-contrast: more) { .wp-panel { --wp-bg: #000; --wp-text: #fff; --wp-divider: currentColor; } .wp-panel[data-colourway="light"] { --wp-bg: #fff; --wp-text: #000; } }
   .wp-browser-list { display: grid; grid-template-rows: 21px minmax(0, 1fr); }
-  .wp-list-loading { display: grid; grid-template-rows: repeat(var(--wp-visible-rows, 8), 1fr); gap: 2px; padding: 5px; }
+  .wp-list-loading { display: grid; grid-template-rows: repeat(var(--wp-list-visible-rows, 8), 1fr); gap: 2px; padding: 5px; }
   .wp-list-loading > i { display: block; border-radius: 3px; }
   @media (forced-colors: active) { .wp-panel { border: 1px solid CanvasText; } .wp-list-row[aria-current="true"] { color: HighlightText; background: Highlight; } }
 }
