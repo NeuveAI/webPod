@@ -122,7 +122,7 @@ export type RepeatMode = 'off' | 'one' | 'all'
  * the honest channel for "this number was computed, not reported".
  */
 export interface PlaybackState {
-  readonly status: 'idle' | 'loading' | 'playing' | 'paused' | 'stopped'
+  readonly status: 'idle' | 'loading' | 'playing' | 'paused' | 'stopped' | 'error'
   readonly now: TrackRef | null
   /** Zero-based provider-authoritative position in the active queue, or null until known. */
   readonly queueIndex: number | null

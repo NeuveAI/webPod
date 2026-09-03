@@ -222,6 +222,20 @@ describe('the bare DOM panel', () => {
     expect(html).not.toContain('Nothing is playing.')
   })
 
+  test('renders a timed-out provider transaction as retryable failure rather than empty', () => {
+    const idleProvider = createFixtureProvider()
+    const failedProvider: MusicProvider = {
+      ...idleProvider,
+      get playback() { return { ...idleProvider.playback, status: 'error' as const, now: null, queueIndex: null } },
+    }
+    deviceStore.set(resetStackActionAtom, [nowPlayingFrame()])
+    const html = renderToStaticMarkup(<Panel state="ready" provider={failedProvider} />)
+
+    expect(html).toContain("Couldn&#x27;t start playback.")
+    expect(html).toContain('Press Menu and try again.')
+    expect(html).not.toContain('Nothing is playing.')
+  })
+
   test('renders provider playback with queue context produced by the selected frame', async () => {
     const playbackProvider = createFixtureProvider()
     const root = navigationRoot(fixtureNavigationSource, playbackProvider)

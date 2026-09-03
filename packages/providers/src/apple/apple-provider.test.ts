@@ -105,6 +105,29 @@ describe('Apple provider', () => {
     music.emit('nowPlayingItemDidChange')
     expect(provider.playback).toMatchObject({ status: 'playing', now: { catalogId: 'catalog-song.1' } })
   })
+  test('requires a post-request queue transition to confirm collection targets', async () => {
+    for (const kind of ['album', 'playlist', 'station'] as const) {
+      const { provider, music } = setup(); await provider.configure()
+      music.setNowPlaying({ id: 'old-song', type: 'songs', attributes: { name: 'Old', artistName: 'Artist', durationInMillis: 1000 } })
+      music.emit('nowPlayingItemDidChange')
+      const album = (await provider.libraryList('albums')).items[0]
+      const playlist = (await provider.libraryList('playlists')).items[0]
+      if (album?.kind !== 'album' || playlist?.kind !== 'playlist') throw new Error('collection fixture missing')
+      const target = kind === 'album'
+        ? { kind, album } as const
+        : kind === 'playlist'
+          ? { kind, playlist } as const
+          : { kind, station: { kind: 'station', key: playlist.key, provider: 'apple', catalogId: 'station.1', name: 'Station', live: false } } as const
+      await provider.play(target)
+
+      music.emit('nowPlayingItemDidChange')
+      expect(provider.playback.status).toBe('loading')
+      music.emit('queueItemsDidChange')
+      expect(provider.playback.status).toBe('loading')
+      music.emit('nowPlayingItemDidChange')
+      expect(provider.playback.status).toBe('playing')
+    }
+  })
   test('times out an unconfirmed selection and permits an identical retry', async () => {
     let timeoutCallback: (() => void) | undefined
     const { provider, music } = setup({
@@ -120,10 +143,35 @@ describe('Apple provider', () => {
 
     timeoutCallback?.()
 
-    expect(provider.playback.status).not.toBe('loading')
+    expect(provider.playback).toMatchObject({ status: 'error', now: null })
     await provider.play({ kind: 'tracks', tracks: [track], startIndex: 0 })
     expect(music.calls.filter((call) => call === 'setQueue')).toHaveLength(2)
     expect(music.calls.filter((call) => call === 'play')).toHaveLength(2)
+  })
+  test('sign-out cancels pending confirmation and ignores late callbacks', async () => {
+    let timeoutCallback: (() => void) | undefined
+    let clears = 0
+    const { provider, music } = setup({
+      setTimeout(callback) { timeoutCallback = callback; return 1 },
+      clearTimeout() { clears += 1 },
+    })
+    await provider.configure()
+    const track = (await provider.libraryList('songs')).items[0]
+    if (track?.kind !== 'track') throw new Error('library track missing')
+    const states: string[] = []
+    provider.onPlaybackChange((playback) => states.push(playback.status))
+    await provider.play({ kind: 'tracks', tracks: [track], startIndex: 0 })
+    await provider.unauthorize()
+    const stateCountAfterSignOut = states.length
+
+    timeoutCallback?.()
+    music.setNowPlaying({ id: 'catalog-song.1', type: 'songs', attributes: { name: 'Night', artistName: 'Artist', durationInMillis: 180000 } })
+    music.emit('queueItemsDidChange')
+    music.emit('nowPlayingItemDidChange')
+
+    expect(clears).toBe(1)
+    expect(provider.playback).toMatchObject({ status: 'idle', now: null })
+    expect(states).toHaveLength(stateCountAfterSignOut)
   })
   test('propagates queue and playback rejections without inventing playback state', async () => {
     const queueFailure = setup(); await queueFailure.provider.configure(); queueFailure.music.setQueue = async () => { throw new Error('queue rejected') }

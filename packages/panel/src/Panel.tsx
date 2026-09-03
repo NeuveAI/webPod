@@ -417,7 +417,7 @@ function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: {
   )
   if (state === 'loading' || playback.status === 'loading') return <section className="wp-screen" aria-busy="true"><TitleBar title="Now Playing" /><span className="wp-sr-only">Loading the song.</span><div className="wp-now-loading"><Artwork state="loading" /><i /><i /><i /></div></section>
   if (state === 'permission-denied') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message="Playback needs an Apple Music subscription." detail="Learn more · Browse anyway" /></section>
-  if (state === 'error') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message={track === null ? "Couldn't start playback." : `Couldn't play “${track.title}”.`} detail="Press Menu and try again." /></section>
+  if (state === 'error' || playback.status === 'error') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message={track === null ? "Couldn't start playback." : `Couldn't play “${track.title}”.`} detail="Press Menu and try again." /></section>
   if (state === 'empty' || track === null) return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelEmpty title="Nothing is playing." detail="Choose a song or press Menu to go back." /></section>
   const loveTrack = async () => {
     await provider.ratingSet(track, { love: 'love' })
