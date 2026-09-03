@@ -4,12 +4,12 @@
 
 ## Automated evidence
 
-`bun test packages/device/src/cursor-intent.test.ts packages/device/src/click-wheel-input.test.tsx packages/device/src/click-wheel-input.integration.test.tsx packages/device/src/orientation-grab.test.ts`
+`bun test packages/device/src/click-wheel-input.test.tsx packages/device/src/click-wheel-input.integration.test.tsx packages/device/src/orientation-grab.test.ts`
 
-- 33 pass, 0 fail, 181 assertions.
-- Covers idle → grab → grabbing → grab, rejected starts, pointer cancellation,
-  lost capture, disposal cleanup, wheel pointer intent, cardinal/Select input,
-  keyboard Select, and click-wheel capture regressions.
+- Includes a mounted R3F test that moves through the annulus and Select, observes
+  `data-wp-cursor-control="true"`, and proves unmount cleanup. Existing integration
+  coverage continues to exercise cardinal/Select input, cancellation, lost
+  capture, keyboard Select, and click-wheel capture regressions.
 
 `bunx tsc --noEmit -p packages/device/tsconfig.json`
 
@@ -21,16 +21,24 @@
 
 `bun run gates`
 
-- 15 automated gate classes pass, including types and lint.
-- The aggregate test class is red from an unrelated pre-existing dirty change:
-  `packages/providers/src/apple/apple-provider.test.ts` expects `Night` and
-  receives `undefined` in “loads provider-neutral album and artist
-  relationships.” Cursor-targeted tests remain green.
+- Types, lint, and all 1,160 unit tests pass.
+- 15 automated gate classes pass. U8 is red on unrelated concurrent work in
+  `apps/web/src/music-runtime.ts:105`; the cursor patch does not touch that file.
 
 ## Browser evidence
 
-The `/_spike/device` Vite route started successfully at localhost. The configured
-Chrome computer-use surface was unavailable, so no native browser capture could
-be produced. Screenshots are not authoritative for a native cursor in any case;
-the test-observed `data-wp-cursor-control` and `data-wp-cursor-orientation`
-transitions are the primary evidence. Owner visual sign-off remains open.
+`bunx playwright test --config apps/web/tests/playwright.config.ts apps/web/tests/native-cursor.e2e.ts`
+
+- 2 passed in Chrome with the production html-in-canvas feature enabled.
+- Fine pointer: one mounted canvas; stage `cursor: default`; preview button
+  `cursor: pointer`; outside note `user-select: text`; wheel R3F hit publishes
+  `data-wp-cursor-control="true"` and computes `cursor: pointer`.
+- Orientation edge: authoritative stage state changes `ready → active`, with
+  canvas computed cursor `grab → grabbing`; dispatched `pointercancel` clears
+  active state and the grabbing cursor.
+- Coarse pointer: the same mounted wheel hit still publishes interaction intent,
+  but the fine-pointer media query does not match and computed cursor remains
+  `default`.
+
+Screenshots are not authoritative for a native system cursor; DOM attributes and
+computed styles are the primary browser evidence. Owner visual sign-off remains open.

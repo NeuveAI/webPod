@@ -343,6 +343,21 @@ async function unmount(mounted: MountedSurface): Promise<void> {
 }
 
 describe("click-wheel mounted R3F event seam", () => {
+  test("mounted wheel and Select ray hits publish pointer intent and clean up", async () => {
+    const mounted = await mountSurface();
+    expect(mounted.canvas.dataset["wpCursorControl"]).toBeUndefined();
+    try {
+      await dispatch(mounted, pointerEvent("pointermove", 90, 80, 0));
+      expect(mounted.canvas.dataset["wpCursorControl"]).toBe("true");
+
+      await dispatch(mounted, pointerEvent("pointermove", 90, 0, 0));
+      expect(mounted.canvas.dataset["wpCursorControl"]).toBe("true");
+    } finally {
+      await unmount(mounted);
+    }
+    expect(mounted.canvas.dataset["wpCursorControl"]).toBeUndefined();
+  });
+
   test("an injected form moves the mounted ray plane with the visible wheel", async () => {
     const plantedForm = {
       ...DEFAULT_DEVICE_FORM,

@@ -19,13 +19,7 @@
  * arithmetically unreachable at the top of three of the five tables.
  */
 import { Canvas, useThree } from "@react-three/fiber";
-import {
-  createContext,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  type ReactNode,
-} from "react";
+import { createContext, useLayoutEffect, useMemo, type ReactNode } from "react";
 import { Box3, PerspectiveCamera } from "three";
 
 import { Device, type DeviceProps } from "./Device";
@@ -43,7 +37,6 @@ import { applyDeviceRendererDefaults } from "./renderer-defaults";
 import { StudioEnvironment, type StudioEnvironmentProps } from "./StudioEnvironment";
 import { DEVICE_CONTENT_NAME } from "./ViewerLitDeviceFrame";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
-import { DeviceCursorIntentController } from "./cursor-intent";
 import {
   completeDeviceEnvelope,
   deviceEnvelopeBounds,
@@ -146,8 +139,6 @@ export function DeviceCanvas({
   children,
   ...device
 }: DeviceCanvasProps) {
-  const cursorIntent = useMemo(() => new DeviceCursorIntentController(), []);
-  useEffect(() => () => cursorIntent.dispose(), [cursorIntent]);
   const form = device.form ?? DEFAULT_DEVICE_FORM;
   const envelope = useMemo(() => completeDeviceEnvelope(form), [form]);
   const orientationState = useMemo<DeviceCanvasOrientationState>(
@@ -169,7 +160,6 @@ export function DeviceCanvas({
       gl={{ antialias: true, alpha: true, preserveDrawingBuffer: false }}
       onCreated={({ gl }) => {
         applyDeviceRendererDefaults(gl);
-        cursorIntent.bind(gl.domElement);
       }}
       camera={{
         fov: cameraFov,
@@ -184,25 +174,7 @@ export function DeviceCanvas({
           {studioEnvironment === null ? null : (
             <StudioEnvironment {...studioEnvironment} />
           )}
-          <Device
-            {...device}
-            form={form}
-            orientation={orientation}
-            onOrientationGrabHoverChange={
-              device.onOrientationGrabStart === undefined
-                ? undefined
-                : (grabbable) => {
-                    cursorIntent.setGrabbable(grabbable);
-                    device.onOrientationGrabHoverChange?.(grabbable);
-                  }
-            }
-            onOrientationGrabStart={
-              device.onOrientationGrabStart === undefined
-                ? undefined
-                : (start) =>
-                    cursorIntent.begin(start, device.onOrientationGrabStart)
-            }
-          />
+          <Device {...device} form={form} orientation={orientation} />
           <ResponsiveDeviceCamera
             explicitDistance={cameraDistance}
             fov={cameraFov}
