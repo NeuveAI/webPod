@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 
 const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
 const panelSource = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
+const listSource = readFileSync(new URL('./list-view.tsx', import.meta.url), 'utf8')
 
 function rule(pattern: RegExp): string {
   return ruleFrom(css, pattern)
@@ -44,7 +45,7 @@ function selectionMaterialViolations(source: string): readonly string[] {
     ['dark', dark, darkForeground],
     ['light', light, lightForeground],
   ] as const) {
-    const selectedMetadata = ruleFrom(source, /\[aria-current="true"\] \.wp-row-meta \{([^}]*)\}/)
+    const selectedMetadata = ruleFrom(source, /\.wp-list-row\[aria-current="true"\] :is\([^)]+\) \{([^}]*)\}/)
     const metadataOpacity = Number(property(selectedMetadata, 'opacity'))
     for (const backgroundToken of [
       '--wp-selection-glass-top',
@@ -121,9 +122,10 @@ describe('the period Aqua LCD material', () => {
     expect(material.match(/linear-gradient\(/g)).toHaveLength(2)
     expect(material).toContain('var(--wp-selection-glass-band) 48%')
     expect(material).toContain('var(--wp-selection-glass-bottom) 100%')
-    expect(panelSource.match(/className="wp-selection-rim"/g)).toHaveLength(3)
+    expect(panelSource).not.toContain('wp-selection-rim')
+    expect(listSource.match(/className="wp-selection-rim"/g)).toHaveLength(1)
 
-    const selectedRule = rule(/\.wp-menu-row\[aria-current="true"\], \.wp-track-row\[aria-current="true"\] \{([^}]*)\}/)
+    const selectedRule = rule(/\.wp-list-row\[aria-current="true"\] \{([^}]*)\}/)
     expect(selectedRule).toContain('color: var(--wp-selection-fg)')
     expect(selectedRule).toContain('background: var(--wp-selection-material)')
     expect(selectedRule).toContain('box-shadow: var(--wp-selection-depth)')
@@ -140,8 +142,8 @@ describe('the period Aqua LCD material', () => {
       '--wp-selection-fg: #ffffff;',
     )
     const translucentMetadata = css.replace(
-      '[aria-current="true"] .wp-row-meta { color: currentColor; opacity: 1; }',
-      '[aria-current="true"] .wp-row-meta { color: currentColor; opacity: .84; }',
+      '.wp-list-row[aria-current="true"] :is(.wp-list-row__leading, .wp-list-row__secondary, .wp-list-row__count, .wp-list-row__status, .wp-list-row__chevron) { color: currentColor; opacity: 1; }',
+      '.wp-list-row[aria-current="true"] :is(.wp-list-row__leading, .wp-list-row__secondary, .wp-list-row__count, .wp-list-row__status, .wp-list-row__chevron) { color: currentColor; opacity: .84; }',
     )
 
     expect(selectionMaterialViolations(flat)).toContain('selection must retain three material layers')
@@ -167,14 +169,11 @@ describe('the period Aqua LCD material', () => {
   })
 
   test('keeps metadata, track numbers, and chevrons on the selected foreground', () => {
-    expect(css).toContain('[aria-current="true"] .wp-menu-row__tail { color: currentColor; }')
-    expect(css).toContain('[aria-current="true"] .wp-row-meta { color: currentColor;')
-    expect(css).toContain('[aria-current="true"] .wp-track-number { color: currentColor; }')
-    expect(css).toContain('[aria-current="true"] .wp-row-meta { color: currentColor; opacity: 1; }')
+    expect(css).toContain('.wp-list-row[aria-current="true"] :is(.wp-list-row__leading, .wp-list-row__secondary, .wp-list-row__count, .wp-list-row__status, .wp-list-row__chevron) { color: currentColor; opacity: 1; }')
   })
 
   test('keeps agent attribution without flattening the selected material', () => {
-    const agentSelected = rule(/\.wp-track-row\[data-agent="true"\]\[aria-current="true"\],[^{]+\{([^}]*)\}/)
+    const agentSelected = rule(/\.wp-list-row\[data-agent="true"\]\[aria-current="true"\] \{([^}]*)\}/)
     expect(agentSelected).toContain('background: var(--wp-selection-material)')
     expect(agentSelected).toContain('box-shadow: var(--wp-selection-depth)')
     expect(agentSelected).toContain('rgb(34 197 94 / 72%)')

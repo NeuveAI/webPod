@@ -12,7 +12,6 @@
     "test:e2e": "playwright test --config playwright.config.ts"
   },
   "dependencies": {
-    "@tanstack/react-virtual": "^3.13.18",
     "@webpod/providers": "workspace:*",
     "@webpod/state": "workspace:*",
     "jotai": "2.20.3",

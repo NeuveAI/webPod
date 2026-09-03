@@ -44,7 +44,7 @@ describe('panel models', () => {
     expect(art?.renderedPx).toBeLessThanOrEqual(art?.actualPx ?? 0)
   })
 
-  test('builds a genuine 120-row fixture for the virtualization boundary', () => {
+  test('builds a genuine 120-row fixture for the canonical windowing boundary', () => {
     expect(albumTracksFrame(createFixtureProvider(), 120).rows).toHaveLength(120)
   })
 

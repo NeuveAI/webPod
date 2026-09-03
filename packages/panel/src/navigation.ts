@@ -179,7 +179,7 @@ function rootDestination(destination: NavigationRoute | undefined, source: Navig
   if (destination?.kind === 'albums') return albumsFrame('Albums', 'albums', source.albums)
   if (destination?.kind === 'songs') return songsFrame('Songs', destination, source.songs)
   if (destination?.kind === 'genres') return listFrame('S10', 'Genres', destination, source.genres.map((item, index) => descendRow(index, item.name)))
-  if (destination?.kind === 'stations') return listFrame('S18', 'Radio', destination, source.stations.map((item, index) => descendRow(index, item.name, item.live ? 'Live' : null)), 'medium')
+  if (destination?.kind === 'stations') return listFrame('S18', 'Radio', destination, source.stations.map((item, index) => descendRow(index, item.name, item.live ? 'Live' : null)))
   if (destination?.kind === 'search-entry') return listFrame('S12', 'Search', destination, [descendRow(0, 'Search Library & Apple Music', 'Type a query', { kind: 'search-request' })])
   return null
 }
@@ -193,7 +193,7 @@ function albumsFrame(title: string, kind: 'albums' | 'cover-flow', albums: reado
 }
 
 function artistAlbumsFrame(artist: ArtistRef, albums: readonly AlbumRef[]): ScreenFrame {
-  return listFrame('S07', artist.name, { kind: 'artist-albums', artistKey: artist.key }, albums.map((item, index) => descendRow(index, item.title, String(item.trackCount))), 'medium')
+  return listFrame('S07', artist.name, { kind: 'artist-albums', artistKey: artist.key }, albums.map((item, index) => descendRow(index, item.title, String(item.trackCount))))
 }
 
 function tracksFrame(album: AlbumRef, tracks: readonly TrackRef[]): ScreenFrame {
@@ -214,12 +214,12 @@ function genreFrame(genre: GenreRef): ScreenFrame {
     ['Albums', { kind: 'genre-albums', genreKey: genre.key }],
     ['Songs', { kind: 'genre-tracks', genreKey: genre.key }],
   ]
-  return listFrame('S10', genre.name, { kind: 'genre-facets', genreKey: genre.key }, choices.map(([label, destination], index) => descendRow(index, label, null, destination)), 'medium')
+  return listFrame('S10', genre.name, { kind: 'genre-facets', genreKey: genre.key }, choices.map(([label, destination], index) => descendRow(index, label, null, destination)))
 }
 
 function genreDestination(genreKey: LocalKey, destination: NavigationRoute | undefined, source: NavigationDataSource): ScreenFrame | null {
   if (destination?.kind === 'genre-artists') return artistsFrame('Artists', destination, source.artistsForGenre(genreKey))
-  if (destination?.kind === 'genre-albums') return listFrame('S07', 'Albums', destination, source.albumsForGenre(genreKey).map((item, index) => descendRow(index, item.title, item.artistName)), 'medium')
+  if (destination?.kind === 'genre-albums') return listFrame('S07', 'Albums', destination, source.albumsForGenre(genreKey).map((item, index) => descendRow(index, item.title, item.artistName)))
   if (destination?.kind === 'genre-tracks') return songsFrame('Songs', destination, source.tracksForGenre(genreKey))
   return null
 }
@@ -247,6 +247,6 @@ function nowPlayingFrame(): ScreenFrame {
   return frame('S13', 'Now Playing', { kind: 'now-playing' }, [], 'airy')
 }
 
-function listFrame(screenId: ScreenFrame['screenId'], title: string, route: NavigationRoute, rows: readonly PanelRow[], density: ScreenFrame['density'] = 'compact'): ScreenFrame {
-  return frame(screenId, title, route, rows, density)
+function listFrame(screenId: ScreenFrame['screenId'], title: string, route: NavigationRoute, rows: readonly PanelRow[]): ScreenFrame {
+  return frame(screenId, title, route, rows, 'compact')
 }

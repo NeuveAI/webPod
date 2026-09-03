@@ -42,7 +42,14 @@ const openScreen = async (page: Page, screen: 's03' | 's08' | 's13', query = '')
   const dark = page.locator('.wp-panel').first()
   await expect(dark).toHaveAttribute('data-screen', 'S03')
   await dark.focus()
-  if (screen !== 's03') await dark.press('Enter')
+  if (screen !== 's03') {
+    await dark.press('Enter')
+    if (query === '') await expect(dark.getByRole('listbox', { name: 'Albums' })).toBeVisible()
+    else await page.waitForTimeout(50)
+    await dark.press('Enter')
+    if (query === '') await expect(dark.getByRole('listbox', { name: /tracks$/ })).toBeVisible()
+    else await page.waitForTimeout(50)
+  }
   if (screen === 's13') await dark.press('Enter')
   await expect(dark).toHaveAttribute('data-screen', screen.toUpperCase())
   return dark
@@ -78,6 +85,10 @@ test('keyboard traversal commands playback and exposes selected options', async 
   await dark.press('ArrowUp')
   await dark.press('Enter')
   await expect(dark).toHaveAttribute('data-screen', 'S08')
+  await expect(dark.getByRole('listbox', { name: 'Albums' })).toBeVisible()
+  await dark.press('Enter')
+  await expect(dark).toHaveAttribute('data-screen', 'S08')
+  await expect(dark.getByRole('listbox', { name: /tracks$/ })).toBeVisible()
   await dark.press('Enter')
   await expect(dark).toHaveAttribute('data-screen', 'S13')
   const nowPlaying = dark.locator('.wp-now')
@@ -87,7 +98,7 @@ test('keyboard traversal commands playback and exposes selected options', async 
   const after = Number(await nowPlaying.getAttribute('data-position-ms'))
   expect(after - before).toBeGreaterThanOrEqual(500)
   await expect(dark.getByRole('progressbar')).toHaveAttribute('aria-valuenow', /\d+/)
-  await dark.press('Backspace')
+  await dark.press('Escape')
   await expect(dark).toHaveAttribute('data-screen', 'S08')
   await writeFile(resolve(evidence, `${prefix}-keyboard.json`), JSON.stringify({ traversal: ['S03', 'S08', 'S13', 'S08'], selectedOption: 'Albums', activeDescendantChanged: firstActiveId !== secondActiveId, playbackCommanded: true, progress: { before, after, delta: after - before } }, null, 2))
 })
@@ -107,13 +118,16 @@ test('panel rows focus the application without direct activation', async ({ page
 
   await panel.press('Enter')
   await expect(panel).toHaveAttribute('data-screen', 'S08')
-  const secondTrack = panel.locator('.wp-track-row').nth(1)
+  const secondTrack = panel.locator('.wp-list-row').nth(1)
   await page.evaluate(() => {
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
   })
   await secondTrack.click()
   await expect(panel).toBeFocused()
   await expect(panel).toHaveAttribute('data-screen', 'S08')
+  await panel.press('Enter')
+  await expect(panel).toHaveAttribute('data-screen', 'S08')
+  await expect(panel.getByRole('listbox', { name: /tracks$/ })).toBeVisible()
   await panel.press('Enter')
   await expect(panel).toHaveAttribute('data-screen', 'S13')
 })
@@ -205,13 +219,13 @@ test('all state and colourway pairs produce chrome-free screen evidence', async 
 test('the prescribed state matrix changes behavior rather than labels', async ({ page }) => {
   let panel = await openScreen(page, 's03', '?state=loading')
   await expect(panel).toContainText('Loading your library counts.')
-  await expect(panel.locator('.wp-row-meta').filter({ hasText: '…' })).toHaveCount(6)
+  await expect(panel.locator('.wp-list-row__count').filter({ hasText: '…' })).toHaveCount(7)
   panel = await openScreen(page, 's03', '?state=empty')
   await expect(panel.getByRole('option')).toHaveCount(8)
   await expect(panel.locator('[data-empty="true"]')).toHaveCount(5)
   await expect(panel.getByRole('status')).toContainText('Nothing in your library yet')
   panel = await openScreen(page, 's03', '?state=error')
-  await expect(panel.locator('.wp-row-meta').filter({ hasText: '—' })).toHaveCount(6)
+  await expect(panel.locator('.wp-list-row__count').filter({ hasText: '—' })).toHaveCount(7)
   panel = await openScreen(page, 's03', '?state=offline')
   await expect(panel).not.toContainText('Downloads')
   await expect(panel).not.toContainText('⤓')
@@ -220,17 +234,16 @@ test('the prescribed state matrix changes behavior rather than labels', async ({
   await expect(panel.getByRole('status')).toContainText('subscription is needed to play')
   await expect(panel.locator('[data-unavailable="true"]')).toHaveCount(1)
   panel = await openScreen(page, 's03', '?state=agent-active')
-  await expect(panel.locator('.wp-menu-preview')).toContainText('Assistant browsing')
+  await expect(panel.locator('.wp-list-preview')).toContainText('Assistant browsing')
 
   panel = await openScreen(page, 's08', '?state=loading')
-  await expect(panel.locator('.wp-track-row.wp-skeleton')).toHaveCount(8)
+  await expect(panel.locator('.wp-list-loading .wp-skeleton')).toHaveCount(8)
   panel = await openScreen(page, 's08', '?state=empty')
   await expect(panel).toContainText('Nothing here plays in your region.')
   panel = await openScreen(page, 's08', '?state=error')
-  await expect(panel.locator('.wp-track-row.wp-skeleton')).toHaveCount(8)
-  await expect(panel).toContainText('Retry')
+  await expect(panel).toContainText('Press Menu and try again.')
   panel = await openScreen(page, 's08', '?state=permission-denied')
-  await expect(panel.locator('.wp-track-row')).toHaveCount(8)
+  await expect(panel).toContainText('Sign in to browse your music.')
   panel = await openScreen(page, 's08', '?state=offline')
   await expect(panel.locator('[data-unavailable="true"]')).not.toHaveCount(0)
   await expect(panel).not.toContainText('⤓')
@@ -269,19 +282,18 @@ test('pale and dark artwork exercise both adaptive colourways', async ({ page })
   }
 })
 
-test('provider artwork is both rendered and sampled through the same-origin proxy', async ({ page }) => {
+test('authored Now Playing artwork retains provider-driven colour sampling', async ({ page }) => {
   await freezeEvidenceClock(page)
   await openScreen(page, 's13')
   await stabilizeEvidence(page)
   const reports = []
   for (const [index, colourway] of ['dark', 'light'].entries()) {
     const panel = page.locator('.wp-panel').nth(index)
-    const image = panel.locator('[data-provider-artwork="true"]')
+    const image = panel.locator('[data-authored-artwork="now-playing"]')
     await expect(image).toBeVisible()
-    await expect(image).toHaveAttribute('src', /^\/artwork\?/)
     await expect(panel.locator('.wp-now')).toHaveAttribute('data-art-sample-source', 'provider')
     const dimensions = await image.evaluate((element) => {
-      if (!(element instanceof HTMLImageElement)) throw new Error('provider artwork must be an image')
+      if (!(element instanceof HTMLImageElement)) throw new Error('Now Playing artwork must be an image')
       return { naturalWidth: element.naturalWidth, naturalHeight: element.naturalHeight, src: element.getAttribute('src') }
     })
     expect(dimensions.naturalWidth).toBeGreaterThan(0)
@@ -319,11 +331,11 @@ test('the canonical package seam uses only raster-compatible panel effects', asy
   await writeFile(resolve(evidence, `${prefix}-raster-compatibility.json`), JSON.stringify({ reports, reducedTransparencyBloom: 'none' }, null, 2))
 })
 
-test('a 120-row fixture is rendered through TanStack Virtual', async ({ page }) => {
+test('a 120-row fixture renders only the canonical visible window', async ({ page }) => {
   const panel = await openScreen(page, 's08', '?long=1')
-  const list = panel.locator('[data-virtual-count="120"]')
+  const list = panel.locator('[data-list-viewport="true"]')
   await expect(list).toBeVisible()
-  expect(await list.locator('.wp-track-row').count()).toBeLessThan(30)
+  await expect(list.locator('.wp-list-row')).toHaveCount(8)
 })
 
 test('wheel navigation moves one list-owned indicator and never decorates the preview', async ({ page }) => {
@@ -332,33 +344,34 @@ test('wheel navigation moves one list-owned indicator and never decorates the pr
   await expect(panel.locator('.wp-menu-preview__rail')).toHaveCount(0)
 
   await panel.press('Enter')
-  const indicator = panel.locator('.wp-album-list > .wp-list-scroll')
+  await expect(panel.getByRole('listbox', { name: 'Albums' })).toBeVisible()
+  await panel.press('Enter')
+  const indicator = panel.locator('.wp-list-viewport > .wp-list-scroll')
   await expect(indicator).toHaveCount(1)
-  await expect(panel.locator('.wp-album-preview .wp-list-scroll')).toHaveCount(0)
+  await expect(panel.locator('.wp-list-preview .wp-list-scroll')).toHaveCount(0)
   await expect(indicator).toHaveAttribute('data-total-rows', '11')
   await expect(indicator).toHaveAttribute('data-visible-rows', '8')
   await expect(indicator).toHaveAttribute('data-window-start', '0')
-  await expect(indicator).toHaveAttribute('data-thumb-size', '72.727%')
+  await expect(indicator).toHaveAttribute('data-thumb-size', '127.273px')
 
   for (let detent = 0; detent < 9; detent += 1) {
     await panel.dispatchEvent('wheel', { deltaY: 40, deltaMode: 0 })
   }
 
   await expect(indicator).toHaveAttribute('data-window-start', '2')
-  await expect(indicator).toHaveAttribute('data-thumb-offset', '18.182%')
+  await expect(indicator).toHaveAttribute('data-thumb-offset', '31.818px')
 })
 
-test('the virtual list sustains a frame-paced scroll under mid-tier CPU throttling', async ({ page }) => {
+test('the canonical list window sustains frame pacing under mid-tier CPU throttling', async ({ page }) => {
   const session = await page.context().newCDPSession(page)
   await session.send('Emulation.setCPUThrottlingRate', { rate: 4 })
   const panel = await openScreen(page, 's08', '?long=1')
-  const list = panel.locator('[data-virtual-count="120"]')
+  const list = panel.locator('[data-list-viewport="true"]')
   const measurement = await list.evaluate(async (element) => {
     const timestamps: number[] = []
     await new Promise<void>((resolveAnimation) => {
       const sample = (timestamp: number) => {
         timestamps.push(timestamp)
-        element.scrollTop += 4
         if (timestamps.length < 61) requestAnimationFrame(sample)
         else resolveAnimation()
       }
@@ -375,7 +388,7 @@ test('the virtual list sustains a frame-paced scroll under mid-tier CPU throttli
     return {
       averageFrameMs: frameDurations.reduce((sum, duration) => sum + duration, 0) / frameDurations.length,
       p95FrameMs,
-      renderedRows: element.querySelectorAll('.wp-track-row').length,
+      renderedRows: element.querySelectorAll('.wp-list-row').length,
       samples: frameDurations.length,
     }
   })

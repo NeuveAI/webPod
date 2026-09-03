@@ -8,6 +8,7 @@ import { albumTracksFrame, mainMenuFrame, nowPlayingFrame } from './model'
 
 describe('the bare DOM panel', () => {
   test('mounts as a bare semantic DOM surface', () => {
+    deviceStore.set(resetStackActionAtom, [mainMenuFrame()])
     const html = renderToStaticMarkup(<Panel colourway="dark" />)
     expect(html).toContain('aria-label="webPod music player"')
     expect(html).toContain('aria-label="Music categories"')
@@ -30,45 +31,43 @@ describe('the bare DOM panel', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
     expect(css).toContain('inline-size: 272px')
     expect(css).toContain('block-size: 204px')
-    expect(css).toMatch(/\.wp-track-row\s*\{[^}]*block-size:\s*var\(--wp-track-row-size\)/s)
+    expect(css).toMatch(/\.wp-list-row\s*\{[^}]*block-size:\s*calc\(183px \/ var\(--wp-list-visible-rows, 8\)\)/s)
     const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
     expect(source).toMatch(/Array\.from\(\{ length: visibleRows \}/)
-    expect(source).toContain('LIST_VIEWPORT_SIZE_PX / Math.max(1, visibleRows)')
+    expect(readFileSync(new URL('./list-view.tsx', import.meta.url), 'utf8')).toContain('LIST_VIEWPORT_SIZE_PX = 183')
   })
 
   test('fits every declared album row completely inside the fixed list viewport', () => {
     deviceStore.set(resetStackActionAtom, [albumTracksFrame()])
     const html = renderToStaticMarkup(<Panel state="ready" />)
     expect(html).toContain('data-visible-rows="8"')
-    expect(html).toContain('--wp-track-row-size:22.875px')
-    expect(html.match(/class="wp-track-row"/g)).toHaveLength(8)
+    expect(html).toContain('--wp-list-visible-rows:8')
+    expect(html.match(/class="wp-list-row"/g)).toHaveLength(8)
   })
 
   test('locks the authored iPod screen hierarchy and split-panel rhythm', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
     expect(css).toMatch(/\.wp-titlebar\s*\{[^}]*block-size:\s*21px/s)
-    expect(css).toMatch(/\.wp-menu-split\s*\{[^}]*grid-template-columns:\s*168px 104px/s)
-    expect(css).toMatch(/\.wp-menu-row\s*\{[^}]*block-size:\s*21px/s)
+    expect(css).toMatch(/\.wp-list-view\[data-layout="split"\]\s*\{[^}]*grid-template-columns:\s*168px 104px/s)
+    expect(css).toMatch(/\.wp-list-row\s*\{[^}]*block-size:\s*calc\(183px \/ var\(--wp-list-visible-rows, 8\)\)/s)
     expect(css).toMatch(/\.wp-now-body\s*\{[^}]*grid-template-columns:\s*88px minmax\(0, 1fr\)/s)
     expect(css).toMatch(/\.wp-art--large\s*\{[^}]*88px/s)
   })
 
   test('the menu viewport fills the LCD while every density keeps fixed row geometry', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
-    const splitRule = css.match(/\.wp-menu-split\s*\{([^}]*)\}/s)?.[1]
-    const listRule = css.match(/\.wp-menu-list\s*\{([^}]*)\}/s)?.[1]
-    const previewRule = css.match(/\.wp-menu-preview\s*\{([^}]*)\}/s)?.[1]
+    const splitRule = css.match(/\.wp-list-view\s*\{([^}]*)\}/s)?.[1]
+    const listRule = css.match(/\.wp-list-viewport\s*\{([^}]*)\}/s)?.[1]
+    const previewRule = css.match(/\.wp-list-preview\s*\{([^}]*)\}/s)?.[1]
 
     expect(splitRule).toMatch(/block-size:\s*183px/)
     expect(splitRule).toMatch(/min-block-size:\s*0/)
-    expect(listRule).toMatch(/block-size:\s*100%/)
+    expect(listRule).toMatch(/block-size:\s*183px/)
     expect(listRule).toMatch(/overflow:\s*hidden/)
     expect(listRule).toMatch(/background:\s*var\(--wp-bg\)/)
-    expect(previewRule).toMatch(/block-size:\s*100%/)
+    expect(previewRule).toMatch(/block-size:\s*183px/)
     expect(previewRule).toMatch(/overflow:\s*clip/)
-    expect(css).toMatch(/\.wp-menu-row\s*\{[^}]*block-size:\s*21px/s)
-    expect(css).toMatch(/\.wp-menu-row\s*\{[^}]*font-size:\s*11px/s)
-    expect(css).not.toMatch(/data-density=[^}]+\.wp-menu-(?:list|row)/s)
+    expect(css).toMatch(/\.wp-list-row\s*\{[^}]*font-size:\s*11px/s)
   })
 
   test('owns scroll indication in list panes and never in the preview pane', () => {
@@ -79,8 +78,8 @@ describe('the bare DOM panel', () => {
 
     deviceStore.set(resetStackActionAtom, [albumTracksFrame()])
     const album = renderToStaticMarkup(<Panel state="ready" />)
-    expect(album).toMatch(/class="wp-album-list">[\s\S]*class="wp-list-scroll"/)
-    expect(album).not.toMatch(/class="wp-album-preview"[\s\S]*class="wp-list-scroll"/)
+    expect(album).toMatch(/class="wp-list-viewport"[\s\S]*class="wp-list-scroll"/)
+    expect(album).not.toMatch(/class="wp-list-preview"[^>]*>[\s\S]*class="wp-list-scroll"/)
 
     const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
     expect(source).not.toContain('wp-menu-preview__rail')
@@ -101,13 +100,14 @@ describe('the bare DOM panel', () => {
     expect(actionRule).toMatch(/min-block-size:\s*44px/)
   })
 
-  test('uses provider commands, subscriptions, and TanStack virtualization', () => {
+  test('uses provider commands, subscriptions, and one canonical list path', () => {
     const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
     expect(source).toContain('selectNavigation(')
     expect(readFileSync(new URL('./navigation.ts', import.meta.url), 'utf8')).toContain('provider.play(')
     expect(source).toContain('provider.onPlaybackChange')
     expect(source).toContain('provider.onProgress')
-    expect(source).toContain('useVirtualizer(')
+    expect(source).toContain('<ListViewport')
+    expect(source).not.toMatch(/StaticTrackList|VirtualTrackList|TrackRow|BrowserRow/)
   })
 
   test('offline mode remains cached metadata and never restores the cut download product', () => {
