@@ -423,7 +423,7 @@ function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: {
     await provider.ratingSet(track, { love: 'love' })
     setLovedTrackKey(track.key)
   }
-  const currentQueueIndex = queue === null ? -1 : playbackQueueIndex(queue, track)
+  const currentQueueIndex = queue === null ? -1 : playbackQueueIndex(queue, track, playback.queueIndex)
   const queueIndex = currentQueueIndex < 0 || queue === null ? undefined : `${currentQueueIndex + 1} of ${queue.tracks.length}`
   return (
     <section className="wp-screen wp-now" aria-label="Now Playing" data-art-tone={artworkTone ?? 'provider'} data-art-sample-source={artworkTone === null ? samples === null ? 'pending' : 'provider' : 'fixture'} data-volume={playback.volume0to100} data-position-ms={playback.positionMs} style={artStyle}>
@@ -460,7 +460,9 @@ function sameProviderTrack(left: TrackRef, right: TrackRef): boolean {
   return left.key === right.key || (left.provider === right.provider && left.catalogId === right.catalogId)
 }
 
-function playbackQueueIndex(queue: NonNullable<ReturnType<typeof playbackQueueForFrame>>, track: TrackRef): number {
+function playbackQueueIndex(queue: NonNullable<ReturnType<typeof playbackQueueForFrame>>, track: TrackRef, liveIndex: number | null): number {
+  const liveTrack = liveIndex === null || !Number.isInteger(liveIndex) || liveIndex < 0 || liveIndex >= queue.tracks.length ? undefined : queue.tracks[liveIndex]
+  if (liveIndex !== null && liveTrack !== undefined && sameProviderTrack(liveTrack, track)) return liveIndex
   const selectedIndex = queue.startIndex
   const selected = selectedIndex === null ? undefined : queue.tracks[selectedIndex]
   if (selectedIndex !== null && selected !== undefined && sameProviderTrack(selected, track)) return selectedIndex

@@ -41,6 +41,7 @@ export interface StubProviderSpec {
 const IDLE: PlaybackState = {
   status: 'idle',
   now: null,
+  queueIndex: null,
   positionMs: 0,
   durationMs: 0,
   volume0to100: 0,

@@ -124,6 +124,8 @@ export type RepeatMode = 'off' | 'one' | 'all'
 export interface PlaybackState {
   readonly status: 'idle' | 'loading' | 'playing' | 'paused' | 'stopped'
   readonly now: TrackRef | null
+  /** Zero-based provider-authoritative position in the active queue, or null until known. */
+  readonly queueIndex: number | null
   readonly positionMs: number
   readonly durationMs: number
   /** App volume, 0–100. Not system volume — §14.3 row 14 on both providers. */

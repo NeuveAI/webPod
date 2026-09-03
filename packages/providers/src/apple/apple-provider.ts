@@ -119,7 +119,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   const configuredOptions = options ?? browserAppleProviderOptions(); let kit: MusicKitGlobalLike | null = null; let music: MusicKitInstanceLike | null = null; let currentSession: Session | null = null
   let configurePromise: Promise<void> | null = null
   let appleState: AppleSessionState = { status: 'signed-out' }
-  let currentPlayback: PlaybackState = { status: 'idle', now: null, positionMs: 0, durationMs: 0, volume0to100: 100, shuffle: 'off', repeat: 'off' }
+  let currentPlayback: PlaybackState = { status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0, volume0to100: 100, shuffle: 'off', repeat: 'off' }
   const sessions = new Set<(value: Session | null) => void>(); const appleStates = new Set<(value: AppleSessionState) => void>(); const playback = new Set<(value: PlaybackState) => void>(); const progress = new Set<(value: ProgressTick) => void>(); const cursors = new Set<string>(); const keyFor = identityCache()
   const instance = (method: string): MusicKitInstanceLike => { if (music === null) throw new NotAuthorizedError('apple', method); return music }
   const authorized = (method: string): MusicKitInstanceLike => { const value = instance(method); if (!value.isAuthorized) throw new NotAuthorizedError('apple', method); return value }
@@ -129,7 +129,9 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   const stateOf = (value: MusicKitInstanceLike): PlaybackState => {
     const now = (() => { try { const item = value.nowPlayingItem === undefined ? null : normalize(value.nowPlayingItem, keyFor); return item?.kind === 'track' ? item : null } catch { return null } })()
     const raw = value.playbackState; const states = kit?.PlaybackStates; const status = raw === states?.['playing'] ? 'playing' : raw === states?.['paused'] ? 'paused' : raw === states?.['loading'] || raw === states?.['waiting'] ? 'loading' : now === null ? 'idle' : 'stopped'
-    return { status, now, positionMs: Math.max(0, (value.currentPlaybackTime ?? 0) * 1_000), durationMs: Math.max(0, (value.currentPlaybackDuration ?? 0) * 1_000), volume0to100: Math.round(Math.min(1, Math.max(0, value.volume)) * 100), shuffle: value.shuffleMode === kit?.PlayerShuffleMode?.['songs'] ? 'songs' : value.shuffleMode === kit?.PlayerShuffleMode?.['albums'] ? 'albums' : 'off', repeat: value.repeatMode === kit?.PlayerRepeatMode?.['one'] ? 'one' : value.repeatMode === kit?.PlayerRepeatMode?.['all'] ? 'all' : 'off' }
+    const queuePosition = value.queue?.position
+    const queueIndex = now !== null && queuePosition !== undefined && Number.isInteger(queuePosition) && queuePosition >= 0 ? queuePosition : null
+    return { status, now, queueIndex, positionMs: Math.max(0, (value.currentPlaybackTime ?? 0) * 1_000), durationMs: Math.max(0, (value.currentPlaybackDuration ?? 0) * 1_000), volume0to100: Math.round(Math.min(1, Math.max(0, value.volume)) * 100), shuffle: value.shuffleMode === kit?.PlayerShuffleMode?.['songs'] ? 'songs' : value.shuffleMode === kit?.PlayerShuffleMode?.['albums'] ? 'albums' : 'off', repeat: value.repeatMode === kit?.PlayerRepeatMode?.['one'] ? 'one' : value.repeatMode === kit?.PlayerRepeatMode?.['all'] ? 'all' : 'off' }
   }
   const bind = (value: MusicKitInstanceLike): void => {
     const changed = (): void => { currentPlayback = stateOf(value); for (const listener of playback) listener(currentPlayback) }

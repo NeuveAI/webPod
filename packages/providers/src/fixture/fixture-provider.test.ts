@@ -194,6 +194,27 @@ describe('the fixture provider — a missing capability is a tripwire, not an er
 })
 
 describe('the fixture provider — behaviour', () => {
+  test('publishes an authoritative queue index through duplicate tracks in both directions', async () => {
+    const provider = createFixtureProvider()
+    const [first, second] = provider.catalog.tracks
+    if (first === undefined || second === undefined) throw new Error('empty fixture catalogue')
+    const queue = [first, second, first]
+
+    await provider.play({ kind: 'tracks', tracks: queue, startIndex: 0 })
+    expect(provider.playback.queueIndex).toBe(0)
+    await provider.skip('next')
+    expect(provider.playback.queueIndex).toBe(1)
+    await provider.skip('next')
+    expect(provider.playback.queueIndex).toBe(2)
+
+    await provider.play({ kind: 'tracks', tracks: queue, startIndex: 2 })
+    expect(provider.playback.queueIndex).toBe(2)
+    await provider.skip('previous')
+    expect(provider.playback.queueIndex).toBe(1)
+    await provider.skip('previous')
+    expect(provider.playback.queueIndex).toBe(0)
+  })
+
   test('plays an album and advances through it on tick', async () => {
     const provider = createFixtureProvider()
     const album = provider.catalog.albums[0]

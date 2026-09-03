@@ -220,6 +220,7 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
   let queueNow: TrackRef | null = null
   let queueNext: TrackRef[] = []
   let queueHistory: TrackRef[] = []
+  let queueIndex: number | null = null
   let status: PlaybackState['status'] = 'idle'
   let positionMs = 0
   let volume0to100 = 60
@@ -233,6 +234,7 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
     return {
       status,
       now: queueNow,
+      queueIndex,
       positionMs,
       durationMs: queueNow?.durationMs ?? 0,
       volume0to100,
@@ -301,6 +303,7 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
     const [head, ...rest] = queueNext
     queueNow = head ?? null
     queueNext = rest
+    queueIndex = queueNow === null ? null : queueHistory.length
     positionMs = 0
     if (queueNow === null) status = 'stopped'
   }
@@ -614,15 +617,17 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       if (target !== undefined) {
         const tracks =
           target.kind === 'tracks'
-            ? target.tracks.slice(target.startIndex ?? 0)
+            ? target.tracks
             : target.kind === 'album'
               ? (catalog.tracksByAlbum.get(target.album.key) ?? [])
               : target.kind === 'playlist'
                 ? (playlistTracks.get(target.playlist.key) ?? [])
                 : catalog.tracks
-        const [head, ...rest] = tracks
-        queueNow = head ?? null
-        queueNext = rest
+        const startIndex = target.kind === 'tracks' ? Math.max(0, target.startIndex ?? 0) : 0
+        queueHistory = tracks.slice(0, startIndex)
+        queueNow = tracks[startIndex] ?? null
+        queueNext = tracks.slice(startIndex + 1)
+        queueIndex = queueNow === null ? null : startIndex
         positionMs = 0
       }
       status = queueNow === null ? 'idle' : 'playing'
@@ -656,6 +661,7 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
           queueHistory = queueHistory.slice(0, -1)
           if (queueNow !== null) queueNext = [queueNow, ...queueNext]
           queueNow = previous
+          queueIndex = queueHistory.length
           positionMs = 0
         }
       }
@@ -804,6 +810,8 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       const [head, ...rest] = catalog.tracks
       queueNow = head ?? null
       queueNext = rest
+      queueHistory = []
+      queueIndex = queueNow === null ? null : 0
       positionMs = 0
       status = queueNow === null ? 'idle' : 'playing'
       emitPlayback()
