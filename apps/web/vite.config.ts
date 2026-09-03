@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import viteReact from '@vitejs/plugin-react'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, loadEnv, type Plugin } from 'vite'
 
 import {
   BROWSER_SOURCE_METADATA_FILE,
@@ -49,10 +49,25 @@ function sourceIdentityHealth(): Plugin {
   }
 }
 
-export default defineConfig({
-  server: { port: 3000 },
-  resolve: { tsconfigPaths: true },
-  plugins: [sourceIdentityHealth(), tailwindcss(), tanstackStart({ srcDirectory: 'src' }), viteReact()],
+export default defineConfig(({ mode }) => {
+  const workspaceRoot = resolve(import.meta.dirname, '..', '..')
+  const appleServerEnv = loadEnv(mode, workspaceRoot, 'APPLE_')
+  for (const name of [
+    'APPLE_TEAM_ID',
+    'APPLE_MUSICKIT_KEY_ID',
+    'APPLE_MUSICKIT_KEY_PATH',
+    'APPLE_TOKEN_TTL_SECONDS',
+  ] as const) {
+    const value = appleServerEnv[name]
+    if (process.env[name] === undefined && value !== undefined) process.env[name] = value
+  }
+
+  return {
+    envDir: workspaceRoot,
+    server: { port: 3000 },
+    resolve: { tsconfigPaths: true },
+    plugins: [sourceIdentityHealth(), tailwindcss(), tanstackStart({ srcDirectory: 'src' }), viteReact()],
+  }
 })
 
 function readSnapshotMetadata():
