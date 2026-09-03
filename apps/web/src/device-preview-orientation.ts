@@ -31,8 +31,8 @@ export type DevicePreviewState = {
 
 export const INITIAL_DEVICE_PREVIEW_STATE: DevicePreviewState = Object.freeze({
   colourway: 'black',
-  pose: 'three-quarter',
-  orientation: DEVICE_ORIENTATION_PRESETS['three-quarter'],
+  pose: 'front',
+  orientation: FRONT_DEVICE_ORIENTATION,
   room: 'dark',
 })
 

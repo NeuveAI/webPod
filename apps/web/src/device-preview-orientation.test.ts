@@ -94,12 +94,18 @@ describe('external device preview orientation', () => {
       notifications += 1
     })
 
+    expect(store.getSnapshot()).toEqual({
+      colourway: 'black',
+      pose: 'front',
+      orientation: FRONT_DEVICE_ORIENTATION,
+      room: 'dark',
+    })
     store.setPose('three-quarter')
-    expect(notifications).toBe(0)
+    expect(notifications).toBe(1)
     store.setColourway('white')
     store.setRoom('light')
     store.setPose('rear')
-    expect(notifications).toBe(3)
+    expect(notifications).toBe(4)
 
     const reset = store.resetOrientation()
     expect(reset).toEqual({
@@ -108,7 +114,7 @@ describe('external device preview orientation', () => {
       orientation: FRONT_DEVICE_ORIENTATION,
       room: 'light',
     })
-    expect(notifications).toBe(4)
+    expect(notifications).toBe(5)
     expect(Object.isFrozen(reset)).toBe(true)
     expect(Object.isFrozen(reset.orientation)).toBe(true)
     unsubscribe()
