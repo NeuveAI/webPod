@@ -1,10 +1,12 @@
 import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { createFixtureProvider } from '@webpod/providers'
 import { currentScreenAtom, deviceStore, resetStackActionAtom } from '@webpod/state'
 
 import { Panel } from './Panel'
-import { albumTracksFrame, mainMenuFrame, nowPlayingFrame } from './model'
+import { albumTracksFrame, fixtureNavigationSource, mainMenuFrame, nowPlayingFrame } from './model'
+import { navigationRoot, selectNavigation } from './navigation'
 
 describe('the bare DOM panel', () => {
   test('mounts as a bare semantic DOM surface', () => {
@@ -155,9 +157,11 @@ describe('the bare DOM panel', () => {
     expect(css).toContain('prefers-reduced-transparency: reduce')
   })
 
-  test('gives passive S13 playback glyphs accurate non-interactive semantics', () => {
+  test('gives passive S13 playback glyphs accurate non-interactive semantics', async () => {
+    const playbackProvider = createFixtureProvider()
+    await playbackProvider.play({ kind: 'tracks', tracks: playbackProvider.catalog.tracks, startIndex: 0 })
     deviceStore.set(resetStackActionAtom, [nowPlayingFrame()])
-    const html = renderToStaticMarkup(<Panel state="ready" />)
+    const html = renderToStaticMarkup(<Panel state="ready" provider={playbackProvider} />)
 
     expect(html).toContain('class="wp-actions" role="group" aria-label="Playback status"')
     for (const [label, icon] of [['Shuffle on', 'shuffle'], ['Repeat off', 'repeat'], ['Rate', 'star'], ['Queue', 'queue']] as const) {
@@ -166,12 +170,43 @@ describe('the bare DOM panel', () => {
     expect(html).not.toMatch(/<span aria-label="(?:Shuffle on|Repeat off|Rate|Queue)"/)
   })
 
-  test('keeps S13 capability absence and the Love interaction unchanged', () => {
+  test('keeps S13 capability absence and the Love interaction unchanged', async () => {
+    const playbackProvider = createFixtureProvider()
+    await playbackProvider.play({ kind: 'tracks', tracks: playbackProvider.catalog.tracks, startIndex: 0 })
     deviceStore.set(resetStackActionAtom, [nowPlayingFrame()])
-    const html = renderToStaticMarkup(<Panel state="ready" />)
+    const html = renderToStaticMarkup(<Panel state="ready" provider={playbackProvider} />)
 
     expect(html.match(/<button/g)).toHaveLength(1)
     expect(html).toContain('<button type="button" aria-label="Love track" aria-pressed="false"')
     expect(html).not.toMatch(/Lyrics|Remove from playlist|Reorder playlist|Remove from queue|Reorder queue|Downloaded only/i)
+  })
+
+  test('does not invent a track, queue index, source, or artwork before provider playback arrives', () => {
+    const idleProvider = createFixtureProvider()
+    deviceStore.set(resetStackActionAtom, [nowPlayingFrame()])
+    const html = renderToStaticMarkup(<Panel state="ready" provider={idleProvider} />)
+
+    expect(html).toContain('Nothing is playing.')
+    expect(html).not.toContain('4 of 18')
+    expect(html).not.toContain('Station · Late Drive')
+    expect(html).not.toContain('data-authored-artwork="now-playing"')
+    expect(html).not.toContain(idleProvider.catalog.tracks[0]?.title ?? 'fixture track absent')
+  })
+
+  test('renders provider playback with queue context produced by the selected frame', async () => {
+    const playbackProvider = createFixtureProvider()
+    const root = navigationRoot(fixtureNavigationSource, playbackProvider)
+    const songs = (await selectNavigation({ ...root, highlightIndex: 4 }, fixtureNavigationSource, playbackProvider)).frame
+    if (songs === null) throw new Error('songs frame missing')
+    const selectedIndex = 2
+    const nowPlaying = (await selectNavigation({ ...songs, highlightIndex: selectedIndex }, fixtureNavigationSource, playbackProvider)).frame
+    if (nowPlaying === null) throw new Error('now playing frame missing')
+    deviceStore.set(resetStackActionAtom, [nowPlaying])
+    const html = renderToStaticMarkup(<Panel state="ready" provider={playbackProvider} />)
+
+    expect(html).toContain(`${selectedIndex + 1} of ${fixtureNavigationSource.songs.length}`)
+    expect(html).toContain('class="wp-source">Songs</span>')
+    expect(html).toContain(playbackProvider.playback.now?.title ?? 'provider track absent')
+    expect(html).not.toContain('Station · Late Drive')
   })
 })

@@ -3,7 +3,7 @@ import { APPLE_SUPPORTS, createFixtureProvider, mintLocalKey, type MusicProvider
 import type { NavigationRoute } from '@webpod/state'
 
 import { fixtureNavigationSource } from './model'
-import { navigationRoot, providerStatusFrame, selectNavigation } from './navigation'
+import { navigationRoot, playbackQueueForFrame, providerStatusFrame, selectNavigation } from './navigation'
 
 const provider = createFixtureProvider({ supports: APPLE_SUPPORTS })
 
@@ -65,17 +65,39 @@ describe('typed navigation graph', () => {
     await selectNavigation(highlight(playlistTracks, 1), fixtureNavigationSource, playbackProvider)
     await selectNavigation(artistTracks, fixtureNavigationSource, playbackProvider)
 
-    const firstAlbum = fixtureNavigationSource.albums[0]
-    const secondAlbum = fixtureNavigationSource.albums[1]
-    const firstPlaylist = fixtureNavigationSource.playlists[0]
-    if (firstAlbum === undefined || secondAlbum === undefined || firstPlaylist === undefined) throw new Error('fixture collection missing')
-
     expect(targets.map((target) => target.kind === 'tracks' ? [target.tracks.map((track) => track.key), target.startIndex] : null)).toEqual([
-      [fixtureNavigationSource.songs.map((track) => track.key), 2],
-      [(await fixtureNavigationSource.tracksForAlbum(secondAlbum.key)).map((track) => track.key), 1],
-      [(await fixtureNavigationSource.tracksForPlaylist(firstPlaylist.key)).map((track) => track.key), 1],
-      [(await fixtureNavigationSource.tracksForAlbum(firstAlbum.key)).map((track) => track.key), 0],
+      [playbackQueueForFrame(songs)?.tracks.map((track) => track.key), 2],
+      [playbackQueueForFrame(albumTracks)?.tracks.map((track) => track.key), 1],
+      [playbackQueueForFrame(playlistTracks)?.tracks.map((track) => track.key), 1],
+      [playbackQueueForFrame(artistTracks)?.tracks.map((track) => track.key), 0],
     ])
+  })
+
+  test('plays the exact rendered relationship queue without fetching it again', async () => {
+    const playlist = fixtureNavigationSource.playlists[0]
+    if (playlist === undefined) throw new Error('fixture playlist missing')
+    const stableTracks = await fixtureNavigationSource.tracksForPlaylist(playlist.key)
+    let relationshipReads = 0
+    let playedTarget: PlayTarget | undefined
+    const changingSource = {
+      ...fixtureNavigationSource,
+      tracksForPlaylist: () => {
+        relationshipReads += 1
+        return relationshipReads === 1 ? stableTracks : [...stableTracks].reverse()
+      },
+    }
+    const playbackProvider: MusicProvider = { ...provider, play: async (target) => { playedTarget = target } }
+    const playlists = (await selectNavigation(highlight(navigationRoot(changingSource, playbackProvider), 1), changingSource, playbackProvider)).frame
+    if (playlists === null) throw new Error('playlists frame missing')
+    const tracks = (await selectNavigation(playlists, changingSource, playbackProvider)).frame
+    if (tracks === null) throw new Error('playlist tracks missing')
+    const renderedQueue = playbackQueueForFrame(tracks)?.tracks
+
+    await selectNavigation(highlight(tracks, 1), changingSource, playbackProvider)
+
+    expect(relationshipReads).toBe(1)
+    expect(renderedQueue).toBe(stableTracks)
+    expect(playedTarget).toEqual({ kind: 'tracks', tracks: stableTracks, startIndex: 1 })
   })
 
   test('empty and rejected playable selections never claim success', async () => {
@@ -114,7 +136,7 @@ describe('typed navigation graph', () => {
     expect(results?.route?.kind).toBe('search-results')
     if (results === null) throw new Error('search results missing')
     await selectNavigation(results, fixtureNavigationSource, provider)
-    expect(provider.playback.now?.key).toBe(fixtureNavigationSource.songs[0]?.key)
+    expect(provider.playback.now?.key).toBe(playbackQueueForFrame(results)?.tracks[0]?.key)
   })
 
   test('routes by typed destination even when presentation copy changes', async () => {

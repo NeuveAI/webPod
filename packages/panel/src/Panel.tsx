@@ -1,5 +1,5 @@
 import { Provider, atom, useAtomValue, useSetAtom } from 'jotai'
-import type { FixtureProvider, MusicProvider } from '@webpod/providers'
+import type { FixtureProvider, MusicProvider, TrackRef } from '@webpod/providers'
 import {
   currentScreenAtom,
   detentActionAtom,
@@ -32,10 +32,9 @@ import {
   type NowPlayingMode,
   type PanelState,
 } from './model'
-import { navigationRoot, providerStatusFrame, selectNavigation, statusFrame, type NavigationDataSource, type NavigationStatus } from './navigation'
+import { navigationRoot, playbackQueueForFrame, providerStatusFrame, selectNavigation, statusFrame, type NavigationDataSource, type NavigationStatus } from './navigation'
 import { acquireAnnouncer, acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import menuArtworkUrl from './assets/music-menu-art.png'
-import nowPlayingArtworkUrl from './assets/now-playing-art.png'
 import { ListViewport, type ListRowContent } from './list-view'
 import './panel.css'
 
@@ -234,15 +233,15 @@ function PanelSurface({
       <span className="wp-sr-only" aria-live="polite" aria-atomic="true" data-announcement-seq={announcement?.seq}>
         {announcement?.text ?? ''}
       </span>
-      {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state, colourway, artworkTone, visibleRows, actor, panelId, provider, navigationSource)}
+      {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state, colourway, artworkTone, visibleRows, actor, panelId, provider)}
     </div>
   )
 }
 
-function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone | null, visibleRows: number, actor: 'human' | 'agent', panelId: string, provider: MusicProvider, navigationSource: NavigationDataSource) {
+function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone | null, visibleRows: number, actor: 'human' | 'agent', panelId: string, provider: MusicProvider) {
   if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
   if (frame.route?.kind === 'album-tracks' || frame.route?.kind === 'playlist-tracks') return <NestedTrackList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
-  if (frame.screenId === 'S13') return <NowPlaying state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} provider={provider} navigationSource={navigationSource} />
+  if (frame.screenId === 'S13') return <NowPlaying frame={frame} state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} provider={provider} />
   if (frame.route?.kind === 'status') return <StatusScreen frame={frame} />
   return <BrowserList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
 }
@@ -355,7 +354,7 @@ function listStateMessage(frame: ScreenFrame, state: PanelState, visibleRows: nu
   return undefined
 }
 
-function NowPlaying({ state, colourway, artworkTone, actor, provider, navigationSource }: { readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone | null; readonly actor: 'human' | 'agent'; readonly provider: MusicProvider; readonly navigationSource: NavigationDataSource }) {
+function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone | null; readonly actor: 'human' | 'agent'; readonly provider: MusicProvider }) {
   const mode = useAtomValue(nowPlayingModeAtom)
   const sampledArtwork = useAtomValue(sampledArtworkAtom)
   const setSampledArtwork = useSetAtom(sampledArtworkAtom)
@@ -367,8 +366,9 @@ function NowPlaying({ state, colourway, artworkTone, actor, provider, navigation
   useSyncExternalStore(provider.onProgress, () => `${provider.playback.positionMs}/${provider.playback.durationMs}`, () => `0/${provider.playback.durationMs}`)
   const playback = provider.playback
   const progressTick = { positionMs: playback.positionMs, durationMs: playback.durationMs }
-  const track = playback.now ?? navigationSource.songs[0] ?? currentTrack()
-  const art = sharpArtwork(track, 176)
+  const track = playback.now
+  const queue = playbackQueueForFrame(frame)
+  const art = track === null ? null : sharpArtwork(track, 176)
   const artUrl = art?.url ?? null
   useEffect(() => isClockDrivenProvider(provider) ? acquirePlaybackClock(document, provider, {
     now: () => performance.now(),
@@ -415,24 +415,26 @@ function NowPlaying({ state, colourway, artworkTone, actor, provider, navigation
   const progress = progressTick.durationMs === 0 ? 0 : Math.round(
     (progressTick.positionMs / progressTick.durationMs) * 100,
   )
+  if (state === 'loading' || playback.status === 'loading') return <section className="wp-screen" aria-busy="true"><TitleBar title="Now Playing" /><span className="wp-sr-only">Loading the song.</span><div className="wp-now-loading"><Artwork state="loading" /><i /><i /><i /></div></section>
+  if (state === 'permission-denied') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message="Playback needs an Apple Music subscription." detail="Learn more · Browse anyway" /></section>
+  if (state === 'error') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message={track === null ? "Couldn't start playback." : `Couldn't play “${track.title}”.`} detail="Press Menu and try again." /></section>
+  if (state === 'empty' || track === null) return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelEmpty title="Nothing is playing." detail="Choose a song or press Menu to go back." /></section>
   const loveTrack = async () => {
     await provider.ratingSet(track, { love: 'love' })
     setLovedTrackKey(track.key)
   }
-  if (state === 'loading') return <section className="wp-screen" aria-busy="true"><TitleBar title="Now Playing" /><span className="wp-sr-only">Loading the song.</span><div className="wp-now-loading"><Artwork state="loading" /><i /><i /><i /></div></section>
-  if (state === 'error') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message={`Couldn't play “${track.title}”.`} detail="The next song is queued." /></section>
-  if (state === 'permission-denied') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message="Playback needs an Apple Music subscription." detail="Learn more · Browse anyway" /></section>
-  if (state === 'empty') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelEmpty title="Nothing is playing." detail="Shuffle Songs · Menu returns" /></section>
+  const currentQueueIndex = queue?.tracks.findIndex((item) => item.key === track.key) ?? -1
+  const queueIndex = currentQueueIndex < 0 || queue === null ? undefined : `${currentQueueIndex + 1} of ${queue.tracks.length}`
   return (
     <section className="wp-screen wp-now" aria-label="Now Playing" data-art-tone={artworkTone ?? 'provider'} data-art-sample-source={artworkTone === null ? samples === null ? 'pending' : 'provider' : 'fixture'} data-volume={playback.volume0to100} data-position-ms={playback.positionMs} style={artStyle}>
-      <TitleBar title="Now Playing" index="4 of 18" />
+      <TitleBar title="Now Playing" index={queueIndex} />
       <div className="wp-now-body">
-        <Artwork state="ready" large tone={artworkTone} variant="now-playing" />
+        <Artwork state="ready" large tone={artworkTone} track={track} />
         <div className="wp-now-meta">
           <h1>{track.title}</h1>
           <p>{track.artistName}</p>
           <p>{track.albumName ?? 'Unknown album'}</p>
-          <span className="wp-source">⌁ Station · Late Drive</span>
+          {queue?.sourceLabel === null || queue?.sourceLabel === undefined ? null : <span className="wp-source">{queue.sourceLabel}</span>}
           <span className="wp-mode-chip">{mode}</span>
         </div>
         <div className="wp-progress" role="progressbar" aria-label="Track progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
@@ -462,19 +464,15 @@ function FooterReceipt({ children }: { readonly children: ReactNode }) {
   return <div className="wp-footer-receipt" role="status">{children}</div>
 }
 
-function Artwork({ state, large = false, tone, variant = 'provider' }: { readonly state: PanelState; readonly large?: boolean; readonly tone?: ArtworkTone | null; readonly variant?: 'menu' | 'now-playing' | 'provider' }) {
+function Artwork({ state, large = false, tone, variant = 'provider', track }: { readonly state: PanelState; readonly large?: boolean; readonly tone?: ArtworkTone | null; readonly variant?: 'menu' | 'provider'; readonly track?: TrackRef }) {
   if (state === 'loading') return <span className={large ? 'wp-art wp-art--large wp-skeleton' : 'wp-art wp-skeleton'} aria-hidden="true" />
-  const art = sharpArtwork(currentTrack(), large ? 176 : 88)
+  const art = sharpArtwork(track ?? currentTrack(), large ? 176 : 88)
   const fixtureSurface = tone === 'pale'
     ? 'linear-gradient(145deg, rgb(250 240 214), rgb(218 188 142))'
     : tone === 'dark'
       ? 'linear-gradient(145deg, rgb(49 35 69), rgb(12 10 20))'
       : null
-  const authoredArtwork = variant === 'menu'
-    ? menuArtworkUrl
-    : variant === 'now-playing'
-      ? nowPlayingArtworkUrl
-      : null
+  const authoredArtwork = variant === 'menu' ? menuArtworkUrl : null
   const artworkUrl = authoredArtwork ?? art?.url ?? null
   return (
     <span className={large ? 'wp-art wp-art--large' : 'wp-art'} style={{ '--wp-art-max': `${authoredArtwork === null ? art?.renderedPx ?? 104 : 352}px`, backgroundImage: fixtureSurface ?? (artworkUrl === null ? undefined : `url(${artworkUrl}), var(--wp-art-fallback, linear-gradient(145deg, #334155, #0b0d11))`) } as CSSProperties}>

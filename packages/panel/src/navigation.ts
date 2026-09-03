@@ -33,6 +33,15 @@ export interface NavigationSelection {
   readonly played: boolean
 }
 
+/** Exact provider queue represented by a rendered track frame. */
+export interface PlaybackQueueContext {
+  readonly tracks: readonly TrackRef[]
+  readonly sourceLabel: string | null
+  readonly startIndex: number | null
+}
+
+type TrackScreenFrame = ScreenFrame & { readonly playbackQueue: PlaybackQueueContext }
+
 export type NavigationStatus = Extract<NavigationRoute, { readonly kind: 'status' }>['state']
 
 /** Creates a typed terminal posture; provider/session events never bypass the route model. */
@@ -151,10 +160,10 @@ export async function selectNavigation(
     return { frame: genreDestination(route.genreKey, destination, source), played: false }
   }
   if (route.kind === 'album-tracks' || route.kind === 'playlist-tracks' || route.kind === 'songs' || route.kind === 'genre-tracks' || route.kind === 'search-results') {
-    const tracks = await tracksForRoute(route, source)
+    const tracks = playbackQueueForFrame(current)?.tracks ?? await tracksForRoute(route, source)
     if (tracks[index] === undefined) return { frame: null, played: false }
     await provider.play({ kind: 'tracks', tracks, startIndex: index })
-    return { frame: nowPlayingFrame(), played: true }
+    return { frame: nowPlayingFrame(tracks, index, current.title), played: true }
   }
   if (route.kind === 'stations') {
     const station = source.stations[index]
@@ -198,15 +207,15 @@ function artistAlbumsFrame(artist: ArtistRef, albums: readonly AlbumRef[]): Scre
 }
 
 function tracksFrame(album: AlbumRef, tracks: readonly TrackRef[]): ScreenFrame {
-  return listFrame('S08', album.title, { kind: 'album-tracks', albumKey: album.key }, tracks.map(trackRow))
+  return trackListFrame('S08', album.title, { kind: 'album-tracks', albumKey: album.key }, tracks)
 }
 
 function playlistFrame(playlist: PlaylistRef, tracks: readonly TrackRef[]): ScreenFrame {
-  return listFrame('S08', playlist.name, { kind: 'playlist-tracks', playlistKey: playlist.key }, tracks.map(trackRow))
+  return trackListFrame('S08', playlist.name, { kind: 'playlist-tracks', playlistKey: playlist.key }, tracks)
 }
 
 function songsFrame(title: string, route: NavigationRoute, tracks: readonly TrackRef[]): ScreenFrame {
-  return listFrame('S09', title, route, tracks.map(trackRow))
+  return trackListFrame('S09', title, route, tracks)
 }
 
 function genreFrame(genre: GenreRef): ScreenFrame {
@@ -241,13 +250,30 @@ async function tracksForRoute(route: NavigationRoute, source: NavigationDataSour
 function searchResultsFrame(query: string, library: readonly TrackRef[], catalog: readonly TrackRef[]): ScreenFrame {
   const tracks = [...library, ...catalog.filter((track) => !library.some((item) => item.key === track.key))]
   const rows = tracks.map((track, index) => ({ ...trackRow(track, index), sublabel: library.some((item) => item.key === track.key) ? 'Library' : 'Apple Music' }))
-  return listFrame('S12', query === '' ? 'All Songs' : query, { kind: 'search-results', query, trackKeys: tracks.map((track) => track.key) }, rows)
+  return withPlaybackQueue(listFrame('S12', query === '' ? 'All Songs' : query, { kind: 'search-results', query, trackKeys: tracks.map((track) => track.key) }, rows), tracks)
 }
 
-function nowPlayingFrame(): ScreenFrame {
-  return frame('S13', 'Now Playing', { kind: 'now-playing' }, [], 'airy')
+function nowPlayingFrame(tracks: readonly TrackRef[] = [], startIndex: number | null = null, sourceLabel: string | null = null): ScreenFrame {
+  return withPlaybackQueue(frame('S13', 'Now Playing', { kind: 'now-playing' }, [], 'airy'), tracks, startIndex, sourceLabel)
 }
 
 function listFrame(screenId: ScreenFrame['screenId'], title: string, route: NavigationRoute, rows: readonly PanelRow[]): ScreenFrame {
   return frame(screenId, title, route, rows, 'compact')
+}
+
+function trackListFrame(screenId: ScreenFrame['screenId'], title: string, route: NavigationRoute, tracks: readonly TrackRef[]): TrackScreenFrame {
+  return withPlaybackQueue(listFrame(screenId, title, route, tracks.map(trackRow)), tracks)
+}
+
+function withPlaybackQueue(frameValue: ScreenFrame, tracks: readonly TrackRef[], startIndex: number | null = null, sourceLabel: string | null = null): TrackScreenFrame {
+  return { ...frameValue, playbackQueue: { tracks, startIndex, sourceLabel } }
+}
+
+/** Reads queue context only from frames produced by this navigation graph. */
+export function playbackQueueForFrame(frameValue: ScreenFrame): PlaybackQueueContext | null {
+  return isTrackScreenFrame(frameValue) ? frameValue.playbackQueue : null
+}
+
+function isTrackScreenFrame(frameValue: ScreenFrame): frameValue is TrackScreenFrame {
+  return 'playbackQueue' in frameValue
 }
