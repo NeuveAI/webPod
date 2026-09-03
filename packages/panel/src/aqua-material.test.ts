@@ -99,6 +99,20 @@ function rgb(hex: string): readonly number[] {
   return [1, 3, 5].map((offset) => Number.parseInt(hex.slice(offset, offset + 2), 16))
 }
 
+function maximumChannelDelta(first: string, second: string): number {
+  return Math.max(...rgb(first).map((channel, index) =>
+    Math.abs(channel - (rgb(second)[index] ?? 0)),
+  ))
+}
+
+function pixelValue(body: string, name: string): number {
+  const value = property(body, name)
+  if (value === '0') return 0
+  const parsed = value.match(/^([\d.]+)px(?:\s|$)/)?.[1]
+  if (parsed === undefined) throw new Error(`Expected pixel value for ${name}: ${value}`)
+  return Number(parsed)
+}
+
 function stationaryWellViolations(source: string): readonly string[] {
   const violations: string[] = []
   if ((source.match(/--wp-list-scroll-thumb-offset/g)?.length ?? 0) !== 1) {
@@ -179,19 +193,42 @@ describe('the period Aqua LCD material', () => {
     expect(agentSelected).toContain('rgb(34 197 94 / 72%)')
   })
 
-  test('separates a fixed one-pixel striped well from the moving glossy thumb', () => {
+  test('keeps the fixed Aqua ribs fine and subordinate in both colourways', () => {
     const well = rule(/\.wp-list-scroll__well \{([^}]*)\}/)
-    const thumb = rule(/\.wp-list-scroll__thumb \{([^}]*)\}/)
+    for (const tokens of [darkTokens, lightTokens]) {
+      expect(maximumChannelDelta(
+        property(tokens, '--wp-scroll-well-light'),
+        property(tokens, '--wp-scroll-well-dark'),
+      )).toBeLessThanOrEqual(16)
+    }
     expect(well).toContain('repeating-linear-gradient(180deg')
-    expect(well).toContain('0 2px')
-    expect(well).toContain('2px 3px')
+    expect(well).toContain('0 1px')
+    expect(well).toContain('1px 2px')
+    expect(well).not.toContain('2px 3px')
     expect(well).toContain('background-position: 0 0')
     expect(well).not.toContain('--wp-list-scroll-thumb-offset')
     expect(stationaryWellViolations(css)).toEqual([])
+  })
+
+  test('gives the moving gel thumb a legible five-pixel interior above the track', () => {
+    const scroll = rule(/\.wp-list-scroll \{([^}]*)\}/)
+    const thumb = rule(/\.wp-list-scroll__thumb \{([^}]*)\}/)
+    const railWidth = pixelValue(scroll, 'inline-size')
+    const inlineInset = pixelValue(thumb, 'inset-inline')
+    const borderWidth = pixelValue(thumb, 'border')
+    const thumbInterior = railWidth - (2 * inlineInset) - (2 * borderWidth)
+
+    expect(railWidth).toBe(7)
+    expect(thumbInterior).toBeGreaterThanOrEqual(5)
     expect(css).toContain('.wp-list-scroll__well::before, .wp-list-scroll__well::after { content: none !important; display: none !important; }')
     expect(thumb).toContain('inset-block-start: var(--wp-list-scroll-thumb-offset)')
-    expect(thumb.match(/linear-gradient\(/g)).toHaveLength(3)
+    expect(thumb).toContain('z-index: 1')
+    expect(thumb.match(/linear-gradient\(/g)).toHaveLength(2)
     expect(thumb).toContain('var(--wp-scroll-thumb-highlight)')
+    expect(contrast(
+      property(darkTokens, '--wp-scroll-thumb-mid'),
+      property(darkTokens, '--wp-scroll-well-dark'),
+    )).toBeGreaterThanOrEqual(2)
   })
 
   test('rejects a moving stripe overlay anywhere across the full well', () => {
