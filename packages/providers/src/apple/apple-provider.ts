@@ -44,6 +44,7 @@ export interface MusicKitInstanceLike {
 export type ApplePlaybackDiagnosticEventName = 'setQueue' | 'playCall' | 'playResolve' | 'queueItemsDidChange' | 'mediaItemDidChange' | 'playbackStateDidChange' | 'playbackTimeDidChange' | 'mediaPlaybackError' | 'mediaCanPlay' | 'mediaItemStateDidChange' | 'bufferedProgressDidChange'
 export interface ApplePlaybackDiagnosticSource {
   readonly error?: unknown
+  readonly event?: unknown
   readonly music: MusicKitInstanceLike
   readonly audio: HTMLAudioElement | null
   readonly userActivation: UserActivation | null
@@ -193,13 +194,13 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     }
   }
   const emitPlayback = (value: PlaybackState): void => { currentPlayback = value; for (const listener of playback) listener(value) }
-  const capturePlaybackDiagnostic = (event: ApplePlaybackDiagnosticEventName, error?: unknown): void => {
+  const capturePlaybackDiagnostic = (event: ApplePlaybackDiagnosticEventName, payload?: unknown): void => {
     const value = music
     if (value === null) return
     configuredOptions.playbackDiagnostics?.capture(event, () => {
       const audio = typeof document === 'undefined' ? null : document.querySelector<HTMLAudioElement>('audio#apple-music-player')
       const activation = typeof navigator === 'undefined' ? null : navigator.userActivation
-      return { error, music: value, audio, userActivation: activation ?? null }
+      return { error: event === 'mediaPlaybackError' ? payload : undefined, event: payload, music: value, audio, userActivation: activation ?? null }
     })
   }
   const clearPlaybackConfirmationTimer = (): void => {
@@ -223,8 +224,8 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   }
   const bind = (value: MusicKitInstanceLike): void => {
     if (unbindMusicKit !== null) return
-    const changed = (): void => {
-      capturePlaybackDiagnostic('playbackStateDidChange')
+    const changed = (event: unknown): void => {
+      capturePlaybackDiagnostic('playbackStateDidChange', event)
       if (!playbackEventsEnabled || failedPlaybackGeneration === transactionGeneration) return
       const state = stateOf(value)
       emitPlayback(state)
@@ -258,7 +259,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     }
     const tick = (): void => { capturePlaybackDiagnostic('playbackTimeDidChange'); if (!playbackEventsEnabled) return; const state = stateOf(value); for (const listener of progress) listener({ positionMs: state.positionMs, durationMs: state.durationMs, interpolated: false }) }
     const mediaCanPlay = (): void => { capturePlaybackDiagnostic('mediaCanPlay') }
-    const mediaItemStateChanged = (): void => { capturePlaybackDiagnostic('mediaItemStateDidChange') }
+    const mediaItemStateChanged = (event: unknown): void => { capturePlaybackDiagnostic('mediaItemStateDidChange', event) }
     const bufferedProgressChanged = (): void => { capturePlaybackDiagnostic('bufferedProgressDidChange') }
     const playbackFailed = (event: unknown): void => {
       capturePlaybackDiagnostic('mediaPlaybackError', event)
@@ -276,18 +277,22 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     value.addEventListener('mediaItemDidChange', nowPlayingChanged)
     value.addEventListener('mediaPlaybackError', playbackFailed)
     value.addEventListener('playbackTimeDidChange', tick)
-    value.addEventListener('mediaCanPlay', mediaCanPlay)
-    value.addEventListener('mediaItemStateDidChange', mediaItemStateChanged)
-    value.addEventListener('bufferedProgressDidChange', bufferedProgressChanged)
+    if (configuredOptions.playbackDiagnostics !== undefined) {
+      value.addEventListener('mediaCanPlay', mediaCanPlay)
+      value.addEventListener('mediaItemStateDidChange', mediaItemStateChanged)
+      value.addEventListener('bufferedProgressDidChange', bufferedProgressChanged)
+    }
     unbindMusicKit = () => {
       value.removeEventListener('playbackStateDidChange', changed)
       value.removeEventListener('queueItemsDidChange', queueChanged)
       value.removeEventListener('mediaItemDidChange', nowPlayingChanged)
       value.removeEventListener('mediaPlaybackError', playbackFailed)
       value.removeEventListener('playbackTimeDidChange', tick)
-      value.removeEventListener('mediaCanPlay', mediaCanPlay)
-      value.removeEventListener('mediaItemStateDidChange', mediaItemStateChanged)
-      value.removeEventListener('bufferedProgressDidChange', bufferedProgressChanged)
+      if (configuredOptions.playbackDiagnostics !== undefined) {
+        value.removeEventListener('mediaCanPlay', mediaCanPlay)
+        value.removeEventListener('mediaItemStateDidChange', mediaItemStateChanged)
+        value.removeEventListener('bufferedProgressDidChange', bufferedProgressChanged)
+      }
       unbindMusicKit = null
     }
   }

@@ -132,9 +132,6 @@ describe('Apple provider', () => {
       'mediaItemDidChange',
       'mediaPlaybackError',
       'playbackTimeDidChange',
-      'mediaCanPlay',
-      'mediaItemStateDidChange',
-      'bufferedProgressDidChange',
     ])
     await provider.authorize()
     const track = (await provider.libraryList('songs')).items[0]
@@ -153,6 +150,8 @@ describe('Apple provider', () => {
     await provider.play({ kind: 'tracks', tracks: [track], startIndex: 0 })
     for (const event of ['queueItemsDidChange', 'mediaItemDidChange', 'playbackStateDidChange', 'playbackTimeDidChange', 'mediaCanPlay', 'mediaItemStateDidChange', 'bufferedProgressDidChange', 'mediaPlaybackError']) music.emit(event)
     expect(names).toEqual(['setQueue', 'playCall', 'playResolve', 'queueItemsDidChange', 'mediaItemDidChange', 'playbackStateDidChange', 'playbackTimeDidChange', 'mediaCanPlay', 'mediaItemStateDidChange', 'bufferedProgressDidChange', 'mediaPlaybackError'])
+    await provider.unauthorize()
+    expect(music.removed.slice(-8)).toEqual(['playbackStateDidChange', 'queueItemsDidChange', 'mediaItemDidChange', 'mediaPlaybackError', 'playbackTimeDidChange', 'mediaCanPlay', 'mediaItemStateDidChange', 'bufferedProgressDidChange'])
   })
   test('rejects a distinct selection while another queue transaction is in flight', async () => {
     const { provider, music } = setup(); await provider.configure()

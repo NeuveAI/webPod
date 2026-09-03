@@ -57,6 +57,10 @@ let snapshot = fixtureSnapshot
 let appleProvider: ReturnType<typeof createAppleProvider> | null = null
 let operation = 0
 const listeners = new Set<() => void>()
+const appleProviderOptions = () => ({
+  ...browserAppleProviderOptions(),
+  ...(import.meta.env.DEV ? { playbackDiagnostics: applePlaybackDiagnostics } : {}),
+})
 const publish = (next: MusicRuntimeSnapshot): void => { snapshot = next; for (const listener of listeners) listener() }
 const failureMessage = (stage: string, cause: unknown): string => {
   const detail = cause instanceof Error ? cause.message : 'Unknown failure'
@@ -91,7 +95,7 @@ async function appleSource(provider: MusicProvider): Promise<NavigationDataSourc
 export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> {
   const selectedOperation = ++operation
   if (mode === 'fixture') { publish(fixtureSnapshot); return }
-  const provider = appleProvider ?? createAppleProvider({ ...browserAppleProviderOptions(), playbackDiagnostics: applePlaybackDiagnostics }); appleProvider = provider
+  const provider = appleProvider ?? createAppleProvider(appleProviderOptions()); appleProvider = provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
     await provider.configure()
@@ -108,7 +112,7 @@ export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> 
 /** Runs MusicKit authorization from a user gesture and hydrates provider-neutral navigation data. */
 export async function authorizeAppleRuntime(): Promise<void> {
   const selectedOperation = ++operation
-  const provider = appleProvider ?? createAppleProvider({ ...browserAppleProviderOptions(), playbackDiagnostics: applePlaybackDiagnostics }); appleProvider = provider
+  const provider = appleProvider ?? createAppleProvider(appleProviderOptions()); appleProvider = provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
     await provider.configure(); if (selectedOperation !== operation) return

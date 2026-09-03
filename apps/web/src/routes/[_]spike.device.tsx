@@ -303,7 +303,7 @@ function DeviceSpike() {
             Drag a visible edge to rotate · Option/Alt-drag to roll
           </p>
           <PreviewControls state={state} music={music} />
-          <PlaybackDiagnostics events={playbackDiagnostics.events} />
+          <PlaybackDiagnostics events={playbackDiagnostics.events} emeCapability={playbackDiagnostics.emeCapability} />
         </>
       )}
     </main>
@@ -314,17 +314,20 @@ function reading(value: string | number | boolean | null | undefined): string {
   return value === null || value === undefined ? "—" : String(value);
 }
 
-function PlaybackDiagnostics({ events }: { readonly events: readonly ApplePlaybackDiagnosticEvent[] }) {
+function PlaybackDiagnostics({ events, emeCapability }: { readonly events: readonly ApplePlaybackDiagnosticEvent[]; readonly emeCapability: string | null }) {
   const latest = events.at(-1);
   return (
     <details className="webpod-device-preview__playback-diagnostics" open={latest?.event === "mediaPlaybackError"}>
       <summary>Apple playback diagnostics ({events.length})</summary>
       <button type="button" onClick={() => applePlaybackDiagnostics.clear()}>Clear</button>
+      <p>EME: {emeCapability ?? "probing"}</p>
       {latest === undefined ? <p>No playback events captured.</p> : (
         <dl>
           <div><dt>Latest</dt><dd>#{latest.sequence} {latest.event} @ {latest.timestampMs}ms</dd></div>
           <div><dt>Error class</dt><dd>{latest.errorClass ?? "—"}</dd></div>
-          <div><dt>MusicKit</dt><dd>state {reading(latest.musicKit.playbackState)} · time {reading(latest.musicKit.currentTime)} · duration {reading(latest.musicKit.duration)} · volume {reading(latest.musicKit.volume)}</dd></div>
+          <div><dt>MusicKit</dt><dd>state {reading(latest.musicKit.playbackState)} ({reading(latest.musicKit.playbackStateName)}) · time {reading(latest.musicKit.currentTime)} · duration {reading(latest.musicKit.duration)} · volume {reading(latest.musicKit.volume)}</dd></div>
+          {latest.playbackEventState === undefined ? null : <div><dt>Event state</dt><dd>{reading(latest.playbackEventState.value)} ({reading(latest.playbackEventState.name)})</dd></div>}
+          {latest.mediaItemState === undefined ? null : <div><dt>Item state</dt><dd>event {reading(latest.mediaItemState.eventState.value)} ({reading(latest.mediaItemState.eventState.name)}) · old {reading(latest.mediaItemState.oldState.value)} ({reading(latest.mediaItemState.oldState.name)}) · event item {reading(latest.mediaItemState.eventItemState.value)} ({reading(latest.mediaItemState.eventItemState.name)}) · current {reading(latest.mediaItemState.currentItemState.value)} ({reading(latest.mediaItemState.currentItemState.name)})</dd></div>}
           <div><dt>Audio</dt><dd>paused {reading(latest.audio.paused)} · muted {reading(latest.audio.muted)} · volume {reading(latest.audio.volume)} · ready {reading(latest.audio.readyState)} · network {reading(latest.audio.networkState)} · error {reading(latest.audio.errorCode)}</dd></div>
           <div><dt>Activation</dt><dd>active {reading(latest.userActivation.isActive)} · ever active {reading(latest.userActivation.hasBeenActive)}</dd></div>
         </dl>
