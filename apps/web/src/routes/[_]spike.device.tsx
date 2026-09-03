@@ -13,6 +13,7 @@ import {
   type LightContribution,
 } from "@webpod/device";
 import { createFileRoute } from "@tanstack/react-router";
+import { applePlaybackDiagnostics, type ApplePlaybackDiagnosticEvent } from "@webpod/providers";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
 import {
@@ -171,6 +172,11 @@ function DeviceSpike() {
     musicRuntime.getSnapshot,
     musicRuntime.getSnapshot,
   );
+  const playbackDiagnostics = useSyncExternalStore(
+    applePlaybackDiagnostics.subscribe,
+    applePlaybackDiagnostics.getSnapshot,
+    applePlaybackDiagnostics.getSnapshot,
+  );
   const selectedMusicMode: MusicRuntimeMode = resolveMusicRuntimeMode(
     search.get("provider"),
     import.meta.env.VITE_WEBPOD_PROVIDER,
@@ -214,6 +220,12 @@ function DeviceSpike() {
   useEffect(() => {
     void selectMusicRuntime(selectedMusicMode);
   }, [selectedMusicMode]);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    applePlaybackDiagnostics.enable();
+    return () => { applePlaybackDiagnostics.disable(); };
+  }, []);
 
   useEffect(() => {
     window.__webpodDevicePreview = {
@@ -291,9 +303,34 @@ function DeviceSpike() {
             Drag a visible edge to rotate · Option/Alt-drag to roll
           </p>
           <PreviewControls state={state} music={music} />
+          <PlaybackDiagnostics events={playbackDiagnostics.events} />
         </>
       )}
     </main>
+  );
+}
+
+function reading(value: string | number | boolean | null | undefined): string {
+  return value === null || value === undefined ? "—" : String(value);
+}
+
+function PlaybackDiagnostics({ events }: { readonly events: readonly ApplePlaybackDiagnosticEvent[] }) {
+  const latest = events.at(-1);
+  return (
+    <details className="webpod-device-preview__playback-diagnostics" open={latest?.event === "mediaPlaybackError"}>
+      <summary>Apple playback diagnostics ({events.length})</summary>
+      <button type="button" onClick={() => applePlaybackDiagnostics.clear()}>Clear</button>
+      {latest === undefined ? <p>No playback events captured.</p> : (
+        <dl>
+          <div><dt>Latest</dt><dd>#{latest.sequence} {latest.event} @ {latest.timestampMs}ms</dd></div>
+          <div><dt>Error</dt><dd>{latest.error === undefined ? "—" : [latest.error.name, latest.error.message, latest.error.code].filter((value) => value !== undefined).join(" · ")}</dd></div>
+          <div><dt>MusicKit</dt><dd>state {reading(latest.musicKit.playbackState)} · time {reading(latest.musicKit.currentTime)} · duration {reading(latest.musicKit.duration)} · volume {reading(latest.musicKit.volume)}</dd></div>
+          <div><dt>Audio</dt><dd>paused {reading(latest.audio.paused)} · muted {reading(latest.audio.muted)} · volume {reading(latest.audio.volume)} · ready {reading(latest.audio.readyState)} · network {reading(latest.audio.networkState)} · error {reading(latest.audio.errorCode)}</dd></div>
+          <div><dt>Activation</dt><dd>active {reading(latest.userActivation.isActive)} · ever active {reading(latest.userActivation.hasBeenActive)}</dd></div>
+        </dl>
+      )}
+      <ol>{events.map((event) => <li key={event.sequence}>#{event.sequence} · {event.timestampMs}ms · {event.event}</li>)}</ol>
+    </details>
   );
 }
 
@@ -423,6 +460,30 @@ const DEVICE_PREVIEW_CSS = `
     user-select: text;
     pointer-events: auto;
   }
+  .webpod-device-preview__playback-diagnostics {
+    position: absolute;
+    z-index: 5;
+    inset-block-start: max(42px, env(safe-area-inset-top));
+    inset-inline-end: max(12px, env(safe-area-inset-right));
+    inline-size: min(430px, calc(100vw - 24px));
+    max-block-size: min(58vh, 560px);
+    overflow: auto;
+    padding: 10px 12px;
+    border: 1px solid rgb(125 211 252 / .5);
+    border-radius: 10px;
+    color: #e5edf7;
+    background: rgb(7 11 17 / .9);
+    font: 500 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+    user-select: text;
+  }
+  .webpod-device-preview__playback-diagnostics summary { cursor: pointer; font-weight: 700; }
+  .webpod-device-preview__playback-diagnostics button { margin-block: 8px; }
+  .webpod-device-preview__playback-diagnostics dl,
+  .webpod-device-preview__playback-diagnostics ol { margin: 8px 0 0; padding: 0; }
+  .webpod-device-preview__playback-diagnostics dl div { display: grid; grid-template-columns: 72px 1fr; gap: 8px; }
+  .webpod-device-preview__playback-diagnostics dt { color: #7dd3fc; }
+  .webpod-device-preview__playback-diagnostics dd { margin: 0; overflow-wrap: anywhere; }
+  .webpod-device-preview__playback-diagnostics ol { padding-inline-start: 22px; }
   .webpod-device-preview__controls button {
     min-block-size: 36px;
     padding: 8px 12px;

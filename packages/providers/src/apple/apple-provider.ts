@@ -5,6 +5,7 @@ import type { AlbumRef, ArtistRef, Artwork, LocalKey, PlaylistRef, StationRef, T
 import { mintLocalKey } from '../identity.ts'
 import type { MusicProvider } from '../provider.ts'
 import { APPLE_SUPPORTS, APPLE_UNSUPPORTED_REASONS } from './matrix.ts'
+import { applePlaybackDiagnostics, type ApplePlaybackDiagnosticEventName, type ApplePlaybackDiagnosticMedia } from './playback-diagnostics.ts'
 
 export const MUSICKIT_SCRIPT_URL = 'https://js-cdn.music.apple.com/musickit/v1/musickit.js' as const
 export const APPLE_DEVELOPER_TOKEN_PATH = '/api/apple/developer-token' as const
@@ -39,6 +40,13 @@ export interface MusicKitInstanceLike {
   play(): Promise<void>; pause(): Promise<void>; skipToNextItem(): Promise<void>; skipToPreviousItem(): Promise<void>; seekToTime(seconds: number): Promise<void>
   playLater(options: Readonly<Record<string, unknown>>): Promise<unknown>; playNext(options: Readonly<Record<string, unknown>>): Promise<unknown>
   addEventListener(name: string, callback: (event: unknown) => void): void; removeEventListener(name: string, callback: (event: unknown) => void): void
+}
+
+function browserAudioSnapshot(): ApplePlaybackDiagnosticMedia | null {
+  if (typeof document === 'undefined') return null
+  const audio = document.querySelector<HTMLAudioElement>('audio#apple-music-player')
+  if (audio === null) return null
+  return { paused: audio.paused, muted: audio.muted, volume: audio.volume, readyState: audio.readyState, networkState: audio.networkState, errorCode: audio.error?.code ?? null }
 }
 export interface MusicKitGlobalLike {
   configure(config: { readonly developerToken: string; readonly app: { readonly name: string; readonly build: string } }): Promise<MusicKitInstanceLike | void>
@@ -181,6 +189,16 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     }
   }
   const emitPlayback = (value: PlaybackState): void => { currentPlayback = value; for (const listener of playback) listener(value) }
+  const capturePlaybackDiagnostic = (event: ApplePlaybackDiagnosticEventName, error?: unknown): void => {
+    const activation = typeof navigator === 'undefined' ? null : navigator.userActivation
+    applePlaybackDiagnostics.capture({
+      event, error,
+      playbackState: music?.playbackState, currentTime: music?.currentPlaybackTime,
+      duration: music?.currentPlaybackDuration, volume: music?.volume,
+      audio: browserAudioSnapshot(),
+      userActivation: activation == null ? null : { isActive: activation.isActive, hasBeenActive: activation.hasBeenActive },
+    })
+  }
   const clearPlaybackConfirmationTimer = (): void => {
     if (playbackConfirmationTimer === null) return
     if (configuredOptions.clearTimeout === undefined) globalThis.clearTimeout(playbackConfirmationTimer as ReturnType<typeof globalThis.setTimeout>)
@@ -210,11 +228,13 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   const bind = (value: MusicKitInstanceLike): void => {
     if (unbindMusicKit !== null) return
     const changed = (): void => {
+      capturePlaybackDiagnostic('playbackStateDidChange')
       if (!playbackEventsEnabled || failedPlaybackGeneration === transactionGeneration) return
       const state = stateOf(value)
       emitPlayback(state)
     }
     const nowPlayingChanged = (): void => {
+      capturePlaybackDiagnostic('mediaItemDidChange')
       if (!playbackEventsEnabled || failedPlaybackGeneration === transactionGeneration) return
       const observed = stateOf(value).now
       const matchesExpected = observed !== null && (expectedNowPlayingCatalogId === null
@@ -241,6 +261,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     }
     const tick = (): void => { if (!playbackEventsEnabled) return; const state = stateOf(value); for (const listener of progress) listener({ positionMs: state.positionMs, durationMs: state.durationMs, interpolated: false }) }
     const playbackFailed = (event: unknown): void => {
+      capturePlaybackDiagnostic('mediaPlaybackError', event)
       if (!playbackEventsEnabled) return
       // MusicKit v1 dispatches a raw error and provides no media identity. Treat
       // it as a provider-level transport failure; never attribute it to a track.
@@ -360,10 +381,13 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
           if (target !== undefined) {
             let descriptor: Readonly<Record<string, unknown>>
             switch (target.kind) { case 'tracks': descriptor = { songs: target.tracks.map((track) => track.catalogId), startPosition: target.startIndex ?? 0 }; break; case 'album': descriptor = { album: target.album.catalogId }; break; case 'playlist': descriptor = { playlist: target.playlist.catalogId }; break; case 'station': descriptor = { station: target.station.catalogId }; break }
+            capturePlaybackDiagnostic('setQueue')
             await value.setQueue(descriptor)
           }
           if (!playbackEventsEnabled || selectedTransaction !== transactionGeneration) throw new Error('Apple Music playback selection was cancelled')
+          capturePlaybackDiagnostic('playCall')
           await value.play()
+          capturePlaybackDiagnostic('playResolve')
         } catch (cause) {
           if (playbackEventsEnabled && selectedTransaction === transactionGeneration) {
             finishPendingPlayback()
