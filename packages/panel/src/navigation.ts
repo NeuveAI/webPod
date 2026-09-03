@@ -18,6 +18,7 @@ export interface NavigationDataSource {
   readonly playlists: readonly PlaylistRef[]
   readonly songs: readonly TrackRef[]
   readonly stations: readonly StationRef[]
+  rememberTracks?(tracks: readonly TrackRef[]): void
   trackByKey(trackKey: LocalKey): TrackRef | null
   tracksForAlbum(albumKey: LocalKey): readonly TrackRef[] | Promise<readonly TrackRef[]>
   tracksForPlaylist(playlistKey: LocalKey): readonly TrackRef[] | Promise<readonly TrackRef[]>
@@ -159,7 +160,6 @@ export async function selectNavigation(
     const station = source.stations[index]
     if (station === undefined) return { frame: null, played: false }
     await provider.stationStart({ type: 'station', ref: station.catalogId })
-    await provider.play({ kind: 'station', station })
     return { frame: nowPlayingFrame(), played: true }
   }
   if (route.kind === 'search-entry' && current.rows[index]?.destination?.kind === 'search-request') {
@@ -167,6 +167,7 @@ export async function selectNavigation(
       provider.search({ term: searchQuery, scope: 'library', kinds: ['track'], limit: 25 }),
       provider.search({ term: searchQuery, scope: 'catalog', kinds: ['track'], limit: 25 }),
     ])
+    source.rememberTracks?.([...library.tracks, ...catalog.tracks])
     return { frame: searchResultsFrame(searchQuery, library.tracks, catalog.tracks), played: false }
   }
   return { frame: null, played: false }

@@ -14,7 +14,7 @@ import {
 import type { NavigationDataSource } from '@webpod/panel'
 
 export type MusicRuntimeMode = 'fixture' | 'apple'
-export type MusicRuntimePhase = 'fixture' | 'signed-out' | 'signing-in' | 'authorized' | 'error'
+export type MusicRuntimePhase = 'fixture' | 'signed-out' | 'signing-in' | 'authorized' | 'permission-denied' | 'error'
 export interface MusicRuntimeSnapshot {
   readonly requestedMode: MusicRuntimeMode
   readonly activeMode: MusicRuntimeMode
@@ -53,6 +53,7 @@ function fixtureSource(): NavigationDataSource {
 const fixtureSnapshot: MusicRuntimeSnapshot = { requestedMode: 'fixture', activeMode: 'fixture', phase: 'fixture', provider: fixtureProvider, source: fixtureSource(), message: null }
 let snapshot = fixtureSnapshot
 let appleProvider: ReturnType<typeof createAppleProvider> | null = null
+let operation = 0
 const listeners = new Set<() => void>()
 const publish = (next: MusicRuntimeSnapshot): void => { snapshot = next; for (const listener of listeners) listener() }
 
@@ -65,12 +66,13 @@ async function all(provider: MusicProvider, kind: Parameters<MusicProvider['libr
 async function appleSource(provider: MusicProvider): Promise<NavigationDataSource> {
   const [playlists, artists, albums, songs, stations] = await Promise.all([all(provider, 'playlists'), all(provider, 'artists'), all(provider, 'albums'), all(provider, 'songs'), provider.stationsList()])
   const typedPlaylists = playlists.filter((item): item is PlaylistRef => item.kind === 'playlist'); const typedArtists = artists.filter((item): item is ArtistRef => item.kind === 'artist'); const typedAlbums = albums.filter((item): item is AlbumRef => item.kind === 'album'); const typedSongs = songs.filter((item): item is TrackRef => item.kind === 'track')
+  const knownTracks = new Map(typedSongs.map((track) => [track.key, track])); const remember = (tracks: readonly TrackRef[]): readonly TrackRef[] => { for (const track of tracks) knownTracks.set(track.key, track); return tracks }
   const album = (key: LocalKey): AlbumRef | undefined => typedAlbums.find((item) => item.key === key); const artist = (key: LocalKey): ArtistRef | undefined => typedArtists.find((item) => item.key === key); const playlist = (key: LocalKey): PlaylistRef | undefined => typedPlaylists.find((item) => item.key === key)
   return {
     albums: typedAlbums, artists: typedArtists, genres: [] satisfies readonly GenreRef[], playlists: typedPlaylists, songs: typedSongs, stations,
-    trackByKey: (key) => typedSongs.find((track) => track.key === key) ?? null,
-    tracksForAlbum: async (key) => { const ref = album(key); return ref === undefined ? [] : provider.relatedTracks(ref) },
-    tracksForPlaylist: async (key) => { const ref = playlist(key); return ref === undefined ? [] : provider.relatedTracks(ref) },
+    rememberTracks: (tracks) => { remember(tracks) }, trackByKey: (key) => knownTracks.get(key) ?? null,
+    tracksForAlbum: async (key) => { const ref = album(key); return ref === undefined ? [] : remember(await provider.relatedTracks(ref)) },
+    tracksForPlaylist: async (key) => { const ref = playlist(key); return ref === undefined ? [] : remember(await provider.relatedTracks(ref)) },
     albumsForArtist: async (key) => { const ref = artist(key); return ref === undefined ? [] : provider.relatedAlbums(ref) },
     albumsForGenre: () => [], artistsForGenre: () => [], tracksForGenre: () => [],
   }
@@ -78,26 +80,31 @@ async function appleSource(provider: MusicProvider): Promise<NavigationDataSourc
 
 /** Selects the real provider only when explicitly requested; every failure returns to deterministic fixture data. */
 export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> {
+  const selectedOperation = ++operation
   if (mode === 'fixture') { publish(fixtureSnapshot); return }
   const provider = appleProvider ?? createAppleProvider(); appleProvider = provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
     await provider.configure()
+    if (selectedOperation !== operation) return
     if (provider.session === null) { publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null }); return }
-    publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source: await appleSource(provider), message: null })
+    const source = await appleSource(provider); if (selectedOperation !== operation) return
+    publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null })
   } catch {
+    if (selectedOperation !== operation) return
     publish({ ...fixtureSnapshot, requestedMode: 'apple', phase: 'error', message: 'Apple Music is unavailable. The demo library is active.' })
   }
 }
 
 /** Runs MusicKit authorization from a user gesture and hydrates provider-neutral navigation data. */
 export async function authorizeAppleRuntime(): Promise<void> {
+  const selectedOperation = ++operation
   const provider = appleProvider ?? createAppleProvider(); appleProvider = provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
-  try { await provider.configure(); await provider.authorize(); publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source: await appleSource(provider), message: null }) }
-  catch { publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message: 'Apple Music sign-in did not complete.' }) }
+  try { await provider.configure(); if (selectedOperation !== operation) return; await provider.authorize(); if (selectedOperation !== operation) return; const source = await appleSource(provider); if (selectedOperation !== operation) return; publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null }) }
+  catch { if (selectedOperation !== operation) return; const denied = provider.appleSessionState.status === 'permission-denied'; publish({ requestedMode: 'apple', activeMode: 'apple', phase: denied ? 'permission-denied' : 'error', provider, source: emptySource, message: denied ? 'Apple Music access was not granted.' : 'Apple Music sign-in did not complete.' }) }
 }
 
 /** Invalidates the MusicKit user session and returns to the signed-out Apple frame. */
-export async function signOutAppleRuntime(): Promise<void> { if (appleProvider === null) return; try { await appleProvider.unauthorize() } finally { publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider: appleProvider, source: emptySource, message: null }) } }
+export async function signOutAppleRuntime(): Promise<void> { const selectedOperation = ++operation; if (appleProvider === null) return; try { await appleProvider.unauthorize() } finally { if (selectedOperation === operation) publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider: appleProvider, source: emptySource, message: null }) } }
 export const musicRuntime = { getSnapshot: (): MusicRuntimeSnapshot => snapshot, subscribe(listener: () => void): () => void { listeners.add(listener); return () => { listeners.delete(listener) } } }

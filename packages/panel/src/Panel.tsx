@@ -32,7 +32,7 @@ import {
   type NowPlayingMode,
   type PanelState,
 } from './model'
-import { navigationRoot, providerStatusFrame, selectNavigation, statusFrame, type NavigationDataSource } from './navigation'
+import { navigationRoot, providerStatusFrame, selectNavigation, statusFrame, type NavigationDataSource, type NavigationStatus } from './navigation'
 import { acquireAnnouncer, acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import menuArtworkUrl from './assets/music-menu-art.png'
 import nowPlayingArtworkUrl from './assets/now-playing-art.png'
@@ -48,6 +48,7 @@ let initializedDocument: Document | null = null
 let initializedProvider: MusicProvider | null = null
 let initializedSource: NavigationDataSource | null = null
 let initializedSession: MusicProvider['session'] | undefined
+let initializedAccountStatus: NavigationStatus | undefined
 const libraryCountLabels = new Set(['Playlists', 'Artists', 'Albums', 'Songs', 'Genres'])
 const successOperations = new WeakMap<Document, Map<string, Promise<SuccessResult>>>()
 const artworkRequests = new Map<string, Promise<ArtworkSamples>>()
@@ -77,6 +78,7 @@ export interface PanelProps {
   readonly longList?: boolean
   readonly provider?: MusicProvider
   readonly navigationSource?: NavigationDataSource
+  readonly accountStatus?: NavigationStatus
 }
 
 export function Panel({
@@ -90,21 +92,23 @@ export function Panel({
   longList = false,
   provider = fixtureProvider,
   navigationSource = fixtureNavigationSource,
+  accountStatus,
 }: PanelProps) {
   const session = useSyncExternalStore(provider.onSessionChange, () => provider.session, () => provider.session)
   const rasterScale = Math.min(1.25, Math.max(1, dynamicTypeScale))
   useEffect(() => {
-    const accountFrame = providerStatusFrame(provider)
-    if (initializedDocument !== document || initializedProvider !== provider || initializedSource !== navigationSource || initializedSession !== session) {
+    const accountFrame = accountStatus === undefined ? providerStatusFrame(provider) : statusFrame(accountStatus, provider.displayName)
+    if (initializedDocument !== document || initializedProvider !== provider || initializedSource !== navigationSource || initializedSession !== session || initializedAccountStatus !== accountStatus) {
       deviceStore.set(resetStackActionAtom, [accountFrame ?? navigationRoot(navigationSource, provider)])
       initializedDocument = document
       initializedProvider = provider
       initializedSource = navigationSource
       initializedSession = session
+      initializedAccountStatus = accountStatus
     }
     deviceStore.set(setDensityActionAtom, density)
     deviceStore.set(setDynamicTypeScaleActionAtom, dynamicTypeScale)
-  }, [actor, density, dynamicTypeScale, navigationSource, provider, session, state])
+  }, [accountStatus, actor, density, dynamicTypeScale, navigationSource, provider, session, state])
   return (
     <div className="wp-panel-stage" style={{ '--wp-raster-scale': rasterScale } as CSSProperties}>
       <Provider store={deviceStore}>

@@ -51,6 +51,7 @@ export function ProductionPanelView({
       longList={false}
       provider={runtime.provider}
       navigationSource={runtime.source}
+      accountStatus={runtime.phase === 'signing-in' ? 'loading' : runtime.phase === 'error' || runtime.phase === 'permission-denied' ? 'error' : undefined}
     />
   )
 }
