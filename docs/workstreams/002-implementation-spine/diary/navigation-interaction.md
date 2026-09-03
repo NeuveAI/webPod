@@ -22,3 +22,18 @@
 - Targeted state/panel/composite tests: 340 pass, 0 fail.
 - Full `bun run gates` after final review correction: 11/11 TypeScript projects, lint clean, 1146 tests pass, 16 automated gates pass, 0 fail.
 - Manual gates remain U14 and U15/owner visual sign-off.
+
+## 2026-09-03 — owner visual rejection
+
+- Owner comparison of Playlists, Albums and Artists overturned the earlier automated approval: sibling list screens had inconsistent row geometry and Playlists/Artists lacked visible Aqua current state.
+- Root cause: three bespoke row/list renderers plus `screenId === 'S08'` dispatch, which sent the Albums collection through the nested-track layout.
+- Replaced menu, browser and track list markup with exported `ListViewport` and `ListRow` primitives. Typed routes now distinguish album collections from nested track lists.
+- Removed TanStack Virtual and all sibling list/row selectors; the state machine already provides an eight-row authoritative window, so a second browser scroll machine was redundant.
+- Added structural, wheel-current, capacity/scrollbar, truncation/material and preview-tracking tests. Owner aesthetic approval remains explicitly open pending the new screenshot set.
+
+## Reopened-slice verification
+
+- Full `bun run gates`: 11/11 TypeScript projects, lint clean, 1151 tests pass, 16 automated gates pass, 0 fail.
+- Full panel Playwright suite: 16 pass, 0 fail.
+- Captured the five required `/_spike/device` list screens at one unchanged 800×638 viewport and device presentation.
+- Manual gates U14 and U15/owner visual sign-off remain open; the screenshots are evidence for that review, not an aesthetic approval claim.
