@@ -3,12 +3,14 @@
 Owner review status: pending.
 
 The screenshot set in this folder is captured from the existing
-`/_spike/device` product route at one unchanged device scale and panel size.
+`/_spike/device` product route at the same rendered device scale and 272×204
+authored panel raster.
 It covers Playlists, Artists, Albums, Songs, one nested track list, and an
 explicit 42-row overflow case.
 
-All captures use the same 800×638 browser viewport, unchanged black device,
-unchanged camera pose, 272×204 authored panel raster and product scale:
+The five sibling captures use a 1280×633 browser viewport. The explicit
+overflow capture uses 800×638; its device and panel remain at the same product
+scale. All captures use the unchanged black device presentation:
 
 - `navigation-list-playlists.png`
 - `navigation-list-artists.png`

@@ -20,7 +20,8 @@
 ### Findings
 
 - [INFO] `ea95800` resolves the three blocking findings. Every optional row cell now owns an explicit grid column (`packages/panel/src/panel.css:133`), loading consumes the viewport's canonical visible-row property (`packages/panel/src/panel.css:224`), and the deterministic table explicitly constructs root, every root collection, Search entry/results, artist and genre descendants, album tracks, and playlist tracks (`packages/panel/src/list-view.test.tsx:42`).
-- [INFO] No Critical, Major, or Minor findings remain in the reviewed range through `ea95800`.
+- [INFO] The evidence manifest now distinguishes the five 1280×633 sibling captures from the 800×638 overflow capture while recording their shared rendered device scale and 272×204 authored panel raster.
+- [INFO] No Critical, Major, or Minor findings remain in the reviewed range through `f97c54b` plus the documentation correction.
 
 ### Suggestions (non-blocking)
 
@@ -39,3 +40,9 @@
 
 - U14 phone-in-hand occlusion validation remains open.
 - U15/H-6 owner visual/aesthetic approval remains open. This review does not claim or substitute for aesthetic approval.
+
+### Evidence-only follow-up
+
+- `f97c54b` changes only the navigation diary, evidence manifest, and one PNG; no implementation or test scope changed.
+- `navigation-list-overflow-9-plus.png` is an 800×638 capture from the existing `/_spike/device` route. It visibly contains exactly eight rows, the first-row Aqua selected material, and the striped Aqua scrollbar for the documented 42-row Songs fixture.
+- Verdict remains APPROVE. The screenshot is behavioral evidence only; owner aesthetic approval remains open.
