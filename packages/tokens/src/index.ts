@@ -10,6 +10,6 @@
  * The TS half is everything CSS cannot hold — the geometry the device and
  * panel layers share, the FX orbit constants, and the springs.
  */
-export * from './geometry'
-export * from './fx'
-export * from './motion'
+export * from "./geometry";
+export * from "./fx";
+export * from "./motion";

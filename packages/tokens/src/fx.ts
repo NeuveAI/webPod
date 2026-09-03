@@ -19,16 +19,16 @@
  * the width of the solid core inside the bloom.
  */
 export type HaloGeometry = {
-  readonly c: number
-  readonly head: number
-  readonly tail: number
-  readonly lead: number
-  readonly trail: number
-  readonly steps: number
-  readonly blur: number
-  readonly gap: number
-  readonly core: number
-}
+  readonly c: number;
+  readonly head: number;
+  readonly tail: number;
+  readonly lead: number;
+  readonly trail: number;
+  readonly steps: number;
+  readonly blur: number;
+  readonly gap: number;
+  readonly core: number;
+};
 
 /**
  * The agent trail's orbit, in px and degrees.
@@ -38,20 +38,20 @@ export type HaloGeometry = {
  * meant to read as separate.
  */
 export type TrailGeometry = {
-  readonly c: number
-  readonly head: number
-  readonly tail: number
-  readonly span: number
-  readonly steps: number
-  readonly blur: number
-  readonly gap: number
-}
+  readonly c: number;
+  readonly head: number;
+  readonly tail: number;
+  readonly span: number;
+  readonly steps: number;
+  readonly blur: number;
+  readonly gap: number;
+};
 
 /** Taper exponent for the human halo's width profile (§14.2). */
-export const GAMMA_W: number = 1.6
+export const GAMMA_W: number = 1.6;
 
 /** Taper exponent for the agent trail's width profile (§14.2). */
-export const GAMMA_A: number = 2.0
+export const GAMMA_A: number = 2.0;
 
 /**
  * Human halo, rim-centred (§12.0, §14.2).
@@ -75,7 +75,7 @@ export const HALO: HaloGeometry = {
   blur: 4.25,
   gap: 0,
   core: 30,
-}
+};
 
 /**
  * Agent trail, travelling inside the wheel's label band (§12.0, §14.2).
@@ -97,14 +97,14 @@ export const TRAIL: TrailGeometry = {
   steps: 18,
   blur: 1.8,
   gap: 1.4,
-}
+};
 
 /**
  * Radius of the co-occurrence repeater ring (§12.0).
  *
  * +16px clear of the halo's outer edge, 22px to the silhouette.
  */
-export const REPEATER_R: number = 143
+export const REPEATER_R: number = 143;
 
 /**
  * Alpha ceiling for any *persistent* agent state (§8.5, §14.2).
@@ -114,7 +114,7 @@ export const REPEATER_R: number = 143
  * ones may not. Currently moot — idle presence is cut (§12.0) — and retained
  * as a guard in case a persistent state is ever reintroduced.
  */
-export const AGENT_ALPHA_PERSIST_MAX: number = 0.18
+export const AGENT_ALPHA_PERSIST_MAX: number = 0.18;
 
 /**
  * Width multipliers applied under `prefers-reduced-transparency` (§14.2).
@@ -123,10 +123,13 @@ export const AGENT_ALPHA_PERSIST_MAX: number = 0.18
  * carries roughly 1.8x the visual weight of the bloom it replaces and becomes
  * the heaviest object on the device.
  */
-export const REDUCED_TRANSPARENCY_SCALE: { readonly human: number; readonly agent: number } = {
+export const REDUCED_TRANSPARENCY_SCALE: {
+  readonly human: number;
+  readonly agent: number;
+} = {
   human: 0.558,
-  agent: 0.30,
-}
+  agent: 0.3,
+};
 
 /**
  * Stroke width at a point along a trailing arc.
@@ -142,8 +145,12 @@ export const REDUCED_TRANSPARENCY_SCALE: { readonly human: number; readonly agen
  * outside 0..1 extrapolates, which is a caller error rather than a
  * meaningful value.
  */
-export const taperWidth = (t: number, head: number, tail: number, gamma: number): number =>
-  tail + (head - tail) * Math.pow(1 - t, gamma)
+export const taperWidth = (
+  t: number,
+  head: number,
+  tail: number,
+  gamma: number,
+): number => tail + (head - tail) * Math.pow(1 - t, gamma);
 
 /**
  * Alpha at a point along a trailing arc.
@@ -158,4 +165,4 @@ export const taperWidth = (t: number, head: number, tail: number, gamma: number)
  * acting states are allowed to exceed it.
  */
 export const taperAlpha = (t: number, peak: number, gamma: number): number =>
-  peak * Math.pow(1 - t, gamma)
+  peak * Math.pow(1 - t, gamma);

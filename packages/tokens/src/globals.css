@@ -11,69 +11,98 @@
    ───────────────────────────────────────────────────────────── */
 @theme static {
   /* -- type families -- */
-  --font-panel:   "Source Sans 3", "Segoe UI", system-ui, sans-serif;
-  --font-ui:      "Inter Tight", Inter, system-ui, -apple-system, sans-serif;
+  --font-panel: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-ui: "Inter Tight", Inter, system-ui, -apple-system, sans-serif;
   --font-machine: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   /* -- panel type scale (authored in PANEL px; container is scaled 0.85) -- */
-  --text-panel-caption:   11px;  --text-panel-caption--line-height: 1.18;
-  --text-panel-meta:      12px;  --text-panel-meta--line-height: 1.25;
-  --text-panel-status:    13px;  --text-panel-status--line-height: 1.23;
-  --text-panel-artist:    14px;  --text-panel-artist--line-height: 1.29;
-  --text-panel-row:       15px;  --text-panel-row--line-height: 1.27;
-  --text-panel-track:     17px;  --text-panel-track--line-height: 1.18;
+  --text-panel-caption: 11px;
+  --text-panel-caption--line-height: 1.18;
+  --text-panel-meta: 12px;
+  --text-panel-meta--line-height: 1.25;
+  --text-panel-status: 13px;
+  --text-panel-status--line-height: 1.23;
+  --text-panel-artist: 14px;
+  --text-panel-artist--line-height: 1.29;
+  --text-panel-row: 15px;
+  --text-panel-row--line-height: 1.27;
+  --text-panel-track: 17px;
+  --text-panel-track--line-height: 1.18;
 
   /* -- glass/UI type scale -- */
-  --text-badge:  11px;  --text-meta:  12px;  --text-row-2: 13px;
-  --text-row:    15px;  --text-title: 22px;  --text-sheet: 20px;
-  --text-hero:   96px; --text-hero--line-height: 0.94; --text-hero--letter-spacing: -0.035em;
+  --text-badge: 11px;
+  --text-meta: 12px;
+  --text-row-2: 13px;
+  --text-row: 15px;
+  --text-title: 22px;
+  --text-sheet: 20px;
+  --text-hero: 96px;
+  --text-hero--line-height: 0.94;
+  --text-hero--letter-spacing: -0.035em;
 
   /* -- spacing: v4 derives spacing-N from this base -- */
-  --spacing: 4px;                 /* sp-1=4 sp-2=8 sp-3=12 sp-4=16 sp-6=24 sp-8=32 */
-  --spacing-panel: 2px;           /* panel micro-grid (§7.2) */
+  --spacing: 4px; /* sp-1=4 sp-2=8 sp-3=12 sp-4=16 sp-6=24 sp-8=32 */
+  --spacing-panel: 2px; /* panel micro-grid (§7.2) */
 
   /* -- radii -- */
-  --radius: 0.875rem;             /* 14px — sidecar card; shadcn derives sm/md/lg/xl */
-  --radius-panel-row:   3px;
-  --radius-panel-max:   6px;      /* ⚑ hard ceiling inside the panel (Panel Discipline) */
+  --radius: 0.875rem; /* 14px — sidecar card; shadcn derives sm/md/lg/xl */
+  --radius-panel-row: 3px;
+  --radius-panel-max: 6px; /* ⚑ hard ceiling inside the panel (Panel Discipline) */
   --radius-glass-panel: 22px;
-  --radius-sheet:       26px;
-  --radius-device:      26px;     /* D-067: circular Pencil VWaJS enclosure */
+  --radius-sheet: 26px;
+  --radius-device: 26px; /* D-067: circular Pencil VWaJS enclosure */
 
   /* -- easing -- */
-  --ease-ios-out:    cubic-bezier(0.33, 1, 0.68, 1);
-  --ease-press-in:   cubic-bezier(0.40, 0, 1, 1);
-  --ease-agent:      cubic-bezier(0.20, 0, 0.40, 1);   /* ⚑ y1=0, y2=1 — LAW 4 */
+  --ease-ios-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-press-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-agent: cubic-bezier(0.2, 0, 0.4, 1); /* ⚑ y1=0, y2=1 — LAW 4 */
   --ease-agent-flip: cubic-bezier(0.35, 0, 0.35, 1);
 
   /* -- durations -- */
-  --dur-instant: 0ms;    --dur-tick: 100ms;   --dur-micro: 140ms;
-  --dur-trace: 200ms;    --dur-step: 220ms;   --dur-commit: 260ms;
-  --dur-fade-in: 160ms;  --dur-fade-out: 220ms; --dur-crossfade: 240ms;
-  --dur-flip-agent: 520ms; --dur-dismiss: 1400ms;
+  --dur-instant: 0ms;
+  --dur-tick: 100ms;
+  --dur-micro: 140ms;
+  --dur-trace: 200ms;
+  --dur-step: 220ms;
+  --dur-commit: 260ms;
+  --dur-fade-in: 160ms;
+  --dur-fade-out: 220ms;
+  --dur-crossfade: 240ms;
+  --dur-flip-agent: 520ms;
+  --dur-dismiss: 1400ms;
 
   /* -- FX geometry (consumed by JS/SVG, exported here as one source of truth) -- */
-  --fx-wheel-r:        115px;
-  --fx-select-r:       42px;
-  --fx-halo-c:         116px;   /* wheelR + 1 — straddles the rim */
-  --fx-halo-head:      22px;   --fx-halo-tail: 9px;
-  --fx-halo-lead:      34deg;  --fx-halo-trail: 142deg;
-  --fx-halo-core:      30px;
-  --fx-halo-steps:     44;     --fx-halo-blur: 4.25px;  --fx-halo-gap: 0deg;
-  --fx-agent-c:        76px;
-  --fx-agent-head:     46px;   --fx-agent-tail: 16px;
-  --fx-agent-span:     112deg;
-  --fx-agent-steps:    18;     --fx-agent-blur: 1.8px;  --fx-agent-gap: 1.4deg;
-  --fx-repeater-r:     143px;
-  --fx-taper-gamma-w:  1.6;    --fx-taper-gamma-a: 2.0;
-  --fx-peak-rotate:    0.52;   --fx-peak-press: 0.68;
-  --fx-agent-alpha-persist-max: 0.18;   /* ⚑ guard, §8.5 */
-  --fx-rt-scale-human: 0.558;  /* reduced-transparency width multiplier */
-  --fx-rt-scale-agent: 0.30;
+  --fx-wheel-r: 115px;
+  --fx-select-r: 42px;
+  --fx-halo-c: 116px; /* wheelR + 1 — straddles the rim */
+  --fx-halo-head: 22px;
+  --fx-halo-tail: 9px;
+  --fx-halo-lead: 34deg;
+  --fx-halo-trail: 142deg;
+  --fx-halo-core: 30px;
+  --fx-halo-steps: 44;
+  --fx-halo-blur: 4.25px;
+  --fx-halo-gap: 0deg;
+  --fx-agent-c: 76px;
+  --fx-agent-head: 46px;
+  --fx-agent-tail: 16px;
+  --fx-agent-span: 112deg;
+  --fx-agent-steps: 18;
+  --fx-agent-blur: 1.8px;
+  --fx-agent-gap: 1.4deg;
+  --fx-repeater-r: 143px;
+  --fx-taper-gamma-w: 1.6;
+  --fx-taper-gamma-a: 2;
+  --fx-peak-rotate: 0.52;
+  --fx-peak-press: 0.68;
+  --fx-agent-alpha-persist-max: 0.18; /* ⚑ guard, §8.5 */
+  --fx-rt-scale-human: 0.558; /* reduced-transparency width multiplier */
+  --fx-rt-scale-agent: 0.3;
 
   /* -- panel -- */
-  --panel-scale: 0.85;          /* desktop overrides to 1 */
-  --panel-w: 272px;  --panel-h: 204px;
+  --panel-scale: 0.85; /* desktop overrides to 1 */
+  --panel-w: 272px;
+  --panel-h: 204px;
 }
 
 /* Semantic aliases onto Tailwind's own palette. `inline` so they
@@ -94,13 +123,15 @@
   --color-agent-300: var(--color-green-300);
   --color-agent-400: var(--color-green-400);
   --color-agent-500: var(--color-green-500);
-  --color-agent-600: var(--color-green-600);  /* ⚑ restricted: <3:1 on white poly */
+  --color-agent-600: var(
+    --color-green-600
+  ); /* ⚑ restricted: <3:1 on white poly */
   --color-agent-700: var(--color-green-700);
   --color-agent-800: var(--color-green-800);
   --color-agent-900: var(--color-green-900);
 
-  --color-brand-am: #FA243C;                  /* exempt: licensed brand value */
-  --color-brand-am-light: #FC3C44;
+  --color-brand-am: #fa243c; /* exempt: licensed brand value */
+  --color-brand-am-light: #fc3c44;
   --color-brand-am-text: var(--color-rose-700);
 }
 
@@ -109,123 +140,162 @@
    ───────────────────────────────────────────────────────────── */
 :root {
   /* -- environment (the room) -- */
-  --room-0: #F1F3F7;  --room-1: #E7EBF1;  --room-2: #DDE2EA;  --room-3: #D4DAE3;
-  --room-floor: #CDD4DE;  --room-floor-far: #BAC2CF;
+  --room-0: #f1f3f7;
+  --room-1: #e7ebf1;
+  --room-2: #dde2ea;
+  --room-3: #d4dae3;
+  --room-floor: #cdd4de;
+  --room-floor-far: #bac2cf;
   --room-contact: color-mix(in srgb, var(--color-slate-700) 34%, transparent);
-  --room-ao:      color-mix(in srgb, var(--color-slate-800) 20%, transparent);
+  --room-ao: color-mix(in srgb, var(--color-slate-800) 20%, transparent);
   --room-rim: rgb(255 255 255 / 0.62);
 
   /* -- panel (272x204 DOM) -- */
-  --ui-bg: #F2F6FB;   --ui-bg-alt: #E9EEF6;
-  --ui-statusbar-0: #DCE4EF;  --ui-statusbar-1: var(--color-slate-300);
-  --ui-text-1: var(--color-slate-900);   /* 16.45:1 */
-  --ui-text-2: var(--color-slate-700);   /*  9.54:1 */
-  --ui-text-3: var(--color-slate-600);   /*  6.98:1 */
-  --ui-text-4: var(--color-slate-500);   /*  4.39:1 — inactive only, SC 1.4.3 */
+  --ui-bg: #f2f6fb;
+  --ui-bg-alt: #e9eef6;
+  --ui-statusbar-0: #dce4ef;
+  --ui-statusbar-1: var(--color-slate-300);
+  --ui-text-1: var(--color-slate-900); /* 16.45:1 */
+  --ui-text-2: var(--color-slate-700); /*  9.54:1 */
+  --ui-text-3: var(--color-slate-600); /*  6.98:1 */
+  --ui-text-4: var(--color-slate-500); /*  4.39:1 — inactive only, SC 1.4.3 */
   --ui-divider: var(--color-slate-300);
   --ui-divider-strong: var(--color-slate-400);
   --ui-chevron: var(--color-slate-500);
   --ui-scrollbar-track: var(--color-slate-200);
   --ui-scrollbar-thumb: var(--color-slate-400);
-  --ui-artwork-frame: rgb(15 23 42 / 0.10);
+  --ui-artwork-frame: rgb(15 23 42 / 0.1);
   --ui-artwork-shadow: rgb(51 65 85 / 0.22);
   --panel-scanline: rgb(15 23 42 / 0.03);
-  --panel-vignette: rgb(51 65 85 / 0.10);
+  --panel-vignette: rgb(51 65 85 / 0.1);
 
   /* -- selection band = the human's cursor -- */
-  --ui-hl-0: var(--color-sky-700);   /* worst-case stop: 5.93:1 with #fff */
+  --ui-hl-0: var(--color-sky-700); /* worst-case stop: 5.93:1 with #fff */
   --ui-hl-1: var(--color-sky-800);
   --ui-hl-2: var(--color-sky-900);
   --ui-hl-topline: var(--color-sky-500);
   --ui-hl-botline: var(--color-sky-950);
-  --ui-hl-text: #FFFFFF;             /* ⚑ pure white; #F2F4F7 measures 4.09 and fails */
+  --ui-hl-text: #ffffff; /* ⚑ pure white; #F2F4F7 measures 4.09 and fails */
   --ui-hl-agent-0: var(--color-green-700);
   --ui-hl-agent-1: var(--color-green-800);
   --ui-hl-agent-2: var(--color-green-900);
   --ui-hl-agent-dash: var(--color-green-800);
 
   /* -- actor role aliases, surface-correct (§4.8/4.9) -- */
-  --actor-human-text:   var(--color-sky-700);
-  --actor-human-fill:   var(--color-sky-600);
-  --actor-human-glow:   color-mix(in srgb, var(--color-sky-500) 55%, transparent);
-  --actor-agent-text:   var(--color-green-800);  /* ⚑ green-700 fails on white poly */
-  --actor-agent-fill:   var(--color-green-700);
-  --actor-agent-glow:   color-mix(in srgb, var(--color-green-500) 18%, transparent);
+  --actor-human-text: var(--color-sky-700);
+  --actor-human-fill: var(--color-sky-600);
+  --actor-human-glow: color-mix(in srgb, var(--color-sky-500) 55%, transparent);
+  --actor-agent-text: var(
+    --color-green-800
+  ); /* ⚑ green-700 fails on white poly */
+  --actor-agent-fill: var(--color-green-700);
+  --actor-agent-glow: color-mix(
+    in srgb,
+    var(--color-green-500) 18%,
+    transparent
+  );
 
   /* -- Liquid Glass -- */
   --lg-bg: rgb(255 255 255 / 0.72);
   --lg-bg-clear: rgb(255 255 255 / 0.45);
   --lg-border: rgb(255 255 255 / 0.28);
-  --lg-surface: #EEF0F3;             /* opaque fallback; ALL glass ratios computed on this */
-  --lg-blur: 24px;  --lg-saturate: 1.8;
+  --lg-surface: #eef0f3; /* opaque fallback; ALL glass ratios computed on this */
+  --lg-blur: 24px;
+  --lg-saturate: 1.8;
   --lg-scrim: rgb(0 0 0 / 0.35);
   --lg-shadow: 0 12px 32px rgb(30 33 38 / 0.18);
 
   /* -- shadcn semantic layer -- */
   --background: var(--room-0);
   --foreground: var(--color-slate-900);
-  --card: var(--lg-bg);              --card-foreground: #16181C;
-  --popover: rgb(255 255 255 / 0.80); --popover-foreground: var(--color-slate-900);
-  --primary: var(--color-sky-700);   --primary-foreground: #FFFFFF;
-  --secondary: var(--color-slate-200); --secondary-foreground: var(--color-slate-900);
-  --muted: var(--color-slate-200);   --muted-foreground: var(--color-slate-600);
-  --accent: var(--color-green-700);  --accent-foreground: #FFFFFF;
-  --destructive: var(--color-red-700); --destructive-foreground: #FFFFFF;
+  --card: var(--lg-bg);
+  --card-foreground: #16181c;
+  --popover: rgb(255 255 255 / 0.8);
+  --popover-foreground: var(--color-slate-900);
+  --primary: var(--color-sky-700);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-slate-200);
+  --secondary-foreground: var(--color-slate-900);
+  --muted: var(--color-slate-200);
+  --muted-foreground: var(--color-slate-600);
+  --accent: var(--color-green-700);
+  --accent-foreground: #ffffff;
+  --destructive: var(--color-red-700);
+  --destructive-foreground: #ffffff;
   --border: var(--color-slate-300);
-  --input: var(--color-slate-500);   /* ⚑ slate-300 is 1.37:1 — fails SC 1.4.11 for a
+  --input: var(
+    --color-slate-500
+  ); /* ⚑ slate-300 is 1.37:1 — fails SC 1.4.11 for a
                                         required boundary. slate-500 = 3.5:1. */
-  --ring: var(--color-sky-700);      /* ⚑ focus is a HUMAN state */
+  --ring: var(--color-sky-700); /* ⚑ focus is a HUMAN state */
 }
 
 [data-mode="dark"] {
-  --room-0: #16171C;  --room-1: #101216;  --room-2: #0B0D10;  --room-3: #07080A;
-  --room-floor: #0D0F13;  --room-floor-far: #060709;
+  --room-0: #16171c;
+  --room-1: #101216;
+  --room-2: #0b0d10;
+  --room-3: #07080a;
+  --room-floor: #0d0f13;
+  --room-floor-far: #060709;
   --room-contact: rgb(0 0 0 / 0.66);
   --room-ao: rgb(0 0 0 / 0.48);
   --room-rim: rgb(203 213 225 / 0.42);
 
-  --ui-bg: #0A0F16;   --ui-bg-alt: #0E141C;
-  --ui-statusbar-0: #1B222C;  --ui-statusbar-1: #12181F;
-  --ui-text-1: var(--color-slate-50);    /* 18.37:1 */
-  --ui-text-2: var(--color-slate-300);   /* 12.94:1 */
-  --ui-text-3: var(--color-slate-400);   /*  7.49:1 */
-  --ui-text-4: var(--color-slate-500);   /*  4.04:1 — inactive only */
+  --ui-bg: #0a0f16;
+  --ui-bg-alt: #0e141c;
+  --ui-statusbar-0: #1b222c;
+  --ui-statusbar-1: #12181f;
+  --ui-text-1: var(--color-slate-50); /* 18.37:1 */
+  --ui-text-2: var(--color-slate-300); /* 12.94:1 */
+  --ui-text-3: var(--color-slate-400); /*  7.49:1 */
+  --ui-text-4: var(--color-slate-500); /*  4.04:1 — inactive only */
   --ui-divider: var(--color-slate-800);
   --ui-divider-strong: var(--color-slate-700);
   --ui-chevron: var(--color-slate-400);
-  --ui-scrollbar-track: #161C25;
+  --ui-scrollbar-track: #161c25;
   --ui-scrollbar-thumb: var(--color-slate-600);
   --ui-artwork-frame: rgb(255 255 255 / 0.12);
-  --ui-artwork-shadow: rgb(0 0 0 / 0.60);
+  --ui-artwork-shadow: rgb(0 0 0 / 0.6);
   --panel-scanline: rgb(255 255 255 / 0.03);
   --panel-vignette: rgb(0 8 22 / 0.18);
 
   --ui-hl-topline: var(--color-sky-400);
   --ui-hl-agent-dash: var(--color-green-300);
 
-  --actor-human-text:  var(--color-sky-400);
-  --actor-human-fill:  var(--color-sky-500);
-  --actor-human-glow:  color-mix(in srgb, var(--color-sky-500) 52%, transparent);
-  --actor-agent-text:  var(--color-green-300);
-  --actor-agent-fill:  var(--color-green-400);
-  --actor-agent-glow:  color-mix(in srgb, var(--color-green-400) 16%, transparent);
+  --actor-human-text: var(--color-sky-400);
+  --actor-human-fill: var(--color-sky-500);
+  --actor-human-glow: color-mix(in srgb, var(--color-sky-500) 52%, transparent);
+  --actor-agent-text: var(--color-green-300);
+  --actor-agent-fill: var(--color-green-400);
+  --actor-agent-glow: color-mix(
+    in srgb,
+    var(--color-green-400) 16%,
+    transparent
+  );
 
   --lg-bg: rgb(15 17 20 / 0.68);
   --lg-bg-clear: rgb(15 17 20 / 0.35);
   --lg-border: rgb(255 255 255 / 0.08);
-  --lg-surface: #191B1F;
+  --lg-surface: #191b1f;
   --lg-scrim: rgb(0 0 0 / 0.48);
-  --lg-shadow: 0 12px 32px rgb(0 0 0 / 0.40);
+  --lg-shadow: 0 12px 32px rgb(0 0 0 / 0.4);
 
   --background: var(--room-2);
   --foreground: var(--color-slate-100);
-  --card: var(--lg-bg);              --card-foreground: #F2F4F7;
-  --popover: rgb(20 22 25 / 0.76);   --popover-foreground: var(--color-slate-100);
-  --primary: var(--color-sky-500);   --primary-foreground: #04283C;
-  --secondary: var(--color-slate-800); --secondary-foreground: var(--color-slate-100);
-  --muted: var(--color-slate-800);   --muted-foreground: var(--color-slate-400);
-  --accent: var(--color-green-400);  --accent-foreground: #052E16;
-  --destructive: var(--color-red-400); --destructive-foreground: #450A0A;
+  --card: var(--lg-bg);
+  --card-foreground: #f2f4f7;
+  --popover: rgb(20 22 25 / 0.76);
+  --popover-foreground: var(--color-slate-100);
+  --primary: var(--color-sky-500);
+  --primary-foreground: #04283c;
+  --secondary: var(--color-slate-800);
+  --secondary-foreground: var(--color-slate-100);
+  --muted: var(--color-slate-800);
+  --muted-foreground: var(--color-slate-400);
+  --accent: var(--color-green-400);
+  --accent-foreground: #052e16;
+  --destructive: var(--color-red-400);
+  --destructive-foreground: #450a0a;
   --border: var(--color-slate-700);
   --input: var(--color-slate-600);
   --ring: var(--color-sky-400);
@@ -235,12 +305,18 @@
 @theme static inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-card: var(--card);              --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);        --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);        --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);    --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);            --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);          --color-accent-foreground: var(--accent-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-input: var(--input);
@@ -257,20 +333,30 @@
    one source of truth. Never write `background: var(--mat-*)`.
    ───────────────────────────────────────────────────────────── */
 :root {
-  --mat-poly-w-albedo: #E2E5E8;  --mat-poly-k-albedo: #0C0D0F;
-  --mat-steel-albedo:  #C4CBD2;
-  --mat-wheel-w-albedo:#E9EBED;  --mat-wheel-k-albedo:#23262B;
-  --mat-select-w:      #F1F3F5;  --mat-select-k:      #262A30;
-  --mat-glass-tint:    #05060A;
-  --mat-label-w: var(--color-slate-500);   /* 4.99:1 on white wheel */
-  --mat-label-k: #A9AFB7;                  /* 7.73:1 on black wheel */
+  --mat-poly-w-albedo: #e2e5e8;
+  --mat-poly-k-albedo: #0c0d0f;
+  --mat-steel-albedo: #c4cbd2;
+  --mat-wheel-w-albedo: #e9ebed;
+  --mat-wheel-k-albedo: #23262b;
+  --mat-select-w: #f1f3f5;
+  --mat-select-k: #262a30;
+  --mat-glass-tint: #05060a;
+  --mat-label-w: var(--color-slate-500); /* 4.99:1 on white wheel */
+  --mat-label-k: #a9afb7; /* 7.73:1 on black wheel */
 }
 
 /* ── accessibility ── */
 @media (prefers-reduced-transparency: reduce) {
-  :root { --lg-bg: var(--lg-surface); --lg-bg-clear: var(--lg-surface); --lg-blur: 0px; }
+  :root {
+    --lg-bg: var(--lg-surface);
+    --lg-bg-clear: var(--lg-surface);
+    --lg-blur: 0px;
+  }
 }
 @media (prefers-contrast: more) {
-  :root { --ui-text-3: var(--ui-text-2); --ui-divider: var(--ui-divider-strong);
-          --border: var(--color-slate-500); }
+  :root {
+    --ui-text-3: var(--ui-text-2);
+    --ui-divider: var(--ui-divider-strong);
+    --border: var(--color-slate-500);
+  }
 }

@@ -18,22 +18,24 @@
  * against the real device's 0.699. Every other radius below is expressed
  * as a fraction of it, so this is the one number that moves the wheel.
  */
-export const WHEEL_R: number = 115
+export const WHEEL_R: number = 115;
 
 /** Body width. The authoritative scale: 330px is 61.8mm at 5.3398 px/mm (§7.3). */
-export const BODY_W: number = 330
+export const BODY_W: number = 330;
 
 /** Body height, giving a 1.6727 ratio against {@link BODY_W} — 0.12% off the real 5G (§7.3). */
-export const BODY_H: number = 552
+export const BODY_H: number = 552;
 
-/** D-067: saved Pencil VWaJS circular enclosure radius. */
-export const BODY_CORNER_R: number = 26
+/**
+ * D-067: saved Pencil VWaJS circular enclosure radius.
+ */
+export const BODY_CORNER_R: number = 26;
 
 /** D-067: VWaJS uses an ordinary circular corner, represented by n = 2. */
-export const BODY_CORNER_EXPONENT: number = 2
+export const BODY_CORNER_EXPONENT: number = 2;
 
 /** Outer radius of the centre Select button's face (§12.0). */
-export const SELECT_R: number = 42
+export const SELECT_R: number = 42;
 
 /**
  * Outer radius of the Select button's lip — its stroke plus contact shadow (§12.0).
@@ -41,7 +43,7 @@ export const SELECT_R: number = 42
  * This is the clearance the agent trail's inner edge is measured against:
  * §12.0 places that edge at r53, +7px clear of this value.
  */
-export const SELECT_LIP_R: number = 46
+export const SELECT_LIP_R: number = 46;
 
 /**
  * Inner radius of the printed label band on the wheel — measured, not derived (§12.0).
@@ -55,10 +57,10 @@ export const SELECT_LIP_R: number = 46
  * outside the measured range. §12.0 corrects it to 0.493 and canvas wins
  * (D-021). Both halves are locked by test.
  */
-export const LABEL_BAND_INNER_R: number = 77
+export const LABEL_BAND_INNER_R: number = 77;
 
 /** Outer radius of the printed label band (§12.0, measured r77-79). */
-export const LABEL_BAND_OUTER_R: number = 79
+export const LABEL_BAND_OUTER_R: number = 79;
 
 /**
  * Innermost radius the wheel's recess shadow reaches (§12.0).
@@ -67,13 +69,13 @@ export const LABEL_BAND_OUTER_R: number = 79
  * the agent trail's outer edge +5px inside it, so shrinking this collapses
  * the separation the two orbits depend on.
  */
-export const RECESS_SHADOW_REACH_R: number = 104
+export const RECESS_SHADOW_REACH_R: number = 104;
 
 /** Panel active-area width in panel px — the real 5G's 50.8mm rounded to an integer (§7.3). */
-export const PANEL_W: number = 272
+export const PANEL_W: number = 272;
 
 /** Panel active-area height in panel px (§7.3). */
-export const PANEL_H: number = 204
+export const PANEL_H: number = 204;
 
 /**
  * The single transform applied to the panel container on mobile (§7.4).
@@ -83,7 +85,7 @@ export const PANEL_H: number = 204
  * the panel are authored as `calc(1px / var(--panel-scale))` so they resolve
  * to one device pixel at any scale.
  */
-export const PANEL_SCALE: number = 0.85
+export const PANEL_SCALE: number = 0.85;
 
 /**
  * Click wheel diameter as a fraction of body width.
@@ -92,4 +94,4 @@ export const PANEL_SCALE: number = 0.85
  * versus the real 5th generation's 43.2/61.8 = 0.699. Derived rather than
  * written down so it cannot silently disagree with the radii above.
  */
-export const WHEEL_TO_BODY_RATIO: number = (WHEEL_R * 2) / BODY_W
+export const WHEEL_TO_BODY_RATIO: number = (WHEEL_R * 2) / BODY_W;

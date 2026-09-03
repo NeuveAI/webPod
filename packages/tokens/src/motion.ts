@@ -10,10 +10,10 @@
 
 /** A spring, in the stiffness/damping/mass form both the motion layer and R3F take. */
 export type Spring = {
-  readonly stiffness: number
-  readonly damping: number
-  readonly mass: number
-}
+  readonly stiffness: number;
+  readonly damping: number;
+  readonly mass: number;
+};
 
 /**
  * The named springs (§9.1).
@@ -32,7 +32,7 @@ export const spring = {
   bloom: { stiffness: 260, damping: 18, mass: 0.9 },
   flip: { stiffness: 180, damping: 22, mass: 1.4 },
   settle: { stiffness: 1200, damping: 48, mass: 0.5 },
-} as const satisfies Record<string, Spring>
+} as const satisfies Record<string, Spring>;
 
 /**
  * The agent's motion vocabulary: duration plus easing, never a spring (§12.1).
@@ -44,7 +44,7 @@ export const spring = {
  * `duration` is milliseconds; `easing` is a CSS easing value.
  */
 export const agentEase = {
-  micro: { duration: 140, easing: 'cubic-bezier(.2,0,.4,1)' },
-  step: { duration: 220, easing: 'linear' },
-  flip: { duration: 520, easing: 'cubic-bezier(.35,0,.35,1)' },
-} as const
+  micro: { duration: 140, easing: "cubic-bezier(.2,0,.4,1)" },
+  step: { duration: 220, easing: "linear" },
+  flip: { duration: 520, easing: "cubic-bezier(.35,0,.35,1)" },
+} as const;
