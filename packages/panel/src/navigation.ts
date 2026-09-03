@@ -175,7 +175,7 @@ export async function selectNavigation(
 
 function rootDestination(destination: NavigationRoute | undefined, source: NavigationDataSource): ScreenFrame | null {
   if (destination?.kind === 'cover-flow') return albumsFrame('Cover Flow', 'cover-flow', source.albums)
-  if (destination?.kind === 'playlists') return listFrame('S05', 'Playlists', destination, source.playlists.map((item, index) => descendRow(index, item.name, String(item.trackCount))))
+  if (destination?.kind === 'playlists') return listFrame('S05', 'Playlists', destination, source.playlists.map((item, index) => descendRow(index, item.name)))
   if (destination?.kind === 'artists') return artistsFrame('Artists', destination, source.artists)
   if (destination?.kind === 'albums') return albumsFrame('Albums', 'albums', source.albums)
   if (destination?.kind === 'songs') return songsFrame('Songs', destination, source.songs)
