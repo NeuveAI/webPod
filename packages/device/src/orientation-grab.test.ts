@@ -11,6 +11,17 @@ import {
 } from "./orientation-grab";
 
 describe("device enclosure orientation grab", () => {
+  test("leaves browser gesture suppression to the application touch-action boundary", async () => {
+    const source = await Bun.file(new URL("./Device.tsx", import.meta.url)).text();
+    const shellPointerDown = source.slice(
+      source.indexOf("const onShellPointerDown"),
+      source.indexOf("const onShellPointerMove"),
+    );
+
+    expect(shellPointerDown).toContain("event.stopPropagation()");
+    expect(shellPointerDown).not.toContain("nativeEvent.preventDefault");
+  });
+
   test("accepts primary mouse, pen, and touch without accepting secondary input", () => {
     expect(
       acceptsDeviceOrientationHover({

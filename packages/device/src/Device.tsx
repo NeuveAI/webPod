@@ -191,8 +191,10 @@ export function Device({
       if (onOrientationGrabStart === undefined) return;
       const start = orientationGrabStart(event);
       if (start === null || !onOrientationGrabStart(start)) return;
+      // Browser panning is disabled declaratively by the application root's
+      // touch-action. R3F delegates this callback through a native listener
+      // that may be passive, so native preventDefault() is not legal here.
       event.stopPropagation();
-      if (event.nativeEvent.cancelable) event.nativeEvent.preventDefault();
     },
     [onOrientationGrabStart],
   );
