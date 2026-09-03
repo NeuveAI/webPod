@@ -49,6 +49,9 @@ export interface AppleProviderOptions {
   readonly loadMusicKit: () => Promise<MusicKitGlobalLike>
   readonly fetchDeveloperToken: () => Promise<{ readonly token: string; readonly expiresAt: number }>
   readonly appName?: string; readonly appBuild?: string
+  readonly playbackConfirmationTimeoutMs?: number
+  readonly setTimeout?: (callback: () => void, delayMs: number) => unknown
+  readonly clearTimeout?: (handle: unknown) => void
 }
 export type AppleSessionState =
   | { readonly status: 'signed-out' }
@@ -121,6 +124,8 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   let playPromise: Promise<void> | null = null
   let awaitingNowPlayingItem = false
   let pendingPlayKey: string | null = null
+  let expectedNowPlayingCatalogId: string | null = null
+  let playbackConfirmationTimer: unknown | null = null
   let appleState: AppleSessionState = { status: 'signed-out' }
   let currentPlayback: PlaybackState = { status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0, volume0to100: 100, shuffle: 'off', repeat: 'off' }
   const sessions = new Set<(value: Session | null) => void>(); const appleStates = new Set<(value: AppleSessionState) => void>(); const playback = new Set<(value: PlaybackState) => void>(); const progress = new Set<(value: ProgressTick) => void>(); const cursors = new Set<string>(); const keyFor = identityCache()
@@ -137,14 +142,25 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     return { status: awaitingNowPlayingItem ? 'loading' : status, now, queueIndex, positionMs: Math.max(0, (value.currentPlaybackTime ?? 0) * 1_000), durationMs: Math.max(0, (value.currentPlaybackDuration ?? 0) * 1_000), volume0to100: Math.round(Math.min(1, Math.max(0, value.volume)) * 100), shuffle: value.shuffleMode === kit?.PlayerShuffleMode?.['songs'] ? 'songs' : value.shuffleMode === kit?.PlayerShuffleMode?.['albums'] ? 'albums' : 'off', repeat: value.repeatMode === kit?.PlayerRepeatMode?.['one'] ? 'one' : value.repeatMode === kit?.PlayerRepeatMode?.['all'] ? 'all' : 'off' }
   }
   const emitPlayback = (value: PlaybackState): void => { currentPlayback = value; for (const listener of playback) listener(value) }
+  const clearPlaybackConfirmationTimer = (): void => {
+    if (playbackConfirmationTimer === null) return
+    if (configuredOptions.clearTimeout === undefined) globalThis.clearTimeout(playbackConfirmationTimer as ReturnType<typeof globalThis.setTimeout>)
+    else configuredOptions.clearTimeout(playbackConfirmationTimer)
+    playbackConfirmationTimer = null
+  }
+  const finishPendingPlayback = (): void => {
+    clearPlaybackConfirmationTimer()
+    awaitingNowPlayingItem = false
+    pendingPlayKey = null
+    expectedNowPlayingCatalogId = null
+  }
   const bind = (value: MusicKitInstanceLike): void => {
     const changed = (): void => { emitPlayback(stateOf(value)) }
     const nowPlayingChanged = (): void => {
-      if (value.nowPlayingItem !== undefined) {
-        awaitingNowPlayingItem = false
-        pendingPlayKey = null
-      }
-      changed()
+      const observed = stateOf(value).now
+      const matchesExpected = observed !== null && (expectedNowPlayingCatalogId === null || observed.catalogId === expectedNowPlayingCatalogId)
+      if (matchesExpected) finishPendingPlayback()
+      emitPlayback(stateOf(value))
     }
     const tick = (): void => { const state = stateOf(value); for (const listener of progress) listener({ positionMs: state.positionMs, durationMs: state.durationMs, interpolated: false }) }
     for (const name of ['playbackStateDidChange', 'queueItemsDidChange']) value.addEventListener(name, changed)
@@ -217,13 +233,21 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
         ? [target.kind, target.tracks.map((track) => track.catalogId), target.startIndex ?? 0]
         : [target.kind, target.kind === 'album' ? target.album.catalogId : target.kind === 'playlist' ? target.playlist.catalogId : target.station.catalogId])
       if (targetKey !== null && awaitingNowPlayingItem && pendingPlayKey === targetKey) return playPromise ?? Promise.resolve()
-      if (playPromise !== null) return playPromise
+      if (playPromise !== null) throw new Error('Apple Music playback selection is already in progress')
+      if (targetKey !== null && awaitingNowPlayingItem) finishPendingPlayback()
       const value = authorized('play')
       const previous = currentPlayback
       if (target !== undefined) {
         awaitingNowPlayingItem = true
         pendingPlayKey = targetKey
+        expectedNowPlayingCatalogId = target.kind === 'tracks' ? target.tracks[target.startIndex ?? 0]?.catalogId ?? null : null
         emitPlayback({ ...currentPlayback, status: 'loading', now: null, queueIndex: null, positionMs: 0, durationMs: 0 })
+        const pendingKey = targetKey
+        playbackConfirmationTimer = (configuredOptions.setTimeout ?? globalThis.setTimeout)(() => {
+          if (!awaitingNowPlayingItem || pendingPlayKey !== pendingKey) return
+          finishPendingPlayback()
+          emitPlayback(stateOf(value))
+        }, configuredOptions.playbackConfirmationTimeoutMs ?? 8_000)
       }
       playPromise = (async () => {
         try {
@@ -234,8 +258,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
           }
           await value.play()
         } catch (cause) {
-          awaitingNowPlayingItem = false
-          pendingPlayKey = null
+          finishPendingPlayback()
           emitPlayback(previous)
           throw cause
         } finally {
