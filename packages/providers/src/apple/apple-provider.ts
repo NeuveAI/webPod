@@ -30,7 +30,7 @@ export interface MusicKitApiLike {
   station(id: string, parameters?: MusicKitParameters): Promise<unknown>
   stations(parameters?: MusicKitParameters): Promise<unknown>
 }
-export interface MusicKitQueueLike { readonly items?: readonly unknown[]; readonly position?: number }
+export interface MusicKitQueueLike { readonly items?: readonly unknown[]; readonly position?: number; readonly itemContainer?: unknown }
 export interface MusicKitInstanceLike {
   readonly api: MusicKitApiLike; readonly isAuthorized: boolean; readonly storefrontId?: string; readonly storefrontCountryCode?: string
   readonly nowPlayingItem?: unknown; readonly currentPlaybackTime?: number; readonly currentPlaybackDuration?: number; readonly playbackState?: number; readonly queue?: MusicKitQueueLike
@@ -129,6 +129,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   let queueGeneration = 0
   let pendingQueueFingerprint: string | null = null
   let confirmedCollectionQueueIds: ReadonlySet<string> | null = null
+  let pendingCollectionKey: string | null = null
   let transactionGeneration = 0
   let playbackEventsEnabled = true
   let playbackConfirmationTimer: unknown | null = null
@@ -160,6 +161,23 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     return ids
   }
   const queueFingerprint = (value: MusicKitInstanceLike): string => JSON.stringify(queueCatalogIds(value))
+  const queueContainerKey = (value: MusicKitInstanceLike): string | null => {
+    const container = value.queue?.itemContainer
+    if (typeof container !== 'object' || container === null || Array.isArray(container)) return null
+    try {
+      const resource = record(container, 'queue container')
+      const rawType = asText(resource['type'])
+      const resourceId = asText(resource['id'])
+      if (rawType === undefined || resourceId === undefined) return null
+      const attributes = typeof resource['attributes'] === 'object' && resource['attributes'] !== null && !Array.isArray(resource['attributes']) ? record(resource['attributes'], 'queue container attributes') : {}
+      const playParams = typeof attributes['playParams'] === 'object' && attributes['playParams'] !== null && !Array.isArray(attributes['playParams']) ? record(attributes['playParams'], 'queue container play parameters') : {}
+      const catalogId = asText(playParams['globalId']) ?? asText(playParams['catalogId']) ?? resourceId
+      const type = rawType.replace('library-', '').replace(/s$/, '')
+      return `${type}:${catalogId}`
+    } catch {
+      return null
+    }
+  }
   const emitPlayback = (value: PlaybackState): void => { currentPlayback = value; for (const listener of playback) listener(value) }
   const clearPlaybackConfirmationTimer = (): void => {
     if (playbackConfirmationTimer === null) return
@@ -174,6 +192,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     expectedNowPlayingCatalogId = null
     pendingQueueFingerprint = null
     confirmedCollectionQueueIds = null
+    pendingCollectionKey = null
   }
   const bind = (value: MusicKitInstanceLike): void => {
     const changed = (): void => { if (playbackEventsEnabled) emitPlayback(stateOf(value)) }
@@ -191,7 +210,9 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       queueGeneration += 1
       if (awaitingNowPlayingItem && expectedNowPlayingCatalogId === null && queueGeneration > pendingQueueGeneration) {
         const ids = queueCatalogIds(value)
-        if (ids.length > 0 && JSON.stringify(ids) !== pendingQueueFingerprint) confirmedCollectionQueueIds = new Set(ids)
+        const fingerprintChanged = JSON.stringify(ids) !== pendingQueueFingerprint
+        const containerMatches = pendingCollectionKey !== null && queueContainerKey(value) === pendingCollectionKey
+        if (ids.length > 0 && (containerMatches || (queueContainerKey(value) === null && fingerprintChanged))) confirmedCollectionQueueIds = new Set(ids)
       }
       changed()
     }
@@ -276,6 +297,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
         awaitingNowPlayingItem = true
         pendingPlayKey = targetKey
         expectedNowPlayingCatalogId = target.kind === 'tracks' ? target.tracks[target.startIndex ?? 0]?.catalogId ?? null : null
+        pendingCollectionKey = target.kind === 'tracks' ? null : `${target.kind}:${target.kind === 'album' ? target.album.catalogId : target.kind === 'playlist' ? target.playlist.catalogId : target.station.catalogId}`
         pendingQueueGeneration = queueGeneration
         pendingQueueFingerprint = queueFingerprint(value)
         confirmedCollectionQueueIds = null
