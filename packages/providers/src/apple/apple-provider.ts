@@ -6,7 +6,7 @@ import { mintLocalKey } from '../identity.ts'
 import type { MusicProvider } from '../provider.ts'
 import { APPLE_SUPPORTS, APPLE_UNSUPPORTED_REASONS } from './matrix.ts'
 
-export const MUSICKIT_SCRIPT_URL = 'https://js-cdn.music.apple.com/musickit/v3/musickit.js' as const
+export const MUSICKIT_SCRIPT_URL = 'https://js-cdn.music.apple.com/musickit/v1/musickit.js' as const
 export const APPLE_DEVELOPER_TOKEN_PATH = '/api/apple/developer-token' as const
 
 type JsonRecord = Readonly<Record<string, unknown>>
@@ -156,20 +156,20 @@ export async function loadMusicKitScript(documentRef: Document = document): Prom
     }
     const found = documentRef.querySelector<HTMLScriptElement>(`script[src="${MUSICKIT_SCRIPT_URL}"]`)
     const script = found ?? documentRef.createElement('script')
+    const timeout = globalThis.setTimeout(() => failed(), 10_000)
+    const cleanup = (): void => { globalThis.clearTimeout(timeout); documentRef.removeEventListener('musickitloaded', loaded); script.removeEventListener('error', failed) }
     const restoreProcess = (): void => {
       if (processDescriptor === undefined) delete globalObject['process']
       else Object.defineProperty(globalObject, 'process', processDescriptor)
     }
-    const cleanup = (): void => { documentRef.removeEventListener('musickitloaded', loaded); script.removeEventListener('error', failed) }
-    const scriptLoaded = (): void => { restoreProcess() }
     const loaded = (): void => {
       cleanup()
       const value = (globalThis as { MusicKit?: MusicKitGlobalLike }).MusicKit
       if (value === undefined) reject(new Error('MusicKit loaded without its global')); else resolve(value)
     }
-    const failed = (): void => { cleanup(); script.removeEventListener('load', scriptLoaded); restoreProcess(); reject(new Error('MusicKit script could not be loaded')) }
+    const failed = (): void => { cleanup(); script.removeEventListener('load', restoreProcess); restoreProcess(); reject(new Error('MusicKit script could not be loaded')) }
     documentRef.addEventListener('musickitloaded', loaded, { once: true }); script.addEventListener('error', failed, { once: true })
-    script.addEventListener('load', scriptLoaded, { once: true })
+    script.addEventListener('load', restoreProcess, { once: true })
     if (found === null) { script.src = MUSICKIT_SCRIPT_URL; script.async = true; documentRef.head.append(script) }
   })
 }
