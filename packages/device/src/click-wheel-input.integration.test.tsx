@@ -388,21 +388,19 @@ describe("click-wheel mounted R3F event seam", () => {
     }
   });
 
-  test("routes captured down, outside move and up through production handlers", async () => {
+  test("routes captured wheel gestures without cancelling delegated native events", async () => {
     const mounted = await mountSurface();
     const pointerId = 31;
     try {
       const down = pointerEvent("pointerdown", pointerId, 80, 0);
       let downPreventions = 0;
-      const preventDown = down.preventDefault.bind(down);
       Object.defineProperty(down, "preventDefault", {
         value: () => {
           downPreventions += 1;
-          preventDown();
         },
       });
       await dispatch(mounted, down);
-      expect(downPreventions).toBeGreaterThan(0);
+      expect(downPreventions).toBe(0);
       expect(mounted.canvas.hasPointerCapture(pointerId)).toBeTrue();
       expect(mounted.starts).toHaveLength(1);
       expect(mounted.starts[0]?.angleDeg).toBeCloseTo(0, 8);
@@ -411,19 +409,25 @@ describe("click-wheel mounted R3F event seam", () => {
       // still reach production, which recomputes the angle from the live ray.
       const move = pointerEvent("pointermove", pointerId, 0, -145);
       let movePreventions = 0;
-      const preventMove = move.preventDefault.bind(move);
       Object.defineProperty(move, "preventDefault", {
         value: () => {
           movePreventions += 1;
-          preventMove();
         },
       });
       await dispatch(mounted, move);
-      expect(movePreventions).toBeGreaterThan(0);
+      expect(movePreventions).toBe(0);
       expect(mounted.moves).toHaveLength(1);
       expect(mounted.moves[0]?.angleDeg).toBeCloseTo(90, 8);
 
-      await dispatch(mounted, pointerEvent("pointerup", pointerId, 0, -145));
+      const up = pointerEvent("pointerup", pointerId, 0, -145);
+      let upPreventions = 0;
+      Object.defineProperty(up, "preventDefault", {
+        value: () => {
+          upPreventions += 1;
+        },
+      });
+      await dispatch(mounted, up);
+      expect(upPreventions).toBe(0);
       expect(mounted.ends.map((end) => end.reason)).toEqual(["release"]);
       expect(mounted.canvas.hasPointerCapture(pointerId)).toBeFalse();
       // Pointer movement reaches both the navigation runtime and the rigid
@@ -553,15 +557,46 @@ describe("click-wheel mounted R3F event seam", () => {
     try {
       for (const [index, pointerType] of ["mouse", "touch", "pen"].entries()) {
         const pointerId = 70 + index;
+        const down = pointerEvent("pointerdown", pointerId, 0, 0, {
+          pointerType,
+        });
+        let downPreventions = 0;
+        Object.defineProperty(down, "preventDefault", {
+          value: () => {
+            downPreventions += 1;
+          },
+        });
         await dispatch(
           mounted,
-          pointerEvent("pointerdown", pointerId, 0, 0, { pointerType }),
+          down,
         );
+        expect(downPreventions).toBe(0);
         expect(mounted.canvas.hasPointerCapture(pointerId)).toBeTrue();
+        const move = pointerEvent("pointermove", pointerId, 12, 0, {
+          pointerType,
+        });
+        let movePreventions = 0;
+        Object.defineProperty(move, "preventDefault", {
+          value: () => {
+            movePreventions += 1;
+          },
+        });
+        await dispatch(mounted, move);
+        expect(movePreventions).toBe(0);
+        const up = pointerEvent("pointerup", pointerId, 0, 0, {
+          pointerType,
+        });
+        let upPreventions = 0;
+        Object.defineProperty(up, "preventDefault", {
+          value: () => {
+            upPreventions += 1;
+          },
+        });
         await dispatch(
           mounted,
-          pointerEvent("pointerup", pointerId, 0, 0, { pointerType }),
+          up,
         );
+        expect(upPreventions).toBe(0);
       }
       expect(mounted.starts).toHaveLength(0);
       expect(mounted.moves).toHaveLength(0);

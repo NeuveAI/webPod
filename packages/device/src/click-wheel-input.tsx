@@ -312,13 +312,12 @@ function captureApiOf(target: EventTarget | null): CaptureApi | null {
   };
 }
 
-function preventNativeDefault(event: ThreeEvent<PointerEvent>): void {
-  if (event.nativeEvent.cancelable) event.nativeEvent.preventDefault();
-}
-
 /**
  * Invisible front-face annulus that owns R3F ray conversion and capture only.
  * State, acceleration, coast, haptics and tier policy remain outside device.
+ * Browser panning suppression belongs to the application boundary's
+ * `touch-action`, not R3F's delegated pointer callbacks: those callbacks may
+ * run under a passive native listener where preventDefault() is illegal.
  */
 export function ClickWheelInputSurface({
   onArcStart,
@@ -546,7 +545,6 @@ export function ClickWheelInputSurface({
     if (first === null || firstPoint === null) return;
 
     event.stopPropagation();
-    preventNativeDefault(event);
     capture.setPointerCapture(event.pointerId);
 
     const onCancel: EventListener = (nativeEvent) => {
@@ -617,7 +615,6 @@ export function ClickWheelInputSurface({
     const active = captureSlotRef.current.current;
     if (active === null || active.pointerId !== event.pointerId) return;
     event.stopPropagation();
-    preventNativeDefault(event);
     const next = sample(event, active.pointerType);
     const nextPoint = point(event);
     const candidate = cardinalCandidateRef.current;
@@ -647,7 +644,6 @@ export function ClickWheelInputSurface({
     const active = captureSlotRef.current.current;
     if (active === null || active.pointerId !== event.pointerId) return;
     event.stopPropagation();
-    preventNativeDefault(event);
     finish(
       event.pointerId,
       event.timeStamp,
@@ -767,7 +763,6 @@ function SelectInputSurface({
     if (pointerType === null || host === null || capture === null) return;
 
     event.stopPropagation();
-    preventNativeDefault(event);
     capture.setPointerCapture(event.pointerId);
     const onCancel: EventListener = (nativeEvent) => {
       const pointer = pointerIdentity(nativeEvent);
@@ -817,14 +812,12 @@ function SelectInputSurface({
     const active = captureSlotRef.current.current;
     if (active === null || active.pointerId !== event.pointerId) return;
     event.stopPropagation();
-    preventNativeDefault(event);
   };
 
   const onPointerUp = (event: ThreeEvent<PointerEvent>) => {
     const active = captureSlotRef.current.current;
     if (active === null || active.pointerId !== event.pointerId) return;
     event.stopPropagation();
-    preventNativeDefault(event);
     finish(event.pointerId, event.timeStamp, "release", true);
   };
 
