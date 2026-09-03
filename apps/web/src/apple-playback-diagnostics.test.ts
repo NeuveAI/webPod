@@ -43,7 +43,7 @@ describe('route-scoped Apple playback diagnostics', () => {
     applePlaybackDiagnostics.enable()
     const ordered = ['setQueue', 'queueItemsDidChange', 'playCall', 'mediaItemStateDidChange', 'bufferedProgressDidChange', 'mediaCanPlay', 'mediaItemDidChange', 'playbackStateDidChange', 'playResolve'] as const
     for (const event of ordered) applePlaybackDiagnostics.capture(event, () => source())
-    expect(applePlaybackDiagnostics.getSnapshot().events.map((event) => event.event)).toEqual(ordered)
+    expect(applePlaybackDiagnostics.getSnapshot().events.map((event) => event.event)).toEqual([...ordered])
     for (let index = 0; index < 45; index += 1) {
       applePlaybackDiagnostics.capture('playbackTimeDidChange', () => source(undefined, index))
     }
