@@ -4,16 +4,16 @@ Do not paste secret values into a terminal command that will be shared or captur
 
 1. In a private local shell, export `APPLE_TEAM_ID`, `APPLE_MUSICKIT_KEY_ID`, and `APPLE_MUSICKIT_KEY_PATH`. The key path must be absolute. Optionally set `APPLE_TOKEN_TTL_SECONDS` from 60 through 3600; the default is 900.
 2. Run `bun run dev` from the repository root and use the exact registered MusicKit web origin (normally `http://localhost:3000`).
-3. After the navigation lane lands its wiring, create the provider with `createAppleProvider()`, call `configure()` during app bootstrap, and call `authorize()` only from the user’s sign-in gesture.
-4. Confirm `appleSessionState.status === "authorized"`, inspect only sanitized entity names/counts, then exercise playlists, artists, albums and songs. Start playback from a catalog-backed track and confirm playback state becomes `playing`.
-5. Call `unauthorize()` to invalidate the Music User Token. Do not inspect browser storage or print SDK/token objects.
+3. Open `http://localhost:3000/_spike/device?provider=apple`. The query override wins over the build default and shows the signed-out Apple state.
+4. Select **Sign in to Apple Music**. Authorization is invoked only by this user gesture. Confirm the UI reaches the authorized state, then exercise playlists, artists, albums and songs through the normal click-wheel navigation. Start playback and confirm the production transport controls drive MusicKit.
+5. Select **Sign out of Apple Music** to invalidate the Music User Token. Do not inspect browser storage or print SDK/token objects.
 
-## Minimal later wiring seam
+## Provider selection
 
-Add `@webpod/providers` as an app dependency, instantiate `createAppleProvider()` beside the existing provider-selection bootstrap, and place that instance into the navigation lane’s provider atom/store. Keep the fixture provider as the fallback when configuration or authorization is unavailable. No change to `production-device-view.tsx` is required by the provider itself.
+The safe default is the deterministic fixture library. For a local Apple-default build, set `VITE_WEBPOD_PROVIDER=apple`; `?provider=fixture` and `?provider=apple` remain explicit development overrides. A MusicKit configuration failure automatically restores the fixture provider and exposes a non-secret status message.
 
 ## Expected limitations
 
 - Writes intentionally reject; this run is read/playback only.
-- The provider contract currently lacks entity-detail relationship methods, so album/artist/playlist drill-down needs a shared contract extension after navigation ownership is released.
+- Apple library genres remain absent because Apple exposes no direct library genre collection matching the shared contract.
 - Apple exposes no direct library genres/composers collection matching the current `LibraryKind` members; those calls reject rather than presenting fabricated empty lists.

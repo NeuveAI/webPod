@@ -3,8 +3,9 @@ import type {
   DeviceOrientation,
   DeviceOrientationGrabStart,
 } from '@webpod/device'
-import { fixtureProvider, Panel, type PanelState } from '@webpod/panel'
-import { useCallback } from 'react'
+import { Panel, type PanelState } from '@webpod/panel'
+import { useCallback, useSyncExternalStore } from 'react'
+import { musicRuntime } from './music-runtime'
 
 export type ProductionPanelState = PanelState
 
@@ -38,6 +39,7 @@ export function ProductionPanelView({
   state = 'ready',
   dynamicTypeScale = 1,
 }: ProductionPanelViewProps) {
+  const runtime = useSyncExternalStore(musicRuntime.subscribe, musicRuntime.getSnapshot, musicRuntime.getSnapshot)
   return (
     <Panel
       colourway={colourway === 'white' ? 'light' : 'dark'}
@@ -47,6 +49,8 @@ export function ProductionPanelView({
       actor="human"
       artworkTone={null}
       longList={false}
+      provider={runtime.provider}
+      navigationSource={runtime.source}
     />
   )
 }
@@ -95,26 +99,27 @@ export function ProductionDeviceView({
 
 /** Executes the provider-owned transport action before feedback is admitted. */
 export async function toggleProductionPlayback(): Promise<boolean> {
-  const session = fixtureProvider.session
+  const { provider, source } = musicRuntime.getSnapshot()
+  const session = provider.session
   if (
-    !fixtureProvider.supports('transport') ||
+    !provider.supports('transport') ||
     session?.status !== 'authorized' ||
     !session.canPlay ||
-    fixtureProvider.playback.status === 'loading'
+    provider.playback.status === 'loading'
   ) return false
 
   try {
-    if (fixtureProvider.playback.status === 'playing') {
-      await fixtureProvider.pause()
-    } else if (fixtureProvider.playback.now === null) {
-      if (fixtureProvider.catalog.tracks.length === 0) return false
-      await fixtureProvider.play({
+    if (provider.playback.status === 'playing') {
+      await provider.pause()
+    } else if (provider.playback.now === null) {
+      if (source.songs.length === 0) return false
+      await provider.play({
         kind: 'tracks',
-        tracks: fixtureProvider.catalog.tracks,
+        tracks: source.songs,
         startIndex: 0,
       })
     } else {
-      await fixtureProvider.play()
+      await provider.play()
     }
     return true
   } catch {

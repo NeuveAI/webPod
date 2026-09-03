@@ -151,6 +151,12 @@ export function createStubProvider(spec: StubProviderSpec): MusicProvider {
     async libraryList(): Promise<Page<Entity>> {
       return gate('libraryRead', 'libraryList')
     },
+    async relatedTracks(): Promise<readonly import('./identity.ts').TrackRef[]> {
+      return gate('libraryRead', 'relatedTracks')
+    },
+    async relatedAlbums(): Promise<readonly import('./identity.ts').AlbumRef[]> {
+      return gate('libraryRead', 'relatedAlbums')
+    },
     /** Not implemented. */
     async libraryAdd(): Promise<void> {
       return gate('libraryAdd', 'libraryAdd')

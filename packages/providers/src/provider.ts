@@ -43,7 +43,7 @@ import type {
   StationSeed,
   Unsubscribe,
 } from './domain.ts'
-import type { AlbumRef, PlaylistRef, ProviderId, StationRef, TrackRef } from './identity.ts'
+import type { AlbumRef, ArtistRef, PlaylistRef, ProviderId, StationRef, TrackRef } from './identity.ts'
 
 /**
  * One music service, as the rest of webPod sees it.
@@ -124,6 +124,10 @@ export interface MusicProvider {
    * an empty slice as a count, so a guessed total puts a wrong number on screen.
    */
   libraryList(kind: LibraryKind, page?: Cursor): Promise<Page<Entity>>
+  /** Fetches the tracks belonging to an album or playlist for provider-neutral drill-down. */
+  relatedTracks(ref: AlbumRef | PlaylistRef): Promise<readonly TrackRef[]>
+  /** Fetches the albums belonging to an artist for provider-neutral drill-down. */
+  relatedAlbums(ref: ArtistRef): Promise<readonly AlbumRef[]>
   /**
    * Adds to the library. Apple's `Add to Library`, Spotify's `Save`.
    *

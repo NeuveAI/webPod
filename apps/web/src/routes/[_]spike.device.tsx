@@ -23,6 +23,14 @@ import {
   type DevicePreviewState,
 } from "../device-preview-orientation";
 import { ProductionDeviceView } from "../production-device-view";
+import {
+  authorizeAppleRuntime,
+  musicRuntime,
+  resolveMusicRuntimeMode,
+  selectMusicRuntime,
+  signOutAppleRuntime,
+  type MusicRuntimeMode,
+} from "../music-runtime";
 
 export const Route = createFileRoute("/_spike/device")({
   ssr: false,
@@ -158,6 +166,15 @@ function DeviceSpike() {
     orientationControlsRef.current?.setGrabbable(grabbable);
   }, []);
   const search = new URLSearchParams(window.location.search);
+  const music = useSyncExternalStore(
+    musicRuntime.subscribe,
+    musicRuntime.getSnapshot,
+    musicRuntime.getSnapshot,
+  );
+  const selectedMusicMode: MusicRuntimeMode = resolveMusicRuntimeMode(
+    search.get("provider"),
+    import.meta.env.VITE_WEBPOD_PROVIDER,
+  );
   const capture = search.has("capture");
   const diagnosticMode = search.get("diagnostic");
   const diagnostic = diagnosticMode === "neutral";
@@ -193,6 +210,10 @@ function DeviceSpike() {
       controls.dispose();
     };
   }, []);
+
+  useEffect(() => {
+    void selectMusicRuntime(selectedMusicMode);
+  }, [selectedMusicMode]);
 
   useEffect(() => {
     window.__webpodDevicePreview = {
@@ -269,7 +290,7 @@ function DeviceSpike() {
           <p className="webpod-device-preview__selection-note">
             Drag a visible edge to rotate · Option/Alt-drag to roll
           </p>
-          <PreviewControls state={state} />
+          <PreviewControls state={state} music={music} />
         </>
       )}
     </main>
@@ -282,7 +303,7 @@ function isGeometryEvidenceView(
   return value !== null && value in GEOMETRY_EVIDENCE_ORIENTATIONS;
 }
 
-function PreviewControls({ state }: { readonly state: DevicePreviewState }) {
+function PreviewControls({ state, music }: { readonly state: DevicePreviewState; readonly music: ReturnType<typeof musicRuntime.getSnapshot> }) {
   return (
     <nav className="webpod-device-preview__controls" aria-label="Device preview controls">
       <button
@@ -299,6 +320,28 @@ function PreviewControls({ state }: { readonly state: DevicePreviewState }) {
       >
         White
       </button>
+      {music.requestedMode === "apple" && music.phase !== "authorized" ? (
+        <button type="button" onClick={() => void authorizeAppleRuntime()}>
+          Sign in to Apple Music
+        </button>
+      ) : null}
+      {music.activeMode === "apple" && music.phase === "authorized" ? (
+        <button type="button" onClick={() => void signOutAppleRuntime()}>
+          Sign out of Apple Music
+        </button>
+      ) : null}
+      {music.requestedMode === "apple" ? (
+        <button type="button" onClick={() => void selectMusicRuntime("fixture")}>
+          Use demo library
+        </button>
+      ) : (
+        <button type="button" onClick={() => void selectMusicRuntime("apple")}>
+          Use Apple Music
+        </button>
+      )}
+      <output aria-live="polite">
+        {music.message ?? (music.activeMode === "apple" ? `Apple Music: ${music.phase}` : "Demo library")}
+      </output>
       <button type="button" onClick={previewStore.resetOrientation}>
         Reset view
       </button>

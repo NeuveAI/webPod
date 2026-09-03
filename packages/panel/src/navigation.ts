@@ -19,9 +19,9 @@ export interface NavigationDataSource {
   readonly songs: readonly TrackRef[]
   readonly stations: readonly StationRef[]
   trackByKey(trackKey: LocalKey): TrackRef | null
-  tracksForAlbum(albumKey: LocalKey): readonly TrackRef[]
-  tracksForPlaylist(playlistKey: LocalKey): readonly TrackRef[]
-  albumsForArtist(artistKey: LocalKey): readonly AlbumRef[]
+  tracksForAlbum(albumKey: LocalKey): readonly TrackRef[] | Promise<readonly TrackRef[]>
+  tracksForPlaylist(playlistKey: LocalKey): readonly TrackRef[] | Promise<readonly TrackRef[]>
+  albumsForArtist(artistKey: LocalKey): readonly AlbumRef[] | Promise<readonly AlbumRef[]>
   albumsForGenre(genreKey: LocalKey): readonly AlbumRef[]
   artistsForGenre(genreKey: LocalKey): readonly ArtistRef[]
   tracksForGenre(genreKey: LocalKey): readonly TrackRef[]
@@ -125,21 +125,21 @@ export async function selectNavigation(
   if (route.kind === 'root') return { frame: rootDestination(current.rows[index]?.destination, source), played: false }
   if (route.kind === 'cover-flow' || route.kind === 'albums') {
     const album = source.albums[index]
-    return { frame: album === undefined ? null : tracksFrame(album, source.tracksForAlbum(album.key)), played: false }
+    return { frame: album === undefined ? null : tracksFrame(album, await source.tracksForAlbum(album.key)), played: false }
   }
   if (route.kind === 'playlists') {
     const playlist = source.playlists[index]
-    return { frame: playlist === undefined ? null : playlistFrame(playlist, source.tracksForPlaylist(playlist.key)), played: false }
+    return { frame: playlist === undefined ? null : playlistFrame(playlist, await source.tracksForPlaylist(playlist.key)), played: false }
   }
   if (route.kind === 'artists' || route.kind === 'genre-artists') {
     const artists = route.kind === 'artists' ? source.artists : source.artistsForGenre(route.genreKey)
     const artist = artists[index]
-    return { frame: artist === undefined ? null : artistAlbumsFrame(artist, source.albumsForArtist(artist.key)), played: false }
+    return { frame: artist === undefined ? null : artistAlbumsFrame(artist, await source.albumsForArtist(artist.key)), played: false }
   }
   if (route.kind === 'artist-albums' || route.kind === 'genre-albums') {
-    const albums = route.kind === 'artist-albums' ? source.albumsForArtist(route.artistKey) : source.albumsForGenre(route.genreKey)
+    const albums = route.kind === 'artist-albums' ? await source.albumsForArtist(route.artistKey) : source.albumsForGenre(route.genreKey)
     const album = albums[index]
-    return { frame: album === undefined ? null : tracksFrame(album, source.tracksForAlbum(album.key)), played: false }
+    return { frame: album === undefined ? null : tracksFrame(album, await source.tracksForAlbum(album.key)), played: false }
   }
   if (route.kind === 'genres') {
     const genre = source.genres[index]
@@ -150,7 +150,7 @@ export async function selectNavigation(
     return { frame: genreDestination(route.genreKey, destination, source), played: false }
   }
   if (route.kind === 'album-tracks' || route.kind === 'playlist-tracks' || route.kind === 'songs' || route.kind === 'genre-tracks' || route.kind === 'search-results') {
-    const tracks = tracksForRoute(route, source)
+    const tracks = await tracksForRoute(route, source)
     if (tracks[index] === undefined) return { frame: null, played: false }
     await provider.play({ kind: 'tracks', tracks, startIndex: index })
     return { frame: nowPlayingFrame(), played: true }
@@ -224,7 +224,7 @@ function genreDestination(genreKey: LocalKey, destination: NavigationRoute | und
   return null
 }
 
-function tracksForRoute(route: NavigationRoute, source: NavigationDataSource): readonly TrackRef[] {
+async function tracksForRoute(route: NavigationRoute, source: NavigationDataSource): Promise<readonly TrackRef[]> {
   if (route.kind === 'album-tracks') return source.tracksForAlbum(route.albumKey)
   if (route.kind === 'playlist-tracks') return source.tracksForPlaylist(route.playlistKey)
   if (route.kind === 'genre-tracks') return source.tracksForGenre(route.genreKey)

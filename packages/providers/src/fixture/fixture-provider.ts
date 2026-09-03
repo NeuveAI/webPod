@@ -516,6 +516,22 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       return pageOf(source, page)
     },
 
+    /** Resolves album and playlist membership through the provider-neutral drill-down seam. */
+    async relatedTracks(ref: AlbumRef | PlaylistRef): Promise<readonly TrackRef[]> {
+      requireCapability('libraryRead')
+      requireSession('relatedTracks')
+      return ref.kind === 'album'
+        ? [...(catalog.tracksByAlbum.get(ref.key) ?? [])]
+        : [...(catalog.tracksByPlaylist.get(ref.key) ?? [])]
+    },
+
+    /** Resolves an artist's albums without exposing fixture catalogue maps to navigation. */
+    async relatedAlbums(ref: import('../identity.ts').ArtistRef): Promise<readonly AlbumRef[]> {
+      requireCapability('libraryRead')
+      requireSession('relatedAlbums')
+      return catalog.albums.filter((album) => album.artistName === ref.name)
+    },
+
     /** Adds to the library. Distinct from Love — §14.3 rows 23 and 24. */
     async libraryAdd(ref: TrackRef | AlbumRef | PlaylistRef): Promise<void> {
       requireCapability('libraryAdd')
