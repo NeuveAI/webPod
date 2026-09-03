@@ -56,6 +56,12 @@ let appleProvider: ReturnType<typeof createAppleProvider> | null = null
 let operation = 0
 const listeners = new Set<() => void>()
 const publish = (next: MusicRuntimeSnapshot): void => { snapshot = next; for (const listener of listeners) listener() }
+const failureMessage = (stage: string, cause: unknown): string => {
+  const detail = cause instanceof Error ? cause.message : 'Unknown failure'
+  const safeDetail = detail.replace(/[A-Za-z0-9_-]{40,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/g, '[redacted token]')
+  console.error(`Apple Music ${stage} failed: ${safeDetail}`)
+  return `Apple Music ${stage} failed: ${safeDetail}`
+}
 
 async function all(provider: MusicProvider, kind: Parameters<MusicProvider['libraryList']>[0]): Promise<readonly Entity[]> {
   const items: Entity[] = []; let cursor: string | null = null; let pages = 0
@@ -91,9 +97,9 @@ export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> 
     if (provider.session === null) { publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null }); return }
     const source = await appleSource(provider); if (selectedOperation !== operation) return
     publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null })
-  } catch {
+  } catch (cause) {
     if (selectedOperation !== operation) return
-    publish({ ...fixtureSnapshot, requestedMode: 'apple', phase: 'error', message: 'Apple Music is unavailable. The demo library is active.' })
+    publish({ ...fixtureSnapshot, requestedMode: 'apple', phase: 'error', message: failureMessage('library loading', cause) })
   }
 }
 
@@ -102,8 +108,26 @@ export async function authorizeAppleRuntime(): Promise<void> {
   const selectedOperation = ++operation
   const provider = appleProvider ?? createAppleProvider(); appleProvider = provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
-  try { await provider.configure(); if (selectedOperation !== operation) return; await provider.authorize(); if (selectedOperation !== operation) return; const source = await appleSource(provider); if (selectedOperation !== operation) return; publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null }) }
-  catch { if (selectedOperation !== operation) return; const denied = provider.appleSessionState.status === 'permission-denied'; publish({ requestedMode: 'apple', activeMode: 'apple', phase: denied ? 'permission-denied' : 'error', provider, source: emptySource, message: 'Apple Music sign-in did not complete.' }) }
+  try {
+    await provider.configure(); if (selectedOperation !== operation) return
+    try { await provider.authorize() } catch (cause) {
+      if (selectedOperation !== operation) return
+      const denied = provider.appleSessionState.status === 'permission-denied'
+      publish({ requestedMode: 'apple', activeMode: 'apple', phase: denied ? 'permission-denied' : 'error', provider, source: emptySource, message: failureMessage('authorization', cause) })
+      return
+    }
+    if (selectedOperation !== operation) return
+    try {
+      const source = await appleSource(provider); if (selectedOperation !== operation) return
+      publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null })
+    } catch (cause) {
+      if (selectedOperation !== operation) return
+      publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message: failureMessage('library loading', cause) })
+    }
+  } catch (cause) {
+    if (selectedOperation !== operation) return
+    publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message: failureMessage('configuration', cause) })
+  }
 }
 
 /** Invalidates the MusicKit user session and returns to the signed-out Apple frame. */

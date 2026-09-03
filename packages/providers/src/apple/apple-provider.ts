@@ -10,7 +10,26 @@ export const MUSICKIT_SCRIPT_URL = 'https://js-cdn.music.apple.com/musickit/v1/m
 export const APPLE_DEVELOPER_TOKEN_PATH = '/api/apple/developer-token' as const
 
 type JsonRecord = Readonly<Record<string, unknown>>
-export interface MusicKitApiLike { music(path: string, parameters?: Readonly<Record<string, string>>): Promise<unknown> }
+type MusicKitParameters = Readonly<Record<string, string | number>>
+export interface MusicKitLibraryApiLike {
+  albums(parameters?: MusicKitParameters): Promise<unknown>
+  artists(parameters?: MusicKitParameters): Promise<unknown>
+  playlists(parameters?: MusicKitParameters): Promise<unknown>
+  songs(parameters?: MusicKitParameters): Promise<unknown>
+  search(term: string, parameters?: MusicKitParameters): Promise<unknown>
+  albumRelationship(id: string, relationship: string, parameters?: MusicKitParameters): Promise<unknown>
+  artistRelationship(id: string, relationship: string, parameters?: MusicKitParameters): Promise<unknown>
+  playlistRelationship(id: string, relationship: string, parameters?: MusicKitParameters): Promise<unknown>
+}
+export interface MusicKitApiLike {
+  readonly library: MusicKitLibraryApiLike
+  search(term: string, parameters?: MusicKitParameters): Promise<unknown>
+  artistRelationship(id: string, relationship: string, parameters?: MusicKitParameters): Promise<unknown>
+  playlistRelationship(id: string, relationship: string, parameters?: MusicKitParameters): Promise<unknown>
+  songRelationship(id: string, relationship: string, parameters?: MusicKitParameters): Promise<unknown>
+  station(id: string, parameters?: MusicKitParameters): Promise<unknown>
+  stations(parameters?: MusicKitParameters): Promise<unknown>
+}
 export interface MusicKitQueueLike { readonly items?: readonly unknown[]; readonly position?: number }
 export interface MusicKitInstanceLike {
   readonly api: MusicKitApiLike; readonly isAuthorized: boolean; readonly storefrontId?: string; readonly storefrontCountryCode?: string
@@ -51,7 +70,7 @@ const asNumber = (value: unknown): number | undefined => typeof value === 'numbe
 const asBoolean = (value: unknown): boolean | undefined => typeof value === 'boolean' ? value : undefined
 const asList = (value: unknown): readonly unknown[] => Array.isArray(value) ? value : []
 function payload(value: unknown): JsonRecord { const outer = record(value, 'API'); const data = outer['data']; return typeof data === 'object' && data !== null && !Array.isArray(data) ? record(data, 'API payload') : outer }
-function resources(value: unknown): readonly unknown[] { return asList(payload(value)['data']) }
+function resources(value: unknown): readonly unknown[] { return Array.isArray(value) ? value : asList(payload(value)['data']) }
 
 function artwork(attributes: JsonRecord): Artwork | undefined {
   const value = attributes['artwork']; if (typeof value !== 'object' || value === null || Array.isArray(value)) return undefined
@@ -110,12 +129,41 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     for (const name of ['playbackStateDidChange', 'nowPlayingItemDidChange', 'queueItemsDidChange']) value.addEventListener(name, changed)
     value.addEventListener('playbackTimeDidChange', tick)
   }
-  const api = async (path: string, parameters?: Readonly<Record<string, string>>): Promise<unknown> => authorized('api').api.music(path, parameters)
+  const api = async (path: string, parameters?: Readonly<Record<string, string>>): Promise<unknown> => {
+    const value = authorized('api').api
+    const url = new URL(path, 'https://api.music.apple.com')
+    const query: Record<string, string | number> = Object.fromEntries(url.searchParams)
+    Object.assign(query, parameters)
+    const parts = url.pathname.split('/').filter(Boolean).map(decodeURIComponent)
+    if (parts[1] === 'me' && parts[2] === 'library') {
+      const collection = parts[3]
+      if (parts.length === 4 && (collection === 'albums' || collection === 'artists' || collection === 'playlists' || collection === 'songs')) return value.library[collection](query)
+      if (collection === 'search') { const term = String(query['term'] ?? ''); const options = { ...query }; delete options['term']; return value.library.search(term, options) }
+      const id = parts[4]; const relationship = parts[5]
+      if (id !== undefined && relationship !== undefined) {
+        if (collection === 'albums') return value.library.albumRelationship(id, relationship, query)
+        if (collection === 'artists') return value.library.artistRelationship(id, relationship, query)
+        if (collection === 'playlists') return value.library.playlistRelationship(id, relationship, query)
+      }
+    }
+    if (parts[1] === 'catalog') {
+      const collection = parts[3]
+      if (collection === 'search') { const term = String(query['term'] ?? ''); const options = { ...query }; delete options['term']; return value.search(term, options) }
+      const id = parts[4]; const relationship = parts[5]
+      if (id !== undefined && relationship !== undefined) {
+        if (collection === 'artists') return value.artistRelationship(id, relationship, query)
+        if (collection === 'playlists') return value.playlistRelationship(id, relationship, query)
+        if (collection === 'songs') return value.songRelationship(id, relationship, query)
+      }
+      if (collection === 'stations') return id === undefined ? value.stations(query) : value.station(id, query)
+    }
+    throw new Error(`Apple MusicKit v1 cannot request ${url.pathname}`)
+  }
   const cursorPath = (cursor: Cursor | undefined, first: string): string => { if (cursor === undefined) return first; if (!cursors.delete(cursor)) throw new InvalidCursorError('apple', cursor); return cursor }
-  const page = (response: unknown): Page<Entity> => { const body = payload(response); const next = asText(body['next']) ?? null; if (next !== null) cursors.add(next); const meta = body['meta']; const total = typeof meta === 'object' && meta !== null ? asNumber(record(meta, 'metadata')['total']) ?? null : null; return { items: resources(response).map((item) => normalize(item, keyFor)), next, total } }
+  const page = (response: unknown): Page<Entity> => { const body = Array.isArray(response) ? {} : payload(response); const next = asText(body['next']) ?? null; if (next !== null) cursors.add(next); const meta = body['meta']; const total = typeof meta === 'object' && meta !== null ? asNumber(record(meta, 'metadata')['total']) ?? null : Array.isArray(response) ? response.length : null; return { items: resources(response).map((item) => normalize(item, keyFor)), next, total } }
   const relationships = async <T extends AlbumRef | TrackRef>(first: string, kind: T['kind']): Promise<readonly T[]> => {
     const items: T[] = []; let path: string | null = first; let pages = 0
-    while (path !== null) { const response = await api(path); items.push(...resources(response).map((item) => normalize(item, keyFor)).filter((item): item is T => item.kind === kind)); path = asText(payload(response)['next']) ?? null; pages += 1; if (pages > 1_000) throw new Error('Apple Music relationship pagination did not terminate') }
+    while (path !== null) { const response = await api(path); items.push(...resources(response).map((item) => normalize(item, keyFor)).filter((item): item is T => item.kind === kind)); path = Array.isArray(response) ? null : asText(payload(response)['next']) ?? null; pages += 1; if (pages > 1_000) throw new Error('Apple Music relationship pagination did not terminate') }
     return items
   }
   const storefront = (method: string): string => authorized(method).storefrontId ?? authorized(method).storefrontCountryCode ?? 'us'
