@@ -3,9 +3,9 @@ import type {
   DeviceOrientation,
   DeviceOrientationGrabStart,
 } from '@webpod/device'
-import { Panel, type PanelState } from '@webpod/panel'
+import { Panel, type NavigationStatus, type PanelState } from '@webpod/panel'
 import { useCallback, useSyncExternalStore } from 'react'
-import { musicRuntime } from './music-runtime'
+import { musicRuntime, type MusicRuntimeSnapshot } from './music-runtime'
 
 export type ProductionPanelState = PanelState
 
@@ -27,6 +27,17 @@ export interface ProductionDeviceViewProps extends ProductionPanelViewProps {
   readonly interactionAudioEnabled?: boolean
 }
 
+/** Keeps provider errors attached to the provider that is actually on screen. */
+export function accountStatusForRuntime(
+  runtime: Pick<MusicRuntimeSnapshot, 'activeMode' | 'phase'>,
+): NavigationStatus | null | undefined {
+  if (runtime.activeMode === 'fixture') return null
+  if (runtime.phase === 'permission-denied') return null
+  if (runtime.phase === 'signing-in') return 'loading'
+  if (runtime.phase === 'error') return 'error'
+  return undefined
+}
+
 /**
  * The one production LCD configuration used by every device route.
  *
@@ -40,6 +51,7 @@ export function ProductionPanelView({
   dynamicTypeScale = 1,
 }: ProductionPanelViewProps) {
   const runtime = useSyncExternalStore(musicRuntime.subscribe, musicRuntime.getSnapshot, musicRuntime.getSnapshot)
+  const accountStatus = accountStatusForRuntime(runtime)
   return (
     <Panel
       colourway={colourway === 'white' ? 'light' : 'dark'}
@@ -51,7 +63,7 @@ export function ProductionPanelView({
       longList={false}
       provider={runtime.provider}
       navigationSource={runtime.source}
-      accountStatus={runtime.phase === 'permission-denied' ? null : runtime.phase === 'signing-in' ? 'loading' : runtime.phase === 'error' ? 'error' : undefined}
+      accountStatus={accountStatus}
     />
   )
 }

@@ -1,5 +1,5 @@
 export { Panel, searchQueryAtom, type PanelProps } from './Panel'
-export type { NavigationDataSource } from './navigation'
+export type { NavigationDataSource, NavigationStatus } from './navigation'
 export { providerStatusFrame, statusFrame } from './navigation'
 export { LIST_DEFAULT_VISIBLE_ROWS, LIST_VIEWPORT_SIZE_PX, ListRow, ListViewport, type ListRowContent } from './list-view'
 export {
