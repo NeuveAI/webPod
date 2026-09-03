@@ -64,7 +64,8 @@ async function all(provider: MusicProvider, kind: Parameters<MusicProvider['libr
 }
 
 async function appleSource(provider: MusicProvider): Promise<NavigationDataSource> {
-  const [playlists, artists, albums, songs, stations] = await Promise.all([all(provider, 'playlists'), all(provider, 'artists'), all(provider, 'albums'), all(provider, 'songs'), provider.stationsList()])
+  const [playlists, artists, albums, songs] = await Promise.all([all(provider, 'playlists'), all(provider, 'artists'), all(provider, 'albums'), all(provider, 'songs')])
+  const stations = await provider.stationsList().catch(() => [])
   const typedPlaylists = playlists.filter((item): item is PlaylistRef => item.kind === 'playlist'); const typedArtists = artists.filter((item): item is ArtistRef => item.kind === 'artist'); const typedAlbums = albums.filter((item): item is AlbumRef => item.kind === 'album'); const typedSongs = songs.filter((item): item is TrackRef => item.kind === 'track')
   const knownTracks = new Map(typedSongs.map((track) => [track.key, track])); const remember = (tracks: readonly TrackRef[]): readonly TrackRef[] => { for (const track of tracks) knownTracks.set(track.key, track); return tracks }
   const album = (key: LocalKey): AlbumRef | undefined => typedAlbums.find((item) => item.key === key); const artist = (key: LocalKey): ArtistRef | undefined => typedArtists.find((item) => item.key === key); const playlist = (key: LocalKey): PlaylistRef | undefined => typedPlaylists.find((item) => item.key === key)

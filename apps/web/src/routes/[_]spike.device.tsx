@@ -320,7 +320,7 @@ function PreviewControls({ state, music }: { readonly state: DevicePreviewState;
       >
         White
       </button>
-      {music.requestedMode === "apple" && music.phase !== "authorized" ? (
+      {music.activeMode === "apple" && (music.phase === "signed-out" || music.phase === "permission-denied") ? (
         <button type="button" onClick={() => void authorizeAppleRuntime()}>
           Sign in to Apple Music
         </button>

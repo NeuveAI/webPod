@@ -90,6 +90,7 @@ function unsupported(capability: Capability): never { throw new CapabilityUnsupp
 
 export function createAppleProvider(options?: AppleProviderOptions): AppleMusicProvider {
   const configuredOptions = options ?? browserAppleProviderOptions(); let kit: MusicKitGlobalLike | null = null; let music: MusicKitInstanceLike | null = null; let currentSession: Session | null = null
+  let configurePromise: Promise<void> | null = null
   let appleState: AppleSessionState = { status: 'signed-out' }
   let currentPlayback: PlaybackState = { status: 'idle', now: null, positionMs: 0, durationMs: 0, volume0to100: 100, shuffle: 'off', repeat: 'off' }
   const sessions = new Set<(value: Session | null) => void>(); const appleStates = new Set<(value: AppleSessionState) => void>(); const playback = new Set<(value: PlaybackState) => void>(); const progress = new Set<(value: ProgressTick) => void>(); const cursors = new Set<string>(); const keyFor = identityCache()
@@ -118,10 +119,23 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     return items
   }
   const storefront = (method: string): string => authorized(method).storefrontId ?? authorized(method).storefrontCountryCode ?? 'us'
+  const configure = async (): Promise<void> => {
+    if (music !== null) return
+    configurePromise ??= (async () => {
+      kit = await configuredOptions.loadMusicKit()
+      const token = await configuredOptions.fetchDeveloperToken()
+      const result = await kit.configure({ developerToken: token.token, app: { name: configuredOptions.appName ?? 'webPod', build: configuredOptions.appBuild ?? 'local' } })
+      music = result ?? kit.getInstance()
+      bind(music)
+      if (music.isAuthorized) emitSession(sessionOf(music, null))
+      currentPlayback = stateOf(music)
+    })().catch((cause) => { configurePromise = null; throw cause })
+    await configurePromise
+  }
   return {
     id: 'apple', displayName: 'Apple Music', supports: (capability) => APPLE_SUPPORTS[capability], unsupportedReason: (capability) => APPLE_SUPPORTS[capability] ? null : APPLE_UNSUPPORTED_REASONS[capability],
-    async configure() { if (music !== null) return; kit = await configuredOptions.loadMusicKit(); const token = await configuredOptions.fetchDeveloperToken(); const result = await kit.configure({ developerToken: token.token, app: { name: configuredOptions.appName ?? 'webPod', build: configuredOptions.appBuild ?? 'local' } }); music = result ?? kit.getInstance(); bind(music); if (music.isAuthorized) emitSession(sessionOf(music, null)); currentPlayback = stateOf(music) },
-    async authorize() { if (music === null) await this.configure(); emitAppleState({ status: 'signing-in' }); const value = instance('authorize'); try { const user = await value.authorize(); if (!value.isAuthorized || user === undefined) { const error = new NotAuthorizedError('apple', 'authorize'); emitAppleState({ status: 'permission-denied', message: error.message }); throw error } const session = sessionOf(value, user); emitSession(session); return session } catch (cause) { if (appleState.status !== 'permission-denied') emitAppleState({ status: 'error', message: cause instanceof Error ? cause.message : 'Apple Music sign-in failed' }); throw cause } },
+    configure,
+    async authorize() { if (music === null) await configure(); emitAppleState({ status: 'signing-in' }); const value = instance('authorize'); try { const user = await value.authorize(); if (!value.isAuthorized || user === undefined) { const error = new NotAuthorizedError('apple', 'authorize'); emitAppleState({ status: 'permission-denied', message: error.message }); throw error } const session = sessionOf(value, user); emitSession(session); return session } catch (cause) { if (appleState.status !== 'permission-denied') emitAppleState({ status: 'error', message: cause instanceof Error ? cause.message : 'Apple Music sign-in failed' }); throw cause } },
     async unauthorize() { const value = instance('unauthorize'); await value.unauthorize(); emitSession(null) }, get session() { return currentSession }, onSessionChange(callback) { sessions.add(callback); return () => { sessions.delete(callback) } }, get appleSessionState() { return appleState }, onAppleSessionStateChange(callback) { appleStates.add(callback); return () => { appleStates.delete(callback) } },
     async search(query) { const types = query.kinds.map((kind) => kind === 'track' ? 'songs' : `${kind}s`).filter((kind) => kind !== 'stations'); const path = query.scope === 'library' ? '/v1/me/library/search' : `/v1/catalog/${storefront('search')}/search`; const response = await api(path, { term: query.term, types: (query.scope === 'library' ? types.map((type) => `library-${type}`) : types).join(','), limit: String(Math.min(25, Math.max(1, query.limit ?? 25))), ...(query.cursor === undefined ? {} : { offset: query.cursor }) }); const resultMap = record(payload(response)['results'], 'search results'); const entities: Entity[] = []; for (const section of Object.values(resultMap)) for (const item of resources(section)) entities.push(normalize(item, keyFor)); return { tracks: entities.filter((x): x is TrackRef => x.kind === 'track'), albums: entities.filter((x): x is AlbumRef => x.kind === 'album'), artists: entities.filter((x): x is ArtistRef => x.kind === 'artist'), playlists: entities.filter((x): x is PlaylistRef => x.kind === 'playlist'), stations: entities.filter((x): x is StationRef => x.kind === 'station'), next: null } satisfies SearchResults },
     async libraryList(kind, cursor) { const names: Record<LibraryKind, string | null> = { playlists: 'playlists', artists: 'artists', albums: 'albums', songs: 'songs', genres: null, composers: null }; const name = names[kind]; if (name === null) throw new NotImplementedError('apple', `libraryList(${kind}): Apple exposes no matching library collection endpoint`); return page(await api(cursorPath(cursor, `/v1/me/library/${name}`))) },
