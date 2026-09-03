@@ -29,8 +29,10 @@ aesthetic approval claim.
 
 Deterministic proof lives in `packages/panel/src/list-view.test.tsx`:
 
-- all collection families render the same semantic `ListRow` and current state;
-- one direct wheel detent moves the current row for each family;
+- an explicit named matrix covers every root collection, Search entry/results,
+  artist and genre descendants, and both album/playlist nested track families
+  through the same semantic `ListRow` and current state;
+- one direct wheel detent moves the current row for every scrollable family;
 - eight rows fit without a rail and row nine activates the shared Aqua rail;
 - only the canonical component authors list `<li>` markup;
 - long primary/secondary text truncates inside fixed tail columns;

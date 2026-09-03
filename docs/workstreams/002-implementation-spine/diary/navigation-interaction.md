@@ -33,7 +33,7 @@
 
 ## Reopened-slice verification
 
-- Full `bun run gates`: 11/11 TypeScript projects, lint clean, 1151 tests pass, 16 automated gates pass, 0 fail.
+- Full `bun run gates`: 11/11 TypeScript projects, lint clean, 1152 tests pass, 16 automated gates pass, 0 fail.
 - Full panel Playwright suite: 16 pass, 0 fail.
 - Captured the five required `/_spike/device` list screens at one unchanged 800×638 viewport and device presentation.
 - Manual gates U14 and U15/owner visual sign-off remain open; the screenshots are evidence for that review, not an aesthetic approval claim.
