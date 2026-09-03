@@ -114,6 +114,7 @@
       "name": "@webpod/state",
       "version": "0.0.0",
       "dependencies": {
+        "@webpod/providers": "workspace:*",
         "jotai": "2.20.3",
       },
     },
