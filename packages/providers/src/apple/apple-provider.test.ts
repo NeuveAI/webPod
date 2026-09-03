@@ -98,6 +98,30 @@ describe('Apple provider', () => {
     music.emit('playbackStateDidChange')
     expect(provider.playback.status).toBe('error')
   })
+  test('does not attribute a delayed error from selection A to pending selection B', async () => {
+    const { provider, music } = setup(); await provider.configure()
+    const first = (await provider.libraryList('songs')).items[0]
+    if (first?.kind !== 'track') throw new Error('library track missing')
+    const second = { ...first, catalogId: 'catalog-song.2', title: 'Morning' }
+    const firstItem = { id: first.catalogId, type: 'songs', attributes: { name: first.title, artistName: first.artistName, durationInMillis: first.durationMs } }
+    const secondItem = { id: second.catalogId, type: 'songs', attributes: { name: second.title, artistName: second.artistName, durationInMillis: second.durationMs } }
+
+    await provider.play({ kind: 'tracks', tracks: [first], startIndex: 0 })
+    music.setNowPlaying(firstItem)
+    music.emit('mediaItemDidChange')
+    await provider.play({ kind: 'tracks', tracks: [second], startIndex: 0 })
+
+    music.emit('mediaPlaybackError', { detail: { item: firstItem, error: { name: 'AbortError', message: 'Previous stream ended' } } })
+    expect(provider.playback.status).toBe('loading')
+    music.emit('mediaPlaybackError', { detail: { error: { name: 'AbortError', message: 'Anonymous previous stream error' } } })
+    expect(provider.playback.status).toBe('loading')
+    expect(provider.appleSessionState).toMatchObject({ status: 'error', message: 'Apple Music reported an unidentifiable playback error while a newer selection was pending.' })
+
+    music.setNowPlaying(secondItem)
+    music.emit('mediaItemDidChange')
+    expect(provider.playback).toMatchObject({ status: 'playing', now: { catalogId: second.catalogId } })
+    expect(provider.appleSessionState.status).toBe('authorized')
+  })
   test('uses MusicKit v1 media events and detaches every SDK listener across sign-out and reauthorization', async () => {
     const { provider, music } = setup(); await provider.configure()
     expect(music.removed).toEqual([])
