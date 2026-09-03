@@ -53,3 +53,39 @@
 1. No finding contradicts the method used here: the missing-proof finding is based on direct inspection of every new test plus independent command execution, and the duplicate-state finding is based on tracing both event/state machines and the final CSS cascade.
 2. The reasons support the conclusions rather than merely arriving at the same result: green helper tests prove helper transitions, but cannot prove mounted R3F event routing or browser computed styles; the source trace demonstrates two independent owners of the same orientation cursor fact.
 3. Evidence class: test/type/lint results are structural execution evidence for their scoped assertions. The cursor UX conclusion remains unverified because its required mounted/browser assertions do not exist. Owner aesthetic/visual acceptance is human-judgment evidence and remains open.
+
+## Re-review: `72176d3` — derive cursor from interaction owners
+
+### Verdict: REQUEST_CHANGES
+
+The first Major is closed. `DeviceCursorIntentController`, its parallel
+`grabbable`/`active` state, and its duplicate terminal listeners are removed.
+Orientation cursor presentation now reads the `data-orientation-grab` state
+published by the existing preview orientation owner.
+
+The second Major is partially closed. A mounted R3F test now proves annulus and
+Select hover publication plus unmount cleanup, and the dedicated Chrome test
+proves fine-pointer default/pointer/grab/grabbing behavior, cancellation, preview
+buttons, and outside selectable text. The coarse-pointer proof is incomplete and
+exposes a remaining contract violation below.
+
+### Findings
+
+- [MAJOR] Orientation `grab`/`grabbing` remains active on coarse-pointer environments despite the binding requirement and release decision that cursor styling be fine-pointer-only (`apps/web/src/routes/[_]spike.device.tsx:387-394`). These authoritative stage selectors are unconditional; `72176d3` removed the fine-pointer orientation rules from `app.css` but did not move or contain the route rules. The new coarse Chrome test checks only wheel cursor styling (`apps/web/tests/native-cursor.e2e.ts:71-96`), so it passes while never moving to an enclosure edge or asserting that orientation stays `default`. This directly contradicts `decisions/native-cursor-release.md`'s claim that fine-pointer media queries contain the visual cursor rules and leaves touch/coarse-pointer orientation behavior outside the requested contract. Put the stage orientation cursor selectors behind the fine-hover media query and extend the coarse browser test across edge hover/active orientation state.
+
+### Re-review verification
+
+- `bun test packages/device/src/click-wheel-input.test.tsx packages/device/src/click-wheel-input.integration.test.tsx packages/device/src/orientation-grab.test.ts` → 30 pass, 0 fail, 172 assertions.
+- `bunx playwright test --config apps/web/tests/playwright.config.ts apps/web/tests/native-cursor.e2e.ts` → 2 Chrome tests pass.
+- `bunx tsc --noEmit -p packages/device/tsconfig.json` → pass.
+- `bunx tsc --noEmit -p apps/web/tsconfig.json` → pass.
+- `bun run lint` → pass.
+- `bun run gates` → types, lint, and 1162 tests pass; U8 alone fails on unrelated concurrent `apps/web/src/music-runtime.ts:105`; U14/U15 remain manual.
+
+### Re-review D-038 check
+
+The remaining finding follows the rendered CSS path rather than trusting the
+passing test: the test proves only the wheel media query, while the separate
+orientation selectors are structurally unconditional. The implementation and
+documentation reach the desired fine-pointer conclusion, but their stated reason
+does not support it for orientation. That inconsistency is the finding.
