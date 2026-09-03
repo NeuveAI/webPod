@@ -141,12 +141,35 @@ export async function fetchAppleDeveloperToken(fetcher: typeof fetch = fetch): P
 export async function loadMusicKitScript(documentRef: Document = document): Promise<MusicKitGlobalLike> {
   const existing = (globalThis as { MusicKit?: MusicKitGlobalLike }).MusicKit; if (existing !== undefined) return existing
   return new Promise((resolve, reject) => {
+    const globalObject = globalThis as unknown as Record<string, unknown>
+    const processDescriptor = Object.getOwnPropertyDescriptor(globalObject, 'process')
+    const browserProcess = typeof globalObject['process'] === 'object' && globalObject['process'] !== null
+      ? globalObject['process'] as Readonly<Record<string, unknown>>
+      : undefined
+    if (browserProcess?.['versions'] === undefined) {
+      Object.defineProperty(globalObject, 'process', {
+        configurable: true,
+        enumerable: processDescriptor?.enumerable ?? false,
+        writable: true,
+        value: { ...browserProcess, versions: null },
+      })
+    }
     const found = documentRef.querySelector<HTMLScriptElement>(`script[src="${MUSICKIT_SCRIPT_URL}"]`)
     const script = found ?? documentRef.createElement('script')
+    const restoreProcess = (): void => {
+      if (processDescriptor === undefined) delete globalObject['process']
+      else Object.defineProperty(globalObject, 'process', processDescriptor)
+    }
     const cleanup = (): void => { documentRef.removeEventListener('musickitloaded', loaded); script.removeEventListener('error', failed) }
-    const loaded = (): void => { cleanup(); const value = (globalThis as { MusicKit?: MusicKitGlobalLike }).MusicKit; if (value === undefined) reject(new Error('MusicKit loaded without its global')); else resolve(value) }
-    const failed = (): void => { cleanup(); reject(new Error('MusicKit script could not be loaded')) }
+    const scriptLoaded = (): void => { restoreProcess() }
+    const loaded = (): void => {
+      cleanup()
+      const value = (globalThis as { MusicKit?: MusicKitGlobalLike }).MusicKit
+      if (value === undefined) reject(new Error('MusicKit loaded without its global')); else resolve(value)
+    }
+    const failed = (): void => { cleanup(); script.removeEventListener('load', scriptLoaded); restoreProcess(); reject(new Error('MusicKit script could not be loaded')) }
     documentRef.addEventListener('musickitloaded', loaded, { once: true }); script.addEventListener('error', failed, { once: true })
+    script.addEventListener('load', scriptLoaded, { once: true })
     if (found === null) { script.src = MUSICKIT_SCRIPT_URL; script.async = true; documentRef.head.append(script) }
   })
 }
