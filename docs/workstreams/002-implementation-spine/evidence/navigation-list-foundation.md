@@ -4,7 +4,8 @@ Owner review status: pending.
 
 The screenshot set in this folder is captured from the existing
 `/_spike/device` product route at one unchanged device scale and panel size.
-It covers Playlists, Artists, Albums, Songs and one nested track list.
+It covers Playlists, Artists, Albums, Songs, one nested track list, and an
+explicit 42-row overflow case.
 
 All captures use the same 800×638 browser viewport, unchanged black device,
 unchanged camera pose, 272×204 authored panel raster and product scale:
@@ -14,6 +15,8 @@ unchanged camera pose, 272×204 authored panel raster and product scale:
 - `navigation-list-albums.png`
 - `navigation-list-songs.png`
 - `navigation-list-nested-tracks.png`
+- `navigation-list-overflow-9-plus.png` (Songs fixture, 42 rows; eight visible
+  rows plus the striped Aqua rail)
 
 Reproduction from the initial Albums-highlighted root uses the focused panel:
 
@@ -22,6 +25,7 @@ Reproduction from the initial Albums-highlighted root uses the focused panel:
 - Artists: `Escape`, `ArrowDown`, `Enter`
 - Songs: `Escape`, `ArrowDown`, `ArrowDown`, `Enter`
 - Nested tracks: `Escape`, `ArrowUp`, `Enter`, `Enter`
+- Overflow: from the initial Albums-highlighted root, `ArrowDown`, `Enter`
 
 The screenshots were captured from Chromium with the existing
 `CanvasDrawElement` product flag. They are owner-review evidence, not an
