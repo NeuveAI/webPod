@@ -793,8 +793,7 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       requireSession('stationStart')
       if (seed.type === 'track') requireCapability('stationSeedFromTrack')
       const existing = catalog.stations.find((s) => s.catalogId === seed.ref)
-      if (existing !== undefined) return existing
-      return {
+      const station = existing ?? {
         kind: 'station',
         key: mintLocalKey(),
         provider: 'fixture',
@@ -802,6 +801,14 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
         name: 'Station',
         live: false,
       }
+      const [head, ...rest] = catalog.tracks
+      queueNow = head ?? null
+      queueNext = rest
+      positionMs = 0
+      status = queueNow === null ? 'idle' : 'playing'
+      emitPlayback()
+      emitProgress()
+      return station
     },
 
     /** ⚑ `lyrics` is `false` on both real providers. See the adapter comments. */

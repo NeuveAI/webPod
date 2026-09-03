@@ -580,6 +580,18 @@ describe('the fixture provider — behaviour', () => {
     expect(page.next).toBeNull()
   })
 
+  test('starting a station starts fixture playback exactly once', async () => {
+    const provider = createFixtureProvider()
+    const station = provider.catalog.stations[0]
+    if (station === undefined) throw new Error('empty fixture station catalogue')
+    let playingTransitions = 0
+    const off = provider.onPlaybackChange((state) => { if (state.status === 'playing') playingTransitions += 1 })
+    await provider.stationStart({ type: 'station', ref: station.catalogId })
+    off()
+    expect(provider.playback.status).toBe('playing')
+    expect(playingTransitions).toBe(1)
+  })
+
   test('unsubscribing is idempotent', () => {
     const provider = createFixtureProvider()
     const off = provider.onPlaybackChange(() => {})

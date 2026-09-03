@@ -43,7 +43,7 @@ export function ProductionPanelView({
   return (
     <Panel
       colourway={colourway === 'white' ? 'light' : 'dark'}
-      state={state}
+      state={runtime.phase === 'permission-denied' ? 'permission-denied' : state}
       dynamicTypeScale={dynamicTypeScale}
       density={null}
       actor="human"
@@ -51,7 +51,7 @@ export function ProductionPanelView({
       longList={false}
       provider={runtime.provider}
       navigationSource={runtime.source}
-      accountStatus={runtime.phase === 'signing-in' ? 'loading' : runtime.phase === 'error' || runtime.phase === 'permission-denied' ? 'error' : undefined}
+      accountStatus={runtime.phase === 'signing-in' ? 'loading' : runtime.phase === 'error' ? 'error' : undefined}
     />
   )
 }
