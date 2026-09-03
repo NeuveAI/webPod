@@ -241,4 +241,41 @@ describe('the bare DOM panel', () => {
 
     expect(html).toContain(`${selectedIndex + 1} of ${fixtureNavigationSource.songs.length}`)
   })
+
+  test('reports the selected occurrence when a playback queue contains duplicate tracks', async () => {
+    const playbackProvider = createFixtureProvider()
+    const [first, second] = fixtureNavigationSource.songs
+    if (first === undefined || second === undefined) throw new Error('fixture tracks missing')
+    const duplicateSongs = [first, second, first]
+    const duplicateSource = { ...fixtureNavigationSource, songs: duplicateSongs }
+    const root = navigationRoot(duplicateSource, playbackProvider)
+    const songs = (await selectNavigation({ ...root, highlightIndex: 4 }, duplicateSource, playbackProvider)).frame
+    if (songs === null) throw new Error('songs frame missing')
+    const nowPlaying = (await selectNavigation({ ...songs, highlightIndex: 2 }, duplicateSource, playbackProvider)).frame
+    if (nowPlaying === null) throw new Error('now playing frame missing')
+    deviceStore.set(resetStackActionAtom, [nowPlaying])
+
+    const html = renderToStaticMarkup(<Panel state="ready" provider={playbackProvider} navigationSource={duplicateSource} />)
+
+    expect(html).toContain('3 of 3')
+  })
+
+  test('follows provider playback changes instead of freezing the retained start index', async () => {
+    const playbackProvider = createFixtureProvider()
+    const [first, second] = fixtureNavigationSource.songs
+    if (first === undefined || second === undefined) throw new Error('fixture tracks missing')
+    const duplicateSongs = [first, second, first]
+    const duplicateSource = { ...fixtureNavigationSource, songs: duplicateSongs }
+    const root = navigationRoot(duplicateSource, playbackProvider)
+    const songs = (await selectNavigation({ ...root, highlightIndex: 4 }, duplicateSource, playbackProvider)).frame
+    if (songs === null) throw new Error('songs frame missing')
+    const nowPlaying = (await selectNavigation({ ...songs, highlightIndex: 0 }, duplicateSource, playbackProvider)).frame
+    if (nowPlaying === null) throw new Error('now playing frame missing')
+    await playbackProvider.skip('next')
+    deviceStore.set(resetStackActionAtom, [nowPlaying])
+
+    const html = renderToStaticMarkup(<Panel state="ready" provider={playbackProvider} navigationSource={duplicateSource} />)
+
+    expect(html).toContain('2 of 3')
+  })
 })
