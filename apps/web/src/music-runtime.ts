@@ -102,7 +102,7 @@ export async function authorizeAppleRuntime(): Promise<void> {
   const provider = appleProvider ?? createAppleProvider(); appleProvider = provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try { await provider.configure(); if (selectedOperation !== operation) return; await provider.authorize(); if (selectedOperation !== operation) return; const source = await appleSource(provider); if (selectedOperation !== operation) return; publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null }) }
-  catch { if (selectedOperation !== operation) return; const denied = provider.appleSessionState.status === 'permission-denied'; publish({ requestedMode: 'apple', activeMode: 'apple', phase: denied ? 'permission-denied' : 'error', provider, source: emptySource, message: denied ? 'Apple Music access was not granted.' : 'Apple Music sign-in did not complete.' }) }
+  catch { if (selectedOperation !== operation) return; const denied = provider.appleSessionState.status === 'permission-denied'; publish({ requestedMode: 'apple', activeMode: 'apple', phase: denied ? 'permission-denied' : 'error', provider, source: emptySource, message: 'Apple Music sign-in did not complete.' }) }
 }
 
 /** Invalidates the MusicKit user session and returns to the signed-out Apple frame. */
