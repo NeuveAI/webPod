@@ -5,14 +5,19 @@ import { resolve } from 'node:path'
 const source = (path: string): string =>
   readFileSync(resolve(import.meta.dirname, path), 'utf8')
 
-test('orientation remains event-driven and the canonical canvas stays demand-rendered', () => {
+test('orientation release is bounded while the canonical canvas stays demand-rendered', () => {
   const controls = source('device-preview-orientation.ts')
+  const motion = source('device-orientation-motion.ts')
   const canvas = source('../../../packages/device/src/DeviceCanvas.tsx')
   const route = source('routes/[_]spike.device.tsx')
 
   expect(canvas).toContain('frameloop="demand"')
-  expect(controls).not.toContain('requestAnimationFrame')
+  expect(controls).toContain('requestAnimationFrame')
+  expect(controls).toContain('cancelAnimationFrame')
+  expect(controls).toContain('advanceDeviceOrientationRelease')
+  expect(motion).toContain('Math.exp(-ORIENTATION_COAST_DECAY_PER_SECOND')
   expect(controls).not.toContain('useFrame')
+  expect(controls).not.toContain('setInterval')
   expect(controls).not.toContain('useState')
   expect(route).not.toContain('useState')
 })

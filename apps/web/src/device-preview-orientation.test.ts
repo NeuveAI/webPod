@@ -11,6 +11,7 @@ import {
   bindDeviceOrientationControls,
   createDevicePreviewStore,
   orientationFromDeviceDrag,
+  type DeviceOrientationMotionEnvironment,
 } from './device-preview-orientation'
 
 class FakeStage extends EventTarget {
@@ -43,6 +44,45 @@ class FakeCapture implements DeviceOrientationPointerCapture {
 class ThrowingReleaseCapture extends FakeCapture {
   override releasePointerCapture(): void {
     throw new DOMException('pointer already released', 'NotFoundError')
+  }
+}
+
+class FrameEnvironment implements DeviceOrientationMotionEnvironment {
+  currentTimeMs = 0
+  reduced = false
+  private nextHandle = 0
+  private readonly frames = new Map<number, FrameRequestCallback>()
+
+  readonly now = (): number => this.currentTimeMs
+
+  readonly requestFrame = (callback: FrameRequestCallback): number => {
+    this.nextHandle += 1
+    this.frames.set(this.nextHandle, callback)
+    return this.nextHandle
+  }
+
+  readonly cancelFrame = (handle: number): void => {
+    this.frames.delete(handle)
+  }
+
+  readonly reducedMotion = (): boolean => this.reduced
+
+  get pendingFrames(): number {
+    return this.frames.size
+  }
+
+  step(elapsedMs: number): void {
+    this.currentTimeMs += elapsedMs
+    const callbacks = [...this.frames.values()]
+    this.frames.clear()
+    for (const callback of callbacks) callback(this.currentTimeMs)
+  }
+
+  runUntilIdle(frameMs = 1_000 / 60): void {
+    for (let frame = 0; frame < 2_000 && this.frames.size > 0; frame += 1) {
+      this.step(frameMs)
+    }
+    if (this.frames.size > 0) throw new Error('orientation release did not settle')
   }
 }
 
@@ -157,6 +197,109 @@ describe('external device preview orientation', () => {
     controls.dispose()
   })
 
+  test('production release continues over frames and a fast yaw flick lands opposite', () => {
+    const stage = new FakeStage()
+    const host = new EventTarget()
+    const capture = new FakeCapture()
+    const store = createDevicePreviewStore()
+    store.resetOrientation()
+    const frames = new FrameEnvironment()
+    const controls = bindDeviceOrientationControls(
+      stage,
+      store,
+      new EventTarget(),
+      frames,
+    )
+
+    expect(frames.pendingFrames).toBe(0)
+    expect(controls.begin(grabStart(host, capture, 'touch', 31, 0, 0))).toBe(true)
+    host.dispatchEvent(pointerEvent('pointermove', 31, 30, 0, 20))
+    host.dispatchEvent(pointerEvent('pointermove', 31, 60, 0, 40))
+    host.dispatchEvent(pointerEvent('pointerup', 31, 90, 0, 60))
+
+    const atRelease = store.getSnapshot().orientation.yawDeg
+    expect(atRelease).toBeCloseTo(37.8, 8)
+    expect(controls.isActive()).toBe(false)
+    expect(controls.isAnimating()).toBe(true)
+    expect(stage.dataset['orientationMotion']).toBe('opposite-face')
+    expect(frames.pendingFrames).toBe(1)
+
+    frames.step(16)
+    const afterOneFrame = store.getSnapshot().orientation.yawDeg
+    frames.step(16)
+    const afterTwoFrames = store.getSnapshot().orientation.yawDeg
+    expect(afterOneFrame).toBeGreaterThan(atRelease)
+    expect(afterTwoFrames).toBeGreaterThan(afterOneFrame)
+
+    frames.runUntilIdle()
+    expect(store.getSnapshot().orientation.yawDeg).toBe(180)
+    expect(controls.isAnimating()).toBe(false)
+    expect(stage.dataset['orientationMotion']).toBeUndefined()
+    expect(frames.pendingFrames).toBe(0)
+    controls.dispose()
+  })
+
+  test('a new grab and blur interrupt release motion without an idle frame', () => {
+    const stage = new FakeStage()
+    const host = new EventTarget()
+    const blurHost = new EventTarget()
+    const capture = new FakeCapture()
+    const frames = new FrameEnvironment()
+    const controls = bindDeviceOrientationControls(
+      stage,
+      createDevicePreviewStore(),
+      blurHost,
+      frames,
+    )
+
+    expect(controls.begin(grabStart(host, capture, 'mouse', 41, 0, 0))).toBe(true)
+    host.dispatchEvent(pointerEvent('pointermove', 41, 30, 0, 20))
+    host.dispatchEvent(pointerEvent('pointerup', 41, 60, 0, 40))
+    expect(frames.pendingFrames).toBe(1)
+
+    expect(controls.begin(grabStart(host, capture, 'mouse', 42, 60, 0))).toBe(true)
+    expect(frames.pendingFrames).toBe(0)
+    expect(controls.isAnimating()).toBe(false)
+    host.dispatchEvent(pointerEvent('pointercancel', 42, 60, 0, 50))
+
+    expect(controls.begin(grabStart(host, capture, 'mouse', 43, 0, 0))).toBe(true)
+    host.dispatchEvent(pointerEvent('pointermove', 43, 30, 0, 70))
+    host.dispatchEvent(pointerEvent('pointerup', 43, 60, 0, 90))
+    expect(frames.pendingFrames).toBe(1)
+    blurHost.dispatchEvent(new Event('blur'))
+    expect(frames.pendingFrames).toBe(0)
+    expect(controls.isAnimating()).toBe(false)
+
+    frames.step(1_000)
+    expect(frames.pendingFrames).toBe(0)
+    controls.dispose()
+  })
+
+  test('reduced motion resolves a fast semantic release without scheduling', () => {
+    const stage = new FakeStage()
+    const host = new EventTarget()
+    const frames = new FrameEnvironment()
+    frames.reduced = true
+    const store = createDevicePreviewStore()
+    store.resetOrientation()
+    const controls = bindDeviceOrientationControls(
+      stage,
+      store,
+      new EventTarget(),
+      frames,
+    )
+    const capture = new FakeCapture()
+
+    expect(controls.begin(grabStart(host, capture, 'pen', 51, 0, 0))).toBe(true)
+    host.dispatchEvent(pointerEvent('pointermove', 51, -30, 0, 20))
+    host.dispatchEvent(pointerEvent('pointerup', 51, -60, 0, 40))
+
+    expect(store.getSnapshot().orientation.yawDeg).toBe(180)
+    expect(controls.isAnimating()).toBe(false)
+    expect(frames.pendingFrames).toBe(0)
+    controls.dispose()
+  })
+
   test('supports touch and makes duplicate pointers, cancel, blur, and dispose safe', () => {
     const stage = new FakeStage()
     const host = new EventTarget()
@@ -261,12 +404,16 @@ function pointerEvent(
   pointerId: number,
   clientX: number,
   clientY: number,
+  timestampMs?: number,
 ): Event {
   const event = new Event(type, { cancelable: true })
   Object.defineProperties(event, {
     pointerId: { value: pointerId },
     clientX: { value: clientX },
     clientY: { value: clientY },
+    ...(timestampMs === undefined
+      ? {}
+      : { timeStamp: { value: timestampMs } }),
   })
   return event
 }

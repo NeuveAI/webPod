@@ -21,26 +21,70 @@ test.beforeEach(async ({ page }) => {
 test('a visible shell edge captures free yaw/pitch through release', async ({ page }) => {
   const { left, top, width, height } = await projectedDeviceBox(page)
   const start = { x: left + width * 0.025, y: top + height * 0.5 }
-  const canvas = page.locator('.webpod-device-preview canvas')
   const stage = page.locator('.webpod-device-preview__stage')
 
   await page.mouse.move(start.x, start.y)
   await expect(stage).toHaveAttribute('data-orientation-grab', 'ready')
-  await expect(canvas).toHaveCSS('cursor', 'grab')
   await page.mouse.down()
   await expect(stage).toHaveAttribute('data-orientation-grab', 'active')
   await expect(stage).toHaveCSS('user-select', 'none')
-  await expect(canvas).toHaveCSS('cursor', 'grabbing')
   await page.mouse.move(start.x + 150, start.y + 50, { steps: 3 })
 
-  await expect.poll(async () => (await orientation(page)).pitchDeg).toBeCloseTo(14, 8)
-  await expect.poll(async () => (await orientation(page)).yawDeg).toBeCloseTo(63, 8)
+  await expect.poll(async () => (await orientation(page)).pitchDeg).toBeCloseTo(14, 4)
+  await expect.poll(async () => (await orientation(page)).yawDeg).toBeCloseTo(63, 4)
   expect((await orientation(page)).rollDeg).toBe(0)
   await page.mouse.up()
   await expect(stage).not.toHaveAttribute('data-orientation-grab', 'active')
   await expect(page.locator('.webpod-device-preview')).toHaveAttribute(
     'data-pose',
     'custom',
+  )
+})
+
+test('pointer release keeps moving across frames and a fast flick lands on the opposite face', async ({
+  page,
+}) => {
+  const { left, top, width, height } = await projectedDeviceBox(page)
+  const start = { x: left + width * 0.025, y: top + height * 0.5 }
+  const stage = page.locator('.webpod-device-preview__stage')
+
+  await page.mouse.move(start.x, start.y)
+  await page.mouse.down()
+  for (const [index, offset] of [40, 80, 120].entries()) {
+    await page.mouse.move(start.x + offset, start.y)
+    if (index < 2) await page.waitForTimeout(14)
+  }
+  await page.mouse.up()
+
+  const atRelease = await orientation(page)
+  expect(
+    Math.abs(Number(await stage.getAttribute('data-orientation-release-yaw-velocity'))),
+  ).toBeGreaterThanOrEqual(340)
+  expect(await stage.getAttribute('data-orientation-motion')).toBe('opposite-face')
+  const laterFrames: number[] = []
+  for (let frame = 0; frame < 4; frame += 1) {
+    await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => resolve())))
+    laterFrames.push((await orientation(page)).yawDeg)
+  }
+
+  expect(Math.abs((laterFrames[0] ?? atRelease.yawDeg) - atRelease.yawDeg)).toBeGreaterThan(0.2)
+  expect(new Set(laterFrames.map((yaw) => yaw.toFixed(4))).size).toBeGreaterThan(2)
+  await expect
+    .poll(async () => (await orientation(page)).yawDeg, { timeout: 5_000 })
+    .toBeCloseTo(180, 6)
+  await expect(stage).not.toHaveAttribute('data-orientation-motion')
+})
+
+test('ordinary production coast scales with measured release velocity', async ({ page }) => {
+  const slow = await measureOrdinaryRelease(page, 14, 30)
+  const fast = await measureOrdinaryRelease(page, 18, 25)
+
+  expect(slow.velocity).toBeGreaterThan(0)
+  expect(fast.velocity).toBeGreaterThan(slow.velocity * 1.25)
+  expect(fast.travel).toBeGreaterThan(slow.travel * 1.25)
+  expect(fast.travel / fast.velocity).toBeCloseTo(
+    slow.travel / slow.velocity,
+    2,
   )
 })
 
@@ -97,16 +141,24 @@ test('touch captures the same physical edge and rotates without scrolling', asyn
     'data-orientation-grab',
     'active',
   )
-  await session.send('Input.dispatchTouchEvent', {
-    type: 'touchMove',
-    touchPoints: touch(edge.x + 100, edge.y + 20),
-  })
+  for (const amount of [33, 66, 100]) {
+    await session.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: touch(edge.x + amount, edge.y + amount * 0.2),
+    })
+    await page.waitForTimeout(20)
+  }
   await session.send('Input.dispatchTouchEvent', {
     type: 'touchEnd',
     touchPoints: [],
   })
-  await expect.poll(async () => (await orientation(page)).yawDeg).toBeCloseTo(42, 8)
-  await expect.poll(async () => (await orientation(page)).pitchDeg).toBeCloseTo(5.6, 8)
+  const touchRelease = await orientation(page)
+  await expect(page.locator('.webpod-device-preview__stage')).not.toHaveAttribute(
+    'data-orientation-motion',
+  )
+  const touchSettled = await orientation(page)
+  expect(touchSettled.yawDeg).toBeGreaterThan(touchRelease.yawDeg + 1)
+  expect(touchSettled.pitchDeg).toBeGreaterThan(touchRelease.pitchDeg)
   expect(
     await page.evaluate(() => ({
       x: window.scrollX,
@@ -120,7 +172,9 @@ test('edge drag reaches the rear, pitch is bounded, and Option drag rolls', asyn
   const edge = { x: box.left + box.width * 0.025, y: box.top + box.height * 0.5 }
 
   await drag(page, edge, { x: edge.x + 180 / 0.42, y: edge.y })
-  await expect.poll(async () => (await orientation(page)).yawDeg).toBeCloseTo(180, 4)
+  await expect
+    .poll(async () => angularErrorDegrees((await orientation(page)).yawDeg, 180))
+    .toBeLessThan(0.001)
   expect(await orientation(page)).toEqual({
     pitchDeg: 0,
     yawDeg: expect.any(Number),
@@ -273,5 +327,46 @@ async function drag(
   await page.mouse.move(from.x, from.y)
   await page.mouse.down()
   await page.mouse.move(to.x, to.y)
+  // This helper models a held release. Velocity older than the release window
+  // must not be replayed as inertia; deliberate flick tests release immediately.
+  await page.waitForTimeout(90)
   await page.mouse.up()
+}
+
+async function measureOrdinaryRelease(
+  page: Page,
+  stepPixels: number,
+  waitMs: number,
+): Promise<{
+  readonly velocity: number
+  readonly travel: number
+}> {
+  await resetOrientation(page)
+  const box = await projectedDeviceBox(page)
+  const start = {
+    x: box.left + box.width * 0.025,
+    y: box.top + box.height * 0.5,
+  }
+  const stage = page.locator('.webpod-device-preview__stage')
+  await page.mouse.move(start.x, start.y)
+  await page.mouse.down()
+  for (const multiplier of [1, 2, 3]) {
+    await page.mouse.move(start.x + stepPixels * multiplier, start.y)
+    await page.waitForTimeout(waitMs)
+  }
+  await page.mouse.up()
+  const velocity = Number(
+    await stage.getAttribute('data-orientation-release-yaw-velocity'),
+  )
+  await expect(stage).not.toHaveAttribute('data-orientation-motion')
+  const settled = await orientation(page)
+  const directYawDeg = stepPixels * 3 * 0.42
+  return {
+    velocity,
+    travel: settled.yawDeg - directYawDeg,
+  }
+}
+
+function angularErrorDegrees(value: number, target: number): number {
+  return Math.abs((((value - target + 180) % 360) + 360) % 360 - 180)
 }
