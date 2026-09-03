@@ -131,8 +131,11 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   let confirmedCollectionQueueIds: ReadonlySet<string> | null = null
   let pendingCollectionKey: string | null = null
   let transactionGeneration = 0
+  let failedPlaybackGeneration: number | null = null
+  let playbackAttemptGeneration: number | null = null
   let playbackEventsEnabled = true
   let playbackConfirmationTimer: unknown | null = null
+  let unbindMusicKit: (() => void) | null = null
   let appleState: AppleSessionState = { status: 'signed-out' }
   let currentPlayback: PlaybackState = { status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0, volume0to100: 100, shuffle: 'off', repeat: 'off' }
   const sessions = new Set<(value: Session | null) => void>(); const appleStates = new Set<(value: AppleSessionState) => void>(); const playback = new Set<(value: PlaybackState) => void>(); const progress = new Set<(value: ProgressTick) => void>(); const cursors = new Set<string>(); const keyFor = identityCache()
@@ -194,10 +197,27 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     confirmedCollectionQueueIds = null
     pendingCollectionKey = null
   }
+  const playbackErrorMessage = (event: unknown): string => {
+    const eventRecord = typeof event === 'object' && event !== null && !Array.isArray(event) ? event as Readonly<Record<string, unknown>> : null
+    const detail = eventRecord?.['detail']
+    const detailRecord = typeof detail === 'object' && detail !== null && !Array.isArray(detail) ? detail as Readonly<Record<string, unknown>> : null
+    const error = eventRecord?.['error'] ?? detailRecord?.['error'] ?? detail ?? event
+    const errorRecord = typeof error === 'object' && error !== null && !Array.isArray(error) ? error as Readonly<Record<string, unknown>> : null
+    const name = asText(errorRecord?.['name'])
+    const message = asText(errorRecord?.['message'])
+    const diagnostic = [name, message].filter((part): part is string => part !== undefined).join(': ').slice(0, 240)
+    return diagnostic === '' ? 'Apple Music could not start playback.' : `Apple Music playback failed: ${diagnostic}`
+  }
   const bind = (value: MusicKitInstanceLike): void => {
-    const changed = (): void => { if (playbackEventsEnabled) emitPlayback(stateOf(value)) }
+    if (unbindMusicKit !== null) return
+    const changed = (): void => {
+      if (!playbackEventsEnabled || failedPlaybackGeneration === transactionGeneration) return
+      const state = stateOf(value)
+      if (state.status === 'playing') playbackAttemptGeneration = null
+      emitPlayback(state)
+    }
     const nowPlayingChanged = (): void => {
-      if (!playbackEventsEnabled) return
+      if (!playbackEventsEnabled || failedPlaybackGeneration === transactionGeneration) return
       const observed = stateOf(value).now
       const matchesExpected = observed !== null && (expectedNowPlayingCatalogId === null
         ? confirmedCollectionQueueIds?.has(observed.catalogId) === true
@@ -206,7 +226,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       emitPlayback(stateOf(value))
     }
     const queueChanged = (): void => {
-      if (!playbackEventsEnabled) return
+      if (!playbackEventsEnabled || failedPlaybackGeneration === transactionGeneration) return
       queueGeneration += 1
       if (awaitingNowPlayingItem && expectedNowPlayingCatalogId === null && queueGeneration > pendingQueueGeneration) {
         const ids = queueCatalogIds(value)
@@ -217,10 +237,28 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       changed()
     }
     const tick = (): void => { if (!playbackEventsEnabled) return; const state = stateOf(value); for (const listener of progress) listener({ positionMs: state.positionMs, durationMs: state.durationMs, interpolated: false }) }
+    const playbackFailed = (event: unknown): void => {
+      if (!playbackEventsEnabled || playbackAttemptGeneration !== transactionGeneration) return
+      failedPlaybackGeneration = transactionGeneration
+      playbackAttemptGeneration = null
+      finishPendingPlayback()
+      const message = playbackErrorMessage(event)
+      emitPlayback({ ...stateOf(value), status: 'error' })
+      emitAppleState({ status: 'error', message })
+    }
     value.addEventListener('playbackStateDidChange', changed)
     value.addEventListener('queueItemsDidChange', queueChanged)
-    value.addEventListener('nowPlayingItemDidChange', nowPlayingChanged)
+    value.addEventListener('mediaItemDidChange', nowPlayingChanged)
+    value.addEventListener('mediaPlaybackError', playbackFailed)
     value.addEventListener('playbackTimeDidChange', tick)
+    unbindMusicKit = () => {
+      value.removeEventListener('playbackStateDidChange', changed)
+      value.removeEventListener('queueItemsDidChange', queueChanged)
+      value.removeEventListener('mediaItemDidChange', nowPlayingChanged)
+      value.removeEventListener('mediaPlaybackError', playbackFailed)
+      value.removeEventListener('playbackTimeDidChange', tick)
+      unbindMusicKit = null
+    }
   }
   const api = async (path: string, parameters?: Readonly<Record<string, string>>): Promise<unknown> => {
     const value = authorized('api').api
@@ -276,8 +314,8 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   return {
     id: 'apple', displayName: 'Apple Music', supports: (capability) => APPLE_SUPPORTS[capability], unsupportedReason: (capability) => APPLE_SUPPORTS[capability] ? null : APPLE_UNSUPPORTED_REASONS[capability],
     configure,
-    async authorize() { if (music === null) await configure(); emitAppleState({ status: 'signing-in' }); const value = instance('authorize'); try { const user = await value.authorize(); if (!value.isAuthorized || user === undefined) { const error = new NotAuthorizedError('apple', 'authorize'); emitAppleState({ status: 'permission-denied', message: error.message }); throw error } playbackEventsEnabled = true; const session = sessionOf(value, user); emitSession(session); return session } catch (cause) { if (appleState.status !== 'permission-denied') emitAppleState({ status: 'error', message: cause instanceof Error ? cause.message : 'Apple Music sign-in failed' }); throw cause } },
-    async unauthorize() { const value = instance('unauthorize'); await value.unauthorize(); playbackEventsEnabled = false; transactionGeneration += 1; finishPendingPlayback(); emitPlayback({ ...currentPlayback, status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0 }); emitSession(null) }, get session() { return currentSession }, onSessionChange(callback) { sessions.add(callback); return () => { sessions.delete(callback) } }, get appleSessionState() { return appleState }, onAppleSessionStateChange(callback) { appleStates.add(callback); return () => { appleStates.delete(callback) } },
+    async authorize() { if (music === null) await configure(); emitAppleState({ status: 'signing-in' }); const value = instance('authorize'); try { const user = await value.authorize(); if (!value.isAuthorized || user === undefined) { const error = new NotAuthorizedError('apple', 'authorize'); emitAppleState({ status: 'permission-denied', message: error.message }); throw error } playbackEventsEnabled = true; failedPlaybackGeneration = null; bind(value); const session = sessionOf(value, user); emitSession(session); return session } catch (cause) { if (appleState.status !== 'permission-denied') emitAppleState({ status: 'error', message: cause instanceof Error ? cause.message : 'Apple Music sign-in failed' }); throw cause } },
+    async unauthorize() { const value = instance('unauthorize'); await value.unauthorize(); playbackEventsEnabled = false; transactionGeneration += 1; failedPlaybackGeneration = null; playbackAttemptGeneration = null; finishPendingPlayback(); unbindMusicKit?.(); emitPlayback({ ...currentPlayback, status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0 }); emitSession(null) }, get session() { return currentSession }, onSessionChange(callback) { sessions.add(callback); return () => { sessions.delete(callback) } }, get appleSessionState() { return appleState }, onAppleSessionStateChange(callback) { appleStates.add(callback); return () => { appleStates.delete(callback) } },
     async search(query) { const types = query.kinds.map((kind) => kind === 'track' ? 'songs' : `${kind}s`).filter((kind) => kind !== 'stations'); const path = query.scope === 'library' ? '/v1/me/library/search' : `/v1/catalog/${storefront('search')}/search`; const response = await api(path, { term: query.term, types: (query.scope === 'library' ? types.map((type) => `library-${type}`) : types).join(','), limit: String(Math.min(25, Math.max(1, query.limit ?? 25))), ...(query.cursor === undefined ? {} : { offset: query.cursor }) }); const resultMap = record(payload(response)['results'], 'search results'); const entities: Entity[] = []; for (const section of Object.values(resultMap)) for (const item of resources(section)) entities.push(normalize(item, keyFor)); return { tracks: entities.filter((x): x is TrackRef => x.kind === 'track'), albums: entities.filter((x): x is AlbumRef => x.kind === 'album'), artists: entities.filter((x): x is ArtistRef => x.kind === 'artist'), playlists: entities.filter((x): x is PlaylistRef => x.kind === 'playlist'), stations: entities.filter((x): x is StationRef => x.kind === 'station'), next: null } satisfies SearchResults },
     async libraryList(kind, cursor) { const names: Record<LibraryKind, string | null> = { playlists: 'playlists', artists: 'artists', albums: 'albums', songs: 'songs', genres: null, composers: null }; const name = names[kind]; if (name === null) throw new NotImplementedError('apple', `libraryList(${kind}): Apple exposes no matching library collection endpoint`); return page(await api(cursorPath(cursor, `/v1/me/library/${name}`))) },
     async relatedTracks(ref) { const path = ref.libraryId === undefined ? `/v1/catalog/${storefront('relatedTracks')}/${ref.kind}s/${encodeURIComponent(ref.catalogId)}/tracks` : `/v1/me/library/${ref.kind}s/${encodeURIComponent(ref.libraryId)}/tracks`; return relationships<TrackRef>(path, 'track') },
@@ -291,6 +329,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       if (playPromise !== null) throw new Error('Apple Music playback selection is already in progress')
       if (targetKey !== null && awaitingNowPlayingItem) finishPendingPlayback()
       const value = authorized('play')
+      failedPlaybackGeneration = null
       const previous = currentPlayback
       if (target !== undefined) {
         const selectedTransaction = ++transactionGeneration
@@ -306,10 +345,14 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
         playbackConfirmationTimer = (configuredOptions.setTimeout ?? globalThis.setTimeout)(() => {
           if (!playbackEventsEnabled || selectedTransaction !== transactionGeneration || !awaitingNowPlayingItem || pendingPlayKey !== pendingKey) return
           finishPendingPlayback()
+          playbackAttemptGeneration = null
           emitPlayback({ ...stateOf(value), status: 'error' })
         }, configuredOptions.playbackConfirmationTimeoutMs ?? 8_000)
+      } else {
+        transactionGeneration += 1
       }
       const selectedTransaction = transactionGeneration
+      playbackAttemptGeneration = selectedTransaction
       playPromise = (async () => {
         try {
           if (target !== undefined) {
@@ -321,6 +364,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
           await value.play()
         } catch (cause) {
           if (playbackEventsEnabled && selectedTransaction === transactionGeneration) {
+            playbackAttemptGeneration = null
             finishPendingPlayback()
             emitPlayback(previous)
           }
