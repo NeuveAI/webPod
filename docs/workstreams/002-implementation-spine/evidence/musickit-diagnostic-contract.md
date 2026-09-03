@@ -6,7 +6,7 @@ Verified extraction:
 
 - `PlaybackStates`: `0 none`, `1 loading`, `2 playing`, `3 paused`, `4 stopped`, `5 ended`, `6 seeking`, `8 waiting`, `9 stalled`, `10 completed`.
 - Internal media-item state: `0 none`, `1 loading`, `2 ready`, `3 playing`, `4 ended`, `5 unavailable`, `6 restricted`, `7 error`.
-- Direct playback and media-item setters dispatch `{ oldState, state }`.
-- The player forwards media-item state changes using the media item itself as the event argument. Its numeric `state` is therefore the supported higher-level field. No `event.item` wrapper was established by this extraction; diagnostics may safely show a primitive value if a runtime supplies it, but a missing value remains explicitly unknown.
+- Direct playback and media-item setters dispatch `{ oldState, state }` internally.
+- The player forwards media-item state changes using the media item itself as the higher-level event argument. Only that object's numeric `state` is captured. Diagnostics do not read the internal setter's `oldState`, an `event.item` wrapper, or `nowPlayingItem.state`, because those shapes were not established at the application callback boundary.
 
 The committed verifier is the reproducible source for these claims; unit tests verify application mapping and privacy behavior but are not treated as independent SDK evidence.

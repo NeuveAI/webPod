@@ -78,12 +78,12 @@ describe('route-scoped Apple playback diagnostics', () => {
     spyOn(console, 'info').mockImplementation(() => undefined)
     diagnostics.enable()
     const privateValue = 'blob:https://private.test/item?token=secret'
-    const music = { playbackState: 8, nowPlayingItem: { state: 2, title: privateValue } } as unknown as MusicKitInstanceLike
-    diagnostics.capture('mediaItemStateDidChange', () => ({ music, audio: null, userActivation: null, event: { state: 7, oldState: 1, item: { state: 6, id: privateValue }, message: privateValue } }))
+    const music = { playbackState: 8 } as MusicKitInstanceLike
+    diagnostics.capture('mediaItemStateDidChange', () => ({ music, audio: null, userActivation: null, event: { state: 7, title: privateValue } }))
     diagnostics.capture('playbackStateDidChange', () => ({ music, audio: null, userActivation: null, event: { state: 9, message: privateValue } }))
     const serialized = JSON.stringify(diagnostics.getSnapshot())
     expect(serialized).not.toContain(privateValue)
-    expect(diagnostics.getSnapshot().events[0]?.mediaItemState).toEqual({ eventState: { value: 7, name: 'error' }, oldState: { value: 1, name: 'loading' }, eventItemState: { value: 6, name: 'restricted' }, currentItemState: { value: 2, name: 'ready' } })
+    expect(diagnostics.getSnapshot().events[0]?.mediaItemState).toEqual({ value: 7, name: 'error' })
     expect(diagnostics.getSnapshot().events[1]?.playbackEventState).toEqual({ value: 9, name: 'stalled' })
     expect(diagnostics.getSnapshot().events[1]?.musicKit.playbackStateName).toBe('waiting')
   })

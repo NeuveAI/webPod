@@ -13,12 +13,7 @@ export interface ApplePlaybackDiagnosticEvent {
   readonly event: ApplePlaybackDiagnosticName
   readonly timestampMs: number
   readonly errorClass?: ApplePlaybackErrorClass
-  readonly mediaItemState?: {
-    readonly eventState: NumericState<AppleMediaItemStateName>
-    readonly oldState: NumericState<AppleMediaItemStateName>
-    readonly eventItemState: NumericState<AppleMediaItemStateName>
-    readonly currentItemState: NumericState<AppleMediaItemStateName>
-  }
+  readonly mediaItemState?: NumericState<AppleMediaItemStateName>
   readonly playbackEventState?: NumericState<ApplePlaybackStateName>
   readonly musicKit: { readonly playbackState: number | null; readonly playbackStateName: ApplePlaybackStateName | null; readonly currentTime: number | null; readonly duration: number | null; readonly volume: number | null }
   readonly audio: { readonly paused: boolean | null; readonly muted: boolean | null; readonly volume: number | null; readonly readyState: number | null; readonly networkState: number | null; readonly errorCode: number | null }
@@ -131,10 +126,7 @@ export function createApplePlaybackDiagnostics(environment: DiagnosticEnvironmen
       append(Object.freeze({ ...captured,
         ...(event === 'mediaPlaybackError' ? { errorClass: classifyApplePlaybackError(value.error) } : {}),
         ...(event === 'playbackStateDidChange' ? { playbackEventState: numericState(payload?.['state'], applePlaybackStateName) } : {}),
-        ...(event === 'mediaItemStateDidChange' ? { mediaItemState: Object.freeze({
-          eventState: numericState(payload?.['state'], appleMediaItemStateName), oldState: numericState(payload?.['oldState'], appleMediaItemStateName),
-          eventItemState: numericState(object(payload?.['item'])?.['state'], appleMediaItemStateName), currentItemState: numericState(object(value.music.nowPlayingItem)?.['state'], appleMediaItemStateName),
-        }) } : {}),
+        ...(event === 'mediaItemStateDidChange' ? { mediaItemState: numericState(payload?.['state'], appleMediaItemStateName) } : {}),
       }))
     },
   }
