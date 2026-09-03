@@ -89,9 +89,10 @@ export function createApplePlaybackDiagnostics(environment: DiagnosticEnvironmen
   const observeAudio = (source: ApplePlaybackDiagnosticSource): void => {
     const audio = source.audio
     const safeSource: ApplePlaybackDiagnosticSource = { music: source.music, audio, userActivation: source.userActivation }
-    observedSource = safeSource
-    if (audio === null || audio === observedAudio) return
-    detachAudio(); observedSource = safeSource; observedAudio = audio
+    if (audio === observedAudio) { observedSource = safeSource; return }
+    detachAudio()
+    if (audio === null) return
+    observedSource = safeSource; observedAudio = audio
     for (const name of AUDIO_EVENTS) audio.addEventListener(name, audioChanged)
   }
   const probe = (): void => {

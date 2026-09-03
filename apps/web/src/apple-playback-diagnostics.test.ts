@@ -118,6 +118,25 @@ describe('route-scoped Apple playback diagnostics', () => {
     expect(diagnostics.getSnapshot().events.slice(1).map((event) => event.event)).toEqual(['audio:waiting', 'audio:stalled', 'audio:canplay', 'audio:playing', 'audio:error', 'audio:emptied'])
   })
 
+  test('detaches all audio listeners when the observed element disappears or is replaced', () => {
+    spyOn(console, 'info').mockImplementation(() => undefined)
+    const first = new EventTarget() as HTMLAudioElement
+    const second = new EventTarget() as HTMLAudioElement
+    diagnostics.enable()
+    diagnostics.capture('playCall', () => ({ ...source(), audio: first }))
+    diagnostics.capture('mediaItemDidChange', () => ({ ...source(), audio: null }))
+    first.dispatchEvent(new Event('waiting'))
+    expect(diagnostics.getSnapshot().events.map((event) => event.event)).toEqual(['playCall', 'mediaItemDidChange'])
+
+    diagnostics.capture('playCall', () => ({ ...source(), audio: first }))
+    diagnostics.capture('mediaItemDidChange', () => ({ ...source(), audio: second }))
+    first.dispatchEvent(new Event('stalled'))
+    second.dispatchEvent(new Event('canplay'))
+    expect(diagnostics.getSnapshot().events.map((event) => event.event)).toEqual([
+      'playCall', 'mediaItemDidChange', 'playCall', 'mediaItemDidChange', 'audio:canplay',
+    ])
+  })
+
   test('classifies unavailable, unsupported, and malformed EME probes without retaining errors', async () => {
     diagnostics = createApplePlaybackDiagnostics({ development: true })
     diagnostics.enable()
