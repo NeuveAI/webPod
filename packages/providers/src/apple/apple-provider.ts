@@ -5,7 +5,6 @@ import type { AlbumRef, ArtistRef, Artwork, LocalKey, PlaylistRef, StationRef, T
 import { mintLocalKey } from '../identity.ts'
 import type { MusicProvider } from '../provider.ts'
 import { APPLE_SUPPORTS, APPLE_UNSUPPORTED_REASONS } from './matrix.ts'
-import { applePlaybackDiagnostics, type ApplePlaybackDiagnosticEventName, type ApplePlaybackDiagnosticMedia } from './playback-diagnostics.ts'
 
 export const MUSICKIT_SCRIPT_URL = 'https://js-cdn.music.apple.com/musickit/v1/musickit.js' as const
 export const APPLE_DEVELOPER_TOKEN_PATH = '/api/apple/developer-token' as const
@@ -42,11 +41,15 @@ export interface MusicKitInstanceLike {
   addEventListener(name: string, callback: (event: unknown) => void): void; removeEventListener(name: string, callback: (event: unknown) => void): void
 }
 
-function browserAudioSnapshot(): ApplePlaybackDiagnosticMedia | null {
-  if (typeof document === 'undefined') return null
-  const audio = document.querySelector<HTMLAudioElement>('audio#apple-music-player')
-  if (audio === null) return null
-  return { paused: audio.paused, muted: audio.muted, volume: audio.volume, readyState: audio.readyState, networkState: audio.networkState, errorCode: audio.error?.code ?? null }
+export type ApplePlaybackDiagnosticEventName = 'setQueue' | 'playCall' | 'playResolve' | 'queueItemsDidChange' | 'mediaItemDidChange' | 'playbackStateDidChange' | 'playbackTimeDidChange' | 'mediaPlaybackError' | 'mediaCanPlay' | 'mediaItemStateDidChange' | 'bufferedProgressDidChange'
+export interface ApplePlaybackDiagnosticSource {
+  readonly error?: unknown
+  readonly music: MusicKitInstanceLike
+  readonly audio: HTMLAudioElement | null
+  readonly userActivation: UserActivation | null
+}
+export interface ApplePlaybackDiagnosticSink {
+  capture(event: ApplePlaybackDiagnosticEventName, source: () => ApplePlaybackDiagnosticSource): void
 }
 export interface MusicKitGlobalLike {
   configure(config: { readonly developerToken: string; readonly app: { readonly name: string; readonly build: string } }): Promise<MusicKitInstanceLike | void>
@@ -60,6 +63,7 @@ export interface AppleProviderOptions {
   readonly playbackConfirmationTimeoutMs?: number
   readonly setTimeout?: (callback: () => void, delayMs: number) => unknown
   readonly clearTimeout?: (handle: unknown) => void
+  readonly playbackDiagnostics?: ApplePlaybackDiagnosticSink
 }
 export type AppleSessionState =
   | { readonly status: 'signed-out' }
@@ -190,13 +194,12 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   }
   const emitPlayback = (value: PlaybackState): void => { currentPlayback = value; for (const listener of playback) listener(value) }
   const capturePlaybackDiagnostic = (event: ApplePlaybackDiagnosticEventName, error?: unknown): void => {
-    const activation = typeof navigator === 'undefined' ? null : navigator.userActivation
-    applePlaybackDiagnostics.capture({
-      event, error,
-      playbackState: music?.playbackState, currentTime: music?.currentPlaybackTime,
-      duration: music?.currentPlaybackDuration, volume: music?.volume,
-      audio: browserAudioSnapshot(),
-      userActivation: activation == null ? null : { isActive: activation.isActive, hasBeenActive: activation.hasBeenActive },
+    const value = music
+    if (value === null) return
+    configuredOptions.playbackDiagnostics?.capture(event, () => {
+      const audio = typeof document === 'undefined' ? null : document.querySelector<HTMLAudioElement>('audio#apple-music-player')
+      const activation = typeof navigator === 'undefined' ? null : navigator.userActivation
+      return { error, music: value, audio, userActivation: activation ?? null }
     })
   }
   const clearPlaybackConfirmationTimer = (): void => {
@@ -215,15 +218,8 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     pendingCollectionKey = null
   }
   const playbackErrorMessage = (event: unknown): string => {
-    const eventRecord = typeof event === 'object' && event !== null && !Array.isArray(event) ? event as Readonly<Record<string, unknown>> : null
-    const detail = eventRecord?.['detail']
-    const detailRecord = typeof detail === 'object' && detail !== null && !Array.isArray(detail) ? detail as Readonly<Record<string, unknown>> : null
-    const error = eventRecord?.['error'] ?? detailRecord?.['error'] ?? detail ?? event
-    const errorRecord = typeof error === 'object' && error !== null && !Array.isArray(error) ? error as Readonly<Record<string, unknown>> : null
-    const name = asText(errorRecord?.['name'])
-    const message = asText(errorRecord?.['message'])
-    const diagnostic = [name, message].filter((part): part is string => part !== undefined).join(': ').slice(0, 240)
-    return diagnostic === '' ? 'Apple Music could not start playback.' : `Apple Music playback failed: ${diagnostic}`
+    void event
+    return 'Apple Music could not start playback.'
   }
   const bind = (value: MusicKitInstanceLike): void => {
     if (unbindMusicKit !== null) return
@@ -247,6 +243,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       emitPlayback(stateOf(value))
     }
     const queueChanged = (): void => {
+      capturePlaybackDiagnostic('queueItemsDidChange')
       if (!playbackEventsEnabled || failedPlaybackGeneration === transactionGeneration) return
       queueGeneration += 1
       if (awaitingNowPlayingItem && expectedNowPlayingCatalogId === null && queueGeneration > pendingQueueGeneration) {
@@ -257,9 +254,12 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
           confirmedCollectionQueueIds = new Set(ids)
         }
       }
-      changed()
+      emitPlayback(stateOf(value))
     }
-    const tick = (): void => { if (!playbackEventsEnabled) return; const state = stateOf(value); for (const listener of progress) listener({ positionMs: state.positionMs, durationMs: state.durationMs, interpolated: false }) }
+    const tick = (): void => { capturePlaybackDiagnostic('playbackTimeDidChange'); if (!playbackEventsEnabled) return; const state = stateOf(value); for (const listener of progress) listener({ positionMs: state.positionMs, durationMs: state.durationMs, interpolated: false }) }
+    const mediaCanPlay = (): void => { capturePlaybackDiagnostic('mediaCanPlay') }
+    const mediaItemStateChanged = (): void => { capturePlaybackDiagnostic('mediaItemStateDidChange') }
+    const bufferedProgressChanged = (): void => { capturePlaybackDiagnostic('bufferedProgressDidChange') }
     const playbackFailed = (event: unknown): void => {
       capturePlaybackDiagnostic('mediaPlaybackError', event)
       if (!playbackEventsEnabled) return
@@ -276,12 +276,18 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     value.addEventListener('mediaItemDidChange', nowPlayingChanged)
     value.addEventListener('mediaPlaybackError', playbackFailed)
     value.addEventListener('playbackTimeDidChange', tick)
+    value.addEventListener('mediaCanPlay', mediaCanPlay)
+    value.addEventListener('mediaItemStateDidChange', mediaItemStateChanged)
+    value.addEventListener('bufferedProgressDidChange', bufferedProgressChanged)
     unbindMusicKit = () => {
       value.removeEventListener('playbackStateDidChange', changed)
       value.removeEventListener('queueItemsDidChange', queueChanged)
       value.removeEventListener('mediaItemDidChange', nowPlayingChanged)
       value.removeEventListener('mediaPlaybackError', playbackFailed)
       value.removeEventListener('playbackTimeDidChange', tick)
+      value.removeEventListener('mediaCanPlay', mediaCanPlay)
+      value.removeEventListener('mediaItemStateDidChange', mediaItemStateChanged)
+      value.removeEventListener('bufferedProgressDidChange', bufferedProgressChanged)
       unbindMusicKit = null
     }
   }

@@ -23,7 +23,7 @@ function fakeMusic(): MusicKitInstanceLike & { emit(name: string, event?: unknow
     addEventListener(name, callback) { const set = listeners.get(name) ?? new Set(); set.add(callback); listeners.set(name, set) }, removeEventListener(name, callback) { listeners.get(name)?.delete(callback); removed.push(name) }, emit(name, event = {}) { for (const callback of listeners.get(name) ?? []) callback(event) }, setNowPlaying(item) { nowPlaying = item }, setQueueContainer(container) { queueContainer = container }, setQueueItems(items) { queueItems = items }, setQueuePosition(position) { queuePosition = position }, removed, calls, queueDescriptors,
   }
 }
-function setup(timing: Pick<NonNullable<Parameters<typeof createAppleProvider>[0]>, 'playbackConfirmationTimeoutMs' | 'setTimeout' | 'clearTimeout'> = {}) { const music = fakeMusic(); const kit: MusicKitGlobalLike = { async configure() { return music }, getInstance() { return music }, PlaybackStates: { playing: 3 }, PlayerShuffleMode: { off: 0, songs: 1, albums: 2 }, PlayerRepeatMode: { off: 0, one: 1, all: 2 } }; return { music, provider: createAppleProvider({ async loadMusicKit() { return kit }, async fetchDeveloperToken() { return { token: 'test-token-never-logged', expiresAt: 2_000 } }, setTimeout: () => 1, clearTimeout() {}, ...timing }) } }
+function setup(timing: Pick<NonNullable<Parameters<typeof createAppleProvider>[0]>, 'playbackConfirmationTimeoutMs' | 'setTimeout' | 'clearTimeout' | 'playbackDiagnostics'> = {}) { const music = fakeMusic(); const kit: MusicKitGlobalLike = { async configure() { return music }, getInstance() { return music }, PlaybackStates: { playing: 3 }, PlayerShuffleMode: { off: 0, songs: 1, albums: 2 }, PlayerRepeatMode: { off: 0, one: 1, all: 2 } }; return { music, provider: createAppleProvider({ async loadMusicKit() { return kit }, async fetchDeveloperToken() { return { token: 'test-token-never-logged', expiresAt: 2_000 } }, setTimeout: () => 1, clearTimeout() {}, ...timing }) } }
 
 describe('Apple provider', () => {
   test('uses the stable MusicKit script required by the production integration', () => { expect(MUSICKIT_SCRIPT_URL).toBe('https://js-cdn.music.apple.com/musickit/v1/musickit.js') })
@@ -93,7 +93,7 @@ describe('Apple provider', () => {
     music.emit('mediaPlaybackError', new Error('The media could not be decoded'))
 
     expect(provider.playback.status).toBe('error')
-    expect(providerStates).toEqual(['Apple Music playback failed: Error: The media could not be decoded'])
+    expect(providerStates).toEqual(['Apple Music could not start playback.'])
     music.emit('mediaItemDidChange')
     music.emit('playbackStateDidChange')
     expect(provider.playback.status).toBe('error')
@@ -113,7 +113,7 @@ describe('Apple provider', () => {
 
     music.emit('mediaPlaybackError', { name: 'AbortError', message: 'Media playback stopped' })
     expect(provider.playback.status).toBe('error')
-    expect(provider.appleSessionState).toMatchObject({ status: 'error', message: 'Apple Music playback failed: AbortError: Media playback stopped' })
+    expect(provider.appleSessionState).toMatchObject({ status: 'error', message: 'Apple Music could not start playback.' })
 
     music.setNowPlaying(secondItem)
     music.emit('mediaItemDidChange')
@@ -132,6 +132,9 @@ describe('Apple provider', () => {
       'mediaItemDidChange',
       'mediaPlaybackError',
       'playbackTimeDidChange',
+      'mediaCanPlay',
+      'mediaItemStateDidChange',
+      'bufferedProgressDidChange',
     ])
     await provider.authorize()
     const track = (await provider.libraryList('songs')).items[0]
@@ -140,6 +143,16 @@ describe('Apple provider', () => {
     music.setNowPlaying({ id: 'catalog-song.1', type: 'songs', attributes: { name: 'Night', artistName: 'Artist', durationInMillis: 180000 } })
     music.emit('mediaItemDidChange')
     expect(provider.playback).toMatchObject({ status: 'playing', now: { catalogId: 'catalog-song.1' } })
+  })
+  test('reports every diagnostic hook with its truthful MusicKit event name', async () => {
+    const names: string[] = []
+    const { provider, music } = setup({ playbackDiagnostics: { capture(event) { names.push(event) } } })
+    await provider.configure()
+    const track = (await provider.libraryList('songs')).items[0]
+    if (track?.kind !== 'track') throw new Error('library track missing')
+    await provider.play({ kind: 'tracks', tracks: [track], startIndex: 0 })
+    for (const event of ['queueItemsDidChange', 'mediaItemDidChange', 'playbackStateDidChange', 'playbackTimeDidChange', 'mediaCanPlay', 'mediaItemStateDidChange', 'bufferedProgressDidChange', 'mediaPlaybackError']) music.emit(event)
+    expect(names).toEqual(['setQueue', 'playCall', 'playResolve', 'queueItemsDidChange', 'mediaItemDidChange', 'playbackStateDidChange', 'playbackTimeDidChange', 'mediaCanPlay', 'mediaItemStateDidChange', 'bufferedProgressDidChange', 'mediaPlaybackError'])
   })
   test('rejects a distinct selection while another queue transaction is in flight', async () => {
     const { provider, music } = setup(); await provider.configure()

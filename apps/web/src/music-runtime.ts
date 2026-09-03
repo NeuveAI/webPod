@@ -1,5 +1,6 @@
 import {
   createAppleProvider,
+  browserAppleProviderOptions,
   createFixtureProvider,
   APPLE_SUPPORTS,
   type AlbumRef,
@@ -12,6 +13,7 @@ import {
   type TrackRef,
 } from '@webpod/providers'
 import type { NavigationDataSource } from '@webpod/panel'
+import { applePlaybackDiagnostics } from './apple-playback-diagnostics'
 
 export type MusicRuntimeMode = 'fixture' | 'apple'
 export type MusicRuntimePhase = 'fixture' | 'signed-out' | 'signing-in' | 'authorized' | 'permission-denied' | 'error'
@@ -89,7 +91,7 @@ async function appleSource(provider: MusicProvider): Promise<NavigationDataSourc
 export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> {
   const selectedOperation = ++operation
   if (mode === 'fixture') { publish(fixtureSnapshot); return }
-  const provider = appleProvider ?? createAppleProvider(); appleProvider = provider
+  const provider = appleProvider ?? createAppleProvider({ ...browserAppleProviderOptions(), playbackDiagnostics: applePlaybackDiagnostics }); appleProvider = provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
     await provider.configure()
@@ -106,7 +108,7 @@ export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> 
 /** Runs MusicKit authorization from a user gesture and hydrates provider-neutral navigation data. */
 export async function authorizeAppleRuntime(): Promise<void> {
   const selectedOperation = ++operation
-  const provider = appleProvider ?? createAppleProvider(); appleProvider = provider
+  const provider = appleProvider ?? createAppleProvider({ ...browserAppleProviderOptions(), playbackDiagnostics: applePlaybackDiagnostics }); appleProvider = provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
     await provider.configure(); if (selectedOperation !== operation) return

@@ -13,9 +13,9 @@ import {
   type LightContribution,
 } from "@webpod/device";
 import { createFileRoute } from "@tanstack/react-router";
-import { applePlaybackDiagnostics, type ApplePlaybackDiagnosticEvent } from "@webpod/providers";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
+import { applePlaybackDiagnostics, type ApplePlaybackDiagnosticEvent } from "../apple-playback-diagnostics";
 import {
   bindDeviceOrientationControls,
   createDevicePreviewStore,
@@ -323,7 +323,7 @@ function PlaybackDiagnostics({ events }: { readonly events: readonly ApplePlayba
       {latest === undefined ? <p>No playback events captured.</p> : (
         <dl>
           <div><dt>Latest</dt><dd>#{latest.sequence} {latest.event} @ {latest.timestampMs}ms</dd></div>
-          <div><dt>Error</dt><dd>{latest.error === undefined ? "—" : [latest.error.name, latest.error.message, latest.error.code].filter((value) => value !== undefined).join(" · ")}</dd></div>
+          <div><dt>Error class</dt><dd>{latest.errorClass ?? "—"}</dd></div>
           <div><dt>MusicKit</dt><dd>state {reading(latest.musicKit.playbackState)} · time {reading(latest.musicKit.currentTime)} · duration {reading(latest.musicKit.duration)} · volume {reading(latest.musicKit.volume)}</dd></div>
           <div><dt>Audio</dt><dd>paused {reading(latest.audio.paused)} · muted {reading(latest.audio.muted)} · volume {reading(latest.audio.volume)} · ready {reading(latest.audio.readyState)} · network {reading(latest.audio.networkState)} · error {reading(latest.audio.errorCode)}</dd></div>
           <div><dt>Activation</dt><dd>active {reading(latest.userActivation.isActive)} · ever active {reading(latest.userActivation.hasBeenActive)}</dd></div>
