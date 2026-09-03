@@ -6,3 +6,20 @@
 
 @source "../**/*.{ts,tsx}";
 @source "../../../../packages/*/src/**/*.{ts,tsx}";
+
+@media (hover: hover) and (pointer: fine) {
+  .webpod-device-preview canvas,
+  [data-composite-tier] canvas { cursor: default; }
+  canvas[data-wp-cursor-control="true"],
+  .webpod-device-preview .webpod-device-preview__stage canvas[data-wp-cursor-control="true"] {
+    cursor: pointer;
+  }
+  canvas[data-wp-cursor-orientation="grab"],
+  .webpod-device-preview .webpod-device-preview__stage canvas[data-wp-cursor-orientation="grab"] {
+    cursor: grab;
+  }
+  canvas[data-wp-cursor-orientation="grabbing"],
+  .webpod-device-preview .webpod-device-preview__stage canvas[data-wp-cursor-orientation="grabbing"] {
+    cursor: grabbing;
+  }
+}

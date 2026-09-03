@@ -1,4 +1,4 @@
-import type { ThreeEvent } from "@react-three/fiber";
+import { useThree, type ThreeEvent } from "@react-three/fiber";
 import { useContext, useEffect, useMemo, useRef } from "react";
 import {
   Mesh,
@@ -10,6 +10,7 @@ import {
 import { DEVICE_LAYOUT } from "./layout";
 import { useControlPhysics } from "./ControlPhysicsScope";
 import { DeviceCanvasOrientationContext } from "./DeviceCanvas";
+import { setDeviceControlCursor } from "./cursor-intent";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import {
   DEFAULT_FRONT_ASSEMBLY_DEPTHS,
@@ -329,6 +330,7 @@ export function ClickWheelInputSurface({
   onCardinalStart,
   onCardinalEnd,
 }: ClickWheelInputSurfaceProps) {
+  const canvas = useThree((state) => state.gl.domElement);
   const orientationState = useContext(DeviceCanvasOrientationContext);
   const controlPhysics = useControlPhysics();
   const inputPosition = useMemo(
@@ -367,6 +369,7 @@ export function ClickWheelInputSurface({
     onCardinalPress,
     onCardinalStart,
   ]);
+  useEffect(() => () => setDeviceControlCursor(canvas, false), [canvas]);
 
   useEffect(() => {
     if (controlPhysics === null || typeof window === "undefined") return;
@@ -665,6 +668,8 @@ export function ClickWheelInputSurface({
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        onPointerOver={() => setDeviceControlCursor(canvas, true)}
+        onPointerOut={() => setDeviceControlCursor(canvas, false)}
         renderOrder={-1}
       >
         <ringGeometry
@@ -685,6 +690,7 @@ export function ClickWheelInputSurface({
         position={inputPosition}
         onSelectStart={onSelectStart}
         onSelectEnd={onSelectEnd}
+        canvas={canvas}
       />
     </>
   );
@@ -694,10 +700,12 @@ function SelectInputSurface({
   position,
   onSelectStart,
   onSelectEnd,
+  canvas,
 }: {
   readonly position: readonly [number, number, number];
   readonly onSelectStart: ((start: ClickWheelSelectStart) => void) | undefined;
   readonly onSelectEnd: ((end: ClickWheelSelectEnd) => void) | undefined;
+  readonly canvas: HTMLCanvasElement;
 }) {
   const controlPhysics = useControlPhysics();
   const captureSlotRef = useRef<ClickWheelCaptureSlot>(
@@ -707,6 +715,7 @@ function SelectInputSurface({
   useEffect(() => {
     callbacksRef.current = { onSelectStart, onSelectEnd };
   }, [onSelectEnd, onSelectStart]);
+  useEffect(() => () => setDeviceControlCursor(canvas, false), [canvas]);
 
   const finish = (
     pointerId: number,
@@ -826,6 +835,8 @@ function SelectInputSurface({
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      onPointerOver={() => setDeviceControlCursor(canvas, true)}
+      onPointerOut={() => setDeviceControlCursor(canvas, false)}
       renderOrder={-1}
     >
       <circleGeometry args={[CLICK_WHEEL_INPUT_RADII.inner, 128]} />
