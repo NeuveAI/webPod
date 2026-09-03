@@ -89,3 +89,41 @@ passing test: the test proves only the wheel media query, while the separate
 orientation selectors are structurally unconditional. The implementation and
 documentation reach the desired fine-pointer conclusion, but their stated reason
 does not support it for orientation. That inconsistency is the finding.
+
+## Final re-review: `f40868c` — contain cursors to fine pointers
+
+### Verdict: APPROVE
+
+The remaining Major is closed. The authoritative orientation `ready` and
+`active` cursor selectors now live inside `(hover: hover) and (pointer: fine)`,
+while active-drag `user-select: none` remains outside that presentation query so
+the interaction behavior is unchanged on touch/coarse inputs
+(`apps/web/src/routes/[_]spike.device.tsx:387-389`,
+`apps/web/src/routes/[_]spike.device.tsx:450-457`).
+
+The coarse Chrome case now ray-hits the same enclosure edge, proves the
+authoritative lifecycle reaches `ready → active`, proves selection suppression
+still applies during the drag, and proves the canvas computes `cursor: default`
+in both states (`apps/web/tests/native-cursor.e2e.ts:97-109`). Fine-pointer
+default/pointer/grab/grabbing and cancellation coverage remains green. No
+Critical, Major, Minor, or informational implementation finding remains for this
+slice.
+
+Owner visual sign-off remains open and is not replaced by this implementation
+review. Workstream-wide U14/U15 manual gates also remain owner/reviewer gates.
+
+### Final verification
+
+- `bun test packages/device/src/click-wheel-input.test.tsx packages/device/src/click-wheel-input.integration.test.tsx packages/device/src/orientation-grab.test.ts` → 30 pass, 0 fail, 172 assertions.
+- `bunx playwright test --config apps/web/tests/playwright.config.ts apps/web/tests/native-cursor.e2e.ts` → 2 Chrome tests pass, including fine and coarse pointer paths.
+- `bunx tsc --noEmit -p packages/device/tsconfig.json` → pass.
+- `bunx tsc --noEmit -p apps/web/tsconfig.json` → pass.
+- `bun run lint` → pass.
+
+### Final D-038 check
+
+The final conclusion is supported by both structural CSS containment and a real
+Chrome computed-style test that exercises the formerly omitted orientation path.
+The test does not merely reach `default`: it first proves the interaction owner
+entered `ready` and `active`, ruling out a false green caused by missing ray hits
+or a rejected drag.
