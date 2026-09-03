@@ -21,7 +21,7 @@
 
 `bun run gates`
 
-- Types, lint, and all 1,160 unit tests pass.
+- Types, lint, and all 1,162 unit tests pass.
 - 15 automated gate classes pass. U8 is red on unrelated concurrent work in
   `apps/web/src/music-runtime.ts:105`; the cursor patch does not touch that file.
 
@@ -38,7 +38,9 @@
   active state and the grabbing cursor.
 - Coarse pointer: the same mounted wheel hit still publishes interaction intent,
   but the fine-pointer media query does not match and computed cursor remains
-  `default`.
+  `default`. A ray-confirmed edge still publishes authoritative `ready → active`
+  state and disables selection during the drag, while the canvas remains
+  `cursor: default` in both states.
 
 Screenshots are not authoritative for a native system cursor; DOM attributes and
 computed styles are the primary browser evidence. Owner visual sign-off remains open.

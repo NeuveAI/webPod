@@ -22,6 +22,10 @@
   `/_spike/device`: default scene, pointer preview/wheel controls, grab/grabbing
   from authoritative orientation state, cancellation cleanup, selectable outside
   text, and fine/coarse pointer containment.
-- The rerun repository gate has green types, lint, and 1,160 tests; U8 alone is
+- Second reviewer correction: moved the authoritative stage `grab`/`grabbing`
+  cursor selectors under the same fine-hover media condition. The coarse Chrome
+  case now accepts an edge drag and proves the lifecycle/user-selection behavior
+  remains active while computed cursor stays `default` before and during drag.
+- The latest repository gate has green types, lint, and 1,162 tests; U8 alone is
   red on unrelated concurrent `apps/web/src/music-runtime.ts` work.
 - Owner visual sign-off remains open.

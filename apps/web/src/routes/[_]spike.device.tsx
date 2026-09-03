@@ -384,14 +384,8 @@ const DEVICE_PREVIEW_CSS = `
     outline: none;
     cursor: default;
   }
-  .webpod-device-preview__stage[data-orientation-grab="ready"] canvas {
-    cursor: grab;
-  }
   .webpod-device-preview__stage[data-orientation-grab="active"] {
     user-select: none;
-  }
-  .webpod-device-preview__stage[data-orientation-grab="active"] canvas {
-    cursor: grabbing;
   }
   .webpod-device-preview__stage:focus-visible::after {
     content: "";
@@ -452,6 +446,14 @@ const DEVICE_PREVIEW_CSS = `
   @media (max-width: 520px) {
     .webpod-device-preview__controls { gap: 4px; }
     .webpod-device-preview__controls button { min-block-size: 34px; padding-inline: 9px; }
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .webpod-device-preview__stage[data-orientation-grab="ready"] canvas {
+      cursor: grab;
+    }
+    .webpod-device-preview__stage[data-orientation-grab="active"] canvas {
+      cursor: grabbing;
+    }
   }
   @media (prefers-reduced-transparency: reduce) {
     .webpod-device-preview__controls button { backdrop-filter: none; background: #111827; }

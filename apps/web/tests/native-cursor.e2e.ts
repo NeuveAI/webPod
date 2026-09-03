@@ -68,7 +68,7 @@ test('native cursors follow mounted control and authoritative drag state', async
 test.describe('coarse pointer', () => {
   test.use({ hasTouch: true })
 
-  test('wheel cursor styling stays inactive while pointer behavior remains mounted', async ({ page }) => {
+  test('wheel and orientation cursors stay inactive while interactions remain mounted', async ({ page }) => {
     await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
     const canvas = page.locator('.webpod-device-preview canvas')
     await expect(canvas).toHaveCount(1)
@@ -92,6 +92,18 @@ test.describe('coarse pointer', () => {
     expect(
       await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches),
     ).toBe(false)
+
+    const stage = page.locator('.webpod-device-preview__stage')
+    const edge = { x: box.left + box.width * 0.025, y: box.top + box.height * 0.5 }
+    await page.mouse.move(edge.x, edge.y)
+    await expect(stage).toHaveAttribute('data-orientation-grab', 'ready')
+    await expect(canvas).toHaveCSS('cursor', 'default')
+    await page.mouse.down()
+    await expect(stage).toHaveAttribute('data-orientation-grab', 'active')
+    await expect(stage).toHaveCSS('user-select', 'none')
+    await expect(canvas).toHaveCSS('cursor', 'default')
+    await page.mouse.up()
+    await expect(stage).not.toHaveAttribute('data-orientation-grab', 'active')
   })
 })
 
