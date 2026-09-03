@@ -41,6 +41,7 @@ export interface PlaybackQueueContext {
 }
 
 type TrackScreenFrame = ScreenFrame & { readonly playbackQueue: PlaybackQueueContext }
+type AlbumScreenFrame = ScreenFrame & { readonly albumCollection: readonly AlbumRef[] }
 
 export type NavigationStatus = Extract<NavigationRoute, { readonly kind: 'status' }>['state']
 
@@ -147,7 +148,7 @@ export async function selectNavigation(
     return { frame: artist === undefined ? null : artistAlbumsFrame(artist, await source.albumsForArtist(artist.key)), played: false }
   }
   if (route.kind === 'artist-albums' || route.kind === 'genre-albums') {
-    const albums = route.kind === 'artist-albums' ? await source.albumsForArtist(route.artistKey) : source.albumsForGenre(route.genreKey)
+    const albums = albumCollectionForFrame(current) ?? (route.kind === 'artist-albums' ? await source.albumsForArtist(route.artistKey) : source.albumsForGenre(route.genreKey))
     const album = albums[index]
     return { frame: album === undefined ? null : tracksFrame(album, await source.tracksForAlbum(album.key)), played: false }
   }
@@ -203,7 +204,7 @@ function albumsFrame(title: string, kind: 'albums' | 'cover-flow', albums: reado
 }
 
 function artistAlbumsFrame(artist: ArtistRef, albums: readonly AlbumRef[]): ScreenFrame {
-  return listFrame('S07', artist.name, { kind: 'artist-albums', artistKey: artist.key }, albums.map((item, index) => descendRow(index, item.title, String(item.trackCount))))
+  return withAlbumCollection(listFrame('S07', artist.name, { kind: 'artist-albums', artistKey: artist.key }, albums.map((item, index) => descendRow(index, item.title, String(item.trackCount)))), albums)
 }
 
 function tracksFrame(album: AlbumRef, tracks: readonly TrackRef[]): ScreenFrame {
@@ -269,6 +270,15 @@ function withPlaybackQueue(frameValue: ScreenFrame, tracks: readonly TrackRef[],
   return { ...frameValue, playbackQueue: { tracks, startIndex, sourceLabel } }
 }
 
+function withAlbumCollection(frameValue: ScreenFrame, albums: readonly AlbumRef[]): AlbumScreenFrame {
+  return { ...frameValue, albumCollection: albums }
+}
+
+/** Reads the exact artist albums represented by a rendered frame. */
+export function albumCollectionForFrame(frameValue: ScreenFrame): readonly AlbumRef[] | null {
+  return isAlbumScreenFrame(frameValue) ? frameValue.albumCollection : null
+}
+
 /** Reads queue context only from frames produced by this navigation graph. */
 export function playbackQueueForFrame(frameValue: ScreenFrame): PlaybackQueueContext | null {
   return isTrackScreenFrame(frameValue) ? frameValue.playbackQueue : null
@@ -276,4 +286,8 @@ export function playbackQueueForFrame(frameValue: ScreenFrame): PlaybackQueueCon
 
 function isTrackScreenFrame(frameValue: ScreenFrame): frameValue is TrackScreenFrame {
   return 'playbackQueue' in frameValue
+}
+
+function isAlbumScreenFrame(frameValue: ScreenFrame): frameValue is AlbumScreenFrame {
+  return 'albumCollection' in frameValue
 }

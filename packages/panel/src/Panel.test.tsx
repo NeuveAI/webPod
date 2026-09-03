@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { createFixtureProvider } from '@webpod/providers'
+import { createFixtureProvider, mintLocalKey, type MusicProvider } from '@webpod/providers'
 import { currentScreenAtom, deviceStore, resetStackActionAtom } from '@webpod/state'
 
 import { Panel } from './Panel'
@@ -164,10 +164,25 @@ describe('the bare DOM panel', () => {
     const html = renderToStaticMarkup(<Panel state="ready" provider={playbackProvider} />)
 
     expect(html).toContain('class="wp-actions" role="group" aria-label="Playback status"')
-    for (const [label, icon] of [['Shuffle on', 'shuffle'], ['Repeat off', 'repeat'], ['Rate', 'star'], ['Queue', 'queue']] as const) {
+    for (const [label, icon] of [['Shuffle off', 'shuffle'], ['Repeat off', 'repeat'], ['Rate', 'star'], ['Queue', 'queue']] as const) {
       expect(html).toContain(`<span role="img" aria-label="${label}"><span aria-hidden="true"><svg class="wp-icon wp-icon--${icon}"`)
     }
-    expect(html).not.toMatch(/<span aria-label="(?:Shuffle on|Repeat off|Rate|Queue)"/)
+    expect(html).not.toMatch(/<span aria-label="(?:Shuffle off|Repeat off|Rate|Queue)"/)
+  })
+
+  test('reports every provider shuffle and repeat state truthfully', async () => {
+    for (const shuffle of ['off', 'songs', 'albums'] as const) {
+      for (const repeat of ['off', 'one', 'all'] as const) {
+        const playbackProvider = createFixtureProvider()
+        await playbackProvider.play({ kind: 'tracks', tracks: playbackProvider.catalog.tracks, startIndex: 0 })
+        await playbackProvider.setShuffle(shuffle)
+        await playbackProvider.setRepeat(repeat)
+        deviceStore.set(resetStackActionAtom, [nowPlayingFrame()])
+        const html = renderToStaticMarkup(<Panel state="ready" provider={playbackProvider} />)
+        expect(html).toContain(`aria-label="Shuffle ${shuffle}"`)
+        expect(html).toContain(`aria-label="Repeat ${repeat}"`)
+      }
+    }
   })
 
   test('keeps S13 capability absence and the Love interaction unchanged', async () => {
@@ -208,5 +223,22 @@ describe('the bare DOM panel', () => {
     expect(html).toContain('class="wp-source">Songs</span>')
     expect(html).toContain(playbackProvider.playback.now?.title ?? 'provider track absent')
     expect(html).not.toContain('Station · Late Drive')
+  })
+
+  test('matches a provider-emitted catalog counterpart to its retained library queue position', async () => {
+    const fixture = createFixtureProvider()
+    const root = navigationRoot(fixtureNavigationSource, fixture)
+    const songs = (await selectNavigation({ ...root, highlightIndex: 4 }, fixtureNavigationSource, fixture)).frame
+    if (songs === null) throw new Error('songs frame missing')
+    const selectedIndex = 1
+    const nowPlaying = (await selectNavigation({ ...songs, highlightIndex: selectedIndex }, fixtureNavigationSource, fixture)).frame
+    const current = fixture.playback.now
+    if (nowPlaying === null || current === null) throw new Error('playback context missing')
+    const counterpartProvider: MusicProvider = { ...fixture, playback: { ...fixture.playback, now: { ...current, key: mintLocalKey() } } }
+    deviceStore.set(resetStackActionAtom, [nowPlaying])
+
+    const html = renderToStaticMarkup(<Panel state="ready" provider={counterpartProvider} />)
+
+    expect(html).toContain(`${selectedIndex + 1} of ${fixtureNavigationSource.songs.length}`)
   })
 })

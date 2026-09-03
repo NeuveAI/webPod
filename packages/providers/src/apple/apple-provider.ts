@@ -80,13 +80,21 @@ function artwork(attributes: JsonRecord): Artwork | undefined {
 }
 function identityCache(): (type: string, catalogId: string, libraryId?: string) => LocalKey {
   const keys = new Map<string, LocalKey>()
-  return (type, catalogId, libraryId) => { const id = `${type}:${libraryId ?? catalogId}`; const known = keys.get(id); if (known !== undefined) return known; const key = mintLocalKey(); keys.set(id, key); return key }
+  return (type, catalogId, libraryId) => {
+    const catalogIdentity = `${type}:catalog:${catalogId}`
+    const libraryIdentity = libraryId === undefined ? undefined : `${type}:library:${libraryId}`
+    const known = keys.get(catalogIdentity) ?? (libraryIdentity === undefined ? undefined : keys.get(libraryIdentity))
+    const key = known ?? mintLocalKey()
+    keys.set(catalogIdentity, key)
+    if (libraryIdentity !== undefined) keys.set(libraryIdentity, key)
+    return key
+  }
 }
 function normalize(raw: unknown, keyFor: ReturnType<typeof identityCache>): Entity {
   const resource = record(raw, 'resource'); const id = asText(resource['id']); const type = asText(resource['type']); const attrs = record(resource['attributes'], 'attributes')
   if (id === undefined || type === undefined) throw new Error('Apple resource has no id or type')
   const library = type.startsWith('library-'); const playRaw = attrs['playParams']; const play = typeof playRaw === 'object' && playRaw !== null && !Array.isArray(playRaw) ? record(playRaw, 'play parameters') : {}
-  const catalogId = asText(play['globalId']) ?? id; const libraryId = library ? id : undefined; const art = artwork(attrs); const key = keyFor(type.replace('library-', ''), catalogId, libraryId)
+  const catalogId = asText(play['globalId']) ?? asText(play['catalogId']) ?? id; const libraryId = library ? id : undefined; const art = artwork(attrs); const key = keyFor(type.replace('library-', ''), catalogId, libraryId)
   const optional = <T>(value: T | undefined, name: string): object => value === undefined ? {} : { [name]: value }
   if (type === 'songs' || type === 'library-songs') {
     const title = asText(attrs['name']); const artistName = asText(attrs['artistName']); if (title === undefined || artistName === undefined) throw new Error('Apple song is missing metadata')

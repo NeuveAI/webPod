@@ -3,7 +3,7 @@ import { APPLE_SUPPORTS, createFixtureProvider, mintLocalKey, type MusicProvider
 import type { NavigationRoute } from '@webpod/state'
 
 import { fixtureNavigationSource } from './model'
-import { navigationRoot, playbackQueueForFrame, providerStatusFrame, selectNavigation } from './navigation'
+import { albumCollectionForFrame, navigationRoot, playbackQueueForFrame, providerStatusFrame, selectNavigation } from './navigation'
 
 const provider = createFixtureProvider({ supports: APPLE_SUPPORTS })
 
@@ -98,6 +98,32 @@ describe('typed navigation graph', () => {
     expect(relationshipReads).toBe(1)
     expect(renderedQueue).toBe(stableTracks)
     expect(playedTarget).toEqual({ kind: 'tracks', tracks: stableTracks, startIndex: 1 })
+  })
+
+  test('selects the exact rendered artist album without fetching the collection again', async () => {
+    const stableAlbums = fixtureNavigationSource.albums.slice(0, 2)
+    let relationshipReads = 0
+    const changingSource = {
+      ...fixtureNavigationSource,
+      albumsForArtist: () => {
+        relationshipReads += 1
+        return relationshipReads === 1 ? stableAlbums : [...stableAlbums].reverse()
+      },
+    }
+    const root = navigationRoot(changingSource, provider)
+    const artists = (await selectNavigation(highlight(root, 2), changingSource, provider)).frame
+    if (artists === null) throw new Error('artists frame missing')
+    const albums = (await selectNavigation(artists, changingSource, provider)).frame
+    if (albums === null) throw new Error('artist albums missing')
+    const selectedAlbum = stableAlbums[1]
+    if (selectedAlbum === undefined) throw new Error('second album missing')
+
+    const tracks = (await selectNavigation(highlight(albums, 1), changingSource, provider)).frame
+
+    expect(relationshipReads).toBe(1)
+    expect(albumCollectionForFrame(albums)).toBe(stableAlbums)
+    expect(tracks?.title).toBe(selectedAlbum.title)
+    expect(tracks?.route).toEqual({ kind: 'album-tracks', albumKey: selectedAlbum.key })
   })
 
   test('empty and rejected playable selections never claim success', async () => {

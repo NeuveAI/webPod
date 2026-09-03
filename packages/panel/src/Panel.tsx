@@ -423,7 +423,7 @@ function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: {
     await provider.ratingSet(track, { love: 'love' })
     setLovedTrackKey(track.key)
   }
-  const currentQueueIndex = queue?.tracks.findIndex((item) => item.key === track.key) ?? -1
+  const currentQueueIndex = queue?.tracks.findIndex((item) => sameProviderTrack(item, track)) ?? -1
   const queueIndex = currentQueueIndex < 0 || queue === null ? undefined : `${currentQueueIndex + 1} of ${queue.tracks.length}`
   return (
     <section className="wp-screen wp-now" aria-label="Now Playing" data-art-tone={artworkTone ?? 'provider'} data-art-sample-source={artworkTone === null ? samples === null ? 'pending' : 'provider' : 'fixture'} data-volume={playback.volume0to100} data-position-ms={playback.positionMs} style={artStyle}>
@@ -442,8 +442,8 @@ function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: {
         </div>
         <div className="wp-times"><span>{formatTime(progressTick.positionMs)}</span><span>-{formatTime(Math.max(0, progressTick.durationMs - progressTick.positionMs))}</span></div>
         <div className="wp-actions" role="group" aria-label="Playback status">
-          <PassiveStatusIcon label="Shuffle on"><PanelIcon name="shuffle" /></PassiveStatusIcon>
-          <PassiveStatusIcon label="Repeat off"><PanelIcon name="repeat" /></PassiveStatusIcon>
+          <PassiveStatusIcon label={`Shuffle ${playback.shuffle}`}><PanelIcon name="shuffle" /></PassiveStatusIcon>
+          <PassiveStatusIcon label={`Repeat ${playback.repeat}`}><PanelIcon name="repeat" /></PassiveStatusIcon>
           <button type="button" aria-label="Love track" aria-pressed={lovedTrackKey === track.key} onClick={() => { void loveTrack() }}><span aria-hidden="true"><PanelIcon name="heart" /></span></button>
           <PassiveStatusIcon label="Rate"><PanelIcon name="star" /></PassiveStatusIcon>
           <PassiveStatusIcon label="Queue"><PanelIcon name="queue" /></PassiveStatusIcon>
@@ -454,6 +454,10 @@ function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: {
       </div>
     </section>
   )
+}
+
+function sameProviderTrack(left: TrackRef, right: TrackRef): boolean {
+  return left.key === right.key || (left.provider === right.provider && left.catalogId === right.catalogId)
 }
 
 function PassiveStatusIcon({ label, children }: { readonly label: string; readonly children: ReactNode }) {
