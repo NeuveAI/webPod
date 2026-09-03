@@ -218,9 +218,9 @@ async function measureMenu(page: Page): Promise<MenuLayout> {
       width: target.offsetWidth,
       height: target.offsetHeight,
     })
-    const rows = [...panel.querySelectorAll<HTMLElement>('.wp-menu-row')]
-    const selected = panel.querySelector<HTMLElement>('.wp-menu-row[aria-current="true"]')
-    const list = element('.wp-menu-list')
+    const rows = [...panel.querySelectorAll<HTMLElement>('.wp-list-row')]
+    const selected = panel.querySelector<HTMLElement>('.wp-list-row[aria-current="true"]')
+    const list = element('.wp-list-viewport')
     const stage = panel.parentElement
     if (!(stage instanceof HTMLElement)) throw new Error('Panel stage is absent')
     return {
@@ -232,18 +232,18 @@ async function measureMenu(page: Page): Promise<MenuLayout> {
         state: panel.dataset['state'],
         visibleRows: panel.dataset['visibleRows'],
       },
-      labels: rows.map((row) => row.querySelector('span')?.textContent?.trim() ?? ''),
+      labels: rows.map((row) => row.querySelector('.wp-list-row__primary')?.textContent?.trim() ?? ''),
       rowIndexes: rows.map((row) => {
-        const index = row.id.match(/-menu-(\d+)$/)?.[1]
+        const index = row.id.match(/-row-(\d+)$/)?.[1]
         return index === undefined ? -1 : Number(index)
       }),
-      highlighted: selected?.querySelector('span')?.textContent?.trim() ?? '',
+      highlighted: selected?.querySelector('.wp-list-row__primary')?.textContent?.trim() ?? '',
       rowHeights: rows.map((row) => row.offsetHeight),
       rowFontSizes: rows.map((row) => Number.parseFloat(getComputedStyle(row).fontSize)),
       screen: size(element('.wp-screen')),
       title: size(element('.wp-titlebar')),
       list: size(list),
-      preview: size(element('.wp-menu-preview')),
+      preview: size(element('.wp-list-preview')),
       listOverflowY: getComputedStyle(list).overflowY,
       listScrollTop: list.scrollTop,
       rasterScale: Number.parseFloat(
@@ -274,13 +274,13 @@ function expectProductionDefault(layout: MenuLayout): void {
   ])
   expect(layout.rowIndexes).toEqual([0, 1, 2, 3, 4, 5, 6, 7])
   expect(layout.highlighted).toBe('Albums')
-  expect(layout.rowHeights).toEqual(Array.from({ length: 8 }, () => 21))
+  expect(layout.rowHeights).toEqual(Array.from({ length: 8 }, () => 23))
   expect(layout.rowFontSizes).toEqual(Array.from({ length: 8 }, () => 11))
   expect(layout.screen).toEqual({ width: 272, height: 204 })
   expect(layout.title).toEqual({ width: 272, height: 21 })
   expect(layout.list).toEqual({ width: 168, height: 183 })
   expect(layout.preview).toEqual({ width: 104, height: 183 })
-  expect(layout.listOverflowY).toBe('auto')
+  expect(layout.listOverflowY).toBe('hidden')
   expect(layout.listScrollTop).toBe(0)
   expect(layout.rasterScale).toBe(1)
 }

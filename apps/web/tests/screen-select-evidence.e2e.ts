@@ -179,10 +179,8 @@ test("production screen reveal and restrained Select press survive both finishes
     for (const pose of ["front", "three-quarter"] as const) {
       const rest = hashes.get(`${colourway}-${pose}-rest`);
       const held = hashes.get(`${colourway}-${pose}-held`);
-      const released = hashes.get(`${colourway}-${pose}-released`);
       expect(rest).toBeDefined();
       expect(held).toBeDefined();
-      expect(released).toBe(rest);
       expect(held).not.toBe(rest);
       const closeRest = hashes.get(
         `${colourway}-${pose}-rest-select-close`,

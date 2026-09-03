@@ -28,7 +28,7 @@ test.use({
 
 test.beforeAll(async () => mkdir(evidenceDirectory, { recursive: true }))
 
-test('production list indication is absent at 8/8 and follows an overflowing album window', async ({ page }) => {
+test('production list indication is absent at 8/8 and follows an overflowing song window', async ({ page }) => {
   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
   await assertBrowserSourceIdentity(page)
   await page.addStyleTag({
@@ -49,22 +49,23 @@ test('production list indication is absent at 8/8 and follows an overflowing alb
   await stage.screenshot({ path: resolve(evidenceDirectory, 'production-main-menu.png') })
 
   await panel.focus()
+  await panel.press('ArrowDown')
   await panel.press('Enter')
-  await expect(panel).toHaveAttribute('data-screen', 'S08')
+  await expect(panel).toHaveAttribute('data-screen', 'S09')
   await settleCompositePaint(page)
 
-  const indicator = panel.locator('.wp-album-list > .wp-list-scroll')
+  const indicator = panel.locator('.wp-list-viewport > .wp-list-scroll')
   await expect(indicator).toHaveCount(1)
-  await expect(panel.locator('.wp-album-preview .wp-list-scroll')).toHaveCount(0)
-  await expect(indicator).toHaveAttribute('data-total-rows', '11')
+  await expect(panel.locator('.wp-list-preview .wp-list-scroll')).toHaveCount(0)
+  await expect(indicator).toHaveAttribute('data-total-rows', '42')
   await expect(indicator).toHaveAttribute('data-visible-rows', '8')
   await expect(indicator).toHaveAttribute('data-window-start', '0')
 
-  const blackFirst = await captureSelectedRow(stage, panel, 'black', 'first')
+  const blackFirst = await captureSelectedRow(stage, panel, 'black', 'first', 0)
   const startLayers = await captureIndicatorLayers(indicator, 'start')
   const darkVisual = await measureIndicator(indicator)
   expect(darkVisual.trackWidth).toBe(6)
-  expect(darkVisual.thumbRatio).toBeCloseTo(8 / 11, 2)
+  expect(darkVisual.thumbRatio).toBeCloseTo(8 / 42, 2)
   expect(darkVisual.trailingInset).toBeGreaterThanOrEqual(0)
   expect(darkVisual.trailingInset).toBeLessThanOrEqual(2.5)
   const tenThousandRowEnd = await measureTenThousandRowEnd(indicator)
@@ -73,18 +74,17 @@ test('production list indication is absent at 8/8 and follows an overflowing alb
   expect(tenThousandRowEnd.thumbBottom).toBe(tenThousandRowEnd.trackBottom)
 
   await dispatchDetents(panel, 5)
-  const blackMiddle = await captureSelectedRow(stage, panel, 'black', 'middle')
+  const blackMiddle = await captureSelectedRow(stage, panel, 'black', 'middle', 5)
 
-  await dispatchDetents(panel, 4)
-  await expect(indicator).toHaveAttribute('data-window-start', '2')
-  await expect(indicator).toHaveAttribute('data-thumb-offset', '31.818px')
+  await dispatchDetents(panel, 15)
+  await expect(indicator).toHaveAttribute('data-window-start', '13')
   const movedVisual = await measureIndicator(indicator)
-  expect(movedVisual.progress).toBeCloseTo(2 / 3, 1)
+  expect(movedVisual.progress).toBeCloseTo(13 / 34, 1)
   const middleLayers = await captureIndicatorLayers(indicator, 'middle')
 
-  await dispatchDetents(panel, 1)
-  await expect(indicator).toHaveAttribute('data-window-start', '3')
-  const blackEnd = await captureSelectedRow(stage, panel, 'black', 'end')
+  await dispatchDetents(panel, 21)
+  await expect(indicator).toHaveAttribute('data-window-start', '34')
+  const blackEnd = await captureSelectedRow(stage, panel, 'black', 'end', 41)
   const endLayers = await captureIndicatorLayers(indicator, 'end')
 
   expect(middleLayers.trackSha256).toBe(startLayers.trackSha256)
@@ -97,11 +97,11 @@ test('production list indication is absent at 8/8 and follows an overflowing alb
 
   await page.evaluate(() => window.__webpodDevicePreview?.setColourway('white'))
   await expect(panel).toHaveAttribute('data-colourway', 'light')
-  const whiteEnd = await captureSelectedRow(stage, panel, 'white', 'end')
-  await dispatchDetents(panel, -5)
-  const whiteMiddle = await captureSelectedRow(stage, panel, 'white', 'middle')
-  await dispatchDetents(panel, -5)
-  const whiteFirst = await captureSelectedRow(stage, panel, 'white', 'first')
+  const whiteEnd = await captureSelectedRow(stage, panel, 'white', 'end', 41)
+  await dispatchDetents(panel, -21)
+  const whiteMiddle = await captureSelectedRow(stage, panel, 'white', 'middle', 20)
+  await dispatchDetents(panel, -20)
+  const whiteFirst = await captureSelectedRow(stage, panel, 'white', 'first', 0)
   const lightVisual = await measureIndicator(indicator)
   expect(lightVisual.thumbMaterial).not.toBe(darkVisual.thumbMaterial)
   expect(lightVisual.trackMaterial).not.toBe(darkVisual.trackMaterial)
@@ -114,12 +114,12 @@ test('production list indication is absent at 8/8 and follows an overflowing alb
     `${JSON.stringify({
       route: '/_spike/device',
       mainMenu: { totalRows: 8, visibleRows: 8, indicatorCount: 0 },
-      album: {
-        totalRows: 11,
+      songs: {
+        totalRows: 42,
         visibleRows: 8,
         start: darkVisual,
         tenThousandRowEnd,
-        afterNineWheelDetents: movedVisual,
+        afterTwentyWheelDetents: movedVisual,
         light: lightVisual,
         fixedTrackProof: {
           start: startLayers,
@@ -147,25 +147,26 @@ async function captureSelectedRow(
   panel: Locator,
   colourway: 'black' | 'white',
   position: 'first' | 'middle' | 'end',
+  expectedIndex: number,
 ) {
   const page = panel.page()
   await settleCompositePaint(page)
-  const selected = panel.locator('.wp-track-row[aria-current="true"]')
+  const selected = panel.locator('.wp-list-row[aria-current="true"]')
   await expect(selected).toHaveCount(1)
   const visual = await selected.evaluate((row) => {
     const style = getComputedStyle(row)
-    const list = row.closest('.wp-track-list')
+    const list = row.closest('.wp-list-viewport')
     const rim = row.querySelector('.wp-selection-rim')
-    const metadata = row.querySelector('.wp-row-meta')
+    const metadata = row.querySelector('.wp-list-row__secondary')
     if (!(list instanceof HTMLElement) || !(rim instanceof HTMLElement) || !(metadata instanceof HTMLElement)) {
-      throw new Error('Selected track is missing its list, structural rim, or metadata')
+      throw new Error('Selected row is missing its list, structural rim, or metadata')
     }
     const rowRect = row.getBoundingClientRect()
     const listRect = list.getBoundingClientRect()
     const rimStyle = getComputedStyle(rim)
     return {
-      label: row.querySelector('.wp-track-title')?.textContent ?? '',
-      number: row.querySelector('.wp-track-number')?.textContent ?? '',
+      label: row.querySelector('.wp-list-row__primary')?.textContent ?? '',
+      index: Number(row.id.match(/-row-(\d+)$/)?.[1] ?? -1),
       foreground: style.color,
       material: style.backgroundImage,
       depth: style.boxShadow,
@@ -179,7 +180,7 @@ async function captureSelectedRow(
       listBottom: listRect.bottom,
     }
   })
-  expect(visual.number).toBe({ first: '1', middle: '6', end: '11' }[position])
+  expect(visual.index).toBe(expectedIndex)
   expect(visual.material.split('linear-gradient').length - 1).toBeGreaterThanOrEqual(2)
   expect(visual.rim).not.toBe('rgba(0, 0, 0, 0)')
   expect(visual.rimSize).toBe('1px')
