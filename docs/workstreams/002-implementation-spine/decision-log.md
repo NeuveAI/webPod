@@ -854,3 +854,14 @@ phone-in-hand thumb-occlusion gate. W4 remains active.
 |---|---|---|---|
 | **RISK-01** | T3 is the eventual shipping default and is **not built** (D-010). Until it lands, webPod runs only in a flagged Canary. **Not self-correcting** — `HTMLTexture` degrading to a plain `Texture` yields a blank screen mesh, not T3; T3 needs `InteractionManager`'s `matrix3d` overlay, which is real work. **Release gate: nothing ships to users until T2–T4 land and §15 is signed off in a flag-off profile.** Re-read at the start of every subsequent workstream until closed. | 2026-08-28 | open, accepted by owner |
 | ~~RISK-02~~ | **CLOSED 2026-08-28 by D-031.** Chrome 151 ships `texElementImage2D` arity 3, matching three.js's Chrome 150+ branch; `HTMLTexture` works unmodified. The IDL name `texElementSubImage2D` exists in no shipping browser. Mitigation (route through `HTMLTexture`, never the raw entry point) stands and is vindicated. | 2026-08-28 | **closed** |
+# D-064 — Canonical luminance, physical rotated poses
+
+**Status:** Settled by owner, 2026-08-31.
+
+The W4 ±4 luminance stop-table criterion applies to canonical front and rear
+reference poses. It does not apply the same static 2D targets unchanged to
+three-quarter, edge, or animated orientations. Rotated poses are accepted by
+physical continuity, material identity, silhouette, occlusion, and the absence
+of view-locked shading. World-fixed lighting remains binding; pose-specific
+lights, painted gradients, hidden proxy sampling, and altered reference values
+remain forbidden.

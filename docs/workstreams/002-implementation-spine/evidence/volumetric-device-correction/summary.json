@@ -1,0 +1,177 @@
+{
+  "route": "/_spike/device?capture",
+  "health": {
+    "expected": "79b7ec1172e4c72341c163e038254bfb794cc5a8604ed2b79ecd414e30ff957f",
+    "current": "79b7ec1172e4c72341c163e038254bfb794cc5a8604ed2b79ecd414e30ff957f",
+    "expectedFileCount": 178,
+    "fileCount": 178,
+    "reviewedCommit": null,
+    "reviewedTree": null
+  },
+  "captures": [
+    {
+      "pose": "front",
+      "colourway": "black",
+      "filename": "true3d-front-black.png",
+      "fit": {
+        "distance": 1179.2362,
+        "padding": 34,
+        "extentX": 0.412113,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "d5fec0604df5f971ae17bf3310072ce022d659455992abd4180a782e478da02e"
+    },
+    {
+      "pose": "screen-close",
+      "colourway": "black",
+      "filename": "true3d-screen-close-black.png",
+      "hash": "b57cb228bcc0fbe06a15d041eafebffb84dc0bc0361b9eadedb959e57c91f9a3"
+    },
+    {
+      "pose": "front",
+      "colourway": "white",
+      "filename": "true3d-front-white.png",
+      "fit": {
+        "distance": 1179.2362,
+        "padding": 34,
+        "extentX": 0.412113,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "b3bf98090b9d44537a49ef13c0373e3110d612fe54ec75c33fdbf48f6395f6ce"
+    },
+    {
+      "pose": "screen-close",
+      "colourway": "white",
+      "filename": "true3d-screen-close-white.png",
+      "hash": "6d71a4f2a972ed8a0e2860765f8e39c6ad1668c4fe685ef92d6ddd9203ca3e68"
+    },
+    {
+      "pose": "three-quarter",
+      "colourway": "black",
+      "filename": "true3d-quarter-black.png",
+      "fit": {
+        "distance": 1336.9377,
+        "padding": 34,
+        "extentX": 0.38358,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "c0dedb1d353356633f4cb053d980913462bab0400da1782f3a8f1e10f602d730"
+    },
+    {
+      "pose": "edge",
+      "colourway": "black",
+      "filename": "true3d-edge-black.png",
+      "fit": {
+        "distance": 1312.9387,
+        "padding": 34,
+        "extentX": 0.085107,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "b88cd9cde01d76de5e552bf6ecb810321e206ff19498fafa30278d0059a0ca36"
+    },
+    {
+      "pose": "rear",
+      "colourway": "white",
+      "filename": "true3d-rear-steel.png",
+      "fit": {
+        "distance": 1179.2362,
+        "padding": 34,
+        "extentX": 0.412113,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "ae8ebb949969286370bbc51a55ed5ca3f718d929d9b4026cde568dd13388818a"
+    },
+    {
+      "pose": "corner-left-beauty",
+      "colourway": "black",
+      "filename": "true3d-corner-left-beauty.png",
+      "hash": "d5c55f3d22f3942f3e7342ec95f571d1cd8f05da60b15ff10a301e2e7e8edf80"
+    },
+    {
+      "pose": "corner-right-beauty",
+      "colourway": "black",
+      "filename": "true3d-corner-right-beauty.png",
+      "hash": "ae9506110bdf1694729749ca6bb9ef60997e7b988ed039f47cfda761b2997a0a"
+    },
+    {
+      "pose": "top-controls",
+      "colourway": "black",
+      "filename": "true3d-top-controls.png",
+      "fit": {
+        "distance": 1297.3958,
+        "padding": 34,
+        "extentX": 0.445194,
+        "extentY": 0.911458,
+        "limitX": 0.933594,
+        "limitY": 0.911458
+      },
+      "hash": "5c2504b9985e353a9ac437a8c5494f5ac3d186f399605037d2ee41ea99acd317"
+    }
+  ],
+  "mobileFit": {
+    "distance": 1753.6582,
+    "padding": 34,
+    "extentX": 0.818667,
+    "extentY": 0.673789,
+    "limitX": 0.818667,
+    "limitY": 0.916256
+  },
+  "mobileHash": "562222d443573d7e8d70415a8a34810c31c003f24ed4e11398345044a2df0071",
+  "dpr": {
+    "1": {
+      "density": 1,
+      "rasterWidth": 320,
+      "rasterHeight": 240,
+      "webglWidth": 430,
+      "webglHeight": 932
+    },
+    "2": {
+      "density": 2,
+      "rasterWidth": 640,
+      "rasterHeight": 480,
+      "webglWidth": 860,
+      "webglHeight": 1864
+    },
+    "3": {
+      "density": 3,
+      "rasterWidth": 960,
+      "rasterHeight": 720,
+      "webglWidth": 1290,
+      "webglHeight": 2796
+    }
+  },
+  "diagnostic": {
+    "fit": {
+      "distance": 1179.2362,
+      "padding": 34,
+      "extentX": 0.412113,
+      "extentY": 0.911458,
+      "limitX": 0.933594,
+      "limitY": 0.911458
+    },
+    "hash": "fe5e7e9937b02ecaa0e6b848350a4ba8b650e68ef2f840ffea7bd1fc4cdf250a",
+    "corners": [
+      {
+        "side": "left",
+        "filename": "true3d-corner-left-neutral.png",
+        "hash": "7c903d5ed96d6a63bf72032e29832afb009942b468f4dde6afc2bbadb031ffe2"
+      },
+      {
+        "side": "right",
+        "filename": "true3d-corner-right-neutral.png",
+        "hash": "22fad18b772bc8c793291d84b2d9e81328f29f41f33c6c4c99862e7ea429acea"
+      }
+    ]
+  },
+  "pageErrors": []
+}
