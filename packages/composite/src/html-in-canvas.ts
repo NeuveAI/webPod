@@ -6,6 +6,7 @@ import {
   LinearFilter,
   PlaneGeometry,
   SRGBColorSpace,
+  ShaderChunk,
 } from 'three'
 import { InteractionManager } from 'three/addons/interaction/InteractionManager.js'
 
@@ -93,7 +94,7 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     texture.magFilter = LinearFilter
     texture.name = `webpod-lcd-${this.tone}-texture`
 
-    const material = new MeshBasicMaterial({ map: texture, toneMapped: false })
+    const material = createHtmlTextureMaterial(texture)
     material.name = `webpod-lcd-${this.tone}`
     const proxy = new Mesh(
       new PlaneGeometry(screen.size.width, screen.size.height),
@@ -387,4 +388,23 @@ function positiveDimension(value: unknown): number {
 
 function positiveScale(value: number): number {
   return Number.isFinite(value) && value > 0 ? value : 1
+}
+
+/**
+ * Decode HTMLTexture's sRGB pixels exactly once before the renderer encodes output.
+ * Three 0.185 uploads this experimental texture as RGBA8 (WebGLTextures), so its
+ * SRGBColorSpace tag cannot trigger the hardware decode used by ordinary maps.
+ * Reuse Three's own transfer function, scoped to this material and map sample.
+ * The pinned-upload regression test must change when upstream adopts sRGB storage.
+ */
+export function createHtmlTextureMaterial(texture: HTMLTexture): MeshBasicMaterial {
+  const material = new MeshBasicMaterial({ map: texture, toneMapped: false })
+  material.onBeforeCompile = (shader) => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <map_fragment>',
+      ShaderChunk.map_fragment.replace('#ifdef DECODE_VIDEO_TEXTURE', '#if 1 // HTMLTexture RGBA8 requires sRGB decode'),
+    )
+  }
+  material.customProgramCacheKey = () => 'webpod-htmltexture-rgba8-srgb-v1'
+  return material
 }

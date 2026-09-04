@@ -1,6 +1,9 @@
 import { describe, expect, test } from 'bun:test'
+import { HTMLTexture, ShaderLib } from 'three'
+import { readFileSync } from 'node:fs'
 
 import {
+  createHtmlTextureMaterial,
   mutationAffectsPanelPixels,
   resolvePanelRasterDensity,
   resolvePanelRasterFrame,
@@ -69,4 +72,20 @@ describe('html-in-canvas invariants', () => {
     expect(source).not.toContain('updateElementGeometry')
     expect(source).not.toMatch(/texElement(?:Sub)?Image2D\s*\(/)
   })
+})
+
+test('HTMLTexture RGBA8 upload decodes sRGB once before renderer output encoding', () => {
+  const texture = new HTMLTexture()
+  const material = createHtmlTextureMaterial(texture)
+  const shader = { uniforms: {}, vertexShader: ShaderLib.basic.vertexShader, fragmentShader: ShaderLib.basic.fragmentShader }
+  // The hook needs no renderer; exercise it with the real pinned shader source.
+  Reflect.apply(material.onBeforeCompile, material, [shader])
+  expect(shader.fragmentShader.match(/sampledDiffuseColor = sRGBTransferEOTF/g)).toHaveLength(1)
+  expect(shader.fragmentShader).toContain('#if 1 // HTMLTexture RGBA8 requires sRGB decode')
+  expect(shader.fragmentShader).toContain('#include <colorspace_fragment>')
+  expect(material.toneMapped).toBe(false)
+  const upload = readFileSync(new URL('../../../apps/web/node_modules/three/src/renderers/webgl/WebGLTextures.js', import.meta.url), 'utf8')
+  expect(upload).toContain('_gl.texElementImage2D( _gl.TEXTURE_2D, _gl.RGBA8, image )')
+  material.dispose()
+  texture.dispose()
 })
