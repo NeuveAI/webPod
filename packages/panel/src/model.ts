@@ -1,13 +1,9 @@
 import {
   artworkUrl,
-  mintLocalKey,
-  createFixtureProvider,
-  type FixtureProvider,
+  type MusicProvider,
   type TrackRef,
 } from '@webpod/providers'
-import { APPLE_SUPPORTS } from '@webpod/providers'
-import type { PanelRow, ScreenFrame } from '@webpod/state'
-import type { NavigationDataSource } from './navigation'
+import type { NowPlayingMode, NowPlayingModeState, ScreenFrame } from '@webpod/state'
 
 export type Colourway = 'dark' | 'light'
 export type PanelState =
@@ -24,7 +20,11 @@ export const PANEL_STATES: readonly PanelState[] = ['ready', 'loading', 'empty',
 export function isPanelState(value: unknown): value is PanelState {
   return typeof value === 'string' && PANEL_STATES.some((state) => state === value)
 }
-export type NowPlayingMode = 'volume' | 'scrub' | 'rate' | 'lyrics'
+export type NowPlayingCenterState = Omit<NowPlayingModeState, 'frame'>
+export interface NowPlayingCenterTransition {
+  readonly state: NowPlayingCenterState
+  readonly effect: 'none' | 'commit-scrub' | 'select-queue'
+}
 export type ArtworkTone = 'pale' | 'dark'
 export type RgbSample = readonly [red: number, green: number, blue: number]
 
@@ -118,106 +118,9 @@ export const excludeActorHue = (hue: number) => {
   return hue
 }
 
-export const fixtureProvider: FixtureProvider = createFixtureProvider({ supports: APPLE_SUPPORTS })
-
-/** Adapts fixture relationships to the provider-neutral navigation data seam. */
-export const fixtureNavigationSource: NavigationDataSource = {
-  albums: fixtureProvider.catalog.albums,
-  artists: fixtureProvider.catalog.artists,
-  genres: fixtureProvider.catalog.genres,
-  playlists: fixtureProvider.catalog.playlists,
-  songs: fixtureProvider.catalog.tracks,
-  stations: fixtureProvider.catalog.stations,
-  trackByKey(trackKey) {
-    return fixtureProvider.catalog.tracks.find((track) => track.key === trackKey) ?? null
-  },
-  tracksForAlbum(albumKey) {
-    const album = fixtureProvider.catalog.albums.find((item) => item.key === albumKey)
-    return album === undefined ? [] : fixtureProvider.catalog.tracksByAlbum.get(album.key) ?? []
-  },
-  tracksForPlaylist(playlistKey) {
-    const playlist = fixtureProvider.catalog.playlists.find((item) => item.key === playlistKey)
-    return playlist === undefined ? [] : fixtureProvider.catalog.tracksByPlaylist.get(playlist.key) ?? []
-  },
-  albumsForArtist(artistKey) {
-    const artist = fixtureProvider.catalog.artists.find((item) => item.key === artistKey)
-    return artist === undefined ? [] : fixtureProvider.catalog.albums.filter((album) => album.artistName === artist.name)
-  },
-  albumsForGenre(genreKey) {
-    const genre = fixtureProvider.catalog.genres.find((item) => item.key === genreKey)
-    return genre === undefined ? [] : fixtureProvider.catalog.albums.filter((album) => fixtureProvider.catalog.genreByAlbum.get(album.key)?.key === genre.key)
-  },
-  artistsForGenre(genreKey) {
-    const names = new Set(this.albumsForGenre(genreKey).map((album) => album.artistName))
-    return fixtureProvider.catalog.artists.filter((artist) => names.has(artist.name))
-  },
-  tracksForGenre(genreKey) {
-    return this.albumsForGenre(genreKey).flatMap((album) => fixtureProvider.catalog.tracksByAlbum.get(album.key) ?? [])
-  },
-}
-
-const row = (index: number, label: string, sublabel: string | null = null): PanelRow => ({
-  index,
-  label,
-  sublabel,
-  glyphs: ['descend'],
-  provenance: null,
-})
-
-/** Builds the capability-filtered main menu. Unsupported provider rows are absent. */
-export function mainMenuFrame(provider: FixtureProvider = fixtureProvider): ScreenFrame {
-  const rows = [
-    row(0, 'Cover Flow'),
-    row(1, 'Playlists', String(provider.catalog.playlists.length)),
-    row(2, 'Artists', String(provider.catalog.artists.length)),
-    row(3, 'Albums', String(provider.catalog.albums.length)),
-    row(4, 'Songs', String(provider.catalog.tracks.length)),
-    row(5, 'Genres', String(provider.catalog.genres.length)),
-    ...(provider.supports('stations') ? [row(6, 'Radio', String(provider.catalog.stations.length))] : []),
-    row(7, 'Search'),
-  ]
-  return { screenId: 'S03', title: 'Music', route: { kind: 'root' }, density: 'compact', rows, highlightIndex: 3, windowStart: 0 }
-}
-
-/** Builds an album row model from provider-owned catalogue data. */
-export function albumTracksFrame(provider: FixtureProvider = fixtureProvider, minimumRows = 0): ScreenFrame {
-  const album = provider.catalog.albums[0]
-  if (album === undefined) {
-    return { screenId: 'S08', title: 'Album', route: { kind: 'album-tracks', albumKey: mintLocalKey() }, density: 'compact', rows: [], highlightIndex: -1, windowStart: 0 }
-  }
-  const tracks = provider.catalog.tracksByAlbum.get(album.key) ?? []
-  const rowCount = Math.max(tracks.length, minimumRows)
-  return {
-    screenId: 'S08',
-    route: { kind: 'album-tracks', albumKey: album.key },
-    title: album.title,
-    density: 'compact',
-    rows: Array.from({ length: rowCount }, (_, index) => {
-      const track = tracks[index % tracks.length]
-      if (track === undefined) throw new Error('A long fixture requires at least one album track')
-      return {
-      index,
-      label: index < tracks.length ? track.title : `${track.title} · ${index + 1}`,
-      sublabel: formatDuration(track.durationMs),
-      glyphs: index === 0 ? ['playing'] : [],
-      provenance: null,
-      }
-    }),
-    highlightIndex: tracks.length === 0 ? -1 : 0,
-    windowStart: 0,
-  }
-}
-
 /** Creates the navigation frame for the provider-subscribed Now Playing screen. */
 export function nowPlayingFrame(): ScreenFrame {
   return { screenId: 'S13', title: 'Now Playing', route: { kind: 'now-playing' }, density: 'medium', rows: [], highlightIndex: -1, windowStart: 0 }
-}
-
-/** Returns the provider's playing track, falling back to the first fixture track. */
-export function currentTrack(provider: FixtureProvider = fixtureProvider): TrackRef {
-  const track = provider.playback.now ?? provider.catalog.tracks[0]
-  if (track === undefined) throw new Error('The fixture catalogue must contain a track')
-  return track
 }
 
 /** Resolves same-origin artwork and clamps rendered pixels to the sharp source size. */
@@ -228,24 +131,73 @@ export function sharpArtwork(track: TrackRef, requestedPx = 176) {
 }
 
 /** Returns only centre-button modes supported by the active provider. */
-export function nowPlayingModes(provider: FixtureProvider = fixtureProvider): readonly NowPlayingMode[] {
-  return provider.supports('lyrics')
-    ? ['volume', 'scrub', 'rate', 'lyrics']
-    : ['volume', 'scrub', 'rate']
+export function nowPlayingModes(provider: MusicProvider): readonly NowPlayingMode[] {
+  return [
+    'standard',
+    ...(provider.supports('seek') ? ['scrub' as const] : []),
+    'artwork',
+    ...(provider.supports('queueRead') ? ['queue' as const] : []),
+  ]
 }
 
 /** Advances through the capability-filtered centre-button cycle. */
 export function nextNowPlayingMode(
   mode: NowPlayingMode,
-  provider: FixtureProvider = fixtureProvider,
+  provider: MusicProvider,
 ): NowPlayingMode {
   const modes = nowPlayingModes(provider)
   const index = modes.indexOf(mode)
-  return modes[(index + 1) % modes.length] ?? 'volume'
+  return modes[(index + 1) % modes.length] ?? 'standard'
+}
+
+/** Resolves one centre press without conflating a scrub preview with a seek. */
+export function transitionNowPlayingCenter(
+  state: NowPlayingCenterState,
+  provider: MusicProvider,
+  queueSelectionPending = false,
+): NowPlayingCenterTransition {
+  if (state.queue === 'selecting') return { state, effect: 'none' }
+  if (state.mode === 'scrub') {
+    if (state.scrub === 'previewing') return { state: { ...state, scrub: 'committing' }, effect: 'commit-scrub' }
+    if (state.scrub === 'committing') return { state, effect: 'none' }
+  }
+  if (state.mode === 'queue') {
+    if (queueSelectionPending) return { state: { ...state, mode: 'standard', queue: 'selecting' }, effect: 'select-queue' }
+  }
+  return {
+    state: { ...state, mode: nextNowPlayingMode(state.mode, provider), scrub: 'clean', queue: 'clean' },
+    effect: 'none',
+  }
+}
+
+/** Marks a wheel-adjusted scrub position as tentative until Center commits it. */
+export function previewNowPlayingScrub(state: NowPlayingCenterState): NowPlayingCenterState {
+  if (state.mode !== 'scrub') return state
+  return { ...state, scrub: 'previewing', scrubRevision: state.scrubRevision + 1 }
+}
+
+/** Settles only the seek revision that Center actually committed. */
+export function settleNowPlayingScrub(
+  state: NowPlayingCenterState,
+  revision: number,
+  succeeded: boolean,
+): NowPlayingCenterState {
+  if (state.mode !== 'scrub' || state.scrub !== 'committing' || state.scrubRevision !== revision) return state
+  return { ...state, scrub: succeeded ? 'clean' : 'previewing' }
+}
+
+/** Clears the queue-selection guard after its provider write settles. */
+export function settleNowPlayingQueue(
+  state: NowPlayingCenterState,
+): NowPlayingCenterState {
+  if (state.queue !== 'selecting') return state
+  return { ...state, queue: 'clean' }
 }
 
 /** Formats non-negative milliseconds as unambiguous minute:second text. */
 export function formatDuration(durationMs: number): string {
-  const seconds = Math.max(0, Math.floor(durationMs / 1000))
+  const seconds = Number.isFinite(durationMs) ? Math.max(0, Math.floor(durationMs / 1000)) : 0
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
 }
+
+export type { NowPlayingMode } from '@webpod/state'

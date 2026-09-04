@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>webPod Aqua molded-trough correction board</title>
+<style>
+  * { box-sizing: border-box; }
+  body { width: 2400px; margin: 0; padding: 56px; background: #0e141c; color: #edf3fa; font: 24px/1.4 -apple-system, BlinkMacSystemFont, sans-serif; }
+  h1 { margin: 0 0 10px; font-size: 42px; }
+  h2 { margin: 48px 0 18px; font-size: 30px; }
+  p { max-width: 1900px; margin: 0 0 32px; color: #aab8c9; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; }
+  figure, .metrics { margin: 0; padding: 24px; border: 1px solid #344459; background: #182332; }
+  figcaption { margin-bottom: 18px; font-weight: 700; }
+  .source { border-color: #54708e; }
+  .reject { border-color: #a95b68; background: #2a2029; }
+  .candidate { border-color: #4e8ab8; }
+  .zoom { min-height: 152px; display: flex; align-items: center; overflow: hidden; background: #dfe2e5; }
+  .zoom img { display: block; width: auto; max-width: none; image-rendering: pixelated; }
+  .zoom .candidate-strip { height: 136px; }
+  .zoom .normalized-strip { height: 116px; }
+  .note { margin-top: 14px; color: #9eafc3; font-size: 19px; }
+  .micro { display: grid; grid-template-columns: 110px 110px 1fr; gap: 14px; align-items: end; margin-top: 16px; padding: 12px; background: #0f1721; }
+  .micro label { display: block; color: #aebdd0; font-size: 15px; }
+  .mini-v, .mini-h { display: block; border: 1px solid #53667e; background-image: var(--slice); background-repeat: no-repeat; background-size: auto var(--slice-height); image-rendering: pixelated; }
+  .mini-v { width: 24px; height: var(--slice-height); margin-top: 5px; }
+  .mini-v.a { background-position: 20% center; }
+  .mini-v.b { background-position: 80% center; }
+  .mini-h { width: 100%; height: 24px; margin-top: 5px; background-position: center center; }
+  .micro::after { content: "Layers: exterior background → cast shadow → outer lip → recess seam → empty channel / fill"; grid-column: 1 / -1; color: #8fa2b9; font-size: 14px; letter-spacing: .01em; }
+  .wide { grid-column: 1 / -1; }
+  .slices { display: grid; grid-template-columns: 230px 230px 1fr; gap: 22px; align-items: center; }
+  .slice-card { padding: 16px; background: #0f1721; }
+  .slice-card strong { display: block; margin-bottom: 10px; font-size: 18px; }
+  .v-slice { width: 32px; height: 136px; margin: auto; border: 1px solid #506177; background-image: url(candidate-progress-35-closeup.png); background-repeat: no-repeat; background-size: 1936px 136px; image-rendering: pixelated; }
+  .v-slice.fill { background-position: -400px 0; }
+  .v-slice.empty { background-position: -1200px 0; }
+  svg { width: 100%; height: 230px; background: #0d151f; }
+  .axis { stroke: #607289; stroke-width: 2; }
+  .line { fill: none; stroke: #66b9ff; stroke-width: 5; stroke-linejoin: round; }
+  .line.horizontal { stroke: #9ed58c; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { padding: 12px 14px; border-bottom: 1px solid #36475b; text-align: left; }
+  th { color: #aebdd0; }
+  .pass { color: #9ee493; font-weight: 750; }
+  .corners { display: flex; gap: 36px; align-items: flex-start; }
+  .corner img { width: 216px; height: 216px; object-fit: fill; image-rendering: pixelated; background: #101820; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px 28px; margin-top: 18px; color: #c4d0df; }
+  .legend span::before { content: ""; display: inline-block; width: 18px; height: 18px; margin-right: 8px; vertical-align: -2px; border-radius: 3px; background: var(--c); }
+</style>
+<body>
+  <h1>Aqua molded trough — source, rejection, corrected candidate</h1>
+  <p>Every control is normalized once to a 28px outer raster height, then displayed at 4× with nearest-neighbor enlargement. The 34px candidate crops retain 2px of background above and 4px of detached cast-shadow falloff below the 28px object. The primary-source crops retain their corresponding exterior rows.</p>
+
+  <div class="grid">
+    <figure class="source"><figcaption>Primary Aqua source — determinate</figcaption><div class="zoom"><img class="normalized-strip" src="reference-owner-aqua-progress-normalized.png" alt="Primary Aqua determinate bar"></div><div class="micro" style="--slice:url(reference-owner-aqua-progress-normalized.png);--slice-height:116px"><label>fill vertical<i class="mini-v a"></i></label><label>empty vertical<i class="mini-v b"></i></label><label>unfilled centerline<i class="mini-h"></i></label></div><div class="note">Molded lip, recess seam, concave empty channel, continuous cylindrical fill.</div></figure>
+    <figure class="source"><figcaption>Primary Aqua source — striped</figcaption><div class="zoom"><img class="normalized-strip" src="reference-owner-aqua-loading-normalized.png" alt="Primary Aqua striped bar"></div><div class="micro" style="--slice:url(reference-owner-aqua-loading-normalized.png);--slice-height:116px"><label>blue rib vertical<i class="mini-v a"></i></label><label>light rib vertical<i class="mini-v b"></i></label><label>rib centerline<i class="mini-h"></i></label></div><div class="note">The same cross-sectional light shapes both diagonal rib colours.</div></figure>
+    <figure class="reject wide"><figcaption>Owner-rejected anti-reference — flat uniform frame</figcaption><div class="zoom"><img class="normalized-strip" src="rejected-flat-trough-normalized.png" alt="Rejected flat-frame webPod result"></div><div class="micro" style="--slice:url(rejected-flat-trough-normalized.png);--slice-height:116px"><label>fill vertical<i class="mini-v a"></i></label><label>empty vertical<i class="mini-v b"></i></label><label>unfilled centerline<i class="mini-h"></i></label></div><div class="note">Rejected: broad uniform gray rectangle; lip, seam, channel, and cast depth collapse into one outline.</div></figure>
+    <figure class="candidate"><figcaption>Corrected candidate — empty 0%</figcaption><div class="zoom"><img class="candidate-strip" src="candidate-progress-0-closeup.png" alt="Corrected empty Aqua trough"></div><div class="micro" style="--slice:url(candidate-progress-0-closeup.png);--slice-height:136px"><label>left channel vertical<i class="mini-v a"></i></label><label>right channel vertical<i class="mini-v b"></i></label><label>unfilled centerline<i class="mini-h"></i></label></div><div class="note">The empty channel is independently graded; top/left highlight and lower/right return are not the same gray.</div></figure>
+    <figure class="candidate"><figcaption>Corrected candidate — 35%</figcaption><div class="zoom"><img class="candidate-strip" src="candidate-progress-35-closeup.png" alt="Corrected Aqua progress at 35 percent"></div><div class="micro" style="--slice:url(candidate-progress-35-closeup.png);--slice-height:136px"><label>fill vertical<i class="mini-v a"></i></label><label>empty vertical<i class="mini-v b"></i></label><label>unfilled centerline<i class="mini-h"></i></label></div><div class="note">More than 60% of the channel remains empty, so fill and trough can be judged in one continuous object.</div></figure>
+    <figure class="candidate"><figcaption>Corrected candidate — 100%</figcaption><div class="zoom"><img class="candidate-strip" src="candidate-progress-100-closeup.png" alt="Corrected Aqua progress at 100 percent"></div><div class="micro" style="--slice:url(candidate-progress-100-closeup.png);--slice-height:136px"><label>left fill vertical<i class="mini-v a"></i></label><label>right fill vertical<i class="mini-v b"></i></label><label>fill centerline<i class="mini-h"></i></label></div><div class="note">The fill reaches the inner edge without covering the molded perimeter.</div></figure>
+    <figure class="candidate"><figcaption>Corrected candidate — loading t0</figcaption><div class="zoom"><img class="candidate-strip" src="candidate-loading-closeup.png" alt="Corrected Aqua loading ribs"></div><div class="micro" style="--slice:url(candidate-loading-closeup.png);--slice-height:136px"><label>blue rib vertical<i class="mini-v a"></i></label><label>light rib vertical<i class="mini-v b"></i></label><label>rib centerline<i class="mini-h"></i></label></div><div class="note">45° 50/50 ribs carry the identical cylinder lighting at 22px projected repeat.</div></figure>
+    <figure class="candidate"><figcaption>Corrected candidate — volume 50</figcaption><div class="zoom"><img class="candidate-strip" src="candidate-volume-50-closeup.png" alt="Corrected Aqua volume at 50"></div><div class="micro" style="--slice:url(candidate-volume-50-closeup.png);--slice-height:136px"><label>fill vertical<i class="mini-v a"></i></label><label>empty vertical<i class="mini-v b"></i></label><label>unfilled centerline<i class="mini-h"></i></label></div><div class="note">202×14 authored trough; the material profile is shared with progress.</div></figure>
+  </div>
+
+  <h2>Rendered slices — fill and empty channel remain separate from the surround</h2>
+  <section class="metrics slices">
+    <div class="slice-card"><strong>Vertical fill slice</strong><div class="v-slice fill"></div></div>
+    <div class="slice-card"><strong>Vertical empty-channel slice</strong><div class="v-slice empty"></div></div>
+    <div>
+      <svg viewBox="0 0 900 230" role="img" aria-label="Vertical luminance plot from exterior background through trough and shadow">
+        <path class="axis" d="M40 190H870M40 20V190" />
+        <polyline class="line" points="40,175 65,175 90,25 115,25 140,124 165,124 190,54 215,50 240,46 265,45 290,44 315,42 340,41 365,40 390,38 415,37 440,36 465,35 490,34 515,33 540,32 565,31 590,30 615,30 640,33 665,48 690,64 715,73 740,101 765,101 790,181 815,180 840,177 865,176" />
+        <text x="42" y="215" fill="#9eafc3">bg</text><text x="88" y="215" fill="#9eafc3">top lip</text><text x="140" y="215" fill="#9eafc3">seam</text><text x="350" y="215" fill="#9eafc3">concave channel</text><text x="665" y="215" fill="#9eafc3">lower seam/lip</text><text x="785" y="215" fill="#9eafc3">cast falloff</text>
+      </svg>
+      <div class="note">Median RGB/luminance sampled from the rendered 2× empty-progress PNG, not restated CSS tokens.</div>
+    </div>
+  </section>
+
+  <h2>Horizontal transition and measured acceptance</h2>
+  <section class="metrics">
+    <svg viewBox="0 0 1200 230" role="img" aria-label="Horizontal centerline luminance plot across both trough ends">
+      <path class="axis" d="M40 190H1170M40 20V190" />
+      <polyline class="line horizontal" points="40,176 65,176 90,177 115,178 140,62 165,62 190,124 215,124 240,39 265,39 290,39 930,39 955,39 980,39 1005,105 1030,107 1055,101 1080,101 1105,176 1130,175 1155,174" />
+      <text x="42" y="215" fill="#9eafc3">background</text><text x="130" y="215" fill="#9eafc3">left lip/seam ≤4px</text><text x="500" y="215" fill="#9eafc3">channel drift ≤6 / 40px</text><text x="930" y="215" fill="#9eafc3">right seam/lip ≤4px</text>
+    </svg>
+    <table>
+      <tr><th>Rendered metric</th><th>Measured</th><th>Required</th><th>Result</th></tr>
+      <tr><td>Top lip over recessed seam</td><td>146.27</td><td>≥28 luma</td><td class="pass">PASS</td></tr>
+      <tr><td>Seam below channel</td><td>110.87</td><td>≥18 luma</td><td class="pass">PASS</td></tr>
+      <tr><td>Empty-channel range / 8-point bins</td><td>24.35 / 4</td><td>≥18 / ≥4</td><td class="pass">PASS</td></tr>
+      <tr><td>Max adjacent channel-row jump</td><td>5.93</td><td>≤16 luma</td><td class="pass">PASS</td></tr>
+      <tr><td>Lower seam darkening</td><td>13.07</td><td>10–38 luma</td><td class="pass">PASS</td></tr>
+      <tr><td>Perimeter diversity / range</td><td>3 values / 112.13</td><td>≥3 / ≥24</td><td class="pass">PASS</td></tr>
+      <tr><td>Left/right seam contrast</td><td>125.06 / 100.13</td><td>each ≥14</td><td class="pass">PASS</td></tr>
+      <tr><td>Left highlight over right return</td><td>58.42</td><td>≥8 luma</td><td class="pass">PASS</td></tr>
+      <tr><td>Left / right / max transition width</td><td>4 / 4 / 4px</td><td>each ≤4px</td><td class="pass">PASS</td></tr>
+      <tr><td>Max horizontal drift / 40px</td><td>1.00</td><td>≤6 luma</td><td class="pass">PASS</td></tr>
+      <tr><td>Dark / light cast peak</td><td>8.28 / 32.53</td><td>each 8–35</td><td class="pass">PASS</td></tr>
+    </table>
+  </section>
+
+  <h2>Asymmetric corner insets</h2>
+  <section class="metrics corners">
+    <div class="corner"><strong>Top-left: 4px outer / 3px channel at 2×</strong><br><img src="candidate-corner-top-left.png" alt="Pixelated top-left trough corner"></div>
+    <div class="corner"><strong>Bottom-left: 2px outer / 1px channel at 2×</strong><br><img src="candidate-corner-bottom-left.png" alt="Pixelated bottom-left trough corner"></div>
+    <div><p>The upper corner rolls through a brighter, broader highlight. The tighter lower corner turns into the darker return edge; detached shadow pixels continue beneath instead of becoming an opaque bottom rule.</p><div class="legend"><span style="--c:#f3f6f8">outer highlight</span><span style="--c:#596570">recess seam</span><span style="--c:#e0e4e7">channel</span><span style="--c:#7c8791">lower return</span><span style="--c:#121922">cast/background</span></div></div>
+  </section>
+</body>
+</html>

@@ -1,0 +1,161 @@
+{
+  "reference": "IMG_2280.HEIC",
+  "reports": [
+    {
+      "percent": 0,
+      "geometry": {
+        "x": 18,
+        "y": 153,
+        "width": 236,
+        "height": 14,
+        "innerWidth": 234,
+        "innerHeight": 12,
+        "innerOuterHeightRatio": 0.8571428571428571
+      },
+      "fixedUpper": {
+        "titlebar": {
+          "x": 0,
+          "y": 0,
+          "width": 272,
+          "height": 21
+        },
+        "artwork": {
+          "x": 18,
+          "y": 58,
+          "width": 86,
+          "height": 86
+        },
+        "metadata": {
+          "x": 116,
+          "y": 58,
+          "width": 138,
+          "height": 75
+        }
+      },
+      "fill": {
+        "width": 0,
+        "endpointX": 19
+      },
+      "well": {
+        "borderWidth": "0px",
+        "borderRadius": "2px 2px 1px 1px",
+        "backgroundImage": "linear-gradient(rgb(183, 190, 197) 0%, rgb(208, 214, 219) 18%, rgb(224, 228, 231) 58%, rgb(231, 234, 236) 84%, rgb(203, 209, 214) 100%), linear-gradient(90deg, rgb(185, 193, 200) 0px, rgb(185, 193, 200) 1px, rgba(0, 0, 0, 0) 1px, rgba(0, 0, 0, 0) calc(100% - 1px), rgb(124, 135, 145) calc(100% - 1px), rgb(124, 135, 145) 100%), linear-gradient(rgb(243, 246, 248) 0px, rgb(243, 246, 248) 1px, rgb(185, 193, 200) 1px, rgb(185, 193, 200) calc(100% - 1px), rgb(124, 135, 145) calc(100% - 1px), rgb(124, 135, 145) 100%)",
+        "backgroundClip": "content-box, border-box, border-box",
+        "boxShadow": "rgba(0, 0, 0, 0.26) 0px 1px 1px 0px, rgba(0, 0, 0, 0.12) 0px 2px 2px 0px",
+        "seamBoxShadow": "rgb(89, 101, 112) 0px 1px 0px 0px inset, rgb(89, 101, 112) 1px 0px 0px 0px inset, rgba(89, 101, 112, 0.78) -1px 0px 0px 0px inset, rgba(43, 54, 65, 0.24) 0px -1px 1px 0px inset",
+        "innerWidth": 234,
+        "innerHeight": 12
+      },
+      "material": {
+        "backgroundImage": "linear-gradient(rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.08) 22%, rgba(37, 75, 120, 0.26) 52%, rgba(255, 255, 255, 0.14) 78%, rgba(255, 255, 255, 0.52) 100%), linear-gradient(rgb(216, 233, 252) 0%, rgb(178, 211, 250) 22%, rgb(105, 170, 238) 52%, rgb(145, 196, 247) 78%, rgb(193, 225, 251) 100%)",
+        "boxShadow": "rgba(255, 255, 255, 0.32) 0px 1px 1px 0px inset, rgba(37, 75, 120, 0.16) 0px -1px 1px 0px inset",
+        "transitionDuration": "0.12s"
+      }
+    },
+    {
+      "percent": 35,
+      "geometry": {
+        "x": 18,
+        "y": 153,
+        "width": 236,
+        "height": 14,
+        "innerWidth": 234,
+        "innerHeight": 12,
+        "innerOuterHeightRatio": 0.8571428571428571
+      },
+      "fixedUpper": {
+        "titlebar": {
+          "x": 0,
+          "y": 0,
+          "width": 272,
+          "height": 21
+        },
+        "artwork": {
+          "x": 18,
+          "y": 58,
+          "width": 86,
+          "height": 86
+        },
+        "metadata": {
+          "x": 116,
+          "y": 58,
+          "width": 138,
+          "height": 75
+        }
+      },
+      "fill": {
+        "width": 81.9,
+        "endpointX": 100.9
+      },
+      "well": {
+        "borderWidth": "0px",
+        "borderRadius": "2px 2px 1px 1px",
+        "backgroundImage": "linear-gradient(rgb(183, 190, 197) 0%, rgb(208, 214, 219) 18%, rgb(224, 228, 231) 58%, rgb(231, 234, 236) 84%, rgb(203, 209, 214) 100%), linear-gradient(90deg, rgb(185, 193, 200) 0px, rgb(185, 193, 200) 1px, rgba(0, 0, 0, 0) 1px, rgba(0, 0, 0, 0) calc(100% - 1px), rgb(124, 135, 145) calc(100% - 1px), rgb(124, 135, 145) 100%), linear-gradient(rgb(243, 246, 248) 0px, rgb(243, 246, 248) 1px, rgb(185, 193, 200) 1px, rgb(185, 193, 200) calc(100% - 1px), rgb(124, 135, 145) calc(100% - 1px), rgb(124, 135, 145) 100%)",
+        "backgroundClip": "content-box, border-box, border-box",
+        "boxShadow": "rgba(0, 0, 0, 0.26) 0px 1px 1px 0px, rgba(0, 0, 0, 0.12) 0px 2px 2px 0px",
+        "seamBoxShadow": "rgb(89, 101, 112) 0px 1px 0px 0px inset, rgb(89, 101, 112) 1px 0px 0px 0px inset, rgba(89, 101, 112, 0.78) -1px 0px 0px 0px inset, rgba(43, 54, 65, 0.24) 0px -1px 1px 0px inset",
+        "innerWidth": 234,
+        "innerHeight": 12
+      },
+      "material": {
+        "backgroundImage": "linear-gradient(rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.08) 22%, rgba(37, 75, 120, 0.26) 52%, rgba(255, 255, 255, 0.14) 78%, rgba(255, 255, 255, 0.52) 100%), linear-gradient(rgb(216, 233, 252) 0%, rgb(178, 211, 250) 22%, rgb(105, 170, 238) 52%, rgb(145, 196, 247) 78%, rgb(193, 225, 251) 100%)",
+        "boxShadow": "rgba(255, 255, 255, 0.32) 0px 1px 1px 0px inset, rgba(37, 75, 120, 0.16) 0px -1px 1px 0px inset",
+        "transitionDuration": "0.12s"
+      }
+    },
+    {
+      "percent": 100,
+      "geometry": {
+        "x": 18,
+        "y": 153,
+        "width": 236,
+        "height": 14,
+        "innerWidth": 234,
+        "innerHeight": 12,
+        "innerOuterHeightRatio": 0.8571428571428571
+      },
+      "fixedUpper": {
+        "titlebar": {
+          "x": 0,
+          "y": 0,
+          "width": 272,
+          "height": 21
+        },
+        "artwork": {
+          "x": 18,
+          "y": 58,
+          "width": 86,
+          "height": 86
+        },
+        "metadata": {
+          "x": 116,
+          "y": 58,
+          "width": 138,
+          "height": 75
+        }
+      },
+      "fill": {
+        "width": 234,
+        "endpointX": 253
+      },
+      "well": {
+        "borderWidth": "0px",
+        "borderRadius": "2px 2px 1px 1px",
+        "backgroundImage": "linear-gradient(rgb(183, 190, 197) 0%, rgb(208, 214, 219) 18%, rgb(224, 228, 231) 58%, rgb(231, 234, 236) 84%, rgb(203, 209, 214) 100%), linear-gradient(90deg, rgb(185, 193, 200) 0px, rgb(185, 193, 200) 1px, rgba(0, 0, 0, 0) 1px, rgba(0, 0, 0, 0) calc(100% - 1px), rgb(124, 135, 145) calc(100% - 1px), rgb(124, 135, 145) 100%), linear-gradient(rgb(243, 246, 248) 0px, rgb(243, 246, 248) 1px, rgb(185, 193, 200) 1px, rgb(185, 193, 200) calc(100% - 1px), rgb(124, 135, 145) calc(100% - 1px), rgb(124, 135, 145) 100%)",
+        "backgroundClip": "content-box, border-box, border-box",
+        "boxShadow": "rgba(0, 0, 0, 0.26) 0px 1px 1px 0px, rgba(0, 0, 0, 0.12) 0px 2px 2px 0px",
+        "seamBoxShadow": "rgb(89, 101, 112) 0px 1px 0px 0px inset, rgb(89, 101, 112) 1px 0px 0px 0px inset, rgba(89, 101, 112, 0.78) -1px 0px 0px 0px inset, rgba(43, 54, 65, 0.24) 0px -1px 1px 0px inset",
+        "innerWidth": 234,
+        "innerHeight": 12
+      },
+      "material": {
+        "backgroundImage": "linear-gradient(rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.08) 22%, rgba(37, 75, 120, 0.26) 52%, rgba(255, 255, 255, 0.14) 78%, rgba(255, 255, 255, 0.52) 100%), linear-gradient(rgb(216, 233, 252) 0%, rgb(178, 211, 250) 22%, rgb(105, 170, 238) 52%, rgb(145, 196, 247) 78%, rgb(193, 225, 251) 100%)",
+        "boxShadow": "rgba(255, 255, 255, 0.32) 0px 1px 1px 0px inset, rgba(37, 75, 120, 0.16) 0px -1px 1px 0px inset",
+        "transitionDuration": "0.12s"
+      }
+    }
+  ],
+  "reducedMotion": {
+    "fillTransitionDuration": "0s"
+  }
+}

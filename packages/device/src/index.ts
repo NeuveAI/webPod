@@ -96,7 +96,6 @@ export {
   type DevicePixelBox,
 } from "./pixel-density";
 export {
-  CLICK_WHEEL_CARDINAL_HIT_RADIUS,
   CLICK_WHEEL_CARDINAL_SLOP,
   CLICK_WHEEL_INPUT_POSITION,
   CLICK_WHEEL_INPUT_RADII,

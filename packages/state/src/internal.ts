@@ -26,7 +26,14 @@
 import { atom } from 'jotai/vanilla'
 import type { PrimitiveAtom } from 'jotai/vanilla'
 
-import type { Density, InteractionFeedbackEvent } from './contract'
+import type {
+  Density,
+  InteractionFeedbackEvent,
+  NowPlayingModeState,
+  NowPlayingVolumeFeedbackState,
+  NowPlayingWheelControl,
+  NowPlayingWheelIntent,
+} from './contract'
 
 /**
  * The human's density setting, writable. Published read-only as
@@ -47,3 +54,31 @@ export const dynamicTypeScaleStateAtom: PrimitiveAtom<number> = atom(1)
  */
 export const interactionFeedbackStateAtom: PrimitiveAtom<InteractionFeedbackEvent | null> =
   atom<InteractionFeedbackEvent | null>(null)
+
+/** Now Playing display state, writable only through state actions. */
+export const nowPlayingModeStateAtom: PrimitiveAtom<NowPlayingModeState> = atom<NowPlayingModeState>({
+  frame: null,
+  mode: 'standard',
+  scrub: 'clean',
+  scrubRevision: 0,
+  queue: 'clean',
+})
+
+/** Human-origin volume feedback, advanced only by authoritative store actions. */
+export const nowPlayingVolumeFeedbackStateAtom: PrimitiveAtom<NowPlayingVolumeFeedbackState> =
+  atom<NowPlayingVolumeFeedbackState>({
+    visibility: 'hidden',
+    frame: null,
+    occurrenceIdentity: null,
+    value: 0,
+    revision: 0,
+    dueAtMs: null,
+  })
+
+/** Active provider-backed wheel control, writable only through the store action. */
+export const nowPlayingWheelControlStateAtom: PrimitiveAtom<NowPlayingWheelControl | null> =
+  atom<NowPlayingWheelControl | null>(null)
+
+/** Latest accepted Now Playing wheel movement. */
+export const nowPlayingWheelIntentStateAtom: PrimitiveAtom<NowPlayingWheelIntent | null> =
+  atom<NowPlayingWheelIntent | null>(null)

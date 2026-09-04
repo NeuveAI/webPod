@@ -40,6 +40,8 @@ import {
   liveRegionAtom,
   interactionFeedbackAtom,
   navigationIntentAtom,
+  nowPlayingModeAtom,
+  nowPlayingVolumeFeedbackAtom,
   screenStackAtom,
   visibleRowCountAtom,
 } from './contract'
@@ -61,12 +63,19 @@ import type {
   PressOutcome,
   ScreenFrame,
   ScreenSnapshotSource,
+  NowPlayingModeState,
+  NowPlayingWheelControl,
+  NowPlayingVolumeFeedbackState,
 } from './contract'
 import { coastStep, detent, endGesture } from './detent'
 import {
   densityOverrideStateAtom,
   dynamicTypeScaleStateAtom,
   interactionFeedbackStateAtom,
+  nowPlayingModeStateAtom,
+  nowPlayingVolumeFeedbackStateAtom,
+  nowPlayingWheelControlStateAtom,
+  nowPlayingWheelIntentStateAtom,
 } from './internal'
 import { MENU_ROOT, menuFrame } from './menu'
 import { actorFor, isHumanActor, isSilenced } from './silence'
@@ -88,6 +97,46 @@ type InteractionFeedbackDraft =
       readonly silenced: boolean
       readonly actor: Actor
     }
+
+/** The photographed volume replacement remains for 1.5s after the last change. */
+export const NOW_PLAYING_VOLUME_FEEDBACK_DWELL_MS = 1_500
+
+function hiddenVolumeFeedback(
+  previous: NowPlayingVolumeFeedbackState,
+): NowPlayingVolumeFeedbackState {
+  return {
+    visibility: 'hidden',
+    frame: null,
+    occurrenceIdentity: null,
+    value: previous.value,
+    revision: previous.revision + 1,
+    dueAtMs: null,
+  }
+}
+
+/** Dismisses the transient volume replacement and invalidates its armed expiry. */
+export const dismissNowPlayingVolumeFeedbackActionAtom = atom(
+  null,
+  (get, set): void => {
+    const previous = get(nowPlayingVolumeFeedbackStateAtom)
+    if (previous.visibility === 'hidden') return
+    set(nowPlayingVolumeFeedbackStateAtom, hiddenVolumeFeedback(previous))
+  },
+)
+
+/**
+ * Reconciles an authoritative provider value without extending the human dwell.
+ * A provider or agent update may correct a visible value, but cannot summon or
+ * prolong the physical-feedback presentation.
+ */
+export const reconcileNowPlayingVolumeFeedbackActionAtom = atom(
+  null,
+  (get, set, value: number): void => {
+    const previous = get(nowPlayingVolumeFeedbackStateAtom)
+    if (previous.visibility !== 'visible' || previous.value === value) return
+    set(nowPlayingVolumeFeedbackStateAtom, { ...previous, value })
+  },
+)
 
 /** Publishes one nonzero, non-silenced feedback budget with a fresh sequence. */
 const publishInteractionFeedbackAtom = atom(
@@ -177,6 +226,7 @@ export const pushScreenActionAtom = atom(null, (get, set, frame: ScreenFrame): v
 export const popScreenActionAtom = atom(null, (get, set): BumpEvent | null => {
   const transition = popScreen(get(screenStackAtom))
   set(screenStackAtom, transition.stack)
+  set(dismissNowPlayingVolumeFeedbackActionAtom)
   return transition.bump === null ? null : set(publishBumpAtom, transition.bump)
 })
 
@@ -187,6 +237,7 @@ export const popScreenActionAtom = atom(null, (get, set): BumpEvent | null => {
 export const resetStackActionAtom = atom(
   null,
   (_get, set, frames: readonly ScreenFrame[]): void => {
+    set(dismissNowPlayingVolumeFeedbackActionAtom)
     set(
       screenStackAtom,
       frames.reduce<readonly ScreenFrame[]>(
@@ -202,6 +253,7 @@ export const returnToRootActionAtom = atom(null, (get, set): void => {
   const existingRoot = get(screenStackAtom)[0]
   const root = existingRoot ?? menuFrame(MENU_ROOT, 'medium')
   set(screenStackAtom, pushScreen([], root).stack)
+  set(dismissNowPlayingVolumeFeedbackActionAtom)
   const previous = get(navigationIntentAtom)
   set(navigationIntentAtom, { kind: 'root', seq: (previous?.seq ?? 0) + 1 })
 })
@@ -236,10 +288,20 @@ export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOu
 
   if (input.button === 'menu') {
     const stack = get(screenStackAtom)
-    const transition = popScreen(stack)
-    set(screenStackAtom, transition.stack)
-    bump = transition.bump
-    handled = stack.length > 0
+    const frame = stack.at(-1)
+    const nowPlayingMode = get(nowPlayingModeAtom)
+    if (frame?.route?.kind === 'now-playing') {
+      set(dismissNowPlayingVolumeFeedbackActionAtom)
+    }
+    if (frame?.route?.kind === 'now-playing' && nowPlayingMode.frame === frame && nowPlayingMode.mode !== 'standard') {
+      set(nowPlayingModeStateAtom, { ...nowPlayingMode, mode: 'standard', scrub: 'clean', queue: 'clean' })
+      handled = true
+    } else {
+      const transition = popScreen(stack)
+      set(screenStackAtom, transition.stack)
+      bump = transition.bump
+      handled = stack.length > 0
+    }
   } else if (input.button === 'next' || input.button === 'previous') {
     const stack = get(screenStackAtom)
     const transition = pageHighlight(
@@ -284,7 +346,7 @@ export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOu
 /**
  * Publishes feedback only after a provider-owned physical press was accepted.
  * The caller cannot submit a generic button or a tick count: this seam is the
- * one external Play/Pause acknowledgement, with provenance derived in state.
+ * one external transport acknowledgement, with provenance derived in state.
  */
 export const acceptedExternalPressActionAtom = atom(
   null,
@@ -300,6 +362,49 @@ export const acceptedExternalPressActionAtom = atom(
       silenced,
       actor,
     })
+  },
+)
+
+/** Installs or clears the bounded control consumed by wheel detents on Now Playing. */
+export const setNowPlayingWheelControlActionAtom = atom(
+  null,
+  (get, set, control: NowPlayingWheelControl | null): void => {
+    if (
+      control !== null
+      && (!Number.isFinite(control.value)
+        || !Number.isFinite(control.minimum)
+        || !Number.isFinite(control.maximum)
+        || !Number.isFinite(control.step)
+        || control.step <= 0
+        || control.maximum < control.minimum)
+    ) throw new Error('Now Playing wheel control bounds are invalid')
+    set(nowPlayingWheelControlStateAtom, control)
+    if (control?.kind === 'volume') {
+      const feedback = get(nowPlayingVolumeFeedbackStateAtom)
+      if (
+        feedback.visibility === 'visible'
+        && feedback.occurrenceIdentity !== (control.occurrenceIdentity ?? null)
+      ) {
+        set(dismissNowPlayingVolumeFeedbackActionAtom)
+      } else {
+        set(reconcileNowPlayingVolumeFeedbackActionAtom, control.value)
+      }
+    } else if (get(nowPlayingVolumeFeedbackStateAtom).visibility === 'visible') {
+      set(dismissNowPlayingVolumeFeedbackActionAtom)
+    }
+  },
+)
+
+/** Publishes a complete Now Playing Center/Menu state transition. */
+export const setNowPlayingModeActionAtom = atom(
+  null,
+  (get, set, state: NowPlayingModeState): void => {
+    set(nowPlayingModeStateAtom, state)
+    const feedback = get(nowPlayingVolumeFeedbackStateAtom)
+    if (
+      feedback.visibility === 'visible'
+      && (state.mode !== 'standard' || state.frame !== feedback.frame)
+    ) set(dismissNowPlayingVolumeFeedbackActionAtom)
   },
 )
 
@@ -567,6 +672,39 @@ function applyMovement(
 
   const now = get(clockAtom).now()
   const beforeFrame = get(currentScreenAtom)
+  if (beforeFrame?.route?.kind === 'now-playing') {
+    const control = get(nowPlayingWheelControlStateAtom)
+    if (control === null) return acceptedMovement(outcome, 0)
+    const requested = control.value + outcome.rowDelta * control.step
+    const value = Math.min(control.maximum, Math.max(control.minimum, requested))
+    const delta = value - control.value
+    if (delta === 0) return acceptedMovement(outcome, 0)
+    const acceptedRows = Math.sign(outcome.rowDelta) * Math.min(
+      Math.abs(outcome.rowDelta),
+      Math.ceil(Math.abs(delta) / control.step),
+    )
+    const applied = acceptedMovement(outcome, acceptedRows)
+    const nextControl = { ...control, value }
+    set(nowPlayingWheelControlStateAtom, nextControl)
+    const previousIntent = get(nowPlayingWheelIntentStateAtom)
+    set(nowPlayingWheelIntentStateAtom, {
+      ...nextControl,
+      seq: (previousIntent?.seq ?? 0) + 1,
+      delta,
+    })
+    if (control.kind === 'volume' && isHumanActor(applied.actor)) {
+      const previousFeedback = get(nowPlayingVolumeFeedbackStateAtom)
+      set(nowPlayingVolumeFeedbackStateAtom, {
+        visibility: 'visible',
+        frame: beforeFrame,
+        occurrenceIdentity: control.occurrenceIdentity ?? null,
+        value,
+        revision: previousFeedback.revision + 1,
+        dueAtMs: now + NOW_PLAYING_VOLUME_FEEDBACK_DWELL_MS,
+      })
+    }
+    return applied
+  }
   const transition = moveHighlight(
     get(screenStackAtom),
     outcome.rowDelta,
@@ -737,6 +875,64 @@ export const flushAnnouncementsActionAtom = atom(
  * the matching `clearTimeout`.
  */
 export type TimerHandle = number | ReturnType<typeof setTimeout>
+
+/** Injection points for the single transient-volume expiry driver. */
+export interface NowPlayingVolumeFeedbackDriverOptions {
+  readonly setTimer?: (callback: () => void, ms: number) => TimerHandle
+  readonly clearTimer?: (handle: TimerHandle) => void
+}
+
+/**
+ * Owns the one timeout that expires transient Now Playing volume feedback.
+ *
+ * Every accepted value-changing human detent increments the atom revision and
+ * moves `dueAtMs`. The callback validates both values before dismissing, so a
+ * delayed callback from an older dwell can never hide newer feedback. The
+ * returned cleanup unsubscribes and cancels the currently armed timeout.
+ */
+export function startNowPlayingVolumeFeedback(
+  store: DeviceStore,
+  options: NowPlayingVolumeFeedbackDriverOptions = {},
+): () => void {
+  const setTimer = options.setTimer ?? setTimeout
+  const clearTimer = options.clearTimer ?? clearTimeout
+  let handle: TimerHandle | null = null
+
+  const cancel = (): void => {
+    if (handle === null) return
+    clearTimer(handle)
+    handle = null
+  }
+
+  const arm = (): void => {
+    cancel()
+    const scheduled = store.get(nowPlayingVolumeFeedbackAtom)
+    if (scheduled.visibility !== 'visible') return
+    const revision = scheduled.revision
+    const dueAtMs = scheduled.dueAtMs
+    handle = setTimer(() => {
+      handle = null
+      const current = store.get(nowPlayingVolumeFeedbackAtom)
+      if (
+        current.visibility === 'visible'
+        && current.revision === revision
+        && current.dueAtMs === dueAtMs
+        && store.get(clockAtom).now() >= dueAtMs
+      ) {
+        store.set(dismissNowPlayingVolumeFeedbackActionAtom)
+        return
+      }
+      arm()
+    }, Math.max(0, dueAtMs - store.get(clockAtom).now()))
+  }
+
+  const unsubscribe = store.sub(nowPlayingVolumeFeedbackAtom, arm)
+  arm()
+  return () => {
+    cancel()
+    unsubscribe()
+  }
+}
 
 /**
  * Injection points for {@link startAnnouncer}.

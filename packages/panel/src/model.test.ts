@@ -2,17 +2,27 @@ import { describe, expect, test } from 'bun:test'
 import { createFixtureProvider } from '@webpod/providers'
 
 import {
-  albumTracksFrame,
   artworkSampleFixture,
   deriveArtworkTreatment,
   excludeActorHue,
-  mainMenuFrame,
+  formatDuration,
   nextNowPlayingMode,
   nowPlayingModes,
+  previewNowPlayingScrub,
+  settleNowPlayingQueue,
+  settleNowPlayingScrub,
   sharpArtwork,
+  transitionNowPlayingCenter,
 } from './model'
+import { albumTracksFrame, mainMenuFrame } from './fixtures'
 
 describe('panel models', () => {
+  test('formats invalid provider durations as zero instead of leaking NaN', () => {
+    expect(formatDuration(Number.NaN)).toBe('0:00')
+    expect(formatDuration(Number.POSITIVE_INFINITY)).toBe('0:00')
+    expect(formatDuration(-1_000)).toBe('0:00')
+  })
+
   test('S03 keeps synchronous rows and removes Radio from the tree when stations are absent', () => {
     const provider = createFixtureProvider({ supports: { stations: false } })
     const labels = mainMenuFrame(provider).rows.map((row) => row.label)
@@ -28,12 +38,28 @@ describe('panel models', () => {
     expect(frame.rows[0]?.label).toBe(provider.catalog.tracks[0]?.title)
   })
 
-  test('the Apple-shaped centre cycle has exactly three stops and defaults after lyrics to volume', () => {
+  test('the reference-backed centre cycle exposes standard, scrub, artwork, and queue', () => {
     const provider = createFixtureProvider({ supports: { lyrics: false } })
-    expect(nowPlayingModes(provider)).toEqual(['volume', 'scrub', 'rate'])
-    expect(nextNowPlayingMode('volume', provider)).toBe('scrub')
-    expect(nextNowPlayingMode('scrub', provider)).toBe('rate')
-    expect(nextNowPlayingMode('rate', provider)).toBe('volume')
+    expect(nowPlayingModes(provider)).toEqual(['standard', 'scrub', 'artwork', 'queue'])
+    expect(nextNowPlayingMode('standard', provider)).toBe('scrub')
+    expect(nextNowPlayingMode('artwork', provider)).toBe('queue')
+    expect(nextNowPlayingMode('queue', provider)).toBe('standard')
+
+    const scrub = transitionNowPlayingCenter({ mode: 'standard', scrub: 'clean', scrubRevision: 0, queue: 'clean' }, provider)
+    expect(scrub).toEqual({ state: { mode: 'scrub', scrub: 'clean', scrubRevision: 0, queue: 'clean' }, effect: 'none' })
+    const preview = previewNowPlayingScrub(scrub.state)
+    expect(preview).toMatchObject({ mode: 'scrub', scrub: 'previewing', scrubRevision: 1 })
+    const commit = transitionNowPlayingCenter(preview, provider)
+    expect(commit).toEqual({ state: { mode: 'scrub', scrub: 'committing', scrubRevision: 1, queue: 'clean' }, effect: 'commit-scrub' })
+    expect(transitionNowPlayingCenter(commit.state, provider)).toEqual({ state: commit.state, effect: 'none' })
+    const committed = settleNowPlayingScrub(commit.state, 1, true)
+    expect(transitionNowPlayingCenter(committed, provider).state.mode).toBe('artwork')
+    const queueSelection = transitionNowPlayingCenter({ mode: 'queue', scrub: 'clean', scrubRevision: 1, queue: 'clean' }, provider, true)
+    expect(queueSelection.effect).toBe('select-queue')
+    expect(queueSelection.state).toMatchObject({ mode: 'standard', queue: 'selecting' })
+    expect(transitionNowPlayingCenter(queueSelection.state, provider, true).effect).toBe('none')
+    expect(settleNowPlayingQueue(queueSelection.state)).toMatchObject({ mode: 'standard', queue: 'clean' })
+    expect(transitionNowPlayingCenter({ mode: 'queue', scrub: 'clean', scrubRevision: 1, queue: 'clean' }, provider, false)).toMatchObject({ state: { mode: 'standard' }, effect: 'none' })
   })
 
   test('sharp artwork never renders above actualPx', () => {

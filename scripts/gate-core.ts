@@ -70,6 +70,7 @@ interface LocatedText {
   readonly text: string
   readonly userVisible: boolean
   readonly kind: 'comment' | 'string' | 'template' | 'text'
+  readonly u8DevelopmentDiagnostic: boolean
 }
 
 const U8_PATTERN = /\b(?:allows?|allowed|allowing|den(?:y|ies|ied|ying)|permits?|permitted|permitting|permissions?|grants?|granted|granting|authori[sz](?:e|es|ed|ing|ation|ations)?|approv(?:e|es|ed|ing|al|als)|pending|blocked|asks?\s+(?:for|to)|asked\s+(?:for|to)|waiting\s+for)\b/iu
@@ -136,6 +137,44 @@ function sourceFile(file: SourceFile): ts.SourceFile {
   return ts.createSourceFile(file.path, file.text, ts.ScriptTarget.Latest, true, scriptKind(file.path))
 }
 
+function hasAncestor(node: ts.Node, predicate: (candidate: ts.Node) => boolean): boolean {
+  for (let candidate: ts.Node | undefined = node.parent; candidate !== undefined; candidate = candidate.parent) {
+    if (predicate(candidate)) return true
+  }
+  return false
+}
+
+function isDirectlyInsideFunction(node: ts.Node, name: string): boolean {
+  for (let candidate: ts.Node | undefined = node.parent; candidate !== undefined; candidate = candidate.parent) {
+    if (!ts.isFunctionLike(candidate)) continue
+    return ts.isFunctionDeclaration(candidate) && candidate.name?.text === name
+  }
+  return false
+}
+
+/** Keep U8's exception bound to the typed, non-UI Apple development diagnostic contract. */
+function isU8DevelopmentDiagnostic(file: SourceFile, node: ts.StringLiteralLike): boolean {
+  if (file.path !== 'apps/web/src/apple-playback-diagnostics.ts') return false
+
+  if (node.text === 'autoplay-denied') {
+    const declaresErrorClass = ts.isLiteralTypeNode(node.parent)
+      && hasAncestor(node, (candidate) => ts.isTypeAliasDeclaration(candidate) && candidate.name.text === 'ApplePlaybackErrorClass')
+    const returnsErrorClass = ts.isReturnStatement(node.parent)
+      && node.parent.expression === node
+      && isDirectlyInsideFunction(node, 'classifyApplePlaybackError')
+    return declaresErrorClass || returnsErrorClass
+  }
+
+  if (node.text !== 'not allowed') return false
+  const call = node.parent
+  return ts.isCallExpression(call)
+    && call.arguments.length === 1
+    && call.arguments[0] === node
+    && ts.isPropertyAccessExpression(call.expression)
+    && call.expression.name.text === 'includes'
+    && isDirectlyInsideFunction(node, 'classifyApplePlaybackError')
+}
+
 function lineAt(source: ts.SourceFile, position: number): number {
   return source.getLineAndCharacterOfPosition(position).line + 1
 }
@@ -169,7 +208,7 @@ async function readGlob(root: string, glob: Glob): Promise<readonly SourceFile[]
 function authoredText(file: SourceFile, includeComments: boolean): readonly LocatedText[] {
   if (!/\.(?:[cm]?[jt]sx?|json)$/u.test(file.path)) {
     const text = includeComments ? file.text : file.text.replaceAll(/\/\*[\s\S]*?\*\//gu, '').replaceAll(/\/\/.*$/gmu, '')
-    return text.split('\n').map((line, index) => ({ path: file.path, line: index + 1, text: line, userVisible: false, kind: 'text' }))
+    return text.split('\n').map((line, index) => ({ path: file.path, line: index + 1, text: line, userVisible: false, kind: 'text', u8DevelopmentDiagnostic: false }))
   }
 
   const source = sourceFile(file)
@@ -182,6 +221,7 @@ function authoredText(file: SourceFile, includeComments: boolean): readonly Loca
         text: node.text,
         userVisible: ts.isJsxText(node),
         kind: ts.isJsxText(node) ? 'text' : 'string',
+        u8DevelopmentDiagnostic: ts.isStringLiteralLike(node) && isU8DevelopmentDiagnostic(file, node),
       })
     }
     ts.forEachChild(node, visit)
@@ -192,7 +232,7 @@ function authoredText(file: SourceFile, includeComments: boolean): readonly Loca
     const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, file.path.endsWith('x') ? ts.LanguageVariant.JSX : ts.LanguageVariant.Standard, file.text)
     for (let token = scanner.scan(); token !== ts.SyntaxKind.EndOfFileToken; token = scanner.scan()) {
       if (token === ts.SyntaxKind.SingleLineCommentTrivia || token === ts.SyntaxKind.MultiLineCommentTrivia) {
-        pieces.push({ path: file.path, line: lineAt(source, scanner.getTokenPos()), text: scanner.getTokenText(), userVisible: false, kind: 'comment' })
+        pieces.push({ path: file.path, line: lineAt(source, scanner.getTokenPos()), text: scanner.getTokenText(), userVisible: false, kind: 'comment', u8DevelopmentDiagnostic: false })
       }
     }
   }
@@ -349,6 +389,7 @@ function authoredTemplates(file: SourceFile): readonly LocatedText[] {
           text,
           userVisible: false,
           kind: 'template',
+          u8DevelopmentDiagnostic: false,
         })
       }
     }
@@ -436,6 +477,7 @@ function u8Findings(files: readonly SourceFile[]): readonly string[] {
   return contentFindings(productFiles, U8_PATTERN, {
     comments: false,
     ignore: (item) => {
+      if (item.u8DevelopmentDiagnostic) return true
       const withoutRequiredState = item.text.replaceAll('permission-denied', '')
       if (!item.userVisible && /^(?:authorize|authorized|unauthorize|unauthorized|authorization|permissions?|permission_denied|insufficient permissions|pending)$/iu.test(withoutRequiredState.trim())) return true
       U8_PATTERN.lastIndex = 0

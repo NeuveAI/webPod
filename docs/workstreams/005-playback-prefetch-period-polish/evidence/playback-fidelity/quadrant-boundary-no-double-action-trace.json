@@ -1,0 +1,78 @@
+{
+  "schema": "webpod.click-wheel-quadrants.v1",
+  "annulus": { "centerOwnsThroughRadius": 37, "cardinalOwnsThroughRadius": 103, "outsideInactiveAboveRadius": 103 },
+  "clockwiseScreenAngles": [
+    { "fromInclusive": 315, "toExclusive": 45, "owner": "next" },
+    { "fromInclusive": 45, "toExclusive": 135, "owner": "play-pause" },
+    { "fromInclusive": 135, "toExclusive": 225, "owner": "previous" },
+    { "fromInclusive": 225, "toExclusive": 315, "owner": "menu" }
+  ],
+  "exactBoundaryOwnership": [
+    { "angle": 45, "owner": "play-pause" },
+    { "angle": 135, "owner": "previous" },
+    { "angle": 225, "owner": "menu" },
+    { "angle": 315, "owner": "next" }
+  ],
+  "mountedRadialBoundary": {
+    "justInside37": { "radius": 36.999, "selectActions": 1, "cardinalActions": 0, "arcStarts": 0 },
+    "exact37": { "radius": 37, "selectActions": 1, "cardinalActions": 0, "arcStarts": 0 },
+    "justOutside37": { "radius": 37.001, "selectActions": 0, "cardinalActions": 1, "owner": "next", "arcStarts": 0 }
+  },
+  "tapTrace": {
+    "pointerType": "touch",
+    "sector": "next",
+    "travelPx": 10,
+    "acceptedCardinalActions": 1,
+    "arcStarts": 0,
+    "volumeBefore": 50,
+    "volumeAfter": 50
+  },
+  "movementTakeoverTrace": {
+    "pointerType": "touch",
+    "travelPx": 10.01,
+    "acceptedCardinalActions": 0,
+    "arcStarts": 1,
+    "volumeBefore": 50,
+    "volumeChanged": true,
+    "doubleAction": false
+  },
+  "coveredPointers": ["mouse", "touch", "pen"],
+  "obliqueProjectionProof": {
+    "pose": { "pitchDeg": 10, "yawDeg": -34, "rollDeg": 2 },
+    "pointerTypes": ["mouse", "touch", "pen"],
+    "centerSectorTaps": 12,
+    "nearDiagonalAndRadialExtremeTaps": 8,
+    "movementTakeover": { "cardinalActions": 0, "arcStarts": 1, "arcMoves": 1, "arcEnds": 1 }
+  },
+  "coveredPoses": ["front", "three-quarter-oblique"],
+  "executableProof": [
+    {
+      "path": "packages/device/src/click-wheel-input.integration.test.tsx",
+      "caseName": "oblique model-space projection preserves full sectors, diagonal ownership, and movement takeover",
+      "result": "pass",
+      "outcome": "three-quarter pose; 12 mouse/touch/pen center-sector taps, 8 near-diagonal/radial-extreme taps, and one movement takeover with 0 cardinal, 1 arc start, 1 move, and 1 end"
+    },
+    {
+      "path": "packages/device/src/click-wheel-input.integration.test.tsx",
+      "caseName": "the mounted r=37 seam belongs only to Select while just outside belongs to the annulus",
+      "result": "pass",
+      "outcome": "r=36.999 and r=37 each emit Select only; r=37.001 emits Next only; no arc or dual action"
+    },
+    {
+      "path": "packages/device/src/click-wheel-input.integration.test.tsx",
+      "caseName": "movement takeover cancels the cardinal candidate before rotation starts",
+      "result": "pass",
+      "outcome": "10px travel emits one cardinal with no arc; 10.01px travel emits one arc sequence with no cardinal"
+    },
+    {
+      "path": "packages/composite/src/CompositeDevice.integration.test.tsx",
+      "caseName": "a short annular tap stays cardinal while movement takeover changes volume without double action",
+      "result": "pass",
+      "outcome": "mounted store integration confirms the tap leaves volume unchanged and the takeover changes volume without publishing a cardinal action"
+    }
+  ],
+  "suiteResults": {
+    "device": { "passed": 31, "failed": 0, "expectations": 213 },
+    "composite": { "passed": 13, "failed": 0, "expectations": 61 }
+  }
+}

@@ -1,6 +1,6 @@
 # MusicKit diagnostic contract evidence
 
-Run `bun run scripts/verify-musickit-diagnostic-contract.ts` to fetch and verify the exact MusicKit v1 artifact used by webPod. The verifier rejects any artifact whose SHA-256 differs from `0ccb2ab37cedaef2eab9c7044c99afdb8c73a122a29ad8b7344af644a15bd14b` and prints only enum declarations and state-payload expressions. It never configures MusicKit, accesses a user library, or emits media identifiers.
+This is retained as historical evidence for the MusicKit v1 diagnostic enum mapping used when the diagnostic surface was introduced. Run `bun run scripts/verify-musickit-diagnostic-contract.ts` to fetch and verify that exact archived artifact. The production provider migrated to MusicKit v3 in workstream 003/D8; current playback event naming is grounded in Apple's v3 instance documentation. The verifier never configures MusicKit, accesses a user library, or emits media identifiers.
 
 Verified extraction:
 

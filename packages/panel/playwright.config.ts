@@ -1,5 +1,5 @@
 import { defineConfig } from '@playwright/test'
-import { cpSync, existsSync, rmSync } from 'node:fs'
+import { copyFileSync, cpSync, existsSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { relative, resolve } from 'node:path'
 
@@ -26,6 +26,12 @@ if (workerIndex === undefined || !existsSync(snapshotRoot)) {
         && !path.startsWith('docs/')
     },
   })
+  // The fixture route exists only inside this immutable browser-test snapshot;
+  // the shipped `/` route remains an Apple-only redirect.
+  copyFileSync(
+    resolve(repositoryRoot, 'packages/panel/e2e/panel-fixture-route.tsx'),
+    resolve(snapshotRoot, 'apps/web/src/routes/index.tsx'),
+  )
 }
 const source = fingerprintBrowserSources(snapshotRoot)
 process.env['W5B_EXPECTED_SOURCE_FINGERPRINT'] = source.digest

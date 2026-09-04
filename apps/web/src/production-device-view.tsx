@@ -3,11 +3,61 @@ import type {
   DeviceOrientation,
   DeviceOrientationGrabStart,
 } from '@webpod/device'
-import { Panel, type NavigationStatus, type PanelState } from '@webpod/panel'
-import { useCallback, useSyncExternalStore } from 'react'
-import { musicRuntime, type MusicRuntimeSnapshot } from './music-runtime'
+import { Panel, showNowPlayingScreen, subscribeToRootScreenEntry, type NavigationStatus, type PanelState } from '@webpod/panel'
+import { useCallback, useEffect, useSyncExternalStore } from 'react'
+import { musicRuntime, quiesceMusicProvider, type MusicRuntimeSnapshot } from './music-runtime'
 
 export type ProductionPanelState = PanelState
+
+interface PlaybackRuntimeContext {
+  getSnapshot(): Pick<MusicRuntimeSnapshot, 'provider'>
+  subscribe(listener: () => void): () => void
+}
+
+const providerTransportWrites = new WeakMap<MusicRuntimeSnapshot['provider'], Promise<void>>()
+interface RequestedPlaybackState {
+  readonly playing: boolean
+  readonly generation: number
+}
+const requestedPlayingState = new WeakMap<MusicRuntimeSnapshot['provider'], RequestedPlaybackState>()
+let requestedPlaybackGeneration = 0
+
+function enqueueProviderTransport(provider: MusicRuntimeSnapshot['provider'], work: () => Promise<void>): Promise<void> {
+  const prior = providerTransportWrites.get(provider) ?? Promise.resolve()
+  const next = prior.catch(() => undefined).then(work)
+  providerTransportWrites.set(provider, next)
+  void next.finally(() => {
+    if (providerTransportWrites.get(provider) === next) providerTransportWrites.delete(provider)
+  }).catch(() => undefined)
+  return next
+}
+
+function waitForPlaybackContext(
+  provider: MusicRuntimeSnapshot['provider'],
+  runtimeContext: PlaybackRuntimeContext,
+): Promise<boolean> {
+  if (runtimeContext.getSnapshot().provider !== provider) return Promise.resolve(false)
+  if (provider.playback.status !== 'loading') return Promise.resolve(provider.playback.now !== null && provider.playback.status !== 'error')
+  return new Promise((resolve) => {
+    let settled = false
+    let unsubscribePlayback = (): void => {}
+    let unsubscribeRuntime = (): void => {}
+    const finish = (ready: boolean) => {
+      if (settled) return
+      settled = true
+      unsubscribePlayback()
+      unsubscribeRuntime()
+      resolve(ready)
+    }
+    const inspect = () => {
+      if (runtimeContext.getSnapshot().provider !== provider) finish(false)
+      else if (provider.playback.status !== 'loading') finish(provider.playback.now !== null && provider.playback.status !== 'error')
+    }
+    unsubscribePlayback = provider.onPlaybackChange(inspect)
+    unsubscribeRuntime = runtimeContext.subscribe(inspect)
+    inspect()
+  })
+}
 
 interface ProductionPanelViewProps {
   readonly colourway: 'black' | 'white'
@@ -31,7 +81,6 @@ export interface ProductionDeviceViewProps extends ProductionPanelViewProps {
 export function accountStatusForRuntime(
   runtime: Pick<MusicRuntimeSnapshot, 'activeMode' | 'phase'>,
 ): NavigationStatus | null | undefined {
-  if (runtime.activeMode === 'fixture') return null
   if (runtime.phase === 'permission-denied') return null
   if (runtime.phase === 'signing-in') return 'loading'
   if (runtime.phase === 'error') return 'error'
@@ -82,8 +131,17 @@ export function ProductionDeviceView({
   onOrientationGrabHoverChange,
   interactionAudioEnabled,
 }: ProductionDeviceViewProps) {
+  useEffect(() => subscribeToRootScreenEntry(() => {
+    void pauseProductionPlaybackAtRoot()
+  }), [])
   const onPlayPausePress = useCallback(
     () => toggleProductionPlayback(),
+    [],
+  )
+  const onTransportPress = useCallback(
+    (button: 'play-pause' | 'next' | 'previous') => button === 'play-pause'
+      ? toggleProductionPlayback()
+      : skipProductionPlayback(button),
     [],
   )
   return (
@@ -99,6 +157,7 @@ export function ProductionDeviceView({
       onOrientationGrabHoverChange={onOrientationGrabHoverChange}
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
+      onTransportPress={onTransportPress}
       panel={(
         <ProductionPanelView
           colourway={colourway}
@@ -110,34 +169,101 @@ export function ProductionDeviceView({
   )
 }
 
+/** Pauses the provider whose playback would otherwise become invisible at the root. */
+export async function pauseProductionPlaybackAtRoot(snapshot: MusicRuntimeSnapshot = musicRuntime.getSnapshot()): Promise<boolean> {
+  const provider = snapshot.provider
+  const generation = ++requestedPlaybackGeneration
+  requestedPlayingState.set(provider, { playing: false, generation })
+  try {
+    await enqueueProviderTransport(provider, () => quiesceMusicProvider(provider))
+    return true
+  } catch (cause) {
+    const detail = cause instanceof Error ? cause.message : 'Unknown playback failure'
+    console.error(`Music playback could not pause at the root: ${detail}`)
+    return false
+  } finally {
+    if (requestedPlayingState.get(provider)?.generation === generation) requestedPlayingState.delete(provider)
+  }
+}
+
 /** Executes the provider-owned transport action before feedback is admitted. */
-export async function toggleProductionPlayback(): Promise<boolean> {
-  const { provider, source } = musicRuntime.getSnapshot()
+export async function toggleProductionPlayback(snapshot: MusicRuntimeSnapshot = musicRuntime.getSnapshot()): Promise<boolean> {
+  const { provider, source } = snapshot
   const session = provider.session
   if (
     !provider.supports('transport') ||
     session?.status !== 'authorized' ||
-    !session.canPlay ||
-    provider.playback.status === 'loading'
+    !session.canPlay
   ) return false
 
+  const currentlyRequestedPlaying = requestedPlayingState.get(provider)?.playing
+    ?? (provider.playback.status === 'playing' || provider.playback.status === 'loading')
+  const shouldPlay = !currentlyRequestedPlaying
+  if (shouldPlay && provider.playback.now === null && source.songs.length === 0) return false
+  const generation = ++requestedPlaybackGeneration
+  requestedPlayingState.set(provider, { playing: shouldPlay, generation })
+  // Admitted transport input returns the listener to the playback surface at
+  // once; MusicKit latency must not make the wheel appear unresponsive.
+  showNowPlayingScreen()
   try {
-    if (provider.playback.status === 'playing') {
-      await provider.pause()
-    } else if (provider.playback.now === null) {
-      if (source.songs.length === 0) return false
-      await provider.play({
-        kind: 'tracks',
-        tracks: source.songs,
-        startIndex: 0,
-      })
-    } else {
-      await provider.play()
-    }
+    await enqueueProviderTransport(provider, async () => {
+      if (!shouldPlay) {
+        await provider.pause()
+      } else if (provider.playback.now === null) {
+        await provider.play({ kind: 'tracks', tracks: source.songs, startIndex: 0 })
+      } else {
+        await provider.play()
+      }
+    })
     return true
   } catch (cause) {
     const detail = cause instanceof Error ? cause.message : 'Unknown playback failure'
     console.error(`Music playback failed: ${detail}`)
     return false
+  } finally {
+    if (requestedPlayingState.get(provider)?.generation === generation) requestedPlayingState.delete(provider)
+  }
+}
+
+/** Delegates skip order to the provider's live queue, never to the visible list. */
+export async function skipProductionPlayback(
+  direction: 'next' | 'previous',
+  snapshot: MusicRuntimeSnapshot = musicRuntime.getSnapshot(),
+  runtimeContext: PlaybackRuntimeContext = musicRuntime,
+): Promise<boolean> {
+  const { provider } = snapshot
+  const session = provider.session
+  const playback = provider.playback
+  if (
+    !provider.supports('transport')
+    || session?.status !== 'authorized'
+    || !session.canPlay
+    || (playback.now === null && playback.status !== 'loading')
+  ) return false
+
+  if (playback.status === 'loading') {
+    showNowPlayingScreen()
+    try {
+      await enqueueProviderTransport(provider, async () => {
+        if (!await waitForPlaybackContext(provider, runtimeContext)) throw new Error('Playback transport context was superseded')
+        await provider.skip(direction)
+      })
+    } catch (cause) {
+      const detail = cause instanceof Error ? cause.message : 'Unknown playback failure'
+      console.error(`Music playback could not skip ${direction}: ${detail}`)
+      throw cause
+    }
+    return true
+  }
+
+  try {
+    await enqueueProviderTransport(provider, () => provider.skip(direction))
+    if (runtimeContext.getSnapshot().provider !== provider) throw new Error('Playback transport context was superseded')
+    showNowPlayingScreen()
+    return true
+  } catch (cause) {
+    const detail = cause instanceof Error ? cause.message : 'Unknown playback failure'
+    console.error(`Music playback could not skip ${direction}: ${detail}`)
+    throw cause
   }
 }

@@ -1,18 +1,25 @@
 import { Provider, atom, useAtomValue, useSetAtom } from 'jotai'
-import type { FixtureProvider, MusicProvider, TrackRef } from '@webpod/providers'
+import { artworkUrl, type Artwork, type Entity, type FixtureProvider, type MusicProvider, type PlaybackState, type QueueSnapshot, type TrackRef } from '@webpod/providers'
 import {
   currentScreenAtom,
   detentActionAtom,
   deviceStore,
+  dismissNowPlayingVolumeFeedbackActionAtom,
   effectiveDensityAtom,
   liveRegionAtom,
   navigationIntentAtom,
-  popScreenActionAtom,
+  nowPlayingModeAtom,
+  nowPlayingVolumeFeedbackAtom,
+  nowPlayingWheelControlAtom,
+  nowPlayingWheelIntentAtom,
   pressActionAtom,
   pushScreenActionAtom,
   resetStackActionAtom,
+  screenStackAtom,
   setDynamicTypeScaleActionAtom,
   setDensityActionAtom,
+  setNowPlayingModeActionAtom,
+  setNowPlayingWheelControlActionAtom,
   visibleRowCountAtom,
   type Density,
   type ScreenFrame,
@@ -21,27 +28,43 @@ import { useEffect, useId, useSyncExternalStore, type CSSProperties, type Keyboa
 
 import {
   artworkSampleFixture,
-  currentTrack,
   deriveArtworkTreatment,
-  fixtureProvider,
-  fixtureNavigationSource,
-  nextNowPlayingMode,
-  sharpArtwork,
+  formatDuration,
+  nowPlayingFrame,
+  previewNowPlayingScrub,
+  settleNowPlayingQueue,
+  settleNowPlayingScrub,
+  transitionNowPlayingCenter,
   type Colourway,
   type ArtworkTone,
-  type NowPlayingMode,
+  type NowPlayingCenterState,
   type PanelState,
 } from './model'
-import { navigationRoot, playbackQueueForFrame, providerStatusFrame, selectNavigation, statusFrame, type NavigationDataSource, type NavigationStatus } from './navigation'
-import { acquireAnnouncer, acquirePlaybackClock, sampleProviderArtwork, type ArtworkSamples } from './runtime'
-import menuArtworkUrl from './assets/music-menu-art.png'
+import { isNavigationLoadingFrame, navigationLoadingRequestId, navigationRoot, preparationForFrame, providerStatusFrame, refreshNavigationFrame, selectNavigationImmediate, statusFrame, type NavigationDataSource, type NavigationStatus } from './navigation'
+import { acquireAnnouncer, acquireNowPlayingVolumeFeedback, acquirePlaybackClock, acquireStableSelection, sampleProviderArtwork, type ArtworkSamples } from './runtime'
+import { BoundedAsyncCache } from './bounded-async-cache'
 import { ListViewport, type ListRowContent } from './list-view'
+import { OverflowMarquee } from './overflow-marquee'
+import { derivePlaybackPresentation, playbackFrameKey, type PlaybackAttempt, type PlaybackPresentation } from './playback-presentation'
 import './panel.css'
 
-const nowPlayingModeAtom = atom<NowPlayingMode>('volume')
+interface PlaybackObservation {
+  readonly provider: MusicProvider | null
+  readonly playback: PlaybackState | null
+}
+
 const sampledArtworkAtom = atom<{ readonly url: string; readonly samples: ArtworkSamples } | null>(null)
 const successResultAtom = atom<SuccessResult | null>(null)
-const lovedTrackKeyAtom = atom<string | null>(null)
+const playbackAttemptAtom = atom<PlaybackAttempt | null>(null)
+const playbackObservationAtom = atom<PlaybackObservation>({ provider: null, playback: null })
+const playbackPresentationAtom = atom((get): PlaybackPresentation | null => {
+  const frame = get(currentScreenAtom)
+  const observation = get(playbackObservationAtom)
+  if (frame === null || observation.provider === null || observation.playback === null) return null
+  return derivePlaybackPresentation(frame, get(playbackAttemptAtom), observation.playback, observation.provider)
+})
+const handledNowPlayingWheelIntentAtom = atom(0)
+const queueViewAtom = atom<QueueViewState>({ provider: null, status: 'idle', items: [], currentIndex: -1 })
 export const searchQueryAtom = atom('')
 let initializedDocument: Document | null = null
 let initializedProvider: MusicProvider | null = null
@@ -50,14 +73,47 @@ let initializedSession: MusicProvider['session'] | undefined
 let initializedAccountStatus: NavigationStatus | null | undefined
 const libraryCountLabels = new Set(['Playlists', 'Artists', 'Albums', 'Songs', 'Genres'])
 const successOperations = new WeakMap<Document, Map<string, Promise<SuccessResult>>>()
-const artworkRequests = new Map<string, Promise<ArtworkSamples>>()
+const artworkRequests = new BoundedAsyncCache<ArtworkSamples>({ maxEntries: 48, ttlMs: 10 * 60 * 1_000 })
 const handledNavigationSeq = new WeakMap<Document, number>()
+const nowPlayingWrites = new WeakMap<MusicProvider, Promise<void>>()
+let playbackAttemptSequence = 0
+let queueReadSequence = 0
+const subscribeToStaticSource = (): (() => void) => () => {}
+const staticSourceRevision = (): number => 0
+
+/** Brings provider-owned transport back into view without creating a second UI store. */
+export function showNowPlayingScreen(): void {
+  if (deviceStore.get(currentScreenAtom)?.route?.kind === 'now-playing') return
+  deviceStore.set(pushScreenActionAtom, nowPlayingFrame())
+}
+
+/** Observes transitions into the root without moving provider ownership into navigation state. */
+export function subscribeToRootScreenEntry(listener: () => void): () => void {
+  const isAtRoot = (): boolean => deviceStore.get(screenStackAtom).at(-1)?.route?.kind === 'root'
+  let wasRoot = isAtRoot()
+  return deviceStore.sub(screenStackAtom, () => {
+    const isRoot = isAtRoot()
+    if (isRoot && !wasRoot) listener()
+    wasRoot = isRoot
+  })
+}
+
+function cachedArtworkSamples(url: string, priority: 'low' | 'high' = 'high'): Promise<ArtworkSamples> {
+  return artworkRequests.get(url, priority, (signal, requestPriority) => sampleProviderArtwork(url, signal, requestPriority))
+}
 
 interface SuccessResult {
   readonly screenId: 'S03' | 'S08' | 'S13'
   readonly text: string
   readonly objectKey: string
   readonly libraryTotal?: number
+}
+
+interface QueueViewState {
+  readonly provider: MusicProvider | null
+  readonly status: 'idle' | 'loading' | 'ready' | 'error'
+  readonly items: readonly TrackRef[]
+  readonly currentIndex: number
 }
 
 /**
@@ -75,8 +131,8 @@ export interface PanelProps {
   readonly artworkTone?: ArtworkTone | null
   readonly density?: Density | null
   readonly longList?: boolean
-  readonly provider?: MusicProvider
-  readonly navigationSource?: NavigationDataSource
+  readonly provider: MusicProvider
+  readonly navigationSource: NavigationDataSource
   /** Overrides derived account posture; `null` explicitly keeps the normal screen route. */
   readonly accountStatus?: NavigationStatus | null
 }
@@ -90,25 +146,48 @@ export function Panel({
   artworkTone = null,
   density = null,
   longList = false,
-  provider = fixtureProvider,
-  navigationSource = fixtureNavigationSource,
+  provider,
+  navigationSource,
   accountStatus,
 }: PanelProps) {
   const session = useSyncExternalStore(provider.onSessionChange, () => provider.session, () => provider.session)
+  const sourceRevision = useSyncExternalStore(
+    navigationSource.subscribe ?? subscribeToStaticSource,
+    navigationSource.getRevision ?? staticSourceRevision,
+    navigationSource.getRevision ?? staticSourceRevision,
+  )
   const rasterScale = Math.min(1.25, Math.max(1, dynamicTypeScale))
   useEffect(() => {
     const accountFrame = accountStatus === undefined ? providerStatusFrame(provider) : accountStatus === null ? null : statusFrame(accountStatus, provider.displayName)
-    if (initializedDocument !== document || initializedProvider !== provider || initializedSource !== navigationSource || initializedSession !== session || initializedAccountStatus !== accountStatus) {
+    const sourceChanged = initializedDocument !== document || initializedProvider !== provider || initializedSource !== navigationSource || initializedSession !== session || initializedAccountStatus !== accountStatus
+    if (sourceChanged) {
       deviceStore.set(resetStackActionAtom, [accountFrame ?? navigationRoot(navigationSource, provider)])
+      deviceStore.set(playbackAttemptAtom, null)
       initializedDocument = document
       initializedProvider = provider
       initializedSource = navigationSource
       initializedSession = session
       initializedAccountStatus = accountStatus
+    } else if (accountFrame === null) {
+      const stack = deviceStore.get(screenStackAtom)
+      const refreshed = stack.map((frameValue) => refreshNavigationFrame(frameValue, navigationSource, provider))
+      if (refreshed.some((frameValue, index) => frameValue !== stack[index])) deviceStore.set(screenStackAtom, refreshed)
     }
     deviceStore.set(setDensityActionAtom, density)
     deviceStore.set(setDynamicTypeScaleActionAtom, dynamicTypeScale)
-  }, [accountStatus, actor, density, dynamicTypeScale, navigationSource, provider, session, state])
+  }, [accountStatus, actor, density, dynamicTypeScale, navigationSource, provider, session, sourceRevision, state])
+  useEffect(() => {
+    const publishPlayback = (): void => {
+      deviceStore.set(playbackObservationAtom, { provider, playback: provider.playback })
+    }
+    publishPlayback()
+    const stopPlayback = provider.onPlaybackChange(publishPlayback)
+    const stopProgress = provider.onProgress(publishPlayback)
+    return () => {
+      stopProgress()
+      stopPlayback()
+    }
+  }, [provider])
   return (
     <div className="wp-panel-stage" style={{ '--wp-raster-scale': rasterScale } as CSSProperties}>
       <Provider store={deviceStore}>
@@ -143,28 +222,118 @@ function PanelSurface({
   const announcement = useAtomValue(liveRegionAtom)
   const move = useSetAtom(detentActionAtom)
   const push = useSetAtom(pushScreenActionAtom)
-  const pop = useSetAtom(popScreenActionAtom)
   const press = useSetAtom(pressActionAtom)
+  const setPlaybackAttempt = useSetAtom(playbackAttemptAtom)
   const navigationIntent = useAtomValue(navigationIntentAtom)
   const visibleRows = useAtomValue(visibleRowCountAtom)
   const density = useAtomValue(effectiveDensityAtom)
+  const preparationIntentKey = frame === null ? null : preparationForFrame(frame, navigationSource)?.key ?? null
   useEffect(() => acquireAnnouncer(document, deviceStore), [])
+  useEffect(() => acquireNowPlayingVolumeFeedback(document, deviceStore), [])
+  useEffect(() => {
+    if (preparationIntentKey === null) return
+    return acquireStableSelection(provider, preparationIntentKey, async (signal) => {
+      const currentFrame = deviceStore.get(currentScreenAtom)
+      if (currentFrame === null) return
+      const selected = preparationForFrame(currentFrame, navigationSource)
+      if (selected === null || selected.key !== preparationIntentKey || signal.aborted) return
+      const work: Promise<unknown>[] = [selected.prefetchData()]
+      if (selected.artwork !== null) {
+        const resolved = artworkUrl(selected.artwork, 176)
+        work.push(cachedArtworkSamples(resolved.url, 'low'))
+      }
+      if (selected.playTarget !== null) work.push(provider.prepare(selected.playTarget, signal))
+      await Promise.all(work)
+    })
+  }, [navigationSource, preparationIntentKey, provider])
   useEffect(() => {
     if (navigationIntent === null || navigationIntent.seq <= (handledNavigationSeq.get(document) ?? 0)) return
     handledNavigationSeq.set(document, navigationIntent.seq)
     if (navigationIntent.kind !== 'select' || frame === null) return
     if (frame.route?.kind === 'now-playing') {
-      deviceStore.set(nowPlayingModeAtom, nextNowPlayingMode(deviceStore.get(nowPlayingModeAtom)))
+      const modeState = deviceStore.get(nowPlayingModeAtom)
+      const currentState: NowPlayingCenterState = modeState.frame === frame
+        ? modeState
+        : { mode: 'standard', scrub: 'clean', scrubRevision: 0, queue: 'clean' }
+      const queueView = deviceStore.get(queueViewAtom)
+      const wheelControl = deviceStore.get(nowPlayingWheelControlAtom)
+      const queueIndex = wheelControl?.kind === 'queue'
+        ? Math.round(wheelControl.value)
+        : queueView.currentIndex
+      const queueSelectionPending = currentState.mode === 'queue'
+        && queueView.provider === provider
+        && queueView.status === 'ready'
+        && queueIndex >= 0
+        && queueIndex < queueView.items.length
+        && queueIndex !== queueView.currentIndex
+      const transition = transitionNowPlayingCenter(currentState, provider, queueSelectionPending)
+      deviceStore.set(setNowPlayingModeActionAtom, { frame, ...transition.state })
+      if (transition.effect === 'commit-scrub') {
+        const control = deviceStore.get(nowPlayingWheelControlAtom)
+        const committedRevision = transition.state.scrubRevision
+        if (control?.kind !== 'scrub') {
+          deviceStore.set(setNowPlayingModeActionAtom, { frame, ...settleNowPlayingScrub(transition.state, committedRevision, false) })
+          return
+        }
+        void enqueueNowPlayingWrite(provider, () => provider.seek(control.value)).then(
+          () => {
+            const latest = deviceStore.get(nowPlayingModeAtom)
+            if (latest.frame !== frame) return
+            deviceStore.set(setNowPlayingModeActionAtom, { frame, ...settleNowPlayingScrub(latest, committedRevision, true) })
+          },
+          () => {
+            const latest = deviceStore.get(nowPlayingModeAtom)
+            if (latest.frame !== frame) return
+            const playbackNow = provider.playback
+            deviceStore.set(setNowPlayingWheelControlActionAtom, { kind: 'scrub', value: playbackNow.positionMs, minimum: 0, maximum: playbackNow.durationMs, step: 5_000 })
+            deviceStore.set(setNowPlayingModeActionAtom, { frame, ...settleNowPlayingScrub(latest, committedRevision, false) })
+          },
+        )
+      }
+      if (transition.effect === 'select-queue') {
+        if (!queueSelectionPending) {
+          deviceStore.set(setNowPlayingModeActionAtom, { frame, ...settleNowPlayingQueue(transition.state) })
+          return
+        }
+        const target = { kind: 'tracks' as const, tracks: queueView.items.slice(queueIndex), startIndex: 0 }
+        void enqueueNowPlayingWrite(provider, () => provider.play(target)).then(
+          () => {
+            const latest = deviceStore.get(nowPlayingModeAtom)
+            if (latest.frame !== frame) return
+            deviceStore.set(setNowPlayingModeActionAtom, { frame, ...settleNowPlayingQueue(latest) })
+          },
+          () => {
+            const latest = deviceStore.get(nowPlayingModeAtom)
+            if (latest.frame !== frame) return
+            deviceStore.set(setNowPlayingModeActionAtom, { frame, ...settleNowPlayingQueue(latest) })
+          },
+        )
+      }
       return
     }
-    let live = true
-    void selectNavigation(frame, navigationSource, provider, deviceStore.get(searchQueryAtom)).then((selection) => {
-      if (live && selection.frame !== null) push(selection.frame)
-    }).catch(() => {
-      if (live) push(statusFrame('error'))
-    })
-    return () => { live = false }
-  }, [frame, navigationIntent, navigationSource, provider, push])
+    const selection = selectNavigationImmediate(frame, navigationSource, provider, deviceStore.get(searchQueryAtom))
+    if (selection.frame === null) return
+    const selectedFrame = selection.frame
+    push(selectedFrame)
+    if (selection.resolution !== undefined) {
+      void selection.resolution.then((resolved) => replacePendingFrame(selectedFrame, resolved)).catch(() => replacePendingFrame(selectedFrame, statusFrame('error')))
+    }
+    if (selection.playback !== undefined) {
+      const id = ++playbackAttemptSequence
+      const frameKey = playbackFrameKey(selectedFrame)
+      setPlaybackAttempt({ id, provider, frameKey, status: 'pending' })
+      void selection.playback.then(
+        () => {
+          const current = deviceStore.get(playbackAttemptAtom)
+          if (current?.id === id) deviceStore.set(playbackAttemptAtom, { id, provider, frameKey, status: 'resolved' })
+        },
+        () => {
+          const current = deviceStore.get(playbackAttemptAtom)
+          if (current?.id === id) deviceStore.set(playbackAttemptAtom, { id, provider, frameKey, status: 'rejected' })
+        },
+      )
+    }
+  }, [frame, navigationIntent, navigationSource, provider, push, setPlaybackAttempt])
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget) return
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -180,7 +349,7 @@ function PanelSurface({
     }
     if (event.key === 'Escape' || event.key === 'Backspace') {
       event.preventDefault()
-      pop()
+      press({ button: 'menu', source: 'human', path: 'key' })
       return
     }
     if (event.key === 'Enter') {
@@ -233,14 +402,14 @@ function PanelSurface({
       <span className="wp-sr-only" aria-live="polite" aria-atomic="true" data-announcement-seq={announcement?.seq}>
         {announcement?.text ?? ''}
       </span>
-      {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state, colourway, artworkTone, visibleRows, actor, panelId, provider)}
+      {frame === null ? <PanelError message="The player is starting." /> : renderScreen(frame, state, colourway, artworkTone, visibleRows, actor, panelId, provider, navigationSource)}
     </div>
   )
 }
 
-function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone | null, visibleRows: number, actor: 'human' | 'agent', panelId: string, provider: MusicProvider) {
-  if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
-  if (frame.route?.kind === 'album-tracks' || frame.route?.kind === 'playlist-tracks') return <NestedTrackList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
+function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone | null, visibleRows: number, actor: 'human' | 'agent', panelId: string, provider: MusicProvider, navigationSource: NavigationDataSource) {
+  if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} navigationSource={navigationSource} provider={provider} />
+  if (frame.route?.kind === 'album-tracks' || frame.route?.kind === 'playlist-tracks') return <NestedTrackList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} provider={provider} navigationSource={navigationSource} />
   if (frame.screenId === 'S13') return <NowPlaying frame={frame} state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} provider={provider} />
   if (frame.route?.kind === 'status') return <StatusScreen frame={frame} />
   return <BrowserList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
@@ -260,38 +429,50 @@ function StatusScreen({ frame }: { readonly frame: ScreenFrame }) {
   return <section className="wp-screen"><TitleBar title={frame.title} /><PanelError message={message} detail={detail} /></section>
 }
 
-type PanelIconName = 'battery' | 'chevron' | 'shuffle' | 'repeat' | 'heart' | 'star' | 'queue'
+type PanelIconName = 'battery' | 'chevron' | 'pending' | 'warning' | 'lock' | 'offline' | 'agent' | 'check' | 'play' | 'pause'
 
 function PanelIcon({ name }: { readonly name: PanelIconName }) {
   const paths: Record<PanelIconName, ReactNode> = {
     battery: <><rect x="2" y="5" width="15" height="8" rx="1.5" /><path d="M19 8v2" /><path d="M4.5 7.5h8.5v3H4.5z" className="wp-icon-fill" /></>,
     chevron: <path d="m8 5 5 5-5 5" />,
-    shuffle: <><path d="M3 6h2.5c4.5 0 4.5 8 9 8H17" /><path d="m14 11 3 3-3 3" /><path d="M3 14h2.5c1.25 0 2.15-.62 2.92-1.52" /><path d="M11.6 7.3C12.32 6.5 13.2 6 14.5 6H17" /><path d="m14 3 3 3-3 3" /></>,
-    repeat: <><path d="m15 4 3 3-3 3" /><path d="M4 9V8a2 2 0 0 1 2-2h12" /><path d="m5 16-3-3 3-3" /><path d="M16 11v1a2 2 0 0 1-2 2H2" /></>,
-    heart: <path d="M10 17.2 3.8 11A4 4 0 0 1 9.5 5.4L10 6l.5-.6A4 4 0 0 1 16.2 11Z" />,
-    star: <path d="m10 2.8 2.15 4.35 4.8.7-3.48 3.38.82 4.78L10 13.76 5.71 16l.82-4.77L3.06 7.85l4.79-.7Z" />,
-    queue: <><path d="M3 5h10M3 10h10M3 15h7" /><path d="m14 13 4 2-4 2Z" className="wp-icon-fill" /></>,
+    pending: <><circle cx="10" cy="10" r="7" /><path d="M10 6v4l2.7 1.7" /></>,
+    warning: <><path d="m10 3 7 13H3Z" /><path d="M10 7.2v4.3M10 14v.1" /></>,
+    lock: <><rect x="4" y="8" width="12" height="9" rx="1.5" /><path d="M7 8V6a3 3 0 0 1 6 0v2" /></>,
+    offline: <><path d="M3.5 8.7a9.8 9.8 0 0 1 13 0M6.2 11.4a5.9 5.9 0 0 1 7.6 0M8.7 14a2 2 0 0 1 2.6 0" /><path d="m3 3 14 14" /></>,
+    agent: <><path d="m10 2 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" /><path d="m15 3 .7 1.8 1.8.7-1.8.7L15 8l-.7-1.8-1.8-.7 1.8-.7Z" /></>,
+    check: <><circle cx="10" cy="10" r="7" /><path d="m6.5 10 2.2 2.2 4.8-5" /></>,
+    play: <path d="m6 4 10 6-10 6Z" className="wp-icon-fill" />,
+    pause: <><rect x="5" y="4" width="3" height="12" className="wp-icon-fill" /><rect x="12" y="4" width="3" height="12" className="wp-icon-fill" /></>,
   }
   return <svg className={`wp-icon wp-icon--${name}`} viewBox="0 0 20 20" aria-hidden="true" focusable="false">{paths[name]}</svg>
 }
 
-function TitleBar({ title, index }: { readonly title: string; readonly index?: string }) {
+type TitleBarTransport = 'starting' | 'playing' | 'paused'
+
+function TitleBar({ title, index, transport }: { readonly title: string; readonly index?: string; readonly transport?: TitleBarTransport | null }) {
+  const transportLabel = transport === 'starting'
+    ? 'Playback starting'
+    : transport === 'paused'
+      ? 'Playback paused'
+      : 'Playback playing'
   return (
     <header className="wp-titlebar">
-      <span className="wp-titlebar__side">{index ?? ''}</span>
+      {transport == null
+        ? <span className="wp-titlebar__side">{index ?? ''}</span>
+        : <span className="wp-titlebar__side wp-titlebar__transport" data-transport={transport} role="img" aria-label={transportLabel}><PanelIcon name={transport === 'paused' ? 'pause' : 'play'} /></span>}
       <strong>{title}</strong>
       <span className="wp-titlebar__side wp-titlebar__battery" role="img" aria-label="Battery full"><PanelIcon name="battery" /></span>
     </header>
   )
 }
 
-function MainMenu({ frame, state, visibleRows, panelId }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string }) {
-  const success = useLibrarySuccess('S03', frame.title, state)
-  const selected = frame.rows[frame.highlightIndex] ?? null
+function MainMenu({ frame, state, visibleRows, panelId, navigationSource, provider }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string; readonly navigationSource: NavigationDataSource; readonly provider: MusicProvider }) {
+  const success = useLibrarySuccess('S03', frame.title, state, provider, navigationSource)
+  void navigationSource
   const rows: readonly ListRowContent[] = frame.rows.map((row) => ({
     index: row.index,
     primary: row.label,
-    count: state === 'error' && row.sublabel !== null ? '—' : state === 'loading' && row.sublabel !== null ? '…' : state === 'empty' && libraryCountLabels.has(row.label) ? '0' : row.sublabel,
+    count: state === 'ready' || state === 'offline' || state === 'agent-active' || state === 'success-confirmation' ? row.sublabel : null,
     chevron: <PanelIcon name="chevron" />,
     unavailable: (state === 'offline' && (row.label === 'Radio' || row.label === 'Search')) || (state === 'permission-denied' && row.label === 'Radio'),
     empty: state === 'empty' && libraryCountLabels.has(row.label),
@@ -300,15 +481,7 @@ function MainMenu({ frame, state, visibleRows, panelId }: { readonly frame: Scre
   return (
     <div className="wp-screen">
       <TitleBar title={frame.title} />
-      <ListViewport rows={rows} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label="Music categories" panelId={panelId} preview={
-        <div className="wp-menu-preview-content" aria-label={`${selected?.label ?? 'Music'} preview`} role="group">
-          <Artwork state={state === 'loading' || state === 'error' ? 'loading' : 'ready'} variant="menu" />
-          <strong>{state === 'error' ? "Couldn't load your library." : selected?.sublabel === null || selected === null ? selected?.label ?? 'Music' : `${selected.sublabel} ${selected.label.toLocaleLowerCase()}`}</strong>
-          <span>{state === 'error' ? 'Retry' : 'Rotate to browse'}</span>
-          {state === 'offline' ? <small>Cached library</small> : null}
-          {state === 'agent-active' ? <small className="wp-agent-note">Assistant browsing</small> : null}
-        </div>
-      } />
+      <ListViewport rows={rows} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label="Music categories" panelId={panelId} />
       {state === 'empty' ? <FooterReceipt>Nothing in your library yet. Try Radio, or search for anything.</FooterReceipt> : null}
       {state === 'offline' ? <FooterReceipt>Offline. Showing cached library metadata.</FooterReceipt> : null}
       {state === 'permission-denied' ? <FooterReceipt>Browsing only — a subscription is needed to play.</FooterReceipt> : null}
@@ -322,10 +495,11 @@ function BrowserList({ frame, state, visibleRows, panelId }: { readonly frame: S
   const query = useAtomValue(searchQueryAtom)
   const setQuery = useSetAtom(searchQueryAtom)
   const rows: readonly ListRowContent[] = frame.rows.map((row) => ({ index: row.index, primary: row.label, secondary: row.sublabel, chevron: row.glyphs.includes('descend') ? <PanelIcon name="chevron" /> : undefined, unavailable: state === 'offline' }))
-  const message = listStateMessage(frame, state, visibleRows)
+  const loading = state === 'loading' || isNavigationLoadingFrame(frame)
+  const message = listStateMessage(frame, loading ? 'loading' : state, visibleRows)
   const search = frame.route?.kind === 'search-entry' ? <label className="wp-search-field"><span>Search Query</span><input name="music-search" value={query} onChange={(event) => setQuery(event.currentTarget.value)} placeholder="Artists, albums, songs…" autoComplete="off" /></label> : undefined
   return (
-    <section className="wp-screen wp-browser-list" aria-label={frame.title} aria-busy={state === 'loading'}>
+    <section className="wp-screen wp-browser-list" aria-label={frame.title} aria-busy={loading}>
       <TitleBar title={frame.title} />
       <ListViewport rows={rows} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label={frame.title} panelId={panelId} preview={search} message={message} />
       {state === 'offline' ? <FooterReceipt>Offline. Showing cached library metadata.</FooterReceipt> : null}
@@ -333,14 +507,14 @@ function BrowserList({ frame, state, visibleRows, panelId }: { readonly frame: S
   )
 }
 
-function NestedTrackList({ frame, state, visibleRows, panelId }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string }) {
-  const success = useLibrarySuccess('S08', frame.title, state)
-  const selected = frame.rows[frame.highlightIndex] ?? null
+function NestedTrackList({ frame, state, visibleRows, panelId, provider, navigationSource }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string; readonly provider: MusicProvider; readonly navigationSource: NavigationDataSource }) {
+  const success = useLibrarySuccess('S08', frame.title, state, provider, navigationSource)
   const rows: readonly ListRowContent[] = frame.rows.map((row) => ({ index: row.index, leading: row.index + 1, primary: row.label, secondary: state === 'offline' ? '☁︎' : row.sublabel, unavailable: state === 'offline', agent: state === 'agent-active' && row.index === frame.highlightIndex, success: success !== null && row.index === frame.highlightIndex }))
+  const loading = state === 'loading' || isNavigationLoadingFrame(frame)
   return (
-    <section className="wp-screen" aria-label="Album tracks" aria-busy={state === 'loading'} data-success-object={success?.objectKey} data-library-total={success?.libraryTotal}>
+    <section className="wp-screen" aria-label="Album tracks" aria-busy={loading} data-success-object={success?.objectKey} data-library-total={success?.libraryTotal}>
       <TitleBar title={frame.title} index={state === 'offline' ? 'Cached metadata' : undefined} />
-      <ListViewport rows={rows} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label={`${frame.title} tracks`} panelId={panelId} message={listStateMessage(frame, state, visibleRows, 'Nothing here plays in your region.', 'Search for it · Go to artist')} preview={<div className="wp-track-preview" role="group" aria-label="Selected track details"><strong>{selected?.label ?? frame.title}</strong><span>{selected?.sublabel ?? 'No track selected'}</span><small>{frame.title}</small></div>} />
+      <ListViewport rows={rows} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label={`${frame.title} tracks`} panelId={panelId} message={listStateMessage(frame, loading ? 'loading' : state, visibleRows, 'Nothing here plays in your region.', 'Search for it · Go to artist')} />
       {success?.screenId === 'S08' ? <FooterReceipt>{success.text}</FooterReceipt> : null}
     </section>
   )
@@ -355,20 +529,35 @@ function listStateMessage(frame: ScreenFrame, state: PanelState, visibleRows: nu
 }
 
 function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone | null; readonly actor: 'human' | 'agent'; readonly provider: MusicProvider }) {
-  const mode = useAtomValue(nowPlayingModeAtom)
+  const modeState = useAtomValue(nowPlayingModeAtom)
+  const mode = modeState.frame === frame ? modeState.mode : 'standard'
+  const scrubState = modeState.frame === frame ? modeState.scrub : 'clean'
+  const queueState = modeState.frame === frame ? modeState.queue : 'clean'
+  const playbackAttempt = useAtomValue(playbackAttemptAtom)
+  const setPlaybackAttempt = useSetAtom(playbackAttemptAtom)
   const sampledArtwork = useAtomValue(sampledArtworkAtom)
   const setSampledArtwork = useSetAtom(sampledArtworkAtom)
-  const success = useAtomValue(successResultAtom)
   const setSuccess = useSetAtom(successResultAtom)
-  const lovedTrackKey = useAtomValue(lovedTrackKeyAtom)
-  const setLovedTrackKey = useSetAtom(lovedTrackKeyAtom)
-  useSyncExternalStore(provider.onPlaybackChange, () => JSON.stringify(provider.playback), () => JSON.stringify(provider.playback))
-  useSyncExternalStore(provider.onProgress, () => `${provider.playback.positionMs}/${provider.playback.durationMs}`, () => `0/${provider.playback.durationMs}`)
-  const playback = provider.playback
-  const progressTick = { positionMs: playback.positionMs, durationMs: playback.durationMs }
-  const track = playback.now
-  const queue = playbackQueueForFrame(frame)
-  const art = track === null ? null : sharpArtwork(track, 176)
+  const queueView = useAtomValue(queueViewAtom)
+  const setQueueView = useSetAtom(queueViewAtom)
+  const wheelControl = useAtomValue(nowPlayingWheelControlAtom)
+  const wheelIntent = useAtomValue(nowPlayingWheelIntentAtom)
+  const volumeFeedback = useAtomValue(nowPlayingVolumeFeedbackAtom)
+  const handledWheelIntentSeq = useAtomValue(handledNowPlayingWheelIntentAtom)
+  const setHandledWheelIntentSeq = useSetAtom(handledNowPlayingWheelIntentAtom)
+  const configureWheel = useSetAtom(setNowPlayingWheelControlActionAtom)
+  const dismissVolumeFeedback = useSetAtom(dismissNowPlayingVolumeFeedbackActionAtom)
+  const playbackObservation = useAtomValue(playbackObservationAtom)
+  const observedPresentation = useAtomValue(playbackPresentationAtom)
+  const presentation = observedPresentation === null || playbackObservation.provider !== provider
+    ? derivePlaybackPresentation(frame, playbackAttempt, provider.playback, provider)
+    : observedPresentation
+  const { playback, track } = presentation
+  const occurrenceIdentity = playbackOccurrenceIdentity(playback, track)
+  const progressTick = presentation.phase === 'starting' && presentation.usesSelectedTrack
+    ? { positionMs: 0, durationMs: track?.durationMs ?? 0 }
+    : { positionMs: playback.positionMs, durationMs: playback.durationMs }
+  const art = resolvedArtwork(track, 176)
   const artUrl = art?.url ?? null
   useEffect(() => isClockDrivenProvider(provider) ? acquirePlaybackClock(document, provider, {
     now: () => performance.now(),
@@ -376,10 +565,12 @@ function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: {
     clearInterval: (handle) => window.clearInterval(handle),
   }) : undefined, [provider])
   useEffect(() => {
+    if (presentation.settleAttempt) setPlaybackAttempt(null)
+  }, [presentation.settleAttempt, setPlaybackAttempt])
+  useEffect(() => {
     if (artworkTone !== null || artUrl === null) return
     let live = true
-    const request = artworkRequests.get(artUrl) ?? sampleProviderArtwork(artUrl)
-    artworkRequests.set(artUrl, request)
+    const request = cachedArtworkSamples(artUrl)
     void request.then((samples) => {
       if (live) setSampledArtwork({ url: artUrl, samples })
     }).catch(() => {
@@ -394,9 +585,70 @@ function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: {
       await provider.setVolume(actor === 'human' ? 72 : 68)
       return { screenId: 'S13', text: 'Volume changed.', objectKey: 'playback.volume' }
     })
-    void operation.then((result) => { if (live) setSuccess(result) })
+    void operation.then((result) => { if (live) setSuccess(result) }).catch(() => undefined)
     return () => { live = false }
   }, [actor, provider, setSuccess, state])
+  useEffect(() => {
+    if (!provider.supports('queueRead')) return
+    const sequence = ++queueReadSequence
+    let live = true
+    setQueueView({ provider, status: 'loading', items: [], currentIndex: -1 })
+    void provider.queueRead().then((snapshot) => {
+      if (!live || sequence !== queueReadSequence) return
+      setQueueView(queueViewFromSnapshot(provider, snapshot))
+    }).catch(() => {
+      if (!live || sequence !== queueReadSequence) return
+      setQueueView({ provider, status: 'error', items: [], currentIndex: -1 })
+    })
+    return () => { live = false }
+  }, [mode, playback.now?.key, playback.queueIndex, provider, setQueueView])
+  useEffect(() => {
+    if (mode !== 'standard') return
+    configureWheel(provider.supports('volume')
+      ? { kind: 'volume', value: playback.volume0to100, minimum: 0, maximum: 100, step: 2, occurrenceIdentity: occurrenceIdentity ?? undefined }
+      : null)
+  }, [configureWheel, mode, occurrenceIdentity, playback.volume0to100, provider])
+  useEffect(() => {
+    if (mode !== 'scrub') return
+    if (!provider.supports('seek') || playback.durationMs <= 0) {
+      configureWheel(null)
+      return
+    }
+    const currentControl = deviceStore.get(nowPlayingWheelControlAtom)
+    const pendingScrubIntent = wheelIntent?.kind === 'scrub'
+      && wheelIntent.seq > handledWheelIntentSeq
+    const value = (scrubState === 'clean' && !pendingScrubIntent) || currentControl?.kind !== 'scrub'
+      ? playback.positionMs
+      : Math.min(playback.durationMs, Math.max(0, currentControl.value))
+    configureWheel({ kind: 'scrub', value, minimum: 0, maximum: playback.durationMs, step: 5_000 })
+  }, [configureWheel, handledWheelIntentSeq, mode, playback.durationMs, playback.positionMs, provider, scrubState, wheelIntent])
+  useEffect(() => {
+    if (mode === 'artwork') {
+      configureWheel(null)
+      return
+    }
+    if (mode !== 'queue') return
+    configureWheel(queueView.provider === provider && queueView.status === 'ready' && queueView.items.length > 0
+      ? { kind: 'queue', value: queueView.currentIndex, minimum: 0, maximum: queueView.items.length - 1, step: 1 }
+      : null)
+  }, [configureWheel, mode, provider, queueView])
+  useEffect(() => () => configureWheel(null), [configureWheel])
+  useEffect(() => {
+    if (wheelIntent === null || wheelIntent.seq <= handledWheelIntentSeq) return
+    setHandledWheelIntentSeq(wheelIntent.seq)
+    const activeControlKind = mode === 'standard' ? 'volume' : mode
+    if (wheelIntent.kind !== activeControlKind || wheelIntent.kind === 'queue') return
+    if (wheelIntent.kind === 'scrub') {
+      const currentModeState = deviceStore.get(nowPlayingModeAtom)
+      if (currentModeState.frame === frame) deviceStore.set(setNowPlayingModeActionAtom, { frame, ...previewNowPlayingScrub(currentModeState) })
+      return
+    }
+    const work = () => provider.setVolume(wheelIntent.value)
+    void enqueueNowPlayingWrite(provider, work).catch(() => {
+      const playbackNow = provider.playback
+      configureWheel({ kind: 'volume', value: playbackNow.volume0to100, minimum: 0, maximum: 100, step: 2, occurrenceIdentity: playbackOccurrenceIdentity(playbackNow, playbackNow.now) ?? undefined })
+    })
+  }, [configureWheel, frame, handledWheelIntentSeq, mode, provider, setHandledWheelIntentSeq, wheelIntent])
   let samples: ArtworkSamples | null = null
   if (artworkTone !== null) {
     samples = artworkSampleFixture(artworkTone)
@@ -412,99 +664,220 @@ function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: {
     '--wp-bloom-chroma': treatment?.chromaMultiplier ?? 0,
     '--wp-art-fallback': `linear-gradient(145deg, ${treatment?.dominant ?? '#334155'}, ${colourway === 'dark' ? '#080b11' : '#f2f6fb'})`,
   } as CSSProperties
-  const progress = progressTick.durationMs === 0 ? 0 : Math.round(
-    (progressTick.positionMs / progressTick.durationMs) * 100,
-  )
-  if (state === 'loading' || playback.status === 'loading') return <section className="wp-screen" aria-busy="true"><TitleBar title="Now Playing" /><span className="wp-sr-only">Loading the song.</span><div className="wp-now-loading"><Artwork state="loading" /><i /><i /><i /></div></section>
-  if (state === 'permission-denied') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message="Playback needs an Apple Music subscription." detail="Learn more · Browse anyway" /></section>
-  if (state === 'error' || playback.status === 'error') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message={track === null ? "Couldn't start playback." : `Couldn't play “${track.title}”.`} detail="Press Menu and try again." /></section>
+  const playbackFailed = state === 'error' || presentation.phase === 'failed'
+  const playbackPending = !playbackFailed && presentation.phase !== 'ready' && (state === 'loading' || presentation.phase === 'starting')
+  useEffect(() => {
+    if (
+      volumeFeedback.visibility === 'visible'
+      && volumeFeedback.occurrenceIdentity !== occurrenceIdentity
+    ) dismissVolumeFeedback()
+  }, [dismissVolumeFeedback, occurrenceIdentity, volumeFeedback])
+  useEffect(() => {
+    if (
+      mode !== 'standard'
+      || track === null
+      || playbackPending
+      || playbackFailed
+    ) dismissVolumeFeedback()
+  }, [dismissVolumeFeedback, mode, playbackFailed, playbackPending, track])
+  const transportState: TitleBarTransport | null = playbackFailed
+    ? null
+    : playbackPending
+      ? 'starting'
+      : playback.status === 'paused' || playback.status === 'stopped' || playback.status === 'idle'
+        ? 'paused'
+        : 'playing'
+  if (track === null && playbackPending) return <section className="wp-screen" aria-busy="true" data-playback-phase="starting"><TitleBar title="Now Playing" transport="starting" /><span className="wp-sr-only">Loading the song.</span><div className="wp-now-loading"><Artwork state="loading" item={null} /><i /><i /><i /></div></section>
+  if (track === null && state === 'permission-denied') return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message="Playback needs an Apple Music subscription." detail="Learn more · Browse anyway" /></section>
+  if (track === null && playbackFailed) return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelError message="Playback unavailable." detail="Press Menu to choose another song." /></section>
   if (state === 'empty' || track === null) return <section className="wp-screen"><TitleBar title="Now Playing" /><PanelEmpty title="Nothing is playing." detail="Choose a song or press Menu to go back." /></section>
-  const loveTrack = async () => {
-    await provider.ratingSet(track, { love: 'love' })
-    setLovedTrackKey(track.key)
+  if (mode === 'artwork') {
+    return (
+      <section className="wp-screen wp-now wp-now--artwork" aria-label="Now Playing artwork" data-mode="artwork" style={artStyle}>
+        <TitleBar title="Now Playing" transport={transportState} />
+        <div className="wp-now-full-artwork"><Artwork state="ready" large tone={artworkTone} item={track} /></div>
+      </section>
+    )
   }
-  const currentQueueIndex = queue === null ? -1 : playbackQueueIndex(queue, track, playback.queueIndex)
-  const queueIndex = currentQueueIndex < 0 || queue === null ? undefined : `${currentQueueIndex + 1} of ${queue.tracks.length}`
+  if (mode === 'queue') {
+    const activeQueueView = queueView.provider === provider
+      ? queueView
+      : { provider, status: 'loading' as const, items: [], currentIndex: -1 }
+    const queueCursor = wheelControl?.kind === 'queue'
+      ? Math.round(wheelControl.value)
+      : activeQueueView.currentIndex
+    const queueRows: readonly ListRowContent[] = activeQueueView.items.map((item, index) => ({
+      index,
+      leading: index === activeQueueView.currentIndex ? '▶' : index + 1,
+      primary: item.title,
+      secondary: item.artistName,
+    }))
+    const windowStart = Math.max(0, Math.min(
+      Math.max(0, queueRows.length - 8),
+      queueCursor - 3,
+    ))
+    return (
+      <section className="wp-screen wp-now wp-now--queue" aria-label="Now Playing queue" aria-busy={activeQueueView.status === 'loading' || queueState === 'selecting'} data-mode="queue" data-queue-state={queueState} data-wheel-control={wheelControl?.kind} style={artStyle}>
+        <TitleBar title="Up Next" transport={transportState} />
+        {activeQueueView.status === 'loading'
+          ? <div className="wp-list-loading" aria-label="Loading Up Next">{Array.from({ length: 8 }, (_, index) => <i className="wp-skeleton" key={index} />)}</div>
+          : activeQueueView.status === 'error'
+            ? <PanelError message="Couldn’t load Up Next." detail="Press Center and try again." />
+            : queueRows.length === 0
+              ? <PanelEmpty title="Up Next is empty." detail="Press Center to return." />
+              : <ListViewport rows={queueRows} highlightIndex={queueCursor} windowStart={windowStart} visibleRows={8} label="Up Next" panelId="now-playing-queue" />}
+      </section>
+    )
+  }
+  const shownVolume = wheelControl?.kind === 'volume' ? wheelControl.value : playback.volume0to100
+  const showVolumeFeedback = volumeFeedback.visibility === 'visible'
+    && volumeFeedback.frame === frame
+    && mode === 'standard'
+    && volumeFeedback.occurrenceIdentity === occurrenceIdentity
+    && !playbackPending
+    && !playbackFailed
+  const durationMs = Number.isFinite(progressTick.durationMs) ? Math.max(0, progressTick.durationMs) : 0
+  const rawPositionMs = wheelControl?.kind === 'scrub' ? wheelControl.value : progressTick.positionMs
+  const finitePositionMs = Number.isFinite(rawPositionMs) ? Math.max(0, rawPositionMs) : 0
+  const shownPosition = Math.min(finitePositionMs, durationMs)
+  const shownProgress = durationMs === 0 ? 0 : Math.round((shownPosition / durationMs) * 100)
+  const control = { label: mode === 'scrub' ? 'Track position, scrubbing' : 'Playback position', value: shownPosition, maximum: durationMs, percent: shownProgress, start: formatDuration(shownPosition), end: `-${formatDuration(durationMs - shownPosition)}` }
   return (
-    <section className="wp-screen wp-now" aria-label="Now Playing" data-art-tone={artworkTone ?? 'provider'} data-art-sample-source={artworkTone === null ? samples === null ? 'pending' : 'provider' : 'fixture'} data-volume={playback.volume0to100} data-position-ms={playback.positionMs} style={artStyle}>
-      <TitleBar title="Now Playing" index={queueIndex} />
+    <section className="wp-screen wp-now" aria-label="Now Playing" aria-busy={playbackPending} data-mode={mode} data-wheel-control={wheelControl?.kind} data-scrub-state={mode === 'scrub' ? scrubState : undefined} data-playback-phase={playbackFailed ? 'failed' : playbackPending ? 'starting' : 'ready'} data-playback-indeterminate={playbackPending ? 'true' : undefined} data-art-tone={artworkTone ?? 'provider'} data-art-sample-source={artworkTone === null ? samples === null ? 'pending' : 'provider' : 'fixture'} data-volume={shownVolume} data-position-ms={shownPosition} style={artStyle}>
+      <TitleBar title="Now Playing" transport={transportState} />
       <div className="wp-now-body">
-        <Artwork state="ready" large tone={artworkTone} track={track} />
-        <div className="wp-now-meta">
-          <h1>{track.title}</h1>
-          <p>{track.artistName}</p>
-          <p>{track.albumName ?? 'Unknown album'}</p>
-          {queue?.sourceLabel === null || queue?.sourceLabel === undefined ? null : <span className="wp-source">{queue.sourceLabel}</span>}
-          <span className="wp-mode-chip">{mode}</span>
+        <div className="wp-now-track">
+          <Artwork state="ready" large tone={artworkTone} item={track} />
+          <div className="wp-now-meta">
+            <h1><OverflowMarquee text={track.title} active /></h1>
+            <p>{track.artistName}</p>
+            <p>{track.albumName ?? 'Unknown album'}</p>
+          </div>
         </div>
-        <div className="wp-progress" role="progressbar" aria-label="Track progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
-          <i style={{ inlineSize: `${progress}%` }} />
-        </div>
-        <div className="wp-times"><span>{formatTime(progressTick.positionMs)}</span><span>-{formatTime(Math.max(0, progressTick.durationMs - progressTick.positionMs))}</span></div>
-        <div className="wp-actions" role="group" aria-label="Playback status">
-          <PassiveStatusIcon label={`Shuffle ${playback.shuffle}`}><PanelIcon name="shuffle" /></PassiveStatusIcon>
-          <PassiveStatusIcon label={`Repeat ${playback.repeat}`}><PanelIcon name="repeat" /></PassiveStatusIcon>
-          <button type="button" aria-label="Love track" aria-pressed={lovedTrackKey === track.key} onClick={() => { void loveTrack() }}><span aria-hidden="true"><PanelIcon name="heart" /></span></button>
-          <PassiveStatusIcon label="Rate"><PanelIcon name="star" /></PassiveStatusIcon>
-          <PassiveStatusIcon label="Queue"><PanelIcon name="queue" /></PassiveStatusIcon>
-        </div>
-        {state === 'offline' ? <span className="wp-state-note">Offline. Playback unavailable; cached metadata shown.</span> : null}
-        {state === 'agent-active' ? <span className="wp-state-note wp-agent-note">Assistant moved here</span> : null}
-        {success?.screenId === 'S13' ? <FooterReceipt>{success.text}</FooterReceipt> : null}
+        {showVolumeFeedback
+          ? <VolumeFeedback value={volumeFeedback.value} />
+          : <>
+              <div className={`wp-progress${mode === 'scrub' ? ' wp-progress--scrub' : ''}${playbackPending ? ' wp-progress--indeterminate' : ''}`} role="progressbar" aria-label={playbackPending ? 'Loading playback' : control.label} aria-valuemin={playbackPending ? undefined : 0} aria-valuemax={playbackPending ? undefined : control.maximum} aria-valuenow={playbackPending ? undefined : Math.round(control.value)}>
+                <i style={{ inlineSize: `${control.percent}%` }} />
+                {mode === 'scrub' ? <b style={{ insetInlineStart: `${control.percent}%` }} aria-hidden="true" /> : null}
+              </div>
+              <span className="wp-now-timing-spacer" aria-hidden="true" />
+              {playbackFailed
+                ? <p className="wp-now-alert" role="status" aria-live="polite">Playback unavailable</p>
+                : <div className="wp-times"><span>{control.start}</span><span>{control.end}</span></div>}
+            </>}
       </div>
     </section>
   )
 }
 
-function sameProviderTrack(left: TrackRef, right: TrackRef): boolean {
-  return left.key === right.key || (left.provider === right.provider && left.catalogId === right.catalogId)
+function VolumeFeedback({ value }: { readonly value: number }) {
+  const percent = Math.min(100, Math.max(0, value))
+  return (
+    <div className="wp-volume-feedback" data-volume-feedback="visible">
+      <SpeakerGlyph />
+      <div
+        className="wp-volume-progress"
+        role="progressbar"
+        aria-label="Volume"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(percent)}
+      >
+        <i style={{ inlineSize: `${String(percent)}%` }} />
+      </div>
+      <SpeakerGlyph loud />
+    </div>
+  )
 }
 
-function playbackQueueIndex(queue: NonNullable<ReturnType<typeof playbackQueueForFrame>>, track: TrackRef, liveIndex: number | null): number {
-  const liveTrack = liveIndex === null || !Number.isInteger(liveIndex) || liveIndex < 0 || liveIndex >= queue.tracks.length ? undefined : queue.tracks[liveIndex]
-  if (liveIndex !== null && liveTrack !== undefined && sameProviderTrack(liveTrack, track)) return liveIndex
-  const selectedIndex = queue.startIndex
-  const selected = selectedIndex === null ? undefined : queue.tracks[selectedIndex]
-  if (selectedIndex !== null && selected !== undefined && sameProviderTrack(selected, track)) return selectedIndex
-  return queue.tracks.findIndex((item) => sameProviderTrack(item, track))
+/** Stable provider queue occurrence identity, including duplicate tracks. */
+function playbackOccurrenceIdentity(playback: PlaybackState, track: TrackRef | null): string | null {
+  return track === null
+    ? null
+    : JSON.stringify([track.provider, track.catalogId, track.key, playback.queueIndex])
 }
 
-function PassiveStatusIcon({ label, children }: { readonly label: string; readonly children: ReactNode }) {
-  return <span role="img" aria-label={label}><span aria-hidden="true">{children}</span></span>
+function SpeakerGlyph({ loud = false }: { readonly loud?: boolean }) {
+  return (
+    <svg className="wp-volume-glyph" viewBox="0 0 14 14" aria-hidden="true">
+      <path d="M1 5h2.5L7 2.2v9.6L3.5 9H1z" />
+      {loud ? <><path d="M8.5 4.2c1.4 1.3 1.4 4.3 0 5.6" /><path d="M10.5 2.3c2.5 2.4 2.5 7 0 9.4" /></> : null}
+    </svg>
+  )
+}
+
+function replacePendingFrame(pending: ScreenFrame, resolved: ScreenFrame): void {
+  const stack = deviceStore.get(screenStackAtom)
+  const visible = stack.at(-1)
+  const requestId = navigationLoadingRequestId(pending)
+  if (visible === undefined || requestId === null || navigationLoadingRequestId(visible) !== requestId) return
+  deviceStore.set(screenStackAtom, [...stack.slice(0, -1), resolved])
+}
+
+/** Flattens the provider's authoritative play order without reconstructing it. */
+function queueViewFromSnapshot(provider: MusicProvider, snapshot: QueueSnapshot): QueueViewState {
+  const items = [...snapshot.history, ...(snapshot.now === null ? [] : [snapshot.now]), ...snapshot.next]
+  return {
+    provider,
+    status: 'ready',
+    items,
+    currentIndex: snapshot.now === null ? -1 : snapshot.history.length,
+  }
+}
+
+/** Serializes writes per provider so fast wheel turns cannot complete out of order. */
+function enqueueNowPlayingWrite(provider: MusicProvider, write: () => Promise<void>): Promise<void> {
+  const prior = nowPlayingWrites.get(provider) ?? Promise.resolve()
+  const operation = prior.catch(() => undefined).then(write)
+  const settled = operation.then(() => undefined, () => undefined)
+  nowPlayingWrites.set(provider, settled)
+  void settled.then(() => {
+    if (nowPlayingWrites.get(provider) === settled) nowPlayingWrites.delete(provider)
+  })
+  return operation
 }
 
 function FooterReceipt({ children }: { readonly children: ReactNode }) {
   return <div className="wp-footer-receipt" role="status">{children}</div>
 }
 
-function Artwork({ state, large = false, tone, variant = 'provider', track }: { readonly state: PanelState; readonly large?: boolean; readonly tone?: ArtworkTone | null; readonly variant?: 'menu' | 'provider'; readonly track?: TrackRef }) {
+type ArtworkItem = Entity | { readonly artwork?: Artwork }
+
+function resolvedArtwork(item: ArtworkItem | null, requestedPx: number) {
+  if (item === null || !('artwork' in item) || item.artwork === undefined) return null
+  const resolved = artworkUrl(item.artwork, requestedPx)
+  return { ...resolved, renderedPx: Math.min(requestedPx, resolved.actualPx) }
+}
+
+function Artwork({ state, large = false, tone = null, item }: { readonly state: PanelState; readonly large?: boolean; readonly tone?: ArtworkTone | null; readonly item: ArtworkItem | null }) {
   if (state === 'loading') return <span className={large ? 'wp-art wp-art--large wp-skeleton' : 'wp-art wp-skeleton'} aria-hidden="true" />
-  const art = sharpArtwork(track ?? currentTrack(), large ? 176 : 88)
+  const art = resolvedArtwork(item, large ? 176 : 88)
   const fixtureSurface = tone === 'pale'
     ? 'linear-gradient(145deg, rgb(250 240 214), rgb(218 188 142))'
     : tone === 'dark'
       ? 'linear-gradient(145deg, rgb(49 35 69), rgb(12 10 20))'
       : null
-  const authoredArtwork = variant === 'menu' ? menuArtworkUrl : null
-  const artworkUrl = authoredArtwork ?? art?.url ?? null
+  const providerArtworkUrl = art?.url ?? null
   return (
-    <span className={large ? 'wp-art wp-art--large' : 'wp-art'} style={{ '--wp-art-max': `${authoredArtwork === null ? art?.renderedPx ?? 104 : 352}px`, backgroundImage: fixtureSurface ?? (artworkUrl === null ? undefined : `url(${artworkUrl}), var(--wp-art-fallback, linear-gradient(145deg, #334155, #0b0d11))`) } as CSSProperties}>
-      {tone === null && artworkUrl !== null ? <img src={artworkUrl} alt="" data-provider-artwork={authoredArtwork === null ? 'true' : undefined} data-authored-artwork={authoredArtwork === null ? undefined : variant} /> : null}
-      {artworkUrl === null ? <span className="wp-art__fallback" aria-hidden="true">◒</span> : null}
+    <span className={large ? 'wp-art wp-art--large' : 'wp-art'} style={{ '--wp-art-max': `${art?.renderedPx ?? 104}px`, backgroundImage: fixtureSurface ?? (providerArtworkUrl === null ? undefined : `url(${providerArtworkUrl}), var(--wp-art-fallback, linear-gradient(145deg, #334155, #0b0d11))`) } as CSSProperties}>
+      {tone === null && providerArtworkUrl !== null ? <img src={providerArtworkUrl} alt="" data-provider-artwork="true" /> : null}
+      {providerArtworkUrl === null ? <span className="wp-art__fallback" role="img" aria-label="No artwork available">◒</span> : null}
     </span>
   )
 }
 
-function useLibrarySuccess(screenId: 'S03' | 'S08', title: string, state: PanelState): SuccessResult | null {
+function useLibrarySuccess(screenId: 'S03' | 'S08', title: string, state: PanelState, provider: MusicProvider, navigationSource: NavigationDataSource): SuccessResult | null {
   const success = useAtomValue(successResultAtom)
   const setSuccess = useSetAtom(successResultAtom)
   useEffect(() => {
     if (state !== 'success-confirmation') return
     let live = true
-    const track = currentTrack()
+    const track = provider.playback.now ?? navigationSource.songs[0]
+    if (track === undefined) return
     const operation = successOperation(document, screenId, async () => {
-      const playlist = await fixtureProvider.playlistCreate({ name: `${title} Picks`, tracks: [track] })
-      const library = await fixtureProvider.libraryList('playlists')
+      const playlist = await provider.playlistCreate({ name: `${title} Picks`, tracks: [track] })
+      const library = await provider.libraryList('playlists')
       return {
         screenId,
         text: `Created “${playlist.name}”.`,
@@ -512,9 +885,9 @@ function useLibrarySuccess(screenId: 'S03' | 'S08', title: string, state: PanelS
         ...(library.total === null ? {} : { libraryTotal: library.total }),
       }
     })
-    void operation.then((result) => { if (live) setSuccess(result) })
+    void operation.then((result) => { if (live) setSuccess(result) }).catch(() => undefined)
     return () => { live = false }
-  }, [screenId, setSuccess, state, title])
+  }, [navigationSource, provider, screenId, setSuccess, state, title])
   return success?.screenId === screenId ? success : null
 }
 
@@ -537,8 +910,3 @@ function PanelError({ message, detail = 'Press Menu and try again.' }: { readonl
 }
 
 const isClockDrivenProvider = (provider: MusicProvider): provider is FixtureProvider => 'tick' in provider && typeof provider.tick === 'function'
-
-const formatTime = (milliseconds: number) => {
-  const seconds = Math.floor(milliseconds / 1000)
-  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
-}

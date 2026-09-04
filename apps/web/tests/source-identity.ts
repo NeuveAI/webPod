@@ -1,4 +1,4 @@
-import { expect, type Page } from '../../../packages/panel/node_modules/@playwright/test/index.js'
+import { expect, type Page } from '../../../packages/panel/node_modules/@playwright/test/index.mjs'
 
 export interface BrowserSourceHealth {
   readonly expected: string

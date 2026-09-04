@@ -17,6 +17,32 @@ const COMPRESSOR_ATTACK_SECONDS = 0.002
 const COMPRESSOR_RELEASE_SECONDS = 0.05
 const PREVIEW_SAMPLE_RATE = 48_000
 const PREVIEW_DURATION_SECONDS = 3.4
+const SAMPLE_BLUEPRINT_FRAMES = 512
+
+/**
+ * Pure sample blueprints are generated while the module loads. The bounded
+ * three-entry table avoids first-contact PRNG/decay work without constructing
+ * an AudioContext before the browser grants a user activation.
+ */
+const PROCEDURAL_SAMPLE_BLUEPRINTS: Readonly<Record<InteractionVoiceKind, Float32Array>> = {
+  wheel: createSampleBlueprint('wheel'),
+  'button-down': createSampleBlueprint('button-down'),
+  'button-up': createSampleBlueprint('button-up'),
+}
+
+function createSampleBlueprint(kind: InteractionVoiceKind): Float32Array {
+  const samples = new Float32Array(SAMPLE_BLUEPRINT_FRAMES)
+  let seed = kind === 'wheel' ? 0x51f15e : kind === 'button-down' ? 0x5e1ec7 : 0x0f17e1
+  for (let index = 0; index < samples.length; index += 1) {
+    seed = (seed * 1664525 + 1013904223) >>> 0
+    const noise = (seed / 0xffffffff) * 2 - 1
+    const progress = index / Math.max(1, samples.length - 1)
+    const decay = Math.exp(-progress * (kind === 'wheel' ? 11 : kind === 'button-down' ? 7.8 : 9.5))
+    const noiseGain = kind === 'wheel' ? 0.9 : kind === 'button-down' ? 0.48 : 0.4
+    samples[index] = noise * noiseGain * decay
+  }
+  return samples
+}
 
 export type InteractionAudioPreviewCue = {
   readonly label: string
@@ -147,6 +173,12 @@ class InteractionAudioGraph {
     this.compressor.attack.setValueAtTime(COMPRESSOR_ATTACK_SECONDS, now)
     this.compressor.release.setValueAtTime(COMPRESSOR_RELEASE_SECONDS, now)
     this.master.connect(this.compressor).connect(context.destination)
+    // The context is created only inside an eligible activation. Populate all
+    // three final AudioBuffers at that boundary so the first audible contact
+    // performs no synthesis or buffer allocation.
+    for (const kind of ['wheel', 'button-down', 'button-up'] as const) {
+      this.bufferFor(kind, createInteractionVoiceSpec(kind, now, () => 0.5).durationSeconds)
+    }
   }
 
   schedule(spec: InteractionVoiceSpec, onEnded: () => void): InteractionAudioVoice {
@@ -212,15 +244,8 @@ class InteractionAudioGraph {
     const frameCount = Math.max(1, Math.ceil(this.context.sampleRate * durationSeconds))
     const buffer = this.context.createBuffer(1, frameCount, this.context.sampleRate)
     const samples = buffer.getChannelData(0)
-    let seed =
-      kind === 'wheel'
-        ? 0x51f15e
-        : kind === 'button-down'
-          ? 0x5e1ec7
-          : 0x0f17e1
+    const blueprint = PROCEDURAL_SAMPLE_BLUEPRINTS[kind]
     for (let index = 0; index < samples.length; index += 1) {
-      seed = (seed * 1664525 + 1013904223) >>> 0
-      const noise = (seed / 0xffffffff) * 2 - 1
       const progress = index / Math.max(1, samples.length - 1)
       const decay = Math.exp(
         -progress * (kind === 'wheel' ? 11 : kind === 'button-down' ? 7.8 : 9.5),
@@ -231,8 +256,8 @@ class InteractionAudioGraph {
           ? 0
           : Math.sin((2 * Math.PI * bodyFrequencyHz * index) /
               this.context.sampleRate) * (kind === 'button-down' ? 0.2 : 0.13)
-      const noiseGain = kind === 'wheel' ? 0.9 : kind === 'button-down' ? 0.48 : 0.4
-      samples[index] = (noise * noiseGain + plasticBody) * decay
+      const blueprintIndex = Math.min(blueprint.length - 1, Math.round(progress * (blueprint.length - 1)))
+      samples[index] = (blueprint[blueprintIndex] ?? 0) + plasticBody * decay
     }
     this.buffers.set(kind, buffer)
     return buffer

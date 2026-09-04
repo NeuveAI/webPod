@@ -4,7 +4,6 @@ import { Group, Matrix4, Mesh, Ray, RingGeometry, Vector3 } from "three";
 import {
   CLICK_WHEEL_INPUT_POSITION,
   CLICK_WHEEL_INPUT_RADII,
-  CLICK_WHEEL_CARDINAL_HIT_RADIUS,
   CLICK_WHEEL_CARDINAL_SLOP,
   acceptsClickWheelPointer,
   cardinalButtonAtWheelPoint,
@@ -158,25 +157,37 @@ describe("click-wheel input geometry", () => {
     ).toBeFalse();
   });
 
-  test("maps only the four bounded cardinal label targets", () => {
-    const band =
-      (DEVICE_LAYOUT.wheel.labelBandInnerR +
-        DEVICE_LAYOUT.wheel.labelBandOuterR) /
-      2;
-    expect(cardinalButtonAtWheelPoint(0, band)).toBe("menu");
-    expect(cardinalButtonAtWheelPoint(band, 0)).toBe("next");
-    expect(cardinalButtonAtWheelPoint(0, -band)).toBe("play-pause");
-    expect(cardinalButtonAtWheelPoint(-band, 0)).toBe("previous");
-    expect(cardinalButtonAtWheelPoint(band / Math.SQRT2, band / Math.SQRT2))
-      .toBeNull();
-    expect(cardinalButtonAtWheelPoint(0, band + CLICK_WHEEL_CARDINAL_HIT_RADIUS))
-      .toBe("menu");
-    expect(
-      cardinalButtonAtWheelPoint(
-        0,
-        band + CLICK_WHEEL_CARDINAL_HIT_RADIUS + Number.EPSILON * 100,
-      ),
-    ).toBeNull();
+  test("maps the complete annulus into deterministic 90-degree sectors", () => {
+    const pointAt = (angleDeg: number, radius: number) => {
+      const radians = (angleDeg * Math.PI) / 180;
+      return { x: Math.cos(radians) * radius, y: -Math.sin(radians) * radius };
+    };
+    const buttonAt = (angleDeg: number, radius = 70) => {
+      const point = pointAt(angleDeg, radius);
+      return cardinalButtonAtWheelPoint(point.x, point.y);
+    };
+
+    expect(buttonAt(0)).toBe("next");
+    expect(buttonAt(90)).toBe("play-pause");
+    expect(buttonAt(180)).toBe("previous");
+    expect(buttonAt(270)).toBe("menu");
+    expect(buttonAt(44.999)).toBe("next");
+    expect(buttonAt(45)).toBe("play-pause");
+    expect(buttonAt(45.001)).toBe("play-pause");
+    expect(buttonAt(134.999)).toBe("play-pause");
+    expect(buttonAt(135)).toBe("previous");
+    expect(buttonAt(135.001)).toBe("previous");
+    expect(buttonAt(224.999)).toBe("previous");
+    expect(buttonAt(225)).toBe("menu");
+    expect(buttonAt(225.001)).toBe("menu");
+    expect(buttonAt(314.999)).toBe("menu");
+    expect(buttonAt(315)).toBe("next");
+    expect(buttonAt(315.001)).toBe("next");
+
+    expect(buttonAt(0, CLICK_WHEEL_INPUT_RADII.inner)).toBeNull();
+    expect(buttonAt(90, CLICK_WHEEL_INPUT_RADII.inner + 0.001)).toBe("play-pause");
+    expect(buttonAt(180, CLICK_WHEEL_INPUT_RADII.outer)).toBe("previous");
+    expect(buttonAt(270, CLICK_WHEEL_INPUT_RADII.outer + 0.001)).toBeNull();
     expect(CLICK_WHEEL_CARDINAL_SLOP).toBe(10);
   });
 });

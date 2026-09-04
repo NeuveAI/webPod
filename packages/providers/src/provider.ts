@@ -169,6 +169,18 @@ export interface MusicProvider {
   // ── Transport ─────────────────────────────────────────────────────────────
 
   /**
+   * Gives a provider an opportunity to prepare a likely playback target.
+   *
+   * This is deliberately weaker than `play()`: it never promises buffered
+   * media, a duration of readiness, or audible playback. Implementations may
+   * no-op. A provider with a public queue-preparation primitive may use it only
+   * while genuinely idle, and must leave an active or paused item untouched.
+   * The signal cancels the caller's intent; it cannot imply that a provider SDK
+   * can cancel work it has already accepted.
+   */
+  prepare(target: PlayTarget, signal?: AbortSignal): Promise<void>
+
+  /**
    * Starts playback.
    *
    * @param target what to play. **Omitted means resume what is already

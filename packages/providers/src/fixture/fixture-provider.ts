@@ -609,6 +609,9 @@ export function createFixtureProvider(options: FixtureProviderOptions = {}): Fix
       playlistTracks.set(id.key, existing)
     },
 
+    /** The deterministic fixture has no asynchronous media preparation. */
+    async prepare(): Promise<void> {},
+
     /** Starts playback. With no target, resumes whatever is loaded. */
     async play(target?: PlayTarget): Promise<void> {
       requireCapability('transport')

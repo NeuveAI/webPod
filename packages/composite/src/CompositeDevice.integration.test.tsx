@@ -6,12 +6,14 @@ import {
   currentScreenAtom,
   deviceStore,
   highlightIndexAtom,
+  nowPlayingWheelControlAtom,
   pressActionAtom,
   type InteractionFeedbackEvent,
   type PanelRow,
   type ScreenFrame,
   pushScreenActionAtom,
   resetStackActionAtom,
+  setNowPlayingWheelControlActionAtom,
 } from '@webpod/state'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
@@ -358,6 +360,131 @@ describe('mounted composite input boundary', () => {
     expect(contacts.ups.map(({ timestampMs }) => timestampMs)).toEqual([
       60, 160, 260, 360,
     ])
+  })
+
+  test('a short annular tap stays cardinal while movement takeover changes volume without double action', async () => {
+    const environment = makeEnvironment()
+    const mounted: {
+      arcStart: ((sample: ClickWheelArcSample) => void) | null
+      arcMove: ((sample: ClickWheelArcSample) => void) | null
+      arcEnd: ((end: ClickWheelArcEnd) => void) | null
+      cardinalStart: ((start: ClickWheelCardinalStart) => void) | null
+      cardinalEnd: ((end: ClickWheelCardinalEnd) => void) | null
+      cardinalPress: ((press: ClickWheelCardinalPress) => void) | null
+    } = { arcStart: null, arcMove: null, arcEnd: null, cardinalStart: null, cardinalEnd: null, cardinalPress: null }
+    let transportActions = 0
+    const frame: ScreenFrame = {
+      screenId: 'S13', title: 'Now Playing', route: { kind: 'now-playing' },
+      rows: [], highlightIndex: -1, windowStart: 0, density: 'medium',
+    }
+    deviceStore.set(resetStackActionAtom, [frame])
+    deviceStore.set(setNowPlayingWheelControlActionAtom, { kind: 'volume', value: 50, minimum: 0, maximum: 100, step: 2 })
+
+    await act(async () => root.render(
+      <CompositeInputBoundary
+        createDependencies={() => environment.dependencies}
+        createAudioRuntime={() => recordingAudio([], true)}
+        onTransportPress={() => {
+          transportActions += 1
+          return true
+        }}
+      >
+        {(handlers) => {
+          mounted.arcStart = handlers.onArcStart
+          mounted.arcMove = handlers.onArcMove
+          mounted.arcEnd = handlers.onArcEnd
+          mounted.cardinalStart = handlers.onCardinalStart
+          mounted.cardinalEnd = handlers.onCardinalEnd
+          mounted.cardinalPress = handlers.onCardinalPress
+          return <div role="application" tabIndex={0}>Gesture isolation panel</div>
+        }}
+      </CompositeInputBoundary>,
+    ))
+    if (mounted.arcStart === null || mounted.arcMove === null || mounted.arcEnd === null || mounted.cardinalStart === null || mounted.cardinalEnd === null || mounted.cardinalPress === null) throw new Error('Gesture bridge did not mount')
+
+    const tap = { pointerId: 601, pointerType: 'touch' as const, button: 'next' as const }
+    mounted.cardinalStart({ ...tap, timestampMs: 0 })
+    mounted.cardinalEnd({ ...tap, timestampMs: 60, reason: 'release', accepted: true })
+    mounted.cardinalPress({ ...tap, timestampMs: 60 })
+    expect(transportActions).toBe(1)
+    expect(deviceStore.get(nowPlayingWheelControlAtom)).toMatchObject({ kind: 'volume', value: 50 })
+
+    mounted.arcStart({ pointerId: 602, pointerType: 'touch', angleDeg: 0, timestampMs: 100 })
+    mounted.arcMove({ pointerId: 602, pointerType: 'touch', angleDeg: 90, timestampMs: 180 })
+    mounted.arcEnd({ pointerId: 602, timestampMs: 180, reason: 'cancel' })
+    expect(deviceStore.get(nowPlayingWheelControlAtom)).toMatchObject({ kind: 'volume' })
+    expect(deviceStore.get(nowPlayingWheelControlAtom)?.value).not.toBe(50)
+    expect(transportActions).toBe(1)
+  })
+
+  test('provider transport owns next when accepted and falls back to list paging when declined', async () => {
+    const environment = makeEnvironment()
+    const mounted: { press: ((press: ClickWheelCardinalPress) => void) | null } = { press: null }
+    let acceptsTransport = false
+    const attempted: string[] = []
+    seedSingletonScreen()
+    await act(async () => root.render(
+      <CompositeInputBoundary
+        createDependencies={() => environment.dependencies}
+        createAudioRuntime={() => recordingAudio([], true)}
+        onTransportPress={(button) => {
+          attempted.push(button)
+          return acceptsTransport
+        }}
+      >
+        {(handlers) => {
+          mounted.press = handlers.onCardinalPress
+          return <div role="application" tabIndex={0}>Transport panel</div>
+        }}
+      </CompositeInputBoundary>,
+    ))
+    if (mounted.press === null) throw new Error('Cardinal bridge did not mount')
+
+    mounted.press({ pointerId: 401, pointerType: 'mouse', button: 'next', timestampMs: 1 })
+    expect(deviceStore.get(highlightIndexAtom)).toBeGreaterThan(0)
+
+    seedSingletonScreen()
+    acceptsTransport = true
+    mounted.press({ pointerId: 402, pointerType: 'mouse', button: 'next', timestampMs: 2 })
+    expect(deviceStore.get(highlightIndexAtom)).toBe(0)
+    expect(attempted).toEqual(['next', 'next'])
+  })
+
+  test('rejected provider transport is consumed without list paging or accepted feedback', async () => {
+    const environment = makeEnvironment()
+    const consumed: InteractionFeedbackEvent[] = []
+    const mounted: { press: ((press: ClickWheelCardinalPress) => void) | null } = { press: null }
+    let rejectDeferred: ((cause: Error) => void) | undefined
+    let attempt = 0
+    seedSingletonScreen()
+    await act(async () => root.render(
+      <CompositeInputBoundary
+        createDependencies={() => environment.dependencies}
+        createAudioRuntime={() => recordingAudio(consumed, true)}
+        onTransportPress={() => {
+          attempt += 1
+          if (attempt === 1) return Promise.reject(new Error('immediate transport failure'))
+          return new Promise<boolean>((_resolve, reject) => { rejectDeferred = reject })
+        }}
+      >
+        {(handlers) => {
+          mounted.press = handlers.onCardinalPress
+          return <div role="application" tabIndex={0}>Transport panel</div>
+        }}
+      </CompositeInputBoundary>,
+    ))
+    if (mounted.press === null) throw new Error('Cardinal bridge did not mount')
+
+    mounted.press({ pointerId: 501, pointerType: 'mouse', button: 'next', timestampMs: 1 })
+    await act(async () => Promise.resolve())
+    expect(deviceStore.get(highlightIndexAtom)).toBe(0)
+    expect(consumed).toHaveLength(0)
+
+    mounted.press({ pointerId: 502, pointerType: 'mouse', button: 'previous', timestampMs: 2 })
+    rejectDeferred?.(new Error('deferred transport failure'))
+    await act(async () => Promise.resolve())
+    expect(deviceStore.get(highlightIndexAtom)).toBe(0)
+    expect(consumed).toHaveLength(0)
   })
 
   test('holding Menu for 600ms returns to root without also popping it', async () => {

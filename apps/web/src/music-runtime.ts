@@ -1,8 +1,6 @@
 import {
   createAppleProvider,
   browserAppleProviderOptions,
-  createFixtureProvider,
-  APPLE_SUPPORTS,
   type AlbumRef,
   type ArtistRef,
   type Entity,
@@ -10,13 +8,14 @@ import {
   type LocalKey,
   type MusicProvider,
   type PlaylistRef,
+  type StationRef,
   type TrackRef,
 } from '@webpod/providers'
-import type { NavigationDataSource } from '@webpod/panel'
+import type { NavigationDataSource, NavigationLibraryCollection, NavigationLibraryCollectionStatus } from '@webpod/panel'
 import { applePlaybackDiagnostics } from './apple-playback-diagnostics'
 
-export type MusicRuntimeMode = 'fixture' | 'apple'
-export type MusicRuntimePhase = 'fixture' | 'signed-out' | 'signing-in' | 'authorized' | 'permission-denied' | 'error'
+export type MusicRuntimeMode = 'apple'
+export type MusicRuntimePhase = 'signed-out' | 'signing-in' | 'authorized' | 'permission-denied' | 'error'
 export interface MusicRuntimeSnapshot {
   readonly requestedMode: MusicRuntimeMode
   readonly activeMode: MusicRuntimeMode
@@ -28,39 +27,25 @@ export interface MusicRuntimeSnapshot {
 
 /** Resolves the explicit development query override ahead of the safe build-time default. */
 export function resolveMusicRuntimeMode(queryValue: string | null, configuredValue: string | undefined): MusicRuntimeMode {
-  if (queryValue === 'apple' || queryValue === 'fixture') return queryValue
-  return configuredValue === 'apple' ? 'apple' : 'fixture'
+  void queryValue
+  void configuredValue
+  return 'apple'
 }
 
-const fixtureProvider = createFixtureProvider({ supports: APPLE_SUPPORTS })
 const emptySource: NavigationDataSource = {
   albums: [], artists: [], genres: [], playlists: [], songs: [], stations: [],
   trackByKey: () => null, tracksForAlbum: () => [], tracksForPlaylist: () => [], albumsForArtist: () => [],
   albumsForGenre: () => [], artistsForGenre: () => [], tracksForGenre: () => [],
 }
 
-function fixtureSource(): NavigationDataSource {
-  const catalog = fixtureProvider.catalog
-  return {
-    albums: catalog.albums, artists: catalog.artists, genres: catalog.genres, playlists: catalog.playlists, songs: catalog.tracks, stations: catalog.stations,
-    trackByKey: (key) => catalog.tracks.find((track) => track.key === key) ?? null,
-    tracksForAlbum: (key) => catalog.tracksByAlbum.get(key) ?? [], tracksForPlaylist: (key) => catalog.tracksByPlaylist.get(key) ?? [],
-    albumsForArtist: (key) => { const artist = catalog.artists.find((item) => item.key === key); return artist === undefined ? [] : catalog.albums.filter((album) => album.artistName === artist.name) },
-    albumsForGenre: (key) => { const genre = catalog.genres.find((item) => item.key === key); return genre === undefined ? [] : catalog.albums.filter((album) => catalog.genreByAlbum.get(album.key)?.key === genre.key) },
-    artistsForGenre(key) { const names = new Set(this.albumsForGenre(key).map((album) => album.artistName)); return catalog.artists.filter((artist) => names.has(artist.name)) },
-    tracksForGenre(key) { return this.albumsForGenre(key).flatMap((album) => catalog.tracksByAlbum.get(album.key) ?? []) },
-  }
-}
-
-const fixtureSnapshot: MusicRuntimeSnapshot = { requestedMode: 'fixture', activeMode: 'fixture', phase: 'fixture', provider: fixtureProvider, source: fixtureSource(), message: null }
-let snapshot = fixtureSnapshot
-let appleProvider: ReturnType<typeof createAppleProvider> | null = null
-let operation = 0
-const listeners = new Set<() => void>()
 const appleProviderOptions = () => ({
   ...browserAppleProviderOptions(),
   ...(import.meta.env.DEV ? { playbackDiagnostics: applePlaybackDiagnostics } : {}),
 })
+let appleProvider: ReturnType<typeof createAppleProvider> | null = createAppleProvider(appleProviderOptions())
+let snapshot: MusicRuntimeSnapshot = { requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider: appleProvider, source: emptySource, message: null }
+let operation = 0
+const listeners = new Set<() => void>()
 const publish = (next: MusicRuntimeSnapshot): void => { snapshot = next; for (const listener of listeners) listener() }
 const failureMessage = (stage: string, cause: unknown): string => {
   const detail = cause instanceof Error ? cause.message : 'Unknown failure'
@@ -69,43 +54,136 @@ const failureMessage = (stage: string, cause: unknown): string => {
   return `Apple Music ${stage} failed: ${safeDetail}`
 }
 
-async function all(provider: MusicProvider, kind: Parameters<MusicProvider['libraryList']>[0]): Promise<readonly Entity[]> {
-  const items: Entity[] = []; let cursor: string | null = null; let pages = 0
-  do { const result: Awaited<ReturnType<MusicProvider['libraryList']>> = await provider.libraryList(kind, cursor ?? undefined); items.push(...result.items); cursor = result.next; pages += 1; if (pages > 1_000) throw new Error('Apple Music pagination did not terminate') } while (cursor !== null)
-  return items
+/** Stops an outgoing provider before its controls and status leave the screen. */
+export async function quiesceMusicProvider(provider: MusicProvider): Promise<void> {
+  if (!provider.supports('transport') || provider.session?.status !== 'authorized') return
+  await provider.pause()
 }
 
-async function appleSource(provider: MusicProvider): Promise<NavigationDataSource> {
-  const [playlists, artists, albums, songs] = await Promise.all([all(provider, 'playlists'), all(provider, 'artists'), all(provider, 'albums'), all(provider, 'songs')])
-  const stations = await provider.stationsList().catch(() => [])
-  const typedPlaylists = playlists.filter((item): item is PlaylistRef => item.kind === 'playlist'); const typedArtists = artists.filter((item): item is ArtistRef => item.kind === 'artist'); const typedAlbums = albums.filter((item): item is AlbumRef => item.kind === 'album'); const typedSongs = songs.filter((item): item is TrackRef => item.kind === 'track')
-  const knownTracks = new Map(typedSongs.map((track) => [track.key, track])); const remember = (tracks: readonly TrackRef[]): readonly TrackRef[] => { for (const track of tracks) knownTracks.set(track.key, track); return tracks }
+type ProgressiveAppleSource = { readonly source: NavigationDataSource; readonly completion: Promise<void> }
+const navigationLoadAborted = (options: { readonly signal?: AbortSignal } | undefined): boolean => options?.signal?.aborted ?? false
+
+/** Loads one useful page per collection, then streams all remaining pages into the same source. */
+export async function createProgressiveAppleSource(provider: MusicProvider, isCurrent: () => boolean = () => true): Promise<ProgressiveAppleSource> {
+  const kinds = ['playlists', 'artists', 'albums', 'songs'] as const
+  const [playlistsPage, artistsPage, albumsPage, songsPage] = await Promise.all([
+    provider.libraryList('playlists'),
+    provider.libraryList('artists'),
+    provider.libraryList('albums'),
+    provider.libraryList('songs'),
+  ])
+  const firstByKind: Record<NavigationLibraryCollection, Awaited<ReturnType<MusicProvider['libraryList']>>> = {
+    playlists: playlistsPage,
+    artists: artistsPage,
+    albums: albumsPage,
+    songs: songsPage,
+  }
+  const typedPlaylists = firstByKind.playlists.items.filter((item): item is PlaylistRef => item.kind === 'playlist')
+  const typedArtists = firstByKind.artists.items.filter((item): item is ArtistRef => item.kind === 'artist')
+  const typedAlbums = firstByKind.albums.items.filter((item): item is AlbumRef => item.kind === 'album')
+  const typedSongs = firstByKind.songs.items.filter((item): item is TrackRef => item.kind === 'track')
+  const stations: StationRef[] = []
+  const status: Record<NavigationLibraryCollection, NavigationLibraryCollectionStatus> = {
+    playlists: { loaded: typedPlaylists.length, state: playlistsPage.next === null ? 'complete' : 'loading' },
+    artists: { loaded: typedArtists.length, state: artistsPage.next === null ? 'complete' : 'loading' },
+    albums: { loaded: typedAlbums.length, state: albumsPage.next === null ? 'complete' : 'loading' },
+    songs: { loaded: typedSongs.length, state: songsPage.next === null ? 'complete' : 'loading' },
+  }
+  let revision = 0
+  const sourceListeners = new Set<() => void>()
+  const notify = (): void => { revision += 1; for (const listener of sourceListeners) listener() }
+  const knownTracks = new Map<LocalKey, TrackRef>()
+  const remember = (tracks: readonly TrackRef[]): readonly TrackRef[] => {
+    for (const track of tracks) {
+      knownTracks.delete(track.key)
+      knownTracks.set(track.key, track)
+      while (knownTracks.size > 256) {
+        const oldest = knownTracks.keys().next().value
+        if (oldest === undefined) break
+        knownTracks.delete(oldest)
+      }
+    }
+    return tracks
+  }
   const album = (key: LocalKey): AlbumRef | undefined => typedAlbums.find((item) => item.key === key); const artist = (key: LocalKey): ArtistRef | undefined => typedArtists.find((item) => item.key === key); const playlist = (key: LocalKey): PlaylistRef | undefined => typedPlaylists.find((item) => item.key === key)
-  return {
+  const source: NavigationDataSource = {
     albums: typedAlbums, artists: typedArtists, genres: [] satisfies readonly GenreRef[], playlists: typedPlaylists, songs: typedSongs, stations,
+    get libraryStatus() { return status },
+    subscribe(listener) { sourceListeners.add(listener); return () => { sourceListeners.delete(listener) } },
+    getRevision: () => revision,
     rememberTracks: (tracks) => { remember(tracks) }, trackByKey: (key) => knownTracks.get(key) ?? null,
-    tracksForAlbum: async (key) => { const ref = album(key); return ref === undefined ? [] : remember(await provider.relatedTracks(ref)) },
-    tracksForPlaylist: async (key) => { const ref = playlist(key); return ref === undefined ? [] : remember(await provider.relatedTracks(ref)) },
-    albumsForArtist: async (key) => { const ref = artist(key); return ref === undefined ? [] : provider.relatedAlbums(ref) },
+    tracksForAlbum: async (key, options) => { const ref = album(key); if (ref === undefined || navigationLoadAborted(options)) return []; const tracks = await provider.relatedTracks(ref); return navigationLoadAborted(options) ? [] : remember(tracks) },
+    tracksForPlaylist: async (key, options) => { const ref = playlist(key); if (ref === undefined || navigationLoadAborted(options)) return []; const tracks = await provider.relatedTracks(ref); return navigationLoadAborted(options) ? [] : remember(tracks) },
+    albumsForArtist: async (key, options) => { const ref = artist(key); if (ref === undefined || navigationLoadAborted(options)) return []; const albums = await provider.relatedAlbums(ref); return navigationLoadAborted(options) ? [] : albums },
     albumsForGenre: () => [], artistsForGenre: () => [], tracksForGenre: () => [],
   }
+  const collections: Record<NavigationLibraryCollection, Entity[]> = { playlists: typedPlaylists, artists: typedArtists, albums: typedAlbums, songs: typedSongs }
+  const drain = async (kind: NavigationLibraryCollection): Promise<void> => {
+    let cursor = firstByKind[kind].next
+    let pages = 1
+    try {
+      while (cursor !== null && isCurrent()) {
+        await new Promise<void>((resolve) => globalThis.setTimeout(resolve, 0))
+        const page = await provider.libraryList(kind, cursor)
+        if (!isCurrent()) return
+        const expectedKind = kind === 'songs' ? 'track' : kind.slice(0, -1)
+        collections[kind].push(...page.items.filter((item) => item.kind === expectedKind))
+        cursor = page.next
+        pages += 1
+        if (pages > 1_000) throw new Error('Apple Music pagination did not terminate')
+        status[kind] = { loaded: collections[kind].length, state: cursor === null ? 'complete' : 'loading' }
+        notify()
+      }
+    } catch {
+      if (!isCurrent()) return
+      status[kind] = { loaded: collections[kind].length, state: 'error' }
+      notify()
+      console.warn(`Apple Music ${kind} sync stopped before completion`)
+    }
+  }
+  const loadStations = async (): Promise<void> => {
+    try {
+      const loaded = await provider.stationsList()
+      if (!isCurrent()) return
+      stations.push(...loaded)
+      notify()
+    } catch {
+      // Stations are optional and must not delay or invalidate the user's library.
+    }
+  }
+  // MusicKit does not expose Fetch priority. Run speculative pagination one
+  // collection at a time and yield between pages so relationship/navigation
+  // work triggered by a person can enter the SDK queue first.
+  const completion = (async () => {
+    void loadStations()
+    for (const kind of kinds) await drain(kind)
+  })()
+  return { source, completion }
 }
 
-/** Selects the real provider only when explicitly requested; every failure returns to deterministic fixture data. */
+/** Selects the production Apple Music runtime. */
 export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> {
   const selectedOperation = ++operation
-  if (mode === 'fixture') { publish(fixtureSnapshot); return }
+  void mode
   const provider = appleProvider ?? createAppleProvider(appleProviderOptions()); appleProvider = provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
     await provider.configure()
     if (selectedOperation !== operation) return
     if (provider.session === null) { publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null }); return }
-    const source = await appleSource(provider); if (selectedOperation !== operation) return
+    const { source, completion } = await createProgressiveAppleSource(provider, () => selectedOperation === operation); if (selectedOperation !== operation) return
     publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null })
+    void completion
   } catch (cause) {
     if (selectedOperation !== operation) return
-    publish({ ...fixtureSnapshot, requestedMode: 'apple', phase: 'error', message: failureMessage('library loading', cause) })
+    const message = failureMessage('library loading', cause)
+    try {
+      await quiesceMusicProvider(provider)
+    } catch (pauseCause) {
+      if (selectedOperation === operation) publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message: failureMessage('runtime switch', pauseCause) })
+      return
+    }
+    if (selectedOperation === operation) publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message })
   }
 }
 
@@ -124,8 +202,9 @@ export async function authorizeAppleRuntime(): Promise<void> {
     }
     if (selectedOperation !== operation) return
     try {
-      const source = await appleSource(provider); if (selectedOperation !== operation) return
+      const { source, completion } = await createProgressiveAppleSource(provider, () => selectedOperation === operation); if (selectedOperation !== operation) return
       publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null })
+      void completion
     } catch (cause) {
       if (selectedOperation !== operation) return
       publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message: failureMessage('library loading', cause) })

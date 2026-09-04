@@ -30,6 +30,10 @@ import {
   screenSnapshotAtom,
   screenStackAtom,
   interactionFeedbackAtom,
+  nowPlayingModeAtom,
+  nowPlayingVolumeFeedbackAtom,
+  nowPlayingWheelControlAtom,
+  nowPlayingWheelIntentAtom,
   visibleRowsAtom,
 } from './contract'
 import type { PanelRow, ScreenFrame } from './contract'
@@ -37,8 +41,14 @@ import { MENU_ROOT, menuFrame } from './menu'
 import {
   acceptedExternalPressActionAtom,
   createDeviceStore,
+  detentActionAtom,
   deviceStore,
+  dismissNowPlayingVolumeFeedbackActionAtom,
+  NOW_PLAYING_VOLUME_FEEDBACK_DWELL_MS,
   setDensityActionAtom,
+  setNowPlayingModeActionAtom,
+  setNowPlayingWheelControlActionAtom,
+  startNowPlayingVolumeFeedback,
   moveHighlightActionAtom,
   popScreenActionAtom,
   pressActionAtom,
@@ -237,7 +247,7 @@ describe('actions', () => {
     expect(store.get(currentScreenAtom)?.screenId).toBe('S08')
   })
 
-  test('Center is declined by the machine, for the layer holding the data', () => {
+  test('Center is delegated to the data layer and Menu first resets a Now Playing sub-mode', () => {
     const store = createDeviceStore()
     const outcome = store.set(pressActionAtom, {
       button: 'center',
@@ -246,6 +256,17 @@ describe('actions', () => {
 
     expect(outcome.handled).toBe(false)
     expect(store.get(screenStackAtom)).toHaveLength(1)
+
+    const frame: ScreenFrame = { screenId: 'S13', title: 'Now Playing', density: 'medium', rows: [], highlightIndex: -1, windowStart: 0, route: { kind: 'now-playing' } }
+    store.set(pushScreenActionAtom, frame)
+    const currentFrame = store.get(currentScreenAtom)
+    if (currentFrame === null) throw new Error('Now Playing frame missing')
+    store.set(setNowPlayingModeActionAtom, { frame: currentFrame, mode: 'queue', scrub: 'clean', scrubRevision: 0, queue: 'clean' })
+    expect(store.set(pressActionAtom, { button: 'menu', source: 'human' }).handled).toBe(true)
+    expect(store.get(currentScreenAtom)).toBe(currentFrame)
+    expect(store.get(nowPlayingModeAtom).mode).toBe('standard')
+    store.set(pressActionAtom, { button: 'menu', source: 'human' })
+    expect(store.get(currentScreenAtom)?.screenId).toBe('S03')
   })
 
   test('an agent press is silent; a human press clicks', () => {
@@ -302,6 +323,142 @@ describe('actions', () => {
       clickerTicks: 1,
       actor: 'human:key',
     })
+  })
+
+  test('Now Playing accepts wheel movement through bounded shared control state', () => {
+    const store = createDeviceStore({ initialStack: [{
+      screenId: 'S13',
+      title: 'Now Playing',
+      route: { kind: 'now-playing' },
+      density: 'medium',
+      rows: [],
+      highlightIndex: -1,
+      windowStart: 0,
+    }] })
+    store.set(setNowPlayingWheelControlActionAtom, {
+      kind: 'volume', value: 98, minimum: 0, maximum: 100, step: 2,
+    })
+
+    const accepted = store.set(detentActionAtom, {
+      path: 'direct', source: 'human', detents: 4, timestampMs: 1,
+    })
+    expect(accepted).toMatchObject({ detents: 1, rowDelta: 1, clickerTicks: 1 })
+    expect(store.get(nowPlayingWheelControlAtom)).toMatchObject({ kind: 'volume', value: 100 })
+    expect(store.get(nowPlayingWheelIntentAtom)).toMatchObject({ kind: 'volume', value: 100, delta: 2, seq: 1 })
+
+    const rejected = store.set(detentActionAtom, {
+      path: 'direct', source: 'human', detents: 1, timestampMs: 2,
+    })
+    expect(rejected).toMatchObject({ detents: 0, rowDelta: 0, clickerTicks: 0 })
+    expect(store.get(nowPlayingWheelIntentAtom)?.seq).toBe(1)
+  })
+
+  test('human volume movement owns one race-safe 1500ms feedback dwell', () => {
+    let now = 0
+    let nextHandle = 0
+    const callbacks = new Map<number, () => void>()
+    const active = new Set<number>()
+    const store = createDeviceStore({
+      initialStack: [{
+        screenId: 'S13',
+        title: 'Now Playing',
+        route: { kind: 'now-playing' },
+        density: 'medium',
+        rows: [],
+        highlightIndex: -1,
+        windowStart: 0,
+      }],
+      now: () => now,
+    })
+    const stop = startNowPlayingVolumeFeedback(store, {
+      setTimer(callback) {
+        nextHandle += 1
+        const handle = nextHandle
+        callbacks.set(handle, () => {
+          active.delete(handle)
+          callback()
+        })
+        active.add(handle)
+        return handle
+      },
+      clearTimer(handle) {
+        if (typeof handle === 'number') active.delete(handle)
+      },
+    })
+    store.set(setNowPlayingWheelControlActionAtom, {
+      kind: 'volume', value: 50, minimum: 0, maximum: 100, step: 2,
+    })
+
+    store.set(detentActionAtom, {
+      path: 'direct', source: 'human', detents: 1, timestampMs: 0,
+    })
+    expect(store.get(nowPlayingVolumeFeedbackAtom)).toMatchObject({
+      visibility: 'visible', value: 52, revision: 1, dueAtMs: NOW_PLAYING_VOLUME_FEEDBACK_DWELL_MS,
+    })
+    const staleCallback = callbacks.get(1)
+    if (staleCallback === undefined) throw new Error('Initial volume timer was not armed')
+
+    now = 1_499
+    staleCallback()
+    expect(store.get(nowPlayingVolumeFeedbackAtom).visibility).toBe('visible')
+
+    store.set(detentActionAtom, {
+      path: 'direct', source: 'human', detents: 1, timestampMs: 1_499,
+    })
+    expect(store.get(nowPlayingVolumeFeedbackAtom)).toMatchObject({
+      visibility: 'visible', value: 54, revision: 2, dueAtMs: 2_999,
+    })
+
+    now = 1_600
+    staleCallback()
+    expect(store.get(nowPlayingVolumeFeedbackAtom).visibility).toBe('visible')
+
+    const currentHandle = Math.max(...active)
+    const currentCallback = callbacks.get(currentHandle)
+    if (currentCallback === undefined) throw new Error('Replacement volume timer was not armed')
+    now = 2_999
+    currentCallback()
+    expect(store.get(nowPlayingVolumeFeedbackAtom).visibility).toBe('hidden')
+    stop()
+  })
+
+  test('programmatic changes do not summon or extend human volume feedback', () => {
+    let now = 50
+    const store = createDeviceStore({
+      initialStack: [{
+        screenId: 'S13', title: 'Now Playing', route: { kind: 'now-playing' },
+        density: 'medium', rows: [], highlightIndex: -1, windowStart: 0,
+      }],
+      now: () => now,
+    })
+    store.set(setNowPlayingWheelControlActionAtom, {
+      kind: 'volume', value: 98, minimum: 0, maximum: 100, step: 2, occurrenceIdentity: 'track:0',
+    })
+    store.set(detentActionAtom, {
+      path: 'direct', source: 'agent', detents: -1, timestampMs: 1,
+    })
+    expect(store.get(nowPlayingVolumeFeedbackAtom).visibility).toBe('hidden')
+
+    store.set(detentActionAtom, {
+      path: 'direct', source: 'human', detents: 1, timestampMs: 2,
+    })
+    const shown = store.get(nowPlayingVolumeFeedbackAtom)
+    expect(shown).toMatchObject({ visibility: 'visible', value: 98, dueAtMs: 1_550 })
+    now = 80
+    store.set(setNowPlayingWheelControlActionAtom, {
+      kind: 'volume', value: 64, minimum: 0, maximum: 100, step: 2, occurrenceIdentity: 'track:0',
+    })
+    expect(store.get(nowPlayingVolumeFeedbackAtom)).toMatchObject({
+      visibility: 'visible', value: 64, dueAtMs: 1_550,
+    })
+
+    store.set(setNowPlayingWheelControlActionAtom, {
+      kind: 'volume', value: 64, minimum: 0, maximum: 100, step: 2, occurrenceIdentity: 'track:1',
+    })
+    expect(store.get(nowPlayingVolumeFeedbackAtom).visibility).toBe('hidden')
+
+    store.set(dismissNowPlayingVolumeFeedbackActionAtom)
+    expect(store.get(nowPlayingVolumeFeedbackAtom).visibility).toBe('hidden')
   })
 
   test('a custom initial stack replaces the default main menu', () => {

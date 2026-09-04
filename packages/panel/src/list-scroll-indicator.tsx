@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react'
 /** Fixed Aqua well travel in authored panel pixels (183px pane minus 4px insets). */
 export const LIST_SCROLL_TRACK_SIZE_PX = 175
 
-/** Smallest thumb that remains legible in the six-pixel Aqua well. */
+/** Smallest thumb that remains legible in the five-pixel Aqua trough. */
 export const LIST_SCROLL_MINIMUM_THUMB_SIZE_PX = 5
 
 /** Effective thumb geometry after row-window and minimum-size clamping. */
@@ -38,7 +38,7 @@ export function listScrollGeometry(
 }
 
 /**
- * Renders the panel-owned Aqua scroll well for an authoritative row window.
+ * Renders the panel-owned, five-pixel Aqua scroll trough for an authoritative row window.
  *
  * The component has no local state: changing any of the three row-window
  * inputs immediately recomputes both the effective (minimum-clamped) thumb

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>webPod playback fidelity source/candidate board</title>
+<style>
+  * { box-sizing: border-box; }
+  body { width: 1800px; margin: 0; padding: 44px; background: #10151d; color: #e9eef6; font: 20px/1.4 -apple-system, BlinkMacSystemFont, sans-serif; }
+  h1 { margin: 0 0 8px; font-size: 34px; }
+  h2 { margin: 38px 0 16px; font-size: 26px; }
+  p { margin: 0 0 26px; color: #aeb9c8; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  figure { margin: 0; padding: 18px; border: 1px solid #334154; background: #18212d; }
+  figcaption { margin-bottom: 12px; color: #d7dfeb; font-weight: 700; }
+  .lcd { display: block; width: auto; height: 408px; max-width: 100%; margin: auto; object-fit: contain; }
+  .strip { min-height: 150px; display: flex; align-items: center; overflow: hidden; background: #dfe2e5; }
+  .candidate-strip { width: auto; height: 136px; max-width: none; image-rendering: pixelated; }
+  .source-strip { width: auto; height: 116px; max-width: none; image-rendering: pixelated; }
+  .note { margin-top: 10px; color: #91a1b5; font-size: 16px; }
+  .wide { grid-column: 1 / -1; }
+</style>
+<body>
+  <h1>Playback fidelity — final source/candidate board</h1>
+  <p>Physical-reference and candidate LCDs use the same 408px display height. Aqua close-ups normalize the outer trough to 28 raster pixels once and show it at 4× nearest-neighbor scale.</p>
+  <div class="grid">
+    <figure><figcaption>Physical source — IMG_2280 determinate</figcaption><img class="lcd" src="reference-IMG_2280-lcd.png" alt="Photographed determinate playback LCD"><div class="note">Determinate well, crisp endpoint, fixed upper layout.</div></figure>
+    <figure><figcaption>Candidate — determinate 35%</figcaption><img class="lcd" src="progress-dark-35.png" alt="Candidate determinate playback LCD"><div class="note">236×14 outer, 234×12 channel at x18/y153.</div></figure>
+    <figure><figcaption>Physical source — IMG_2281 volume</figcaption><img class="lcd" src="reference-IMG_2281-lcd.png" alt="Photographed volume LCD"><div class="note">Whole lower-row replacement between speaker glyphs.</div></figure>
+    <figure><figcaption>Candidate — volume 50</figcaption><img class="lcd" src="volume-dark-50.png" alt="Candidate volume LCD"><div class="note">202×14 outer, 200×12 channel; no fill-width transition.</div></figure>
+  </div>
+  <h2>Equal-height Aqua material</h2>
+  <div class="grid">
+    <figure><figcaption>Primary Aqua source — determinate</figcaption><div class="strip"><img class="source-strip" src="reference-owner-aqua-progress-normalized.png" alt="Aqua source determinate bar"></div></figure>
+    <figure><figcaption>Candidate — determinate 35% with empty channel</figcaption><div class="strip"><img class="candidate-strip" src="candidate-progress-35-closeup.png" alt="Candidate determinate bar"></div></figure>
+    <figure><figcaption>Primary Aqua source — striped</figcaption><div class="strip"><img class="source-strip" src="reference-owner-aqua-loading-normalized.png" alt="Aqua source striped bar"></div></figure>
+    <figure><figcaption>Candidate — loading t0</figcaption><div class="strip"><img class="candidate-strip" src="candidate-loading-closeup.png" alt="Candidate loading bar"></div></figure>
+    <figure class="wide"><figcaption>Candidate — empty channel / 100% fill / volume 50</figcaption><div class="strip"><img class="candidate-strip" src="candidate-progress-0-closeup.png" alt="Candidate empty well"><img class="candidate-strip" src="candidate-progress-100-closeup.png" alt="Candidate full progress"><img class="candidate-strip" src="candidate-volume-50-closeup.png" alt="Candidate half volume"></div><div class="note">All states share the same 28px outer / 24px nominal channel raster cross-section, molded asymmetrical lip, recessed seam, concave neutral channel, and detached cast shadow.</div></figure>
+  </div>
+</body>
+</html>

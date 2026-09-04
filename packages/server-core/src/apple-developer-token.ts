@@ -1,7 +1,8 @@
+import { readFile } from 'node:fs/promises'
 import { basename, isAbsolute } from 'node:path'
 
 export const APPLE_DEVELOPER_TOKEN_PATH = '/api/apple/developer-token' as const
-export const APPLE_DEFAULT_TOKEN_TTL_SECONDS = 900
+export const APPLE_DEFAULT_TOKEN_TTL_SECONDS = 3_600
 export const APPLE_MAX_LOCAL_TOKEN_TTL_SECONDS = 3_600
 
 export type AppleTokenErrorCode =
@@ -90,11 +91,27 @@ export async function mintAppleDeveloperToken(options: {
   }
 }
 
+/**
+ * Signs an Apple developer-token input with a server-held MusicKit private key.
+ *
+ * @remarks
+ * This signer is server-only and requires a Node/Bun runtime with Node filesystem
+ * APIs and Web Crypto. `keyPath` must be the absolute runtime path supplied by
+ * `APPLE_MUSICKIT_KEY_PATH`; it must identify a PEM-encoded PKCS#8 P-256 private
+ * key. The implementation does not log the input, path, key material, or signature.
+ *
+ * @param input - Exact UTF-8 JWT `header.payload` bytes to sign with ES256.
+ * @param keyPath - Absolute runtime path to the server-held PKCS#8 PEM key.
+ * @returns The 64-byte JOSE/IEEE-P1363 `r || s` signature required by ES256 JWTs.
+ * @throws {@link AppleTokenError} with `key_unavailable` for filesystem, PEM,
+ * key-import, or signing failures; secret error details are retained only as the
+ * error cause and are never included in the token endpoint response.
+ */
 export const webCryptoAppleTokenSigner: AppleTokenSigner = {
   async sign(input, keyPath) {
     let der: Buffer | null = null
     try {
-      const pem = await Bun.file(keyPath).text()
+      const pem = await readFile(keyPath, 'utf8')
       const body = pem.replace(/-----BEGIN [^-]+-----/, '').replace(/-----END [^-]+-----/, '').replace(/\s+/g, '')
       if (body === '') throw new Error('empty PKCS#8 body')
       der = Buffer.from(body, 'base64')

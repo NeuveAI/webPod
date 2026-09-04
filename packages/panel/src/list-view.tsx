@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 
 import { ListScrollIndicator } from './list-scroll-indicator'
+import { OverflowMarquee } from './overflow-marquee'
 
 export const LIST_VIEWPORT_SIZE_PX = 183
 export const LIST_DEFAULT_VISIBLE_ROWS = 8
@@ -35,7 +36,7 @@ export function ListRow({ row, current, id }: { readonly row: ListRowContent; re
     >
       {current ? <i className="wp-selection-rim" aria-hidden="true" /> : null}
       {row.leading === undefined ? null : <span className="wp-list-row__leading">{row.leading}</span>}
-      <span className="wp-list-row__primary">{row.primary}</span>
+      <OverflowMarquee className="wp-list-row__primary" text={row.primary} active={current} />
       {row.secondary == null ? null : <small className="wp-list-row__secondary">{row.secondary}</small>}
       {row.count == null ? null : <span className="wp-list-row__count">{row.count}</span>}
       {row.status === undefined ? null : <span className="wp-list-row__status">{row.status}</span>}
@@ -69,15 +70,18 @@ export function ListViewport({
 }) {
   const capacity = Math.max(1, visibleRows)
   const visible = rows.slice(windowStart, windowStart + capacity)
+  const overflows = rows.length > capacity
   const style = { '--wp-list-visible-rows': capacity } as CSSProperties
   return (
     <div className="wp-list-view" data-layout={preview === undefined ? 'full' : 'split'} style={style}>
-      <div className="wp-list-viewport" data-list-viewport="true">
-        {message ?? (
-          <ol className="wp-list-rows" role="listbox" aria-label={label}>
-            {visible.map((row) => <ListRow key={row.index} row={row} current={row.index === highlightIndex} id={`${panelId}-row-${row.index}`} />)}
-          </ol>
-        )}
+      <div className="wp-list-body" data-overflow={overflows ? 'true' : undefined}>
+        <div className="wp-list-viewport" data-list-viewport="true">
+          {message ?? (
+            <ol className="wp-list-rows" role="listbox" aria-label={label}>
+              {visible.map((row) => <ListRow key={row.index} row={row} current={row.index === highlightIndex} id={`${panelId}-row-${row.index}`} />)}
+            </ol>
+          )}
+        </div>
         <ListScrollIndicator totalRows={rows.length} visibleRows={capacity} windowStart={windowStart} />
       </div>
       {preview === undefined ? null : <aside className="wp-list-preview">{preview}</aside>}

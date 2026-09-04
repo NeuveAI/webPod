@@ -185,6 +185,10 @@ export function createStubProvider(spec: StubProviderSpec): MusicProvider {
     },
 
     /** Not implemented. */
+    async prepare(): Promise<void> {
+      return gate('transport', 'prepare')
+    },
+    /** Not implemented. */
     async play(): Promise<void> {
       return gate('transport', 'play')
     },

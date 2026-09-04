@@ -43,6 +43,10 @@ import {
   densityOverrideStateAtom,
   dynamicTypeScaleStateAtom,
   interactionFeedbackStateAtom,
+  nowPlayingModeStateAtom,
+  nowPlayingVolumeFeedbackStateAtom,
+  nowPlayingWheelControlStateAtom,
+  nowPlayingWheelIntentStateAtom,
 } from './internal'
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -366,6 +370,60 @@ export type NavigationIntent = {
 
 /** Latest semantic navigation request, or `null` before the first request. */
 export const navigationIntentAtom: PrimitiveAtom<NavigationIntent | null> = atom<NavigationIntent | null>(null)
+
+/** The display and in-flight Center action currently owned by Now Playing. */
+export type NowPlayingMode = 'standard' | 'scrub' | 'artwork' | 'queue'
+export type NowPlayingScrubState = 'clean' | 'previewing' | 'committing'
+export type NowPlayingQueueState = 'clean' | 'selecting'
+export interface NowPlayingModeState {
+  readonly frame: ScreenFrame | null
+  readonly mode: NowPlayingMode
+  readonly scrub: NowPlayingScrubState
+  readonly scrubRevision: number
+  readonly queue: NowPlayingQueueState
+}
+
+/** A bounded provider control currently owned by the Now Playing wheel. */
+export type NowPlayingWheelControl = {
+  readonly kind: 'volume' | 'scrub' | 'queue'
+  readonly value: number
+  readonly minimum: number
+  readonly maximum: number
+  readonly step: number
+  /** Provider queue occurrence currently represented by a volume control. */
+  readonly occurrenceIdentity?: string
+}
+
+/** One accepted, provider-neutral wheel target published by the state machine. */
+export type NowPlayingWheelIntent = NowPlayingWheelControl & {
+  readonly seq: number
+  readonly delta: number
+}
+
+/**
+ * Transient, human-origin volume feedback for the standard Now Playing view.
+ *
+ * `revision` distinguishes identical consecutive values, while `dueAtMs` uses
+ * the device clock so the timer driver and accepted-detent reducer cannot
+ * disagree about when the current dwell expires.
+ */
+export type NowPlayingVolumeFeedbackState =
+  | {
+      readonly visibility: 'hidden'
+      readonly frame: null
+      readonly occurrenceIdentity: null
+      readonly value: number
+      readonly revision: number
+      readonly dueAtMs: null
+    }
+  | {
+      readonly visibility: 'visible'
+      readonly frame: ScreenFrame
+      readonly occurrenceIdentity: string | null
+      readonly value: number
+      readonly revision: number
+      readonly dueAtMs: number
+    }
 
 /**
  * The complete, enumerable description of what is on the screen.
@@ -963,7 +1021,7 @@ export type CoastStepFn = (
 export type PressButton = 'center' | 'menu' | 'next' | 'previous'
 
 /** A provider-owned physical press whose semantic action is accepted above state. */
-export type ExternalPressButton = 'play-pause'
+export type ExternalPressButton = 'play-pause' | 'next' | 'previous'
 
 /** Every physical control name that may appear in interaction feedback. */
 export type InteractionPressButton = PressButton | ExternalPressButton
@@ -982,7 +1040,7 @@ export type PressInput = {
  * Confirmation from the layer that owns an external control's semantic action.
  *
  * Playback does not belong to the screen-stack machine, so state cannot decide
- * whether Play/Pause succeeded. The provider-owning layer publishes this only
+ * whether a provider-owned transport action succeeded. The provider-owning layer publishes this only
  * after the operation resolves successfully; rejected/no-op operations never
  * enter the interaction-feedback stream.
  */
@@ -1529,6 +1587,21 @@ export const liveRegionAtom: PrimitiveAtom<Announcement | null> = atom<Announcem
  */
 export const interactionFeedbackAtom: Atom<InteractionFeedbackEvent | null> =
   interactionFeedbackStateAtom
+
+/** Current Now Playing display state, read-only outside state actions. */
+export const nowPlayingModeAtom: Atom<NowPlayingModeState> = nowPlayingModeStateAtom
+
+/** Current Now Playing wheel bounds, read-only outside the state package. */
+export const nowPlayingWheelControlAtom: Atom<NowPlayingWheelControl | null> =
+  nowPlayingWheelControlStateAtom
+
+/** Latest accepted Now Playing wheel target, read-only outside state actions. */
+export const nowPlayingWheelIntentAtom: Atom<NowPlayingWheelIntent | null> =
+  nowPlayingWheelIntentStateAtom
+
+/** Human volume feedback, read-only outside state-owned transitions. */
+export const nowPlayingVolumeFeedbackAtom: Atom<NowPlayingVolumeFeedbackState> =
+  nowPlayingVolumeFeedbackStateAtom
 
 /* ── Derived atoms ───────────────────────────────────────────────────────── */
 

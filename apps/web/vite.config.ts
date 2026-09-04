@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { isAbsolute, resolve } from 'node:path'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import tailwindcss from '@tailwindcss/vite'
 import viteReact from '@vitejs/plugin-react'
@@ -9,6 +9,36 @@ import {
   BROWSER_SOURCE_METADATA_FILE,
   fingerprintBrowserSources,
 } from '../../scripts/browser-source-fingerprint.ts'
+
+const APPLE_SERVER_ENV_NAMES = [
+  'APPLE_TEAM_ID',
+  'APPLE_MUSICKIT_KEY_ID',
+  'APPLE_MUSICKIT_KEY_PATH',
+  'APPLE_TOKEN_TTL_SECONDS',
+] as const
+
+type AppleServerEnvName = (typeof APPLE_SERVER_ENV_NAMES)[number]
+
+export function normalizeAppleServerEnv(
+  workspaceRoot: string,
+  fileEnv: Readonly<Record<string, string | undefined>>,
+  runtimeEnv: Readonly<Record<string, string | undefined>>,
+): Partial<Record<AppleServerEnvName, string>> {
+  const normalized: Partial<Record<AppleServerEnvName, string>> = {}
+  for (const name of APPLE_SERVER_ENV_NAMES) {
+    const value = runtimeEnv[name] ?? fileEnv[name]
+    if (value === undefined) continue
+    if (name !== 'APPLE_MUSICKIT_KEY_PATH') {
+      normalized[name] = value
+      continue
+    }
+    const trimmed = value.trim()
+    normalized[name] = trimmed === '' || isAbsolute(trimmed)
+      ? trimmed
+      : resolve(workspaceRoot, trimmed)
+  }
+  return normalized
+}
 
 function sourceIdentityHealth(): Plugin {
   return {
@@ -52,14 +82,10 @@ function sourceIdentityHealth(): Plugin {
 export default defineConfig(({ mode }) => {
   const workspaceRoot = resolve(import.meta.dirname, '..', '..')
   const appleServerEnv = loadEnv(mode, workspaceRoot, 'APPLE_')
-  for (const name of [
-    'APPLE_TEAM_ID',
-    'APPLE_MUSICKIT_KEY_ID',
-    'APPLE_MUSICKIT_KEY_PATH',
-    'APPLE_TOKEN_TTL_SECONDS',
-  ] as const) {
-    const value = appleServerEnv[name]
-    if (process.env[name] === undefined && value !== undefined) process.env[name] = value
+  const runtimeAppleEnv = normalizeAppleServerEnv(workspaceRoot, appleServerEnv, process.env)
+  for (const name of APPLE_SERVER_ENV_NAMES) {
+    const value = runtimeAppleEnv[name]
+    if (value !== undefined) process.env[name] = value
   }
 
   return {

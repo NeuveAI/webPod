@@ -2,7 +2,7 @@
 
 Do not paste secret values into a terminal command that will be shared or captured. Keep the existing key file private.
 
-1. In a private local shell, export `APPLE_TEAM_ID`, `APPLE_MUSICKIT_KEY_ID`, and `APPLE_MUSICKIT_KEY_PATH`. The key path must be absolute. Optionally set `APPLE_TOKEN_TTL_SECONDS` from 60 through 3600; the default is 900.
+1. In a private local shell, export `APPLE_TEAM_ID`, `APPLE_MUSICKIT_KEY_ID`, and `APPLE_MUSICKIT_KEY_PATH`. An absolute key path is accepted directly; a relative key path is resolved from the repository root during local server bootstrap. Optionally set `APPLE_TOKEN_TTL_SECONDS` from 60 through 3600; the default is 900.
 2. Run `bun run dev` from the repository root and use the exact registered MusicKit web origin (normally `http://localhost:3000`).
 3. Open `http://localhost:3000/_spike/device?provider=apple`. The query override wins over the build default and shows the signed-out Apple state.
 4. Select **Sign in to Apple Music**. Authorization is invoked only by this user gesture. Confirm the UI reaches the authorized state, then exercise playlists, artists, albums and songs through the normal click-wheel navigation. Start playback and confirm the production transport controls drive MusicKit.

@@ -54,7 +54,7 @@ test('production list indication is absent at 8/8 and follows an overflowing son
   await expect(panel).toHaveAttribute('data-screen', 'S09')
   await settleCompositePaint(page)
 
-  const indicator = panel.locator('.wp-list-viewport > .wp-list-scroll')
+  const indicator = panel.locator('.wp-list-body > .wp-list-scroll')
   await expect(indicator).toHaveCount(1)
   await expect(panel.locator('.wp-list-preview .wp-list-scroll')).toHaveCount(0)
   await expect(indicator).toHaveAttribute('data-total-rows', '42')
@@ -64,7 +64,7 @@ test('production list indication is absent at 8/8 and follows an overflowing son
   const blackFirst = await captureSelectedRow(stage, panel, 'black', 'first', 0)
   const startLayers = await captureIndicatorLayers(indicator, 'start')
   const darkVisual = await measureIndicator(indicator)
-  expect(darkVisual.trackWidth).toBe(6)
+  expect(darkVisual.trackWidth).toBe(5)
   expect(darkVisual.thumbRatio).toBeCloseTo(8 / 42, 2)
   expect(darkVisual.trailingInset).toBeGreaterThanOrEqual(0)
   expect(darkVisual.trailingInset).toBeLessThanOrEqual(2.5)
@@ -207,10 +207,10 @@ async function captureIndicatorLayers(indicator: Locator, position: 'start' | 'm
     host.id = proofId
     host.className = 'wp-panel'
     host.dataset['colourway'] = panel.dataset['colourway']
-    host.style.cssText = 'position:fixed;left:0;top:0;width:6px;height:175px;transform:none;overflow:hidden;'
+    host.style.cssText = 'position:fixed;left:0;top:0;width:5px;height:175px;transform:none;overflow:hidden;'
     const proofTrack = document.createElement('span')
     proofTrack.className = 'wp-list-scroll'
-    proofTrack.style.cssText = 'position:absolute;inset:0;width:6px;height:175px;'
+    proofTrack.style.cssText = 'position:absolute;inset:0;width:5px;height:175px;'
     proofTrack.style.setProperty(
       '--wp-list-scroll-thumb-size',
       track.style.getPropertyValue('--wp-list-scroll-thumb-size'),
@@ -297,10 +297,10 @@ async function measureTenThousandRowEnd(indicator: Locator) {
     const host = document.createElement('div')
     host.className = 'wp-panel'
     host.dataset['colourway'] = panel.dataset['colourway']
-    host.style.cssText = 'position:fixed;left:8px;top:8px;width:6px;height:175px;transform:none;overflow:hidden;'
+    host.style.cssText = 'position:fixed;left:8px;top:8px;width:5px;height:175px;transform:none;overflow:hidden;'
     const track = document.createElement('span')
     track.className = 'wp-list-scroll'
-    track.style.cssText = 'position:absolute;inset:0;width:6px;height:175px;--wp-list-scroll-thumb-size:5px;--wp-list-scroll-thumb-offset:170px;'
+    track.style.cssText = 'position:absolute;inset:0;width:5px;height:175px;--wp-list-scroll-thumb-size:5px;--wp-list-scroll-thumb-offset:170px;'
     const well = document.createElement('i')
     well.className = 'wp-list-scroll__well'
     const thumb = document.createElement('i')

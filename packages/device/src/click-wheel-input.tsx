@@ -102,14 +102,8 @@ export const CLICK_WHEEL_INPUT_POSITION = Object.freeze([
   DEFAULT_FRONT_ASSEMBLY_DEPTHS.clickWheelInputZ,
 ] as const);
 
-/** Physical label-centre hit radius: 26 model px = 4.87mm. */
-export const CLICK_WHEEL_CARDINAL_HIT_RADIUS = 26;
-
-/** Pointer slop before a labelled press becomes an arc-only gesture. */
+/** Pointer slop before a cardinal tap becomes an arc-only gesture. */
 export const CLICK_WHEEL_CARDINAL_SLOP = 10;
-
-const CLICK_WHEEL_CARDINAL_RADIUS =
-  (DEVICE_LAYOUT.wheel.labelBandInnerR + DEVICE_LAYOUT.wheel.labelBandOuterR) / 2;
 
 type WheelLocalPoint = {
   readonly x: number;
@@ -126,24 +120,26 @@ type CardinalCandidate = {
   readonly startY: number;
 };
 
-/** Maps the four printed label centres to their physical button semantics. */
+/**
+ * Maps every point in the visible annulus to one deterministic 90° sector.
+ * Center owns the inner boundary; the four diagonal boundaries are half-open
+ * and belong clockwise to Bottom, Left, Top, and Right respectively.
+ */
 export function cardinalButtonAtWheelPoint(
   x: number,
   y: number,
 ): ClickWheelCardinalButton | null {
-  const targets = [
-    { button: "menu" as const, x: 0, y: CLICK_WHEEL_CARDINAL_RADIUS },
-    { button: "next" as const, x: CLICK_WHEEL_CARDINAL_RADIUS, y: 0 },
-    { button: "play-pause" as const, x: 0, y: -CLICK_WHEEL_CARDINAL_RADIUS },
-    { button: "previous" as const, x: -CLICK_WHEEL_CARDINAL_RADIUS, y: 0 },
-  ];
-  const limitSquared = CLICK_WHEEL_CARDINAL_HIT_RADIUS ** 2;
-  for (const target of targets) {
-    if ((x - target.x) ** 2 + (y - target.y) ** 2 <= limitSquared) {
-      return target.button;
-    }
-  }
-  return null;
+  const radius = Math.hypot(x, y);
+  if (
+    radius <= CLICK_WHEEL_INPUT_RADII.inner ||
+    radius > CLICK_WHEEL_INPUT_RADII.outer
+  ) return null;
+  const normalized = ((clockwiseWheelAngleDeg(x, y) % 360) + 360) % 360;
+  const angle = Math.round(normalized * 1_000_000_000) / 1_000_000_000;
+  if (angle >= 315 || angle < 45) return "next";
+  if (angle < 135) return "play-pause";
+  if (angle < 225) return "previous";
+  return "menu";
 }
 
 /** Resolve the ray plane from the same injectable solid form as the wheel. */
@@ -343,6 +339,8 @@ export function ClickWheelInputSurface({
   );
   const cardinalCandidateRef = useRef<CardinalCandidate | null>(null);
   const cardinalContactRef = useRef<CardinalCandidate | null>(null);
+  const rotationOriginRef = useRef<ClickWheelArcSample | null>(null);
+  const arcStartedRef = useRef(false);
   const callbacksRef = useRef({
     onArcStart,
     onArcMove,
@@ -419,6 +417,9 @@ export function ClickWheelInputSurface({
     const contact = cardinalContactRef.current;
     cardinalCandidateRef.current = null;
     cardinalContactRef.current = null;
+    rotationOriginRef.current = null;
+    const arcStarted = arcStartedRef.current;
+    arcStartedRef.current = false;
     const acceptedCardinal =
       reason === "release" &&
       candidate?.pointerId === pointerId &&
@@ -439,7 +440,7 @@ export function ClickWheelInputSurface({
       releaseCapture,
       (end) => {
         controlPhysics?.releaseWheel();
-        callbacksRef.current.onArcEnd(end);
+        if (arcStarted) callbacksRef.current.onArcEnd(end);
       },
     );
     if (ended && contact?.pointerId === pointerId) {
@@ -483,6 +484,9 @@ export function ClickWheelInputSurface({
       const contact = cardinalContactRef.current;
       cardinalCandidateRef.current = null;
       cardinalContactRef.current = null;
+      rotationOriginRef.current = null;
+      const arcStarted = arcStartedRef.current;
+      arcStartedRef.current = false;
       const ended = finishClickWheelCapture(
         captureSlotRef.current,
         active.pointerId,
@@ -491,7 +495,7 @@ export function ClickWheelInputSurface({
         true,
         (end) => {
           controlPhysics?.releaseWheel();
-          callbacksRef.current.onArcEnd(end);
+          if (arcStarted) callbacksRef.current.onArcEnd(end);
         },
       );
       if (ended && contact?.pointerId === active.pointerId) {
@@ -543,6 +547,10 @@ export function ClickWheelInputSurface({
     const first = sample(event, pointerType);
     const firstPoint = point(event);
     if (first === null || firstPoint === null) return;
+    // RingGeometry includes its inner edge in ray hits. The semantic contract
+    // gives that shared r=37 edge to Select, so let the coincident center hit
+    // continue through R3F instead of turning a mapper-null point into an arc.
+    if (firstPoint.radius <= CLICK_WHEEL_INPUT_RADII.inner) return;
 
     event.stopPropagation();
     capture.setPointerCapture(event.pointerId);
@@ -592,6 +600,8 @@ export function ClickWheelInputSurface({
             startY: firstPoint.y,
           };
     cardinalContactRef.current = cardinalCandidateRef.current;
+    rotationOriginRef.current = first;
+    arcStartedRef.current = cardinalButton === null;
     host.addEventListener("pointercancel", onCancel);
     host.addEventListener("lostpointercapture", onLostCapture);
     blurHost?.addEventListener("blur", onBlur);
@@ -605,7 +615,7 @@ export function ClickWheelInputSurface({
           timestampMs: event.timeStamp,
         });
       }
-      callbacksRef.current.onArcStart(first);
+      if (cardinalButton === null) callbacksRef.current.onArcStart(first);
     } catch (error) {
       cancelAfterCallbackError(event.pointerId, event.timeStamp, error);
     }
@@ -618,7 +628,7 @@ export function ClickWheelInputSurface({
     const next = sample(event, active.pointerType);
     const nextPoint = point(event);
     const candidate = cardinalCandidateRef.current;
-    if (
+    const cancelsCardinal =
       candidate?.pointerId === event.pointerId &&
       (nextPoint === null ||
         cardinalButtonAtWheelPoint(nextPoint.x, nextPoint.y) !==
@@ -626,13 +636,19 @@ export function ClickWheelInputSurface({
         Math.hypot(
           nextPoint.x - candidate.startX,
           nextPoint.y - candidate.startY,
-        ) > CLICK_WHEEL_CARDINAL_SLOP)
-    ) {
+        ) > CLICK_WHEEL_CARDINAL_SLOP);
+    if (cancelsCardinal) {
       cardinalCandidateRef.current = null;
     }
-    if (next !== null) {
+    if (next !== null && cardinalCandidateRef.current === null) {
       controlPhysics?.moveWheel(next.angleDeg);
       try {
+        if (!arcStartedRef.current) {
+          const origin = rotationOriginRef.current;
+          if (origin === null) return;
+          arcStartedRef.current = true;
+          callbacksRef.current.onArcStart(origin);
+        }
         callbacksRef.current.onArcMove(next);
       } catch (error) {
         cancelAfterCallbackError(event.pointerId, event.timeStamp, error);

@@ -113,6 +113,97 @@ function pixelValue(body: string, name: string): number {
   return Number(parsed)
 }
 
+function tokenNumber(body: string, name: string, unit: 'px' | 's' | 'deg'): number {
+  const value = property(body, name)
+  const parsed = value.match(new RegExp(`^([\\d.]+)${unit}$`))?.[1]
+  if (parsed === undefined) throw new Error(`Expected ${unit} token for ${name}: ${value}`)
+  return Number(parsed)
+}
+
+function srgbLuma(hex: string): number {
+  const [red = 0, green = 0, blue = 0] = rgb(hex)
+  return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue)
+}
+
+function aquaLoadingViolations(source: string): readonly string[] {
+  const tokens = ruleFrom(source, /(?:^|\n) {2}\.wp-panel \{([\s\S]*?)\n {2}\}/)
+  const progress = ruleFrom(source, /\.wp-progress \{([^}]*)\}/)
+  const pending = ruleFrom(source, /\.wp-progress--indeterminate::after \{([^}]*)\}/)
+  const keyframes = ruleFrom(source, /@keyframes wp-aqua-indeterminate \{([^}]*)\}/)
+  const violations: string[] = []
+  const radius = pixelValue(progress, 'border-radius')
+  const repeat = tokenNumber(tokens, '--wp-aqua-gradient-repeat', 'px')
+  const cycle = tokenNumber(tokens, '--wp-aqua-stripe-cycle', 'px')
+  const blueStop = tokenNumber(tokens, '--wp-aqua-blue-stop', 'px')
+  const angle = tokenNumber(tokens, '--wp-aqua-stripe-angle', 'deg')
+  const duration = tokenNumber(tokens, '--wp-motion-aqua-indeterminate-duration', 's')
+  const projectedRepeat = repeat / Math.sin(angle * Math.PI / 180)
+  const duty = blueStop / repeat
+  const blue = property(tokens, '--wp-aqua-blue')
+  const light = property(tokens, '--wp-aqua-light')
+  const [blueRed = 0, , blueBlue = 0] = rgb(blue)
+
+  if (radius !== 2) violations.push('track corners must use the authored asymmetric Aqua radius')
+  if (!progress.includes('padding: 1px') || !progress.includes('border: 0')) violations.push('track requires a one-pixel molded lip rather than a uniform border')
+  if (!progress.includes('var(--wp-aqua-well-material) content-box, var(--wp-aqua-lip-side-material) border-box, var(--wp-aqua-lip-material) border-box') || !progress.includes('background-clip: content-box, border-box, border-box')) violations.push('track requires independently graded lip and concave channel layers')
+  if (!pending.includes('inset-block: 1px') || !pending.includes('border-radius: 1.5px 1.5px .5px .5px')) violations.push('gel must remain contained inside the molded lip')
+  if (angle !== 45) violations.push('stripes must retain the reference diagonal')
+  if ((projectedRepeat / 14) < 1.45 || (projectedRepeat / 14) > 1.7) violations.push('projected repeat must match bar-height proportion')
+  if (Math.abs(projectedRepeat - cycle) > 0.02) violations.push('translation must equal one projected repeat')
+  if (duty < 0.4 || duty > 0.6) violations.push('blue and light stripe duty must stay balanced')
+  if (duration < 2.8 || duration > 3.6) violations.push('loop cadence must stay calm')
+  if (Math.abs(srgbLuma(light) - srgbLuma(blue)) < 80) violations.push('stripe luminance swing must remain legible')
+  if ((blueBlue - blueRed) < 95) violations.push('blue stripe must remain cobalt rather than cyan')
+  if (!pending.includes('var(--wp-aqua-cylinder-modulation)') || !pending.includes('background-blend-mode: normal, normal')) violations.push('both loading ribs require the shared cylindrical modulation')
+  if (!pending.includes('background-size: auto, var(--wp-aqua-stripe-cycle) 100%')) violations.push('ribs require an exact projected-repeat raster tile')
+  if (!pending.includes('box-shadow: var(--wp-aqua-fill-depth)')) violations.push('gel requires soft specular and diffuse depth')
+  if (pending.includes('filter:') || pending.includes('text-shadow:')) violations.push('gel cannot glow or bloom')
+  if (!keyframes.includes('background-position: 0 0, var(--wp-aqua-stripe-cycle) 0')) violations.push('keyframe must complete one exact rib phase')
+  if (!source.includes('.wp-panel .wp-progress--indeterminate::after { animation: none; background-position: 0 0, calc(var(--wp-aqua-stripe-cycle) / 2) 0; }')) violations.push('reduced motion must retain a frozen representative frame')
+  return violations
+}
+
+function aquaCylinderViolations(source: string): readonly string[] {
+  const tokens = ruleFrom(source, /(?:^|\n) {2}\.wp-panel \{([\s\S]*?)\n {2}\}/)
+  const progress = ruleFrom(source, /\.wp-progress \{([^}]*)\}/)
+  const volume = ruleFrom(source, /\.wp-volume-progress \{([^}]*)\}/)
+  const fill = ruleFrom(source, /\.wp-progress i,\n {2}\.wp-volume-progress i \{([^}]*)\}/)
+  const seam = ruleFrom(source, /\.wp-progress::before,\n {2}\.wp-volume-progress::before \{([^}]*)\}/)
+  const violations: string[] = []
+  const requiredStops = [
+    ['--wp-aqua-fill-top', '#d8e9fc'],
+    ['--wp-aqua-fill-upper', '#b2d3fa'],
+    ['--wp-aqua-fill-waist', '#69aaee'],
+    ['--wp-aqua-fill-lower', '#91c4f7'],
+    ['--wp-aqua-fill-bottom', '#c1e1fb'],
+  ] as const
+
+  if (requiredStops.some(([name, value]) => property(tokens, name) !== value)) {
+    violations.push('all five owner-authored cylinder colors are required')
+  }
+  const material = property(tokens, '--wp-aqua-fill-material')
+  for (const stop of ['0%', '22%', '52%', '78%', '100%']) {
+    if (!material.includes(stop)) violations.push('cylindrical fill requires the five authored stop positions')
+  }
+  if (!fill.includes('var(--wp-aqua-cylinder-modulation), var(--wp-aqua-fill-material)')) {
+    violations.push('progress and volume must share one cylindrical material')
+  }
+  for (const well of [progress, volume]) {
+    if (!well.includes('padding: 1px') || !well.includes('border: 0')) violations.push('well must reserve a molded lip without a uniform border')
+    if (!well.includes('background: var(--wp-aqua-well-material) content-box, var(--wp-aqua-lip-side-material) border-box, var(--wp-aqua-lip-material) border-box')) violations.push('well must use separate concave channel and perimeter materials')
+    if (!well.includes('background-clip: content-box, border-box, border-box')) violations.push('well layers must remain spatially separated')
+    if (!well.includes('box-shadow: var(--wp-aqua-trough-cast)')) violations.push('well must cast a soft exterior shadow')
+  }
+  if (!seam.includes('box-shadow: var(--wp-aqua-trough-seam)')) violations.push('well requires position-dependent lip and inner seam shading')
+  if (!property(tokens, '--wp-aqua-lip-material').includes('linear-gradient(180deg')) violations.push('perimeter must vary luminance by vertical position')
+  if (!property(tokens, '--wp-aqua-well-material').includes('linear-gradient(180deg')) violations.push('empty channel must be softly concave')
+  if (source.includes('border: 1px solid var(--wp-aqua-rim)')) violations.push('uniform gray frames are forbidden')
+  if (source.includes('--wp-aqua-fill-edge') || source.includes('--wp-aqua-lower-edge')) {
+    violations.push('opaque dark bottom bands are forbidden')
+  }
+  return violations
+}
+
 function stationaryWellViolations(source: string): readonly string[] {
   const violations: string[] = []
   if ((source.match(/--wp-list-scroll-thumb-offset/g)?.length ?? 0) !== 1) {
@@ -157,7 +248,7 @@ describe('the period Aqua LCD material', () => {
     )
     const translucentMetadata = css.replace(
       '.wp-list-row[aria-current="true"] :is(.wp-list-row__leading, .wp-list-row__secondary, .wp-list-row__count, .wp-list-row__status, .wp-list-row__chevron) { color: currentColor; opacity: 1; }',
-      '.wp-list-row[aria-current="true"] :is(.wp-list-row__leading, .wp-list-row__secondary, .wp-list-row__count, .wp-list-row__status, .wp-list-row__chevron) { color: currentColor; opacity: .84; }',
+      '.wp-list-row[aria-current="true"] :is(.wp-list-row__leading, .wp-list-row__secondary, .wp-list-row__count, .wp-list-row__status, .wp-list-row__chevron) { color: currentColor; opacity: .6; }',
     )
 
     expect(selectionMaterialViolations(flat)).toContain('selection must retain three material layers')
@@ -186,6 +277,73 @@ describe('the period Aqua LCD material', () => {
     expect(css).toContain('.wp-list-row[aria-current="true"] :is(.wp-list-row__leading, .wp-list-row__secondary, .wp-list-row__count, .wp-list-row__status, .wp-list-row__chevron) { color: currentColor; opacity: 1; }')
   })
 
+  test('fills pending playback with a recessed, period-authentic Aqua indeterminate stripe', () => {
+    const pendingFill = rule(/\.wp-progress--indeterminate i \{([^}]*)\}/)
+    const pending = rule(/\.wp-progress--indeterminate::after \{([^}]*)\}/)
+    const transport = rule(/\.wp-titlebar__transport\[data-transport="starting"\] \{([^}]*)\}/)
+    expect(pendingFill).toContain('inline-size: 0 !important')
+    expect(pendingFill).toContain('transition: none')
+    expect(pending).toContain('content: ""')
+    expect(pending).toContain('repeating-linear-gradient(var(--wp-aqua-stripe-angle)')
+    expect(pending).toContain('wp-aqua-indeterminate var(--wp-motion-aqua-indeterminate-duration) linear infinite')
+    expect(css).toContain('--wp-motion-aqua-indeterminate-duration: 3.2s')
+    expect(css).toContain('@keyframes wp-aqua-indeterminate')
+    expect(aquaLoadingViolations(css)).toEqual([])
+    expect(aquaLoadingViolations(css.replace('--wp-aqua-stripe-angle: 45deg', '--wp-aqua-stripe-angle: 135deg'))).toContain('stripes must retain the reference diagonal')
+    expect(aquaLoadingViolations(css.replace('--wp-aqua-stripe-cycle: 22px', '--wp-aqua-stripe-cycle: 12px'))).toContain('translation must equal one projected repeat')
+    expect(aquaLoadingViolations(css.replace('--wp-aqua-blue-stop: 7.78px', '--wp-aqua-blue-stop: 1px'))).toContain('blue and light stripe duty must stay balanced')
+    expect(aquaLoadingViolations(css.replace('--wp-motion-aqua-indeterminate-duration: 3.2s', '--wp-motion-aqua-indeterminate-duration: 1.8s'))).toContain('loop cadence must stay calm')
+    expect(aquaLoadingViolations(css.replace('border-radius: 2px 2px 1px 1px', 'border-radius: 3px'))).toContain('track corners must use the authored asymmetric Aqua radius')
+    expect(aquaLoadingViolations(css.replace('--wp-aqua-blue: #6eaaf0', '--wp-aqua-blue: #8edcff'))).toContain('stripe luminance swing must remain legible')
+    expect(aquaLoadingViolations(css.replace('.wp-panel .wp-progress--indeterminate::after { animation: none; background-position: 0 0, calc(var(--wp-aqua-stripe-cycle) / 2) 0; }', '.wp-panel .wp-progress--indeterminate::after { display: none; }'))).toContain('reduced motion must retain a frozen representative frame')
+    expect(transport).toContain('wp-transport-breathe 2.4s ease-in-out infinite')
+    expect(panelSource).toContain('data-transport={transport}')
+  })
+
+  test('shares one fourteen-pixel cylindrical Aqua object across progress, loading, and volume', () => {
+    const body = rule(/\.wp-now-body \{([^}]*)\}/)
+    const progress = rule(/\.wp-progress \{([^}]*)\}/)
+    const volumeRow = rule(/\.wp-volume-feedback \{([^}]*)\}/)
+    const volume = rule(/\.wp-volume-progress \{([^}]*)\}/)
+    const fill = rule(/\.wp-progress i,\n {2}\.wp-volume-progress i \{([^}]*)\}/)
+
+    expect(body).toContain('grid-template-rows: 119px 14px minmax(5px, 1fr) 13px')
+    expect(progress).toContain('padding: 1px')
+    expect(progress).toContain('border: 0')
+    expect(progress).toContain('var(--wp-aqua-well-material) content-box, var(--wp-aqua-lip-side-material) border-box, var(--wp-aqua-lip-material) border-box')
+    expect(progress).toContain('background-clip: content-box, border-box, border-box')
+    expect(progress).toContain('border-radius: 2px 2px 1px 1px')
+    expect(volumeRow).toContain('inset-block-start: 132px')
+    expect(volumeRow).toContain('grid-template-columns: 13px 202px 13px')
+    expect(volumeRow).toContain('column-gap: 4px')
+    expect(volume).toContain('inline-size: 202px')
+    expect(volume).toContain('block-size: 14px')
+    expect(fill).toContain('var(--wp-aqua-cylinder-modulation), var(--wp-aqua-fill-material)')
+    expect(fill).toContain('box-shadow: var(--wp-aqua-fill-depth)')
+    expect(property(darkTokens, '--wp-aqua-fill-material')).toContain('var(--wp-aqua-fill-waist) 52%')
+    expect(property(darkTokens, '--wp-aqua-lip-top')).toBe('#f3f6f8')
+    expect(property(darkTokens, '--wp-aqua-lip-side')).toBe('#b9c1c8')
+    expect(property(darkTokens, '--wp-aqua-lip-bottom')).toBe('#7c8791')
+    expect(property(darkTokens, '--wp-aqua-recess-seam')).toBe('#596570')
+    expect(property(darkTokens, '--wp-aqua-well-material')).toContain('var(--wp-aqua-channel-lower) 84%')
+    expect(property(darkTokens, '--wp-aqua-trough-seam')).toContain('inset 0 1px 0')
+    expect(property(darkTokens, '--wp-aqua-trough-cast')).toContain('0 1px 1px')
+    expect(property(darkTokens, '--wp-aqua-trough-cast')).toContain('0 2px 2px')
+    expect(property(darkTokens, '--wp-aqua-cast-near-alpha')).toBe('26%')
+    expect(property(darkTokens, '--wp-aqua-cast-far-alpha')).toBe('12%')
+    expect(property(lightTokens, '--wp-aqua-cast-near-alpha')).toBe('10%')
+    expect(property(lightTokens, '--wp-aqua-cast-far-alpha')).toBe('5%')
+    expect(aquaCylinderViolations(css)).toEqual([])
+    expect(aquaCylinderViolations(css.replace('--wp-aqua-fill-waist: #69aaee', '--wp-aqua-fill-waist: #36a8de'))).toContain('all five owner-authored cylinder colors are required')
+    expect(aquaCylinderViolations(css.replace('var(--wp-aqua-fill-waist) 52%', 'var(--wp-aqua-fill-waist) 90%'))).toContain('cylindrical fill requires the five authored stop positions')
+    expect(aquaCylinderViolations(`${css}\n.wp-panel { --wp-aqua-fill-edge: #176fba; }`)).toContain('opaque dark bottom bands are forbidden')
+    expect(aquaCylinderViolations(css.replace('padding: 1px; border: 0', 'padding: 0; border: 1px solid #8f969d'))).toContain('well must reserve a molded lip without a uniform border')
+    expect(css).toContain('.wp-volume-progress i { transition: none; }')
+    expect(panelSource).toContain('aria-label="Volume"')
+    expect(panelSource).toContain('data-volume-feedback="visible"')
+    expect(panelSource).toContain('volumeFeedback.occurrenceIdentity === occurrenceIdentity')
+  })
+
   test('keeps agent attribution without flattening the selected material', () => {
     const agentSelected = rule(/\.wp-list-row\[data-agent="true"\]\[aria-current="true"\] \{([^}]*)\}/)
     expect(agentSelected).toContain('background: var(--wp-selection-material)')
@@ -210,7 +368,7 @@ describe('the period Aqua LCD material', () => {
     expect(stationaryWellViolations(css)).toEqual([])
   })
 
-  test('gives the moving gel thumb a legible five-pixel interior above the track', () => {
+  test('keeps the moving gel thumb distinct inside a subordinate five-pixel track', () => {
     const scroll = rule(/\.wp-list-scroll \{([^}]*)\}/)
     const thumb = rule(/\.wp-list-scroll__thumb \{([^}]*)\}/)
     const railWidth = pixelValue(scroll, 'inline-size')
@@ -218,8 +376,8 @@ describe('the period Aqua LCD material', () => {
     const borderWidth = pixelValue(thumb, 'border')
     const thumbInterior = railWidth - (2 * inlineInset) - (2 * borderWidth)
 
-    expect(railWidth).toBe(7)
-    expect(thumbInterior).toBeGreaterThanOrEqual(5)
+    expect(railWidth).toBe(5)
+    expect(thumbInterior).toBeGreaterThanOrEqual(3)
     expect(css).toContain('.wp-list-scroll__well::before, .wp-list-scroll__well::after { content: none !important; display: none !important; }')
     expect(thumb).toContain('inset-block-start: var(--wp-list-scroll-thumb-offset)')
     expect(thumb).toContain('z-index: 1')
@@ -229,6 +387,15 @@ describe('the period Aqua LCD material', () => {
       property(darkTokens, '--wp-scroll-thumb-mid'),
       property(darkTokens, '--wp-scroll-well-dark'),
     )).toBeGreaterThanOrEqual(2)
+  })
+
+  test('uses hierarchy, not selection weight, so changing selection never shifts row text', () => {
+    const row = rule(/\.wp-list-row \{([^}]*)\}/)
+    const selected = rule(/\.wp-list-row\[aria-current="true"\] \{([^}]*)\}/)
+
+    expect(property(row, 'font-weight')).toBe('500')
+    expect(property(selected, 'font-weight')).toBe(property(row, 'font-weight'))
+    expect(css).toMatch(/(?:^|\n) {2}\.wp-list-row__secondary \{[^}]*font-weight:\s*400/s)
   })
 
   test('rejects a moving stripe overlay anywhere across the full well', () => {

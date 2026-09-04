@@ -108,6 +108,7 @@ describe('browser interaction audio graph', () => {
     const backend = createBrowserInteractionAudioBackend()
     const context = FakeAudioContext.latest
     if (backend === null || context === null) throw new Error('Audio backend did not construct')
+    expect(context.buffers).toHaveLength(3)
 
     const specs: InteractionVoiceSpec[] = [
       wheelSpec(),
@@ -139,6 +140,20 @@ describe('browser interaction audio graph', () => {
         meanMagnitude(samples.slice(-quarter)),
       )
     }
+  })
+
+  test('first audible interaction stays inside the synchronous latency budget', () => {
+    const backend = createBrowserInteractionAudioBackend()
+    const context = FakeAudioContext.latest
+    if (backend === null || context === null) throw new Error('Audio backend did not construct')
+    const buffersBeforeContact = context.buffers.length
+    const startedAt = performance.now()
+
+    backend.schedule(wheelSpec(), () => undefined)
+
+    expect(performance.now() - startedAt).toBeLessThan(8)
+    expect(context.buffers).toHaveLength(buffersBeforeContact)
+    expect(buffersBeforeContact).toBe(3)
   })
 
   test('the physical switch supports rather than masks the digital actuation', () => {

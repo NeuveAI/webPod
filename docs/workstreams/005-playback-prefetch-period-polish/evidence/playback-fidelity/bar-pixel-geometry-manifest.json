@@ -1,0 +1,64 @@
+{
+  "schema": "webpod.playback-fidelity-bars.v2",
+  "authoredLcd": { "width": 272, "height": 204 },
+  "captureScale": 2,
+  "fixedUpper": {
+    "titlebar": { "x": 0, "y": 0, "width": 272, "height": 21 },
+    "artwork": { "x": 18, "y": 58, "width": 86, "height": 86 },
+    "metadata": { "x": 116, "y": 58 },
+    "times": { "y": 183, "bottom": 196 }
+  },
+  "sharedTroughMaterial": {
+    "outerHeight": 14,
+    "nominalChannelHeight": 12,
+    "innerOuterHeightRatio": 0.8571428571,
+    "geometricInset": 1,
+    "uniformBorder": false,
+    "outerRadii": { "topLeft": 2, "topRight": 2, "bottomRight": 1, "bottomLeft": 1 },
+    "channelRadii": { "topLeft": 1.5, "topRight": 1.5, "bottomRight": 0.5, "bottomLeft": 0.5 },
+    "layersOutsideIn": ["two-stage exterior cast shadow", "asymmetric outer lip", "inner recess seam", "concave empty channel", "cylindrical fill"],
+    "darkCast": { "near": "0 1px 1px rgb(0 0 0 / 26%)", "far": "0 2px 2px rgb(0 0 0 / 12%)" },
+    "lightCast": { "near": "0 1px 1px rgb(0 0 0 / 10%)", "far": "0 2px 2px rgb(0 0 0 / 5%)" }
+  },
+  "playback": {
+    "outer": { "x": 18, "y": 153, "width": 236, "height": 14 },
+    "inner": { "x": 19, "y": 154, "width": 234, "height": 12 },
+    "fillEndpoints": [
+      { "valuePercent": 0, "x": 19 },
+      { "valuePercent": 35, "x": 100.9 },
+      { "valuePercent": 100, "x": 253 }
+    ]
+  },
+  "volume": {
+    "row": { "x": 18, "y": 153, "width": 236, "height": 14 },
+    "quietGlyph": { "x": 18, "width": 13 },
+    "outer": { "x": 35, "y": 153, "width": 202, "height": 14 },
+    "inner": { "x": 36, "y": 154, "width": 200, "height": 12 },
+    "fillTransitionDurationMs": 0,
+    "loudGlyph": { "x": 241, "width": 13 },
+    "fillEndpoints": [
+      { "valuePercent": 0, "x": 36 },
+      { "valuePercent": 50, "x": 136 },
+      { "valuePercent": 100, "x": 236 }
+    ]
+  },
+  "loading": {
+    "outer": { "x": 18, "y": 153, "width": 236, "height": 14 },
+    "inner": { "x": 19, "y": 154, "width": 234, "height": 12 },
+    "projectedRepeatPx": 22,
+    "gradientRepeatPx": 15.56,
+    "blueStopPx": 7.78,
+    "blueDuty": 0.5,
+    "angleDeg": 45,
+    "ribBackgroundPositionDisplacementPx": 22,
+    "durationMs": 3200,
+    "reducedMotionFreezePx": 11
+  },
+  "computedEvidence": [
+    "progress-geometry.json",
+    "volume-geometry.json",
+    "loading-computed.json",
+    "aqua-cylinder-cross-sections.json",
+    "aqua-outer-trough-cross-sections.json"
+  ]
+}

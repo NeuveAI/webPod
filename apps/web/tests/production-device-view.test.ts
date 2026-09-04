@@ -7,11 +7,15 @@ const source = (path: string): string =>
 
 test('spike owns the product view and the legacy probe can only redirect to it', () => {
   const shared = source('production-device-view.tsx')
+  const root = source('routes/index.tsx')
   const probe = source('routes/[_]probe.composite.tsx')
   const spike = source('routes/[_]spike.device.tsx')
 
   expect(spike).toContain('<ProductionDeviceView')
   expect(probe).toContain("to: '/_spike/device'")
+  expect(root).toContain("to: '/_spike/device'")
+  expect(root).not.toContain("from '@webpod/panel'")
+  expect(root).not.toMatch(/fixture|demo/i)
   expect(probe).toContain('search: {}')
   expect(probe).toContain('replace: true')
   expect(probe).not.toContain("from '@webpod/composite'")

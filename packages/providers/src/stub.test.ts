@@ -45,6 +45,7 @@ const CALLS: readonly (readonly [string, string, (p: MusicProvider) => unknown])
   ['playlistAddTracks', 'playlistAddTracks', (p) => p.playlistAddTracks(PLAYLIST, [TRACK])],
   ['playlistRemoveTracks', 'playlistRemoveTracks', (p) => p.playlistRemoveTracks(PLAYLIST, [0])],
   ['playlistReorder', 'playlistReorder', (p) => p.playlistReorder(PLAYLIST, 0, 1)],
+  ['prepare', 'transport', (p) => p.prepare({ kind: 'tracks', tracks: [TRACK], startIndex: 0 })],
   ['play', 'transport', (p) => p.play()],
   ['pause', 'transport', (p) => p.pause()],
   ['skip', 'transport', (p) => p.skip('next')],

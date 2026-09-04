@@ -1,0 +1,14 @@
+{
+  "acceptedReset": {
+    "firstAdvanceMs": 1000,
+    "secondDwellVisibleAtMs": 1499,
+    "hiddenAtMs": 1500
+  },
+  "clampedNoOp": {
+    "attemptedAtMs": 1000,
+    "remainedVisibleAtMs": 1499,
+    "hiddenAtMs": 1500,
+    "reset": false
+  },
+  "firstVisibleLatencyMs": 4
+}

@@ -1,4 +1,4 @@
-import { defineConfig } from '../../../packages/panel/node_modules/@playwright/test/index.js'
+import { defineConfig } from '../../../packages/panel/node_modules/@playwright/test/index.mjs'
 import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'

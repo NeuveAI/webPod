@@ -3,16 +3,18 @@ import { readFileSync } from 'node:fs'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { currentScreenAtom, detentActionAtom, deviceStore, resetStackActionAtom, type ScreenFrame } from '@webpod/state'
 
-import { Panel } from './Panel'
-import { albumTracksFrame, fixtureNavigationSource, fixtureProvider } from './model'
+import { Panel, type PanelProps } from './Panel'
+import { albumTracksFrame, fixtureNavigationSource, fixtureProvider } from './fixtures'
 import { ListViewport, type ListRowContent } from './list-view'
 import { navigationRoot, selectNavigation } from './navigation'
 
 const rows = (count: number): readonly ListRowContent[] => Array.from({ length: count }, (_, index) => ({ index, leading: index + 1, primary: `A very long provider-owned title ${index}`, secondary: 'Secondary', count: String(index), chevron: '›' }))
+type TestPanelProps = Omit<PanelProps, 'provider' | 'navigationSource'> & Partial<Pick<PanelProps, 'provider' | 'navigationSource'>>
+const TestPanel = (props: TestPanelProps) => <Panel provider={fixtureProvider} navigationSource={fixtureNavigationSource} {...props} />
 
 const renderFrame = (frame: ScreenFrame) => {
   deviceStore.set(resetStackActionAtom, [frame])
-  return renderToStaticMarkup(<Panel />)
+  return renderToStaticMarkup(<TestPanel />)
 }
 
 describe('the canonical panel list view', () => {
@@ -21,8 +23,10 @@ describe('the canonical panel list view', () => {
     const nine = renderToStaticMarkup(<ListViewport rows={rows(9)} highlightIndex={0} windowStart={0} label="Nine" panelId="nine" />)
     expect(eight.match(/class="wp-list-row"/g)).toHaveLength(8)
     expect(eight).not.toContain('wp-list-scroll')
+    expect(eight).not.toContain('class="wp-list-body" data-overflow="true"')
     expect(nine.match(/class="wp-list-row"/g)).toHaveLength(8)
     expect(nine).toContain('wp-list-scroll')
+    expect(nine).toContain('data-overflow="true"')
   })
 
   test('one row primitive owns composition, truncation, geometry and Aqua material', () => {
@@ -34,8 +38,11 @@ describe('the canonical panel list view', () => {
     expect(source).toContain('wp-list-row__count')
     expect(source).toContain('wp-list-row__status')
     expect(source).toContain('wp-list-row__chevron')
+    expect(source).toContain('<OverflowMarquee')
     expect(css).toMatch(/\.wp-list-row\s*\{[^}]*padding-inline:\s*8px 6px[^}]*border-block-end:\s*1px solid var\(--wp-divider\)/s)
     expect(css).toMatch(/\.wp-list-row__primary, \.wp-list-row__secondary \{[^}]*text-overflow:\s*ellipsis/s)
+    expect(css).toMatch(/\.wp-marquee\[data-overflow="true"\] \.wp-marquee__moving \{[^}]*animation:\s*wp-title-marquee/s)
+    expect(css).toMatch(/prefers-reduced-motion:[\s\S]*\.wp-panel \.wp-marquee\[data-overflow="true"\] \.wp-marquee__moving \{[^}]*animation:\s*none/s)
     expect(css).toMatch(/\.wp-list-row__primary \{ grid-column: 2; \}/)
     expect(css).toMatch(/\.wp-list-row__chevron \{ grid-column: 6; \}/)
     expect(css).toMatch(/\.wp-list-row\[aria-current="true"\]\s*\{[^}]*background:\s*var\(--wp-selection-material\)/s)
@@ -86,7 +93,7 @@ describe('the canonical panel list view', () => {
         deviceStore.set(detentActionAtom, { path: 'direct', source: 'human', detents: 1, timestampMs: 1 })
         const moved = deviceStore.get(currentScreenAtom)
         expect(`${name}:${moved?.highlightIndex}`).toBe(`${name}:1`)
-        const after = renderToStaticMarkup(<Panel />)
+        const after = renderToStaticMarkup(<TestPanel />)
         expect(after).toMatch(/class="wp-list-row"[^>]*aria-current="true"/)
       }
     }
@@ -103,14 +110,17 @@ describe('the canonical panel list view', () => {
     }
   })
 
-  test('split preview copy tracks the highlighted row', () => {
+  test('period list routes stay full-width without preview copy competing for space', () => {
     const tracks = renderFrame({ ...navigationRoot(fixtureNavigationSource, fixtureProvider), highlightIndex: 1 })
-    expect(tracks).toContain(`${fixtureNavigationSource.playlists.length} playlists`)
+    expect(tracks).toContain('data-layout="full"')
+    expect(tracks).not.toContain(`${fixtureNavigationSource.playlists.length} playlists`)
+    expect(tracks).not.toContain('wp-list-preview')
     const album = albumTracksFrame()
     const selected = album.rows[1]
     if (selected === undefined) throw new Error('fixture album needs a second track')
     const nested = renderFrame({ ...album, highlightIndex: selected.index })
-    expect(nested).toMatch(new RegExp(`wp-track-preview[\\s\\S]*${selected.label}`))
+    expect(nested).toContain(selected.label)
+    expect(nested).not.toContain('wp-track-preview')
   })
 
   test('no bespoke sibling list renderers survive beside the canonical primitive', () => {

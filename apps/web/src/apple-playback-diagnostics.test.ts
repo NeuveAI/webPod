@@ -1,14 +1,62 @@
 import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from 'bun:test'
 import type { ApplePlaybackDiagnosticSource, MusicKitInstanceLike } from '@webpod/providers'
-import { appleMediaItemStateName, applePlaybackStateName, classifyApplePlaybackError, createApplePlaybackDiagnostics } from './apple-playback-diagnostics'
+import { appleMediaItemStateName, applePlaybackStateName, classifyApplePlaybackError, createApplePlaybackDiagnostics, deriveApplePlaybackDiagnosis, serializeApplePlaybackDiagnostics, type ApplePlaybackDiagnosticEvent, type ApplePlaybackDiagnosticName } from './apple-playback-diagnostics'
 
 let diagnostics = createApplePlaybackDiagnostics({ development: true, now: () => 1 })
 beforeEach(() => { diagnostics = createApplePlaybackDiagnostics({ development: true, now: () => 1 }) })
 afterEach(() => { diagnostics.disable(); mock.restore() })
 
 const source = (error?: unknown, currentTime = 1): ApplePlaybackDiagnosticSource => ({ error, music: { playbackState: 2, currentPlaybackTime: currentTime, currentPlaybackDuration: 20, volume: 1 } as MusicKitInstanceLike, audio: null, userActivation: null })
+const diagnosticEvent = (sequence: number, event: ApplePlaybackDiagnosticName, overrides: Partial<ApplePlaybackDiagnosticEvent> = {}): ApplePlaybackDiagnosticEvent => ({
+  sequence,
+  event,
+  timestampMs: sequence,
+  musicKit: { playbackState: 2, playbackStateName: 'playing', currentTime: 1, duration: 20, volume: 1, authorized: true, previewOnly: false },
+  queue: { present: true, length: 1, position: 0, hasNowPlayingItem: true },
+  audio: { paused: false, muted: false, volume: 1, readyState: 4, networkState: 1, errorCode: null },
+  userActivation: { isActive: false, hasBeenActive: true },
+  ...overrides,
+})
 
 describe('route-scoped Apple playback diagnostics', () => {
+  test('keeps the live protected-media failure causal after a later paused state event', () => {
+    const events = [
+      diagnosticEvent(1, 'playCall'),
+      diagnosticEvent(2, 'audio:error', { audio: { paused: true, muted: false, volume: 1, readyState: 0, networkState: 3, errorCode: 4 } }),
+      diagnosticEvent(3, 'mediaPlaybackError', { errorClass: 'unsupported-source', audio: { paused: true, muted: false, volume: 1, readyState: 0, networkState: 3, errorCode: 4 } }),
+      diagnosticEvent(4, 'playbackStateDidChange', { playbackEventState: { value: 3, name: 'paused' }, musicKit: { playbackState: 0, playbackStateName: 'none', currentTime: 0, duration: 0, volume: 1, authorized: true, previewOnly: false } }),
+    ]
+
+    const diagnosis = deriveApplePlaybackDiagnosis({ enabled: true, emeCapability: 'neither-supported', events })
+
+    expect(diagnosis).toEqual({
+      kind: 'protected-media-unsupported',
+      headline: 'Protected Apple Music audio is unavailable in this browser',
+      nextAction: 'Library data and artwork still work. Open webPod in a DRM-capable normal browser.',
+      causalSequence: 3,
+    })
+    expect(events.at(-1)?.playbackEventState?.name).toBe('paused')
+  })
+
+  test('keeps autoplay, network, decode/source, DRM/entitlement, and unknown summaries distinct', () => {
+    const diagnosis = (event: ApplePlaybackDiagnosticEvent, emeCapability: 'widevine-supported' | 'probe-error' = 'widevine-supported') => deriveApplePlaybackDiagnosis({ enabled: true, emeCapability, events: [event] })
+
+    expect(diagnosis(diagnosticEvent(1, 'mediaPlaybackError', { errorClass: 'autoplay-denied' })).kind).toBe('autoplay')
+    expect(diagnosis(diagnosticEvent(1, 'audio:error', { audio: { paused: true, muted: false, volume: 1, readyState: 0, networkState: 2, errorCode: 2 } })).kind).toBe('network')
+    expect(diagnosis(diagnosticEvent(1, 'mediaPlaybackError', { errorClass: 'decode' })).kind).toBe('decode-or-source')
+    expect(diagnosis(diagnosticEvent(1, 'mediaItemStateDidChange', { mediaItemState: { value: 6, name: 'restricted' } })).kind).toBe('drm-or-entitlement')
+    expect(diagnosis(diagnosticEvent(1, 'mediaPlaybackError', { errorClass: 'unknown' }), 'probe-error').kind).toBe('unknown')
+    expect(deriveApplePlaybackDiagnosis({ enabled: true, emeCapability: 'widevine-supported', events: [diagnosticEvent(1, 'playCall')] }).kind).toBe('none')
+  })
+
+  test('identifies a void queue result and a confirmation timeout as actionable causal failures', () => {
+    const disabled = diagnosticEvent(2, 'setQueueResolve', { operation: { targetKind: 'tracks', targetItemCount: 1, startIndex: 0, queueResult: 'void' }, queue: { present: false, length: null, position: null, hasNowPlayingItem: false } })
+    const timeout = diagnosticEvent(3, 'playbackConfirmationTimeout', { operation: { targetKind: 'tracks', targetItemCount: 1, startIndex: 0, queueResult: 'queue' }, queue: { present: true, length: 0, position: null, hasNowPlayingItem: false } })
+
+    expect(deriveApplePlaybackDiagnosis({ enabled: true, emeCapability: 'widevine-supported', events: [disabled] })).toMatchObject({ kind: 'runtime-environment', causalSequence: 2 })
+    expect(deriveApplePlaybackDiagnosis({ enabled: true, emeCapability: 'widevine-supported', events: [timeout] })).toMatchObject({ kind: 'queue-timeout', causalSequence: 3 })
+  })
+
   test('classifies untrusted errors without retaining any supplied strings or identifiers', () => {
     const hostile = [
       '2037093401', 'i.4PvL9eK2', '/v1/me/library/songs/i.4PvL9eK2', '../private/item',
@@ -43,7 +91,7 @@ describe('route-scoped Apple playback diagnostics', () => {
   test('captures truthful event order, repeated time samples, and keeps only forty events', () => {
     spyOn(console, 'info').mockImplementation(() => undefined)
     diagnostics.enable()
-    const ordered = ['setQueue', 'queueItemsDidChange', 'playCall', 'mediaItemStateDidChange', 'bufferedProgressDidChange', 'mediaCanPlay', 'mediaItemDidChange', 'playbackStateDidChange', 'playResolve'] as const
+    const ordered = ['setQueue', 'setQueueResolve', 'queueItemsDidChange', 'playCall', 'mediaItemStateDidChange', 'bufferedProgressDidChange', 'mediaCanPlay', 'nowPlayingItemDidChange', 'playbackStateDidChange', 'playResolve'] as const
     for (const event of ordered) diagnostics.capture(event, () => source())
     expect(diagnostics.getSnapshot().events.map((event) => event.event)).toEqual([...ordered])
     for (let index = 0; index < 45; index += 1) {
@@ -51,8 +99,23 @@ describe('route-scoped Apple playback diagnostics', () => {
     }
     const events = diagnostics.getSnapshot().events
     expect(events).toHaveLength(40)
-    expect(events.every((event) => event.event === 'playbackTimeDidChange')).toBeTrue()
-    expect(events.map((event) => event.musicKit.currentTime)).toEqual(Array.from({ length: 40 }, (_, index) => index + 5))
+    const retainedCausal = ordered.filter((event) => event !== 'bufferedProgressDidChange')
+    expect(events.filter((event) => event.event !== 'playbackTimeDidChange' && event.event !== 'bufferedProgressDidChange').map((event) => event.event)).toEqual(retainedCausal)
+    const samples = events.filter((event) => event.event === 'playbackTimeDidChange' || event.event === 'bufferedProgressDidChange')
+    expect(samples).toHaveLength(40 - retainedCausal.length)
+    expect(samples.at(-1)?.musicKit.currentTime).toBe(44)
+  })
+
+  test('retains a causal timeout while bounded progress samples continue', () => {
+    spyOn(console, 'info').mockImplementation(() => undefined)
+    diagnostics.enable()
+    diagnostics.capture('playbackConfirmationTimeout', () => source())
+    for (let index = 0; index < 80; index += 1) diagnostics.capture('playbackTimeDidChange', () => source(undefined, index))
+
+    const snapshot = diagnostics.getSnapshot()
+    expect(snapshot.events).toHaveLength(40)
+    expect(snapshot.events.some((event) => event.event === 'playbackConfirmationTimeout')).toBeTrue()
+    expect(deriveApplePlaybackDiagnosis(snapshot).kind).toBe('queue-timeout')
   })
 
   test('console and snapshot contain classifications only for media errors', () => {
@@ -65,6 +128,19 @@ describe('route-scoped Apple playback diagnostics', () => {
     expect(serialized).not.toContain('2037093401')
     expect(serialized).not.toContain('blob:')
     expect(serialized).not.toContain('private')
+  })
+
+  test('exports a versioned, identifier-free report for browser agents and clipboard sharing', () => {
+    spyOn(console, 'info').mockImplementation(() => undefined)
+    diagnostics.enable()
+    diagnostics.capture('setQueueResolve', () => ({ ...source(), operation: { targetKind: 'tracks', targetItemCount: 20, startIndex: 0, queueResult: 'queue' } }))
+    const report = serializeApplePlaybackDiagnostics(diagnostics.getSnapshot())
+
+    expect(report).toContain('"schemaVersion": 1')
+    expect(report).toContain('"targetItemCount": 20')
+    expect(report).toContain('"queueResult": "queue"')
+    expect(report).not.toContain('catalogId')
+    expect(report).not.toContain('libraryId')
   })
 
   test('maps the exact served MusicKit media-item and playback enums', () => {
@@ -95,7 +171,7 @@ describe('route-scoped Apple playback diagnostics', () => {
     await new Promise((resolve) => setTimeout(resolve, 0))
     expect(request).toHaveBeenCalledTimes(2)
     expect(request.mock.calls.map(([keySystem]) => keySystem)).toEqual(['com.widevine.alpha', 'com.microsoft.playready'])
-    expect(request.mock.calls[0]?.[1]).toEqual([{ initDataTypes: ['cenc', 'keyids'], audioCapabilities: [{ contentType: 'audio/mp4' }], distinctiveIdentifier: 'optional', persistentState: 'required' }])
+    expect(request.mock.calls[0]?.[1]).toEqual([{ initDataTypes: ['cenc', 'keyids'], audioCapabilities: [{ contentType: 'audio/mp4; codecs="mp4a.40.2"' }], distinctiveIdentifier: 'optional', persistentState: 'optional', sessionTypes: ['temporary'] }])
     expect(diagnostics.getSnapshot().emeCapability).toBe('playready-supported')
   })
 
@@ -124,16 +200,16 @@ describe('route-scoped Apple playback diagnostics', () => {
     const second = new EventTarget() as HTMLAudioElement
     diagnostics.enable()
     diagnostics.capture('playCall', () => ({ ...source(), audio: first }))
-    diagnostics.capture('mediaItemDidChange', () => ({ ...source(), audio: null }))
+    diagnostics.capture('nowPlayingItemDidChange', () => ({ ...source(), audio: null }))
     first.dispatchEvent(new Event('waiting'))
-    expect(diagnostics.getSnapshot().events.map((event) => event.event)).toEqual(['playCall', 'mediaItemDidChange'])
+    expect(diagnostics.getSnapshot().events.map((event) => event.event)).toEqual(['playCall', 'nowPlayingItemDidChange'])
 
     diagnostics.capture('playCall', () => ({ ...source(), audio: first }))
-    diagnostics.capture('mediaItemDidChange', () => ({ ...source(), audio: second }))
+    diagnostics.capture('nowPlayingItemDidChange', () => ({ ...source(), audio: second }))
     first.dispatchEvent(new Event('stalled'))
     second.dispatchEvent(new Event('canplay'))
     expect(diagnostics.getSnapshot().events.map((event) => event.event)).toEqual([
-      'playCall', 'mediaItemDidChange', 'playCall', 'mediaItemDidChange', 'audio:canplay',
+      'playCall', 'nowPlayingItemDidChange', 'playCall', 'nowPlayingItemDidChange', 'audio:canplay',
     ])
   })
 

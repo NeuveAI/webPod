@@ -3,6 +3,7 @@ import { mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { formatSummary, runStaticGates, safeDirtyFingerprint, summarizeGates, type GateResult } from './gate-core.ts'
+import { COMMAND_GATES, TEST_TIMEOUT_MS } from './gate-commands.ts'
 
 const roots: string[] = []
 const runner = resolve(import.meta.dir, 'gates.ts')
@@ -310,6 +311,45 @@ describe('W5a same-review adversarial mutations', () => {
     expect(gate?.status).toBe('pass')
   })
 
+  test('U8 permits the typed Apple development autoplay diagnostic boundary', async () => {
+    const root = await fixture()
+    await plant(root, 'apps/web/src/apple-playback-diagnostics.ts', [
+      "export type ApplePlaybackErrorClass = 'autoplay-denied' | 'unknown'",
+      'export function classifyApplePlaybackError(combined: string): ApplePlaybackErrorClass {',
+      "  if (combined.includes('not allowed') || combined.includes('autoplay')) return 'autoplay-denied'",
+      "  return 'unknown'",
+      '}',
+      '',
+    ].join('\n'))
+    const gate = (await runStaticGates({ root })).find((candidate) => candidate.id === 'U8')
+    expect(gate?.status).toBe('pass')
+  })
+
+  test('U8 rejects real autoplay permission copy inside the diagnostic module', async () => {
+    const root = await fixture()
+    await plant(root, 'apps/web/src/apple-playback-diagnostics.ts', 'export const copy = "Autoplay is allowed"\n')
+    failed(await runStaticGates({ root }), 'U8')
+  })
+
+  test('U8 rejects the diagnostic token outside its typed development boundary', async () => {
+    const root = await fixture()
+    await plant(root, 'apps/web/src/player.ts', "export const state = 'autoplay-denied'\n")
+    failed(await runStaticGates({ root }), 'U8')
+  })
+
+  test('U8 rejects denial prose that is not an includes predicate', async () => {
+    const root = await fixture()
+    await plant(root, 'apps/web/src/apple-playback-diagnostics.ts', [
+      "export type ApplePlaybackErrorClass = 'autoplay-denied' | 'unknown'",
+      'export function classifyApplePlaybackError(): ApplePlaybackErrorClass {',
+      "  const copy = 'not allowed'",
+      "  return copy === '' ? 'autoplay-denied' : 'unknown'",
+      '}',
+      '',
+    ].join('\n'))
+    failed(await runStaticGates({ root }), 'U8')
+  })
+
   for (const copy of ['Authorized', 'Pending'] as const) {
     test(`U8 rejects exact visible ${copy} copy`, async () => {
       const root = await fixture()
@@ -468,6 +508,16 @@ describe('W5a same-review adversarial mutations', () => {
 })
 
 describe('W5a command gates propagate red', () => {
+  test('TESTS keeps an explicit bounded per-test timeout', () => {
+    expect(TEST_TIMEOUT_MS).toBe(30_000)
+    expect(COMMAND_GATES.find((gate) => gate.id === 'TESTS')?.command).toEqual([
+      'bun',
+      'test',
+      '--timeout',
+      '30000',
+    ])
+  })
+
   test('TYPES reports a failing project sweep', async () => {
     const root = await fixture()
     await plant(root, 'package.json', JSON.stringify({ scripts: { typecheck: 'bun -e "process.exit(7)"', lint: 'bun -e "process.exit(0)"' } }))

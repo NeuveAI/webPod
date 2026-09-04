@@ -11,6 +11,7 @@ import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import * as THREE from "three";
 
 import {
+  CLICK_WHEEL_INPUT_RADII,
   ClickWheelInputSurface,
   type ClickWheelCardinalEnd,
   type ClickWheelCardinalPress,
@@ -30,6 +31,9 @@ import {
 import {
   FRONT_DEVICE_ORIENTATION,
   REAR_DEVICE_ORIENTATION,
+  THREE_QUARTER_DEVICE_ORIENTATION,
+  deviceOrientationToRotation,
+  type DeviceOrientation,
 } from "./orientation";
 import { DeviceCanvasOrientationContext } from "./DeviceCanvas";
 import { DEVICE_LAYOUT } from "./layout";
@@ -41,6 +45,8 @@ import {
 
 const WIDTH = DEVICE_LAYOUT.body.width;
 const HEIGHT = DEVICE_LAYOUT.body.height;
+const CLICK_WHEEL_INNER_TEST_RADIUS = CLICK_WHEEL_INPUT_RADII.inner + 0.001;
+const CLICK_WHEEL_OUTER_TEST_RADIUS = CLICK_WHEEL_INPUT_RADII.outer - 0.001;
 
 GlobalRegistrator.register();
 Object.defineProperty(globalThis, "IS_REACT_ACT_ENVIRONMENT", { value: true });
@@ -139,6 +145,9 @@ async function mountSurface(
   face: "front" | "back" = "front",
   plants: CallbackPlants = {},
   form: DeviceFormParams = DEFAULT_DEVICE_FORM,
+  orientation: DeviceOrientation = face === "back"
+    ? REAR_DEVICE_ORIENTATION
+    : FRONT_DEVICE_ORIENTATION,
 ): Promise<MountedSurface> {
   const canvas = document.createElement("canvas");
   const camera = new THREE.OrthographicCamera(
@@ -187,43 +196,44 @@ async function mountSurface(
       <ControlPhysicsScope controller={controlPhysics}>
         <DeviceCanvasOrientationContext.Provider
           value={{
-            orientation:
-              face === "back" ? REAR_DEVICE_ORIENTATION : FRONT_DEVICE_ORIENTATION,
+            orientation,
             visibleFace: face,
             frontInteractive: face === "front",
             form,
           }}
         >
-          <ClickWheelInputSurface
-            onArcStart={(sample) => {
-              starts.push(sample);
-              plants.onArcStart?.(sample);
-            }}
-            onArcMove={(sample) => {
-              moves.push(sample);
-              plants.onArcMove?.(sample);
-            }}
-            onArcEnd={(end) => {
-              ends.push(end);
-              plants.onArcEnd?.(end);
-            }}
-            onSelectStart={(start) => selectStarts.push(start)}
-            onSelectEnd={(end) => selectEnds.push(end)}
-            onCardinalPress={(press) => cardinalPresses.push(press)}
-            onCardinalStart={(start) => cardinalStarts.push(start)}
-            onCardinalEnd={(end) => cardinalEnds.push(end)}
-          />
-          <AxialSelectControl
-            geometry={selectGeometry}
-            position={[2.5, -4.25, 3.75]}
-          >
-            <meshPhysicalMaterial
-              name="select-integration-plastic"
-              color="#F6F2E9"
-              metalness={0}
-              roughness={0.72}
+          <group rotation={deviceOrientationToRotation(orientation)}>
+            <ClickWheelInputSurface
+              onArcStart={(sample) => {
+                starts.push(sample);
+                plants.onArcStart?.(sample);
+              }}
+              onArcMove={(sample) => {
+                moves.push(sample);
+                plants.onArcMove?.(sample);
+              }}
+              onArcEnd={(end) => {
+                ends.push(end);
+                plants.onArcEnd?.(end);
+              }}
+              onSelectStart={(start) => selectStarts.push(start)}
+              onSelectEnd={(end) => selectEnds.push(end)}
+              onCardinalPress={(press) => cardinalPresses.push(press)}
+              onCardinalStart={(start) => cardinalStarts.push(start)}
+              onCardinalEnd={(end) => cardinalEnds.push(end)}
             />
-          </AxialSelectControl>
+            <AxialSelectControl
+              geometry={selectGeometry}
+              position={[2.5, -4.25, 3.75]}
+            >
+              <meshPhysicalMaterial
+                name="select-integration-plastic"
+                color="#F6F2E9"
+                metalness={0}
+                roughness={0.72}
+              />
+            </AxialSelectControl>
+          </group>
           <group name={`select-rerender-revision-${String(revision)}`} />
         </DeviceCanvasOrientationContext.Provider>
       </ControlPhysicsScope>,
@@ -280,6 +290,11 @@ function wheelViewportPoint(localX: number, localY: number) {
   };
 }
 
+function wheelLocalPoint(angleDeg: number, radius: number) {
+  const radians = (angleDeg * Math.PI) / 180;
+  return { x: Math.cos(radians) * radius, y: -Math.sin(radians) * radius };
+}
+
 function pointerEvent(
   type: string,
   pointerId: number,
@@ -299,6 +314,36 @@ function pointerEvent(
   Object.defineProperties(event, {
     offsetX: { configurable: true, value: point.x },
     offsetY: { configurable: true, value: point.y },
+  });
+  return event;
+}
+
+/** Projects an authored wheel-local coordinate through the mounted pose. */
+function orientedPointerEvent(
+  mounted: MountedSurface,
+  type: string,
+  pointerId: number,
+  localX: number,
+  localY: number,
+  init: { readonly pointerType?: string; readonly button?: number } = {},
+): PointerEvent {
+  const input = mounted.store.getState().scene.getObjectByName("click-wheel-input");
+  if (!(input instanceof THREE.Mesh)) throw new Error("click-wheel input did not mount");
+  input.updateWorldMatrix(true, false);
+  const camera = mounted.store.getState().camera;
+  camera.updateMatrixWorld(true);
+  const projected = input.localToWorld(new THREE.Vector3(localX, localY, 0)).project(camera);
+  const event = new PointerEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    button: init.button ?? 0,
+    isPrimary: true,
+    pointerId,
+    pointerType: init.pointerType ?? "mouse",
+  });
+  Object.defineProperties(event, {
+    offsetX: { configurable: true, value: ((projected.x + 1) / 2) * WIDTH },
+    offsetY: { configurable: true, value: ((1 - projected.y) / 2) * HEIGHT },
   });
   return event;
 }
@@ -402,8 +447,7 @@ describe("click-wheel mounted R3F event seam", () => {
       await dispatch(mounted, down);
       expect(downPreventions).toBe(0);
       expect(mounted.canvas.hasPointerCapture(pointerId)).toBeTrue();
-      expect(mounted.starts).toHaveLength(1);
-      expect(mounted.starts[0]?.angleDeg).toBeCloseTo(0, 8);
+      expect(mounted.starts).toHaveLength(0);
 
       // Radius 145 is outside the 115px annulus. Fiber's captured event must
       // still reach production, which recomputes the angle from the live ray.
@@ -416,6 +460,8 @@ describe("click-wheel mounted R3F event seam", () => {
       });
       await dispatch(mounted, move);
       expect(movePreventions).toBe(0);
+      expect(mounted.starts).toHaveLength(1);
+      expect(mounted.starts[0]?.angleDeg).toBeCloseTo(0, 8);
       expect(mounted.moves).toHaveLength(1);
       expect(mounted.moves[0]?.angleDeg).toBeCloseTo(90, 8);
 
@@ -500,10 +546,136 @@ describe("click-wheel mounted R3F event seam", () => {
       expect(mounted.cardinalEnds.every(({ accepted }) => accepted)).toBeTrue();
       expect(mounted.cardinalEnds.every(({ reason }) => reason === "release"))
         .toBeTrue();
+      expect(mounted.starts).toHaveLength(0);
+      expect(mounted.moves).toHaveLength(0);
 
       // A raw DOM click is not an input seam and cannot double-fire release.
       mounted.canvas.dispatchEvent(new MouseEvent("click", { bubbles: true }));
       expect(mounted.cardinalPresses).toHaveLength(12);
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("diagonal edges and radial extremes remain tappable without entering rotation", async () => {
+    const mounted = await mountSurface();
+    const samples = [
+      { angle: 44.999, radius: CLICK_WHEEL_INNER_TEST_RADIUS, button: "next", pointerType: "mouse" },
+      { angle: 45, radius: CLICK_WHEEL_OUTER_TEST_RADIUS, button: "play-pause", pointerType: "touch" },
+      { angle: 134.999, radius: 70, button: "play-pause", pointerType: "pen" },
+      { angle: 135, radius: CLICK_WHEEL_INNER_TEST_RADIUS, button: "previous", pointerType: "mouse" },
+      { angle: 224.999, radius: CLICK_WHEEL_OUTER_TEST_RADIUS, button: "previous", pointerType: "touch" },
+      { angle: 225, radius: 70, button: "menu", pointerType: "pen" },
+      { angle: 314.999, radius: CLICK_WHEEL_INNER_TEST_RADIUS, button: "menu", pointerType: "mouse" },
+      { angle: 315, radius: CLICK_WHEEL_OUTER_TEST_RADIUS, button: "next", pointerType: "touch" },
+    ] as const;
+    try {
+      for (const [index, sample] of samples.entries()) {
+        const point = wheelLocalPoint(sample.angle, sample.radius);
+        const pointerId = 260 + index;
+        await dispatch(mounted, pointerEvent("pointerdown", pointerId, point.x, point.y, { pointerType: sample.pointerType }));
+        await dispatch(mounted, pointerEvent("pointerup", pointerId, point.x, point.y, { pointerType: sample.pointerType }));
+      }
+      expect(mounted.cardinalPresses.map(({ button }) => button)).toEqual(samples.map(({ button }) => button));
+      expect(mounted.starts).toHaveLength(0);
+      expect(mounted.moves).toHaveLength(0);
+      expect(mounted.ends).toHaveLength(0);
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("oblique model-space projection preserves full sectors, diagonal ownership, and movement takeover", async () => {
+    const mounted = await mountSurface(
+      "front",
+      {},
+      DEFAULT_DEVICE_FORM,
+      THREE_QUARTER_DEVICE_ORIENTATION,
+    );
+    const centers = [
+      { angle: 270, button: "menu" },
+      { angle: 0, button: "next" },
+      { angle: 90, button: "play-pause" },
+      { angle: 180, button: "previous" },
+    ] as const;
+    const edges = [
+      { angle: 44.999, radius: CLICK_WHEEL_INNER_TEST_RADIUS, button: "next" },
+      { angle: 45, radius: CLICK_WHEEL_OUTER_TEST_RADIUS, button: "play-pause" },
+      { angle: 134.999, radius: CLICK_WHEEL_OUTER_TEST_RADIUS, button: "play-pause" },
+      { angle: 135, radius: CLICK_WHEEL_INNER_TEST_RADIUS, button: "previous" },
+      { angle: 224.999, radius: CLICK_WHEEL_INNER_TEST_RADIUS, button: "previous" },
+      { angle: 225, radius: CLICK_WHEEL_OUTER_TEST_RADIUS, button: "menu" },
+      { angle: 314.999, radius: CLICK_WHEEL_OUTER_TEST_RADIUS, button: "menu" },
+      { angle: 315, radius: CLICK_WHEEL_INNER_TEST_RADIUS, button: "next" },
+    ] as const;
+    try {
+      let pointerId = 1_000;
+      const expected: Array<ClickWheelCardinalPress["button"]> = [];
+      for (const pointerType of ["mouse", "touch", "pen"] as const) {
+        for (const sample of centers) {
+          const point = wheelLocalPoint(sample.angle, 70);
+          await dispatch(mounted, orientedPointerEvent(mounted, "pointerdown", pointerId, point.x, point.y, { pointerType }));
+          await dispatch(mounted, orientedPointerEvent(mounted, "pointerup", pointerId, point.x, point.y, { pointerType }));
+          expected.push(sample.button);
+          pointerId += 1;
+        }
+      }
+      for (const [index, sample] of edges.entries()) {
+        const point = wheelLocalPoint(sample.angle, sample.radius);
+        const pointerType = (["mouse", "touch", "pen"] as const)[index % 3];
+        await dispatch(mounted, orientedPointerEvent(mounted, "pointerdown", pointerId, point.x, point.y, { pointerType }));
+        await dispatch(mounted, orientedPointerEvent(mounted, "pointerup", pointerId, point.x, point.y, { pointerType }));
+        expected.push(sample.button);
+        pointerId += 1;
+      }
+      expect(mounted.cardinalPresses.map(({ button }) => button)).toEqual(expected);
+      expect(mounted.cardinalPresses).toHaveLength(20);
+      expect(mounted.starts).toHaveLength(0);
+
+      const rotationStart = wheelLocalPoint(0, 70);
+      const rotationMove = wheelLocalPoint(20, 70);
+      await dispatch(mounted, orientedPointerEvent(mounted, "pointerdown", pointerId, rotationStart.x, rotationStart.y, { pointerType: "touch" }));
+      await dispatch(mounted, orientedPointerEvent(mounted, "pointermove", pointerId, rotationMove.x, rotationMove.y, { pointerType: "touch" }));
+      await dispatch(mounted, orientedPointerEvent(mounted, "pointerup", pointerId, rotationMove.x, rotationMove.y, { pointerType: "touch" }));
+      expect(mounted.cardinalPresses).toHaveLength(20);
+      expect(mounted.starts).toHaveLength(1);
+      expect(mounted.moves).toHaveLength(1);
+      expect(mounted.ends).toHaveLength(1);
+      expect(mounted.starts[0]?.angleDeg).toBeCloseTo(0, 6);
+      expect(mounted.moves[0]?.angleDeg).toBeCloseTo(20, 6);
+      expect(mounted.cardinalEnds.at(-1)).toMatchObject({ accepted: false });
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("movement takeover cancels the cardinal candidate before rotation starts", async () => {
+    const mounted = await mountSurface();
+    try {
+      await dispatch(mounted, pointerEvent("pointerdown", 280, 70, 0));
+      await dispatch(mounted, pointerEvent("pointermove", 280, 80, 0));
+      await dispatch(mounted, pointerEvent("pointerup", 280, 80, 0));
+      expect(mounted.cardinalPresses.map(({ pointerId }) => pointerId)).toEqual([280]);
+      expect(mounted.starts).toHaveLength(0);
+
+      await dispatch(mounted, pointerEvent("pointerdown", 281, 70, 0, { pointerType: "touch" }));
+      await dispatch(mounted, pointerEvent("pointermove", 281, 80.01, 0, { pointerType: "touch" }));
+      await dispatch(mounted, pointerEvent("pointerup", 281, 80.01, 0, { pointerType: "touch" }));
+      expect(mounted.cardinalPresses.map(({ pointerId }) => pointerId)).toEqual([280]);
+      expect(mounted.starts.map(({ pointerId }) => pointerId)).toEqual([281]);
+      expect(mounted.moves.map(({ pointerId }) => pointerId)).toEqual([281]);
+      expect(mounted.ends.map(({ pointerId }) => pointerId)).toEqual([281]);
+
+      const before = wheelLocalPoint(44.99, 70);
+      const after = wheelLocalPoint(45.01, 70);
+      await dispatch(mounted, pointerEvent("pointerdown", 282, before.x, before.y, { pointerType: "pen" }));
+      await dispatch(mounted, pointerEvent("pointermove", 282, after.x, after.y, { pointerType: "pen" }));
+      await dispatch(mounted, pointerEvent("pointerup", 282, after.x, after.y, { pointerType: "pen" }));
+      expect(mounted.cardinalPresses.map(({ pointerId }) => pointerId)).toEqual([280]);
+      expect(mounted.starts.map(({ pointerId }) => pointerId)).toEqual([281, 282]);
+      expect(mounted.moves.map(({ pointerId }) => pointerId)).toEqual([281, 282]);
+      expect(mounted.ends.map(({ pointerId }) => pointerId)).toEqual([281, 282]);
+      expect(mounted.cardinalEnds.filter(({ pointerId }) => pointerId !== 280).every(({ accepted }) => !accepted)).toBeTrue();
     } finally {
       await unmount(mounted);
     }
@@ -612,6 +784,33 @@ describe("click-wheel mounted R3F event seam", () => {
       ]);
       expect(mounted.controlPhysics.selectPresses).toBe(3);
       expect(mounted.controlPhysics.selectReleases).toBe(3);
+    } finally {
+      await unmount(mounted);
+    }
+  });
+
+  test("the mounted r=37 seam belongs only to Select while just outside belongs to the annulus", async () => {
+    const mounted = await mountSurface();
+    try {
+      for (const [index, radius] of [36.999, 37] .entries()) {
+        const pointerId = 1_100 + index;
+        await dispatch(mounted, pointerEvent("pointerdown", pointerId, radius, 0, { pointerType: "touch" }));
+        await dispatch(mounted, pointerEvent("pointerup", pointerId, radius, 0, { pointerType: "touch" }));
+      }
+      expect(mounted.selectStarts.map(({ pointerId }) => pointerId)).toEqual([1_100, 1_101]);
+      expect(mounted.selectEnds.map(({ pointerId }) => pointerId)).toEqual([1_100, 1_101]);
+      expect(mounted.cardinalPresses).toHaveLength(0);
+      expect(mounted.starts).toHaveLength(0);
+
+      await dispatch(mounted, pointerEvent("pointerdown", 1_102, 37.001, 0, { pointerType: "touch" }));
+      await dispatch(mounted, pointerEvent("pointerup", 1_102, 37.001, 0, { pointerType: "touch" }));
+      expect(mounted.cardinalPresses).toEqual([
+        expect.objectContaining({ pointerId: 1_102, button: "next" }),
+      ]);
+      expect(mounted.selectStarts).toHaveLength(2);
+      expect(mounted.starts).toHaveLength(0);
+      expect(mounted.moves).toHaveLength(0);
+      expect(mounted.ends).toHaveLength(0);
     } finally {
       await unmount(mounted);
     }
@@ -755,7 +954,7 @@ describe("click-wheel mounted R3F event seam", () => {
       await dispatch(mounted, pointerEvent("pointerdown", 36, 80, 0));
       expect(mounted.canvas.hasPointerCapture(36)).toBeTrue();
       window.dispatchEvent(new Event("blur"));
-      expect(mounted.ends.map((end) => end.reason)).toEqual(["cancel"]);
+      expect(mounted.ends).toHaveLength(0);
       expect(mounted.canvas.hasPointerCapture(36)).toBeFalse();
 
       await dispatch(
@@ -785,9 +984,10 @@ describe("click-wheel mounted R3F event seam", () => {
     });
     const pointerId = 41;
     try {
+      await dispatch(mounted, pointerEvent("pointerdown", pointerId, 80, 0));
       await dispatchExpectingWindowError(
         mounted,
-        pointerEvent("pointerdown", pointerId, 80, 0),
+        pointerEvent("pointermove", pointerId, 0, -80),
         "planted start failure",
       );
       expect(startsToThrow).toBe(0);
@@ -795,6 +995,7 @@ describe("click-wheel mounted R3F event seam", () => {
       expect(mounted.ends.map((end) => end.reason)).toEqual(["cancel"]);
 
       await dispatch(mounted, pointerEvent("pointerdown", 42, 80, 0));
+      await dispatch(mounted, pointerEvent("pointermove", 42, 0, -80));
       await dispatch(mounted, pointerEvent("pointerup", 42, 0, -80));
       expect(mounted.starts).toHaveLength(2);
       expect(mounted.ends.map((end) => end.reason)).toEqual([
@@ -857,7 +1058,7 @@ describe("click-wheel mounted R3F event seam", () => {
         mounted,
         pointerEvent("lostpointercapture", pointerId, 80, 0, { pointerType: "touch" }),
       );
-      expect(mounted.ends.map((end) => end.reason)).toEqual(["cancel"]);
+      expect(mounted.ends).toHaveLength(0);
     } finally {
       await unmount(mounted);
     }
@@ -872,7 +1073,7 @@ describe("click-wheel mounted R3F event seam", () => {
         mounted,
         pointerEvent("lostpointercapture", pointerId, 80, 0),
       );
-      expect(mounted.ends.map((end) => end.reason)).toEqual(["lost-capture"]);
+      expect(mounted.ends).toHaveLength(0);
     } finally {
       await unmount(mounted);
     }
@@ -884,7 +1085,7 @@ describe("click-wheel mounted R3F event seam", () => {
     await dispatch(mounted, pointerEvent("pointerdown", pointerId, 80, 0));
     expect(mounted.canvas.hasPointerCapture(pointerId)).toBeTrue();
     await unmount(mounted);
-    expect(mounted.ends.map((end) => end.reason)).toEqual(["cancel"]);
+    expect(mounted.ends).toHaveLength(0);
     expect(mounted.canvas.hasPointerCapture(pointerId)).toBeFalse();
   });
 

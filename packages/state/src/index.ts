@@ -28,17 +28,27 @@ export {
   coastActionAtom,
   detentActionAtom,
   deviceStore,
+  dismissNowPlayingVolumeFeedbackActionAtom,
   endGestureActionAtom,
   flushAnnouncementsActionAtom,
   moveHighlightActionAtom,
+  NOW_PLAYING_VOLUME_FEEDBACK_DWELL_MS,
   popScreenActionAtom,
   pressActionAtom,
   pushScreenActionAtom,
   resetInputState,
   resetStackActionAtom,
+  reconcileNowPlayingVolumeFeedbackActionAtom,
   returnToRootActionAtom,
   setDensityActionAtom,
   setDynamicTypeScaleActionAtom,
+  setNowPlayingModeActionAtom,
+  setNowPlayingWheelControlActionAtom,
   startAnnouncer,
+  startNowPlayingVolumeFeedback,
 } from './store'
-export type { AnnouncerDriverOptions, TimerHandle } from './store'
+export type {
+  AnnouncerDriverOptions,
+  NowPlayingVolumeFeedbackDriverOptions,
+  TimerHandle,
+} from './store'

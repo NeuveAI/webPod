@@ -75,6 +75,8 @@ export interface CompositeDeviceProps {
   readonly interactionAudioEnabled?: boolean
   /** Provider-owned Play/Pause action; `true` confirms the press was accepted. */
   readonly onPlayPausePress?: () => boolean | Promise<boolean>
+  /** Provider-owned transport action; `false` lets previous/next retain list paging. */
+  readonly onTransportPress?: (button: 'play-pause' | 'next' | 'previous') => boolean | Promise<boolean>
 }
 
 /**
@@ -96,6 +98,7 @@ export function CompositeDevice({
   onOrientationGrabHoverChange,
   interactionAudioEnabled = true,
   onPlayPausePress,
+  onTransportPress,
 }: CompositeDeviceProps) {
   const canUseDom = typeof document !== 'undefined'
   const tier = useSyncExternalStore(
@@ -128,6 +131,7 @@ export function CompositeDevice({
       data-composite-ready={host !== null}
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
+      onTransportPress={onTransportPress}
     >
       {({
         onArcStart,
@@ -191,6 +195,7 @@ type CompositeInputBoundaryProps = {
   readonly createAudioRuntime?: () => InteractionAudioRuntime
   readonly interactionAudioEnabled?: boolean
   readonly onPlayPausePress?: () => boolean | Promise<boolean>
+  readonly onTransportPress?: (button: 'play-pause' | 'next' | 'previous') => boolean | Promise<boolean>
 }
 
 /**
@@ -207,6 +212,7 @@ export function CompositeInputBoundary({
   createAudioRuntime = defaultInteractionAudioRuntime,
   interactionAudioEnabled = true,
   onPlayPausePress,
+  onTransportPress,
 }: CompositeInputBoundaryProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const controller = useMemo(
@@ -219,8 +225,10 @@ export function CompositeInputBoundary({
   }, [controller, interactionAudioEnabled])
 
   useEffect(() => {
-    controller.setPlayPauseHandler(onPlayPausePress)
-  }, [controller, onPlayPausePress])
+    controller.setTransportHandler(onTransportPress ?? (onPlayPausePress === undefined
+      ? undefined
+      : (button) => button === 'play-pause' ? onPlayPausePress() : false))
+  }, [controller, onPlayPausePress, onTransportPress])
 
   useEffect(() => {
     const root = rootRef.current
@@ -264,7 +272,7 @@ class CompositeInputController {
   private audio: InteractionAudioRuntime | null = null
   private audioRoot: HTMLDivElement | null = null
   private interactionAudioEnabled = true
-  private onPlayPausePress: (() => boolean | Promise<boolean>) | undefined
+  private onTransportPress: ((button: 'play-pause' | 'next' | 'previous') => boolean | Promise<boolean>) | undefined
   private attachmentGeneration = 0
   private readonly cardinalStartTimes = new Map<number, number>()
   private suppressedCardinalPointerId: number | null = null
@@ -402,10 +410,10 @@ class CompositeInputController {
     this.audio?.setEnabled(enabled)
   }
 
-  setPlayPauseHandler(
-    handler: (() => boolean | Promise<boolean>) | undefined,
+  setTransportHandler(
+    handler: ((button: 'play-pause' | 'next' | 'previous') => boolean | Promise<boolean>) | undefined,
   ): void {
-    this.onPlayPausePress = handler
+    this.onTransportPress = handler
   }
 
   rememberApplicationFocus(target: HTMLElement, root: HTMLDivElement): void {
@@ -454,42 +462,46 @@ class CompositeInputController {
   ): void {
     const store = this.store
     if (store === null) return
-    if (button !== 'play-pause') {
+    if (button === 'menu' || button === 'center') {
       store.set(pressActionAtom, { button, source: 'human', path })
       return
     }
 
-    const handler = this.onPlayPausePress
-    if (handler === undefined) return
+    const handler = this.onTransportPress
+    if (handler === undefined) {
+      if (button !== 'play-pause') store.set(pressActionAtom, { button, source: 'human', path })
+      return
+    }
     const generation = this.attachmentGeneration
     let result: boolean | Promise<boolean>
     try {
-      result = handler()
+      result = handler(button)
     } catch {
       return
     }
     if (typeof result === 'boolean') {
       if (result) {
         store.set(acceptedExternalPressActionAtom, {
-          button: 'play-pause',
+          button,
           source: 'human',
           path,
         })
+      } else if (button !== 'play-pause') {
+        store.set(pressActionAtom, { button, source: 'human', path })
       }
       return
     }
     void result.then(
       (accepted) => {
         if (
-          !accepted ||
           generation !== this.attachmentGeneration ||
           this.store !== store
         ) return
-        store.set(acceptedExternalPressActionAtom, {
-          button: 'play-pause',
-          source: 'human',
-          path,
-        })
+        if (accepted) {
+          store.set(acceptedExternalPressActionAtom, { button, source: 'human', path })
+        } else if (button !== 'play-pause') {
+          store.set(pressActionAtom, { button, source: 'human', path })
+        }
       },
       () => undefined,
     )

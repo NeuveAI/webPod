@@ -15,7 +15,7 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
-import { applePlaybackDiagnostics, type ApplePlaybackDiagnosticEvent } from "../apple-playback-diagnostics";
+import { applePlaybackDiagnostics, deriveApplePlaybackDiagnosis, serializeApplePlaybackDiagnostics, type AppleEmeCapability, type ApplePlaybackDiagnosticEvent } from "../apple-playback-diagnostics";
 import {
   bindDeviceOrientationControls,
   createDevicePreviewStore,
@@ -314,26 +314,45 @@ function reading(value: string | number | boolean | null | undefined): string {
   return value === null || value === undefined ? "—" : String(value);
 }
 
-function PlaybackDiagnostics({ events, emeCapability }: { readonly events: readonly ApplePlaybackDiagnosticEvent[]; readonly emeCapability: string | null }) {
+export function PlaybackDiagnostics({ events, emeCapability }: { readonly events: readonly ApplePlaybackDiagnosticEvent[]; readonly emeCapability: AppleEmeCapability | null }) {
   const latest = events.at(-1);
+  const diagnosis = deriveApplePlaybackDiagnosis({ enabled: true, events, emeCapability });
+  const causal = diagnosis.causalSequence === null ? undefined : events.find((event) => event.sequence === diagnosis.causalSequence);
   return (
-    <details className="webpod-device-preview__playback-diagnostics" open={latest?.event === "mediaPlaybackError"}>
-      <summary>Apple playback diagnostics ({events.length})</summary>
-      <button type="button" onClick={() => applePlaybackDiagnostics.clear()}>Clear</button>
-      <p>EME: {emeCapability ?? "probing"}</p>
-      {latest === undefined ? <p>No playback events captured.</p> : (
-        <dl>
-          <div><dt>Latest</dt><dd>#{latest.sequence} {latest.event} @ {latest.timestampMs}ms</dd></div>
-          <div><dt>Error class</dt><dd>{latest.errorClass ?? "—"}</dd></div>
-          <div><dt>MusicKit</dt><dd>state {reading(latest.musicKit.playbackState)} ({reading(latest.musicKit.playbackStateName)}) · time {reading(latest.musicKit.currentTime)} · duration {reading(latest.musicKit.duration)} · volume {reading(latest.musicKit.volume)}</dd></div>
-          {latest.playbackEventState === undefined ? null : <div><dt>Event state</dt><dd>{reading(latest.playbackEventState.value)} ({reading(latest.playbackEventState.name)})</dd></div>}
-          {latest.mediaItemState === undefined ? null : <div><dt>Item state</dt><dd>{reading(latest.mediaItemState.value)} ({reading(latest.mediaItemState.name)})</dd></div>}
-          <div><dt>Audio</dt><dd>paused {reading(latest.audio.paused)} · muted {reading(latest.audio.muted)} · volume {reading(latest.audio.volume)} · ready {reading(latest.audio.readyState)} · network {reading(latest.audio.networkState)} · error {reading(latest.audio.errorCode)}</dd></div>
-          <div><dt>Activation</dt><dd>active {reading(latest.userActivation.isActive)} · ever active {reading(latest.userActivation.hasBeenActive)}</dd></div>
-        </dl>
-      )}
-      <ol>{events.map((event) => <li key={event.sequence}>#{event.sequence} · {event.timestampMs}ms · {event.event}</li>)}</ol>
-    </details>
+    <section className="webpod-device-preview__playback-diagnostics" aria-label="Apple playback diagnostics">
+      <div className="webpod-device-preview__diagnosis" data-kind={diagnosis.kind} role="status" aria-live="polite" aria-atomic="true">
+        <span>Playback diagnosis</span>
+        <strong>{diagnosis.headline}</strong>
+        <p>{diagnosis.nextAction}</p>
+      </div>
+      <details>
+        <summary>Technical timeline ({events.length})</summary>
+        <button type="button" onClick={() => applePlaybackDiagnostics.clear()}>Clear timeline</button>
+        <button type="button" onClick={() => void navigator.clipboard.writeText(serializeApplePlaybackDiagnostics({ enabled: true, events, emeCapability }))}>Copy diagnostics</button>
+        <p>Encrypted media: {emeCapability ?? "probing"}</p>
+        {latest === undefined ? <p>No playback events captured.</p> : (
+          <dl>
+            <div><dt>Causal</dt><dd>{causal === undefined ? "—" : <>#{causal.sequence} {causal.event} @ {causal.timestampMs}ms</>}</dd></div>
+            <div><dt>Latest</dt><dd>#{latest.sequence} {latest.event} @ {latest.timestampMs}ms</dd></div>
+            <div><dt>Error class</dt><dd>{causal?.errorClass ?? "—"}</dd></div>
+            <div><dt>MusicKit</dt><dd>state {reading(latest.musicKit.playbackState)} ({reading(latest.musicKit.playbackStateName)}) · time {reading(latest.musicKit.currentTime)} · duration {reading(latest.musicKit.duration)} · volume {reading(latest.musicKit.volume)} · session {reading(latest.musicKit.authorized)} · preview {reading(latest.musicKit.previewOnly)}</dd></div>
+            <div><dt>Queue</dt><dd>present {reading(latest.queue.present)} · items {reading(latest.queue.length)} · position {reading(latest.queue.position)} · now playing {reading(latest.queue.hasNowPlayingItem)} · result {reading(latest.operation?.queueResult)}</dd></div>
+            {latest.operation === undefined ? null : <div><dt>Target</dt><dd>{reading(latest.operation.targetKind)} · total {reading(latest.operation.targetItemCount)} · queued {reading(latest.operation.queuedItemCount)} · start {reading(latest.operation.startIndex)} · offset {reading(latest.operation.queueOffset)}</dd></div>}
+            {latest.playbackEventState === undefined ? null : <div><dt>Latest state</dt><dd>{reading(latest.playbackEventState.value)} ({reading(latest.playbackEventState.name)})</dd></div>}
+            {latest.mediaItemState === undefined ? null : <div><dt>Latest item</dt><dd>{reading(latest.mediaItemState.value)} ({reading(latest.mediaItemState.name)})</dd></div>}
+            <div><dt>Audio</dt><dd>paused {reading(latest.audio.paused)} · muted {reading(latest.audio.muted)} · volume {reading(latest.audio.volume)} · ready {reading(latest.audio.readyState)} · network {reading(latest.audio.networkState)} · error {reading(latest.audio.errorCode)}</dd></div>
+            <div><dt>Activation</dt><dd>active {reading(latest.userActivation.isActive)} · ever active {reading(latest.userActivation.hasBeenActive)}</dd></div>
+          </dl>
+        )}
+        <ol aria-label="Playback event timeline">{events.map((event) => (
+          <li key={event.sequence} data-causal={event.sequence === diagnosis.causalSequence || undefined} data-latest={event.sequence === latest?.sequence || undefined}>
+            #{event.sequence} · {event.timestampMs}ms · {event.event}
+            {event.sequence === diagnosis.causalSequence ? <strong> Causal failure</strong> : null}
+            {event.sequence === latest?.sequence && event.sequence !== diagnosis.causalSequence ? <span> Latest follow-up</span> : null}
+          </li>
+        ))}</ol>
+      </details>
+    </section>
   );
 }
 
@@ -343,7 +362,7 @@ function isGeometryEvidenceView(
   return value !== null && value in GEOMETRY_EVIDENCE_ORIENTATIONS;
 }
 
-function PreviewControls({ state, music }: { readonly state: DevicePreviewState; readonly music: ReturnType<typeof musicRuntime.getSnapshot> }) {
+export function PreviewControls({ state, music }: { readonly state: DevicePreviewState; readonly music: ReturnType<typeof musicRuntime.getSnapshot> }) {
   return (
     <nav className="webpod-device-preview__controls" aria-label="Device preview controls">
       <button
@@ -370,17 +389,13 @@ function PreviewControls({ state, music }: { readonly state: DevicePreviewState;
           Sign out of Apple Music
         </button>
       ) : null}
-      {music.requestedMode === "apple" ? (
-        <button type="button" onClick={() => void selectMusicRuntime("fixture")}>
-          Use demo library
+      {music.requestedMode === "apple" && music.phase === "error" ? (
+        <button className="webpod-device-preview__retry" type="button" onClick={() => void selectMusicRuntime("apple")}>
+          Retry Apple Music
         </button>
-      ) : (
-        <button type="button" onClick={() => void selectMusicRuntime("apple")}>
-          Use Apple Music
-        </button>
-      )}
+      ) : null}
       <output aria-live="polite">
-        {music.message ?? (music.activeMode === "apple" ? `Apple Music: ${music.phase}` : "Demo library")}
+        {music.message ?? `Apple Music: ${music.phase}`}
       </output>
       <button type="button" onClick={previewStore.resetOrientation}>
         Reset view
@@ -479,6 +494,11 @@ const DEVICE_PREVIEW_CSS = `
     font: 500 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
     user-select: text;
   }
+  .webpod-device-preview__diagnosis { display: grid; gap: 3px; padding: 2px 2px 10px; }
+  .webpod-device-preview__diagnosis > span { color: #7dd3fc; font-size: 11px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+  .webpod-device-preview__diagnosis > strong { color: #f8fafc; font: 750 13px/1.35 ui-sans-serif, system-ui, sans-serif; text-wrap: balance; }
+  .webpod-device-preview__diagnosis > p { margin: 0; color: #cbd5e1; font: 500 11px/1.45 ui-sans-serif, system-ui, sans-serif; text-wrap: pretty; }
+  .webpod-device-preview__playback-diagnostics details { border-block-start: 1px solid rgb(125 211 252 / .24); padding-block-start: 8px; }
   .webpod-device-preview__playback-diagnostics summary { cursor: pointer; font-weight: 700; }
   .webpod-device-preview__playback-diagnostics button { margin-block: 8px; }
   .webpod-device-preview__playback-diagnostics dl,
@@ -487,6 +507,8 @@ const DEVICE_PREVIEW_CSS = `
   .webpod-device-preview__playback-diagnostics dt { color: #7dd3fc; }
   .webpod-device-preview__playback-diagnostics dd { margin: 0; overflow-wrap: anywhere; }
   .webpod-device-preview__playback-diagnostics ol { padding-inline-start: 22px; }
+  .webpod-device-preview__playback-diagnostics li[data-causal="true"] { color: #fda4af; font-weight: 650; }
+  .webpod-device-preview__playback-diagnostics li[data-latest="true"] > span { color: #93c5fd; font-weight: 650; }
   .webpod-device-preview__controls button {
     min-block-size: 36px;
     padding: 8px 12px;
@@ -510,6 +532,7 @@ const DEVICE_PREVIEW_CSS = `
   @media (max-width: 520px) {
     .webpod-device-preview__controls { gap: 4px; }
     .webpod-device-preview__controls button { min-block-size: 34px; padding-inline: 9px; }
+    .webpod-device-preview__controls .webpod-device-preview__retry { min-block-size: 44px; }
   }
   @media (hover: hover) and (pointer: fine) {
     .webpod-device-preview__stage[data-orientation-grab="ready"] canvas {

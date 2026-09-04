@@ -1,12 +1,5 @@
 import { formatGate, formatSummary, gatesPassed, runStaticGates, summarizeGates, type GateResult } from './gate-core.ts'
-
-interface CommandGate { readonly id: string; readonly label: string; readonly command: readonly string[] }
-
-const COMMAND_GATES: readonly CommandGate[] = [
-  { id: 'TYPES', label: 'per-project typecheck, including the runner', command: ['bun', 'run', 'typecheck'] },
-  { id: 'LINT', label: 'repo lint', command: ['bun', 'run', 'lint'] },
-  { id: 'TESTS', label: 'repo tests', command: ['bun', 'test'] },
-] as const
+import { COMMAND_GATES, type CommandGate } from './gate-commands.ts'
 
 function argument(name: string): string | undefined {
   const index = process.argv.indexOf(name)

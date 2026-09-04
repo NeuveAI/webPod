@@ -1,0 +1,27 @@
+{
+  "canonicalPanelProducer": {
+    "command": "AQUA_EVIDENCE_DIR=<evidence> bunx --bun playwright test --config packages/panel/playwright.config.ts",
+    "sourceFingerprint": "79a3a96cdd8ceb374380b6513c8daaeb7b5f88dc10f660b8c1eb018f34a48e6f",
+    "result": "18 passed",
+    "aquaCase": "starting playback fills the recessed well with a period-authentic Aqua stripe"
+  },
+  "productionDeviceProducer": {
+    "command": "LCD_FIDELITY_EVIDENCE_DIR=<evidence> bunx --bun playwright test --config apps/web/tests/playwright.config.ts --grep captures the canonical production device",
+    "sourceFingerprint": "55a59aa5bdfcafc0493958b55ea77975f5818df609a2a422074d432e9da60298",
+    "route": "/_spike/device?capture=&view=front&colourway=black",
+    "result": "2 passed",
+    "captures": [
+      {
+        "path": "aqua-loading-device-mobile.png",
+        "viewport": { "width": 390, "height": 844 },
+        "content": "complete production composite iPod with pending Now Playing LCD"
+      },
+      {
+        "path": "aqua-loading-device-desktop.png",
+        "viewport": { "width": 1440, "height": 900 },
+        "content": "complete production composite iPod with pending Now Playing LCD"
+      }
+    ],
+    "determinism": "The existing production-device browser test installs a deterministic Apple Music facade, navigates the real production Panel through the real CompositeDevice, disables animation before the pending surface is mounted, and repaints the production canvas."
+  }
+}

@@ -48,7 +48,6 @@ interface MenuLayout {
   readonly screen: Size
   readonly title: Size
   readonly list: Size
-  readonly preview: Size
   readonly listOverflowY: string
   readonly listScrollTop: number
   readonly rasterScale: number
@@ -243,7 +242,6 @@ async function measureMenu(page: Page): Promise<MenuLayout> {
       screen: size(element('.wp-screen')),
       title: size(element('.wp-titlebar')),
       list: size(list),
-      preview: size(element('.wp-list-preview')),
       listOverflowY: getComputedStyle(list).overflowY,
       listScrollTop: list.scrollTop,
       rasterScale: Number.parseFloat(
@@ -278,8 +276,7 @@ function expectProductionDefault(layout: MenuLayout): void {
   expect(layout.rowFontSizes).toEqual(Array.from({ length: 8 }, () => 11))
   expect(layout.screen).toEqual({ width: 272, height: 204 })
   expect(layout.title).toEqual({ width: 272, height: 21 })
-  expect(layout.list).toEqual({ width: 168, height: 183 })
-  expect(layout.preview).toEqual({ width: 104, height: 183 })
+  expect(layout.list).toEqual({ width: 272, height: 183 })
   expect(layout.listOverflowY).toBe('hidden')
   expect(layout.listScrollTop).toBe(0)
   expect(layout.rasterScale).toBe(1)

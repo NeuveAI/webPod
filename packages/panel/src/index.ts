@@ -1,16 +1,14 @@
-export { Panel, searchQueryAtom, type PanelProps } from './Panel'
-export type { NavigationDataSource, NavigationStatus } from './navigation'
+export { Panel, searchQueryAtom, showNowPlayingScreen, subscribeToRootScreenEntry, type PanelProps } from './Panel'
+export type { NavigationDataSource, NavigationLibraryCollection, NavigationLibraryCollectionStatus, NavigationStatus } from './navigation'
 export { providerStatusFrame, statusFrame } from './navigation'
 export { LIST_DEFAULT_VISIBLE_ROWS, LIST_VIEWPORT_SIZE_PX, ListRow, ListViewport, type ListRowContent } from './list-view'
+export { OverflowMarquee, type OverflowMarqueeProps } from './overflow-marquee'
 export {
-  albumTracksFrame,
   artworkSampleFixture,
   deriveArtworkTreatment,
   excludeActorHue,
   isPanelState,
   PANEL_STATES,
-  fixtureProvider,
-  mainMenuFrame,
   nextNowPlayingMode,
   nowPlayingFrame,
   nowPlayingModes,

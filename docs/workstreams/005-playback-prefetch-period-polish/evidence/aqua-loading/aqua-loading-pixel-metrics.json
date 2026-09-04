@@ -1,0 +1,24 @@
+{
+  "source": "aqua-loading-dark-t0.png",
+  "sample": {
+    "x": 38,
+    "y": 319,
+    "width": 468,
+    "height": 1,
+    "description": "Interior centerline excluding the two-device-pixel rim"
+  },
+  "minLuma": 117.986,
+  "maxLuma": 208.62,
+  "luminanceSwing": 90.634,
+  "maxBlueMinusRed": 122,
+  "autocorrelationBest": {
+    "devicePixelLag": 16,
+    "correlation": 0.9198738681,
+    "logicalPixelRepeat": 8
+  },
+  "acceptance": {
+    "luminanceSwingAtLeast80": true,
+    "blueMinusRedAtLeast95": true,
+    "logicalRepeatBetween6_75And9": true
+  }
+}
