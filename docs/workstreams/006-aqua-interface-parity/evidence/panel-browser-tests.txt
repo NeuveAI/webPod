@@ -1,0 +1,18 @@
+[PANEL SOURCE 2196957f799dbc93c74d859ff6287342f3847495602585a363772be50bf9272f FILES 238]
+[WebServer] (node:86915) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+Running 4 tests using 1 worker
+
+(node:86934) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[PANEL SOURCE 2196957f799dbc93c74d859ff6287342f3847495602585a363772be50bf9272f FILES 238]
+
+[1/4] packages/panel/e2e/panel.e2e.ts:200:1 › standard Now Playing follows the real-device vertical composition
+[2/4] packages/panel/e2e/panel.e2e.ts:1084:1 › wheel navigation moves one list-owned indicator and never decorates the preview
+[3/4] packages/panel/e2e/panel.e2e.ts:1158:1 › Dynamic Type reaches compact, medium, and forced-airy without clipping
+[4/4] packages/panel/e2e/panel.e2e.ts:1177:1 › axe and preference emulation pass in both colourways
+  4 passed (8.8s)
