@@ -138,7 +138,11 @@ describe('mounted playback selection', () => {
     expect(container.querySelector('.wp-now')?.getAttribute('data-mode')).toBe('queue')
     await act(async () => { await Promise.resolve(); await Promise.resolve() })
     expect(container.querySelector('.wp-now--queue')).not.toBeNull()
-    expect(container.querySelectorAll('.wp-now--queue .wp-list-row')).toHaveLength(8)
+    expect(container.querySelectorAll('.wp-now--queue .wp-list-row')).toHaveLength(9)
+    const application = container.querySelector('[role="application"]')
+    const activeId = application?.getAttribute('aria-activedescendant')
+    if (activeId == null) throw new Error('Queue active descendant is absent')
+    expect(container.querySelector('[aria-current="true"]')?.id).toBe(activeId)
     const before = container.querySelector('.wp-now--queue [aria-current="true"]')?.textContent
     await act(async () => {
       deviceStore.set(detentActionAtom, { path: 'direct', source: 'human', detents: 1, timestampMs: 3 })
@@ -253,7 +257,7 @@ describe('mounted playback selection', () => {
     expect(container.querySelector('.wp-volume-feedback')).toBeNull()
   })
 
-  test('reconstructed Now Playing restores authoritative track without adding a queue counter', async () => {
+  test('reconstructed Now Playing restores authoritative track and queue position', async () => {
     const provider = createFixtureProvider()
     const tracks = provider.catalog.tracks.slice(0, 3)
     await provider.play({ kind: 'tracks', tracks, startIndex: 1 })
@@ -267,7 +271,8 @@ describe('mounted playback selection', () => {
       await Promise.resolve()
       await Promise.resolve()
     })
-    expect(container.querySelector('.wp-now-count')).toBeNull()
+    expect(container.querySelector('.wp-now-count')?.textContent).toBe('2 of 3')
+    expect(container.querySelector('[role="application"]')?.hasAttribute('aria-activedescendant')).toBe(false)
     expect(container.querySelector('.wp-now-meta h1')?.textContent).toContain(tracks[1]?.title ?? '')
 
     await act(async () => {
@@ -277,7 +282,7 @@ describe('mounted playback selection', () => {
       await Promise.resolve()
       await Promise.resolve()
     })
-    expect(container.querySelector('.wp-now-count')).toBeNull()
+    expect(container.querySelector('.wp-now-count')?.textContent).toBe('3 of 3')
     expect(container.querySelector('.wp-now-meta h1')?.textContent).toContain(tracks[2]?.title ?? '')
   })
 

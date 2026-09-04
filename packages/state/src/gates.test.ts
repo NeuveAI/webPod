@@ -69,21 +69,18 @@ function listFrame(count: number, density: ScreenFrame['density']): ScreenFrame 
   }
 }
 
-describe('density is 8 / 6 / 4, and a page is one viewport', () => {
-  test('the row counts are literally 8, 6 and 4 (001 §3)', () => {
-    // 001 §3: "compact 26px rows / 8 visible / 13px text; medium 32px / 6 /
-    // 15px; airy 44px / 4 / 17px". Not a flat 7 — 001 §4.4's "7 rows (one
-    // page)" contradicts §4.3 and §4.6, and the lead ruled for the viewport
-    // reading. This is that ruling, in a form that cannot silently revert.
-    expect(VISIBLE_ROWS.compact).toBe(8)
+describe('density is 9 / 6 / 4, and a page is one viewport', () => {
+  test('the row counts are 9, 6 and 4 across compact and accessibility densities', () => {
+    // Photo-authoritative compact capacity; accessibility densities stay unchanged.
+    expect(VISIBLE_ROWS.compact).toBe(9)
     expect(VISIBLE_ROWS.medium).toBe(6)
     expect(VISIBLE_ROWS.airy).toBe(4)
   })
 
-  test('the row heights are literally 26, 32 and 44 (001 §3)', () => {
-    expect(ROW_HEIGHT_PX.compact).toBe(26)
-    expect(ROW_HEIGHT_PX.medium).toBe(32)
-    expect(ROW_HEIGHT_PX.airy).toBe(44)
+  test('every density divides the full 183px content viewport', () => {
+    expect(ROW_HEIGHT_PX.compact * VISIBLE_ROWS.compact).toBe(183)
+    expect(ROW_HEIGHT_PX.medium * VISIBLE_ROWS.medium).toBe(183)
+    expect(ROW_HEIGHT_PX.airy * VISIBLE_ROWS.airy).toBe(183)
   })
 
   test('no density pages by 7', () => {
@@ -94,7 +91,7 @@ describe('density is 8 / 6 / 4, and a page is one viewport', () => {
     }
   })
 
-  test('Shift+Arrow moves 8 rows on a compact screen, through the store', () => {
+  test('Shift+Arrow moves 9 rows on a compact screen, through the store', () => {
     // ⚑ The store supplies the page size; the caller cannot. This is the
     // orphan-row failure the ruling exists to prevent: a flat 7 on an 8-row
     // viewport leaves one row the human can page past but never land on.
@@ -109,8 +106,8 @@ describe('density is 8 / 6 / 4, and a page is one viewport', () => {
       timestampMs: 0,
     })
 
-    expect(store.get(visibleRowCountAtom)).toBe(8)
-    expect(store.get(highlightIndexAtom)).toBe(8)
+    expect(store.get(visibleRowCountAtom)).toBe(9)
+    expect(store.get(highlightIndexAtom)).toBe(9)
   })
 
   test('Shift+Arrow moves 4 rows on an airy screen, through the store', () => {
@@ -138,7 +135,7 @@ describe('density is 8 / 6 / 4, and a page is one viewport', () => {
       { path: 'key', source: 'human', direction: 1, page: true, timestampMs: 0 },
       VISIBLE_ROWS.compact,
     )
-    expect(outcome.rowDelta).toBe(8)
+    expect(outcome.rowDelta).toBe(9)
     expect(outcome.detents).toBe(1)
   })
 })
@@ -216,7 +213,7 @@ describe('the density setting is not inert', () => {
     store.set(pushScreenActionAtom, listFrame(100, 'compact'))
 
     expect(store.get(effectiveDensityAtom)).toBe('compact')
-    expect(store.get(visibleRowCountAtom)).toBe(8)
+    expect(store.get(visibleRowCountAtom)).toBe(9)
   })
 
   test('setting the override moves the viewport, the page size and the snapshot', () => {
@@ -419,7 +416,7 @@ describe('R3 — the density route that half-worked is now unconstructible', () 
 
     // And the window did not, because it is stored rather than derived. The
     // highlighted row is not on the glass.
-    expect(windowRows(store)).toEqual([53, 54, 55, 56])
+    expect(windowRows(store)).toEqual([52, 53, 54, 55])
     expect(windowRows(store)).not.toContain(60)
   })
 

@@ -18,13 +18,13 @@ const renderFrame = (frame: ScreenFrame) => {
 }
 
 describe('the canonical panel list view', () => {
-  test('fits exactly eight rows and adds the Aqua rail only for the ninth', () => {
-    const eight = renderToStaticMarkup(<ListViewport rows={rows(8)} highlightIndex={0} windowStart={0} label="Eight" panelId="eight" />)
-    const nine = renderToStaticMarkup(<ListViewport rows={rows(9)} highlightIndex={0} windowStart={0} label="Nine" panelId="nine" />)
-    expect(eight.match(/class="wp-list-row"/g)).toHaveLength(8)
+  test('fits exactly nine rows and adds the Aqua rail only for the tenth', () => {
+    const eight = renderToStaticMarkup(<ListViewport rows={rows(9)} highlightIndex={0} windowStart={0} label="Eight" panelId="eight" />)
+    const nine = renderToStaticMarkup(<ListViewport rows={rows(10)} highlightIndex={0} windowStart={0} label="Nine" panelId="nine" />)
+    expect(eight.match(/class="wp-list-row"/g)).toHaveLength(9)
     expect(eight).not.toContain('wp-list-scroll')
     expect(eight).not.toContain('class="wp-list-body" data-overflow="true"')
-    expect(nine.match(/class="wp-list-row"/g)).toHaveLength(8)
+    expect(nine.match(/class="wp-list-row"/g)).toHaveLength(9)
     expect(nine).toContain('wp-list-scroll')
     expect(nine).toContain('data-overflow="true"')
   })
@@ -39,7 +39,7 @@ describe('the canonical panel list view', () => {
     expect(source).toContain('wp-list-row__status')
     expect(source).toContain('wp-list-row__chevron')
     expect(source).toContain('<OverflowMarquee')
-    expect(css).toMatch(/\.wp-list-row\s*\{[^}]*padding-inline:\s*8px 6px[^}]*border-block-end:\s*1px solid var\(--wp-divider\)/s)
+    expect(css).toMatch(/\.wp-list-row\s*\{[^}]*padding-inline:\s*5px 5px[^}]*border-block-end:\s*0/s)
     expect(css).toMatch(/\.wp-list-row__primary, \.wp-list-row__secondary \{[^}]*text-overflow:\s*ellipsis/s)
     expect(css).toMatch(/\.wp-marquee\[data-overflow="true"\] \.wp-marquee__moving \{[^}]*animation:\s*wp-title-marquee/s)
     expect(css).toMatch(/prefers-reduced-motion:[\s\S]*\.wp-panel \.wp-marquee\[data-overflow="true"\] \.wp-marquee__moving \{[^}]*animation:\s*none/s)
@@ -99,11 +99,11 @@ describe('the canonical panel list view', () => {
     }
   })
 
-  test('loading skeleton tracks the active 8, 6 and 4 row viewport geometry', () => {
+  test('loading skeleton tracks the active 9, 6 and 4 row viewport geometry', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
-    expect(css).toMatch(/\.wp-list-loading \{[^}]*repeat\(var\(--wp-list-visible-rows, 8\), 1fr\)/s)
+    expect(css).toMatch(/\.wp-list-loading \{[^}]*repeat\(var\(--wp-list-visible-rows, 9\), 1fr\)/s)
     expect(css).not.toContain('--wp-visible-rows')
-    for (const visibleRows of [8, 6, 4]) {
+    for (const visibleRows of [9, 6, 4]) {
       const markup = renderToStaticMarkup(<ListViewport rows={rows(visibleRows)} highlightIndex={0} windowStart={0} visibleRows={visibleRows} label={`${visibleRows} rows`} panelId={`rows-${visibleRows}`} message={<div className="wp-list-loading">{Array.from({ length: visibleRows }, (_, index) => <i key={index} />)}</div>} />)
       expect(markup).toContain(`--wp-list-visible-rows:${visibleRows}`)
       expect(markup.match(/<i><\/i>/g)).toHaveLength(visibleRows)

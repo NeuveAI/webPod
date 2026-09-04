@@ -39,18 +39,18 @@ describe('the list-owned scroll indicator', () => {
 
   test('derives start, middle, and end geometry from the authoritative row window', () => {
     expect(listScrollGeometry(16, 8, 0)).toEqual({
-      thumbSizePx: 87.5,
+      thumbSizePx: 91.5,
       thumbOffsetPx: 0,
       windowStart: 0,
     })
     expect(listScrollGeometry(16, 8, 4)).toEqual({
-      thumbSizePx: 87.5,
-      thumbOffsetPx: 43.75,
+      thumbSizePx: 91.5,
+      thumbOffsetPx: 45.75,
       windowStart: 4,
     })
     expect(listScrollGeometry(16, 8, 8)).toEqual({
-      thumbSizePx: 87.5,
-      thumbOffsetPx: 87.5,
+      thumbSizePx: 91.5,
+      thumbOffsetPx: 91.5,
       windowStart: 8,
     })
   })
@@ -64,8 +64,8 @@ describe('the list-owned scroll indicator', () => {
     await act(async () => root.render(
       <ListScrollIndicator totalRows={120} visibleRows={8} windowStart={56} />,
     ))
-    expect(container.querySelector('.wp-list-scroll')?.getAttribute('data-thumb-size')).toBe('11.667px')
-    expect(container.querySelector('.wp-list-scroll')?.getAttribute('data-thumb-offset')).toBe('81.667px')
+    expect(container.querySelector('.wp-list-scroll')?.getAttribute('data-thumb-size')).toBe('12.200px')
+    expect(container.querySelector('.wp-list-scroll')?.getAttribute('data-thumb-offset')).toBe('85.400px')
 
     await act(async () => root.render(
       <ListScrollIndicator totalRows={4} visibleRows={8} windowStart={0} />,
@@ -76,7 +76,7 @@ describe('the list-owned scroll indicator', () => {
       <ListScrollIndicator totalRows={10_000} visibleRows={8} windowStart={9_992} />,
     ))
     expect(container.querySelector('.wp-list-scroll')?.getAttribute('data-thumb-size')).toBe('5.000px')
-    expect(container.querySelector('.wp-list-scroll')?.getAttribute('data-thumb-offset')).toBe('170.000px')
+    expect(container.querySelector('.wp-list-scroll')?.getAttribute('data-thumb-offset')).toBe('178.000px')
   })
 
   test('uses the effective minimum thumb in the ten-thousand-row end travel', () => {
@@ -99,8 +99,8 @@ describe('the list-owned scroll indicator', () => {
     expect(html).toContain('aria-hidden="true"')
     expect(html).toContain('class="wp-list-scroll__well"')
     expect(html).toContain('class="wp-list-scroll__thumb"')
-    expect(html).toContain('data-thumb-size="11.667px"')
-    expect(html).toContain('data-thumb-offset="81.667px"')
+    expect(html).toContain('data-thumb-size="12.200px"')
+    expect(html).toContain('data-thumb-offset="85.400px"')
   })
 
   test('documents the reusable component contract at its export', () => {

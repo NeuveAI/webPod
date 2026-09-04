@@ -110,7 +110,7 @@ describe('keyboard path — one keydown is exactly one detent, always', () => {
     // would compute both sides from the same symbol, so the test would move
     // with the bug and a flat 7 would land green.
     const cases = [
-      { density: 'compact', rows: 8 },
+      { density: 'compact', rows: 9 },
       { density: 'medium', rows: 6 },
       { density: 'airy', rows: 4 },
     ] as const

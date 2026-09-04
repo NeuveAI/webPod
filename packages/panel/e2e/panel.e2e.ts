@@ -206,7 +206,7 @@ test('standard Now Playing follows the real-device vertical composition', async 
   const metadataTitle = metadata.locator('h1')
   const progress = panel.locator('.wp-progress')
   const times = panel.locator('.wp-times')
-  await expect(panel.locator('.wp-now-count')).toHaveCount(0)
+  await expect(panel.locator('.wp-now-count')).toHaveCount(1)
   const [panelBox, titleBox, trackBox, artworkBox, metadataBox, metadataTitleBox, progressBox, timesBox] = await Promise.all([
     panel.boundingBox(), title.boundingBox(), track.boundingBox(), artwork.boundingBox(), metadata.boundingBox(), metadataTitle.boundingBox(), progress.boundingBox(), times.boundingBox(),
   ])
@@ -224,20 +224,20 @@ test('standard Now Playing follows the real-device vertical composition', async 
 
   expect(logical(header.height)).toBe(21)
   expect(logical(content.y - p.y)).toBe(31)
-  expect(logical(art.x - p.x)).toBe(18)
-  expect(logical(art.y - p.y)).toBe(58)
-  expect(logical(art.width)).toBe(86)
-  expect(logical(art.height)).toBe(86)
-  expect(logical(meta.x - p.x)).toBe(116)
-  expect(logical(meta.y - p.y)).toBe(58)
-  expect(logical(metaTitle.y - p.y)).toBe(69)
+  expect(logical(art.x - p.x)).toBe(12)
+  expect(logical(art.y - p.y)).toBe(56)
+  expect(logical(art.width)).toBe(82)
+  expect(logical(art.height)).toBe(82)
+  expect(logical(meta.x - p.x)).toBe(106)
+  expect(logical(meta.y - p.y)).toBe(56)
+  expect(logical(metaTitle.y - p.y)).toBe(64)
   expect(logical(meta.x - (art.x + art.width))).toBe(12)
-  expect(logical(bar.x - p.x)).toBe(18)
+  expect(logical(bar.x - p.x)).toBe(12)
   expect(logical(bar.y - p.y)).toBe(153)
-  expect(logical(bar.width)).toBe(236)
+  expect(logical(bar.width)).toBe(248)
   expect(logical(bar.height)).toBe(14)
-  expect(logical(clock.y - p.y)).toBe(183)
-  expect(logical(clock.y + clock.height - p.y)).toBe(196)
+  expect(logical(clock.y - p.y)).toBe(179)
+  expect(logical(clock.y + clock.height - p.y)).toBe(194)
   await panel.screenshot({ path: resolve(evidence, `${prefix}-s13-reference-geometry.png`) })
   await writeFile(resolve(evidence, `${prefix}-s13-reference-geometry.json`), JSON.stringify({
     reference: 'IMG_2273.HEIC',
@@ -1078,7 +1078,7 @@ test('a 120-row fixture renders only the canonical visible window', async ({ pag
   const panel = await openScreen(page, 's08', '?long=1')
   const list = panel.locator('[data-list-viewport="true"]')
   await expect(list).toBeVisible()
-  await expect(list.locator('.wp-list-row')).toHaveCount(8)
+  await expect(list.locator('.wp-list-row')).toHaveCount(9)
 })
 
 test('wheel navigation moves one list-owned indicator and never decorates the preview', async ({ page }) => {
@@ -1093,16 +1093,16 @@ test('wheel navigation moves one list-owned indicator and never decorates the pr
   await expect(indicator).toHaveCount(1)
   await expect(panel.locator('.wp-list-preview .wp-list-scroll')).toHaveCount(0)
   await expect(indicator).toHaveAttribute('data-total-rows', '11')
-  await expect(indicator).toHaveAttribute('data-visible-rows', '8')
+  await expect(indicator).toHaveAttribute('data-visible-rows', '9')
   await expect(indicator).toHaveAttribute('data-window-start', '0')
-  await expect(indicator).toHaveAttribute('data-thumb-size', '127.273px')
+  await expect(indicator).toHaveAttribute('data-thumb-size', '149.727px')
 
-  for (let detent = 0; detent < 9; detent += 1) {
+  for (let detent = 0; detent < 11; detent += 1) {
     await panel.dispatchEvent('wheel', { deltaY: 40, deltaMode: 0 })
   }
 
   await expect(indicator).toHaveAttribute('data-window-start', '2')
-  await expect(indicator).toHaveAttribute('data-thumb-offset', '31.818px')
+  await expect(indicator).toHaveAttribute('data-thumb-offset', '33.273px')
 })
 
 test('the canonical list window sustains frame pacing under mid-tier CPU throttling', async ({ page }) => {
@@ -1158,7 +1158,7 @@ test('success receipts follow completed provider mutations', async ({ page }) =>
 test('Dynamic Type reaches compact, medium, and forced-airy without clipping', async ({ page }) => {
   await freezeEvidenceClock(page)
   const cases = [
-    ['?scale=1&density=compact', 'compact', '8'],
+    ['?scale=1&density=compact', 'compact', '9'],
     ['?scale=1&density=medium', 'medium', '6'],
     ['?scale=1.3&density=compact', 'airy', '4'],
     ['?scale=2&density=compact', 'airy', '4'],

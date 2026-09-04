@@ -1,3 +1,4 @@
+import { installDeterministicAppleMusic } from './deterministic-apple-music'
 import { createHash } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
@@ -7,7 +8,7 @@ import {
   test,
   type BrowserContext,
   type Page,
-} from '../../../packages/panel/node_modules/@playwright/test/index.js'
+} from '../../../packages/panel/node_modules/@playwright/test/index.mjs'
 
 import { assertBrowserSourceIdentity } from './source-identity'
 
@@ -72,7 +73,7 @@ interface PixelDifference {
 
 test.beforeAll(async () => mkdir(evidenceDirectory, { recursive: true }))
 
-test('the default probe and spike render one production eight-row LCD view', async ({ context }) => {
+test('the default probe and spike render one production nine-row-capacity LCD view', async ({ context }) => {
   const probe = await openRoute(context, PROBE_ROUTE)
   const spike = await openRoute(context, SPIKE_ROUTE)
 
@@ -113,7 +114,7 @@ test('the default probe and spike render one production eight-row LCD view', asy
   }
 })
 
-test('every legacy product-semantic query resolves to the canonical eight-row view', async ({ context }) => {
+test('every legacy product-semantic query resolves to the canonical nine-row-capacity view', async ({ context }) => {
   for (const route of LEGACY_PROBE_ROUTES) {
     const page = await openRoute(context, route)
     try {
@@ -166,6 +167,7 @@ test('cropped LCD pixels remain equivalent across the shared route boundary', as
 
 async function openRoute(context: BrowserContext, route: string): Promise<Page> {
   const page = await context.newPage()
+  await installDeterministicAppleMusic(page)
   await page.goto(route, { waitUntil: 'domcontentloaded' })
   await assertBrowserSourceIdentity(page)
   await page.addStyleTag({
@@ -231,12 +233,12 @@ async function measureMenu(page: Page): Promise<MenuLayout> {
         state: panel.dataset['state'],
         visibleRows: panel.dataset['visibleRows'],
       },
-      labels: rows.map((row) => row.querySelector('.wp-list-row__primary')?.textContent?.trim() ?? ''),
+      labels: rows.map((row) => row.querySelector('.wp-list-row__primary .wp-marquee__rest')?.textContent?.trim() ?? ''),
       rowIndexes: rows.map((row) => {
         const index = row.id.match(/-row-(\d+)$/)?.[1]
         return index === undefined ? -1 : Number(index)
       }),
-      highlighted: selected?.querySelector('.wp-list-row__primary')?.textContent?.trim() ?? '',
+      highlighted: selected?.querySelector('.wp-list-row__primary .wp-marquee__rest')?.textContent?.trim() ?? '',
       rowHeights: rows.map((row) => row.offsetHeight),
       rowFontSizes: rows.map((row) => Number.parseFloat(getComputedStyle(row).fontSize)),
       screen: size(element('.wp-screen')),
@@ -258,7 +260,7 @@ function expectProductionDefault(layout: MenuLayout): void {
     density: 'compact',
     screen: 'S03',
     state: 'ready',
-    visibleRows: '8',
+    visibleRows: '9',
   })
   expect(layout.labels).toEqual([
     'Cover Flow',
@@ -272,8 +274,8 @@ function expectProductionDefault(layout: MenuLayout): void {
   ])
   expect(layout.rowIndexes).toEqual([0, 1, 2, 3, 4, 5, 6, 7])
   expect(layout.highlighted).toBe('Albums')
-  expect(layout.rowHeights).toEqual(Array.from({ length: 8 }, () => 23))
-  expect(layout.rowFontSizes).toEqual(Array.from({ length: 8 }, () => 11))
+  expect(layout.rowHeights).toEqual(Array.from({ length: 8 }, () => 20))
+  expect(layout.rowFontSizes).toEqual(Array.from({ length: 8 }, () => 14))
   expect(layout.screen).toEqual({ width: 272, height: 204 })
   expect(layout.title).toEqual({ width: 272, height: 21 })
   expect(layout.list).toEqual({ width: 272, height: 183 })

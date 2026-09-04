@@ -21,6 +21,7 @@ import {
   setNowPlayingModeActionAtom,
   setNowPlayingWheelControlActionAtom,
   visibleRowCountAtom,
+  VISIBLE_ROWS,
   type Density,
   type ScreenFrame,
 } from '@webpod/state'
@@ -227,6 +228,16 @@ function PanelSurface({
   const navigationIntent = useAtomValue(navigationIntentAtom)
   const visibleRows = useAtomValue(visibleRowCountAtom)
   const density = useAtomValue(effectiveDensityAtom)
+  const visibleMode = useAtomValue(nowPlayingModeAtom)
+  const visibleQueue = useAtomValue(queueViewAtom)
+  const visibleWheelControl = useAtomValue(nowPlayingWheelControlAtom)
+  const queueIndex = visibleWheelControl?.kind === 'queue' ? Math.round(visibleWheelControl.value) : visibleQueue.currentIndex
+  const isQueue = frame?.screenId === 'S13' && visibleMode.frame === frame && visibleMode.mode === 'queue'
+  const hasListRows = frame !== null && frame.screenId !== 'S13' && frame.route?.kind !== 'status'
+    && (frame.screenId === 'S03' || (!isNavigationLoadingFrame(frame) && !['loading', 'empty', 'error', 'permission-denied'].includes(state)))
+  const activeDescendant = isQueue
+    ? visibleQueue.provider === provider && visibleQueue.status === 'ready' && queueIndex >= 0 && queueIndex < visibleQueue.items.length ? `${panelId}-queue-row-${queueIndex}` : undefined
+    : hasListRows && frame.highlightIndex >= 0 && frame.rows.length > 0 ? `${panelId}-row-${frame.highlightIndex}` : undefined
   const preparationIntentKey = frame === null ? null : preparationForFrame(frame, navigationSource)?.key ?? null
   useEffect(() => acquireAnnouncer(document, deviceStore), [])
   useEffect(() => acquireNowPlayingVolumeFeedback(document, deviceStore), [])
@@ -393,7 +404,7 @@ function PanelSurface({
       role="application"
       aria-label="webPod music player"
       aria-roledescription="click wheel music player"
-      aria-activedescendant={frame !== null && frame.rows.length > 0 ? `${panelId}-row-${frame.highlightIndex}` : undefined}
+      aria-activedescendant={activeDescendant}
       onKeyDown={onKeyDown}
       onWheel={onWheel}
       onPointerDown={onPointerDown}
@@ -410,7 +421,7 @@ function PanelSurface({
 function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourway, artworkTone: ArtworkTone | null, visibleRows: number, actor: 'human' | 'agent', panelId: string, provider: MusicProvider, navigationSource: NavigationDataSource) {
   if (frame.screenId === 'S03') return <MainMenu frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} navigationSource={navigationSource} provider={provider} />
   if (frame.route?.kind === 'album-tracks' || frame.route?.kind === 'playlist-tracks') return <NestedTrackList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} provider={provider} navigationSource={navigationSource} />
-  if (frame.screenId === 'S13') return <NowPlaying frame={frame} state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} provider={provider} />
+  if (frame.screenId === 'S13') return <NowPlaying panelId={panelId} frame={frame} state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} provider={provider} />
   if (frame.route?.kind === 'status') return <StatusScreen frame={frame} />
   return <BrowserList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
 }
@@ -461,7 +472,7 @@ function TitleBar({ title, index, transport }: { readonly title: string; readonl
         ? <span className="wp-titlebar__side">{index ?? ''}</span>
         : <span className="wp-titlebar__side wp-titlebar__transport" data-transport={transport} role="img" aria-label={transportLabel}><PanelIcon name={transport === 'paused' ? 'pause' : 'play'} /></span>}
       <strong>{title}</strong>
-      <span className="wp-titlebar__side wp-titlebar__battery" role="img" aria-label="Battery full"><PanelIcon name="battery" /></span>
+      <span className="wp-titlebar__side wp-titlebar__battery" role="img" aria-label="Battery full"><span className="wp-battery"><i /></span></span>
     </header>
   )
 }
@@ -509,7 +520,7 @@ function BrowserList({ frame, state, visibleRows, panelId }: { readonly frame: S
 
 function NestedTrackList({ frame, state, visibleRows, panelId, provider, navigationSource }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string; readonly provider: MusicProvider; readonly navigationSource: NavigationDataSource }) {
   const success = useLibrarySuccess('S08', frame.title, state, provider, navigationSource)
-  const rows: readonly ListRowContent[] = frame.rows.map((row) => ({ index: row.index, leading: row.index + 1, primary: row.label, secondary: state === 'offline' ? '☁︎' : row.sublabel, unavailable: state === 'offline', agent: state === 'agent-active' && row.index === frame.highlightIndex, success: success !== null && row.index === frame.highlightIndex }))
+  const rows: readonly ListRowContent[] = frame.rows.map((row) => ({ index: row.index, primary: row.label, secondary: state === 'offline' ? '☁︎' : undefined, unavailable: state === 'offline', agent: state === 'agent-active' && row.index === frame.highlightIndex, success: success !== null && row.index === frame.highlightIndex }))
   const loading = state === 'loading' || isNavigationLoadingFrame(frame)
   return (
     <section className="wp-screen" aria-label="Album tracks" aria-busy={loading} data-success-object={success?.objectKey} data-library-total={success?.libraryTotal}>
@@ -528,7 +539,7 @@ function listStateMessage(frame: ScreenFrame, state: PanelState, visibleRows: nu
   return undefined
 }
 
-function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone | null; readonly actor: 'human' | 'agent'; readonly provider: MusicProvider }) {
+function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, provider }: { readonly panelId: string; readonly frame: ScreenFrame; readonly state: PanelState; readonly colourway: Colourway; readonly artworkTone: ArtworkTone | null; readonly actor: 'human' | 'agent'; readonly provider: MusicProvider }) {
   const modeState = useAtomValue(nowPlayingModeAtom)
   const mode = modeState.frame === frame ? modeState.mode : 'standard'
   const scrubState = modeState.frame === frame ? modeState.scrub : 'clean'
@@ -713,19 +724,19 @@ function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: {
       secondary: item.artistName,
     }))
     const windowStart = Math.max(0, Math.min(
-      Math.max(0, queueRows.length - 8),
+      Math.max(0, queueRows.length - VISIBLE_ROWS.compact),
       queueCursor - 3,
     ))
     return (
       <section className="wp-screen wp-now wp-now--queue" aria-label="Now Playing queue" aria-busy={activeQueueView.status === 'loading' || queueState === 'selecting'} data-mode="queue" data-queue-state={queueState} data-wheel-control={wheelControl?.kind} style={artStyle}>
         <TitleBar title="Up Next" transport={transportState} />
         {activeQueueView.status === 'loading'
-          ? <div className="wp-list-loading" aria-label="Loading Up Next">{Array.from({ length: 8 }, (_, index) => <i className="wp-skeleton" key={index} />)}</div>
+          ? <div className="wp-list-loading" aria-label="Loading Up Next">{Array.from({ length: VISIBLE_ROWS.compact }, (_, index) => <i className="wp-skeleton" key={index} />)}</div>
           : activeQueueView.status === 'error'
             ? <PanelError message="Couldn’t load Up Next." detail="Press Center and try again." />
             : queueRows.length === 0
               ? <PanelEmpty title="Up Next is empty." detail="Press Center to return." />
-              : <ListViewport rows={queueRows} highlightIndex={queueCursor} windowStart={windowStart} visibleRows={8} label="Up Next" panelId="now-playing-queue" />}
+              : <ListViewport rows={queueRows} highlightIndex={queueCursor} windowStart={windowStart} visibleRows={VISIBLE_ROWS.compact} label="Up Next" panelId={`${panelId}-queue`} />}
       </section>
     )
   }
@@ -746,6 +757,7 @@ function NowPlaying({ frame, state, colourway, artworkTone, actor, provider }: {
     <section className="wp-screen wp-now" aria-label="Now Playing" aria-busy={playbackPending} data-mode={mode} data-wheel-control={wheelControl?.kind} data-scrub-state={mode === 'scrub' ? scrubState : undefined} data-playback-phase={playbackFailed ? 'failed' : playbackPending ? 'starting' : 'ready'} data-playback-indeterminate={playbackPending ? 'true' : undefined} data-art-tone={artworkTone ?? 'provider'} data-art-sample-source={artworkTone === null ? samples === null ? 'pending' : 'provider' : 'fixture'} data-volume={shownVolume} data-position-ms={shownPosition} style={artStyle}>
       <TitleBar title="Now Playing" transport={transportState} />
       <div className="wp-now-body">
+        {queueView.provider === provider && queueView.status === 'ready' && queueView.currentIndex >= 0 ? <span className="wp-now-count">{queueView.currentIndex + 1} of {queueView.items.length}</span> : null}
         <div className="wp-now-track">
           <Artwork state="ready" large tone={artworkTone} item={track} />
           <div className="wp-now-meta">

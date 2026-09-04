@@ -71,7 +71,7 @@ describe('the bare DOM panel', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
     expect(css).toContain('inline-size: 272px')
     expect(css).toContain('block-size: 204px')
-    expect(css).toMatch(/\.wp-list-row\s*\{[^}]*block-size:\s*calc\(183px \/ var\(--wp-list-visible-rows, 8\)\)/s)
+    expect(css).toMatch(/\.wp-list-row\s*\{[^}]*block-size:\s*calc\(183px \/ var\(--wp-list-visible-rows, 9\)\)/s)
     const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
     expect(source).toMatch(/Array\.from\(\{ length: visibleRows \}/)
     expect(readFileSync(new URL('./list-view.tsx', import.meta.url), 'utf8')).toContain('LIST_VIEWPORT_SIZE_PX = 183')
@@ -80,21 +80,21 @@ describe('the bare DOM panel', () => {
   test('fits every declared album row completely inside the fixed list viewport', () => {
     deviceStore.set(resetStackActionAtom, [albumTracksFrame()])
     const html = renderToStaticMarkup(<TestPanel state="ready" />)
-    expect(html).toContain('data-visible-rows="8"')
-    expect(html).toContain('--wp-list-visible-rows:8')
-    expect(html.match(/class="wp-list-row"/g)).toHaveLength(8)
+    expect(html).toContain('data-visible-rows="9"')
+    expect(html).toContain('--wp-list-visible-rows:9')
+    expect(html.match(/class="wp-list-row"/g)).toHaveLength(9)
   })
 
   test('locks the measured iPod screen hierarchy and Now Playing rhythm', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
     expect(css).toMatch(/\.wp-titlebar\s*\{[^}]*block-size:\s*21px/s)
     expect(css).toMatch(/\.wp-list-view\[data-layout="split"\]\s*\{[^}]*grid-template-columns:\s*168px 104px/s)
-    expect(css).toMatch(/\.wp-list-row\s*\{[^}]*block-size:\s*calc\(183px \/ var\(--wp-list-visible-rows, 8\)\)/s)
-    expect(css).toMatch(/\.wp-now-body\s*\{[^}]*grid-template-rows:\s*119px 14px minmax\(5px, 1fr\) 13px/s)
-    expect(css).toMatch(/\.wp-now-body\s*\{[^}]*padding:\s*10px 18px 8px/s)
-    expect(css).toMatch(/\.wp-now-track\s*\{[^}]*grid-template-columns:\s*86px minmax\(0, 1fr\)[^}]*padding-block-start:\s*27px/s)
-    expect(css).toMatch(/\.wp-now-meta\s*\{[^}]*padding-block-start:\s*11px/s)
-    expect(css).toMatch(/\.wp-art--large\s*\{[^}]*86px/s)
+    expect(css).toMatch(/\.wp-list-row\s*\{[^}]*block-size:\s*calc\(183px \/ var\(--wp-list-visible-rows, 9\)\)/s)
+    expect(css).toMatch(/\.wp-now-body\s*\{[^}]*grid-template-rows:\s*119px 14px minmax\(5px, 1fr\) 15px/s)
+    expect(css).toMatch(/\.wp-now-body\s*\{[^}]*padding:\s*10px 12px 10px/s)
+    expect(css).toMatch(/\.wp-now-track\s*\{[^}]*grid-template-columns:\s*82px minmax\(0, 1fr\)[^}]*padding-block-start:\s*25px/s)
+    expect(css).toMatch(/\.wp-now-meta\s*\{[^}]*padding-block-start:\s*8px/s)
+    expect(css).toMatch(/\.wp-art--large\s*\{[^}]*82px/s)
   })
 
   test('keeps Now Playing queue position out of the title bar and fills the LCD vertically', async () => {
@@ -107,9 +107,9 @@ describe('the bare DOM panel', () => {
     expect(html).toMatch(/<header class="wp-titlebar"><span class="wp-titlebar__side wp-titlebar__transport"[^>]*data-transport="playing"[^>]*><svg[^>]*wp-icon--play/)
     expect(html).toContain('<strong>Now Playing</strong>')
     expect(html).not.toContain('wp-now-count')
-    expect(css).toMatch(/\.wp-now-body\s*\{[^}]*block-size:\s*183px[^}]*padding:\s*10px 18px 8px/s)
+    expect(css).toMatch(/\.wp-now-body\s*\{[^}]*block-size:\s*183px[^}]*padding:\s*10px 12px 10px/s)
     expect(css).toMatch(/\.wp-now-track\s*\{[^}]*column-gap:\s*12px/s)
-    expect(css).toMatch(/\.wp-now-meta\s*\{[^}]*padding-block-start:\s*11px/s)
+    expect(css).toMatch(/\.wp-now-meta\s*\{[^}]*padding-block-start:\s*8px/s)
     expect(css).toMatch(/\.wp-progress\s*\{[^}]*grid-column:\s*1 \/ -1/s)
     expect(html).toContain('class="wp-now-timing-spacer" aria-hidden="true"')
   })
@@ -148,7 +148,7 @@ describe('the bare DOM panel', () => {
     expect(listRule).toMatch(/background:\s*var\(--wp-bg\)/)
     expect(previewRule).toMatch(/block-size:\s*183px/)
     expect(previewRule).toMatch(/overflow:\s*clip/)
-    expect(css).toMatch(/\.wp-list-row\s*\{[^}]*font-size:\s*11px/s)
+    expect(css).toMatch(/\.wp-list-row\s*\{[^}]*font-size:\s*14px/s)
   })
 
   test('owns scroll indication in list panes and never in the preview pane', () => {
@@ -232,8 +232,8 @@ describe('the bare DOM panel', () => {
     const css = readFileSync(new URL('./panel.css', import.meta.url), 'utf8')
     const lightRule = css.match(/\.wp-panel\[data-colourway="light"\]\s*\{([^}]*)\}/)?.[1]
     expect(lightRule).toBeDefined()
-    expect(lightRule).toMatch(/--wp-text-2:\s*#475569/)
-    expect(lightRule).toMatch(/--wp-text-3:\s*#52647a/)
+    expect(lightRule).toMatch(/--wp-text-2:\s*#202223/)
+    expect(lightRule).toMatch(/--wp-text-3:\s*#303234/)
   })
 
   test('keeps the package boundary compatible with DOM rasterization', () => {

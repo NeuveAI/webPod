@@ -38,9 +38,6 @@ function selectionMaterialViolations(source: string): readonly string[] {
 
   const darkForeground = property(dark, '--wp-selection-fg')
   const lightForeground = property(light, '--wp-selection-fg')
-  if (darkForeground === lightForeground) {
-    violations.push('colourways require independent selection foregrounds')
-  }
   for (const [theme, tokens, foreground] of [
     ['dark', dark, darkForeground],
     ['light', light, lightForeground],
@@ -225,7 +222,7 @@ describe('the period Aqua LCD material', () => {
     expect(selectionMaterialViolations(css)).toEqual([])
     const material = property(darkTokens, '--wp-selection-material')
     expect(material.match(/linear-gradient\(/g)).toHaveLength(2)
-    expect(material).toContain('var(--wp-selection-glass-band) 52%')
+    expect(material).toContain('var(--wp-selection-glass-band) 56%')
     expect(material).toContain('var(--wp-selection-glass-bottom) 100%')
     expect(panelSource).not.toContain('wp-selection-rim')
     expect(listSource.match(/className="wp-selection-rim"/g)).toHaveLength(1)
@@ -243,8 +240,8 @@ describe('the period Aqua LCD material', () => {
     )
     const noRim = `${css}\n.wp-panel .wp-selection-rim { background: transparent !important; }`
     const sharedForeground = css.replace(
-      '--wp-selection-fg: #173047;',
       '--wp-selection-fg: #ffffff;',
+      '--wp-selection-fg: #333333;',
     )
     const translucentMetadata = css.replace(
       '.wp-list-row[aria-current="true"] :is(.wp-list-row__leading, .wp-list-row__secondary, .wp-list-row__count, .wp-list-row__status, .wp-list-row__chevron) { color: currentColor; opacity: 1; }',
@@ -253,15 +250,14 @@ describe('the period Aqua LCD material', () => {
 
     expect(selectionMaterialViolations(flat)).toContain('selection must retain three material layers')
     expect(selectionMaterialViolations(noRim)).toContain('selection must retain its crisp one-pixel top rim')
-    expect(selectionMaterialViolations(sharedForeground)).toContain('colourways require independent selection foregrounds')
-    expect(selectionMaterialViolations(sharedForeground)).toContain('light selection foreground misses 4.5:1 contrast')
+    expect(selectionMaterialViolations(sharedForeground)).toContain('dark selection foreground misses 4.5:1 contrast')
     expect(selectionMaterialViolations(translucentMetadata)).toContain('dark selection foreground misses 4.5:1 contrast')
   })
 
   test('uses independently legible foregrounds for light and dark Aqua', () => {
     const darkForeground = property(darkTokens, '--wp-selection-fg')
     const lightForeground = property(lightTokens, '--wp-selection-fg')
-    expect(darkForeground).not.toBe(lightForeground)
+    expect(darkForeground).toBe(lightForeground)
 
     for (const backgroundToken of [
       '--wp-selection-glass-top',
@@ -307,16 +303,16 @@ describe('the period Aqua LCD material', () => {
     const volume = rule(/\.wp-volume-progress \{([^}]*)\}/)
     const fill = rule(/\.wp-progress i,\n {2}\.wp-volume-progress i \{([^}]*)\}/)
 
-    expect(body).toContain('grid-template-rows: 119px 14px minmax(5px, 1fr) 13px')
+    expect(body).toContain('grid-template-rows: 119px 14px minmax(5px, 1fr) 15px')
     expect(progress).toContain('padding: 1px')
     expect(progress).toContain('border: 0')
     expect(progress).toContain('var(--wp-aqua-well-material) content-box, var(--wp-aqua-lip-side-material) border-box, var(--wp-aqua-lip-material) border-box')
     expect(progress).toContain('background-clip: content-box, border-box, border-box')
     expect(progress).toContain('border-radius: 2px 2px 1px 1px')
     expect(volumeRow).toContain('inset-block-start: 132px')
-    expect(volumeRow).toContain('grid-template-columns: 13px 202px 13px')
+    expect(volumeRow).toContain('grid-template-columns: 13px 214px 13px')
     expect(volumeRow).toContain('column-gap: 4px')
-    expect(volume).toContain('inline-size: 202px')
+    expect(volume).toContain('inline-size: 214px')
     expect(volume).toContain('block-size: 14px')
     expect(fill).toContain('var(--wp-aqua-cylinder-modulation), var(--wp-aqua-fill-material)')
     expect(fill).toContain('box-shadow: var(--wp-aqua-fill-depth)')
@@ -368,7 +364,7 @@ describe('the period Aqua LCD material', () => {
     expect(stationaryWellViolations(css)).toEqual([])
   })
 
-  test('keeps the moving gel thumb distinct inside a subordinate five-pixel track', () => {
+  test('keeps the moving gel thumb distinct inside a subordinate nine-pixel track', () => {
     const scroll = rule(/\.wp-list-scroll \{([^}]*)\}/)
     const thumb = rule(/\.wp-list-scroll__thumb \{([^}]*)\}/)
     const railWidth = pixelValue(scroll, 'inline-size')
@@ -376,7 +372,7 @@ describe('the period Aqua LCD material', () => {
     const borderWidth = pixelValue(thumb, 'border')
     const thumbInterior = railWidth - (2 * inlineInset) - (2 * borderWidth)
 
-    expect(railWidth).toBe(5)
+    expect(railWidth).toBe(9)
     expect(thumbInterior).toBeGreaterThanOrEqual(3)
     expect(css).toContain('.wp-list-scroll__well::before, .wp-list-scroll__well::after { content: none !important; display: none !important; }')
     expect(thumb).toContain('inset-block-start: var(--wp-list-scroll-thumb-offset)')
@@ -393,7 +389,7 @@ describe('the period Aqua LCD material', () => {
     const row = rule(/\.wp-list-row \{([^}]*)\}/)
     const selected = rule(/\.wp-list-row\[aria-current="true"\] \{([^}]*)\}/)
 
-    expect(property(row, 'font-weight')).toBe('500')
+    expect(property(row, 'font-weight')).toBe('600')
     expect(property(selected, 'font-weight')).toBe(property(row, 'font-weight'))
     expect(css).toMatch(/(?:^|\n) {2}\.wp-list-row__secondary \{[^}]*font-weight:\s*400/s)
   })

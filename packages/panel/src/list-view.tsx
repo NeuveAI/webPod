@@ -4,7 +4,7 @@ import { ListScrollIndicator } from './list-scroll-indicator'
 import { OverflowMarquee } from './overflow-marquee'
 
 export const LIST_VIEWPORT_SIZE_PX = 183
-export const LIST_DEFAULT_VISIBLE_ROWS = 8
+export const LIST_DEFAULT_VISIBLE_ROWS = 9
 
 export interface ListRowContent {
   readonly index: number

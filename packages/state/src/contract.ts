@@ -164,29 +164,29 @@ export type Face = 'front' | 'back'
 export type Density = 'compact' | 'medium' | 'airy'
 
 /**
- * How many rows of a list are simultaneously visible, per density (001 §3).
+ * How many rows of a list are simultaneously visible, per density. Compact follows the photographed nine-row LCD.
  *
  * This is the page size for `⏭`/`⏮` and for `Shift+Arrow` — "one full
  * viewport of rows" — so it is not merely a rendering hint. Consumed by the
  * screen machine, not re-derived from pixel heights.
  */
 export const VISIBLE_ROWS: Readonly<Record<Density, number>> = {
-  compact: 8,
+  compact: 9,
   medium: 6,
   airy: 4,
 }
 
 /**
- * Row height in raster pixels, per density (001 §3).
+ * Row height in raster pixels, per density. Compact follows the photographed nine-row LCD.
  *
  * Exported next to {@link VISIBLE_ROWS} so the two can never disagree about
  * how many rows fit: the panel's skeleton rows must be exactly this tall or
  * the list reflows when data lands.
  */
 export const ROW_HEIGHT_PX: Readonly<Record<Density, number>> = {
-  compact: 26,
-  medium: 32,
-  airy: 44,
+  compact: 183 / VISIBLE_ROWS.compact,
+  medium: 183 / VISIBLE_ROWS.medium,
+  airy: 183 / VISIBLE_ROWS.airy,
 }
 
 /**
@@ -1505,7 +1505,7 @@ export const faceAtom: PrimitiveAtom<Face> = atom<Face>('front')
  * it directly used to be documented as fine, on the reasoning that every
  * derived reader moves together — which is true and is not the whole story.
  * The scroll windows are not derived; they are stored per frame, and a
- * `compact` window of 8 rows is out of range the moment `airy` cuts the
+ * `compact` window of 9 rows is out of range the moment `airy` cuts the
  * viewport to 4. Measured, with the highlight on row 60: the bare write left
  * the window showing rows 53–56, so the highlighted row was not among the rows
  * rendered. Change it through `setDensityActionAtom`, which re-clamps.
