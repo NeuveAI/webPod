@@ -7,6 +7,16 @@
 @source "../**/*.{ts,tsx}";
 @source "../../../../packages/*/src/**/*.{ts,tsx}";
 
+/* The rear pack owns the bottom gesture area; keep device controls reachable above it. */
+.webpod-device-preview:has([data-sticker-stage]) .webpod-device-preview__controls {
+  inset-block-start: max(16px, env(safe-area-inset-top));
+  inset-block-end: auto;
+  justify-content: flex-end;
+}
+.webpod-device-preview:has([data-sticker-stage]) .webpod-device-preview__selection-note {
+  visibility: hidden;
+}
+
 @media (hover: hover) and (pointer: fine) {
   canvas[data-wp-cursor-control="true"],
   .webpod-device-preview .webpod-device-preview__stage canvas[data-wp-cursor-control="true"] {

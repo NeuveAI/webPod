@@ -6,6 +6,17 @@ import type {
 import { Panel, showNowPlayingScreen, subscribeToRootScreenEntry, type NavigationStatus, type PanelState } from '@webpod/panel'
 import { useCallback, useEffect, useSyncExternalStore } from 'react'
 import { musicRuntime, quiesceMusicProvider, type MusicRuntimeSnapshot } from './music-runtime'
+import { useAtomValue } from 'jotai'
+import { deviceStore, stickerInteractionAtom, equippedStickersAtom } from '@webpod/state'
+import { STICKER_CATALOGUE } from '@webpod/stickers'
+import { FRONT_DEVICE_ORIENTATION, type StickerRearProjection } from '@webpod/device'
+import { StickerCollection } from './sticker-collection'
+import { openStickerPack, placeSticker, removeSticker, retryStickerCollection, stopStickerRuntime } from './sticker-runtime'
+import { stickerFinishCalibrationAtom, reportStickerArtworkFailure, reportStickerArtworkReady } from './sticker-interaction'
+
+let stickerProjection: StickerRearProjection | null = null
+const onStickerProjectionReady = (handle: StickerRearProjection | null): void => { stickerProjection = handle }
+const stickerCommands = { retry: retryStickerCollection, openPack: openStickerPack, place: placeSticker, remove: removeSticker, project: (clientX: number, clientY: number) => stickerProjection?.project(clientX, clientY) ?? null }
 
 export type ProductionPanelState = PanelState
 
@@ -131,6 +142,10 @@ export function ProductionDeviceView({
   onOrientationGrabHoverChange,
   interactionAudioEnabled,
 }: ProductionDeviceViewProps) {
+  const stickerInteraction = useAtomValue(stickerInteractionAtom, { store: deviceStore })
+  const stickerPlacements = useAtomValue(equippedStickersAtom, { store: deviceStore })
+  const calibratedFinish = useAtomValue(stickerFinishCalibrationAtom, { store: deviceStore })
+  useEffect(() => () => stopStickerRuntime(false), [])
   useEffect(() => subscribeToRootScreenEntry(() => {
     void pauseProductionPlaybackAtRoot()
   }), [])
@@ -145,6 +160,7 @@ export function ProductionDeviceView({
     [],
   )
   return (
+    <>
     <CompositeDevice
       className={className}
       colourway={colourway}
@@ -158,6 +174,7 @@ export function ProductionDeviceView({
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
       onTransportPress={onTransportPress}
+      stickerScene={{ assets: STICKER_CATALOGUE, placements: stickerPlacements, pack: stickerInteraction.stage === 'hidden' ? null : { progress: stickerInteraction.progress, peel: stickerInteraction.peel, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
       panel={(
         <ProductionPanelView
           colourway={colourway}
@@ -166,6 +183,8 @@ export function ProductionDeviceView({
         />
       )}
     />
+    <StickerCollection orientation={orientation ?? FRONT_DEVICE_ORIENTATION} commands={stickerCommands} />
+    </>
   )
 }
 

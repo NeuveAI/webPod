@@ -47,6 +47,7 @@ export async function installDeterministicAppleMusic(page: Page, options: { read
         async stations() { return { data: [] } },
       },
       isAuthorized: true,
+      musicUserToken: 'browser-proof-user',
       storefrontId: 'us',
       playbackState: 0,
       currentPlaybackTime: 0,
@@ -89,4 +90,3 @@ export async function installDeterministicAppleMusic(page: Page, options: { read
     }
   }, options)
 }
-
