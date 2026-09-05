@@ -1,12 +1,14 @@
 import { describe, expect, test } from "bun:test";
-import { ExtrudeGeometry } from "three";
+import { ExtrudeGeometry, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from "three";
 
-import { frontCoreDepth } from "./curved-shell";
+import { frontCoreDepth, tessellateVerticalCrown } from "./curved-shell";
+import { resolveFrontAssemblyDepths } from "./front-surface";
 import { DEFAULT_DEVICE_FORM } from "./form";
 import { DEVICE_LAYOUT } from "./layout";
 import { DEFAULT_DEVICE_MATERIALS } from "./materials";
 import { frontShellPlan } from "./product-shell";
 import {
+  removeOpaqueApertureWalls,
   projectToRoundedRectBoundary,
   roundedRectBoundaryDistance,
   squareRoundedRectApertureWalls,
@@ -31,6 +33,7 @@ function productionFrontExtrusion(): ExtrudeGeometry {
     plan.faceHeight,
     plan.faceCornerR,
     body.exponent,
+    48,
   );
   shape.holes.push(
     roundedRectHole(
@@ -47,7 +50,7 @@ function productionFrontExtrusion(): ExtrudeGeometry {
     bevelEnabled: true,
     bevelThickness: form.frontBevel,
     bevelSize: form.frontBevel,
-    bevelSegments: 6,
+    bevelSegments: 16,
     curveSegments: 1,
   });
 }
@@ -99,7 +102,9 @@ describe("square LCD aperture and flat assembly reveal", () => {
 
     for (const index of candidates) {
       const point = { x: position.getX(index), y: position.getY(index) };
-      expect(roundedRectBoundaryDistance(point, aperture)).toBeLessThan(1e-5);
+      // Float32 coordinates above 256 have a 3.05e-5 ULP; allow half an
+      // ULP after contour projection into the position attribute.
+      expect(roundedRectBoundaryDistance(point, aperture)).toBeLessThan(2e-5);
       const boundary = projectToRoundedRectBoundary(point, aperture);
       expect(point.x).toBeCloseTo(boundary.x, 4);
       expect(point.y).toBeCloseTo(boundary.y, 4);
@@ -121,16 +126,100 @@ describe("square LCD aperture and flat assembly reveal", () => {
     geometry.dispose();
   });
 
+  test("opaque backing wall removal preserves every cap and exterior triangle", () => {
+    const source = productionFrontExtrusion();
+    const aperture = aperturePlan();
+    squareRoundedRectApertureWalls(source, aperture, DEFAULT_DEVICE_FORM.frontBevel);
+    const positions = source.getAttribute("position");
+    const caps: number[] = [];
+    for (let i = 0; i < positions.count; i += 3) {
+      const z = [0, 1, 2].map((offset) => positions.getZ(i + offset));
+      if (Math.max(...z) - Math.min(...z) > 1e-6) continue;
+      for (let offset = 0; offset < 3; offset++) {
+        caps.push(positions.getX(i + offset), positions.getY(i + offset), positions.getZ(i + offset));
+      }
+    }
+    const originalCount = positions.count;
+    removeOpaqueApertureWalls(source, aperture);
+    const next = source.getAttribute("position");
+    expect(next.count).toBeLessThan(originalCount);
+    const remainingCaps: number[] = [];
+    for (let i = 0; i < next.count; i += 3) {
+      const z = [0, 1, 2].map((offset) => next.getZ(i + offset));
+      if (Math.max(...z) - Math.min(...z) > 1e-6) continue;
+      for (let offset = 0; offset < 3; offset++) {
+        remainingCaps.push(next.getX(i + offset), next.getY(i + offset), next.getZ(i + offset));
+      }
+    }
+    expect(remainingCaps).toEqual(caps);
+    for (const attribute of Object.values(source.attributes)) {
+      expect(Array.from(attribute.array).every(Number.isFinite)).toBe(true);
+      expect(attribute.count).toBe(next.count);
+    }
+    source.dispose();
+  });
+
+  test("the complete crowned body leaves active display edges clear from front and quarter cameras", () => {
+    const form = DEFAULT_DEVICE_FORM;
+    const source = productionFrontExtrusion();
+    const aperture = aperturePlan();
+    squareRoundedRectApertureWalls(source, aperture, form.frontBevel);
+    removeOpaqueApertureWalls(source, aperture);
+    const crowned = tessellateVerticalCrown(source, body.height / 2 - form.seamWidth,
+      form.bodyCrown, undefined,
+      { top: form.topEdgeCrown, bottom: form.bottomEdgeCrown, extent: form.edgeCrownExtent },
+      { halfWidth: body.width / 2 - form.seamWidth, crown: form.bodyCrossCrown });
+    crowned.translate(0, 0, body.depth / 2 - form.frontThickness + form.frontBevel);
+    const material = new MeshBasicMaterial();
+    const mesh = new Mesh(crowned, material);
+    mesh.updateMatrixWorld();
+    const screen = DEVICE_LAYOUT.screen;
+    const screenZ = resolveFrontAssemblyDepths(form).screenFrontZ + 0.1;
+    // These rays test the actual visible border, not the repair's candidate
+    // selection predicate. The rejected miter ends occluded up to 1.5px here.
+    const cameras = [new Vector3(0, 0, 1400), new Vector3(1100, 380, 790)];
+    for (const margin of [0.1, 0.5, 1.5]) {
+      const points: Vector3[] = [];
+      for (const x of [-1, 1]) for (const y of [-1, 1]) {
+        points.push(new Vector3(x * (screen.width / 2 - 0.425), screen.centerY + y * (screen.height / 2 - 0.425), screenZ));
+      }
+      for (let x = -screen.width / 2 + 10; x <= screen.width / 2 - 10; x += 12) {
+        for (const sign of [-1, 1]) points.push(new Vector3(x,
+          screen.centerY + sign * (screen.height / 2 - margin), screenZ));
+      }
+      for (let y = screen.centerY - screen.height / 2 + 10; y <= screen.centerY + screen.height / 2 - 10; y += 12) {
+        for (const sign of [-1, 1]) points.push(new Vector3(sign * (screen.width / 2 - margin), y, screenZ));
+      }
+      for (const camera of cameras) {
+        for (const point of points) {
+          const ray = new Raycaster(camera, point.clone().sub(camera).normalize());
+          const distance = camera.distanceTo(point);
+          const blocking = ray.intersectObject(mesh).find((hit) => hit.distance < distance - 1e-4);
+          if (camera.x !== 0 && Math.abs(point.x) > screen.width / 2 - 8 &&
+              Math.abs(point.y - screen.centerY) < screen.height / 2 - 2) {
+            // At this steep pose the recessed near side can be hidden by its
+            // legitimate vertical wall; any occluder must remain outside LCD.
+            if (blocking) expect(Math.abs(blocking.point.x)).toBeGreaterThan(screen.width / 2);
+          } else {
+            expect(blocking).toBeUndefined();
+          }
+        }
+      }
+    }
+    source.dispose(); crowned.dispose(); material.dispose();
+  });
+
   test("the visible reveal is unlit black and neither screen layer can restore a reflective lip", async () => {
     expect(DEFAULT_DEVICE_MATERIALS.screenReveal).toEqual({
       color: "#050608",
       toneMapped: false,
     });
     const device = await Bun.file("packages/device/src/Device.tsx").text();
-    const frontBuild = device.slice(
-      device.indexOf("const frontGeometry"),
-      device.indexOf("const { ringGeometry"),
-    );
+    const frontStart = device.indexOf("const frontGeometry");
+    const frontEnd = device.indexOf("  const {\n    ringGeometry");
+    expect(frontStart).toBeGreaterThanOrEqual(0);
+    expect(frontEnd).toBeGreaterThan(frontStart);
+    const frontBuild = device.slice(frontStart, frontEnd);
     expect(frontBuild).toContain("squareRoundedRectApertureWalls(");
 
     const glassBuild = device.slice(
@@ -140,10 +229,11 @@ describe("square LCD aperture and flat assembly reveal", () => {
     expect(glassBuild).toContain("new ShapeGeometry(shape, 1)");
     expect(glassBuild).not.toMatch(/ExtrudeGeometry|bevel|glassThickness/);
 
-    const revealBuild = device.slice(
-      device.indexOf("const displayWellGeometry"),
-      device.indexOf("const rearInlayGeometry"),
-    );
+    const revealStart = device.indexOf("const displayWellGeometry");
+    const revealEnd = device.indexOf("const screenGeometry");
+    expect(revealStart).toBeGreaterThanOrEqual(0);
+    expect(revealEnd).toBeGreaterThan(revealStart);
+    const revealBuild = device.slice(revealStart, revealEnd);
     expect(revealBuild).toContain(
       "form.displayWellInset + form.displayWellDepth",
     );

@@ -1,0 +1,7 @@
+# Classic fidelity revision
+
+The owner's three attached images supersede the first-pass decisions: Select is subtly concave, aluminum needs visible fine grain, the silver wheel is white, black hardware retains a tinted UI, and the scrollbar needs a refined track/thumb treatment. The preceding goal turn made implementation and visual-proof progress, but the owner rejects its fidelity as complete.
+
+Ready, single focused slice. Primary: attachments cc561d8b-fe6e-4bd9-b0be-52c1a744dc23/image-{1,2,3}.png. Preserve all screen geometry/cover parameters and playback/input behavior. Shape the Select bowl in geometry with a flush, tangent-continuous edge; share physical grain scale across Select and front. Use existing light/dark panel tokens. Refine the non-interactive list position indicator with narrow neutral track, bounded blue thumb and contrast overrides, maintaining authoritative row-window geometry.
+
+Verification: existing device/panel tests (update superseded flat-Select and scrollbar-style expectations), typecheck, changed-file lint, Chrome renders at normal and oblique angles, long-list top/middle/bottom and both panel tints. Inspect grain at normal size and close up, and the actual Select displacement/normal contract. No new product route or new unit test suite. Evidence uses revision-* prefix beside the first-pass captures; final notes in revision-handover.md. One suggested commit: Refine Classic materials, Select curvature and LCD scrollbar. Leave unstaged with the owner's other work.

@@ -7,16 +7,17 @@ import {
   frontShellOffsetAt,
   resolveFrontAssemblyDepths,
   SELECT_SEAM_WIDTH,
+  SELECT_CONCAVITY,
   WHEEL_GAP_FLOOR_OFFSET,
   WHEEL_OUTER_SEAM_WIDTH,
 } from "./front-surface";
 import { DEVICE_LAYOUT, PX_PER_MM } from "./layout";
 import { DEFAULT_WHEEL_COLOURWAYS } from "./materials";
-import { IPOD_5G_30GB_PHYSICAL_SPEC } from "./physical-spec";
+import { IPOD_CLASSIC_PHYSICAL_SPEC } from "./physical-spec";
 
-const { body, wheel } = DEVICE_LAYOUT;
+const { wheel } = DEVICE_LAYOUT;
 const ACCEPTANCE =
-  IPOD_5G_30GB_PHYSICAL_SPEC.wheelAssemblyAcceptanceMm;
+  IPOD_CLASSIC_PHYSICAL_SPEC.wheelAssemblyAcceptanceMm;
 
 function wheelGeometry() {
   return createFrontControlPatchGeometry(
@@ -38,6 +39,7 @@ function selectGeometry() {
       centerY: wheel.centerY,
       innerRadius: 0,
       outerRadius: wheel.selectR,
+      concavity: SELECT_CONCAVITY,
       uvRadius: wheel.outerR,
     },
     DEFAULT_DEVICE_FORM,
@@ -83,26 +85,37 @@ describe("owner-primary flush wheel topology", () => {
     geometry.dispose();
   });
 
-  test("faceplate, wheel and Select are coincident at the shared center plane", () => {
+  test("Classic Select has a shallow dish with a flush tangent-continuous rim", () => {
     const depths = resolveFrontAssemblyDepths();
     const select = selectGeometry();
-    const selectCenterZ = select.getAttribute("position").getZ(0);
-    const shellCenterZ =
-      body.depth / 2 +
-      frontShellOffsetAt(wheel.centerX, wheel.centerY, DEFAULT_DEVICE_FORM);
-
-    expect(depths.wheelTopAtCenterZ).toBeCloseTo(shellCenterZ, 12);
-    expect(depths.selectTopAtCenterZ).toBeCloseTo(shellCenterZ, 12);
-    expect(
-      Math.abs(
-        depths.wheelTopAtCenterZ - depths.selectTopAtCenterZ,
-      ) / PX_PER_MM,
-    ).toBeLessThanOrEqual(ACCEPTANCE.topPlaneTolerance);
-    expect(
-      Math.abs(
-        depths.wheelSurfaceBaseZ + selectCenterZ - shellCenterZ,
-      ) / PX_PER_MM,
-    ).toBeLessThanOrEqual(ACCEPTANCE.topPlaneTolerance);
+    const position = select.getAttribute("position");
+    const normals = select.getAttribute("normal");
+    expect(depths.wheelSurfaceBaseZ + position.getZ(0)).toBeCloseTo(depths.selectTopAtCenterZ, 5);
+    expect(depths.wheelTopAtCenterZ - depths.selectTopAtCenterZ).toBeCloseTo(SELECT_CONCAVITY, 12);
+    expect(SELECT_CONCAVITY / PX_PER_MM).toBeGreaterThan(0.1);
+    expect(SELECT_CONCAVITY / PX_PER_MM).toBeLessThan(0.4);
+    let rimVertices = 0;
+    let inwardSlopes = 0;
+    for (let i = 0; i < position.count; i++) {
+      const x = position.getX(i), y = position.getY(i);
+      const radius = Math.hypot(x, y);
+      const shellZ = frontShellOffsetAt(wheel.centerX + x, wheel.centerY + y);
+      const shellNormal = frontShellNormalAt(wheel.centerX + x, wheel.centerY + y);
+      expect(position.getZ(i)).toBeLessThanOrEqual(shellZ + 1e-5);
+      if (Math.abs(radius - wheel.selectR) < 1e-4) {
+        rimVertices++;
+        expect(position.getZ(i)).toBeCloseTo(shellZ, 5);
+        expect(normals.getX(i)).toBeCloseTo(shellNormal.x, 5);
+        expect(normals.getY(i)).toBeCloseTo(shellNormal.y, 5);
+      } else if (radius > wheel.selectR * 0.4 && radius < wheel.selectR * 0.6) {
+        const slopeDelta = (normals.getX(i) / normals.getZ(i) - shellNormal.x / shellNormal.z) * x
+          + (normals.getY(i) / normals.getZ(i) - shellNormal.y / shellNormal.z) * y;
+        expect(slopeDelta).toBeLessThan(0);
+        inwardSlopes++;
+      }
+    }
+    expect(rimVertices).toBeGreaterThan(100);
+    expect(inwardSlopes).toBeGreaterThan(100);
     select.dispose();
   });
 
@@ -176,12 +189,12 @@ describe("owner-primary flush wheel topology", () => {
     expect(form).not.toContain("ringDish");
   });
 
-  test("both Select parts are matte dielectric plastics, never metal discs", () => {
+  test("both Select parts are brushed metal with no plastic clearcoat", () => {
     for (const colourway of ["black", "white"] as const) {
       const select = DEFAULT_WHEEL_COLOURWAYS[colourway].select;
-      expect(select.metalness).toBe(0);
+      expect(select.metalness).toBe(1);
       expect(select.transmission).toBe(0);
-      expect(select.roughness).toBeGreaterThanOrEqual(0.65);
+      expect(select.roughness).toBeGreaterThanOrEqual(0.4);
       expect(select.clearcoat).toBeLessThanOrEqual(0.02);
       expect(select.color).not.toBe(
         DEFAULT_WHEEL_COLOURWAYS[colourway].ring.color,

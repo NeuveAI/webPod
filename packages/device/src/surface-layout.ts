@@ -8,9 +8,12 @@ import { DEVICE_LAYOUT } from "./layout";
  * volumetric device consumes without changing those exported token facts.
  */
 const { body, screen, wheel } = DEVICE_LAYOUT;
-const DISPLAY_WELL_INSET = 2;
-const DISPLAY_GLASS_LIP = 1;
-const DISPLAY_MASK = 0.5;
+// The outer black print is gently rounded; the active LCD remains square.
+const DISPLAY_WELL_INSET = 6;
+const DISPLAY_GLASS_LIP = 6;
+// Concealed underprint continues beneath the opaque front. Its overlap closes
+// all sightlines through the old separately layered annular window clearance.
+const DISPLAY_MASK = DISPLAY_WELL_INSET + 6;
 
 export const DEVICE_SURFACE_LAYOUT = Object.freeze({
   front: Object.freeze({

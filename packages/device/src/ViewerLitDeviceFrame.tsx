@@ -8,6 +8,7 @@ import {
   keyLightPosition,
   kickLightPosition,
   kickLightPower,
+  rimLightPower,
   type LightRigParams,
 } from "./light-rig";
 import {
@@ -33,9 +34,9 @@ type ViewerLitDeviceFrameProps = {
 };
 
 /**
- * Keeps the authored key and kick in world space while rotating only the device.
+ * Keeps the key, fill and rim world-fixed while rotating only the device.
  *
- * The sibling relationship is load-bearing: putting either light below the
+ * The sibling relationship is load-bearing: putting any light below the
  * model group would bolt it to the iPod and reverse the rig in the back view.
  */
 export function ViewerLitDeviceFrame({
@@ -66,6 +67,15 @@ export function ViewerLitDeviceFrame({
         color={lightRig.kick.color}
         width={lightRig.kick.emitter.width}
         height={lightRig.kick.emitter.height}
+      />
+      <rectAreaLight
+        name="device-rim-light"
+        position={[...lightRig.rim.position]}
+        rotation={aimAreaLightAtTarget(lightRig.rim.position, lightRig.rim.target)}
+        intensity={areaLightIntensity(rimLightPower(lightRig), lightRig.rim.emitter)}
+        color={lightRig.rim.color}
+        width={lightRig.rim.emitter.width}
+        height={lightRig.rim.emitter.height}
       />
       <group
         name={DEVICE_MODEL_NAME}

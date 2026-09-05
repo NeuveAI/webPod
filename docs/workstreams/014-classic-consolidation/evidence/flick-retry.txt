@@ -1,0 +1,21 @@
+[W5B SOURCE 9ef9da6720122ef41bbf9a75e42bd3114ada3cbb05443868fb15566e9437025e FILES 251 WORKTREE-SNAPSHOT]
+[WebServer] (node:38779) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+Running 1 test using 1 worker
+
+(node:38787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE 9ef9da6720122ef41bbf9a75e42bd3114ada3cbb05443868fb15566e9437025e FILES 251 WORKTREE-SNAPSHOT]
+
+[1/1] apps/web/tests/device-orientation.e2e.ts:44:1 › pointer release keeps moving across frames and a fast flick lands on the opposite face
+[WebServer] Warning: A notFoundError was encountered on the route with ID "__root__", but a notFoundComponent option was not configured, nor was a router level defaultNotFoundComponent configured. Consider configuring at least one of these to avoid TanStack Router's overly generic defaultNotFoundComponent (<p>Not Found</p>)
+
+[WebServer] 3:29:36 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 3:29:37 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+  1 passed (6.1s)

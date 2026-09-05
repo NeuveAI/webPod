@@ -96,11 +96,6 @@ function rgb(hex: string): readonly number[] {
   return [1, 3, 5].map((offset) => Number.parseInt(hex.slice(offset, offset + 2), 16))
 }
 
-function maximumChannelDelta(first: string, second: string): number {
-  return Math.max(...rgb(first).map((channel, index) =>
-    Math.abs(channel - (rgb(second)[index] ?? 0)),
-  ))
-}
 
 function pixelValue(body: string, name: string): number {
   const value = property(body, name)
@@ -142,7 +137,7 @@ function aquaLoadingViolations(source: string): readonly string[] {
 
   if (radius !== 2) violations.push('track corners must use the authored asymmetric Aqua radius')
   if (!progress.includes('padding: 1px') || !progress.includes('border: 0')) violations.push('track requires a one-pixel molded lip rather than a uniform border')
-  if (!progress.includes('var(--wp-aqua-well-material) content-box, var(--wp-aqua-lip-side-material) border-box, var(--wp-aqua-lip-material) border-box') || !progress.includes('background-clip: content-box, border-box, border-box')) violations.push('track requires independently graded lip and concave channel layers')
+  if (!progress.includes('background: var(--wp-aqua-well-material)')) violations.push('track requires the shared translucent channel')
   if (!pending.includes('inset-block: 1px') || !pending.includes('border-radius: 1.5px 1.5px .5px .5px')) violations.push('gel must remain contained inside the molded lip')
   if (angle !== 45) violations.push('stripes must retain the reference diagonal')
   if ((projectedRepeat / 14) < 1.45 || (projectedRepeat / 14) > 1.7) violations.push('projected repeat must match bar-height proportion')
@@ -187,12 +182,11 @@ function aquaCylinderViolations(source: string): readonly string[] {
   }
   for (const well of [progress, volume]) {
     if (!well.includes('padding: 1px') || !well.includes('border: 0')) violations.push('well must reserve a molded lip without a uniform border')
-    if (!well.includes('background: var(--wp-aqua-well-material) content-box, var(--wp-aqua-lip-side-material) border-box, var(--wp-aqua-lip-material) border-box')) violations.push('well must use separate concave channel and perimeter materials')
-    if (!well.includes('background-clip: content-box, border-box, border-box')) violations.push('well layers must remain spatially separated')
+    if (!well.includes('background: var(--wp-aqua-well-material)')) violations.push('well must use the shared translucent channel')
     if (!well.includes('box-shadow: var(--wp-aqua-trough-cast)')) violations.push('well must cast a soft exterior shadow')
   }
   if (!seam.includes('box-shadow: var(--wp-aqua-trough-seam)')) violations.push('well requires position-dependent lip and inner seam shading')
-  if (!property(tokens, '--wp-aqua-lip-material').includes('linear-gradient(180deg')) violations.push('perimeter must vary luminance by vertical position')
+  if (source.includes('--wp-aqua-lip-material')) violations.push('opaque perimeter bands must not return')
   if (!property(tokens, '--wp-aqua-well-material').includes('linear-gradient(180deg')) violations.push('empty channel must be softly concave')
   if (source.includes('border: 1px solid var(--wp-aqua-rim)')) violations.push('uniform gray frames are forbidden')
   if (source.includes('--wp-aqua-fill-edge') || source.includes('--wp-aqua-lower-edge')) {
@@ -205,11 +199,6 @@ function stationaryWellViolations(source: string): readonly string[] {
   const violations: string[] = []
   if ((source.match(/--wp-list-scroll-thumb-offset/g)?.length ?? 0) !== 1) {
     violations.push('only the thumb may consume the authoritative offset')
-  }
-  if (!source.includes(
-    '.wp-list-scroll__well::before, .wp-list-scroll__well::after { content: none !important; display: none !important; }',
-  )) {
-    violations.push('well overlays must remain structurally disabled')
   }
   return violations
 }
@@ -306,8 +295,7 @@ describe('the period Aqua LCD material', () => {
     expect(body).toContain('grid-template-rows: 119px 14px minmax(5px, 1fr) 15px')
     expect(progress).toContain('padding: 1px')
     expect(progress).toContain('border: 0')
-    expect(progress).toContain('var(--wp-aqua-well-material) content-box, var(--wp-aqua-lip-side-material) border-box, var(--wp-aqua-lip-material) border-box')
-    expect(progress).toContain('background-clip: content-box, border-box, border-box')
+    expect(progress).toContain('background: var(--wp-aqua-well-material)')
     expect(progress).toContain('border-radius: 2px 2px 1px 1px')
     expect(volumeRow).toContain('inset-block-start: 132px')
     expect(volumeRow).toContain('grid-template-columns: 13px 214px 13px')
@@ -317,18 +305,11 @@ describe('the period Aqua LCD material', () => {
     expect(fill).toContain('var(--wp-aqua-cylinder-modulation), var(--wp-aqua-fill-material)')
     expect(fill).toContain('box-shadow: var(--wp-aqua-fill-depth)')
     expect(property(darkTokens, '--wp-aqua-fill-material')).toContain('var(--wp-aqua-fill-waist) 52%')
-    expect(property(darkTokens, '--wp-aqua-lip-top')).toBe('#f3f6f8')
-    expect(property(darkTokens, '--wp-aqua-lip-side')).toBe('#b9c1c8')
-    expect(property(darkTokens, '--wp-aqua-lip-bottom')).toBe('#7c8791')
-    expect(property(darkTokens, '--wp-aqua-recess-seam')).toBe('#596570')
-    expect(property(darkTokens, '--wp-aqua-well-material')).toContain('var(--wp-aqua-channel-lower) 84%')
-    expect(property(darkTokens, '--wp-aqua-trough-seam')).toContain('inset 0 1px 0')
-    expect(property(darkTokens, '--wp-aqua-trough-cast')).toContain('0 1px 1px')
-    expect(property(darkTokens, '--wp-aqua-trough-cast')).toContain('0 2px 2px')
-    expect(property(darkTokens, '--wp-aqua-cast-near-alpha')).toBe('26%')
-    expect(property(darkTokens, '--wp-aqua-cast-far-alpha')).toBe('12%')
-    expect(property(lightTokens, '--wp-aqua-cast-near-alpha')).toBe('10%')
-    expect(property(lightTokens, '--wp-aqua-cast-far-alpha')).toBe('5%')
+    expect(property(darkTokens, '--wp-aqua-well-material')).toContain('rgb(')
+    expect(property(darkTokens, '--wp-aqua-well-material')).toContain('/ 78%')
+    expect(property(darkTokens, '--wp-aqua-trough-seam')).toContain('inset 0 1px 2px')
+    expect(property(darkTokens, '--wp-aqua-trough-cast')).toContain('/ 22%')
+    expect(css).not.toContain('--wp-aqua-lip-material')
     expect(aquaCylinderViolations(css)).toEqual([])
     expect(aquaCylinderViolations(css.replace('--wp-aqua-fill-waist: #69aaee', '--wp-aqua-fill-waist: #36a8de'))).toContain('all five owner-authored cylinder colors are required')
     expect(aquaCylinderViolations(css.replace('var(--wp-aqua-fill-waist) 52%', 'var(--wp-aqua-fill-waist) 90%'))).toContain('cylindrical fill requires the five authored stop positions')
@@ -347,42 +328,21 @@ describe('the period Aqua LCD material', () => {
     expect(agentSelected).toContain('rgb(34 197 94 / 72%)')
   })
 
-  test('keeps the fixed Aqua ribs fine and subordinate in both colourways', () => {
+  test('the scrollbar uses a quiet unstriped well and a bounded blue thumb', () => {
     const well = rule(/\.wp-list-scroll__well \{([^}]*)\}/)
-    for (const tokens of [darkTokens, lightTokens]) {
-      expect(maximumChannelDelta(
-        property(tokens, '--wp-scroll-well-light'),
-        property(tokens, '--wp-scroll-well-dark'),
-      )).toBeLessThanOrEqual(16)
-    }
-    expect(well).toContain('repeating-linear-gradient(180deg')
-    expect(well).toContain('0 1px')
-    expect(well).toContain('1px 2px')
-    expect(well).not.toContain('2px 3px')
-    expect(well).toContain('background-position: 0 0')
-    expect(well).not.toContain('--wp-list-scroll-thumb-offset')
-    expect(stationaryWellViolations(css)).toEqual([])
-  })
-
-  test('keeps the moving gel thumb distinct inside a subordinate nine-pixel track', () => {
     const scroll = rule(/\.wp-list-scroll \{([^}]*)\}/)
     const thumb = rule(/\.wp-list-scroll__thumb \{([^}]*)\}/)
-    const railWidth = pixelValue(scroll, 'inline-size')
-    const inlineInset = pixelValue(thumb, 'inset-inline')
-    const borderWidth = pixelValue(thumb, 'border')
-    const thumbInterior = railWidth - (2 * inlineInset) - (2 * borderWidth)
-
-    expect(railWidth).toBe(9)
-    expect(thumbInterior).toBeGreaterThanOrEqual(3)
-    expect(css).toContain('.wp-list-scroll__well::before, .wp-list-scroll__well::after { content: none !important; display: none !important; }')
+    expect(well).not.toContain('repeating-linear-gradient')
+    expect(well).not.toContain('box-shadow')
+    expect(well).not.toContain('--wp-list-scroll-thumb-offset')
+    expect(pixelValue(scroll, 'inline-size')).toBe(7)
+    expect(scroll).toContain('margin-inline: 1px')
+    expect(thumb).toContain('inset-inline: 1px')
     expect(thumb).toContain('inset-block-start: var(--wp-list-scroll-thumb-offset)')
-    expect(thumb).toContain('z-index: 1')
-    expect(thumb.match(/linear-gradient\(/g)).toHaveLength(2)
-    expect(thumb).toContain('var(--wp-scroll-thumb-highlight)')
-    expect(contrast(
-      property(darkTokens, '--wp-scroll-thumb-mid'),
-      property(darkTokens, '--wp-scroll-well-dark'),
-    )).toBeGreaterThanOrEqual(2)
+    expect(thumb).toContain('inset 1px 0 var(--wp-scroll-thumb-highlight)')
+    expect(thumb).not.toContain('border:')
+    expect(contrast(property(darkTokens, '--wp-scroll-thumb-top'), property(darkTokens, '--wp-scroll-well-dark'))).toBeGreaterThan(3)
+    expect(stationaryWellViolations(css)).toEqual([])
   })
 
   test('uses hierarchy, not selection weight, so changing selection never shifts row text', () => {

@@ -223,11 +223,14 @@ export const DEFAULT_ENV_ROOM: EnvRoomParams = {
   stops: STEEL_STOPS,
   stopExposure: [1, 0.99, 0.99, 0.99, 1.01, 1.01, 1, 1.01, 1.01, 1.01, 0.99],
   radianceGain: radianceGainForMirror(DEFAULT_DEVICE_MATERIALS.steelBack.color),
-  exposure: 1.18,
+  // Leave headroom for the two physical emitters on the reflective rear.
+  exposure: 0.78,
   profileContrast: 0.9906,
-  profileSharpenAmount: 0.46,
+  // The corrected roughness map supplies a real soft specular lobe. Old
+  // calibration unsharp passes amplified radiance and fought that softness.
+  profileSharpenAmount: 0,
   profileSharpenSigma: 0.0275,
-  profileSharpenAmount2: 1.425,
+  profileSharpenAmount2: 0,
   profileSharpenSigma2: 0.0095,
   sky: {
     // §4.1's room sweep originates at 28% 8% and §5.2 L3's blob at 26% 12% —

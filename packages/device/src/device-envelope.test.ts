@@ -13,7 +13,7 @@ import {
   clampDeviceOrientation,
   deviceOrientationToRotation,
 } from "./orientation";
-import { DEFAULT_DEVICE_TOP_CONTROL_BOUNDS } from "./top-controls";
+import { DEFAULT_DEVICE_TOP_CONTROL_BOUNDS, deviceHardwareBounds } from "./top-controls";
 
 describe("complete device envelope and rigid pivot", () => {
   test("declares the full rear-to-crown enclosure around one immutable center", () => {
@@ -24,20 +24,20 @@ describe("complete device envelope and rigid pivot", () => {
     expect(envelope).toEqual(DEFAULT_DEVICE_ENVELOPE);
     expect(envelope.width).toBe(DEVICE_LAYOUT.body.width);
     expect(envelope.height).toBe(
-      DEFAULT_DEVICE_TOP_CONTROL_BOUNDS.max[1] + DEVICE_LAYOUT.body.height / 2,
+      Math.max(DEVICE_LAYOUT.body.height / 2, DEFAULT_DEVICE_TOP_CONTROL_BOUNDS.max[1]) - Math.min(-DEVICE_LAYOUT.body.height / 2, deviceHardwareBounds().min[1]),
     );
     expect(envelope.min).toEqual([
       -DEVICE_LAYOUT.body.width / 2,
-      -DEVICE_LAYOUT.body.height / 2,
+      Math.min(-DEVICE_LAYOUT.body.height / 2, deviceHardwareBounds().min[1]),
       -DEVICE_LAYOUT.body.depth / 2,
     ]);
     expect(envelope.max).toEqual([
       DEVICE_LAYOUT.body.width / 2,
-      DEFAULT_DEVICE_TOP_CONTROL_BOUNDS.max[1],
+      Math.max(DEVICE_LAYOUT.body.height / 2, DEFAULT_DEVICE_TOP_CONTROL_BOUNDS.max[1]),
       DEVICE_LAYOUT.body.depth / 2 + maximumFrontCrown,
     ]);
     expect(envelope.center[0]).toBe(0);
-    expect(envelope.center[1]).toBeCloseTo(1.625, 12);
+    expect(envelope.center[1]).toBeCloseTo((envelope.max[1] + envelope.min[1]) / 2, 12);
     expect(envelope.center[2]).toBeCloseTo(maximumFrontCrown / 2, 12);
     expect(deviceEnvelopeBounds(envelope).getCenter(new Vector3()).toArray()).toEqual(
       [...envelope.center],

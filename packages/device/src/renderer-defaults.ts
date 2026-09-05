@@ -1,3 +1,4 @@
+import { AgXToneMapping } from "three";
 /**
  * Device-local renderer tuning.
  *
@@ -8,10 +9,12 @@
 
 export const DEVICE_TRANSMISSION_RESOLUTION_SCALE = 1;
 
-type TransmissionRenderer = { transmissionResolutionScale: number };
+type TransmissionRenderer = { transmissionResolutionScale: number; toneMapping?: number; toneMappingExposure?: number };
 
 export function applyDeviceRendererDefaults(
   renderer: TransmissionRenderer,
 ): void {
+  renderer.toneMapping = AgXToneMapping;
+  renderer.toneMappingExposure = 1;
   renderer.transmissionResolutionScale = DEVICE_TRANSMISSION_RESOLUTION_SCALE;
 }

@@ -1,3 +1,4 @@
+import { BACKPLATE_FINISH, createBackplateFinishMaps } from "./backplate-finish";
 /**
  * The device, as react-three-fiber elements.
  *
@@ -20,8 +21,6 @@ import { useThree, type ThreeEvent } from "@react-three/fiber";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Color,
-  CylinderGeometry,
-  DoubleSide,
   ExtrudeGeometry,
   type Group,
   type Material,
@@ -29,9 +28,8 @@ import {
   MeshBasicMaterial,
   ShapeGeometry,
   type Texture,
-  TorusGeometry,
 } from "three";
-import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+import { toCreasedNormals } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 import { frontCoreDepth, tessellateVerticalCrown } from "./curved-shell";
 import { useControlPhysics } from "./ControlPhysicsScope";
@@ -47,12 +45,12 @@ import {
 } from "./product-shell";
 import {
   createRoomEnvMap,
-  DEFAULT_ENV_ROOM,
   type EnvRoomParams,
 } from "./env-map";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import {
   resolveFrontAssemblyDepths,
+  SELECT_CONCAVITY,
   WHEEL_OUTER_SEAM_WIDTH,
 } from "./front-surface";
 import { DEVICE_LAYOUT, SCREEN_CORNER_R } from "./layout";
@@ -72,16 +70,15 @@ import {
 } from "./shapes";
 import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
 import { createScreenGeometry } from "./screen-geometry";
-import { squareRoundedRectApertureWalls } from "./screen-aperture";
+import { removeOpaqueApertureWalls, squareRoundedRectApertureWalls } from "./screen-aperture";
 import {
   createPolycarbonateMaterial,
-  createBlackPolycarbonateMaterial,
   createCoverGlassMaterial,
 } from "./physical-materials";
 import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 import {
-  createBackCompositionMap,
   createMicroNoiseRoughnessMap,
+  createAluminumFinishMaps,
   createSteelAnisotropyMap,
   createWheelLabelMap,
 } from "./textures";
@@ -99,7 +96,8 @@ import {
   type DeviceOrientationPointerCapture,
 } from "./orientation-grab";
 import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
-import { DEVICE_TOP_CONTROLS } from "./top-controls";
+import { DeviceHardware } from "./DeviceHardware";
+import { cutHardwareApertures } from "./hardware-apertures";
 import {
   effectiveStudioEnvironmentIntensity,
   useStudioEnvironmentSnapshot,
@@ -122,7 +120,7 @@ export type DeviceProps = {
   readonly materials?: DeviceMaterials;
   /** Owner-approved two-light rig. Injected for deterministic verification. */
   readonly lightRig?: LightRigParams;
-  /** Mirror-rear calibration room. Injected; defaults to §4.4 + §5.2 L3/L5. */
+  /** Optional legacy calibration room; production uses the shared product studio. */
   readonly envRoom?: EnvRoomParams;
   /** Depths and curvatures §12.0 does not state. */
   readonly form?: DeviceFormParams;
@@ -150,20 +148,19 @@ export type DeviceProps = {
 
 const { body, screen, wheel } = DEVICE_LAYOUT;
 const { displayWell, glass, mask } = DEVICE_SURFACE_LAYOUT.front;
-const rear = DEVICE_SURFACE_LAYOUT.rear;
 
 // D-067 puts VWaJS's circular 26px enclosure in DEVICE_LAYOUT; every shell
 // below consumes that single typed geometry.
 
 /** Bevel segments everywhere. Rolled edges are the §10.4 conic response. */
-const BEVEL_SEGMENTS = 6;
+const BEVEL_SEGMENTS = 16;
 
 export function Device({
   colourway = "black",
   orientation = FRONT_DEVICE_ORIENTATION,
   materials = DEFAULT_DEVICE_MATERIALS,
   lightRig = DEFAULT_LIGHT_RIG,
-  envRoom = DEFAULT_ENV_ROOM,
+  envRoom,
   form = DEFAULT_DEVICE_FORM,
   envMap,
   onScreenMeshReady,
@@ -226,16 +223,19 @@ export function Device({
   // object every render and rebuilds a 32MB texture for a value that did not
   // change. The rig tuner did precisely that and its inner loop went from
   // milliseconds to four seconds.
-  const envSignature = JSON.stringify(envRoom);
+  const envSignature = JSON.stringify(envRoom ?? null);
   const builtEnv = useMemo(() => {
-    if (envMap !== undefined) return null;
+    if (envMap !== undefined || envSignature === "null") return null;
     // Parsed from the signature rather than closed over `envRoom`, so the memo
     // and its input cannot disagree about which room was built.
     return createRoomEnvMap(JSON.parse(envSignature) as EnvRoomParams);
   }, [envMap, envSignature]);
   useEffect(() => () => builtEnv?.dispose(), [builtEnv]);
-  const env = envMap ?? builtEnv;
   const studio = useStudioEnvironmentSnapshot();
+  const env = envMap !== undefined ? envMap : builtEnv ?? studio.texture;
+
+  const backplateFinish = useMemo(() => createBackplateFinishMaps(), []);
+  useEffect(() => () => backplateFinish?.dispose(), [backplateFinish]);
 
   const noise = useMemo(() => {
     const map = createMicroNoiseRoughnessMap();
@@ -249,17 +249,8 @@ export function Device({
     return map;
   }, []);
   useEffect(() => () => steelAnisotropy.dispose(), [steelAnisotropy]);
-  const backComposition = useMemo(() => createBackCompositionMap(), []);
-  useEffect(() => () => backComposition?.dispose(), [backComposition]);
-  const backCompositionGeometry = useMemo(
-    () => createScreenGeometry(body.width, body.height, body.cornerR),
-    [],
-  );
-  useEffect(
-    () => () => backCompositionGeometry.dispose(),
-    [backCompositionGeometry],
-  );
-
+  const aluminumGrain = useMemo(() => createAluminumFinishMaps(), []);
+  useEffect(() => () => aluminumGrain.dispose(), [aluminumGrain]);
   const isBlack = colourway === "black";
   const ringMaterial = isBlack
     ? materials.wheelRingBlack
@@ -278,10 +269,10 @@ export function Device({
 
   const shellDepths = productShellDepths(body.depth, form.frontThickness);
 
-  // The thin 30GB chassis is two material shells meeting at one seam plane:
+  // The thin Classic chassis is two material shells meeting at one seam plane:
   //
   //   formed steel rear [−D/2 … plateBackZ]
-  //   polycarbonate front [plateBackZ … faceZ]
+  //   aluminum front [plateBackZ … faceZ]
   //
   // The previous full-depth steel perimeter continued from z=0 all the way to
   // the face and then placed the plastic extrusion beside it. At edge-on that
@@ -291,23 +282,24 @@ export function Device({
   // material seam.
   const plateBackZ = shellDepths.seamZ;
 
-  const backGeometry = useMemo(
-    () =>
-      createRearShellGeometry({
-        width: body.width,
-        height: body.height,
-        depth: body.depth,
-        cornerR: body.cornerR,
-        exponent: body.exponent,
-        frontThickness: form.frontThickness,
-        rearCrownInset: form.rearCrownInset,
-      }),
-    [form.frontThickness, form.rearCrownInset],
-  );
+  const backGeometry = useMemo(() => {
+    const shell = createRearShellGeometry({
+      width: body.width,
+      height: body.height,
+      depth: body.depth,
+      cornerR: body.cornerR,
+      exponent: body.exponent,
+      frontThickness: form.frontThickness,
+      rearCrownInset: form.rearCrownInset,
+    });
+    const opened = cutHardwareApertures(shell);
+    shell.dispose();
+    return opened;
+  }, [form.frontThickness, form.rearCrownInset]);
   useEffect(() => () => backGeometry.dispose(), [backGeometry]);
 
   const frontGeometry = useMemo(() => {
-    // §5.6 modelled rather than stroked: the polycarbonate front is inset by
+    // §5.6 modelled rather than stroked: the aluminum front is inset by
     // the seam width, so what runs round the perimeter is the steel shell's own
     // rolled edge, presenting a different angle to the light at every point of
     // the silhouette — §10.4 prevention #6, for free.
@@ -324,6 +316,7 @@ export function Device({
       plan.faceHeight,
       plan.faceCornerR,
       body.exponent,
+      48,
     );
     shape.holes.push(
       roundedRectHole(
@@ -343,7 +336,7 @@ export function Device({
       bevelSegments: BEVEL_SEGMENTS,
       curveSegments: 1,
     });
-    // Three applies the outer-shell bevel to holes as well. The real 5G LCD
+    // Three applies the outer-shell bevel to holes as well. The flush LCD
     // opening is square to the glossy face, so collapse only this hole's
     // generated slope before the shell crown is applied.
     squareRoundedRectApertureWalls(
@@ -357,6 +350,13 @@ export function Device({
       },
       form.frontBevel,
     );
+    removeOpaqueApertureWalls(extrusion, {
+      centerX: displayWell.centerX, centerY: displayWell.centerY,
+      width: displayWell.width, height: displayWell.height, cornerR: displayWell.cornerR,
+    });
+    // Smooth the rolled aluminum before deformation; preserve the LCD wall
+    // crease. ExtrudeGeometry starts with an independent normal per triangle.
+    toCreasedNormals(extrusion, Math.PI / 4);
     const geometry = tessellateVerticalCrown(
       extrusion,
       body.height / 2 - seam,
@@ -399,6 +399,24 @@ export function Device({
       edgeCrownExtent: form.edgeCrownExtent,
     };
     const gapFloor = createWheelGapFloorGeometries(controlForm);
+    const selectGeometry = createFrontControlPatchGeometry(
+        {
+          centerX: wheel.centerX,
+          centerY: wheel.centerY,
+          innerRadius: 0,
+          outerRadius: wheel.selectR,
+          concavity: SELECT_CONCAVITY,
+          uvRadius: wheel.outerR,
+        },
+        controlForm,
+      );
+    // Match the extrusion's model-unit UVs; the wheel retains its decal UVs.
+    const position = selectGeometry.getAttribute("position");
+    const uv = selectGeometry.getAttribute("uv");
+    for (let index = 0; index < uv.count; index++) {
+      uv.setXY(index, position.getX(index) + wheel.centerX, position.getY(index) + wheel.centerY);
+    }
+    uv.needsUpdate = true;
     return {
       ringGeometry: createFrontControlPatchGeometry(
         {
@@ -410,16 +428,7 @@ export function Device({
         },
         controlForm,
       ),
-      selectGeometry: createFrontControlPatchGeometry(
-        {
-          centerX: wheel.centerX,
-          centerY: wheel.centerY,
-          innerRadius: 0,
-          outerRadius: wheel.selectR,
-          uvRadius: wheel.outerR,
-        },
-        controlForm,
-      ),
+      selectGeometry,
       selectSeamGeometry: gapFloor.selectSeam,
       outerSeamGeometry: gapFloor.outerSeam,
     };
@@ -492,9 +501,9 @@ export function Device({
         radius: displayWell.cornerR,
       },
       {
-        width: glass.width,
-        height: glass.height,
-        radius: glass.cornerR,
+        width: glass.width - 1,
+        height: glass.height - 1,
+        radius: glass.cornerR - 0.5,
       },
       12,
     );
@@ -516,90 +525,6 @@ export function Device({
     return geometry;
   }, [form.displayWellDepth, form.displayWellInset]);
   useEffect(() => () => displayWellGeometry.dispose(), [displayWellGeometry]);
-
-  const rearInlayGeometry = useMemo(() => {
-    const depth = Math.max(0.1, form.rearInlayInset);
-    const shape = roundedRectShape(
-      rear.inlay.width,
-      rear.inlay.height,
-      rear.inlay.cornerR,
-      12,
-    );
-    const geometry = new ExtrudeGeometry(shape, {
-      depth,
-      bevelEnabled: false,
-      curveSegments: 1,
-    });
-    geometry.translate(0, 0, -depth);
-    return geometry;
-  }, [form.rearInlayInset]);
-  useEffect(() => () => rearInlayGeometry.dispose(), [rearInlayGeometry]);
-
-  // The top controls are separate solids on the steel/plastic seam. Their
-  // protrusion and recess remain visible when the full model rotates; no
-  // front-facing decal can survive the product's edge and flip interactions.
-  const holdRecessGeometry = useMemo(() => {
-    const control = DEVICE_TOP_CONTROLS.holdRecess;
-    return new RoundedBoxGeometry(
-      control.width,
-      control.height,
-      control.depth,
-      control.segments,
-      control.radius,
-    );
-  }, []);
-  useEffect(() => () => holdRecessGeometry.dispose(), [holdRecessGeometry]);
-  const holdIndicatorGeometry = useMemo(() => {
-    const control = DEVICE_TOP_CONTROLS.holdIndicator;
-    return new RoundedBoxGeometry(
-      control.width,
-      control.height,
-      control.depth,
-      control.segments,
-      control.radius,
-    );
-  }, []);
-  useEffect(
-    () => () => holdIndicatorGeometry.dispose(),
-    [holdIndicatorGeometry],
-  );
-  const holdSliderGeometry = useMemo(() => {
-    const control = DEVICE_TOP_CONTROLS.holdSlider;
-    return new RoundedBoxGeometry(
-      control.width,
-      control.height,
-      control.depth,
-      control.segments,
-      control.radius,
-    );
-  }, []);
-  useEffect(() => () => holdSliderGeometry.dispose(), [holdSliderGeometry]);
-  const headphoneRimGeometry = useMemo(() => {
-    const control = DEVICE_TOP_CONTROLS.headphoneRim;
-    return new TorusGeometry(
-      control.majorRadius,
-      control.tubeRadius,
-      control.radialSegments,
-      control.tubularSegments,
-    );
-  }, []);
-  useEffect(
-    () => () => headphoneRimGeometry.dispose(),
-    [headphoneRimGeometry],
-  );
-  const headphoneWellGeometry = useMemo(() => {
-    const control = DEVICE_TOP_CONTROLS.headphoneWell;
-    return new CylinderGeometry(
-      control.radius,
-      control.radius,
-      control.height,
-      control.radialSegments,
-    );
-  }, []);
-  useEffect(
-    () => () => headphoneWellGeometry.dispose(),
-    [headphoneWellGeometry],
-  );
 
   const screenGeometry = useMemo(
     () => createScreenGeometry(screen.width, screen.height, SCREEN_CORNER_R),
@@ -635,16 +560,17 @@ export function Device({
     wheelGapFloorBaseZ,
     wheelTopAtCenterZ,
   } = resolveFrontAssemblyDepths(form);
-  const rearInlayZ = -body.depth / 2 + form.rearInlayInset;
 
   // ── The screen mesh boundary (D-011) ──────────────────────────────────────
+  // Keep the LCD material identity across enclosure finish changes: the
+  // compositor installs its live texture on this object through the mesh handle.
   const screenDefaultMaterial = useMemo(
     () =>
       new MeshBasicMaterial({
-        color: isBlack ? materials.screen.color : "#F2F6FB",
+        color: materials.screen.color,
         toneMapped: materials.screen.toneMapped,
       }),
-    [isBlack, materials.screen.color, materials.screen.toneMapped],
+    [materials.screen.color, materials.screen.toneMapped],
   );
   useEffect(
     () => () => screenDefaultMaterial.dispose(),
@@ -660,24 +586,34 @@ export function Device({
   );
   useEffect(() => () => coverGlassMaterial.dispose(), [coverGlassMaterial]);
   const blackBodyPhysicalMaterial = useMemo(
-    () =>
-      createBlackPolycarbonateMaterial(
+    () => {
+      const material = createPolycarbonateMaterial(
         withStudioEnvironment(materials.bodyBlack, studio.intensity),
         studio.texture,
-      ),
-    [materials.bodyBlack, studio],
+      );
+      material.roughnessMap = aluminumGrain.roughness;
+      material.map = aluminumGrain.color;
+      material.bumpMap = aluminumGrain.height;
+      return material;
+    },
+    [materials.bodyBlack, studio, aluminumGrain],
   );
   useEffect(
     () => () => blackBodyPhysicalMaterial.dispose(),
     [blackBodyPhysicalMaterial],
   );
   const whiteBodyPhysicalMaterial = useMemo(
-    () =>
-      createPolycarbonateMaterial(
+    () => {
+      const material = createPolycarbonateMaterial(
         withStudioEnvironment(materials.bodyWhite, studio.intensity),
         studio.texture,
-      ),
-    [materials.bodyWhite, studio],
+      );
+      material.roughnessMap = aluminumGrain.roughness;
+      material.map = aluminumGrain.color;
+      material.bumpMap = aluminumGrain.height;
+      return material;
+    },
+    [materials.bodyWhite, studio, aluminumGrain],
   );
   useEffect(
     () => () => whiteBodyPhysicalMaterial.dispose(),
@@ -755,6 +691,13 @@ export function Device({
           {...spread(materials.steelBack)}
           envMap={env}
           {...surfaceMaps.steel}
+          {...(backplateFinish === null ? {} : {
+            roughness: Math.min(1, BACKPLATE_FINISH.etchedRoughness *
+              materials.steelBack.roughness / DEFAULT_DEVICE_MATERIALS.steelBack.roughness),
+            roughnessMap: backplateFinish.roughnessMap,
+            bumpMap: backplateFinish.bumpMap,
+            bumpScale: BACKPLATE_FINISH.bumpDepth,
+          })}
         />
       </mesh>
 
@@ -770,109 +713,8 @@ export function Device({
         />
       </mesh>
 
-      {/* zbTc3's etched identity and Settings inlay. The transparent texture
-          leaves the physical steel reflection visible everywhere else. */}
-      <mesh
-        name="device-back-composition"
-        geometry={backCompositionGeometry}
-        position={[0, 0, -body.depth / 2 - 0.04]}
-        rotation={[0, Math.PI, 0]}
-        renderOrder={3}
-      >
-        <meshBasicMaterial
-          name="back-composition"
-          map={backComposition}
-          transparent
-          depthWrite={false}
-          toneMapped={false}
-          side={DoubleSide}
-          polygonOffset
-          polygonOffsetFactor={-1}
-        />
-      </mesh>
+      <DeviceHardware form={form} isBlack={isBlack} />
 
-      {/* The 5G's top-edge identity: recessed HOLD slider and 3.5mm jack. */}
-      <mesh
-        name="device-hold-recess"
-        geometry={holdRecessGeometry}
-        position={[
-          DEVICE_TOP_CONTROLS.holdRecess.position[0],
-          DEVICE_TOP_CONTROLS.holdRecess.position[1],
-          DEVICE_TOP_CONTROLS.holdRecess.position[2],
-        ]}
-      >
-        <meshPhysicalMaterial
-          name="hold-recess"
-          {...spread(materials.displayWell)}
-          {...studioEnvironmentProps(materials.displayWell, studio)}
-        />
-      </mesh>
-      <mesh
-        name="device-hold-indicator"
-        geometry={holdIndicatorGeometry}
-        position={[
-          DEVICE_TOP_CONTROLS.holdIndicator.position[0],
-          DEVICE_TOP_CONTROLS.holdIndicator.position[1],
-          DEVICE_TOP_CONTROLS.holdIndicator.position[2],
-        ]}
-      >
-        <meshPhysicalMaterial
-          name="hold-indicator"
-          {...spread(materials.holdIndicator)}
-          {...studioEnvironmentProps(materials.holdIndicator, studio)}
-        />
-      </mesh>
-      <mesh
-        name="device-hold-slider"
-        geometry={holdSliderGeometry}
-        position={[
-          DEVICE_TOP_CONTROLS.holdSlider.position[0],
-          DEVICE_TOP_CONTROLS.holdSlider.position[1],
-          DEVICE_TOP_CONTROLS.holdSlider.position[2],
-        ]}
-      >
-        <meshPhysicalMaterial
-          name={isBlack ? "hold-slider-black" : "hold-slider-white"}
-          {...spread(isBlack ? materials.chromeSeamBlack : materials.chromeSeam)}
-          {...studioEnvironmentProps(
-            isBlack ? materials.chromeSeamBlack : materials.chromeSeam,
-            studio,
-          )}
-        />
-      </mesh>
-      <mesh
-        name="device-headphone-rim"
-        geometry={headphoneRimGeometry}
-        position={[
-          DEVICE_TOP_CONTROLS.headphoneRim.position[0],
-          DEVICE_TOP_CONTROLS.headphoneRim.position[1],
-          DEVICE_TOP_CONTROLS.headphoneRim.position[2],
-        ]}
-        rotation={[-Math.PI / 2, 0, 0]}
-      >
-        <meshPhysicalMaterial
-          name="headphone-rim"
-          {...spread(materials.steelBack)}
-          {...studioEnvironmentProps(materials.steelBack, studio)}
-        />
-      </mesh>
-      <mesh
-        name="device-headphone-well"
-        geometry={headphoneWellGeometry}
-        position={[
-          DEVICE_TOP_CONTROLS.headphoneWell.position[0],
-          DEVICE_TOP_CONTROLS.headphoneWell.position[1],
-          DEVICE_TOP_CONTROLS.headphoneWell.position[2],
-        ]}
-      >
-        <meshPhysicalMaterial
-          name="headphone-well"
-          {...spread(materials.displayWell)}
-          {...studioEnvironmentProps(materials.displayWell, studio)}
-        />
-      </mesh>
-
-      {/* §5.1 / §4.3 — the polycarbonate front, inset by the seam. */}
       <mesh
         name="device-body"
         geometry={frontGeometry}
@@ -903,19 +745,6 @@ export function Device({
             name="body-white"
           />
         )}
-      </mesh>
-
-      <mesh
-        name="device-rear-inlay"
-        geometry={rearInlayGeometry}
-        position={[rear.inlay.centerX, rear.inlay.centerY, rearInlayZ]}
-      >
-        <meshPhysicalMaterial
-          name="rear-inlay"
-          {...spread(materials.rearInlay)}
-          {...studioEnvironmentProps(materials.rearInlay, studio)}
-          side={DoubleSide}
-        />
       </mesh>
 
       <mesh
@@ -1004,9 +833,8 @@ export function Device({
         </mesh>
       </group>
 
-      {/* Select is a separate matte plastic surface patch. Its crown, top plane
-          and normals match the wheel exactly; only the one-pixel assembly gap
-          and independent material identify the part. */}
+      {/* Classic Select shares the front's aluminum and grain, with a shallow
+          geometric bowl. Its rim stays flush while the interior curves inward. */}
       <AxialSelectControl
         geometry={selectGeometry}
         position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}
@@ -1015,6 +843,9 @@ export function Device({
           key={isBlack ? "select-flat-black" : "select-flat-white"}
           name={isBlack ? "select-black" : "select-white"}
           {...spread(selectMaterial)}
+          roughnessMap={aluminumGrain.roughness}
+          map={aluminumGrain.color}
+          bumpMap={aluminumGrain.height}
           {...studioEnvironmentProps(selectMaterial, studio)}
         />
       </AxialSelectControl>

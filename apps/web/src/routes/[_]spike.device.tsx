@@ -12,6 +12,8 @@ import {
   type LightRigParams,
   type LightContribution,
 } from "@webpod/device";
+import { useAtomValue } from "jotai";
+import { DeviceSettings, InteractionSoundSetting, deviceSettingsStore, interactionAudioEnabledAtom } from "../device-settings";
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
@@ -39,7 +41,7 @@ export const Route = createFileRoute("/_spike/device")({
 });
 
 function lightingContribution(value: string | null): LightContribution {
-  return value === "key-only" || value === "fill-only" ? value : "combined";
+  return value === "key-only" || value === "fill-only" || value === "rim-only" || value === "environment-only" ? value : "combined";
 }
 
 function isColourway(value: string | null): value is Colourway {
@@ -50,6 +52,8 @@ const PRODUCTION_LIGHT_RIGS = {
   combined: lightRigForContribution(DEFAULT_LIGHT_RIG, "combined"),
   "key-only": lightRigForContribution(DEFAULT_LIGHT_RIG, "key-only"),
   "fill-only": lightRigForContribution(DEFAULT_LIGHT_RIG, "fill-only"),
+  "rim-only": lightRigForContribution(DEFAULT_LIGHT_RIG, "rim-only"),
+  "environment-only": lightRigForContribution(DEFAULT_LIGHT_RIG, "environment-only"),
 } satisfies Readonly<Record<LightContribution, LightRigParams>>;
 
 type GeometryEvidenceView =
@@ -129,6 +133,7 @@ const NEUTRAL_DIAGNOSTIC_MATERIALS: DeviceMaterials = Object.freeze({
 
 const NEUTRAL_DIAGNOSTIC_LIGHT_RIG: LightRigParams = Object.freeze({
   exposure: 1,
+  rim: { ...DEFAULT_LIGHT_RIG.rim, enabled: false },
   key: {
     enabled: true,
     viewerAzimuthDeg: 35,
@@ -151,6 +156,7 @@ const NEUTRAL_DIAGNOSTIC_LIGHT_RIG: LightRigParams = Object.freeze({
 });
 
 function DeviceSpike() {
+  const interactionAudioEnabled = useAtomValue(interactionAudioEnabledAtom, { store: deviceSettingsStore });
   const state = useSyncExternalStore(
     previewStore.subscribe,
     previewStore.getSnapshot,
@@ -281,12 +287,13 @@ function DeviceSpike() {
             cameraSafePadding={34}
             orientation={renderedState.orientation}
             lightRig={productionLightRig}
-            studioEnvironment={lightContribution === "combined" ? undefined : null}
+            studioEnvironment={undefined}
             onOrientationGrabStart={onOrientationGrabStart}
             onOrientationGrabHoverChange={onOrientationGrabHoverChange}
           />
         ) : (
           <ProductionDeviceView
+            interactionAudioEnabled={interactionAudioEnabled}
             className="webpod-device-preview__device"
             colourway={renderedState.colourway}
             cameraFov={30}
@@ -302,8 +309,13 @@ function DeviceSpike() {
           <p className="webpod-device-preview__selection-note">
             Drag a visible edge to rotate · Option/Alt-drag to roll
           </p>
-          <PreviewControls state={state} music={music} />
-          <PlaybackDiagnostics events={playbackDiagnostics.events} emeCapability={playbackDiagnostics.emeCapability} />
+          <nav className="webpod-device-preview__controls" aria-label="Device controls">
+            <button type="button" onClick={previewStore.resetOrientation}>Reset view</button>
+            <DeviceSettings>
+              <PreviewControls state={state} music={music} />
+              <PlaybackDiagnostics events={playbackDiagnostics.events} emeCapability={playbackDiagnostics.emeCapability} />
+            </DeviceSettings>
+          </nav>
         </>
       )}
     </main>
@@ -364,7 +376,8 @@ function isGeometryEvidenceView(
 
 export function PreviewControls({ state, music }: { readonly state: DevicePreviewState; readonly music: ReturnType<typeof musicRuntime.getSnapshot> }) {
   return (
-    <nav className="webpod-device-preview__controls" aria-label="Device preview controls">
+    <section className="webpod-device-settings__options" aria-label="Device preferences">
+      <h2 className="basis-full text-sm font-semibold">Appearance</h2>
       <button
         type="button"
         aria-pressed={state.colourway === "black"}
@@ -377,8 +390,18 @@ export function PreviewControls({ state, music }: { readonly state: DevicePrevie
         aria-pressed={state.colourway === "white"}
         onClick={() => previewStore.setColourway("white")}
       >
-        White
+        Silver
       </button>
+      <button
+        type="button"
+        aria-pressed={state.room === "light"}
+        onClick={() => previewStore.setRoom(state.room === "dark" ? "light" : "dark")}
+      >
+        Light room
+      </button>
+      <h2 className="mt-3 basis-full text-sm font-semibold">Interaction</h2>
+      <InteractionSoundSetting />
+      <h2 className="mt-3 basis-full text-sm font-semibold">Apple Music</h2>
       {music.activeMode === "apple" && (music.phase === "signed-out" || music.phase === "permission-denied") ? (
         <button type="button" onClick={() => void authorizeAppleRuntime()}>
           Sign in to Apple Music
@@ -397,19 +420,7 @@ export function PreviewControls({ state, music }: { readonly state: DevicePrevie
       <output aria-live="polite">
         {music.message ?? `Apple Music: ${music.phase}`}
       </output>
-      <button type="button" onClick={previewStore.resetOrientation}>
-        Reset view
-      </button>
-      <button
-        type="button"
-        aria-pressed={state.room === "light"}
-        onClick={() =>
-          previewStore.setRoom(state.room === "dark" ? "light" : "dark")
-        }
-      >
-        Light room
-      </button>
-    </nav>
+    </section>
   );
 }
 
@@ -421,6 +432,8 @@ const DEVICE_PREVIEW_CSS = `
     overscroll-behavior: none;
   }
   .webpod-device-preview {
+    -webkit-user-select: none;
+    user-select: none;
     position: fixed;
     inset: 0;
     min-inline-size: 0;
@@ -467,6 +480,19 @@ const DEVICE_PREVIEW_CSS = `
     gap: 6px;
     pointer-events: none;
   }
+  .webpod-device-settings { pointer-events: auto; font: 500 13px/1.5 ui-sans-serif, system-ui, sans-serif; }
+  .webpod-device-settings__options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .webpod-device-settings__options h2 { margin-bottom: 0; }
+  .webpod-device-settings__options output { flex-basis: 100%; overflow-wrap: anywhere; color: #cbd5e1; }
+  .webpod-device-settings .webpod-device-preview__playback-diagnostics {
+    position: static; inline-size: auto; max-block-size: none; border-color: rgb(255 255 255 / .12);
+  }
+  .webpod-device-preview__controls .webpod-device-settings button {
+    min-block-size: 44px; color: #eef2f7; background: #222b38; border-color: rgb(255 255 255 / .16); backdrop-filter: none;
+  }
+  .webpod-device-preview__controls .webpod-device-settings button[aria-pressed="true"] {
+    color: #111827; background: #e2e8f0; border-color: #f8fafc;
+  }
   .webpod-device-preview__selection-note {
     position: absolute;
     z-index: 4;
@@ -475,7 +501,7 @@ const DEVICE_PREVIEW_CSS = `
     margin: 0;
     color: inherit;
     font: 500 12px/1.4 ui-sans-serif, system-ui, sans-serif;
-    user-select: text;
+    user-select: none;
     pointer-events: auto;
   }
   .webpod-device-preview__playback-diagnostics {
@@ -521,7 +547,7 @@ const DEVICE_PREVIEW_CSS = `
     pointer-events: auto;
     cursor: pointer;
   }
-  .webpod-device-preview[data-room="light"] .webpod-device-preview__controls button {
+  .webpod-device-preview[data-room="light"] .webpod-device-preview__controls > button {
     border-color: rgb(15 23 42 / .12);
     background: rgb(255 255 255 / .7);
   }
@@ -544,6 +570,6 @@ const DEVICE_PREVIEW_CSS = `
   }
   @media (prefers-reduced-transparency: reduce) {
     .webpod-device-preview__controls button { backdrop-filter: none; background: #111827; }
-    .webpod-device-preview[data-room="light"] .webpod-device-preview__controls button { background: #fff; }
+    .webpod-device-preview[data-room="light"] .webpod-device-preview__controls > button { background: #fff; }
   }
 `;

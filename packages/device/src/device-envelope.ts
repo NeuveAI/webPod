@@ -2,7 +2,7 @@ import { Box3, Vector3 } from "three";
 
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import { DEVICE_LAYOUT } from "./layout";
-import { DEFAULT_DEVICE_TOP_CONTROL_BOUNDS } from "./top-controls";
+import { deviceHardwareBounds } from "./top-controls";
 
 export type DeviceEnvelope = {
   readonly width: number;
@@ -28,18 +28,19 @@ export function completeDeviceEnvelope(
   form: DeviceFormParams = DEFAULT_DEVICE_FORM,
 ): DeviceEnvelope {
   const { body } = DEVICE_LAYOUT;
+  const hardware = deviceHardwareBounds(form);
   const rearZ = -body.depth / 2;
   const maximumFrontCrown =
     Math.max(0, form.bodyCrown) +
     Math.max(0, form.bodyCrossCrown) +
     Math.max(0, form.topEdgeCrown, form.bottomEdgeCrown);
   const frontZ = body.depth / 2 + maximumFrontCrown;
-  const minX = Math.min(-body.width / 2, DEFAULT_DEVICE_TOP_CONTROL_BOUNDS.min[0]);
-  const maxX = Math.max(body.width / 2, DEFAULT_DEVICE_TOP_CONTROL_BOUNDS.max[0]);
-  const minY = Math.min(-body.height / 2, DEFAULT_DEVICE_TOP_CONTROL_BOUNDS.min[1]);
-  const maxY = Math.max(body.height / 2, DEFAULT_DEVICE_TOP_CONTROL_BOUNDS.max[1]);
-  const minZ = Math.min(rearZ, DEFAULT_DEVICE_TOP_CONTROL_BOUNDS.min[2]);
-  const maxZ = Math.max(frontZ, DEFAULT_DEVICE_TOP_CONTROL_BOUNDS.max[2]);
+  const minX = Math.min(-body.width / 2, hardware.min[0]);
+  const maxX = Math.max(body.width / 2, hardware.max[0]);
+  const minY = Math.min(-body.height / 2, hardware.min[1]);
+  const maxY = Math.max(body.height / 2, hardware.max[1]);
+  const minZ = Math.min(rearZ, hardware.min[2]);
+  const maxZ = Math.max(frontZ, hardware.max[2]);
   const centerX = (minX + maxX) / 2;
   const centerY = (minY + maxY) / 2;
   const centerZ = (minZ + maxZ) / 2;

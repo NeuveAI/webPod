@@ -2,8 +2,8 @@
  * Where each part sits on the body face.
  *
  * Body and active-LCD canvas dimensions remain imported from the design-system
- * tokens. Product placement and wheel proportions come from the declared thin
- * 30GB physical target in `physical-spec.ts`; this is the owner-requested
+ * tokens. Product placement and wheel proportions come from the declared Classic
+ * physical target in `physical-spec.ts`; this is the owner-requested
  * correction to the oversized Pencil wheel and excessive screen forehead.
  *
  * Coordinate frame: body-local CSS pixels, origin at the **centre** of the
@@ -23,7 +23,7 @@ import {
 } from "@webpod/tokens";
 
 import {
-  IPOD_5G_30GB_PHYSICAL_SPEC,
+  IPOD_CLASSIC_PHYSICAL_SPEC,
   rasterRatio,
 } from "./physical-spec";
 
@@ -36,20 +36,20 @@ import {
  * transcribed.
  */
 export const PX_PER_MM: number =
-  BODY_W / IPOD_5G_30GB_PHYSICAL_SPEC.bodyMm.width;
+  BODY_W / IPOD_CLASSIC_PHYSICAL_SPEC.bodyMm.width;
 
-/** Apple/5G physical reference behind the canonical 272 × 204 Pencil slot. */
+/** Shared 2.5-inch physical reference behind the canonical 272 × 204 Pencil slot. */
 export const LCD_ACTIVE_PHYSICAL_MM = Object.freeze({
-  width: IPOD_5G_30GB_PHYSICAL_SPEC.display.activeWidthMm,
-  height: IPOD_5G_30GB_PHYSICAL_SPEC.display.activeHeightMm,
-  semanticWidth: IPOD_5G_30GB_PHYSICAL_SPEC.display.semanticWidth,
-  semanticHeight: IPOD_5G_30GB_PHYSICAL_SPEC.display.semanticHeight,
+  width: IPOD_CLASSIC_PHYSICAL_SPEC.display.activeWidthMm,
+  height: IPOD_CLASSIC_PHYSICAL_SPEC.display.activeHeightMm,
+  semanticWidth: IPOD_CLASSIC_PHYSICAL_SPEC.display.semanticWidth,
+  semanticHeight: IPOD_CLASSIC_PHYSICAL_SPEC.display.semanticHeight,
 });
 
 /** Rounding allowance from physical millimetres to the integer Pencil grid. */
 export const LCD_PHYSICAL_TOLERANCE_MM = 0.2;
 
-const FRONT_RASTER = IPOD_5G_30GB_PHYSICAL_SPEC.appleFrontRaster;
+const FRONT_RASTER = IPOD_CLASSIC_PHYSICAL_SPEC.legacyFrontRaster;
 
 /** Device-local physical wheel plan, measured from Apple's straight-on image. */
 const WHEEL_DIAMETER = Math.round(
@@ -73,17 +73,17 @@ const SELECT_LIP_RADIUS = SELECT_RADIUS + 1;
 const CONTROL_PROBE_REACH_RADIUS = WHEEL_RADIUS - 11;
 
 /** Cover-glass lip beyond each active edge. */
-export const GLASS_SURROUND: number = 1;
+export const GLASS_SURROUND: number = 6;
 
 /** §7.1: screen glass window radius, mobile. */
 export const GLASS_CORNER_R: number = 7;
 
-/** §7.1: screen active area radius, mobile — glass − 3px print inset. */
-export const SCREEN_CORNER_R: number = 4;
+/** The luminous LCD is rectangular; only the outer printed surround rounds. */
+export const SCREEN_CORNER_R: number = 0;
 
 /** Body depth in CSS px. */
 export const BODY_D: number =
-  IPOD_5G_30GB_PHYSICAL_SPEC.bodyMm.depth * PX_PER_MM;
+  IPOD_CLASSIC_PHYSICAL_SPEC.bodyMm.depth * PX_PER_MM;
 
 /**
  * The vertical chain, in body-local coordinates (+y up, origin at centre).

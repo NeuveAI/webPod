@@ -6,7 +6,7 @@ import {
   type Texture,
   type WebGLRenderer,
 } from "three";
-import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { createProductStudioEnvironment } from "./product-studio";
 
 type StudioInstallation = {
   readonly gl: WebGLRenderer;
@@ -78,10 +78,10 @@ function installStudioEnvironment({
   intensity,
   invalidate,
 }: StudioInstallation) {
-  const room = new RoomEnvironment();
+  const room = createProductStudioEnvironment();
   const generator = new PMREMGenerator(gl);
   generator.compileEquirectangularShader();
-  const target = generator.fromScene(room, sigma);
+  const target = generator.fromScene(room.scene, sigma);
   const previousEnvironment = scene.environment;
   const previousIntensity = scene.environmentIntensity;
   const previousSnapshot = readStudioEnvironment(scene);
@@ -138,7 +138,7 @@ export function useStudioEnvironmentSnapshot(): StudioEnvironmentSnapshot {
 }
 
 /**
- * Install a Three {@link RoomEnvironment} through one PMREM conversion.
+ * Install the deliberate diffusion-card studio through one PMREM conversion.
  *
  * The generated render target belongs to this component and is disposed on
  * unmount. The environment stays in world space while the single model group

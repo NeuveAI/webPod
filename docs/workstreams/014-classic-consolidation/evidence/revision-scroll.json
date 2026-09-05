@@ -1,0 +1,56 @@
+[
+  {
+    "colourway": "black",
+    "name": "top",
+    "offset": "0.000px",
+    "size": "20.588px",
+    "start": "0",
+    "top": 0,
+    "bottom": 201.3905029296875
+  },
+  {
+    "colourway": "black",
+    "name": "middle",
+    "offset": "73.200px",
+    "size": "20.588px",
+    "start": "32",
+    "top": 90.74681091308594,
+    "bottom": 110.6436767578125
+  },
+  {
+    "colourway": "black",
+    "name": "bottom",
+    "offset": "162.412px",
+    "size": "20.588px",
+    "start": "71",
+    "top": 201.3711395263672,
+    "bottom": 0.019378662109375
+  },
+  {
+    "colourway": "white",
+    "name": "top",
+    "offset": "0.000px",
+    "size": "20.588px",
+    "start": "0",
+    "top": 0,
+    "bottom": 201.3905029296875
+  },
+  {
+    "colourway": "white",
+    "name": "middle",
+    "offset": "73.200px",
+    "size": "20.588px",
+    "start": "32",
+    "top": 90.74681091308594,
+    "bottom": 110.6436767578125
+  },
+  {
+    "colourway": "white",
+    "name": "bottom",
+    "offset": "162.412px",
+    "size": "20.588px",
+    "start": "71",
+    "top": 201.3711395263672,
+    "bottom": 0.019378662109375
+  }
+]

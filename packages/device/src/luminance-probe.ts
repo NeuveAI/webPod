@@ -39,7 +39,6 @@ import { DEFAULT_DEVICE_MATERIALS } from "./materials";
 import type { ProbeFace } from "./probe-raycast";
 import { DEVICE_LAYOUT } from "./layout";
 import { STEEL_STOPS } from "./env-map";
-import { BACK_COMPOSITION_LAYOUT } from "./textures";
 
 /** Which surface a target sits on, and therefore which render it is read from. */
 export type ProbeSurface =
@@ -123,21 +122,6 @@ const STEEL_UX = Math.sin(STEEL_THETA);
 const STEEL_UY = Math.cos(STEEL_THETA);
 const STEEL_GRADIENT_LENGTH =
   Math.abs(body.width * STEEL_UX) + Math.abs(body.height * STEEL_UY);
-const REAR_INLAY_MARGIN = 8;
-const REAR_INLAY_BOUNDS = Object.freeze({
-  left: BACK_COMPOSITION_LAYOUT.inlay.x - HALF_W - REAR_INLAY_MARGIN,
-  right:
-    BACK_COMPOSITION_LAYOUT.inlay.x +
-    BACK_COMPOSITION_LAYOUT.inlay.width -
-    HALF_W +
-    REAR_INLAY_MARGIN,
-  top: HALF_H - BACK_COMPOSITION_LAYOUT.inlay.y + REAR_INLAY_MARGIN,
-  bottom:
-    HALF_H -
-    (BACK_COMPOSITION_LAYOUT.inlay.y + BACK_COMPOSITION_LAYOUT.inlay.height) -
-    REAR_INLAY_MARGIN,
-});
-
 /** Reconstruct §4.4's 168° stop parameter in the viewer-facing xy plane. */
 export function steelGradientParameter(x: number, y: number): number {
   return (x * STEEL_UX + y * STEEL_UY) / STEEL_GRADIENT_LENGTH + 0.5;
@@ -177,10 +161,8 @@ function identity(surface: ProbeSurface) {
       return {
         probeFace: "back" as const,
         lateralAxis: "x" as const,
-        objectName: "device-back-composition",
-        materialName: "back-composition",
-        backingObjectName: "device-steel-back",
-        backingMaterialName: "steel-back",
+        objectName: "device-steel-back",
+        materialName: "steel-back",
       };
     case "wheel-ring-black":
       return {
@@ -403,14 +385,7 @@ function steelTargets(options: TargetOptions): Array<ProbeTarget> {
   return STEEL_STOPS.map((stop, index) => {
     const wanted = (stop.at - 0.5) * length;
     const c = Math.min(extent, Math.max(-extent, wanted));
-    const point = avoidRearInlay(chordMidpoint(ux, uy, c, halfW, halfH), c, {
-      ux,
-      uy,
-      halfW,
-      halfH,
-      cornerR: body.cornerR - inset,
-      exponent: body.exponent,
-    });
+    const point = chordMidpoint(ux, uy, c, halfW, halfH);
     // ⚑ The chord is computed against the bounding box, and the silhouette is
     // a superellipse: at the endpoint stops the chord degenerates to a *corner*
     // of the box, which is 5px outside the plate. Sampling there reads the room
@@ -439,49 +414,6 @@ function steelTargets(options: TargetOptions): Array<ProbeTarget> {
       xs: [-point.x],
     };
   });
-}
-
-function avoidRearInlay(
-  point: { x: number; y: number },
-  c: number,
-  line: {
-    readonly ux: number;
-    readonly uy: number;
-    readonly halfW: number;
-    readonly halfH: number;
-    readonly cornerR: number;
-    readonly exponent: number;
-  },
-): { x: number; y: number } {
-  if (!pointInsideRearInlay(point.x, point.y)) return point;
-  const { ux, uy, halfW, halfH, cornerR, exponent } = line;
-  const preferredXs = [
-    REAR_INLAY_BOUNDS.left,
-    REAR_INLAY_BOUNDS.right,
-  ];
-  const candidates = preferredXs
-    .map((x) => ({ x, y: (c - ux * x) / uy }))
-    .filter(({ x, y }) => {
-      if (!Number.isFinite(y) || Math.abs(y) > halfH + 1e-9) return false;
-      const reach = silhouetteHalfWidth(y, halfW, halfH, cornerR, exponent);
-      return Math.abs(x) <= reach + 1e-9 && !pointInsideRearInlay(x, y);
-    });
-  if (candidates.length === 0) return point;
-  candidates.sort(
-    (a, b) =>
-      Math.hypot(a.x - point.x, a.y - point.y) -
-      Math.hypot(b.x - point.x, b.y - point.y),
-  );
-  return candidates[0] ?? point;
-}
-
-function pointInsideRearInlay(x: number, y: number): boolean {
-  return (
-    x > REAR_INLAY_BOUNDS.left &&
-    x < REAR_INLAY_BOUNDS.right &&
-    y < REAR_INLAY_BOUNDS.top &&
-    y > REAR_INLAY_BOUNDS.bottom
-  );
 }
 
 const EDGE_SHELL_STOPS = [0.14, 0.5, 0.86] as const;

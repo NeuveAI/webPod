@@ -70,7 +70,7 @@ function makeHandle() {
 describe("the screen mesh boundary", () => {
   test("screen UVs are normalized with TL/TR/BR/BL texture orientation", () => {
     const { width, height } = DEVICE_LAYOUT.screen;
-    const geometry = createScreenGeometry(width, height, 7);
+    const geometry = createScreenGeometry(width, height, DEVICE_LAYOUT.screen.cornerR);
     const positions = geometry.getAttribute("position");
     const uvs = geometry.getAttribute("uv");
     let minU = Infinity;
@@ -126,8 +126,9 @@ describe("the screen mesh boundary", () => {
         }
       }
       expect(found).toBeGreaterThanOrEqual(0);
-      expect(uvs.getX(found)).toBeCloseTo(expected[corner]?.[0] ?? -1, 1);
-      expect(uvs.getY(found)).toBeCloseTo(expected[corner]?.[1] ?? -1, 1);
+      expect(distance).toBeLessThan(1e-6);
+      expect(uvs.getX(found)).toBeCloseTo(expected[corner]?.[0] ?? -1, 6);
+      expect(uvs.getY(found)).toBeCloseTo(expected[corner]?.[1] ?? -1, 6);
     });
     geometry.dispose();
   });

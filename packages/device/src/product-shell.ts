@@ -8,7 +8,7 @@ export type RearShellParams = {
   readonly depth: number;
   readonly cornerR: number;
   readonly exponent: number;
-  /** Polycarbonate depth measured from the front face to the material seam. */
+  /** Aluminum depth measured from the front face to the material seam. */
   readonly frontThickness: number;
   /** Maximum plan inset of the crowned rear face relative to the seam. */
   readonly rearCrownInset: number;
@@ -25,7 +25,7 @@ export type FrontShellPlan = {
   readonly faceWidth: number;
   readonly faceHeight: number;
   readonly faceCornerR: number;
-  /** Greatest projected plastic outline after the bevel is applied. */
+  /** Greatest projected aluminum outline after the bevel is applied. */
   readonly projectedWidth: number;
   readonly projectedHeight: number;
   readonly projectedCornerR: number;
@@ -40,7 +40,7 @@ export type ProductShellDepths = {
 const EPSILON = 1e-6;
 export const REAR_ROLL_SEGMENTS = 48;
 
-/** One axial contract shared by the steel rear and polycarbonate front. */
+/** One axial contract shared by the steel rear and aluminum front. */
 export function productShellDepths(
   depth: number,
   frontThickness: number,
@@ -66,14 +66,14 @@ export function productShellDepths(
 }
 
 /**
- * Resolve the plastic front's pre-bevel and projected plans.
+ * Resolve the aluminum front's pre-bevel and projected plans.
  *
  * Three's `ExtrudeGeometry` expands an outline by `bevelSize`; feeding it the
  * already-final enclosure plan therefore makes the rolled face wider than the
  * steel chassis. The old production mesh reached 334.6 units across a 330-unit
  * product, which is the lower-corner/edge kink visible in the owner's capture.
  * Pre-insetting by both the intentional steel seam and the face roll makes the
- * largest plastic section exactly `width - 2 * seamWidth` instead.
+ * largest aluminum section exactly `width - 2 * seamWidth` instead.
  */
 export function frontShellPlan(
   width: number,
@@ -108,7 +108,7 @@ export function frontShellPlan(
 }
 
 /**
- * Cross-sections for the thin 30GB stainless rear tray.
+ * Cross-sections for the thin Classic stainless rear tray.
  *
  * The rear face is inset and the formed steel expands continuously across its
  * full depth to the front-shell seam. There is no constant-width rear slab,
@@ -205,10 +205,8 @@ export function rearRollInsetSlopeAt(
 /**
  * One indexed, normal-smoothed rear tray, open only at the intentional seam.
  *
- * Shared indexed vertices are load-bearing: Three's `computeVertexNormals()`
- * averages the rear crown across section joins. Separate extrusions would keep
- * coincident vertices with unrelated normals and recreate the visible kink the
- * owner reported.
+ * Shared vertices keep the surface watertight. Analytic sweep normals keep
+ * highlights continuous independently of triangle area and cap triangulation.
  */
 export function createRearShellGeometry({
   width,
@@ -218,7 +216,7 @@ export function createRearShellGeometry({
   exponent,
   frontThickness,
   rearCrownInset,
-  cornerSegments = 24,
+  cornerSegments = 48,
 }: RearShellParams): BufferGeometry {
   if (!(width > 2 * rearCrownInset) || !(height > 2 * rearCrownInset)) {
     throw new Error("rear crown inset must fit inside the enclosure plan");
@@ -247,6 +245,7 @@ export function createRearShellGeometry({
 
   const positions: number[] = [];
   const uvs: number[] = [];
+  const normals: number[] = [];
   for (
     let sectionIndex = 0;
     sectionIndex < sections.length;
@@ -258,6 +257,27 @@ export function createRearShellGeometry({
     for (const point of ring) {
       positions.push(point.x, point.y, section.z);
       uvs.push(point.x / width + 0.5, point.y / height + 0.5);
+      // Analytic normal of the swept superellipse. Area-weighted triangle
+      // normals bias the corner endpoints toward the long straight sides and
+      // rear-cap fan, producing pinched chrome highlights at each junction.
+      const radius = cornerR - section.inset;
+      const radialX = Math.max(0, Math.abs(point.x) - (width / 2 - cornerR)) / radius;
+      const radialY = Math.max(0, Math.abs(point.y) - (height / 2 - cornerR)) / radius;
+      const gradientX = Math.pow(radialX, exponent - 1);
+      const gradientY = Math.pow(radialY, exponent - 1);
+      const gradientLength = Math.hypot(gradientX, gradientY);
+      const planX = gradientX / gradientLength;
+      const planY = gradientY / gradientLength;
+      const angle = (sectionIndex / (sections.length - 1)) * Math.PI / 2;
+      const tangentZ = (seamZ + depth / 2) * Math.sin(angle);
+      const axialNormal = -rearCrownInset * Math.cos(angle) *
+        (planX * radialX + planY * radialY);
+      const length = Math.hypot(tangentZ, axialNormal);
+      normals.push(
+        Math.sign(point.x) * planX * tangentZ / length,
+        Math.sign(point.y) * planY * tangentZ / length,
+        axialNormal / length,
+      );
     }
   }
 
@@ -266,6 +286,7 @@ export function createRearShellGeometry({
   const rearCenterIndex = positions.length / 3;
   positions.push(0, 0, -depth / 2);
   uvs.push(0.5, 0.5);
+  normals.push(0, 0, -1);
 
   const indices: number[] = [];
   for (
@@ -295,7 +316,7 @@ export function createRearShellGeometry({
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
   geometry.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
-  geometry.computeVertexNormals();
+  geometry.setAttribute("normal", new Float32BufferAttribute(normals, 3));
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();
   return geometry;

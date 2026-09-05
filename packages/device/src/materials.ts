@@ -34,6 +34,7 @@ export type PhysicalSurfaceParams = {
   /** Linear-sRGB albedo multiplier; `1` preserves the authored base colour. */
   readonly albedoScale?: number;
   readonly roughness: number;
+  readonly bumpScale?: number;
   readonly metalness?: number;
   readonly clearcoat?: number;
   readonly clearcoatRoughness?: number;
@@ -103,149 +104,59 @@ export type WheelColourwayParams = {
   readonly labelColor: string;
 };
 
-/**
- * OEM wheel assemblies are two independently finished plastic parts plus ink.
- * The white model is not the black response inverted: its wheel is a cool,
- * pale matte grey, the Select is warmer and brighter, and its legends are a
- * light warm-neutral ink. Nine original photographs of the owner's known OEM
- * white 5G establish that relationship under several angles/exposures; the
- * table preserves the repeated relationship rather than sampling their warm
- * room light as an RGB swatch. The black model uses charcoal-on-black parts
- * and pale ink. The supporting OEM image ledger records every source.
- */
+/** The Classic's anodized aluminum is shared by the front and Select.
+ * `white` remains the persisted light-variant key; its finish is now silver.
+ * Owner IMG_2289/2290 establish the metal/plastic separation. */
+export const CLASSIC_ALUMINUM = Object.freeze({
+  black: Object.freeze({
+    color: "#4E4D4B", roughness: 0.48, metalness: 1,
+    clearcoat: 0, sheen: 0, transmission: 0,
+    bumpScale: 0.035, anisotropy: 0.36, anisotropyRotation: 0, envMapIntensity: 0.8,
+  }),
+  white: Object.freeze({
+    color: "#D5D7D8", roughness: 0.46, metalness: 1,
+    clearcoat: 0, sheen: 0, transmission: 0,
+    bumpScale: 0.035, anisotropy: 0.36, anisotropyRotation: 0, envMapIntensity: 0.8,
+  }),
+});
+
+/** Separate matte plastic wheel rings; Select uses the enclosure's metal. */
 export const DEFAULT_WHEEL_COLOURWAYS: Readonly<
   Record<"black" | "white", WheelColourwayParams>
 > = Object.freeze({
   black: Object.freeze({
     ring: Object.freeze({
-      color: "#24292F",
-      albedoScale: 0.62,
-      roughness: 0.44,
-      metalness: 0,
-      clearcoat: 0.08,
-      clearcoatRoughness: 0.56,
-      envMapIntensity: 0.006,
+      color: "#242321", albedoScale: 0.75, roughness: 0.76,
+      metalness: 0, clearcoat: 0, specularIntensity: 0.22,
+      envMapIntensity: 0.012,
     }),
-    select: Object.freeze({
-      color: "#11151A",
-      albedoScale: 0.78,
-      transmission: 0,
-      roughness: 0.68,
-      clearcoat: 0.02,
-      clearcoatRoughness: 0.72,
-      metalness: 0,
-      specularIntensity: 0.06,
-      envMapIntensity: 0.004,
-    }),
-    labelColor: "#B9BFC7",
+    select: CLASSIC_ALUMINUM.black,
+    labelColor: "#F0EFEB",
   }),
   white: Object.freeze({
     ring: Object.freeze({
-      color: "#D5DADD",
-      albedoScale: 0.7,
-      roughness: 0.8,
-      metalness: 0,
-      clearcoat: 0.035,
-      clearcoatRoughness: 0.66,
-      envMapIntensity: 0.004,
+      color: "#FFFFFF", albedoScale: 1.3, roughness: 0.8,
+      metalness: 0, clearcoat: 0, specularIntensity: 0.22,
+      envMapIntensity: 0.012,
     }),
-    select: Object.freeze({
-      color: "#F6F2E9",
-      albedoScale: 0.9,
-      transmission: 0,
-      roughness: 0.72,
-      clearcoat: 0.02,
-      clearcoatRoughness: 0.72,
-      metalness: 0,
-      specularIntensity: 0.04,
-      envMapIntensity: 0.004,
-    }),
-    labelColor: "#FAF8F2",
+    select: CLASSIC_ALUMINUM.white,
+    labelColor: "#777B7D",
   }),
 });
 
-/**
- * §12.3 verbatim.
- *
- * Four annotations, all of them places where §12.3 under-specifies rather
- * than where this file departs from it:
- *
- * 1. **The steel is a `MeshPhysicalMaterial`, not a `MeshStandardMaterial`.**
- *    §12.3's row says `MeshStandardMaterial` *and* `anisotropy 0.75`, and
- *    three.js has no such property on `MeshStandardMaterial` — anisotropy is
- *    declared on `MeshPhysicalMaterial` (three@0.185, `src/materials/`).
- *    `MeshPhysicalMaterial` extends `MeshStandardMaterial`, so honouring the
- *    parameter is the reading that keeps both halves of the row. Dropping the
- *    anisotropy instead would delete §10.4 prevention #5.
- * 2. **The Select and glass rows give no `color`.** They are transmissive, so
- *    the base colour is nearly invisible; the §4.5 `--select-k-*` / `--select-w-*`
- *    tables give the value the plug reads at, and that is what is used.
- * 3. **`sheenRoughness`** is not in §12.3. three.js defaults it to 1.0, which
- *    is the broad velvet lobe; §5.1 L4's sub-surface warmth is a broad
- *    bottom-edge scatter, so the default is right and is written down rather
- *    than left implicit.
- * 4. **`envMapIntensity`** is not in §12.3 either. D-057 keeps the mirror back
- *    at 1.0 while front surfaces use lower gains: steel is room-driven and
- *    polycarbonate is light-driven. The bezel seam is a distinct chrome edge,
- *    not a strip of the mirror-back material.
- */
+/** Production Classic material table; the clear screen cover is independent. */
 export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
-  bodyBlack: {
-    color: "#11161C",
-    albedoScale: 0.34,
-    roughness: 0.68,
-    metalness: 0,
-    clearcoat: 0.32,
-    clearcoatRoughness: 0.46,
-    reflectivity: 0.38,
-    // D-067: the black shell keeps a warm broad sheen, and the hierarchy must
-    // come from real light and shape rather than from a painted front gradient.
-    sheen: 0.15,
-    sheenColor: "#6E4A2E",
-    sheenRoughness: 1,
-    specularIntensity: 0.16,
-    envMapIntensity: 0.008,
-    // Three 0.185.1's WebGL physical material has no SSS term. These values
-    // extend its per-direct-light loop using MeshSSSNodeMaterial's scattering
-    // shape. Point-light color, intensity and distance attenuation remain
-    // Three-owned, so the real key/kick rig remains the sole direct source.
-    subsurfaceColor: "#5C6876",
-    subsurfaceDistortion: 0.2214,
-    subsurfaceAttenuation: 0.1,
-    subsurfacePower: 1,
-    subsurfaceScale: 1.4,
-  },
-  bodyWhite: {
-    // Owner-primary OEM photographs establish warm ivory relative to the
-    // cooler wheel. The shift is deliberately mild: the warm room light is a
-    // property of the references, not pigment to bake into the shell.
-    color: "#F6F3EC",
-    // Preserve headroom for the key/clearcoat lobe. At 1.0 the diffuse term
-    // clipped almost the whole face to white and erased Pencil's pearl trough.
-    albedoScale: 0.6494,
-    roughness: 0.78,
-    metalness: 0,
-    clearcoat: 0.12,
-    clearcoatRoughness: 0.5,
-    reflectivity: 0.1718,
-    sheen: 0.0914,
-    sheenColor: "#FFF8EE",
-    sheenRoughness: 0.985,
-    specularIntensity: 0.08,
-    envMapIntensity: 0.0024,
-    subsurfaceColor: "#FFF4E8",
-    subsurfaceDistortion: 0.1824,
-    subsurfaceAttenuation: 0.0479,
-    subsurfacePower: 1,
-    subsurfaceScale: 1.0416,
-  },
+  bodyBlack: CLASSIC_ALUMINUM.black,
+  bodyWhite: CLASSIC_ALUMINUM.white,
   steelBack: {
+    // The green-channel microtexture now preserves this authored roughness.
+    // A soft polished lobe keeps reflected softboxes graduated through rotation.
     color: "#C4CBD2",
     metalness: 1.0,
-    roughness: 0.08,
-    anisotropy: 0.75,
+    roughness: 0.14,
+    anisotropy: 0.12,
     anisotropyRotation: 0,
-    envMapIntensity: 1.0,
+    envMapIntensity: 0.65,
   },
   chromeSeam: {
     color: "#A6AFBA",

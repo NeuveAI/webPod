@@ -1,4 +1,4 @@
-import type { BufferAttribute, BufferGeometry } from "three";
+import { Float32BufferAttribute, type BufferAttribute, type BufferGeometry } from "three";
 
 export type RoundedRectAperture = {
   readonly centerX: number;
@@ -30,11 +30,12 @@ function validateAperture(aperture: RoundedRectAperture): void {
   }
 }
 
-/** Nearest vertex on the exact tessellated rounded-rectangle outline. */
-export function projectToRoundedRectBoundary(
-  point: Point,
-  aperture: RoundedRectAperture,
-): Point {
+/** Nearest point on a segment of the exact tessellated aperture outline. */
+export function projectToRoundedRectBoundary(point: Point, aperture: RoundedRectAperture): Point {
+  return projectBoundary(point, aperture, false);
+}
+
+function projectBoundary(point: Point, aperture: RoundedRectAperture, verticesOnly: boolean): Point {
   validateAperture(aperture);
   const localX = point.x - aperture.centerX;
   const localY = point.y - aperture.centerY;
@@ -61,7 +62,16 @@ export function projectToRoundedRectBoundary(
   const source = { x: localX, y: localY };
   let nearest: Point | null = null;
   let nearestDistance = Number.POSITIVE_INFINITY;
-  for (const candidate of outline) {
+  for (let index = 0; index < outline.length; index++) {
+    const a = outline[index];
+    const b = outline[(index + 1) % outline.length];
+    if (a === undefined || b === undefined) continue;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const lengthSquared = dx * dx + dy * dy;
+    if (lengthSquared === 0) continue;
+    const t = Math.max(0, Math.min(1, ((source.x - a.x) * dx + (source.y - a.y) * dy) / lengthSquared));
+    const candidate = verticesOnly ? a : { x: a.x + t * dx, y: a.y + t * dy };
     const distance = squaredDistance(source, candidate);
     if (distance >= nearestDistance) continue;
     nearest = candidate;
@@ -109,11 +119,19 @@ export function squareRoundedRectApertureWalls(
 
   let changed = 0;
   const tolerance = 1e-5;
+  // Three expands each tessellated corner along a miter, whose length exceeds
+  // bevelSize by sec(half the turn angle). Nearest-vertex distance excluded
+  // these endpoints and left an inward bevel crossing the top LCD pixels.
+  const miterBand = bevelBand / Math.cos(Math.PI / (4 * APERTURE_CORNER_SEGMENTS));
   for (let index = 0; index < position.count; index += 1) {
     const point = { x: position.getX(index), y: position.getY(index) };
     const boundary = projectToRoundedRectBoundary(point, aperture);
-    if (squaredDistance(point, boundary) > (bevelBand + tolerance) ** 2) continue;
-    position.setXY(index, boundary.x, boundary.y);
+    if (squaredDistance(point, boundary) > (miterBand + tolerance) ** 2) continue;
+    // Selection uses the segment distance, but each generated extrusion
+    // vertex must return to its authored contour vertex at every Z layer.
+    // Sliding independently along segments would twist the curved corner wall.
+    const contourVertex = projectBoundary(point, aperture, true);
+    position.setXY(index, contourVertex.x, contourVertex.y);
     changed += 1;
   }
   if (changed === 0) {
@@ -123,4 +141,29 @@ export function squareRoundedRectApertureWalls(
   geometry.computeVertexNormals();
   geometry.computeBoundingBox();
   geometry.computeBoundingSphere();
+}
+
+
+/** The opaque colour backing has an opening, but the clear plastic cover is
+ * continuous. Do not shade its backing boundary as a separate cut plastic wall. */
+export function removeOpaqueApertureWalls(geometry: BufferGeometry, aperture: RoundedRectAperture): void {
+  if (geometry.index !== null) throw new Error("opaque aperture removal expects non-indexed extrusion");
+  const position = geometry.getAttribute("position");
+  const keep: number[] = [];
+  for (let i = 0; i < position.count; i += 3) {
+    const vertices = [i, i + 1, i + 2];
+    const onBoundary = vertices.every((v) => roundedRectBoundaryDistance(
+      { x: position.getX(v), y: position.getY(v) }, aperture,
+    ) < 2e-5);
+    const depths = vertices.map((v) => position.getZ(v));
+    const wall = onBoundary && Math.max(...depths) - Math.min(...depths) > 1e-6;
+    if (!wall) keep.push(...vertices);
+  }
+  for (const [name, attribute] of Object.entries(geometry.attributes)) {
+    const values = keep.flatMap((index) => Array.from({ length: attribute.itemSize },
+      (_, component) => attribute.getComponent(index, component)));
+    geometry.setAttribute(name, new Float32BufferAttribute(values, attribute.itemSize));
+  }
+  geometry.clearGroups();
+  geometry.computeBoundingBox(); geometry.computeBoundingSphere();
 }

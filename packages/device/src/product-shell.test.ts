@@ -57,7 +57,7 @@ describe("shared shell depth contract", () => {
       body.depth - DEFAULT_DEVICE_FORM.frontThickness,
       10,
     );
-    expect(depths.frontFaceZ - depths.seamZ).toBeCloseTo(14, 10);
+    expect(depths.frontFaceZ - depths.seamZ).toBeCloseTo(8, 10);
   });
 
   test("rejects a front that consumes or escapes the physical depth", () => {
@@ -75,7 +75,7 @@ describe("formed-steel rear shell", () => {
     geometry.computeBoundingBox();
     expect(geometry.boundingBox?.min.z).toBeCloseTo(-body.depth / 2, 5);
     expect(geometry.boundingBox?.max.z).toBeCloseTo(seamZ, 5);
-    expect(seamZ).toBeCloseTo(body.depth / 2 - 14, 10);
+    expect(seamZ).toBeCloseTo(body.depth / 2 - 8, 10);
     expect(seamZ).not.toBe(0);
     geometry.dispose();
   });
@@ -92,7 +92,7 @@ describe("formed-steel rear shell", () => {
       seamZ,
       DEFAULT_DEVICE_FORM.rearCrownInset,
     );
-    expect(rearDepth).toBeCloseTo(body.depth - 14, 10);
+    expect(rearDepth).toBeCloseTo(body.depth - 8, 10);
     expect(rearDepth / body.depth).toBeGreaterThan(0.7);
     expect(DEFAULT_DEVICE_FORM.frontThickness / body.depth).toBeLessThan(0.3);
     expect(sections).toHaveLength(REAR_ROLL_SEGMENTS + 1);

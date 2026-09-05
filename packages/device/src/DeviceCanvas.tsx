@@ -1,22 +1,9 @@
 /**
- * The canvas the device lives in.
- *
- * ⚑ **`frameloop="demand"` and `flat` are both load-bearing, for different
- * gates.**
- *
- * `frameloop="demand"` is §14.1's hard rule: the render loop is off by
- * default and an untouched device must produce **0 rAF callbacks**. Nothing in
- * this package calls `useFrame`, so the only frames rendered are the ones
- * React's own reconciliation asks for at mount.
- *
- * `flat` sets `NoToneMapping`. R3F's default is `ACESFilmicToneMapping`, which
- * is a filmic S-curve — it rolls the highlights off and would make §4.4's
- * `--steel-0 #F6F8FA` (250 units) unreachable no matter how bright the room
- * got, because ACES maps linear 1.0 to roughly 0.8 display. §12.3's stop tables
- * are the acceptance criterion and they are stated as sRGB output values, so
- * the output transform has to be the identity sRGB encode and nothing else.
- * ⚑ This is not a look preference: with tone mapping on, the ±4 gate is
- * arithmetically unreachable at the top of three of the five tables.
+ * Demand-rendered physical device canvas. An untouched device schedules no
+ * animation loop. Renderer defaults select AgX at exposure1 for photographic
+ * highlight roll-off on the shell and hardware; the emissive LCD and its mask
+ * explicitly use toneMapped:false and keep their canonical sRGB presentation.
+ * Old absolute steel stop-table calibration is superseded by the product studio.
  */
 import { Canvas, useThree } from "@react-three/fiber";
 import { createContext, useLayoutEffect, useMemo, type ReactNode } from "react";
@@ -155,7 +142,6 @@ export function DeviceCanvas({
     <Canvas
       className={className}
       frameloop="demand"
-      flat
       dpr={dpr}
       gl={{ antialias: true, alpha: true, preserveDrawingBuffer: false }}
       onCreated={({ gl }) => {

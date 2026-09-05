@@ -105,6 +105,9 @@ export function minimumFrontShellOffsetAroundRect(
   );
 }
 
+/** Classic Select depression, about 0.24mm; the outer rim stays flush. */
+export const SELECT_CONCAVITY = 1.3;
+
 export type FrontAssemblyDepths = {
   readonly displayReferenceZ: number;
   readonly displayWellFrontZ: number;
@@ -114,6 +117,7 @@ export type FrontAssemblyDepths = {
   readonly wheelSurfaceBaseZ: number;
   readonly wheelGapFloorBaseZ: number;
   readonly wheelTopAtCenterZ: number;
+  /** Resting center of the shallow Classic Select bowl, below its flush rim. */
   readonly selectTopAtCenterZ: number;
   readonly clickWheelInputZ: number;
 };
@@ -122,10 +126,9 @@ export type FrontAssemblyDepths = {
  * Resolve every front insert from the same physical shell frame.
  *
  * Flat glass uses the lowest crown point around its opening. The wheel and
- * Select are different: owner-primary OEM photographs establish that their
- * installed top surfaces are flush with the faceplate. Their generated
- * patches therefore use the shell's own crown and this resolver supplies only
- * the common axial base plane.
+ * Select use the shell crown at their installed rims. The Classic Select
+ * interior is a shallow concave bowl; its center depth is stated separately
+ * from the shared assembly base so it cannot move the wheel or display.
  */
 export function resolveFrontAssemblyDepths(
   form: DeviceFormParams = DEFAULT_DEVICE_FORM,
@@ -153,7 +156,7 @@ export function resolveFrontAssemblyDepths(
     wheelSurfaceBaseZ,
     wheelGapFloorBaseZ: wheelSurfaceBaseZ - WHEEL_GAP_FLOOR_OFFSET,
     wheelTopAtCenterZ,
-    selectTopAtCenterZ: wheelTopAtCenterZ,
+    selectTopAtCenterZ: wheelTopAtCenterZ - SELECT_CONCAVITY,
     clickWheelInputZ:
       wheelSurfaceBaseZ + maximumFrontOffset + INPUT_PLANE_OFFSET,
   };

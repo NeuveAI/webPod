@@ -6,18 +6,18 @@ import {
   effectiveStudioEnvironmentIntensity,
 } from "./StudioEnvironment";
 
-test("studio lighting is a PMREM RoomEnvironment and contains no view-locked shading hook", async () => {
+test("studio lighting is a PMREM diffusion-card studio and contains no view-locked shading hook", async () => {
   const source = await Bun.file(new URL("./StudioEnvironment.tsx", import.meta.url)).text();
-  expect(source).toContain("new RoomEnvironment()");
+  expect(source).toContain("createProductStudioEnvironment()");
   expect(source).toContain("new PMREMGenerator(gl)");
-  expect(source).toContain("generator.fromScene(room, sigma)");
+  expect(source).toContain("generator.fromScene(room.scene, sigma)");
   expect(source).toContain("target.dispose()");
   expect(source).not.toMatch(/camera(?:Position|Direction)|viewMatrix|vUv|outgoingLight\s*\+=/);
   expect(DEFAULT_STUDIO_ENVIRONMENT).toEqual({ sigma: 0.04, intensity: 0.2 });
   expect(DEFAULT_STUDIO_ENVIRONMENT.intensity).toBeLessThan(0.25);
 });
 
-test("the striped calibration map belongs only to the mirror-steel rear", async () => {
+test("the legacy calibration map is opt-in while production shares one studio", async () => {
   const source = await Bun.file(new URL("./Device.tsx", import.meta.url)).text();
   const canvasSource = await Bun.file(
     new URL("./DeviceCanvas.tsx", import.meta.url),
@@ -27,7 +27,7 @@ test("the striped calibration map belongs only to the mirror-steel rear", async 
   expect(source).toContain("useStudioEnvironmentSnapshot()");
   expect(source).toContain("envMap: studio.texture");
   expect(source).toContain("effectiveStudioEnvironmentIntensity(");
-  expect(source).toContain("const env = envMap ?? builtEnv");
+  expect(source).toContain("const env = envMap !== undefined ? envMap : builtEnv ?? studio.texture");
   expect(canvasSource).not.toContain("resolvedEnvMap");
 });
 
@@ -48,13 +48,13 @@ test("front materials explicitly retain per-surface gain under installed Three",
       DEFAULT_DEVICE_MATERIALS.bodyBlack.envMapIntensity,
       room,
     ),
-  ).toBeCloseTo(0.008, 12);
+  ).toBeCloseTo(0.8, 12);
   expect(
     effectiveStudioEnvironmentIntensity(
       DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity,
       room,
     ),
-  ).toBeCloseTo(0.0024, 12);
+  ).toBeCloseTo(0.8, 12);
   expect(
     effectiveStudioEnvironmentIntensity(
       DEFAULT_DEVICE_MATERIALS.coverGlass.envMapIntensity,
@@ -62,4 +62,26 @@ test("front materials explicitly retain per-surface gain under installed Three",
     ),
   ).toBeCloseTo(0.16, 12);
   expect(effectiveStudioEnvironmentIntensity(undefined, room)).toBe(room);
+});
+
+test("three fixed reflection cards have finite transforms and dispose every owned resource", async () => {
+  const { createProductStudioEnvironment } = await import("./product-studio");
+  const { Mesh } = await import("three");
+  const studio = createProductStudioEnvironment();
+  expect(studio.scene.children.map((child) => child.name)).toEqual([
+    "key-diffusion", "fill-diffusion", "rim-diffusion",
+  ]);
+  let disposed = 0;
+  for (const child of studio.scene.children) {
+    expect(child).toBeInstanceOf(Mesh);
+    if (!(child instanceof Mesh)) throw new Error("Expected diffusion card");
+    expect([...child.position.toArray(), ...child.quaternion.toArray()].every(Number.isFinite)).toBe(true);
+    child.geometry.addEventListener("dispose", () => { disposed += 1; });
+    child.material.addEventListener("dispose", () => { disposed += 1; });
+  }
+  studio.dispose();
+  expect(disposed).toBe(6);
+  const route = await Bun.file("apps/web/src/routes/[_]spike.device.tsx").text();
+  expect(route).toContain("studioEnvironment={undefined}");
+  expect(route).not.toContain('lighting === "combined" ? undefined : null');
 });

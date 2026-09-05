@@ -1,12 +1,12 @@
 /**
- * The owner-approved two-light studio rig.
+ * Three-source product studio: elevated key, broad lower fill and strip rim.
  *
- * Both emitters are real world-space RectAreaLights. They remain siblings of
+ * All three emitters are real world-space RectAreaLights. They remain siblings of
  * the orientation group, so their reflections travel over the model's normals
  * when the iPod turns. Nothing here is expressed in UV or camera shader space.
  *
  * `descentDeg` is the geometric angle between the key-to-target ray and the
- * horizontal x/z plane. The accepted range is 35–45°. `emitter` is both the
+ * horizontal x/z plane. The authored descent is 38°. `emitter` is both the
  * physical source size and the softness control: a larger rectangle subtends a
  * wider solid angle and therefore produces a broader highlight. Three's
  * RectAreaLight integrates that finite source in world space, so illumination
@@ -52,42 +52,58 @@ export type KickLightParams = {
 };
 
 export type LightRigParams = {
-  /** Linear scene exposure applied equally to both physical emitters. */
+  /** Linear scene exposure applied equally to all three physical emitters. */
   readonly exposure: number;
   readonly key: KeyLightParams;
   readonly kick: KickLightParams;
+  readonly rim: RimLightParams;
 };
 
-export type LightContribution = "combined" | "key-only" | "fill-only";
+export type RimLightParams = {
+  readonly enabled: boolean;
+  readonly position: readonly [number, number, number];
+  readonly target: readonly [number, number, number];
+  readonly powerRatio: number;
+  readonly emitter: AreaEmitterSize;
+  readonly color: string;
+};
+
+export type LightContribution = "combined" | "key-only" | "fill-only" | "rim-only" | "environment-only";
 
 export const DEFAULT_LIGHT_RIG: LightRigParams = {
-  // A small linear exposure adjustment keeps the output transform neutral;
-  // canonical stop-table measurements are not passed through a filmic curve.
-  exposure: 0.92,
+  exposure: 1,
   key: {
     enabled: true,
-    viewerAzimuthDeg: 45,
-    descentDeg: 40,
-    distance: 720,
-    power: 9_000_000,
-    emitter: { width: 520, height: 380 },
-    color: "#FFF9F2",
+    viewerAzimuthDeg: 35,
+    descentDeg: 38,
+    distance: 650,
+    power: 6_500_000,
+    emitter: { width: 620, height: 820 },
+    color: "#FFFDF8",
   },
   kick: {
     enabled: true,
-    viewerAzimuthDeg: -45,
+    viewerAzimuthDeg: -48,
     elevationDeg: -18,
-    distance: 620,
-    target: [-70, -160, 20],
-    powerRatio: 0.095,
-    emitter: { width: 640, height: 440 },
-    color: "#DCE7F2",
+    distance: 580,
+    target: [-65, -145, 0],
+    powerRatio: 0.42,
+    emitter: { width: 800, height: 700 },
+    color: "#F5F8FF",
+  },
+  rim: {
+    enabled: true,
+    position: [-390, 110, -280],
+    target: [0, 0, 0],
+    powerRatio: 0.16,
+    emitter: { width: 160, height: 760 },
+    color: "#FFFFFF",
   },
 };
 
 /**
  * Isolate authored emitters without changing their position, dimensions, or
- * power. Keeping both lights mounted makes comparison renders differ only in
+ * power. Keeping all three lights mounted makes comparison renders differ only in
  * contribution, never scene topology.
  */
 export function lightRigForContribution(
@@ -96,8 +112,9 @@ export function lightRigForContribution(
 ): LightRigParams {
   return {
     ...rig,
-    key: { ...rig.key, enabled: contribution !== "fill-only" },
-    kick: { ...rig.kick, enabled: contribution !== "key-only" },
+    key: { ...rig.key, enabled: contribution === "combined" || contribution === "key-only" },
+    kick: { ...rig.kick, enabled: contribution === "combined" || contribution === "fill-only" },
+    rim: { ...rig.rim, enabled: contribution === "combined" || contribution === "rim-only" },
   };
 }
 
@@ -163,4 +180,8 @@ export function keyLightPower(rig: LightRigParams): number {
 
 export function kickLightPower(rig: LightRigParams): number {
   return rig.kick.enabled ? rig.key.power * rig.exposure * rig.kick.powerRatio : 0;
+}
+
+export function rimLightPower(rig: LightRigParams): number {
+  return rig.rim.enabled ? rig.key.power * rig.exposure * rig.rim.powerRatio : 0;
 }

@@ -15,8 +15,8 @@ import {
   CanvasTexture,
   DataTexture,
   LinearFilter,
+  LinearMipmapLinearFilter,
   RGBAFormat,
-  RedFormat,
   RepeatWrapping,
   SRGBColorSpace,
 } from "three";
@@ -101,126 +101,6 @@ export function wheelDecalLayout(bandR: number): WheelDecalLayout {
       interSymbolGap,
     }),
   });
-}
-
-/** Pencil zbTc3's authored back-face composition, in native body pixels. */
-export const BACK_COMPOSITION_LAYOUT = Object.freeze({
-  width: 330,
-  height: 552,
-  inlay: Object.freeze({ x: 22, y: 150, width: 286, height: 296, radius: 14 }),
-  markY: 50,
-  wordmarkY: 106,
-  legalY: 456,
-  serialY: 473,
-  liveY: 492,
-});
-
-/**
- * Etched identity and the dark Settings inlay from Pencil component zbTc3.
- *
- * This texture carries printed/etched graphics only. Transparent pixels leave
- * the real anisotropic steel visible, so reflections and rolled-edge response
- * remain products of the physical material rather than painted shading.
- */
-export function createBackCompositionMap(scale = 2): CanvasTexture | null {
-  if (typeof document === "undefined") return null;
-  const layout = BACK_COMPOSITION_LAYOUT;
-  const canvas = document.createElement("canvas");
-  canvas.width = layout.width * scale;
-  canvas.height = layout.height * scale;
-  const ctx = canvas.getContext("2d");
-  if (ctx === null) return null;
-  ctx.scale(scale, scale);
-  ctx.clearRect(0, 0, layout.width, layout.height);
-
-  const inlay = layout.inlay;
-  ctx.fillStyle = "#141920";
-  ctx.beginPath();
-  ctx.roundRect(inlay.x, inlay.y, inlay.width, inlay.height, inlay.radius);
-  ctx.fill();
-  ctx.strokeStyle = "#FFFFFF66";
-  ctx.lineWidth = 1;
-  ctx.stroke();
-
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillStyle = "#6D7B89";
-  ctx.font = '700 22px "Inter Tight", ui-sans-serif, system-ui';
-  ctx.fillText("✦", 165, layout.markY);
-  ctx.font = '800 26px "Inter Tight", ui-sans-serif, system-ui';
-  ctx.fillText("webPod", 165, layout.wordmarkY + 13);
-
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#F1F5F9";
-  ctx.font = '700 13px "Source Sans 3", ui-sans-serif, system-ui';
-  ctx.fillText("Settings", inlay.x + 13, inlay.y + 20);
-  ctx.textAlign = "right";
-  ctx.fillStyle = "#94A3B8";
-  ctx.font = '600 10px "Source Sans 3", ui-sans-serif, system-ui';
-  ctx.fillText("↶  Menu", inlay.x + inlay.width - 13, inlay.y + 20);
-
-  const rows = [
-    ["◖", "Playback", "Shuffle · Repeat"],
-    ["☼", "Display & Feel", "Backlight · Clicker"],
-    ["✦", "Assistant", "18 controls exposed"],
-    ["○", "Account", "Apple Music"],
-    ["▤", "The Engraving", "124 actions this session"],
-    ["ⓘ", "About", "webPod 1.0"],
-  ] as const;
-  for (const [index, row] of rows.entries()) {
-    const y = inlay.y + 53 + index * 38;
-    if (index === 2) {
-      ctx.fillStyle = "#166534";
-      ctx.fillRect(inlay.x + 1, y - 18, inlay.width - 2, 38);
-    }
-    ctx.textAlign = "left";
-    ctx.fillStyle = index === 2 ? "#4ADE80" : "#8A97A5";
-    ctx.font = '600 14px "Source Sans 3", ui-sans-serif, system-ui';
-    ctx.fillText(row[0], inlay.x + 13, y);
-    ctx.fillStyle = index === 2 ? "#FFFFFF" : "#E2E8F0";
-    ctx.font = '600 12.5px "Source Sans 3", ui-sans-serif, system-ui';
-    ctx.fillText(row[1], inlay.x + 38, y - 5);
-    ctx.fillStyle = index === 2 ? "#4ADE80" : "#7A8896";
-    ctx.font = '400 9.5px "Source Sans 3", ui-sans-serif, system-ui';
-    ctx.fillText(row[2], inlay.x + 38, y + 8);
-    ctx.textAlign = "right";
-    ctx.fillStyle = index === 2 ? "#FFFFFF" : "#5E6B78";
-    ctx.fillText("›", inlay.x + inlay.width - 13, y);
-  }
-
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#52606D";
-  ctx.font = '400 9px "Source Sans 3", ui-sans-serif, system-ui';
-  ctx.fillText(
-    "Designed for the browser  ·  Plays Apple Music",
-    165,
-    layout.legalY,
-  );
-  ctx.font = '400 8.5px "IBM Plex Mono", ui-monospace, monospace';
-  ctx.fillText(
-    "Model WP-5G  ·  320 × 240  ·  24 detents per turn",
-    165,
-    layout.serialY,
-  );
-  ctx.fillText(
-    "Assistant tools exposed · 18 · Session 5C4B 9A11",
-    165,
-    layout.liveY,
-  );
-
-  const texture = new CanvasTexture(canvas);
-  return tuneEtchedTextTexture(texture);
-}
-
-export function tuneEtchedTextTexture<
-  TCanvas extends HTMLCanvasElement | OffscreenCanvas,
->(texture: CanvasTexture<TCanvas>): CanvasTexture<TCanvas> {
-  texture.colorSpace = SRGBColorSpace;
-  texture.generateMipmaps = false;
-  texture.minFilter = LinearFilter;
-  texture.magFilter = LinearFilter;
-  texture.anisotropy = 8;
-  return texture;
 }
 
 export type WheelLabelMapParams = {
@@ -378,8 +258,9 @@ function drawTriangle(
  * about 1% of the material's roughness — a hundredth of the ±4 gate — and the
  * point is the per-texel variation, not the mean.
  *
- * `RedFormat` is enough: three samples `roughnessMap.g`, and a single-channel
- * texture returns the same value on every channel.
+ * Three samples roughness from green. A red-only WebGL texture returns zero
+ * there, silently turning every authored roughness into the mirror floor.
+ * RGBA stores the same linear noise in RGB and keeps alpha opaque.
  */
 export function createMicroNoiseRoughnessMap(
   amplitude = 0.02,
@@ -387,11 +268,15 @@ export function createMicroNoiseRoughnessMap(
   seed = 0x5eed1234,
 ): DataTexture {
   const random = xorshift32(seed);
-  const data = new Uint8Array(size * size);
-  for (let i = 0; i < data.length; i++) {
-    data[i] = Math.round(255 * (1 - random() * amplitude));
+  const data = new Uint8Array(size * size * 4);
+  for (let i = 0; i < data.length; i += 4) {
+    const noise = Math.round(255 * (1 - random() * amplitude));
+    data[i] = noise;
+    data[i + 1] = noise;
+    data[i + 2] = noise;
+    data[i + 3] = 255;
   }
-  const texture = new DataTexture(data, size, size, RedFormat);
+  const texture = new DataTexture(data, size, size, RGBAFormat);
   texture.wrapS = RepeatWrapping;
   texture.wrapT = RepeatWrapping;
   // ⚑ `ExtrudeGeometry`'s UV generator emits **world coordinates**, not 0..1,
@@ -430,6 +315,49 @@ export function createSteelAnisotropyMap(size = 1024): DataTexture {
   texture.magFilter = LinearFilter;
   texture.needsUpdate = true;
   return texture;
+}
+
+/** Brushed/anodized aluminum microstructure in model-unit UVs.
+ * Short correlated horizontal marks mix with fine irregular grit, avoiding
+ * full-width scanlines. Color carries only finish variation, height perturbs
+ * physical lighting, and linear green modulates roughness. All maps share
+ * scale on the front and Select and mip-filter down at normal viewing size.
+ */
+export function createAluminumFinishMaps(size = 512) {
+  const random = xorshift32(0x6c617373);
+  const colorData = new Uint8Array(size * size * 4);
+  const heightData = new Uint8Array(size * size * 4);
+  const roughnessData = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y++) {
+    let streak = random();
+    for (let x = 0; x < size; x++) {
+      streak = streak * 0.75 + random() * 0.25;
+      const grain = random() * 0.3 + streak * 0.7;
+      const offset = (y * size + x) * 4;
+      for (let channel = 0; channel < 3; channel++) {
+        colorData[offset + channel] = Math.round(255 * (0.9 + grain * 0.1));
+        heightData[offset + channel] = Math.round(255 * grain);
+        roughnessData[offset + channel] = Math.round(255 * (0.8 + grain * 0.2));
+      }
+      colorData[offset + 3] = heightData[offset + 3] = roughnessData[offset + 3] = 255;
+    }
+  }
+  const texture = (data: Uint8Array) => {
+    const map = new DataTexture(data, size, size, RGBAFormat);
+    map.wrapS = RepeatWrapping;
+    map.wrapT = RepeatWrapping;
+    map.repeat.set(1 / 256, 1 / 256);
+    map.generateMipmaps = true;
+    map.minFilter = LinearMipmapLinearFilter;
+    map.magFilter = LinearFilter;
+    map.needsUpdate = true;
+    return map;
+  };
+  const color = texture(colorData);
+  color.colorSpace = SRGBColorSpace;
+  const height = texture(heightData);
+  const roughness = texture(roughnessData);
+  return { color, height, roughness, dispose() { color.dispose(); height.dispose(); roughness.dispose(); } };
 }
 
 function xorshift32(seed: number): () => number {

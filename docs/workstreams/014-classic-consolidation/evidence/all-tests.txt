@@ -1,0 +1,1601 @@
+bun test v1.4.0 (34cbb9a40)
+
+scripts/w7-browser-evidence-type.test.ts:
+(pass) the browser evidence producer requires commit and tree identity [0.19ms]
+
+scripts/gates.test.ts:
+(pass) W5a static gates go red > clean fixture is green before mutation [185.57ms]
+(pass) W5a static gates go red > U8 permits required account-state vocabulary [173.74ms]
+(pass) W5a static gates go red > U8 detects its planted violation [170.33ms]
+(pass) W5a static gates go red > U9 detects its planted violation [170.52ms]
+(pass) W5a static gates go red > U10 detects its planted violation [169.49ms]
+(pass) W5a static gates go red > AGENT-FLAG detects its planted violation [170.44ms]
+(pass) W5a static gates go red > HAPTICS detects its planted violation [180.88ms]
+(pass) W5a static gates go red > HALO detects its planted violation [177.54ms]
+(pass) W5a static gates go red > PROVIDER detects its planted violation [175.84ms]
+(pass) W5a static gates go red > TOOLS detects its planted violation [180.37ms]
+(pass) W5a static gates go red > FLIP detects its planted violation [191.05ms]
+(pass) W5a static gates go red > TIER detects its planted violation [187.29ms]
+(pass) W5a static gates go red > NAMING detects its planted violation [187.38ms]
+(pass) W5a static gates go red > NAMING permits canonical bookkeeping paths in script string literals [173.60ms]
+(pass) W5a static gates go red > NAMING rejects traversal, repeated separators and dot segments in bookkeeping paths [1202.20ms]
+(pass) W5a static gates go red > NAMING still rejects bookkeeping names in script comments [171.61ms]
+(pass) W5a static gates go red > NAMING inspects forbidden static text across interpolated templates [2075.98ms]
+(pass) W5a static gates go red > NAMING treats every lexical binding form as shadowing an outer const [2217.48ms]
+(pass) W5a static gates go red > NAMING keeps lexical and conditional safe controls green [182.55ms]
+(pass) W5a static gates go red > NAMING rejects adjacent noncanonical bookkeeping references [876.57ms]
+(pass) W5a static gates go red > TRAILERS detects a planted branch trailer [193.39ms]
+(pass) W5a static gates go red > TIER detects a switch branch outside composite [167.94ms]
+(pass) W5a static gates go red > CREDENTIALS detects a planted tracked key path without reading cert [182.74ms]
+(pass) W5a static gates go red > CREDENTIALS never opens design.pen or follows a tracked symlink [185.33ms]
+(pass) W5a static gates go red > manual gates remain outstanding rather than counted clear [171.43ms]
+(pass) W5a same-review adversarial mutations > U8 scans user-facing provider copy [167.53ms]
+(pass) W5a same-review adversarial mutations > U8 permits exact provider authorization API tokens [167.42ms]
+(pass) W5a same-review adversarial mutations > U8 permits the typed Apple development autoplay diagnostic boundary [171.57ms]
+(pass) W5a same-review adversarial mutations > U8 rejects real autoplay permission copy inside the diagnostic module [169.18ms]
+(pass) W5a same-review adversarial mutations > U8 rejects the diagnostic token outside its typed development boundary [172.34ms]
+(pass) W5a same-review adversarial mutations > U8 rejects denial prose that is not an includes predicate [170.01ms]
+(pass) W5a same-review adversarial mutations > U8 rejects exact visible Authorized copy [172.36ms]
+(pass) W5a same-review adversarial mutations > U8 rejects exact visible Pending copy [205.39ms]
+(pass) W5a same-review adversarial mutations > U8 catches ordinary authorization vocabulary [168.62ms]
+(pass) W5a same-review adversarial mutations > U8 cannot hide banned copy beside a required state identifier [167.65ms]
+(pass) W5a same-review adversarial mutations > PROVIDER catches adversarial form 1 [173.42ms]
+(pass) W5a same-review adversarial mutations > PROVIDER catches adversarial form 2 [170.18ms]
+(pass) W5a same-review adversarial mutations > PROVIDER catches adversarial form 3 [171.28ms]
+(pass) W5a same-review adversarial mutations > PROVIDER follows an ordinary provider alias [169.53ms]
+(pass) W5a same-review adversarial mutations > TOOLS follows an unsupported result through a returned variable [169.09ms]
+(pass) W5a same-review adversarial mutations > TOOLS follows a later assignment into a returned variable [169.64ms]
+(pass) W5a same-review adversarial mutations > TOOLS follows unsupported content introduced by later property assignment [172.15ms]
+(pass) W5a same-review adversarial mutations > FLIP catches a JSX onError callback [171.25ms]
+(pass) W5a same-review adversarial mutations > FLIP catches a promise rejection callback [170.43ms]
+(pass) W5a same-review adversarial mutations > FLIP catches an error event callback [167.38ms]
+(pass) W5a same-review adversarial mutations > FLIP catches assignment to window.onerror [166.95ms]
+(pass) W5a same-review adversarial mutations > TIER catches enum comparison outside composite [166.69ms]
+(pass) W5a same-review adversarial mutations > TIER catches method-based branching outside composite [169.43ms]
+(pass) W5a same-review adversarial mutations > TIER follows an ordinary tier alias [168.43ms]
+(pass) W5a same-review adversarial mutations > CREDENTIALS scans tracked documentation and never echoes its source [180.45ms]
+(pass) W5a same-review adversarial mutations > U9 scans the executable harness itself [165.91ms]
+(pass) W5a same-review adversarial mutations > AGENT-FLAG scans authored CSS while ignoring comments [165.53ms]
+(pass) W5a same-review adversarial mutations > U10 catches the canonical React Canvas component [169.83ms]
+(pass) W5a same-review adversarial mutations > syntax gates ignore truthful prose and required identifiers [171.02ms]
+(pass) W5a command gates propagate red > TESTS keeps an explicit bounded per-test timeout [0.09ms]
+(pass) W5a command gates propagate red > TYPES reports a failing project sweep [293.83ms]
+(pass) W5a command gates propagate red > LINT reports a failing lint command [286.26ms]
+(pass) W5a command gates propagate red > TESTS reports a planted failing Bun test [293.44ms]
+(pass) W5a evidence fingerprint > changes when dirty content changes at the same path [114.16ms]
+(pass) W5a evidence fingerprint > does not follow dirty symlinks while fingerprinting [111.90ms]
+
+scripts/w7-browser-evidence-schema.test.ts:
+(pass) W7 immutable browser evidence identity > the committed source fingerprint is reconstructed from its reviewed Git tree [88.95ms]
+(pass) W7 immutable browser evidence identity > deleting reviewedCommit is a schema failure [0.74ms]
+(pass) W7 immutable browser evidence identity > a malformed reviewedCommit is a schema failure [0.13ms]
+(pass) W7 immutable browser evidence identity > deleting reviewedTree is a schema failure [0.05ms]
+(pass) W7 immutable browser evidence identity > a malformed reviewedTree is a schema failure [0.03ms]
+(pass) W7 immutable browser evidence identity > a well-formed but different commit is an identity mismatch [78.94ms]
+(pass) W7 immutable browser evidence identity > a well-formed but different tree is an identity mismatch [79.91ms]
+(pass) W7 immutable browser evidence identity > a syntactically valid wrong source fingerprint is an identity mismatch [80.53ms]
+(pass) W7 immutable browser evidence identity > a syntactically valid wrong source file count is an identity mismatch [80.31ms]
+
+scripts/browser-source-fingerprint.test.ts:
+(pass) browser source snapshots > a worktree snapshot excludes forbidden roots and yields a stable fingerprint [85.48ms]
+(pass) browser source snapshots > a reviewed commit snapshot records exact commit and tree identity [176.59ms]
+(pass) browser source snapshots > mutating the served snapshot changes the fingerprint [127.42ms]
+
+apps/web/vite.config.test.ts:
+(pass) Apple server environment normalization > resolves a relative MusicKit key path from the workspace root [0.04ms]
+(pass) Apple server environment normalization > preserves an absolute MusicKit key path after trimming [0.01ms]
+(pass) Apple server environment normalization > leaves an empty MusicKit key path empty for server validation
+(pass) Apple server environment normalization > gives the runtime environment precedence over file values
+
+scripts/spikes/probe-apple.test.ts:
+(pass) Apple empirical probe boundary > locks the complete-run request budget [0.02ms]
+(pass) Apple empirical probe boundary > permits catalog GET requests [0.68ms]
+(pass) Apple empirical probe boundary > records all 36 complete response bodies with stable IDs [48.85ms]
+(pass) Apple empirical probe boundary > rejects POST at the transport boundary [0.09ms]
+(pass) Apple empirical probe boundary > rejects PUT at the transport boundary
+(pass) Apple empirical probe boundary > rejects PATCH at the transport boundary
+(pass) Apple empirical probe boundary > rejects DELETE at the transport boundary
+(pass) Apple empirical probe boundary > rejects the user-library boundary /v1/me [0.06ms]
+(pass) Apple empirical probe boundary > rejects the user-library boundary /v1/me/
+(pass) Apple empirical probe boundary > rejects the user-library boundary /v1/me/library
+(pass) Apple empirical probe boundary > rejects the user-library boundary /v1/me/library/playlists
+(pass) Apple empirical probe boundary > rejects the user-library boundary /v1/%6de/library
+(pass) Apple empirical probe boundary > rejects the user-library boundary /v1/%256de/library
+(pass) Apple empirical probe boundary > rejects the user-library boundary /v1/%25256de/library
+(pass) Apple empirical probe boundary > rejects the user-library boundary /v1%252fme/library
+(pass) Apple empirical probe boundary > rejects the user-library boundary /v1/me%252flibrary
+(pass) Apple empirical probe boundary > rejects malformed or non-convergent encoding /v1/% [0.06ms]
+(pass) Apple empirical probe boundary > rejects malformed or non-convergent encoding /v1/%2 [0.02ms]
+(pass) Apple empirical probe boundary > rejects malformed or non-convergent encoding /v1/%GG
+(pass) Apple empirical probe boundary > rejects malformed or non-convergent encoding /v1/%25GG
+(pass) Apple empirical probe boundary > rejects malformed or non-convergent encoding /v1/%252525256de/library
+(pass) Apple empirical probe boundary > rejects dot-segment or backslash normalization /v1/../v1/me [0.03ms]
+(pass) Apple empirical probe boundary > rejects dot-segment or backslash normalization /v1/%2e%2e/v1/%6de
+(pass) Apple empirical probe boundary > rejects dot-segment or backslash normalization /v1/%252e%252e/v1/%256de
+(pass) Apple empirical probe boundary > rejects dot-segment or backslash normalization /v1/%25252e%25252e/v1/%25256de
+(pass) Apple empirical probe boundary > rejects dot-segment or backslash normalization /v1%252f%252e%252e%252fv1%252f%256de
+(pass) Apple empirical probe boundary > rejects dot-segment or backslash normalization /v1\..\v1\me
+(pass) Apple empirical probe boundary > rejects dot-segment or backslash normalization /v1/%2e%2e%5cv1%5c%6de
+(pass) Apple empirical probe boundary > rejects dot-segment or backslash normalization /v1/%252e%252e%255cv1%255c%256de
+(pass) Apple empirical probe boundary > rejects dot-segment or backslash normalization /v1/%25252e%25252e%25255cv1%25255c%25256de
+(pass) Apple empirical probe boundary > does not reject a non-segment lookalike [0.03ms]
+
+apps/web/tests/production-device-view.test.ts:
+(pass) spike owns the product view and the legacy probe can only redirect to it [0.22ms]
+
+apps/web/src/playback-diagnostics-view.test.tsx:
+(pass) playback diagnostic presentation > announces one safe causal summary and keeps the event trace behind disclosure [3.21ms]
+(pass) playback diagnostic presentation > offers a truthful Apple retry without exposing a production demo fallback [0.62ms]
+
+apps/web/src/production-device-view.test.ts:
+(pass) production device provider status > keeps failures visible while Apple Music remains the active provider [0.04ms]
+(pass) production device provider status > pauses provider playback when navigation returns to the root [3.06ms]
+(pass) production device provider status > delegates next and previous to the provider-owned ad-hoc queue [1.90ms]
+(pass) production device provider status > defers loading transport exactly once and routes Play/Pause through provider cancellation [1.74ms]
+Music playback could not skip previous: Playback transport context was superseded
+(pass) production device provider status > cancels a deferred loading skip when its provider context is replaced [1.71ms]
+Music playback could not skip next: immediate transport failure
+Music playback could not skip previous: deferred transport failure
+(pass) production device provider status > rejects admitted immediate and deferred provider failures without declaring fallback [1.70ms]
+(pass) production device provider status > keeps playlist traversal in provider order [1.67ms]
+(pass) production device provider status > keeps shuffled playback on the provider-owned queue order [1.54ms]
+(pass) production device provider status > a second Play/Pause press during a pending resume becomes pause instead of another play [1.43ms]
+(pass) production device provider status > ordinary skip waits behind an admitted root pause on the same transport queue [1.60ms]
+(pass) production device provider status > an out-of-band Panel selection after root pause makes the next physical press pause [1.47ms]
+(pass) production device provider status > a settled request does not leave stale intent after an external stop [1.52ms]
+
+apps/web/src/device-preview-orientation.test.ts:
+(pass) external device preview orientation > publishes only real changes and reset preserves room and colourway [0.10ms]
+(pass) external device preview orientation > normal drag reaches the rear, wraps yaw, and clamps pitch [0.07ms]
+(pass) external device preview orientation > malformed external orientation cannot poison the shared store [0.03ms]
+(pass) external device preview orientation > Option drag is an explicit bounded roll gesture without yaw drift
+(pass) external device preview orientation > captures mouse movement beyond the edge and releases exactly once [0.73ms]
+(pass) external device preview orientation > production release continues over frames and a fast yaw flick lands opposite [0.48ms]
+(pass) external device preview orientation > a new grab and blur interrupt release motion without an idle frame [0.14ms]
+(pass) external device preview orientation > reduced motion resolves a fast semantic release without scheduling [0.06ms]
+(pass) external device preview orientation > supports touch and makes duplicate pointers, cancel, blur, and dispose safe [0.06ms]
+(pass) external device preview orientation > teardown remains silent when the browser has already dropped capture [0.06ms]
+(pass) external device preview orientation > keyboard fallback is stage-scoped, supports roll, and resets [0.15ms]
+
+apps/web/src/device-preview-orientation-source.test.ts:
+(pass) orientation release is bounded while the canonical canvas stays demand-rendered [0.14ms]
+(pass) canonical spike has no broad stage drag or pose-preset controls [0.07ms]
+(pass) shell handlers are attached to the physical enclosure, never the stage [0.08ms]
+
+apps/web/src/music-runtime.test.ts:
+(pass) music runtime selection > production is Apple-only regardless of stale query or build flags [0.01ms]
+(pass) music runtime selection > quiesces an authorized transport before its controls leave the screen [0.16ms]
+(pass) music runtime selection > unlocks after one page per collection and streams later pages into the same source [1.59ms]
+(pass) music runtime selection > bounds relationship and search track identity memory [1.92ms]
+
+apps/web/src/device-orientation-motion.test.ts:
+(pass) device release motion > weights recent timestamped samples and rejects stale, zero-time and outlier input [0.04ms]
+(pass) device release motion > ordinary coast is time-based at 30, 60, 120 and variable frame rates [0.22ms]
+(pass) device release motion > ordinary release travel is proportional to measured release velocity [0.03ms]
+(pass) device release motion > a semantic flick settles exactly front to rear clockwise [0.06ms]
+(pass) device release motion > a semantic flick settles exactly front to rear counter-clockwise [0.04ms]
+(pass) device release motion > a semantic flick settles exactly rear to front clockwise [0.04ms]
+(pass) device release motion > a semantic flick settles exactly rear to front counter-clockwise [0.03ms]
+(pass) device release motion > opposite-face settling ends identically at 30, 60, 120 and variable rates [0.09ms]
+(pass) device release motion > the flick threshold and edge-hemisphere tie are deterministic [0.02ms]
+(pass) device release motion > reduced motion resolves a semantic flick immediately and never coasts [0.01ms]
+(pass) device release motion > the semantic spring never exceeds its authored overshoot [0.05ms]
+
+apps/web/src/apple-playback-diagnostics.test.ts:
+(pass) route-scoped Apple playback diagnostics > keeps the live protected-media failure causal after a later paused state event [0.11ms]
+(pass) route-scoped Apple playback diagnostics > keeps autoplay, network, decode/source, DRM/entitlement, and unknown summaries distinct [0.14ms]
+(pass) route-scoped Apple playback diagnostics > identifies a void queue result and a confirmation timeout as actionable causal failures [0.21ms]
+(pass) route-scoped Apple playback diagnostics > classifies untrusted errors without retaining any supplied strings or identifiers [0.12ms]
+(pass) route-scoped Apple playback diagnostics > does not invoke the browser-state source while disabled and clears on teardown [0.19ms]
+(pass) route-scoped Apple playback diagnostics > captures truthful event order, repeated time samples, and keeps only forty events [0.55ms]
+(pass) route-scoped Apple playback diagnostics > retains a causal timeout while bounded progress samples continue [0.43ms]
+(pass) route-scoped Apple playback diagnostics > console and snapshot contain classifications only for media errors [0.07ms]
+(pass) route-scoped Apple playback diagnostics > exports a versioned, identifier-free report for browser agents and clipboard sharing [0.06ms]
+(pass) route-scoped Apple playback diagnostics > maps the exact served MusicKit media-item and playback enums [0.03ms]
+(pass) route-scoped Apple playback diagnostics > captures only numeric state fields from hostile MusicKit payloads [0.06ms]
+(pass) route-scoped Apple playback diagnostics > probes the served SDK key systems once with its minimal configuration [1.49ms]
+(pass) route-scoped Apple playback diagnostics > removes every audio listener and ignores late EME results on teardown [0.14ms]
+(pass) route-scoped Apple playback diagnostics > records only the six approved audio event names [0.11ms]
+(pass) route-scoped Apple playback diagnostics > detaches all audio listeners when the observed element disappears or is replaced [0.06ms]
+(pass) route-scoped Apple playback diagnostics > classifies unavailable, unsupported, and malformed EME probes without retaining errors [2.62ms]
+(pass) route-scoped Apple playback diagnostics > is inert in production before reading sources, audio, or EME [0.04ms]
+
+packages/panel/src/navigation.test.ts:
+(pass) typed navigation graph > marks progressive counts as lower bounds and refreshes without moving the highlight [0.19ms]
+(pass) typed navigation graph > playlist rows omit misleading provider counts [0.19ms]
+(pass) typed navigation graph > artists descend through albums and tracks into provider playback [0.39ms]
+(pass) typed navigation graph > playlist membership produces its own track frame [0.09ms]
+(pass) typed navigation graph > songs, albums, playlists and artists preserve the selected queue and index [0.32ms]
+(pass) typed navigation graph > plays the exact rendered relationship queue without fetching it again [0.09ms]
+(pass) typed navigation graph > stable album intent prefetches relationship data reused by selection [0.20ms]
+(pass) typed navigation graph > prefetch scope follows only the highlighted row instead of speculative neighbors [0.07ms]
+(pass) typed navigation graph > accepted album input returns a typed shell before its relationship resolves [0.09ms]
+(pass) typed navigation graph > accepted input promotes a non-abortable production relationship without duplicate I/O [0.09ms]
+(pass) typed navigation graph > source teardown aborts outstanding speculative relationships [0.14ms]
+(pass) typed navigation graph > track preparation retains the rendered duplicate occurrence and artwork [0.06ms]
+(pass) typed navigation graph > root preview comes from the highlighted live collection and has a neutral null case [0.02ms]
+(pass) typed navigation graph > selects the exact rendered artist album without fetching the collection again [0.09ms]
+(pass) typed navigation graph > empty and rejected playable selections never claim success [0.33ms]
+(pass) typed navigation graph > genre offers artist, album and track facets [0.12ms]
+(pass) typed navigation graph > every supported root row resolves to its declared real section [0.08ms]
+(pass) typed navigation graph > search entry retains the provider result LocalKeys into playback [0.54ms]
+(pass) typed navigation graph > routes by typed destination even when presentation copy changes [0.04ms]
+(pass) typed navigation graph > queries library and catalogue and can play a catalogue-only result [0.13ms]
+(pass) typed navigation graph > unsupported radio is absent instead of disabled [0.13ms]
+(pass) typed navigation graph > empty relationships are represented by an empty typed frame [0.03ms]
+(pass) typed navigation graph > provider session postures are typed frames without caller display state [0.26ms]
+
+packages/panel/src/bounded-async-cache.test.ts:
+(pass) BoundedAsyncCache > coalesces repeated reads and reuses the settled value within its TTL [0.06ms]
+(pass) BoundedAsyncCache > supersedes speculative work when accepted input requests the same key [0.09ms]
+(pass) BoundedAsyncCache > aborts the least recently used request at its hard bound [0.09ms]
+(pass) BoundedAsyncCache > expires and aborts stale work by TTL [0.05ms]
+(pass) BoundedAsyncCache > holds a rejected speculative key without refetching until accepted input retries it [0.06ms]
+
+packages/panel/src/model.test.ts:
+(pass) panel models > formats invalid provider durations as zero instead of leaking NaN [0.04ms]
+(pass) panel models > S03 keeps synchronous rows and removes Radio from the tree when stations are absent [0.16ms]
+(pass) panel models > S08 derives real tracks from the fixture catalogue [0.17ms]
+(pass) panel models > the reference-backed centre cycle exposes standard, scrub, artwork, and queue [0.45ms]
+(pass) panel models > sharp artwork never renders above actualPx [0.22ms]
+(pass) panel models > builds a genuine 120-row fixture for the canonical windowing boundary [0.15ms]
+(pass) panel models > adaptive artwork requires exact 3×3 and 8×8 samples [0.11ms]
+(pass) panel models > adaptive artwork rebalances pale and dark covers in both colourways [0.18ms]
+(pass) panel models > ambient bloom cannot occupy either actor hue window
+
+packages/panel/src/overflow-marquee.test.tsx:
+(pass) overflow marquee > measures only active overflow and records a transform distance [8.06ms]
+
+packages/panel/src/aqua-material.test.ts:
+(pass) the period Aqua LCD material > builds selection from two glass gradients and one structural rim rather than one flat color [7.68ms]
+(pass) the period Aqua LCD material > rejects the three owner-named flattening mutations [29.57ms]
+(pass) the period Aqua LCD material > uses independently legible foregrounds for light and dark Aqua [0.08ms]
+(pass) the period Aqua LCD material > keeps metadata, track numbers, and chevrons on the selected foreground [0.01ms]
+(pass) the period Aqua LCD material > fills pending playback with a recessed, period-authentic Aqua indeterminate stripe [0.56ms]
+(pass) the period Aqua LCD material > shares one fourteen-pixel cylindrical Aqua object across progress, loading, and volume [0.54ms]
+(pass) the period Aqua LCD material > keeps agent attribution without flattening the selected material [0.02ms]
+(pass) the period Aqua LCD material > the scrollbar uses a quiet unstriped well and a bounded blue thumb [0.10ms]
+(pass) the period Aqua LCD material > uses hierarchy, not selection weight, so changing selection never shifts row text [0.05ms]
+(pass) the period Aqua LCD material > rejects a moving stripe overlay anywhere across the full well [0.01ms]
+
+packages/panel/src/list-view.test.tsx:
+(pass) the canonical panel list view > fits exactly nine rows and adds the Aqua rail only for the tenth [1.70ms]
+(pass) the canonical panel list view > one row primitive owns composition, truncation, geometry and Aqua material [0.23ms]
+(pass) the canonical panel list view > every named collection family renders the same current row primitive and follows a wheel detent when scrollable [18.10ms]
+(pass) the canonical panel list view > loading skeleton tracks the active 9, 6 and 4 row viewport geometry [0.32ms]
+(pass) the canonical panel list view > period list routes stay full-width without preview copy competing for space [0.73ms]
+(pass) the canonical panel list view > no bespoke sibling list renderers survive beside the canonical primitive [0.20ms]
+
+packages/panel/src/list-scroll-indicator.test.tsx:
+(pass) the list-owned scroll indicator > is absent whenever the row window cannot move [0.10ms]
+(pass) the list-owned scroll indicator > derives start, middle, and end geometry from the authoritative row window [0.02ms]
+(pass) the list-owned scroll indicator > clamps stale window starts before publishing diagnostic geometry [0.02ms]
+(pass) the list-owned scroll indicator > recomputes one mounted indicator as provider-backed lengths change [1.86ms]
+(pass) the list-owned scroll indicator > uses the effective minimum thumb in the ten-thousand-row end travel [0.02ms]
+(pass) the list-owned scroll indicator > renders crisp fixed-track geometry without becoming semantic content [0.10ms]
+(pass) the list-owned scroll indicator > documents the reusable component contract at its export [0.13ms]
+
+packages/panel/src/Panel.integration.test.tsx:
+(pass) mounted playback selection > browsing retains live play/pause status and Songs hides only artist subtitles [26.32ms]
+(pass) mounted playback selection > progressive library revisions do not restart a stationary track dwell [771.53ms]
+(pass) mounted playback selection > Center cycles substantive modes and the wheel controls volume, scrub, and queue [21.79ms]
+(pass) mounted playback selection > a rejected provider volume write rolls the visible feedback value back without dismissing it [5.14ms]
+(pass) mounted playback selection > a ready-to-ready track identity change dismisses visible volume feedback [7.46ms]
+(pass) mounted playback selection > reconstructed Now Playing restores authoritative track and queue position [4.25ms]
+(pass) mounted playback selection > a late queue read cannot replace a newer authoritative queue [9.72ms]
+(pass) mounted playback selection > a stale copy of the same catalog song cannot confirm a different pending occurrence [4.46ms]
+(pass) mounted playback selection > play resolution and a matching MusicKit item stay pending until its playback clock advances [5.27ms]
+(pass) mounted playback selection > audible provider truth clears starting while the play command is unresolved [4.89ms]
+(pass) mounted playback selection > a rapid second song selection keeps metadata aligned with the winning transport [5.44ms]
+(pass) mounted playback selection > station playback adopts the provider track and clears loading after its clock advances [5.05ms]
+(pass) mounted playback selection > a late relationship response cannot replace the screen after navigation leaves its shell [4.64ms]
+(pass) mounted playback selection > a rejected play request keeps the selected occurrence on Now Playing [4.12ms]
+
+packages/panel/src/playback-presentation.test.ts:
+(pass) playback presentation state machine > a matching playing label stays starting until the playback clock advances [0.03ms]
+(pass) playback presentation state machine > a matching queued item does not end starting while MusicKit still reports loading [0.01ms]
+(pass) playback presentation state machine > a duplicate at the wrong queue occurrence cannot confirm the request [0.02ms]
+(pass) playback presentation state machine > a rejected current attempt cannot remain stuck in starting [0.01ms]
+(pass) playback presentation state machine > an attempt from a replaced provider cannot poison the active provider [0.17ms]
+
+packages/panel/src/Panel.test.tsx:
+(pass) the bare DOM panel > brings provider-owned transport back into view through the singleton store [0.05ms]
+(pass) the bare DOM panel > reports a physical Menu transition back to the root exactly once [0.12ms]
+(pass) the bare DOM panel > mounts as a bare semantic DOM surface [0.71ms]
+(pass) the bare DOM panel > home keeps the period-authentic full-width list without a modern preview pane [0.87ms]
+(pass) the bare DOM panel > server rendering is pure and cannot seed document-global navigation [0.10ms]
+(pass) the bare DOM panel > renders the light polarity as an explicit product variant [0.05ms]
+(pass) the bare DOM panel > locks the panel and loading rows to the specified raster geometry [0.19ms]
+(pass) the bare DOM panel > fits every declared album row completely inside the fixed list viewport [0.29ms]
+(pass) the bare DOM panel > locks the measured iPod screen hierarchy and Now Playing rhythm [0.12ms]
+(pass) the bare DOM panel > keeps Now Playing queue position out of the title bar and fills the LCD vertically [0.68ms]
+(pass) the bare DOM panel > never renders non-finite provider timing as NaN text or ARIA values [0.35ms]
+(pass) the bare DOM panel > the menu viewport fills the LCD while every density keeps fixed row geometry [0.10ms]
+(pass) the bare DOM panel > owns scroll indication in list panes and never in the preview pane [0.68ms]
+(pass) the bare DOM panel > never authors final panel text below eleven pixels [0.07ms]
+(pass) the bare DOM panel > keeps Now Playing control on the physical click wheel rather than LCD buttons [0.04ms]
+(pass) the bare DOM panel > uses provider commands, subscriptions, and one canonical list path [0.14ms]
+(pass) the bare DOM panel > keeps fixture defaults and writes outside the shipped Panel module [0.11ms]
+(pass) the bare DOM panel > offline mode remains cached metadata and never restores the cut download product [0.13ms]
+(pass) the bare DOM panel > contains the three required accessibility preference branches [0.04ms]
+(pass) the bare DOM panel > reduced motion removes every authored panel animation and transition [0.07ms]
+(pass) the bare DOM panel > light tertiary text uses the AA-verified hierarchy token [0.05ms]
+(pass) the bare DOM panel > keeps the package boundary compatible with DOM rasterization [0.10ms]
+(pass) the bare DOM panel > removes invented playback glyphs and exposes a real wheel control [0.39ms]
+(pass) the bare DOM panel > keeps Now Playing free of invented status shelves and confines pending feedback to progress [1.23ms]
+(pass) the bare DOM panel > keeps unavailable Now Playing mutations absent [0.41ms]
+(pass) the bare DOM panel > does not invent a track, queue index, source, or artwork before provider playback arrives [0.25ms]
+(pass) the bare DOM panel > renders provider-owned pending playback as loading rather than empty [0.29ms]
+(pass) the bare DOM panel > renders a timed-out provider transaction as a bounded failure rather than empty [0.24ms]
+(pass) the bare DOM panel > pending and timed-out playback preserve the exact selected song metadata and artwork [0.50ms]
+(pass) the bare DOM panel > an authoritative provider event error keeps the confirmed song rendered [0.34ms]
+(pass) the bare DOM panel > renders provider playback with queue context produced by the selected frame [0.32ms]
+(pass) the bare DOM panel > matches a provider-emitted catalog counterpart to its retained library queue position [0.32ms]
+(pass) the bare DOM panel > reports the selected occurrence when a playback queue contains duplicate tracks [0.31ms]
+(pass) the bare DOM panel > follows provider queue position from first A through B to the second A [0.43ms]
+(pass) the bare DOM panel > follows provider queue position from the second A back through B to the first A [0.42ms]
+
+packages/panel/src/runtime.test.ts:
+(pass) panel runtime > parallel colourways lease exactly one announcement driver [0.14ms]
+(pass) panel runtime > parallel colourways lease exactly one transient-volume timer [0.06ms]
+(pass) panel runtime > one leased clock advances continuously and stops after final cleanup [0.28ms]
+(pass) panel runtime > RGBA conversion preserves every sampled pixel and rejects partial data [0.06ms]
+(pass) panel runtime > falls back to the already-fetched artwork bytes when ImageDecoder rejects a supported JPEG [1.22ms]
+(pass) panel runtime > stable selection starts work at 700 ms, never at 699 ms [0.11ms]
+(pass) panel runtime > selection changes cancel stale dwell and coalesce identical colourway leases [0.07ms]
+(pass) panel runtime > route changes abort in-flight dwell work and clean up its timer [0.05ms]
+
+packages/providers/src/capability.test.ts:
+(pass) the Capability union > is §14.2 verbatim, in §14.2 order [0.02ms]
+(pass) the Capability union > has 25 members — §14.2 has 26 and one was dropped by ruling
+(pass) the Capability union > lists every member exactly once
+(pass) the Capability union > does not contain ratingStars (D-026)
+(pass) the Capability union > does not contain offline (D-019)
+(pass) capability feature names > every capability has one [0.01ms]
+(pass) capability feature names > they carry no exclamation mark — §11.0 rule 2 admits none in the product [0.01ms]
+(pass) the B04 / S27 surfacing boundary (D-049) > progressTicks is never surfaced as a missing feature, because it hides no control [0.11ms]
+(pass) the B04 / S27 surfacing boundary (D-049) > artworkArbitrarySize is never surfaced as a missing feature, because it hides no control [0.01ms]
+(pass) the B04 / S27 surfacing boundary (D-049) > everything else Spotify lacks is surfaced, with its verbatim copy [0.06ms]
+(pass) the B04 / S27 surfacing boundary (D-049) > the roster keeps §14.2 capability order, so B04 is stable between providers [0.06ms]
+(pass) the B04 / S27 surfacing boundary (D-049) > a fully capable provider surfaces nothing — an empty roster is a state, not a bug [0.12ms]
+(pass) the B04 / S27 surfacing boundary (D-049) > Apple surfaces exactly the seven §14.3 rows it lacks [0.03ms]
+
+packages/providers/src/artwork.test.ts:
+(pass) artworkUrl — never upscales a sharp image (§14.3 row 26) > S13 asks Spotify for 1400 and is told it got 640 [0.03ms]
+(pass) artworkUrl — never upscales a sharp image (§14.3 row 26) > actualPx never exceeds the native source, at any request size [0.03ms]
+(pass) artworkUrl — never upscales a sharp image (§14.3 row 26) > picks the smallest size that still covers the request [0.01ms]
+(pass) artworkUrl — never upscales a sharp image (§14.3 row 26) > never drops below the request while a larger size exists [0.01ms]
+(pass) artworkUrl — never upscales a sharp image (§14.3 row 26) > Apple substitutes the exact size asked for [0.01ms]
+(pass) artworkUrl — never upscales a sharp image (§14.3 row 26) > the documented ceiling is ~3000px, per §14.3 row 26
+(pass) artworkUrl — never upscales a sharp image (§14.3 row 26) > a template with no recorded size still refuses to upscale [0.01ms]
+(pass) artworkUrl — never upscales a sharp image (§14.3 row 26) > a template that records its native size is clamped to it too [0.02ms]
+(pass) artworkUrl — the URL is same-origin (D-014) > apple artwork is routed through the proxy path [0.03ms]
+(pass) artworkUrl — the URL is same-origin (D-014) > spotify artwork is routed through the proxy path
+(pass) artworkUrl — the URL is same-origin (D-014) > the upstream url survives round-tripping through the proxy params [0.02ms]
+(pass) artworkUrl — malformed input is a defect, not a data condition > rejects a template artwork with no template [0.06ms]
+(pass) artworkUrl — malformed input is a defect, not a data condition > rejects a fixed artwork with no sizes
+(pass) artworkUrl — malformed input is a defect, not a data condition > rejects a fixed artwork with an empty size list
+(pass) artworkUrl — malformed input is a defect, not a data condition > rejects a size of 0
+(pass) artworkUrl — malformed input is a defect, not a data condition > rejects a size of -1
+(pass) artworkUrl — malformed input is a defect, not a data condition > rejects a size of NaN
+(pass) artworkUrl — malformed input is a defect, not a data condition > rejects a size of Infinity
+
+packages/providers/src/identity.test.ts:
+(pass) LocalKey minting > mints a canonical UUIDv7 [0.02ms]
+(pass) LocalKey minting > never repeats, even in a tight burst [26.51ms]
+(pass) LocalKey minting > sorts by mint order, which is the property v4 does not have [5.57ms]
+(pass) LocalKey minting > carries the timestamp it was minted at [0.07ms]
+(pass) LocalKey narrowing at the edges > accepts a key it minted [0.06ms]
+(pass) LocalKey narrowing at the edges > rejects an Apple catalog id [0.07ms]
+(pass) LocalKey narrowing at the edges > rejects an Apple library id
+(pass) LocalKey narrowing at the edges > rejects a Spotify track id
+(pass) LocalKey narrowing at the edges > rejects a Spotify uri
+(pass) LocalKey narrowing at the edges > rejects a UUIDv4
+(pass) LocalKey narrowing at the edges > rejects an empty string
+(pass) LocalKey narrowing at the edges > the rejection is tagged, not just an Error [0.03ms]
+(pass) §14.5 — a provider id cannot occupy a key position > a bare string is not a LocalKey
+(pass) §14.5 — a provider id cannot occupy a key position > a catalogId is not a LocalKey
+(pass) §14.5 — a provider id cannot occupy a key position > a libraryId is not a LocalKey — a third id space, and still not ours
+(pass) §14.5 — a provider id cannot occupy a key position > a Spotify uri is not a LocalKey either
+(pass) §14.5 — a provider id cannot occupy a key position > a minted key is [0.01ms]
+(pass) §14.5 — a provider id cannot occupy a key position > a LocalKey is still a string at runtime and to the compiler
+(pass) §14.5 — a provider id cannot occupy a key position > the package spends the brand on the structures it owns [0.12ms]
+(pass) D-053(b) — ProviderId membership is a ruling, so it is asserted > there are exactly three, and they are these [0.02ms]
+(pass) D-053(b) — ProviderId membership is a ruling, so it is asserted > every provider this package ships reports one of them [0.12ms]
+
+packages/providers/src/capability-matrix.test.ts:
+(pass) §14.3 capability matrix — one case per row > row 1 · Authorise / session — parity [0.04ms]
+(pass) §14.3 capability matrix — one case per row > row 4 · Catalogue search — parity
+(pass) §14.3 capability matrix — one case per row > row 5 · Library read — parity
+(pass) §14.3 capability matrix — one case per row > row 6 · Library add — parity
+(pass) §14.3 capability matrix — one case per row > row 7 · Library remove — LIKELY·docs on Apple after D-029 downgrade; DELETE /me/tracks on Spotify
+(pass) §14.3 capability matrix — one case per row > row 8 · Playlist create — parity
+(pass) §14.3 capability matrix — one case per row > row 9 · Playlist add tracks — parity — but Apple appends to the end, always
+(pass) §14.3 capability matrix — one case per row > row 10 · Playlist remove tracks — LIKELY·docs, NOT VERIFIED — D-029 falsified the enumeration leg; the staff-statement leg stands
+(pass) §14.3 capability matrix — one case per row > row 11 · Playlist reorder — LIKELY·docs — no positional write at any level
+(pass) §14.3 capability matrix — one case per row > row 12 · Transport — parity
+(pass) §14.3 capability matrix — one case per row > row 13 · Seek — parity
+(pass) §14.3 capability matrix — one case per row > row 14 · Volume — parity — app volume on both, never system volume
+(pass) §14.3 capability matrix — one case per row > row 15 · Queue read — parity
+(pass) §14.3 capability matrix — one case per row > row 16 · Queue append — Spotify emulates the batch — legitimate, the result is equivalent
+(pass) §14.3 capability matrix — one case per row > row 17 · Queue insert-next — playNext() on Apple; no API on Spotify, where the label changes to Add to Queue
+(pass) §14.3 capability matrix — one case per row > row 18 · Queue remove / reorder — LIKELY·docs on Apple; not supported on Spotify. S17 is read-only-with-append on BOTH
+(pass) §14.3 capability matrix — one case per row > row 19 · Stations / radio — Spotify withdrew seeded radio for new apps in Nov 2024; S18 is removed there, not greyed
+(pass) §14.3 capability matrix — one case per row > row 20 · Station seeded from a track — VERIFIED·live on Apple — station id is ra.<songId>; the only row in the matrix that moved
+(pass) §14.3 capability matrix — one case per row > row 21 · Lyrics — Apple: the endpoint EXISTS and returns 400/40012, gated not absent. Spotify: no public API at all
+(pass) §14.3 capability matrix — one case per row > row 23 · Love / Dislike — Spotify has no equivalent. Never map Love to Save
+(pass) §14.3 capability matrix — one case per row > row 24 · Save / add-to-library — parity in capability, different label; on Spotify it is the only affection signal
+(pass) §14.3 capability matrix — one case per row > row 25 · Progress ticks — Spotify is event-driven only; we interpolate and report interpolated: true. Hides no control
+(pass) §14.3 capability matrix — one case per row > row 26 · Artwork sizing — Spotify has ~3 fixed sizes; artworkUrl reports actualPx and the sharp region clamps to it
+(pass) §14.3 rows the Capability union deliberately does not model > row 22 · stars are not a provider question (D-023, D-026) [0.01ms]
+(pass) §14.3 rows the Capability union deliberately does not model > row 30 · offline is cut, not modelled as a permanent false (D-019)
+(pass) §14.3 rows the Capability union deliberately does not model > row 2 · paid tier has no union member
+(pass) §14.3 rows the Capability union deliberately does not model > row 3 · playback host has no union member
+(pass) §14.3 rows the Capability union deliberately does not model > row 27 · shuffle and repeat has no union member
+(pass) §14.3 rows the Capability union deliberately does not model > row 28 · storefront has no union member
+(pass) §14.3 rows the Capability union deliberately does not model > row 29 · ISRC has no union member
+(pass) §14.3 rows the Capability union deliberately does not model > row 27 · the methods D-052 added exist on every implementation [0.01ms]
+(pass) §14.3 coverage — nothing is untested > every capability appears in exactly one row of the table [0.12ms]
+(pass) §14.3 coverage — nothing is untested > the table has all thirty §14.3 rows, numbered 1..30 [3.97ms]
+(pass) §14.4 — unsupportedReason is total, and is product copy > apple: null for every supported capability [0.10ms]
+(pass) §14.4 — unsupportedReason is total, and is product copy > apple: a non-empty sentence for every unsupported capability [0.07ms]
+(pass) §14.4 — unsupportedReason is total, and is product copy > apple: the copy obeys §11.0's voice rules [0.26ms]
+(pass) §14.4 — unsupportedReason is total, and is product copy > spotify: null for every supported capability [0.03ms]
+(pass) §14.4 — unsupportedReason is total, and is product copy > spotify: a non-empty sentence for every unsupported capability [0.02ms]
+(pass) §14.4 — unsupportedReason is total, and is product copy > spotify: the copy obeys §11.0's voice rules [0.09ms]
+(pass) §14.4 — unsupportedReason is total, and is product copy > the copy names the feature the user is looking at (§11.0 rule 1) [0.07ms]
+(pass) §14.4 — unsupportedReason is total, and is product copy > Apple's two lyrics rows do not render as the same sentence twice [0.01ms]
+(pass) §14.4 — unsupportedReason is total, and is product copy > no reason claims webPod is the only place something can happen [0.07ms]
+(pass) §14.4 — unsupportedReason is total, and is product copy > Apple names Apple and Spotify names Spotify — the user is told which service [0.06ms]
+(pass) §14.3 rows 23 and 24 — Love is never Save > Spotify has Save and has no Love [0.02ms]
+(pass) §14.3 rows 23 and 24 — Love is never Save > the two are independent on Apple, which has both [0.01ms]
+(pass) §14.3 rows 23 and 24 — Love is never Save > Spotify's Love reason does not offer Save as an equivalent [0.01ms]
+
+packages/providers/src/stub.test.ts:
+(pass) spotify adapter — a compiling stub with a real matrix > identifies itself [0.06ms]
+(pass) spotify adapter — a compiling stub with a real matrix > supports() is synchronous, total and never throws [0.02ms]
+(pass) spotify adapter — a compiling stub with a real matrix > is never signed in and is never playing [0.02ms]
+(pass) spotify adapter — a compiling stub with a real matrix > onSessionChange throws NotImplementedError rather than never calling back [0.09ms]
+(pass) spotify adapter — a compiling stub with a real matrix > onPlaybackChange throws NotImplementedError rather than never calling back [0.01ms]
+(pass) spotify adapter — a compiling stub with a real matrix > onProgress throws NotImplementedError rather than never calling back
+(pass) spotify adapter — a compiling stub with a real matrix > onProgress refuses as unimplemented, never as an unsupported capability [0.02ms]
+(pass) spotify adapter — a compiling stub with a real matrix > configure() rejects rather than throwing synchronously [0.05ms]
+(pass) spotify adapter — a compiling stub with a real matrix > configure() rejects with the right kind of error [0.21ms]
+(pass) spotify adapter — a compiling stub with a real matrix > authorize() rejects rather than throwing synchronously [0.06ms]
+(pass) spotify adapter — a compiling stub with a real matrix > authorize() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > unauthorize() rejects rather than throwing synchronously [0.03ms]
+(pass) spotify adapter — a compiling stub with a real matrix > unauthorize() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > search() rejects rather than throwing synchronously [0.09ms]
+(pass) spotify adapter — a compiling stub with a real matrix > search() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > libraryList() rejects rather than throwing synchronously [0.11ms]
+(pass) spotify adapter — a compiling stub with a real matrix > libraryList() rejects with the right kind of error [0.05ms]
+(pass) spotify adapter — a compiling stub with a real matrix > relatedTracks() rejects rather than throwing synchronously [0.03ms]
+(pass) spotify adapter — a compiling stub with a real matrix > relatedTracks() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > relatedAlbums() rejects rather than throwing synchronously [0.02ms]
+(pass) spotify adapter — a compiling stub with a real matrix > relatedAlbums() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > libraryAdd() rejects rather than throwing synchronously [0.01ms]
+(pass) spotify adapter — a compiling stub with a real matrix > libraryAdd() rejects with the right kind of error [0.07ms]
+(pass) spotify adapter — a compiling stub with a real matrix > libraryRemove() rejects rather than throwing synchronously [0.01ms]
+(pass) spotify adapter — a compiling stub with a real matrix > libraryRemove() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > playlistCreate() rejects rather than throwing synchronously [0.02ms]
+(pass) spotify adapter — a compiling stub with a real matrix > playlistCreate() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > playlistAddTracks() rejects rather than throwing synchronously [0.10ms]
+(pass) spotify adapter — a compiling stub with a real matrix > playlistAddTracks() rejects with the right kind of error [0.02ms]
+(pass) spotify adapter — a compiling stub with a real matrix > playlistRemoveTracks() rejects rather than throwing synchronously [0.10ms]
+(pass) spotify adapter — a compiling stub with a real matrix > playlistRemoveTracks() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > playlistReorder() rejects rather than throwing synchronously [0.17ms]
+(pass) spotify adapter — a compiling stub with a real matrix > playlistReorder() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > prepare() rejects rather than throwing synchronously [0.04ms]
+(pass) spotify adapter — a compiling stub with a real matrix > prepare() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > play() rejects rather than throwing synchronously [0.03ms]
+(pass) spotify adapter — a compiling stub with a real matrix > play() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > pause() rejects rather than throwing synchronously [0.01ms]
+(pass) spotify adapter — a compiling stub with a real matrix > pause() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > skip() rejects rather than throwing synchronously [0.01ms]
+(pass) spotify adapter — a compiling stub with a real matrix > skip() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > seek() rejects rather than throwing synchronously
+(pass) spotify adapter — a compiling stub with a real matrix > seek() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > setVolume() rejects rather than throwing synchronously
+(pass) spotify adapter — a compiling stub with a real matrix > setVolume() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > queueRead() rejects rather than throwing synchronously
+(pass) spotify adapter — a compiling stub with a real matrix > queueRead() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > queueAppend() rejects rather than throwing synchronously
+(pass) spotify adapter — a compiling stub with a real matrix > queueAppend() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > queueInsertNext() rejects rather than throwing synchronously [0.04ms]
+(pass) spotify adapter — a compiling stub with a real matrix > queueInsertNext() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > queueRemove() rejects rather than throwing synchronously [0.01ms]
+(pass) spotify adapter — a compiling stub with a real matrix > queueRemove() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > queueReorder() rejects rather than throwing synchronously
+(pass) spotify adapter — a compiling stub with a real matrix > queueReorder() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > stationsList() rejects rather than throwing synchronously
+(pass) spotify adapter — a compiling stub with a real matrix > stationsList() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > stationStart() rejects rather than throwing synchronously [0.06ms]
+(pass) spotify adapter — a compiling stub with a real matrix > stationStart() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > lyrics() rejects rather than throwing synchronously [0.02ms]
+(pass) spotify adapter — a compiling stub with a real matrix > lyrics() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > ratingSet() rejects rather than throwing synchronously [0.02ms]
+(pass) spotify adapter — a compiling stub with a real matrix > ratingSet() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > saveToggle() rejects rather than throwing synchronously [0.01ms]
+(pass) spotify adapter — a compiling stub with a real matrix > saveToggle() rejects with the right kind of error
+(pass) spotify adapter — a compiling stub with a real matrix > a track-seeded station is refused separately from stations itself [0.06ms]
+(pass) no adapter reaches the network > constructing both providers touches neither fetch nor XHR [0.11ms]
+(pass) the two implementations agree on the failure protocol > apple: a failing call returns a rejected promise, not a synchronous throw [0.21ms]
+(pass) the two implementations agree on the failure protocol > spotify: a failing call returns a rejected promise, not a synchronous throw
+(pass) the two implementations agree on the failure protocol > fixture: a failing call returns a rejected promise, not a synchronous throw [0.03ms]
+(pass) the two implementations agree on the failure protocol > apple: .catch() receives the error [0.06ms]
+(pass) the two implementations agree on the failure protocol > spotify: .catch() receives the error
+(pass) the two implementations agree on the failure protocol > fixture: .catch() receives the error
+(pass) the two implementations agree on the failure protocol > Promise.all over several failing calls settles instead of throwing at the call site [0.28ms]
+
+packages/providers/src/reresolve.test.ts:
+(pass) normaliseForMatch > "Vienna (feat. Someone Else)" normalises to "vienna" [0.01ms]
+(pass) normaliseForMatch > "Vienna [feat. Someone Else]" normalises to "vienna"
+(pass) normaliseForMatch > "Vienna - 2019 Remaster" normalises to "vienna 2019 remaster"
+(pass) normaliseForMatch > "Vienna (2019 Remaster)" normalises to "vienna"
+(pass) normaliseForMatch > "Vienna (Deluxe Edition)" normalises to "vienna"
+(pass) normaliseForMatch > "Don't Stop Believin'" normalises to "dont stop believin"
+(pass) normaliseForMatch > "  Vienna   " normalises to "vienna"
+(pass) normaliseForMatch > "VIENNA" normalises to "vienna"
+(pass) normaliseForMatch > keeps accented letters — stripping them loses a real catalogue [0.85ms]
+(pass) §14.5 constants > the duration tolerance is ±2000ms, which §14.5 states as a literal
+(pass) §14.5 ladder > rung 1: an ISRC match wins, and outranks a better-looking text match [0.15ms]
+(pass) §14.5 ladder > rung 2: title + artist + duration exactly at the ±2000ms edge [0.03ms]
+(pass) §14.5 ladder > one millisecond past the tolerance drops to the low rung [0.02ms]
+(pass) §14.5 ladder > a live cut is never promoted above the low rung [0.06ms]
+(pass) §14.5 ladder > rung 3: text alone is a match, and is flagged low [0.11ms]
+(pass) §14.5 ladder > a duration match further down the list outranks an earlier text-only one [0.10ms]
+(pass) §14.5 ladder > a different artist is not a match at any rung [0.02ms]
+(pass) §14.5 ladder > no candidates is a miss, not a throw
+(pass) §14.5 identity — what survives a provider switch > the LocalKey survives and every provider field is replaced [0.04ms]
+(pass) §14.5 identity — what survives a provider switch > a key never leaks between two different tracks [0.03ms]
+(pass) §14.5 identity — what survives a provider switch > reresolveAll reports the misses by name, as the migration card needs [0.05ms]
+(pass) §14.5 identity — what survives a provider switch > order is preserved, so a rebuilt queue is in the order it was [0.04ms]
+
+packages/providers/src/evidence-labels.test.ts:
+(pass) D-045 — every capability value carries an evidence label > apple: every one of the 25 rows is labelled [0.67ms]
+(pass) D-045 — every capability value carries an evidence label > apple: no two rows share a label — each carries its own [0.30ms]
+(pass) D-045 — every capability value carries an evidence label > apple: no absence claim is VERIFIED on documentation alone [0.21ms]
+(pass) D-045 — every capability value carries an evidence label > apple: a VERIFIED absence carries live provenance [0.15ms]
+(pass) D-045 — every capability value carries an evidence label > spotify: every one of the 25 rows is labelled [0.14ms]
+(pass) D-045 — every capability value carries an evidence label > spotify: no two rows share a label — each carries its own [0.22ms]
+(pass) D-045 — every capability value carries an evidence label > spotify: no absence claim is VERIFIED on documentation alone [0.18ms]
+(pass) D-045 — every capability value carries an evidence label > spotify: a VERIFIED absence carries live provenance [0.23ms]
+(pass) D-045 — every capability value carries an evidence label > Apple keeps its two measured absences at VERIFIED · live [0.37ms]
+(pass) D-045 — every capability value carries an evidence label > Apple keeps its one measured presence at VERIFIED · live [0.22ms]
+(pass) D-045 — every capability value carries an evidence label > Apple header and rows agree that exactly three findings have live provenance [0.29ms]
+(pass) D-045 — every capability value carries an evidence label > rows 10, 11, 18 and 7 are LIKELY on Apple, never VERIFIED (D-029) [0.33ms]
+
+packages/state/src/gates.test.ts:
+(pass) density is 9 / 6 / 4, and a page is one viewport > the row counts are 9, 6 and 4 across compact and accessibility densities [0.01ms]
+(pass) density is 9 / 6 / 4, and a page is one viewport > every density divides the full 183px content viewport
+(pass) density is 9 / 6 / 4, and a page is one viewport > no density pages by 7 [0.02ms]
+(pass) density is 9 / 6 / 4, and a page is one viewport > Shift+Arrow moves 9 rows on a compact screen, through the store [0.33ms]
+(pass) density is 9 / 6 / 4, and a page is one viewport > Shift+Arrow moves 4 rows on an airy screen, through the store [0.10ms]
+(pass) density is 9 / 6 / 4, and a page is one viewport > the reducer cannot be handed a page size at all [0.01ms]
+(pass) the announcement debounce is 350ms > literally 350 (001 §4.4, gate U13)
+(pass) the announcement debounce is 350ms > the auto-repeat window is literally 250ms
+(pass) the detent constants that are rulings > D-063 leaves no high-rate haptic policy in the wheel constants
+(pass) the detent constants that are rulings > the coast decays at 0.94 per frame and stops below 21 deg/s (§9.4) [0.01ms]
+(pass) the detent constants that are rulings > acceleration is 1, 4 and 12 rows per detent (design-system §9.4)
+(pass) the detent constants that are rulings > the fast-scroll thresholds are 720 and 1080 deg/s (design-system §9.4)
+(pass) the detent constants that are rulings > Dynamic Type forces airy at 130% (001 §15.0 U11)
+(pass) the density setting is not inert > by default a screen renders at the density it prefers [0.04ms]
+(pass) the density setting is not inert > setting the override moves the viewport, the page size and the snapshot [0.10ms]
+(pass) the density setting is not inert > Dynamic Type at 130% forces airy over the human’s own setting [0.06ms]
+(pass) the density setting is not inert > just below 130% it does not [0.03ms]
+(pass) the density setting is not inert > paging follows the effective density, not the frame’s preference [0.07ms]
+(pass) R2 — one clock stamps every published time > an intentional list bump is stamped from the device clock [0.07ms]
+(pass) R2 — one clock stamps every published time > a wheel detent at an exhausted boundary is not a bump [0.06ms]
+(pass) R2 — one clock stamps every published time > a Menu bump at the root is stamped from the device clock [0.04ms]
+(pass) R2 — one clock stamps every published time > a transport bump is stamped from the device clock [0.05ms]
+(pass) R2 — one clock stamps every published time > all three writers agree, whatever a caller passes [0.06ms]
+(pass) R2 — one clock stamps every published time > the bump sequence still increments, so two identical bumps are distinct [0.04ms]
+(pass) R3 — the density route that half-worked is now unconstructible > the highlight stays inside the window when density changes [0.11ms]
+(pass) R3 — the density route that half-worked is now unconstructible > and when Dynamic Type forces airy [0.08ms]
+(pass) R3 — the density route that half-worked is now unconstructible > every frame on the stack is re-clamped, not just the visible one [0.08ms]
+(pass) R3 — the density route that half-worked is now unconstructible > the bare write does not typecheck, and this is why it must not [0.07ms]
+(pass) R3 — the density route that half-worked is now unconstructible > the Dynamic Type bare write does not typecheck either [0.07ms]
+(pass) R3 — the density route that half-worked is now unconstructible > but reading them still works, because they are legitimate state [0.04ms]
+(pass) D-063 — the §9.4 fast-scroll curve, behaviourally > below 720 deg/s a detent is one row [0.24ms]
+(pass) D-063 — the §9.4 fast-scroll curve, behaviourally > between 720 and 1080 deg/s a detent is four rows [0.04ms]
+(pass) D-063 — the §9.4 fast-scroll curve, behaviourally > above 1080 deg/s a detent is twelve rows [0.09ms]
+(pass) D-063 — the §9.4 fast-scroll curve, behaviourally > the superseded pm-spec tiers are not reachable at any speed [0.13ms]
+(pass) D-063 — the §9.4 fast-scroll curve, behaviourally > a mouse arc needs 1.4x the speed, per pm-spec §4.4 which §9.4 does not cover [0.04ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > the threshold is literally 40 rows (design-system §9.4)
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > a 39-row list cannot fast-scroll at ANY angular speed [0.19ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > exactly 40 rows is still too short — the spec says *exceeds* 40 [0.02ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > 41 rows is long enough [0.02ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > the main menu cannot fast-scroll, however hard it is flicked [0.22ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > a long list reached through the store does fast-scroll [0.29ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > omitting the list length disables fast-scroll, which is the safe way to be wrong [0.02ms]
+(pass) D-063 — angular velocity is clamped at 1440 deg/s > the ceiling is literally 1440 (design-system §9.4)
+(pass) D-063 — angular velocity is clamped at 1440 deg/s > an absurd spin is recorded at the ceiling, not above it [0.03ms]
+(pass) D-063 — angular velocity is clamped at 1440 deg/s > the clamp bounds the coast too, so a fling cannot glide forever [0.23ms]
+(pass) D-063 — angular velocity is clamped at 1440 deg/s > ordinary speeds are untouched by the clamp [0.01ms]
+(pass) D-063 — detent hysteresis stops a resting thumb chattering > the hysteresis is literally 1.8 degrees (design-system §9.4)
+(pass) D-063 — detent hysteresis stops a resting thumb chattering > a thumb jittering across a boundary fires nothing [0.03ms]
+(pass) D-063 — detent hysteresis stops a resting thumb chattering > a deliberate reversal still works, it just costs 1.8 degrees more [0.02ms]
+(pass) D-063 — detent hysteresis stops a resting thumb chattering > continuing in the same direction is never charged the extra [0.04ms]
+(pass) D-063 — detent hysteresis stops a resting thumb chattering > the keyboard is untouched by it — a reversal is still one detent [0.03ms]
+(pass) D-063 — the coast floor, behaviourally > a 1000 deg/s release glides for 63 frames, not 46 [0.12ms]
+(pass) D-063 — the coast floor, behaviourally > a harder release glides longer still, and stays bounded by the clamp [0.09ms]
+(pass) D-063 — the coast floor, behaviourally > the state layer and the render loop stop on the same condition
+
+packages/state/src/store.test.ts:
+(pass) read, write and subscribe with no React mounted > React is not reachable from this package at all [0.13ms]
+(pass) read, write and subscribe with no React mounted > store.get reads device state [0.11ms]
+(pass) read, write and subscribe with no React mounted > store.set writes device state and store.get reads it back [0.04ms]
+(pass) read, write and subscribe with no React mounted > store.sub notifies an outside-React listener on change [0.15ms]
+(pass) read, write and subscribe with no React mounted > a derived atom is subscribable from outside React too [0.07ms]
+(pass) read, write and subscribe with no React mounted > two stores are genuinely separate devices [0.03ms]
+(pass) the five device states, derived rather than assigned > Hold outranks everything [0.02ms]
+(pass) the five device states, derived rather than assigned > disconnection outranks the agent states [0.02ms]
+(pass) the five device states, derived rather than assigned > throttling is a sub-mode of agent activity, and reads as its own state [0.03ms]
+(pass) the five device states, derived rather than assigned > the app mode is orthogonal and never replaces a device state [0.02ms]
+(pass) actions > the store is born on the main menu, with rows, before any network call [0.04ms]
+(pass) actions > Menu at the root bumps, and the bump has a fresh sequence number [0.06ms]
+(pass) actions > descend then Menu restores the exact prior highlight [0.07ms]
+(pass) actions > the visible window follows the density of the screen on top [0.04ms]
+(pass) actions > the transport buttons page a list, and do not select [0.05ms]
+(pass) actions > Center is delegated to the data layer and Menu first resets a Now Playing sub-mode [0.09ms]
+(pass) actions > an agent press is silent; a human press clicks [0.04ms]
+(pass) actions > an empty-stack cardinal no-op is rejected before feedback publication [0.03ms]
+(pass) actions > provider-owned Play/Pause publishes only an accepted external press [0.04ms]
+(pass) actions > Now Playing accepts wheel movement through bounded shared control state [0.11ms]
+(pass) actions > human volume movement owns one race-safe 1500ms feedback dwell [0.17ms]
+(pass) actions > programmatic changes do not summon or extend human volume feedback [0.15ms]
+(pass) actions > a custom initial stack replaces the default main menu [0.04ms]
+(pass) D-051 — exactly one device per document > `deviceStore` is the module singleton, and repeated imports get it [0.08ms]
+(pass) D-051 — exactly one device per document > the FIRST call in a fresh production module throws [14.55ms]
+(pass) D-051 — exactly one device per document > a second call in a fresh production module throws as well [10.16ms]
+(pass) D-051 — exactly one device per document > the singleton itself is still built, in that same fresh process [10.03ms]
+(pass) D-051 — exactly one device per document > the factory is not reachable from the package entry point [0.13ms]
+(pass) D-051 — exactly one device per document > the store a consumer hands a Provider is named, and is not the factory [0.01ms]
+(pass) D-051 — nothing outside a test builds a device > no non-test source in the repo calls createDeviceStore [32.27ms]
+(pass) D-051 — nothing outside a test builds a device > and the only re-export of it is the test-only entry point [32.48ms]
+(pass) Menu on a device with no screens > does not bump — an empty stack has no top to announce [0.20ms]
+(pass) Menu on a device with no screens > a device with one screen still bumps, as the root must [0.05ms]
+(pass) menu rows the provider cannot serve are absent, not greyed > a visibility predicate drops rows and re-indexes what is left [0.07ms]
+(pass) menu rows the provider cannot serve are absent, not greyed > the default admits everything, which is the honest pre-provider answer [0.02ms]
+
+packages/state/src/feedback.test.ts:
+(pass) authoritative interaction feedback stream > the public event shape cannot represent agent-owned audible feedback
+(pass) authoritative interaction feedback stream > one eligible human press publishes exactly one click budget [0.08ms]
+(pass) authoritative interaction feedback stream > N authoritative human detents publish one event carrying N ticks [0.08ms]
+(pass) authoritative interaction feedback stream > sub-detent travel and agent/system actions publish nothing [0.11ms]
+(pass) authoritative interaction feedback stream > coasted detents publish only the budget returned by the coast action [0.11ms]
+(pass) authoritative interaction feedback stream > identical consecutive budgets remain distinct by sequence [0.03ms]
+
+packages/state/src/navigation-intent.test.ts:
+(pass) navigation intent bridge > center publishes an exact-once selectable intent outside React [0.03ms]
+(pass) navigation intent bridge > long-Menu root reset is one atomic external-store action [0.04ms]
+
+packages/state/src/detent.test.ts:
+(pass) keyboard path — one keydown is exactly one detent, always > a single ArrowDown is one detent and one row [0.03ms]
+(pass) keyboard path — one keydown is exactly one detent, always > ArrowUp is one detent upward
+(pass) keyboard path — one keydown is exactly one detent, always > three keydowns move exactly three rows — counted navigation [0.07ms]
+(pass) keyboard path — one keydown is exactly one detent, always > NO acceleration, ever: 40 keydowns 5ms apart still move 40 rows [0.07ms]
+(pass) keyboard path — one keydown is exactly one detent, always > Shift+Arrow is still one detent, but one full viewport of rows [0.03ms]
+(pass) keyboard path — one keydown is exactly one detent, always > a lone keypress announces immediately; auto-repeat falls back to a summary [0.02ms]
+(pass) keyboard path — one keydown is exactly one detent, always > the keyboard path never fires a haptic — there is no hardware behind it
+(pass) touch arc path > the first detent costs the dead zone, later detents cost 15 degrees [0.02ms]
+(pass) touch arc path > a slow arc moves one row per detent [0.02ms]
+(pass) touch arc path > a fast arc accelerates, and the multiplier is smoothed rather than jumping [0.04ms]
+(pass) touch arc path > reversing direction moves back, and pays the hysteresis first [0.02ms]
+(pass) touch arc path > high-rate touch detents stay policy-neutral for the future haptic actuator [0.01ms]
+(pass) mouse arc path > the dead zone is smaller than touch — a mouse is steadier than a thumb
+(pass) mouse arc path > acceleration thresholds are 1.4x the touch ones [0.03ms]
+(pass) mouse arc path > a mouse arc never fires haptics — the hardware is not there
+(pass) scroll path > 40 accumulated pixels is one detent, after a 24px dead zone [0.04ms]
+(pass) scroll path > no velocity multiplier, however fast the wheel is spun [0.04ms]
+(pass) scroll path > line and page delta modes are normalised to pixels [0.02ms]
+(pass) scroll path > residual under one detent is discarded, never rounded into a phantom [0.01ms]
+(pass) direct path — the programmatic seam > a requested count arrives exactly, with no acceleration
+(pass) the silence rule, enforced at one call site > agent movement is silent and still on every path — visible, never felt [0.02ms]
+(pass) the silence rule, enforced at one call site > system movement is silent too
+(pass) the silence rule, enforced at one call site > human movement clicks
+(pass) the silence rule, enforced at one call site > an agent moving the same distance as a hand moves exactly as far
+(pass) the actor tag is derived, never accepted > each human path names the limb that drove it [0.02ms]
+(pass) the actor tag is derived, never accepted > an agent driving a touch arc is still tagged as an agent [0.01ms]
+(pass) the actor tag is derived, never accepted > an agent with no known origin is tagged unknown, not guessed at
+(pass) gesture bookkeeping > switching path mid-flight starts a new gesture rather than mixing units [0.01ms]
+(pass) gesture bookkeeping > the reducer never mutates the accumulator it is handed [0.01ms]
+(pass) the inertial coast (001 §4.4, Release row) > releasing a fast arc keeps the momentum instead of discarding it [0.03ms]
+(pass) the inertial coast (001 §4.4, Release row) > releasing below the floor stops dead
+(pass) the inertial coast (001 §4.4, Release row) > there is no momentum in a keypress, a scroll or a tool call [0.02ms]
+(pass) the inertial coast (001 §4.4, Release row) > the coast fires detents, decays, and comes to rest below 21 deg/s [0.05ms]
+(pass) the inertial coast (001 §4.4, Release row) > a coast travels in the direction the gesture was going [0.05ms]
+(pass) the inertial coast (001 §4.4, Release row) > EVERY coasted detent still clicks — 001 §4.4 says so explicitly [0.04ms]
+(pass) the inertial coast (001 §4.4, Release row) > an agent’s coast is silent, like everything else an agent does [0.04ms]
+(pass) the inertial coast (001 §4.4, Release row) > a coast never announces per detent — the flick already scheduled one [0.05ms]
+(pass) the inertial coast (001 §4.4, Release row) > stepping a wheel that is not coasting is a no-op, not a resurrection [0.01ms]
+(pass) accelerated says what multiplier cannot > false for every keyboard event, including Shift [0.01ms]
+(pass) accelerated says what multiplier cannot > false on the scroll path however fast the wheel spins [0.03ms]
+(pass) accelerated says what multiplier cannot > false for a programmatic movement of any size
+(pass) accelerated says what multiplier cannot > true only when an arc went fast enough to be given extra rows [0.02ms]
+(pass) D-060 — the coast is the same gesture at any refresh rate > one flick lands on the same row at 30, 60 and 120fps — exactly [0.11ms]
+(pass) D-060 — the coast is the same gesture at any refresh rate > and at every rate from a stuttering 15fps to a 240Hz display [0.54ms]
+(pass) D-060 — the coast is the same gesture at any refresh rate > the frame COUNT still scales with the rate, which is the tell [0.10ms]
+(pass) D-060 — the coast is the same gesture at any refresh rate > a variable-rate display travels the same distance as a steady one [0.07ms]
+(pass) D-060 — the coast is the same gesture at any refresh rate > at 60fps the decay is still exactly the transcribed 0.94 [0.02ms]
+
+packages/state/src/boundary.test.ts:
+(pass) exhausted list boundaries are authoritative wheel no-ops > short list at its first row rejects repeated outward detents and accepts the first reversal [0.55ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > short list at its last row rejects repeated outward detents and accepts the first reversal [0.09ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > one viewport list at its first row rejects repeated outward detents and accepts the first reversal [0.09ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > one viewport list at its last row rejects repeated outward detents and accepts the first reversal [0.08ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > long list at its first row rejects repeated outward detents and accepts the first reversal [0.09ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > long list at its last row rejects repeated outward detents and accepts the first reversal [0.10ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > touch at the first row clears rejected residual and reverses on one ordinary detent [0.08ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > touch at the last row clears rejected residual and reverses on one ordinary detent [0.05ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > an immediate key attempt at the first row neither speaks nor arms a stale announcement [0.07ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > an accelerated event reports only the detent prefix accepted before the edge and drops its momentum [0.09ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > a mixed-multiplier coast counts the actual accepted prefix, not its final multiplier [0.09ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > a coast aimed out of the first row stops in one frame without feedback or queued escape [0.07ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > a coast aimed out of the last row stops in one frame without feedback or queued escape [0.05ms]
+
+packages/state/src/announce.test.ts:
+(pass) U13 — a flick announces once > 30 detents through the real store produce exactly ONE announcement [0.59ms]
+(pass) U13 — a flick announces once > the one sentence names the row the flick settled on [0.45ms]
+(pass) U13 — a flick announces once > flushing repeatedly after a flick still says it once [0.43ms]
+(pass) U13 — a flick announces once > the debounce is 350ms — not 349, and not a symbol that can move [0.06ms]
+(pass) U13 — a flick announces once > a scroll flick behaves the same as a touch flick [0.45ms]
+(pass) MAJOR 1 — there is one clock, so the browser case cannot diverge > performance.now-scale timestamps still announce once [0.45ms]
+(pass) MAJOR 1 — there is one clock, so the browser case cannot diverge > the announcer ignores caller timestamps entirely [0.13ms]
+(pass) the keyboard announces immediately, because it is deterministic > one keypress speaks at once, with no debounce [0.05ms]
+(pass) the keyboard announces immediately, because it is deterministic > three counted presses speak three times — this is how P5 navigates [0.10ms]
+(pass) the keyboard announces immediately, because it is deterministic > a held key does not speak per repeat — it summarises when released [0.30ms]
+(pass) the keyboard announces immediately, because it is deterministic > a keypress interrupting a flick clears the flick’s stale summary [0.19ms]
+(pass) the sentence > a human hears position first, then the row [0.01ms]
+(pass) the sentence > an agent movement names the actor first
+(pass) the sentence > a single-line row is read without a trailing comma [0.01ms]
+(pass) the sentence > an empty screen says so, rather than reading row zero of zero
+(pass) the sentence > every announcement is polite — navigation never interrupts [0.05ms]
+(pass) the sentence > the sequence number increments so two identical sentences are distinct [0.07ms]
+(pass) the pure announcer > noteMovement replaces the settling summary rather than queueing [0.04ms]
+(pass) the pure announcer > clearAnnouncer drops the settling summary but keeps the count [0.02ms]
+(pass) the driver — the one timer in the package > a flick holds one timeout and speaks once when it stops [710.17ms]
+(pass) the driver — the one timer in the package > stopping the driver cancels the settling announcement [1404.06ms]
+(pass) MINOR 3 — a timer that fires early must not strand the announcement > a flush that says nothing re-arms instead of going quiet forever [0.28ms]
+(pass) MINOR 3 — a timer that fires early must not strand the announcement > a driver clock that never reaches the due time does not spin forever [0.08ms]
+(pass) the silence rule has one definition, not two copies > the predicate is a shared function rather than a repeated expression [5.20ms]
+
+packages/state/src/screen.test.ts:
+(pass) highlight movement > moves by the exact row delta it is given [0.09ms]
+(pass) highlight movement > clamps at the bottom and bumps rather than wrapping [0.01ms]
+(pass) highlight movement > clamps at the top and bumps [0.01ms]
+(pass) highlight movement > an empty list bumps in the direction of travel [0.02ms]
+(pass) highlight movement > a zero delta is not a bump — nothing was requested [0.01ms]
+(pass) the scroll window > stays put while the highlight is inside it [0.02ms]
+(pass) the scroll window > slides by the minimum needed, never recentring [0.01ms]
+(pass) the scroll window > never scrolls past the last full page [0.02ms]
+(pass) the scroll window > slides back up when the highlight moves above the window [0.01ms]
+(pass) paging > one page is one full viewport of rows, per density [0.07ms]
+(pass) paging > a page that runs off the end lands on the end, and bumps [0.01ms]
+(pass) push and pop > pop restores the exact prior highlight index [0.03ms]
+(pass) push and pop > pop restores the exact prior scroll window too [0.03ms]
+(pass) push and pop > Menu at the root bumps rightward — it is never a no-op
+(pass) push and pop > push normalises a highlight the caller got wrong [0.01ms]
+(pass) push and pop > an empty screen pushes with no highlight rather than row zero
+(pass) push and pop > resetStack discards intervening levels [0.03ms]
+(pass) the enumerable screen description > reports the visible window by default, with absolute row indices [0.05ms]
+(pass) the enumerable screen description > reports every row when it requests the offscreen ones [0.01ms]
+(pass) the enumerable screen description > carries the face and the flag, and nothing about agent presence [0.03ms]
+(pass) the menu hierarchy > the root menu is the 001 §4.2 tree, in order [0.02ms]
+(pass) the menu hierarchy > Music holds the eight browse slices [0.05ms]
+(pass) the menu hierarchy > the removed 2005 surfaces are absent, not hidden [0.02ms]
+(pass) the menu hierarchy > Settings turns the device over rather than pushing a screen
+(pass) the menu hierarchy > a path that misses returns null rather than the nearest match
+(pass) the menu hierarchy > the settings tree is reachable from the back face root
+(pass) the menu hierarchy > a menu frame starts on its first row
+
+packages/composite/src/tier-store.test.ts:
+(pass) authoritative composite tier atom > publishes context loss through Jotai to external subscribers [0.10ms]
+
+packages/composite/src/CompositeDevice.test.tsx:
+(pass) CompositeDevice public boundary > renders on the server without touching document [0.43ms]
+(pass) CompositeCoordinator lifecycle > replaces renderer and camera without retaining a detached source [0.14ms]
+(pass) CompositeCoordinator lifecycle > resyncs geometry without polling [0.02ms]
+(pass) CompositeCoordinator lifecycle > context loss detaches and restore attaches once [0.04ms]
+(pass) CompositeCoordinator lifecycle > cleans a source whose attach fails and can retry [0.06ms]
+(pass) CompositeCoordinator lifecycle > repeated clear, reattach, and dispose are idempotent [0.04ms]
+
+packages/composite/src/capabilities.test.ts:
+(pass) resolveTier > {"webgl":false,"requestPaint":false,"prefersReducedMotion":false} resolves T4 [0.02ms]
+(pass) resolveTier > {"webgl":false,"requestPaint":true,"prefersReducedMotion":false} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":false,"prefersReducedMotion":false} resolves T3
+(pass) resolveTier > {"webgl":true,"requestPaint":true,"prefersReducedMotion":false} resolves T1
+(pass) resolveTier > {"webgl":false,"requestPaint":false,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":false,"requestPaint":true,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":false,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":true,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > never manufactures the uninstalled polyfill tier [0.01ms]
+(pass) arityOf > reads the declared arity of an own data-property function [0.09ms]
+(pass) arityOf > walks to an inherited data-property function descriptor [0.01ms]
+(pass) arityOf > does not invoke an own IDL-style getter that throws Illegal invocation
+(pass) arityOf > does not invoke an inherited IDL-style getter
+(pass) arityOf > returns null for a missing descriptor and for non-functions [0.01ms]
+
+packages/composite/src/dependency-resolution.test.ts:
+(pass) package-owned dependency resolution > resolves jotai/vanilla from the composite package boundary [0.05ms]
+
+packages/composite/src/click-wheel-runtime.test.ts:
+(pass) click-wheel runtime > keeps seam crossings short and signed [0.02ms]
+(pass) click-wheel runtime > routes mouse and touch arcs through their reducer paths [0.40ms]
+(pass) click-wheel runtime > a new gesture cancels an existing coast [0.11ms]
+(pass) click-wheel runtime > release coasts only when requested and reduced motion is off [0.13ms]
+(pass) click-wheel runtime > the external driver travels the same unclamped distance from 15 to 240Hz [3.07ms]
+(pass) click-wheel runtime > forwards each display frame elapsed time to the coast reducer [0.34ms]
+(pass) click-wheel runtime > cancellation paths never coast [0.13ms]
+(pass) click-wheel runtime > wheel modes pass through and settle at the 120ms idle boundary [0.21ms]
+(pass) click-wheel runtime > wheel idle is rescheduled from the most recent event [0.04ms]
+(pass) click-wheel runtime > dispose removes listeners, timers, frames, and transient input [0.09ms]
+(pass) click-wheel runtime > visibility, blur, and a new reduced-motion preference cancel input [0.20ms]
+
+packages/composite/src/pixel-source.test.ts:
+(pass) panel pixel source seam > declares the one T1 variant that flows end to end
+(pass) panel pixel source seam > freezes nested requirement lists so a consumer cannot mutate the contract
+(pass) panel pixel source seam > admits a renderer-less tier without fake WebGL or device values
+
+packages/composite/src/CompositeDevice.integration.test.tsx:
+(pass) mounted composite input boundary > production arc callbacks move the singleton store and restore application focus [3.06ms]
+(pass) mounted composite input boundary > selection suppression is gesture-scoped and restores prior outside ranges [1.78ms]
+(pass) mounted composite input boundary > the mounted boundary consumes the store feedback stream once and disposes audio [0.63ms]
+(pass) mounted composite input boundary > all four cardinal sectors publish one accepted feedback event [0.63ms]
+(pass) mounted composite input boundary > a short annular tap stays cardinal while movement takeover changes volume without double action [0.38ms]
+(pass) mounted composite input boundary > provider transport owns next when accepted and falls back to list paging when declined [0.22ms]
+(pass) mounted composite input boundary > rejected provider transport is consumed without list paging or accepted feedback [0.19ms]
+(pass) mounted composite input boundary > holding Menu for 600ms returns to root without also popping it [0.17ms]
+(pass) mounted composite input boundary > rejected Play/Pause, mute and raw DOM click never enter audio [0.28ms]
+(pass) mounted composite input boundary > cardinal semantics have no raw DOM click wiring to double-fire [0.26ms]
+(pass) mounted composite input boundary > keyboard physical semantics fire on release once and cancel on blur [1.05ms]
+(pass) mounted composite input boundary > multiple mounted public boundaries consume one feedback sequence once [0.40ms]
+(pass) mounted composite input boundary > the mounted mute prop reaches the runtime without constructing settings UI [0.28ms]
+
+packages/composite/src/web-audio-backend.test.ts:
+(pass) browser interaction audio graph > builds a compressed transient graph and releases every per-voice node [0.82ms]
+(pass) browser interaction audio graph > uses deterministic bounded procedural buffers with no asset dependency [1.77ms]
+(pass) browser interaction audio graph > first audible interaction stays inside the synchronous latency budget [0.15ms]
+(pass) browser interaction audio graph > the physical switch supports rather than masks the digital actuation [0.02ms]
+(pass) browser interaction audio graph > the owner preview renders the production graph into a PCM WAV [5.63ms]
+
+packages/composite/src/interaction-audio.test.ts:
+(pass) interaction audio scheduler > keeps the clicker budgets literal and reviewable
+(pass) interaction audio scheduler > does not construct audio or replay feedback before activation [0.06ms]
+(pass) interaction audio scheduler > holds the first click only while a suspended context resumes [0.37ms]
+(pass) interaction audio scheduler > bounds activation-time feedback and reports unsupported audio precisely [0.10ms]
+(pass) interaction audio scheduler > terminal diagnostics survive mute changes and interruption [0.13ms]
+(pass) interaction audio scheduler > a synchronous suspend throw during mute remains terminal failed [0.04ms]
+(pass) interaction audio scheduler > an interruption during resume cannot revive audio in the background [0.05ms]
+(pass) interaction audio scheduler > a newer activation wins over an older deferred blur suspension [0.06ms]
+(pass) interaction audio scheduler > a newer activation wins over an older deferred mute suspension [0.04ms]
+(pass) interaction audio scheduler > center and cardinal switches share digital-down plus two physical phases [0.18ms]
+(pass) interaction audio scheduler > actual hold duration shifts release and duplicate edges stay exact-once [0.08ms]
+(pass) interaction audio scheduler > state press feedback and agent actions cannot duplicate physical voices [0.04ms]
+(pass) interaction audio scheduler > interruption clears a held switch and its reserved release [0.06ms]
+(pass) interaction audio scheduler > the voice cap reserves every admitted button release atomically [0.07ms]
+(pass) interaction audio scheduler > N detents schedule N lighter, 30Hz-spaced ticks with ±2% jitter [0.10ms]
+(pass) interaction audio scheduler > zero budgets and the explicit mute seam create no voices [0.05ms]
+(pass) interaction audio scheduler > muting a held button clears both voices and its release reservation [0.05ms]
+(pass) interaction audio scheduler > malformed agent provenance remains silent even when its boolean is false [0.03ms]
+(pass) interaction audio scheduler > rapid detents are articulate, bounded, and cannot build runaway gain [0.07ms]
+(pass) interaction audio scheduler > natural endings release the cap; dispose stops every remaining voice [0.08ms]
+(pass) interaction audio scheduler > resume failure is structured, clears pending work, and never rejects outward [0.05ms]
+(pass) interaction audio scheduler > a stale resume rejection cannot overwrite disposal [0.03ms]
+(pass) interaction audio scheduler > a stale resume rejection cannot overwrite a newer interruption [0.03ms]
+(pass) interaction audio scheduler > graph scheduling failure returns a no-sound result instead of throwing [0.06ms]
+(pass) store and browser lifecycle binding > the default gate rejects script-dispatched events without proving provenance [0.11ms]
+(pass) store and browser lifecycle binding > duplicate bindings consume one authoritative sequence exactly once [0.13ms]
+(pass) store and browser lifecycle binding > multiple mounted runtimes share exact-once sequence ownership [0.10ms]
+(pass) store and browser lifecycle binding > an eligible activation signal unlocks once, then state drives sound [0.16ms]
+(pass) store and browser lifecycle binding > audio consumes accepted list movement, never raw outward detent attempts [0.12ms]
+(pass) store and browser lifecycle binding > hidden documents interrupt and clean the graph deterministically [0.10ms]
+(pass) store and browser lifecycle binding > a failing diagnostic observer cannot escape the audio boundary [0.07ms]
+
+packages/composite/src/click-wheel-browser.test.ts:
+(pass) composite browser wheel boundary > uses one non-passive capture listener and removes that listener [0.06ms]
+(pass) composite browser wheel boundary > normalizes unknown modes to pixels without changing line or page
+
+packages/composite/src/html-in-canvas.test.ts:
+(pass) html-in-canvas invariants > quantizes the authored LCD into stable 1×/2×/3× raster sources [0.02ms]
+(pass) html-in-canvas invariants > ignores host style writes so raster sizing does not request itself forever [0.02ms]
+(pass) html-in-canvas invariants > keeps the native 320×240 LCD source on stable 1×/2×/3× raster grids [0.03ms]
+(pass) html-in-canvas invariants > keeps one interactive DOM panel on the native HTMLTexture path [0.17ms]
+(pass) HTMLTexture RGBA8 upload decodes sRGB once before renderer output encoding [0.43ms]
+
+packages/server-core/src/artwork-proxy.test.ts:
+(pass) /artwork fixture source > returns deterministic same-origin artwork without making an outbound request [1.30ms]
+(pass) /artwork fixture source > requires fixture dimensions to agree with the provider px contract [0.20ms]
+(pass) /artwork remote provider sources > proxies an allowed provider shape: https://is1-ssl.mzstatic.com/image/thumb/Music/abc/300x300bb.jpg [1.32ms]
+(pass) /artwork remote provider sources > proxies an allowed provider shape: https://is12-ssl.mzstatic.com/image/thumb/Features/abc/300x300.jpg [0.18ms]
+(pass) /artwork remote provider sources > proxies an allowed provider shape: https://i.scdn.co/image/ab67616d00001e02 [0.10ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source http://127.0.0.1/admin before fetch [0.11ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source https://127.0.0.1/admin before fetch [0.05ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source https://[::1]/admin before fetch [0.03ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source https://10.0.0.1/admin before fetch [0.03ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source https://172.16.0.1/admin before fetch [0.03ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source https://192.168.0.1/admin before fetch [0.03ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source http://169.254.169.254/latest/meta-data before fetch [0.04ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source https://metadata.google.internal/computeMetadata/v1 before fetch [0.04ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source file:///etc/passwd before fetch [0.03ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source data:image/png;base64,AA== before fetch [0.04ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source javascript:alert(1) before fetch [0.03ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source https://i.scdn.co.evil.example/image/x before fetch [0.03ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source https://evil.example/image/thumb/x before fetch [0.03ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source http://i.scdn.co/image/x before fetch [0.05ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source https://user:pass@i.scdn.co/image/x before fetch [0.04ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source https://i.scdn.co:444/image/x before fetch [0.03ms]
+(pass) /artwork remote provider sources > rejects SSRF or non-provider source /artwork-source/../../private/300x300.png before fetch [0.03ms]
+(pass) /artwork remote provider sources > does not follow a provider redirect to a private target [0.17ms]
+(pass) /artwork response bounds > rejects non-image responses and does not reflect the source URL [0.11ms]
+(pass) /artwork response bounds > rejects a lying image header carrying script bytes [0.13ms]
+(pass) /artwork response bounds > rejects truncated and trailing-byte polyglot images [0.26ms]
+(pass) /artwork response bounds > rejects image dimensions that disagree with px [0.17ms]
+(pass) /artwork response bounds > rejects AVIF before body decode and promptly recovers the sole admission slot [0.20ms]
+(pass) /artwork response bounds > rejects a declared body larger than the byte ceiling [0.09ms]
+(pass) /artwork response bounds > stops and cancels a chunked response as soon as the byte ceiling is crossed [0.12ms]
+(pass) /artwork response bounds > aborts a stalled upstream within the configured timeout [17.58ms]
+(pass) /artwork response bounds > rejects unsafe maxBytes configuration %s before fetch [0.14ms]
+(pass) /artwork response bounds > rejects unsafe maxBytes configuration %s before fetch [0.07ms]
+(pass) /artwork response bounds > rejects unsafe maxBytes configuration %s before fetch [0.02ms]
+(pass) /artwork response bounds > rejects unsafe maxBytes configuration %s before fetch [0.02ms]
+(pass) /artwork response bounds > rejects unsafe timeoutMs configuration %s before fetch [0.02ms]
+(pass) /artwork response bounds > rejects unsafe timeoutMs configuration %s before fetch [0.02ms]
+(pass) /artwork response bounds > rejects unsafe timeoutMs configuration %s before fetch [0.02ms]
+(pass) /artwork response bounds > rejects unsafe timeoutMs configuration %s before fetch [0.04ms]
+(pass) /artwork response bounds > rejects unsafe maxConcurrent configuration %s before fetch [0.02ms]
+(pass) /artwork response bounds > rejects unsafe maxConcurrent configuration %s before fetch [0.01ms]
+(pass) /artwork response bounds > rejects unsafe maxConcurrent configuration %s before fetch
+(pass) /artwork response bounds > rejects unsafe maxConcurrent configuration %s before fetch
+(pass) /artwork response bounds > the reviewed Infinity bypass cannot fetch or return a nine MiB body [0.04ms]
+(pass) /artwork admission > rejects cross-site browser image requests before fetch [0.06ms]
+(pass) /artwork admission > admits at most eight of 128 unique requests and releases every slot [2.33ms]
+(pass) /artwork admission > coalesces identical in-flight work and releases admission after errors [0.52ms]
+(pass) /artwork admission > client abort releases the only admitted slot [0.15ms]
+(pass) /artwork admission > owner abort does not cancel the other coalesced waiter [0.14ms]
+(pass) /artwork admission > follower abort does not cancel the other coalesced waiter [0.05ms]
+(pass) /artwork admission > shared upstream aborts once only after every waiter cancels and releases admission once [0.17ms]
+(pass) /artwork query validation > returns a structured 400 for missing everything [0.06ms]
+(pass) /artwork query validation > returns a structured 400 for missing px [0.02ms]
+(pass) /artwork query validation > returns a structured 400 for zero px [0.01ms]
+(pass) /artwork query validation > returns a structured 400 for fractional px
+(pass) /artwork query validation > returns a structured 400 for oversize px [0.01ms]
+(pass) /artwork query validation > returns a structured 400 for duplicate src [0.01ms]
+(pass) /artwork query validation > returns a structured 400 for duplicate px [0.01ms]
+(pass) /artwork query validation > returns a structured 400 for unknown field [0.01ms]
+(pass) /artwork query validation > rejects non-GET requests [0.03ms]
+
+packages/server-core/src/apple-developer-token.test.ts:
+(pass) Apple developer token service > mints short-lived ES256 claims with an origin restriction [0.44ms]
+(pass) Apple developer token service > requires an absolute runtime key path and bounded expiry [0.15ms]
+(pass) Apple developer token service > endpoint is same-origin, GET-only, no-store, and exposes no configuration fields [0.39ms]
+(pass) Apple developer token service > error responses never expose causes or secret configuration [0.17ms]
+(pass) Apple developer token service > real Web Crypto signer reads a generated PKCS#8 key under Node [73.99ms]
+
+packages/device/calibration/archive-schema.test.ts:
+(pass) calibration archive measurement integrity > parses both committed archives and recomputes their reviewed aggregates [35.45ms]
+(pass) calibration archive measurement integrity > rejects the reviewer's exact duplicated black-row, rogue-key, delta/pass fabrication [23.13ms]
+(pass) calibration archive measurement integrity > rejects undeclared result fields and inconsistent delta/pass claims [19.73ms]
+(pass) calibration archive measurement integrity > rejects non-finite, out-of-range, and internally inconsistent colour measurements [23.14ms]
+(pass) calibration archive measurement integrity > rejects changed coordinate identity, expected stop semantics, and cardinality [21.83ms]
+(pass) calibration archive measurement integrity > rejects incomplete, reordered, duplicate, and out-of-grid sweep coordinates [21.80ms]
+
+packages/device/calibration/stage-ownership.test.ts:
+(pass) calibration stage ownership > body-black can apply only its material and optical response [0.07ms]
+(pass) calibration stage ownership > body-black cannot own shared or other-surface keys [0.03ms]
+(pass) calibration stage ownership > body-black writes preserve every frozen non-owned value [0.07ms]
+
+packages/device/src/control-physics.test.ts:
+(pass) rigid physical click-wheel tilt > the restrained rigid calibration and release laws are explicit [0.02ms]
+(pass) rigid physical click-wheel tilt > the complete production tessellation receives one distance-preserving rigid transform [259.74ms]
+(pass) rigid physical click-wheel tilt > the low side follows contact continuously while object-space circles never change [55.72ms]
+(pass) rigid physical click-wheel tilt > a rotated device applies the same rigid rotation to vertices and normals [3.15ms]
+(pass) rigid physical click-wheel tilt > wheel release is monotonic in tilt and restores exact rest [2.63ms]
+(pass) rigid physical click-wheel tilt > reduced motion during release restores and presents the exact rest transform [2.19ms]
+(pass) rigid physical click-wheel tilt > detach and rebind restore only the matching rigid assembly [4.19ms]
+(pass) rigid physical click-wheel tilt > Select is one restrained device-local Z press with invariant plastic [4.29ms]
+(pass) rigid physical click-wheel tilt > wheel and Select release durations are invariant from 15 through 360 Hz [36.86ms]
+(pass) rigid physical click-wheel tilt > release is demand-driven and a frozen clock has a bounded escape [4.16ms]
+(pass) rigid physical click-wheel tilt > production has one contact-following rigid wheel transform and no deformation or optical proxy [0.89ms]
+
+packages/device/src/screen-aperture.test.ts:
+(pass) square LCD aperture and flat assembly reveal > production collapses only the automatic inner bevel into one square wall [428.02ms]
+(pass) square LCD aperture and flat assembly reveal > opaque backing wall removal preserves every cap and exterior triangle [320.86ms]
+(pass) square LCD aperture and flat assembly reveal > the complete crowned body leaves active display edges clear from front and quarter cameras [1688.31ms]
+(pass) square LCD aperture and flat assembly reveal > the visible reveal is unlit black and neither screen layer can restore a reflective lip [10.71ms]
+
+packages/device/src/probe-raycast.test.ts:
+(pass) first visible probe hit > uses Three's stable type flags across module graphs [0.33ms]
+(pass) first visible probe hit > rejects a nearer unnamed wrong-material occluder [0.85ms]
+(pass) first visible probe hit > fails closed when the transparent decal alpha cannot be proven empty [0.11ms]
+(pass) first visible probe hit > accepts the transformed back mesh only when it is the first hit [0.24ms]
+(pass) first visible probe hit > keeps a transparent decal in front of its opaque backing [0.08ms]
+(pass) first visible probe hit > edge targets fail closed when the nearer visible shell is unnamed [0.12ms]
+(pass) first visible probe hit > solves the actual tessellated mesh surface instead of a nominal z [4.08ms]
+(pass) side-face probe solves > solves the actual visible right shell instead of a front proxy [0.10ms]
+
+packages/device/src/luminance-probe.test.ts:
+(pass) §12.3 luminance tolerance > preserves mirrored readings instead of hiding asymmetry in the average [0.12ms]
+(pass) §12.3 luminance tolerance > admits floating-point noise at the exact ±4 boundary [0.03ms]
+(pass) §12.3 luminance tolerance > still rejects a materially out-of-band reading [0.02ms]
+(pass) D-067 probe geometry and identity > every target carries an expected object and material identity [0.38ms]
+(pass) D-067 probe geometry and identity > off-surface and wrong-material hits cannot count [0.04ms]
+(pass) D-067 probe geometry and identity > body samples stay inside the shared circular enclosure by the safe margin [0.07ms]
+(pass) D-067 probe geometry and identity > wheel and Select samples keep their separate surface margins [0.04ms]
+(pass) D-067 probe geometry and identity > back targets preserve the 168° iso-line through the actual face transform [0.09ms]
+(pass) D-067 probe geometry and identity > rear targets classify the exposed steel shell directly [0.03ms]
+(pass) D-067 probe geometry and identity > edge targets bind to the actual visible shell on both sides [0.04ms]
+
+packages/device/src/orientation.test.ts:
+(pass) D-064 verification modes > only the front and rear reference poses are canonical stop-table poses [0.01ms]
+(pass) D-064 verification modes > rotated and custom poses are physical-continuity validations [0.02ms]
+
+packages/device/src/front-surface.test.ts:
+(pass) front assemblies share the crowned shell frame > the production crown is subtle rather than a second chassis depth [0.01ms]
+(pass) front assemblies share the crowned shell frame > flat display layers remain recessed at every outer corner [0.06ms]
+(pass) front assemblies share the crowned shell frame > the click wheel and Select share the shell's front surface [0.02ms]
+(pass) front assemblies share the crowned shell frame > the wheel and Select are near-flush separate parts without a border ring [0.02ms]
+(pass) front assemblies share the crowned shell frame > no renderer or calibration path can restore a dome or decorative Select border [0.85ms]
+(pass) front assemblies share the crowned shell frame > the active LCD keeps its physical grid while only depth moves [0.03ms]
+
+packages/device/src/renderer-defaults.test.ts:
+(pass) device renderer defaults > keeps the transmission pass on the native drawing-buffer grid [0.02ms]
+
+packages/device/src/click-wheel-input.integration.test.tsx:
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > mounted wheel and Select ray hits publish pointer intent and clean up [9.68ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > an injected form moves the mounted ray plane with the visible wheel [1.32ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > routes captured wheel gestures without cancelling delegated native events [2.10ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > release-qualified cardinal sectors map mouse, touch and pen exactly once [2.66ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > diagonal edges and radial extremes remain tappable without entering rotation [1.76ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > oblique model-space projection preserves full sectors, diagonal ownership, and movement takeover [3.68ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > movement takeover cancels the cardinal candidate before rotation starts [1.95ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > cancel, lost capture, blur and drag-off reject cardinal presses [1.90ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Select captures mouse, touch and pen and never enters the arc runtime [1.54ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > the mounted r=37 seam belongs only to Select while just outside belongs to the annulus [0.95ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > the production Select target holds the bound plastic at its axial travel until release [1.98ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Select cancel, lost capture and blur each return capture exactly once [0.98ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Enter travel is scoped to the focused semantic application [0.90ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > window blur cancels capture and leaves the next gesture usable [0.66ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+976 |     let startsToThrow = 1;
+977 |     const mounted = await mountSurface("front", {
+978 |       onArcStart: () => {
+979 |         if (startsToThrow > 0) {
+980 |           startsToThrow -= 1;
+981 |           throw new Error("planted start failure");
+                          ^
+error: planted start failure
+      at onArcStart (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:981:21)
+      at onArcStart (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:209:24)
+      at onPointerMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.tsx:650:32)
+      at onIntersect (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:942:62)
+      at handleIntersects (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:804:11)
+      at handleEvent (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:963:7)
+      at #callDispatchEventListeners (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:239:47)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:117:14)
+      at #goThroughDispatchEventPhases (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:177:38)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:113:18)
+
+(pass) click-wheel mounted R3F event seam > a thrown start callback releases capture and leaves the next gesture usable [1.72ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+1011 |     let movesToThrow = 1;
+1012 |     const mounted = await mountSurface("front", {
+1013 |       onArcMove: () => {
+1014 |         if (movesToThrow > 0) {
+1015 |           movesToThrow -= 1;
+1016 |           throw new Error("planted move failure");
+                           ^
+error: planted move failure
+      at onArcMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:1016:21)
+      at onArcMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:213:24)
+      at onPointerMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.tsx:652:30)
+      at onIntersect (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:942:62)
+      at handleIntersects (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:804:11)
+      at handleEvent (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:963:7)
+      at #callDispatchEventListeners (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:239:47)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:117:14)
+      at #goThroughDispatchEventPhases (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:177:38)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:113:18)
+
+(pass) click-wheel mounted R3F event seam > a thrown move callback cancels listeners and capture before rethrowing [1.32ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > native cancel and following lost capture terminate exactly once [0.81ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > unexpected native lost capture reaches the component listener [0.61ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > reconciler unmount cancels and releases an active pointer [0.46ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > reconciler unmount returns an active Select press [0.49ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > a back-facing DeviceCanvas context contains no raycastable annulus [0.31ms]
+
+packages/device/src/orientation-grab.test.ts:
+(pass) device enclosure orientation grab > leaves browser gesture suppression to the application touch-action boundary [0.14ms]
+(pass) device enclosure orientation grab > accepts primary mouse, pen, and touch without accepting secondary input [0.08ms]
+(pass) device enclosure orientation grab > admits the physical perimeter and corners, never face controls [0.10ms]
+(pass) device enclosure orientation grab > rejects a shell behind the LCD, wheel, or Select ray hit [0.06ms]
+
+packages/device/src/pixel-density.test.ts:
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box [0.04ms]
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box
+(pass) canvas physical-pixel density > maps a 275px by 460px CSS canvas to its physical box
+(pass) canvas physical-pixel density > uses browser DPR when the physical box API is unavailable
+(pass) canvas physical-pixel density > does not let a CSS-sized emulation box override a higher browser DPR
+(pass) canvas physical-pixel density > clamps expensive or invalid device scales to the supported 1–3 range
+(pass) canvas physical-pixel density > passes a measured zoom DPR through the R3F seam as an exact number [0.03ms]
+
+packages/device/src/materials.test.ts:
+(pass) §12.3 device material contract > Classic faceplate and Select share one opaque brushed aluminum finish [0.04ms]
+(pass) §12.3 device material contract > polished steel has a tighter lobe than the aluminum front [0.02ms]
+(pass) §12.3 device material contract > wheel plastic stays matte while the independent screen cover stays clear [0.03ms]
+(pass) §12.3 device material contract > black and silver wheel legends contrast with their plastic rings [0.01ms]
+(pass) §12.3 device material contract > instantiated cover glass stays reflective without resampling the LCD [0.16ms]
+(pass) §12.3 device material contract > the legacy transport helper still patches every direct light [0.16ms]
+(pass) §12.3 device material contract > polycarbonate transport patches Three's installed direct and area-light chunks [0.03ms]
+(pass) §12.3 device material contract > silver aluminum does not install the legacy plastic scattering shader [0.04ms]
+(pass) §12.3 device material contract > the seam is a restrained blue-gray boundary, not mirror-back material [0.02ms]
+(pass) §12.3 device material contract > plastic cavities and the clear cover retain their restrained reflections [0.03ms]
+(pass) three-light product studio > has an elevated key, broad lower-left fill and tall rear strip with distinct roles [0.03ms]
+
+packages/device/src/StudioEnvironment.test.ts:
+(pass) studio lighting is a PMREM diffusion-card studio and contains no view-locked shading hook [0.17ms]
+(pass) the legacy calibration map is opt-in while production shares one studio [0.23ms]
+(pass) front materials explicitly retain per-surface gain under installed Three [0.32ms]
+(pass) three fixed reflection cards have finite transforms and dispose every owned resource [0.55ms]
+
+packages/device/src/select-press-visibility.test.ts:
+(pass) Select press visibility > the fixed wheel floor occupies only the two authored seams [2.80ms]
+(pass) Select press visibility > the held button remains the first visible plastic at four angles and radii [18.29ms]
+
+packages/device/src/hardware-geometry.test.ts:
+(pass) recessed 5G hardware > has a 3.5mm bore, thirty individual contacts and all parts inside the physical envelope [20.93ms]
+(pass) recessed 5G hardware > shell openings actually expose inward cavities while adjacent steel remains opaque [68.72ms]
+
+packages/device/src/textures.test.ts:
+(pass) deterministic physical textures > roughness noise is byte-stable for the default seed [0.32ms]
+(pass) deterministic physical textures > roughness noise populates the green channel consumed by Three [0.52ms]
+(pass) deterministic physical textures > steel grain encodes horizontal direction and bounded strength [0.20ms]
+(pass) deterministic physical textures > wheel transport decals match the measured optical boxes [0.08ms]
+(pass) deterministic physical textures > play and pause have a real inter-symbol gap [0.02ms]
+
+packages/device/src/shapes.test.ts:
+(pass) silhouette frame > has steel at the seam and no cap over the body [3.44ms]
+(pass) rounded-rectangle frame > keeps the screen opening clear while preserving the bezel lip [0.45ms]
+
+packages/device/src/physical-continuity.test.ts:
+(pass) the live device is solid geometry rather than a front-pose lighting proxy [0.40ms]
+
+packages/device/src/click-wheel-input.test.tsx:
+(pass) click-wheel input geometry > uses the canonical Select and wheel radii [0.02ms]
+(pass) click-wheel input geometry > clockwise and counter-clockwise quarter turns have the right sign [0.04ms]
+(pass) click-wheel input geometry > crosses the signed-angle seam without a reverse jump
+(pass) click-wheel input geometry > refreshes a dirty parent and mesh world transform in production [0.22ms]
+(pass) click-wheel input geometry > returns the transformed body-local angle without moving the hit plane [0.06ms]
+(pass) click-wheel input geometry > returns null when the current ray is parallel to the wheel plane [0.03ms]
+(pass) click-wheel input geometry > accepts primary touch, pen and left mouse only [0.02ms]
+(pass) click-wheel input geometry > maps the complete annulus into deterministic 90-degree sectors [0.08ms]
+(pass) click-wheel capture lifecycle > reports release and releases capture exactly once [0.09ms]
+(pass) click-wheel capture lifecycle > ignores terminal events for a different pointer [0.02ms]
+
+packages/device/src/env-map.test.ts:
+(pass) mirror room defaults > the shipped room retains room structure with radiance headroom [0.02ms]
+
+packages/device/src/curved-shell.test.ts:
+(pass) tessellated vertical shell crown > macro and edge profiles meet every shell join with a zero tangent [0.06ms]
+(pass) tessellated vertical shell crown > all four corner joins remain normal-continuous in every rotated pose [0.26ms]
+(pass) tessellated vertical shell crown > the production front cap has no corner triangulation or duplicate-normal split [191.05ms]
+(pass) tessellated vertical shell crown > zero secondary crown is byte-identical [1.09ms]
+(pass) tessellated vertical shell crown > bounded edge crown is local, manifold, smooth, and rear-plane anchored [1.00ms]
+(pass) tessellated vertical shell crown > is one smooth macro curve with fixed top and bottom joins [0.02ms]
+(pass) tessellated vertical shell crown > refuses the old clamped bevel/thickness combination [0.04ms]
+(pass) tessellated vertical shell crown > tessellates every front triangle in the crown direction [51.12ms]
+(pass) tessellated vertical shell crown > removes the non-indexed Earcut normal split the old deformation kept [68.70ms]
+(pass) tessellated vertical shell crown > keeps the rear seam planar while the crown grows only toward the face [0.88ms]
+
+packages/device/src/optical-profile.test.ts:
+(pass) moulded-surface optical profile > the Pencil-first white moulding has a real non-flat light hierarchy [0.03ms]
+(pass) moulded-surface optical profile > front-body roughness stays broad enough to avoid striped room banding [0.06ms]
+(pass) moulded-surface optical profile > body roughness is encoded in Three's green channel [0.21ms]
+(pass) moulded-surface optical profile > zero additive profile preserves a pre-existing crown normal [0.13ms]
+(pass) moulded-surface optical profile > encodes top-to-bottom tilt as a deterministic tangent-space normal map [0.08ms]
+(pass) moulded-surface optical profile > combined lateral and vertical profiles remain finite and approximately unit length [0.04ms]
+(pass) moulded-surface optical profile > baked curved-surface normals remain finite and unit length [0.07ms]
+
+packages/device/src/backplate-finish.test.ts:
+(pass) the rear face stays softly polished while the roll has a narrower specular response [0.16ms]
+(pass) engraving is generated only as shell roughness and depressed bump, with SSR fallback [0.61ms]
+(pass) actual rear tray UVs preserve rear-local XY through hardware aperture cutting [52.02ms]
+
+packages/device/src/ViewerLitDeviceFrame.test.tsx:
+(pass) viewer-lit device scene frame > keeps key and kick world positions invariant when only the model flips [0.70ms]
+(pass) viewer-lit device scene frame > keeps the lamps world-fixed while accepting arbitrary pose rotations [0.10ms]
+(pass) viewer-lit device scene frame > rotates one root around the complete immutable enclosure center [0.17ms]
+(pass) viewer-lit device scene frame > uses broad softbox emitters rather than point highlights [0.06ms]
+(pass) viewer-lit device scene frame > puts the approved key front-right and the broad subordinate fill front-left below [0.15ms]
+(pass) viewer-lit device scene frame > keeps the broad fill soft and subordinate instead of making a hotspot or band [0.03ms]
+(pass) viewer-lit device scene frame > isolates key and fill for proof without moving either emitter [0.06ms]
+(pass) viewer-lit device scene frame > contains no view-locked, UV, ambient, or painted-light escape [0.32ms]
+
+packages/device/src/camera-fit.test.ts:
+(pass) perspective camera fit from measured model bounds > 375x812 contains the front model inside its safe area [0.36ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the three-quarter model inside its safe area [0.04ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the left-edge model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the right-edge model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the rear model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the top model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the bottom model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the front model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the three-quarter model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the left-edge model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the right-edge model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the rear model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the top model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the bottom model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the front model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the three-quarter model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the left-edge model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the right-edge model inside its safe area [0.03ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the rear model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the top model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the bottom model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the front model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the three-quarter model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the left-edge model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the right-edge model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the rear model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the top model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the bottom model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > a shorter planted distance visibly escapes the safe area [0.05ms]
+(pass) perspective camera fit from measured model bounds > one production camera contains the complete rotational envelope at every DPR [178.64ms]
+(pass) perspective camera fit from measured model bounds > front and rear reproduce dimensions while the projected pivot stays fixed [22.66ms]
+(pass) perspective camera fit from measured model bounds > a shorter planted production camera clips the rotational envelope [14.00ms]
+
+packages/device/src/flush-wheel-geometry.test.ts:
+(pass) owner-primary flush wheel topology > wheel vertices occupy the exact local faceplate surface [1.20ms]
+(pass) owner-primary flush wheel topology > faceplate, wheel and Select are coincident at the shared center plane [0.90ms]
+(pass) owner-primary flush wheel topology > both installed gaps remain physical-scale hairlines [0.01ms]
+(pass) owner-primary flush wheel topology > the defined 40° oblique can expose no wheel or Select sidewall [3.12ms]
+(pass) owner-primary flush wheel topology > production contains no pocket, annular bevel or shadow proxy [0.37ms]
+(pass) owner-primary flush wheel topology > both Select parts are brushed metal with no plastic clearcoat [0.07ms]
+
+packages/device/src/layout.test.ts:
+(pass) thin iPod Classic physical target > declares one variant and cannot silently become the thick 60/80GB case [0.01ms]
+(pass) thin iPod Classic physical target > keeps the authored body and exact 320×240 LCD semantics [0.02ms]
+(pass) thin iPod Classic physical target > maps the official front raster to a 24px forehead [0.02ms]
+(pass) thin iPod Classic physical target > maps the official front raster to the smaller 206px wheel
+(pass) thin iPod Classic physical target > places the wheel at the measured centre with balanced lower whitespace
+(pass) thin iPod Classic physical target > scales the separate Select part from the same official front raster
+(pass) thin iPod Classic physical target > keeps photo-derived shell profile estimates explicit [0.01ms]
+(pass) thin iPod Classic physical target > bounds both visible assembly seams from multiple OEM references [0.02ms]
+(pass) thin iPod Classic physical target > retains a thin intentional material seam
+(pass) physical LCD and restrained trim > the active panel is the physical 50.8 × 38.1mm 4:3 aperture [0.01ms]
+(pass) physical LCD and restrained trim > continuous black underprint covers a moderately sized square LCD surround [0.02ms]
+(pass) enclosure plan and depth > uses the thin 10.5mm depth at the one body scale
+(pass) enclosure plan and depth > preserves the analytic 26px circular corner [0.01ms]
+
+packages/device/src/material-map-ownership.test.ts:
+(pass) steel material maps are microstructure only [0.05ms]
+
+packages/device/src/screen-mesh.test.ts:
+(pass) the screen mesh boundary > screen UVs are normalized with TL/TR/BR/BL texture orientation [0.32ms]
+(pass) the screen mesh boundary > size is 272 × 204 body px and panel is 320 × 240 at 0.85 [0.50ms]
+(pass) the screen mesh boundary > world corners are TL, TR, BR, BL with +y up [0.27ms]
+(pass) the screen mesh boundary > viewport corners are canvas CSS px with +y DOWN [0.08ms]
+(pass) the screen mesh boundary > a moved device reports a new transform, not the one it was created with [0.04ms]
+(pass) the screen mesh boundary > onTransformChange delivers the value and fires only on a real change [0.11ms]
+(pass) the screen mesh boundary > callback-ref replay preserves handle identity and active subscriptions [0.06ms]
+(pass) the screen mesh boundary > setMaterial installs, null restores the default, and both ask for a frame [0.04ms]
+(pass) the screen mesh boundary > the handle exposes no Object3D — D-054, staleness has no slot [0.03ms]
+
+packages/device/src/owner-oem-white.test.ts:
+(pass) Classic silver material relationships with preserved front layout > confirms the Apple-derived front ratios across the owner's four near-front views [0.02ms]
+(pass) Classic silver material relationships with preserved front layout > keeps the photographed faceplate, wheel and Select visually coplanar [0.01ms]
+(pass) Classic silver material relationships with preserved front layout > silver is neutral metal and the light wheel is a brighter plastic [0.04ms]
+(pass) Classic silver material relationships with preserved front layout > Select matches the faceplate finish and remains distinct from plastic [0.01ms]
+(pass) Classic silver material relationships with preserved front layout > silver hardware uses dark legends on the light wheel
+(pass) Classic silver material relationships with preserved front layout > keeps the wheel gap floor neutral with a matte response [0.01ms]
+
+packages/device/src/device-envelope.test.ts:
+(pass) complete device envelope and rigid pivot > declares the full rear-to-crown enclosure around one immutable center [0.10ms]
+(pass) complete device envelope and rigid pivot > recentering keeps the production envelope pivot fixed through a full sweep [0.18ms]
+(pass) complete device envelope and rigid pivot > a planted front-face pivot visibly moves the enclosure center [0.03ms]
+(pass) complete device envelope and rigid pivot > one complete turn reproduces the exact front orientation [0.02ms]
+
+packages/device/src/product-shell.test.ts:
+(pass) shared shell depth contract > gives both materials one seam instead of two independently placed slabs [0.02ms]
+(pass) shared shell depth contract > rejects a front that consumes or escapes the physical depth [0.06ms]
+(pass) formed-steel rear shell > hands off to the front at one exact seam plane without overlap [6.65ms]
+(pass) formed-steel rear shell > is one rolled tray rather than two equal-depth slabs [0.13ms]
+(pass) formed-steel rear shell > uses a broad stamped-steel roll with no terminal chamfer [0.04ms]
+(pass) formed-steel rear shell > keeps every open boundary edge on the intentional front seam [15.01ms]
+(pass) formed-steel rear shell > shares finite unit normals across the rear roll [7.94ms]
+(pass) formed-steel rear shell > changes roll normals continuously without a pointed bottom lip [7.20ms]
+(pass) formed-steel rear shell > tapers from an inset rear face to the full seam silhouette [6.57ms]
+(pass) polycarbonate front roll > never grows beyond the declared steel silhouette [0.97ms]
+
+packages/tokens/src/tokens-parity.test.ts:
+(pass) globals.css and the typed exports agree > --fx-wheel-r equals its TS constant [0.09ms]
+(pass) globals.css and the typed exports agree > --fx-select-r equals its TS constant [0.02ms]
+(pass) globals.css and the typed exports agree > --fx-halo-c equals its TS constant [0.01ms]
+(pass) globals.css and the typed exports agree > --fx-halo-head equals its TS constant [0.01ms]
+(pass) globals.css and the typed exports agree > --fx-halo-tail equals its TS constant [0.01ms]
+(pass) globals.css and the typed exports agree > --fx-halo-lead equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-halo-trail equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-halo-core equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-halo-steps equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-halo-blur equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-halo-gap equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-agent-c equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-agent-head equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-agent-tail equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-agent-span equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-agent-steps equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-agent-blur equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-agent-gap equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-repeater-r equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-taper-gamma-w equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-taper-gamma-a equals its TS constant
+(pass) globals.css and the typed exports agree > --fx-agent-alpha-persist-max equals its TS constant [0.01ms]
+(pass) globals.css and the typed exports agree > --fx-rt-scale-human equals its TS constant [0.01ms]
+(pass) globals.css and the typed exports agree > --fx-rt-scale-agent equals its TS constant
+(pass) globals.css and the typed exports agree > --panel-scale equals its TS constant
+(pass) globals.css and the typed exports agree > --panel-w equals its TS constant
+(pass) globals.css and the typed exports agree > --panel-h equals its TS constant
+(pass) globals.css and the typed exports agree > --radius-device equals its TS constant
+(pass) globals.css and the typed exports agree > every numeric --fx-* / --panel-* token is either bound or declared CSS-only [0.12ms]
+(pass) globals.css and the typed exports agree > the sheet still declares every token the binding claims to cover [0.07ms]
+(pass) D-020 is applied to all three @theme blocks > every @theme block is static, so nothing is tree-shaken out of the build [0.04ms]
+
+packages/tokens/src/geometry.test.ts:
+(pass) R5 geometry table > matches the design system §12.0 values [0.06ms]
+(pass) R5 geometry table > wheel diameter over body width is 0.697 to 3dp [0.02ms]
+(pass) R5 geometry table > panel scale is exactly 17/20, so both panel dimensions stay integral [0.01ms]
+(pass) R5 geometry table > the label band is innerR + ringW x 0.493, not x 0.57 [0.01ms]
+(pass) FX orbit clearances > the halo centreline straddles the rim at wheelR + 1
+(pass) FX orbit clearances > the halo inner edge clears the recess shadow by 1px
+(pass) FX orbit clearances > the agent trail sits at 0.660 x wheelR
+(pass) FX orbit clearances > the agent trail inner edge clears the Select lip by 7px
+(pass) FX orbit clearances > the agent trail outer edge stays 5px inside the recess shadow reach
+(pass) FX orbit clearances > the agent head span contains the printed labels, as §8.5 intends
+(pass) FX orbit clearances > the repeater clears the halo outer edge by 16px
+(pass) attribution channel 2 — continuity > both blur values are exactly what §12.0 ships
+(pass) attribution channel 2 — continuity > the human halo blur clears the 0.5 x step seam threshold [0.01ms]
+(pass) attribution channel 2 — continuity > the agent trail blur is deliberately below it, so the slats stay discrete
+(pass) attribution channel 2 — continuity > the two blurs must not converge
+(pass) guards > persistent agent alpha is capped where the labels still clear 3:1
+
+packages/providers/src/apple/relationships.test.ts:
+(pass) D-029 — a 200 is not proof the relationship was requested > there is no parameter a status could arrive in (D-062)
+(pass) D-029 — a 200 is not proof the relationship was requested > requested-but-absent is a distinct failure from absent-because-empty [0.14ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > the two conditions carry different tags, so a caller can branch on them [0.02ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > the error names the relationship and the resource, and says not to read it as "no data" [0.02ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > a relationships object that lacks the key entirely still throws [0.02ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > an explicitly undefined key throws rather than reading as empty [0.01ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > a JSON null value throws with a tag, not a bare TypeError [0.03ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > a present key with no data array is honoured-and-empty
+(pass) D-029 — a 200 is not proof the relationship was requested > data is returned when it is there
+(pass) a typo is caught before the request is built > an unregistered name is refused [0.03ms]
+(pass) a typo is caught before the request is built > similar-songs was measured live as not a relationship [0.01ms]
+(pass) a typo is caught before the request is built > radio was measured live as not a relationship
+(pass) a typo is caught before the request is built > videos was measured live as not a relationship
+(pass) a typo is caught before the request is built > artists was measured live and is accepted
+(pass) a typo is caught before the request is built > station was measured live and is accepted
+(pass) a typo is caught before the request is built > credits was measured live and is accepted
+(pass) a typo is caught before the request is built > lyrics exists and is gated — the registry says so
+(pass) a typo is caught before the request is built > syllable-lyrics exists and is gated — the registry says so
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > albums is documentation-only and is reported as unmeasured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > composers is documentation-only and is reported as unmeasured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > genres is documentation-only and is reported as unmeasured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > library is documentation-only and is reported as unmeasured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > music-videos is documentation-only and is reported as unmeasured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > live-exists is measured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > live-gated is measured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > an absent measured relationship is reported as a request that was not honoured [0.02ms]
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > an absent documentation-only relationship names both candidate causes [0.02ms]
+(pass) S2's four-state existence oracle > status 200 code null classifies as "exists-with-data"
+(pass) S2's four-state existence oracle > status 404 code "40403" classifies as "exists-no-data"
+(pass) S2's four-state existence oracle > status 400 code "40012" classifies as "exists-gated"
+(pass) S2's four-state existence oracle > status 400 code "40008" classifies as "not-a-relationship"
+(pass) S2's four-state existence oracle > 40012 and 40008 are never collapsed — that distinction is the whole finding
+(pass) S2's four-state existence oracle > an unrecognised response is inconclusive, never an absence
+
+packages/providers/src/apple/apple-provider.test.ts:
+(pass) Apple provider > uses the current MusicKit script required by the production integration
+(pass) Apple provider > coalesces concurrent configuration before authorization [0.95ms]
+(pass) Apple provider > configures, authorizes, signs out, and reports storefront [0.21ms]
+(pass) Apple provider > maps library pages, preserves stable local identity, and rejects invented cursors [0.15ms]
+(pass) Apple provider > passes the explicit limit and initial offset to every supported library collection [0.13ms]
+(pass) Apple provider > uses the v3 generic API surface for personalized requests [0.07ms]
+(pass) Apple provider > preserves the explicit page size across structured Apple continuations [0.13ms]
+(pass) Apple provider > traverses bare MusicKit arrays beyond 25 items with explicit bounded offsets and stable order [0.78ms]
+(pass) Apple provider > terminates a bare-array listing on its first short page without guessing a total [0.09ms]
+(pass) Apple provider > skips incomplete records without aborting authorization or a later-page traversal [0.40ms]
+(pass) Apple provider > makes one empty terminal request for an exact multiple of the bare-array page size [0.45ms]
+(pass) Apple provider > keeps continuation cursors opaque, single-use, and scoped to their collection [0.34ms]
+(pass) Apple provider > bounds abandoned continuation cursors and retains only the newest handles [2.22ms]
+(pass) Apple provider > preserves legitimate duplicate catalog occurrences and their order across pages [0.36ms]
+(pass) Apple provider > translates structured next metadata into opaque cursors without regressing totals [0.10ms]
+(pass) Apple provider > fails safely when the MusicKit facade repeats a full page despite advancing offsets [0.28ms]
+(pass) Apple provider > subscribes to playback and removes consumer callbacks cleanly [0.18ms]
+(pass) Apple provider > polls MusicKit progress while playing when v3 omits time-change events [0.12ms]
+(pass) Apple provider > preserves the last valid playback sample when MusicKit reports non-finite numbers [0.07ms]
+(pass) Apple provider > drives documented transport primitives [0.54ms]
+(pass) Apple provider > resumes a provider-owned paused item without gating play behind a seek [0.07ms]
+(pass) Apple provider > restarts previous after three seconds and otherwise delegates to the MusicKit queue [0.06ms]
+(pass) Apple provider > restarts an actively playing facade from its live playback time [0.05ms]
+(pass) Apple provider > preserves the playing intent across an item-changing skip [0.03ms]
+(pass) Apple provider > keeps a paused queue paused after an item-changing skip [0.05ms]
+(pass) Apple provider > does not resume a stale skip after a concurrent pause [0.08ms]
+(pass) Apple provider > a pause during an in-flight play transaction cannot restart hidden playback [0.23ms]
+(pass) Apple provider > queues the exact track target and start index before invoking playback [0.13ms]
+(pass) Apple provider > bounds a large song list around the selection and preserves its public queue index [0.35ms]
+(pass) Apple provider > reads shuffled queue order from the live MusicKit facade rather than source order [0.18ms]
+(pass) Apple provider > coalesces idle preparation and reuses its exact queue when playback is selected [0.26ms]
+(pass) Apple provider > retains a prepared queue when MusicKit emits its unpositioned queue before setQueue resolves [0.09ms]
+(pass) Apple provider > does not rebuild a bounded prepared queue when progressive hydration appends distant songs [0.33ms]
+(pass) Apple provider > station start invalidates a completed prepared queue before the original target plays [0.15ms]
+(pass) Apple provider > public queue and ordering mutations invalidate a completed prepared queue identity [0.33ms]
+(pass) Apple provider > an unrelated external queue event invalidates completed preparation identity [0.09ms]
+(pass) Apple provider > station start waits out and invalidates an in-flight preparation before mutating the queue [0.12ms]
+(pass) Apple provider > preparation is a no-op for playing and paused current items [0.09ms]
+(pass) Apple provider > an already-aborted preparation intent never reaches MusicKit [0.14ms]
+(pass) Apple provider > coalesces duplicate selections and stays loading until the selected playback clock advances [0.16ms]
+(pass) Apple provider > reports MusicKit media playback failure even when play resolves and ignores stale success events [0.11ms]
+(pass) Apple provider > treats a raw SDK error during pending B as provider-level and blocks stale success events [0.08ms]
+(pass) Apple provider > uses MusicKit v3 media events and detaches every SDK listener across sign-out and reauthorization [0.08ms]
+(pass) Apple provider > reports every diagnostic hook with its truthful MusicKit event name [0.12ms]
+(pass) Apple provider > rapid A to B to C selection serializes as latest-wins before any stale queue can play [0.21ms]
+(pass) Apple provider > rapid track to station selection shares the latest-wins queue boundary [0.15ms]
+(pass) Apple provider > a user pause invalidates a replacement selection waiting at its pause boundary [0.14ms]
+(pass) Apple provider > does not let a stale item confirm a newly selected queue [0.07ms]
+(pass) Apple provider > requires a post-request queue transition to confirm collection targets [0.45ms]
+(pass) Apple provider > confirms same-collection replay from matching queue container identity and membership [0.32ms]
+(pass) Apple provider > does not confirm a collection request from another collection queue and stale item [0.08ms]
+(pass) Apple provider > times out an unconfirmed selection and permits an identical retry [0.15ms]
+(pass) Apple provider > sign-out cancels pending confirmation and ignores late callbacks [0.10ms]
+(pass) Apple provider > a rejected sign-out preserves the authorized playback transaction and event stream [0.19ms]
+(pass) Apple provider > propagates queue and playback rejections without inventing playback state [0.23ms]
+(pass) Apple provider > fails immediately when MusicKit reports playback unsupported by resolving setQueue with void [0.08ms]
+(pass) Apple provider > suppresses a browser process shim throughout MusicKit runtime configuration and restores it [0.11ms]
+(pass) Apple provider > keeps library and catalog counterparts on one local identity after SDK emission [0.06ms]
+(pass) Apple provider > publishes MusicKit queue position only with an emitted now-playing item [0.04ms]
+(pass) Apple provider > starts station transport exactly once [0.06ms]
+(pass) Apple provider > pauses active media before replacing it with a station queue [0.04ms]
+(pass) Apple provider > keeps the legacy MusicKit library facade as a compatibility fallback [0.18ms]
+
+packages/providers/src/fixture/fixture-provider.test.ts:
+(pass) the fixture catalogue > is populated enough for every screen to render something honest [0.13ms]
+(pass) the fixture catalogue > every entity holds a LocalKey and none holds a provider id as one [0.14ms]
+(pass) the fixture catalogue > keys are unique across the whole catalogue [0.09ms]
+(pass) the fixture catalogue > two catalogues share titles and share no keys [0.18ms]
+(pass) the fixture catalogue > every track has a unique, well-formed ISRC [0.11ms]
+(pass) the fixture catalogue > album track lists are complete and in order [0.08ms]
+(pass) the fixture provider — the configurable matrix > supports everything by default, because it holds its own data [0.11ms]
+(pass) the fixture provider — the configurable matrix > a capability can be turned off one at a time [1.72ms]
+(pass) the fixture provider — the configurable matrix > every capability that is off has a non-empty reason [1.58ms]
+(pass) the fixture provider — the configurable matrix > a caller can override the reason copy [0.08ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > auth throws a tagged error when it is off [0.20ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > search throws a tagged error when it is off [0.09ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > libraryRead throws a tagged error when it is off [0.09ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > libraryAdd throws a tagged error when it is off [0.11ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > libraryRemove throws a tagged error when it is off [0.09ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > playlistCreate throws a tagged error when it is off [0.11ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > playlistAddTracks throws a tagged error when it is off [0.09ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > playlistRemoveTracks throws a tagged error when it is off [0.10ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > playlistReorder throws a tagged error when it is off [0.10ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > transport throws a tagged error when it is off [0.08ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > seek throws a tagged error when it is off [0.08ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > volume throws a tagged error when it is off [0.08ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > queueRead throws a tagged error when it is off [0.07ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > queueAppend throws a tagged error when it is off [0.07ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > queueInsertNext throws a tagged error when it is off [0.07ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > queueRemove throws a tagged error when it is off [0.08ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > queueReorder throws a tagged error when it is off [0.09ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > stations throws a tagged error when it is off [0.08ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > stationSeedFromTrack throws a tagged error when it is off [0.13ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > lyrics throws a tagged error when it is off [0.09ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > ratingLoveDislike throws a tagged error when it is off [0.08ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > saveToggle throws a tagged error when it is off [0.08ms]
+(pass) the fixture provider — a missing capability is a tripwire, not an error path > onProgress stays subscribable when progressTicks is off [0.10ms]
+(pass) the fixture provider — behaviour > publishes an authoritative queue index through duplicate tracks in both directions [0.18ms]
+(pass) the fixture provider — behaviour > plays an album and advances through it on tick [0.11ms]
+(pass) the fixture provider — behaviour > runs no timer of its own — position only moves when ticked [27.13ms]
+(pass) the fixture provider — behaviour > Love and Save are different stores and never alias (§14.3 row 23) [0.24ms]
+(pass) the fixture provider — behaviour > Save is add-to-library, and the change is observable (§14.3 row 24) [0.13ms]
+(pass) the fixture provider — behaviour > Save writes the same store as libraryAdd — one operation, two labels [0.12ms]
+(pass) the fixture provider — behaviour > un-saving needs libraryRemove, which Apple does not have (§14.3 row 7) [0.13ms]
+(pass) the fixture provider — behaviour > libraryRemove takes a song out and Love does not put it back [0.10ms]
+(pass) the fixture provider — behaviour > pages the library and reports an exact total [0.14ms]
+(pass) the fixture provider — behaviour > a cursor of "not-a-cursor" is refused rather than answered with page 0 [0.10ms]
+(pass) the fixture provider — behaviour > a cursor of "-5" is refused rather than answered with page 0 [0.09ms]
+(pass) the fixture provider — behaviour > a cursor of "25abc" is refused rather than answered with page 0 [0.07ms]
+(pass) the fixture provider — behaviour > a cursor of " 25" is refused rather than answered with page 0 [0.07ms]
+(pass) the fixture provider — behaviour > a cursor of "" is refused rather than answered with page 0 [0.07ms]
+(pass) the fixture provider — behaviour > a cursor of "1e3" is refused rather than answered with page 0 [0.07ms]
+(pass) the fixture provider — behaviour > a cursor of "99999" is refused rather than answered with page 0 [0.07ms]
+(pass) the fixture provider — behaviour > a cursor this provider issued is accepted [0.10ms]
+(pass) the fixture provider — behaviour > search normalises the way the re-resolution ladder does [0.17ms]
+(pass) the fixture provider — behaviour > library search excludes a removed track while catalogue search still finds it [0.20ms]
+(pass) the fixture provider — behaviour > search cursor advances through all matches without repeating the first page [0.16ms]
+(pass) the fixture provider — behaviour > search limit caps the whole grouped result rather than every requested kind [0.13ms]
+(pass) the fixture provider — behaviour > search refuses malformed or unissued cursor "not-a-cursor" [0.12ms]
+(pass) the fixture provider — behaviour > search refuses malformed or unissued cursor "-1" [0.09ms]
+(pass) the fixture provider — behaviour > search refuses malformed or unissued cursor "1e2" [0.08ms]
+(pass) the fixture provider — behaviour > search refuses malformed or unissued cursor "99999" [0.10ms]
+(pass) the fixture provider — behaviour > album membership changes the album slice and never the songs slice [0.13ms]
+(pass) the fixture provider — behaviour > playlist membership changes the playlist slice and is idempotent [0.10ms]
+(pass) the fixture provider — behaviour > album and playlist membership drive library-scoped search [0.17ms]
+(pass) the fixture provider — behaviour > artist list and library search share membership through remove and both add paths [0.34ms]
+(pass) the fixture provider — behaviour > genre and composer library facets follow saved tracks and albums [0.29ms]
+(pass) the fixture provider — behaviour > playlist writes publish the updated trackCount on subsequent reads [0.18ms]
+(pass) the fixture provider — behaviour > an empty catalogue is a supported state, for §11.6 [0.05ms]
+(pass) the fixture provider — behaviour > starting a station starts fixture playback exactly once [0.11ms]
+(pass) the fixture provider — behaviour > unsubscribing is idempotent [0.08ms]
+
+packages/providers/src/fixture/shuffle-repeat.test.ts:
+(pass) §14.3 row 27 / D-052 — shuffle and repeat go through the provider > both default to off, per B02 [0.08ms]
+(pass) §14.3 row 27 / D-052 — shuffle and repeat go through the provider > setShuffle("off") is read back through playback [0.09ms]
+(pass) §14.3 row 27 / D-052 — shuffle and repeat go through the provider > setShuffle("songs") is read back through playback [0.07ms]
+(pass) §14.3 row 27 / D-052 — shuffle and repeat go through the provider > setShuffle("albums") is read back through playback [0.07ms]
+(pass) §14.3 row 27 / D-052 — shuffle and repeat go through the provider > setRepeat("off") is read back through playback [0.09ms]
+(pass) §14.3 row 27 / D-052 — shuffle and repeat go through the provider > setRepeat("one") is read back through playback [0.07ms]
+(pass) §14.3 row 27 / D-052 — shuffle and repeat go through the provider > setRepeat("all") is read back through playback [0.07ms]
+(pass) §14.3 row 27 / D-052 — shuffle and repeat go through the provider > the mode is provider state, so a playback subscriber sees it change [0.09ms]
+(pass) §14.3 row 27 / D-052 — shuffle and repeat go through the provider > both are gated on transport, which is what §14.3 row 27 makes them part of [0.12ms]
+
+packages/providers/src/fixture/session-states.test.ts:
+(pass) the signed-out state is reachable (§11.5, J6c) > a signed-out device reports no session [0.11ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > search() refuses without a session [0.13ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > libraryList() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > libraryAdd() refuses without a session [0.09ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > libraryRemove() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > playlistCreate() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > playlistAddTracks() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > playlistRemoveTracks() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > playlistReorder() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > play() refuses without a session [0.07ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > pause() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > skip() refuses without a session [0.09ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > seek() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > setVolume() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > setShuffle() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > setRepeat() refuses without a session [0.07ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > queueRead() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > queueAppend() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > queueInsertNext() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > queueRemove() refuses without a session [0.07ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > queueReorder() refuses without a session [0.07ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > stationsList() refuses without a session [0.07ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > stationStart() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > lyrics() refuses without a session [0.08ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > ratingSet() refuses without a session [0.07ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > saveToggle() refuses without a session [0.07ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > signing in reaches the signed-in state, and the library appears [0.11ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > signing out returns to it [0.13ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > unauthorize is idempotent — signing out twice is not an error [0.10ms]
+(pass) the signed-out state is reachable (§11.5, J6c) > configure and the capability surface stay available while signed out [0.10ms]
+(pass) the signed-in-but-silent state is reachable (§14.3 row 3) > a free-tier session says so [0.08ms]
+(pass) the signed-in-but-silent state is reachable (§14.3 row 3) > play() refuses, and nothing starts [0.14ms]
+(pass) the signed-in-but-silent state is reachable (§14.3 row 3) > browsing still works — the posture is refuse-playback, not refuse-everything [0.16ms]
+(pass) the signed-in-but-silent state is reachable (§14.3 row 3) > the tier is not a capability — supports("transport") stays true [0.08ms]
+(pass) the signed-in-but-silent state is reachable (§14.3 row 3) > the three refusals are distinguishable by tag [0.27ms]
+
+ 1347 pass
+ 0 fail
+ 294222 expect() calls
+Ran 1347 tests across 93 files. [24.88s]

@@ -1,0 +1,76 @@
+$ bunx --bun eslint .
+
+/Users/vinicius/code/webPod/docs/workstreams/008-lighting-and-hardware/evidence/hardware/probe-strip.ts
+  1:74  error  'Vector3' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/vinicius/code/webPod/docs/workstreams/009-product-studio-and-flat-display/evidence/display/tone-mapping-parity.ts
+  14:27  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  15:27  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  18:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  18:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  19:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:97  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:84  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vinicius/code/webPod/docs/workstreams/009-product-studio-and-flat-display/evidence/final-display/capture.ts
+  18:43  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  18:97  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  22:28  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  23:32  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  24:70  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vinicius/code/webPod/docs/workstreams/009-product-studio-and-flat-display/evidence/mutant-aperture.ts
+  125:9  error  'miterBand' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/final-coverage/probe.ts
+   9:43   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+   9:97   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  11:94   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  11:185  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  11:293  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  11:321  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  11:760  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:93   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/isolation/capture.ts
+  14:25   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:95   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:177  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  17:11   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:27   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:85   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:129  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:189  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:120  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/isolation/rays.ts
+  14:25   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:95   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:177  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  17:11   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:27   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:85   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:129  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:189  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:120  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:196  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  27:245  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:273  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:657  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:688  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/isolation/rear-isolation.ts
+  14:25   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:95   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:177  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  17:11   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:27   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:85   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:129  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:189  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:120  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 55 problems (55 errors, 0 warnings)
+
+error: script "lint" exited with code 1

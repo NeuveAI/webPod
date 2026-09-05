@@ -1,0 +1,47 @@
+[W5B SOURCE b520bf621bd1134225a1e7ce9b529922086e946ee8c29759e125b59301acd266 FILES 251 WORKTREE-SNAPSHOT]
+[WebServer] (node:42375) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+Running 9 tests using 1 worker
+
+(node:42397) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b520bf621bd1134225a1e7ce9b529922086e946ee8c29759e125b59301acd266 FILES 251 WORKTREE-SNAPSHOT]
+
+[1/9] apps/web/tests/player-direct-manipulation.e2e.ts:52:1 › active overflowing list and Now Playing titles move within three seconds
+[WebServer] 4:49:36 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[2/9] apps/web/tests/player-direct-manipulation.e2e.ts:78:1 › scrub presentation remains optimistic through delayed, stale, failed and successful seek acknowledgement
+[WebServer] 4:49:38 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[3/9] apps/web/tests/player-direct-manipulation.e2e.ts:153:1 › device labels cannot be selected, while the real search input remains editable
+[WebServer] 4:49:41 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[4/9] apps/web/tests/player-direct-manipulation.e2e.ts:192:3 › subtle scrollbar stays bounded at top, middle and bottom in white
+[WebServer] 4:49:44 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[5/9] apps/web/tests/player-direct-manipulation.e2e.ts:192:3 › subtle scrollbar stays bounded at top, middle and bottom in black
+[WebServer] 4:49:47 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[6/9] apps/web/tests/player-direct-manipulation.e2e.ts:218:1 › progress and volume keep the Classic interface in both enclosure finishes
+[WebServer] 4:49:50 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+(node:42515) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b520bf621bd1134225a1e7ce9b529922086e946ee8c29759e125b59301acd266 FILES 251 WORKTREE-SNAPSHOT]
+
+[7/9] apps/web/tests/settings-menu.e2e.ts:17:1 › settings are hidden until activation and preserve live preferences through dismissal
+[WebServer] 4:49:54 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[8/9] apps/web/tests/settings-menu.e2e.ts:52:1 › keyboard stays inside settings and playback and rotation resume after closing
+[WebServer] 4:49:56 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[9/9] apps/web/tests/settings-menu.e2e.ts:91:1 › settings remain usable on a small viewport
+[WebServer] 4:49:59 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+  9 passed (29.6s)

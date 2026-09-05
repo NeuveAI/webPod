@@ -24,20 +24,20 @@ import {
   toCanvasTopLeft,
 } from "./layout";
 import { silhouetteHalfWidth } from "./luminance-probe";
-import { IPOD_5G_30GB_PHYSICAL_SPEC } from "./physical-spec";
+import { IPOD_CLASSIC_PHYSICAL_SPEC } from "./physical-spec";
 import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 
-describe("thin 30GB iPod 5G physical target", () => {
+describe("thin iPod Classic physical target", () => {
   test("declares one variant and cannot silently become the thick 60/80GB case", () => {
-    expect(IPOD_5G_30GB_PHYSICAL_SPEC.variant).toBe(
-      "iPod 5G/5.5G 30GB thin (A1136)",
+    expect(IPOD_CLASSIC_PHYSICAL_SPEC.variant).toBe(
+      "iPod Classic 120GB thin (A1238)",
     );
-    expect(IPOD_5G_30GB_PHYSICAL_SPEC.bodyMm).toEqual({
+    expect(IPOD_CLASSIC_PHYSICAL_SPEC.bodyMm).toEqual({
       width: 61.8,
       height: 103.5,
-      depth: 11,
+      depth: 10.5,
     });
-    expect(IPOD_5G_30GB_PHYSICAL_SPEC.bodyMm.depth).not.toBe(14);
+    expect(IPOD_CLASSIC_PHYSICAL_SPEC.bodyMm.depth).not.toBe(14);
   });
 
   test("keeps the authored body and exact 320×240 LCD semantics", () => {
@@ -87,17 +87,17 @@ describe("thin 30GB iPod 5G physical target", () => {
   });
 
   test("keeps photo-derived shell profile estimates explicit", () => {
-    expect(DEFAULT_DEVICE_FORM.frontThickness / PX_PER_MM).toBeCloseTo(2.6, 1);
+    expect(DEFAULT_DEVICE_FORM.frontThickness / PX_PER_MM).toBeCloseTo(1.5, 1);
     expect(DEFAULT_DEVICE_FORM.rearCrownInset / PX_PER_MM).toBeCloseTo(1.6, 1);
-    expect(IPOD_5G_30GB_PHYSICAL_SPEC.photoDerivedProfileMm).toEqual({
-      frontShellDepth: 2.6,
+    expect(IPOD_CLASSIC_PHYSICAL_SPEC.photoDerivedProfileMm).toEqual({
+      frontShellDepth: 1.5,
       rearCrownInset: 1.6,
     });
     expect(WHEEL_GAP_FLOOR_OFFSET / PX_PER_MM).toBeLessThan(0.02);
   });
 
   test("bounds both visible assembly seams from multiple OEM references", () => {
-    const bounds = IPOD_5G_30GB_PHYSICAL_SPEC.wheelAssemblyRasterBounds;
+    const bounds = IPOD_CLASSIC_PHYSICAL_SPEC.wheelAssemblyRasterBounds;
     const selectGap = SELECT_SEAM_WIDTH;
     const selectGapRatio = selectGap / (DEVICE_LAYOUT.wheel.selectR * 2);
     expect(selectGap).toBe(1);
@@ -135,23 +135,23 @@ describe("physical LCD and restrained trim", () => {
     expect(LCD_ACTIVE_PHYSICAL_MM.semanticHeight).toBe(240);
   });
 
-  test("keeps mask, glass and recess distinct without rebuilding a heavy bezel", () => {
+  test("continuous black underprint covers a moderately sized square LCD surround", () => {
     const { displayWell, glass, mask } = DEVICE_SURFACE_LAYOUT.front;
-    expect(mask.width - DEVICE_LAYOUT.screen.width).toBe(1);
-    expect(glass.width - mask.width).toBe(1);
-    expect(displayWell.width - glass.width).toBe(2);
-    expect(mask.height - DEVICE_LAYOUT.screen.height).toBe(1);
-    expect(glass.height - mask.height).toBe(1);
-    expect(displayWell.height - glass.height).toBe(2);
-    expect(DEVICE_LAYOUT.glass.width).toBe(274);
-    expect(DEVICE_LAYOUT.glass.height).toBe(206);
+    expect(displayWell.inset).toBe(6);
+    expect(glass.width).toBe(displayWell.width);
+    expect(glass.height).toBe(displayWell.height);
+    expect(mask.width - displayWell.width).toBe(12);
+    expect(mask.height - displayWell.height).toBe(12);
+    expect(DEVICE_LAYOUT.screen.cornerR).toBe(0);
+    expect(DEVICE_LAYOUT.glass.width).toBe(284);
+    expect(DEVICE_LAYOUT.glass.height).toBe(216);
   });
 });
 
 describe("enclosure plan and depth", () => {
-  test("uses the thin 11mm depth at the one body scale", () => {
+  test("uses the thin 10.5mm depth at the one body scale", () => {
     expect(PX_PER_MM.toFixed(4)).toBe("5.3398");
-    expect(DEVICE_LAYOUT.body.depth.toFixed(2)).toBe("58.74");
+    expect(DEVICE_LAYOUT.body.depth.toFixed(2)).toBe("56.07");
   });
 
   test("preserves the analytic 26px circular corner", () => {

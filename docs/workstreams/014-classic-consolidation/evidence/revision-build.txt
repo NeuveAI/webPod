@@ -1,0 +1,37 @@
+$ bun run --cwd apps/web build
+$ vite build
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 248 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/assets/___spike-CpWc2OJ7.css               20.99 kB │ gzip:   5.04 kB
+dist/client/assets/app-CCV3tL0A.css                    29.04 kB │ gzip:   7.11 kB
+dist/client/assets/___probe.capabilities-Bsj0qYQE.js    0.57 kB │ gzip:   0.36 kB
+dist/client/assets/rolldown-runtime-CbXtAM7H.js         0.58 kB │ gzip:   0.36 kB
+dist/client/assets/___spike.device-B0XiENK6.js         11.69 kB │ gzip:   4.06 kB
+dist/client/assets/src-COJzaZtO.js                     15.49 kB │ gzip:   5.66 kB
+dist/client/assets/index-BgqqxnBJ.js                  356.01 kB │ gzip: 113.85 kB
+dist/client/assets/src-RjQZ0lUX.js                    515.18 kB │ gzip: 168.96 kB
+
+✓ built in 245ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+vite v8.2.2 building ssr environment for production...
+transforming...
+✓ 406 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/assets/start-XEGAwR_q.js                         0.21 kB │ gzip:  0.17 kB
+dist/server/assets/empty-plugin-adapters-63t6GYbj.js         0.28 kB │ gzip:  0.18 kB
+dist/server/assets/___probe.capabilities-DK8BeKEj.js         0.81 kB │ gzip:  0.45 kB
+dist/server/assets/_tanstack-start-manifest_v-Cdq2NkXd.js    1.06 kB │ gzip:  0.48 kB
+dist/server/assets/___spike.device-B_4LIpTJ.js              22.29 kB │ gzip:  6.00 kB
+dist/server/assets/src-BdW8X1jX.js                          68.31 kB │ gzip: 22.37 kB
+dist/server/server.js                                      219.80 kB │ gzip: 49.64 kB
+dist/server/assets/router-DEOlQBwp.js                      281.70 kB │ gzip: 75.79 kB
+
+✓ built in 204ms

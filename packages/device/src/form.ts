@@ -16,17 +16,17 @@
  */
 
 import { PX_PER_MM } from "./layout";
-import { IPOD_5G_30GB_PHYSICAL_SPEC } from "./physical-spec";
+import { IPOD_CLASSIC_PHYSICAL_SPEC } from "./physical-spec";
 
-const PHOTO_PROFILE = IPOD_5G_30GB_PHYSICAL_SPEC.photoDerivedProfileMm;
+const PHOTO_PROFILE = IPOD_CLASSIC_PHYSICAL_SPEC.photoDerivedProfileMm;
 
 export type DeviceFormParams = {
   /**
-   * How far the polycarbonate front is inset from the silhouette, letting the
+   * How far the aluminum front is inset from the silhouette, letting the
    * steel back's rolled edge read as the perimeter hairline.
    *
    * This is §5.6's chrome bezel seam, modelled rather than drawn: the seam is
-   * "the 3px line where the steel back's rolled edge meets the polycarbonate
+   * "the 3px line where the steel back's rolled edge meets the aluminum
    * front", so in 3D it is not a stroke at all — it is the back part still
    * being visible past the front part, catching the key light on its curve.
    * §10.4 prevention #6 asks for a conic response around a rounded rectangle;

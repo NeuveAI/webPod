@@ -10,6 +10,7 @@ import {
   keyLightPower,
   kickLightPosition,
   kickLightPower,
+  rimLightPower,
   lightRigForContribution,
   viewerAzimuthAngleDeg,
 } from "./light-rig";
@@ -70,7 +71,8 @@ function worldFrame(face: "front" | "back") {
     children[1],
     "rectAreaLight",
   );
-  const modelElement = requireElement<GroupElementProps>(children[2], "group");
+  const rimElement = requireElement<LightElementProps>(children[2], "rectAreaLight");
+  const modelElement = requireElement<GroupElementProps>(children[3], "group");
 
   const root = new Group();
   const key = new RectAreaLight();
@@ -79,12 +81,14 @@ function worldFrame(face: "front" | "back") {
   const kick = new RectAreaLight();
   kick.name = kickElement.props.name;
   kick.position.fromArray(kickElement.props.position);
+  const rim = new RectAreaLight();
+  rim.position.fromArray(rimElement.props.position);
   const model = new Group();
   model.name = modelElement.props.name;
   model.rotation.fromArray([...modelElement.props.rotation, "XYZ"]);
-  root.add(key, kick, model);
+  root.add(key, kick, rim, model);
   root.updateWorldMatrix(true, true);
-  return { key, kick, model };
+  return { key, kick, rim, model };
 }
 
 describe("viewer-lit device scene frame", () => {
@@ -99,6 +103,7 @@ describe("viewer-lit device scene frame", () => {
     expect(front.kick.getWorldPosition(position).toArray()).toEqual(
       back.kick.getWorldPosition(new Vector3()).toArray(),
     );
+    expect(front.rim.getWorldPosition(position).toArray()).toEqual(back.rim.getWorldPosition(new Vector3()).toArray());
     expect(front.model.name).toBe(DEVICE_MODEL_NAME);
     expect(front.model.rotation.y).toBe(0);
     expect(back.model.rotation.y).toBe(Math.PI);
@@ -119,7 +124,7 @@ describe("viewer-lit device scene frame", () => {
     const edgeChildren = Children.toArray(edge.props.children);
     const frontKey = requireElement<LightElementProps>(frontChildren[0], "rectAreaLight");
     const edgeKey = requireElement<LightElementProps>(edgeChildren[0], "rectAreaLight");
-    const edgeModel = requireElement<GroupElementProps>(edgeChildren[2], "group");
+    const edgeModel = requireElement<GroupElementProps>(edgeChildren[3], "group");
 
     expect(frontKey.props.position).toEqual(edgeKey.props.position);
     expect(edgeModel.props.rotation[1]).toBeCloseTo(-Math.PI / 2, 8);
@@ -140,7 +145,7 @@ describe("viewer-lit device scene frame", () => {
         children: null,
       });
       const children = Children.toArray(frame.props.children);
-      const model = requireElement<GroupElementProps>(children[2], "group");
+      const model = requireElement<GroupElementProps>(children[3], "group");
       const content = requireElement<GroupElementProps>(
         Children.only(model.props.children),
         "group",
@@ -185,14 +190,14 @@ describe("viewer-lit device scene frame", () => {
     expect(descent).toBeGreaterThanOrEqual(35);
     expect(descent).toBeLessThanOrEqual(45);
     expect(descent).toBeCloseTo(DEFAULT_LIGHT_RIG.key.descentDeg, 8);
-    expect(azimuth).toBeGreaterThanOrEqual(40);
+    expect(azimuth).toBeGreaterThanOrEqual(25);
     expect(azimuth).toBeLessThanOrEqual(50);
     expect(azimuth).toBeCloseTo(DEFAULT_LIGHT_RIG.key.viewerAzimuthDeg, 8);
     expect(kick.props.position[0]).toBeLessThan(0);
     expect(kick.props.position[1]).toBeLessThan(0);
     expect(kick.props.position[2]).toBeGreaterThan(0);
     expect(kickElevation).toBeCloseTo(-18, 8);
-    expect(kickAzimuth).toBeCloseTo(-45, 8);
+    expect(kickAzimuth).toBeCloseTo(DEFAULT_LIGHT_RIG.kick.viewerAzimuthDeg, 8);
     expect(kick.props.width).toBeGreaterThan(key.props.width);
     expect(kick.props.width * kick.props.height).toBeGreaterThan(
       key.props.width * key.props.height,
@@ -230,8 +235,11 @@ describe("viewer-lit device scene frame", () => {
       DEFAULT_LIGHT_RIG.kick.emitter,
     );
 
-    expect(DEFAULT_LIGHT_RIG.kick.powerRatio).toBeLessThan(0.1);
-    expect(fillIntensity / keyIntensity).toBeLessThan(0.08);
+    expect(DEFAULT_LIGHT_RIG.kick.powerRatio).toBeGreaterThan(0.2);
+    expect(DEFAULT_LIGHT_RIG.kick.powerRatio).toBeLessThan(1);
+    expect(fillIntensity / keyIntensity).toBeGreaterThan(0.2);
+    expect(fillIntensity / keyIntensity).toBeLessThan(0.7);
+    expect(keyIntensity).toBeGreaterThan(fillIntensity);
     expect(DEFAULT_LIGHT_RIG.kick.emitter.width).toBeGreaterThan(330);
     expect(DEFAULT_LIGHT_RIG.kick.emitter.height).toBeGreaterThan(330);
     expect(DEFAULT_LIGHT_RIG.kick.emitter).not.toEqual({ width: 85, height: 300 });
@@ -242,6 +250,13 @@ describe("viewer-lit device scene frame", () => {
     const combined = lightRigForContribution(DEFAULT_LIGHT_RIG, "combined");
     const keyOnly = lightRigForContribution(DEFAULT_LIGHT_RIG, "key-only");
     const fillOnly = lightRigForContribution(DEFAULT_LIGHT_RIG, "fill-only");
+    const rimOnly = lightRigForContribution(DEFAULT_LIGHT_RIG, "rim-only");
+    const environmentOnly = lightRigForContribution(DEFAULT_LIGHT_RIG, "environment-only");
+    expect(rimLightPower(rimOnly)).toBeGreaterThan(0);
+    expect(keyLightPower(rimOnly)).toBe(0);
+    expect(kickLightPower(rimOnly)).toBe(0);
+    expect(rimOnly.rim.position).toEqual(combined.rim.position);
+    expect([keyLightPower(environmentOnly), kickLightPower(environmentOnly), rimLightPower(environmentOnly)]).toEqual([0, 0, 0]);
 
     expect(keyLightPower(combined)).toBeGreaterThan(0);
     expect(kickLightPower(combined)).toBeGreaterThan(0);
@@ -266,7 +281,7 @@ describe("viewer-lit device scene frame", () => {
     const rigSource = await Bun.file(new URL("./light-rig.ts", import.meta.url)).text();
     const source = `${frameSource}\n${rigSource}`;
 
-    expect(frameSource.match(/<rectAreaLight/g)).toHaveLength(2);
+    expect(frameSource.match(/<rectAreaLight/g)).toHaveLength(3);
     expect(source).not.toMatch(
       /<pointLight|<spotLight|<directionalLight|<ambientLight|camera(?:Position|Direction)|viewMatrix|vUv|outgoingLight|linear-gradient|radial-gradient/,
     );

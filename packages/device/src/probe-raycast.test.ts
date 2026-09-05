@@ -141,30 +141,30 @@ describe("first visible probe hit", () => {
     ).toBe(true);
   });
 
-  test("keeps the rendered rear composition in front of the steel backing", () => {
+  test("keeps a transparent decal in front of its opaque backing", () => {
     const scene = new Scene();
-    const compositionMaterial = new MeshBasicMaterial({
+    const decalMaterial = new MeshBasicMaterial({
       transparent: true,
       opacity: 1,
     });
-    compositionMaterial.name = "back-composition";
-    const composition = new Mesh(
+    decalMaterial.name = "probe-decal";
+    const decal = new Mesh(
       new PlaneGeometry(4, 4),
-      compositionMaterial,
+      decalMaterial,
     );
-    composition.name = "device-back-composition";
-    composition.position.z = 0.1;
+    decal.name = "device-probe-decal";
+    decal.position.z = 0.1;
     const steelMaterial = new MeshBasicMaterial();
     steelMaterial.name = "steel-back";
     const steel = new Mesh(new PlaneGeometry(4, 4), steelMaterial);
     steel.name = "device-steel-back";
-    scene.add(composition, steel);
+    scene.add(decal, steel);
 
     const hits = visibleProbeHits(centreHits(scene));
     expect(hits).toHaveLength(2);
     expect(hits[0]).toMatchObject({
-      objectName: "device-back-composition",
-      materialNames: ["back-composition"],
+      objectName: "device-probe-decal",
+      materialNames: ["probe-decal"],
     });
     expect(hits[1]).toMatchObject({
       objectName: "device-steel-back",

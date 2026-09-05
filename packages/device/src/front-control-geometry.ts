@@ -16,6 +16,8 @@ export type FrontControlPatch = {
   /** UVs remain registered to the complete OEM wheel diameter. */
   readonly uvRadius: number;
   readonly surfaceOffset?: number;
+  /** Center depression; the quartic bowl rejoins the shell tangentially at its rim. */
+  readonly concavity?: number;
 };
 
 const DEFAULT_RADIAL_SEGMENTS = 128;
@@ -37,11 +39,16 @@ function pushVertex(
   const globalX = patch.centerX + x;
   const globalY = patch.centerY + y;
   const normal = frontShellNormalAt(globalX, globalY, form);
+  const radiusSquared = patch.outerRadius * patch.outerRadius;
+  const bowl = Math.max(0, 1 - (x * x + y * y) / radiusSquared);
+  const depth = patch.concavity ?? 0;
+  const slope = 4 * depth * bowl / radiusSquared;
+  normal.set(normal.x / normal.z - slope * x, normal.y / normal.z - slope * y, 1).normalize();
   attributes.positions.push(
     x,
     y,
     frontShellOffsetAt(globalX, globalY, form) +
-      (patch.surfaceOffset ?? 0),
+      (patch.surfaceOffset ?? 0) - depth * bowl * bowl,
   );
   attributes.normals.push(normal.x, normal.y, normal.z);
   attributes.uvs.push(
@@ -79,7 +86,9 @@ function validatePatch(patch: FrontControlPatch): void {
     !Number.isFinite(patch.outerRadius) ||
     patch.innerRadius < 0 ||
     !(patch.outerRadius > patch.innerRadius) ||
-    !(patch.uvRadius >= patch.outerRadius)
+    !(patch.uvRadius >= patch.outerRadius) ||
+    !Number.isFinite(patch.concavity ?? 0) ||
+    (patch.concavity ?? 0) < 0
   ) {
     throw new Error("front control patch requires ordered finite radii");
   }
@@ -90,8 +99,8 @@ function validatePatch(patch: FrontControlPatch): void {
  *
  * The faceplate, wheel, Select and hairline floor all sample the same position
  * and analytic normal functions. Their boundaries therefore meet in C1 at the
- * same physical surface instead of being stacked cylinders. The only depth in
- * the assembly is the explicit sub-hairline floor offset passed by its caller.
+ * same physical surface instead of being stacked cylinders. A Select bowl changes the interior only; its outer edge remains coincident
+ * and tangent to the shell. The gap floor retains its sub-hairline offset.
  */
 export function createFrontControlPatchGeometry(
   patch: FrontControlPatch,

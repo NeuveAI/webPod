@@ -7,6 +7,7 @@ import {
   minimumFrontShellOffsetAroundRect,
   resolveFrontAssemblyDepths,
   SELECT_SEAM_WIDTH,
+  SELECT_CONCAVITY,
   WHEEL_GAP_FLOOR_OFFSET,
   WHEEL_OUTER_SEAM_WIDTH,
 } from "./front-surface";
@@ -60,7 +61,7 @@ describe("front assemblies share the crowned shell frame", () => {
       body.depth / 2 + frontShellOffsetAt(wheel.centerX, wheel.centerY),
       12,
     );
-    expect(depths.selectTopAtCenterZ).toBe(depths.wheelTopAtCenterZ);
+    expect(depths.selectTopAtCenterZ).toBe(depths.wheelTopAtCenterZ - SELECT_CONCAVITY);
     expect(depths.wheelSurfaceBaseZ - depths.wheelGapFloorBaseZ).toBeCloseTo(
       WHEEL_GAP_FLOOR_OFFSET,
       12,
@@ -77,7 +78,7 @@ describe("front assemblies share the crowned shell frame", () => {
     expect(annularGap / (wheel.selectR * 2)).toBeLessThan(0.024);
     expect(annularGap).toBe(SELECT_SEAM_WIDTH);
     expect(WHEEL_OUTER_SEAM_WIDTH).toBe(0.5);
-    expect(depths.selectTopAtCenterZ).toBe(depths.wheelTopAtCenterZ);
+    expect(depths.selectTopAtCenterZ).toBe(depths.wheelTopAtCenterZ - SELECT_CONCAVITY);
     expect(WHEEL_GAP_FLOOR_OFFSET).toBeLessThan(WHEEL_OUTER_SEAM_WIDTH);
   });
 

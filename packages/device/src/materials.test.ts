@@ -17,165 +17,50 @@ import {
 } from "./physical-materials";
 
 describe("§12.3 device material contract", () => {
-  test("polycarbonate keeps the specified base response", () => {
-    expect(DEFAULT_DEVICE_MATERIALS.bodyBlack).toMatchObject({
-      albedoScale: 0.34,
-      color: "#11161C",
-      roughness: 0.68,
-      metalness: 0,
-      clearcoat: 0.32,
-      clearcoatRoughness: 0.46,
-      reflectivity: 0.38,
-      sheen: 0.15,
-      sheenColor: "#6E4A2E",
-      sheenRoughness: 1,
-      specularIntensity: 0.16,
-      envMapIntensity: 0.008,
-      subsurfaceColor: "#5C6876",
-      subsurfaceDistortion: 0.2214,
-      subsurfaceAttenuation: 0.1,
-      subsurfacePower: 1,
-      subsurfaceScale: 1.4,
-    });
-    expect(DEFAULT_DEVICE_MATERIALS.bodyWhite).toMatchObject({
-      color: "#F6F3EC",
-      albedoScale: 0.6494,
-      roughness: 0.78,
-      clearcoat: 0.12,
-      clearcoatRoughness: 0.5,
-      reflectivity: 0.1718,
-      sheen: 0.0914,
-      sheenColor: "#FFF8EE",
-      sheenRoughness: 0.985,
-      specularIntensity: 0.08,
-      envMapIntensity: 0.0024,
-      subsurfaceColor: "#FFF4E8",
-      subsurfaceDistortion: 0.1824,
-      subsurfaceAttenuation: 0.0479,
-      subsurfacePower: 1,
-      subsurfaceScale: 1.0416,
-    });
+  test("Classic faceplate and Select share one opaque brushed aluminum finish", () => {
+    for (const [body, select] of [
+      [DEFAULT_DEVICE_MATERIALS.bodyBlack, DEFAULT_DEVICE_MATERIALS.selectBlack],
+      [DEFAULT_DEVICE_MATERIALS.bodyWhite, DEFAULT_DEVICE_MATERIALS.selectWhite],
+    ] as const) {
+      expect(body).toBe(select);
+      expect(body.metalness).toBe(1);
+      expect(body.clearcoat).toBe(0);
+      expect(body.transmission).toBe(0);
+      expect(body.sheen).toBe(0);
+      expect(body.subsurfaceScale ?? 0).toBe(0);
+      expect(body.roughness).toBeGreaterThan(0.4);
+      expect(body.anisotropy).toBeGreaterThan(0);
+    }
   });
 
-  test("mirror steel remains room-driven while front surfaces do not (D-057)", () => {
-    const mirrorGain = DEFAULT_DEVICE_MATERIALS.steelBack.envMapIntensity ?? 0;
-
-    expect(DEFAULT_DEVICE_MATERIALS.steelBack).toMatchObject({
-      color: "#C4CBD2",
-      metalness: 1,
-      roughness: 0.08,
-      anisotropy: 0.75,
-      anisotropyRotation: 0,
-      envMapIntensity: 1,
-    });
-    expect(DEFAULT_DEVICE_MATERIALS.bodyBlack.envMapIntensity).toBeLessThan(
-      mirrorGain / 3,
-    );
-    expect(DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity).toBeLessThan(
-      mirrorGain / 3,
+  test("polished steel has a tighter lobe than the aluminum front", () => {
+    expect(DEFAULT_DEVICE_MATERIALS.steelBack.metalness).toBe(1);
+    expect(DEFAULT_DEVICE_MATERIALS.steelBack.roughness).toBeLessThan(
+      DEFAULT_DEVICE_MATERIALS.bodyBlack.roughness / 2,
     );
   });
 
-  test("wheel, Select, glass and screen keep their physical distinctions", () => {
-    expect(DEFAULT_DEVICE_MATERIALS.wheelRingBlack).toMatchObject({
-      color: "#24292F",
-      albedoScale: 0.62,
-      roughness: 0.44,
-      metalness: 0,
-      clearcoat: 0.08,
-      clearcoatRoughness: 0.56,
-      envMapIntensity: 0.006,
-    });
-    expect(DEFAULT_DEVICE_MATERIALS.selectBlack).toMatchObject({
-      color: "#11151A",
-      albedoScale: 0.78,
-      transmission: 0,
-      metalness: 0,
-      roughness: 0.68,
-      clearcoat: 0.02,
-      clearcoatRoughness: 0.72,
-      specularIntensity: 0.06,
-      envMapIntensity: 0.004,
-    });
-    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBe(0.004);
-    expect(DEFAULT_DEVICE_MATERIALS.rearInlay).toMatchObject({
-      color: "#11161E",
-      roughness: 0.58,
-      clearcoat: 0.24,
-      clearcoatRoughness: 0.26,
-      envMapIntensity: 0.18,
-    });
-    expect(DEFAULT_DEVICE_MATERIALS.holdIndicator).toMatchObject({
-      color: "#F16A24",
-      roughness: 0.62,
-      metalness: 0,
-    });
+  test("wheel plastic stays matte while the independent screen cover stays clear", () => {
+    for (const wheel of [DEFAULT_WHEEL_COLOURWAYS.black, DEFAULT_WHEEL_COLOURWAYS.white]) {
+      expect(wheel.ring.metalness).toBe(0);
+      expect(wheel.ring.roughness).toBeGreaterThan(0.7);
+      expect(wheel.ring.clearcoat).toBe(0);
+      expect(wheel.ring.color).not.toBe(wheel.select.color);
+    }
     expect(DEFAULT_DEVICE_MATERIALS.coverGlass).toMatchObject({
-      transmission: 0,
-      thickness: 0.2,
-      ior: 1.5,
-      roughness: 0.08,
-      clearcoat: 1,
-      clearcoatRoughness: 0.06,
-      specularIntensity: 0.35,
-      attenuationColor: "#F5F8FC",
-      attenuationDistance: 48,
-      opacity: 0.12,
-      transparent: true,
-      envMapIntensity: 0.16,
+      transmission: 0, thickness: 0.2, ior: 1.5, roughness: 0.08,
+      clearcoat: 1, clearcoatRoughness: 0.06, specularIntensity: 0.35,
+      opacity: 0.12, transparent: true, envMapIntensity: 0.16,
     });
-    expect(DEFAULT_DEVICE_MATERIALS.screen).toEqual({
-      color: "#0B0D11",
-      toneMapped: false,
-    });
+    expect(DEFAULT_DEVICE_MATERIALS.screen).toEqual({ color: "#0B0D11", toneMapped: false });
   });
 
-  test("OEM black and white wheel assemblies are separate calibrations, not inversions", () => {
-    expect(DEFAULT_WHEEL_COLOURWAYS.black).toMatchObject({
-      ring: { color: "#24292F", roughness: 0.44 },
-      select: {
-        color: "#11151A",
-        roughness: 0.68,
-        metalness: 0,
-        transmission: 0,
-      },
-      labelColor: "#B9BFC7",
-    });
-    expect(DEFAULT_WHEEL_COLOURWAYS.white).toMatchObject({
-      ring: { color: "#D5DADD", roughness: 0.8 },
-      select: {
-        color: "#F6F2E9",
-        roughness: 0.72,
-        metalness: 0,
-        transmission: 0,
-      },
-      labelColor: "#FAF8F2",
-    });
-    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color).toBe("#D5DADD");
-    expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.roughness).toBeGreaterThan(
-      DEFAULT_DEVICE_MATERIALS.wheelRingBlack.roughness,
+  test("black and silver wheel legends contrast with their plastic rings", () => {
+    expect(hexLuma255(DEFAULT_WHEEL_COLOURWAYS.black.labelColor)).toBeGreaterThan(
+      hexLuma255(DEFAULT_WHEEL_COLOURWAYS.black.ring.color) + 100,
     );
-    expect(DEFAULT_DEVICE_FORM.bodyCrown).toBe(1.2);
-    expect(DEFAULT_DEVICE_FORM.bodyCrossCrown).toBe(1.2);
-    expect(DEFAULT_DEVICE_FORM.topEdgeCrown).toBe(0);
-    expect(DEFAULT_DEVICE_FORM.bottomEdgeCrown).toBe(0);
-    expect(DEFAULT_DEVICE_FORM.edgeCrownExtent).toBe(20);
-    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBeGreaterThan(
-      DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity ?? 0,
-    );
-    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.clearcoat).toBeLessThan(
-      DEFAULT_DEVICE_MATERIALS.bodyWhite.clearcoat ?? 0,
-    );
-    expect(hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelLabelBlack)).toBeGreaterThan(
-      hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelRingBlack.color) + 100,
-    );
-    const whiteInk = hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelLabelWhite);
-    expect(whiteInk).toBeGreaterThan(
-      hexLuma255(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.color) + 20,
-    );
-    expect(whiteInk).toBeGreaterThan(hexLuma255("#7B838E") + 80);
-    expect(DEFAULT_DEVICE_MATERIALS.wheelLabelWhite).not.toBe(
-      DEFAULT_DEVICE_MATERIALS.wheelLabelBlack,
+    expect(hexLuma255(DEFAULT_WHEEL_COLOURWAYS.white.labelColor)).toBeLessThan(
+      hexLuma255(DEFAULT_WHEEL_COLOURWAYS.white.ring.color) - 100,
     );
   });
 
@@ -206,15 +91,15 @@ describe("§12.3 device material contract", () => {
     material.dispose();
   });
 
-  test("black polycarbonate integrates bounded transport into every direct light", () => {
+  test("the legacy transport helper still patches every direct light", () => {
     const material = createBlackPolycarbonateMaterial(
       DEFAULT_DEVICE_MATERIALS.bodyBlack,
       new Texture(),
     );
     expect(material.transparent).toBe(false);
     expect(material.transmission).toBe(0);
-    expect(material.specularIntensity).toBe(0.16);
-    expect(material.sheenColor.getHexString()).toBe("6e4a2e");
+    expect(material.metalness).toBe(1);
+    expect(material.sheen).toBe(0);
 
     const shader = {
       vertexShader: "",
@@ -254,15 +139,15 @@ describe("§12.3 device material contract", () => {
     expect(shader.fragmentShader).toContain("LTC_Evaluate");
   });
 
-  test("white polycarbonate keeps depth in the direct-light transport path", () => {
+  test("silver aluminum does not install the legacy plastic scattering shader", () => {
     const material = createPolycarbonateMaterial(
       DEFAULT_DEVICE_MATERIALS.bodyWhite,
       new Texture(),
     );
-    expect(material.specularIntensity).toBe(0.08);
-    expect(material.sheenColor.getHexString()).toBe("fff8ee");
+    expect(material.metalness).toBe(1);
+    expect(material.sheen).toBe(0);
     expect(material.onBeforeCompile).toBeDefined();
-    expect(material.customProgramCacheKey?.()).toContain("webpod-polycarbonate");
+    expect(material.customProgramCacheKey?.()).not.toContain("webpod-polycarbonate");
 
     const shader = {
       vertexShader: "",
@@ -297,16 +182,12 @@ describe("§12.3 device material contract", () => {
     );
   });
 
-  test("front dielectrics keep the room as a whisper, not as chrome banding", () => {
-    expect(DEFAULT_DEVICE_MATERIALS.bodyBlack.envMapIntensity).toBeLessThan(0.05);
-    expect(DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity).toBeLessThan(0.02);
+  test("plastic cavities and the clear cover retain their restrained reflections", () => {
     expect(DEFAULT_DEVICE_MATERIALS.displayWell.envMapIntensity).toBeLessThan(0.02);
     expect(DEFAULT_DEVICE_MATERIALS.wheelWellBlack.envMapIntensity).toBeLessThan(0.02);
     expect(DEFAULT_DEVICE_MATERIALS.wheelWellWhite.envMapIntensity).toBeLessThan(0.02);
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingBlack.envMapIntensity).toBeLessThan(0.02);
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.envMapIntensity).toBeLessThan(0.05);
-    expect(DEFAULT_DEVICE_MATERIALS.selectBlack.envMapIntensity).toBeLessThan(0.05);
-    expect(DEFAULT_DEVICE_MATERIALS.selectWhite.envMapIntensity).toBeLessThan(0.05);
     expect(DEFAULT_DEVICE_MATERIALS.coverGlass.envMapIntensity).toBeLessThan(0.2);
     expect(Math.abs(DEFAULT_DEVICE_FORM.topEdgeCrown)).toBeLessThan(1.5);
     expect(Math.abs(DEFAULT_DEVICE_FORM.bottomEdgeCrown)).toBeLessThan(1.6);
@@ -324,23 +205,20 @@ describe("§12.3 device material contract", () => {
   });
 });
 
-describe("owner two-light studio rig", () => {
-  test("locks explicit key, kick, softness, ratio and linear exposure values", () => {
-    expect(DEFAULT_LIGHT_RIG.exposure).toBe(0.92);
-    expect(DEFAULT_LIGHT_RIG.key.enabled).toBe(true);
-    expect(DEFAULT_LIGHT_RIG.key.viewerAzimuthDeg).toBe(45);
-    expect(DEFAULT_LIGHT_RIG.key.descentDeg).toBe(40);
-    expect(DEFAULT_LIGHT_RIG.key.distance).toBe(720);
-    expect(DEFAULT_LIGHT_RIG.key.power).toBe(9_000_000);
-    expect(DEFAULT_LIGHT_RIG.key.emitter).toEqual({ width: 520, height: 380 });
-    expect(DEFAULT_LIGHT_RIG.key.color).toBe("#FFF9F2");
-    expect(DEFAULT_LIGHT_RIG.kick.enabled).toBe(true);
-    expect(DEFAULT_LIGHT_RIG.kick.viewerAzimuthDeg).toBe(-45);
-    expect(DEFAULT_LIGHT_RIG.kick.elevationDeg).toBe(-18);
-    expect(DEFAULT_LIGHT_RIG.kick.distance).toBe(620);
-    expect(DEFAULT_LIGHT_RIG.kick.target).toEqual([-70, -160, 20]);
-    expect(DEFAULT_LIGHT_RIG.kick.powerRatio).toBe(0.095);
-    expect(DEFAULT_LIGHT_RIG.kick.emitter).toEqual({ width: 640, height: 440 });
-    expect(DEFAULT_LIGHT_RIG.kick.color).toBe("#DCE7F2");
+describe("three-light product studio", () => {
+  test("has an elevated key, broad lower-left fill and tall rear strip with distinct roles", () => {
+    const { key, kick, rim } = DEFAULT_LIGHT_RIG;
+    expect([key.enabled, kick.enabled, rim.enabled]).toEqual([true, true, true]);
+    expect(key.viewerAzimuthDeg).toBeGreaterThan(0);
+    expect(key.descentDeg).toBeGreaterThan(25);
+    expect(kick.viewerAzimuthDeg).toBeLessThan(0);
+    expect(kick.elevationDeg).toBeLessThan(0);
+    expect(kick.powerRatio).toBeGreaterThan(0);
+    expect(kick.powerRatio).toBeLessThan(1);
+    expect(kick.emitter.width).toBeGreaterThan(key.emitter.width);
+    expect(rim.position[2]).toBeLessThan(0);
+    expect(rim.emitter.height / rim.emitter.width).toBeGreaterThan(4);
+    expect(rim.powerRatio).toBeGreaterThan(0);
+    expect(rim.powerRatio).toBeLessThan(kick.powerRatio);
   });
 });

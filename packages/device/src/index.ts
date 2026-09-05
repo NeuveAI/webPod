@@ -145,6 +145,8 @@ export {
   keyLightPosition,
   kickLightPosition,
   kickLightPower,
+  rimLightPower,
+  type RimLightParams,
   viewerAzimuthAngleDeg,
   type AreaEmitterSize,
   type KickLightParams,
@@ -166,7 +168,7 @@ export {
   type SkyBlobParams,
 } from "./env-map";
 export { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
-export { IPOD_5G_30GB_PHYSICAL_SPEC, rasterRatio } from "./physical-spec";
+export { IPOD_CLASSIC_PHYSICAL_SPEC, rasterRatio } from "./physical-spec";
 export {
   createRearShellGeometry,
   frontShellPlan,
