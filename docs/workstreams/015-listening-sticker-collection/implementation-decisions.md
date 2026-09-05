@@ -1,0 +1,14 @@
+# Implementation decisions
+
+2026-09-06
+
+- Owner confirmed genre-based starter pack plus measured webPod listening unlocks.
+- Canonical research completed in backend-research.md and surface-research.md. Effect reference checkout is v3 but installed repo is v4 RC; installed v4 source governs APIs. TanStack Start already handles routing.
+- Starter tuning: one pack containing first sticker from up to three strongest supported imported genres, deduplicating catalogue tracks and deterministic ties. Subsequent genre awards at cumulative observed 5/15/60/180/600 minutes, skipping already-owned art. These are provisional named policy defaults, not claimed historical listening thresholds. Imported data grants no minutes.
+- Identity question pending owner: browser collection versus separate account login for cross-device persistence. Repository and grants may proceed using opaque owner IDs; session scheme remains deferred.
+- Placement: one instance per owned sticker ID, maximum twelve, back surface only. Normalized rear-view center x/y, visible-artwork width as body width fraction, clockwise rotationDeg. Surface engineer supplies body aspect/bounds to shared domain validator. Equipped meshes conform to rendered rear geometry; pack remains screen anchored in the existing lit Canvas.
+- Material uses artwork RGBA map with threshold16 alpha discard before physical lighting. Do not use RGBA artwork as alphaMap because Three reads green there. Same mask clips clearcoat; no artwork edits.
+- UI/3D skill scope: Neuve brand/iOS-only marketing rules do not override this desktop-and-mobile webPod. Physical light variation and peel geometry deformation are explicitly required user behavior. Jotai supersedes useState examples; tests and autonomous implementation follow this scoped task over foreign skill phase-pause/no-tests defaults.
+- Previous work checkpointed: 4a05c37 historical evidence and ignore cleanup; 6aaef16 panel fixes/tests; 14b4d0b glove runtime/authored assets. Local tooling/test scratch and .blend1 backup retained on disk and ignored. Baseline typecheck passes 11 projects; panel 123 tests pass; root lint has 55 errors in historical evidence scripts, recorded separately.
+- Material calibration may expose a dev-only atom feeding the already-scoped finishEnabled scene prop on production / for base-versus-laminate inspection. Default/production finish stays enabled; no extra route or user-facing QA controls. This is a tuning seam for the required same-lighting comparison, not evidence of behavior by itself.
+- Context-loss browser inspection found the existing Composite retained a blank lost Canvas without a T4 presentation branch. Add a bounded accessible restoring-device status while contextLost and remove it on actual recovery; preserve existing tier logic and prevent unavailable sticker interaction. No general fallback redesign. Record legacy lack of a full visual fallback separately from successful context recovery.
