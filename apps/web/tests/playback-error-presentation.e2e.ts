@@ -109,6 +109,7 @@ test('Apple runtime failure offers direct retry without a demo fallback', async 
     })
   })
   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+  await page.getByRole('button', { name: 'Settings', exact: true }).click()
   const retry = page.getByRole('button', { name: 'Retry Apple Music' })
   await expect(retry).toBeVisible()
   expect((await retry.boundingBox())?.height).toBeGreaterThanOrEqual(44)

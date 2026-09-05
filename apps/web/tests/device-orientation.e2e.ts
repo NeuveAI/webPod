@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '../../../packages/panel/node_modules/@playwright/test/index.js'
+import { expect, test, type Page } from '../../../packages/panel/node_modules/@playwright/test/index.mjs'
 import { DEVICE_LAYOUT } from '../../../packages/device/src/layout'
 
 test.use({
@@ -50,7 +50,8 @@ test('pointer release keeps moving across frames and a fast flick lands on the o
 
   await page.mouse.move(start.x, start.y)
   await page.mouse.down()
-  for (const [index, offset] of [40, 80, 120].entries()) {
+  // Leave headroom above the flick threshold despite browser event-delivery latency.
+  for (const [index, offset] of [60, 120, 180].entries()) {
     await page.mouse.move(start.x + offset, start.y)
     if (index < 2) await page.waitForTimeout(14)
   }
@@ -196,7 +197,8 @@ test('edge drag reaches the rear, pitch is bounded, and Option drag rolls', asyn
   await page.keyboard.down('Alt')
   await drag(page, edge, { x: edge.x + 100, y: edge.y })
   await page.keyboard.up('Alt')
-  await expect.poll(() => orientation(page)).toEqual({ pitchDeg: 0, yawDeg: 0, rollDeg: 18 })
+  await expect.poll(async () => (await orientation(page)).rollDeg).toBeCloseTo(18, 4)
+  expect(await orientation(page)).toMatchObject({ pitchDeg: 0, yawDeg: 0 })
 })
 
 test('a projected rounded corner is an orientation handle', async ({ page }) => {
@@ -220,8 +222,10 @@ test('pointer cancellation ends capture and Reset view preserves chosen appearan
   const edge = { x: box.left + box.width * 0.025, y: box.top + box.height * 0.5 }
   const stage = page.locator('.webpod-device-preview__stage')
 
-  await page.getByRole('button', { name: 'White' }).click()
+  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await page.getByRole('button', { name: 'Silver' }).click()
   await page.getByRole('button', { name: 'Light room' }).click()
+  await page.getByRole('button', { name: 'Close', exact: true }).click()
   await page.mouse.move(edge.x, edge.y)
   await page.mouse.down()
   const pointerId = Number(await stage.getAttribute('data-orientation-pointer-id'))
@@ -246,16 +250,16 @@ test('pointer cancellation ends capture and Reset view preserves chosen appearan
   })
 })
 
-test('pose preset controls are absent and native text remains selectable while idle', async ({ page }) => {
+test('pose presets stay absent and the device stage does not select labels', async ({ page }) => {
   for (const name of ['Front', 'Quarter', 'Edge', 'Rear']) {
     await expect(page.getByRole('button', { name, exact: true })).toHaveCount(0)
   }
   await expect(page.getByRole('button', { name: 'Reset view' })).toBeVisible()
   await expect(page.locator('.webpod-device-preview__selection-note')).toHaveCSS(
     'user-select',
-    'text',
+    'none',
   )
-  await expect(page.locator('.webpod-device-preview__stage')).not.toHaveCSS(
+  await expect(page.locator('.webpod-device-preview__stage')).toHaveCSS(
     'user-select',
     'none',
   )

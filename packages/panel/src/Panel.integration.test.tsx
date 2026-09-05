@@ -29,6 +29,43 @@ afterAll(async () => {
 })
 
 describe('mounted playback selection', () => {
+  test('browsing retains live play/pause status and Songs hides only artist subtitles', async () => {
+    const provider = createFixtureProvider()
+    const source = fixtureNavigationSource
+    const menu = navigationRoot(source, provider)
+    const artists = (await selectNavigation({ ...menu, highlightIndex: 2 }, source, provider)).frame
+    const albums = (await selectNavigation({ ...menu, highlightIndex: 3 }, source, provider)).frame
+    const songs = (await selectNavigation({ ...menu, highlightIndex: 4 }, source, provider)).frame
+    if (artists === null || albums === null || songs === null) throw new Error('library frames missing')
+    await act(async () => root.render(<Panel provider={provider} navigationSource={source} accountStatus={null} />))
+    const show = async (frame: typeof songs) => act(async () => {
+      deviceStore.set(resetStackActionAtom, [frame])
+      await Promise.resolve()
+    })
+    await show(songs)
+    expect(container.querySelector('.wp-titlebar__transport')).toBeNull()
+    expect(container.querySelector('.wp-list-row__secondary')).toBeNull()
+    expect(container.querySelector('.wp-list-row__primary')?.textContent).toContain(songs.rows[0]?.label ?? '')
+    await show(albums)
+    expect(container.querySelector('.wp-list-row__secondary')?.textContent).toBe(albums.rows[0]?.sublabel ?? undefined)
+    expect(container.querySelector('.wp-list-row__secondary')).not.toBeNull()
+    await act(async () => { await provider.play({ kind: 'tracks', tracks: provider.catalog.tracks, startIndex: 0 }) })
+    for (const frame of [artists, songs, albums, menu]) {
+      await show(frame)
+      expect(container.querySelector('.wp-titlebar__transport')?.getAttribute('aria-label')).toBe('Playback playing')
+      expect(container.querySelector('.wp-titlebar strong')?.textContent).toBe(frame.title)
+      expect(container.querySelector('.wp-titlebar')?.children.length).toBe(3)
+    }
+    await act(async () => { await provider.pause() })
+    for (const frame of [artists, songs]) {
+      await show(frame)
+      expect(container.querySelector('.wp-titlebar__transport')?.getAttribute('aria-label')).toBe('Playback paused')
+    }
+    await act(async () => { await provider.play() })
+    expect(container.querySelector('.wp-titlebar__transport')?.getAttribute('aria-label')).toBe('Playback playing')
+    expect(container.querySelector('.wp-list-row__secondary')).toBeNull()
+  })
+
   test('progressive library revisions do not restart a stationary track dwell', async () => {
     const fixture = createFixtureProvider()
     let prepares = 0

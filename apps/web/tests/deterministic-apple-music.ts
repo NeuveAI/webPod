@@ -1,21 +1,21 @@
 import type { Page } from '../../../packages/panel/node_modules/@playwright/test/index.mjs'
 
 /** Deterministic provider seam for production-route geometry and input checks. */
-export async function installDeterministicAppleMusic(page: Page): Promise<void> {
+export async function installDeterministicAppleMusic(page: Page, options: { readonly trackTitle?: string; readonly trackCount?: number } = {}): Promise<void> {
   await page.route('**/api/apple/developer-token', async (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ token: 'browser-proof-token', expiresAt: 4_102_444_800 }),
   }))
-  await page.addInitScript(() => {
+  await page.addInitScript((options: { readonly trackTitle?: string; readonly trackCount?: number }) => {
     type Listener = (event: unknown) => void
     type Resource = { readonly id: string; readonly type: string; readonly attributes: Readonly<Record<string, unknown>> }
     const listeners = new Map<string, Set<Listener>>()
-    const tracks: readonly Resource[] = Array.from({ length: 11 }, (_, index) => ({
+    const tracks: readonly Resource[] = Array.from({ length: options.trackCount ?? 11 }, (_, index) => ({
       id: `library-song-${String(index + 1)}`,
       type: 'library-songs',
       attributes: {
-        name: index === 0 ? 'A Deliberately Spacious Track Title' : `Reference Track ${String(index + 1)}`,
+        name: index === 0 ? options.trackTitle ?? 'A Deliberately Spacious Track Title' : `Reference Track ${String(index + 1)}`,
         artistName: 'Reference Artist',
         albumName: 'Reference Album',
         durationInMillis: 246_000 + index * 1_000,
@@ -87,6 +87,6 @@ export async function installDeterministicAppleMusic(page: Page): Promise<void> 
       PlayerShuffleMode: { off: 0, songs: 1, albums: 2 },
       PlayerRepeatMode: { off: 0, one: 1, all: 2 },
     }
-  })
+  }, options)
 }
 

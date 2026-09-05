@@ -36,7 +36,7 @@ export function OverflowMarquee({ text, active = false, className }: OverflowMar
       title={text}
     >
       <span className="wp-marquee__rest">{text}</span>
-      <span className="wp-marquee__moving" aria-hidden="true">{text}</span>
+      <span key={text} className="wp-marquee__moving" aria-hidden="true">{text}</span>
     </span>
   )
 }

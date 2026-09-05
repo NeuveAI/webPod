@@ -294,7 +294,7 @@ function PanelSurface({
           },
           () => {
             const latest = deviceStore.get(nowPlayingModeAtom)
-            if (latest.frame !== frame) return
+            if (latest.frame !== frame || latest.scrubRevision !== committedRevision) return
             const playbackNow = provider.playback
             deviceStore.set(setNowPlayingWheelControlActionAtom, { kind: 'scrub', value: playbackNow.positionMs, minimum: 0, maximum: playbackNow.durationMs, step: 5_000 })
             deviceStore.set(setNowPlayingModeActionAtom, { frame, ...settleNowPlayingScrub(latest, committedRevision, false) })
@@ -423,7 +423,7 @@ function renderScreen(frame: ScreenFrame, state: PanelState, colourway: Colourwa
   if (frame.route?.kind === 'album-tracks' || frame.route?.kind === 'playlist-tracks') return <NestedTrackList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} provider={provider} navigationSource={navigationSource} />
   if (frame.screenId === 'S13') return <NowPlaying panelId={panelId} frame={frame} state={state} colourway={colourway} artworkTone={artworkTone} actor={actor} provider={provider} />
   if (frame.route?.kind === 'status') return <StatusScreen frame={frame} />
-  return <BrowserList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} />
+  return <BrowserList frame={frame} state={state} visibleRows={visibleRows} panelId={panelId} provider={provider} />
 }
 
 function StatusScreen({ frame }: { readonly frame: ScreenFrame }) {
@@ -477,6 +477,14 @@ function TitleBar({ title, index, transport }: { readonly title: string; readonl
   )
 }
 
+/** Keeps the native transport indicator visible while browsing the library. */
+function BrowsingTitleBar({ title, index, provider }: { readonly title: string; readonly index?: string; readonly provider: MusicProvider }) {
+  const observation = useAtomValue(playbackObservationAtom)
+  const playback = observation.provider === provider && observation.playback !== null ? observation.playback : provider.playback
+  const transport = playback.now !== null && (playback.status === 'playing' || playback.status === 'paused') ? playback.status : null
+  return <TitleBar title={title} index={index} transport={transport} />
+}
+
 function MainMenu({ frame, state, visibleRows, panelId, navigationSource, provider }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string; readonly navigationSource: NavigationDataSource; readonly provider: MusicProvider }) {
   const success = useLibrarySuccess('S03', frame.title, state, provider, navigationSource)
   void navigationSource
@@ -491,7 +499,7 @@ function MainMenu({ frame, state, visibleRows, panelId, navigationSource, provid
   }))
   return (
     <div className="wp-screen">
-      <TitleBar title={frame.title} />
+      <BrowsingTitleBar title={frame.title} provider={provider} />
       <ListViewport rows={rows} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label="Music categories" panelId={panelId} />
       {state === 'empty' ? <FooterReceipt>Nothing in your library yet. Try Radio, or search for anything.</FooterReceipt> : null}
       {state === 'offline' ? <FooterReceipt>Offline. Showing cached library metadata.</FooterReceipt> : null}
@@ -502,16 +510,16 @@ function MainMenu({ frame, state, visibleRows, panelId, navigationSource, provid
   )
 }
 
-function BrowserList({ frame, state, visibleRows, panelId }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string }) {
+function BrowserList({ frame, state, visibleRows, panelId, provider }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string; readonly provider: MusicProvider }) {
   const query = useAtomValue(searchQueryAtom)
   const setQuery = useSetAtom(searchQueryAtom)
-  const rows: readonly ListRowContent[] = frame.rows.map((row) => ({ index: row.index, primary: row.label, secondary: row.sublabel, chevron: row.glyphs.includes('descend') ? <PanelIcon name="chevron" /> : undefined, unavailable: state === 'offline' }))
+  const rows: readonly ListRowContent[] = frame.rows.map((row) => ({ index: row.index, primary: row.label, secondary: frame.route?.kind === 'songs' ? undefined : row.sublabel, chevron: row.glyphs.includes('descend') ? <PanelIcon name="chevron" /> : undefined, unavailable: state === 'offline' }))
   const loading = state === 'loading' || isNavigationLoadingFrame(frame)
   const message = listStateMessage(frame, loading ? 'loading' : state, visibleRows)
   const search = frame.route?.kind === 'search-entry' ? <label className="wp-search-field"><span>Search Query</span><input name="music-search" value={query} onChange={(event) => setQuery(event.currentTarget.value)} placeholder="Artists, albums, songs…" autoComplete="off" /></label> : undefined
   return (
     <section className="wp-screen wp-browser-list" aria-label={frame.title} aria-busy={loading}>
-      <TitleBar title={frame.title} />
+      <BrowsingTitleBar title={frame.title} provider={provider} />
       <ListViewport rows={rows} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label={frame.title} panelId={panelId} preview={search} message={message} />
       {state === 'offline' ? <FooterReceipt>Offline. Showing cached library metadata.</FooterReceipt> : null}
     </section>
@@ -524,7 +532,7 @@ function NestedTrackList({ frame, state, visibleRows, panelId, provider, navigat
   const loading = state === 'loading' || isNavigationLoadingFrame(frame)
   return (
     <section className="wp-screen" aria-label="Album tracks" aria-busy={loading} data-success-object={success?.objectKey} data-library-total={success?.libraryTotal}>
-      <TitleBar title={frame.title} index={state === 'offline' ? 'Cached metadata' : undefined} />
+      <BrowsingTitleBar title={frame.title} provider={provider} index={state === 'offline' ? 'Cached metadata' : undefined} />
       <ListViewport rows={rows} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label={`${frame.title} tracks`} panelId={panelId} message={listStateMessage(frame, loading ? 'loading' : state, visibleRows, 'Nothing here plays in your region.', 'Search for it · Go to artist')} />
       {success?.screenId === 'S08' ? <FooterReceipt>{success.text}</FooterReceipt> : null}
     </section>
@@ -751,7 +759,7 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
   const rawPositionMs = wheelControl?.kind === 'scrub' ? wheelControl.value : progressTick.positionMs
   const finitePositionMs = Number.isFinite(rawPositionMs) ? Math.max(0, rawPositionMs) : 0
   const shownPosition = Math.min(finitePositionMs, durationMs)
-  const shownProgress = durationMs === 0 ? 0 : Math.round((shownPosition / durationMs) * 100)
+  const shownProgress = durationMs === 0 ? 0 : (shownPosition / durationMs) * 100
   const control = { label: mode === 'scrub' ? 'Track position, scrubbing' : 'Playback position', value: shownPosition, maximum: durationMs, percent: shownProgress, start: formatDuration(shownPosition), end: `-${formatDuration(durationMs - shownPosition)}` }
   return (
     <section className="wp-screen wp-now" aria-label="Now Playing" aria-busy={playbackPending} data-mode={mode} data-wheel-control={wheelControl?.kind} data-scrub-state={mode === 'scrub' ? scrubState : undefined} data-playback-phase={playbackFailed ? 'failed' : playbackPending ? 'starting' : 'ready'} data-playback-indeterminate={playbackPending ? 'true' : undefined} data-art-tone={artworkTone ?? 'provider'} data-art-sample-source={artworkTone === null ? samples === null ? 'pending' : 'provider' : 'fixture'} data-volume={shownVolume} data-position-ms={shownPosition} style={artStyle}>
@@ -771,7 +779,7 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
           : <>
               <div className={`wp-progress${mode === 'scrub' ? ' wp-progress--scrub' : ''}${playbackPending ? ' wp-progress--indeterminate' : ''}`} role="progressbar" aria-label={playbackPending ? 'Loading playback' : control.label} aria-valuemin={playbackPending ? undefined : 0} aria-valuemax={playbackPending ? undefined : control.maximum} aria-valuenow={playbackPending ? undefined : Math.round(control.value)}>
                 <i style={{ inlineSize: `${control.percent}%` }} />
-                {mode === 'scrub' ? <b style={{ insetInlineStart: `${control.percent}%` }} aria-hidden="true" /> : null}
+                {mode === 'scrub' ? <b style={{ insetInlineStart: `calc(1px + (100% - 2px) * ${control.percent / 100})` }} aria-hidden="true" /> : null}
               </div>
               <span className="wp-now-timing-spacer" aria-hidden="true" />
               {playbackFailed
