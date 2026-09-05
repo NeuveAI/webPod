@@ -31,3 +31,6 @@ cert/
 *.pem
 *.key
 *.p12
+
+# Manifest-verified assets copied by Vite config for dev and production.
+/apps/web/public/stickers/playworn/

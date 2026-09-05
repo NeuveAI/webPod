@@ -16,6 +16,7 @@ import {
   type DeviceOrientationGrabStart,
   type DeviceOrientation,
   type ScreenMeshHandle,
+  type DeviceStickerScene,
 } from '@webpod/device'
 import {
   acceptedExternalPressActionAtom,
@@ -58,7 +59,14 @@ import {
 } from './interaction-audio'
 import { createBrowserInteractionAudioBackend } from './web-audio-backend'
 
+/** A lost context retains its Canvas for restoration, with an honest semantic status. */
+const CONTEXT_RESTORATION_STYLE = {
+  position: 'absolute', inset: 0, zIndex: 3, display: 'grid', placeItems: 'center',
+  background: '#141820', color: '#eee9df', fontSize: 16, pointerEvents: 'none',
+} as const
+
 export interface CompositeDeviceProps {
+  readonly stickerScene?: DeviceStickerScene
   readonly panel: ReactNode
   readonly colourway?: Colourway
   readonly className?: string
@@ -86,6 +94,7 @@ export interface CompositeDeviceProps {
  * the canvas. No React component owns a duplicate copy of panel state.
  */
 export function CompositeDevice({
+  stickerScene,
   panel,
   colourway = 'black',
   className,
@@ -147,6 +156,7 @@ export function CompositeDevice({
           {host !== null && tier.tier === 'T1' ? createPortal(panel, host) : null}
           {shouldMountCanvas ? (
             <DeviceCanvas
+              stickerScene={stickerScene}
               colourway={colourway}
               cameraFov={cameraFov}
               cameraDistance={cameraDistance}
@@ -168,6 +178,11 @@ export function CompositeDevice({
                 onCardinalPress={onCardinalPress}
               />
             </DeviceCanvas>
+          ) : null}
+          {tier.contextLost ? (
+            <div role="status" aria-live="polite" style={CONTEXT_RESTORATION_STYLE}>
+              Restoring device view…
+            </div>
           ) : null}
         </>
       )}

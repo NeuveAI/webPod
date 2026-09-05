@@ -1,3 +1,4 @@
+import { StickerPackScene } from "./StickerPackScene";
 /**
  * Demand-rendered physical device canvas. An untouched device schedules no
  * animation loop. Renderer defaults select AgX at exposure1 for photographic
@@ -161,6 +162,7 @@ export function DeviceCanvas({
             <StudioEnvironment {...studioEnvironment} />
           )}
           <Device {...device} form={form} orientation={orientation} />
+          {device.stickerScene === undefined ? null : <StickerPackScene scene={device.stickerScene} />}
           <ResponsiveDeviceCamera
             explicitDistance={cameraDistance}
             fov={cameraFov}

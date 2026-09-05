@@ -1,3 +1,4 @@
+import { syncStickerAssets } from '../../scripts/sticker-assets.ts'
 import { existsSync, readFileSync } from 'node:fs'
 import { isAbsolute, resolve } from 'node:path'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -81,6 +82,7 @@ function sourceIdentityHealth(): Plugin {
 
 export default defineConfig(({ mode }) => {
   const workspaceRoot = resolve(import.meta.dirname, '..', '..')
+  syncStickerAssets(workspaceRoot)
   const appleServerEnv = loadEnv(mode, workspaceRoot, 'APPLE_')
   const runtimeAppleEnv = normalizeAppleServerEnv(workspaceRoot, appleServerEnv, process.env)
   for (const name of APPLE_SERVER_ENV_NAMES) {

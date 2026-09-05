@@ -296,3 +296,8 @@ export {
   type ProbeTarget,
   type TargetOptions,
 } from "./luminance-probe";
+
+export * from "./sticker-contract";
+export { STICKER_LAMINATE, STICKER_PACK_MATERIAL } from "./materials";
+
+export { retryStickerArtwork } from "./sticker-textures";

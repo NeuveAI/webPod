@@ -1,3 +1,5 @@
+import { StickerSurface } from "./StickerSurface";
+import type { DeviceStickerScene } from "./sticker-contract";
 import { BACKPLATE_FINISH, createBackplateFinishMaps } from "./backplate-finish";
 /**
  * The device, as react-three-fiber elements.
@@ -114,6 +116,7 @@ export type {
 } from "./orientation";
 
 export type DeviceProps = {
+  readonly stickerScene?: DeviceStickerScene;
   readonly colourway?: Colourway;
   readonly orientation?: DeviceOrientation;
   /** §12.3's parameter table. Injected (D-012); defaults to §12.3. */
@@ -156,6 +159,7 @@ const { displayWell, glass, mask } = DEVICE_SURFACE_LAYOUT.front;
 const BEVEL_SEGMENTS = 16;
 
 export function Device({
+  stickerScene,
   colourway = "black",
   orientation = FRONT_DEVICE_ORIENTATION,
   materials = DEFAULT_DEVICE_MATERIALS,
@@ -669,6 +673,7 @@ export function Device({
       lightRig={lightRig}
       form={form}
     >
+      {stickerScene === undefined ? null : <StickerSurface scene={stickerScene} rear={backGeometry} />}
       {/* §5.2 — the mirror-polished back plate, uncut. */}
       <mesh
         name="device-steel-back"

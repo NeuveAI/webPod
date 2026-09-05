@@ -250,3 +250,15 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
     toneMapped: false,
   },
 };
+
+/** Printed vinyl and its collection-wide satin coat, calibrated independently of chrome. */
+export const STICKER_LAMINATE = Object.freeze({
+  color: '#ffffff', metalness: 0, roughness: 0.58,
+  clearcoat: 0.3, clearcoatRoughness: 0.35, envMapIntensity: 0.8,
+});
+export const STICKER_PACK_MATERIAL = Object.freeze({
+  color: '#e6ddc8', metalness: 0, roughness: 0.55,
+  clearcoat: 0.35, clearcoatRoughness: 0.35, envMapIntensity: 0.8,
+});
+
+export const STICKER_MICROTEXTURE_AMPLITUDE = 0.025;

@@ -52,3 +52,4 @@ export type {
   NowPlayingVolumeFeedbackDriverOptions,
   TimerHandle,
 } from './store'
+export * from './stickers';
