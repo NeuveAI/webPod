@@ -9,7 +9,8 @@ so there is exactly one copy of the law and it is this one.
 ## Repo facts
 
 - **`design.pen` is encrypted.** Access it only through the `pencil` MCP tools — never `Read`, `Grep`, or edit it directly.
-- **Ground library work in `~/code/agentic-context/`**, not recall. Several dependencies here have moved since training data.
+- **Ground library work in `/Users/vinicius/code/.better-coding-agents/resources/`**, not recall. Check installed sources when a reference checkout differs from the pinned dependency version.
+- **TanStack Start is the canonical routing and server glue layer.** Use its file routes and server handlers in `apps/web`; keep server domain services in `packages/server-core` rather than adding a parallel HTTP framework.
 - **Workstreams live in `docs/workstreams/NNN-name/`** and are the initiative tracker for this repo. Each is self-contained; read the one you are assigned and ignore the rest. There is no Kanban board and no `neuve` shell — do not ask for tickets and do not invent ticket ids.
 
 ## Repo law

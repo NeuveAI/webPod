@@ -1,0 +1,13 @@
+# Neutral sticker backend handover
+
+2026-09-06. Independent verdict: **APPROVE — neutral backend checkpoint only**, recorded in [backend-review.md](reviews/backend-review.md). B1–B4 are resolved with independent regression checks. Authentication and the complete feature remain outside that approval.
+
+Implemented client-safe `@webpod/stickers` catalogue/contracts/validators; Bun + Drizzle SQLite storage; scoped Effect service/runtime; genre starter and observed-listening policy; atomic grants, openings and placement updates; bounded Apple metadata import/enrichment; injected-auth HTTP parsing; and a private provider credential handoff that removes authorization tokens from public Session.
+
+Consumers use `STICKER_CATALOGUE`, `getSticker`, `StickerInventory`, `ListeningObservation`, `StickerPlacement`, `isStickerInventory` and `isStickerPlacement`. Artwork URLs follow `/stickers/playworn/<genre>/<file>`; surface work owns the public copy/build hook and rendering. UI work owns the provider observation lifecycle and inventory presentation. Backend dependency coordination included @webpod/stickers for device/state/app, direct app @webpod/state and @tanstack/query-core for the agreed UI runtime; this commit contains their package declarations/lockfile, not their implementation sources.
+
+Final backend verification: **81 tests pass, 0 fail, 297 assertions**; independent server-core/stickers/providers typechecks and scoped ESLint pass. Exact outputs are in [evidence/backend](evidence/backend); the review retains original failing probes and corrected reruns. Tests cover real isolated SQLite upgrade/reopen, ownership denial, retry/grant/open idempotency, server elapsed caps across tabs, pause/seek/stale observations, metadata precedence/provenance, late starter ownership, bounded import failures, HTTP validation and Effect disposal.
+
+The next backend step depends on the owner's identity choice. There are no production sticker Start routes/session implementation, application database configuration or background server singleton in this checkpoint. Complete those boundaries with cancellation/revocation, upstream concurrency/coalescing, production SSR/client-bundle checks and a fresh independent review. See [canonical architecture](../../architecture/sticker-backend.md) for the precise runtime/configuration boundary and [backend-contract.md](backend-contract.md) for proposed endpoints.
+
+No existing user database was opened or migrated, no credentials inspected, no deployment/push performed. Policy defaults and all-owned starter behavior are explicit in the contract and implementation diary.

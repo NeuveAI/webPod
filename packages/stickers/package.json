@@ -1,5 +1,5 @@
 {
-  "name": "@webpod/server-core",
+  "name": "@webpod/stickers",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,9 +10,6 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@webpod/providers": "workspace:*",
-    "effect": "4.0.0-rc.112",
-    "@webpod/stickers": "workspace:*",
-    "drizzle-orm": "0.45.2"
+    "@webpod/tokens": "workspace:*"
   }
 }

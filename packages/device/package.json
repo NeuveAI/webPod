@@ -12,7 +12,8 @@
   "dependencies": {
     "@react-three/fiber": "9.7.0",
     "@webpod/tokens": "workspace:*",
-    "three": "0.185.1"
+    "three": "0.185.1",
+    "@webpod/stickers": "workspace:*"
   },
   "devDependencies": {
     "@happy-dom/global-registrator": "^20.11.15",

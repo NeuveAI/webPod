@@ -1,0 +1,8 @@
+B1 catalogue then library starter packs: 0
+B2 packs before import: [
+  [ "PW-C01" ]
+]
+B2 packs after import: [
+  [ "PW-C01" ], [ "PW-C01" ]
+]
+B3 explicit enrichment then 10s rock listening: 0
