@@ -1,0 +1,41 @@
+Baseline checkpoint and cleanup — 2026-09-06
+
+User authorization: commit and clean up previous agent work before implementing stickers.
+Boundary: staged prior work only; current 015 implementation/research is excluded.
+
+Commits:
+4a05c37 Preserve device refinement evidence and ignore local scratch
+6aaef16 Preserve playback status and refine panel interaction feedback
+14b4d0b Checkpoint glove cursor runtime and authored hand assets
+
+Cleanup:
+- Unstaged and ignored /.neuve/, /.neuve-artifact/, /test-results/, and *.blend1.
+- Retained the excluded local files on disk, including the Blender recovery copy.
+- Preserved curated historical workstream evidence, authored .blend assets, GLB, and scripts.
+- Restored the sole production-device-view diff: accidental collapsed argument formatting.
+- Staged inventory contained no cert/, environment files, or signing-key paths.
+- No sensitive file contents were read. No push or history rewrite performed.
+
+Verification performed before sticker implementation:
+- bun run typecheck: PASS, 11/11 projects clean.
+- bun test packages/panel/src: PASS, 123 tests, 652 assertions, zero failures.
+- bunx --bun eslint apps packages scripts: PASS, exit 0.
+- bun run lint: FAIL, 55 errors in historical evidence scripts only.
+  Affected scripts:
+  docs/workstreams/008-lighting-and-hardware/evidence/hardware/probe-strip.ts
+  docs/workstreams/009-product-studio-and-flat-display/evidence/display/tone-mapping-parity.ts
+  docs/workstreams/009-product-studio-and-flat-display/evidence/final-display/capture.ts
+  docs/workstreams/009-product-studio-and-flat-display/evidence/mutant-aperture.ts
+  docs/workstreams/012-continuous-front-cover/evidence/final-coverage/probe.ts
+  docs/workstreams/012-continuous-front-cover/evidence/isolation/capture.ts
+  docs/workstreams/012-continuous-front-cover/evidence/isolation/rays.ts
+  docs/workstreams/012-continuous-front-cover/evidence/isolation/rear-isolation.ts
+  Rules: no-unused-vars, no-non-null-assertion, no-explicit-any.
+  Historical probes preserved verbatim; no lint suppression introduced.
+- git diff --cached --check reported trailing whitespace in historical raw logs and draft patches;
+  preserved those evidence artifacts verbatim. No production-source whitespace issue reported.
+
+Limits:
+This is a tested baseline checkpoint, not an independent full review or a visual acceptance.
+Browser/e2e and authored hand asset visual validation were not rerun during this cleanup.
+After checkpoint commits, only current workstream 015 research/scope files remained untracked.
