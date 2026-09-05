@@ -1,0 +1,2503 @@
+{
+  "schemaVersion": 1,
+  "brand": "PLAYWORN",
+  "assetRole": "printed-sticker-base",
+  "count": 60,
+  "sourceDocument": "docs/design/stickers.pen",
+  "finish": "Separate shared satin laminate in runtime; alpha clips both printed art and reflection.",
+  "boundsConvention": "Pixel coordinates [left,top,right,bottom], right/bottom exclusive. visibleBounds threshold16 suppresses near-zero source residue for sizing; preserve edge antialiasing in rendering.",
+  "collections": [
+    {
+      "genre": "metal",
+      "name": "AFTER HOURS",
+      "count": 5
+    },
+    {
+      "genre": "pop",
+      "name": "LOUD HEARTS",
+      "count": 5
+    },
+    {
+      "genre": "rock",
+      "name": "LIVE WIRE",
+      "count": 5
+    },
+    {
+      "genre": "hip-hop",
+      "name": "DEEP GROOVE",
+      "count": 5
+    },
+    {
+      "genre": "rnb",
+      "name": "VELVET SIGNAL",
+      "count": 5
+    },
+    {
+      "genre": "electronic",
+      "name": "PHASE SHIFT",
+      "count": 5
+    },
+    {
+      "genre": "indie",
+      "name": "SMALL HOURS",
+      "count": 5
+    },
+    {
+      "genre": "jazz",
+      "name": "BLUE ROOM",
+      "count": 5
+    },
+    {
+      "genre": "classical",
+      "name": "LONG FORM",
+      "count": 5
+    },
+    {
+      "genre": "country",
+      "name": "OPEN ROAD",
+      "count": 5
+    },
+    {
+      "genre": "reggae",
+      "name": "VERSION SIDE",
+      "count": 5
+    },
+    {
+      "genre": "latin",
+      "name": "CLAVE CLUB",
+      "count": 5
+    }
+  ],
+  "stickers": [
+    {
+      "id": "PW-A01",
+      "name": "Night Shift",
+      "genre": "metal",
+      "collection": "AFTER HOURS",
+      "file": "metal/pw-a01-night-shift.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "df0e282f6629f2d590f95fc39afe24372ca757ce3eea72d460825c2b9aa18307",
+      "alpha": {
+        "range": [
+          0,
+          255
+        ],
+        "nonzeroBounds": [
+          103,
+          85,
+          693,
+          543
+        ],
+        "visibleBounds": [
+          103,
+          85,
+          693,
+          543
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 304188,
+        "nearZeroPixels1to4": 26
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "Nx17B",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": []
+    },
+    {
+      "id": "PW-A02",
+      "name": "Deep Cut",
+      "genre": "metal",
+      "collection": "AFTER HOURS",
+      "file": "metal/pw-a02-deep-cut.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "3253fae850624bcad292ccbe217a0e957f8e98835d4abff3e466b006534f3b9d",
+      "alpha": {
+        "range": [
+          0,
+          255
+        ],
+        "nonzeroBounds": [
+          150,
+          23,
+          647,
+          597
+        ],
+        "visibleBounds": [
+          150,
+          23,
+          647,
+          597
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 278147,
+        "nearZeroPixels1to4": 53
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "eUpct",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": []
+    },
+    {
+      "id": "PW-A03",
+      "name": "Full Volume",
+      "genre": "metal",
+      "collection": "AFTER HOURS",
+      "file": "metal/pw-a03-full-volume.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "397c4434fafe4d5d272e238fde2144732a3c63c28efc2fee2b5f1e0724c314fb",
+      "alpha": {
+        "range": [
+          0,
+          255
+        ],
+        "nonzeroBounds": [
+          70,
+          36,
+          725,
+          584
+        ],
+        "visibleBounds": [
+          70,
+          36,
+          725,
+          584
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 190676,
+        "nearZeroPixels1to4": 37
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "p8Fxq",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": []
+    },
+    {
+      "id": "PW-A04",
+      "name": "No Skip",
+      "genre": "metal",
+      "collection": "AFTER HOURS",
+      "file": "metal/pw-a04-no-skip.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "8aceb9b5d5723e1a936301cbd0d01131c92bc23641ef467d26f622598ec0d9dd",
+      "alpha": {
+        "range": [
+          0,
+          255
+        ],
+        "nonzeroBounds": [
+          114,
+          52,
+          682,
+          568
+        ],
+        "visibleBounds": [
+          114,
+          52,
+          682,
+          568
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 312578,
+        "nearZeroPixels1to4": 37
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "xlmKZ",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": []
+    },
+    {
+      "id": "PW-A05",
+      "name": "Heavy Rotation",
+      "genre": "metal",
+      "collection": "AFTER HOURS",
+      "file": "metal/pw-a05-heavy-rotation.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "f0966a247ec1b345b7e77f1b07fd2af0906d6bd492fc32b016ff2d4b10993b76",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          101,
+          12,
+          695,
+          611
+        ],
+        "visibleBounds": [
+          102,
+          12,
+          693,
+          607
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 211127,
+        "nearZeroPixels1to4": 2649
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "Wm3Tb",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-B01",
+      "name": "On Repeat",
+      "genre": "pop",
+      "collection": "LOUD HEARTS",
+      "file": "pop/pw-b01-on-repeat.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "096157d2f0046f597a82ec9c50dbb908b8929d122b39927aa422206be665e45d",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          88,
+          7,
+          696,
+          614
+        ],
+        "visibleBounds": [
+          117,
+          28,
+          688,
+          589
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 162329,
+        "nearZeroPixels1to4": 81601
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "teb9K",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-B02",
+      "name": "Heart Stereo",
+      "genre": "pop",
+      "collection": "LOUD HEARTS",
+      "file": "pop/pw-b02-heart-stereo.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "b56233f5ed8ba8a02c96ee945247fe4d1022c82afcf737fa4773e283cb48d309",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          88,
+          23,
+          703,
+          597
+        ],
+        "visibleBounds": [
+          88,
+          70,
+          703,
+          583
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 149470,
+        "nearZeroPixels1to4": 116663
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "i7NTHN",
+        "method": "Pencil export_nodes scale2 with temporary right clip at x703; source crop restored",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff.",
+        "Export-only crop removes detached neighbour fragment beyond x703; source Pencil crop restored to310. Main artwork geometry unchanged; native renderer can vary one-channel low-bit rounding."
+      ]
+    },
+    {
+      "id": "PW-B03",
+      "name": "Side Quest",
+      "genre": "pop",
+      "collection": "LOUD HEARTS",
+      "file": "pop/pw-b03-side-quest.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "90af7c148f88eb4af0a5dd890000d2478548ee30f381d80ec5051d281d0e3289",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          88,
+          3,
+          708,
+          617
+        ],
+        "visibleBounds": [
+          88,
+          31,
+          677,
+          600
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 186539,
+        "nearZeroPixels1to4": 98347
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "g57EZH",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-B04",
+      "name": "Sing It Back",
+      "genre": "pop",
+      "collection": "LOUD HEARTS",
+      "file": "pop/pw-b04-sing-it-back.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "3e2df3a625ef278b89a6ce86042c6c6828c2b53235e418507518d5bea42cc4f3",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          108,
+          0,
+          679,
+          614
+        ],
+        "visibleBounds": [
+          109,
+          7,
+          677,
+          611
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 205101,
+        "nearZeroPixels1to4": 6839
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "v4UW7A",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-B05",
+      "name": "Mixtape Kid",
+      "genre": "pop",
+      "collection": "LOUD HEARTS",
+      "file": "pop/pw-b05-mixtape-kid.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "14bd0a476ae1d0a1f5bdf6fabde867ffd5d889722f675c4c3cd0c5df023e9469",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          120,
+          12,
+          692,
+          616
+        ],
+        "visibleBounds": [
+          122,
+          16,
+          686,
+          607
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 212577,
+        "nearZeroPixels1to4": 3132
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "ZKUor",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-C01",
+      "name": "Soundcheck",
+      "genre": "rock",
+      "collection": "LIVE WIRE",
+      "file": "rock/pw-c01-soundcheck.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "4a1abcc06965d1926ca76cd590fd7cfdaf1177b3b5c908a723b7e6ea8631a2b7",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          123,
+          0,
+          672,
+          593
+        ],
+        "visibleBounds": [
+          129,
+          27,
+          666,
+          586
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 243482,
+        "nearZeroPixels1to4": 7572
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "vEs72",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-C02",
+      "name": "Riff Rider",
+      "genre": "rock",
+      "collection": "LIVE WIRE",
+      "file": "rock/pw-c02-riff-rider.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "112e478323d7690292e2c9ab5e0adbf417a4d69473d105a0592b355200465746",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          9,
+          46,
+          789,
+          559
+        ],
+        "visibleBounds": [
+          17,
+          66,
+          781,
+          552
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 243189,
+        "nearZeroPixels1to4": 11647
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "wdCid",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-C03",
+      "name": "Last Encore",
+      "genre": "rock",
+      "collection": "LIVE WIRE",
+      "file": "rock/pw-c03-last-encore.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "033e8eaa983da767602fa36f2c4848dab8d83e939b83ef823420a24d8ce28d3f",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          254,
+          0,
+          559,
+          609
+        ],
+        "visibleBounds": [
+          256,
+          11,
+          558,
+          608
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 391250,
+        "nearZeroPixels1to4": 2125
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "JlK2l",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-C04",
+      "name": "Feedback",
+      "genre": "rock",
+      "collection": "LIVE WIRE",
+      "file": "rock/pw-c04-feedback.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "5fadbf6a693236e001585739414ea83963044f4a12bca76f5590481dbb9d966b",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          205,
+          0,
+          585,
+          620
+        ],
+        "visibleBounds": [
+          224,
+          10,
+          578,
+          611
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 329306,
+        "nearZeroPixels1to4": 5628
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "I6K46",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-C05",
+      "name": "Stage Dive",
+      "genre": "rock",
+      "collection": "LIVE WIRE",
+      "file": "rock/pw-c05-stage-dive.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "1ba91b35c30b3e920bfcf8cee24d3f6da825f71a0d027706c02e0fa576943442",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          103,
+          0,
+          677,
+          618
+        ],
+        "visibleBounds": [
+          135,
+          20,
+          661,
+          601
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 240267,
+        "nearZeroPixels1to4": 22768
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "pnBhr",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-D01",
+      "name": "Crate Find",
+      "genre": "hip-hop",
+      "collection": "DEEP GROOVE",
+      "file": "hip-hop/pw-d01-crate-find.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "b082eb5df74b00f6ae829612d63796d714104673303b567518915a513b444eb2",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          93,
+          0,
+          681,
+          620
+        ],
+        "visibleBounds": [
+          96,
+          2,
+          679,
+          619
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 214454,
+        "nearZeroPixels1to4": 3717
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "ly8rA",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-D02",
+      "name": "Beat Tape",
+      "genre": "hip-hop",
+      "collection": "DEEP GROOVE",
+      "file": "hip-hop/pw-d02-beat-tape.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "fa1b8da217d7df7116ffeb7e74ddae4fbdf39a44eada50deca593ddf30a2e778",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          147,
+          0,
+          665,
+          604
+        ],
+        "visibleBounds": [
+          149,
+          5,
+          662,
+          596
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 233243,
+        "nearZeroPixels1to4": 3133
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "Ziy6f",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-D03",
+      "name": "Mic Check",
+      "genre": "hip-hop",
+      "collection": "DEEP GROOVE",
+      "file": "hip-hop/pw-d03-mic-check.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "fc31130a9f5476672a8ffaa5b8000703ee5d7e5c14254193c2a54a5f13352cc8",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          88,
+          8,
+          707,
+          618
+        ],
+        "visibleBounds": [
+          96,
+          21,
+          690,
+          597
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 198324,
+        "nearZeroPixels1to4": 27494
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "FSbtQ",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-D04",
+      "name": "Break Loop",
+      "genre": "hip-hop",
+      "collection": "DEEP GROOVE",
+      "file": "hip-hop/pw-d04-break-loop.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "a11187e90421cc87724aabcb5f8417528f4b37b470e78dcbdc8b2557e5d1e828",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          88,
+          8,
+          708,
+          612
+        ],
+        "visibleBounds": [
+          102,
+          9,
+          697,
+          595
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 180364,
+        "nearZeroPixels1to4": 27704
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "x8SYZt",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-D05",
+      "name": "Street Cut",
+      "genre": "hip-hop",
+      "collection": "DEEP GROOVE",
+      "file": "hip-hop/pw-d05-street-cut.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "3183e338eccc43f88e4a36b3a676ce209de65ccb2acf3b95702856c92eba0650",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          88,
+          10,
+          708,
+          610
+        ],
+        "visibleBounds": [
+          97,
+          23,
+          681,
+          590
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 173622,
+        "nearZeroPixels1to4": 31593
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "WDQq9",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-E01",
+      "name": "Slow Jam",
+      "genre": "rnb",
+      "collection": "VELVET SIGNAL",
+      "file": "rnb/pw-e01-slow-jam.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "d26c535dd7ca55557460065d4dabf01551bf35dc41a9d2d615f9523d4f9ef6f2",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          88,
+          7,
+          708,
+          613
+        ],
+        "visibleBounds": [
+          129,
+          68,
+          695,
+          575
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 197673,
+        "nearZeroPixels1to4": 75430
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "ZwSB8",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-E02",
+      "name": "Soul Side",
+      "genre": "rnb",
+      "collection": "VELVET SIGNAL",
+      "file": "rnb/pw-e02-soul-side.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "d74bce5756422f953a843929dcb592ea02713154ec0d4e591e6d595e7ed7945c",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          113,
+          0,
+          683,
+          620
+        ],
+        "visibleBounds": [
+          127,
+          32,
+          635,
+          599
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 193774,
+        "nearZeroPixels1to4": 82557
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "Sw4Ka",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-E03",
+      "name": "Afterglow",
+      "genre": "rnb",
+      "collection": "VELVET SIGNAL",
+      "file": "rnb/pw-e03-afterglow.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "e00d487cd0c974b56a6c112a8d4e7e8c424ed84e530b83f2929c42debfe08e49",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          95,
+          0,
+          684,
+          620
+        ],
+        "visibleBounds": [
+          131,
+          22,
+          634,
+          616
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 269061,
+        "nearZeroPixels1to4": 35231
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "m2Tbl",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-E04",
+      "name": "Warm Voice",
+      "genre": "rnb",
+      "collection": "VELVET SIGNAL",
+      "file": "rnb/pw-e04-warm-voice.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "b5a451e7754eb59dc140a7af1d1d11c2cb6944af8aef06d13e0ba3ee0249e9cc",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          94,
+          0,
+          702,
+          619
+        ],
+        "visibleBounds": [
+          115,
+          0,
+          702,
+          585
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 161242,
+        "nearZeroPixels1to4": 54826
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "g4BqO",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-E05",
+      "name": "Love Letter",
+      "genre": "rnb",
+      "collection": "VELVET SIGNAL",
+      "file": "rnb/pw-e05-love-letter.png",
+      "width": 796,
+      "height": 620,
+      "sha256": "b44f9f4662aecb0f35709cf480861f05beaea6fcbde1f652108bbfef1a37e286",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          96,
+          0,
+          700,
+          620
+        ],
+        "visibleBounds": [
+          103,
+          1,
+          671,
+          606
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 175133,
+        "nearZeroPixels1to4": 67446
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "vqNDq",
+        "method": "Pencil export_nodes scale2",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+      ]
+    },
+    {
+      "id": "PW-F01",
+      "name": "Pulse Code",
+      "genre": "electronic",
+      "collection": "PHASE SHIFT",
+      "file": "electronic/pw-f01-pulse-code.png",
+      "width": 1448,
+      "height": 1086,
+      "sha256": "7504489686a1c9ba51124f28aa537b621b643b4a896b68c651666000e67937b4",
+      "alpha": {
+        "range": [
+          0,
+          255
+        ],
+        "nonzeroBounds": [
+          0,
+          0,
+          1366,
+          1086
+        ],
+        "visibleBounds": [
+          162,
+          19,
+          1308,
+          1083
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 384423,
+        "nearZeroPixels1to4": 16409
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "D1QyDl",
+        "method": "Built-in imagegen background-only isolation of Pencil scale2 export",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Background-only imagegen resampled pixels; slight print/color variation. Generated dimensions retained by supervisor direction; normalize using alpha bounds.",
+        "Transparent exterior RGB may contain apparent glow when viewed ignoring alpha; inspected exterior alpha is zero."
+      ]
+    },
+    {
+      "id": "PW-F02",
+      "name": "Night Bus",
+      "genre": "electronic",
+      "collection": "PHASE SHIFT",
+      "file": "electronic/pw-f02-night-bus.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "f1f66e6f817342378f257d151897fc83d1bc274e67d9cc842792758ce43f93db",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          0,
+          19,
+          1522,
+          1024
+        ],
+        "visibleBounds": [
+          190,
+          21,
+          1322,
+          988
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 591370,
+        "nearZeroPixels1to4": 12950
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "e28R9a",
+        "method": "Built-in imagegen background-only isolation of Pencil scale2 export",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Background-only imagegen resampled pixels; slight print/color variation. Generated dimensions retained by supervisor direction; normalize using alpha bounds.",
+        "Transparent exterior RGB may contain apparent glow when viewed ignoring alpha; inspected exterior alpha is zero."
+      ]
+    },
+    {
+      "id": "PW-F03",
+      "name": "Bass Line",
+      "genre": "electronic",
+      "collection": "PHASE SHIFT",
+      "file": "electronic/pw-f03-bass-line.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "7f437494b0088c346f7032db8aaec6a68d4a6ea06c180ecaa00a2752c9ec02d3",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          0,
+          29,
+          1450,
+          1024
+        ],
+        "visibleBounds": [
+          228,
+          34,
+          1268,
+          997
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 594612,
+        "nearZeroPixels1to4": 17242
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "e7RTup",
+        "method": "Built-in imagegen background-only isolation of Pencil scale2 export",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Background-only imagegen resampled pixels; slight print/color variation. Generated dimensions retained by supervisor direction; normalize using alpha bounds.",
+        "Transparent exterior RGB may contain apparent glow when viewed ignoring alpha; inspected exterior alpha is zero."
+      ]
+    },
+    {
+      "id": "PW-F04",
+      "name": "Loop State",
+      "genre": "electronic",
+      "collection": "PHASE SHIFT",
+      "file": "electronic/pw-f04-loop-state.png",
+      "width": 1448,
+      "height": 1086,
+      "sha256": "a7da8f6e6acaaf9145e2c6f89d4bf12f16ab3a03a21cd1631f53ce3543f5c653",
+      "alpha": {
+        "range": [
+          0,
+          255
+        ],
+        "nonzeroBounds": [
+          0,
+          0,
+          1352,
+          1074
+        ],
+        "visibleBounds": [
+          140,
+          9,
+          1349,
+          1070
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 494677,
+        "nearZeroPixels1to4": 10816
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "Y76MnD",
+        "method": "Built-in imagegen background-only isolation of Pencil scale2 export",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Background-only imagegen resampled pixels; slight print/color variation. Generated dimensions retained by supervisor direction; normalize using alpha bounds.",
+        "Transparent exterior RGB may contain apparent glow when viewed ignoring alpha; inspected exterior alpha is zero."
+      ]
+    },
+    {
+      "id": "PW-F05",
+      "name": "Future Club",
+      "genre": "electronic",
+      "collection": "PHASE SHIFT",
+      "file": "electronic/pw-f05-future-club.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "57c2742e638d5eaf3a55a939743555067732e38b1bd413d0b0198b6dd436b3a2",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          157,
+          0,
+          1522,
+          1024
+        ],
+        "visibleBounds": [
+          166,
+          16,
+          1364,
+          997
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 564223,
+        "nearZeroPixels1to4": 21024
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "Ph7O2",
+        "method": "Built-in imagegen background-only isolation of Pencil scale2 export",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-designer.json"
+      },
+      "limitations": [
+        "Background-only imagegen resampled pixels; slight print/color variation. Generated dimensions retained by supervisor direction; normalize using alpha bounds.",
+        "Transparent exterior RGB may contain apparent glow when viewed ignoring alpha; inspected exterior alpha is zero."
+      ]
+    },
+    {
+      "id": "PW-I01",
+      "name": "Demo Days",
+      "genre": "indie",
+      "collection": "SMALL HOURS",
+      "file": "indie/pw-i01-demo-days.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "5911596737237838871fb78e011bd50ef0509b3ca76059425cff37a939647394",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          269,
+          14,
+          1280,
+          1024
+        ],
+        "visibleBounds": [
+          271,
+          21,
+          1276,
+          996
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 893574,
+        "nearZeroPixels1to4": 13266
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "hsray",
+        "method": "Background-only imagegen alpha extraction of approved revision; native-resolution PNG exception",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background.",
+        "Background-only model extraction is visually faithful, not bit-identical to the approved RGB source. Dimensions differ from native 2x slot exports."
+      ]
+    },
+    {
+      "id": "PW-I02",
+      "name": "Hidden Track",
+      "genre": "indie",
+      "collection": "SMALL HOURS",
+      "file": "indie/pw-i02-hidden-track.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "fb6eca5fd2ba0bb44d7694165f42c73e5796d37f427384f3ac420e9b5ff1a26d",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          173,
+          12,
+          624,
+          584
+        ],
+        "visibleBounds": [
+          180,
+          17,
+          617,
+          584
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 257000,
+        "nearZeroPixels1to4": 6958
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "hd5v6",
+        "method": "Pencil native 2x with temporary bottom crop removing disconnected neighbouring fragment; original crop immediately restored",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-I03",
+      "name": "Room Tone",
+      "genre": "indie",
+      "collection": "SMALL HOURS",
+      "file": "indie/pw-i03-room-tone.png",
+      "width": 1244,
+      "height": 1265,
+      "sha256": "86eebf17e9a2437a4fef95b80a56dc156216b0ff5c65a7d6b44bac45623f9d92",
+      "alpha": {
+        "range": [
+          0,
+          255
+        ],
+        "nonzeroBounds": [
+          33,
+          0,
+          1230,
+          1249
+        ],
+        "visibleBounds": [
+          118,
+          13,
+          1184,
+          1233
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 622723,
+        "nearZeroPixels1to4": 36823
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "FO5QQ",
+        "method": "Background-only imagegen alpha extraction of approved revision; native-resolution PNG exception",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background.",
+        "Background-only model extraction is visually faithful, not bit-identical to the approved RGB source. Dimensions differ from native 2x slot exports."
+      ]
+    },
+    {
+      "id": "PW-I04",
+      "name": "Paper Moon",
+      "genre": "indie",
+      "collection": "SMALL HOURS",
+      "file": "indie/pw-i04-paper-moon.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "5418149d264786dcaba154c57b92755e6bd21955267ef6c7efb552bbb1aebde7",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          118,
+          12,
+          678,
+          588
+        ],
+        "visibleBounds": [
+          124,
+          17,
+          669,
+          580
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 240633,
+        "nearZeroPixels1to4": 8200
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "kbA9s",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-I05",
+      "name": "Local Hero",
+      "genre": "indie",
+      "collection": "SMALL HOURS",
+      "file": "indie/pw-i05-local-hero.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "db37f5a1b19afa824c1412eb66644556a5b56f36ad1aae1d2f7cbc7e798a268d",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          174,
+          12,
+          622,
+          588
+        ],
+        "visibleBounds": [
+          181,
+          12,
+          616,
+          583
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 248812,
+        "nearZeroPixels1to4": 12048
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "LFJ1e",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-J01",
+      "name": "Off Beat",
+      "genre": "jazz",
+      "collection": "BLUE ROOM",
+      "file": "jazz/pw-j01-off-beat.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "d1631f66d45671009c8f4da90ca2b6707223d1edcc551e700a2b9af74e1775f9",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          120,
+          12,
+          675,
+          588
+        ],
+        "visibleBounds": [
+          127,
+          20,
+          664,
+          576
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 192204,
+        "nearZeroPixels1to4": 50720
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "LvPvd",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-J02",
+      "name": "Blue Hour",
+      "genre": "jazz",
+      "collection": "BLUE ROOM",
+      "file": "jazz/pw-j02-blue-hour.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "0deb5380ce0224788807dbb97464481ed25b5e976315306e01d420abdf3762f2",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          120,
+          12,
+          676,
+          588
+        ],
+        "visibleBounds": [
+          127,
+          20,
+          668,
+          583
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 214335,
+        "nearZeroPixels1to4": 51244
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "tqh80",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-J03",
+      "name": "Take Five",
+      "genre": "jazz",
+      "collection": "BLUE ROOM",
+      "file": "jazz/pw-j03-take-five.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "1e17ecdeb0a3f88a88cd6dc07bc85d687150010b638d00b52ada445bf44b18be",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          124,
+          12,
+          672,
+          588
+        ],
+        "visibleBounds": [
+          132,
+          24,
+          662,
+          582
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 212356,
+        "nearZeroPixels1to4": 33463
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "DqVwa",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-J04",
+      "name": "Long Solo",
+      "genre": "jazz",
+      "collection": "BLUE ROOM",
+      "file": "jazz/pw-j04-long-solo.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "58d956ba258a77c821bea40886476a4247afd8e9580a003d10b0b9250d6ad60f",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          127,
+          12,
+          669,
+          588
+        ],
+        "visibleBounds": [
+          132,
+          19,
+          662,
+          583
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 194924,
+        "nearZeroPixels1to4": 47181
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "qULJk",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-J05",
+      "name": "Side Notes",
+      "genre": "jazz",
+      "collection": "BLUE ROOM",
+      "file": "jazz/pw-j05-side-notes.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "380ed80285652b60e9f3b69316403f9576763c86ad7ec19760e38b25aeebb83f",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          95,
+          12,
+          700,
+          588
+        ],
+        "visibleBounds": [
+          102,
+          21,
+          693,
+          576
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 180332,
+        "nearZeroPixels1to4": 35152
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "p3SwPc",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-H01",
+      "name": "First Movement",
+      "genre": "classical",
+      "collection": "LONG FORM",
+      "file": "classical/pw-h01-first-movement.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "06027e2b7969adc2d5c41d61db88397e75d202d824e804528a1d0ce9bef82d32",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          107,
+          12,
+          690,
+          580
+        ],
+        "visibleBounds": [
+          112,
+          18,
+          679,
+          580
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 176739,
+        "nearZeroPixels1to4": 45352
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "S8fNE",
+        "method": "Pencil native 2x with temporary bottom crop removing disconnected neighbouring fragment; original crop immediately restored",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-H02",
+      "name": "Quiet Power",
+      "genre": "classical",
+      "collection": "LONG FORM",
+      "file": "classical/pw-h02-quiet-power.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "1a4b4bbd0ef32eacc1d944a769dc87d288c86b7af2ccf1a8c82b9dd846c066df",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          141,
+          12,
+          655,
+          588
+        ],
+        "visibleBounds": [
+          147,
+          14,
+          649,
+          588
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 226592,
+        "nearZeroPixels1to4": 46793
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "jAgbt",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-H03",
+      "name": "Encore",
+      "genre": "classical",
+      "collection": "LONG FORM",
+      "file": "classical/pw-h03-encore.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "a580d3b676a2518c7f5853355f1ab0b91af3157be0c9d26e420f6f37eea78de7",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          16,
+          27,
+          780,
+          581
+        ],
+        "visibleBounds": [
+          24,
+          31,
+          773,
+          574
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 150257,
+        "nearZeroPixels1to4": 26447
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "t7Ouxm",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-H04",
+      "name": "Counterpoint",
+      "genre": "classical",
+      "collection": "LONG FORM",
+      "file": "classical/pw-h04-counterpoint.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "98673644646b6791beef76b920742a29badb32c8952d9b74da8df5079678b722",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          124,
+          12,
+          672,
+          588
+        ],
+        "visibleBounds": [
+          133,
+          12,
+          661,
+          582
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 201100,
+        "nearZeroPixels1to4": 38487
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "KP6pe",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-H05",
+      "name": "Finale",
+      "genre": "classical",
+      "collection": "LONG FORM",
+      "file": "classical/pw-h05-finale.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "ccf76b52ec2da3edb2163d4a052973b59e2e6e0ba5dabe35d2c003a013c1455c",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          110,
+          12,
+          686,
+          588
+        ],
+        "visibleBounds": [
+          119,
+          12,
+          681,
+          581
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 184786,
+        "nearZeroPixels1to4": 38344
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "NnQMq",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-K01",
+      "name": "Six Strings",
+      "genre": "country",
+      "collection": "OPEN ROAD",
+      "file": "country/pw-k01-six-strings.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "b16b6730f0aeb952eca2dbf3ab632b584d2dceb3e3527d6737e651d46ca23184",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          180,
+          12,
+          616,
+          588
+        ],
+        "visibleBounds": [
+          191,
+          12,
+          610,
+          588
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 286744,
+        "nearZeroPixels1to4": 21122
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "HuaUI",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-K02",
+      "name": "Radio Miles",
+      "genre": "country",
+      "collection": "OPEN ROAD",
+      "file": "country/pw-k02-radio-miles.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "08eaf953c1530b62cf168a6cde54b8e02c32830295c49397ddd0cf6aa0ce2dbd",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          16,
+          30,
+          780,
+          570
+        ],
+        "visibleBounds": [
+          24,
+          43,
+          772,
+          563
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 141739,
+        "nearZeroPixels1to4": 35846
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "fqttR",
+        "method": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-K03",
+      "name": "Steel Line",
+      "genre": "country",
+      "collection": "OPEN ROAD",
+      "file": "country/pw-k03-steel-line.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "30bcf94a92057d42f759ad5695f9f1e624bcba5f5651e56e2a38140da3db35c8",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          102,
+          12,
+          694,
+          588
+        ],
+        "visibleBounds": [
+          112,
+          22,
+          688,
+          578
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 198883,
+        "nearZeroPixels1to4": 26497
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "VAk6q",
+        "method": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-K04",
+      "name": "Back Porch",
+      "genre": "country",
+      "collection": "OPEN ROAD",
+      "file": "country/pw-k04-back-porch.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "93ebe3bcae08d04888d79f81c832b57a2ccdd0e80e4534dfa43e30f528a01e79",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          98,
+          12,
+          698,
+          588
+        ],
+        "visibleBounds": [
+          107,
+          12,
+          690,
+          579
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 180025,
+        "nearZeroPixels1to4": 31810
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "xk0lC",
+        "method": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-K05",
+      "name": "Last Verse",
+      "genre": "country",
+      "collection": "OPEN ROAD",
+      "file": "country/pw-k05-last-verse.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "a1a5dc4629857236fe80695c368dd705f98832429ecb589675aa293fe307c4bb",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          43,
+          12,
+          750,
+          588
+        ],
+        "visibleBounds": [
+          56,
+          22,
+          742,
+          581
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 150011,
+        "nearZeroPixels1to4": 29068
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "wrwlh",
+        "method": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-G01",
+      "name": "Version",
+      "genre": "reggae",
+      "collection": "VERSION SIDE",
+      "file": "reggae/pw-g01-version.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "50122174a2c38610a7cb1001901f045c606b804b3be3b3ad34e3f0864ba30d24",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          70,
+          12,
+          726,
+          588
+        ],
+        "visibleBounds": [
+          74,
+          18,
+          726,
+          581
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 182418,
+        "nearZeroPixels1to4": 38984
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "MewjM",
+        "method": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-G02",
+      "name": "Echo Chamber",
+      "genre": "reggae",
+      "collection": "VERSION SIDE",
+      "file": "reggae/pw-g02-echo-chamber.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "73f89138f641e5491a11ae18e89584c118463ba6a73f90dba9a94ec502a3c5f2",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          118,
+          23,
+          671,
+          578
+        ],
+        "visibleBounds": [
+          119,
+          24,
+          667,
+          573
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 240659,
+        "nearZeroPixels1to4": 2531
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "z93rdJ",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-G03",
+      "name": "Low End",
+      "genre": "reggae",
+      "collection": "VERSION SIDE",
+      "file": "reggae/pw-g03-low-end.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "edabe2f0cdb965f821e4df9cb880f93e12c211a9b89efc7de33b48d6d3e690f7",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          116,
+          12,
+          680,
+          588
+        ],
+        "visibleBounds": [
+          116,
+          17,
+          667,
+          588
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 218797,
+        "nearZeroPixels1to4": 29246
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "jjLGf",
+        "method": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-G04",
+      "name": "One Drop",
+      "genre": "reggae",
+      "collection": "VERSION SIDE",
+      "file": "reggae/pw-g04-one-drop.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "4974ce5aa8ee911b13fd7174d2889d8a21d1e75dcaff7164e0f69ba34c1fa0fe",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          117,
+          12,
+          679,
+          588
+        ],
+        "visibleBounds": [
+          135,
+          13,
+          676,
+          577
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 191462,
+        "nearZeroPixels1to4": 39622
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "PQ7iA",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-G05",
+      "name": "Dub Plate",
+      "genre": "reggae",
+      "collection": "VERSION SIDE",
+      "file": "reggae/pw-g05-dub-plate.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "a5b8aa10bb9338c307954c444752c084d5da9f474fbf8758d6c281f18b655ebc",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          91,
+          12,
+          705,
+          587
+        ],
+        "visibleBounds": [
+          99,
+          12,
+          697,
+          580
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 194044,
+        "nearZeroPixels1to4": 24587
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "I6gNK",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-L01",
+      "name": "Clave",
+      "genre": "latin",
+      "collection": "CLAVE CLUB",
+      "file": "latin/pw-l01-clave.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "b6da23f2fc96c89a1528704b07aaf30c61d138910094155eab99f256a25da6bb",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          123,
+          12,
+          673,
+          588
+        ],
+        "visibleBounds": [
+          134,
+          24,
+          665,
+          579
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 196348,
+        "nearZeroPixels1to4": 59391
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "xSvga",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-L02",
+      "name": "Otra Vez",
+      "genre": "latin",
+      "collection": "CLAVE CLUB",
+      "file": "latin/pw-l02-otra-vez.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "19e83d2b204ea49de24f029aa8ccfd80b7ac6c9ad387ff13a05f99ac24989223",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          113,
+          12,
+          682,
+          588
+        ],
+        "visibleBounds": [
+          125,
+          21,
+          674,
+          581
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 204023,
+        "nearZeroPixels1to4": 44192
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "p8kEg",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-L03",
+      "name": "Turn It",
+      "genre": "latin",
+      "collection": "CLAVE CLUB",
+      "file": "latin/pw-l03-turn-it.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "117b08436ac488415ae60de69eed66f1839f34f2e38d7e354866f22c176a78ef",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          117,
+          12,
+          679,
+          588
+        ],
+        "visibleBounds": [
+          125,
+          24,
+          670,
+          578
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 221237,
+        "nearZeroPixels1to4": 15983
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "ribrK",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-L04",
+      "name": "Night Ticket",
+      "genre": "latin",
+      "collection": "CLAVE CLUB",
+      "file": "latin/pw-l04-night-ticket.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "fc9735666a9dbcc64221bd2d515cb9d1662095b441433e7fcf117c9f93d21bcb",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          16,
+          25,
+          780,
+          575
+        ],
+        "visibleBounds": [
+          22,
+          35,
+          773,
+          564
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 151456,
+        "nearZeroPixels1to4": 31544
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "ImtHM",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    },
+    {
+      "id": "PW-L05",
+      "name": "Percussion",
+      "genre": "latin",
+      "collection": "CLAVE CLUB",
+      "file": "latin/pw-l05-percussion.png",
+      "width": 796,
+      "height": 600,
+      "sha256": "11d98ca8a1d8cd172217a020853118cf0c433c94f7768e83f474ccccedafdfc6",
+      "alpha": {
+        "range": [
+          0,
+          254
+        ],
+        "nonzeroBounds": [
+          102,
+          12,
+          693,
+          588
+        ],
+        "visibleBounds": [
+          112,
+          20,
+          681,
+          578
+        ],
+        "visibleBoundsThreshold": 16,
+        "transparentPixels": 176289,
+        "nearZeroPixels1to4": 38204
+      },
+      "source": {
+        "document": "docs/design/stickers.pen",
+        "node": "bPJME",
+        "method": "Pencil native slot export at 2x",
+        "details": "docs/workstreams/015-listening-sticker-collection/export-brand.json"
+      },
+      "limitations": [
+        "Raster base; texture tones are not editable spot inks.",
+        "Inherited near-zero alpha fringe may remain; no solid background."
+      ]
+    }
+  ]
+}

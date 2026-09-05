@@ -1,0 +1,1060 @@
+[
+  {
+    "genre": "metal",
+    "catalogId": "PW-A01",
+    "name": "Night Shift",
+    "sourceNode": "Nx17B",
+    "filename": "pw-a01-night-shift.png",
+    "path": "assets/stickers/playworn/metal/pw-a01-night-shift.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBounds": [
+      103,
+      85,
+      693,
+      543
+    ],
+    "alphaAtLeast16Bounds": [
+      103,
+      85,
+      693,
+      543
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": []
+  },
+  {
+    "genre": "metal",
+    "catalogId": "PW-A02",
+    "name": "Deep Cut",
+    "sourceNode": "eUpct",
+    "filename": "pw-a02-deep-cut.png",
+    "path": "assets/stickers/playworn/metal/pw-a02-deep-cut.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBounds": [
+      150,
+      23,
+      647,
+      597
+    ],
+    "alphaAtLeast16Bounds": [
+      150,
+      23,
+      647,
+      597
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": []
+  },
+  {
+    "genre": "metal",
+    "catalogId": "PW-A03",
+    "name": "Full Volume",
+    "sourceNode": "p8Fxq",
+    "filename": "pw-a03-full-volume.png",
+    "path": "assets/stickers/playworn/metal/pw-a03-full-volume.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBounds": [
+      70,
+      36,
+      725,
+      584
+    ],
+    "alphaAtLeast16Bounds": [
+      70,
+      36,
+      725,
+      584
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": []
+  },
+  {
+    "genre": "metal",
+    "catalogId": "PW-A04",
+    "name": "No Skip",
+    "sourceNode": "xlmKZ",
+    "filename": "pw-a04-no-skip.png",
+    "path": "assets/stickers/playworn/metal/pw-a04-no-skip.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBounds": [
+      114,
+      52,
+      682,
+      568
+    ],
+    "alphaAtLeast16Bounds": [
+      114,
+      52,
+      682,
+      568
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": []
+  },
+  {
+    "genre": "metal",
+    "catalogId": "PW-A05",
+    "name": "Heavy Rotation",
+    "sourceNode": "Wm3Tb",
+    "filename": "pw-a05-heavy-rotation.png",
+    "path": "assets/stickers/playworn/metal/pw-a05-heavy-rotation.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      101,
+      12,
+      695,
+      611
+    ],
+    "alphaAtLeast16Bounds": [
+      102,
+      12,
+      693,
+      607
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "pop",
+    "catalogId": "PW-B01",
+    "name": "On Repeat",
+    "sourceNode": "teb9K",
+    "filename": "pw-b01-on-repeat.png",
+    "path": "assets/stickers/playworn/pop/pw-b01-on-repeat.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      88,
+      7,
+      696,
+      614
+    ],
+    "alphaAtLeast16Bounds": [
+      117,
+      28,
+      688,
+      589
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "pop",
+    "catalogId": "PW-B02",
+    "name": "Heart Stereo",
+    "sourceNode": "i7NTHN",
+    "filename": "pw-b02-heart-stereo.png",
+    "path": "assets/stickers/playworn/pop/pw-b02-heart-stereo.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      88,
+      23,
+      703,
+      597
+    ],
+    "alphaAtLeast16Bounds": [
+      88,
+      70,
+      703,
+      583
+    ],
+    "method": "Pencil export_nodes scale2 with temporary right clip at x703; source crop restored",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff.",
+      "Export-only crop removes detached neighbour fragment beyond x703; source Pencil crop restored to310. Main artwork geometry unchanged; native renderer can vary one-channel low-bit rounding."
+    ]
+  },
+  {
+    "genre": "pop",
+    "catalogId": "PW-B03",
+    "name": "Side Quest",
+    "sourceNode": "g57EZH",
+    "filename": "pw-b03-side-quest.png",
+    "path": "assets/stickers/playworn/pop/pw-b03-side-quest.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      88,
+      3,
+      708,
+      617
+    ],
+    "alphaAtLeast16Bounds": [
+      88,
+      31,
+      677,
+      600
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "pop",
+    "catalogId": "PW-B04",
+    "name": "Sing It Back",
+    "sourceNode": "v4UW7A",
+    "filename": "pw-b04-sing-it-back.png",
+    "path": "assets/stickers/playworn/pop/pw-b04-sing-it-back.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      108,
+      0,
+      679,
+      614
+    ],
+    "alphaAtLeast16Bounds": [
+      109,
+      7,
+      677,
+      611
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "pop",
+    "catalogId": "PW-B05",
+    "name": "Mixtape Kid",
+    "sourceNode": "ZKUor",
+    "filename": "pw-b05-mixtape-kid.png",
+    "path": "assets/stickers/playworn/pop/pw-b05-mixtape-kid.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      120,
+      12,
+      692,
+      616
+    ],
+    "alphaAtLeast16Bounds": [
+      122,
+      16,
+      686,
+      607
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "rock",
+    "catalogId": "PW-C01",
+    "name": "Soundcheck",
+    "sourceNode": "vEs72",
+    "filename": "pw-c01-soundcheck.png",
+    "path": "assets/stickers/playworn/rock/pw-c01-soundcheck.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      123,
+      0,
+      672,
+      593
+    ],
+    "alphaAtLeast16Bounds": [
+      129,
+      27,
+      666,
+      586
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "rock",
+    "catalogId": "PW-C02",
+    "name": "Riff Rider",
+    "sourceNode": "wdCid",
+    "filename": "pw-c02-riff-rider.png",
+    "path": "assets/stickers/playworn/rock/pw-c02-riff-rider.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      9,
+      46,
+      789,
+      559
+    ],
+    "alphaAtLeast16Bounds": [
+      17,
+      66,
+      781,
+      552
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "rock",
+    "catalogId": "PW-C03",
+    "name": "Last Encore",
+    "sourceNode": "JlK2l",
+    "filename": "pw-c03-last-encore.png",
+    "path": "assets/stickers/playworn/rock/pw-c03-last-encore.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      254,
+      0,
+      559,
+      609
+    ],
+    "alphaAtLeast16Bounds": [
+      256,
+      11,
+      558,
+      608
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "rock",
+    "catalogId": "PW-C04",
+    "name": "Feedback",
+    "sourceNode": "I6K46",
+    "filename": "pw-c04-feedback.png",
+    "path": "assets/stickers/playworn/rock/pw-c04-feedback.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      205,
+      0,
+      585,
+      620
+    ],
+    "alphaAtLeast16Bounds": [
+      224,
+      10,
+      578,
+      611
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "rock",
+    "catalogId": "PW-C05",
+    "name": "Stage Dive",
+    "sourceNode": "pnBhr",
+    "filename": "pw-c05-stage-dive.png",
+    "path": "assets/stickers/playworn/rock/pw-c05-stage-dive.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      103,
+      0,
+      677,
+      618
+    ],
+    "alphaAtLeast16Bounds": [
+      135,
+      20,
+      661,
+      601
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "hip-hop",
+    "catalogId": "PW-D01",
+    "name": "Crate Find",
+    "sourceNode": "ly8rA",
+    "filename": "pw-d01-crate-find.png",
+    "path": "assets/stickers/playworn/hip-hop/pw-d01-crate-find.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      93,
+      0,
+      681,
+      620
+    ],
+    "alphaAtLeast16Bounds": [
+      96,
+      2,
+      679,
+      619
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "hip-hop",
+    "catalogId": "PW-D02",
+    "name": "Beat Tape",
+    "sourceNode": "Ziy6f",
+    "filename": "pw-d02-beat-tape.png",
+    "path": "assets/stickers/playworn/hip-hop/pw-d02-beat-tape.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      147,
+      0,
+      665,
+      604
+    ],
+    "alphaAtLeast16Bounds": [
+      149,
+      5,
+      662,
+      596
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "hip-hop",
+    "catalogId": "PW-D03",
+    "name": "Mic Check",
+    "sourceNode": "FSbtQ",
+    "filename": "pw-d03-mic-check.png",
+    "path": "assets/stickers/playworn/hip-hop/pw-d03-mic-check.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      88,
+      8,
+      707,
+      618
+    ],
+    "alphaAtLeast16Bounds": [
+      96,
+      21,
+      690,
+      597
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "hip-hop",
+    "catalogId": "PW-D04",
+    "name": "Break Loop",
+    "sourceNode": "x8SYZt",
+    "filename": "pw-d04-break-loop.png",
+    "path": "assets/stickers/playworn/hip-hop/pw-d04-break-loop.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      88,
+      8,
+      708,
+      612
+    ],
+    "alphaAtLeast16Bounds": [
+      102,
+      9,
+      697,
+      595
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "hip-hop",
+    "catalogId": "PW-D05",
+    "name": "Street Cut",
+    "sourceNode": "WDQq9",
+    "filename": "pw-d05-street-cut.png",
+    "path": "assets/stickers/playworn/hip-hop/pw-d05-street-cut.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      88,
+      10,
+      708,
+      610
+    ],
+    "alphaAtLeast16Bounds": [
+      97,
+      23,
+      681,
+      590
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "rnb",
+    "catalogId": "PW-E01",
+    "name": "Slow Jam",
+    "sourceNode": "ZwSB8",
+    "filename": "pw-e01-slow-jam.png",
+    "path": "assets/stickers/playworn/rnb/pw-e01-slow-jam.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      88,
+      7,
+      708,
+      613
+    ],
+    "alphaAtLeast16Bounds": [
+      129,
+      68,
+      695,
+      575
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "rnb",
+    "catalogId": "PW-E02",
+    "name": "Soul Side",
+    "sourceNode": "Sw4Ka",
+    "filename": "pw-e02-soul-side.png",
+    "path": "assets/stickers/playworn/rnb/pw-e02-soul-side.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      113,
+      0,
+      683,
+      620
+    ],
+    "alphaAtLeast16Bounds": [
+      127,
+      32,
+      635,
+      599
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "rnb",
+    "catalogId": "PW-E03",
+    "name": "Afterglow",
+    "sourceNode": "m2Tbl",
+    "filename": "pw-e03-afterglow.png",
+    "path": "assets/stickers/playworn/rnb/pw-e03-afterglow.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      95,
+      0,
+      684,
+      620
+    ],
+    "alphaAtLeast16Bounds": [
+      131,
+      22,
+      634,
+      616
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "rnb",
+    "catalogId": "PW-E04",
+    "name": "Warm Voice",
+    "sourceNode": "g4BqO",
+    "filename": "pw-e04-warm-voice.png",
+    "path": "assets/stickers/playworn/rnb/pw-e04-warm-voice.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      94,
+      0,
+      702,
+      619
+    ],
+    "alphaAtLeast16Bounds": [
+      115,
+      0,
+      702,
+      585
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "rnb",
+    "catalogId": "PW-E05",
+    "name": "Love Letter",
+    "sourceNode": "vqNDq",
+    "filename": "pw-e05-love-letter.png",
+    "path": "assets/stickers/playworn/rnb/pw-e05-love-letter.png",
+    "width": 796,
+    "height": 620,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      96,
+      0,
+      700,
+      620
+    ],
+    "alphaAtLeast16Bounds": [
+      103,
+      1,
+      671,
+      606
+    ],
+    "method": "Pencil export_nodes scale2",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "status": "exported",
+    "limitations": [
+      "Preserved source antialiasing and near-transparent exterior speckles; consumer may use alpha cutoff."
+    ]
+  },
+  {
+    "genre": "electronic",
+    "catalogId": "PW-F01",
+    "name": "Pulse Code",
+    "sourceNode": "D1QyDl",
+    "filename": "pw-f01-pulse-code.png",
+    "status": "exported",
+    "path": "assets/stickers/playworn/electronic/pw-f01-pulse-code.png",
+    "width": 1448,
+    "height": 1086,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBounds": [
+      0,
+      0,
+      1366,
+      1086
+    ],
+    "alphaAtLeast16Bounds": [
+      162,
+      19,
+      1308,
+      1083
+    ],
+    "method": "Built-in imagegen background-only isolation of Pencil scale2 export",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "sourceAsset": "docs/design/images/pw-f01-pulse-code-export-alpha-v1.png",
+    "generatedSource": "/Users/vinicius/.codex/generated_images/01a071ff-65c8-7693-bff6-14c025e4d6ef/exec-d3b8060f-b6c3-4733-891e-4b5e83e310da.png",
+    "limitations": [
+      "Background-only imagegen resampled pixels; slight print/color variation. Generated dimensions retained by supervisor direction; normalize using alpha bounds.",
+      "Transparent exterior RGB may contain apparent glow when viewed ignoring alpha; inspected exterior alpha is zero."
+    ]
+  },
+  {
+    "genre": "electronic",
+    "catalogId": "PW-F02",
+    "name": "Night Bus",
+    "sourceNode": "e28R9a",
+    "filename": "pw-f02-night-bus.png",
+    "status": "exported",
+    "path": "assets/stickers/playworn/electronic/pw-f02-night-bus.png",
+    "width": 1536,
+    "height": 1024,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      0,
+      19,
+      1522,
+      1024
+    ],
+    "alphaAtLeast16Bounds": [
+      190,
+      21,
+      1322,
+      988
+    ],
+    "method": "Built-in imagegen background-only isolation of Pencil scale2 export",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "sourceAsset": "docs/design/images/pw-f02-night-bus-export-alpha-v1.png",
+    "generatedSource": "/Users/vinicius/.codex/generated_images/01a071ff-65c8-7693-bff6-14c025e4d6ef/exec-8d86c655-70b0-4d7f-9002-acd9271af368.png",
+    "limitations": [
+      "Background-only imagegen resampled pixels; slight print/color variation. Generated dimensions retained by supervisor direction; normalize using alpha bounds.",
+      "Transparent exterior RGB may contain apparent glow when viewed ignoring alpha; inspected exterior alpha is zero."
+    ]
+  },
+  {
+    "genre": "electronic",
+    "catalogId": "PW-F03",
+    "name": "Bass Line",
+    "sourceNode": "e7RTup",
+    "filename": "pw-f03-bass-line.png",
+    "status": "exported",
+    "path": "assets/stickers/playworn/electronic/pw-f03-bass-line.png",
+    "width": 1536,
+    "height": 1024,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      0,
+      29,
+      1450,
+      1024
+    ],
+    "alphaAtLeast16Bounds": [
+      228,
+      34,
+      1268,
+      997
+    ],
+    "method": "Built-in imagegen background-only isolation of Pencil scale2 export",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "sourceAsset": "docs/design/images/pw-f03-bass-line-export-alpha-v1.png",
+    "generatedSource": "/Users/vinicius/.codex/generated_images/01a071ff-65c8-7693-bff6-14c025e4d6ef/exec-a7215dc5-6706-486d-a238-75c25e53edfd.png",
+    "limitations": [
+      "Background-only imagegen resampled pixels; slight print/color variation. Generated dimensions retained by supervisor direction; normalize using alpha bounds.",
+      "Transparent exterior RGB may contain apparent glow when viewed ignoring alpha; inspected exterior alpha is zero."
+    ]
+  },
+  {
+    "genre": "electronic",
+    "catalogId": "PW-F04",
+    "name": "Loop State",
+    "sourceNode": "Y76MnD",
+    "filename": "pw-f04-loop-state.png",
+    "status": "exported",
+    "path": "assets/stickers/playworn/electronic/pw-f04-loop-state.png",
+    "width": 1448,
+    "height": 1086,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBounds": [
+      0,
+      0,
+      1352,
+      1074
+    ],
+    "alphaAtLeast16Bounds": [
+      140,
+      9,
+      1349,
+      1070
+    ],
+    "method": "Built-in imagegen background-only isolation of Pencil scale2 export",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "sourceAsset": "docs/design/images/pw-f04-loop-state-export-alpha-v1.png",
+    "generatedSource": "/Users/vinicius/.codex/generated_images/01a071ff-65c8-7693-bff6-14c025e4d6ef/exec-bbfb2659-32fe-46f6-9166-96e4517946a8.png",
+    "limitations": [
+      "Background-only imagegen resampled pixels; slight print/color variation. Generated dimensions retained by supervisor direction; normalize using alpha bounds.",
+      "Transparent exterior RGB may contain apparent glow when viewed ignoring alpha; inspected exterior alpha is zero."
+    ]
+  },
+  {
+    "genre": "electronic",
+    "catalogId": "PW-F05",
+    "name": "Future Club",
+    "sourceNode": "Ph7O2",
+    "filename": "pw-f05-future-club.png",
+    "status": "exported",
+    "path": "assets/stickers/playworn/electronic/pw-f05-future-club.png",
+    "width": 1536,
+    "height": 1024,
+    "alphaRange": [
+      0,
+      254
+    ],
+    "alphaBounds": [
+      157,
+      0,
+      1522,
+      1024
+    ],
+    "alphaAtLeast16Bounds": [
+      166,
+      16,
+      1364,
+      997
+    ],
+    "method": "Built-in imagegen background-only isolation of Pencil scale2 export",
+    "nativeDimensions": [
+      398,
+      310
+    ],
+    "sourceAsset": "docs/design/images/pw-f05-future-club-export-alpha-v1.png",
+    "generatedSource": "/Users/vinicius/.codex/generated_images/01a071ff-65c8-7693-bff6-14c025e4d6ef/exec-71efb172-e940-4203-b1e2-732a8ab964b2.png",
+    "limitations": [
+      "Background-only imagegen resampled pixels; slight print/color variation. Generated dimensions retained by supervisor direction; normalize using alpha bounds.",
+      "Transparent exterior RGB may contain apparent glow when viewed ignoring alpha; inspected exterior alpha is zero."
+    ]
+  }
+]

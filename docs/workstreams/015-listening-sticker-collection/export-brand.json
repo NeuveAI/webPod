@@ -1,0 +1,1146 @@
+[
+  {
+    "catalogId": "PW-I01",
+    "name": "Demo Days",
+    "genre": "indie",
+    "sourceNode": "hsray",
+    "sourceImages": [
+      {
+        "node": "fgYOD",
+        "url": "images/playworn-demo-days-v2.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/indie/pw-i01-demo-days.png",
+    "width": 1536,
+    "height": 1024,
+    "scale": null,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 893574,
+      "nearZeroPixels1to4": 13266,
+      "significantBounds": [
+        272,
+        22,
+        1275,
+        995
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background.",
+      "Background-only model extraction is visually faithful, not bit-identical to the approved RGB source. Dimensions differ from native 2x slot exports."
+    ],
+    "exportMethod": "Background-only imagegen alpha extraction of approved revision; native-resolution PNG exception",
+    "exportSource": "docs/design/images/playworn-demo-days-export-alpha-v1.png",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-I02",
+    "name": "Hidden Track",
+    "genre": "indie",
+    "sourceNode": "hd5v6",
+    "sourceImages": [
+      {
+        "node": "lCAI7",
+        "url": "images/playworn-indie-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/indie/pw-i02-hidden-track.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 257000,
+      "nearZeroPixels1to4": 6958,
+      "significantBounds": [
+        181,
+        19,
+        616,
+        582
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native 2x with temporary bottom crop removing disconnected neighbouring fragment; original crop immediately restored",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-I03",
+    "name": "Room Tone",
+    "genre": "indie",
+    "sourceNode": "FO5QQ",
+    "sourceImages": [
+      {
+        "node": "TIoCW",
+        "url": "images/playworn-room-tone-v2.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/indie/pw-i03-room-tone.png",
+    "width": 1244,
+    "height": 1265,
+    "scale": null,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        255
+      ],
+      "zeroPixels": 622723,
+      "nearZeroPixels1to4": 36823,
+      "significantBounds": [
+        119,
+        14,
+        1184,
+        1231
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background.",
+      "Background-only model extraction is visually faithful, not bit-identical to the approved RGB source. Dimensions differ from native 2x slot exports."
+    ],
+    "exportMethod": "Background-only imagegen alpha extraction of approved revision; native-resolution PNG exception",
+    "exportSource": "docs/design/images/playworn-room-tone-export-alpha-v1.png",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-I04",
+    "name": "Paper Moon",
+    "genre": "indie",
+    "sourceNode": "kbA9s",
+    "sourceImages": [
+      {
+        "node": "iB2l6",
+        "url": "images/playworn-indie-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/indie/pw-i04-paper-moon.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 240633,
+      "nearZeroPixels1to4": 8200,
+      "significantBounds": [
+        125,
+        19,
+        668,
+        579
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-I05",
+    "name": "Local Hero",
+    "genre": "indie",
+    "sourceNode": "LFJ1e",
+    "sourceImages": [
+      {
+        "node": "b9bms",
+        "url": "images/playworn-indie-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/indie/pw-i05-local-hero.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 248812,
+      "nearZeroPixels1to4": 12048,
+      "significantBounds": [
+        182,
+        12,
+        615,
+        581
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-J01",
+    "name": "Off Beat",
+    "genre": "jazz",
+    "sourceNode": "LvPvd",
+    "sourceImages": [
+      {
+        "node": "GfwKh",
+        "url": "images/playworn-jazz-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/jazz/pw-j01-off-beat.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 192204,
+      "nearZeroPixels1to4": 50720,
+      "significantBounds": [
+        129,
+        22,
+        662,
+        574
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-J02",
+    "name": "Blue Hour",
+    "genre": "jazz",
+    "sourceNode": "tqh80",
+    "sourceImages": [
+      {
+        "node": "E6oQ8",
+        "url": "images/playworn-jazz-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/jazz/pw-j02-blue-hour.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 214335,
+      "nearZeroPixels1to4": 51244,
+      "significantBounds": [
+        129,
+        22,
+        666,
+        581
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-J03",
+    "name": "Take Five",
+    "genre": "jazz",
+    "sourceNode": "DqVwa",
+    "sourceImages": [
+      {
+        "node": "Tufok",
+        "url": "images/playworn-jazz-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/jazz/pw-j03-take-five.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 212356,
+      "nearZeroPixels1to4": 33463,
+      "significantBounds": [
+        133,
+        26,
+        661,
+        581
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-J04",
+    "name": "Long Solo",
+    "genre": "jazz",
+    "sourceNode": "qULJk",
+    "sourceImages": [
+      {
+        "node": "ypAST",
+        "url": "images/playworn-jazz-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/jazz/pw-j04-long-solo.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 194924,
+      "nearZeroPixels1to4": 47181,
+      "significantBounds": [
+        134,
+        21,
+        660,
+        581
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-J05",
+    "name": "Side Notes",
+    "genre": "jazz",
+    "sourceNode": "p3SwPc",
+    "sourceImages": [
+      {
+        "node": "dQYy4",
+        "url": "images/playworn-jazz-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/jazz/pw-j05-side-notes.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 180332,
+      "nearZeroPixels1to4": 35152,
+      "significantBounds": [
+        104,
+        23,
+        692,
+        575
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-H01",
+    "name": "First Movement",
+    "genre": "classical",
+    "sourceNode": "S8fNE",
+    "sourceImages": [
+      {
+        "node": "eSjeb",
+        "url": "images/playworn-classical-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/classical/pw-h01-first-movement.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 176739,
+      "nearZeroPixels1to4": 45352,
+      "significantBounds": [
+        114,
+        20,
+        677,
+        578
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native 2x with temporary bottom crop removing disconnected neighbouring fragment; original crop immediately restored",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-H02",
+    "name": "Quiet Power",
+    "genre": "classical",
+    "sourceNode": "jAgbt",
+    "sourceImages": [
+      {
+        "node": "imLm3",
+        "url": "images/playworn-classical-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/classical/pw-h02-quiet-power.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 226592,
+      "nearZeroPixels1to4": 46793,
+      "significantBounds": [
+        149,
+        18,
+        647,
+        577
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-H03",
+    "name": "Encore",
+    "genre": "classical",
+    "sourceNode": "t7Ouxm",
+    "sourceImages": [
+      {
+        "node": "y1Bob",
+        "url": "images/playworn-classical-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/classical/pw-h03-encore.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 150257,
+      "nearZeroPixels1to4": 26447,
+      "significantBounds": [
+        27,
+        33,
+        771,
+        572
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-H04",
+    "name": "Counterpoint",
+    "genre": "classical",
+    "sourceNode": "KP6pe",
+    "sourceImages": [
+      {
+        "node": "HmSCM",
+        "url": "images/playworn-classical-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/classical/pw-h04-counterpoint.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 201100,
+      "nearZeroPixels1to4": 38487,
+      "significantBounds": [
+        135,
+        12,
+        659,
+        580
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-H05",
+    "name": "Finale",
+    "genre": "classical",
+    "sourceNode": "NnQMq",
+    "sourceImages": [
+      {
+        "node": "hG6cR",
+        "url": "images/playworn-classical-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/classical/pw-h05-finale.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 184786,
+      "nearZeroPixels1to4": 38344,
+      "significantBounds": [
+        122,
+        24,
+        679,
+        579
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-K01",
+    "name": "Six Strings",
+    "genre": "country",
+    "sourceNode": "HuaUI",
+    "sourceImages": [
+      {
+        "node": "O00GTC",
+        "url": "images/playworn-country-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/country/pw-k01-six-strings.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 286744,
+      "nearZeroPixels1to4": 21122,
+      "significantBounds": [
+        192,
+        17,
+        609,
+        586
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-K02",
+    "name": "Radio Miles",
+    "genre": "country",
+    "sourceNode": "fqttR",
+    "sourceImages": [
+      {
+        "node": "GxUpI",
+        "url": "images/playworn-country-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/country/pw-k02-radio-miles.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 141739,
+      "nearZeroPixels1to4": 35846,
+      "significantBounds": [
+        26,
+        45,
+        771,
+        561
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-K03",
+    "name": "Steel Line",
+    "genre": "country",
+    "sourceNode": "VAk6q",
+    "sourceImages": [
+      {
+        "node": "ohhDw",
+        "url": "images/playworn-country-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/country/pw-k03-steel-line.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 198883,
+      "nearZeroPixels1to4": 26497,
+      "significantBounds": [
+        114,
+        24,
+        687,
+        577
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-K04",
+    "name": "Back Porch",
+    "genre": "country",
+    "sourceNode": "xk0lC",
+    "sourceImages": [
+      {
+        "node": "QF0QA",
+        "url": "images/playworn-country-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/country/pw-k04-back-porch.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 180025,
+      "nearZeroPixels1to4": 31810,
+      "significantBounds": [
+        109,
+        15,
+        689,
+        578
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-K05",
+    "name": "Last Verse",
+    "genre": "country",
+    "sourceNode": "wrwlh",
+    "sourceImages": [
+      {
+        "node": "jIhOc",
+        "url": "images/playworn-country-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/country/pw-k05-last-verse.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 150011,
+      "nearZeroPixels1to4": 29068,
+      "significantBounds": [
+        57,
+        23,
+        741,
+        580
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-G01",
+    "name": "Version",
+    "genre": "reggae",
+    "sourceNode": "MewjM",
+    "sourceImages": [
+      {
+        "node": "IPZ3t",
+        "url": "images/playworn-reggae-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/reggae/pw-g01-version.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 182418,
+      "nearZeroPixels1to4": 38984,
+      "significantBounds": [
+        76,
+        19,
+        726,
+        580
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-G02",
+    "name": "Echo Chamber",
+    "genre": "reggae",
+    "sourceNode": "z93rdJ",
+    "sourceImages": [
+      {
+        "node": "q5WPM9",
+        "url": "images/playworn-echo-chamber-v2.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/reggae/pw-g02-echo-chamber.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 240659,
+      "nearZeroPixels1to4": 2531,
+      "significantBounds": [
+        120,
+        24,
+        666,
+        572
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-G03",
+    "name": "Low End",
+    "genre": "reggae",
+    "sourceNode": "jjLGf",
+    "sourceImages": [
+      {
+        "node": "DPylz",
+        "url": "images/playworn-reggae-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/reggae/pw-g03-low-end.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 218797,
+      "nearZeroPixels1to4": 29246,
+      "significantBounds": [
+        116,
+        19,
+        665,
+        588
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native 2x with temporary complementary rectangular clip regions excluding proof masks; original slot immediately restored",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-G04",
+    "name": "One Drop",
+    "genre": "reggae",
+    "sourceNode": "PQ7iA",
+    "sourceImages": [
+      {
+        "node": "F5Z30X",
+        "url": "images/playworn-reggae-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/reggae/pw-g04-one-drop.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 191462,
+      "nearZeroPixels1to4": 39622,
+      "significantBounds": [
+        136,
+        15,
+        674,
+        576
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-G05",
+    "name": "Dub Plate",
+    "genre": "reggae",
+    "sourceNode": "I6gNK",
+    "sourceImages": [
+      {
+        "node": "qlEOL",
+        "url": "images/playworn-reggae-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/reggae/pw-g05-dub-plate.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 194044,
+      "nearZeroPixels1to4": 24587,
+      "significantBounds": [
+        100,
+        12,
+        696,
+        578
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-L01",
+    "name": "Clave",
+    "genre": "latin",
+    "sourceNode": "xSvga",
+    "sourceImages": [
+      {
+        "node": "F3qRCE",
+        "url": "images/playworn-latin-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/latin/pw-l01-clave.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 196348,
+      "nearZeroPixels1to4": 59391,
+      "significantBounds": [
+        135,
+        25,
+        663,
+        578
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-L02",
+    "name": "Otra Vez",
+    "genre": "latin",
+    "sourceNode": "p8kEg",
+    "sourceImages": [
+      {
+        "node": "OnxDh",
+        "url": "images/playworn-latin-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/latin/pw-l02-otra-vez.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 204023,
+      "nearZeroPixels1to4": 44192,
+      "significantBounds": [
+        126,
+        23,
+        673,
+        580
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-L03",
+    "name": "Turn It",
+    "genre": "latin",
+    "sourceNode": "ribrK",
+    "sourceImages": [
+      {
+        "node": "m0cQl",
+        "url": "images/playworn-latin-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/latin/pw-l03-turn-it.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 221237,
+      "nearZeroPixels1to4": 15983,
+      "significantBounds": [
+        127,
+        25,
+        669,
+        577
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-L04",
+    "name": "Night Ticket",
+    "genre": "latin",
+    "sourceNode": "ImtHM",
+    "sourceImages": [
+      {
+        "node": "prHQq",
+        "url": "images/playworn-latin-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/latin/pw-l04-night-ticket.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 151456,
+      "nearZeroPixels1to4": 31544,
+      "significantBounds": [
+        23,
+        36,
+        772,
+        563
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  },
+  {
+    "catalogId": "PW-L05",
+    "name": "Percussion",
+    "genre": "latin",
+    "sourceNode": "bPJME",
+    "sourceImages": [
+      {
+        "node": "DrJmR",
+        "url": "images/playworn-latin-sheet.png"
+      }
+    ],
+    "path": "assets/stickers/playworn/latin/pw-l05-percussion.png",
+    "width": 796,
+    "height": 600,
+    "scale": 2,
+    "alpha": {
+      "mode": "RGBA",
+      "range": [
+        0,
+        254
+      ],
+      "zeroPixels": 176289,
+      "nearZeroPixels1to4": 38204,
+      "significantBounds": [
+        114,
+        22,
+        680,
+        577
+      ]
+    },
+    "status": "visually reviewed; independent final QA passed",
+    "limitations": [
+      "Raster base; texture tones are not editable spot inks.",
+      "Inherited near-zero alpha fringe may remain; no solid background."
+    ],
+    "exportMethod": "Pencil native slot export at 2x",
+    "review": "docs/workstreams/015-listening-sticker-collection/export-review.md"
+  }
+]
