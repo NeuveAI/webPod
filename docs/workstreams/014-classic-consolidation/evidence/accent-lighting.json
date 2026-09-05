@@ -1,0 +1,32 @@
+[
+  {
+    "finish": "black",
+    "changedBounds": [
+      928,
+      260,
+      1461,
+      795
+    ],
+    "outsideScreenChangedBounds": null,
+    "maximumChannelChange": [
+      25,
+      25,
+      26
+    ]
+  },
+  {
+    "finish": "white",
+    "changedBounds": [
+      928,
+      260,
+      1486,
+      795
+    ],
+    "outsideScreenChangedBounds": null,
+    "maximumChannelChange": [
+      25,
+      25,
+      25
+    ]
+  }
+]

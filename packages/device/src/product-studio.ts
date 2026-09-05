@@ -16,6 +16,11 @@ export function createProductStudioEnvironment(screenReflection = false) {
     { name: "rim-diffusion", position: rig.rim.position, target: rig.rim.target,
       emitter: rig.rim.emitter, radiance: 1.1, color: "#FFFFFF" },
   ];
+  // A close card inside the PMREM capture volume adds only a screen accent.
+  if (screenReflection) cards.push({
+    name: "screen-lower-left-accent", position: [-5, 3, 50], target: [0, 0, 0],
+    emitter: { width: 3.5, height: 2.5 }, radiance: 5, color: "#F5F8FF",
+  });
   const keyPosition = keyLightPosition(rig.key);
   const keyCard = new Object3D();
   keyCard.position.set(...keyPosition);
@@ -27,7 +32,7 @@ export function createProductStudioEnvironment(screenReflection = false) {
     mesh.name = card.name;
     mesh.position.set(...card.position);
     mesh.lookAt(...card.target);
-    if (screenReflection && card.name === "fill-diffusion") mesh.quaternion.copy(keyCard.quaternion);
+    if (screenReflection && (card.name === "fill-diffusion" || card.name === "screen-lower-left-accent")) mesh.quaternion.copy(keyCard.quaternion);
     scene.add(mesh);
     return mesh;
   });
