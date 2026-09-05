@@ -1,0 +1,105 @@
+diff --git a/apps/web/tests/native-cursor.e2e.ts b/apps/web/tests/native-cursor.e2e.ts
+index 9c2a021..1dc3a9e 100644
+--- a/apps/web/tests/native-cursor.e2e.ts
++++ b/apps/web/tests/native-cursor.e2e.ts
+@@ -8,11 +8,13 @@ test.use({
+   viewport: { width: 1280, height: 900 },
+ })
+ 
+-test('native cursors follow mounted control and authoritative drag state', async ({ page }) => {
++test('glove poses follow mounted control and authoritative drag state', async ({ page }) => {
+   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+   const device = page.locator('.webpod-device-preview__device')
+   const canvas = page.locator('.webpod-device-preview canvas')
+   const stage = page.locator('.webpod-device-preview__stage')
++  const hand = page.locator('.webpod-hand-cursor')
++  await expect(hand).toHaveAttribute('data-hand-cursor', 'ready')
+   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+   await expect(canvas).toHaveCount(1)
+   await expect
+@@ -32,7 +34,7 @@ test('native cursors follow mounted control and authoritative drag state', async
+   )
+   await expect(page.locator('.webpod-device-preview__selection-note')).toHaveCSS(
+     'user-select',
+-    'text',
++    'none',
+   )
+ 
+   const box = await projectedDeviceBox(page)
+@@ -43,15 +45,22 @@ test('native cursors follow mounted control and authoritative drag state', async
+   )
+   await page.mouse.move(wheel.x, wheel.y)
+   await expect(canvas).toHaveAttribute('data-wp-cursor-control', 'true')
+-  await expect(canvas).toHaveCSS('cursor', 'pointer')
++  await expect(canvas).toHaveCSS('cursor', 'none')
++  await expect(hand).toHaveAttribute('data-hand-pose', 'press')
++  await expect(hand).toHaveCSS('pointer-events', 'none')
+ 
+   const edge = { x: box.left + box.width * 0.025, y: box.top + box.height * 0.5 }
+   await page.mouse.move(edge.x, edge.y)
+   await expect(stage).toHaveAttribute('data-orientation-grab', 'ready')
+-  await expect(canvas).toHaveCSS('cursor', 'grab')
++  await expect(canvas).toHaveCSS('cursor', 'none')
++  await expect(hand).toHaveAttribute('data-hand-pose', 'pinch')
+   await page.mouse.down()
+   await expect(stage).toHaveAttribute('data-orientation-grab', 'active')
+-  await expect(canvas).toHaveCSS('cursor', 'grabbing')
++  await expect(canvas).toHaveCSS('cursor', 'none')
++  await expect(hand).toHaveAttribute('data-hand-pose', 'grab')
++  await page.mouse.move(edge.x + 90, edge.y + 20, { steps: 3 })
++  await expect(hand).toHaveAttribute('data-hand-pose', 'grab')
++  await expect(page.locator('.webpod-device-preview')).toHaveAttribute('data-pose', 'custom')
+ 
+   const pointerId = Number(await stage.getAttribute('data-orientation-pointer-id'))
+   await canvas.dispatchEvent('pointercancel', {
+@@ -63,6 +72,50 @@ test('native cursors follow mounted control and authoritative drag state', async
+   await expect(stage).not.toHaveAttribute('data-orientation-grab', 'active')
+   await expect(canvas).not.toHaveCSS('cursor', 'grabbing')
+   await page.mouse.up()
++  await page.mouse.move(250, 300)
++  await expect(hand).toHaveAttribute('data-hand-pose', 'idle')
++  await page.screenshot({ path: 'docs/workstreams/013-cartoon-hand-cursor/evidence/player-idle.png' })
++})
++
++test('fast mouse movement smears briefly and reduced motion disables smears', async ({ page }) => {
++  await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
++  const hand = page.locator('.webpod-hand-cursor')
++  await expect(hand).toHaveAttribute('data-hand-cursor', 'ready')
++  await page.mouse.move(120, 250)
++  await expect(hand).toHaveCSS('visibility', 'visible')
++  // Real mouse input sampled while it moves; no special test-only product API.
++  const samples = page.evaluate(async () => {
++    const values: number[] = []
++    const end = performance.now() + 900
++    while (performance.now() < end) {
++      values.push(Number(document.querySelector('.webpod-hand-cursor')?.getAttribute('data-hand-smear') ?? 0))
++      await new Promise(requestAnimationFrame)
++    }
++    return values
++  })
++  for (let i = 0; i < 4; i++) {
++    await page.mouse.move(120, 250)
++    await page.mouse.move(1050, 350, { steps: 5 })
++  }
++  expect(Math.max(...await samples)).toBeGreaterThan(.1)
++  await expect(hand).toHaveAttribute('data-hand-smear', '0.000')
++  await page.emulateMedia({ reducedMotion: 'reduce' })
++  await page.mouse.move(120, 250, { steps: 5 })
++  await expect(hand).toHaveAttribute('data-hand-motion', 'reduced')
++  await expect(hand).toHaveAttribute('data-hand-smear', '0.000')
++  await page.keyboard.press('Tab')
++  await expect(hand).toHaveCSS('visibility', 'hidden')
++  await expect(page.locator('html')).not.toHaveAttribute('data-hand-cursor-active')
++})
++
++test('missing glove keeps native cursors usable', async ({ page }) => {
++  await page.route('**/hand/classic-glove.glb', (route) => route.abort())
++  await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
++  const hand = page.locator('.webpod-hand-cursor')
++  await expect(hand).toHaveAttribute('data-hand-cursor', 'unavailable')
++  await page.getByRole('button', { name: 'Reset view' }).hover()
++  await expect(hand).toHaveCSS('visibility', 'hidden')
++  await expect(page.getByRole('button', { name: 'Reset view' })).toHaveCSS('cursor', 'pointer')
+ })
+ 
+ test.describe('coarse pointer', () => {

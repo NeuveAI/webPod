@@ -1,0 +1,77 @@
+{
+  "version": "webpod.hand.v1",
+  "rig": "HandRig",
+  "poses": [
+    "idle",
+    "pinch",
+    "grab",
+    "press"
+  ],
+  "contacts": [
+    "contact_index",
+    "contact_thumb"
+  ],
+  "exportAxes": "glTF: X right, Y up, Z toward viewer",
+  "bones": [
+    {
+      "name": "wrist",
+      "parent": null,
+      "deform": true
+    },
+    {
+      "name": "palm",
+      "parent": "wrist",
+      "deform": true
+    },
+    {
+      "name": "index_1",
+      "parent": "palm",
+      "deform": true
+    },
+    {
+      "name": "index_2",
+      "parent": "index_1",
+      "deform": true
+    },
+    {
+      "name": "contact_index",
+      "parent": "index_2",
+      "deform": false
+    },
+    {
+      "name": "middle_1",
+      "parent": "palm",
+      "deform": true
+    },
+    {
+      "name": "middle_2",
+      "parent": "middle_1",
+      "deform": true
+    },
+    {
+      "name": "outer_1",
+      "parent": "palm",
+      "deform": true
+    },
+    {
+      "name": "outer_2",
+      "parent": "outer_1",
+      "deform": true
+    },
+    {
+      "name": "thumb_1",
+      "parent": "palm",
+      "deform": true
+    },
+    {
+      "name": "thumb_2",
+      "parent": "thumb_1",
+      "deform": true
+    },
+    {
+      "name": "contact_thumb",
+      "parent": "thumb_2",
+      "deform": false
+    }
+  ]
+}

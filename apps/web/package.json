@@ -20,6 +20,7 @@
     "@webpod/server-core": "workspace:*",
     "@webpod/tokens": "workspace:*",
     "@webpod/ui": "workspace:*",
+    "jotai": "2.20.3",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "three": "0.185.1"

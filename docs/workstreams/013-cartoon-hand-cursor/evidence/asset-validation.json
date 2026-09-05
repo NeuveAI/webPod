@@ -1,0 +1,17 @@
+{
+  "file": "apps/web/public/hand/classic-glove.glb",
+  "sha256": "6da5791f08cb8041ebb9a72fd8d601701c807c091538df447e1a3bc67c56656a",
+  "bytes": 335016,
+  "animations": [
+    "grab",
+    "idle",
+    "pinch",
+    "press"
+  ],
+  "skinCount": 1,
+  "jointCount": 12,
+  "vertices": 5287,
+  "triangles": 9940,
+  "normalizedFiniteWeights": true,
+  "testedSnapshotMatches": false
+}

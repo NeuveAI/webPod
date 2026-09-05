@@ -1,0 +1,58 @@
+{
+  "frames": 177,
+  "index_pinch": {
+    "17": {
+      "MCP_degrees": 0.0,
+      "PIP_degrees": 0.0,
+      "thumb_base_rotation": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "22": {
+      "MCP_degrees": 4.68749991699816,
+      "PIP_degrees": 6.250000031626487,
+      "thumb_base_rotation": [
+        0.09544769674539566,
+        -0.10908307880163193,
+        0.00818123109638691
+      ]
+    },
+    "27": {
+      "MCP_degrees": 15.000000417413029,
+      "PIP_degrees": 19.99999941818584,
+      "thumb_base_rotation": [
+        0.30543258786201477,
+        -0.3490658402442932,
+        0.02617993950843811
+      ]
+    },
+    "32": {
+      "MCP_degrees": 25.312500064054248,
+      "PIP_degrees": 33.75000008540567,
+      "thumb_base_rotation": [
+        0.5154175162315369,
+        -0.5890486240386963,
+        0.04417864605784416
+      ]
+    },
+    "37": {
+      "MCP_degrees": 30.000000834826057,
+      "PIP_degrees": 40.00000225146627,
+      "thumb_base_rotation": [
+        0.6108652353286743,
+        -0.6981316804885864,
+        0.05235987901687622
+      ]
+    }
+  },
+  "max_lateral_finger_hinge_radians": 0,
+  "nonfinite_vertices": 0,
+  "unweighted_vertices": 0,
+  "smear_recovery_scale": [
+    1.0,
+    1.0,
+    1.0
+  ]
+}

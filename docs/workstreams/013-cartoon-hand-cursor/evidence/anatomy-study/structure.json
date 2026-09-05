@@ -1,0 +1,108 @@
+{
+  "source": "Installed Blender Rigify human.create; rest lengths and orientations retained",
+  "coordinates": "+Z palmar; -Z dorsal. Source is left human hand.",
+  "thumb_semantics": "thumb.01 = metacarpal; thumb.02 = proximal; thumb.03 = distal",
+  "thumb_and_index_fit_radians": [
+    -0.0030000000000000035,
+    -0.8,
+    -0.5200000000000001,
+    0.43300000000000016,
+    0,
+    0.363,
+    1.4,
+    0.75
+  ],
+  "pad_landmark_distance": 0.01789786540156481,
+  "pad_normal_dot": -0.7550373449921608,
+  "poses": {
+    "neutral": {},
+    "pinch": {
+      "f_index.01.L": [
+        0.363,
+        0,
+        0
+      ],
+      "f_index.02.L": [
+        1.4,
+        0,
+        0
+      ],
+      "f_index.03.L": [
+        0.75,
+        0,
+        0
+      ],
+      "f_middle.01.L": [
+        0.36,
+        0,
+        0
+      ],
+      "f_middle.02.L": [
+        0.56,
+        0,
+        0
+      ],
+      "f_middle.03.L": [
+        0.25,
+        0,
+        0
+      ],
+      "f_ring.01.L": [
+        0.4,
+        0,
+        0
+      ],
+      "f_ring.02.L": [
+        0.61,
+        0,
+        0
+      ],
+      "f_ring.03.L": [
+        0.25,
+        0,
+        0
+      ],
+      "f_pinky.01.L": [
+        0.35,
+        0,
+        0
+      ],
+      "f_pinky.02.L": [
+        0.5,
+        0,
+        0
+      ],
+      "f_pinky.03.L": [
+        0.25,
+        0,
+        0
+      ],
+      "thumb.01.L": [
+        -0.0030000000000000035,
+        -0.8,
+        -0.5200000000000001
+      ],
+      "thumb.02.L": [
+        0.43300000000000016,
+        0,
+        0
+      ],
+      "thumb.03.L": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "limitations": [
+    "Not a glove mesh",
+    "Not all carpal bones modeled",
+    "Fitting tip proximity does not prove pad opposition",
+    "Not approved for integration"
+  ],
+  "animation_audit": {
+    "frames_inspected": 115,
+    "max_finger_joint_gap": 5.097525859802164e-07,
+    "max_PIP_DIP_lateral_rotation_radians": 0.0
+  }
+}
