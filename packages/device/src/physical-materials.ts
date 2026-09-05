@@ -113,17 +113,31 @@ export function createCoverGlassMaterial(
   params: PhysicalSurfaceParams,
   envMap: Texture | null,
 ): MeshPhysicalMaterial {
-  return new MeshPhysicalMaterial({
-    ...params,
-    depthWrite: false,
-    envMap,
-  });
+  const material = new MeshPhysicalMaterial({ ...params, depthWrite: false, envMap });
+  material.onBeforeCompile = (shader) => patchGlassShader(shader);
+  material.customProgramCacheKey = () => "screen-reflection-cards-1.6-v1";
+  return material;
 }
 
 export function patchGlassShader(
   shader: CompilableShader,
   _size?: { width: number; height: number },
 ): void {
-  void shader;
   void _size;
+  // Enlarge only the screen's reflected RectAreaLight sources. Preserve each
+  // source's power and leave the actual scene emitters/materials untouched.
+  // The first two lamps are the key/fill, in ViewerLitDeviceFrame order.
+  const marker = "rectAreaLight = rectAreaLights[ i ];";
+  const lighting = ShaderChunk.lights_fragment_begin;
+  if (!lighting.includes(marker)) throw new Error("Three rectangle-light reflection hook changed");
+  shader.fragmentShader = shader.fragmentShader.replace("#include <lights_fragment_begin>",
+    lighting.replace(marker, `${marker}
+      #if UNROLLED_LOOP_INDEX < 2
+        rectAreaLight.halfWidth = normalize(rectAreaLights[0].halfWidth) * length(rectAreaLight.halfWidth);
+        rectAreaLight.halfHeight = normalize(rectAreaLights[0].halfHeight) * length(rectAreaLight.halfHeight);
+      #endif
+      rectAreaLight.halfWidth *= 1.6;
+      rectAreaLight.halfHeight *= 1.6;
+      rectAreaLight.color /= 2.56;
+    `));
 }

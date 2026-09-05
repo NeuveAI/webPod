@@ -291,11 +291,12 @@ export function Device({
       exponent: body.exponent,
       frontThickness: form.frontThickness,
       rearCrownInset: form.rearCrownInset,
+      frontRimInset: form.seamWidth + form.frontBevel + 0.25,
     });
     const opened = cutHardwareApertures(shell);
     shell.dispose();
     return opened;
-  }, [form.frontThickness, form.rearCrownInset]);
+  }, [form.frontThickness, form.rearCrownInset, form.seamWidth, form.frontBevel]);
   useEffect(() => () => backGeometry.dispose(), [backGeometry]);
 
   const frontGeometry = useMemo(() => {
@@ -580,7 +581,7 @@ export function Device({
     () =>
       createCoverGlassMaterial(
         withStudioEnvironment(materials.coverGlass, studio.intensity),
-        studio.texture,
+        studio.screenTexture,
       ),
     [materials.coverGlass, studio],
   );

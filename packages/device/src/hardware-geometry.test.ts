@@ -11,6 +11,7 @@ import { completeDeviceEnvelope } from "./device-envelope";
 function rearShell() {
   const body = DEVICE_LAYOUT.body;
   return createRearShellGeometry({ ...body, frontThickness: DEFAULT_DEVICE_FORM.frontThickness,
+    frontRimInset: DEFAULT_DEVICE_FORM.seamWidth + DEFAULT_DEVICE_FORM.frontBevel + 0.25,
     rearCrownInset: DEFAULT_DEVICE_FORM.rearCrownInset });
 }
 
@@ -53,6 +54,13 @@ describe("recessed 5G hardware", () => {
     }
     const intact = new Raycaster(new Vector3(0, 400, 0), new Vector3(0, -1, 0)).intersectObject(shell);
     expect(intact[0]?.point.y).toBeGreaterThan(270);
+    // The steel return closes the previously open gap behind the front bevel.
+    const seamZ = DEVICE_LAYOUT.body.depth / 2 - DEFAULT_DEVICE_FORM.frontThickness;
+    for (const x of [-60, 0, 60]) for (const side of [-1, 1]) {
+      const y = side * (DEVICE_LAYOUT.body.height / 2 - DEFAULT_DEVICE_FORM.seamWidth / 2);
+      const hits = new Raycaster(new Vector3(x, y, seamZ + 5), new Vector3(0, 0, -1)).intersectObject(shell);
+      expect(hits[0]?.point.z).toBeCloseTo(seamZ, 5);
+    }
     const parts = createHardwareGeometry(DEFAULT_DEVICE_FORM);
     const well = parts.find((p) => p.name === "device-headphone-well");
     if (well === undefined) throw new Error("Jack floor missing");

@@ -1,0 +1,1 @@
+64 visible-boundary samples and 8 physical button actions passed across four poses

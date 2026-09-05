@@ -12,6 +12,8 @@ export type RearShellParams = {
   readonly frontThickness: number;
   /** Maximum plan inset of the crowned rear face relative to the seam. */
   readonly rearCrownInset: number;
+  /** Flat return lip under the aluminum rear bevel, closing the open tray rim. */
+  readonly frontRimInset?: number;
   readonly cornerSegments?: number;
 };
 
@@ -217,6 +219,7 @@ export function createRearShellGeometry({
   frontThickness,
   rearCrownInset,
   cornerSegments = 48,
+  frontRimInset = 0,
 }: RearShellParams): BufferGeometry {
   if (!(width > 2 * rearCrownInset) || !(height > 2 * rearCrownInset)) {
     throw new Error("rear crown inset must fit inside the enclosure plan");
@@ -227,6 +230,9 @@ export function createRearShellGeometry({
     );
   }
 
+  if (!Number.isFinite(frontRimInset) || frontRimInset < 0 || frontRimInset >= cornerR) {
+    throw new Error("front rim inset must fit the shell corner");
+  }
   const { seamZ } = productShellDepths(depth, frontThickness);
   const sections = rearShellSections(depth, seamZ, rearCrownInset);
   const rings = sections.map((section) =>
@@ -310,6 +316,25 @@ export function createRearShellGeometry({
   for (let index = 0; index < ringSize; index += 1) {
     const next = (index + 1) % ringSize;
     indices.push(rearCenterIndex, next, index);
+  }
+
+  if (frontRimInset > 0) {
+    const outer = rings.at(-1);
+    if (outer === undefined) throw new Error("rear shell rim missing");
+    const inner = sampleSilhouette(width - 2 * frontRimInset, height - 2 * frontRimInset,
+      cornerR - frontRimInset, exponent, cornerSegments);
+    const start = positions.length / 3;
+    // Duplicate the edge normals: the formed side turns into a flat return.
+    for (const ring of [outer, inner]) for (const point of ring) {
+      positions.push(point.x, point.y, seamZ);
+      normals.push(0, 0, 1);
+      uvs.push(point.x / width + 0.5, point.y / height + 0.5);
+    }
+    for (let i = 0; i < ringSize; i++) {
+      const next = (i + 1) % ringSize;
+      indices.push(start + i, start + next, start + ringSize + i,
+        start + next, start + ringSize + next, start + ringSize + i);
+    }
   }
 
   const geometry = new BufferGeometry();

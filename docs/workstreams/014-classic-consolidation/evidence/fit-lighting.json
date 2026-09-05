@@ -1,0 +1,22 @@
+{
+  "region": [
+    1000,
+    830,
+    1500,
+    920
+  ],
+  "size": [
+    2560,
+    1800
+  ],
+  "meanAbsoluteChannelDifference": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "maxChannelDifference": [
+    0,
+    0,
+    0
+  ]
+}

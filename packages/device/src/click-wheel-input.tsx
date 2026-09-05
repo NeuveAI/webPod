@@ -5,8 +5,12 @@ import {
   Plane,
   Ray,
   Vector3,
+  type Raycaster,
+  type Intersection,
 } from "three";
 
+import { completeDeviceEnvelope } from "./device-envelope";
+import { deviceOrientationToRotation } from "./orientation";
 import { DEVICE_LAYOUT } from "./layout";
 import { useControlPhysics } from "./ControlPhysicsScope";
 import { DeviceCanvasOrientationContext } from "./DeviceCanvas";
@@ -15,6 +19,8 @@ import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import {
   DEFAULT_FRONT_ASSEMBLY_DEPTHS,
   resolveFrontAssemblyDepths,
+  frontShellOffsetAt,
+  SELECT_CONCAVITY,
 } from "./front-surface";
 
 export type ClickWheelPointerType = "mouse" | "touch" | "pen";
@@ -92,9 +98,8 @@ export const CLICK_WHEEL_INPUT_RADII = Object.freeze({
 });
 
 /**
- * The interaction plane sits just ahead of every visible front-face surface.
- * It is deliberately planar: the state adapter needs angular thumb travel,
- * while the rendered patch follows less than one model pixel of shell crown.
+ * Stable local origin for input meshes. Production raycasts resolve the
+ * crowned surface relative to this origin; it is not a floating hit plane.
  */
 export const CLICK_WHEEL_INPUT_POSITION = Object.freeze([
   DEVICE_LAYOUT.wheel.centerX,
@@ -110,6 +115,7 @@ type WheelLocalPoint = {
   readonly y: number;
   readonly angleDeg: number;
   readonly radius: number;
+  readonly z: number;
 };
 
 type CardinalCandidate = {
@@ -234,12 +240,49 @@ export function wheelPointFromRay(mesh: Mesh, ray: Ray): WheelLocalPoint | null 
   const hit = ray.intersectPlane(plane, planeHit);
   if (hit === null) return null;
   mesh.worldToLocal(hit);
+  const form = mesh.userData["wheelSurfaceForm"] as DeviceFormParams | undefined;
+  if (form !== undefined) {
+    const localRay = ray.clone().applyMatrix4(mesh.matrixWorld.clone().invert());
+    if (Math.abs(localRay.direction.z) < 1e-8) return null;
+    // Intersect the actual crowned surface instead of a floating proxy plane.
+    // Its shallow slope converges rapidly, including strongly tilted poses.
+    for (let i = 0; i < 8; i++) {
+      const bowl = mesh.name === "click-wheel-select-input"
+        ? SELECT_CONCAVITY * Math.max(0, 1 - (hit.x * hit.x + hit.y * hit.y) / (CLICK_WHEEL_INPUT_RADII.inner ** 2)) ** 2 : 0;
+      const z = DEVICE_LAYOUT.body.depth / 2 + frontShellOffsetAt(
+        DEVICE_LAYOUT.wheel.centerX + hit.x, DEVICE_LAYOUT.wheel.centerY + hit.y, form,
+      ) - bowl - mesh.position.z;
+      const t = (z - localRay.origin.z) / localRay.direction.z;
+      if (t < 0) return null;
+      localRay.at(t, hit);
+    }
+  }
   return {
     x: hit.x,
     y: hit.y,
     angleDeg: clockwiseWheelAngleDeg(hit.x, hit.y),
     radius: Math.hypot(hit.x, hit.y),
+    z: hit.z,
   };
+}
+
+/** Exact circular boundaries avoid triangle-edge misses in oblique raycasts. */
+function raycastWheelRegion(mesh: Mesh, raycaster: Raycaster, hits: Intersection[], select: boolean): void {
+  const local = wheelPointFromRay(mesh, raycaster.ray);
+  if (local === null || local.radius > (select ? CLICK_WHEEL_INPUT_RADII.inner : CLICK_WHEEL_INPUT_RADII.outer) ||
+    (!select && local.radius <= CLICK_WHEEL_INPUT_RADII.inner)) return;
+  const normal = new Vector3(0, 0, 1).transformDirection(mesh.matrixWorld);
+  if (raycaster.ray.direction.dot(normal) >= 0) return;
+  const point = mesh.localToWorld(new Vector3(local.x, local.y, local.z));
+  const distance = raycaster.ray.origin.distanceTo(point);
+  if (distance < raycaster.near || distance > raycaster.far) return;
+  hits.push({ distance, point, object: mesh });
+}
+function raycastWheelRing(this: Mesh, raycaster: Raycaster, hits: Intersection[]): void {
+  raycastWheelRegion(this, raycaster, hits, false);
+}
+function raycastWheelSelect(this: Mesh, raycaster: Raycaster, hits: Intersection[]): void {
+  raycastWheelRegion(this, raycaster, hits, true);
 }
 
 /** Shortest signed angular travel, including the ±180° seam. */
@@ -332,6 +375,7 @@ export function ClickWheelInputSurface({
     () => clickWheelInputPosition(orientationState.form),
     [orientationState.form],
   );
+  const envelope = useMemo(() => completeDeviceEnvelope(orientationState.form), [orientationState.form]);
   const meshRef = useRef<Mesh>(null);
   const keyboardSelectRef = useRef(false);
   const captureSlotRef = useRef<ClickWheelCaptureSlot>(
@@ -672,10 +716,13 @@ export function ClickWheelInputSurface({
   if (!orientationState.frontInteractive) return null;
 
   return (
-    <>
+    <group name="click-wheel-input-pose" rotation={deviceOrientationToRotation(orientationState.orientation)}>
+      <group position={[-envelope.center[0], -envelope.center[1], -envelope.center[2]]}>
       <mesh
         ref={meshRef}
         name="click-wheel-input"
+        raycast={raycastWheelRing}
+        userData={{ wheelSurfaceForm: orientationState.form }}
         position={inputPosition}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -700,21 +747,25 @@ export function ClickWheelInputSurface({
       </mesh>
       <SelectInputSurface
         position={inputPosition}
+        form={orientationState.form}
         onSelectStart={onSelectStart}
         onSelectEnd={onSelectEnd}
         canvas={canvas}
       />
-    </>
+      </group>
+    </group>
   );
 }
 
 function SelectInputSurface({
   position,
+  form,
   onSelectStart,
   onSelectEnd,
   canvas,
 }: {
   readonly position: readonly [number, number, number];
+  readonly form: DeviceFormParams;
   readonly onSelectStart: ((start: ClickWheelSelectStart) => void) | undefined;
   readonly onSelectEnd: ((end: ClickWheelSelectEnd) => void) | undefined;
   readonly canvas: HTMLCanvasElement;
@@ -840,6 +891,8 @@ function SelectInputSurface({
   return (
     <mesh
       name="click-wheel-select-input"
+      raycast={raycastWheelSelect}
+      userData={{ wheelSurfaceForm: form }}
       position={position}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}

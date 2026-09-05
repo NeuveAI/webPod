@@ -18,11 +18,13 @@ type StudioInstallation = {
 
 export type StudioEnvironmentSnapshot = {
   readonly texture: Texture | null;
+  readonly screenTexture: Texture | null;
   readonly intensity: number;
 };
 
 const EMPTY_STUDIO_ENVIRONMENT: StudioEnvironmentSnapshot = Object.freeze({
   texture: null,
+  screenTexture: null,
   intensity: 0,
 });
 const studioByScene = new WeakMap<Scene, StudioEnvironmentSnapshot>();
@@ -82,10 +84,13 @@ function installStudioEnvironment({
   const generator = new PMREMGenerator(gl);
   generator.compileEquirectangularShader();
   const target = generator.fromScene(room.scene, sigma);
+  // A separate reflection environment keeps the metal and direct lamps exact.
+  const screenRoom = createProductStudioEnvironment(true);
+  const screenTarget = generator.fromScene(screenRoom.scene, sigma);
   const previousEnvironment = scene.environment;
   const previousIntensity = scene.environmentIntensity;
   const previousSnapshot = readStudioEnvironment(scene);
-  const snapshot = Object.freeze({ texture: target.texture, intensity });
+  const snapshot = Object.freeze({ texture: target.texture, screenTexture: screenTarget.texture, intensity });
   scene.environment = target.texture;
   scene.environmentIntensity = intensity;
   publishStudioEnvironment(scene, snapshot);
@@ -100,6 +105,8 @@ function installStudioEnvironment({
       publishStudioEnvironment(scene, previousSnapshot);
     }
     target.dispose();
+    screenTarget.dispose();
+    screenRoom.dispose();
     generator.dispose();
     room.dispose();
     invalidate();

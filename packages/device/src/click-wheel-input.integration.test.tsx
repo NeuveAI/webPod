@@ -36,11 +36,13 @@ import {
   type DeviceOrientation,
 } from "./orientation";
 import { DeviceCanvasOrientationContext } from "./DeviceCanvas";
+import { DEFAULT_DEVICE_ENVELOPE } from "./device-envelope";
 import { DEVICE_LAYOUT } from "./layout";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import {
   DEFAULT_FRONT_ASSEMBLY_DEPTHS,
   resolveFrontAssemblyDepths,
+  frontShellOffsetAt,
 } from "./front-surface";
 
 const WIDTH = DEVICE_LAYOUT.body.width;
@@ -202,7 +204,7 @@ async function mountSurface(
             form,
           }}
         >
-          <group rotation={deviceOrientationToRotation(orientation)}>
+          <group>
             <ClickWheelInputSurface
               onArcStart={(sample) => {
                 starts.push(sample);
@@ -285,8 +287,8 @@ async function mountSurface(
 
 function wheelViewportPoint(localX: number, localY: number) {
   return {
-    x: WIDTH / 2 + DEVICE_LAYOUT.wheel.centerX + localX,
-    y: HEIGHT / 2 - DEVICE_LAYOUT.wheel.centerY - localY,
+    x: WIDTH / 2 + DEVICE_LAYOUT.wheel.centerX + localX - DEFAULT_DEVICE_ENVELOPE.center[0],
+    y: HEIGHT / 2 - DEVICE_LAYOUT.wheel.centerY - localY + DEFAULT_DEVICE_ENVELOPE.center[1],
   };
 }
 
@@ -329,10 +331,14 @@ function orientedPointerEvent(
 ): PointerEvent {
   const input = mounted.store.getState().scene.getObjectByName("click-wheel-input");
   if (!(input instanceof THREE.Mesh)) throw new Error("click-wheel input did not mount");
+  mounted.store.getState().scene.updateMatrixWorld(true);
   input.updateWorldMatrix(true, false);
   const camera = mounted.store.getState().camera;
   camera.updateMatrixWorld(true);
-  const projected = input.localToWorld(new THREE.Vector3(localX, localY, 0)).project(camera);
+  const z = DEFAULT_FRONT_ASSEMBLY_DEPTHS.wheelSurfaceBaseZ + frontShellOffsetAt(
+    DEVICE_LAYOUT.wheel.centerX + localX, DEVICE_LAYOUT.wheel.centerY + localY,
+  ) - DEFAULT_FRONT_ASSEMBLY_DEPTHS.clickWheelInputZ;
+  const projected = input.localToWorld(new THREE.Vector3(localX, localY, z)).project(camera);
   const event = new PointerEvent(type, {
     bubbles: true,
     cancelable: true,
@@ -592,6 +598,15 @@ describe("click-wheel mounted R3F event seam", () => {
       DEFAULT_DEVICE_FORM,
       THREE_QUARTER_DEVICE_ORIENTATION,
     );
+    const input = mounted.store.getState().scene.getObjectByName("click-wheel-input");
+    if (!(input instanceof THREE.Mesh)) throw new Error("Input missing");
+    input.updateWorldMatrix(true, false);
+    const expectedMatrix = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(
+      ...deviceOrientationToRotation(THREE_QUARTER_DEVICE_ORIENTATION),
+    )).multiply(new THREE.Matrix4().makeTranslation(...DEFAULT_DEVICE_ENVELOPE.center.map(v => -v) as [number, number, number]))
+      .multiply(new THREE.Matrix4().makeTranslation(DEVICE_LAYOUT.wheel.centerX, DEVICE_LAYOUT.wheel.centerY,
+        DEFAULT_FRONT_ASSEMBLY_DEPTHS.clickWheelInputZ));
+    for (let i = 0; i < 16; i++) expect(input.matrixWorld.elements[i]).toBeCloseTo(expectedMatrix.elements[i] ?? 0, 10);
     const centers = [
       { angle: 270, button: "menu" },
       { angle: 0, button: "next" },

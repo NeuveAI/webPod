@@ -81,6 +81,15 @@ test("three fixed reflection cards have finite transforms and dispose every owne
   }
   studio.dispose();
   expect(disposed).toBe(6);
+  const screenStudio = createProductStudioEnvironment(true);
+  const key = screenStudio.scene.children[0];
+  const fill = screenStudio.scene.children[1];
+  if (!(key instanceof Mesh) || !(fill instanceof Mesh)) throw new Error("Screen cards missing");
+  expect(key.quaternion.angleTo(fill.quaternion)).toBeCloseTo(0, 8);
+  const { DEFAULT_LIGHT_RIG } = await import("./light-rig");
+  expect(key.geometry.parameters.width).toBeCloseTo(DEFAULT_LIGHT_RIG.key.emitter.width * 1.6, 8);
+  expect(fill.geometry.parameters.height).toBeCloseTo(DEFAULT_LIGHT_RIG.kick.emitter.height * 1.6, 8);
+  screenStudio.dispose();
   const route = await Bun.file("apps/web/src/routes/[_]spike.device.tsx").text();
   expect(route).toContain("studioEnvironment={undefined}");
   expect(route).not.toContain('lighting === "combined" ? undefined : null');

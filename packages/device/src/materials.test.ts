@@ -77,13 +77,14 @@ describe("§12.3 device material contract", () => {
     expect(material.envMapIntensity).toBe(1.1);
     const shader = {
       vertexShader: "#include <common>\n#include <begin_vertex>",
-      fragmentShader: "#include <common>\n#include <opaque_fragment>",
+      fragmentShader: "#include <common>\n#include <lights_fragment_begin>\n#include <opaque_fragment>",
     };
     const beforeVertex = shader.vertexShader;
-    const beforeFragment = shader.fragmentShader;
+
     patchGlassShader(shader, { width: 284, height: 216 });
     expect(shader.vertexShader).toBe(beforeVertex);
-    expect(shader.fragmentShader).toBe(beforeFragment);
+    expect(shader.fragmentShader).toContain("rectAreaLight.halfWidth *= 1.6");
+    expect(shader.fragmentShader).toContain("rectAreaLight.color /= 2.56");
     expect(shader.fragmentShader).not.toContain("glassEdgeCool");
     expect(shader.fragmentShader).not.toContain("glassEdgeWarm");
     expect(shader.fragmentShader).not.toContain("vWebpodGlassUv");
