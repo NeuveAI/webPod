@@ -332,7 +332,8 @@ export function createAluminumFinishMaps(size = 512) {
     let streak = random();
     for (let x = 0; x < size; x++) {
       streak = streak * 0.75 + random() * 0.25;
-      const grain = random() * 0.3 + streak * 0.7;
+      // Reduce all three maps' contrast by 4%, preserving their mean and scale.
+      const grain = 0.5 + (random() * 0.3 + streak * 0.7 - 0.5) * 0.96;
       const offset = (y * size + x) * 4;
       for (let channel = 0; channel < 3; channel++) {
         colorData[offset + channel] = Math.round(255 * (0.9 + grain * 0.1));

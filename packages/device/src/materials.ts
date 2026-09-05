@@ -109,14 +109,14 @@ export type WheelColourwayParams = {
  * Owner IMG_2289/2290 establish the metal/plastic separation. */
 export const CLASSIC_ALUMINUM = Object.freeze({
   black: Object.freeze({
-    color: "#4E4D4B", roughness: 0.48, metalness: 1,
+    color: "#4E4D4B", roughness: 0.56, metalness: 1,
     clearcoat: 0, sheen: 0, transmission: 0,
-    bumpScale: 0.035, anisotropy: 0.36, anisotropyRotation: 0, envMapIntensity: 0.8,
+    bumpScale: 0.035, anisotropy: 0.36, anisotropyRotation: 0, envMapIntensity: 0.72,
   }),
   white: Object.freeze({
-    color: "#D5D7D8", roughness: 0.46, metalness: 1,
+    color: "#D5D7D8", roughness: 0.54, metalness: 1,
     clearcoat: 0, sheen: 0, transmission: 0,
-    bumpScale: 0.035, anisotropy: 0.36, anisotropyRotation: 0, envMapIntensity: 0.8,
+    bumpScale: 0.035, anisotropy: 0.36, anisotropyRotation: 0, envMapIntensity: 0.72,
   }),
 });
 
@@ -222,21 +222,23 @@ export const DEFAULT_DEVICE_MATERIALS: DeviceMaterials = {
   wheelLabelBlack: DEFAULT_WHEEL_COLOURWAYS.black.labelColor,
   wheelLabelWhite: DEFAULT_WHEEL_COLOURWAYS.white.labelColor,
   coverGlass: {
-    // §4.6's `--panel-bg` is behind the sheet; the sheet itself is colourless.
-    color: "#FFFFFF",
+    // Flush plastic window: black diffuse albedo removes the opaque white
+    // wash; dielectric specular/clearcoat remain colorless. Alpha composites
+    // reflections over the sharp LCD without a transmission sampling pass.
+    color: "#000000",
     transmission: 0,
     ior: 1.5,
     thickness: 0.2,
     roughness: 0.08,
     clearcoat: 1,
     clearcoatRoughness: 0.06,
-    specularIntensity: 0.35,
+    specularIntensity: 1,
     metalness: 0,
     attenuationColor: "#F5F8FC",
     attenuationDistance: 48,
-    opacity: 0.12,
+    opacity: 0.2,
     transparent: true,
-    envMapIntensity: 0.16,
+    envMapIntensity: 1.1,
   },
   screenReveal: {
     color: "#050608",

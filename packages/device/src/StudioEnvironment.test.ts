@@ -48,19 +48,19 @@ test("front materials explicitly retain per-surface gain under installed Three",
       DEFAULT_DEVICE_MATERIALS.bodyBlack.envMapIntensity,
       room,
     ),
-  ).toBeCloseTo(0.8, 12);
+  ).toBeCloseTo(0.72, 12);
   expect(
     effectiveStudioEnvironmentIntensity(
       DEFAULT_DEVICE_MATERIALS.bodyWhite.envMapIntensity,
       room,
     ),
-  ).toBeCloseTo(0.8, 12);
+  ).toBeCloseTo(0.72, 12);
   expect(
     effectiveStudioEnvironmentIntensity(
       DEFAULT_DEVICE_MATERIALS.coverGlass.envMapIntensity,
       room,
     ),
-  ).toBeCloseTo(0.16, 12);
+  ).toBeCloseTo(1.1, 12);
   expect(effectiveStudioEnvironmentIntensity(undefined, room)).toBe(room);
 });
 

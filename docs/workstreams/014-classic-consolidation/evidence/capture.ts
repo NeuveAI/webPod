@@ -9,8 +9,8 @@ await page.waitForFunction(() => !!window.__webpodDevicePreview);
 await page.waitForTimeout(2000);
 if (process.env['CAPTURE_UI'] === '1') await page.locator('.wp-panel').waitFor();
 for (const colourway of ['black', 'white'] as const) {
- for (const [view, yawDeg] of [['front', 0], ['oblique', 40], ['side', 85]] as const) {
-  await page.evaluate(({ colourway, yawDeg }) => { window.__webpodDevicePreview?.setColourway(colourway); window.__webpodDevicePreview?.setOrientation({ pitchDeg: 0, yawDeg, rollDeg: 0 }); }, { colourway, yawDeg });
+ for (const [view, yawDeg] of [['front', 0], ['oblique', 40], ['side', 85], ['reflection', 18]] as const) {
+  await page.evaluate(({ colourway, yawDeg, pitchDeg }) => { window.__webpodDevicePreview?.setColourway(colourway); window.__webpodDevicePreview?.setOrientation({ pitchDeg, yawDeg, rollDeg: 0 }); }, { colourway, yawDeg, pitchDeg: view === 'reflection' ? -20 : 0 });
   await page.waitForTimeout(700);
   await page.screenshot({ path: `${import.meta.dirname}/${process.env['CAPTURE_PREFIX'] ?? 'after'}-${colourway}-${view}.png` });
  }

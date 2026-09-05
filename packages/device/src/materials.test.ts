@@ -49,8 +49,8 @@ describe("§12.3 device material contract", () => {
     }
     expect(DEFAULT_DEVICE_MATERIALS.coverGlass).toMatchObject({
       transmission: 0, thickness: 0.2, ior: 1.5, roughness: 0.08,
-      clearcoat: 1, clearcoatRoughness: 0.06, specularIntensity: 0.35,
-      opacity: 0.12, transparent: true, envMapIntensity: 0.16,
+      clearcoat: 1, clearcoatRoughness: 0.06, specularIntensity: 1,
+      color: "#000000", opacity: 0.2, transparent: true, envMapIntensity: 1.1,
     });
     expect(DEFAULT_DEVICE_MATERIALS.screen).toEqual({ color: "#0B0D11", toneMapped: false });
   });
@@ -70,11 +70,11 @@ describe("§12.3 device material contract", () => {
       new Texture(),
     );
     expect(material.transmission).toBe(0);
-    expect(material.opacity).toBe(0.12);
+    expect(material.opacity).toBe(0.2);
     expect(material.transparent).toBe(true);
     expect(material.depthWrite).toBe(false);
     expect(material.roughness).toBe(0.08);
-    expect(material.envMapIntensity).toBe(0.16);
+    expect(material.envMapIntensity).toBe(1.1);
     const shader = {
       vertexShader: "#include <common>\n#include <begin_vertex>",
       fragmentShader: "#include <common>\n#include <opaque_fragment>",
@@ -182,13 +182,13 @@ describe("§12.3 device material contract", () => {
     );
   });
 
-  test("plastic cavities and the clear cover retain their restrained reflections", () => {
+  test("plastic cavities stay matte while the clear window reflects the studio", () => {
     expect(DEFAULT_DEVICE_MATERIALS.displayWell.envMapIntensity).toBeLessThan(0.02);
     expect(DEFAULT_DEVICE_MATERIALS.wheelWellBlack.envMapIntensity).toBeLessThan(0.02);
     expect(DEFAULT_DEVICE_MATERIALS.wheelWellWhite.envMapIntensity).toBeLessThan(0.02);
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingBlack.envMapIntensity).toBeLessThan(0.02);
     expect(DEFAULT_DEVICE_MATERIALS.wheelRingWhite.envMapIntensity).toBeLessThan(0.05);
-    expect(DEFAULT_DEVICE_MATERIALS.coverGlass.envMapIntensity).toBeLessThan(0.2);
+    expect(DEFAULT_DEVICE_MATERIALS.coverGlass.envMapIntensity).toBeGreaterThan(DEFAULT_DEVICE_MATERIALS.bodyBlack.envMapIntensity ?? 0);
     expect(Math.abs(DEFAULT_DEVICE_FORM.topEdgeCrown)).toBeLessThan(1.5);
     expect(Math.abs(DEFAULT_DEVICE_FORM.bottomEdgeCrown)).toBeLessThan(1.6);
     expect(DEFAULT_DEVICE_FORM.edgeCrownExtent).toBeLessThan(24);
