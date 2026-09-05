@@ -1,0 +1,26 @@
+# Owner revisions: materials and direct manipulation
+
+Status: Complete; Sol independently approved all five revisions. This supersedes conflicting original material criteria; keep original work intact otherwise. Read scope.md, decisions.md, handover.md and repo AGENTS.md. Same Astra code owner and Sol PM independent reviewer. No new workstream, commits, push or deployment.
+
+Primary: owner latest request and three clipboard images at /var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/codex-clipboard-89d37594-fff5-4318-9533-58917dcd95ce.png (selection and scrollbar defect), codex-clipboard-1fc68c61-bb1c-48a4-a71d-0abf3b03519c.png (progress border and scrub mismatch), codex-clipboard-377b2a44-55e1-4ac1-9ae1-941f50b76abc.png (scrollbar defect). These are current defect evidence; original HEIC photos and Aqua control image remain target references.
+
+## Acceptance and verification
+1. Progress/volume channels: translucent-looking edge and soft recessed shadow giving volume, not opaque metallic rim. Inspect light/dark rendered native LCD against original Aqua reference; do not undo correct HTMLTexture transfer.
+2. Marquee: selected overflowing text starts visibly moving within 3 seconds of selection/content change (target initial hold ~2 seconds, ensure actual onset <=3 seconds). Check list and Now Playing callers; preserve reduced-motion stable text and no animation for fitting text. Deterministic timing/browser proof.
+3. No accidental text selection from drag/double/triple click across player/device/header/labels/time. Preserve normal editing/selection in real search inputs/textarea/editable controls. Browser proof on real product and input exception. No blanket preventDefault that breaks keyboard, focus, dragging or accessibility.
+4. Scrub: progress fill, marker and displayed time derive the same optimistic position on each drag/wheel update without waiting for provider acknowledgement. Verify with intentionally delayed provider acknowledgement, forward/backward/endpoints, cancellation/release and eventual provider reconciliation; preserve shared Jotai/WebMCP state contract and avoid new useState.
+5. Scrollbar: narrow subtle neutral trough and blue thumb as actual hardware photos; remove current striped white trough/heavy metal edging/oversized appearance. Preserve accurate thumb size/position across short/long list and end-of-list, nine-row capacity, dark/light and large-type variants. Native screenshot proof at top/middle/bottom.
+
+Astra sole implementation ownership: prior panel/composite/state files plus relevant pointer/seek plumbing and tests. Any provider or device integration changes must be narrow and justified; credentials/server/auth stay out of scope. Sol owns independent reviews/revisions-review.md; lead owns this scope. Do not spawn more implementers. Use established modern-web-guidance, interface-craft, web-design-guidelines, global-patterns and relevant state/motion skills. Existing skill rules and repo guardrails persist.
+
+Evidence: evidence/revisions/; diary: diary/revisions.md; decisions: append decisions.md; final handover: append handover.md. Start with focused failure evidence; no need to redo previous entire reference conversion. Run meaningful deterministic interaction tests, relevant browser tests, typecheck/lint/build. No broad reruns after passing unless new source changes/failures justify. Real product route and existing provider seam only, explicit provenance. Review with exact file:line evidence; any critical/major => REQUEST_CHANGES. Preserve initial and prior uncommitted changes.
+
+Dependencies: Astra investigation + Sol reference analysis in parallel -> implementation -> independent review -> corrections -> lead sanity check. No unresolved owner decision; owner explicitly specifies desired interactions and supplies visual defect examples. Agents may log reversible choices for material/timing. Final aesthetics remain owner judgment after reviewed patch delivery.
+
+## Execution record
+- User requested committing completed work and retaining the same team. Prior approved baseline committed as `55a30d6` (LCD color correction), `0d6575d` (Aqua layout/navigation), `e1a6995` (review/evidence). Revision work begins after that baseline; unrelated untracked files remain untouched.
+- Astra diagnosis: effective old marquee hold is 1.8s delay plus 18% of a 12s keyframe cycle (~3.96s). Scrub fill used a 120ms width transition while marker/time snapped; outer-vs-inset geometry also caused mismatch. Verify fixes at rendered behavior level.
+- Sol material target: shallow low-opacity cool edge and soft inset shading on channels; quiet neutral narrow rail with simple bounded blue thumb, eliminating striped trough and heavy ribs. Existing 9px allocation may retain only 6–7px visual rail if accurate and reference-matched.
+
+## Closeout
+All five owner revisions implemented and independently approved in reviews/revisions-review.md. Lead inspected light/dark channel and scrollbar captures and independently passed typecheck (11/11), lint and diff whitespace. Implementer passed 422 scoped tests and 8 focused browser checks; Sol independently reran 6 revision browser tests plus 122 panel tests, typecheck, lint and build. Prior first pass is committed; this revision patch remains uncommitted.

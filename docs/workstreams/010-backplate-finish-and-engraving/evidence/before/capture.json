@@ -1,0 +1,84 @@
+{
+  "viewport": [
+    1024,
+    1100
+  ],
+  "dpr": 1,
+  "source": "localhost:3000 production-surface diagnostic, physical default materials",
+  "isolation": "Identical passive PMREM diffusion-card environment in all five passes; only real emitters toggled. Blank LCD diagnostic by design; active LCD proof separately in final-display.",
+  "sweep": [
+    {
+      "colourway": "black",
+      "pitch": 0,
+      "yaw": 180,
+      "file": "black-rear-0-180.png"
+    },
+    {
+      "colourway": "black",
+      "pitch": 15,
+      "yaw": 145,
+      "file": "black-rear-15-145.png"
+    },
+    {
+      "colourway": "black",
+      "pitch": 15,
+      "yaw": -145,
+      "file": "black-rear-15--145.png"
+    },
+    {
+      "colourway": "black",
+      "pitch": 45,
+      "yaw": 180,
+      "file": "black-rear-45-180.png"
+    },
+    {
+      "colourway": "black",
+      "pitch": -45,
+      "yaw": 180,
+      "file": "black-rear--45-180.png"
+    },
+    {
+      "colourway": "black",
+      "pitch": 20,
+      "yaw": -55,
+      "file": "black-rear-20--55.png"
+    },
+    {
+      "colourway": "white",
+      "pitch": 0,
+      "yaw": 180,
+      "file": "white-rear-0-180.png"
+    },
+    {
+      "colourway": "white",
+      "pitch": 15,
+      "yaw": 145,
+      "file": "white-rear-15-145.png"
+    },
+    {
+      "colourway": "white",
+      "pitch": 15,
+      "yaw": -145,
+      "file": "white-rear-15--145.png"
+    },
+    {
+      "colourway": "white",
+      "pitch": 45,
+      "yaw": 180,
+      "file": "white-rear-45-180.png"
+    },
+    {
+      "colourway": "white",
+      "pitch": -45,
+      "yaw": 180,
+      "file": "white-rear--45-180.png"
+    },
+    {
+      "colourway": "white",
+      "pitch": 20,
+      "yaw": -55,
+      "file": "white-rear-20--55.png"
+    }
+  ],
+  "errors": []
+}

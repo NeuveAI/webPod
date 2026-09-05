@@ -1,0 +1,9 @@
+# Final display evidence
+
+Frozen production scene captured at 1200×900 CSS pixels, DPR3, deterministic Apple Music fixture, normal combined lighting on localhost existing `_spike/device?capture=` route. No source or material/visibility/renderer overrides. Actual preview API sets existing finish and orientation only. Front is (0,0,0); quarter is pitch10/yaw−48/roll−2 degrees. Source hashes before/after match (`capture-metadata.json`).
+
+`black-front-lcd-bezel.png`, `white-front-lcd-bezel.png`, `black-quarter-lcd-bezel.png`, `white-quarter-lcd-bezel.png` preserve the whole LCD plus substantial shell margin; their corresponding `*-full.png` preserve whole-object context. The quarter views show straight perspective edges and small intentional rounded corners.
+
+`*-front-lcd-matched.png` use precisely the earlier diagnostic crop convention (panel bounds +8 CSS pixels each side), yielding1059×807 physical pixels. Seven horizontal samples at4%,10%,25%,50%,75%,90%,96% show all final LCD top transitions at row24 for both finishes. The earlier diagnostic first-bright-pixel measurement of the old black capture was25,30,30,30,30,29,24:6 physical pixels of apparent bow. Final spread is0 physical pixels. The old and final boundary extractors differ because the brighter final shell breaks the original unrestricted brightness threshold; numerical pre/post equality of those extractors is not claimed. `measure.py` takes the strongest positive minimum-RGB jump in the bracketed border-to-LCD region, avoiding the brighter final shell that invalidates an unrestricted first-bright-pixel scan. This is an image proxy, supplemented by the engineer's geometric occlusion regressions.
+
+Raw captures were visually inspected. This establishes flat visible LCD boundaries at the captured front and quarter poses, not an exhaustive proof for all orientations. No artificial image editing was used.

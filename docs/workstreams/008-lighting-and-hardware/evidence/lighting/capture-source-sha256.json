@@ -1,0 +1,14 @@
+{
+  "packages/device/src/light-rig.ts": "f8caa7a6ace90cea4b8d6360224990835512c138faeb2f678ea11f44b3656015",
+  "packages/device/src/materials.ts": "54d4df398e6009868ffccc4173a8453cb8761ab5c5e0cc1253767611e083fbf3",
+  "packages/device/src/env-map.ts": "80db9a7651f565b2849ea85a6dc390b853743e298a2db0c390b17fb719dd6c62",
+  "packages/device/src/textures.ts": "1c81c5e1f7fae6d57c9be4ca72dd28bc7c65c11320dee2841496047e08b633ac",
+  "packages/device/src/Device.tsx": "8ff857cdebff7fc3c0323097195f6d3270e4b2c882e4e5a81fbec4e9bfc9f8a2",
+  "packages/device/src/DeviceHardware.tsx": "f602013316e2a99258360be6f187c72217f9f759838552caaf791f183b60c527",
+  "packages/device/src/hardware-apertures.ts": "2105b426140cdc0ca7b781f25d4a1cfa7c984ec676407502c50c65b379a958cd",
+  "packages/device/src/hardware-geometry.ts": "6d2983e20b36837d36af7a29fb016d4e43fcb3e9007cb5c1e9c9e222e35156db",
+  "packages/device/src/top-controls.ts": "af851594fa15781147bd9e46ae5f8d17714bd0fb87da2fe55c10586141f5ab5f",
+  "packages/device/src/StudioEnvironment.tsx": "b01add3b076f7cf40445e73556e6bc9cdc934de57821147281981415ce0eedab",
+  "packages/device/src/ViewerLitDeviceFrame.tsx": "27515d68a9bfdba008cee565249ee57d56b10ba17e7fa0333b1bd0ed7057e2ee",
+  "packages/device/src/DeviceCanvas.tsx": "dd3a8a182420c324d6a7c3f3a06d75abba8985fab4b2624531f3ecdf903bd6cb"
+}

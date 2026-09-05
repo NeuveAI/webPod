@@ -1,0 +1,212 @@
+[
+  {
+    "file": "before-lcd-close.png",
+    "width": 1059,
+    "height": 807,
+    "topSamples": [
+      {
+        "x": 42,
+        "xFraction": 0.04,
+        "firstBrightY": 25
+      },
+      {
+        "x": 106,
+        "xFraction": 0.1,
+        "firstBrightY": 30
+      },
+      {
+        "x": 265,
+        "xFraction": 0.25,
+        "firstBrightY": 30
+      },
+      {
+        "x": 530,
+        "xFraction": 0.5,
+        "firstBrightY": 30
+      },
+      {
+        "x": 794,
+        "xFraction": 0.75,
+        "firstBrightY": 30
+      },
+      {
+        "x": 953,
+        "xFraction": 0.9,
+        "firstBrightY": 29
+      },
+      {
+        "x": 1017,
+        "xFraction": 0.96,
+        "firstBrightY": 24
+      }
+    ]
+  },
+  {
+    "file": "without-device-body.png",
+    "width": 1059,
+    "height": 807,
+    "topSamples": [
+      {
+        "x": 42,
+        "xFraction": 0.04,
+        "firstBrightY": 24
+      },
+      {
+        "x": 106,
+        "xFraction": 0.1,
+        "firstBrightY": 24
+      },
+      {
+        "x": 265,
+        "xFraction": 0.25,
+        "firstBrightY": 24
+      },
+      {
+        "x": 530,
+        "xFraction": 0.5,
+        "firstBrightY": 24
+      },
+      {
+        "x": 794,
+        "xFraction": 0.75,
+        "firstBrightY": 24
+      },
+      {
+        "x": 953,
+        "xFraction": 0.9,
+        "firstBrightY": 24
+      },
+      {
+        "x": 1017,
+        "xFraction": 0.96,
+        "firstBrightY": 24
+      }
+    ]
+  },
+  {
+    "file": "without-device-display-well.png",
+    "width": 1059,
+    "height": 807,
+    "topSamples": [
+      {
+        "x": 42,
+        "xFraction": 0.04,
+        "firstBrightY": 25
+      },
+      {
+        "x": 106,
+        "xFraction": 0.1,
+        "firstBrightY": 30
+      },
+      {
+        "x": 265,
+        "xFraction": 0.25,
+        "firstBrightY": 30
+      },
+      {
+        "x": 530,
+        "xFraction": 0.5,
+        "firstBrightY": 30
+      },
+      {
+        "x": 794,
+        "xFraction": 0.75,
+        "firstBrightY": 30
+      },
+      {
+        "x": 953,
+        "xFraction": 0.9,
+        "firstBrightY": 29
+      },
+      {
+        "x": 1017,
+        "xFraction": 0.96,
+        "firstBrightY": 24
+      }
+    ]
+  },
+  {
+    "file": "without-device-display-mask.png",
+    "width": 1059,
+    "height": 807,
+    "topSamples": [
+      {
+        "x": 42,
+        "xFraction": 0.04,
+        "firstBrightY": 25
+      },
+      {
+        "x": 106,
+        "xFraction": 0.1,
+        "firstBrightY": 30
+      },
+      {
+        "x": 265,
+        "xFraction": 0.25,
+        "firstBrightY": 30
+      },
+      {
+        "x": 530,
+        "xFraction": 0.5,
+        "firstBrightY": 30
+      },
+      {
+        "x": 794,
+        "xFraction": 0.75,
+        "firstBrightY": 30
+      },
+      {
+        "x": 953,
+        "xFraction": 0.9,
+        "firstBrightY": 29
+      },
+      {
+        "x": 1017,
+        "xFraction": 0.96,
+        "firstBrightY": 24
+      }
+    ]
+  },
+  {
+    "file": "without-glass.png",
+    "width": 1059,
+    "height": 807,
+    "topSamples": [
+      {
+        "x": 42,
+        "xFraction": 0.04,
+        "firstBrightY": 25
+      },
+      {
+        "x": 106,
+        "xFraction": 0.1,
+        "firstBrightY": 30
+      },
+      {
+        "x": 265,
+        "xFraction": 0.25,
+        "firstBrightY": 30
+      },
+      {
+        "x": 530,
+        "xFraction": 0.5,
+        "firstBrightY": 30
+      },
+      {
+        "x": 794,
+        "xFraction": 0.75,
+        "firstBrightY": 30
+      },
+      {
+        "x": 953,
+        "xFraction": 0.9,
+        "firstBrightY": 30
+      },
+      {
+        "x": 1017,
+        "xFraction": 0.96,
+        "firstBrightY": 24
+      }
+    ]
+  }
+]

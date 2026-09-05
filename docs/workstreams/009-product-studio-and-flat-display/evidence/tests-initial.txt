@@ -1,0 +1,538 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/calibration/archive-schema.test.ts:
+(pass) calibration archive measurement integrity > parses both committed archives and recomputes their reviewed aggregates [25.44ms]
+(pass) calibration archive measurement integrity > rejects the reviewer's exact duplicated black-row, rogue-key, delta/pass fabrication [17.92ms]
+(pass) calibration archive measurement integrity > rejects undeclared result fields and inconsistent delta/pass claims [13.61ms]
+(pass) calibration archive measurement integrity > rejects non-finite, out-of-range, and internally inconsistent colour measurements [13.59ms]
+(pass) calibration archive measurement integrity > rejects changed coordinate identity, expected stop semantics, and cardinality [14.77ms]
+(pass) calibration archive measurement integrity > rejects incomplete, reordered, duplicate, and out-of-grid sweep coordinates [16.43ms]
+
+packages/device/calibration/stage-ownership.test.ts:
+(pass) calibration stage ownership > body-black can apply only its material and optical response [0.11ms]
+(pass) calibration stage ownership > body-black cannot own shared or other-surface keys [0.02ms]
+(pass) calibration stage ownership > body-black writes preserve every frozen non-owned value [0.06ms]
+
+packages/device/src/control-physics.test.ts:
+(pass) rigid physical click-wheel tilt > the restrained rigid calibration and release laws are explicit [0.02ms]
+(pass) rigid physical click-wheel tilt > the complete production tessellation receives one distance-preserving rigid transform [113.51ms]
+(pass) rigid physical click-wheel tilt > the low side follows contact continuously while object-space circles never change [34.80ms]
+(pass) rigid physical click-wheel tilt > a rotated device applies the same rigid rotation to vertices and normals [1.62ms]
+(pass) rigid physical click-wheel tilt > wheel release is monotonic in tilt and restores exact rest [1.08ms]
+(pass) rigid physical click-wheel tilt > reduced motion during release restores and presents the exact rest transform [0.72ms]
+(pass) rigid physical click-wheel tilt > detach and rebind restore only the matching rigid assembly [1.79ms]
+(pass) rigid physical click-wheel tilt > Select is one restrained device-local Z press with invariant plastic [1.80ms]
+(pass) rigid physical click-wheel tilt > wheel and Select release durations are invariant from 15 through 360 Hz [12.54ms]
+(pass) rigid physical click-wheel tilt > release is demand-driven and a frozen clock has a bounded escape [0.61ms]
+(pass) rigid physical click-wheel tilt > production has one contact-following rigid wheel transform and no deformation or optical proxy [0.75ms]
+
+packages/device/src/screen-aperture.test.ts:
+(pass) square LCD aperture and flat assembly reveal > production collapses only the automatic inner bevel into one square wall [113.35ms]
+(pass) square LCD aperture and flat assembly reveal > the complete crowned body leaves the active LCD top row unobstructed [981.21ms]
+(pass) square LCD aperture and flat assembly reveal > the visible reveal is unlit black and neither screen layer can restore a reflective lip [3.31ms]
+
+packages/device/src/probe-raycast.test.ts:
+(pass) first visible probe hit > uses Three's stable type flags across module graphs [0.22ms]
+(pass) first visible probe hit > rejects a nearer unnamed wrong-material occluder [0.74ms]
+(pass) first visible probe hit > fails closed when the transparent decal alpha cannot be proven empty [0.10ms]
+(pass) first visible probe hit > accepts the transformed back mesh only when it is the first hit [0.24ms]
+(pass) first visible probe hit > keeps a transparent decal in front of its opaque backing [0.08ms]
+(pass) first visible probe hit > edge targets fail closed when the nearer visible shell is unnamed [0.14ms]
+(pass) first visible probe hit > solves the actual tessellated mesh surface instead of a nominal z [2.17ms]
+(pass) side-face probe solves > solves the actual visible right shell instead of a front proxy [0.09ms]
+
+packages/device/src/luminance-probe.test.ts:
+(pass) §12.3 luminance tolerance > preserves mirrored readings instead of hiding asymmetry in the average [0.09ms]
+(pass) §12.3 luminance tolerance > admits floating-point noise at the exact ±4 boundary [0.02ms]
+(pass) §12.3 luminance tolerance > still rejects a materially out-of-band reading [0.01ms]
+(pass) D-067 probe geometry and identity > every target carries an expected object and material identity [0.59ms]
+(pass) D-067 probe geometry and identity > off-surface and wrong-material hits cannot count [0.04ms]
+(pass) D-067 probe geometry and identity > body samples stay inside the shared circular enclosure by the safe margin [0.06ms]
+(pass) D-067 probe geometry and identity > wheel and Select samples keep their separate surface margins [0.05ms]
+(pass) D-067 probe geometry and identity > back targets preserve the 168° iso-line through the actual face transform [0.09ms]
+(pass) D-067 probe geometry and identity > rear targets classify the exposed steel shell directly [0.03ms]
+(pass) D-067 probe geometry and identity > edge targets bind to the actual visible shell on both sides [0.04ms]
+
+packages/device/src/orientation.test.ts:
+(pass) D-064 verification modes > only the front and rear reference poses are canonical stop-table poses [0.03ms]
+(pass) D-064 verification modes > rotated and custom poses are physical-continuity validations [0.02ms]
+
+packages/device/src/front-surface.test.ts:
+(pass) front assemblies share the crowned shell frame > the production crown is subtle rather than a second chassis depth [0.01ms]
+(pass) front assemblies share the crowned shell frame > flat display layers remain recessed at every outer corner [0.06ms]
+(pass) front assemblies share the crowned shell frame > the click wheel and Select share the shell's front surface [0.02ms]
+(pass) front assemblies share the crowned shell frame > the wheel and Select are near-flush separate parts without a border ring [0.01ms]
+(pass) front assemblies share the crowned shell frame > no renderer or calibration path can restore a dome or decorative Select border [1.33ms]
+(pass) front assemblies share the crowned shell frame > the active LCD keeps its physical grid while only depth moves [0.03ms]
+
+packages/device/src/renderer-defaults.test.ts:
+(pass) device renderer defaults > keeps the transmission pass on the native drawing-buffer grid [0.01ms]
+
+packages/device/src/click-wheel-input.integration.test.tsx:
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > mounted wheel and Select ray hits publish pointer intent and clean up [7.65ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > an injected form moves the mounted ray plane with the visible wheel [0.93ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > routes captured wheel gestures without cancelling delegated native events [1.53ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > release-qualified cardinal sectors map mouse, touch and pen exactly once [5.78ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > diagonal edges and radial extremes remain tappable without entering rotation [1.74ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > oblique model-space projection preserves full sectors, diagonal ownership, and movement takeover [2.78ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > movement takeover cancels the cardinal candidate before rotation starts [0.96ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > cancel, lost capture, blur and drag-off reject cardinal presses [0.96ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Select captures mouse, touch and pen and never enters the arc runtime [1.26ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > the mounted r=37 seam belongs only to Select while just outside belongs to the annulus [1.08ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > the production Select target holds the bound plastic at its axial travel until release [1.49ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Select cancel, lost capture and blur each return capture exactly once [0.69ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Enter travel is scoped to the focused semantic application [0.94ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > window blur cancels capture and leaves the next gesture usable [0.54ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+976 |     let startsToThrow = 1;
+977 |     const mounted = await mountSurface("front", {
+978 |       onArcStart: () => {
+979 |         if (startsToThrow > 0) {
+980 |           startsToThrow -= 1;
+981 |           throw new Error("planted start failure");
+                          ^
+error: planted start failure
+      at onArcStart (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:981:21)
+      at onArcStart (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:209:24)
+      at onPointerMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.tsx:650:32)
+      at onIntersect (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:942:62)
+      at handleIntersects (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:804:11)
+      at handleEvent (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:963:7)
+      at #callDispatchEventListeners (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:239:47)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:117:14)
+      at #goThroughDispatchEventPhases (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:177:38)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:113:18)
+
+(pass) click-wheel mounted R3F event seam > a thrown start callback releases capture and leaves the next gesture usable [1.04ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+1011 |     let movesToThrow = 1;
+1012 |     const mounted = await mountSurface("front", {
+1013 |       onArcMove: () => {
+1014 |         if (movesToThrow > 0) {
+1015 |           movesToThrow -= 1;
+1016 |           throw new Error("planted move failure");
+                           ^
+error: planted move failure
+      at onArcMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:1016:21)
+      at onArcMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:213:24)
+      at onPointerMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.tsx:652:30)
+      at onIntersect (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:942:62)
+      at handleIntersects (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:804:11)
+      at handleEvent (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:963:7)
+      at #callDispatchEventListeners (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:239:47)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:117:14)
+      at #goThroughDispatchEventPhases (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:177:38)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:113:18)
+
+(pass) click-wheel mounted R3F event seam > a thrown move callback cancels listeners and capture before rethrowing [1.05ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > native cancel and following lost capture terminate exactly once [0.77ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > unexpected native lost capture reaches the component listener [0.50ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > reconciler unmount cancels and releases an active pointer [0.33ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > reconciler unmount returns an active Select press [0.34ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > a back-facing DeviceCanvas context contains no raycastable annulus [0.23ms]
+
+packages/device/src/orientation-grab.test.ts:
+(pass) device enclosure orientation grab > leaves browser gesture suppression to the application touch-action boundary [0.18ms]
+(pass) device enclosure orientation grab > accepts primary mouse, pen, and touch without accepting secondary input [0.04ms]
+(pass) device enclosure orientation grab > admits the physical perimeter and corners, never face controls [0.06ms]
+(pass) device enclosure orientation grab > rejects a shell behind the LCD, wheel, or Select ray hit [0.05ms]
+
+packages/device/src/pixel-density.test.ts:
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box [0.03ms]
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box
+(pass) canvas physical-pixel density > maps a 275px by 460px CSS canvas to its physical box
+(pass) canvas physical-pixel density > uses browser DPR when the physical box API is unavailable
+(pass) canvas physical-pixel density > does not let a CSS-sized emulation box override a higher browser DPR
+(pass) canvas physical-pixel density > clamps expensive or invalid device scales to the supported 1–3 range
+(pass) canvas physical-pixel density > passes a measured zoom DPR through the R3F seam as an exact number [0.02ms]
+
+packages/device/src/materials.test.ts:
+16 |   patchGlassShader,
+17 | } from "./physical-materials";
+18 | 
+19 | describe("§12.3 device material contract", () => {
+20 |   test("polycarbonate keeps the specified base response", () => {
+21 |     expect(DEFAULT_DEVICE_MATERIALS.bodyBlack).toMatchObject({
+                                                    ^
+error: expect(received).toMatchObject(expected)
+
+  {
+    "albedoScale": 0.34,
+-   "clearcoat": 0.32,
+-   "clearcoatRoughness": 0.46,
++   "clearcoat": 0.65,
++   "clearcoatRoughness": 0.2,
+    "color": "#11161C",
+    "envMapIntensity": 0.008,
+    "metalness": 0,
+    "reflectivity": 0.38,
+-   "roughness": 0.68,
++   "roughness": 0.42,
+    "sheen": 0.15,
+    "sheenColor": "#6E4A2E",
+    "sheenRoughness": 1,
+    "specularIntensity": 0.16,
+    "subsurfaceAttenuation": 0.1,
+    "subsurfaceColor": "#5C6876",
+    "subsurfaceDistortion": 0.2214,
+    "subsurfacePower": 1,
+    "subsurfaceScale": 1.4,
+  }
+
+- Expected  - 3
++ Received  + 3
+
+      at <anonymous> (/Users/vinicius/code/webPod/packages/device/src/materials.test.ts:21:48)
+(fail) §12.3 device material contract > polycarbonate keeps the specified base response [0.48ms]
+58 |   });
+59 | 
+60 |   test("mirror steel remains room-driven while front surfaces do not (D-057)", () => {
+61 |     const mirrorGain = DEFAULT_DEVICE_MATERIALS.steelBack.envMapIntensity ?? 0;
+62 | 
+63 |     expect(DEFAULT_DEVICE_MATERIALS.steelBack).toMatchObject({
+                                                    ^
+error: expect(received).toMatchObject(expected)
+
+  {
+-   "anisotropy": 0.25,
++   "anisotropy": 0.12,
+    "anisotropyRotation": 0,
+    "color": "#C4CBD2",
+-   "envMapIntensity": 0.4,
++   "envMapIntensity": 0.65,
+    "metalness": 1,
+-   "roughness": 0.26,
++   "roughness": 0.14,
+  }
+
+- Expected  - 3
++ Received  + 3
+
+      at <anonymous> (/Users/vinicius/code/webPod/packages/device/src/materials.test.ts:63:48)
+(fail) §12.3 device material contract > mirror steel remains room-driven while front surfaces do not (D-057) [0.05ms]
+(pass) §12.3 device material contract > wheel, Select, glass and screen keep their physical distinctions [0.03ms]
+(pass) §12.3 device material contract > OEM black and white wheel assemblies are separate calibrations, not inversions [0.04ms]
+(pass) §12.3 device material contract > instantiated cover glass stays reflective without resampling the LCD [0.11ms]
+(pass) §12.3 device material contract > black polycarbonate integrates bounded transport into every direct light [0.14ms]
+(pass) §12.3 device material contract > polycarbonate transport patches Three's installed direct and area-light chunks [0.03ms]
+(pass) §12.3 device material contract > white polycarbonate keeps depth in the direct-light transport path [0.04ms]
+(pass) §12.3 device material contract > the seam is a restrained blue-gray boundary, not mirror-back material [0.01ms]
+(pass) §12.3 device material contract > front dielectrics keep the room as a whisper, not as chrome banding [0.02ms]
+324 |   });
+325 | });
+326 | 
+327 | describe("owner two-light studio rig", () => {
+328 |   test("locks explicit key, kick, softness, ratio and linear exposure values", () => {
+329 |     expect(DEFAULT_LIGHT_RIG.exposure).toBe(0.92);
+                                             ^
+error: expect(received).toBe(expected)
+
+Expected: 0.92
+Received: 1
+
+      at <anonymous> (/Users/vinicius/code/webPod/packages/device/src/materials.test.ts:329:40)
+(fail) owner two-light studio rig > locks explicit key, kick, softness, ratio and linear exposure values [0.05ms]
+
+packages/device/src/StudioEnvironment.test.ts:
+ 6 |   effectiveStudioEnvironmentIntensity,
+ 7 | } from "./StudioEnvironment";
+ 8 | 
+ 9 | test("studio lighting is a PMREM RoomEnvironment and contains no view-locked shading hook", async () => {
+10 |   const source = await Bun.file(new URL("./StudioEnvironment.tsx", import.meta.url)).text();
+11 |   expect(source).toContain("new RoomEnvironment()");
+                      ^
+error: expect(received).toContain(expected)
+
+Expected to contain: "new RoomEnvironment()"
+Received: "import { useThree } from \"@react-three/fiber\";\nimport { useCallback, useEffect, useSyncExternalStore } from \"react\";\nimport {\n  PMREMGenerator,\n  type Scene,\n  type Texture,\n  type WebGLRenderer,\n} from \"three\";\nimport { createProductStudioEnvironment } from \"./product-studio\";\n\ntype StudioInstallation = {\n  readonly gl: WebGLRenderer;\n  readonly scene: Scene;\n  readonly sigma: number;\n  readonly intensity: number;\n  readonly invalidate: () => void;\n};\n\nexport type StudioEnvironmentSnapshot = {\n  readonly texture: Texture | null;\n  readonly intensity: number;\n};\n\nconst EMPTY_STUDIO_ENVIRONMENT: StudioEnvironmentSnapshot = Object.freeze({\n  texture: null,\n  intensity: 0,\n});\nconst studioByScene = new WeakMap<Scene, StudioEnvironmentSnapshot>();\nconst listenersByScene = new WeakMap<Scene, Set<() => void>>();\n\nfunction readStudioEnvironment(scene: Scene): StudioEnvironmentSnapshot {\n  return studioByScene.get(scene) ?? EMPTY_STUDIO_ENVIRONMENT;\n}\n\nfunction publishStudioEnvironment(\n  scene: Scene,\n  snapshot: StudioEnvironmentSnapshot,\n): void {\n  if (snapshot.texture === null) {\n    studioByScene.delete(scene);\n  } else {\n    studioByScene.set(scene, snapshot);\n  }\n  for (const listener of listenersByScene.get(scene) ?? []) listener();\n}\n\nfunction subscribeToStudioEnvironment(\n  scene: Scene,\n  listener: () => void,\n): () => void {\n  const listeners = listenersByScene.get(scene) ?? new Set<() => void>();\n  listeners.add(listener);\n  listenersByScene.set(scene, listeners);\n  return () => {\n    listeners.delete(listener);\n    if (listeners.size === 0) listenersByScene.delete(scene);\n  };\n}\n\n/**\n * Preserve a surface's authored PMREM response when one exists.\n *\n * Three's scene-level intensity is the fallback for materials that inherit the\n * scene environment. It is not an additional multiplier on an explicit\n * material map: applying it twice crushes the black shell and glass response.\n */\nexport function effectiveStudioEnvironmentIntensity(\n  surfaceIntensity: number | undefined,\n  studioIntensity: number,\n): number {\n  return surfaceIntensity ?? studioIntensity;\n}\n\nfunction installStudioEnvironment({\n  gl,\n  scene,\n  sigma,\n  intensity,\n  invalidate,\n}: StudioInstallation) {\n  const room = createProductStudioEnvironment();\n  const generator = new PMREMGenerator(gl);\n  generator.compileEquirectangularShader();\n  const target = generator.fromScene(room.scene, sigma);\n  const previousEnvironment = scene.environment;\n  const previousIntensity = scene.environmentIntensity;\n  const previousSnapshot = readStudioEnvironment(scene);\n  const snapshot = Object.freeze({ texture: target.texture, intensity });\n  scene.environment = target.texture;\n  scene.environmentIntensity = intensity;\n  publishStudioEnvironment(scene, snapshot);\n  invalidate();\n\n  return () => {\n    if (scene.environment === target.texture) {\n      scene.environment = previousEnvironment;\n      scene.environmentIntensity = previousIntensity;\n    }\n    if (readStudioEnvironment(scene).texture === target.texture) {\n      publishStudioEnvironment(scene, previousSnapshot);\n    }\n    target.dispose();\n    generator.dispose();\n    room.dispose();\n    invalidate();\n  };\n}\n\n/** PBR image-based studio shared by every device pose and colourway. */\nexport type StudioEnvironmentProps = {\n  /** PMREM blur in radians. Kept broad enough to read as a softbox, not bands. */\n  readonly sigma?: number;\n  /** Scene-level IBL gain; individual materials retain their own response. */\n  readonly intensity?: number;\n};\n\n/** Restrained IBL: enough for material identity, below the authored lamps. */\nexport const DEFAULT_STUDIO_ENVIRONMENT = Object.freeze({\n  sigma: 0.04,\n  intensity: 0.2,\n});\n\n/**\n * Read the PMREM texture installed for this R3F scene.\n *\n * Three replaces `material.envMapIntensity` with `scene.environmentIntensity`\n * whenever a material inherits a scene environment. Device materials consume\n * this snapshot as an explicit `envMap`, retaining their own authored gains.\n */\nexport function useStudioEnvironmentSnapshot(): StudioEnvironmentSnapshot {\n  const scene = useThree((state) => state.scene);\n  const subscribe = useCallback(\n    (listener: () => void) => subscribeToStudioEnvironment(scene, listener),\n    [scene],\n  );\n  const read = useCallback(() => readStudioEnvironment(scene), [scene]);\n  return useSyncExternalStore(subscribe, read, () => EMPTY_STUDIO_ENVIRONMENT);\n}\n\n/**\n * Install the deliberate diffusion-card studio through one PMREM conversion.\n *\n * The generated render target belongs to this component and is disposed on\n * unmount. The environment stays in world space while the single model group\n * rotates, so no highlight is attached to a pose or to the camera.\n */\nexport function StudioEnvironment({\n  sigma = DEFAULT_STUDIO_ENVIRONMENT.sigma,\n  intensity = DEFAULT_STUDIO_ENVIRONMENT.intensity,\n}: StudioEnvironmentProps) {\n  const gl = useThree((state) => state.gl);\n  const scene = useThree((state) => state.scene);\n  const invalidate = useThree((state) => state.invalidate);\n\n  useEffect(\n    () =>\n      installStudioEnvironment({ gl, scene, sigma, intensity, invalidate }),\n    [gl, intensity, invalidate, scene, sigma],\n  );\n\n  return null;\n}\n"
+
+      at <anonymous> (/Users/vinicius/code/webPod/packages/device/src/StudioEnvironment.test.ts:11:18)
+(fail) studio lighting is a PMREM RoomEnvironment and contains no view-locked shading hook [0.15ms]
+25 |   expect(source.match(/envMap=\{env\}/g)).toHaveLength(1);
+26 |   expect(source).toMatch(/name="steel-back"[\s\S]*?envMap=\{env\}/);
+27 |   expect(source).toContain("useStudioEnvironmentSnapshot()");
+28 |   expect(source).toContain("envMap: studio.texture");
+29 |   expect(source).toContain("effectiveStudioEnvironmentIntensity(");
+30 |   expect(source).toContain("const env = envMap ?? builtEnv");
+                      ^
+error: expect(received).toContain(expected)
+
+Expected to contain: "const env = envMap ?? builtEnv"
+Received: "/**\n * The device, as react-three-fiber elements.\n *\n * ⚑ **Nothing in this file contains a material number, a light number, a\n * §12.0 radius or a room colour.** Materials come from `materials.ts`, the rig\n * from `light-rig.ts`, the studio from `StudioEnvironment.tsx`, the calibrated\n * mirror-rear room from `env-map.ts`, the plan from `layout.ts`\n * (which imports `@webpod/tokens`) and the depths from `form.ts` — and every\n * one of them arrives as a prop with a default, per D-012. There is exactly\n * one set of defaults and no mechanism for choosing between sets; the test of\n * the seam is that a caller *could* pass a different one, not that a registry\n * exists to pick it.\n *\n * ⚑ **No `useFrame` anywhere in this package.** §14.1 makes an untouched\n * device produce zero rAF callbacks, and the surest way to honour that is to\n * have nothing that could poll. The screen mesh's change notification hangs\n * off `onBeforeRender` instead (see `screen-mesh.ts`).\n */\nimport { useThree, type ThreeEvent } from \"@react-three/fiber\";\nimport { useCallback, useEffect, useMemo, useRef } from \"react\";\nimport {\n  Color,\n  ExtrudeGeometry,\n  type Group,\n  type Material,\n  type Mesh,\n  MeshBasicMaterial,\n  ShapeGeometry,\n  type Texture,\n} from \"three\";\nimport { toCreasedNormals } from \"three/examples/jsm/utils/BufferGeometryUtils.js\";\n\nimport { frontCoreDepth, tessellateVerticalCrown } from \"./curved-shell\";\nimport { useControlPhysics } from \"./ControlPhysicsScope\";\nimport { AxialSelectControl } from \"./AxialSelectControl\";\nimport {\n  createFrontControlPatchGeometry,\n  createWheelGapFloorGeometries,\n} from \"./front-control-geometry\";\nimport {\n  createRearShellGeometry,\n  frontShellPlan,\n  productShellDepths,\n} from \"./product-shell\";\nimport {\n  createRoomEnvMap,\n  type EnvRoomParams,\n} from \"./env-map\";\nimport { DEFAULT_DEVICE_FORM, type DeviceFormParams } from \"./form\";\nimport {\n  resolveFrontAssemblyDepths,\n  WHEEL_OUTER_SEAM_WIDTH,\n} from \"./front-surface\";\nimport { DEVICE_LAYOUT, SCREEN_CORNER_R } from \"./layout\";\nimport { DEFAULT_LIGHT_RIG, type LightRigParams } from \"./light-rig\";\nimport { materialMapOwnership } from \"./material-map-ownership\";\nimport {\n  DEFAULT_DEVICE_MATERIALS,\n  type DeviceMaterials,\n  type PhysicalSurfaceParams,\n} from \"./materials\";\nimport {\n  circleHole,\n  roundedRectFrameShape,\n  roundedRectHole,\n  roundedRectShape,\n  silhouetteShape,\n} from \"./shapes\";\nimport { createScreenMeshHandle, type ScreenMeshReady } from \"./screen-mesh\";\nimport { createScreenGeometry } from \"./screen-geometry\";\nimport { squareRoundedRectApertureWalls } from \"./screen-aperture\";\nimport {\n  createPolycarbonateMaterial,\n  createBlackPolycarbonateMaterial,\n  createCoverGlassMaterial,\n} from \"./physical-materials\";\nimport { WHEEL_LABEL_DECAL_NAME } from \"./probe-raycast\";\nimport {\n  createMicroNoiseRoughnessMap,\n  createSteelAnisotropyMap,\n  createWheelLabelMap,\n} from \"./textures\";\nimport { ViewerLitDeviceFrame } from \"./ViewerLitDeviceFrame\";\nimport {\n  FRONT_DEVICE_ORIENTATION,\n  type DeviceOrientation,\n} from \"./orientation\";\nimport {\n  acceptsDeviceOrientationHover,\n  acceptsDeviceOrientationPointer,\n  isDeviceOuterGrabPoint,\n  isFirstVisibleDeviceShellHit,\n  type DeviceOrientationGrabStart,\n  type DeviceOrientationPointerCapture,\n} from \"./orientation-grab\";\nimport { DEVICE_SURFACE_LAYOUT } from \"./surface-layout\";\nimport { DeviceHardware } from \"./DeviceHardware\";\nimport { cutHardwareApertures } from \"./hardware-apertures\";\nimport {\n  effectiveStudioEnvironmentIntensity,\n  useStudioEnvironmentSnapshot,\n  type StudioEnvironmentSnapshot,\n} from \"./StudioEnvironment\";\n\n/** LAW 5: both modes are the product, so both colourways are first class. */\nexport type Colourway = \"black\" | \"white\";\nexport type {\n  DeviceFace,\n  DeviceOrientation,\n  DevicePosePreset,\n  DeviceVisibleFace,\n} from \"./orientation\";\n\nexport type DeviceProps = {\n  readonly colourway?: Colourway;\n  readonly orientation?: DeviceOrientation;\n  /** §12.3's parameter table. Injected (D-012); defaults to §12.3. */\n  readonly materials?: DeviceMaterials;\n  /** Owner-approved two-light rig. Injected for deterministic verification. */\n  readonly lightRig?: LightRigParams;\n  /** Optional legacy calibration room; production uses the shared product studio. */\n  readonly envRoom?: EnvRoomParams;\n  /** Depths and curvatures §12.0 does not state. */\n  readonly form?: DeviceFormParams;\n  /**\n   * A mirror-rear environment map to use instead of the one built from `envRoom`.\n   *\n   * The renderer-specific escape hatch: a tier with a captured HDR of a real\n   * room passes it here and `env-map.ts` is not called.\n   */\n  readonly envMap?: Texture | null;\n  /** Handed the screen quad once it exists. This is the W6 boundary (D-011). */\n  readonly onScreenMeshReady?: ScreenMeshReady;\n  /** Pre-installed material for the screen slot; `undefined` keeps the default. */\n  readonly screenMaterial?: Material | null;\n  /**\n   * Begins free preview orientation from a ray-confirmed enclosure edge.\n   * Returning false leaves the pointer untouched for another product control.\n   */\n  readonly onOrientationGrabStart?: (\n    start: DeviceOrientationGrabStart,\n  ) => boolean;\n  /** Cursor affordance for the currently ray-confirmed enclosure edge. */\n  readonly onOrientationGrabHoverChange?: (grabbable: boolean) => void;\n};\n\nconst { body, screen, wheel } = DEVICE_LAYOUT;\nconst { displayWell, glass, mask } = DEVICE_SURFACE_LAYOUT.front;\n\n// D-067 puts VWaJS's circular 26px enclosure in DEVICE_LAYOUT; every shell\n// below consumes that single typed geometry.\n\n/** Bevel segments everywhere. Rolled edges are the §10.4 conic response. */\nconst BEVEL_SEGMENTS = 16;\n\nexport function Device({\n  colourway = \"black\",\n  orientation = FRONT_DEVICE_ORIENTATION,\n  materials = DEFAULT_DEVICE_MATERIALS,\n  lightRig = DEFAULT_LIGHT_RIG,\n  envRoom,\n  form = DEFAULT_DEVICE_FORM,\n  envMap,\n  onScreenMeshReady,\n  screenMaterial,\n  onOrientationGrabStart,\n  onOrientationGrabHoverChange,\n}: DeviceProps) {\n  const invalidate = useThree((state) => state.invalidate);\n  const controlPhysics = useControlPhysics();\n  const wheelAssemblyRef = useRef<Group>(null);\n  // A getter, not a value: r3f swaps the camera on some prop changes and the\n  // viewport changes on every resize, so the handle must read both at the\n  // moment it projects rather than capture them (see `screen-mesh.ts`).\n  const store = useThree((state) => state);\n  const view = useCallback(\n    () => ({\n      camera: store.camera,\n      width: store.size.width,\n      height: store.size.height,\n    }),\n    [store],\n  );\n  const onShellPointerDown = useCallback(\n    (event: ThreeEvent<PointerEvent>) => {\n      if (onOrientationGrabStart === undefined) return;\n      const start = orientationGrabStart(event);\n      if (start === null || !onOrientationGrabStart(start)) return;\n      // Browser panning is disabled declaratively by the application root's\n      // touch-action. R3F delegates this callback through a native listener\n      // that may be passive, so native preventDefault() is not legal here.\n      event.stopPropagation();\n    },\n    [onOrientationGrabStart],\n  );\n  const onShellPointerMove = useCallback(\n    (event: ThreeEvent<PointerEvent>) => {\n      if (onOrientationGrabHoverChange === undefined) return;\n      if (\n        !acceptsDeviceOrientationHover(event) ||\n        !isFirstVisibleDeviceShellHit(event.object, event.intersections)\n      ) {\n        return;\n      }\n      const localPoint = event.object.worldToLocal(event.point.clone());\n      onOrientationGrabHoverChange(\n        isDeviceOuterGrabPoint(localPoint.x, localPoint.y),\n      );\n    },\n    [onOrientationGrabHoverChange],\n  );\n  const onShellPointerOut = useCallback(() => {\n    onOrientationGrabHoverChange?.(false);\n  }, [onOrientationGrabHoverChange]);\n\n  // ⚑ Keyed on the room's **values**, not on the object's identity. Building\n  // the room is the most expensive thing this package does — a 2048 × 1024\n  // float equirect, plus three's PMREM conversion — and identity is exactly the\n  // wrong key for it: a parent that renders `envRoom={{ ...DEFAULT_ENV_ROOM }}`\n  // inline, or a control surface that spreads a patch over it, hands a fresh\n  // object every render and rebuilds a 32MB texture for a value that did not\n  // change. The rig tuner did precisely that and its inner loop went from\n  // milliseconds to four seconds.\n  const envSignature = JSON.stringify(envRoom ?? null);\n  const builtEnv = useMemo(() => {\n    if (envMap !== undefined || envSignature === \"null\") return null;\n    // Parsed from the signature rather than closed over `envRoom`, so the memo\n    // and its input cannot disagree about which room was built.\n    return createRoomEnvMap(JSON.parse(envSignature) as EnvRoomParams);\n  }, [envMap, envSignature]);\n  useEffect(() => () => builtEnv?.dispose(), [builtEnv]);\n  const studio = useStudioEnvironmentSnapshot();\n  const env = envMap !== undefined ? envMap : builtEnv ?? studio.texture;\n\n  const noise = useMemo(() => {\n    const map = createMicroNoiseRoughnessMap();\n    map.repeat.set(0.04, 0.04);\n    return map;\n  }, []);\n  useEffect(() => () => noise.dispose(), [noise]);\n  const steelAnisotropy = useMemo(() => {\n    const map = createSteelAnisotropyMap();\n    map.repeat.set(0.02, 0.02);\n    return map;\n  }, []);\n  useEffect(() => () => steelAnisotropy.dispose(), [steelAnisotropy]);\n  const isBlack = colourway === \"black\";\n  const ringMaterial = isBlack\n    ? materials.wheelRingBlack\n    : materials.wheelRingWhite;\n  const selectMaterial = isBlack\n    ? materials.selectBlack\n    : materials.selectWhite;\n  const surfaceMaps = materialMapOwnership({\n    microNoise: noise,\n    steelAnisotropy,\n  });\n\n  // ── Geometry ───────────────────────────────────────────────────────────────\n  // Built once per shape-affecting input. Under `frameloop=\"demand\"` a rebuild\n  // is also a re-render, so the memo keys are the whole render trigger.\n\n  const shellDepths = productShellDepths(body.depth, form.frontThickness);\n\n  // The thin 30GB chassis is two material shells meeting at one seam plane:\n  //\n  //   formed steel rear [−D/2 … plateBackZ]\n  //   polycarbonate front [plateBackZ … faceZ]\n  //\n  // The previous full-depth steel perimeter continued from z=0 all the way to\n  // the face and then placed the plastic extrusion beside it. At edge-on that\n  // read as two unrelated slabs. The rear tray now rolls once from its inset\n  // back face into a continuous side wall and terminates exactly where the\n  // front shell starts. The only plan difference is the intentional 1.2px\n  // material seam.\n  const plateBackZ = shellDepths.seamZ;\n\n  const backGeometry = useMemo(() => {\n    const shell = createRearShellGeometry({\n      width: body.width,\n      height: body.height,\n      depth: body.depth,\n      cornerR: body.cornerR,\n      exponent: body.exponent,\n      frontThickness: form.frontThickness,\n      rearCrownInset: form.rearCrownInset,\n    });\n    const opened = cutHardwareApertures(shell);\n    shell.dispose();\n    return opened;\n  }, [form.frontThickness, form.rearCrownInset]);\n  useEffect(() => () => backGeometry.dispose(), [backGeometry]);\n\n  const frontGeometry = useMemo(() => {\n    // §5.6 modelled rather than stroked: the polycarbonate front is inset by\n    // the seam width, so what runs round the perimeter is the steel shell's own\n    // rolled edge, presenting a different angle to the light at every point of\n    // the silhouette — §10.4 prevention #6, for free.\n    const seam = form.seamWidth;\n    const plan = frontShellPlan(\n      body.width,\n      body.height,\n      body.cornerR,\n      seam,\n      form.frontBevel,\n    );\n    const shape = silhouetteShape(\n      plan.faceWidth,\n      plan.faceHeight,\n      plan.faceCornerR,\n      body.exponent,\n      48,\n    );\n    shape.holes.push(\n      roundedRectHole(\n        displayWell.centerX,\n        displayWell.centerY,\n        displayWell.width,\n        displayWell.height,\n        displayWell.cornerR,\n      ),\n    );\n    shape.holes.push(circleHole(wheel.centerX, wheel.centerY, wheel.outerR));\n    const extrusion = new ExtrudeGeometry(shape, {\n      depth: frontCoreDepth(form.frontThickness, form.frontBevel),\n      bevelEnabled: true,\n      bevelThickness: form.frontBevel,\n      bevelSize: form.frontBevel,\n      bevelSegments: BEVEL_SEGMENTS,\n      curveSegments: 1,\n    });\n    // Three applies the outer-shell bevel to holes as well. The real 5G LCD\n    // opening is square to the glossy face, so collapse only this hole's\n    // generated slope before the shell crown is applied.\n    squareRoundedRectApertureWalls(\n      extrusion,\n      {\n        centerX: displayWell.centerX,\n        centerY: displayWell.centerY,\n        width: displayWell.width,\n        height: displayWell.height,\n        cornerR: displayWell.cornerR,\n      },\n      form.frontBevel,\n    );\n    // Smooth the rolled plastic before deformation; preserve the LCD wall\n    // crease. ExtrudeGeometry starts with an independent normal per triangle.\n    toCreasedNormals(extrusion, Math.PI / 4);\n    const geometry = tessellateVerticalCrown(\n      extrusion,\n      body.height / 2 - seam,\n      form.bodyCrown,\n      undefined,\n      { top: form.topEdgeCrown, bottom: form.bottomEdgeCrown, extent: form.edgeCrownExtent },\n      {\n        halfWidth: body.width / 2 - seam,\n        crown: form.bodyCrossCrown,\n      },\n    );\n    extrusion.dispose();\n    geometry.translate(0, 0, plateBackZ + form.frontBevel);\n    return geometry;\n  }, [\n    form.seamWidth,\n    form.frontThickness,\n    form.frontBevel,\n    form.bodyCrown,\n    form.bodyCrossCrown,\n    form.topEdgeCrown,\n    form.bottomEdgeCrown,\n    form.edgeCrownExtent,\n    plateBackZ,\n  ]);\n  useEffect(() => () => frontGeometry.dispose(), [frontGeometry]);\n\n  const {\n    ringGeometry,\n    selectGeometry,\n    selectSeamGeometry,\n    outerSeamGeometry,\n  } = useMemo(() => {\n    const controlForm = {\n      seamWidth: form.seamWidth,\n      bodyCrown: form.bodyCrown,\n      bodyCrossCrown: form.bodyCrossCrown,\n      topEdgeCrown: form.topEdgeCrown,\n      bottomEdgeCrown: form.bottomEdgeCrown,\n      edgeCrownExtent: form.edgeCrownExtent,\n    };\n    const gapFloor = createWheelGapFloorGeometries(controlForm);\n    return {\n      ringGeometry: createFrontControlPatchGeometry(\n        {\n          centerX: wheel.centerX,\n          centerY: wheel.centerY,\n          innerRadius: wheel.selectLipR,\n          outerRadius: wheel.outerR - WHEEL_OUTER_SEAM_WIDTH,\n          uvRadius: wheel.outerR,\n        },\n        controlForm,\n      ),\n      selectGeometry: createFrontControlPatchGeometry(\n        {\n          centerX: wheel.centerX,\n          centerY: wheel.centerY,\n          innerRadius: 0,\n          outerRadius: wheel.selectR,\n          uvRadius: wheel.outerR,\n        },\n        controlForm,\n      ),\n      selectSeamGeometry: gapFloor.selectSeam,\n      outerSeamGeometry: gapFloor.outerSeam,\n    };\n  }, [\n    form.seamWidth,\n    form.bodyCrown,\n    form.bodyCrossCrown,\n    form.topEdgeCrown,\n    form.bottomEdgeCrown,\n    form.edgeCrownExtent,\n  ]);\n  useEffect(\n    () => () => {\n      ringGeometry.dispose();\n      selectGeometry.dispose();\n      selectSeamGeometry.dispose();\n      outerSeamGeometry.dispose();\n    },\n    [outerSeamGeometry, ringGeometry, selectGeometry, selectSeamGeometry],\n  );\n  useEffect(() => {\n    const assembly = wheelAssemblyRef.current;\n    if (assembly === null) return;\n    return controlPhysics?.attachWheel(assembly);\n  }, [controlPhysics]);\n\n  const glassGeometry = useMemo(() => {\n    const shape = roundedRectShape(\n      glass.width,\n      glass.height,\n      glass.cornerR,\n      12,\n    );\n    // The cover sheet contributes reflection across its face, not a raised\n    // perimeter. A planar shape keeps its thickness from becoming a visible\n    // silver lip around the LCD opening at oblique viewing angles.\n    return new ShapeGeometry(shape, 1);\n  }, []);\n  useEffect(() => () => glassGeometry.dispose(), [glassGeometry]);\n\n  const displayMaskGeometry = useMemo(() => {\n    const shape = roundedRectFrameShape(\n      {\n        width: mask.width,\n        height: mask.height,\n        radius: mask.cornerR,\n      },\n      {\n        width: screen.width,\n        height: screen.height,\n        radius: screen.cornerR,\n      },\n      12,\n    );\n    const geometry = new ExtrudeGeometry(shape, {\n      depth: 0.08,\n      bevelEnabled: false,\n      curveSegments: 1,\n    });\n    geometry.translate(0, 0, -0.08);\n    return geometry;\n  }, []);\n  useEffect(() => () => displayMaskGeometry.dispose(), [displayMaskGeometry]);\n\n  const displayWellGeometry = useMemo(() => {\n    const shape = roundedRectFrameShape(\n      {\n        width: displayWell.width,\n        height: displayWell.height,\n        radius: displayWell.cornerR,\n      },\n      {\n        width: glass.width,\n        height: glass.height,\n        radius: glass.cornerR,\n      },\n      12,\n    );\n    const geometry = new ExtrudeGeometry(shape, {\n      // Fill the complete opening depth with black so the glossy face's own\n      // hole wall never becomes a reflective bezel at a quarter view.\n      depth: Math.max(\n        0.1,\n        form.displayWellInset + form.displayWellDepth,\n      ),\n      bevelEnabled: false,\n      curveSegments: 1,\n    });\n    geometry.translate(\n      0,\n      0,\n      -Math.max(0.1, form.displayWellInset + form.displayWellDepth),\n    );\n    return geometry;\n  }, [form.displayWellDepth, form.displayWellInset]);\n  useEffect(() => () => displayWellGeometry.dispose(), [displayWellGeometry]);\n\n  const screenGeometry = useMemo(\n    () => createScreenGeometry(screen.width, screen.height, SCREEN_CORNER_R),\n    [],\n  );\n  useEffect(() => () => screenGeometry.dispose(), [screenGeometry]);\n\n  // OEM black and white wheels use independently calibrated ink. Keeping it\n  // in the injected material table prevents a white model from becoming a\n  // mechanical inversion of the black one.\n  const labelMap = useMemo(\n    () =>\n      createWheelLabelMap({\n        outerR: wheel.outerR,\n        bandInnerR: wheel.labelBandInnerR,\n        bandOuterR: wheel.labelBandOuterR,\n        labelColor: isBlack\n          ? materials.wheelLabelBlack\n          : materials.wheelLabelWhite,\n        fontPx: 13,\n        size: 1024,\n      }),\n    [isBlack, materials.wheelLabelBlack, materials.wheelLabelWhite],\n  );\n  useEffect(() => () => labelMap?.dispose(), [labelMap]);\n\n  // ── Every front insert is resolved from the same crowned shell ─────────────\n  const {\n    displayReferenceZ,\n    glassFrontZ,\n    screenFrontZ,\n    wheelSurfaceBaseZ,\n    wheelGapFloorBaseZ,\n    wheelTopAtCenterZ,\n  } = resolveFrontAssemblyDepths(form);\n\n  // ── The screen mesh boundary (D-011) ──────────────────────────────────────\n  const screenDefaultMaterial = useMemo(\n    () =>\n      new MeshBasicMaterial({\n        color: isBlack ? materials.screen.color : \"#F2F6FB\",\n        toneMapped: materials.screen.toneMapped,\n      }),\n    [isBlack, materials.screen.color, materials.screen.toneMapped],\n  );\n  useEffect(\n    () => () => screenDefaultMaterial.dispose(),\n    [screenDefaultMaterial],\n  );\n  const coverGlassMaterial = useMemo(\n    () =>\n      createCoverGlassMaterial(\n        withStudioEnvironment(materials.coverGlass, studio.intensity),\n        studio.texture,\n      ),\n    [materials.coverGlass, studio],\n  );\n  useEffect(() => () => coverGlassMaterial.dispose(), [coverGlassMaterial]);\n  const blackBodyPhysicalMaterial = useMemo(\n    () =>\n      createBlackPolycarbonateMaterial(\n        withStudioEnvironment(materials.bodyBlack, studio.intensity),\n        studio.texture,\n      ),\n    [materials.bodyBlack, studio],\n  );\n  useEffect(\n    () => () => blackBodyPhysicalMaterial.dispose(),\n    [blackBodyPhysicalMaterial],\n  );\n  const whiteBodyPhysicalMaterial = useMemo(\n    () =>\n      createPolycarbonateMaterial(\n        withStudioEnvironment(materials.bodyWhite, studio.intensity),\n        studio.texture,\n      ),\n    [materials.bodyWhite, studio],\n  );\n  useEffect(\n    () => () => whiteBodyPhysicalMaterial.dispose(),\n    [whiteBodyPhysicalMaterial],\n  );\n  const wheelPhysicalMaterial = useMemo(() => {\n    const material = createPolycarbonateMaterial(\n      withStudioEnvironment(ringMaterial, studio.intensity),\n      studio.texture,\n    );\n    material.name = isBlack ? \"wheel-black\" : \"wheel-white\";\n    return material;\n  }, [isBlack, ringMaterial, studio]);\n  useEffect(\n    () => () => wheelPhysicalMaterial.dispose(),\n    [wheelPhysicalMaterial],\n  );\n\n  const attachScreen = useCallback(\n    (mesh: Mesh | null) => {\n      // ⚑ No ref is kept. The handle's lifetime belongs to whoever asked for\n      // it, and the mesh keeps it alive through the `onBeforeRender` closure;\n      // a ref here would be a second owner with nothing to do.\n      if (mesh === null) return;\n      const handle = createScreenMeshHandle({\n        mesh,\n        panel: {\n          width: screen.width / screen.scale,\n          height: screen.height / screen.scale,\n          scale: screen.scale,\n        },\n        size: { width: screen.width, height: screen.height },\n        defaultMaterial: screenDefaultMaterial,\n        invalidate,\n        view,\n      });\n      if (screenMaterial !== undefined) handle.setMaterial(screenMaterial);\n      onScreenMeshReady?.(handle);\n    },\n    [\n      screenDefaultMaterial,\n      invalidate,\n      onScreenMeshReady,\n      screenMaterial,\n      view,\n    ],\n  );\n\n  return (\n    <ViewerLitDeviceFrame\n      orientation={orientation}\n      lightRig={lightRig}\n      form={form}\n    >\n      {/* §5.2 — the mirror-polished back plate, uncut. */}\n      <mesh\n        name=\"device-steel-back\"\n        geometry={backGeometry}\n        onPointerDown={\n          onOrientationGrabStart === undefined ? undefined : onShellPointerDown\n        }\n        onPointerMove={\n          onOrientationGrabHoverChange === undefined\n            ? undefined\n            : onShellPointerMove\n        }\n        onPointerOut={\n          onOrientationGrabHoverChange === undefined\n            ? undefined\n            : onShellPointerOut\n        }\n      >\n        <meshPhysicalMaterial\n          name=\"steel-back\"\n          {...spread(materials.steelBack)}\n          envMap={env}\n          {...surfaceMaps.steel}\n        />\n      </mesh>\n\n      <mesh\n        name=\"device-display-mask\"\n        geometry={displayMaskGeometry}\n        position={[mask.centerX, mask.centerY, screenFrontZ + 0.1]}\n      >\n        <meshBasicMaterial\n          name=\"display-reveal\"\n          color={materials.screenReveal.color}\n          toneMapped={materials.screenReveal.toneMapped}\n        />\n      </mesh>\n\n      <DeviceHardware form={form} isBlack={isBlack} />\n\n      <mesh\n        name=\"device-body\"\n        geometry={frontGeometry}\n        onPointerDown={\n          onOrientationGrabStart === undefined ? undefined : onShellPointerDown\n        }\n        onPointerMove={\n          onOrientationGrabHoverChange === undefined\n            ? undefined\n            : onShellPointerMove\n        }\n        onPointerOut={\n          onOrientationGrabHoverChange === undefined\n            ? undefined\n            : onShellPointerOut\n        }\n      >\n        {isBlack ? (\n          <primitive\n            object={blackBodyPhysicalMaterial}\n            attach=\"material\"\n            name=\"body-black\"\n          />\n        ) : (\n          <primitive\n            object={whiteBodyPhysicalMaterial}\n            attach=\"material\"\n            name=\"body-white\"\n          />\n        )}\n      </mesh>\n\n      <mesh\n        name=\"device-display-well\"\n        geometry={displayWellGeometry}\n        position={[glass.centerX, glass.centerY, displayReferenceZ]}\n      >\n        <meshBasicMaterial\n          name=\"display-reveal-wall\"\n          color={materials.screenReveal.color}\n          toneMapped={materials.screenReveal.toneMapped}\n        />\n      </mesh>\n\n      {/* The fixed floor exists only under the two physical hairlines. A full\n          backing disk would sit in front of Select as soon as the separate\n          button travels inward, visually replacing its plastic with the well. */}\n      <group name=\"device-wheel-gap-floor\">\n        <mesh\n          name=\"device-select-seam-floor\"\n          geometry={selectSeamGeometry}\n          position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}\n        >\n          <meshPhysicalMaterial\n            name={isBlack ? \"wheel-gap-black\" : \"wheel-gap-white\"}\n            {...spread(\n              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,\n            )}\n            {...studioEnvironmentProps(\n              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,\n              studio,\n            )}\n          />\n        </mesh>\n        <mesh\n          name=\"device-outer-seam-floor\"\n          geometry={outerSeamGeometry}\n          position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}\n        >\n          <meshPhysicalMaterial\n            name={isBlack ? \"wheel-gap-black\" : \"wheel-gap-white\"}\n            {...spread(\n              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,\n            )}\n            {...studioEnvironmentProps(\n              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,\n              studio,\n            )}\n          />\n        </mesh>\n      </group>\n\n      {/* The ring and its ink are one rigid plastic disc. Its group origin is\n          the wheel's flush surface centre, so contact changes only one tiny\n          center-pivot rotation; child geometry, normals and scale stay exact. */}\n      <group\n        ref={wheelAssemblyRef}\n        name=\"device-wheel-assembly\"\n        position={[wheel.centerX, wheel.centerY, wheelTopAtCenterZ]}\n      >\n        {/* The wheel is a separate plastic patch on the faceplate surface. */}\n        <mesh\n          name=\"device-wheel\"\n          geometry={ringGeometry}\n          position={[0, 0, wheelSurfaceBaseZ - wheelTopAtCenterZ]}\n        >\n          <primitive object={wheelPhysicalMaterial} attach=\"material\" />\n        </mesh>\n\n        {/* §5.3 L8 — screen-printed ink. A separate transparent decal is\n            required because a multiplicative map cannot lighten black. */}\n        <mesh\n          name={WHEEL_LABEL_DECAL_NAME}\n          geometry={ringGeometry}\n          position={[0, 0, wheelSurfaceBaseZ - wheelTopAtCenterZ + 0.08]}\n          renderOrder={2}\n        >\n          <meshBasicMaterial\n            map={labelMap}\n            transparent\n            depthWrite={false}\n            toneMapped={false}\n            polygonOffset\n            polygonOffsetFactor={-1}\n          />\n        </mesh>\n      </group>\n\n      {/* Select is a separate matte plastic surface patch. Its crown, top plane\n          and normals match the wheel exactly; only the one-pixel assembly gap\n          and independent material identify the part. */}\n      <AxialSelectControl\n        geometry={selectGeometry}\n        position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}\n      >\n        <meshPhysicalMaterial\n          key={isBlack ? \"select-flat-black\" : \"select-flat-white\"}\n          name={isBlack ? \"select-black\" : \"select-white\"}\n          {...spread(selectMaterial)}\n          {...studioEnvironmentProps(selectMaterial, studio)}\n        />\n      </AxialSelectControl>\n\n      {/* ⚑ The W6 boundary. §12.3: MeshBasicMaterial, toneMapped false. */}\n      <mesh\n        ref={attachScreen}\n        geometry={screenGeometry}\n        position={[\n          screen.centerX,\n          screen.centerY,\n          screenFrontZ,\n        ]}\n        material={screenDefaultMaterial}\n      />\n\n      {/* §5.5 — the cover glass sheet, above everything in the window. */}\n      <mesh\n        geometry={glassGeometry}\n        position={[glass.centerX, glass.centerY, glassFrontZ]}\n        material={coverGlassMaterial}\n      />\n    </ViewerLitDeviceFrame>\n  );\n}\n\nfunction isOrientationGrabHit(event: ThreeEvent<PointerEvent>): boolean {\n  if (\n    !acceptsDeviceOrientationPointer(event) ||\n    !isFirstVisibleDeviceShellHit(event.object, event.intersections)\n  ) {\n    return false;\n  }\n  const localPoint = event.object.worldToLocal(event.point.clone());\n  return isDeviceOuterGrabPoint(localPoint.x, localPoint.y);\n}\n\nfunction orientationGrabStart(\n  event: ThreeEvent<PointerEvent>,\n): DeviceOrientationGrabStart | null {\n  if (!isOrientationGrabHit(event)) return null;\n  const host = event.nativeEvent.currentTarget;\n  const capture = orientationPointerCapture(event.target);\n  const pointerType = orientationPointerType(event.pointerType);\n  if (host === null || capture === null || pointerType === null) return null;\n  return {\n    pointerId: event.pointerId,\n    pointerType,\n    clientX: event.clientX,\n    clientY: event.clientY,\n    timestampMs: event.timeStamp,\n    rollMode: event.altKey,\n    host,\n    capture,\n  };\n}\n\nfunction orientationPointerType(\n  value: string,\n): DeviceOrientationGrabStart[\"pointerType\"] | null {\n  if (value === \"mouse\" || value === \"pen\" || value === \"touch\") return value;\n  return null;\n}\n\nfunction orientationPointerCapture(\n  target: EventTarget | null,\n): DeviceOrientationPointerCapture | null {\n  if (\n    target === null ||\n    !(\"hasPointerCapture\" in target) ||\n    !(\"setPointerCapture\" in target) ||\n    !(\"releasePointerCapture\" in target) ||\n    typeof target.hasPointerCapture !== \"function\" ||\n    typeof target.setPointerCapture !== \"function\" ||\n    typeof target.releasePointerCapture !== \"function\"\n  ) {\n    return null;\n  }\n  const hasPointerCapture = target.hasPointerCapture;\n  const setPointerCapture = target.setPointerCapture;\n  const releasePointerCapture = target.releasePointerCapture;\n  return {\n    hasPointerCapture: (pointerId) =>\n      Reflect.apply(hasPointerCapture, target, [pointerId]) === true,\n    setPointerCapture: (pointerId) => {\n      Reflect.apply(setPointerCapture, target, [pointerId]);\n    },\n    releasePointerCapture: (pointerId) => {\n      Reflect.apply(releasePointerCapture, target, [pointerId]);\n    },\n  };\n}\n\n/**\n * Widen a frozen parameter record for JSX spreading.\n *\n * `PhysicalSurfaceParams` is deeply `readonly` so nothing can mutate the §12.3\n * table in place; three's element props are mutable. The cast is confined to\n * this one function so the immutability holds everywhere it matters.\n */\nfunction spread(params: PhysicalSurfaceParams): Record<string, unknown> {\n  const { albedoScale = 1, color, ...physical } = params;\n  return { ...physical, color: new Color(color).multiplyScalar(albedoScale) };\n}\n\nfunction withStudioEnvironment(\n  params: PhysicalSurfaceParams,\n  intensity: number,\n): PhysicalSurfaceParams {\n  return {\n    ...params,\n    envMapIntensity: effectiveStudioEnvironmentIntensity(\n      params.envMapIntensity,\n      intensity,\n    ),\n  };\n}\n\nfunction studioEnvironmentProps(\n  params: PhysicalSurfaceParams,\n  studio: StudioEnvironmentSnapshot,\n): {\n  readonly envMap: Texture | null;\n  readonly envMapIntensity: number;\n} {\n  return {\n    envMap: studio.texture,\n    envMapIntensity: effectiveStudioEnvironmentIntensity(\n      params.envMapIntensity,\n      studio.intensity,\n    ),\n  };\n}\n"
+
+      at <anonymous> (/Users/vinicius/code/webPod/packages/device/src/StudioEnvironment.test.ts:30:18)
+(fail) the striped calibration map belongs only to the mirror-steel rear [0.34ms]
+(pass) front materials explicitly retain per-surface gain under installed Three [0.33ms]
+
+packages/device/src/select-press-visibility.test.ts:
+(pass) Select press visibility > the fixed wheel floor occupies only the two authored seams [1.26ms]
+(pass) Select press visibility > the held button remains the first visible plastic at four angles and radii [16.68ms]
+
+packages/device/src/hardware-geometry.test.ts:
+(pass) recessed 5G hardware > has a 3.5mm bore, thirty individual contacts and all parts inside the physical envelope [12.60ms]
+(pass) recessed 5G hardware > shell openings actually expose inward cavities while adjacent steel remains opaque [55.36ms]
+
+packages/device/src/textures.test.ts:
+(pass) deterministic physical textures > roughness noise is byte-stable for the default seed [0.38ms]
+(pass) deterministic physical textures > roughness noise populates the green channel consumed by Three [1.14ms]
+(pass) deterministic physical textures > steel grain encodes horizontal direction and bounded strength [0.13ms]
+(pass) deterministic physical textures > wheel transport decals match the measured optical boxes [0.06ms]
+(pass) deterministic physical textures > play and pause have a real inter-symbol gap [0.01ms]
+
+packages/device/src/shapes.test.ts:
+(pass) silhouette frame > has steel at the seam and no cap over the body [2.05ms]
+(pass) rounded-rectangle frame > keeps the screen opening clear while preserving the bezel lip [0.19ms]
+
+packages/device/src/physical-continuity.test.ts:
+(pass) the live device is solid geometry rather than a front-pose lighting proxy [0.32ms]
+
+packages/device/src/click-wheel-input.test.tsx:
+(pass) click-wheel input geometry > uses the canonical Select and wheel radii [0.02ms]
+(pass) click-wheel input geometry > clockwise and counter-clockwise quarter turns have the right sign [0.02ms]
+(pass) click-wheel input geometry > crosses the signed-angle seam without a reverse jump
+(pass) click-wheel input geometry > refreshes a dirty parent and mesh world transform in production [0.14ms]
+(pass) click-wheel input geometry > returns the transformed body-local angle without moving the hit plane [0.04ms]
+(pass) click-wheel input geometry > returns null when the current ray is parallel to the wheel plane [0.03ms]
+(pass) click-wheel input geometry > accepts primary touch, pen and left mouse only [0.02ms]
+(pass) click-wheel input geometry > maps the complete annulus into deterministic 90-degree sectors [0.06ms]
+(pass) click-wheel capture lifecycle > reports release and releases capture exactly once [0.07ms]
+(pass) click-wheel capture lifecycle > ignores terminal events for a different pointer [0.02ms]
+
+packages/device/src/env-map.test.ts:
+(pass) mirror room defaults > the shipped room retains room structure with radiance headroom [0.01ms]
+
+packages/device/src/curved-shell.test.ts:
+(pass) tessellated vertical shell crown > macro and edge profiles meet every shell join with a zero tangent [0.05ms]
+(pass) tessellated vertical shell crown > all four corner joins remain normal-continuous in every rotated pose [0.18ms]
+(pass) tessellated vertical shell crown > the production front cap has no corner triangulation or duplicate-normal split [102.48ms]
+(pass) tessellated vertical shell crown > zero secondary crown is byte-identical [0.82ms]
+(pass) tessellated vertical shell crown > bounded edge crown is local, manifold, smooth, and rear-plane anchored [0.92ms]
+(pass) tessellated vertical shell crown > is one smooth macro curve with fixed top and bottom joins [0.02ms]
+(pass) tessellated vertical shell crown > refuses the old clamped bevel/thickness combination [0.04ms]
+(pass) tessellated vertical shell crown > tessellates every front triangle in the crown direction [29.30ms]
+(pass) tessellated vertical shell crown > removes the non-indexed Earcut normal split the old deformation kept [27.18ms]
+(pass) tessellated vertical shell crown > keeps the rear seam planar while the crown grows only toward the face [0.54ms]
+
+packages/device/src/optical-profile.test.ts:
+(pass) moulded-surface optical profile > the Pencil-first white moulding has a real non-flat light hierarchy [0.02ms]
+(pass) moulded-surface optical profile > front-body roughness stays broad enough to avoid striped room banding [0.04ms]
+(pass) moulded-surface optical profile > body roughness is encoded in Three's green channel [0.16ms]
+(pass) moulded-surface optical profile > zero additive profile preserves a pre-existing crown normal [0.10ms]
+(pass) moulded-surface optical profile > encodes top-to-bottom tilt as a deterministic tangent-space normal map [0.10ms]
+(pass) moulded-surface optical profile > combined lateral and vertical profiles remain finite and approximately unit length [0.04ms]
+(pass) moulded-surface optical profile > baked curved-surface normals remain finite and unit length [0.04ms]
+
+packages/device/src/ViewerLitDeviceFrame.test.tsx:
+56 | function requireElement<Props>(
+57 |   value: unknown,
+58 |   type: string,
+59 | ): ReactElement<Props> {
+60 |   if (!isValidElement<Props>(value) || value.type !== type) {
+61 |     throw new Error(`expected ${type} scene element`);
+                                                         ^
+error: expected group scene element
+      at requireElement (/Users/vinicius/code/webPod/packages/device/src/ViewerLitDeviceFrame.test.tsx:61:53)
+      at worldFrame (/Users/vinicius/code/webPod/packages/device/src/ViewerLitDeviceFrame.test.tsx:73:24)
+      at <anonymous> (/Users/vinicius/code/webPod/packages/device/src/ViewerLitDeviceFrame.test.tsx:92:19)
+(fail) viewer-lit device scene frame > keeps key and kick world positions invariant when only the model flips [0.48ms]
+56 | function requireElement<Props>(
+57 |   value: unknown,
+58 |   type: string,
+59 | ): ReactElement<Props> {
+60 |   if (!isValidElement<Props>(value) || value.type !== type) {
+61 |     throw new Error(`expected ${type} scene element`);
+                                                         ^
+error: expected group scene element
+      at requireElement (/Users/vinicius/code/webPod/packages/device/src/ViewerLitDeviceFrame.test.tsx:61:53)
+      at <anonymous> (/Users/vinicius/code/webPod/packages/device/src/ViewerLitDeviceFrame.test.tsx:122:23)
+(fail) viewer-lit device scene frame > keeps the lamps world-fixed while accepting arbitrary pose rotations [0.10ms]
+56 | function requireElement<Props>(
+57 |   value: unknown,
+58 |   type: string,
+59 | ): ReactElement<Props> {
+60 |   if (!isValidElement<Props>(value) || value.type !== type) {
+61 |     throw new Error(`expected ${type} scene element`);
+                                                         ^
+error: expected group scene element
+      at requireElement (/Users/vinicius/code/webPod/packages/device/src/ViewerLitDeviceFrame.test.tsx:61:53)
+      at <anonymous> (/Users/vinicius/code/webPod/packages/device/src/ViewerLitDeviceFrame.test.tsx:143:21)
+(fail) viewer-lit device scene frame > rotates one root around the complete immutable enclosure center [0.10ms]
+(pass) viewer-lit device scene frame > uses broad softbox emitters rather than point highlights [0.04ms]
+183 |     expect(keyPosition[1]).toBeGreaterThan(0);
+184 |     expect(keyPosition[2]).toBeGreaterThan(0);
+185 |     expect(descent).toBeGreaterThanOrEqual(35);
+186 |     expect(descent).toBeLessThanOrEqual(45);
+187 |     expect(descent).toBeCloseTo(DEFAULT_LIGHT_RIG.key.descentDeg, 8);
+188 |     expect(azimuth).toBeGreaterThanOrEqual(40);
+                          ^
+error: expect(received).toBeGreaterThanOrEqual(expected)
+
+Expected: >= 40
+Received: 35
+
+      at <anonymous> (/Users/vinicius/code/webPod/packages/device/src/ViewerLitDeviceFrame.test.tsx:188:21)
+(fail) viewer-lit device scene frame > puts the approved key front-right and the broad subordinate fill front-left below [0.13ms]
+228 |     const fillIntensity = areaLightIntensity(
+229 |       kickLightPower(DEFAULT_LIGHT_RIG),
+230 |       DEFAULT_LIGHT_RIG.kick.emitter,
+231 |     );
+232 | 
+233 |     expect(DEFAULT_LIGHT_RIG.kick.powerRatio).toBeGreaterThan(0.5);
+                                                    ^
+error: expect(received).toBeGreaterThan(expected)
+
+Expected: > 0.5
+Received: 0.42
+
+      at <anonymous> (/Users/vinicius/code/webPod/packages/device/src/ViewerLitDeviceFrame.test.tsx:233:47)
+(fail) viewer-lit device scene frame > keeps the broad fill soft and subordinate instead of making a hotspot or band [0.23ms]
+(pass) viewer-lit device scene frame > isolates key and fill for proof without moving either emitter [0.04ms]
+267 |       new URL("./ViewerLitDeviceFrame.tsx", import.meta.url),
+268 |     ).text();
+269 |     const rigSource = await Bun.file(new URL("./light-rig.ts", import.meta.url)).text();
+270 |     const source = `${frameSource}\n${rigSource}`;
+271 | 
+272 |     expect(frameSource.match(/<rectAreaLight/g)).toHaveLength(2);
+                                                       ^
+error: expect(received).toHaveLength(expected)
+
+Expected length: 2
+Received length: 3
+
+      at <anonymous> (/Users/vinicius/code/webPod/packages/device/src/ViewerLitDeviceFrame.test.tsx:272:50)
+(fail) viewer-lit device scene frame > contains no view-locked, UV, ambient, or painted-light escape [0.17ms]
+
+packages/device/src/camera-fit.test.ts:
+(pass) perspective camera fit from measured model bounds > 375x812 contains the front model inside its safe area [0.24ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the three-quarter model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the left-edge model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the right-edge model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the rear model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the top model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the bottom model inside its safe area
+(pass) perspective camera fit from measured model bounds > 430x932 contains the front model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the three-quarter model inside its safe area
+(pass) perspective camera fit from measured model bounds > 430x932 contains the left-edge model inside its safe area
+(pass) perspective camera fit from measured model bounds > 430x932 contains the right-edge model inside its safe area
+(pass) perspective camera fit from measured model bounds > 430x932 contains the rear model inside its safe area
+(pass) perspective camera fit from measured model bounds > 430x932 contains the top model inside its safe area
+(pass) perspective camera fit from measured model bounds > 430x932 contains the bottom model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the front model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the three-quarter model inside its safe area
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the left-edge model inside its safe area
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the right-edge model inside its safe area
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the rear model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the top model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the bottom model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the front model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the three-quarter model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the left-edge model inside its safe area
+(pass) perspective camera fit from measured model bounds > 844x390 contains the right-edge model inside its safe area
+(pass) perspective camera fit from measured model bounds > 844x390 contains the rear model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the top model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the bottom model inside its safe area
+(pass) perspective camera fit from measured model bounds > a shorter planted distance visibly escapes the safe area [0.03ms]
+(pass) perspective camera fit from measured model bounds > one production camera contains the complete rotational envelope at every DPR [68.67ms]
+(pass) perspective camera fit from measured model bounds > front and rear reproduce dimensions while the projected pivot stays fixed [6.79ms]
+(pass) perspective camera fit from measured model bounds > a shorter planted production camera clips the rotational envelope [5.13ms]
+
+packages/device/src/flush-wheel-geometry.test.ts:
+(pass) owner-primary flush wheel topology > wheel vertices occupy the exact local faceplate surface [0.41ms]
+(pass) owner-primary flush wheel topology > faceplate, wheel and Select are coincident at the shared center plane [0.49ms]
+(pass) owner-primary flush wheel topology > both installed gaps remain physical-scale hairlines [0.01ms]
+(pass) owner-primary flush wheel topology > the defined 40° oblique can expose no wheel or Select sidewall [1.92ms]
+(pass) owner-primary flush wheel topology > production contains no pocket, annular bevel or shadow proxy [0.23ms]
+(pass) owner-primary flush wheel topology > both Select parts are matte dielectric plastics, never metal discs [0.03ms]
+
+packages/device/src/layout.test.ts:
+(pass) thin 30GB iPod 5G physical target > declares one variant and cannot silently become the thick 60/80GB case [0.01ms]
+(pass) thin 30GB iPod 5G physical target > keeps the authored body and exact 320×240 LCD semantics [0.02ms]
+(pass) thin 30GB iPod 5G physical target > maps the official front raster to a 24px forehead [0.02ms]
+(pass) thin 30GB iPod 5G physical target > maps the official front raster to the smaller 206px wheel
+(pass) thin 30GB iPod 5G physical target > places the wheel at the measured centre with balanced lower whitespace [0.01ms]
+(pass) thin 30GB iPod 5G physical target > scales the separate Select part from the same official front raster
+(pass) thin 30GB iPod 5G physical target > keeps photo-derived shell profile estimates explicit [0.01ms]
+(pass) thin 30GB iPod 5G physical target > bounds both visible assembly seams from multiple OEM references [0.02ms]
+(pass) thin 30GB iPod 5G physical target > retains a thin intentional material seam
+(pass) physical LCD and restrained trim > the active panel is the physical 50.8 × 38.1mm 4:3 aperture [0.01ms]
+(pass) physical LCD and restrained trim > keeps mask, glass and recess distinct without rebuilding a heavy bezel [0.02ms]
+(pass) enclosure plan and depth > uses the thin 11mm depth at the one body scale
+(pass) enclosure plan and depth > preserves the analytic 26px circular corner [0.02ms]
+
+packages/device/src/material-map-ownership.test.ts:
+(pass) steel material maps are microstructure only [0.04ms]
+
+packages/device/src/screen-mesh.test.ts:
+(pass) the screen mesh boundary > screen UVs are normalized with TL/TR/BR/BL texture orientation [0.47ms]
+(pass) the screen mesh boundary > size is 272 × 204 body px and panel is 320 × 240 at 0.85 [0.15ms]
+(pass) the screen mesh boundary > world corners are TL, TR, BR, BL with +y up [0.13ms]
+(pass) the screen mesh boundary > viewport corners are canvas CSS px with +y DOWN [0.04ms]
+(pass) the screen mesh boundary > a moved device reports a new transform, not the one it was created with [0.03ms]
+(pass) the screen mesh boundary > onTransformChange delivers the value and fires only on a real change [0.07ms]
+(pass) the screen mesh boundary > callback-ref replay preserves handle identity and active subscriptions [0.05ms]
+(pass) the screen mesh boundary > setMaterial installs, null restores the default, and both ask for a frame [0.03ms]
+(pass) the screen mesh boundary > the handle exposes no Object3D — D-054, staleness has no slot [0.02ms]
+
+packages/device/src/owner-oem-white.test.ts:
+(pass) owner-primary OEM white 5G material relationships > confirms the Apple-derived front ratios across the owner's four near-front views [0.01ms]
+(pass) owner-primary OEM white 5G material relationships > keeps the photographed faceplate, wheel and Select visually coplanar
+(pass) owner-primary OEM white 5G material relationships > keeps the faceplate mildly warm and the wheel distinctly cool [0.04ms]
+(pass) owner-primary OEM white 5G material relationships > keeps Select cream, separate from both wheel and faceplate [0.02ms]
+(pass) owner-primary OEM white 5G material relationships > uses light legends on white hardware and never restores dark-grey ink [0.02ms]
+(pass) owner-primary OEM white 5G material relationships > lets physical occlusion, not a dark-painted floor, draw the hairline seam [0.01ms]
+
+packages/device/src/device-envelope.test.ts:
+(pass) complete device envelope and rigid pivot > declares the full rear-to-crown enclosure around one immutable center [0.06ms]
+(pass) complete device envelope and rigid pivot > recentering keeps the production envelope pivot fixed through a full sweep [0.11ms]
+(pass) complete device envelope and rigid pivot > a planted front-face pivot visibly moves the enclosure center [0.03ms]
+(pass) complete device envelope and rigid pivot > one complete turn reproduces the exact front orientation [0.03ms]
+
+packages/device/src/product-shell.test.ts:
+(pass) shared shell depth contract > gives both materials one seam instead of two independently placed slabs [0.01ms]
+(pass) shared shell depth contract > rejects a front that consumes or escapes the physical depth [0.04ms]
+(pass) formed-steel rear shell > hands off to the front at one exact seam plane without overlap [3.69ms]
+(pass) formed-steel rear shell > is one rolled tray rather than two equal-depth slabs [0.07ms]
+(pass) formed-steel rear shell > uses a broad stamped-steel roll with no terminal chamfer [0.03ms]
+(pass) formed-steel rear shell > keeps every open boundary edge on the intentional front seam [10.44ms]
+(pass) formed-steel rear shell > shares finite unit normals across the rear roll [3.04ms]
+(pass) formed-steel rear shell > changes roll normals continuously without a pointed bottom lip [2.34ms]
+(pass) formed-steel rear shell > tapers from an inset rear face to the full seam silhouette [3.13ms]
+(pass) polycarbonate front roll > never grows beyond the declared steel silhouette [0.57ms]
+
+11 tests failed:
+(fail) §12.3 device material contract > polycarbonate keeps the specified base response [0.48ms]
+(fail) §12.3 device material contract > mirror steel remains room-driven while front surfaces do not (D-057) [0.05ms]
+(fail) owner two-light studio rig > locks explicit key, kick, softness, ratio and linear exposure values [0.05ms]
+(fail) studio lighting is a PMREM RoomEnvironment and contains no view-locked shading hook [0.15ms]
+(fail) the striped calibration map belongs only to the mirror-steel rear [0.34ms]
+(fail) viewer-lit device scene frame > keeps key and kick world positions invariant when only the model flips [0.48ms]
+(fail) viewer-lit device scene frame > keeps the lamps world-fixed while accepting arbitrary pose rotations [0.10ms]
+(fail) viewer-lit device scene frame > rotates one root around the complete immutable enclosure center [0.10ms]
+(fail) viewer-lit device scene frame > puts the approved key front-right and the broad subordinate fill front-left below [0.13ms]
+(fail) viewer-lit device scene frame > keeps the broad fill soft and subordinate instead of making a hotspot or band [0.23ms]
+(fail) viewer-lit device scene frame > contains no view-locked, UV, ambient, or painted-light escape [0.17ms]
+
+ 215 pass
+ 11 fail
+ 159449 expect() calls
+Ran 226 tests across 32 files. [1.92s]

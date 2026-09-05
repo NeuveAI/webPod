@@ -1,0 +1,304 @@
+{
+  "hole": {
+    "width": 276,
+    "height": 208,
+    "cornerR": 6,
+    "centerX": 0,
+    "centerY": 150,
+    "inset": 2
+  },
+  "screen": {
+    "width": 272,
+    "height": 204,
+    "cornerR": 4,
+    "scale": 0.85,
+    "centerX": 0,
+    "centerY": 150
+  },
+  "form": {
+    "seamWidth": 1.2,
+    "frontThickness": 14,
+    "frontBevel": 3.5,
+    "bodyCrown": 1.2,
+    "bodyCrossCrown": 1.2,
+    "topEdgeCrown": 0,
+    "bottomEdgeCrown": 0,
+    "edgeCrownExtent": 20,
+    "rearCrownInset": 8.5,
+    "displayWellInset": 1.8,
+    "displayWellDepth": 0.9,
+    "rearInlayInset": 1.1,
+    "glassInset": 0.85,
+    "glassThickness": 2.4,
+    "glassToPanel": 0.2
+  },
+  "missedUniqueVertices": [
+    {
+      "x": -133.3795166015625,
+      "y": 250.06459045410156,
+      "z": 0,
+      "distanceToVertex": 3.516937415780342
+    },
+    {
+      "x": -133.3795166015625,
+      "y": 250.06459045410156,
+      "z": 7,
+      "distanceToVertex": 3.516937415780342
+    },
+    {
+      "x": -132.95022583007812,
+      "y": 250.29405212402344,
+      "z": 0,
+      "distanceToVertex": 3.5169365139247857
+    },
+    {
+      "x": -132.95022583007812,
+      "y": 250.29405212402344,
+      "z": 7,
+      "distanceToVertex": 3.5169365139247857
+    },
+    {
+      "x": -132.4844207763672,
+      "y": 250.4353485107422,
+      "z": 0,
+      "distanceToVertex": 3.5169402227593562
+    },
+    {
+      "x": -132.4844207763672,
+      "y": 250.4353485107422,
+      "z": 7,
+      "distanceToVertex": 3.5169402227593562
+    },
+    {
+      "x": -131.8280487060547,
+      "y": 250.5,
+      "z": 0,
+      "distanceToVertex": 3.5042213468172165
+    },
+    {
+      "x": -131.8280487060547,
+      "y": 250.5,
+      "z": 7,
+      "distanceToVertex": 3.5042213468172165
+    },
+    {
+      "x": 131.8280487060547,
+      "y": 250.5,
+      "z": 0,
+      "distanceToVertex": 3.5042213468172165
+    },
+    {
+      "x": 131.8280487060547,
+      "y": 250.5,
+      "z": 7,
+      "distanceToVertex": 3.5042213468172165
+    },
+    {
+      "x": 132.4844207763672,
+      "y": 250.4353485107422,
+      "z": 0,
+      "distanceToVertex": 3.5169402227593562
+    },
+    {
+      "x": 132.4844207763672,
+      "y": 250.4353485107422,
+      "z": 7,
+      "distanceToVertex": 3.5169402227593562
+    },
+    {
+      "x": 132.95022583007812,
+      "y": 250.29405212402344,
+      "z": 0,
+      "distanceToVertex": 3.5169365139247857
+    },
+    {
+      "x": 132.95022583007812,
+      "y": 250.29405212402344,
+      "z": 7,
+      "distanceToVertex": 3.5169365139247857
+    },
+    {
+      "x": 133.3795166015625,
+      "y": 250.06459045410156,
+      "z": 0,
+      "distanceToVertex": 3.516937415780342
+    },
+    {
+      "x": 133.3795166015625,
+      "y": 250.06459045410156,
+      "z": 7,
+      "distanceToVertex": 3.516937415780342
+    }
+  ],
+  "screenFrontZ": 26.27010285190387,
+  "orthographicActiveTopRays": [
+    {
+      "x": -120,
+      "belowTop": 0.25,
+      "bodyOccludes": true,
+      "nearestZ": 26.584869871427372
+    },
+    {
+      "x": -120,
+      "belowTop": 0.5,
+      "bodyOccludes": true,
+      "nearestZ": 26.518806834190173
+    },
+    {
+      "x": -120,
+      "belowTop": 1,
+      "bodyOccludes": true,
+      "nearestZ": 26.386680759715887
+    },
+    {
+      "x": -120,
+      "belowTop": 1.5,
+      "bodyOccludes": false
+    },
+    {
+      "x": -120,
+      "belowTop": 2,
+      "bodyOccludes": false
+    },
+    {
+      "x": -120,
+      "belowTop": 3,
+      "bodyOccludes": false
+    },
+    {
+      "x": -80,
+      "belowTop": 0.25,
+      "bodyOccludes": true,
+      "nearestZ": 26.952180672151485
+    },
+    {
+      "x": -80,
+      "belowTop": 0.5,
+      "bodyOccludes": true,
+      "nearestZ": 26.883926300786015
+    },
+    {
+      "x": -80,
+      "belowTop": 1,
+      "bodyOccludes": true,
+      "nearestZ": 26.74741755805519
+    },
+    {
+      "x": -80,
+      "belowTop": 1.5,
+      "bodyOccludes": true,
+      "nearestZ": 26.61090881532425
+    },
+    {
+      "x": -80,
+      "belowTop": 2,
+      "bodyOccludes": false
+    },
+    {
+      "x": -80,
+      "belowTop": 3,
+      "bodyOccludes": false
+    },
+    {
+      "x": 0,
+      "belowTop": 0.25,
+      "bodyOccludes": true,
+      "nearestZ": 27.170931185322615
+    },
+    {
+      "x": 0,
+      "belowTop": 0.5,
+      "bodyOccludes": true,
+      "nearestZ": 27.10136956297356
+    },
+    {
+      "x": 0,
+      "belowTop": 1,
+      "bodyOccludes": true,
+      "nearestZ": 26.96224631827556
+    },
+    {
+      "x": 0,
+      "belowTop": 1.5,
+      "bodyOccludes": true,
+      "nearestZ": 26.82312307357745
+    },
+    {
+      "x": 0,
+      "belowTop": 2,
+      "bodyOccludes": false
+    },
+    {
+      "x": 0,
+      "belowTop": 3,
+      "bodyOccludes": false
+    },
+    {
+      "x": 80,
+      "belowTop": 0.25,
+      "bodyOccludes": true,
+      "nearestZ": 26.952157064023936
+    },
+    {
+      "x": 80,
+      "belowTop": 0.5,
+      "bodyOccludes": true,
+      "nearestZ": 26.883925101143177
+    },
+    {
+      "x": 80,
+      "belowTop": 1,
+      "bodyOccludes": true,
+      "nearestZ": 26.747420357641772
+    },
+    {
+      "x": 80,
+      "belowTop": 1.5,
+      "bodyOccludes": true,
+      "nearestZ": 26.610909251729026
+    },
+    {
+      "x": 80,
+      "belowTop": 2,
+      "bodyOccludes": false
+    },
+    {
+      "x": 80,
+      "belowTop": 3,
+      "bodyOccludes": false
+    },
+    {
+      "x": 120,
+      "belowTop": 0.25,
+      "bodyOccludes": true,
+      "nearestZ": 26.584751421225178
+    },
+    {
+      "x": 120,
+      "belowTop": 0.5,
+      "bodyOccludes": true,
+      "nearestZ": 26.518715597337177
+    },
+    {
+      "x": 120,
+      "belowTop": 1,
+      "bodyOccludes": true,
+      "nearestZ": 26.386643949561176
+    },
+    {
+      "x": 120,
+      "belowTop": 1.5,
+      "bodyOccludes": false
+    },
+    {
+      "x": 120,
+      "belowTop": 2,
+      "bodyOccludes": false
+    },
+    {
+      "x": 120,
+      "belowTop": 3,
+      "bodyOccludes": false
+    }
+  ]
+}

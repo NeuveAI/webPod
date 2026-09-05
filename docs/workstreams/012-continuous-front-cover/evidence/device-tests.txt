@@ -1,0 +1,46 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/screen-aperture.test.ts:
+(pass) square LCD aperture and flat assembly reveal > production collapses only the automatic inner bevel into one square wall [109.57ms]
+(pass) square LCD aperture and flat assembly reveal > opaque backing wall removal preserves every cap and exterior triangle [89.54ms]
+(pass) square LCD aperture and flat assembly reveal > the complete crowned body leaves active display edges clear from front and quarter cameras [1240.59ms]
+(pass) square LCD aperture and flat assembly reveal > the visible reveal is unlit black and neither screen layer can restore a reflective lip [2.63ms]
+
+packages/device/src/front-surface.test.ts:
+(pass) front assemblies share the crowned shell frame > the production crown is subtle rather than a second chassis depth [0.01ms]
+(pass) front assemblies share the crowned shell frame > flat display layers remain recessed at every outer corner [0.05ms]
+(pass) front assemblies share the crowned shell frame > the click wheel and Select share the shell's front surface [0.01ms]
+(pass) front assemblies share the crowned shell frame > the wheel and Select are near-flush separate parts without a border ring [0.02ms]
+(pass) front assemblies share the crowned shell frame > no renderer or calibration path can restore a dome or decorative Select border [1.24ms]
+(pass) front assemblies share the crowned shell frame > the active LCD keeps its physical grid while only depth moves
+
+packages/device/src/layout.test.ts:
+(pass) thin 30GB iPod 5G physical target > declares one variant and cannot silently become the thick 60/80GB case
+(pass) thin 30GB iPod 5G physical target > keeps the authored body and exact 320×240 LCD semantics [0.01ms]
+(pass) thin 30GB iPod 5G physical target > maps the official front raster to a 24px forehead [0.02ms]
+(pass) thin 30GB iPod 5G physical target > maps the official front raster to the smaller 206px wheel
+(pass) thin 30GB iPod 5G physical target > places the wheel at the measured centre with balanced lower whitespace
+(pass) thin 30GB iPod 5G physical target > scales the separate Select part from the same official front raster
+(pass) thin 30GB iPod 5G physical target > keeps photo-derived shell profile estimates explicit
+(pass) thin 30GB iPod 5G physical target > bounds both visible assembly seams from multiple OEM references [0.01ms]
+(pass) thin 30GB iPod 5G physical target > retains a thin intentional material seam
+(pass) physical LCD and restrained trim > the active panel is the physical 50.8 × 38.1mm 4:3 aperture [0.01ms]
+(pass) physical LCD and restrained trim > continuous black underprint covers a moderately sized square LCD surround [0.01ms]
+(pass) enclosure plan and depth > uses the thin 11mm depth at the one body scale [0.01ms]
+(pass) enclosure plan and depth > preserves the analytic 26px circular corner [0.02ms]
+
+packages/device/src/screen-mesh.test.ts:
+(pass) the screen mesh boundary > screen UVs are normalized with TL/TR/BR/BL texture orientation [0.35ms]
+(pass) the screen mesh boundary > size is 272 × 204 body px and panel is 320 × 240 at 0.85 [0.41ms]
+(pass) the screen mesh boundary > world corners are TL, TR, BR, BL with +y up [0.15ms]
+(pass) the screen mesh boundary > viewport corners are canvas CSS px with +y DOWN [0.05ms]
+(pass) the screen mesh boundary > a moved device reports a new transform, not the one it was created with [0.06ms]
+(pass) the screen mesh boundary > onTransformChange delivers the value and fires only on a real change [0.10ms]
+(pass) the screen mesh boundary > callback-ref replay preserves handle identity and active subscriptions [0.06ms]
+(pass) the screen mesh boundary > setMaterial installs, null restores the default, and both ask for a frame [0.04ms]
+(pass) the screen mesh boundary > the handle exposes no Object3D — D-054, staleness has no slot [0.04ms]
+
+ 32 pass
+ 0 fail
+ 28713 expect() calls
+Ran 32 tests across 4 files. [1473.00ms]

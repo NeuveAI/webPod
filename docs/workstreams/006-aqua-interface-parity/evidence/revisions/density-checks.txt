@@ -1,0 +1,16 @@
+[PANEL SOURCE cbc306af28aaacaa48b3124644fa364900d60c6103426a2e96c131636997d200 FILES 238]
+[WebServer] (node:91578) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+Running 2 tests using 1 worker
+
+(node:91579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[PANEL SOURCE cbc306af28aaacaa48b3124644fa364900d60c6103426a2e96c131636997d200 FILES 238]
+
+[1/2] packages/panel/e2e/panel.e2e.ts:1084:1 › wheel navigation moves one list-owned indicator and never decorates the preview
+[2/2] packages/panel/e2e/panel.e2e.ts:1158:1 › Dynamic Type reaches compact, medium, and forced-airy without clipping
+  2 passed (5.9s)

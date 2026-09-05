@@ -1,0 +1,11 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/screen-aperture.test.ts:
+(pass) square LCD aperture and flat assembly reveal > production collapses only the automatic inner bevel into one square wall [111.14ms]
+(pass) square LCD aperture and flat assembly reveal > the complete crowned body leaves active display edges clear from front and quarter cameras [1242.56ms]
+(pass) square LCD aperture and flat assembly reveal > the visible reveal is unlit black and neither screen layer can restore a reflective lip [2.17ms]
+
+ 3 pass
+ 0 fail
+ 28406 expect() calls
+Ran 3 tests across 1 file. [1378.00ms]

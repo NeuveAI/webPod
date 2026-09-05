@@ -1,0 +1,83 @@
+[W5B SOURCE 6604e9da82daf4c82506a1c37955599a0438b9e6e61782ed762717ec6ff9de64 FILES 238 WORKTREE-SNAPSHOT]
+[WebServer] (node:90493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+Running 2 tests using 1 worker
+
+(node:90503) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE 6604e9da82daf4c82506a1c37955599a0438b9e6e61782ed762717ec6ff9de64 FILES 238 WORKTREE-SNAPSHOT]
+
+[1/2] apps/web/tests/player-direct-manipulation.e2e.ts:51:1 › active overflowing list and Now Playing titles move within three seconds
+[WebServer] 1:19:58 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+  1) apps/web/tests/player-direct-manipulation.e2e.ts:51:1 › active overflowing list and Now Playing titles move within three seconds 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < -0.5
+    Received:   0
+
+      65 |     await moving.evaluate((element) => { const animation = element.getAnimations()[0]; if (animation) animation.currentTime = 2800 })
+      66 |     const offset = await moving.evaluate((element) => new DOMMatrixReadOnly(getComputedStyle(element).transform).m41)
+    > 67 |     expect(offset).toBeLessThan(-0.5)
+         |                    ^
+      68 |     expect(animation.delay).toBeGreaterThanOrEqual(1800)
+      69 |   }
+      70 |   await assertOnset('.wp-list-row[aria-current="true"] .wp-marquee__moving')
+        at assertOnset (/Users/vinicius/code/webPod/apps/web/tests/player-direct-manipulation.e2e.ts:67:20)
+        at /Users/vinicius/code/webPod/apps/web/tests/player-direct-manipulation.e2e.ts:70:3
+
+    Error Context: apps/web/tests/test-results/player-direct-manipulation-2ddfa-s-move-within-three-seconds/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/player-direct-manipulation-2ddfa-s-move-within-three-seconds/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/player-direct-manipulation-2ddfa-s-move-within-three-seconds/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:90526) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE 6604e9da82daf4c82506a1c37955599a0438b9e6e61782ed762717ec6ff9de64 FILES 238 WORKTREE-SNAPSHOT]
+
+[2/2] apps/web/tests/player-direct-manipulation.e2e.ts:77:1 › scrub fill and marker coincide immediately before a delayed seek settles
+[WebServer] 1:20:01 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+  2) apps/web/tests/player-direct-manipulation.e2e.ts:77:1 › scrub fill and marker coincide immediately before a delayed seek settles 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "0s"
+    Received: "0.12s"
+
+      89 |   })
+      90 |   await writeFile(resolve(evidence, 'scrub-immediate.json'), JSON.stringify(sample, null, 2))
+    > 91 |   expect(sample.transition).toBe('0s')
+         |                             ^
+      92 |   expect(Math.abs(sample.fillEnd - sample.markerCenter)).toBeLessThan(0.2)
+      93 |   expect(sample.aria).toBe('92000')
+      94 |   await capture(page, 'scrub-immediate')
+        at /Users/vinicius/code/webPod/apps/web/tests/player-direct-manipulation.e2e.ts:91:29
+
+    Error Context: apps/web/tests/test-results/player-direct-manipulation-99b61-fore-a-delayed-seek-settles/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/player-direct-manipulation-99b61-fore-a-delayed-seek-settles/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/player-direct-manipulation-99b61-fore-a-delayed-seek-settles/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2 failed
+    apps/web/tests/player-direct-manipulation.e2e.ts:51:1 › active overflowing list and Now Playing titles move within three seconds 
+    apps/web/tests/player-direct-manipulation.e2e.ts:77:1 › scrub fill and marker coincide immediately before a delayed seek settles 

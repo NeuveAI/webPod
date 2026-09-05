@@ -1,0 +1,62 @@
+{
+  "front-surface.ts": {
+    "baseline": "70f46fd60026edca8112cdec63d1f5992f01ee719123772896a4dd9fb60c69b2",
+    "final": "70f46fd60026edca8112cdec63d1f5992f01ee719123772896a4dd9fb60c69b2",
+    "unchanged": true
+  },
+  "renderer-defaults.ts": {
+    "baseline": "4f915d6a95ac61c86c09f3bbb7631272b2145f58ab7630fe76aa521d66d759cd",
+    "final": "4f915d6a95ac61c86c09f3bbb7631272b2145f58ab7630fe76aa521d66d759cd",
+    "unchanged": true
+  },
+  "product-studio.ts": {
+    "baseline": "763c09feef3ac30f500a7266ba9a44e2662103006118eca29556fa42c7eb4408",
+    "final": "763c09feef3ac30f500a7266ba9a44e2662103006118eca29556fa42c7eb4408",
+    "unchanged": true
+  },
+  "backplate-finish.ts": {
+    "baseline": "fd3e47dfd1ac55754285035e2bb71b35b602b96b05e97dda26eae2c0b2992edd",
+    "final": "fd3e47dfd1ac55754285035e2bb71b35b602b96b05e97dda26eae2c0b2992edd",
+    "unchanged": true
+  },
+  "form.ts": {
+    "baseline": "5c5e849a33dd0a2481627c0a3466523974a73098aebc966ddfbfd35990ad2871",
+    "final": "5c5e849a33dd0a2481627c0a3466523974a73098aebc966ddfbfd35990ad2871",
+    "unchanged": true
+  },
+  "Panel.tsx": {
+    "baseline": "2836453451c38bcf30ff0e313b9ee10ed92a02b4e0d5d3066f0fbe7214546561",
+    "final": "09378df5ce8232f9d5553fc73cad3a4ba43380265fffad87eeebad1e652218f4",
+    "unchanged": false
+  },
+  "Device.tsx": {
+    "baseline": "a63ee5ab5f4b18f03dfba6c8c18588f6205f84bccbadd9b75bc592894c1010bf",
+    "final": "a63ee5ab5f4b18f03dfba6c8c18588f6205f84bccbadd9b75bc592894c1010bf",
+    "unchanged": true
+  },
+  "surface-layout.ts": {
+    "baseline": "695e65a78d4bd9dd9fb29cc7de3fa1323b1f41463545bbe7060993a999281844",
+    "final": "d48bb42ad1b048e9399be7437d366c1e8a9aeb58596f4ac72bc3e2bc08aeda50",
+    "unchanged": false
+  },
+  "materials.ts": {
+    "baseline": "738f254bd6f36c69209578341d2ab071f1f52f5ffef0ac57e5cacbe45252c598",
+    "final": "738f254bd6f36c69209578341d2ab071f1f52f5ffef0ac57e5cacbe45252c598",
+    "unchanged": true
+  },
+  "layout.ts": {
+    "baseline": "7a4debd5f424c932caeb3b44a439283e68ec34ea244e237bfaccb7b4f3c0df13",
+    "final": "f70e3e5c74ed83d41f64d1b3ffa44031e95cdd9f84712062c0085fb223f2532d",
+    "unchanged": false
+  },
+  "light-rig.ts": {
+    "baseline": "26b25dbcf05ea56a71f2c37d98811e85be9d5344bb64f8fc44dacb00c8c26767",
+    "final": "26b25dbcf05ea56a71f2c37d98811e85be9d5344bb64f8fc44dacb00c8c26767",
+    "unchanged": true
+  },
+  "screen-aperture.ts": {
+    "baseline": "681b5ec82dbdf5f1c29f32505aa4c4f300044102f2b67e6b7aabfe1cb82bb4c3",
+    "final": "681b5ec82dbdf5f1c29f32505aa4c4f300044102f2b67e6b7aabfe1cb82bb4c3",
+    "unchanged": true
+  }
+}

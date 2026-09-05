@@ -1,0 +1,335 @@
+{
+  "caveat": "Fixed central image ROI stays in rear plate for these authored views; pixel saturation proxy, not photometric calibration or aesthetic criterion. Rolled edge highlights intentionally excluded.",
+  "views": [
+    {
+      "file": "black-rear--30--140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear--30--160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear--30-140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear--30-160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear--30-180.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-0--140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-0--160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-0-140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-0-160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-0-180.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-30--140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-30--160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-30-140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-30-160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-30-180.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear--30--140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear--30--160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear--30-140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear--30-160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear--30-180.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-0--140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-0--160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-0-140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-0-160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-0-180.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-30--140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-30--160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-30-140.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-30-160.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-30-180.png",
+      "roi": [
+        425,
+        350,
+        600,
+        750
+      ],
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    }
+  ]
+}

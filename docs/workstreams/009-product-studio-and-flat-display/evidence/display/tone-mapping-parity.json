@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "original": {
+      "toneMapping": 6,
+      "exposure": 1
+    },
+    "AgXToneMapping": 6,
+    "NoToneMapping": 0,
+    "materials": [
+      {
+        "name": "webpod-lcd-dark",
+        "toneMapped": false,
+        "type": "MeshBasicMaterial",
+        "map": 1009
+      }
+    ],
+    "glassCount": 1
+  },
+  "box": {
+    "x": 431.3109436035156,
+    "y": 137.72265625,
+    "width": 337.3781433105469,
+    "height": 253.03359985351562
+  },
+  "comparison": {
+    "bare": {
+      "roiShape": [
+        719,
+        971,
+        3
+      ],
+      "meanAbsoluteChannelDifference": 0.0,
+      "maxChannelDifference": 0,
+      "changedPixelFraction": 0.0
+    },
+    "glass": {
+      "roiShape": [
+        719,
+        971,
+        3
+      ],
+      "meanAbsoluteChannelDifference": 5.035868179046784,
+      "maxChannelDifference": 6,
+      "changedPixelFraction": 1.0
+    }
+  }
+}

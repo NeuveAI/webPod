@@ -1,0 +1,115 @@
+{
+  "source": "live localhost:3000 worktree; production DeviceCanvas materials",
+  "viewport": [
+    1200,
+    800
+  ],
+  "dpr": 2,
+  "errors": [],
+  "captures": [
+    {
+      "colourway": "black",
+      "view": "top-oblique",
+      "orientation": {
+        "colourway": "black",
+        "pose": "custom",
+        "orientation": {
+          "pitchDeg": 45,
+          "yawDeg": -12,
+          "rollDeg": 0
+        },
+        "room": "dark"
+      },
+      "clip": {
+        "x": 367.86039999999997,
+        "y": 87.52199999999999,
+        "width": 464.2792,
+        "height": 624.956
+      },
+      "detail": {
+        "x": 367.86039999999997,
+        "y": 87.52199999999999,
+        "width": 464.2792,
+        "height": 140
+      }
+    },
+    {
+      "colourway": "black",
+      "view": "bottom-oblique",
+      "orientation": {
+        "colourway": "black",
+        "pose": "custom",
+        "orientation": {
+          "pitchDeg": -45,
+          "yawDeg": -12,
+          "rollDeg": 0
+        },
+        "room": "dark"
+      },
+      "clip": {
+        "x": 367.86039999999997,
+        "y": 87.52199999999999,
+        "width": 464.2792,
+        "height": 624.956
+      },
+      "detail": {
+        "x": 367.86039999999997,
+        "y": 572.4780000000001,
+        "width": 464.2792,
+        "height": 140
+      }
+    },
+    {
+      "colourway": "white",
+      "view": "top-oblique",
+      "orientation": {
+        "colourway": "black",
+        "pose": "custom",
+        "orientation": {
+          "pitchDeg": 45,
+          "yawDeg": -12,
+          "rollDeg": 0
+        },
+        "room": "dark"
+      },
+      "clip": {
+        "x": 367.86039999999997,
+        "y": 87.52199999999999,
+        "width": 464.2792,
+        "height": 624.956
+      },
+      "detail": {
+        "x": 367.86039999999997,
+        "y": 87.52199999999999,
+        "width": 464.2792,
+        "height": 140
+      }
+    },
+    {
+      "colourway": "white",
+      "view": "bottom-oblique",
+      "orientation": {
+        "colourway": "black",
+        "pose": "custom",
+        "orientation": {
+          "pitchDeg": -45,
+          "yawDeg": -12,
+          "rollDeg": 0
+        },
+        "room": "dark"
+      },
+      "clip": {
+        "x": 367.86039999999997,
+        "y": 87.52199999999999,
+        "width": 464.2792,
+        "height": 624.956
+      },
+      "detail": {
+        "x": 367.86039999999997,
+        "y": 572.4780000000001,
+        "width": 464.2792,
+        "height": 140
+      }
+    }
+  ]
+}

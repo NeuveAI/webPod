@@ -1,0 +1,56 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/luminance-probe.test.ts:
+(pass) §12.3 luminance tolerance > preserves mirrored readings instead of hiding asymmetry in the average [0.11ms]
+(pass) §12.3 luminance tolerance > admits floating-point noise at the exact ±4 boundary [0.03ms]
+(pass) §12.3 luminance tolerance > still rejects a materially out-of-band reading [0.02ms]
+(pass) D-067 probe geometry and identity > every target carries an expected object and material identity [0.39ms]
+(pass) D-067 probe geometry and identity > off-surface and wrong-material hits cannot count [0.04ms]
+(pass) D-067 probe geometry and identity > body samples stay inside the shared circular enclosure by the safe margin [0.10ms]
+(pass) D-067 probe geometry and identity > wheel and Select samples keep their separate surface margins [0.06ms]
+(pass) D-067 probe geometry and identity > back targets preserve the 168° iso-line through the actual face transform [0.34ms]
+(pass) D-067 probe geometry and identity > rear targets classify the exposed steel shell directly [0.05ms]
+(pass) D-067 probe geometry and identity > edge targets bind to the actual visible shell on both sides [0.05ms]
+
+packages/device/src/front-surface.test.ts:
+(pass) front assemblies share the crowned shell frame > the production crown is subtle rather than a second chassis depth [0.01ms]
+(pass) front assemblies share the crowned shell frame > flat display layers remain recessed at every outer corner [0.06ms]
+(pass) front assemblies share the crowned shell frame > the click wheel and Select share the shell's front surface [0.02ms]
+(pass) front assemblies share the crowned shell frame > the wheel and Select are near-flush separate parts without a border ring [0.02ms]
+(pass) front assemblies share the crowned shell frame > no renderer or calibration path can restore a dome or decorative Select border [1.24ms]
+(pass) front assemblies share the crowned shell frame > the active LCD keeps its physical grid while only depth moves [0.02ms]
+
+packages/device/src/textures.test.ts:
+(pass) deterministic physical textures > roughness noise is byte-stable for the default seed [0.44ms]
+(pass) deterministic physical textures > steel grain encodes horizontal direction and bounded strength [0.14ms]
+(pass) deterministic physical textures > wheel transport decals match the measured optical boxes [0.06ms]
+(pass) deterministic physical textures > play and pause have a real inter-symbol gap [0.02ms]
+
+packages/device/src/curved-shell.test.ts:
+(pass) tessellated vertical shell crown > macro and edge profiles meet every shell join with a zero tangent [0.12ms]
+(pass) tessellated vertical shell crown > all four corner joins remain normal-continuous in every rotated pose [0.53ms]
+(pass) tessellated vertical shell crown > the production front cap has no corner triangulation or duplicate-normal split [102.40ms]
+(pass) tessellated vertical shell crown > zero secondary crown is byte-identical [1.61ms]
+(pass) tessellated vertical shell crown > bounded edge crown is local, manifold, smooth, and rear-plane anchored [1.03ms]
+(pass) tessellated vertical shell crown > is one smooth macro curve with fixed top and bottom joins [0.02ms]
+(pass) tessellated vertical shell crown > refuses the old clamped bevel/thickness combination [0.10ms]
+(pass) tessellated vertical shell crown > tessellates every front triangle in the crown direction [27.23ms]
+(pass) tessellated vertical shell crown > removes the non-indexed Earcut normal split the old deformation kept [29.68ms]
+(pass) tessellated vertical shell crown > keeps the rear seam planar while the crown grows only toward the face [0.63ms]
+
+packages/device/src/product-shell.test.ts:
+(pass) shared shell depth contract > gives both materials one seam instead of two independently placed slabs [0.06ms]
+(pass) shared shell depth contract > rejects a front that consumes or escapes the physical depth [0.03ms]
+(pass) formed-steel rear shell > hands off to the front at one exact seam plane without overlap [4.57ms]
+(pass) formed-steel rear shell > is one rolled tray rather than two equal-depth slabs [0.08ms]
+(pass) formed-steel rear shell > uses a broad stamped-steel roll with no terminal chamfer [0.04ms]
+(pass) formed-steel rear shell > keeps every open boundary edge on the intentional front seam [10.36ms]
+(pass) formed-steel rear shell > shares finite unit normals across the rear roll [3.88ms]
+(pass) formed-steel rear shell > changes roll normals continuously without a pointed bottom lip [3.61ms]
+(pass) formed-steel rear shell > tapers from an inset rear face to the full seam silhouette [1.59ms]
+(pass) polycarbonate front roll > never grows beyond the declared steel silhouette [0.71ms]
+
+ 40 pass
+ 0 fail
+ 70097 expect() calls
+Ran 40 tests across 5 files. [221.00ms]

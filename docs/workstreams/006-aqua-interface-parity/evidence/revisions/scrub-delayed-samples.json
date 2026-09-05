@@ -1,0 +1,122 @@
+[
+  {
+    "fillEnd": 681.5624389648438,
+    "markerCenter": 681.5624084472656,
+    "percent": 37.3984,
+    "aria": "92000",
+    "position": "92000",
+    "time": "1:32-2:34",
+    "transition": "0s",
+    "provider": 87000
+  },
+  {
+    "fillEnd": 675.36279296875,
+    "markerCenter": 675.36279296875,
+    "percent": 35.3659,
+    "aria": "87000",
+    "position": "87000",
+    "time": "1:27-2:39",
+    "transition": "0s",
+    "provider": 87000
+  },
+  {
+    "fillEnd": 567.4895629882812,
+    "markerCenter": 567.4895629882812,
+    "percent": 0,
+    "aria": "0",
+    "position": "0",
+    "time": "0:00-4:06",
+    "transition": "0s",
+    "provider": 87000
+  },
+  {
+    "fillEnd": 872.5104370117188,
+    "markerCenter": 872.5104370117188,
+    "percent": 100,
+    "aria": "246000",
+    "position": "246000",
+    "time": "4:06-0:00",
+    "transition": "0s",
+    "provider": 87000
+  },
+  {
+    "fillEnd": 872.5104370117188,
+    "markerCenter": 872.5104370117188,
+    "percent": 100,
+    "aria": "246000",
+    "position": "246000",
+    "time": "4:06-0:00",
+    "transition": "0s",
+    "provider": 87000
+  },
+  {
+    "fillEnd": 866.3108520507812,
+    "markerCenter": 866.2914733886719,
+    "percent": 97.9675,
+    "aria": "241000",
+    "position": "241000",
+    "time": "4:01-0:05",
+    "transition": "0s",
+    "provider": 87000
+  },
+  {
+    "fillEnd": 866.3108520507812,
+    "markerCenter": 866.2914733886719,
+    "percent": 97.9675,
+    "aria": "241000",
+    "position": "241000",
+    "time": "4:01-0:05",
+    "transition": "0s",
+    "provider": 87000
+  },
+  {
+    "fillEnd": 866.3108520507812,
+    "markerCenter": 866.2914733886719,
+    "percent": 97.9675,
+    "aria": "241000",
+    "position": "241000",
+    "time": "4:01-0:05",
+    "transition": "0s",
+    "provider": 87000
+  },
+  {
+    "fillEnd": 866.3108520507812,
+    "markerCenter": 866.2914733886719,
+    "percent": 97.9675,
+    "aria": "241000",
+    "position": "241000",
+    "time": "4:01-0:05",
+    "transition": "0s",
+    "provider": 241000
+  },
+  {
+    "fillEnd": 860.1112060546875,
+    "markerCenter": 860.1112365722656,
+    "percent": 95.935,
+    "aria": "236000",
+    "position": "236000",
+    "time": "3:56-0:10",
+    "transition": "0s",
+    "provider": 241000
+  },
+  {
+    "fillEnd": 866.3108520507812,
+    "markerCenter": 866.2914733886719,
+    "percent": 97.9675,
+    "aria": "241000",
+    "position": "241000",
+    "time": "4:01-0:05",
+    "transition": "0s",
+    "provider": 241000
+  },
+  {
+    "fillEnd": 860.1112060546875,
+    "markerCenter": 860.1112365722656,
+    "percent": 95.935,
+    "aria": "236000",
+    "position": "236000",
+    "time": "3:56-0:10",
+    "transition": "0s",
+    "provider": 241000
+  }
+]

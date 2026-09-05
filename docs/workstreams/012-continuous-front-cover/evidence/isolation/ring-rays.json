@@ -1,0 +1,115 @@
+[
+  {
+    "inset": 6,
+    "hits": [
+      {
+        "name": "",
+        "material": "MeshPhysicalMaterial",
+        "transparent": true,
+        "distance": 1367.085605362891
+      },
+      {
+        "name": "device-display-mask",
+        "material": "MeshBasicMaterial",
+        "transparent": false,
+        "distance": 1369.6144806347481
+      }
+    ]
+  },
+  {
+    "inset": 6.6,
+    "hits": [
+      {
+        "name": "",
+        "material": "MeshPhysicalMaterial",
+        "transparent": true,
+        "distance": 1367.1478275538807
+      }
+    ]
+  },
+  {
+    "inset": 6.75,
+    "hits": [
+      {
+        "name": "",
+        "material": "MeshPhysicalMaterial",
+        "transparent": true,
+        "distance": 1367.163423650938
+      }
+    ]
+  },
+  {
+    "inset": 6.9,
+    "hits": [
+      {
+        "name": "",
+        "material": "MeshPhysicalMaterial",
+        "transparent": true,
+        "distance": 1367.1790359666104
+      },
+      {
+        "name": "device-body",
+        "material": "MeshPhysicalMaterial",
+        "transparent": false,
+        "distance": 1380.251673237912
+      }
+    ]
+  },
+  {
+    "inset": 7.1,
+    "hits": [
+      {
+        "name": "",
+        "material": "MeshPhysicalMaterial",
+        "transparent": true,
+        "distance": 1367.199877615502
+      },
+      {
+        "name": "device-display-well",
+        "material": "MeshBasicMaterial",
+        "transparent": false,
+        "distance": 1368.7717812059532
+      },
+      {
+        "name": "device-body",
+        "material": "MeshPhysicalMaterial",
+        "transparent": false,
+        "distance": 1378.3436118437567
+      }
+    ]
+  },
+  {
+    "inset": 7.5,
+    "hits": [
+      {
+        "name": "device-display-well",
+        "material": "MeshBasicMaterial",
+        "transparent": false,
+        "distance": 1366.38173162287
+      },
+      {
+        "name": "device-body",
+        "material": "MeshPhysicalMaterial",
+        "transparent": false,
+        "distance": 1374.5435319224962
+      }
+    ]
+  },
+  {
+    "inset": 8,
+    "hits": [
+      {
+        "name": "device-display-well",
+        "material": "MeshBasicMaterial",
+        "transparent": false,
+        "distance": 1366.4340730755061
+      },
+      {
+        "name": "device-body",
+        "material": "MeshPhysicalMaterial",
+        "transparent": false,
+        "distance": 1369.823282602335
+      }
+    ]
+  }
+]

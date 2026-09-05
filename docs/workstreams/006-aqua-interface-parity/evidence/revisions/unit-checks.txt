@@ -1,0 +1,488 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/panel/src/navigation.test.ts:
+(pass) typed navigation graph > marks progressive counts as lower bounds and refreshes without moving the highlight [0.23ms]
+(pass) typed navigation graph > playlist rows omit misleading provider counts [0.21ms]
+(pass) typed navigation graph > artists descend through albums and tracks into provider playback [0.46ms]
+(pass) typed navigation graph > playlist membership produces its own track frame [0.09ms]
+(pass) typed navigation graph > songs, albums, playlists and artists preserve the selected queue and index [0.34ms]
+(pass) typed navigation graph > plays the exact rendered relationship queue without fetching it again [0.09ms]
+(pass) typed navigation graph > stable album intent prefetches relationship data reused by selection [0.13ms]
+(pass) typed navigation graph > prefetch scope follows only the highlighted row instead of speculative neighbors [0.05ms]
+(pass) typed navigation graph > accepted album input returns a typed shell before its relationship resolves [0.10ms]
+(pass) typed navigation graph > accepted input promotes a non-abortable production relationship without duplicate I/O [0.08ms]
+(pass) typed navigation graph > source teardown aborts outstanding speculative relationships [0.16ms]
+(pass) typed navigation graph > track preparation retains the rendered duplicate occurrence and artwork [0.05ms]
+(pass) typed navigation graph > root preview comes from the highlighted live collection and has a neutral null case [0.02ms]
+(pass) typed navigation graph > selects the exact rendered artist album without fetching the collection again [0.10ms]
+(pass) typed navigation graph > empty and rejected playable selections never claim success [0.07ms]
+(pass) typed navigation graph > genre offers artist, album and track facets [0.05ms]
+(pass) typed navigation graph > every supported root row resolves to its declared real section [0.05ms]
+(pass) typed navigation graph > search entry retains the provider result LocalKeys into playback [0.53ms]
+(pass) typed navigation graph > routes by typed destination even when presentation copy changes [0.05ms]
+(pass) typed navigation graph > queries library and catalogue and can play a catalogue-only result [0.10ms]
+(pass) typed navigation graph > unsupported radio is absent instead of disabled [0.12ms]
+(pass) typed navigation graph > empty relationships are represented by an empty typed frame [0.04ms]
+(pass) typed navigation graph > provider session postures are typed frames without caller display state [0.31ms]
+
+packages/panel/src/bounded-async-cache.test.ts:
+(pass) BoundedAsyncCache > coalesces repeated reads and reuses the settled value within its TTL [0.08ms]
+(pass) BoundedAsyncCache > supersedes speculative work when accepted input requests the same key [0.08ms]
+(pass) BoundedAsyncCache > aborts the least recently used request at its hard bound [0.09ms]
+(pass) BoundedAsyncCache > expires and aborts stale work by TTL [0.27ms]
+(pass) BoundedAsyncCache > holds a rejected speculative key without refetching until accepted input retries it [0.10ms]
+
+packages/panel/src/model.test.ts:
+(pass) panel models > formats invalid provider durations as zero instead of leaking NaN [0.04ms]
+(pass) panel models > S03 keeps synchronous rows and removes Radio from the tree when stations are absent [0.25ms]
+(pass) panel models > S08 derives real tracks from the fixture catalogue [0.26ms]
+(pass) panel models > the reference-backed centre cycle exposes standard, scrub, artwork, and queue [0.25ms]
+(pass) panel models > sharp artwork never renders above actualPx [0.35ms]
+(pass) panel models > builds a genuine 120-row fixture for the canonical windowing boundary [0.18ms]
+(pass) panel models > adaptive artwork requires exact 3×3 and 8×8 samples [0.10ms]
+(pass) panel models > adaptive artwork rebalances pale and dark covers in both colourways [0.25ms]
+(pass) panel models > ambient bloom cannot occupy either actor hue window [0.03ms]
+
+packages/panel/src/overflow-marquee.test.tsx:
+(pass) overflow marquee > measures only active overflow and records a transform distance [7.32ms]
+
+packages/panel/src/aqua-material.test.ts:
+(pass) the period Aqua LCD material > builds selection from two glass gradients and one structural rim rather than one flat color [7.66ms]
+(pass) the period Aqua LCD material > rejects the three owner-named flattening mutations [30.02ms]
+(pass) the period Aqua LCD material > uses independently legible foregrounds for light and dark Aqua [0.08ms]
+(pass) the period Aqua LCD material > keeps metadata, track numbers, and chevrons on the selected foreground [0.02ms]
+(pass) the period Aqua LCD material > fills pending playback with a recessed, period-authentic Aqua indeterminate stripe [0.57ms]
+(pass) the period Aqua LCD material > shares one fourteen-pixel cylindrical Aqua object across progress, loading, and volume [0.54ms]
+(pass) the period Aqua LCD material > keeps agent attribution without flattening the selected material [0.07ms]
+(pass) the period Aqua LCD material > the scrollbar uses a quiet unstriped well and a bounded blue thumb [0.13ms]
+(pass) the period Aqua LCD material > uses hierarchy, not selection weight, so changing selection never shifts row text [0.06ms]
+(pass) the period Aqua LCD material > rejects a moving stripe overlay anywhere across the full well [0.02ms]
+
+packages/panel/src/list-view.test.tsx:
+(pass) the canonical panel list view > fits exactly nine rows and adds the Aqua rail only for the tenth [4.26ms]
+(pass) the canonical panel list view > one row primitive owns composition, truncation, geometry and Aqua material [0.23ms]
+(pass) the canonical panel list view > every named collection family renders the same current row primitive and follows a wheel detent when scrollable [11.39ms]
+(pass) the canonical panel list view > loading skeleton tracks the active 9, 6 and 4 row viewport geometry [0.32ms]
+(pass) the canonical panel list view > period list routes stay full-width without preview copy competing for space [0.57ms]
+(pass) the canonical panel list view > no bespoke sibling list renderers survive beside the canonical primitive [0.23ms]
+
+packages/panel/src/list-scroll-indicator.test.tsx:
+(pass) the list-owned scroll indicator > is absent whenever the row window cannot move [0.10ms]
+(pass) the list-owned scroll indicator > derives start, middle, and end geometry from the authoritative row window [0.02ms]
+(pass) the list-owned scroll indicator > clamps stale window starts before publishing diagnostic geometry
+(pass) the list-owned scroll indicator > recomputes one mounted indicator as provider-backed lengths change [1.53ms]
+(pass) the list-owned scroll indicator > uses the effective minimum thumb in the ten-thousand-row end travel [0.02ms]
+(pass) the list-owned scroll indicator > renders crisp fixed-track geometry without becoming semantic content [0.08ms]
+(pass) the list-owned scroll indicator > documents the reusable component contract at its export [0.09ms]
+
+packages/panel/src/Panel.integration.test.tsx:
+(pass) mounted playback selection > progressive library revisions do not restart a stationary track dwell [780.50ms]
+(pass) mounted playback selection > Center cycles substantive modes and the wheel controls volume, scrub, and queue [28.39ms]
+(pass) mounted playback selection > a rejected provider volume write rolls the visible feedback value back without dismissing it [9.06ms]
+(pass) mounted playback selection > a ready-to-ready track identity change dismisses visible volume feedback [10.49ms]
+(pass) mounted playback selection > reconstructed Now Playing restores authoritative track and queue position [5.54ms]
+(pass) mounted playback selection > a late queue read cannot replace a newer authoritative queue [7.26ms]
+(pass) mounted playback selection > a stale copy of the same catalog song cannot confirm a different pending occurrence [5.08ms]
+(pass) mounted playback selection > play resolution and a matching MusicKit item stay pending until its playback clock advances [7.53ms]
+(pass) mounted playback selection > audible provider truth clears starting while the play command is unresolved [8.34ms]
+(pass) mounted playback selection > a rapid second song selection keeps metadata aligned with the winning transport [11.95ms]
+(pass) mounted playback selection > station playback adopts the provider track and clears loading after its clock advances [4.53ms]
+(pass) mounted playback selection > a late relationship response cannot replace the screen after navigation leaves its shell [4.84ms]
+(pass) mounted playback selection > a rejected play request keeps the selected occurrence on Now Playing [4.56ms]
+
+packages/panel/src/playback-presentation.test.ts:
+(pass) playback presentation state machine > a matching playing label stays starting until the playback clock advances [0.04ms]
+(pass) playback presentation state machine > a matching queued item does not end starting while MusicKit still reports loading [0.01ms]
+(pass) playback presentation state machine > a duplicate at the wrong queue occurrence cannot confirm the request [0.02ms]
+(pass) playback presentation state machine > a rejected current attempt cannot remain stuck in starting [0.01ms]
+(pass) playback presentation state machine > an attempt from a replaced provider cannot poison the active provider [0.22ms]
+
+packages/panel/src/Panel.test.tsx:
+(pass) the bare DOM panel > brings provider-owned transport back into view through the singleton store [0.05ms]
+(pass) the bare DOM panel > reports a physical Menu transition back to the root exactly once [0.11ms]
+(pass) the bare DOM panel > mounts as a bare semantic DOM surface [0.67ms]
+(pass) the bare DOM panel > home keeps the period-authentic full-width list without a modern preview pane [0.98ms]
+(pass) the bare DOM panel > server rendering is pure and cannot seed document-global navigation [0.13ms]
+(pass) the bare DOM panel > renders the light polarity as an explicit product variant [0.06ms]
+(pass) the bare DOM panel > locks the panel and loading rows to the specified raster geometry [0.21ms]
+(pass) the bare DOM panel > fits every declared album row completely inside the fixed list viewport [0.33ms]
+(pass) the bare DOM panel > locks the measured iPod screen hierarchy and Now Playing rhythm [0.12ms]
+(pass) the bare DOM panel > keeps Now Playing queue position out of the title bar and fills the LCD vertically [0.71ms]
+(pass) the bare DOM panel > never renders non-finite provider timing as NaN text or ARIA values [0.36ms]
+(pass) the bare DOM panel > the menu viewport fills the LCD while every density keeps fixed row geometry [0.09ms]
+(pass) the bare DOM panel > owns scroll indication in list panes and never in the preview pane [0.66ms]
+(pass) the bare DOM panel > never authors final panel text below eleven pixels [0.07ms]
+(pass) the bare DOM panel > keeps Now Playing control on the physical click wheel rather than LCD buttons [0.04ms]
+(pass) the bare DOM panel > uses provider commands, subscriptions, and one canonical list path [0.17ms]
+(pass) the bare DOM panel > keeps fixture defaults and writes outside the shipped Panel module [0.30ms]
+(pass) the bare DOM panel > offline mode remains cached metadata and never restores the cut download product [0.20ms]
+(pass) the bare DOM panel > contains the three required accessibility preference branches [0.05ms]
+(pass) the bare DOM panel > reduced motion removes every authored panel animation and transition [0.07ms]
+(pass) the bare DOM panel > light tertiary text uses the AA-verified hierarchy token [0.04ms]
+(pass) the bare DOM panel > keeps the package boundary compatible with DOM rasterization [0.09ms]
+(pass) the bare DOM panel > removes invented playback glyphs and exposes a real wheel control [0.59ms]
+(pass) the bare DOM panel > keeps Now Playing free of invented status shelves and confines pending feedback to progress [1.07ms]
+(pass) the bare DOM panel > keeps unavailable Now Playing mutations absent [0.29ms]
+(pass) the bare DOM panel > does not invent a track, queue index, source, or artwork before provider playback arrives [0.21ms]
+(pass) the bare DOM panel > renders provider-owned pending playback as loading rather than empty [0.25ms]
+(pass) the bare DOM panel > renders a timed-out provider transaction as a bounded failure rather than empty [0.20ms]
+(pass) the bare DOM panel > pending and timed-out playback preserve the exact selected song metadata and artwork [0.46ms]
+(pass) the bare DOM panel > an authoritative provider event error keeps the confirmed song rendered [0.38ms]
+(pass) the bare DOM panel > renders provider playback with queue context produced by the selected frame [0.39ms]
+(pass) the bare DOM panel > matches a provider-emitted catalog counterpart to its retained library queue position [0.33ms]
+(pass) the bare DOM panel > reports the selected occurrence when a playback queue contains duplicate tracks [0.37ms]
+(pass) the bare DOM panel > follows provider queue position from first A through B to the second A [0.44ms]
+(pass) the bare DOM panel > follows provider queue position from the second A back through B to the first A [0.41ms]
+
+packages/panel/src/runtime.test.ts:
+(pass) panel runtime > parallel colourways lease exactly one announcement driver [0.19ms]
+(pass) panel runtime > parallel colourways lease exactly one transient-volume timer [0.07ms]
+(pass) panel runtime > one leased clock advances continuously and stops after final cleanup [0.27ms]
+(pass) panel runtime > RGBA conversion preserves every sampled pixel and rejects partial data [0.12ms]
+(pass) panel runtime > falls back to the already-fetched artwork bytes when ImageDecoder rejects a supported JPEG [1.01ms]
+(pass) panel runtime > stable selection starts work at 700 ms, never at 699 ms [0.14ms]
+(pass) panel runtime > selection changes cancel stale dwell and coalesce identical colourway leases [0.07ms]
+(pass) panel runtime > route changes abort in-flight dwell work and clean up its timer [0.05ms]
+
+packages/state/src/gates.test.ts:
+(pass) density is 9 / 6 / 4, and a page is one viewport > the row counts are 9, 6 and 4 across compact and accessibility densities
+(pass) density is 9 / 6 / 4, and a page is one viewport > every density divides the full 183px content viewport
+(pass) density is 9 / 6 / 4, and a page is one viewport > no density pages by 7 [0.01ms]
+(pass) density is 9 / 6 / 4, and a page is one viewport > Shift+Arrow moves 9 rows on a compact screen, through the store [0.22ms]
+(pass) density is 9 / 6 / 4, and a page is one viewport > Shift+Arrow moves 4 rows on an airy screen, through the store [0.08ms]
+(pass) density is 9 / 6 / 4, and a page is one viewport > the reducer cannot be handed a page size at all [0.01ms]
+(pass) the announcement debounce is 350ms > literally 350 (001 §4.4, gate U13)
+(pass) the announcement debounce is 350ms > the auto-repeat window is literally 250ms
+(pass) the detent constants that are rulings > D-063 leaves no high-rate haptic policy in the wheel constants
+(pass) the detent constants that are rulings > the coast decays at 0.94 per frame and stops below 21 deg/s (§9.4) [0.01ms]
+(pass) the detent constants that are rulings > acceleration is 1, 4 and 12 rows per detent (design-system §9.4)
+(pass) the detent constants that are rulings > the fast-scroll thresholds are 720 and 1080 deg/s (design-system §9.4)
+(pass) the detent constants that are rulings > Dynamic Type forces airy at 130% (001 §15.0 U11)
+(pass) the density setting is not inert > by default a screen renders at the density it prefers [0.04ms]
+(pass) the density setting is not inert > setting the override moves the viewport, the page size and the snapshot [0.08ms]
+(pass) the density setting is not inert > Dynamic Type at 130% forces airy over the human’s own setting [0.04ms]
+(pass) the density setting is not inert > just below 130% it does not [2.39ms]
+(pass) the density setting is not inert > paging follows the effective density, not the frame’s preference [0.15ms]
+(pass) R2 — one clock stamps every published time > an intentional list bump is stamped from the device clock [0.09ms]
+(pass) R2 — one clock stamps every published time > a wheel detent at an exhausted boundary is not a bump [0.06ms]
+(pass) R2 — one clock stamps every published time > a Menu bump at the root is stamped from the device clock [0.04ms]
+(pass) R2 — one clock stamps every published time > a transport bump is stamped from the device clock [0.06ms]
+(pass) R2 — one clock stamps every published time > all three writers agree, whatever a caller passes [0.06ms]
+(pass) R2 — one clock stamps every published time > the bump sequence still increments, so two identical bumps are distinct [0.04ms]
+(pass) R3 — the density route that half-worked is now unconstructible > the highlight stays inside the window when density changes [0.12ms]
+(pass) R3 — the density route that half-worked is now unconstructible > and when Dynamic Type forces airy [0.07ms]
+(pass) R3 — the density route that half-worked is now unconstructible > every frame on the stack is re-clamped, not just the visible one [0.07ms]
+(pass) R3 — the density route that half-worked is now unconstructible > the bare write does not typecheck, and this is why it must not [0.07ms]
+(pass) R3 — the density route that half-worked is now unconstructible > the Dynamic Type bare write does not typecheck either [0.07ms]
+(pass) R3 — the density route that half-worked is now unconstructible > but reading them still works, because they are legitimate state [0.04ms]
+(pass) D-063 — the §9.4 fast-scroll curve, behaviourally > below 720 deg/s a detent is one row [0.16ms]
+(pass) D-063 — the §9.4 fast-scroll curve, behaviourally > between 720 and 1080 deg/s a detent is four rows [0.04ms]
+(pass) D-063 — the §9.4 fast-scroll curve, behaviourally > above 1080 deg/s a detent is twelve rows [0.04ms]
+(pass) D-063 — the §9.4 fast-scroll curve, behaviourally > the superseded pm-spec tiers are not reachable at any speed [0.18ms]
+(pass) D-063 — the §9.4 fast-scroll curve, behaviourally > a mouse arc needs 1.4x the speed, per pm-spec §4.4 which §9.4 does not cover [0.04ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > the threshold is literally 40 rows (design-system §9.4)
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > a 39-row list cannot fast-scroll at ANY angular speed [0.17ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > exactly 40 rows is still too short — the spec says *exceeds* 40 [0.01ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > 41 rows is long enough [0.01ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > the main menu cannot fast-scroll, however hard it is flicked [0.15ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > a long list reached through the store does fast-scroll [0.19ms]
+(pass) D-063 — fast-scroll needs a long list, not just a fast thumb > omitting the list length disables fast-scroll, which is the safe way to be wrong [0.02ms]
+(pass) D-063 — angular velocity is clamped at 1440 deg/s > the ceiling is literally 1440 (design-system §9.4)
+(pass) D-063 — angular velocity is clamped at 1440 deg/s > an absurd spin is recorded at the ceiling, not above it [0.03ms]
+(pass) D-063 — angular velocity is clamped at 1440 deg/s > the clamp bounds the coast too, so a fling cannot glide forever [0.25ms]
+(pass) D-063 — angular velocity is clamped at 1440 deg/s > ordinary speeds are untouched by the clamp [0.01ms]
+(pass) D-063 — detent hysteresis stops a resting thumb chattering > the hysteresis is literally 1.8 degrees (design-system §9.4)
+(pass) D-063 — detent hysteresis stops a resting thumb chattering > a thumb jittering across a boundary fires nothing [0.03ms]
+(pass) D-063 — detent hysteresis stops a resting thumb chattering > a deliberate reversal still works, it just costs 1.8 degrees more [0.02ms]
+(pass) D-063 — detent hysteresis stops a resting thumb chattering > continuing in the same direction is never charged the extra [0.04ms]
+(pass) D-063 — detent hysteresis stops a resting thumb chattering > the keyboard is untouched by it — a reversal is still one detent [0.04ms]
+(pass) D-063 — the coast floor, behaviourally > a 1000 deg/s release glides for 63 frames, not 46 [0.11ms]
+(pass) D-063 — the coast floor, behaviourally > a harder release glides longer still, and stays bounded by the clamp [0.08ms]
+(pass) D-063 — the coast floor, behaviourally > the state layer and the render loop stop on the same condition
+
+packages/state/src/store.test.ts:
+(pass) read, write and subscribe with no React mounted > React is not reachable from this package at all [0.16ms]
+(pass) read, write and subscribe with no React mounted > store.get reads device state [0.13ms]
+(pass) read, write and subscribe with no React mounted > store.set writes device state and store.get reads it back [0.05ms]
+(pass) read, write and subscribe with no React mounted > store.sub notifies an outside-React listener on change [0.15ms]
+(pass) read, write and subscribe with no React mounted > a derived atom is subscribable from outside React too [0.08ms]
+(pass) read, write and subscribe with no React mounted > two stores are genuinely separate devices [0.04ms]
+(pass) the five device states, derived rather than assigned > Hold outranks everything [0.02ms]
+(pass) the five device states, derived rather than assigned > disconnection outranks the agent states [0.02ms]
+(pass) the five device states, derived rather than assigned > throttling is a sub-mode of agent activity, and reads as its own state [0.02ms]
+(pass) the five device states, derived rather than assigned > the app mode is orthogonal and never replaces a device state [0.02ms]
+(pass) actions > the store is born on the main menu, with rows, before any network call [0.03ms]
+(pass) actions > Menu at the root bumps, and the bump has a fresh sequence number [0.06ms]
+(pass) actions > descend then Menu restores the exact prior highlight [0.06ms]
+(pass) actions > the visible window follows the density of the screen on top [0.06ms]
+(pass) actions > the transport buttons page a list, and do not select [0.06ms]
+(pass) actions > Center is delegated to the data layer and Menu first resets a Now Playing sub-mode [0.09ms]
+(pass) actions > an agent press is silent; a human press clicks [0.08ms]
+(pass) actions > an empty-stack cardinal no-op is rejected before feedback publication [0.04ms]
+(pass) actions > provider-owned Play/Pause publishes only an accepted external press [0.10ms]
+(pass) actions > Now Playing accepts wheel movement through bounded shared control state [0.13ms]
+(pass) actions > human volume movement owns one race-safe 1500ms feedback dwell [0.26ms]
+(pass) actions > programmatic changes do not summon or extend human volume feedback [0.21ms]
+(pass) actions > a custom initial stack replaces the default main menu [0.03ms]
+(pass) D-051 — exactly one device per document > `deviceStore` is the module singleton, and repeated imports get it [0.06ms]
+(pass) D-051 — exactly one device per document > the FIRST call in a fresh production module throws [10.49ms]
+(pass) D-051 — exactly one device per document > a second call in a fresh production module throws as well [8.99ms]
+(pass) D-051 — exactly one device per document > the singleton itself is still built, in that same fresh process [10.68ms]
+(pass) D-051 — exactly one device per document > the factory is not reachable from the package entry point [0.11ms]
+(pass) D-051 — exactly one device per document > the store a consumer hands a Provider is named, and is not the factory [0.02ms]
+(pass) D-051 — nothing outside a test builds a device > no non-test source in the repo calls createDeviceStore [48.82ms]
+(pass) D-051 — nothing outside a test builds a device > and the only re-export of it is the test-only entry point [28.38ms]
+(pass) Menu on a device with no screens > does not bump — an empty stack has no top to announce [0.17ms]
+(pass) Menu on a device with no screens > a device with one screen still bumps, as the root must [0.04ms]
+(pass) menu rows the provider cannot serve are absent, not greyed > a visibility predicate drops rows and re-indexes what is left [0.06ms]
+(pass) menu rows the provider cannot serve are absent, not greyed > the default admits everything, which is the honest pre-provider answer [0.02ms]
+
+packages/state/src/feedback.test.ts:
+(pass) authoritative interaction feedback stream > the public event shape cannot represent agent-owned audible feedback
+(pass) authoritative interaction feedback stream > one eligible human press publishes exactly one click budget [0.07ms]
+(pass) authoritative interaction feedback stream > N authoritative human detents publish one event carrying N ticks [0.08ms]
+(pass) authoritative interaction feedback stream > sub-detent travel and agent/system actions publish nothing [0.10ms]
+(pass) authoritative interaction feedback stream > coasted detents publish only the budget returned by the coast action [0.10ms]
+(pass) authoritative interaction feedback stream > identical consecutive budgets remain distinct by sequence [0.03ms]
+
+packages/state/src/navigation-intent.test.ts:
+(pass) navigation intent bridge > center publishes an exact-once selectable intent outside React [0.04ms]
+(pass) navigation intent bridge > long-Menu root reset is one atomic external-store action [0.04ms]
+
+packages/state/src/detent.test.ts:
+(pass) keyboard path — one keydown is exactly one detent, always > a single ArrowDown is one detent and one row [0.01ms]
+(pass) keyboard path — one keydown is exactly one detent, always > ArrowUp is one detent upward
+(pass) keyboard path — one keydown is exactly one detent, always > three keydowns move exactly three rows — counted navigation [0.09ms]
+(pass) keyboard path — one keydown is exactly one detent, always > NO acceleration, ever: 40 keydowns 5ms apart still move 40 rows [0.07ms]
+(pass) keyboard path — one keydown is exactly one detent, always > Shift+Arrow is still one detent, but one full viewport of rows [0.03ms]
+(pass) keyboard path — one keydown is exactly one detent, always > a lone keypress announces immediately; auto-repeat falls back to a summary [0.01ms]
+(pass) keyboard path — one keydown is exactly one detent, always > the keyboard path never fires a haptic — there is no hardware behind it
+(pass) touch arc path > the first detent costs the dead zone, later detents cost 15 degrees [0.02ms]
+(pass) touch arc path > a slow arc moves one row per detent [0.02ms]
+(pass) touch arc path > a fast arc accelerates, and the multiplier is smoothed rather than jumping [0.03ms]
+(pass) touch arc path > reversing direction moves back, and pays the hysteresis first [0.02ms]
+(pass) touch arc path > high-rate touch detents stay policy-neutral for the future haptic actuator [0.02ms]
+(pass) mouse arc path > the dead zone is smaller than touch — a mouse is steadier than a thumb
+(pass) mouse arc path > acceleration thresholds are 1.4x the touch ones [0.04ms]
+(pass) mouse arc path > a mouse arc never fires haptics — the hardware is not there
+(pass) scroll path > 40 accumulated pixels is one detent, after a 24px dead zone [0.03ms]
+(pass) scroll path > no velocity multiplier, however fast the wheel is spun [0.04ms]
+(pass) scroll path > line and page delta modes are normalised to pixels [0.02ms]
+(pass) scroll path > residual under one detent is discarded, never rounded into a phantom [0.01ms]
+(pass) direct path — the programmatic seam > a requested count arrives exactly, with no acceleration
+(pass) the silence rule, enforced at one call site > agent movement is silent and still on every path — visible, never felt [0.02ms]
+(pass) the silence rule, enforced at one call site > system movement is silent too [0.01ms]
+(pass) the silence rule, enforced at one call site > human movement clicks
+(pass) the silence rule, enforced at one call site > an agent moving the same distance as a hand moves exactly as far [0.01ms]
+(pass) the actor tag is derived, never accepted > each human path names the limb that drove it [0.02ms]
+(pass) the actor tag is derived, never accepted > an agent driving a touch arc is still tagged as an agent [0.01ms]
+(pass) the actor tag is derived, never accepted > an agent with no known origin is tagged unknown, not guessed at
+(pass) gesture bookkeeping > switching path mid-flight starts a new gesture rather than mixing units [0.01ms]
+(pass) gesture bookkeeping > the reducer never mutates the accumulator it is handed
+(pass) the inertial coast (001 §4.4, Release row) > releasing a fast arc keeps the momentum instead of discarding it [0.03ms]
+(pass) the inertial coast (001 §4.4, Release row) > releasing below the floor stops dead
+(pass) the inertial coast (001 §4.4, Release row) > there is no momentum in a keypress, a scroll or a tool call [0.02ms]
+(pass) the inertial coast (001 §4.4, Release row) > the coast fires detents, decays, and comes to rest below 21 deg/s [0.05ms]
+(pass) the inertial coast (001 §4.4, Release row) > a coast travels in the direction the gesture was going [0.05ms]
+(pass) the inertial coast (001 §4.4, Release row) > EVERY coasted detent still clicks — 001 §4.4 says so explicitly [0.04ms]
+(pass) the inertial coast (001 §4.4, Release row) > an agent’s coast is silent, like everything else an agent does [0.04ms]
+(pass) the inertial coast (001 §4.4, Release row) > a coast never announces per detent — the flick already scheduled one [0.03ms]
+(pass) the inertial coast (001 §4.4, Release row) > stepping a wheel that is not coasting is a no-op, not a resurrection [0.01ms]
+(pass) accelerated says what multiplier cannot > false for every keyboard event, including Shift [0.01ms]
+(pass) accelerated says what multiplier cannot > false on the scroll path however fast the wheel spins [0.03ms]
+(pass) accelerated says what multiplier cannot > false for a programmatic movement of any size
+(pass) accelerated says what multiplier cannot > true only when an arc went fast enough to be given extra rows [0.03ms]
+(pass) D-060 — the coast is the same gesture at any refresh rate > one flick lands on the same row at 30, 60 and 120fps — exactly [0.11ms]
+(pass) D-060 — the coast is the same gesture at any refresh rate > and at every rate from a stuttering 15fps to a 240Hz display [0.51ms]
+(pass) D-060 — the coast is the same gesture at any refresh rate > the frame COUNT still scales with the rate, which is the tell [0.10ms]
+(pass) D-060 — the coast is the same gesture at any refresh rate > a variable-rate display travels the same distance as a steady one [0.07ms]
+(pass) D-060 — the coast is the same gesture at any refresh rate > at 60fps the decay is still exactly the transcribed 0.94 [0.02ms]
+
+packages/state/src/boundary.test.ts:
+(pass) exhausted list boundaries are authoritative wheel no-ops > short list at its first row rejects repeated outward detents and accepts the first reversal [0.24ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > short list at its last row rejects repeated outward detents and accepts the first reversal [0.09ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > one viewport list at its first row rejects repeated outward detents and accepts the first reversal [0.07ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > one viewport list at its last row rejects repeated outward detents and accepts the first reversal [0.07ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > long list at its first row rejects repeated outward detents and accepts the first reversal [0.12ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > long list at its last row rejects repeated outward detents and accepts the first reversal [0.11ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > touch at the first row clears rejected residual and reverses on one ordinary detent [0.08ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > touch at the last row clears rejected residual and reverses on one ordinary detent [0.06ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > an immediate key attempt at the first row neither speaks nor arms a stale announcement [0.08ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > an accelerated event reports only the detent prefix accepted before the edge and drops its momentum [0.09ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > a mixed-multiplier coast counts the actual accepted prefix, not its final multiplier [0.09ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > a coast aimed out of the first row stops in one frame without feedback or queued escape [0.08ms]
+(pass) exhausted list boundaries are authoritative wheel no-ops > a coast aimed out of the last row stops in one frame without feedback or queued escape [0.05ms]
+
+packages/state/src/announce.test.ts:
+(pass) U13 — a flick announces once > 30 detents through the real store produce exactly ONE announcement [0.66ms]
+(pass) U13 — a flick announces once > the one sentence names the row the flick settled on [0.50ms]
+(pass) U13 — a flick announces once > flushing repeatedly after a flick still says it once [0.44ms]
+(pass) U13 — a flick announces once > the debounce is 350ms — not 349, and not a symbol that can move [0.06ms]
+(pass) U13 — a flick announces once > a scroll flick behaves the same as a touch flick [0.46ms]
+(pass) MAJOR 1 — there is one clock, so the browser case cannot diverge > performance.now-scale timestamps still announce once [0.40ms]
+(pass) MAJOR 1 — there is one clock, so the browser case cannot diverge > the announcer ignores caller timestamps entirely [0.14ms]
+(pass) the keyboard announces immediately, because it is deterministic > one keypress speaks at once, with no debounce [0.05ms]
+(pass) the keyboard announces immediately, because it is deterministic > three counted presses speak three times — this is how P5 navigates [0.08ms]
+(pass) the keyboard announces immediately, because it is deterministic > a held key does not speak per repeat — it summarises when released [0.23ms]
+(pass) the keyboard announces immediately, because it is deterministic > a keypress interrupting a flick clears the flick’s stale summary [0.15ms]
+(pass) the sentence > a human hears position first, then the row [0.01ms]
+(pass) the sentence > an agent movement names the actor first
+(pass) the sentence > a single-line row is read without a trailing comma [0.01ms]
+(pass) the sentence > an empty screen says so, rather than reading row zero of zero
+(pass) the sentence > every announcement is polite — navigation never interrupts [0.05ms]
+(pass) the sentence > the sequence number increments so two identical sentences are distinct [0.06ms]
+(pass) the pure announcer > noteMovement replaces the settling summary rather than queueing [0.04ms]
+(pass) the pure announcer > clearAnnouncer drops the settling summary but keeps the count [0.02ms]
+(pass) the driver — the one timer in the package > a flick holds one timeout and speaks once when it stops [707.45ms]
+(pass) the driver — the one timer in the package > stopping the driver cancels the settling announcement [1402.89ms]
+(pass) MINOR 3 — a timer that fires early must not strand the announcement > a flush that says nothing re-arms instead of going quiet forever [0.38ms]
+(pass) MINOR 3 — a timer that fires early must not strand the announcement > a driver clock that never reaches the due time does not spin forever [0.10ms]
+(pass) the silence rule has one definition, not two copies > the predicate is a shared function rather than a repeated expression [5.04ms]
+
+packages/state/src/screen.test.ts:
+(pass) highlight movement > moves by the exact row delta it is given [0.08ms]
+(pass) highlight movement > clamps at the bottom and bumps rather than wrapping [0.02ms]
+(pass) highlight movement > clamps at the top and bumps [0.01ms]
+(pass) highlight movement > an empty list bumps in the direction of travel [0.03ms]
+(pass) highlight movement > a zero delta is not a bump — nothing was requested [0.02ms]
+(pass) the scroll window > stays put while the highlight is inside it [0.01ms]
+(pass) the scroll window > slides by the minimum needed, never recentring [0.02ms]
+(pass) the scroll window > never scrolls past the last full page
+(pass) the scroll window > slides back up when the highlight moves above the window [0.02ms]
+(pass) paging > one page is one full viewport of rows, per density [0.06ms]
+(pass) paging > a page that runs off the end lands on the end, and bumps [0.01ms]
+(pass) push and pop > pop restores the exact prior highlight index [0.03ms]
+(pass) push and pop > pop restores the exact prior scroll window too [0.03ms]
+(pass) push and pop > Menu at the root bumps rightward — it is never a no-op
+(pass) push and pop > push normalises a highlight the caller got wrong
+(pass) push and pop > an empty screen pushes with no highlight rather than row zero
+(pass) push and pop > resetStack discards intervening levels [0.04ms]
+(pass) the enumerable screen description > reports the visible window by default, with absolute row indices [0.05ms]
+(pass) the enumerable screen description > reports every row when it requests the offscreen ones [0.01ms]
+(pass) the enumerable screen description > carries the face and the flag, and nothing about agent presence [0.03ms]
+(pass) the menu hierarchy > the root menu is the 001 §4.2 tree, in order [0.02ms]
+(pass) the menu hierarchy > Music holds the eight browse slices [0.08ms]
+(pass) the menu hierarchy > the removed 2005 surfaces are absent, not hidden [0.05ms]
+(pass) the menu hierarchy > Settings turns the device over rather than pushing a screen [0.02ms]
+(pass) the menu hierarchy > a path that misses returns null rather than the nearest match [0.01ms]
+(pass) the menu hierarchy > the settings tree is reachable from the back face root
+(pass) the menu hierarchy > a menu frame starts on its first row [0.01ms]
+
+packages/composite/src/tier-store.test.ts:
+(pass) authoritative composite tier atom > publishes context loss through Jotai to external subscribers [0.11ms]
+
+packages/composite/src/CompositeDevice.test.tsx:
+(pass) CompositeDevice public boundary > renders on the server without touching document [0.37ms]
+(pass) CompositeCoordinator lifecycle > replaces renderer and camera without retaining a detached source [0.14ms]
+(pass) CompositeCoordinator lifecycle > resyncs geometry without polling [0.02ms]
+(pass) CompositeCoordinator lifecycle > context loss detaches and restore attaches once [0.04ms]
+(pass) CompositeCoordinator lifecycle > cleans a source whose attach fails and can retry [0.06ms]
+(pass) CompositeCoordinator lifecycle > repeated clear, reattach, and dispose are idempotent [0.04ms]
+
+packages/composite/src/capabilities.test.ts:
+(pass) resolveTier > {"webgl":false,"requestPaint":false,"prefersReducedMotion":false} resolves T4 [0.02ms]
+(pass) resolveTier > {"webgl":false,"requestPaint":true,"prefersReducedMotion":false} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":false,"prefersReducedMotion":false} resolves T3
+(pass) resolveTier > {"webgl":true,"requestPaint":true,"prefersReducedMotion":false} resolves T1
+(pass) resolveTier > {"webgl":false,"requestPaint":false,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":false,"requestPaint":true,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":false,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":true,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > never manufactures the uninstalled polyfill tier [0.01ms]
+(pass) arityOf > reads the declared arity of an own data-property function [0.03ms]
+(pass) arityOf > walks to an inherited data-property function descriptor
+(pass) arityOf > does not invoke an own IDL-style getter that throws Illegal invocation [0.01ms]
+(pass) arityOf > does not invoke an inherited IDL-style getter
+(pass) arityOf > returns null for a missing descriptor and for non-functions
+
+packages/composite/src/dependency-resolution.test.ts:
+(pass) package-owned dependency resolution > resolves jotai/vanilla from the composite package boundary [0.05ms]
+
+packages/composite/src/click-wheel-runtime.test.ts:
+(pass) click-wheel runtime > keeps seam crossings short and signed [0.02ms]
+(pass) click-wheel runtime > routes mouse and touch arcs through their reducer paths [0.45ms]
+(pass) click-wheel runtime > a new gesture cancels an existing coast [0.11ms]
+(pass) click-wheel runtime > release coasts only when requested and reduced motion is off [0.12ms]
+(pass) click-wheel runtime > the external driver travels the same unclamped distance from 15 to 240Hz [2.69ms]
+(pass) click-wheel runtime > forwards each display frame elapsed time to the coast reducer [0.27ms]
+(pass) click-wheel runtime > cancellation paths never coast [0.14ms]
+(pass) click-wheel runtime > wheel modes pass through and settle at the 120ms idle boundary [0.21ms]
+(pass) click-wheel runtime > wheel idle is rescheduled from the most recent event [0.04ms]
+(pass) click-wheel runtime > dispose removes listeners, timers, frames, and transient input [0.09ms]
+(pass) click-wheel runtime > visibility, blur, and a new reduced-motion preference cancel input [0.19ms]
+
+packages/composite/src/pixel-source.test.ts:
+(pass) panel pixel source seam > declares the one T1 variant that flows end to end [0.01ms]
+(pass) panel pixel source seam > freezes nested requirement lists so a consumer cannot mutate the contract [0.04ms]
+(pass) panel pixel source seam > admits a renderer-less tier without fake WebGL or device values
+
+packages/composite/src/CompositeDevice.integration.test.tsx:
+(pass) mounted composite input boundary > production arc callbacks move the singleton store and restore application focus [2.32ms]
+(pass) mounted composite input boundary > selection suppression is gesture-scoped and restores prior outside ranges [1.37ms]
+(pass) mounted composite input boundary > the mounted boundary consumes the store feedback stream once and disposes audio [0.63ms]
+(pass) mounted composite input boundary > all four cardinal sectors publish one accepted feedback event [0.64ms]
+(pass) mounted composite input boundary > a short annular tap stays cardinal while movement takeover changes volume without double action [0.43ms]
+(pass) mounted composite input boundary > provider transport owns next when accepted and falls back to list paging when declined [0.21ms]
+(pass) mounted composite input boundary > rejected provider transport is consumed without list paging or accepted feedback [0.20ms]
+(pass) mounted composite input boundary > holding Menu for 600ms returns to root without also popping it [0.18ms]
+(pass) mounted composite input boundary > rejected Play/Pause, mute and raw DOM click never enter audio [0.28ms]
+(pass) mounted composite input boundary > cardinal semantics have no raw DOM click wiring to double-fire [0.21ms]
+(pass) mounted composite input boundary > keyboard physical semantics fire on release once and cancel on blur [0.87ms]
+(pass) mounted composite input boundary > multiple mounted public boundaries consume one feedback sequence once [0.38ms]
+(pass) mounted composite input boundary > the mounted mute prop reaches the runtime without constructing settings UI [0.29ms]
+
+packages/composite/src/web-audio-backend.test.ts:
+(pass) browser interaction audio graph > builds a compressed transient graph and releases every per-voice node [0.88ms]
+(pass) browser interaction audio graph > uses deterministic bounded procedural buffers with no asset dependency [0.66ms]
+(pass) browser interaction audio graph > first audible interaction stays inside the synchronous latency budget [0.27ms]
+(pass) browser interaction audio graph > the physical switch supports rather than masks the digital actuation [0.02ms]
+(pass) browser interaction audio graph > the owner preview renders the production graph into a PCM WAV [5.09ms]
+
+packages/composite/src/interaction-audio.test.ts:
+(pass) interaction audio scheduler > keeps the clicker budgets literal and reviewable [0.01ms]
+(pass) interaction audio scheduler > does not construct audio or replay feedback before activation [0.09ms]
+(pass) interaction audio scheduler > holds the first click only while a suspended context resumes [0.42ms]
+(pass) interaction audio scheduler > bounds activation-time feedback and reports unsupported audio precisely [0.11ms]
+(pass) interaction audio scheduler > terminal diagnostics survive mute changes and interruption [0.13ms]
+(pass) interaction audio scheduler > a synchronous suspend throw during mute remains terminal failed [0.05ms]
+(pass) interaction audio scheduler > an interruption during resume cannot revive audio in the background [0.05ms]
+(pass) interaction audio scheduler > a newer activation wins over an older deferred blur suspension [0.05ms]
+(pass) interaction audio scheduler > a newer activation wins over an older deferred mute suspension [0.04ms]
+(pass) interaction audio scheduler > center and cardinal switches share digital-down plus two physical phases [0.18ms]
+(pass) interaction audio scheduler > actual hold duration shifts release and duplicate edges stay exact-once [0.09ms]
+(pass) interaction audio scheduler > state press feedback and agent actions cannot duplicate physical voices [0.04ms]
+(pass) interaction audio scheduler > interruption clears a held switch and its reserved release [0.05ms]
+(pass) interaction audio scheduler > the voice cap reserves every admitted button release atomically [0.08ms]
+(pass) interaction audio scheduler > N detents schedule N lighter, 30Hz-spaced ticks with ±2% jitter [0.10ms]
+(pass) interaction audio scheduler > zero budgets and the explicit mute seam create no voices [0.04ms]
+(pass) interaction audio scheduler > muting a held button clears both voices and its release reservation [0.05ms]
+(pass) interaction audio scheduler > malformed agent provenance remains silent even when its boolean is false [0.03ms]
+(pass) interaction audio scheduler > rapid detents are articulate, bounded, and cannot build runaway gain [0.07ms]
+(pass) interaction audio scheduler > natural endings release the cap; dispose stops every remaining voice [0.08ms]
+(pass) interaction audio scheduler > resume failure is structured, clears pending work, and never rejects outward [0.05ms]
+(pass) interaction audio scheduler > a stale resume rejection cannot overwrite disposal [0.03ms]
+(pass) interaction audio scheduler > a stale resume rejection cannot overwrite a newer interruption [0.03ms]
+(pass) interaction audio scheduler > graph scheduling failure returns a no-sound result instead of throwing [0.05ms]
+(pass) store and browser lifecycle binding > the default gate rejects script-dispatched events without proving provenance [0.11ms]
+(pass) store and browser lifecycle binding > duplicate bindings consume one authoritative sequence exactly once [0.14ms]
+(pass) store and browser lifecycle binding > multiple mounted runtimes share exact-once sequence ownership [0.10ms]
+(pass) store and browser lifecycle binding > an eligible activation signal unlocks once, then state drives sound [0.17ms]
+(pass) store and browser lifecycle binding > audio consumes accepted list movement, never raw outward detent attempts [0.11ms]
+(pass) store and browser lifecycle binding > hidden documents interrupt and clean the graph deterministically [0.10ms]
+(pass) store and browser lifecycle binding > a failing diagnostic observer cannot escape the audio boundary [0.09ms]
+
+packages/composite/src/click-wheel-browser.test.ts:
+(pass) composite browser wheel boundary > uses one non-passive capture listener and removes that listener [0.07ms]
+(pass) composite browser wheel boundary > normalizes unknown modes to pixels without changing line or page
+
+packages/composite/src/html-in-canvas.test.ts:
+(pass) html-in-canvas invariants > quantizes the authored LCD into stable 1×/2×/3× raster sources [0.03ms]
+(pass) html-in-canvas invariants > ignores host style writes so raster sizing does not request itself forever [0.02ms]
+(pass) html-in-canvas invariants > keeps the native 320×240 LCD source on stable 1×/2×/3× raster grids [0.04ms]
+(pass) html-in-canvas invariants > keeps one interactive DOM panel on the native HTMLTexture path [0.24ms]
+(pass) HTMLTexture RGBA8 upload decodes sRGB once before renderer output encoding [0.41ms]
+
+ 422 pass
+ 0 fail
+ 2172 expect() calls
+Ran 422 tests across 30 files. [3.43s]

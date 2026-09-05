@@ -1,0 +1,349 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/calibration/archive-schema.test.ts:
+(pass) calibration archive measurement integrity > parses both committed archives and recomputes their reviewed aggregates [21.50ms]
+(pass) calibration archive measurement integrity > rejects the reviewer's exact duplicated black-row, rogue-key, delta/pass fabrication [18.12ms]
+(pass) calibration archive measurement integrity > rejects undeclared result fields and inconsistent delta/pass claims [13.56ms]
+(pass) calibration archive measurement integrity > rejects non-finite, out-of-range, and internally inconsistent colour measurements [12.80ms]
+(pass) calibration archive measurement integrity > rejects changed coordinate identity, expected stop semantics, and cardinality [14.27ms]
+(pass) calibration archive measurement integrity > rejects incomplete, reordered, duplicate, and out-of-grid sweep coordinates [20.55ms]
+
+packages/device/calibration/stage-ownership.test.ts:
+(pass) calibration stage ownership > body-black can apply only its material and optical response [0.12ms]
+(pass) calibration stage ownership > body-black cannot own shared or other-surface keys [0.04ms]
+(pass) calibration stage ownership > body-black writes preserve every frozen non-owned value [0.08ms]
+
+packages/device/src/control-physics.test.ts:
+(pass) rigid physical click-wheel tilt > the restrained rigid calibration and release laws are explicit [0.04ms]
+(pass) rigid physical click-wheel tilt > the complete production tessellation receives one distance-preserving rigid transform [114.73ms]
+(pass) rigid physical click-wheel tilt > the low side follows contact continuously while object-space circles never change [36.52ms]
+(pass) rigid physical click-wheel tilt > a rotated device applies the same rigid rotation to vertices and normals [1.33ms]
+(pass) rigid physical click-wheel tilt > wheel release is monotonic in tilt and restores exact rest [1.14ms]
+(pass) rigid physical click-wheel tilt > reduced motion during release restores and presents the exact rest transform [1.24ms]
+(pass) rigid physical click-wheel tilt > detach and rebind restore only the matching rigid assembly [1.37ms]
+(pass) rigid physical click-wheel tilt > Select is one restrained device-local Z press with invariant plastic [2.52ms]
+(pass) rigid physical click-wheel tilt > wheel and Select release durations are invariant from 15 through 360 Hz [12.66ms]
+(pass) rigid physical click-wheel tilt > release is demand-driven and a frozen clock has a bounded escape [1.05ms]
+(pass) rigid physical click-wheel tilt > production has one contact-following rigid wheel transform and no deformation or optical proxy [0.83ms]
+
+packages/device/src/screen-aperture.test.ts:
+(pass) square LCD aperture and flat assembly reveal > production collapses only the automatic inner bevel into one square wall [32.86ms]
+(pass) square LCD aperture and flat assembly reveal > the visible reveal is unlit black and neither screen layer can restore a reflective lip [0.33ms]
+
+packages/device/src/probe-raycast.test.ts:
+(pass) first visible probe hit > uses Three's stable type flags across module graphs [0.20ms]
+(pass) first visible probe hit > rejects a nearer unnamed wrong-material occluder [0.79ms]
+(pass) first visible probe hit > fails closed when the transparent decal alpha cannot be proven empty [0.10ms]
+(pass) first visible probe hit > accepts the transformed back mesh only when it is the first hit [0.20ms]
+(pass) first visible probe hit > keeps a transparent decal in front of its opaque backing [0.08ms]
+(pass) first visible probe hit > edge targets fail closed when the nearer visible shell is unnamed [0.13ms]
+(pass) first visible probe hit > solves the actual tessellated mesh surface instead of a nominal z [3.97ms]
+(pass) side-face probe solves > solves the actual visible right shell instead of a front proxy [0.10ms]
+
+packages/device/src/luminance-probe.test.ts:
+(pass) §12.3 luminance tolerance > preserves mirrored readings instead of hiding asymmetry in the average [0.06ms]
+(pass) §12.3 luminance tolerance > admits floating-point noise at the exact ±4 boundary [0.03ms]
+(pass) §12.3 luminance tolerance > still rejects a materially out-of-band reading [0.01ms]
+(pass) D-067 probe geometry and identity > every target carries an expected object and material identity [0.32ms]
+(pass) D-067 probe geometry and identity > off-surface and wrong-material hits cannot count [0.03ms]
+(pass) D-067 probe geometry and identity > body samples stay inside the shared circular enclosure by the safe margin [0.04ms]
+(pass) D-067 probe geometry and identity > wheel and Select samples keep their separate surface margins [0.03ms]
+(pass) D-067 probe geometry and identity > back targets preserve the 168° iso-line through the actual face transform [0.07ms]
+(pass) D-067 probe geometry and identity > rear targets classify the exposed steel shell directly [0.02ms]
+(pass) D-067 probe geometry and identity > edge targets bind to the actual visible shell on both sides [0.03ms]
+
+packages/device/src/orientation.test.ts:
+(pass) D-064 verification modes > only the front and rear reference poses are canonical stop-table poses [0.01ms]
+(pass) D-064 verification modes > rotated and custom poses are physical-continuity validations [0.01ms]
+
+packages/device/src/front-surface.test.ts:
+(pass) front assemblies share the crowned shell frame > the production crown is subtle rather than a second chassis depth
+(pass) front assemblies share the crowned shell frame > flat display layers remain recessed at every outer corner [0.04ms]
+(pass) front assemblies share the crowned shell frame > the click wheel and Select share the shell's front surface [0.01ms]
+(pass) front assemblies share the crowned shell frame > the wheel and Select are near-flush separate parts without a border ring [0.01ms]
+(pass) front assemblies share the crowned shell frame > no renderer or calibration path can restore a dome or decorative Select border [0.69ms]
+(pass) front assemblies share the crowned shell frame > the active LCD keeps its physical grid while only depth moves [0.01ms]
+
+packages/device/src/renderer-defaults.test.ts:
+(pass) device renderer defaults > keeps the transmission pass on the native drawing-buffer grid [0.01ms]
+
+packages/device/src/click-wheel-input.integration.test.tsx:
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > mounted wheel and Select ray hits publish pointer intent and clean up [8.44ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > an injected form moves the mounted ray plane with the visible wheel [1.20ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > routes captured wheel gestures without cancelling delegated native events [1.72ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > release-qualified cardinal sectors map mouse, touch and pen exactly once [2.54ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > diagonal edges and radial extremes remain tappable without entering rotation [1.88ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > oblique model-space projection preserves full sectors, diagonal ownership, and movement takeover [3.31ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > movement takeover cancels the cardinal candidate before rotation starts [1.12ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > cancel, lost capture, blur and drag-off reject cardinal presses [1.08ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Select captures mouse, touch and pen and never enters the arc runtime [1.10ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > the mounted r=37 seam belongs only to Select while just outside belongs to the annulus [4.67ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > the production Select target holds the bound plastic at its axial travel until release [1.82ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Select cancel, lost capture and blur each return capture exactly once [1.07ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Enter travel is scoped to the focused semantic application [1.11ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > window blur cancels capture and leaves the next gesture usable [0.55ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+976 |     let startsToThrow = 1;
+977 |     const mounted = await mountSurface("front", {
+978 |       onArcStart: () => {
+979 |         if (startsToThrow > 0) {
+980 |           startsToThrow -= 1;
+981 |           throw new Error("planted start failure");
+                          ^
+error: planted start failure
+      at onArcStart (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:981:21)
+      at onArcStart (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:209:24)
+      at onPointerMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.tsx:650:32)
+      at onIntersect (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:942:62)
+      at handleIntersects (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:804:11)
+      at handleEvent (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:963:7)
+      at #callDispatchEventListeners (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:239:47)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:117:14)
+      at #goThroughDispatchEventPhases (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:177:38)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:113:18)
+
+(pass) click-wheel mounted R3F event seam > a thrown start callback releases capture and leaves the next gesture usable [0.92ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+1011 |     let movesToThrow = 1;
+1012 |     const mounted = await mountSurface("front", {
+1013 |       onArcMove: () => {
+1014 |         if (movesToThrow > 0) {
+1015 |           movesToThrow -= 1;
+1016 |           throw new Error("planted move failure");
+                           ^
+error: planted move failure
+      at onArcMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:1016:21)
+      at onArcMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:213:24)
+      at onPointerMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.tsx:652:30)
+      at onIntersect (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:942:62)
+      at handleIntersects (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:804:11)
+      at handleEvent (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:963:7)
+      at #callDispatchEventListeners (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:239:47)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:117:14)
+      at #goThroughDispatchEventPhases (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:177:38)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:113:18)
+
+(pass) click-wheel mounted R3F event seam > a thrown move callback cancels listeners and capture before rethrowing [0.84ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > native cancel and following lost capture terminate exactly once [0.54ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > unexpected native lost capture reaches the component listener [0.69ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > reconciler unmount cancels and releases an active pointer [0.58ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > reconciler unmount returns an active Select press [0.47ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > a back-facing DeviceCanvas context contains no raycastable annulus [0.30ms]
+
+packages/device/src/orientation-grab.test.ts:
+(pass) device enclosure orientation grab > leaves browser gesture suppression to the application touch-action boundary [0.13ms]
+(pass) device enclosure orientation grab > accepts primary mouse, pen, and touch without accepting secondary input [0.04ms]
+(pass) device enclosure orientation grab > admits the physical perimeter and corners, never face controls [0.06ms]
+(pass) device enclosure orientation grab > rejects a shell behind the LCD, wheel, or Select ray hit [0.04ms]
+
+packages/device/src/pixel-density.test.ts:
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box [0.03ms]
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box
+(pass) canvas physical-pixel density > maps a 275px by 460px CSS canvas to its physical box
+(pass) canvas physical-pixel density > uses browser DPR when the physical box API is unavailable
+(pass) canvas physical-pixel density > does not let a CSS-sized emulation box override a higher browser DPR
+(pass) canvas physical-pixel density > clamps expensive or invalid device scales to the supported 1–3 range
+(pass) canvas physical-pixel density > passes a measured zoom DPR through the R3F seam as an exact number [0.02ms]
+
+packages/device/src/materials.test.ts:
+(pass) §12.3 device material contract > polycarbonate keeps the specified base response [0.02ms]
+(pass) §12.3 device material contract > mirror steel remains room-driven while front surfaces do not (D-057) [0.01ms]
+(pass) §12.3 device material contract > wheel, Select, glass and screen keep their physical distinctions [0.03ms]
+(pass) §12.3 device material contract > OEM black and white wheel assemblies are separate calibrations, not inversions [0.04ms]
+(pass) §12.3 device material contract > instantiated cover glass stays reflective without resampling the LCD [0.12ms]
+(pass) §12.3 device material contract > black polycarbonate integrates bounded transport into every direct light [0.14ms]
+(pass) §12.3 device material contract > polycarbonate transport patches Three's installed direct and area-light chunks [0.07ms]
+(pass) §12.3 device material contract > white polycarbonate keeps depth in the direct-light transport path [0.05ms]
+(pass) §12.3 device material contract > the seam is a restrained blue-gray boundary, not mirror-back material [0.01ms]
+(pass) §12.3 device material contract > front dielectrics keep the room as a whisper, not as chrome banding [0.03ms]
+(pass) owner two-light studio rig > locks explicit key, kick, softness, ratio and linear exposure values [0.02ms]
+
+packages/device/src/StudioEnvironment.test.ts:
+(pass) studio lighting is a PMREM RoomEnvironment and contains no view-locked shading hook [0.12ms]
+(pass) the striped calibration map belongs only to the mirror-steel rear [0.20ms]
+(pass) front materials explicitly retain per-surface gain under installed Three [0.14ms]
+
+packages/device/src/select-press-visibility.test.ts:
+(pass) Select press visibility > the fixed wheel floor occupies only the two authored seams [1.28ms]
+(pass) Select press visibility > the held button remains the first visible plastic at four angles and radii [11.84ms]
+
+packages/device/src/textures.test.ts:
+(pass) deterministic physical textures > roughness noise is byte-stable for the default seed [0.24ms]
+(pass) deterministic physical textures > steel grain encodes horizontal direction and bounded strength [0.16ms]
+(pass) deterministic physical textures > wheel transport decals match the measured optical boxes [0.06ms]
+(pass) deterministic physical textures > play and pause have a real inter-symbol gap [0.01ms]
+
+packages/device/src/shapes.test.ts:
+(pass) silhouette frame > has steel at the seam and no cap over the body [3.05ms]
+(pass) rounded-rectangle frame > keeps the screen opening clear while preserving the bezel lip [0.35ms]
+
+packages/device/src/physical-continuity.test.ts:
+(pass) the live device is solid geometry rather than a front-pose lighting proxy [0.33ms]
+
+packages/device/src/click-wheel-input.test.tsx:
+(pass) click-wheel input geometry > uses the canonical Select and wheel radii [0.02ms]
+(pass) click-wheel input geometry > clockwise and counter-clockwise quarter turns have the right sign [0.01ms]
+(pass) click-wheel input geometry > crosses the signed-angle seam without a reverse jump
+(pass) click-wheel input geometry > refreshes a dirty parent and mesh world transform in production [0.11ms]
+(pass) click-wheel input geometry > returns the transformed body-local angle without moving the hit plane [0.03ms]
+(pass) click-wheel input geometry > returns null when the current ray is parallel to the wheel plane [0.03ms]
+(pass) click-wheel input geometry > accepts primary touch, pen and left mouse only [0.02ms]
+(pass) click-wheel input geometry > maps the complete annulus into deterministic 90-degree sectors [0.06ms]
+(pass) click-wheel capture lifecycle > reports release and releases capture exactly once [0.07ms]
+(pass) click-wheel capture lifecycle > ignores terminal events for a different pointer [0.02ms]
+
+packages/device/src/env-map.test.ts:
+(pass) mirror room defaults > the shipped room carries the tuned per-band steel compensation [0.01ms]
+
+packages/device/src/curved-shell.test.ts:
+(pass) tessellated vertical shell crown > macro and edge profiles meet every shell join with a zero tangent [0.05ms]
+(pass) tessellated vertical shell crown > all four corner joins remain normal-continuous in every rotated pose [0.17ms]
+(pass) tessellated vertical shell crown > the production front cap has no corner triangulation or duplicate-normal split [95.73ms]
+(pass) tessellated vertical shell crown > zero secondary crown is byte-identical [0.83ms]
+(pass) tessellated vertical shell crown > bounded edge crown is local, manifold, smooth, and rear-plane anchored [0.88ms]
+(pass) tessellated vertical shell crown > is one smooth macro curve with fixed top and bottom joins [0.01ms]
+(pass) tessellated vertical shell crown > refuses the old clamped bevel/thickness combination [0.06ms]
+(pass) tessellated vertical shell crown > tessellates every front triangle in the crown direction [26.69ms]
+(pass) tessellated vertical shell crown > removes the non-indexed Earcut normal split the old deformation kept [28.65ms]
+(pass) tessellated vertical shell crown > keeps the rear seam planar while the crown grows only toward the face [0.72ms]
+
+packages/device/src/optical-profile.test.ts:
+(pass) moulded-surface optical profile > the Pencil-first white moulding has a real non-flat light hierarchy [0.02ms]
+(pass) moulded-surface optical profile > front-body roughness stays broad enough to avoid striped room banding [0.03ms]
+(pass) moulded-surface optical profile > body roughness is encoded in Three's green channel [0.10ms]
+(pass) moulded-surface optical profile > zero additive profile preserves a pre-existing crown normal [0.11ms]
+(pass) moulded-surface optical profile > encodes top-to-bottom tilt as a deterministic tangent-space normal map [0.08ms]
+(pass) moulded-surface optical profile > combined lateral and vertical profiles remain finite and approximately unit length [0.03ms]
+(pass) moulded-surface optical profile > baked curved-surface normals remain finite and unit length [0.05ms]
+
+packages/device/src/ViewerLitDeviceFrame.test.tsx:
+(pass) viewer-lit device scene frame > keeps key and kick world positions invariant when only the model flips [0.66ms]
+(pass) viewer-lit device scene frame > keeps the lamps world-fixed while accepting arbitrary pose rotations [0.07ms]
+(pass) viewer-lit device scene frame > rotates one root around the complete immutable enclosure center [0.12ms]
+(pass) viewer-lit device scene frame > uses broad softbox emitters rather than point highlights [0.03ms]
+(pass) viewer-lit device scene frame > puts the approved key front-right and the broad subordinate fill front-left below [0.09ms]
+(pass) viewer-lit device scene frame > keeps the broad fill soft and subordinate instead of making a hotspot or band [0.02ms]
+(pass) viewer-lit device scene frame > isolates key and fill for proof without moving either emitter [0.04ms]
+(pass) viewer-lit device scene frame > contains no view-locked, UV, ambient, or painted-light escape [0.25ms]
+
+packages/device/src/camera-fit.test.ts:
+(pass) perspective camera fit from measured model bounds > 375x812 contains the front model inside its safe area [0.25ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the three-quarter model inside its safe area [0.03ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the left-edge model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the right-edge model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the rear model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the top model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the bottom model inside its safe area
+(pass) perspective camera fit from measured model bounds > 430x932 contains the front model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the three-quarter model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the left-edge model inside its safe area
+(pass) perspective camera fit from measured model bounds > 430x932 contains the right-edge model inside its safe area
+(pass) perspective camera fit from measured model bounds > 430x932 contains the rear model inside its safe area
+(pass) perspective camera fit from measured model bounds > 430x932 contains the top model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the bottom model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the front model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the three-quarter model inside its safe area
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the left-edge model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the right-edge model inside its safe area
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the rear model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the top model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the bottom model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the front model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the three-quarter model inside its safe area
+(pass) perspective camera fit from measured model bounds > 844x390 contains the left-edge model inside its safe area
+(pass) perspective camera fit from measured model bounds > 844x390 contains the right-edge model inside its safe area
+(pass) perspective camera fit from measured model bounds > 844x390 contains the rear model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the top model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the bottom model inside its safe area
+(pass) perspective camera fit from measured model bounds > a shorter planted distance visibly escapes the safe area [0.03ms]
+(pass) perspective camera fit from measured model bounds > one production camera contains the complete rotational envelope at every DPR [66.34ms]
+(pass) perspective camera fit from measured model bounds > front and rear reproduce dimensions while the projected pivot stays fixed [6.80ms]
+(pass) perspective camera fit from measured model bounds > a shorter planted production camera clips the rotational envelope [5.08ms]
+
+packages/device/src/flush-wheel-geometry.test.ts:
+(pass) owner-primary flush wheel topology > wheel vertices occupy the exact local faceplate surface [0.41ms]
+(pass) owner-primary flush wheel topology > faceplate, wheel and Select are coincident at the shared center plane [0.52ms]
+(pass) owner-primary flush wheel topology > both installed gaps remain physical-scale hairlines [0.01ms]
+(pass) owner-primary flush wheel topology > the defined 40° oblique can expose no wheel or Select sidewall [2.06ms]
+(pass) owner-primary flush wheel topology > production contains no pocket, annular bevel or shadow proxy [0.33ms]
+(pass) owner-primary flush wheel topology > both Select parts are matte dielectric plastics, never metal discs [0.03ms]
+
+packages/device/src/layout.test.ts:
+(pass) thin 30GB iPod 5G physical target > declares one variant and cannot silently become the thick 60/80GB case [0.01ms]
+(pass) thin 30GB iPod 5G physical target > keeps the authored body and exact 320×240 LCD semantics [0.01ms]
+(pass) thin 30GB iPod 5G physical target > maps the official front raster to a 24px forehead [0.03ms]
+(pass) thin 30GB iPod 5G physical target > maps the official front raster to the smaller 206px wheel
+(pass) thin 30GB iPod 5G physical target > places the wheel at the measured centre with balanced lower whitespace
+(pass) thin 30GB iPod 5G physical target > scales the separate Select part from the same official front raster
+(pass) thin 30GB iPod 5G physical target > keeps photo-derived shell profile estimates explicit [0.01ms]
+(pass) thin 30GB iPod 5G physical target > bounds both visible assembly seams from multiple OEM references [0.02ms]
+(pass) thin 30GB iPod 5G physical target > retains a thin intentional material seam
+(pass) physical LCD and restrained trim > the active panel is the physical 50.8 × 38.1mm 4:3 aperture [0.01ms]
+(pass) physical LCD and restrained trim > keeps mask, glass and recess distinct without rebuilding a heavy bezel [0.01ms]
+(pass) enclosure plan and depth > uses the thin 11mm depth at the one body scale
+(pass) enclosure plan and depth > preserves the analytic 26px circular corner [0.01ms]
+
+packages/device/src/material-map-ownership.test.ts:
+(pass) steel material maps are microstructure only [0.04ms]
+
+packages/device/src/screen-mesh.test.ts:
+(pass) the screen mesh boundary > screen UVs are normalized with TL/TR/BR/BL texture orientation [0.51ms]
+(pass) the screen mesh boundary > size is 272 × 204 body px and panel is 320 × 240 at 0.85 [0.16ms]
+(pass) the screen mesh boundary > world corners are TL, TR, BR, BL with +y up [0.10ms]
+(pass) the screen mesh boundary > viewport corners are canvas CSS px with +y DOWN [0.04ms]
+(pass) the screen mesh boundary > a moved device reports a new transform, not the one it was created with [0.04ms]
+(pass) the screen mesh boundary > onTransformChange delivers the value and fires only on a real change [0.07ms]
+(pass) the screen mesh boundary > callback-ref replay preserves handle identity and active subscriptions [0.04ms]
+(pass) the screen mesh boundary > setMaterial installs, null restores the default, and both ask for a frame [0.03ms]
+(pass) the screen mesh boundary > the handle exposes no Object3D — D-054, staleness has no slot [0.02ms]
+
+packages/device/src/owner-oem-white.test.ts:
+(pass) owner-primary OEM white 5G material relationships > confirms the Apple-derived front ratios across the owner's four near-front views [0.02ms]
+(pass) owner-primary OEM white 5G material relationships > keeps the photographed faceplate, wheel and Select visually coplanar [0.01ms]
+(pass) owner-primary OEM white 5G material relationships > keeps the faceplate mildly warm and the wheel distinctly cool [0.03ms]
+(pass) owner-primary OEM white 5G material relationships > keeps Select cream, separate from both wheel and faceplate [0.02ms]
+(pass) owner-primary OEM white 5G material relationships > uses light legends on white hardware and never restores dark-grey ink [0.02ms]
+(pass) owner-primary OEM white 5G material relationships > lets physical occlusion, not a dark-painted floor, draw the hairline seam
+
+packages/device/src/device-envelope.test.ts:
+(pass) complete device envelope and rigid pivot > declares the full rear-to-crown enclosure around one immutable center [0.06ms]
+(pass) complete device envelope and rigid pivot > recentering keeps the production envelope pivot fixed through a full sweep [0.10ms]
+(pass) complete device envelope and rigid pivot > a planted front-face pivot visibly moves the enclosure center [0.03ms]
+(pass) complete device envelope and rigid pivot > one complete turn reproduces the exact front orientation [0.03ms]
+
+packages/device/src/product-shell.test.ts:
+(pass) shared shell depth contract > gives both materials one seam instead of two independently placed slabs [0.03ms]
+(pass) shared shell depth contract > rejects a front that consumes or escapes the physical depth [0.03ms]
+(pass) formed-steel rear shell > hands off to the front at one exact seam plane without overlap [4.43ms]
+(pass) formed-steel rear shell > is one rolled tray rather than two equal-depth slabs [0.07ms]
+(pass) formed-steel rear shell > uses a broad stamped-steel roll with no terminal chamfer [0.05ms]
+(pass) formed-steel rear shell > keeps every open boundary edge on the intentional front seam [10.29ms]
+(pass) formed-steel rear shell > shares finite unit normals across the rear roll [4.80ms]
+(pass) formed-steel rear shell > changes roll normals continuously without a pointed bottom lip [3.94ms]
+(pass) formed-steel rear shell > tapers from an inset rear face to the full seam silhouette [3.69ms]
+(pass) polycarbonate front roll > never grows beyond the declared steel silhouette [0.59ms]
+
+ 222 pass
+ 0 fail
+ 83099 expect() calls
+Ran 222 tests across 31 files. [742.00ms]

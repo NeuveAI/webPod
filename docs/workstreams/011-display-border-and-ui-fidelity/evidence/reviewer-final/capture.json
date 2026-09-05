@@ -1,0 +1,10 @@
+{
+  "source": "live localhost:3000 worktree",
+  "fixture": "deterministic provider; native keyboard browse/play/back/Songs; provider pause event",
+  "viewport": [
+    1024,
+    1100
+  ],
+  "dpr": 2,
+  "errors": []
+}

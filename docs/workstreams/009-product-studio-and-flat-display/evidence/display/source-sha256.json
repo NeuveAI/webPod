@@ -1,0 +1,8 @@
+{
+  "packages/device/src/screen-aperture.ts": "681b5ec82dbdf5f1c29f32505aa4c4f300044102f2b67e6b7aabfe1cb82bb4c3",
+  "packages/device/src/screen-geometry.ts": "02645a40779133564c738077574ddb754bb5b626caaa7914cfcd3d6ac3d64e77",
+  "packages/device/src/Device.tsx": "8ff857cdebff7fc3c0323097195f6d3270e4b2c882e4e5a81fbec4e9bfc9f8a2",
+  "packages/device/src/front-surface.ts": "70f46fd60026edca8112cdec63d1f5992f01ee719123772896a4dd9fb60c69b2",
+  "packages/device/src/curved-shell.ts": "0bcf8f80610fe983a9aa70ab5acdbde4b3bab10750fc7d318c1472dca20dd221",
+  "packages/composite/src/html-in-canvas.ts": "d6ab1b05073a27ed44944eaef2920b196f5a2134244eaccaf67c01fbf716223a"
+}

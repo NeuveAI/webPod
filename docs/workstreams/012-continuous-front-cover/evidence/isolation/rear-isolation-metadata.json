@@ -1,0 +1,27 @@
+{
+  "hashes": {
+    "packages/device/src/Device.tsx": "a63ee5ab5f4b18f03dfba6c8c18588f6205f84bccbadd9b75bc592894c1010bf",
+    "packages/device/src/layout.ts": "f70e3e5c74ed83d41f64d1b3ffa44031e95cdd9f84712062c0085fb223f2532d",
+    "packages/device/src/surface-layout.ts": "d48bb42ad1b048e9399be7437d366c1e8a9aeb58596f4ac72bc3e2bc08aeda50",
+    "packages/device/src/screen-geometry.ts": "02645a40779133564c738077574ddb754bb5b626caaa7914cfcd3d6ac3d64e77",
+    "packages/device/src/materials.ts": "738f254bd6f36c69209578341d2ab071f1f52f5ffef0ac57e5cacbe45252c598"
+  },
+  "metadata": [
+    {
+      "pose": "front",
+      "clip": {
+        "x": 394,
+        "y": 75,
+        "width": 412,
+        "height": 346
+      },
+      "glass": [
+        {
+          "material": "MeshPhysicalMaterial",
+          "opacity": 0.12,
+          "z": 28.673566318985905
+        }
+      ]
+    }
+  ]
+}

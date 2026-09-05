@@ -1,0 +1,61 @@
+{
+  "roi": [
+    430,
+    370,
+    595,
+    680
+  ],
+  "limitations": "Fixed central rear-face region;10rearviews including both finishes and top/bottom45degree tilts. This is saturation evidence, not calibrated photometry. Deliberate bright rolled edges excluded.",
+  "views": [
+    {
+      "file": "black-rear--45-180.png",
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-0-180.png",
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-15--145.png",
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-15-145.png",
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "black-rear-45-180.png",
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear--45-180.png",
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-0-180.png",
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-15--145.png",
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-15-145.png",
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    },
+    {
+      "file": "white-rear-45-180.png",
+      "strictWhitePercent": 0.0,
+      "nearWhitePercent": 0.0
+    }
+  ]
+}

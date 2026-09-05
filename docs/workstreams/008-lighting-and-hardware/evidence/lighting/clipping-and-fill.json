@@ -1,0 +1,477 @@
+{
+  "method": "Screenshot sRGB proxy. Rear ROI [490,260,710,700] manually verified inside plate; all-channel 255 and >=250 distinguish white clipping from tinted highlights. Percentiles record retained tonal range; no arbitrary acceptance threshold. Narrow rolled edge excluded. Front means are code-value luma, not physical luminance. Combined front includes separate studio IBL; key-only/fill-only disable it, so do not attribute all combined-minus-key to the fill.",
+  "rear_roi": [
+    490,
+    260,
+    710,
+    700
+  ],
+  "rear": [
+    {
+      "file": "before-black-rear-high.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 98.1616,
+      "srgb_luma_p90": 101.949
+    },
+    {
+      "file": "before-black-rear-low.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 1.0,
+      "all_rgb_at_least_250_fraction": 1.0,
+      "srgb_luma_p10": 254.99999999999997,
+      "srgb_luma_p90": 254.99999999999997
+    },
+    {
+      "file": "before-black-rear-quarter.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0005578512396694215,
+      "srgb_luma_p10": 106.0212,
+      "srgb_luma_p90": 211.596
+    },
+    {
+      "file": "before-black-rear.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 116.8086,
+      "srgb_luma_p90": 217.1576
+    },
+    {
+      "file": "before-white-rear-high.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 98.1616,
+      "srgb_luma_p90": 101.949
+    },
+    {
+      "file": "before-white-rear-low.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 1.0,
+      "all_rgb_at_least_250_fraction": 1.0,
+      "srgb_luma_p10": 254.99999999999997,
+      "srgb_luma_p90": 254.99999999999997
+    },
+    {
+      "file": "before-white-rear-quarter.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0005578512396694215,
+      "srgb_luma_p10": 106.0212,
+      "srgb_luma_p90": 211.596
+    },
+    {
+      "file": "before-white-rear.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 116.8086,
+      "srgb_luma_p90": 217.1576
+    },
+    {
+      "file": "final-black-rear-high.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 59.5106,
+      "srgb_luma_p90": 81.5106
+    },
+    {
+      "file": "final-black-rear-low.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 152.5066,
+      "srgb_luma_p90": 194.73639999999997
+    },
+    {
+      "file": "final-black-rear-quarter.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 149.3874,
+      "srgb_luma_p90": 157.3152
+    },
+    {
+      "file": "final-black-rear.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 165.31519999999998,
+      "srgb_luma_p90": 229.87679999999997
+    },
+    {
+      "file": "final-black-sweep--24-150.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 152.7914,
+      "srgb_luma_p90": 194.94899999999996
+    },
+    {
+      "file": "final-black-sweep--24-165.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 167.647,
+      "srgb_luma_p90": 219.5788
+    },
+    {
+      "file": "final-black-sweep--24-180.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.019462809917355373,
+      "srgb_luma_p10": 228.0894,
+      "srgb_luma_p90": 253.72439999999997
+    },
+    {
+      "file": "final-black-sweep--24-195.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 229.43439999999998,
+      "srgb_luma_p90": 238.3662
+    },
+    {
+      "file": "final-black-sweep--24-210.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 225.4344,
+      "srgb_luma_p90": 228.7192
+    },
+    {
+      "file": "final-black-sweep-0-150.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 162.3152,
+      "srgb_luma_p90": 167.31519999999998
+    },
+    {
+      "file": "final-black-sweep-0-165.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 165.31519999999998,
+      "srgb_luma_p90": 170.52779999999998
+    },
+    {
+      "file": "final-black-sweep-0-180.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 165.31519999999998,
+      "srgb_luma_p90": 229.87679999999997
+    },
+    {
+      "file": "final-black-sweep-0-195.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 107.22579999999999,
+      "srgb_luma_p90": 219.0854
+    },
+    {
+      "file": "final-black-sweep-0-210.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 98.4384,
+      "srgb_luma_p90": 213.5066
+    },
+    {
+      "file": "final-black-sweep-24-150.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 81.2298,
+      "srgb_luma_p90": 150.3874
+    },
+    {
+      "file": "final-black-sweep-24-165.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 73.15759999999999,
+      "srgb_luma_p90": 151.38739999999999
+    },
+    {
+      "file": "final-black-sweep-24-180.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 64.5828,
+      "srgb_luma_p90": 148.3152
+    },
+    {
+      "file": "final-black-sweep-24-195.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 60.5106,
+      "srgb_luma_p90": 83.3702
+    },
+    {
+      "file": "final-black-sweep-24-210.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 58.5106,
+      "srgb_luma_p90": 80.72319999999999
+    },
+    {
+      "file": "final-black-worst-rear-combined.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 229.43439999999998,
+      "srgb_luma_p90": 238.3662
+    },
+    {
+      "file": "final-black-worst-rear-fill-only.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 145.647,
+      "srgb_luma_p90": 161.51059999999998
+    },
+    {
+      "file": "final-black-worst-rear-key-only.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 226.7192,
+      "srgb_luma_p90": 228.7192
+    },
+    {
+      "file": "final-white-rear-high.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 59.5106,
+      "srgb_luma_p90": 81.5106
+    },
+    {
+      "file": "final-white-rear-low.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 152.5066,
+      "srgb_luma_p90": 194.73639999999997
+    },
+    {
+      "file": "final-white-rear-quarter.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 149.3874,
+      "srgb_luma_p90": 157.3152
+    },
+    {
+      "file": "final-white-rear.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 165.31519999999998,
+      "srgb_luma_p90": 229.87679999999997
+    },
+    {
+      "file": "final-white-sweep--24-150.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 152.7914,
+      "srgb_luma_p90": 194.94899999999996
+    },
+    {
+      "file": "final-white-sweep--24-165.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 167.647,
+      "srgb_luma_p90": 219.5788
+    },
+    {
+      "file": "final-white-sweep--24-180.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.019462809917355373,
+      "srgb_luma_p10": 228.0894,
+      "srgb_luma_p90": 253.72439999999997
+    },
+    {
+      "file": "final-white-sweep--24-195.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 229.43439999999998,
+      "srgb_luma_p90": 238.3662
+    },
+    {
+      "file": "final-white-sweep--24-210.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 225.4344,
+      "srgb_luma_p90": 228.7192
+    },
+    {
+      "file": "final-white-sweep-0-150.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 162.3152,
+      "srgb_luma_p90": 167.31519999999998
+    },
+    {
+      "file": "final-white-sweep-0-165.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 165.31519999999998,
+      "srgb_luma_p90": 170.52779999999998
+    },
+    {
+      "file": "final-white-sweep-0-180.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 165.31519999999998,
+      "srgb_luma_p90": 229.87679999999997
+    },
+    {
+      "file": "final-white-sweep-0-195.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 107.22579999999999,
+      "srgb_luma_p90": 219.0854
+    },
+    {
+      "file": "final-white-sweep-0-210.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 98.4384,
+      "srgb_luma_p90": 213.5066
+    },
+    {
+      "file": "final-white-sweep-24-150.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 81.2298,
+      "srgb_luma_p90": 150.3874
+    },
+    {
+      "file": "final-white-sweep-24-165.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 73.15759999999999,
+      "srgb_luma_p90": 151.38739999999999
+    },
+    {
+      "file": "final-white-sweep-24-180.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 64.5828,
+      "srgb_luma_p90": 148.3152
+    },
+    {
+      "file": "final-white-sweep-24-195.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 60.5106,
+      "srgb_luma_p90": 83.3702
+    },
+    {
+      "file": "final-white-sweep-24-210.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 58.5106,
+      "srgb_luma_p90": 80.72319999999999
+    },
+    {
+      "file": "final-white-worst-rear-combined.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 229.43439999999998,
+      "srgb_luma_p90": 238.3662
+    },
+    {
+      "file": "final-white-worst-rear-fill-only.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 145.647,
+      "srgb_luma_p90": 161.51059999999998
+    },
+    {
+      "file": "final-white-worst-rear-key-only.png",
+      "sample_pixels": 96800,
+      "all_rgb_255_fraction": 0.0,
+      "all_rgb_at_least_250_fraction": 0.0,
+      "srgb_luma_p10": 226.7192,
+      "srgb_luma_p90": 228.7192
+    }
+  ],
+  "front_isolation": [
+    {
+      "file": "final-black-front-combined.png",
+      "regions": {
+        "lower_left_shell": 22.839631584,
+        "lower_right_shell": 18.627402026666665,
+        "wheel_lower_left": 45.020646199999995
+      }
+    },
+    {
+      "file": "final-black-front-fill-only.png",
+      "regions": {
+        "lower_left_shell": 19.511115968,
+        "lower_right_shell": 10.885524942222222,
+        "wheel_lower_left": 38.430697699999996
+      }
+    },
+    {
+      "file": "final-black-front-key-only.png",
+      "regions": {
+        "lower_left_shell": 4.878381375999999,
+        "lower_right_shell": 9.115401635555555,
+        "wheel_lower_left": 17.6515929
+      }
+    },
+    {
+      "file": "final-white-front-combined.png",
+      "regions": {
+        "lower_left_shell": 175.7844832,
+        "lower_right_shell": 169.72133806222223,
+        "wheel_lower_left": 139.540858
+      }
+    },
+    {
+      "file": "final-white-front-fill-only.png",
+      "regions": {
+        "lower_left_shell": 143.296965888,
+        "lower_right_shell": 117.14214282666666,
+        "wheel_lower_left": 108.2782333
+      }
+    },
+    {
+      "file": "final-white-front-key-only.png",
+      "regions": {
+        "lower_left_shell": 108.973030176,
+        "lower_right_shell": 128.56094723555555,
+        "wheel_lower_left": 91.4279238
+      }
+    }
+  ]
+}

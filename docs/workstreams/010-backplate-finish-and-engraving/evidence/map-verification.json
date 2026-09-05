@@ -1,0 +1,13 @@
+{
+  "etchedPixels": 11031,
+  "wrongEtchedGreen": 0,
+  "faceGreen": 90,
+  "edgeGreen": 34,
+  "blankBump": 255,
+  "disposed": 2,
+  "properties": {
+    "wrapS": 1001,
+    "wrapT": 1001,
+    "colorSpace": ""
+  }
+}

@@ -1,0 +1,9 @@
+# Decisions
+
+- Continue same supervised team: Astra hardware engineer, lighting/material engineer (previous settings teammate), independent reviewer. Direct implementation and Blender both authorized; engineer picks based on evidence.
+- Lighting diagnosis: current lower-left lamp power is 9.5% of key and emitter larger, further lowering source radiance. Rear steel has explicit procedural environment separate from general StudioEnvironment; exposure 1.18, reciprocal-albedo gain and roughness 0.08 create aggressive reflected output. Tune both paths; preserve LCD/global output transform.
+- Owner now explicitly requests revised reflectivity/light balance, superseding prior unchanged-material scope and old comments claiming approval. Keep steel appearance with broader subdued highlights, visible lower-left shaping, and upper-right key hierarchy.
+- Hardware reference source: iFixit first-party photography of 5G Video guides 604 (headphone/hold) and 615 (logic board), with part pages as supporting references. Top and bottom physical shape fidelity required; no functional lock or electrical connector behavior requested. Exact manufacturing dimensions unavailable, so record proportional interpretation.
+- New work starts over all prior uncommitted changes. Do not revert or restage them wholesale. Only 008 artifacts describe this follow-up.
+- First lighting candidate still showed a clipped hard-edged lower reflection. Lead requested another pass before acceptance.
+- Lighting engineer found micro-noise roughness map uses RedFormat while installed Three roughness shader reads the green channel. Expanded lighting write ownership to textures.ts and textures.test.ts for this concrete material defect, preserving prior changes. Correct encoding before further visual tuning; reviewer independently validates shader contract.

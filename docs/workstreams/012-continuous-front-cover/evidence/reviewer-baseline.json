@@ -1,0 +1,72 @@
+{
+  "packages/device/src/Device.tsx": {
+    "baseline": "a63ee5ab5f4b18f03dfba6c8c18588f6205f84bccbadd9b75bc592894c1010bf",
+    "final": "88f7d669a0b99fe14bf38ba31e684b262042feaed83a7352db45bf703bb053d0",
+    "unchanged": false
+  },
+  "packages/device/src/surface-layout.ts": {
+    "baseline": "d48bb42ad1b048e9399be7437d366c1e8a9aeb58596f4ac72bc3e2bc08aeda50",
+    "final": "3e63cb4f0b21dc8bc62375910b5f493485c3789a5042ddcb5e5886ab33851d7a",
+    "unchanged": false
+  },
+  "packages/device/src/layout.ts": {
+    "baseline": "f70e3e5c74ed83d41f64d1b3ffa44031e95cdd9f84712062c0085fb223f2532d",
+    "final": "9e0b6bbeb4d77380ab9b7ccde2c7b8eb19204f343eed89cccdc0a6b0c90640b8",
+    "unchanged": false
+  },
+  "packages/device/src/screen-aperture.ts": {
+    "baseline": "681b5ec82dbdf5f1c29f32505aa4c4f300044102f2b67e6b7aabfe1cb82bb4c3",
+    "final": "4d96a1e66cd4dc44951f5c3d57d531a4ea88aa745528a6a75ef125e908f31c18",
+    "unchanged": false
+  },
+  "packages/device/src/front-surface.ts": {
+    "baseline": "70f46fd60026edca8112cdec63d1f5992f01ee719123772896a4dd9fb60c69b2",
+    "final": "70f46fd60026edca8112cdec63d1f5992f01ee719123772896a4dd9fb60c69b2",
+    "unchanged": true
+  },
+  "packages/device/src/form.ts": {
+    "baseline": "5c5e849a33dd0a2481627c0a3466523974a73098aebc966ddfbfd35990ad2871",
+    "final": "5c5e849a33dd0a2481627c0a3466523974a73098aebc966ddfbfd35990ad2871",
+    "unchanged": true
+  },
+  "packages/device/src/light-rig.ts": {
+    "baseline": "26b25dbcf05ea56a71f2c37d98811e85be9d5344bb64f8fc44dacb00c8c26767",
+    "final": "26b25dbcf05ea56a71f2c37d98811e85be9d5344bb64f8fc44dacb00c8c26767",
+    "unchanged": true
+  },
+  "packages/device/src/renderer-defaults.ts": {
+    "baseline": "4f915d6a95ac61c86c09f3bbb7631272b2145f58ab7630fe76aa521d66d759cd",
+    "final": "4f915d6a95ac61c86c09f3bbb7631272b2145f58ab7630fe76aa521d66d759cd",
+    "unchanged": true
+  },
+  "packages/device/src/materials.ts": {
+    "baseline": "738f254bd6f36c69209578341d2ab071f1f52f5ffef0ac57e5cacbe45252c598",
+    "final": "738f254bd6f36c69209578341d2ab071f1f52f5ffef0ac57e5cacbe45252c598",
+    "unchanged": true
+  },
+  "packages/device/src/product-studio.ts": {
+    "baseline": "763c09feef3ac30f500a7266ba9a44e2662103006118eca29556fa42c7eb4408",
+    "final": "763c09feef3ac30f500a7266ba9a44e2662103006118eca29556fa42c7eb4408",
+    "unchanged": true
+  },
+  "packages/device/src/backplate-finish.ts": {
+    "baseline": "fd3e47dfd1ac55754285035e2bb71b35b602b96b05e97dda26eae2c0b2992edd",
+    "final": "fd3e47dfd1ac55754285035e2bb71b35b602b96b05e97dda26eae2c0b2992edd",
+    "unchanged": true
+  },
+  "packages/panel/src/Panel.tsx": {
+    "baseline": "09378df5ce8232f9d5553fc73cad3a4ba43380265fffad87eeebad1e652218f4",
+    "final": "09378df5ce8232f9d5553fc73cad3a4ba43380265fffad87eeebad1e652218f4",
+    "unchanged": true
+  },
+  "packages/panel/src/panel.css": {
+    "baseline": "c6682b1cb15bef8878da536f7190b8200822d781c0cd58e101cea94cdfd456af",
+    "final": "c6682b1cb15bef8878da536f7190b8200822d781c0cd58e101cea94cdfd456af",
+    "unchanged": true
+  },
+  "packages/composite/src/html-in-canvas.ts": {
+    "baseline": "d6ab1b05073a27ed44944eaef2920b196f5a2134244eaccaf67c01fbf716223a",
+    "final": "d6ab1b05073a27ed44944eaef2920b196f5a2134244eaccaf67c01fbf716223a",
+    "unchanged": true
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "method": "Largest positive jump in minimum RGB channel in rows18..35; matched 8CSSpx margin/DPR3 LCD crops. Restricted region brackets aperture border/LCD transition and avoids bright body and header content. This screenshot proxy complements production ray tests, not a replacement.",
+  "results": [
+    {
+      "file": "/Users/vinicius/code/webPod/docs/workstreams/009-product-studio-and-flat-display/evidence/final-display/black-front-lcd-matched.png",
+      "width": 1059,
+      "height": 807,
+      "samples": [
+        {
+          "xFraction": 0.04,
+          "x": 42,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 127
+        },
+        {
+          "xFraction": 0.1,
+          "x": 106,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 126
+        },
+        {
+          "xFraction": 0.25,
+          "x": 265,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 126
+        },
+        {
+          "xFraction": 0.5,
+          "x": 530,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 126
+        },
+        {
+          "xFraction": 0.75,
+          "x": 794,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 126
+        },
+        {
+          "xFraction": 0.9,
+          "x": 953,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 127
+        },
+        {
+          "xFraction": 0.96,
+          "x": 1017,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 126
+        }
+      ],
+      "verticalSpreadPhysicalPixels": 0
+    },
+    {
+      "file": "/Users/vinicius/code/webPod/docs/workstreams/009-product-studio-and-flat-display/evidence/final-display/white-front-lcd-matched.png",
+      "width": 1059,
+      "height": 807,
+      "samples": [
+        {
+          "xFraction": 0.04,
+          "x": 42,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 219
+        },
+        {
+          "xFraction": 0.1,
+          "x": 106,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 219
+        },
+        {
+          "xFraction": 0.25,
+          "x": 265,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 219
+        },
+        {
+          "xFraction": 0.5,
+          "x": 530,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 219
+        },
+        {
+          "xFraction": 0.75,
+          "x": 794,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 219
+        },
+        {
+          "xFraction": 0.9,
+          "x": 953,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 219
+        },
+        {
+          "xFraction": 0.96,
+          "x": 1017,
+          "lcdBoundaryY": 24,
+          "positiveChannelJump": 219
+        }
+      ],
+      "verticalSpreadPhysicalPixels": 0
+    }
+  ]
+}

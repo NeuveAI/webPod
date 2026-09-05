@@ -1,0 +1,23 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/screen-aperture.test.ts:
+(pass) square LCD aperture and flat assembly reveal > production collapses only the automatic inner bevel into one square wall [35.73ms]
+(pass) square LCD aperture and flat assembly reveal > the visible reveal is unlit black and neither screen layer can restore a reflective lip [0.49ms]
+
+packages/device/src/hardware-geometry.test.ts:
+(pass) recessed 5G hardware > has a 3.5mm bore, thirty individual contacts and all parts inside the physical envelope [16.35ms]
+(pass) recessed 5G hardware > shell openings actually expose inward cavities while adjacent steel remains opaque [61.37ms]
+
+packages/device/src/physical-continuity.test.ts:
+(pass) the live device is solid geometry rather than a front-pose lighting proxy [0.45ms]
+
+packages/device/src/device-envelope.test.ts:
+(pass) complete device envelope and rigid pivot > declares the full rear-to-crown enclosure around one immutable center [0.14ms]
+(pass) complete device envelope and rigid pivot > recentering keeps the production envelope pivot fixed through a full sweep [0.56ms]
+(pass) complete device envelope and rigid pivot > a planted front-face pivot visibly moves the enclosure center [0.08ms]
+(pass) complete device envelope and rigid pivot > one complete turn reproduces the exact front orientation [0.05ms]
+
+ 9 pass
+ 0 fail
+ 66723 expect() calls
+Ran 9 tests across 4 files. [139.00ms]

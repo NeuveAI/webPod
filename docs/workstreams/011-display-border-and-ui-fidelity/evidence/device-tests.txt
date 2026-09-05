@@ -1,0 +1,34 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/screen-aperture.test.ts:
+(pass) square LCD aperture and flat assembly reveal > production collapses only the automatic inner bevel into one square wall [118.25ms]
+(pass) square LCD aperture and flat assembly reveal > the complete crowned body leaves active display edges clear from front and quarter cameras [1412.16ms]
+(pass) square LCD aperture and flat assembly reveal > the visible reveal is unlit black and neither screen layer can restore a reflective lip [1.79ms]
+
+packages/device/src/front-surface.test.ts:
+(pass) front assemblies share the crowned shell frame > the production crown is subtle rather than a second chassis depth [0.03ms]
+(pass) front assemblies share the crowned shell frame > flat display layers remain recessed at every outer corner [0.05ms]
+(pass) front assemblies share the crowned shell frame > the click wheel and Select share the shell's front surface [0.02ms]
+(pass) front assemblies share the crowned shell frame > the wheel and Select are near-flush separate parts without a border ring [0.02ms]
+(pass) front assemblies share the crowned shell frame > no renderer or calibration path can restore a dome or decorative Select border [0.68ms]
+(pass) front assemblies share the crowned shell frame > the active LCD keeps its physical grid while only depth moves [0.01ms]
+
+packages/device/src/layout.test.ts:
+(pass) thin 30GB iPod 5G physical target > declares one variant and cannot silently become the thick 60/80GB case [0.01ms]
+(pass) thin 30GB iPod 5G physical target > keeps the authored body and exact 320×240 LCD semantics [0.01ms]
+(pass) thin 30GB iPod 5G physical target > maps the official front raster to a 24px forehead [0.02ms]
+(pass) thin 30GB iPod 5G physical target > maps the official front raster to the smaller 206px wheel
+(pass) thin 30GB iPod 5G physical target > places the wheel at the measured centre with balanced lower whitespace
+(pass) thin 30GB iPod 5G physical target > scales the separate Select part from the same official front raster
+(pass) thin 30GB iPod 5G physical target > keeps photo-derived shell profile estimates explicit
+(pass) thin 30GB iPod 5G physical target > bounds both visible assembly seams from multiple OEM references [0.01ms]
+(pass) thin 30GB iPod 5G physical target > retains a thin intentional material seam
+(pass) physical LCD and restrained trim > the active panel is the physical 50.8 × 38.1mm 4:3 aperture [0.01ms]
+(pass) physical LCD and restrained trim > widens the black surround without changing active LCD dimensions [0.02ms]
+(pass) enclosure plan and depth > uses the thin 11mm depth at the one body scale [0.01ms]
+(pass) enclosure plan and depth > preserves the analytic 26px circular corner [0.07ms]
+
+ 22 pass
+ 0 fail
+ 28562 expect() calls
+Ran 22 tests across 3 files. [1.55s]

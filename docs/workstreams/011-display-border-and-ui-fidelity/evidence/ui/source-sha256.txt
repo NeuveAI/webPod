@@ -1,0 +1,2 @@
+09378df5ce8232f9d5553fc73cad3a4ba43380265fffad87eeebad1e652218f4  packages/panel/src/Panel.tsx
+9c7804ff7ff4bff0e0898dd79093063d03ad0652d1d263bf1bf4edded4062ff1  packages/panel/src/Panel.integration.test.tsx

@@ -1,0 +1,37 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/screen-aperture.test.ts:
+(pass) square LCD aperture and flat assembly reveal > production collapses only the automatic inner bevel into one square wall [112.57ms]
+(pass) square LCD aperture and flat assembly reveal > the complete crowned body leaves active display edges clear from front and quarter cameras [1243.35ms]
+(pass) square LCD aperture and flat assembly reveal > the visible reveal is unlit black and neither screen layer can restore a reflective lip [2.49ms]
+
+packages/device/src/layout.test.ts:
+(pass) thin 30GB iPod 5G physical target > declares one variant and cannot silently become the thick 60/80GB case [0.01ms]
+(pass) thin 30GB iPod 5G physical target > keeps the authored body and exact 320×240 LCD semantics [0.01ms]
+(pass) thin 30GB iPod 5G physical target > maps the official front raster to a 24px forehead [0.02ms]
+(pass) thin 30GB iPod 5G physical target > maps the official front raster to the smaller 206px wheel
+(pass) thin 30GB iPod 5G physical target > places the wheel at the measured centre with balanced lower whitespace [0.01ms]
+(pass) thin 30GB iPod 5G physical target > scales the separate Select part from the same official front raster
+(pass) thin 30GB iPod 5G physical target > keeps photo-derived shell profile estimates explicit [0.01ms]
+(pass) thin 30GB iPod 5G physical target > bounds both visible assembly seams from multiple OEM references [0.02ms]
+(pass) thin 30GB iPod 5G physical target > retains a thin intentional material seam
+(pass) physical LCD and restrained trim > the active panel is the physical 50.8 × 38.1mm 4:3 aperture [0.01ms]
+(pass) physical LCD and restrained trim > continuous black underprint covers a moderately sized square LCD surround [0.01ms]
+(pass) enclosure plan and depth > uses the thin 11mm depth at the one body scale [0.07ms]
+(pass) enclosure plan and depth > preserves the analytic 26px circular corner [0.02ms]
+
+packages/device/src/screen-mesh.test.ts:
+(pass) the screen mesh boundary > screen UVs are normalized with TL/TR/BR/BL texture orientation [0.63ms]
+(pass) the screen mesh boundary > size is 272 × 204 body px and panel is 320 × 240 at 0.85 [0.41ms]
+(pass) the screen mesh boundary > world corners are TL, TR, BR, BL with +y up [0.17ms]
+(pass) the screen mesh boundary > viewport corners are canvas CSS px with +y DOWN [0.06ms]
+(pass) the screen mesh boundary > a moved device reports a new transform, not the one it was created with [0.04ms]
+(pass) the screen mesh boundary > onTransformChange delivers the value and fires only on a real change [0.22ms]
+(pass) the screen mesh boundary > callback-ref replay preserves handle identity and active subscriptions [0.13ms]
+(pass) the screen mesh boundary > setMaterial installs, null restores the default, and both ask for a frame [0.07ms]
+(pass) the screen mesh boundary > the handle exposes no Object3D — D-054, staleness has no slot [0.06ms]
+
+ 25 pass
+ 0 fail
+ 29333 expect() calls
+Ran 25 tests across 3 files. [1389.00ms]

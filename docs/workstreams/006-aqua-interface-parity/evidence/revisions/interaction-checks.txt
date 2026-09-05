@@ -1,0 +1,32 @@
+[W5B SOURCE 56b68f9175a9283ed6df4e870e9adfb937c40684ed0cba95f235df1a5340f618 FILES 238 WORKTREE-SNAPSHOT]
+[WebServer] (node:91257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+Running 6 tests using 1 worker
+
+(node:91274) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE 56b68f9175a9283ed6df4e870e9adfb937c40684ed0cba95f235df1a5340f618 FILES 238 WORKTREE-SNAPSHOT]
+
+[1/6] apps/web/tests/player-direct-manipulation.e2e.ts:52:1 › active overflowing list and Now Playing titles move within three seconds
+[WebServer] 1:26:32 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[2/6] apps/web/tests/player-direct-manipulation.e2e.ts:78:1 › scrub presentation remains optimistic through delayed, stale, failed and successful seek acknowledgement
+[WebServer] 1:26:34 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[3/6] apps/web/tests/player-direct-manipulation.e2e.ts:153:1 › device labels cannot be selected, while the real search input remains editable
+[WebServer] 1:26:37 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[4/6] apps/web/tests/player-direct-manipulation.e2e.ts:192:3 › subtle scrollbar stays bounded at top, middle and bottom in white
+[WebServer] 1:26:40 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[5/6] apps/web/tests/player-direct-manipulation.e2e.ts:192:3 › subtle scrollbar stays bounded at top, middle and bottom in black
+[WebServer] 1:26:43 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[6/6] apps/web/tests/player-direct-manipulation.e2e.ts:218:1 › progress and volume use the revised shallow channel in both product themes
+[WebServer] 1:26:46 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+  6 passed (20.4s)

@@ -1,0 +1,94 @@
+{
+  "timestamp": "2026-09-05T06:04:54.522Z",
+  "viewport": {
+    "width": 1200,
+    "height": 900
+  },
+  "dpr": 3,
+  "route": "http://localhost:3000/_spike/device?capture=",
+  "frames": [
+    {
+      "stem": "black-front",
+      "clip": {
+        "x": 400,
+        "y": 57,
+        "width": 400,
+        "height": 365
+      },
+      "panel": {
+        "x": 431.3109436035156,
+        "y": 137.72265625,
+        "width": 337.3781433105469,
+        "height": 253.03359985351562
+      }
+    },
+    {
+      "stem": "black-quarter",
+      "clip": {
+        "x": 456,
+        "y": 50,
+        "width": 281,
+        "height": 410
+      },
+      "panel": {
+        "x": 474.6046142578125,
+        "y": 133.4423370361328,
+        "width": 233.69586181640625,
+        "height": 287.53211975097656
+      }
+    },
+    {
+      "stem": "white-front",
+      "clip": {
+        "x": 400,
+        "y": 57,
+        "width": 400,
+        "height": 365
+      },
+      "panel": {
+        "x": 431.3109436035156,
+        "y": 137.72265625,
+        "width": 337.3781433105469,
+        "height": 253.03359985351562
+      }
+    },
+    {
+      "stem": "white-quarter",
+      "clip": {
+        "x": 456,
+        "y": 50,
+        "width": 281,
+        "height": 410
+      },
+      "panel": {
+        "x": 474.6046142578125,
+        "y": 133.4423370361328,
+        "width": 233.69586181640625,
+        "height": 287.53211975097656
+      }
+    }
+  ],
+  "sourcesStable": true,
+  "before": {
+    "packages/device/src/screen-aperture.ts": "681b5ec82dbdf5f1c29f32505aa4c4f300044102f2b67e6b7aabfe1cb82bb4c3",
+    "packages/device/src/screen-geometry.ts": "02645a40779133564c738077574ddb754bb5b626caaa7914cfcd3d6ac3d64e77",
+    "packages/device/src/Device.tsx": "45dfdec93ed5d8bb899c83cc10a844b18ec1efdc415ccbd8f02ce62ef414d511",
+    "packages/device/src/front-surface.ts": "70f46fd60026edca8112cdec63d1f5992f01ee719123772896a4dd9fb60c69b2",
+    "packages/device/src/curved-shell.ts": "0bcf8f80610fe983a9aa70ab5acdbde4b3bab10750fc7d318c1472dca20dd221",
+    "packages/device/src/light-rig.ts": "26b25dbcf05ea56a71f2c37d98811e85be9d5344bb64f8fc44dacb00c8c26767",
+    "packages/device/src/materials.ts": "738f254bd6f36c69209578341d2ab071f1f52f5ffef0ac57e5cacbe45252c598",
+    "packages/device/src/renderer-defaults.ts": "4f915d6a95ac61c86c09f3bbb7631272b2145f58ab7630fe76aa521d66d759cd",
+    "packages/composite/src/html-in-canvas.ts": "d6ab1b05073a27ed44944eaef2920b196f5a2134244eaccaf67c01fbf716223a"
+  },
+  "after": {
+    "packages/device/src/screen-aperture.ts": "681b5ec82dbdf5f1c29f32505aa4c4f300044102f2b67e6b7aabfe1cb82bb4c3",
+    "packages/device/src/screen-geometry.ts": "02645a40779133564c738077574ddb754bb5b626caaa7914cfcd3d6ac3d64e77",
+    "packages/device/src/Device.tsx": "45dfdec93ed5d8bb899c83cc10a844b18ec1efdc415ccbd8f02ce62ef414d511",
+    "packages/device/src/front-surface.ts": "70f46fd60026edca8112cdec63d1f5992f01ee719123772896a4dd9fb60c69b2",
+    "packages/device/src/curved-shell.ts": "0bcf8f80610fe983a9aa70ab5acdbde4b3bab10750fc7d318c1472dca20dd221",
+    "packages/device/src/light-rig.ts": "26b25dbcf05ea56a71f2c37d98811e85be9d5344bb64f8fc44dacb00c8c26767",
+    "packages/device/src/materials.ts": "738f254bd6f36c69209578341d2ab071f1f52f5ffef0ac57e5cacbe45252c598",
+    "packages/device/src/renderer-defaults.ts": "4f915d6a95ac61c86c09f3bbb7631272b2145f58ab7630fe76aa521d66d759cd",
+    "packages/composite/src/html-in-canvas.ts": "d6ab1b05073a27ed44944eaef2920b196f5a2134244eaccaf67c01fbf716223a"
+  }
+}

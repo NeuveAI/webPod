@@ -1,0 +1,14 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/backplate-finish.test.ts:
+(pass) the rear face stays softly polished while the roll has a narrower specular response [0.13ms]
+(pass) engraving is generated only as shell roughness and depressed bump, with SSR fallback [0.44ms]
+(pass) actual rear tray UVs preserve rear-local XY through hardware aperture cutting [61.54ms]
+
+packages/device/src/material-map-ownership.test.ts:
+(pass) steel material maps are microstructure only [0.07ms]
+
+ 4 pass
+ 0 fail
+ 130361 expect() calls
+Ran 4 tests across 2 files. [83.00ms]

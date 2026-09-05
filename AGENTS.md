@@ -1,6 +1,6 @@
 # webPod
 
-A browser music player rendered as a physically-modelled iPod 5G, playable by humans and by AI agents through WebMCP.
+A browser music player rendered as a physically-modelled iPod Classic, playable by humans and by AI agents through WebMCP.
 
 This file is the repo's standing law. It holds repo-wide facts only — no per-task
 detail, no slice status, no ticket numbers. `CLAUDE.md` is a local symlink to it,
