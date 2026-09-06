@@ -50,7 +50,7 @@ export const APPLE_SUPPORTS: CapabilityMatrix = {
   queueRead: true, //               row 15 · VERIFIED · docs — MusicKit v3 Queue.items / .position / .length
   queueAppend: true, //             row 16 · VERIFIED · docs — playLater()
   queueInsertNext: true, //         row 17 · VERIFIED · docs — playNext()
-  stations: true, //                row 19 · LIKELY   · docs — /v1/catalog/{sf}/stations, setQueue({station})
+  stations: true, //                row 19 · LIKELY   · docs — /v1/catalog/{sf}/stations?filter[featured]=apple-music-live-radio, setQueue({station})
 
   /**
    * row 20 · VERIFIED · live · **the only value in the whole matrix that moved.**

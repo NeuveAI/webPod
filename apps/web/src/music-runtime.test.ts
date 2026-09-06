@@ -56,6 +56,31 @@ describe('music runtime selection', () => {
     expect(notifications).toBeGreaterThan(0)
   })
 
+  for (const result of ['empty', 'error', 'pending'] as const) {
+    test(`optional ${result} radio discovery preserves completed Apple library loading`, async () => {
+      const base = createFixtureProvider({ supports: APPLE_SUPPORTS })
+      let calls = 0
+      let release: (() => void) | undefined
+      const gate = new Promise<void>((resolve) => { release = resolve })
+      const provider: MusicProvider = {
+        ...base,
+        async stationsList() {
+          calls++
+          if (result === 'error') throw new Error('Synthetic radio unavailable')
+          if (result === 'pending') await gate
+          return []
+        },
+      }
+      const { source, completion } = await createProgressiveAppleSource(provider)
+      await completion
+      expect(calls).toBe(1)
+      expect(source.songs.length).toBeGreaterThan(0)
+      expect(source.libraryStatus?.songs.state).toBe('complete')
+      expect(source.stations).toEqual([])
+      release?.()
+    })
+  }
+
   test('bounds relationship and search track identity memory', async () => {
     const provider = createFixtureProvider({ supports: APPLE_SUPPORTS })
     const { source, completion } = await createProgressiveAppleSource(provider)

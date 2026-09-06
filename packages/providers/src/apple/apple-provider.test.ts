@@ -59,6 +59,44 @@ async function collectSongs(provider: ReturnType<typeof setup>['provider']): Pro
 }
 
 describe('Apple provider', () => {
+  test('discovers supported live radio with the required storefront filter and normalizes stations', async () => {
+    const { provider, music } = setup()
+    const requests: unknown[] = []
+    music.api.music = async (path, parameters) => {
+      requests.push([path, parameters])
+      return { data: { data: [{ id: 'ra.978194965', type: 'stations', attributes: { name: 'Apple Music 1', isLive: true, playParams: { id: 'ra.978194965', kind: 'radioStation' } } }] } }
+    }
+    await provider.configure()
+    const stations = await provider.stationsList()
+    expect(requests).toEqual([['/v1/catalog/se/stations', { 'filter[featured]': 'apple-music-live-radio' }]])
+    expect(stations).toHaveLength(1)
+    expect(stations[0]).toMatchObject({ kind: 'station', provider: 'apple', catalogId: 'ra.978194965', name: 'Apple Music 1', live: true })
+    expect((await provider.stationsList())[0]?.key).toBe(stations[0]?.key)
+  })
+  test('passes the required live-radio filter through the legacy SDK facade too', async () => {
+    const { provider, music } = setup()
+    const requests: unknown[] = []
+    music.api.stations = async (parameters) => { requests.push(parameters); return { data: [] } }
+    await provider.configure()
+    expect(await provider.stationsList()).toEqual([])
+    expect(requests).toEqual([{ 'filter[featured]': 'apple-music-live-radio' }])
+  })
+  test('preserves empty and rejected live-radio results without retrying an unfiltered request', async () => {
+    const { provider, music } = setup()
+    const requests: unknown[] = []
+    let fail = false
+    const unavailable = new Error('Synthetic station service unavailable')
+    music.api.music = async (path, parameters) => {
+      requests.push([path, parameters])
+      if (fail) throw unavailable
+      return { data: { data: [] } }
+    }
+    await provider.configure()
+    expect(await provider.stationsList()).toEqual([])
+    fail = true
+    await expect(provider.stationsList()).rejects.toBe(unavailable)
+    expect(requests).toEqual(Array.from({ length: 2 }, () => ['/v1/catalog/se/stations', { 'filter[featured]': 'apple-music-live-radio' }]))
+  })
   test('uses the current MusicKit script required by the production integration', () => { expect(MUSICKIT_SCRIPT_URL).toBe('https://js-cdn.music.apple.com/musickit/v3/musickit.js') })
   test('coalesces concurrent configuration before authorization', async () => {
     const music = fakeMusic(); let loads = 0; let tokens = 0; let configures = 0; let cancelled = 0
