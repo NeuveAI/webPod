@@ -1,0 +1,16 @@
+{
+  "sourceFingerprint": "4d7eda95eadc5ab7c1c85c6e37e72a2ddd4f33c71ba17a4ec43f275d58fcfa4e",
+  "testedMissingPaths": [
+    "/missing-page",
+    "/_spike/device/missing-child",
+    "/favicon.ico"
+  ],
+  "actualBrowser404Paths": [
+    "/missing-page"
+  ],
+  "rootStatus": 200,
+  "missingStatus": 404,
+  "keyboardReturnedToT1Player": true,
+  "configurationWarnings": 0,
+  "syntheticIsolatedDev": true
+}

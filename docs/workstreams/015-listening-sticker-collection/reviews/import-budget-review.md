@@ -1,0 +1,49 @@
+# Import sampling budget and missing-route review
+
+## Verdict: APPROVE
+
+No unresolved Critical or Major finding. The confirmed sampling deadline case now grants the supported starter on the first session response; actual development and production routing/cancellation regressions pass independently. The missing-route warning is fixed with a genuine 404 and usable keyboard navigation. Review history and precise evidence follow.
+
+## Initial review setup
+
+Read the complete `import-budget-repair.md` dispatch and current importer/live/route boundaries. The owner's new finite diagnostic establishes this occurrence: the importer reached 24 pages/2,400 rows before its own 30-second deadline, then reached the 25-page sample cap after reload. This supersedes the previous review's uncertainty about that occurrence and narrowly changes the prior timeout all-or-nothing contract. It does not authorize treating arbitrary upstream failure or external cancellation as successful sampling.
+
+Independent reviewer only; no implementation edits, credentials, environment files, existing databases, encrypted design or user processes accessed. Strict Critique, Team Orchestration, Effect Services, Database Drizzle, TanStack Router and Global Patterns remain loaded. The UI review uses previously loaded Interface Craft/Design Critique, all four Interface Design Guardrails resources and Neuve Motion principles/reduced motion. Modern Web Guidance was searched specifically for accessible missing-route navigation; results concerned unrelated form-error announcements, so no form pattern is imposed.
+
+## Adversarial acceptance contract
+
+- Only the import's own budget ending can preserve a previously validated usable prefix. A complete page includes valid envelope, bounded rows and validated continuation; stage rows/counters before merging them. No first-page or zero-usable-prefix success.
+- External request/logout/runtime cancellation takes precedence before work, at deadline conversion, at final return and at live activation. Preserve existing final transaction signal/revocation checks; no session or starter write after external cancellation.
+- A concurrently aborted internal signal must not relabel independent malformed/authorization/rate-limit/server/network failures as budget completion. Match the actual deadline reason where an operation rejects; a boundary stop before the next request is separately legitimate. Keep all nonbudget failure snapshots atomic.
+- Reproduce the owner's 24-page case with controlled time and realistic catalog relationship/opaque cursor fixtures. Confirm the partial sample reaches real repository starter generation in the first bootstrap response, with finite truthful counters and distinct time-limit reason. Existing row/page caps, no imported minutes and placement/grant persistence remain unchanged.
+- Configure `notFoundComponent` on the canonical root, not a catch-all successful route. Unknown paths must return 404, render useful return navigation and produce no missing-component configuration warning. Do not infer the owner's missing URL from a warning without a URL. Existing actual root/device rendering and APIs must remain usable.
+- Independently run frozen source tests/types/lint, the actual shipped dev POST/cancellation/browser checks and rebuilt production native/browser smoke. Patch/error classification from the previous incident remains in force. Critical or Major findings require REQUEST_CHANGES.
+
+## Canonical grounding
+
+The local TanStack reference `resources/tanstack/router/docs/router/framework/react/guide/not-found-errors.md:77-99` documents route-level `notFoundComponent` for both unmatched paths and explicit not-found errors. Installed sources govern pinned behavior. The previously reviewed Start server cancellation patch returns 499 only for the incoming request's exact abort reason before H3 conversion; this repair must not broaden it. Installed Effect 4 runtime scopes and synchronous Drizzle transaction boundaries remain unchanged.
+
+## Final source review
+
+The importer now stages every page's rows and commits tracks/counters only after envelope, row limit and continuation validation. Its own 30-second budget is an additional deliberate sampling bound; the 25-page/2,500-track bounds are unchanged. A usable prefix contains at least one verified catalog ID with valid duration; unknown genre remains possible, and a starter still requires a supported genre. This distinction is explicit in engineer evidence.
+
+At the next-request boundary, external cancellation is checked before own-budget expiry. During fetch or body reading, conversion to `apple_timeout` requires the actual caught error to equal the own deadline signal's reason. Observable HTTP/auth/validation failures keep their own error even if the timer has also expired. The final implementation uses native fetch cancellation and no competing abort Promise.race that could hide an already-returned error. The budget regression tests native Bun HTTP streaming to establish this exact reason behavior rather than assume it from a mocked fetch.
+
+Only own-budget timeout with a usable validated prefix returns `partial/sample_time_limit`. Empty/unusable prefixes still fail. Request/logout/runtime cancellation, independent upstream errors and malformed responses return no sample; external checks at commit, finish and unchanged live activation prevent late writes. Page-cap sampling remains `partial/sample_limit`. Finite diagnostics contain no identifiers or payloads. The successful-first-bootstrap test uses the real live server and SQLite activation path, so it proves the sample reaches starter generation rather than merely returning an importer array.
+
+The root configures the canonical `notFoundComponent` and uses TanStack `Link` to `/`. No redirect/catch-all/status override or console suppression was added. Source has semantic main/h1, one clear return action, 44px minimum target and full focus outline. This static page adds no animation or local state. At 375px, independently viewed `not-found-mobile.png`: heading/copy fit, neutral styling is cohesive, the focused link is visible, and the page has one unambiguous next action. Scope-specific craft assessment: clarity 5/5, cohesion 4/5, recovery 5/5. No unrelated material/motion redesign is claimed.
+
+## Independent verification
+
+- `bun test packages/server-core/src/stickers apps/web/scripts/request-cancellation.test.ts`: **41 passed / 252 assertions**. This includes six budget cases with the owner's exact 24 pages/2,400 received/2,026 unique accepted/343 skipped counts; first-response starter; stop before another request; no usable prefix; malformed JSON/pagination and 401/429/500/network error precedence; external cancellation without repository mutation; native streamed response deadline; prior lifecycle/placement/earning and exact Start cancellation classification.
+- `bun test apps/web/scripts/not-found.integration.test.ts --test-name-pattern 'shipped dev'`: **1 passed / 11 Bun assertions / 9.29s**, plus browser visibility/navigation assertions. Actual root `bun run dev`, credential-free source snapshot and isolated port; unknown paths remain HTTP 404; no server/browser notFoundComponent warning. Keyboard Return to player reaches actual T1 canvas at `/`, which remains 200. Screenshot was independently inspected. Explicit probes include `/missing-page`, nested missing device child and `/favicon.ico`; the actual browser observer recorded only `/missing-page`. These do not identify the owner's missing URL.
+- `bun test apps/web/scripts/sync-dev.integration.test.ts apps/web/scripts/dev-startup.integration.test.ts`: **3 passed / 2,014 assertions / 37.73s**. Both shipped package launchers render real product routes with clean module graphs and native anonymous SQLite API. Native incomplete-body disconnect and admitted synthetic Apple import cancellation preserve abort propagation and no unhandled 500; new-device healthy import and same-device retry after cooldown succeed. Temporary sources/databases and owned process groups were cleaned up.
+- `bun test apps/web/scripts/not-found.integration.test.ts --test-name-pattern 'built Start'`: **1 passed / 15 assertions / 307ms**. Rebuilt Start returns useful 404/link for unmatched paths and preserves root 200 without configuration warnings.
+- `bun test apps/web/scripts/sticker-start.integration.test.ts apps/web/scripts/sticker-production.test.ts apps/web/scripts/sticker-browser.integration.test.ts`: **3 passed / 260 assertions / 5.72s**. Rebuilt server SHA256 `69bffc69915a3221d6207e9ee5d3e7c4ddd7c9e082ac4d5227bc46921919701d`. Actual built native handlers and Chrome cookie flow cover verification/import/open/place/reload/earn/revoke/reconnect; production serves all immutable sticker assets. No notFoundComponent warning was emitted. No Bun SQLite, live-server or signing-key-path marker found in built client JS.
+- Independent root typecheck: **12/12 projects clean**. Scoped ESLint passed for all four new/changed implementation/test files; `git diff --check` clean. Existing cancellation patch/package/lock are unchanged.
+
+Engineer additionally records an isolated pre-repair importer replay of the new budget suite: 2 passed/4 failed, versus current 6 passed/46 assertions. This is engineer reproduction evidence; the final-source commands above were executed independently by this reviewer.
+
+## Limits
+
+The owner's reported diagnostic now identifies this specific failure as the importer's own time budget. The deterministic first-session reproduction uses synthetic rows with matching counts and documented relationships, not the owner's library or live MusicKit credentials. The user's exact missing URL remains unknown. The changed sampling rule is recorded in the dispatch, backend contract and architecture; all nonbudget failure and identity/earning/security rules remain in force. No additional changes requested.
