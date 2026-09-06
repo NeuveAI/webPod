@@ -1,9 +1,10 @@
 # Full sticker objective completion audit
 
-Current status: COMPLETE. Independent integrated review APPROVE, with no unresolved Critical/Major findings. This audit preserves the full owner objective and separates earlier mocked-API checks from actual built Start transport evidence.
+Current status: Development startup incident repaired and independently verified in bb1eb21. The previous completion claim omitted the normal development launch path and was not justified. See dev-runtime-incident.md for the failure, repair and new exact-script verification; historical production evidence below did not establish development startup correctness.
 
 | Requirement | Authoritative proof | Current disposition |
 | --- | --- | --- |
+| Normal shipped development startup and browser boundary | dev-startup.integration.test.ts launches exact root/app scripts; reviews/dev-runtime-review.md | Independent 2 tests/2004 assertions pass for both rendered routes, real SQLite API and clean client module/scanner boundary; package scripts and all browser gates share direct Bun-owned Vite entry |
 | Handover/60 approved immutable artworks | manifest, hash/decode tests, production asset HTTP and rear/oblique screenshots | Verified in prior surface review and evidence/surface; unchanged assets |
 | Bun + Effect + Drizzle + SQLite ingestion/enrichment/distribution | repository/service/policy, real SQLite tests and independent backend review | Implemented; native built Start tests verify authenticated ingestion, grants, observed unlocks and persistence |
 | Data logged on MusicKit authorization | client authorization hook through actual Start routes, verified upstream fixture, persistent DB records/grants | Actual production browser sign-in issues starter through native cookies and temporary SQLite; no API interception |

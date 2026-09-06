@@ -1,0 +1,28 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/dev-startup.integration.test.ts:
+49 |     page.on('pageerror', (error) => { browserErrors.push(error.message) })
+50 |     for (const path of ['/', '/_spike/device']) {
+51 |       const response = await page.goto(origin + path)
+52 |       if (response?.status() !== 200) {
+53 |         const moduleFailure = output.match(/Cannot find module ['"]bun(?::sqlite)?['"]/)
+54 |         throw new Error(`Shipped ${launcher} dev ${path} returned ${String(response?.status())}; ${moduleFailure?.[0] ?? 'see runtime startup'}`)
+                       ^
+error: Shipped root dev / returned 500; Cannot find module 'bun'
+      at <anonymous> (/Users/vinicius/code/webPod/apps/web/scripts/dev-startup.integration.test.ts:54:19)
+(fail) root shipped dev script renders both product routes and loads anonymous SQLite transport [8014.37ms]
+49 |     page.on('pageerror', (error) => { browserErrors.push(error.message) })
+50 |     for (const path of ['/', '/_spike/device']) {
+51 |       const response = await page.goto(origin + path)
+52 |       if (response?.status() !== 200) {
+53 |         const moduleFailure = output.match(/Cannot find module ['"]bun(?::sqlite)?['"]/)
+54 |         throw new Error(`Shipped ${launcher} dev ${path} returned ${String(response?.status())}; ${moduleFailure?.[0] ?? 'see runtime startup'}`)
+                       ^
+error: Shipped app dev / returned 500; Cannot find module 'bun'
+      at <anonymous> (/Users/vinicius/code/webPod/apps/web/scripts/dev-startup.integration.test.ts:54:19)
+(fail) app shipped dev script renders both product routes and loads anonymous SQLite transport [7586.10ms]
+
+ 0 pass
+ 2 fail
+ 4 expect() calls
+Ran 2 tests across 1 file. [15.81s]

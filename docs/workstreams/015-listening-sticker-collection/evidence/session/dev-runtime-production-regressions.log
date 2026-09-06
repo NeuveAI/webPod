@@ -1,0 +1,16 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-production.test.ts:
+(pass) production Bun entry serves public SSR and every immutable sticker asset [199.20ms]
+
+apps/web/scripts/sticker-browser.integration.test.ts:
+Warning: A notFoundError was encountered on the route with ID "__root__", but a notFoundComponent option was not configured, nor was a router level defaultNotFoundComponent configured. Consider configuring at least one of these to avoid TanStack Router's overly generic defaultNotFoundComponent (<p>Not Found</p>)
+(pass) production browser signs in, collects, reloads, revokes and reconnects its device collection [6317.23ms]
+
+apps/web/scripts/sticker-start.integration.test.ts:
+(pass) built Start routes import, open, place, reload, earn once, revoke and recover [57.02ms]
+
+ 3 pass
+ 0 fail
+ 260 expect() calls
+Ran 3 tests across 3 files. [6.75s]

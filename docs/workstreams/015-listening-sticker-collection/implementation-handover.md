@@ -1,6 +1,6 @@
 # Listening stickers implementation handover
 
-2026-09-06. COMPLETE: physical feature, device sessions and Start production integration independently approved and committed. Full requirement accounting is in implementation-completion-audit.md.
+Development startup correction: the owner reported fatal Bun module resolution after the earlier completion claim. Prior production checks and approval missed the shipped launch path. Reviewed fix bb1eb21 now selects Bun directly in package scripts, excludes server-core from raw client optimization, and makes browser gates use the same script. Independent exact root/app startup checks and rebuilt production checks pass; dev-runtime-incident.md preserves the failure and verification boundaries. Historical delivered features/evidence below remain scoped to their tested paths. Restart an existing development process with `bun run dev` to use the corrected runtime.
 
 ## Delivered
 

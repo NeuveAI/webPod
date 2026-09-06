@@ -1,0 +1,124 @@
+{
+  "passed": true,
+  "durationMs": 4724,
+  "builtServerSha256": "a9bed9e6e8c7a519a34548fef2ef3dbc5b84deb308cf297d124f14b4bab26577",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/device",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/session",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/packs/open",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/stickers/placements",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/device",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/session",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/stickers/session",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/device",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/session",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/device",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/session",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    }
+  ],
+  "appleVerifications": 3,
+  "syntheticSignatures": 3,
+  "nativeHttpOnlyCookies": true,
+  "realSQLite": true,
+  "sameDeviceReloadAndReconnect": true,
+  "separateBrowserIsolation": true,
+  "apiInterceptions": 0
+}
