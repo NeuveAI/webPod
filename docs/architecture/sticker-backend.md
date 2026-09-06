@@ -27,6 +27,8 @@ The current pinned Effect is `4.0.0-rc.112`; the supplied reference checkout is 
 
 A starter pack contains up to three unowned first-tier stickers from the strongest supported genres. Supported taste consumes the one starter evaluation, including when all eligible first art is already owned; that case emits no empty pack or higher-tier replacement. Unknown taste remains pending. Subsequent per-genre first-to-fifth thresholds are 5, 15, 60, 180 and 600 observed minutes; starter-owned first art skips its listening grant. These are named provisional policy defaults, not durations inferred from artwork captions. Grants and openings are idempotent; placements require ownership, finite physical bounds and the current revision.
 
+Library import explicitly requests the catalogue relationship and accepts bounded opaque pagination offsets. Uploaded/library-only tracks without a verified catalogue ID remain ineligible. The 25-page/2,500-row cap is an intentional starter-taste sample, not a resumable full-library sync; the UI distinguishes it from failure and does not offer an ineffective sample retry. A failed import preserves inventory and emits only a finite reason and bounded page/row counts through the `sticker_import` server diagnostic, never identifiers, tokens, cursors or upstream bodies. Active failed imports cannot replay unchanged inventory as a successful retry during the admission cooldown.
+
 ## Device identity and active access
 
 The owner selected device identity for the first release. It is a random 256-bit first-party browser credential, not a hardware/UA hash and not an Apple account identifier. SQLite stores only its SHA-256 hash mapped to an opaque collection owner. Clearing site data or using another browser starts a new collection. Different Apple accounts in one browser share the interim device collection. A future stable account can link this owner without changing grants or placements.
@@ -51,3 +53,7 @@ bun test apps/web/scripts/sticker-start.integration.test.ts apps/web/scripts/sti
 ```
 
 Session implementation/review evidence lives in workstream 015 `diary/session.md`, `evidence/session/`, and `reviews/session-review.md`. The physical UI and materials retain their earlier independent review; live session changes require their own review sign-off.
+
+## Development request cancellation
+
+The pinned Bun patch for `@tanstack/start-server-core@1.169.31` prevents expected incoming-request cancellation from being logged by H3 as an unhandled 500. It produces an empty 499 only when the incoming request is aborted and the rejected value is exactly that signal's reason. Signals and unrelated errors remain unchanged. The patch is declared in package.json/bun.lock and included in source snapshots/fingerprints. On framework upgrades, reassess it against the exact-reason and real development POST cancellation regressions before removing or changing it; do not silently carry the patch to a different version. Evidence is in workstream 015 `reviews/sync-radio-review.md`.
