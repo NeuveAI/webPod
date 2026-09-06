@@ -4,6 +4,7 @@ import { StickerError, type ImportedTrack } from './repository.ts'
 export const APPLE_IMPORT_MAX_PAGES = 25
 export const APPLE_IMPORT_MAX_TRACKS = 2_500
 export const APPLE_RESPONSE_MAX_BYTES = 2_000_000
+export const APPLE_IMPORT_BUDGET_MS = 30_000
 const APPLE_ORIGIN = 'https://api.music.apple.com'
 function record(value: unknown): Record<string, unknown> { return typeof value === 'object' && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : {} }
 
@@ -24,7 +25,7 @@ async function readAppleJson(response: Response): Promise<unknown> {
   try { return JSON.parse(new TextDecoder().decode(buffer)) as unknown } catch { throw new StickerError('apple_response', 502, 'Apple Music returned unreadable data.') }
 }
 
-export interface AppleImportDiagnostic { readonly status: 'complete' | 'partial' | 'failed'; readonly reason: 'none' | 'sample_limit' | 'apple_authorization' | 'apple_unavailable' | 'apple_rate_limited' | 'apple_request' | 'apple_timeout' | 'apple_response' | 'apple_pagination' | 'cancelled' | 'unexpected'; readonly pages: number; readonly received: number; readonly accepted: number; readonly skipped: number }
+export interface AppleImportDiagnostic { readonly status: 'complete' | 'partial' | 'failed'; readonly reason: 'none' | 'sample_limit' | 'sample_time_limit' | 'apple_authorization' | 'apple_unavailable' | 'apple_rate_limited' | 'apple_request' | 'apple_timeout' | 'apple_response' | 'apple_pagination' | 'cancelled' | 'unexpected'; readonly pages: number; readonly received: number; readonly accepted: number; readonly skipped: number }
 
 export interface AppleStickerAccess { readonly onImport?: (diagnostic: AppleImportDiagnostic) => void; readonly developerToken: string; readonly musicUserToken?: string; readonly signal?: AbortSignal; readonly fetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> }
 
@@ -32,14 +33,20 @@ export interface AppleStickerAccess { readonly onImport?: (diagnostic: AppleImpo
 export function createAppleStickerClient(access: AppleStickerAccess) {
   const fetcher = access.fetch ?? fetch
   async function request(path: string, signal: AbortSignal): Promise<Record<string, unknown>> {
-    let response: Response
+    const combined = access.signal === undefined ? signal : AbortSignal.any([signal, access.signal])
     try {
-      response = await fetcher(`${APPLE_ORIGIN}${path}`, { headers: { authorization: `Bearer ${access.developerToken}`, ...(access.musicUserToken === undefined ? {} : { 'music-user-token': access.musicUserToken }), accept: 'application/json' }, redirect: 'error', signal: access.signal === undefined ? signal : AbortSignal.any([signal, access.signal]) })
-    } catch { throw new StickerError(signal.aborted ? 'apple_timeout' : 'apple_unavailable', 503, 'Apple Music is temporarily unavailable. Try again.') }
-    if (response.status === 401 || response.status === 403) throw new StickerError('apple_authorization', 401, 'Reconnect Apple Music to collect stickers.')
-    if (!response.ok) throw new StickerError(response.status === 429 ? 'apple_rate_limited' : response.status < 500 ? 'apple_request' : 'apple_unavailable', 503, 'Apple Music is temporarily unavailable. Try again.')
-    return record(await readAppleJson(response))
+      combined.throwIfAborted()
+      const response = await fetcher(`${APPLE_ORIGIN}${path}`, { headers: { authorization: `Bearer ${access.developerToken}`, ...(access.musicUserToken === undefined ? {} : { 'music-user-token': access.musicUserToken }), accept: 'application/json' }, redirect: 'error', signal: combined })
+      if (response.status === 401 || response.status === 403) throw new StickerError('apple_authorization', 401, 'Reconnect Apple Music to collect stickers.')
+      if (!response.ok) throw new StickerError(response.status === 429 ? 'apple_rate_limited' : response.status < 500 ? 'apple_request' : 'apple_unavailable', 503, 'Apple Music is temporarily unavailable. Try again.')
+      return record(await readAppleJson(response))
+    } catch (cause) {
+      if (access.signal?.aborted === true) throw access.signal.reason
+      if (cause instanceof StickerError) throw cause
+      throw new StickerError(signal.aborted && cause === signal.reason ? 'apple_timeout' : 'apple_unavailable', 503, 'Apple Music is temporarily unavailable. Try again.')
+    }
   }
+
   function normalize(value: unknown, catalog: boolean): ImportedTrack | null {
     const row = record(value); const attributes = record(row['attributes'])
     const params = record(attributes['playParams'])
@@ -62,21 +69,28 @@ export function createAppleStickerClient(access: AppleStickerAccess) {
       if (typeof first['id'] !== 'string' || !/^[a-z]{2}$/.test(first['id'])) throw new StickerError('apple_response', 502, 'Apple Music storefront is unavailable.')
       return first['id']
     },
-    /** Snapshot import is all-or-nothing on malformed pages, timeout or upstream failure. The caller
-     * marks failure while retaining its previous persisted snapshot; no completed-page prefix is
-     * returned as a successful taste result. `partial` exclusively denotes the declared page/row cap. */
+    /** Only fully validated pages enter the sample. Own budget expiry may return a usable partial
+     * sample; malformed/upstream/auth failures and external cancellation never return a prefix. */
     async importLibrary(): Promise<{ readonly tracks: readonly ImportedTrack[]; readonly status: 'complete' | 'partial' }> {
-      const signal = AbortSignal.timeout(30_000); const imported = new Map<string, ImportedTrack>(); const seen = new Set<string>()
+      const signal = AbortSignal.timeout(APPLE_IMPORT_BUDGET_MS); const imported = new Map<string, ImportedTrack>(); const seen = new Set<string>()
       let path: string | null = '/v1/me/library/songs?limit=100&include=catalog'
       let pages = 0; let received = 0; let skipped = 0
+      const finish = (status: 'complete' | 'partial', reason: 'none' | 'sample_limit' | 'sample_time_limit') => {
+        access.signal?.throwIfAborted()
+        access.onImport?.({ status, reason, pages, received, accepted: imported.size, skipped })
+        access.signal?.throwIfAborted()
+        return { tracks: [...imported.values()], status }
+      }
       try {
       for (let page = 0; path !== null && page < APPLE_IMPORT_MAX_PAGES; page++) {
+        access.signal?.throwIfAborted()
+        if (signal.aborted) throw new StickerError('apple_timeout', 503, 'Apple Music is temporarily unavailable. Try again.')
         if (seen.has(path)) throw new StickerError('apple_pagination', 502, 'Apple Music library pages repeated. Try again.')
         seen.add(path)
-        const result = await request(path, signal); pages++
+        const result = await request(path, signal)
         if (!Array.isArray(result['data'])) throw new StickerError('apple_response', 502, 'Apple Music library is unavailable.')
         if (result['data'].length > 100) throw new StickerError('apple_response', 502, 'Apple Music returned too many library rows.')
-        for (const row of result['data']) { received++; const track = normalize(row, false); if (track !== null) imported.set(track.catalogId, track); else skipped++ }
+        const batch = result['data'].map((row) => normalize(row, false))
         const next = result['next']
         if (next === undefined || next === null) path = null
         else {
@@ -90,14 +104,18 @@ export function createAppleStickerClient(access: AppleStickerAccess) {
             || (limit !== null && !/^\d{1,8}$/.test(limit)) || (url.searchParams.has('include') && url.searchParams.get('include') !== 'catalog')) throw new StickerError('apple_pagination', 502, 'Apple Music library pagination is invalid.')
           url.searchParams.set('limit', '100'); url.searchParams.set('include', 'catalog'); path = url.pathname + url.search
         }
+        access.signal?.throwIfAborted()
+        // Commit only after the full page envelope and next link have passed validation.
+        pages++; received += batch.length
+        for (const track of batch) { if (track === null) skipped++; else imported.set(track.catalogId, track) }
         if (imported.size >= APPLE_IMPORT_MAX_TRACKS) break
       }
       const status = path === null ? 'complete' : 'partial'
-      access.onImport?.({ status, reason: status === 'partial' ? 'sample_limit' : 'none', pages, received, accepted: imported.size, skipped })
-      return { tracks: [...imported.values()], status }
+      return finish(status, status === 'partial' ? 'sample_limit' : 'none')
       } catch (cause) {
+        if (access.signal?.aborted !== true && cause instanceof StickerError && cause.code === 'apple_timeout' && imported.size > 0) return finish('partial', 'sample_time_limit')
         const known = cause instanceof StickerError && ['apple_authorization', 'apple_unavailable', 'apple_rate_limited', 'apple_request', 'apple_timeout', 'apple_response', 'apple_pagination'].includes(cause.code) ? cause.code as AppleImportDiagnostic['reason'] : 'unexpected'
-        access.onImport?.({ status: 'failed', reason: access.signal?.aborted === true ? 'cancelled' : signal.aborted ? 'apple_timeout' : known, pages, received, accepted: imported.size, skipped })
+        access.onImport?.({ status: 'failed', reason: access.signal?.aborted === true ? 'cancelled' : known, pages, received, accepted: imported.size, skipped })
         throw cause
       }
     },
