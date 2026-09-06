@@ -48,7 +48,7 @@ export default defineConfig({
   workers: 1,
   use: { baseURL, viewport: { width: 1440, height: 900 } },
   webServer: {
-    command: `bun install --frozen-lockfile --ignore-scripts && bun node_modules/vite/bin/vite.js dev --host 127.0.0.1 --port ${String(port)} --strictPort`,
+    command: `bun install --frozen-lockfile --ignore-scripts && bun run dev --host 127.0.0.1 --port ${String(port)} --strictPort`,
     cwd: resolve(snapshotRoot, 'apps/web'),
     url: baseURL,
     reuseExistingServer: false,

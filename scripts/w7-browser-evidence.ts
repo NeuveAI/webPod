@@ -42,7 +42,7 @@ try {
 
   const expectedSource = fingerprintBrowserSources(snapshotRoot)
   server = Bun.spawn([
-    'bun', 'node_modules/vite/bin/vite.js', 'dev',
+    'bun', 'run', 'dev',
     '--host', '127.0.0.1', '--port', String(port), '--strictPort',
   ], {
     cwd: join(snapshotRoot, 'apps/web'),

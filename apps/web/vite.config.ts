@@ -92,6 +92,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     envDir: workspaceRoot,
+    // Start removes server handlers from browser modules; its raw dependency scanner must
+    // likewise leave this Bun-only workspace boundary outside client pre-bundling.
+    optimizeDeps: { exclude: ['@webpod/server-core'] },
     environments: { ssr: { build: { rolldownOptions: { external: ['bun', 'bun:sqlite'] } } } },
     server: { port: 3000 },
     resolve: { tsconfigPaths: true },
