@@ -2,6 +2,7 @@ import { QueryClient } from '@tanstack/query-core'
 import type { MusicProvider } from '@webpod/providers'
 import { deviceStore, receiveStickerInventoryActionAtom, resetStickerCollectionActionAtom, setStickerCollectionStatusActionAtom, stickerInventoryAtom } from '@webpod/state'
 import { isStickerInventory, isStickerPlacement, type ListeningObservation, type StickerInventory, type StickerPlacement } from '@webpod/stickers'
+import { resetStickerEditor, sameStickerPose } from './sticker-editor-model'
 import { cancelStickerInteraction } from './sticker-interaction'
 
 const LISTENING = { heartbeatMs: 10_000, maximumPending: 3, refreshMs: 15 * 60_000, retries: 2, retryDelayMs: 800 } as const
@@ -141,7 +142,7 @@ export function stopStickerRuntime(revoke = true, preserveInventory = false): vo
   restoration = null
   activeProvider = null
   queryClient.clear()
-  if (!preserveInventory || revoke) { cancelStickerInteraction(); deviceStore.set(resetStickerCollectionActionAtom); publication += 1 }
+  if (!preserveInventory || revoke) { resetStickerEditor(); cancelStickerInteraction(); deviceStore.set(resetStickerCollectionActionAtom); publication += 1 }
   if (revoke && typeof window !== 'undefined') revocation = revocation.catch(() => undefined).then(() => fetch('/api/stickers/session', { method: 'DELETE', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}' })).catch(() => undefined)
 }
 
@@ -191,11 +192,15 @@ export function openStickerPack(packId: string): Promise<void> {
   return write(() => request('/packs/open', 'POST', { packId }))
 }
 
-export function placeSticker(placement: StickerPlacement): Promise<void> {
+export function placeSticker(placement: StickerPlacement, expectedSource?: StickerPlacement): Promise<void> {
   if (!isStickerPlacement(placement)) return Promise.reject(new Error('collection_invalid_placement'))
   return write(() => {
     const inventory = deviceStore.get(stickerInventoryAtom)
     if (inventory === null) throw new Error('collection_signed_out')
+    if (expectedSource !== undefined) {
+      const current = inventory.placements.find((item) => item.stickerId === expectedSource.stickerId)
+      if (current === undefined || placement.stickerId !== expectedSource.stickerId || !sameStickerPose(current, expectedSource)) throw new StickerRequestError(409)
+    }
     return request('/placements', 'PUT', { revision: inventory.placementRevision, placements: [...inventory.placements.filter((item) => item.stickerId !== placement.stickerId), placement] })
   })
 }

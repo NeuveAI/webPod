@@ -226,3 +226,27 @@ describe('registered session restoration', () => {
     } finally { timer.mockRestore(); clear.mockRestore(); clock.mockRestore() }
   })
 })
+
+test('guarded editor write checks its source after waiting for the serialized queue', async () => {
+  const source = savedInventory.placements[0]
+  if (source === undefined) throw new Error('Missing source fixture')
+  startStickerRuntime(createFixtureProvider(), async () => savedInventory)
+  await flush()
+  const gate = deferred<Response>()
+  const latest = { ...savedInventory, placementRevision: 3, placements: [{ ...source, rotationDeg: 25 }] }
+  let puts = 0
+  const fetchSpy = spyOn(globalThis, 'fetch').mockImplementation(Object.assign(async (_url: RequestInfo | URL, options?: RequestInit) => {
+    if (options?.method === 'POST') return gate.promise
+    if (options?.method === 'PUT') puts++
+    return Response.json(latest)
+  }, { preconnect: globalThis.fetch.preconnect }))
+  try {
+    const prior = openStickerPack('starter')
+    const edit = placeSticker({ ...source, rotationDeg: 10 }, source)
+    const outcome = edit.then(() => null, (cause: unknown) => cause)
+    gate.resolve(Response.json(latest))
+    await prior; expect(await outcome).toBeInstanceOf(Error)
+    expect(puts).toBe(0)
+    expect(deviceStore.get(stickerInventoryAtom)?.placements[0]?.rotationDeg).toBe(25)
+  } finally { fetchSpy.mockRestore() }
+})

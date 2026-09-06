@@ -356,6 +356,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
       const origin = await equipped.boundingBox()
       if (origin === null) throw new Error('Rear source missing')
       await first.page.mouse.move(origin.x + 22, origin.y + 22); await first.page.mouse.down()
+      await first.page.mouse.move(origin.x + 30, origin.y + 22)
       await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'peeling')
     }
     // Real optimistic-revision conflict changes the authoritative transform in
@@ -431,6 +432,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     }).toBeGreaterThan(20)
     const pendingTouch = await first.context.newCDPSession(first.page)
     await pendingTouch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: unreadyOrigin.x + 22, y: unreadyOrigin.y + 22 }] })
+    await pendingTouch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: unreadyOrigin.x + 30, y: unreadyOrigin.y + 22 }] })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'peeling')
     await pendingTouch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 340, y: 330 }] })
     await first.page.screenshot({ path: resolve(evidence, 'mobile-rear-carry-own-art-pending.png') })
@@ -438,6 +440,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveCount(0)
     expect((await readInventory(first.context)).placements).toEqual(movedInventory.placements)
     await pendingTouch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: unreadyOrigin.x + 22, y: unreadyOrigin.y + 22 }] })
+    await pendingTouch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: unreadyOrigin.x + 30, y: unreadyOrigin.y + 22 }] })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'peeling')
     await pendingTouch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 340, y: 330 }] })
     await pendingTouch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 195, y: 300 }] })
@@ -462,7 +465,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     const returnSeat = await first.page.locator('[data-sticker-slot="PW-C01"]').boundingBox()
     if (returnOrigin === null || returnSeat === null) throw new Error('Own-sheet return target missing')
     await first.page.mouse.move(returnOrigin.x + returnOrigin.width / 2, returnOrigin.y + returnOrigin.height / 2)
-    await first.page.mouse.down(); await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'peeling'); await first.page.mouse.move(returnSeat.x + returnSeat.width / 2, returnSeat.y + returnSeat.height / 2, { steps: 18 })
+    await first.page.mouse.down(); await first.page.mouse.move(returnOrigin.x + returnOrigin.width / 2 + 8, returnOrigin.y + returnOrigin.height / 2); await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'peeling'); await first.page.mouse.move(returnSeat.x + returnSeat.width / 2, returnSeat.y + returnSeat.height / 2, { steps: 18 })
     await first.page.screenshot({ path: resolve(evidence, 'desktop-own-seat-drop.png') })
     const returnedToSeat = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 200)
     await first.page.mouse.up(); await returnedToSeat
@@ -555,6 +558,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     const mobileOrigin = await first.page.locator(`[data-sticker-placed="${mobilePlaced.stickerId}"]`).boundingBox()
     if (mobileOrigin === null) throw new Error('Touch rear origin missing')
     await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: mobileOrigin.x + 22, y: mobileOrigin.y + 22 }] })
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: mobileOrigin.x + 30, y: mobileOrigin.y + 22 }] })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'peeling')
     await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 195, y: 280 }] })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'placing')
@@ -572,6 +576,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
       const origin = await first.page.locator(`[data-sticker-placed="${mobilePlaced.stickerId}"]`).boundingBox()
       if (origin === null) throw new Error('Moved touch origin missing')
       await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: origin.x + 22, y: origin.y + 22 }] })
+    await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: origin.x + 30, y: origin.y + 22 }] })
       await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'peeling')
       await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 330, y: 790 }] })
       const ownSeat = first.page.locator(`[data-sticker-slot="${mobilePlaced.stickerId}"]`)
@@ -610,10 +615,28 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await browserExpect(first.page.locator('[data-sticker-slot-state="placed"]')).toHaveCount(1)
     await first.page.screenshot({ path: resolve(evidence, 'mobile-keyboard-stuck.png') })
     // Restore the baseline single placement so reload/recovery assertions remain exact.
-    await first.page.locator('[data-sticker-slot-state="placed"]').click()
-    const removed = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.request().method() === 'PUT' && response.status() === 200)
-    await first.page.getByRole('button', { name: 'Return to sheet' }).click(); await removed
-    await first.page.getByRole('button', { name: 'Put pack away' }).click()
+    // Keep durable boundaries: the previous combined run exhausted its whole test
+    // budget after this screenshot without identifying which cleanup await stalled.
+    const cleanupSteps: { step: string; elapsedMs: number }[] = []
+    const cleanupCheckpoint = async (step: string): Promise<void> => {
+      cleanupSteps.push({ step, elapsedMs: Math.round(performance.now() - started) })
+      await writeFile(resolve(evidence, 'mobile-keyboard-cleanup.json'), JSON.stringify(cleanupSteps, null, 2))
+    }
+    await cleanupCheckpoint('keyboard-placement-painted')
+    await first.page.locator('[data-sticker-slot-state="placed"]').click({ timeout: 5000 })
+    await cleanupCheckpoint('placed-seat-clicked')
+    const returnButton = first.page.getByRole('button', { name: 'Return to sheet' })
+    await browserExpect(returnButton).toBeVisible({ timeout: 5000 })
+    await cleanupCheckpoint('return-control-visible')
+    // Promise.all observes either failure immediately and registers the response
+    // before the real click. Do not leave an unobserved waiter if clicking fails.
+    await Promise.all([
+      first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.request().method() === 'PUT' && response.status() === 200, { timeout: 10000 }),
+      returnButton.click({ timeout: 5000 }),
+    ])
+    await cleanupCheckpoint('return-persisted')
+    await first.page.getByRole('button', { name: 'Put pack away' }).click({ timeout: 5000 })
+    await cleanupCheckpoint('pack-closed')
     await first.page.setViewportSize({ width: 1280, height: 900 })
     await first.page.getByRole('button', { name: 'Settings', exact: true }).click()
     const revoked = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/session' && response.request().method() === 'DELETE' && response.status() === 200)
@@ -626,6 +649,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.getByRole('button', { name: 'Close', exact: true }).click()
     now += 6_000 // Deterministic server policy clock; avoids a real cooldown sleep.
     await signIn(first.page)
+    await cleanupCheckpoint('same-device-signed-in-again')
     const recovered = await readInventory(first.context)
     expect(recovered.placements).toEqual(finalRockInventory.placements)
     expect(recovered.packs).toEqual(placed.packs)
@@ -641,7 +665,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     importMode = 'partial'
     const partial = await open(); await signIn(partial.page); await flipRear(partial.page)
     expect((await readInventory(partial.context)).importStatus).toBe('partial')
-    await browserExpect(partial.page.getByRole('status')).toContainText('Your stickers are ready.')
+    await browserExpect(partial.page.getByText('Your stickers are ready.', { exact: true })).toHaveCount(0)
     await partial.page.screenshot({ path: resolve(evidence, 'desktop-partial-sync-status.png') })
     await partial.page.setViewportSize({ width: 375, height: 812 })
     await partial.page.screenshot({ path: resolve(evidence, 'mobile-partial-sync-status.png') })

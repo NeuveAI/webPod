@@ -7,10 +7,11 @@ import { Panel, showNowPlayingScreen, subscribeToRootScreenEntry, type Navigatio
 import { useCallback, useEffect, useSyncExternalStore } from 'react'
 import { musicRuntime, quiesceMusicProvider, type MusicRuntimeSnapshot } from './music-runtime'
 import { useAtomValue } from 'jotai'
-import { deviceStore, stickerInteractionAtom, equippedStickersAtom } from '@webpod/state'
+import { deviceStore, stickerInteractionAtom, stickerInventoryAtom } from '@webpod/state'
 import { STICKER_CATALOGUE, isStickerPlacement } from '@webpod/stickers'
 import { FRONT_DEVICE_ORIENTATION, type StickerRearProjection } from '@webpod/device'
 import { activeStickerCollectionAtom, stickerCollectionsAtom, stickerSheetRevealAtom, stickerDragOffsetAtom, stickerWorkspaceLoweringAtom, stickerPreparedIdsAtom, stickerCollectionUsableAtom, stickerPreparationIdsAtom, requestedStickerCollectionAtom, displayedStickerGenreAtom, stickerProjectionVersionAtom } from './sticker-collections-model'
+import { stickerEditorAtom, stickerEditorPlacementsAtom } from './sticker-editor-model'
 import { StickerCollection } from './sticker-collection'
 import { openStickerPack, placeSticker, removeSticker, retryStickerCollection, stopStickerRuntime } from './sticker-runtime'
 import { stickerFinishCalibrationAtom, reportStickerArtworkFailure, reportStickerArtworkReady } from './sticker-interaction'
@@ -23,7 +24,7 @@ const onStickerPrepared = (ids: readonly string[]): void => {
   const requested = deviceStore.get(requestedStickerCollectionAtom)
   if (requested !== null && requested.slots.every((slot) => ids.includes(slot.art.id))) deviceStore.set(displayedStickerGenreAtom, requested.genre)
 }
-const stickerCommands = { retry: retryStickerCollection, openPack: openStickerPack, place: placeSticker, remove: removeSticker, project: (clientX: number, clientY: number) => stickerProjection?.project(clientX, clientY) ?? null, hit: (x: number, y: number) => { const hit = stickerProjection?.hit(x, y); return isStickerPlacement(hit) ? hit : null }, screen: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.screen(placement) ?? null }
+const stickerCommands = { retry: retryStickerCollection, openPack: openStickerPack, place: placeSticker, remove: removeSticker, project: (clientX: number, clientY: number) => stickerProjection?.project(clientX, clientY) ?? null, hit: (x: number, y: number) => { const hit = stickerProjection?.hit(x, y); return isStickerPlacement(hit) ? hit : null }, quad: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.quad?.(placement) ?? null, beginTransform: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.beginTransform?.(placement) ?? null, bounds: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.bounds?.(placement) ?? null, screen: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.screen(placement) ?? null }
 
 export type ProductionPanelState = PanelState
 
@@ -157,7 +158,9 @@ export function ProductionDeviceView({
   const sheetReveal = useAtomValue(stickerSheetRevealAtom, { store: deviceStore })
   const dragOffset = useAtomValue(stickerDragOffsetAtom, { store: deviceStore })
   const workspaceLowering = useAtomValue(stickerWorkspaceLoweringAtom, { store: deviceStore })
-  const stickerPlacements = useAtomValue(equippedStickersAtom, { store: deviceStore })
+  const stickerPlacements = useAtomValue(stickerEditorPlacementsAtom, { store: deviceStore })
+  const editor = useAtomValue(stickerEditorAtom, { store: deviceStore })
+  const inventory = useAtomValue(stickerInventoryAtom, { store: deviceStore })
   const calibratedFinish = useAtomValue(stickerFinishCalibrationAtom, { store: deviceStore })
   useEffect(() => () => stopStickerRuntime(false), [])
   useEffect(() => subscribeToRootScreenEntry(() => {
@@ -188,7 +191,7 @@ export function ProductionDeviceView({
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
       onTransportPress={onTransportPress}
-      stickerScene={{ assets: STICKER_CATALOGUE, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, pack: (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { workspaceVisible: collectionUsable, progress: stickerInteraction.progress, peel: stickerInteraction.peel, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, dragOffset, workspaceLowering, sheet: collection === null ? undefined : { neighbors: collections.filter((item) => item.genre !== collection.genre).slice(0, 2).flatMap((item) => item.slots[0] === undefined ? [] : [{ ink: item.ink, stickerId: item.slots[0].art.id }]), reveal: sheetReveal, ink: collection.ink, slots: collection.slots.map((slot) => ({ stickerId: slot.art.id, state: slot.state })) } }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
+      stickerScene={{ assets: STICKER_CATALOGUE, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, appearances: inventory?.appearances, pack: (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { workspaceVisible: collectionUsable && editor === null, progress: stickerInteraction.progress, peel: stickerInteraction.peel, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, dragOffset, workspaceLowering, sheet: collection === null ? undefined : { neighbors: collections.filter((item) => item.genre !== collection.genre).slice(0, 2).flatMap((item) => item.slots[0] === undefined ? [] : [{ ink: item.ink, stickerId: item.slots[0].art.id }]), reveal: sheetReveal, ink: collection.ink, slots: collection.slots.map((slot) => ({ stickerId: slot.art.id, state: slot.state })) } }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
       panel={(
         <ProductionPanelView
           colourway={colourway}

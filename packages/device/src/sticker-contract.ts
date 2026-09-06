@@ -15,6 +15,7 @@ export interface DeviceStickerPlacement {
   readonly y: number;
   readonly width: number;
   readonly rotationDeg: number;
+  readonly wear?: number;
 }
 
 /** Continuous visual values are driven by the application's shared Jotai actions. */
@@ -39,6 +40,7 @@ export interface StickerPackVisual {
 export interface DeviceStickerScene {
   readonly assets: readonly StickerArtwork[];
   readonly placements: readonly DeviceStickerPlacement[];
+  readonly appearances?: readonly { readonly stickerId: string; readonly wear: number }[];
   readonly pack: StickerPackVisual | null;
   /** Prepare only the active collection before advertising its physical controls. */
   readonly prepareIds?: readonly string[];
@@ -50,10 +52,26 @@ export interface DeviceStickerScene {
   readonly onArtworkError?: (id: string) => void;
 }
 
+export interface StickerScreenPoint { readonly x: number; readonly y: number }
+export interface StickerProjectedQuad {
+  /** Artwork-local TL, TR, BR, BL, not screen extrema. */
+  readonly corners: readonly [StickerScreenPoint, StickerScreenPoint, StickerScreenPoint, StickerScreenPoint];
+  /** Actual top, right, bottom, left edge midpoint vertices. */
+  readonly edges: readonly [StickerScreenPoint, StickerScreenPoint, StickerScreenPoint, StickerScreenPoint];
+  readonly center: StickerScreenPoint;
+}
+export interface StickerTransformPlane {
+  /** Frozen, unbounded rear coordinates. Cancel the gesture on viewport/pose changes. */
+  readonly project: (clientX: number, clientY: number) => StickerScreenPoint | null;
+}
+
 /** Runtime camera handle; never persist this or put it in Jotai user data. */
 export interface StickerRearProjection {
+  readonly quad?: (placement: DeviceStickerPlacement) => StickerProjectedQuad | null;
+  readonly beginTransform?: (placement: DeviceStickerPlacement) => StickerTransformPlane | null;
   readonly project: (clientX: number, clientY: number) => {readonly x: number; readonly y: number} | null;
   readonly hit: (clientX: number, clientY: number) => DeviceStickerPlacement | null;
+  readonly bounds?: (placement: DeviceStickerPlacement) => { readonly left: number; readonly top: number; readonly right: number; readonly bottom: number } | null;
   readonly screen: (placement: DeviceStickerPlacement) => { readonly x: number; readonly y: number } | null;
 }
 export const STICKER_PACK_LAYOUT = Object.freeze({ maxWidthPx: 320, widthRatio: .70, heightRatio: 1.05, teasePx: 44, bottomGapPx: 32, desktopBreakpoint: 960, desktopCenter: .79, linerTravel: .72 });
