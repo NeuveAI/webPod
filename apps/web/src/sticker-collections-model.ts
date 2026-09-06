@@ -46,7 +46,7 @@ export const selectedStickerGenreAtom = atom<StickerGenre | null>(null)
 export const stickerSheetRevealAtom = atom(0)
 export const stickerDetailIdAtom = atom<string | null>(null)
 export const stickerCollectionsAtom = atom((get) => collectStickerSheets(get(stickerInventoryAtom)))
-export const activeStickerCollectionAtom = atom((get) => {
+export const requestedStickerCollectionAtom = atom((get) => {
   const collections = get(stickerCollectionsAtom)
   const selected = get(selectedStickerGenreAtom)
   const currentPack = get(stickerInventoryAtom)?.packs.find((pack) => pack.id === get(stickerInteractionAtom).packId)
@@ -70,7 +70,26 @@ export function stickerPeelMotion(x: number, y: number, reduced: boolean, travel
   const recover = Math.min(1, free / travel);
   const ease = recover * recover * (3 - 2 * recover);
   const factor = 1 - travel * (1 - ease) / distance;
-  return { peel: 1 - Math.min(1, free / 100) * .82, detached: true, offset: { x: x * factor, y: y * factor } };
+  return { peel: 1 - Math.min(1, free / 100) * .6, detached: true, offset: { x: x * factor, y: y * factor } };
 }
 
 export const stickerWorkspaceLoweringAtom = atom(0);
+
+/** Active collection readiness is independent of counter/import refresh status. */
+export const stickerPreparedIdsAtom = atom<readonly string[]>([])
+export const stickerCollectionUsableAtom = atom((get) => {
+  const collection = get(activeStickerCollectionAtom)
+  const prepared = get(stickerPreparedIdsAtom)
+  return collection !== null && collection.slots.every((slot) => prepared.includes(slot.art.id))
+})
+
+/** Keep the displayed ready packet while the next requested genre is being prepared. */
+export const displayedStickerGenreAtom = atom<StickerGenre | null>(null)
+export const activeStickerCollectionAtom = atom((get) => {
+  const displayed = get(displayedStickerGenreAtom)
+  return get(stickerCollectionsAtom).find((collection) => collection.genre === displayed) ?? get(requestedStickerCollectionAtom)
+})
+export const stickerPreparationIdsAtom = atom((get) => [...new Set([get(activeStickerCollectionAtom), get(requestedStickerCollectionAtom)].flatMap((collection) => collection?.slots.map((slot) => slot.art.id) ?? []))])
+
+/** Semantic rear controls refresh after the renderer publishes its physical frame. */
+export const stickerProjectionVersionAtom = atom(0)

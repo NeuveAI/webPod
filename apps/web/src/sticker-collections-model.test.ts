@@ -71,7 +71,30 @@ test('partial peel anchors remaining contact, releases continuously, and reduced
   expect(released.peel).toBeGreaterThan(.99)
   const free = stickerPeelMotion(164, 0, false)
   expect(free.offset?.x).toBe(164)
-  expect(free.peel).toBeCloseTo(.18)
+  expect(free.peel).toBeCloseTo(.4)
   expect(stickerPeelMotion(10, 5, false, 64, 164)).toEqual({ peel: free.peel, detached: true, offset: { x: 10, y: 5 } })
   expect(stickerPeelMotion(50, 20, true)).toEqual({ peel: 0, detached: true, offset: { x: 50, y: 20 } })
+})
+
+
+test('ready collection requires its five prepared seats and survives same-session refresh/error', async () => {
+  const { deviceStore, receiveStickerInventoryActionAtom, resetStickerCollectionActionAtom, setStickerCollectionStatusActionAtom } = await import('@webpod/state')
+  const { stickerPreparedIdsAtom, stickerCollectionUsableAtom } = await import('./sticker-collections-model')
+  deviceStore.set(resetStickerCollectionActionAtom)
+  deviceStore.set(stickerPreparedIdsAtom, [])
+  expect(deviceStore.get(stickerCollectionUsableAtom)).toBe(false)
+  deviceStore.set(receiveStickerInventoryActionAtom, inventory)
+  deviceStore.set(stickerPreparedIdsAtom, ['PW-C01'])
+  expect(deviceStore.get(stickerCollectionUsableAtom)).toBe(false)
+  deviceStore.set(stickerPreparedIdsAtom, ['PW-C01', 'PW-C02', 'PW-C03', 'PW-C04', 'PW-C05'])
+  expect(deviceStore.get(stickerCollectionUsableAtom)).toBe(true)
+  for (const status of ['loading', 'error'] as const) {
+    deviceStore.set(setStickerCollectionStatusActionAtom, status)
+    expect(deviceStore.get(stickerCollectionUsableAtom)).toBe(true)
+  }
+  deviceStore.set(resetStickerCollectionActionAtom)
+  expect(deviceStore.get(stickerCollectionUsableAtom)).toBe(false)
+  deviceStore.set(receiveStickerInventoryActionAtom, { ...inventory, stickerIds: [], placements: [], packs: [] })
+  expect(deviceStore.get(stickerCollectionUsableAtom)).toBe(false)
+  deviceStore.set(resetStickerCollectionActionAtom)
 })

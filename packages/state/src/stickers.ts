@@ -11,8 +11,11 @@ export interface StickerInteraction {
   readonly peel: number;
   readonly previewPlacement: StickerPlacement | null;
   readonly landing: number;
+  /** Saved rear pose stays authoritative while a transient print is carried. Null is a sheet origin. */
+  readonly sourcePlacement?: StickerPlacement | null;
+  readonly returnToSheet?: boolean;
 }
-export const INITIAL_STICKER_INTERACTION: StickerInteraction = Object.freeze({ stage: 'hidden', packId: null, selectedStickerId: null, progress: 0, peel: 0, previewPlacement: null, landing: 0 });
+export const INITIAL_STICKER_INTERACTION: StickerInteraction = Object.freeze({ stage: 'hidden', packId: null, selectedStickerId: null, progress: 0, peel: 0, previewPlacement: null, landing: 0, sourcePlacement: null, returnToSheet: false });
 const inventoryStateAtom = atom<StickerInventory | null>(null);
 const statusStateAtom = atom<StickerCollectionStatus>('signed-out');
 const interactionStateAtom = atom<StickerInteraction>(INITIAL_STICKER_INTERACTION);
@@ -34,6 +37,7 @@ export const setStickerCollectionStatusActionAtom = atom(null, (_get, set, statu
 export const setStickerInteractionActionAtom = atom(null, (get, set, next: StickerInteraction): boolean => {
   if (!Number.isFinite(next.progress) || !Number.isFinite(next.peel) || !Number.isFinite(next.landing)) return false;
   if (next.previewPlacement !== null && !isStickerPlacement(next.previewPlacement)) return false;
+  if (next.sourcePlacement != null && (!isStickerPlacement(next.sourcePlacement) || next.sourcePlacement.stickerId !== next.selectedStickerId)) return false;
   const inventory = get(inventoryStateAtom);
   if (next.selectedStickerId !== null && !inventory?.stickerIds.some((id) => id === next.selectedStickerId)) return false;
   if (next.packId !== null && !inventory?.packs.some((pack) => pack.id === next.packId)) return false;

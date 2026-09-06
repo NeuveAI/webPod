@@ -4,8 +4,9 @@ import { BackSide, FrontSide, MeshPhysicalMaterial, type BufferGeometry, type Te
 import { STICKER_LAMINATE } from './materials';
 import { createStickerSurfaceGeometry, STICKER_SURFACE } from './sticker-surface';
 import { createStickerRoughness, useStickerTexture } from './sticker-textures';
-import type { DeviceStickerPlacement, DeviceStickerScene, StickerArtwork } from './sticker-contract';
+import { isStickerCarried, type DeviceStickerPlacement, type DeviceStickerScene, type StickerArtwork } from './sticker-contract';
 import { useStudioEnvironmentSnapshot } from './StudioEnvironment';
+import { prepareStickerAlpha } from './sticker-hit';
 
 /** Sticker geometry lives beneath device-model-content, inheriting the real shell pose. */
 export function StickerSurface({ scene, rear }: { readonly scene: DeviceStickerScene; readonly rear: BufferGeometry }) {
@@ -27,19 +28,19 @@ function EquippedSticker({ art, placement, rear, roughness, scene }: {
   }, [art, placement, rear]);
   useEffect(() => () => geometry?.dispose(), [geometry]);
   if (geometry === null) return null;
-  return <StickerPrint art={art} geometry={geometry} roughness={roughness} finishEnabled={scene.finishEnabled !== false} onError={scene.onArtworkError} onReady={scene.onArtworkReady} />;
+  return <StickerPrint visible={!isStickerCarried(scene.pack, placement.stickerId)} art={art} geometry={geometry} roughness={roughness} finishEnabled={scene.finishEnabled !== false} onError={scene.onArtworkError} onReady={scene.onArtworkReady} />;
 }
 /** One map alpha-tests before physical lighting, clipping both print and satin response. */
-export function StickerPrint({ art, geometry, roughness, finishEnabled, onError, onReady, appearance = 'earned' }: {
+export function StickerPrint({ art, geometry, roughness, finishEnabled, onError, onReady, appearance = 'earned', visible = true }: {
   readonly art: StickerArtwork; readonly geometry: BufferGeometry; readonly roughness: Texture;
-  readonly appearance?: 'earned' | 'locked' | 'placed'; readonly finishEnabled: boolean; readonly onError?: (id: string) => void; readonly onReady?: (id: string) => void;
+  readonly visible?: boolean; readonly appearance?: 'earned' | 'locked' | 'placed'; readonly finishEnabled: boolean; readonly onError?: (id: string) => void; readonly onReady?: (id: string) => void;
 }) {
   const { texture, failed } = useStickerTexture(art.url);
   const invalidate = useThree((state) => state.invalidate);
   const studio = useStudioEnvironmentSnapshot();
   useEffect(() => { invalidate(); }, [texture, geometry, finishEnabled, studio, invalidate]);
   useEffect(() => { if (failed) onError?.(art.id); }, [failed, art.id, onError]);
-  useEffect(() => { if (texture !== null) onReady?.(art.id); }, [texture, art.id, onReady]);
+  useEffect(() => { if (texture !== null) { prepareStickerAlpha(texture); onReady?.(art.id); } }, [texture, art.id, onReady]);
   const materials = useMemo(() => {
     const shared = { ...STICKER_LAMINATE, map: texture, roughnessMap: roughness,
       envMap: studio.texture, alphaTest: STICKER_SURFACE.alphaThreshold, transparent: true, depthWrite: false };
@@ -67,7 +68,7 @@ export function StickerPrint({ art, geometry, roughness, finishEnabled, onError,
   if (texture === null) return null;
   // Meshes borrow geometry/maps. Their owners dispose those, while this component
   // owns exactly these two physical materials, including the unprinted underside.
-  return <group name={`sticker-print-${art.id}`}>
+  return <group visible={visible} name={`sticker-print-${art.id}`}>
     <mesh name={`sticker-${art.id}`} geometry={geometry} material={materials.front} dispose={null} raycast={() => {}} renderOrder={3} />
     <mesh name={`sticker-backing-${art.id}`} geometry={geometry} material={materials.back} dispose={null} raycast={() => {}} renderOrder={3} />
   </group>;

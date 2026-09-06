@@ -21,11 +21,15 @@ export interface DeviceStickerPlacement {
 export interface StickerPackVisual {
   /** Zero exposes the bottom lip; one brings the entire pack into view. */
   readonly progress: number;
+  /** Rear carry can survive an unready packet without exposing its workspace. */
+  readonly workspaceVisible?: boolean;
   /** Zero keeps print on its backing; one curls it free. */
   readonly peel: number;
   readonly stickerId: string | null;
   readonly placement: DeviceStickerPlacement | null;
   readonly landing: number;
+  readonly sourcePlacement?: DeviceStickerPlacement | null;
+  readonly returnToSheet?: boolean;
   readonly sheet?: { readonly neighbors?: readonly { readonly ink: string; readonly stickerId: string }[]; readonly reveal: number; readonly ink: string; readonly slots: readonly { readonly stickerId: string; readonly state: 'locked' | 'sealed' | 'earned' | 'placed' }[] };
   /** Mobile packet moves aside after peel while the device and held print stay put. */
   readonly workspaceLowering?: number;
@@ -36,6 +40,9 @@ export interface DeviceStickerScene {
   readonly assets: readonly StickerArtwork[];
   readonly placements: readonly DeviceStickerPlacement[];
   readonly pack: StickerPackVisual | null;
+  /** Prepare only the active collection before advertising its physical controls. */
+  readonly prepareIds?: readonly string[];
+  readonly onPrepared?: (ids: readonly string[]) => void;
   /** Calibration seam: disables only clearcoat, preserving the printed map. */
   readonly finishEnabled?: boolean;
   readonly onProjectionReady?: (handle: StickerRearProjection | null) => void;
@@ -44,7 +51,11 @@ export interface DeviceStickerScene {
 }
 
 /** Runtime camera handle; never persist this or put it in Jotai user data. */
-export interface StickerRearProjection { readonly project: (clientX: number, clientY: number) => {readonly x: number; readonly y: number} | null }
+export interface StickerRearProjection {
+  readonly project: (clientX: number, clientY: number) => {readonly x: number; readonly y: number} | null;
+  readonly hit: (clientX: number, clientY: number) => DeviceStickerPlacement | null;
+  readonly screen: (placement: DeviceStickerPlacement) => { readonly x: number; readonly y: number } | null;
+}
 export const STICKER_PACK_LAYOUT = Object.freeze({ maxWidthPx: 320, widthRatio: .70, heightRatio: 1.05, teasePx: 44, bottomGapPx: 32, desktopBreakpoint: 960, desktopCenter: .79, linerTravel: .72 });
 /** One pixel layout drives the DOM hit regions and camera-projected physical liner. */
 export function stickerPackViewportLayout(viewportWidth: number, viewportHeight: number) {
@@ -56,3 +67,8 @@ export const STICKER_SHEET_SLOTS = Object.freeze([
   { x: .19, y: .35 }, { x: .5, y: .35 }, { x: .81, y: .35 }, { x: .345, y: .59 }, { x: .655, y: .59 },
 ]);
 export const STICKER_SHEET_PRINT_WIDTH = .245;
+
+/** One presentation owner for both static rear and sheet seats during persistence. */
+export function isStickerCarried(pack: StickerPackVisual | null, stickerId: string): boolean {
+  return pack !== null && pack.stickerId === stickerId && (pack.peel > 0 || pack.placement !== null || pack.dragOffset != null || pack.sourcePlacement != null);
+}

@@ -8,7 +8,17 @@ const artworkTextures = createStickerTextureCache((url, success, failure) => {
   new TextureLoader().load(url, success, undefined, failure);
 });
 /** One attempt for each failed/live asset, with shared subscribers deduplicated. */
-export function retryStickerArtwork(): number { return artworkTextures.retryFailed(); }
+let preparationEpoch = 0;
+const preparationListeners = new Set<() => void>();
+/** Explicit retry also retries shader preparation without redownloading successful textures. */
+export function retryStickerArtwork(): number {
+  const attempts = artworkTextures.retryFailed();
+  preparationEpoch++;
+  for (const listener of preparationListeners) listener();
+  return attempts;
+}
+const subscribePreparation = (listener: () => void): (() => void) => { preparationListeners.add(listener); return () => { preparationListeners.delete(listener); }; };
+export function useStickerPreparationEpoch(): number { return useSyncExternalStore(subscribePreparation, () => preparationEpoch, () => 0); }
 
 export function useStickerTexture(url: string): StickerTextureSnapshot {
   const subscribe = useCallback((listener: () => void) => artworkTextures.subscribe(url, listener), [url]);

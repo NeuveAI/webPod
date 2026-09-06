@@ -112,3 +112,20 @@ export function createStickerPeelGeometry(art: StickerArtwork, width: number, pr
   geometry.computeBoundingSphere();
   return geometry;
 }
+
+/** Lift from the saved rear pose: unpeeled vertices stay exactly on the original adhesive contact. */
+export function createRearStickerPeelGeometry(art: StickerArtwork, placement: DeviceStickerPlacement, rear: BufferGeometry, progress: number): BufferGeometry {
+  const surface = createStickerSurfaceGeometry(art, placement, rear);
+  const width = placement.width * DEVICE_LAYOUT.body.width;
+  const flat = createStickerPeelGeometry(art, width, 0);
+  const lifted = createStickerPeelGeometry(art, width, progress);
+  const a = flat.getAttribute('position'), b = lifted.getAttribute('position'), output = surface.getAttribute('position');
+  const angle = placement.rotationDeg * Math.PI / 180, cosine = Math.cos(angle), sine = Math.sin(angle);
+  for (let index = 0; index < output.count; index++) {
+    const dx = b.getX(index) - a.getX(index), dy = b.getY(index) - a.getY(index), dz = b.getZ(index) - a.getZ(index);
+    output.setXYZ(index, output.getX(index) - dx * cosine - dy * sine, output.getY(index) - dx * sine + dy * cosine, output.getZ(index) - dz);
+  }
+  output.needsUpdate = true; surface.computeVertexNormals(); surface.computeBoundingSphere();
+  flat.dispose(); lifted.dispose();
+  return surface;
+}

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { STICKER_CATALOGUE } from '@webpod/stickers';
 import { Vector3 } from 'three';
-import { createStickerPeelGeometry, createStickerSurfaceGeometry, STICKER_SURFACE } from './sticker-surface';
+import { createStickerPeelGeometry, createStickerSurfaceGeometry, createRearStickerPeelGeometry, STICKER_SURFACE } from './sticker-surface';
 import { createRearShellGeometry } from './product-shell';
 import { DEVICE_LAYOUT } from './layout';
 import { DEFAULT_DEVICE_FORM } from './form';
@@ -58,4 +58,21 @@ describe('production sticker surface', () => {
     expect(first.colorSpace).toBe('');
     first.dispose(); second.dispose();
   });
+});
+
+
+test('rear lift preserves nondefault position, width, rotation and stationary adhesive tail', () => {
+  const rear = rearShell(), art = STICKER_CATALOGUE[10];
+  const placement = { stickerId: art.id, surface: 'back', x: .64, y: .32, width: .18, rotationDeg: 27 } as const;
+  const flat = createStickerSurfaceGeometry(art, placement, rear);
+  const lifted = createRearStickerPeelGeometry(art, placement, rear, .5);
+  const a = flat.getAttribute('position'), b = lifted.getAttribute('position');
+  for (let index = 13 * 25; index < a.count; index++) {
+    expect(b.getX(index)).toBeCloseTo(a.getX(index), 5);
+    expect(b.getY(index)).toBeCloseTo(a.getY(index), 5);
+    expect(b.getZ(index)).toBeCloseTo(a.getZ(index), 5);
+  }
+  expect(b.getZ(0)).toBeLessThan(a.getZ(0));
+  expect(Array.from(lifted.getAttribute('uv').array)).toEqual(Array.from(flat.getAttribute('uv').array));
+  flat.dispose(); lifted.dispose(); rear.dispose();
 });

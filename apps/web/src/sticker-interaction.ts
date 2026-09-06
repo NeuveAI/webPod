@@ -2,7 +2,7 @@ import { deviceStore, stickerInteractionAtom, stickerInventoryAtom, setStickerIn
 import type { PointerMotionSample } from './device-orientation-motion'
 import { advanceStickerSpring, resolveStickerPullRelease, type StickerSpring } from './sticker-motion'
 import { atom } from 'jotai'
-import { stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, stickerWorkspaceLoweringAtom } from './sticker-collections-model'
+import { stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerPreparationIdsAtom } from './sticker-collections-model'
 
 /** Development calibration only; production always enables the physical finish. */
 export const stickerFinishCalibrationAtom = atom(true)
@@ -11,7 +11,7 @@ export function setStickerFinishCalibration(enabled: boolean): void {
   if (import.meta.env.DEV) deviceStore.set(stickerFinishCalibrationAtom, enabled)
 }
 const stickerArtworkFailuresAtom = atom<readonly string[]>([])
-export const stickerArtworkFailureAtom = atom((get) => get(stickerArtworkFailuresAtom)[0] ?? null)
+export const stickerArtworkFailureAtom = atom((get) => get(stickerArtworkFailuresAtom).find((id) => get(stickerPreparationIdsAtom).some((active) => active === id) || get(stickerInventoryAtom)?.placements.some((placement) => placement.stickerId === id)) ?? null)
 export const reportStickerArtworkFailure = (id: string): void => { deviceStore.set(stickerArtworkFailuresAtom, (ids) => ids.includes(id) ? ids : [...ids, id]) }
 export const reportStickerArtworkReady = (id: string): void => { deviceStore.set(stickerArtworkFailuresAtom, (ids) => ids.filter((failed) => failed !== id)) }
 
@@ -37,7 +37,7 @@ export function resetStickerCarry(): void {
   stopStickerAnimation()
   deviceStore.set(stickerDragOffsetAtom, null)
   deviceStore.set(stickerWorkspaceLoweringAtom, 0)
-  updateStickerInteraction({ selectedStickerId: null, previewPlacement: null, peel: 0, landing: 0 })
+  updateStickerInteraction({ selectedStickerId: null, previewPlacement: null, peel: 0, landing: 0, sourcePlacement: null, returnToSheet: false })
 }
 
 /** Cancels every transient gesture without changing an earned pack or saved placement. */
@@ -54,9 +54,14 @@ export function cancelStickerInteraction(): void {
 
 /** A rear admission transition reveals one earned pack; front/edge movement cancels gestures. */
 export function setStickerRearVisible(visible: boolean): void {
-  if (rearVisible === visible) return
+  const changed = rearVisible !== visible
   rearVisible = visible
-  if (!visible) { cancelStickerInteraction(); return }
+  if (!visible) { if (changed) cancelStickerInteraction(); return }
+  // Existing rear vinyl owns a valid gesture lane even while its sheet is loading.
+  // Readiness admits only the packet, never the physical rear animation clock.
+  if (!deviceStore.get(stickerCollectionUsableAtom)) return
+  const current = deviceStore.get(stickerInteractionAtom)
+  if (!changed && current.stage !== 'hidden' && !(current.progress === 0 && current.sourcePlacement == null)) return
   const inventory = deviceStore.get(stickerInventoryAtom)
   const pack = inventory?.packs.find((item) => item.openedAt === null) ?? inventory?.packs.at(-1)
   updateStickerInteraction({ ...INITIAL_STICKER_INTERACTION, stage: 'tease', packId: pack?.id ?? null })
@@ -83,7 +88,8 @@ export function animateStickerValue(field: 'progress' | 'peel' | 'landing' | 'sh
     if (!rearVisible) return
     const next = advanceStickerSpring(current, (timestamp - previous) / 1000)
     previous = timestamp
-    if (next === null) { publish(spring.target); onComplete(); return }
+    // The liner is visibly closed at its first clamped zero; do not wait through invisible undershoot.
+    if (next === null || field === 'sheet' && spring.target === 0 && next.position <= 0) { publish(spring.target); onComplete(); return }
     current = next
     publish(next.position)
     animationFrame = requestAnimationFrame(frame)
@@ -113,5 +119,5 @@ export function revealStickerPack(reducedMotion: boolean): void {
 export function returnStickerToSheet(reducedMotion: boolean): void {
   supersedeStickerInteraction()
   updateStickerInteraction({ stage: 'peeling' })
-  animateStickerValue('return', { position: 1, velocity: 0, target: 0 }, reducedMotion, () => { deviceStore.set(stickerDragOffsetAtom, null); updateStickerInteraction({ stage: 'open', peel: 0, previewPlacement: null, landing: 0 }) })
+  animateStickerValue('return', { position: 1, velocity: 0, target: 0 }, reducedMotion, () => { deviceStore.set(stickerDragOffsetAtom, null); updateStickerInteraction({ stage: 'open', peel: 0, previewPlacement: null, landing: 0, sourcePlacement: null, returnToSheet: false }) })
 }
