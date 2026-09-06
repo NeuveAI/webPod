@@ -1,0 +1,175 @@
+{
+  "after-clean-first-ready": {
+    "url": "http://127.0.0.1:63048/",
+    "windows": [
+      {
+        "start": 4673.100000023842,
+        "end": 5873.100000023842,
+        "inputY": 872,
+        "maxRafIntervalMs": 17.399999999999636,
+        "loafCount": 0
+      },
+      {
+        "start": 13955.800000011921,
+        "end": 14239,
+        "inputY": 580.75,
+        "maxRafIntervalMs": 17.600000000000364,
+        "loafCount": 0
+      },
+      {
+        "start": 14239,
+        "end": 15439,
+        "inputY": 287.75,
+        "maxRafIntervalMs": 17.599999999998545,
+        "loafCount": 0
+      },
+      {
+        "start": 28272.100000023842,
+        "end": 29472.100000023842,
+        "inputY": 874.0009155273438,
+        "maxRafIntervalMs": 17.599999999998545,
+        "loafCount": 0
+      },
+      {
+        "start": 42105.200000047684,
+        "end": 43305.200000047684,
+        "inputY": 545.1171875,
+        "maxRafIntervalMs": 17.5,
+        "loafCount": 0
+      }
+    ]
+  },
+  "after-warm-observers": {
+    "url": "http://127.0.0.1:61428/",
+    "windows": [
+      {
+        "start": 114084.5,
+        "end": 115284.5,
+        "inputY": 822.5556030273438,
+        "maxRafIntervalMs": 17.5,
+        "loafCount": 0
+      },
+      {
+        "start": 118516.80000001192,
+        "end": 119716.80000001192,
+        "inputY": 874.0009155273438,
+        "maxRafIntervalMs": 17.59999999999127,
+        "loafCount": 0
+      },
+      {
+        "start": 123166.89999997616,
+        "end": 124366.89999997616,
+        "inputY": 545.1171875,
+        "maxRafIntervalMs": 17.5,
+        "loafCount": 0
+      },
+      {
+        "start": 135850.59999996424,
+        "end": 136835.09999996424,
+        "inputY": 822.5556030273438,
+        "maxRafIntervalMs": 17.60000000000582,
+        "loafCount": 0
+      },
+      {
+        "start": 136835.09999996424,
+        "end": 137250,
+        "inputY": 874.0009155273438,
+        "maxRafIntervalMs": 16.79999999998836,
+        "loafCount": 0
+      },
+      {
+        "start": 137250,
+        "end": 137650.59999996424,
+        "inputY": 545.1171875,
+        "maxRafIntervalMs": 17.5,
+        "loafCount": 0
+      },
+      {
+        "start": 137650.59999996424,
+        "end": 138619.09999996424,
+        "inputY": 822.5556030273438,
+        "maxRafIntervalMs": 17.599999999976717,
+        "loafCount": 0
+      },
+      {
+        "start": 138619.09999996424,
+        "end": 139033.39999997616,
+        "inputY": 874.0009155273438,
+        "maxRafIntervalMs": 17.29999999998836,
+        "loafCount": 0
+      },
+      {
+        "start": 139033.39999997616,
+        "end": 140233.39999997616,
+        "inputY": 545.1171875,
+        "maxRafIntervalMs": 16.800000000017462,
+        "loafCount": 0
+      }
+    ]
+  },
+  "after-clean-rear": {
+    "url": "http://127.0.0.1:63048/",
+    "windows": []
+  },
+  "after-narrow-observers": {
+    "url": "http://127.0.0.1:61428/",
+    "windows": [
+      {
+        "start": 209083.5,
+        "end": 210283.5,
+        "inputY": 786,
+        "maxRafIntervalMs": 17.60000000000582,
+        "loafCount": 0
+      },
+      {
+        "start": 213700.09999996424,
+        "end": 214900.09999996424,
+        "inputY": 516.375,
+        "maxRafIntervalMs": 17.20000000001164,
+        "loafCount": 0
+      },
+      {
+        "start": 227834.09999996424,
+        "end": 229034.09999996424,
+        "inputY": 738.7062377929688,
+        "maxRafIntervalMs": 17.29999999998836,
+        "loafCount": 0
+      }
+    ]
+  },
+  "after-render-submission": {
+    "url": "http://127.0.0.1:63048/",
+    "windows": [
+      {
+        "start": 113038.90000003576,
+        "end": 114238.90000003576,
+        "inputY": 874.0009155273438,
+        "maxRafIntervalMs": 17.40000000000873,
+        "loafCount": 0
+      },
+      {
+        "start": 125405.30000001192,
+        "end": 126605.30000001192,
+        "inputY": 545.1171875,
+        "maxRafIntervalMs": 17.59999999999127,
+        "loafCount": 0
+      }
+    ],
+    "response": [
+      {
+        "field": "stickerProgress",
+        "move": 113071.5,
+        "changed": 113072.5,
+        "drawSubmission": 113088.30000001192,
+        "moveToDrawMs": 16.80000001192093
+      },
+      {
+        "field": "stickerSheetReveal",
+        "move": 125438.20000004768,
+        "changed": 125439.40000003576,
+        "drawSubmission": 125455.10000002384,
+        "moveToDrawMs": 16.899999976158142
+      }
+    ]
+  }
+}

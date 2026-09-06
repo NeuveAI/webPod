@@ -1,0 +1,19 @@
+{
+  "provenance": "Exact JSON values transcribed from the two retained Chrome DevTools MCP evaluate_script responses in this profiling task; not a new measurement.",
+  "pageId": 8,
+  "sourceFingerprint": "58fa8839f150a8fe61175ca416d58ee442fd421b0801b9bd05a4bbca7387c261",
+  "sourceFileCount": 380,
+  "method": "Bounded wrappers around WebGL2RenderingContext.drawElements and drawArrays appended performance.now() to window.__submit for each real draw submission. After the packet and liner settled open, two read-only evaluate_script calls returned performance.now(), window.__submit.length, and location.href. No input occurred between these probes.",
+  "evaluateFunction": "()=>({time:performance.now(),draws:window.__submit.length,url:location.href})",
+  "startResponse": {
+    "time": 125879.70000004768,
+    "draws": 495,
+    "url": "http://127.0.0.1:63048/"
+  },
+  "endResponse": {
+    "time": 148055.60000002384,
+    "draws": 495,
+    "url": "http://127.0.0.1:63048/"
+  },
+  "scope": "No additional intercepted draw submissions over this settled interval. This does not assert that every browser/GPU process was idle."
+}

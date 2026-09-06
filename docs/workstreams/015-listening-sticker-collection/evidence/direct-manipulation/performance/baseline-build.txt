@@ -1,0 +1,35 @@
+$ bun node_modules/vite/bin/vite.js build
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 289 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/assets/index-CpWc2OJ7.css                    20.99 kB │ gzip:   5.04 kB
+dist/client/assets/app-CeSM0aei.css                      33.88 kB │ gzip:   8.10 kB
+dist/client/assets/routes-pAqLqKph.js                     0.07 kB │ gzip:   0.08 kB
+dist/client/assets/___spike.device-CEpHGji1.js            0.18 kB │ gzip:   0.16 kB
+dist/client/assets/___probe.capabilities-Dl94F6go.js      0.54 kB │ gzip:   0.34 kB
+dist/client/assets/index-ChEousuE.js                  1,793.11 kB │ gzip: 550.77 kB
+
+✓ built in 315ms
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+vite v8.2.2 building ssr environment for production...
+transforming...
+✓ 552 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/assets/start-XEGAwR_q.js                         0.21 kB │ gzip:   0.17 kB
+dist/server/assets/routes-GPiaXcOm.js                        0.27 kB │ gzip:   0.20 kB
+dist/server/assets/empty-plugin-adapters-63t6GYbj.js         0.28 kB │ gzip:   0.18 kB
+dist/server/assets/___spike.device-Cn5Iu6AX.js               0.45 kB │ gzip:   0.31 kB
+dist/server/assets/___probe.capabilities-C6ukgRe0.js         0.81 kB │ gzip:   0.45 kB
+dist/server/assets/_tanstack-start-manifest_v-DxLPNGJc.js    1.17 kB │ gzip:   0.46 kB
+dist/server/assets/router-jYWwSgLp.js                      237.22 kB │ gzip:  58.64 kB
+dist/server/assets/src-D9MV8S4t.js                         384.06 kB │ gzip: 107.77 kB
+dist/server/server.js                                      688.16 kB │ gzip: 159.71 kB
+
+✓ built in 145ms

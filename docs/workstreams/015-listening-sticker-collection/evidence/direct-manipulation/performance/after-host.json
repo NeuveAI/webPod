@@ -1,0 +1,9 @@
+{
+  "url": "http://127.0.0.1:63048",
+  "source": {
+    "digest": "58fa8839f150a8fe61175ca416d58ee442fd421b0801b9bd05a4bbca7387c261",
+    "fileCount": 380
+  },
+  "bun": "1.4.0",
+  "pid": 25628
+}

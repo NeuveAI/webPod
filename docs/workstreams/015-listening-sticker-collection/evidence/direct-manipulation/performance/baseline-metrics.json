@@ -1,0 +1,50 @@
+{
+  "source": "78f9687938df885fef966c105f25b3a8c6498b5bf1c8fcec2a232598ea6c511e",
+  "coldDesktop": {
+    "inputMs": [
+      16,
+      56
+    ],
+    "longTaskMs": 130,
+    "longAnimationFrameMs": 146.1,
+    "maximumRafGapMs": 115.90000000000146,
+    "closeFirstLinerZeroMs": 200.5,
+    "closeFirstPacketMovementMs": 617.0999999642372,
+    "closeFinalTeaseMs": 1200.699999988079
+  },
+  "warmDesktop": {
+    "clickEventDurationsMs": [
+      64,
+      16,
+      56,
+      56,
+      16,
+      56,
+      56,
+      16,
+      56
+    ],
+    "postInputRafSampleCount": 254,
+    "maximumPostInputRafGapMs": 18.70000000001164,
+    "postInputLongTasks": [],
+    "postInputLongAnimationFrames": []
+  },
+  "directPull": {
+    "clickEventDurationsMs": [
+      56
+    ],
+    "postInputRafSampleCount": 29,
+    "maximumPostInputRafGapMs": 18.600000000034925,
+    "postInputLongTasks": [],
+    "postInputLongAnimationFrames": []
+  },
+  "phoneFirstUse": {
+    "clickEventDurationsMs": [
+      16
+    ],
+    "postInputRafSampleCount": 795,
+    "maximumPostInputRafGapMs": 18.700000000004366,
+    "postInputLongTasks": [],
+    "postInputLongAnimationFrames": []
+  }
+}

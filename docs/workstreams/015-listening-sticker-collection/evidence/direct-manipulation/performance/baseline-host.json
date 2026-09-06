@@ -1,0 +1,9 @@
+{
+  "url": "http://127.0.0.1:55696",
+  "source": {
+    "digest": "78f9687938df885fef966c105f25b3a8c6498b5bf1c8fcec2a232598ea6c511e",
+    "fileCount": 376
+  },
+  "bun": "1.4.0",
+  "pid": 18107
+}

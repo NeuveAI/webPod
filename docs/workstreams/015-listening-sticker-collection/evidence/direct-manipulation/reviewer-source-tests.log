@@ -1,0 +1,56 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/sticker-return.test.ts:
+(pass) missed and cancelled rear drops reverse from the displayed pose and release their frame owner [2.59ms]
+
+apps/web/src/sticker-motion.test.ts:
+(pass) sticker pull physics > a fresh upward flick opens; holding that gesture restores distance-based release [0.10ms]
+(pass) sticker pull physics > analytic response is invariant to frame subdivision before settling [0.02ms]
+(pass) sticker pull physics > settled springs stop scheduling and background pauses terminate safely [0.02ms]
+
+apps/web/src/sticker-import-status.test.tsx:
+(pass) sticker import status > partial sampling explains earning without presenting a failed sync or retry [2.48ms]
+(pass) sticker import status > failed sync preserves the safe inventory message and invokes the current retry command [0.16ms]
+(pass) sticker import status > complete does not show an import warning [0.08ms]
+(pass) sticker import status > pending does not show an import warning [0.02ms]
+(pass) sticker import status > undefined does not show an import warning [0.01ms]
+
+apps/web/src/sticker-collections-model.test.ts:
+(pass) mixed starter remains two genre sheets with five honest seats each [0.12ms]
+(pass) opening a mixed grant reveals earned seats across its genre sheets without granting future art [0.08ms]
+(pass) display thresholds stay identical to server earning policy and unknown collections are absent [0.03ms]
+(pass) shared liner layout fits narrow and short viewports and retains five reachable seats [0.06ms]
+(pass) keyboard and meaning intents cannot borrow another earned sticker preview [0.02ms]
+(pass) partial peel anchors remaining contact, releases continuously, and reduced motion follows directly [0.05ms]
+(pass) ready collection requires its five prepared seats and survives same-session refresh/error [0.39ms]
+
+packages/device/src/sticker-texture-cache.test.ts:
+(pass) shared sticker artwork recovery and ownership > first failure recovers for both live subscribers with exactly one explicit retry [0.26ms]
+(pass) shared sticker artwork recovery and ownership > repeated failures never schedule automatic requests and retry touches failed entries only [0.03ms]
+(pass) shared sticker artwork recovery and ownership > late completion after final unmount disposes resources without resurrecting state [0.03ms]
+(pass) shared sticker artwork recovery and ownership > superseded request completion cannot replace or dispose successful retry resources [0.04ms]
+
+packages/device/src/sticker-surface.test.ts:
+(pass) production sticker surface > all 60 manifest silhouettes preserve their UV crop and conform to the actual rear cap [20.68ms]
+(pass) production sticker surface > rear-view right placement moves toward model -X and invalid off-body points fail [5.31ms]
+(pass) production sticker surface > peel is actual continuous curvature, stable print UVs, with a fixed contact region [1.79ms]
+(pass) production sticker surface > microtexture is deterministic and has nonzero green roughness data [0.78ms]
+(pass) rear lift preserves nondefault position, width, rotation and stationary adhesive tail [2.97ms]
+
+packages/device/src/sticker-program-preparation.test.ts:
+(pass) successful preparation preserves exact variants and holds warmed program owners until abort [28.84ms]
+(pass) original unmount cannot invalidate captured cloned-program metadata while pending [10.76ms]
+(pass) pre-abort does not clone or compile; in-flight abort cancels polling and settles once [26.46ms]
+(pass) abort raised inside synchronous compile defers disposal until compile returns [0.87ms]
+(pass) context loss cancels before invalid program queries; restoration requires a fresh generation [26.92ms]
+(pass) missing metadata, throwing readiness and synchronous compile failure reject without leaked owners [106.05ms]
+(pass) never-ready programs time out, clear their timer, and cannot report late readiness [47.53ms]
+(pass) cancellation raised while polling does not dispose a program during its readiness call [0.39ms]
+
+packages/device/src/sticker-contract.test.ts:
+(pass) a carried print owns its static rear and sheet seat across native write publication [0.06ms]
+
+ 34 pass
+ 0 fail
+ 78181 expect() calls
+Ran 34 tests across 8 files. [394.00ms]

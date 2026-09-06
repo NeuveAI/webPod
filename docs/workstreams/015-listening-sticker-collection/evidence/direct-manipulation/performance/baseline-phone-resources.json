@@ -1,0 +1,15 @@
+{
+  "provenance": "Transcribed unchanged from the owned page's DevTools evaluate_script resource-timing response before closing page3. Times are page performance milliseconds; only synthetic fixture paths are retained.",
+  "openInputStartTime": 24301.30000001192,
+  "resources": [
+    { "url": "/api/stickers/session", "start": 19094, "duration": 3.199999988079071, "transferSize": 1282 },
+    { "url": "/stickers/playworn/electronic/pw-f01-pulse-code.png", "start": 22390.600000023842, "duration": 3, "transferSize": 2002669 },
+    { "url": "/stickers/playworn/rock/pw-c01-soundcheck.png", "start": 22390.600000023842, "duration": 4, "transferSize": 703892 },
+    { "url": "/stickers/playworn/jazz/pw-j01-off-beat.png", "start": 22390.600000023842, "duration": 4.699999988079071, "transferSize": 627011 },
+    { "url": "/api/stickers/packs/open", "start": 24302.19999998808, "duration": 1.9000000357627869, "transferSize": 1291 },
+    { "url": "/stickers/playworn/rock/pw-c02-riff-rider.png", "start": 24338.69999998808, "duration": 2.199999988079071, "transferSize": 631165 },
+    { "url": "/stickers/playworn/rock/pw-c03-last-encore.png", "start": 24338.69999998808, "duration": 2.600000023841858, "transferSize": 302312 },
+    { "url": "/stickers/playworn/rock/pw-c04-feedback.png", "start": 24338.80000001192, "duration": 3.099999964237213, "transferSize": 465016 },
+    { "url": "/stickers/playworn/rock/pw-c05-stage-dive.png", "start": 24338.899999976158, "duration": 3.900000035762787, "transferSize": 663608 }
+  ]
+}

@@ -1,0 +1,3077 @@
+{
+  "url": "http://127.0.0.1:63048/",
+  "synthetic": true,
+  "events": [
+    {
+      "name": "pointerdown",
+      "entryType": "event",
+      "startTime": 96097.40000003576,
+      "duration": 80,
+      "navigationId": 6000,
+      "interactionId": 6166,
+      "processingStart": 96097.60000002384,
+      "processingEnd": 96102.20000004768,
+      "cancelable": true
+    },
+    {
+      "name": "gotpointercapture",
+      "entryType": "event",
+      "startTime": 96104.60000002384,
+      "duration": 72,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96104.60000002384,
+      "processingEnd": 96104.60000002384,
+      "cancelable": false
+    },
+    {
+      "name": "pointerup",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 6166,
+      "processingStart": 96226.10000002384,
+      "processingEnd": 96231.5,
+      "cancelable": true
+    },
+    {
+      "name": "lostpointercapture",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.60000002384,
+      "processingEnd": 96231.60000002384,
+      "cancelable": false
+    },
+    {
+      "name": "click",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 6166,
+      "processingStart": 96231.60000002384,
+      "processingEnd": 96231.70000004768,
+      "cancelable": true
+    },
+    {
+      "name": "pointerout",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.70000004768,
+      "processingEnd": 96231.70000004768,
+      "cancelable": true
+    },
+    {
+      "name": "pointerleave",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.70000004768,
+      "processingEnd": 96231.70000004768,
+      "cancelable": false
+    },
+    {
+      "name": "pointerleave",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.70000004768,
+      "processingEnd": 96231.70000004768,
+      "cancelable": false
+    },
+    {
+      "name": "pointerleave",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.70000004768,
+      "processingEnd": 96231.70000004768,
+      "cancelable": false
+    },
+    {
+      "name": "pointerleave",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.70000004768,
+      "processingEnd": 96231.70000004768,
+      "cancelable": false
+    },
+    {
+      "name": "pointerleave",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.70000004768,
+      "processingEnd": 96231.70000004768,
+      "cancelable": false
+    },
+    {
+      "name": "pointerover",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.70000004768,
+      "processingEnd": 96231.70000004768,
+      "cancelable": true
+    },
+    {
+      "name": "pointerenter",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.70000004768,
+      "processingEnd": 96231.70000004768,
+      "cancelable": false
+    },
+    {
+      "name": "pointerenter",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.70000004768,
+      "processingEnd": 96231.70000004768,
+      "cancelable": false
+    },
+    {
+      "name": "mouseout",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.70000004768,
+      "processingEnd": 96231.80000001192,
+      "cancelable": true
+    },
+    {
+      "name": "mouseover",
+      "entryType": "event",
+      "startTime": 96223.20000004768,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 0,
+      "processingStart": 96231.80000001192,
+      "processingEnd": 96231.80000001192,
+      "cancelable": true
+    },
+    {
+      "name": "keydown",
+      "entryType": "event",
+      "startTime": 96934.5,
+      "duration": 40,
+      "navigationId": 6000,
+      "interactionId": 6173,
+      "processingStart": 96934.70000004768,
+      "processingEnd": 96938.30000001192,
+      "cancelable": true
+    },
+    {
+      "name": "keyup",
+      "entryType": "event",
+      "startTime": 96938.70000004768,
+      "duration": 16,
+      "navigationId": 6000,
+      "interactionId": 6173,
+      "processingStart": 96939.60000002384,
+      "processingEnd": 96939.70000004768,
+      "cancelable": true
+    }
+  ],
+  "loafs": [],
+  "frames": [
+    {
+      "time": 95937.388,
+      "dt": -4.812000047677429
+    },
+    {
+      "time": 95954.6,
+      "dt": 17.211999999999534
+    },
+    {
+      "time": 95971.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 95987.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96004.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 96021.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 96037.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96054.5,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 96071.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96087.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96104.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 96120.4,
+      "dt": 15.799999999988358
+    },
+    {
+      "time": 96137.9,
+      "dt": 17.5
+    },
+    {
+      "time": 96154.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 96171.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 96187.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96204.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 96221.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 96237.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96254.5,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 96271.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96287.8,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 96304.5,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96321.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96337.3,
+      "dt": 16.10000000000582
+    },
+    {
+      "time": 96354.5,
+      "dt": 17.19999999999709
+    },
+    {
+      "time": 96371.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96387.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96404.5,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 96421.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96437.2,
+      "dt": 16
+    },
+    {
+      "time": 96453.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96471.2,
+      "dt": 17.30000000000291
+    },
+    {
+      "time": 96487.6,
+      "dt": 16.40000000000873
+    },
+    {
+      "time": 96504.6,
+      "dt": 17
+    },
+    {
+      "time": 96521.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 96537.8,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 96554.5,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96571.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96587.2,
+      "dt": 16
+    },
+    {
+      "time": 96604.6,
+      "dt": 17.40000000000873
+    },
+    {
+      "time": 96621.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 96637.8,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 96654.5,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96671.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96687.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96704.5,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 96721.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96737.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96754.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 96771.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 96787.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96804.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 96821.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 96837.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96854.5,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 96871.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96887.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 96904.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 96921.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 96937.8,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 96954.6,
+      "dt": 16.80000000000291
+    },
+    {
+      "time": 96971.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 96987.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97004.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 97021.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 97037.8,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 97054.6,
+      "dt": 16.80000000000291
+    },
+    {
+      "time": 97071.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 97087.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97104.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 97121.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 97137.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97154.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 97171.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 97187.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97204.5,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 97221.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97237.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97254.5,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 97271.3,
+      "dt": 16.80000000000291
+    },
+    {
+      "time": 97287.9,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 97304.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 97321.3,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97337.8,
+      "dt": 16.5
+    },
+    {
+      "time": 97354.5,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97371.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97387.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97404.5,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 97421.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97437.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97454.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 97471.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 97487.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97504.6,
+      "dt": 16.70000000001164
+    },
+    {
+      "time": 97521.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 97537.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97554.5,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 97571.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97587.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97604.5,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 97621.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97637.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97654.5,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 97671.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97687.8,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 97704.6,
+      "dt": 16.80000000000291
+    },
+    {
+      "time": 97721.2,
+      "dt": 16.59999999999127
+    },
+    {
+      "time": 97737.8,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 97754.5,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97771.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97787.8,
+      "dt": 16.60000000000582
+    },
+    {
+      "time": 97804.5,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97821.2,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97837.9,
+      "dt": 16.69999999999709
+    },
+    {
+      "time": 97854.5,
+      "dt": 16.60000000000582
+    }
+  ],
+  "mutations": [
+    {
+      "time": 96099.10000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96099.70000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96102.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96123.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.4",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96124.90000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.4",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96126.70000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.4",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96226,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.4",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96229.5,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.4",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96231.5,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.4",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96239.5,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.39383349497348363",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96241.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.39383349497348363",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96243.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.39383349497348363",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96256.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.36479623156515284",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96257.70000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.36479623156515284",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96259.80000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.36479623156515284",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96272.60000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.320818307517958",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96274.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.320818307517958",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96276.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.320818307517958",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96289.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.27037085590566073",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96290.90000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.27037085590566073",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96293,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.27037085590566073",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96306,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.2185856233062555",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96307.60000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.2185856233062555",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96309.70000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.2185856233062555",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96322.40000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.16962791306628783",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96324,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.16962791306628783",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96326.40000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.16962791306628783",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96338.80000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.12732433643009658",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96340.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.12732433643009658",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96342.60000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.12732433643009658",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96355.70000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.08868223113881155",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96357,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.08868223113881155",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96358.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.08868223113881155",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96372.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.05801057677198025",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96373.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.05801057677198025",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96375.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.05801057677198025",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96388.90000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.033867106394595746",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96390.10000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.033867106394595746",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96391.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.033867106394595746",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96405.5,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.015756446510867998",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96406.60000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.015756446510867998",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96407.80000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.015756446510867998",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96422.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0026737554959667285",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96423.5,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0026737554959667285",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96424.80000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0026737554959667285",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96438.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96439.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96440.5,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96455.90000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96457.10000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96473.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96474.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96489.70000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96490.60000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96506.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96507.40000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96523.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96524.40000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96540,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96541,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96556.60000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96557.40000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96576.90000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96580.10000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96589.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96590.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96606.70000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96607.70000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96623.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96624.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96639.90000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96640.80000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96662.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96665.10000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96672.90000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.000034664671536127296",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96674.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.000034664671536127296",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96675.80000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.000034664671536127296",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96689.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0002954944279564347",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96690.70000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0002954944279564347",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96692.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0002954944279564347",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96706,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.00044659072999906593",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96707.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.00044659072999906593",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96708.90000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.00044659072999906593",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96722.60000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0005165784977283369",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96724.10000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0005165784977283369",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96726.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0005165784977283369",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96739.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0005275907474979711",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96740.90000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0005275907474979711",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96743,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0005275907474979711",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96756.40000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0004990083288914427",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96758.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0004990083288914427",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96760.60000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0004990083288914427",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96772.80000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0004466491422185285",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96774.60000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0004466491422185285",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96776.90000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0004466491422185285",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96789.5,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.00038165340316390306",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96791.40000003576,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.00038165340316390306",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96793.60000002384,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.00038165340316390306",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96806.20000004768,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0003129178226882077",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96808,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0003129178226882077",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96810.30000001192,
+      "stickerStage": "peeling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0.0003129178226882077",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96822.90000003576,
+      "stickerStage": "open",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96824.60000002384,
+      "stickerStage": "open",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96825.60000002384,
+      "stickerStage": "open",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96936.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96937.40000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96938.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "1",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96955.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.9521032692976492",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96956.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.9521032692976492",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96956.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.9521032692976492",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96972.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.8572555221411958",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96973.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.8572555221411958",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96973.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.8572555221411958",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96989.5,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.7362543279160324",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96990,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.7362543279160324",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 96990.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.7362543279160324",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97005.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.6065425040325627",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97006.40000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.6065425040325627",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97007,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.6065425040325627",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97022.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.4806360244934284",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97023.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.4806360244934284",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97023.70000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.4806360244934284",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97039.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.3651977426817172",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97039.70000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.3651977426817172",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97046.70000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.3651977426817172",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97056.40000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.263313763254084",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97057.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.263313763254084",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97062.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.263313763254084",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97072.70000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.17920496567584454",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97073.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.17920496567584454",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97077,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.17920496567584454",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97089.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.1112637562815242",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97089.70000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.1112637562815242",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97090.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.1112637562815242",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97105.70000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.058953976128603286",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97106.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.058953976128603286",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97106.70000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.058953976128603286",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97122.40000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.02068676468181668",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97122.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.02068676468181668",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97123.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0.02068676468181668",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97139.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97139.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97140.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "1",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97155.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.9538091044080339",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97156.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.9538091044080339",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97156.70000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.9538091044080339",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97172.40000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.859162655302411",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97172.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.859162655302411",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97173.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.859162655302411",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97189.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.738165808174461",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97189.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.738165808174461",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97190.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.738165808174461",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97205.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.6091050850568174",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97206.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.6091050850568174",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97206.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.6091050850568174",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97222.5,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.4822170585825463",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97223.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.4822170585825463",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97223.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.4822170585825463",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97239.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.36588286544826043",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97239.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.36588286544826043",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97240.40000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.36588286544826043",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97256.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.26496113199679394",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97256.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.26496113199679394",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97257.40000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.26496113199679394",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97275.70000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.17959861239335992",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97276.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.17959861239335992",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97278.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.17959861239335992",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97290.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.11189953133073877",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97291.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.11189953133073877",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97291.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.11189953133073877",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97306.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.05940479804996435",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97307.70000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.05940479804996435",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97308.5,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.05940479804996435",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97323.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.02079195012738936",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97324.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.02079195012738936",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97324.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.02079195012738936",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97339.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97340.70000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97341.5,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97357,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97357.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97374.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97375.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97392,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97392.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97407.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97407.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97426.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97427.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97440.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97441.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97460.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97462,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97474,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97474.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97490,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97490.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97506.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97507.5,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97526.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97527.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97540.5,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97541.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97556.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97557.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97573.5,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97574.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97593.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.00008666167884031992",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97594.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.00008666167884031992",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97595.10000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.00008666167884031992",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97607.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0007357143035347809",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97608,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0007357143035347809",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97608.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0007357143035347809",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97623.40000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0011164768249976656",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97624.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0011164768249976656",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97624.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0011164768249976656",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97640.40000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.001291446244320843",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97641.30000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.001291446244320843",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97641.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.001291446244320843",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97656.5,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0013191499849018007",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97657.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0013191499849018007",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97657.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0013191499849018007",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97672.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0012481621508694232",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97673.40000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0012481621508694232",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97674,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0012481621508694232",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97689.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0011175279443478225",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97690.60000002384,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0011175279443478225",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97691.40000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0011175279443478225",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97706.5,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0009541335079096092",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97707.20000004768,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0009541335079096092",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97708,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0009541335079096092",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97725.80000001192,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0007833189930297284",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97726.90000003576,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0007833189930297284",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97728,
+      "stickerStage": "pulling",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0.0007833189930297284",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97740.5,
+      "stickerStage": "tease",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97741.30000001192,
+      "stickerStage": "tease",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    },
+    {
+      "time": 97742.5,
+      "stickerStage": "tease",
+      "stickerReducedMotion": "false",
+      "stickerProgress": "0",
+      "stickerWorkspaceLowering": "0",
+      "stickerSheetReveal": "0",
+      "stickerPeel": "0",
+      "stickerLanding": "0"
+    }
+  ],
+  "inputs": [
+    {
+      "time": 96088.10000002384,
+      "type": "pointermove",
+      "x": 640,
+      "y": 450
+    },
+    {
+      "time": 96120.5,
+      "type": "pointermove",
+      "x": 1148.70703125,
+      "y": 34
+    },
+    {
+      "time": 96221.40000003576,
+      "type": "pointermove",
+      "x": 1148.70703125,
+      "y": 34
+    },
+    {
+      "time": 96226.10000002384,
+      "type": "pointerup",
+      "x": 1148.70703125,
+      "y": 34
+    },
+    {
+      "time": 96934.70000004768,
+      "type": "keydown",
+      "key": "Escape"
+    }
+  ],
+  "start": 95942,
+  "raf": 3210,
+  "alpha": []
+}
