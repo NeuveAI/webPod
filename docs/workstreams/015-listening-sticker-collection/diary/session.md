@@ -1,0 +1,44 @@
+# Device session implementation diary
+
+2026-09-06. Implementer supervised by lead; independent reviewer retained. Owner chose temporary device identity, interpreted in session-dispatch.md as random first-party persistence rather than hardware entropy. No commit/push by implementer. Physical surface and motion files not changed in this lane.
+
+## Required source and skill use
+
+Read full session-dispatch.md, current AGENTS.md, implementation-scope.md, implementation-decisions.md, backend-contract.md and current backend/architecture. Loaded global-patterns, effect-services, database-drizzle and tanstack-router plus their agent-context guides. Canonical library checks:
+
+- `/Users/vinicius/code/.better-coding-agents/resources/drizzle-orm/drizzle-orm/src/bun-sqlite/session.ts`: native immediate transactions and savepoints; installed Drizzle0.45.2 matching Bun binding.
+- `/Users/vinicius/code/.better-coding-agents/resources/bun/docs/runtime/http/cookies.mdx` and `runtime/cookies.mdx`, installed bun-types `Cookie`/`CookieMap` constructors and serialization. Core uses Bun-native cookie primitives because server-core intentionally has no Start dependency. Native Start returns Set-Cookie without browser JavaScript storage access.
+- `/Users/vinicius/code/.better-coding-agents/resources/tanstack/router/docs/start/framework/react/guide/{server-routes,server-entry-point}.md`; installed react-start default entry and start-client/server-core handler/context definitions. Local checkout differs from pinned installed Start. Actual generated/built route integration verifies runtime context delivery. Thin helper accepts the declared optional trusted context because pinned route inference can represent no inherited middleware context as undefined; no cast/unvalidated HTTP context is used.
+- Installed `packages/server-core/node_modules/effect/src/{ManagedRuntime,Effect}.ts` is4.0.0-rc.112, authoritative over local Effect3 checkout. Uses scoped storage layer and managed runtime `tryPromise` with composed interruption signal; does not copy obsolete forkDaemon/Effect.Service examples.
+
+Before client handshake edits, loaded modern-web-guidance FIRST and ran `bunx --bun modern-web-guidance search 'cancel fetch requests on logout and sequence authentication cookies' --skill-version 2026_05_16-c5e78707`, then `retrieve security`. Used Bun rather than prohibited npx. Loaded interface-craft + storyboard-animation, interface-design-guardrails + all four resource documents, neuve-motion tokens/principles/reduced-motion, Jotai skill and guide. No visual/motion values changed: existing tactile/legible/cohesive/responsive/accessible facets retain prior reviewed scores; this lane only closes lifecycle/cookie transport. Clear-Site-Data blanket deletion from generic security guide would contradict owner-authorized device recovery, so logout revokes active sessions and preserves restricted identity.
+
+## Implemented invariants
+
+Schema3 adds separate hashed device/session mappings and persistent revocation generation. Additive migration preserves prior collections, tracks, grants and placements; future-schema rejection precedes journal changes. Device TTL365days, active TTL24h. Device row exists before verification but no collection/grant/session exists until Apple verification and final activation transaction. Recovery credential cannot read inventory. Multi-account behavior is explicitly browser-scoped; no claim of stable Apple identity.
+
+`live.ts` composes server-only developer minting, request-local Music User Token verification/import and token-free catalogue enrichment. Four upstream workflows globally, one per device, five-second fresh bootstrap admission and thirty prepare requests/minute per runtime. Rapid matching active-session reload reuses current snapshot during cooldown without activating a new session. No unbounded queue. Logout invalidates both supplied device and active credential mappings, aborts pending import/enrichment and retains restricted device recovery. Every post-await write rechecks active lease or device generation synchronously in immediate transactions.
+
+Client handshake prepares first, captures original abort/generation even through delayed provider callbacks, and waits for preceding revocation before reconnecting. Shared UI remains Jotai-owned. Actual Start file routes have ANY405 and explicit HEAD behavior. Trusted server request context is a factory-injection seam for tests; production has no test flag/endpoint or HTTP-controllable dependency. Existing developer-token route accepts the same trusted server-only synthetic signer options for credential-free browser integration.
+
+One lazy Effect/SQLite runtime per Start module lifecycle. Shutdown rejects fresh runtime creation, interrupts pending work and closes SQLite; Vite HMR disposes old module instance. Production Bun entry serves built assets and delegates dynamic requests to built Start. Environment path must be absolute, outside public/build roots after normalization/parent-symlink resolution. Development .data is ignored. Source snapshots now exclude .data and SQLite/database sidecars and fingerprint new production scripts. Typecheck includes those scripts.
+
+## Checks and review corrections
+
+- Initial live tests caught synthetic cookie-jar serialization misuse and fixture clock mismatch; corrected test transport, not production authentication. Existing v1 downgrade fixture updated to remove new v3 tables/version before migration assertion.
+- Initial build identified Bun builtins need explicit SSR-environment rolldown externalization; client bundle remains free of server runtime. Build then passed.
+- Independent reviewer reproduced missing-device-cookie logout replay and noncanonical DB path traversal. Both fixed with active credential fallback/both-device revocation and canonical real parent paths; dedicated regression tests pass.
+- 513 backend/provider/client/config tests passed,2209 assertions before the additional incoming-request cancellation regression. That added regression also passes (current live suite11 tests), proving actual Request.signal cancels upstream, grants no session/pack and releases device admission.
+- Native built Start HTTP integration + production static/SSR smoke passed2 tests/218assertions before latest small lifecycle/helper update; final rebuild/recheck is required after the concurrently discovered product-route correction. Integration covers starter, open, placement/reload, new observed genre pack, duplicate observation, logout replay rejection and reconnect retention. Static smoke checks all60 exact SHA256 PNGs. SSR status alone does not prove product rendering.
+- Root typecheck12/12, explicit app/server-core/scripts TypeScript checks and scoped lint passed. Source snapshot suite6tests42assertions passed including production-entry mutation and private runtime data exclusions.
+- Browser engineer discovered production `/` redirect targeted a DEV-only product view. Lead owns its scoped correction and real browser transport/rendered-state verification. Do not claim feature complete based on SSR200 or earlier mocked browser tests.
+
+Exact bounded outputs live in evidence/session/. Source is reviewable; independent review and lead final integration/commit remain outstanding. Existing production physical behavior stays subject to prior reviewed tests plus final browser regression.
+
+## Final closure
+
+Independent integrated review APPROVE now closes the above checkpoint. The production root correction and real-browser pointer/native-cookie flow pass, including visible artwork after reload, signout/reconnect and separate-browser isolation. Three independently executed browser/native/static tests pass260assertions; all60HTTP asset hashes match. The browser screenshot readiness check was strengthened after the reviewer caught an early pre-paint image. App now declares the already-installed Playwright1.62.1 directly for typed tests; lock resolution/version/integrity entries are unchanged. Lead final typecheck12/12 and service/runtime/provenance42tests211assertions pass. Reviewed source commits: backend4abb81f and app integrationb62df0a. Final evidence and handover are committed separately; no push/deployment.
+
+### Production browser harness dependency follow-up
+
+Lead requested direct typed Playwright dependency after including production scripts in app TypeScript scope exposed an untyped sibling node_modules import. Added existing locked `@playwright/test`1.62.1 to web devDependencies using Bun. Default add was blocked by global minimum-release-age on already-pinned workspace versions; the explicitly scoped retry used a one-command zero-age override. Full bun.lock diff contains only the one new web workspace declaration, with no resolved package/version/integrity changes. Interaction engineer owns the named package import and final browser harness/type verification. Dependency source frozen afterward.

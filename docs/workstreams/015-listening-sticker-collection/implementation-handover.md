@@ -1,6 +1,6 @@
-# Listening stickers implementation checkpoint
+# Listening stickers implementation handover
 
-2026-09-06. Implemented and independently reviewed checkpoint; full feature remains incomplete pending identity decision and production session/routes.
+2026-09-06. COMPLETE: physical feature, device sessions and Start production integration independently approved and committed. Full requirement accounting is in implementation-completion-audit.md.
 
 ## Delivered
 
@@ -12,17 +12,15 @@ All sixty immutable PLAYWORN assets are manifest/hash-validated and copied for p
 
 Independent backend APPROVE in reviews/backend-review.md after provenance, duplicate starter and enrichment corrections. Surface and UI scoped APPROVE in reviews/surface-review.md and reviews/final-implementation-review.md after cache/lifecycle and stale async intent fixes. Required skills/references recorded in lane diaries. Lead typecheck 12/12, scoped lint, targeted 50 tests and client/SSR build pass. Backend/provider 81 tests pass. Combined production-route browser suite 3/3 passes; reviewer independently verified interaction 2/2 and final material 1/1. Fingerprinted sources, screenshots, draw counters and exact checks are under evidence/.
 
-Evidence uses deterministic Apple/provider and HTTP mocks on actual production /. It does NOT prove live session authorization or production ingestion wiring. Root lint has 55 baseline historical evidence-script errors; source lint passes.
+The earlier physical checkpoint used deterministic Apple/provider and HTTP mocks on the product route under development hosting. Final evidence/session/ additionally proves the actual production build with native cookies, real Start APIs and isolated SQLite, with zero browser API interception. Only MusicKit and trusted server Apple/signing dependencies are synthetic; live Apple credentials were not used. Root lint has 55 baseline historical evidence-script errors; source lint passes.
 
-## Remaining dependency and next implementation
+## Live device sessions
 
-Owner was asked whether first release collections are browser-bound or follow a separate account login across devices; no answer received in this checkpoint. MusicKit authorization does not supply a stable Apple account identity. Do not hash its token as an account ID or merge accounts from library similarity.
+Owner chose device identity for now. A cryptographically random first-party cookie identifies the browser collection; separate upstream-verified sessions authorize access. New browser/cleared site data starts another collection; multiple Apple accounts on one browser share this interim collection. No hardware fingerprint or token hashing identifies an Apple account.
 
-After answer:
-1. Implement concrete authenticated session service behind neutral HTTP handlers, with verified Apple credential handoff, server-only opaque session storage, expiry/revocation, same-origin protections and correct sign-out/account-switch ownership. Browser-bound recovery versus separate cross-device login determines this implementation.
-2. Add thin TanStack Start production routes for session/bootstrap, inventory, listening observations, opening packs and placement writes. Wire scoped Effect runtime with explicit SQLite production path/lifetime. Never touch signing key contents or persist/log raw music tokens.
-3. Verify real route boundary with deterministic upstream mocks: failed/expired/forged sessions, cross-owner access, sign-out during import/enrichment, abort/retry, HTTP body/origin guards, persistence across restart and client/server bundle separation. Then review this new boundary independently and run integrated feature checks.
-4. Only after this work can goal be marked complete. Current production UI has no live sticker service behind requested endpoints and must not be presented as shipped functionality.
+`session-dispatch.md` defines this slice. Implementation adds additive SQLite schema v3, final transactional lease checks, pending-work cancellation, native secure cookies, six thin Start file routes and a Bun production entry. Exact configuration and limits are in `docs/architecture/sticker-backend.md`. Development uses ignored `.data/stickers.sqlite`; production requires an absolute private `WEBPOD_STICKER_DATABASE_PATH`, then `bun run --cwd apps/web build` and `bun run --cwd apps/web start` with existing server-only Apple configuration.
+
+New tests traverse the actual built Start router via native Bun HTTP and synthetic upstream injection. They prove import/open/place/reload, observed unlock/deduplication, logout/replay rejection/recovery. Production smoke serves `/` and verifies all sixty asset hashes. Session repository/live tests cover isolation, expiry, failed auth/import, interrupted import/enrichment, restart, preparation/admission limits and runtime disposal. Final independent browser/native/static suite passes3tests260assertions, including actual pointer pull/peel/place and artwork-visible reload. Canonical `/` now mounts the shared device page; diagnostic routes remain DEV-only. Lead final TypeScript12/12 and service/runtime/provenance42tests211assertions pass. Final review APPROVE has no unresolved Critical/Major findings; no deployment or push performed.
 
 ## Policy and product limits
 
@@ -32,10 +30,10 @@ Owner selected genre-based starter plus measured listening. Provisional named th
 
 Prior-work cleanup: 4a05c37, 6aaef16, 14b4d0b, 8507a63. Neutral backend/domain/provider/architecture: ea38128. Surface/UI refs appended after exact staging. No push performed, no trailers. Generated local tooling/test scratch retained on disk and ignored.
 
-Final reviewed surface commit: af2bb77. Final reviewed UI/runtime commit: 218ae06. All implemented source changes are committed; lead scope, decisions, evidence and this handover are committed separately. The owning goal remains active and incomplete pending identity and live-route implementation.
+Final reviewed surface commit: af2bb77. Final reviewed UI/runtime commit: 218ae06. Final verified device session backend:4abb81f. Final production root/Start/browser integration:b62df0a. This handover and final evidence are committed together after independent approval. Local generated assets/scratch remain ignored; no user work was discarded.
 
 ## Archive and existing-device regression checkpoint
 
 Follow-up commit intent: include the sticker build pipeline and canonical artwork in committed browser source archives and fingerprint provenance. This narrowly fixes clean-archive Vite startup inputs; generated public artwork remains excluded from source identity. Independent reviewer approved the fix after5 archive tests/37assertions, lint, and13/13 existing orientation/parity/lighting browser regressions (1.4minutes,342-file fingerprint b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0). Lead scripts TypeScript check also passed. Bounded final/setup logs and summaries live in evidence/regression/verification.md; final-implementation-review.md records the scoped approval. Historical extraction is supported, but historical browser replay uses matching archived config/helper rather than mixing fingerprint algorithms. No feature implementation changed in this follow-up.
 
-Authentication, live session ownership and production TanStack Start sticker endpoints remain deferred. These regression results do not complete or ship the full stickers goal.
+The archive checkpoint predates live session integration. Its regressions support the physical feature, while the new session slice has separate evidence and independent review.

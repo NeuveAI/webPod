@@ -1,0 +1,34 @@
+# Device session review preparation
+
+2026-09-06. Independent reviewer preparation only; this is not a verdict against unfinished implementation. Review will be activated against the engineer's checkpoint. No implementation files changed. No credentials, existing database, environment file, or encrypted design file accessed. No Neuve or Kanban exists under repo law.
+
+## Authority and skills
+
+Read AGENTS.md, session-dispatch.md, implementation-scope.md, implementation-decisions.md, review-system-prompt.md, backend-research.md; current http, runtime, database and Apple-import seams. Owner's device identity decision supersedes historical pending identity statements. Device recovery after newly verified MusicKit is authorized; cross-device account linkage is deferred. Same-browser Apple-account switching intentionally shares the interim collection.
+
+Loaded strict-critique, team-orchestration and its review-protocol, effect-services, database-drizzle, tanstack-router, global-patterns and their agent-context reference documents. Repo/dispatch override foreign Postgres, detached-job, migration-permission, phase-pause and no-test examples. Critical/Major requires REQUEST_CHANGES. No UI implementation or review in this preparation lane.
+
+## Verified canonical sources
+
+- `/Users/vinicius/code/.better-coding-agents/resources/tanstack/router/docs/start/framework/react/guide/server-entry-point.md`: universal fetch entry, `createServerEntry`, typed request context passed to actual Start middleware and file-route handlers. `hosting.md:266` and `examples/react/start-bun/server.ts`: built `dist/client` assets plus `dist/server/server.js` fetch delegation are canonical custom Bun hosting, not a second domain framework.
+- Local TanStack react-start checkout is 1.145.7; installed app Start is 1.168.49. Installed `apps/web/node_modules/@tanstack/react-start/src/default-entry/server.ts` is authoritative for `createStartHandler(defaultStreamHandler)` and fetch entry shape.
+- Installed `node_modules/.bun/@tanstack+start-server-core@1.169.31/node_modules/@tanstack/start-server-core/src/createStartHandler.ts:930`: HEAD falls back to GET, then ANY, without rewriting Request.method. Absent method handlers fall through to router execution. Explicit unsupported-method handling is necessary to avoid HTML SSR answers on private APIs. `request-response.ts:295-352` provides framework cookies. Start handles request abort around its own awaits; domain fetches still need cancellation propagation.
+- Installed Start plugin core 1.171.39 `src/import-protection/defaults.ts` recognizes server-only markers; `trace.ts:183-185` documents server-only function/module boundaries. Verify built client content in addition to source boundaries.
+- `/Users/vinicius/code/.better-coding-agents/resources/bun/docs/runtime/http/server.mdx:240-258`: stop waits for in-flight requests by default; forceful stop terminates them. Shutdown ordering must not wait indefinitely before interrupting application work.
+- `/Users/vinicius/code/.better-coding-agents/resources/drizzle-orm/drizzle-orm/src/bun-sqlite/session.ts:68-80`: transaction callbacks are synchronous, native transaction behavior configurable. No awaited upstream work inside SQLite transactions.
+- Local Effect reference is 3.19.14; installed `packages/server-core/node_modules/effect` is 4.0.0-rc.112. `src/ManagedRuntime.ts:336-378` exposes dispose and runPromise AbortSignal. Existing acquireRelease layer owns SQLite; cancellation-aware request effects must remain within that lifetime.
+
+## Adversarial acceptance cases
+
+1. Drive actual generated Start handlers using synthetic upstream/signer dependencies in a test factory/request context, not a production test endpoint or direct domain-handler-only test. Native cookies must preserve two Set-Cookie headers and proper HTTP attributes, expiry and deletion paths. JSON private responses must remain no-store on success and failure, including method rejection and HEAD.
+2. Fresh device preparation → verified bootstrap → imported genre starter → open → place → reload → logout → reauthorize preserves owner, grants and placement. Recovery cookie alone must not read inventory. A distinct device cannot supply an owner or reuse another owner's pack/placement. Forged, malformed, expired and revoked active cookies fail closed.
+3. Pause verification after device preparation, logout, then release verification: no new session, import or grant survives revocation. Repeat logout during import and catalogue enrichment. Resolve owner then pause streamed body/enrichment: revoked session cannot commit afterward. Same device concurrent tabs have deterministic response/session ordering; stale responses cannot restore access after logout.
+4. Cancel Request.signal while upstream pending: fetch aborts, no late write, bounded admission slot released. Dispose runtime with pending requests: all work stops before database closes; next process reopens database without leaks. Failed authorization creates no active access; failed import preserves previous inventory and returns explicit import status.
+5. Verify only device/session hashes persist. Inspect synthetic fixture DB and public responses for fixture credential absence; no Music User Token retained in app maps, service closure shared across requests, DB, logs or public Jotai state. Catalogue enrichment uses verified stored storefront plus developer authorization without a Music User Token.
+6. Additive migration from existing supported schema preserves collection, credits, placements and starter markers. Repeat open/reopen is idempotent; future schema rejection does not mutate it. Temporary databases only. Session expiry/rotation and reconnect never reset earning.
+7. Exercise malformed/oversized streaming JSON, foreign/missing origin, untrusted owner fields, invalid finite numbers, replayed observations, concurrent grants/claims, rate/admission saturation, and unknown methods. Verify bounded maps/timers/queues and cleanup after failure, not only happy shutdown.
+8. Real Bun production startup without secret-dependent public SSR crash; absent mandatory production storage configuration fails safely. All 60 assets resolve and match expected hashes; existing artwork/developer-token routes remain delegated. Static path resolution cannot reach database or server output. Client assets contain no bun:sqlite, runtime or key machinery. Shutdown and HMR dispose the one lazy runtime.
+
+## Evidence needed at checkpoint
+
+Engineer diary and exact changed-file list; isolated SQLite/service and actual Start-route integration tests; production build/start smoke and client boundary inspection; source typechecks and scoped lint. Reviewer independently runs relevant tests and type/lint gates, traces every new lifecycle/identity boundary, and writes reviews/session-review.md. Prior passing tests are baseline evidence, not session completion proof.
