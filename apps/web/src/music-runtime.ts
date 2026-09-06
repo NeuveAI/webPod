@@ -13,7 +13,7 @@ import {
 } from '@webpod/providers'
 import type { NavigationDataSource, NavigationLibraryCollection, NavigationLibraryCollectionStatus } from '@webpod/panel'
 import { applePlaybackDiagnostics } from './apple-playback-diagnostics'
-import { bootstrapStickerCollection, startStickerRuntime, stopStickerRuntime } from './sticker-runtime'
+import { bootstrapStickerCollection, restoreStickerSession, startStickerRuntime, stopStickerRuntime } from './sticker-runtime'
 
 export type MusicRuntimeMode = 'apple'
 export type MusicRuntimePhase = 'signed-out' | 'signing-in' | 'authorized' | 'permission-denied' | 'error'
@@ -164,18 +164,18 @@ export async function createProgressiveAppleSource(provider: MusicProvider, isCu
 
 /** Selects the production Apple Music runtime. */
 export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> {
-  stopStickerRuntime(false)
   const selectedOperation = ++operation
   void mode
   const provider = appleProvider ?? createAppleProvider(appleProviderOptions()); appleProvider = provider
+  restoreStickerSession(provider)
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
     await provider.configure()
     if (selectedOperation !== operation) return
-    if (provider.session === null) { publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null }); return }
+    if (provider.session === null) { stopStickerRuntime(true); publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null }); return }
+    startStickerRuntime(provider, () => bootstrapStickerCollection(provider))
     const { source, completion } = await createProgressiveAppleSource(provider, () => selectedOperation === operation); if (selectedOperation !== operation) return
     publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null })
-    startStickerRuntime(provider, () => bootstrapStickerCollection(provider))
     void completion
   } catch (cause) {
     if (selectedOperation !== operation) return
@@ -192,23 +192,24 @@ export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> 
 
 /** Runs MusicKit authorization from a user gesture and hydrates provider-neutral navigation data. */
 export async function authorizeAppleRuntime(): Promise<void> {
-  stopStickerRuntime(false)
   const selectedOperation = ++operation
   const provider = appleProvider ?? createAppleProvider(appleProviderOptions()); appleProvider = provider
+  restoreStickerSession(provider)
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
     await provider.configure(); if (selectedOperation !== operation) return
     try { await provider.authorize() } catch (cause) {
       if (selectedOperation !== operation) return
       const denied = provider.appleSessionState.status === 'permission-denied'
+      if (denied) stopStickerRuntime(true)
       publish({ requestedMode: 'apple', activeMode: 'apple', phase: denied ? 'permission-denied' : 'error', provider, source: emptySource, message: failureMessage('authorization', cause) })
       return
     }
     if (selectedOperation !== operation) return
+    startStickerRuntime(provider, () => bootstrapStickerCollection(provider))
     try {
       const { source, completion } = await createProgressiveAppleSource(provider, () => selectedOperation === operation); if (selectedOperation !== operation) return
       publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null })
-      startStickerRuntime(provider, () => bootstrapStickerCollection(provider))
       void completion
     } catch (cause) {
       if (selectedOperation !== operation) return

@@ -4,7 +4,7 @@ import { deviceStore, receiveStickerInventoryActionAtom, resetStickerCollectionA
 import { isStickerInventory, isStickerPlacement, type ListeningObservation, type StickerInventory, type StickerPlacement } from '@webpod/stickers'
 import { cancelStickerInteraction } from './sticker-interaction'
 
-const LISTENING = { heartbeatMs: 10_000, maximumPending: 3, retries: 2, retryDelayMs: 800 } as const
+const LISTENING = { heartbeatMs: 10_000, maximumPending: 3, refreshMs: 15 * 60_000, retries: 2, retryDelayMs: 800 } as const
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: LISTENING.retries, retryDelay: LISTENING.retryDelayMs, gcTime: 0 } } })
 let generation = 0
 let abort: AbortController | null = null
@@ -12,6 +12,9 @@ let detach: (() => void) | null = null
 let reconnect: (() => Promise<void>) | null = null
 let writes: Promise<void> = Promise.resolve()
 let revocation: Promise<unknown> = Promise.resolve()
+let activeProvider: MusicProvider | null = null
+let restoration: Promise<void> | null = null
+let publication = 0
 class StickerRequestError extends Error { constructor(readonly status: number) { super('collection_request_failed') } }
 
 /** Response validation is shared with the server domain; never publish unchecked JSON. */
@@ -25,10 +28,50 @@ async function inventoryResponse(response: Response): Promise<StickerInventory> 
 function publish(inventory: StickerInventory, expected: number): void {
   if (expected !== generation) return
   if (!deviceStore.set(receiveStickerInventoryActionAtom, inventory)) throw new Error('collection_invalid_placements')
+  publication += 1
 }
 
 async function request(path: string, method = 'GET', body?: unknown): Promise<StickerInventory> {
   return inventoryResponse(await fetch(`/api/stickers${path}`, { method, credentials: 'same-origin', cache: 'no-store', signal: abort?.signal, ...(body === undefined ? {} : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }) }))
+}
+
+/** A delayed read/import cannot rewind a placement or opened-pack publication.
+ * Re-read authoritative SQLite after intervening publications, bounded to three
+ * reads under sustained writes. The last validated newer snapshot stays visible. */
+async function reconcile(inventory: StickerInventory, expected: number, startedAt: number): Promise<void> {
+  for (let attempt = 0; expected === generation; attempt++) {
+    const current = deviceStore.get(stickerInventoryAtom)
+    if (startedAt === publication && (current === null || inventory.placementRevision >= current.placementRevision)) { publish(inventory, expected); return }
+    if (attempt >= 3) return
+    startedAt = publication
+    inventory = await request('')
+  }
+}
+function restoreFailure(cause: unknown, expected: number): void {
+  if (expected !== generation) return
+  if (cause instanceof StickerRequestError && (cause.status === 401 || cause.status === 403)) {
+    cancelStickerInteraction(); deviceStore.set(resetStickerCollectionActionAtom); publication += 1
+  } else deviceStore.set(setStickerCollectionStatusActionAtom, 'error')
+}
+/** Starts with the registered server lease, before MusicKit configuration/library
+ * work. Same provider transitions preserve the current validated device snapshot;
+ * a replacement provider or confirmed logout starts with no previous identity. */
+export function restoreStickerSession(provider: MusicProvider): void {
+  const preserve = activeProvider === provider
+  stopStickerRuntime(false, preserve)
+  activeProvider = provider
+  // Initial SDK uncertainty is not a logout, but an observed authorization loss is.
+  let authorized = provider.session?.status === 'authorized'
+  detach = provider.onSessionChange((session) => { if (session?.status === 'authorized') authorized = true; else if (authorized) stopStickerRuntime(true) })
+  abort = new AbortController()
+  const expected = generation, startedAt = publication
+  deviceStore.set(setStickerCollectionStatusActionAtom, 'loading')
+  restoration = (async () => {
+    await revocation
+    if (expected !== generation) return
+    try { await reconcile(await request(''), expected, startedAt) }
+    catch (cause) { restoreFailure(cause, expected) }
+  })()
 }
 
 /** Private token callback is consumed immediately by this dedicated same-origin POST. */
@@ -49,49 +92,68 @@ export function bootstrapStickerCollection(provider: { withMusicAuthorization<T>
   })()
 }
 
-/** Starts only after music authorization succeeds. Import never blocks playable music. */
+/** Attach music credit after authorization; ingestion runs independently of the
+ * already validated DB restoration. One import at a time, on connection/retry and
+ * every fifteen visible minutes; no timer or credential outlives this provider. */
 export function startStickerRuntime(provider: MusicProvider, bootstrap: () => Promise<StickerInventory>): void {
-  stopStickerRuntime(false)
+  if (activeProvider !== provider) {
+    stopStickerRuntime(false)
+    activeProvider = provider; abort = new AbortController()
+  } else if (reconnect !== null) return
   const expected = generation
-  abort = new AbortController()
-  deviceStore.set(setStickerCollectionStatusActionAtom, 'loading')
+  if (deviceStore.get(stickerInventoryAtom) === null) deviceStore.set(setStickerCollectionStatusActionAtom, 'loading')
+  detach?.(); detach = null
   const unsubscribeSession = provider.onSessionChange((session) => { if (session?.status !== 'authorized') stopStickerRuntime(true) })
   let stopListening: (() => void) | null = null
-  detach = () => { unsubscribeSession(); stopListening?.() }
-  const connect = async (): Promise<void> => {
-    try {
-      const inventory = await bootstrap()
+  let connecting: Promise<void> | null = null
+  let lastImport = 0
+  const listen = (): void => { if (expected === generation && stopListening === null && deviceStore.get(stickerInventoryAtom) !== null) stopListening = observeListening(provider, expected) }
+  const connect = (): Promise<void> => {
+    if (connecting !== null) return connecting
+    connecting = (async () => {
+      await restoration
       if (expected !== generation) return
-      publish(inventory, expected)
-      stopListening?.()
-      stopListening = observeListening(provider, expected)
-    } catch (cause) { if (expected === generation) deviceStore.set(setStickerCollectionStatusActionAtom, 'error'); throw cause }
+      listen()
+      const startedAt = publication
+      lastImport = Date.now()
+      try { await reconcile(await bootstrap(), expected, startedAt); listen() }
+      catch (cause) { if (expected === generation) deviceStore.set(setStickerCollectionStatusActionAtom, 'error'); throw cause }
+    })().finally(() => { connecting = null })
+    return connecting
   }
+  const refreshWhenVisible = (): void => {
+    if (expected !== generation || provider.session?.status !== 'authorized' || typeof document !== 'undefined' && document.visibilityState !== 'visible') return
+    if (Date.now() - lastImport >= LISTENING.refreshMs) void connect().catch(() => undefined)
+  }
+  const timer = setInterval(refreshWhenVisible, LISTENING.refreshMs)
+  if (typeof document !== 'undefined') document.addEventListener('visibilitychange', refreshWhenVisible)
+  detach = () => { unsubscribeSession(); stopListening?.(); clearInterval(timer); if (typeof document !== 'undefined') document.removeEventListener('visibilitychange', refreshWhenVisible) }
   reconnect = connect
   void connect().catch(() => undefined)
 }
 
 /** Stops subscriptions before sign-out or provider replacement can emit more credit. */
-export function stopStickerRuntime(revoke = true): void {
+export function stopStickerRuntime(revoke = true, preserveInventory = false): void {
   generation += 1
   detach?.(); detach = null
   abort?.abort(); abort = null
   reconnect = null
+  restoration = null
+  activeProvider = null
   queryClient.clear()
-  cancelStickerInteraction()
-  deviceStore.set(resetStickerCollectionActionAtom)
+  if (!preserveInventory || revoke) { cancelStickerInteraction(); deviceStore.set(resetStickerCollectionActionAtom); publication += 1 }
   if (revoke && typeof window !== 'undefined') revocation = revocation.catch(() => undefined).then(() => fetch('/api/stickers/session', { method: 'DELETE', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}' })).catch(() => undefined)
 }
 
 /** Refreshes inventory without turning an import failure into successful empty state. */
 export async function refreshStickerCollection(): Promise<void> {
-  const expected = generation
+  const expected = generation, startedAt = publication
   deviceStore.set(setStickerCollectionStatusActionAtom, 'loading')
   try {
     const inventory = await queryClient.fetchQuery({ queryKey: ['sticker-inventory', expected], queryFn: () => { if (expected !== generation) throw new Error('collection_session_changed'); return request('') }, retry: (count) => expected === generation && count < LISTENING.retries, staleTime: 0 })
-    publish(inventory, expected)
+    await reconcile(inventory, expected, startedAt)
   } catch (cause) {
-    if (expected === generation) deviceStore.set(setStickerCollectionStatusActionAtom, 'error')
+    restoreFailure(cause, expected)
     throw cause
   }
 }
@@ -109,16 +171,17 @@ function write(work: () => Promise<StickerInventory>): Promise<void> {
   const expected = generation
   const next = writes.catch(() => undefined).then(async () => {
     if (expected !== generation) throw new Error('collection_session_changed')
+    const startedAt = publication
     let inventory: StickerInventory
     try { inventory = await work() }
     catch (cause) {
       if (expected === generation && cause instanceof StickerRequestError && cause.status === 409) {
-        try { publish(await request(''), expected) } catch { if (expected === generation) deviceStore.set(setStickerCollectionStatusActionAtom, 'error') }
+        try { const readAt = publication; await reconcile(await request(''), expected, readAt) } catch { if (expected === generation) deviceStore.set(setStickerCollectionStatusActionAtom, 'error') }
       }
       throw cause
     }
     if (expected !== generation) throw new Error('collection_session_changed')
-    publish(inventory, expected)
+    await reconcile(inventory, expected, startedAt)
   })
   writes = next
   return next
