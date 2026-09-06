@@ -33,3 +33,9 @@ Owner selected genre-based starter plus measured listening. Provisional named th
 Prior-work cleanup: 4a05c37, 6aaef16, 14b4d0b, 8507a63. Neutral backend/domain/provider/architecture: ea38128. Surface/UI refs appended after exact staging. No push performed, no trailers. Generated local tooling/test scratch retained on disk and ignored.
 
 Final reviewed surface commit: af2bb77. Final reviewed UI/runtime commit: 218ae06. All implemented source changes are committed; lead scope, decisions, evidence and this handover are committed separately. The owning goal remains active and incomplete pending identity and live-route implementation.
+
+## Archive and existing-device regression checkpoint
+
+Follow-up commit intent: include the sticker build pipeline and canonical artwork in committed browser source archives and fingerprint provenance. This narrowly fixes clean-archive Vite startup inputs; generated public artwork remains excluded from source identity. Independent reviewer approved the fix after5 archive tests/37assertions, lint, and13/13 existing orientation/parity/lighting browser regressions (1.4minutes,342-file fingerprint b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0). Lead scripts TypeScript check also passed. Bounded final/setup logs and summaries live in evidence/regression/verification.md; final-implementation-review.md records the scoped approval. Historical extraction is supported, but historical browser replay uses matching archived config/helper rather than mixing fingerprint algorithms. No feature implementation changed in this follow-up.
+
+Authentication, live session ownership and production TanStack Start sticker endpoints remain deferred. These regression results do not complete or ship the full stickers goal.

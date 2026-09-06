@@ -1,0 +1,23 @@
+{
+  "routes": {
+    "probe": "/_probe/composite",
+    "spike": "/_spike/device"
+  },
+  "authoredLcd": {
+    "width": 272,
+    "height": 204
+  },
+  "probe": {
+    "screenshotSha256": "4b28ce5e656b65cfac58d7890d603b7238b45a474eb9f299c25a7c8a343522a5",
+    "normalizedPixelSha256": "ecfbcdc8e6cb58f15ae20f102f01e5257b78be4656358325a81233eac2f171dd"
+  },
+  "spike": {
+    "screenshotSha256": "4b28ce5e656b65cfac58d7890d603b7238b45a474eb9f299c25a7c8a343522a5",
+    "normalizedPixelSha256": "ecfbcdc8e6cb58f15ae20f102f01e5257b78be4656358325a81233eac2f171dd"
+  },
+  "difference": {
+    "meanChannelDelta": 0,
+    "changedPixelRatio": 0,
+    "maximumChannelDelta": 0
+  }
+}

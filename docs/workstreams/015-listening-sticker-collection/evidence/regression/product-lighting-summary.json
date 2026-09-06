@@ -1,0 +1,419 @@
+{
+  "route": "/_spike/device?capture",
+  "reviewedSource": {
+    "expectedFingerprint": "b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0",
+    "expectedFileCount": 342,
+    "reviewedCommit": null,
+    "reviewedTree": null
+  },
+  "health": {
+    "expected": "b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0",
+    "current": "b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0",
+    "expectedFileCount": 342,
+    "fileCount": 342,
+    "reviewedCommit": null,
+    "reviewedTree": null
+  },
+  "references": [
+    "IMG_2239.HEIC",
+    "IMG_2240.HEIC",
+    "IMG_2242.HEIC",
+    "IMG_2243.HEIC",
+    "IMG_2244.HEIC",
+    "IMG_2245.HEIC",
+    "IMG_2246.HEIC",
+    "IMG_2248.HEIC",
+    "IMG_2249.HEIC"
+  ],
+  "rig": {
+    "exposure": 1,
+    "key": {
+      "position": [
+        293.7898599090298,
+        400.1799589616778,
+        419.575402830126
+      ],
+      "azimuthDeg": 35,
+      "elevationDeg": 38,
+      "emitter": {
+        "width": 620,
+        "height": 820
+      },
+      "power": 6500000,
+      "intensity": 4.069658261594491
+    },
+    "fill": {
+      "position": [
+        -409.92818271635423,
+        -179.22985673746948,
+        369.1009935894692
+      ],
+      "azimuthDeg": -48,
+      "elevationDeg": -18,
+      "target": [
+        -65,
+        -145,
+        0
+      ],
+      "emitter": {
+        "width": 800,
+        "height": 700
+      },
+      "power": 2730000,
+      "powerRatio": 0.42,
+      "intensity": 1.5517606951459797,
+      "intensityRatio": 0.38130000000000003
+    }
+  },
+  "fillMetrics": {
+    "lowerAssembly": {
+      "mean": 154.412671888807,
+      "p50": 169.79139999999998,
+      "p90": 183.004,
+      "p95": 185.004,
+      "p99": 187.71919999999997,
+      "max": 188.7192,
+      "maxAdjacentRowDelta": 3.4714445945944874
+    },
+    "wheel": {
+      "mean": 166.3446616302934,
+      "p50": 173.004,
+      "p90": 184.93179999999998,
+      "p95": 186.00400000000002,
+      "p99": 187.93179999999998,
+      "max": 188.7192,
+      "maxAdjacentRowDelta": 4.839513207546958
+    },
+    "lowerLeftShell": {
+      "mean": 173.48475182522623,
+      "p50": 173.7914,
+      "p90": 175.79139999999998,
+      "p95": 176.5788,
+      "p99": 176.7914,
+      "max": 176.7914,
+      "maxAdjacentRowDelta": 0.3454790697674639
+    },
+    "bottomShell": {
+      "mean": 143.0431403192388,
+      "p50": 147.5788,
+      "p90": 173.5788,
+      "p95": 178.71919999999997,
+      "p99": 181.93179999999998,
+      "max": 183.71920000000003,
+      "maxAdjacentRowDelta": 2.9560298507462335
+    }
+  },
+  "lowerContribution": {
+    "mean": 31.124611312885136,
+    "p95": 83.71919999999997
+  },
+  "upperContribution": {
+    "mean": 0,
+    "p95": 0
+  },
+  "captures": [
+    {
+      "pass": "combined",
+      "colourway": "black",
+      "pose": "front",
+      "filename": "combined-black-front.png",
+      "box": {
+        "x": 336.685568,
+        "y": 90.53376,
+        "width": 350.628864,
+        "height": 586.9324799999999
+      }
+    },
+    {
+      "pass": "combined",
+      "colourway": "black",
+      "pose": "three-quarter",
+      "filename": "combined-black-three-quarter.png",
+      "box": {
+        "x": 341.38163199999997,
+        "y": 68.46297600000001,
+        "width": 341.236736,
+        "height": 631.074048
+      }
+    },
+    {
+      "pass": "combined",
+      "colourway": "black",
+      "pose": "right-edge",
+      "filename": "combined-black-right-edge.png",
+      "box": {
+        "x": 477.462016,
+        "y": 57.68793599999998,
+        "width": 69.075968,
+        "height": 652.624128
+      }
+    },
+    {
+      "pass": "combined",
+      "colourway": "white",
+      "pose": "front",
+      "filename": "combined-white-front.png",
+      "box": {
+        "x": 336.685568,
+        "y": 90.53376,
+        "width": 350.628864,
+        "height": 586.9324799999999
+      }
+    },
+    {
+      "pass": "combined",
+      "colourway": "white",
+      "pose": "three-quarter",
+      "filename": "combined-white-three-quarter.png",
+      "box": {
+        "x": 341.38163199999997,
+        "y": 68.46297600000001,
+        "width": 341.236736,
+        "height": 631.074048
+      }
+    },
+    {
+      "pass": "combined",
+      "colourway": "white",
+      "pose": "right-edge",
+      "filename": "combined-white-right-edge.png",
+      "box": {
+        "x": 477.462016,
+        "y": 57.68793599999998,
+        "width": 69.075968,
+        "height": 652.624128
+      }
+    },
+    {
+      "pass": "key-only",
+      "colourway": "black",
+      "pose": "front",
+      "filename": "key-only-black-front.png",
+      "box": {
+        "x": 336.685568,
+        "y": 90.53376,
+        "width": 350.628864,
+        "height": 586.9324799999999
+      }
+    },
+    {
+      "pass": "key-only",
+      "colourway": "black",
+      "pose": "three-quarter",
+      "filename": "key-only-black-three-quarter.png",
+      "box": {
+        "x": 341.38163199999997,
+        "y": 68.46297600000001,
+        "width": 341.236736,
+        "height": 631.074048
+      }
+    },
+    {
+      "pass": "key-only",
+      "colourway": "black",
+      "pose": "right-edge",
+      "filename": "key-only-black-right-edge.png",
+      "box": {
+        "x": 477.462016,
+        "y": 57.68793599999998,
+        "width": 69.075968,
+        "height": 652.624128
+      }
+    },
+    {
+      "pass": "key-only",
+      "colourway": "white",
+      "pose": "front",
+      "filename": "key-only-white-front.png",
+      "box": {
+        "x": 336.685568,
+        "y": 90.53376,
+        "width": 350.628864,
+        "height": 586.9324799999999
+      }
+    },
+    {
+      "pass": "key-only",
+      "colourway": "white",
+      "pose": "three-quarter",
+      "filename": "key-only-white-three-quarter.png",
+      "box": {
+        "x": 341.38163199999997,
+        "y": 68.46297600000001,
+        "width": 341.236736,
+        "height": 631.074048
+      }
+    },
+    {
+      "pass": "key-only",
+      "colourway": "white",
+      "pose": "right-edge",
+      "filename": "key-only-white-right-edge.png",
+      "box": {
+        "x": 477.462016,
+        "y": 57.68793599999998,
+        "width": 69.075968,
+        "height": 652.624128
+      }
+    },
+    {
+      "pass": "fill-only",
+      "colourway": "black",
+      "pose": "front",
+      "filename": "fill-only-black-front.png",
+      "box": {
+        "x": 336.685568,
+        "y": 90.53376,
+        "width": 350.628864,
+        "height": 586.9324799999999
+      }
+    },
+    {
+      "pass": "fill-only",
+      "colourway": "black",
+      "pose": "three-quarter",
+      "filename": "fill-only-black-three-quarter.png",
+      "box": {
+        "x": 341.38163199999997,
+        "y": 68.46297600000001,
+        "width": 341.236736,
+        "height": 631.074048
+      }
+    },
+    {
+      "pass": "fill-only",
+      "colourway": "black",
+      "pose": "right-edge",
+      "filename": "fill-only-black-right-edge.png",
+      "box": {
+        "x": 477.462016,
+        "y": 57.68793599999998,
+        "width": 69.075968,
+        "height": 652.624128
+      }
+    },
+    {
+      "pass": "fill-only",
+      "colourway": "white",
+      "pose": "front",
+      "filename": "fill-only-white-front.png",
+      "box": {
+        "x": 336.685568,
+        "y": 90.53376,
+        "width": 350.628864,
+        "height": 586.9324799999999
+      }
+    },
+    {
+      "pass": "fill-only",
+      "colourway": "white",
+      "pose": "three-quarter",
+      "filename": "fill-only-white-three-quarter.png",
+      "box": {
+        "x": 341.38163199999997,
+        "y": 68.46297600000001,
+        "width": 341.236736,
+        "height": 631.074048
+      }
+    },
+    {
+      "pass": "fill-only",
+      "colourway": "white",
+      "pose": "right-edge",
+      "filename": "fill-only-white-right-edge.png",
+      "box": {
+        "x": 477.462016,
+        "y": 57.68793599999998,
+        "width": 69.075968,
+        "height": 652.624128
+      }
+    },
+    {
+      "pass": "neutral",
+      "colourway": "black",
+      "pose": "front",
+      "filename": "neutral-black-front.png",
+      "box": {
+        "x": 336.685568,
+        "y": 90.53376,
+        "width": 350.628864,
+        "height": 586.9324799999999
+      }
+    },
+    {
+      "pass": "neutral",
+      "colourway": "black",
+      "pose": "three-quarter",
+      "filename": "neutral-black-three-quarter.png",
+      "box": {
+        "x": 341.38163199999997,
+        "y": 68.46297600000001,
+        "width": 341.236736,
+        "height": 631.074048
+      }
+    },
+    {
+      "pass": "neutral",
+      "colourway": "black",
+      "pose": "right-edge",
+      "filename": "neutral-black-right-edge.png",
+      "box": {
+        "x": 477.462016,
+        "y": 57.68793599999998,
+        "width": 69.075968,
+        "height": 652.624128
+      }
+    },
+    {
+      "pass": "neutral",
+      "colourway": "white",
+      "pose": "front",
+      "filename": "neutral-white-front.png",
+      "box": {
+        "x": 336.685568,
+        "y": 90.53376,
+        "width": 350.628864,
+        "height": 586.9324799999999
+      }
+    },
+    {
+      "pass": "neutral",
+      "colourway": "white",
+      "pose": "three-quarter",
+      "filename": "neutral-white-three-quarter.png",
+      "box": {
+        "x": 341.38163199999997,
+        "y": 68.46297600000001,
+        "width": 341.236736,
+        "height": 631.074048
+      }
+    },
+    {
+      "pass": "neutral",
+      "colourway": "white",
+      "pose": "right-edge",
+      "filename": "neutral-white-right-edge.png",
+      "box": {
+        "x": 477.462016,
+        "y": 57.68793599999998,
+        "width": 69.075968,
+        "height": 652.624128
+      }
+    }
+  ],
+  "mobile": {
+    "box": {
+      "x": 54.723937500000005,
+      "y": 162.79585,
+      "width": 265.552125,
+      "height": 486.4083
+    },
+    "fit": {
+      "extentX": 0.708139,
+      "extentY": 0.599025,
+      "limitX": 0.818667,
+      "limitY": 0.9
+    },
+    "filename": "combined-black-three-quarter-mobile-375x812.png"
+  }
+}

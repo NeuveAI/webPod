@@ -12,6 +12,8 @@ const ARCHIVE_INPUTS = [
   'packages',
   'scripts/browser-source-fingerprint.ts',
 ] as const
+// Optional only for historical pre-sticker commits; present inputs always participate.
+const STICKER_BUILD_INPUTS = ['scripts/sticker-assets.ts', 'assets/stickers/playworn'] as const
 const SNAPSHOT_FORBIDDEN_ROOTS = ['cert', '.claude', 'design.pen', 'docs', '.env', '.env.local'] as const
 
 export interface BrowserSourceFingerprint {
@@ -45,6 +47,7 @@ export function fingerprintBrowserSources(repositoryRoot = defaultRepositoryRoot
   const sourceRoots = [
     resolve(repositoryRoot, 'apps/web/src'),
     resolve(repositoryRoot, 'packages'),
+    ...(existsSync(resolve(repositoryRoot, 'assets/stickers/playworn')) ? [resolve(repositoryRoot, 'assets/stickers/playworn')] : []),
   ] as const
   const standaloneInputs = [
     resolve(repositoryRoot, 'package.json'),
@@ -52,6 +55,7 @@ export function fingerprintBrowserSources(repositoryRoot = defaultRepositoryRoot
     resolve(repositoryRoot, 'apps/web/package.json'),
     resolve(repositoryRoot, 'apps/web/vite.config.ts'),
     resolve(repositoryRoot, 'scripts/browser-source-fingerprint.ts'),
+    ...(existsSync(resolve(repositoryRoot, 'scripts/sticker-assets.ts')) ? [resolve(repositoryRoot, 'scripts/sticker-assets.ts')] : []),
   ] as const
   const files = [...standaloneInputs, ...sourceRoots.flatMap((root) => walkFiles(root, repositoryRoot))]
     .sort((left, right) => left.localeCompare(right))
@@ -107,6 +111,7 @@ export function prepareBrowserSourceSnapshot({
     resolvedCommit,
     '--',
     ...ARCHIVE_INPUTS,
+    ...STICKER_BUILD_INPUTS.filter((path) => git(root, ['ls-tree', '--name-only', resolvedCommit, '--', path]).trim() === path),
   ])
   run('tar', ['-xf', archivePath, '-C', target], root)
   rmSync(archivePath, { force: true })

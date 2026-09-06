@@ -1,0 +1,494 @@
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+Running 13 tests using 1 worker
+
+(node:74093) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[1/13] apps/web/tests/device-orientation.e2e.ts:21:0 › a visible shell edge captures free yaw/pitch through release
+[WebServer] (node:74094) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+
+  1) apps/web/tests/device-orientation.e2e.ts:21:0 › a visible shell edge captures free yaw/pitch through release 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_spike/device
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_spike/device", waiting until "domcontentloaded"
+
+
+      10 |
+      11 | test.beforeEach(async ({ page }) => {
+    > 12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+         |             ^
+      13 |   const device = page.locator('.webpod-device-preview__device')
+      14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+      15 |   await expect
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:12:13
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--6f12d-e-yaw-pitch-through-release/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--6f12d-e-yaw-pitch-through-release/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--6f12d-e-yaw-pitch-through-release/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74120) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[2/13] apps/web/tests/device-orientation.e2e.ts:44:0 › pointer release keeps moving across frames and a fast flick lands on the opposite face
+  2) apps/web/tests/device-orientation.e2e.ts:44:0 › pointer release keeps moving across frames and a fast flick lands on the opposite face 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_spike/device
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_spike/device", waiting until "domcontentloaded"
+
+
+      10 |
+      11 | test.beforeEach(async ({ page }) => {
+    > 12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+         |             ^
+      13 |   const device = page.locator('.webpod-device-preview__device')
+      14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+      15 |   await expect
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:12:13
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--18d7a--lands-on-the-opposite-face/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--18d7a--lands-on-the-opposite-face/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--18d7a--lands-on-the-opposite-face/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[3/13] apps/web/tests/device-orientation.e2e.ts:79:0 › ordinary production coast scales with measured release velocity
+[WebServer] error when starting dev server:
+[WebServer] Error: Port 4317 is already in use
+[WebServer]     at httpServerStart (/private/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-web-playwright/served-snapshot/node_modules/.bun/vite@8.2.2+48d981d0a960deea/node_modules/vite/dist/node/chunks/node.js:11681:14)
+[WebServer]     at async startServer (/private/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-web-playwright/served-snapshot/node_modules/.bun/vite@8.2.2+48d981d0a960deea/node_modules/vite/dist/node/chunks/node.js:26694:36)
+[WebServer]     at async listen (/private/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-web-playwright/served-snapshot/node_modules/.bun/vite@8.2.2+48d981d0a960deea/node_modules/vite/dist/node/chunks/node.js:26511:10)
+[WebServer]     at async <anonymous> (/private/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-web-playwright/served-snapshot/node_modules/.bun/vite@8.2.2+48d981d0a960deea/node_modules/vite/dist/node/cli.js:721:16)
+[WebServer]     at processTicksAndRejections (native:7:39)
+
+  3) apps/web/tests/device-orientation.e2e.ts:79:0 › ordinary production coast scales with measured release velocity 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_spike/device
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_spike/device", waiting until "domcontentloaded"
+
+
+      10 |
+      11 | test.beforeEach(async ({ page }) => {
+    > 12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+         |             ^
+      13 |   const device = page.locator('.webpod-device-preview__device')
+      14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+      15 |   await expect
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:12:13
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--84cb5-h-measured-release-velocity/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--84cb5-h-measured-release-velocity/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--84cb5-h-measured-release-velocity/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74150) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[4/13] apps/web/tests/device-orientation.e2e.ts:92:0 › front center, LCD, click wheel, and Select do not begin orientation
+  4) apps/web/tests/device-orientation.e2e.ts:92:0 › front center, LCD, click wheel, and Select do not begin orientation 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_spike/device
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_spike/device", waiting until "domcontentloaded"
+
+
+      10 |
+      11 | test.beforeEach(async ({ page }) => {
+    > 12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+         |             ^
+      13 |   const device = page.locator('.webpod-device-preview__device')
+      14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+      15 |   await expect
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:12:13
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--b9169-ct-do-not-begin-orientation/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--b9169-ct-do-not-begin-orientation/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--b9169-ct-do-not-begin-orientation/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[5/13] apps/web/tests/device-orientation.e2e.ts:129:0 › touch captures the same physical edge and rotates without scrolling
+  5) apps/web/tests/device-orientation.e2e.ts:129:0 › touch captures the same physical edge and rotates without scrolling 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_spike/device
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_spike/device", waiting until "domcontentloaded"
+
+
+      10 |
+      11 | test.beforeEach(async ({ page }) => {
+    > 12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+         |             ^
+      13 |   const device = page.locator('.webpod-device-preview__device')
+      14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+      15 |   await expect
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:12:13
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--99b0d-d-rotates-without-scrolling/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--99b0d-d-rotates-without-scrolling/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--99b0d-d-rotates-without-scrolling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74178) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[6/13] apps/web/tests/device-orientation.e2e.ts:171:0 › edge drag reaches the rear, pitch is bounded, and Option drag rolls
+  6) apps/web/tests/device-orientation.e2e.ts:171:0 › edge drag reaches the rear, pitch is bounded, and Option drag rolls 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_spike/device
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_spike/device", waiting until "domcontentloaded"
+
+
+      10 |
+      11 | test.beforeEach(async ({ page }) => {
+    > 12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+         |             ^
+      13 |   const device = page.locator('.webpod-device-preview__device')
+      14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+      15 |   await expect
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:12:13
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--3a88e-unded-and-Option-drag-rolls/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--3a88e-unded-and-Option-drag-rolls/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--3a88e-unded-and-Option-drag-rolls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74191) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[7/13] apps/web/tests/device-orientation.e2e.ts:204:0 › a projected rounded corner is an orientation handle
+  7) apps/web/tests/device-orientation.e2e.ts:204:0 › a projected rounded corner is an orientation handle 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_spike/device
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_spike/device", waiting until "domcontentloaded"
+
+
+      10 |
+      11 | test.beforeEach(async ({ page }) => {
+    > 12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+         |             ^
+      13 |   const device = page.locator('.webpod-device-preview__device')
+      14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+      15 |   await expect
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:12:13
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--1e4dc-er-is-an-orientation-handle/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--1e4dc-er-is-an-orientation-handle/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--1e4dc-er-is-an-orientation-handle/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[8/13] apps/web/tests/device-orientation.e2e.ts:220:0 › pointer cancellation ends capture and Reset view preserves chosen appearance
+  8) apps/web/tests/device-orientation.e2e.ts:220:0 › pointer cancellation ends capture and Reset view preserves chosen appearance 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_spike/device
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_spike/device", waiting until "domcontentloaded"
+
+
+      10 |
+      11 | test.beforeEach(async ({ page }) => {
+    > 12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+         |             ^
+      13 |   const device = page.locator('.webpod-device-preview__device')
+      14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+      15 |   await expect
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:12:13
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--bca34-preserves-chosen-appearance/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--bca34-preserves-chosen-appearance/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--bca34-preserves-chosen-appearance/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74218) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[9/13] apps/web/tests/device-orientation.e2e.ts:253:0 › pose presets stay absent and the device stage does not select labels
+  9) apps/web/tests/device-orientation.e2e.ts:253:0 › pose presets stay absent and the device stage does not select labels 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_spike/device
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_spike/device", waiting until "domcontentloaded"
+
+
+      10 |
+      11 | test.beforeEach(async ({ page }) => {
+    > 12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+         |             ^
+      13 |   const device = page.locator('.webpod-device-preview__device')
+      14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+      15 |   await expect
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:12:13
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--93ecd-tage-does-not-select-labels/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--93ecd-tage-does-not-select-labels/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--93ecd-tage-does-not-select-labels/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74231) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[10/13] apps/web/tests/product-lighting.e2e.ts:245:0 › two-light product rig has isolated proof, broad lower fill, and stable framing
+  10) apps/web/tests/product-lighting.e2e.ts:245:0 › two-light product rig has isolated proof, broad lower fill, and stable framing 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_spike/device?diagnostic=production-surface&view=front&colourway=black&capture=&lighting=combined
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_spike/device?diagnostic=production-surface&view=front&colourway=black&capture=&lighting=combined", waiting until "domcontentloaded"
+
+
+      78 |   pose: Pose,
+      79 | ): Promise<Box> {
+    > 80 |   await page.goto(proofRoute(pass, colourway, pose), {
+         |             ^
+      81 |     waitUntil: 'domcontentloaded',
+      82 |   })
+      83 |   const root = page.locator('.webpod-device-preview')
+        at prepareProof (/Users/vinicius/code/webPod/apps/web/tests/product-lighting.e2e.ts:80:13)
+        at /Users/vinicius/code/webPod/apps/web/tests/product-lighting.e2e.ts:257:26
+
+    Error Context: apps/web/tests/test-results/product-lighting.e2e.ts-tw-7e518-wer-fill-and-stable-framing/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/product-lighting.e2e.ts-tw-7e518-wer-fill-and-stable-framing/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/product-lighting.e2e.ts-tw-7e518-wer-fill-and-stable-framing/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74253) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[11/13] apps/web/tests/production-view-parity.e2e.ts:76:0 › the default probe and spike render one production nine-row-capacity LCD view
+  11) apps/web/tests/production-view-parity.e2e.ts:76:0 › the default probe and spike render one production nine-row-capacity LCD view 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_probe/composite
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_probe/composite", waiting until "domcontentloaded"
+
+
+      169 |   const page = await context.newPage()
+      170 |   await installDeterministicAppleMusic(page)
+    > 171 |   await page.goto(route, { waitUntil: 'domcontentloaded' })
+          |             ^
+      172 |   await assertBrowserSourceIdentity(page)
+      173 |   await page.addStyleTag({
+      174 |     content:
+        at openRoute (/Users/vinicius/code/webPod/apps/web/tests/production-view-parity.e2e.ts:171:13)
+        at /Users/vinicius/code/webPod/apps/web/tests/production-view-parity.e2e.ts:77:22
+
+    Error Context: apps/web/tests/test-results/production-view-parity.e2e-07e5a--nine-row-capacity-LCD-view/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/production-view-parity.e2e-07e5a--nine-row-capacity-LCD-view/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/production-view-parity.e2e-07e5a--nine-row-capacity-LCD-view/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74290) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[12/13] apps/web/tests/production-view-parity.e2e.ts:117:0 › every legacy product-semantic query resolves to the canonical nine-row-capacity view
+  12) apps/web/tests/production-view-parity.e2e.ts:117:0 › every legacy product-semantic query resolves to the canonical nine-row-capacity view 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_probe/composite?colourway=black&state=ready&scale=1&fov=24&mode=bare&pose=front
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_probe/composite?colourway=black&state=ready&scale=1&fov=24&mode=bare&pose=front", waiting until "domcontentloaded"
+
+
+      169 |   const page = await context.newPage()
+      170 |   await installDeterministicAppleMusic(page)
+    > 171 |   await page.goto(route, { waitUntil: 'domcontentloaded' })
+          |             ^
+      172 |   await assertBrowserSourceIdentity(page)
+      173 |   await page.addStyleTag({
+      174 |     content:
+        at openRoute (/Users/vinicius/code/webPod/apps/web/tests/production-view-parity.e2e.ts:171:13)
+        at /Users/vinicius/code/webPod/apps/web/tests/production-view-parity.e2e.ts:119:23
+
+    Error Context: apps/web/tests/test-results/production-view-parity.e2e-528e2-ical-nine-row-capacity-view/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/production-view-parity.e2e-528e2-ical-nine-row-capacity-view/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/production-view-parity.e2e-528e2-ical-nine-row-capacity-view/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:74318) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE b02745a4073b8135718bc3c3c2665482e90af1f69c81020ddcf5b23df6e757f0 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[13/13] apps/web/tests/production-view-parity.e2e.ts:131:0 › cropped LCD pixels remain equivalent across the shared route boundary
+  13) apps/web/tests/production-view-parity.e2e.ts:131:0 › cropped LCD pixels remain equivalent across the shared route boundary 
+
+    Error: goto: net::ERR_HTTP_RESPONSE_CODE_FAILURE at http://127.0.0.1:4317/_probe/composite
+    Call log:
+      - navigating to "http://127.0.0.1:4317/_probe/composite", waiting until "domcontentloaded"
+
+
+      169 |   const page = await context.newPage()
+      170 |   await installDeterministicAppleMusic(page)
+    > 171 |   await page.goto(route, { waitUntil: 'domcontentloaded' })
+          |             ^
+      172 |   await assertBrowserSourceIdentity(page)
+      173 |   await page.addStyleTag({
+      174 |     content:
+        at openRoute (/Users/vinicius/code/webPod/apps/web/tests/production-view-parity.e2e.ts:171:13)
+        at /Users/vinicius/code/webPod/apps/web/tests/production-view-parity.e2e.ts:132:22
+
+    Error Context: apps/web/tests/test-results/production-view-parity.e2e-507fc-s-the-shared-route-boundary/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/production-view-parity.e2e-507fc-s-the-shared-route-boundary/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/production-view-parity.e2e-507fc-s-the-shared-route-boundary/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  13 failed
+    apps/web/tests/device-orientation.e2e.ts:21:0 › a visible shell edge captures free yaw/pitch through release 
+    apps/web/tests/device-orientation.e2e.ts:44:0 › pointer release keeps moving across frames and a fast flick lands on the opposite face 
+    apps/web/tests/device-orientation.e2e.ts:79:0 › ordinary production coast scales with measured release velocity 
+    apps/web/tests/device-orientation.e2e.ts:92:0 › front center, LCD, click wheel, and Select do not begin orientation 
+    apps/web/tests/device-orientation.e2e.ts:129:0 › touch captures the same physical edge and rotates without scrolling 
+    apps/web/tests/device-orientation.e2e.ts:171:0 › edge drag reaches the rear, pitch is bounded, and Option drag rolls 
+    apps/web/tests/device-orientation.e2e.ts:204:0 › a projected rounded corner is an orientation handle 
+    apps/web/tests/device-orientation.e2e.ts:220:0 › pointer cancellation ends capture and Reset view preserves chosen appearance 
+    apps/web/tests/device-orientation.e2e.ts:253:0 › pose presets stay absent and the device stage does not select labels 
+    apps/web/tests/product-lighting.e2e.ts:245:0 › two-light product rig has isolated proof, broad lower fill, and stable framing 
+    apps/web/tests/production-view-parity.e2e.ts:76:0 › the default probe and spike render one production nine-row-capacity LCD view 
+    apps/web/tests/production-view-parity.e2e.ts:117:0 › every legacy product-semantic query resolves to the canonical nine-row-capacity view 
+    apps/web/tests/production-view-parity.e2e.ts:131:0 › cropped LCD pixels remain equivalent across the shared route boundary 

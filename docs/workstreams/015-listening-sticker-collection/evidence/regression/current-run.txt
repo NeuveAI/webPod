@@ -1,0 +1,289 @@
+[W5B SOURCE e714a9f35b3ec45a82e7f3520356de66d95b0a85acdfaac8425195232e8ba190 FILES 279 WORKTREE-SNAPSHOT]
+[WebServer] (node:73278) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+Running 13 tests using 1 worker
+
+(node:73283) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE e714a9f35b3ec45a82e7f3520356de66d95b0a85acdfaac8425195232e8ba190 FILES 279 WORKTREE-SNAPSHOT]
+
+
+[1/13] apps/web/tests/device-orientation.e2e.ts:21:0 › a visible shell edge captures free yaw/pitch through release
+[WebServer] Warning: A notFoundError was encountered on the route with ID "__root__", but a notFoundComponent option was not configured, nor was a router level defaultNotFoundComponent configured. Consider configuring at least one of these to avoid TanStack Router's overly generic defaultNotFoundComponent (<p>Not Found</p>)
+
+[WebServer] 1:51:28 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:51:33 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+  1) apps/web/tests/device-orientation.e2e.ts:21:0 › a visible shell edge captures free yaw/pitch through release 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.webpod-device-preview__device')
+    Expected: "T1"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "to.have.attribute.value" with timeout 5000ms
+      - waiting for locator('.webpod-device-preview__device')
+
+
+      12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+      13 |   const device = page.locator('.webpod-device-preview__device')
+    > 14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+         |                       ^
+      15 |   await expect
+      16 |     .poll(() => device.locator('canvas').getAttribute('data-wp-camera-fit-distance'))
+      17 |     .not.toBeNull()
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:14:23
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--6f12d-e-yaw-pitch-through-release/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--6f12d-e-yaw-pitch-through-release/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--6f12d-e-yaw-pitch-through-release/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:73333) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE e714a9f35b3ec45a82e7f3520356de66d95b0a85acdfaac8425195232e8ba190 FILES 279 WORKTREE-SNAPSHOT]
+
+
+[2/13] apps/web/tests/device-orientation.e2e.ts:44:0 › pointer release keeps moving across frames and a fast flick lands on the opposite face
+[WebServer] Warning: A notFoundError was encountered on the route with ID "__root__", but a notFoundComponent option was not configured, nor was a router level defaultNotFoundComponent configured. Consider configuring at least one of these to avoid TanStack Router's overly generic defaultNotFoundComponent (<p>Not Found</p>)
+
+[WebServer] 1:51:38 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:51:42 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+  2) apps/web/tests/device-orientation.e2e.ts:44:0 › pointer release keeps moving across frames and a fast flick lands on the opposite face 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 340
+    Received:    0
+
+      61 |   expect(
+      62 |     Math.abs(Number(await stage.getAttribute('data-orientation-release-yaw-velocity'))),
+    > 63 |   ).toBeGreaterThanOrEqual(340)
+         |    ^
+      64 |   expect(await stage.getAttribute('data-orientation-motion')).toBe('opposite-face')
+      65 |   const laterFrames: number[] = []
+      66 |   for (let frame = 0; frame < 4; frame += 1) {
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:63:4
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--18d7a--lands-on-the-opposite-face/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--18d7a--lands-on-the-opposite-face/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--18d7a--lands-on-the-opposite-face/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:73355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE e714a9f35b3ec45a82e7f3520356de66d95b0a85acdfaac8425195232e8ba190 FILES 279 WORKTREE-SNAPSHOT]
+
+
+[3/13] apps/web/tests/device-orientation.e2e.ts:79:0 › ordinary production coast scales with measured release velocity
+[WebServer] Warning: A notFoundError was encountered on the route with ID "__root__", but a notFoundComponent option was not configured, nor was a router level defaultNotFoundComponent configured. Consider configuring at least one of these to avoid TanStack Router's overly generic defaultNotFoundComponent (<p>Not Found</p>)
+
+[WebServer] 1:51:49 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+  3) apps/web/tests/device-orientation.e2e.ts:79:0 › ordinary production coast scales with measured release velocity 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.webpod-device-preview__device')
+    Expected: "T1"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "to.have.attribute.value" with timeout 5000ms
+      - waiting for locator('.webpod-device-preview__device')
+
+
+      12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+      13 |   const device = page.locator('.webpod-device-preview__device')
+    > 14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+         |                       ^
+      15 |   await expect
+      16 |     .poll(() => device.locator('canvas').getAttribute('data-wp-camera-fit-distance'))
+      17 |     .not.toBeNull()
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:14:23
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--84cb5-h-measured-release-velocity/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--84cb5-h-measured-release-velocity/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--84cb5-h-measured-release-velocity/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:73377) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE e714a9f35b3ec45a82e7f3520356de66d95b0a85acdfaac8425195232e8ba190 FILES 279 WORKTREE-SNAPSHOT]
+
+
+[4/13] apps/web/tests/device-orientation.e2e.ts:92:0 › front center, LCD, click wheel, and Select do not begin orientation
+[WebServer] Warning: A notFoundError was encountered on the route with ID "__root__", but a notFoundComponent option was not configured, nor was a router level defaultNotFoundComponent configured. Consider configuring at least one of these to avoid TanStack Router's overly generic defaultNotFoundComponent (<p>Not Found</p>)
+
+[WebServer] 1:51:58 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:52:02 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] Warning: A notFoundError was encountered on the route with ID "__root__", but a notFoundComponent option was not configured, nor was a router level defaultNotFoundComponent configured. Consider configuring at least one of these to avoid TanStack Router's overly generic defaultNotFoundComponent (<p>Not Found</p>)
+
+[5/13] apps/web/tests/device-orientation.e2e.ts:129:0 › touch captures the same physical edge and rotates without scrolling
+[WebServer] 1:52:06 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:52:10 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[6/13] apps/web/tests/device-orientation.e2e.ts:171:0 › edge drag reaches the rear, pitch is bounded, and Option drag rolls
+[WebServer] 1:52:13 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:52:17 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+  4) apps/web/tests/device-orientation.e2e.ts:171:0 › edge drag reaches the rear, pitch is bounded, and Option drag rolls 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('.webpod-device-preview__device')
+    Expected: "T1"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "to.have.attribute.value" with timeout 5000ms
+      - waiting for locator('.webpod-device-preview__device')
+
+
+      12 |   await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+      13 |   const device = page.locator('.webpod-device-preview__device')
+    > 14 |   await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+         |                       ^
+      15 |   await expect
+      16 |     .poll(() => device.locator('canvas').getAttribute('data-wp-camera-fit-distance'))
+      17 |     .not.toBeNull()
+        at /Users/vinicius/code/webPod/apps/web/tests/device-orientation.e2e.ts:14:23
+
+    Error Context: apps/web/tests/test-results/device-orientation.e2e.ts--3a88e-unded-and-Option-drag-rolls/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    apps/web/tests/test-results/device-orientation.e2e.ts--3a88e-unded-and-Option-drag-rolls/trace.zip
+    Usage:
+
+        npx playwright show-trace apps/web/tests/test-results/device-orientation.e2e.ts--3a88e-unded-and-Option-drag-rolls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+(node:73421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE e714a9f35b3ec45a82e7f3520356de66d95b0a85acdfaac8425195232e8ba190 FILES 279 WORKTREE-SNAPSHOT]
+
+
+[7/13] apps/web/tests/device-orientation.e2e.ts:204:0 › a projected rounded corner is an orientation handle
+[WebServer] Warning: A notFoundError was encountered on the route with ID "__root__", but a notFoundComponent option was not configured, nor was a router level defaultNotFoundComponent configured. Consider configuring at least one of these to avoid TanStack Router's overly generic defaultNotFoundComponent (<p>Not Found</p>)
+
+[WebServer] 1:52:21 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:52:25 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[8/13] apps/web/tests/device-orientation.e2e.ts:220:0 › pointer cancellation ends capture and Reset view preserves chosen appearance
+[WebServer] 1:52:29 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:52:33 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[9/13] apps/web/tests/device-orientation.e2e.ts:253:0 › pose presets stay absent and the device stage does not select labels
+[WebServer] 1:52:37 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:52:42 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+(node:73493) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE 6a9208143b52a000841ecace37059b344b185279632f3624e1ff5817f016b0b6 FILES 342 WORKTREE-SNAPSHOT]
+
+
+[10/13] apps/web/tests/product-lighting.e2e.ts:245:0 › two-light product rig has isolated proof, broad lower fill, and stable framing
+[WebServer] Warning: A notFoundError was encountered on the route with ID "__root__", but a notFoundComponent option was not configured, nor was a router level defaultNotFoundComponent configured. Consider configuring at least one of these to avoid TanStack Router's overly generic defaultNotFoundComponent (<p>Not Found</p>)
+
+[WebServer] 1:52:47 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:52:52 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:52:54 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:52:54 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:53:00 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:53:00 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:53:06 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:53:10 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:53:12 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:53:12 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:53:14 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:53:14 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:53:15 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:53:15 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:53:17 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:53:17 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:53:18 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:53:18 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:53:20 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:53:20 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:53:21 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:53:21 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 1:53:23 AM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[WebServer] 1:53:23 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
