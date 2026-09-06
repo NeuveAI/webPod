@@ -1,6 +1,6 @@
 import { useThree } from '@react-three/fiber';
 import { useEffect, useLayoutEffect, useMemo } from 'react';
-import { BackSide, DoubleSide, FrontSide, Mesh, ExtrudeGeometry, Shape, Raycaster, Vector2, Vector3 } from 'three';
+import { BackSide, DoubleSide, FrontSide, Mesh, Raycaster, Vector2, Vector3 } from 'three';
 import { DeviceCanvasOrientationContext } from './DeviceCanvas';
 import { useContext } from 'react';
 import { STICKER_PACK_LAYOUT, stickerPackViewportLayout, STICKER_SHEET_SLOTS, STICKER_SHEET_PRINT_WIDTH, type DeviceStickerScene, type StickerArtwork, type StickerPackVisual } from './sticker-contract';
@@ -11,6 +11,7 @@ import { StickerPrint } from './StickerSurface';
 import { useStudioEnvironmentSnapshot } from './StudioEnvironment';
 import { DEVICE_CONTENT_NAME, DEVICE_MODEL_NAME } from './ViewerLitDeviceFrame';
 import { DEVICE_LAYOUT } from './layout';
+import { createStickerSleeveGeometry, SLEEVE_LAMINATE } from './sticker-sleeve';
 import { createStickerPaperGeometry, conformStickerToPaper, stickerPaperCurlProgress } from './sticker-paper';
 
 /* ANIMATION STORYBOARD
@@ -20,7 +21,7 @@ import { createStickerPaperGeometry, conformStickerToPaper, stickerPaperCurlProg
  * release  landing interpolates free print → real rear mesh; owner spring settles
  * All clocks and reduced-motion resolution belong to the shared app controller.
  */
-const PACK = Object.freeze({ depth: 130, sleeveClearcoat: .06, sleeveRoughness: .72, sleeveCoatRoughness: .45, linerClearcoat: .55, linerRoughness: .38, linerCoatRoughness: .23 });
+const PACK = Object.freeze({ depth: 130, linerClearcoat: .55, linerRoughness: .38, linerCoatRoughness: .23 });
 
 /** Existing camera/light rig; no second canvas, renderer, or animation scheduler. */
 export function StickerPackScene({ scene: stickerScene }: { readonly scene: DeviceStickerScene }) {
@@ -119,27 +120,23 @@ function PackPaper({ width, height, pixel, ink, roughness, liner = false, curlPr
   return <group name={liner ? "release-liner-stock" : "printed-sleeve-stock"}>
     <mesh geometry={stock.back} raycast={() => {}}><meshStandardMaterial color={liner ? '#c4bba8' : '#b8a88d'} roughness={.94} side={BackSide} /></mesh>
     <mesh geometry={stock.edge} raycast={() => {}}><meshStandardMaterial color={liner ? '#b6aa92' : '#aa9574'} roughness={.96} side={DoubleSide} /></mesh>
-    <mesh geometry={stock.front} raycast={() => {}}><meshPhysicalMaterial {...STICKER_PACK_MATERIAL} color={ink} roughnessMap={roughness} bumpMap={roughness} bumpScale={pixel * .2} roughness={liner ? PACK.linerRoughness : PACK.sleeveRoughness} clearcoat={liner ? PACK.linerClearcoat : PACK.sleeveClearcoat} clearcoatRoughness={liner ? PACK.linerCoatRoughness : PACK.sleeveCoatRoughness} envMap={studio.texture} side={FrontSide} /></mesh>
+    <mesh geometry={stock.front} raycast={() => {}}><meshPhysicalMaterial {...STICKER_PACK_MATERIAL} color={ink} roughnessMap={roughness} bumpMap={roughness} bumpScale={pixel * .2} roughness={liner ? PACK.linerRoughness : SLEEVE_LAMINATE.roughness} clearcoat={liner ? PACK.linerClearcoat : SLEEVE_LAMINATE.clearcoat} clearcoatRoughness={liner ? PACK.linerCoatRoughness : SLEEVE_LAMINATE.clearcoatRoughness} envMap={studio.texture} side={FrontSide} /></mesh>
   </group>;
 }
 /** Folded/glued paper pocket; the thumb notch and fold thickness identify the sleeve. */
 function SleevePocket({ width, height, pixel, ink, roughness }: { readonly width: number; readonly height: number; readonly pixel: number; readonly ink: string; readonly roughness: ReturnType<typeof createStickerRoughness> }) {
-  const geometry = useMemo(() => {
-    const shape = new Shape(); const half = width / 2; const top = height / 2; const notch = width * .075;
-    shape.moveTo(-half, -top); shape.lineTo(half, -top); shape.lineTo(half, top); shape.lineTo(notch, top);
-    shape.quadraticCurveTo(notch * .6, top - notch, 0, top - notch);
-    shape.quadraticCurveTo(-notch * .6, top - notch, -notch, top);
-    shape.lineTo(-half, top); shape.closePath();
-    return new ExtrudeGeometry(shape, { depth: pixel * .7, bevelEnabled: true, bevelThickness: pixel * .15, bevelSize: pixel * .18, bevelSegments: 3, curveSegments: 32, steps: 1 });
-  }, [width, height, pixel]);
+  const studio = useStudioEnvironmentSnapshot();
+  const geometry = useMemo(() => createStickerSleeveGeometry(width, height, pixel), [width, height, pixel]);
+  const exterior = { ...SLEEVE_LAMINATE, color: ink, envMap: studio.texture, roughnessMap: roughness, bumpMap: roughness, bumpScale: pixel * .2 };
   useEffect(() => () => geometry.dispose(), [geometry]);
   return <group>
     <mesh geometry={geometry} raycast={() => {}}>
-      <meshStandardMaterial attach="material-0" color={ink} roughness={.78} bumpMap={roughness} bumpScale={pixel * .2} />
+      <meshPhysicalMaterial attach="material-0" {...exterior} />
       <meshStandardMaterial attach="material-1" color="#bca787" roughness={.94} />
+      <meshStandardMaterial attach="material-2" color="#b8a88d" roughness={.94} />
     </mesh>
-    {[-1, 1].map((side) => <mesh key={side} position={[side * (width / 2 - pixel * 4), 0, pixel * 1.05]} rotation={[0, side * .045, 0]} raycast={() => {}}><planeGeometry args={[pixel * 7, height - pixel * 2]} /><meshStandardMaterial color={ink} roughness={.85} /></mesh>)}
-    <mesh position={[0, -height / 2 + pixel * 3, pixel * 1.05]} rotation={[.06, 0, 0]} raycast={() => {}}><planeGeometry args={[width - pixel * 2, pixel * 5]} /><meshStandardMaterial color={ink} roughness={.9} /></mesh>
+    {[-1, 1].map((side) => <mesh key={side} position={[side * (width / 2 - pixel * 4), 0, pixel * 1.05]} rotation={[0, side * .045, 0]} raycast={() => {}}><planeGeometry args={[pixel * 7, height - pixel * 2]} /><meshPhysicalMaterial {...exterior} /></mesh>)}
+    <mesh position={[0, -height / 2 + pixel * 3, pixel * 1.05]} rotation={[.06, 0, 0]} raycast={() => {}}><planeGeometry args={[width - pixel * 2, pixel * 5]} /><meshPhysicalMaterial {...exterior} /></mesh>
   </group>;
 }
 function SheetPrint({ art, width, appearance, roughness, stickerScene, bow }: { readonly art: StickerArtwork; readonly width: number; readonly appearance: 'earned' | 'locked' | 'placed'; readonly roughness: ReturnType<typeof createStickerRoughness>; readonly stickerScene: DeviceStickerScene; readonly bow?: { pixel: number; paperWidth: number; seatX: number } }) {

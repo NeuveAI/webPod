@@ -10,7 +10,7 @@ import { getSticker, isStickerInventory, type StickerInventory } from '@webpod/s
 import { fingerprintBrowserSources } from '../../../scripts/browser-source-fingerprint'
 import { installDeterministicAppleMusic } from '../tests/deterministic-apple-music'
 
-const evidence = resolve(import.meta.dirname, '../../../docs/workstreams/015-listening-sticker-collection/evidence/tactile-collection/browser')
+const evidence = process.env.WEBPOD_STICKER_EVIDENCE_DIR ?? resolve(import.meta.dirname, '../../../docs/workstreams/015-listening-sticker-collection/evidence/tactile-collection/browser')
 
 /** Built production /, real Start endpoints, native browser cookies and isolated SQLite.
  * Only MusicKit and the server's trusted Apple/signing dependencies are synthetic.
@@ -297,6 +297,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.getByRole('button', { name: 'Pull sticker pack into view' }).focus()
     await first.page.keyboard.press('Enter')
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
+    await first.page.screenshot({ path: resolve(evidence, 'mobile-sealed-sleeve.png') })
     await first.page.getByRole('button', { name: 'Open earned pack' }).click()
     await browserExpect(first.page.locator('[data-sticker-slot-state="placed"]')).toHaveCount(1)
     await captureSheet(first.page, 'mobile-open-sheet.png')
@@ -399,7 +400,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     for await (const path of new Bun.Glob('**/*').scan({ cwd: clientRoot, onlyFiles: true })) clientFiles.push(path)
     for (const path of clientFiles.sort()) { clientHash.update(path); clientHash.update(await readFile(resolve(clientRoot, path))) }
     const builtHash = createHash('sha256').update(await readFile(builtPath)).digest('hex')
-    await writeFile(resolve(evidence, 'browser-verification.json'), JSON.stringify({ passed: true, sourceFingerprint, builtClientSha256: clientHash.digest('hex'), materialConstruction: 'fixed paper sleeve, translated release liner, laminated vinyl', nativeMobileTouch: true, simulatedServiceFailures, lowerRearVisiblePreview: true, twoEarnedKeyboardIdentity: true, closeAndFlickDuringLinerReturn: true, durationMs: Math.round(performance.now() - started), builtServerSha256: builtHash, routes: requests, appleVerifications: verifications, syntheticSignatures: signed, nativeHttpOnlyCookies: true, realSQLite: true, sameDeviceReloadAndReconnect: true, separateBrowserIsolation: true, apiInterceptions: 0 }, null, 2))
+    await writeFile(resolve(evidence, 'browser-verification.json'), JSON.stringify({ passed: true, sourceFingerprint, builtClientSha256: clientHash.digest('hex'), materialConstruction: 'matte-laminated printed sleeve with raw edges, translated release liner, laminated vinyl', nativeMobileTouch: true, simulatedServiceFailures, lowerRearVisiblePreview: true, twoEarnedKeyboardIdentity: true, closeAndFlickDuringLinerReturn: true, durationMs: Math.round(performance.now() - started), builtServerSha256: builtHash, routes: requests, appleVerifications: verifications, syntheticSignatures: signed, nativeHttpOnlyCookies: true, realSQLite: true, sameDeviceReloadAndReconnect: true, separateBrowserIsolation: true, apiInterceptions: 0 }, null, 2))
   } finally {
     const outcomes = []
     for (const dispose of cleanup.reverse()) outcomes.push(await Promise.allSettled([Promise.resolve().then(dispose)]))
