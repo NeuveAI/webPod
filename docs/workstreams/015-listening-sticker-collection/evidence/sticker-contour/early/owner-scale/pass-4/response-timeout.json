@@ -1,0 +1,197 @@
+{
+  "requests": [
+    {
+      "path": "/api/stickers/device",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/session",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/packs/open",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/placements",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "path": "/",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/favicon.ico",
+      "method": "GET",
+      "status": 404
+    },
+    {
+      "path": "/api/apple/developer-token",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/device",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/session",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/placements",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/placements",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/placements",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    }
+  ],
+  "inventory": {
+    "stickerIds": [
+      "PW-A01",
+      "PW-F01"
+    ],
+    "packs": [
+      {
+        "id": "9f3f2060-c092-4008-9115-3bed67e69001",
+        "source": "starter",
+        "stickerIds": [
+          "PW-A01",
+          "PW-F01"
+        ],
+        "earnedAt": 1788730848741,
+        "openedAt": 1788730848741
+      }
+    ],
+    "appearances": [
+      {
+        "stickerId": "PW-A01",
+        "wear": 1
+      }
+    ],
+    "placements": [
+      {
+        "stickerId": "PW-A01",
+        "surface": "back",
+        "x": 0.4,
+        "y": 0.32,
+        "width": 0.35,
+        "rotationDeg": 0,
+        "wear": 1
+      },
+      {
+        "stickerId": "PW-F01",
+        "surface": "back",
+        "x": 0.6,
+        "y": 0.68,
+        "width": 0.35,
+        "rotationDeg": 1
+      }
+    ],
+    "placementRevision": 4,
+    "importStatus": "complete",
+    "progress": [
+      {
+        "genre": "metal",
+        "listenedMs": 0,
+        "nextThresholdMs": 900000
+      },
+      {
+        "genre": "pop",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "rock",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "hip-hop",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "rnb",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "electronic",
+        "listenedMs": 0,
+        "nextThresholdMs": 900000
+      },
+      {
+        "genre": "indie",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "jazz",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "classical",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "country",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "reggae",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "latin",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      }
+    ]
+  },
+  "editor": [
+    {
+      "phase": "editing",
+      "id": "PW-F01",
+      "text": "\n      .contour-glass { background:rgba(255,255,255,.74); border:1px solid rgba(255,255,255,.8); color:#263139; box-shadow:0 2px 12px #0003,inset 0 1px 0 #fff9; }\n      @supports (backdrop-filter:blur(12px)) { .contour-glass { backdrop-filter:blur(12px) saturate(1.1); } }\n      [data-hud-wear]:focus-within { outline:2px solid white; outline-offset:2px; border-radius:22px; }\n      .contour-grip { filter:drop-shadow(0 2px 3px #0005); }\n      .contour-grip:active svg { animation:contour-press 360ms linear both; }\n      @keyframes contour-press { 0%{scale:1} 24%{scale:.86} 58%{scale:1.08} 82%{scale:.98} 100%{scale:1} }\n      @media (prefers-reduced-transparency:reduce) { .contour-glass { background:#f3f5f6; backdrop-filter:none; } .contour-grip path:last-child { stroke:#fff; } }\n      @media (prefers-contrast:more) { .contour-glass { background:#fff; border-color:#263139; } [data-hud-wear]:focus-within { outline:2px solid white; outline-offset:2px; border-radius:22px; }\n      .contour-grip { filter:drop-shadow(0 0 1px #000); } }\n      @media (prefers-reduced-motion:reduce) { .contour-grip:active svg { animation:none; } }\n    "
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."
+  ]
+}

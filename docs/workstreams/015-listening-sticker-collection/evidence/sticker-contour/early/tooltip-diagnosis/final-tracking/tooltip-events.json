@@ -1,0 +1,1107 @@
+{
+  "events": [
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Rotate sticker, top left corner",
+      "id": ""
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Rotate sticker, top right corner",
+      "id": ""
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": ""
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Rotate sticker, top left corner",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": "sticker-contour-tooltip",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "focusout",
+      "key": null,
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "focusin",
+      "key": null,
+      "label": "Rotate sticker, top left corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "keydown",
+      "key": "Escape",
+      "label": "Rotate sticker, top left corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "label": "Rotate sticker, top left corner",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "webPod music player",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Music categories",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": "_r_0_-row-4"
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Rotate sticker, top right corner",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": "sticker-contour-tooltip",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "focusout",
+      "key": null,
+      "label": "Rotate sticker, top left corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "focusin",
+      "key": null,
+      "label": "Rotate sticker, top right corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "keydown",
+      "key": "Escape",
+      "label": "Rotate sticker, top right corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "label": "Rotate sticker, top right corner",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker wear",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Rotate sticker, bottom right corner",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": "sticker-contour-tooltip",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "focusout",
+      "key": null,
+      "label": "Rotate sticker, top right corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "focusin",
+      "key": null,
+      "label": "Rotate sticker, bottom right corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "keydown",
+      "key": "Escape",
+      "label": "Rotate sticker, bottom right corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "label": "Rotate sticker, bottom right corner",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "webPod music player",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Music categories",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Rotate sticker, bottom left corner",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": "sticker-contour-tooltip",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "focusout",
+      "key": null,
+      "label": "Rotate sticker, bottom right corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "focusin",
+      "key": null,
+      "label": "Rotate sticker, bottom left corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "keydown",
+      "key": "Escape",
+      "label": "Rotate sticker, bottom left corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "label": "Rotate sticker, bottom left corner",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "webPod music player",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Music categories",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker wear",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": "sticker-contour-tooltip",
+      "tooltip": "Adjust wear"
+    },
+    {
+      "type": "focusout",
+      "key": null,
+      "label": "Rotate sticker, bottom left corner",
+      "id": "",
+      "tooltip": "Adjust wear"
+    },
+    {
+      "type": "focusin",
+      "key": null,
+      "label": "Sticker wear",
+      "id": "",
+      "tooltip": "Adjust wear"
+    },
+    {
+      "type": "keydown",
+      "key": "Escape",
+      "label": "Sticker wear",
+      "id": "",
+      "tooltip": "Adjust wear"
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "label": "Sticker wear",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "webPod music player",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Music categories",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": "_r_0_-row-2"
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Return to pack",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": "sticker-contour-tooltip",
+      "tooltip": "Peel and return to pack"
+    },
+    {
+      "type": "focusout",
+      "key": null,
+      "label": "Sticker wear",
+      "id": "",
+      "tooltip": "Peel and return to pack"
+    },
+    {
+      "type": "focusin",
+      "key": null,
+      "label": "Return to pack",
+      "id": "",
+      "tooltip": "Peel and return to pack"
+    },
+    {
+      "type": "keydown",
+      "key": "Escape",
+      "label": "Return to pack",
+      "id": "",
+      "tooltip": "Peel and return to pack"
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "label": "Return to pack",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Rotate sticker, bottom left corner",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Reset wear and straighten",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": "sticker-contour-tooltip",
+      "tooltip": "Reset wear and straighten"
+    },
+    {
+      "type": "focusout",
+      "key": null,
+      "label": "Return to pack",
+      "id": "",
+      "tooltip": "Reset wear and straighten"
+    },
+    {
+      "type": "focusin",
+      "key": null,
+      "label": "Reset wear and straighten",
+      "id": "",
+      "tooltip": "Reset wear and straighten"
+    },
+    {
+      "type": "keydown",
+      "key": "Escape",
+      "label": "Reset wear and straighten",
+      "id": "",
+      "tooltip": "Reset wear and straighten"
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "label": "Reset wear and straighten",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    }
+  ],
+  "active": "Reset wear and straighten"
+}

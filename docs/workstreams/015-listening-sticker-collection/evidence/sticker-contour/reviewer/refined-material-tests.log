@@ -1,0 +1,17 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/sticker-alpha.test.ts:
+(pass) seeded fraying is deterministic, monotonic, restricted to edges and resets exactly [2.77ms]
+(pass) contours preserve concavities and holes, use bounded cache and monotonic damage boundaries [1.33ms]
+(pass) actual rear triangle projection retains concave boundary and excludes hole anchors under pose [2.93ms]
+(pass) prepared mask reads once, shares derived texture, flips typed rows explicitly and disposes once [2.34ms]
+(pass) owner-scale field retains fine resolution and its static edge band covers every worn boundary [99.50ms]
+
+packages/device/src/sticker-wear.test.ts:
+(pass) wear changes one retained uniform without material versions or shader variants [0.29ms]
+(pass) prepared clones retain the same mutable wear owner and deterministic artwork seed [0.22ms]
+
+ 7 pass
+ 0 fail
+ 10939 expect() calls
+Ran 7 tests across 2 files. [135.00ms]

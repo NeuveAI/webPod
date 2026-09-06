@@ -1,0 +1,22 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-hud.integration.test.ts:
+67 |     expect((await context.request.post(origin + '/api/stickers/session', { headers, data: { musicUserToken: 'synthetic-user' } })).status()).toBe(200)
+68 |     const earned = await read(), packId = earned.packs[0]?.id
+69 |     if (packId === undefined) throw new Error('Seed pack missing')
+70 |     expect((await context.request.post(origin + '/api/stickers/packs/open', { headers, data: { packId } })).status()).toBe(200)
+71 |     const placement = { stickerId: largeMaterial ? 'PW-A01' : 'PW-C01', surface: 'back', x: .4, y: largeMaterial ? .32 : .4, width: largeMaterial ? .35 : .25, rotationDeg: 0 }
+72 |     expect((await context.request.put(origin + '/api/stickers/placements', { headers, data: { revision: 0, placements: [placement, { stickerId: 'PW-F01', surface: 'back', x: largeMaterial ? .60 : .65, y: largeMaterial ? .68 : .72, width: largeMaterial ? .35 : .25, rotationDeg: 0 }] } })).status()).toBe(200)
+                                                                                                                                                                                                                                                                                                                ^
+error: expect(received).toBe(expected)
+
+Expected: 200
+Received: 400
+
+      at <anonymous> (/Users/vinicius/code/webPod/apps/web/scripts/sticker-hud.integration.test.ts:72:300)
+(fail) Contour rotations, wear, reset, tooltips and recovery use actual route and artwork [528.58ms]
+
+ 0 pass
+ 1 fail
+ 6 expect() calls
+Ran 1 test across 1 file. [726.00ms]

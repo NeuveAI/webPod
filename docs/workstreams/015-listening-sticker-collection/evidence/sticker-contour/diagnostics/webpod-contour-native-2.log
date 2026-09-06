@@ -1,0 +1,42 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-hud.integration.test.ts:
+9676 |
+9677 | // packages/utils/stackTrace.ts
+9678 | function captureRawStack() {
+9679 |   const stackTraceLimit = Error.stackTraceLimit;
+9680 |   Error.stackTraceLimit = 50;
+9681 |   const error = new Error();
+                           ^
+error: expect(locator).toBeVisible() failed
+
+Locator: getByRole('tooltip')
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect "to.be.visible" with timeout 5000ms
+  - waiting for getByRole('tooltip')
+
+ matcherResult: {
+  message: "expect(locator).toBeVisible() failed\n\nLocator: getByRole('tooltip')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByRole('tooltip')\n",
+  pass: false,
+  actual: undefined,
+  name: "toBeVisible",
+  expected: "visible",
+  log: [ "  - Expect \"to.be.visible\" with timeout 5000ms", "  - waiting for getByRole('tooltip')" ],
+  timeout: 5000,
+  ariaSnapshot: "- main:\n  - region \"Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.\":\n    - application \"webPod music player\":\n      - strong: Music\n      - img \"Battery full\"\n      - listbox \"Music categories\":\n        - option \"Cover Flow 1\"\n        - option \"Playlists 1\"\n        - option \"Artists 1\"\n        - option \"Albums 1\" [selected]\n        - option \"Songs 11\"\n        - option \"Genres 0\"\n        - option \"Radio 0\"\n        - option \"Search\"\n    - button \"Edit Pulse Code. Enter opens adjustments.\"\n    - button \"Edit Soundcheck. Enter opens adjustments.\"\n    - group \"Sticker controls\":\n      - button \"Rotate sticker, top left corner\"\n      - button \"Rotate sticker, top right corner\"\n      - button \"Rotate sticker, bottom right corner\"\n      - button \"Rotate sticker, bottom left corner\"\n      - slider \"Sticker wear\": \"0\"\n      - button \"Return to pack\"\n      - button \"Reset wear and straighten\"\n  - navigation \"Device controls\":\n    - button \"Reset view\"\n    - button \"Settings\"",
+},
+
+      at captureRawStack (/Users/vinicius/code/webPod/node_modules/.bun/playwright-core@1.62.1/node_modules/playwright-core/lib/coreBundle.js:9681:21)
+      at callMatcherAsStep (/Users/vinicius/code/webPod/node_modules/.bun/playwright@1.62.1/node_modules/playwright/lib/matchers/expect.js:13310:57)
+      at /Users/vinicius/code/webPod/apps/web/scripts/sticker-hud.integration.test.ts:211:91
+      at processTicksAndRejections (native:7:39)
+(fail) Contour rotations, wear, reset, tooltips and recovery use actual route and artwork [16197.58ms]
+
+ 0 pass
+ 1 fail
+ 67 expect() calls
+Ran 1 test across 1 file. [16.39s]

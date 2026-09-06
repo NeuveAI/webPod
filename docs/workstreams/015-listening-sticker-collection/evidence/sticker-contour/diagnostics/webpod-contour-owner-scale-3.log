@@ -1,0 +1,21 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-hud.integration.test.ts:
+129 |       for(const id of ['PW-A01','PW-F01']) {
+130 |         for(const wear of [0,.5,1]) {
+131 |           await select(id)
+132 |           const range=await page.getByRole('slider',{name:'Sticker wear'}).boundingBox();if(range===null)throw new Error('Missing wear scrubber')
+133 |           if(wear>0){const save=response();if(wear===1)await page.getByRole('slider',{name:'Sticker wear'}).press('End');else await page.mouse.click(range.x+range.width/2,range.y+range.height/2);await save;await browserExpect(page.locator('[data-sticker-editor]')).toHaveAttribute('data-editor-phase','editing')}
+134 |           if(id==='PW-F01'&&wear===0){await page.locator('[data-contour-corner="0"]').focus();for(let i=0;i<35;i++){await browserExpect(page.locator('[data-sticker-editor]')).toHaveAttribute('data-editor-phase','editing');const save=response();await page.keyboard.press('ArrowRight');await save}}
+                                                                                                                                                                                                                                               ^
+TimeoutError: waitForResponse: Timeout 10000ms exceeded while waiting for event "response"
+  log: [],
+
+      at /Users/vinicius/code/webPod/apps/web/scripts/sticker-hud.integration.test.ts:134:234
+      at processTicksAndRejections (native:7:39)
+(fail) Contour rotations, wear, reset, tooltips and recovery use actual route and artwork [18350.98ms]
+
+ 0 pass
+ 1 fail
+ 18 expect() calls
+Ran 1 test across 1 file. [18.53s]

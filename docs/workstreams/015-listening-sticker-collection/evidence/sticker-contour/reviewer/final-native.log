@@ -1,0 +1,28 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-hud.integration.test.ts:
+363 |     await page.keyboard.press('Escape'); await select('PW-C01'); await shot('mobile-reduced-motion.png')
+364 |     await page.emulateMedia({ reducedMotion: 'no-preference', contrast: 'no-preference' })
+365 |     await page.reload(); await rear(); expect((await currentPlacement()).wear).toBe(1)
+366 |     await shot('mobile-reloaded-wear.png')
+367 |     await touch.detach()
+368 |     expect(fingerprintBrowserSources()).toEqual(source)
+                                              ^
+error: expect(received).toEqual(expected)
+
+  {
+-   "digest": "0daa35f597a418b2ed59c0b77adaaba284594f5036a81cee39050d9e50eac776",
++   "digest": "27f7eea4bdb525c292ea0b3b502cdc802d9f9864b56fdf9d9aefb21777783b9b",
+    "fileCount": 398,
+  }
+
+- Expected  - 1
++ Received  + 1
+
+      at <anonymous> (/Users/vinicius/code/webPod/apps/web/scripts/sticker-hud.integration.test.ts:368:41)
+(fail) Contour rotations, wear, reset, tooltips and recovery use actual route and artwork [30064.87ms]
+
+ 0 pass
+ 1 fail
+ 218 expect() calls
+Ran 1 test across 1 file. [30.27s]

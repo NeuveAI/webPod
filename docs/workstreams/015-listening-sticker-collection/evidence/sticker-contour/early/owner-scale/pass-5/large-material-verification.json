@@ -1,0 +1,113 @@
+{
+  "source": {
+    "digest": "9d0a55bda59e2cbd15c4c20cd5a6c8230b52b81cc31a5a8902d3b7aefd45eff0",
+    "fileCount": 398
+  },
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "THREE.Clock: This module has been deprecated. Please use THREE.Timer instead."
+  ],
+  "inventory": {
+    "stickerIds": [
+      "PW-A01",
+      "PW-F01"
+    ],
+    "packs": [
+      {
+        "id": "0ad935ec-a8c9-4491-a086-a658f695608f",
+        "source": "starter",
+        "stickerIds": [
+          "PW-A01",
+          "PW-F01"
+        ],
+        "earnedAt": 1788731035786,
+        "openedAt": 1788731035786
+      }
+    ],
+    "appearances": [
+      {
+        "stickerId": "PW-A01",
+        "wear": 1
+      },
+      {
+        "stickerId": "PW-F01",
+        "wear": 1
+      }
+    ],
+    "placements": [
+      {
+        "stickerId": "PW-F01",
+        "surface": "back",
+        "x": 0.6,
+        "y": 0.68,
+        "width": 0.35,
+        "rotationDeg": 35,
+        "wear": 1
+      }
+    ],
+    "placementRevision": 41,
+    "importStatus": "complete",
+    "progress": [
+      {
+        "genre": "metal",
+        "listenedMs": 0,
+        "nextThresholdMs": 900000
+      },
+      {
+        "genre": "pop",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "rock",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "hip-hop",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "rnb",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "electronic",
+        "listenedMs": 0,
+        "nextThresholdMs": 900000
+      },
+      {
+        "genre": "indie",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "jazz",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "classical",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "country",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "reggae",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      },
+      {
+        "genre": "latin",
+        "listenedMs": 0,
+        "nextThresholdMs": 300000
+      }
+    ]
+  }
+}

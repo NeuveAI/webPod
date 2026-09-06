@@ -1,0 +1,34 @@
+[
+  {
+    "selector": "[data-contour-corner=\"0\"]",
+    "tooltip": []
+  },
+  {
+    "selector": "[data-contour-corner=\"1\"]",
+    "tooltip": [
+      "Adjust wear"
+    ]
+  },
+  {
+    "selector": "[data-contour-corner=\"2\"]",
+    "tooltip": []
+  },
+  {
+    "selector": "[data-contour-corner=\"3\"]",
+    "tooltip": []
+  },
+  {
+    "selector": "[data-hud-wear] input",
+    "tooltip": []
+  },
+  {
+    "selector": "[data-hud-tools] button:first-child",
+    "tooltip": [
+      "Drag to rotate"
+    ]
+  },
+  {
+    "selector": "[data-hud-tools] button:last-child",
+    "tooltip": []
+  }
+]

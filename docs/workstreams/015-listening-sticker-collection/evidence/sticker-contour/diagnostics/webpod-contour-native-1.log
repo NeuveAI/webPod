@@ -1,0 +1,21 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-hud.integration.test.ts:
+271 |       expect((await currentPlacement('PW-F01')).width).toBe(before.width)
+272 |       expect((await currentPlacement('PW-F01')).rotationDeg).not.toBe(before.rotationDeg)
+273 |       await page.waitForTimeout(350)
+274 |     }
+275 |     await page.locator('[data-contour-corner="0"]').focus()
+276 |     for(let i=0;i<34;i++) { const saved=response();await page.keyboard.press('[');await saved }
+                                              ^
+TimeoutError: waitForResponse: Timeout 30000ms exceeded while waiting for event "response"
+  log: [],
+
+      at /Users/vinicius/code/webPod/apps/web/scripts/sticker-hud.integration.test.ts:276:41
+      at processTicksAndRejections (native:7:39)
+(fail) Contour rotations, wear, reset, tooltips and recovery use actual route and artwork [89013.46ms]
+
+ 0 pass
+ 1 fail
+ 133 expect() calls
+Ran 1 test across 1 file. [89.80s]

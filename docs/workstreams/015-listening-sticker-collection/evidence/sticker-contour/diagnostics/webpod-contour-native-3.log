@@ -1,0 +1,46 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-hud.integration.test.ts:
+9676 |
+9677 | // packages/utils/stackTrace.ts
+9678 | function captureRawStack() {
+9679 |   const stackTraceLimit = Error.stackTraceLimit;
+9680 |   Error.stackTraceLimit = 50;
+9681 |   const error = new Error();
+                           ^
+error: expect(locator).toHaveCount(expected) failed
+
+Locator:  getByRole('tooltip')
+Expected: 0
+Received: 1
+Timeout:  5000ms
+
+Call log:
+  - Expect "to.have.count" with timeout 5000ms
+  - waiting for getByRole('tooltip')
+    14 × locator resolved to 1 element
+       - unexpected value "1"
+
+ matcherResult: {
+  actual: 1,
+  expected: 0,
+  message: "expect(locator).toHaveCount(expected) failed\n\nLocator:  getByRole('tooltip')\nExpected: 0\nReceived: 1\nTimeout:  5000ms\n\nCall log:\n  - Expect \"to.have.count\" with timeout 5000ms\n  - waiting for getByRole('tooltip')\n    14 × locator resolved to 1 element\n       - unexpected value \"1\"\n",
+  name: "toHaveCount",
+  pass: false,
+  log: [ "  - Expect \"to.have.count\" with timeout 5000ms", "  - waiting for getByRole('tooltip')",
+    "    14 × locator resolved to 1 element", "       - unexpected value \"1\""
+  ],
+  timeout: 5000,
+  ariaSnapshot: undefined,
+},
+
+      at captureRawStack (/Users/vinicius/code/webPod/node_modules/.bun/playwright-core@1.62.1/node_modules/playwright-core/lib/coreBundle.js:9681:21)
+      at callMatcherAsStep (/Users/vinicius/code/webPod/node_modules/.bun/playwright@1.62.1/node_modules/playwright/lib/matchers/expect.js:13310:57)
+      at /Users/vinicius/code/webPod/apps/web/scripts/sticker-hud.integration.test.ts:213:127
+      at processTicksAndRejections (native:7:39)
+(fail) Contour rotations, wear, reset, tooltips and recovery use actual route and artwork [16540.44ms]
+
+ 0 pass
+ 1 fail
+ 67 expect() calls
+Ran 1 test across 1 file. [16.73s]

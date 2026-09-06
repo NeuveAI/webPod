@@ -1,0 +1,40 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/sticker-hud-layout.test.ts:
+(pass) minimum and normal art have separate reachable grips and tools at desktop/mobile edges [5.66ms]
+
+apps/web/src/sticker-runtime.test.ts:
+(pass) sticker runtime lifecycle > logout invalidates a delayed import instead of restoring the prior collection [2.94ms]
+(pass) sticker runtime lifecycle > retry after failed bootstrap attaches the same listening subscription once [2.15ms]
+(pass) sticker runtime lifecycle > a stale placement revision reloads server state and does not show an optimistic save [2.29ms]
+(pass) sticker runtime lifecycle > listening starts with a baseline, resets after seeks and stops at teardown [6.60ms]
+(pass) sticker runtime lifecycle > logout during failed conflict recovery cannot restore the prior error status [2.77ms]
+(pass) device preparation completes before credential transfer and logout cancels a delayed callback [1.45ms]
+(pass) registered session restoration > valid DB lease publishes before passive ingestion and survives its failure [3.79ms]
+(pass) registered session restoration > same provider keeps valid content through read failure, invalid lease clears it [3.82ms]
+(pass) registered session restoration > replacement and confirmed authorization loss invalidate a late DB response [3.84ms]
+(pass) registered session restoration > late GET cannot rewind an opened pack with unchanged placement revision [3.88ms]
+(pass) registered session restoration > late import reconciles new access with newer placement and pack state [3.88ms]
+(pass) registered session restoration > scheduled refresh deduplicates pending import and tears down its clock [6.08ms]
+(pass) guarded editor write checks its source after waiting for the serialized queue [1.74ms]
+
+apps/web/src/sticker-return.test.ts:
+(pass) missed and cancelled rear drops reverse from the displayed pose and release their frame owner [1.75ms]
+
+apps/web/src/sticker-hud-model.test.ts:
+(pass) same-ID pending lock survives dismiss/reselect; source guard and Undo capture canonical result [0.45ms]
+(pass) authoritative removal after successful write cannot leave HUD permanently saving [0.16ms]
+(pass) failed auto-save restores saved pose and retains guarded retry; remote change invalidates Undo [0.23ms]
+
+apps/web/src/sticker-editor-model.test.ts:
+(pass) one-copy live draft and gesture cancellation retain inventory identity and values [0.15ms]
+(pass) fixed center constrains rotated size; nonfinite values do not enter draft [0.04ms]
+(pass) gesture save dispatches captured source once and rebases later cancellation to canonical result [0.13ms]
+(pass) failed auto-save restores authority, conflict adopts canonical source, dismissed failure stays local [0.25ms]
+(pass) same-ID reselect rebases after pending write and cannot revive a signed-out session [0.22ms]
+(pass) reset preserves size/center/ownership, clears owned wear and safely straightens near edge [0.19ms]
+
+ 24 pass
+ 0 fail
+ 1494 expect() calls
+Ran 24 tests across 5 files. [136.00ms]

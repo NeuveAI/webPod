@@ -1,0 +1,165 @@
+{
+  "events": [
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Sticker controls",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Rotate sticker, top left corner",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": "sticker-contour-tooltip",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "focusout",
+      "key": null,
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "focusin",
+      "key": null,
+      "label": "Rotate sticker, top left corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "keydown",
+      "key": "Escape",
+      "label": "Rotate sticker, top left corner",
+      "id": "",
+      "tooltip": "Drag to rotate"
+    },
+    {
+      "type": "keyup",
+      "key": "Escape",
+      "label": "Rotate sticker, top left corner",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "webPod music player",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": "Music categories",
+      "id": ""
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": "_r_0_-row-4"
+    },
+    {
+      "type": "pointerenter",
+      "key": null,
+      "label": null,
+      "id": ""
+    }
+  ],
+  "active": "Rotate sticker, top left corner"
+}
