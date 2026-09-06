@@ -8,6 +8,14 @@ import { prepareBrowserSourceSnapshot } from '../../../scripts/browser-source-fi
 const repositoryRoot = resolve(import.meta.dirname, '../../..')
 const pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 
+test('canonical dev keeps Bun and root env semantics while using the unbundled config runner', async () => {
+  const root = await Bun.file(resolve(repositoryRoot, 'package.json')).json() as { scripts: { dev: string } }
+  const app = await Bun.file(resolve(repositoryRoot, 'apps/web/package.json')).json() as { scripts: { dev: string } }
+  expect(root.scripts.dev).toBe('bun --env-file=.env.local run --cwd apps/web dev')
+  expect(app.scripts.dev).toMatch(/^bun node_modules\/vite\/bin\/vite\.js dev /)
+  expect(app.scripts.dev).toContain('--configLoader runner')
+})
+
 /** The package scripts themselves choose Vite's runtime. No --bun, alternate Vite entry,
  * injected handler, API mock, credentials or user server is supplied by this harness. */
 for (const launcher of ['root', 'app'] as const) test(`${launcher} shipped dev script renders both product routes and loads anonymous SQLite transport`, async () => {
@@ -39,7 +47,7 @@ for (const launcher of ['root', 'app'] as const) test(`${launcher} shipped dev s
     const deadline = Date.now() + 45_000
     let ready = false
     while (Date.now() < deadline && child.exitCode === null) {
-      ready = await fetch(origin + '/@vite/client', { signal: AbortSignal.timeout(1000) }).then((response) => response.ok).catch(() => false)
+      ready = await fetch(origin + '/@vite/client', { headers: { connection: 'close' }, signal: AbortSignal.timeout(1000) }).then(async (response) => { await response.arrayBuffer(); return response.ok }).catch(() => false)
       if (ready) break
       await pause(100)
     }
@@ -71,6 +79,7 @@ for (const launcher of ['root', 'app'] as const) test(`${launcher} shipped dev s
     const anonymous = await fetch(origin + '/api/stickers')
     expect(anonymous.status).toBe(401)
     expect(anonymous.headers.get('cache-control')).toBe('no-store')
+    await anonymous.arrayBuffer()
     expect(existsSync(env.WEBPOD_STICKER_DATABASE_PATH)).toBe(true)
     const route = await fetch(origin + '/src/routes/api.stickers.ts')
     expect(route.status).toBe(200)
@@ -83,6 +92,26 @@ for (const launcher of ['root', 'app'] as const) test(`${launcher} shipped dev s
       expect(code).not.toMatch(/(?:from|import\s*\()\s*["']bun(?::sqlite)?["']/)
       expect(code).not.toMatch(/createLiveStickerServer|sticker_devices|webCryptoAppleTokenSigner|APPLE_MUSICKIT_KEY_PATH/)
     }
+    // The config runner must preserve normal application HMR and config-file restart.
+    // Only the isolated snapshot is edited; user sources/environment remain untouched.
+    const cssPath = resolve(snapshot.snapshotRoot, 'apps/web/src/styles/app.css')
+    await Bun.write(cssPath, `${await Bun.file(cssPath).text()}\nhtml { --webpod-startup-hmr: 77; }\n`)
+    await browserExpect.poll(() => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--webpod-startup-hmr').trim()), { timeout: 15_000 }).toBe('77')
+    await page.goto(origin + '/')
+    await browserExpect(page.locator('.webpod-device-preview__device')).toHaveAttribute('data-composite-tier', 'T1', { timeout: 30_000 })
+    const configPath = resolve(snapshot.snapshotRoot, 'apps/web/vite.config.ts')
+    const config = await Bun.file(configPath).text()
+    expect(config).toContain('server: { port: 3000 },')
+    const helperPath = resolve(snapshot.snapshotRoot, 'apps/web/startup-config-helper.ts')
+    await Bun.write(helperPath, "export const startupMarker = 'first'\n")
+    await Bun.write(configPath, "import { startupMarker } from './startup-config-helper.ts'\n" + config.replace('server: { port: 3000 },', "server: { port: 3000, headers: { 'x-webpod-config-restart': 'observed', 'x-webpod-config-helper': startupMarker } },"))
+    try {
+      await browserExpect.poll(async () => fetch(origin + '/@vite/client', { headers: { connection: 'close' }, signal: AbortSignal.timeout(1000) }).then(async (response) => { await response.arrayBuffer(); return response.headers.get('x-webpod-config-restart') }).catch(() => null), { timeout: 15_000 }).toBe('observed')
+    } catch { throw new Error(`Config restart did not apply; ${output.slice(-2500)}`) }
+    await Bun.write(helperPath, "export const startupMarker = 'second'\n")
+    await browserExpect.poll(async () => fetch(origin + '/@vite/client', { headers: { connection: 'close' }, signal: AbortSignal.timeout(1000) }).then(async (response) => { await response.arrayBuffer(); return response.headers.get('x-webpod-config-helper') }).catch(() => null), { timeout: 15_000 }).toBe('second')
+    await page.goto(origin + '/')
+    await browserExpect(page.locator('.webpod-device-preview__device')).toHaveAttribute('data-composite-tier', 'T1', { timeout: 30_000 })
     expect(browserErrors).toEqual([])
     expect(output).not.toMatch(/Cannot find module ["']bun|Failed to resolve dependency: bun|Failed to run dependency scan|could not be resolved|Internal server error/)
   } finally {

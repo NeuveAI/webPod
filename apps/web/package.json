@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun node_modules/vite/bin/vite.js dev --port 3000",
+    "dev": "bun node_modules/vite/bin/vite.js dev --configLoader runner --port 3000",
     "build": "bun node_modules/vite/bin/vite.js build",
     "preview": "bun node_modules/vite/bin/vite.js preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",
