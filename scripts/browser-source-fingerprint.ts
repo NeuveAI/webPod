@@ -13,7 +13,7 @@ const ARCHIVE_INPUTS = [
   'scripts/browser-source-fingerprint.ts',
 ] as const
 // Optional only for historical pre-sticker commits; present inputs always participate.
-const STICKER_BUILD_INPUTS = ['scripts/sticker-assets.ts', 'assets/stickers/playworn'] as const
+const STICKER_BUILD_INPUTS = ['scripts/sticker-assets.ts', 'assets/stickers/playworn', 'patches'] as const
 const SNAPSHOT_FORBIDDEN_ROOTS = ['cert', '.claude', 'design.pen', 'docs', '.env', '.env.local'] as const
 
 export interface BrowserSourceFingerprint {
@@ -48,6 +48,7 @@ export function fingerprintBrowserSources(repositoryRoot = defaultRepositoryRoot
     resolve(repositoryRoot, 'apps/web/src'),
     ...(existsSync(resolve(repositoryRoot, 'apps/web/scripts')) ? [resolve(repositoryRoot, 'apps/web/scripts')] : []),
     resolve(repositoryRoot, 'packages'),
+    ...(existsSync(resolve(repositoryRoot, 'patches')) ? [resolve(repositoryRoot, 'patches')] : []),
     ...(existsSync(resolve(repositoryRoot, 'assets/stickers/playworn')) ? [resolve(repositoryRoot, 'assets/stickers/playworn')] : []),
   ] as const
   const standaloneInputs = [

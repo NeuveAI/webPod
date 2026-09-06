@@ -24,5 +24,8 @@
     "globals": "^17.11.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.68.0"
+  },
+  "patchedDependencies": {
+    "@tanstack/start-server-core@1.169.31": "patches/@tanstack%2Fstart-server-core@1.169.31.patch"
   }
 }

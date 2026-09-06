@@ -1,0 +1,41 @@
+diff --git a/dist/esm/request-response.js b/dist/esm/request-response.js
+index 4ce23fae2de3772646a2380a9e64c3f468b051f6..6e91ef914d12ac83c6064f30709ed2a291f2266a 100644
+--- a/dist/esm/request-response.js
++++ b/dist/esm/request-response.js
+@@ -43,7 +43,12 @@ function requestHandler(handler) {
+ 			});
+ 			throw error;
+ 		}
+-		return toResponse(attachResponseHeaders(eventStorage.run({ h3Event }, () => handler(request, requestOpts)), h3Event), h3Event);
++		// Classify only the exact incoming-request cancellation before H3 logs unknown errors.
++		const response = Promise.resolve().then(() => eventStorage.run({ h3Event }, () => handler(request, requestOpts))).catch((error) => {
++			if (request.signal.aborted && error === request.signal.reason) return new Response(null, { status: 499 });
++			throw error;
++		});
++		return toResponse(attachResponseHeaders(response, h3Event), h3Event);
+ 	};
+ }
+ function getH3Event() {
+diff --git a/src/request-response.ts b/src/request-response.ts
+index e0ad8a336a37bc29ccdff48d87dfb5b360b633f1..4febd1204d3cae3e6843b30119fc4aed3cc941b6 100644
+--- a/src/request-response.ts
++++ b/src/request-response.ts
+@@ -135,9 +135,15 @@ export function requestHandler<TRegister = unknown>(
+       throw error
+     }
+ 
+-    const response = eventStorage.run({ h3Event }, () =>
+-      handler(request, requestOpts),
+-    )
++    // Classify only the exact incoming-request cancellation before H3 logs unknown errors.
++    const response = Promise.resolve()
++      .then(() => eventStorage.run({ h3Event }, () => handler(request, requestOpts)))
++      .catch((error: unknown) => {
++        if (request.signal.aborted && error === request.signal.reason) {
++          return new Response(null, { status: 499 })
++        }
++        throw error
++      })
+     return h3_toResponse(attachResponseHeaders(response, h3Event), h3Event)
+   }
+ }

@@ -12,6 +12,17 @@ import {
 const repositoryRoot = resolve(import.meta.dirname, '..')
 
 describe('browser source snapshots', () => {
+
+  test('dependency patch bytes participate in isolated runtime provenance', () => {
+    const temporaryRoot = mkdtempSync(join(tmpdir(), 'webpod-patch-fingerprint-'))
+    try {
+      const snapshot = prepareBrowserSourceSnapshot({ repositoryRoot, snapshotRoot: join(temporaryRoot, 'snapshot') })
+      const patch = resolve(snapshot.snapshotRoot, 'patches/@tanstack%2Fstart-server-core@1.169.31.patch')
+      expect(existsSync(patch)).toBe(true)
+      appendFileSync(patch, '\n')
+      expect(fingerprintBrowserSources(snapshot.snapshotRoot).digest).not.toBe(snapshot.source.digest)
+    } finally { rmSync(temporaryRoot, { recursive: true, force: true }) }
+  }, 60_000)
   test('a worktree snapshot excludes forbidden roots and yields a stable fingerprint', () => {
     const temporaryRoot = mkdtempSync(join(tmpdir(), 'webpod-browser-source-worktree-'))
     const snapshotRoot = join(temporaryRoot, 'snapshot')

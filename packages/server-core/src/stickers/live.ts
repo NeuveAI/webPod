@@ -1,6 +1,6 @@
 import { Cookie, CookieMap } from 'bun'
 import { Effect } from 'effect'
-import { createAppleStickerClient } from './apple-import.ts'
+import { createAppleStickerClient, type AppleImportDiagnostic } from './apple-import.ts'
 import { handleStickerRequest, type StickerHttpServices } from './http.ts'
 import { StickerError } from './repository.ts'
 import { createStickerRuntime, stickerOperation, StickerStorage } from './service.ts'
@@ -10,6 +10,7 @@ export const DEVICE_COOKIE = 'webpod_device'
 export const SESSION_COOKIE = 'webpod_session'
 export const MAX_STICKER_UPSTREAM = 4
 export interface LiveStickerOptions {
+  readonly onImport?: (diagnostic: AppleImportDiagnostic) => void
   readonly databasePath: string
   readonly developerToken: () => Promise<string>
   readonly fetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
@@ -71,12 +72,13 @@ export function createLiveStickerServer(options: LiveStickerOptions) {
         const active = await session(request)
         if (active.deviceHash !== stickerSecretHash(device)) throw cause
         const inventory = await run((repository) => repository.sessions.authorized(active, (owner) => repository.inventory(owner)))
+        if (inventory.importStatus === 'failed') throw cause
         return { inventory, cookies: [] }
       }
       return upstream(lease.deviceHash, request, async (signal) => {
         const developerToken = await options.developerToken()
         signal.throwIfAborted()
-        const apple = createAppleStickerClient({ developerToken, musicUserToken, signal, ...(options.fetch === undefined ? {} : { fetch: options.fetch }) })
+        const apple = createAppleStickerClient({ developerToken, musicUserToken, signal, onImport: options.onImport ?? ((diagnostic) => { if (diagnostic.status !== 'complete' || diagnostic.skipped > 0) console.warn('sticker_import', diagnostic) }), ...(options.fetch === undefined ? {} : { fetch: options.fetch }) })
         const storefront = await apple.verify()
         let imported: Awaited<ReturnType<typeof apple.importLibrary>> | null = null
         try { imported = await apple.importLibrary() } catch (cause) {

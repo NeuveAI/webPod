@@ -2,7 +2,7 @@ import { atom, useAtomValue } from 'jotai'
 import { useEffect, useRef, useSyncExternalStore, type PointerEvent as ReactPointerEvent } from 'react'
 import { getCompositeTierSnapshot, subscribeCompositeTier } from '@webpod/composite'
 import { deviceStore, stickerCollectionStatusAtom, stickerInteractionAtom, stickerInventoryAtom } from '@webpod/state'
-import { getSticker, isStickerPlacement, type StickerPlacement } from '@webpod/stickers'
+import { getSticker, isStickerPlacement, type StickerPlacement, type StickerInventory } from '@webpod/stickers'
 import type { DeviceOrientation } from '@webpod/device'
 import { deviceFrontVisibility, STICKER_PACK_LAYOUT, retryStickerArtwork } from '@webpod/device'
 import { animateStickerValue, cancelStickerInteraction, releaseStickerPull, revealStickerPack, setStickerRearVisible, updateStickerInteraction, stickerArtworkFailureAtom, getStickerInteractionGeneration, supersedeStickerInteraction } from './sticker-interaction'
@@ -180,7 +180,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
         <button type="button" className={buttonClass} onClick={close}>Put pack away</button>
       </div> : null}
       <p role="status" className="absolute inset-x-4 top-32 mx-auto w-fit max-w-[calc(100%-32px)] rounded-sm bg-stone-100 px-3 text-center text-xs text-stone-900">{message}</p>
-      {artworkFailure === null && (inventory?.importStatus === 'partial' || inventory?.importStatus === 'failed') ? <p className="pointer-events-auto absolute inset-x-4 top-20 mx-auto max-w-md rounded-md bg-stone-100 p-3 text-sm text-stone-900">Some Apple Music data could not sync. Your earned stickers are safe. <button type="button" className={buttonClass} onClick={() => run(commands.retry)}>Retry sync</button></p> : null}
+      {artworkFailure === null ? <StickerImportStatus status={inventory?.importStatus} retry={() => run(commands.retry)} /> : null}
       {artworkFailure === null ? null : <p role="alert" className="pointer-events-auto absolute inset-x-4 top-20 mx-auto max-w-md rounded-md bg-stone-100 p-3 text-sm text-stone-900">A sticker image could not load. <button type="button" className={buttonClass} onClick={() => { retryStickerArtwork() }}>Retry artwork</button></p>}
     </div>
   )
@@ -188,3 +188,11 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
 
 const buttonClass = 'min-h-11 shrink-0 rounded-md px-3 py-2 font-medium hover:bg-stone-200 active:bg-stone-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 disabled:opacity-50'
 const sample = (event: ReactPointerEvent): PointerMotionSample => ({ clientX: event.clientX, clientY: event.clientY, timestampMs: event.timeStamp })
+
+/** Sampling is a successful bounded import; only an actual failed import offers retry. */
+export function StickerImportStatus({ status, retry }: { readonly status: StickerInventory['importStatus'] | undefined; readonly retry: () => void }) {
+  if (status !== 'partial' && status !== 'failed') return null
+  return <p role="status" className="pointer-events-auto absolute inset-x-4 top-20 mx-auto max-w-md rounded-md bg-stone-100 p-3 text-sm text-stone-900">
+    {status === 'partial' ? 'We synced a sample of your Apple Music library. Keep listening in webPod to earn more.' : <>Some Apple Music data could not sync. Your earned stickers are safe. <button type="button" className={buttonClass} onClick={retry}>Retry sync</button></>}
+  </p>
+}
