@@ -1,51 +1,50 @@
-import type { StickerProjectedQuad, StickerScreenPoint } from '@webpod/device'
-
+import type { StickerProjectedContour, StickerScreenPoint } from '@webpod/device'
 export const HUD_TARGET = 44
-export interface HudLayout { readonly corner: number; readonly edge: number; readonly resizeOffset: StickerScreenPoint; readonly rotateOffset: StickerScreenPoint; readonly tools: StickerScreenPoint }
-const clamp = (n: number, low: number, high: number) => Math.max(low, Math.min(high, n))
-const hits = (p: StickerScreenPoint, b: { left: number; top: number; right: number; bottom: number }) => p.x + 22 > b.left && p.x - 22 < b.right && p.y + 22 > b.top && p.y - 22 < b.bottom
-const overlap = (a: StickerScreenPoint, b: StickerScreenPoint, gap = 48) => Math.abs(a.x - b.x) < gap && Math.abs(a.y - b.y) < gap
-/** Outboard handles keep their own 44px targets away from the visible body. */
-export function chooseHudLayout(quad: StickerProjectedQuad, width: number, height: number, occupied: readonly { left: number; top: number; right: number; bottom: number }[] = []): HudLayout {
-  const safe = (p: StickerScreenPoint) => ({ x: clamp(p.x, 30, width - 30), y: clamp(p.y, 64, height - 30) })
-  const outside = (p: StickerScreenPoint, distance: number) => {
-    const dx = p.x - quad.center.x, dy = p.y - quad.center.y, length = Math.hypot(dx, dy) || 1
-    return safe({ x: p.x + dx / length * distance, y: p.y + dy / length * distance })
+export interface HudLayout { readonly offsets: readonly StickerScreenPoint[]; readonly wear: StickerScreenPoint; readonly tools: StickerScreenPoint }
+type Rect = { left: number; top: number; right: number; bottom: number }
+const overlaps = (a: Rect, b: Rect) => a.left < b.right + 4 && a.right > b.left - 4 && a.top < b.bottom + 4 && a.bottom > b.top - 4
+const rect = (p: StickerScreenPoint, width = 44): Rect => ({ left: p.x - width / 2, right: p.x + width / 2, top: p.y - 22, bottom: p.y + 22 })
+/** Four distinct contour-sector targets, with reserved top wear and free adjacent actions. */
+export function chooseHudLayout(shape: StickerProjectedContour, width: number, height: number, occupied: readonly Rect[] = []): HudLayout {
+  const points = shape.paths.flat(), minY = Math.min(...points.map(p => p.y)), maxY = Math.max(...points.map(p => p.y))
+  const body = { left: Math.min(...points.map(p => p.x)), right: Math.max(...points.map(p => p.x)), top: minY, bottom: maxY }
+  const fits = (r: Rect) => r.left >= 12 && r.right <= width - 12 && r.top >= 56 && r.bottom <= height - 12
+  const clamp = (n: number, low: number, high: number) => Math.max(low, Math.min(high, n))
+  const bodyCore = { left:shape.center.x-8,right:shape.center.x+8,top:shape.center.y-8,bottom:shape.center.y+8 }
+  for (const distance of [8, 16, 24, 32, 42, 56]) {
+    const grips = shape.anchors.map(p => {
+      const dx = p.x - shape.center.x, dy = p.y - shape.center.y, length = Math.hypot(dx, dy) || 1
+      return { x: clamp(p.x + dx / length * distance, 34, width - 34), y: clamp(p.y + dy / length * distance, 78, height - 34) }
+    })
+    const targets = grips.map(p => rect(p))
+    if (targets.some((r, i) => !fits(r) || overlaps(r, bodyCore) || targets.some((other, j) => j < i && overlaps(r, other)))) continue
+    const wear = { x: clamp(shape.center.x, 84, width - 84), y: Math.min(...grips.map(p => p.y)) - 52 }
+    const wearRect = rect(wear, 144)
+    if (!fits(wearRect) || targets.some(r => overlaps(r, wearRect)) || occupied.some(r => overlaps(r, wearRect))) continue
+    const candidates = [
+      { x: clamp(shape.center.x, 56, width - 56), y: Math.max(...grips.map(p => p.y)) + 52 },
+      { x: clamp(body.right + 80, 56, width - 56), y: shape.center.y },
+      { x: clamp(body.left - 80, 56, width - 56), y: shape.center.y },
+    ]
+    const tools = candidates.find(p => { const r = rect(p, 88); return fits(r) && !overlaps(r, body) && !overlaps(r, wearRect) && !targets.some(t => overlaps(t, r)) && !occupied.some(t => overlaps(t, r)) })
+    if (tools) return { offsets: grips.map((p, i) => ({ x: p.x - (shape.anchors[i] ?? shape.anchors[0]).x, y: p.y - (shape.anchors[i] ?? shape.anchors[0]).y })), wear: { x: wear.x - 72, y: wear.y - 22 }, tools: { x: tools.x - 44, y: tools.y - 22 } }
   }
-  let best: HudLayout | null = null, bestScore = Infinity
-  for (let corner = 0; corner < 4; corner++) for (let edge = 0; edge < 4; edge++) {
-    const c = quad.corners[corner] ?? quad.corners[2], e = quad.edges[edge] ?? quad.edges[0], resize = outside(c, 34), rotate = outside(e, 42)
-    if (overlap(resize, rotate)) continue
-    const minX = Math.min(...quad.corners.map(p => p.x)), maxX = Math.max(...quad.corners.map(p => p.x))
-    const minY = Math.min(...quad.corners.map(p => p.y)), maxY = Math.max(...quad.corners.map(p => p.y))
-    const candidates = [{ x: quad.center.x - 88, y: maxY + 72 }, { x: quad.center.x - 88, y: minY - 100 }, { x: maxX + 58, y: quad.center.y - 22 }, { x: minX - 234, y: quad.center.y - 22 }]
-    for (const raw of candidates) {
-      const tools = { x: clamp(raw.x, 16, width - 192), y: clamp(raw.y, 64, height - 64) }
-      const centers = [0, 1, 2, 3].map(i => ({ x: tools.x + 22 + i * 44, y: tools.y + 22 }))
-      const insideBody = (p: StickerScreenPoint) => hits(p, { left: minX, right: maxX, top: minY, bottom: maxY }) || occupied.some(b => hits(p, b))
-      if (centers.some(p => overlap(p, resize) || overlap(p, rotate) || insideBody(p)) || insideBody(resize) || insideBody(rotate)) continue
-      const score = Math.hypot(tools.x + 88 - quad.center.x, tools.y + 22 - quad.center.y) + (corner === 2 ? 0 : 12) + (edge === 0 ? 0 : 6)
-      if (score < bestScore) { bestScore = score; best = { corner, edge, resizeOffset: { x: resize.x - c.x, y: resize.y - c.y }, rotateOffset: { x: rotate.x - e.x, y: rotate.y - e.y }, tools } }
-    }
+  // Edge placements retain all four controls using distinct nearby free seats.
+  // Connections still originate at actual contour sectors, never a box frame.
+  let wear = { x: Math.max(84, Math.min(width - 84, shape.center.x)), y: Math.max(78, minY - 62) }
+  const wearChoices: StickerScreenPoint[] = []
+  for (let y = 78; y <= minY - 28; y += 24) for (let x = 84; x <= width - 84; x += 24) { const p = {x,y}; if (!occupied.some(b => overlaps(rect(p,144),b)) && !overlaps(rect(p,144),body)) wearChoices.push(p) }
+  wearChoices.sort((a,b)=>Math.hypot(a.x-shape.center.x,a.y-minY)-Math.hypot(b.x-shape.center.x,b.y-minY))
+  wear = wearChoices[0] ?? wear
+  const wearRect = rect(wear, 144), seats: StickerScreenPoint[] = []
+  for (let y = 78; y <= height - 34; y += 48) for (let x = 34; x <= width - 34; x += 48) { const p = { x, y }, r = rect(p); if (!overlaps(r, body) && !overlaps(r, wearRect)) seats.push(p) }
+  const grips: StickerScreenPoint[] = []
+  for (const anchor of shape.anchors) {
+    const seat = seats.filter(p => !grips.some(g => overlaps(rect(g), rect(p)))).sort((a, b) => Math.hypot(a.x - anchor.x, a.y - anchor.y) - Math.hypot(b.x - anchor.x, b.y - anchor.y))[0]
+    if (seat === undefined) throw new Error('Four contour grips cannot fit this viewport')
+    grips.push(seat)
   }
-  if (best !== null) return best
-  // At viewport edges, use distinct outboard seats with explicit connectors.
-  // Search actual free rectangles; never return overlapping/clipped defaults.
-  const minX = Math.min(...quad.corners.map(p => p.x)), maxX = Math.max(...quad.corners.map(p => p.x))
-  const minY = Math.min(...quad.corners.map(p => p.y)), maxY = Math.max(...quad.corners.map(p => p.y))
-  const free: StickerScreenPoint[] = []
-  for (let y = 86; y <= height - 38; y += 48) for (let x = 38; x <= width - 38; x += 48) {
-    if (!(x + 22 > minX && x - 22 < maxX && y + 22 > minY && y - 22 < maxY) && !occupied.some(b => hits({ x, y }, b))) free.push({ x, y })
-  }
-  free.sort((a, b) => Math.hypot(a.x - quad.center.x, a.y - quad.center.y) - Math.hypot(b.x - quad.center.x, b.y - quad.center.y))
-  for (const resize of free) for (const rotate of free) {
-    if (overlap(resize, rotate)) continue
-    for (const first of free) {
-      const centers = [0, 1, 2, 3].map(i => ({ x: first.x + i * 44, y: first.y }))
-      if (centers.some(p => p.x + 22 > width - 16 || occupied.some(b => hits(p, b)) || overlap(p, resize) || overlap(p, rotate) || (p.x + 22 > minX && p.x - 22 < maxX && p.y + 22 > minY && p.y - 22 < maxY))) continue
-      const c = quad.corners[2], e = quad.edges[0]
-      return { corner: 2, edge: 0, resizeOffset: { x: resize.x - c.x, y: resize.y - c.y }, rotateOffset: { x: rotate.x - e.x, y: rotate.y - e.y }, tools: { x: first.x - 22, y: first.y - 22 } }
-    }
-  }
-  throw new Error('No reachable sticker HUD layout in this viewport')
+  const tools = seats.filter(p => { const r = rect(p, 88); return fits(r) && !overlaps(r, body) && !overlaps(r, wearRect) && !grips.some(g => overlaps(rect(g), r)) && !occupied.some(b => overlaps(r, b)) }).sort((a,b) => Math.hypot(a.x-shape.center.x,a.y-shape.center.y)-Math.hypot(b.x-shape.center.x,b.y-shape.center.y))[0]
+  if (tools === undefined) throw new Error('Contour actions cannot fit this viewport')
+  return { offsets: grips.map((p,i) => ({ x:p.x-(shape.anchors[i] ?? shape.anchors[0]).x, y:p.y-(shape.anchors[i] ?? shape.anchors[0]).y })), wear: { x:wear.x-72,y:wear.y-22 }, tools:{ x:tools.x-44,y:tools.y-22 } }
 }

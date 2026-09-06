@@ -116,3 +116,15 @@ export function retryStickerEdit(place: StickerWrite): void {
   deviceStore.set(stickerEditorAtom, (state) => state === null ? null : { ...state, draft: attempted })
   void applyStickerEditor(place)
 }
+
+/** Reset runtime finish and safely straighten at the existing center and size. */
+export async function resetStickerAppearance(place: StickerWrite): Promise<void> {
+  const state = deviceStore.get(stickerEditorAtom)
+  if (state === null || state.phase === 'saving') return
+  const draft = { ...constrainedStickerEdit(state.draft, 'rotationDeg', 0), wear: 0 }
+  const limited = Math.abs(draft.rotationDeg) > .001, lease = session
+  deviceStore.set(stickerEditorAtom, { ...state, draft, message: null })
+  await applyStickerEditor(place)
+  const current = deviceStore.get(stickerEditorAtom)
+  if (session === lease && limited && current !== null && sameStickerPose(current.source, draft) && current.source.stickerId === state.source.stickerId && current.phase === 'editing' && deviceStore.get(stickerEditorFailureAtom) === null) deviceStore.set(stickerEditorAtom, { ...current, message: 'Straightened as far as this position allows.' })
+}

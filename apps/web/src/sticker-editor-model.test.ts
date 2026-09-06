@@ -1,7 +1,7 @@
 import { afterEach, expect, test } from 'bun:test'
 import { deviceStore, receiveStickerInventoryActionAtom, resetStickerCollectionActionAtom } from '@webpod/state'
 import { isStickerPlacement, type StickerInventory, type StickerPlacement } from '@webpod/stickers'
-import { applyStickerEditor, constrainedStickerEdit, dismissStickerEditor, previewStickerEdit, resetStickerEditor, revertStickerEditor, selectStickerEditor, setStickerEditorProperty, stickerEditorAtom, stickerEditorDirtyAtom, stickerEditorFailureAtom, stickerEditorPlacementsAtom } from './sticker-editor-model'
+import { applyStickerEditor, resetStickerAppearance, constrainedStickerEdit, dismissStickerEditor, previewStickerEdit, resetStickerEditor, revertStickerEditor, selectStickerEditor, setStickerEditorProperty, stickerEditorAtom, stickerEditorDirtyAtom, stickerEditorFailureAtom, stickerEditorPlacementsAtom } from './sticker-editor-model'
 const source: StickerPlacement = { stickerId: 'PW-C01', surface: 'back', x: .5, y: .5, width: .25, rotationDeg: 0, wear: .2 }
 const inventory: StickerInventory = { stickerIds: ['PW-C01'], packs: [], placements: [source], placementRevision: 1, progress: [], importStatus: 'complete' }
 function seed() { deviceStore.set(receiveStickerInventoryActionAtom, inventory); selectStickerEditor(source) }
@@ -54,4 +54,20 @@ test('same-ID reselect rebases after pending write and cannot revive a signed-ou
   const rejected = applyStickerEditor(() => new Promise((_resolve, fail) => { reject = fail }))
   resetStickerEditor(); reject(new Error('late')); await rejected
   expect(deviceStore.get(stickerEditorAtom)).toBeNull(); expect(deviceStore.get(stickerEditorFailureAtom)).toBeNull()
+})
+
+test('reset preserves size/center/ownership, clears owned wear and safely straightens near edge', async () => {
+  const edge: StickerPlacement = { ...source, stickerId:'PW-F01',x:.20,rotationDeg:90,wear:.9 }
+  expect(isStickerPlacement(edge)).toBe(true)
+  expect(isStickerPlacement({...edge,rotationDeg:0})).toBe(false)
+  const owned={...inventory,stickerIds:['PW-F01'] as const,placements:[edge]}
+  deviceStore.set(receiveStickerInventoryActionAtom,owned); selectStickerEditor(edge)
+  let calls=0
+  await resetStickerAppearance(async(draft,expected)=> {
+    calls++; expect(expected).toEqual(edge); expect(isStickerPlacement(draft)).toBe(true)
+    expect(draft.x).toBe(edge.x);expect(draft.y).toBe(edge.y);expect(draft.width).toBe(edge.width);expect(draft.wear).toBe(0)
+    expect(draft.rotationDeg).toBeLessThan(90);expect(draft.rotationDeg).toBeGreaterThan(0)
+    deviceStore.set(receiveStickerInventoryActionAtom,{...owned,placements:[draft],placementRevision:2})
+  })
+  expect(calls).toBe(1);expect(deviceStore.get(stickerEditorAtom)?.message).toContain('as far as')
 })

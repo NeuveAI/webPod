@@ -9,7 +9,7 @@ import { animateStickerValue, returnStickerToSheet, resetStickerCarry, cancelSti
 import { activeStickerCollectionAtom, stickerCollectionsAtom, selectedStickerGenreAtom, stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, genreLabel, formatListeningMinutes, stickerPlacementForIntent, stickerPeelMotion, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerProjectionVersionAtom, stickerPreparedIdsAtom, type CollectionSlot } from './sticker-collections-model'
 import { estimatePointerReleaseVelocity, type PointerMotionSample } from './device-orientation-motion'
 
-import { StickerEditor } from './sticker-editor'
+import { StickerEditor, dismissStickerTooltip } from './sticker-editor'
 import { STICKER_SELECT_TRAVEL, dismissStickerEditor, resetStickerEditor, selectStickerEditor, stickerEditorAtom, stickerEditorGestureAtom, stickerEditPending, cancelStickerEditorGesture } from './sticker-editor-model'
 
 const PACK = { ...STICKER_PACK_LAYOUT, peelTravelPx: 64, placementWidth: 0.25, releaseInertiaSeconds: 0.025 } as const
@@ -43,6 +43,7 @@ function releaseCapturedStickerPointer(target: HTMLElement | null): void {
 }
 
 export interface StickerCollectionCommands {
+  readonly contour?: (placement: StickerPlacement) => import('@webpod/device').StickerProjectedContour | null
   readonly quad?: (placement: StickerPlacement) => import('@webpod/device').StickerProjectedQuad | null
   readonly beginTransform?: (placement: StickerPlacement) => import('@webpod/device').StickerTransformPlane | null
   readonly retry: () => Promise<void>
@@ -405,6 +406,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
       if (event.key !== 'Escape') return
       if (event.target instanceof Element && event.target.closest('[data-sticker-editor]')) return
       if (deviceStore.get(stickerEditorGestureAtom)) { event.preventDefault(); event.stopImmediatePropagation(); cancelStickerEditorGesture(); return }
+      if (dismissStickerTooltip()) { event.preventDefault(); event.stopImmediatePropagation(); return }
       if (deviceStore.get(stickerEditorAtom) !== null) { event.preventDefault(); event.stopImmediatePropagation(); const id = deviceStore.get(stickerEditorAtom)?.source.stickerId; dismissStickerEditor(); document.querySelector<HTMLElement>(`[data-sticker-placed="${id}"]`)?.focus(); return }
       if (deviceStore.get(stickerInteractionAtom).sourcePlacement != null) { event.preventDefault(); event.stopImmediatePropagation(); releaseCapturedStickerPointer(captureTarget.current); returnStickerToSheet(reducedMotion) }
     }
@@ -467,7 +469,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
         </> : null}
       </div> : null}
       {message === null ? null : <p role="status" className={message === 'That change didn’t save. Try again.' ? 'pointer-events-auto absolute right-4 top-16 max-w-64 rounded bg-[#242a2e] px-3 py-2 text-xs text-[#eee7d9]' : 'sr-only'}>{message}</p>}
-      <StickerEditor screen={commands.screen} quad={commands.quad} beginTransform={commands.beginTransform} place={commands.place} returnToPack={returnPlaced} />
+      <StickerEditor screen={commands.screen} quad={commands.quad} contour={commands.contour} beginTransform={commands.beginTransform} place={commands.place} returnToPack={returnPlaced} />
       {artworkFailure === null ? <StickerImportStatus status={inventory?.importStatus} retry={() => run(commands.retry)} usable={usable} /> : <p role="alert" className="pointer-events-auto absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs leading-relaxed text-stone-800">A sticker image could not load. <button type="button" className={buttonClass} onClick={() => { retryStickerArtwork() }}>Retry artwork</button></p>}
     </div>
   )
