@@ -1,0 +1,25 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-editor.integration.test.ts:
+(pass) placed sticker editor previews, saves and restores physical customization [55274.84ms]
+
+apps/web/scripts/sticker-browser.integration.test.ts:
+killed 1 dangling process
+(fail) production browser signs in, collects, reloads, revokes and reconnects its device collection [120005.15ms]
+  ^ this test timed out after 120000ms.
+
+apps/web/scripts/sticker-restoration.integration.test.ts:
+sticker_import {
+  status: "failed",
+  reason: "apple_unavailable",
+  pages: 0,
+  received: 0,
+  accepted: 0,
+  skipped: 0,
+}
+(pass) registered reload paints saved rear before SDK setup or passive Apple import, preserving concurrent access [23320.12ms]
+
+ 2 pass
+ 1 fail
+ 328 expect() calls
+Ran 3 tests across 3 files. [199.46s]

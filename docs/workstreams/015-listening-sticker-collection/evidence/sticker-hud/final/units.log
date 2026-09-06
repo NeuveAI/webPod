@@ -1,0 +1,43 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/sticker-hud-layout.test.ts:
+(pass) minimum and normal art have separate reachable grips and tools at desktop/mobile edges [2.39ms]
+
+apps/web/src/sticker-runtime.test.ts:
+(pass) sticker runtime lifecycle > logout invalidates a delayed import instead of restoring the prior collection [2.82ms]
+(pass) sticker runtime lifecycle > retry after failed bootstrap attaches the same listening subscription once [1.88ms]
+(pass) sticker runtime lifecycle > a stale placement revision reloads server state and does not show an optimistic save [2.05ms]
+(pass) sticker runtime lifecycle > listening starts with a baseline, resets after seeks and stops at teardown [6.54ms]
+(pass) sticker runtime lifecycle > logout during failed conflict recovery cannot restore the prior error status [2.79ms]
+(pass) device preparation completes before credential transfer and logout cancels a delayed callback [1.41ms]
+(pass) registered session restoration > valid DB lease publishes before passive ingestion and survives its failure [4.03ms]
+(pass) registered session restoration > same provider keeps valid content through read failure, invalid lease clears it [4.03ms]
+(pass) registered session restoration > replacement and confirmed authorization loss invalidate a late DB response [4.14ms]
+(pass) registered session restoration > late GET cannot rewind an opened pack with unchanged placement revision [4.01ms]
+(pass) registered session restoration > late import reconciles new access with newer placement and pack state [4.00ms]
+(pass) registered session restoration > scheduled refresh deduplicates pending import and tears down its clock [6.59ms]
+(pass) guarded editor write checks its source after waiting for the serialized queue [1.74ms]
+
+apps/web/src/sticker-import-status.test.tsx:
+(pass) sticker import status > partial sampling does not add a visible routine notice or retry [2.69ms]
+(pass) sticker import status > failed sync preserves the safe inventory message and invokes the current retry command [1.73ms]
+(pass) sticker import status > complete does not show an import warning [0.08ms]
+(pass) sticker import status > pending does not show an import warning [0.02ms]
+(pass) sticker import status > undefined does not show an import warning [0.02ms]
+
+apps/web/src/sticker-hud-model.test.ts:
+(pass) same-ID pending lock survives dismiss/reselect; source guard and Undo capture canonical result [0.44ms]
+(pass) authoritative removal after successful write cannot leave HUD permanently saving [0.08ms]
+(pass) failed auto-save restores saved pose and retains guarded retry; remote change invalidates Undo [0.20ms]
+
+apps/web/src/sticker-editor-model.test.ts:
+(pass) one-copy live draft and gesture cancellation retain inventory identity and values [0.16ms]
+(pass) fixed center constrains rotated size; nonfinite values do not enter draft [0.04ms]
+(pass) gesture save dispatches captured source once and rebases later cancellation to canonical result [0.11ms]
+(pass) failed auto-save restores authority, conflict adopts canonical source, dismissed failure stays local [0.16ms]
+(pass) same-ID reselect rebases after pending write and cannot revive a signed-out session [0.09ms]
+
+ 27 pass
+ 0 fail
+ 1279 expect() calls
+Ran 27 tests across 5 files. [126.00ms]

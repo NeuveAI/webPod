@@ -1,0 +1,40 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/stickers/src/appearance.test.ts:
+(pass) legacy inventory defaults to original and validates canonical owned appearance identity [0.87ms]
+
+packages/device/src/sticker-projected-bounds.test.ts:
+(pass) projected bounds follow actual transformed geometry and canvas coordinates [1.59ms]
+
+packages/device/src/sticker-wear.test.ts:
+(pass) wear changes one retained uniform without material versions or shader variants [0.69ms]
+(pass) prepared clones retain the same mutable wear owner and deterministic artwork seed [0.69ms]
+
+packages/server-core/src/stickers/stickers.test.ts:
+(pass) sticker ownership, persistence and earning ledger > B1 enrichment before library import preserves membership through partial/complete retries [29.38ms]
+(pass) sticker ownership, persistence and earning ledger > B2 late starter excludes already-owned first art and consumes all-owned eligibility without empty packs [85.55ms]
+(pass) sticker ownership, persistence and earning ledger > B2 mixed late starter gives only unowned eligible first art [48.58ms]
+(pass) sticker ownership, persistence and earning ledger > B3 null import can resolve, resolved metadata survives weaker snapshots, checked unknown does not loop [16.54ms]
+(pass) sticker ownership, persistence and earning ledger > starter deduplicates and import membership earns no time; owner isolation [8.05ms]
+(pass) sticker ownership, persistence and earning ledger > sequential observations credit server elapsed, retries do not, two tabs cannot double time [15.21ms]
+(pass) sticker ownership, persistence and earning ledger > 5 minute new genre grant is exactly once and opens idempotently [68.14ms]
+(pass) sticker ownership, persistence and earning ledger > placement validates rotated bounds, owned identity and stale revision [9.54ms]
+(pass) sticker ownership, persistence and earning ledger > new database migration repeats and inventory persists across reopen [15.64ms]
+(pass) sticker ownership, persistence and earning ledger > v1 upgrades preserve collection/grants and reject unknown future schemas [24.91ms]
+(pass) bounded Apple metadata ingestion > canonical IDs, exact genre aliases, pagination and duplicate rows [2.92ms]
+(pass) bounded Apple metadata ingestion > later-page rate limit rejects the entire snapshot; previously persisted taste and credits survive [4.99ms]
+(pass) bounded Apple metadata ingestion > repeated next paths, malformed pages and oversized responses reject without false completion [2.21ms]
+(pass) bounded Apple metadata ingestion > page ceiling returns explicit partial snapshot [1.37ms]
+(pass) bounded Apple metadata ingestion > upstream pagination cannot redirect credential-bearing requests and failure is safe [0.24ms]
+(pass) HTTP validation and Effect runtime > B3 HTTP enriches missing genre once and accepts authoritative unknown without network loop [10.76ms]
+(pass) HTTP validation and Effect runtime > Effect runtime scopes storage and executes real repository operations [9.55ms]
+(pass) HTTP validation and Effect runtime > oversized and invalid observations are rejected before domain work [4.42ms]
+(pass) HTTP validation and Effect runtime > cross-origin bootstrap and unauthenticated reads never expose repository data [5.73ms]
+(pass) durable owned sticker appearance > wear and geometry share ownership/revision transaction; return retains wear and omission preserves it [11.99ms]
+(pass) durable owned sticker appearance > populated v2 upgrades to v4 and wear persists across reopen [24.10ms]
+(pass) durable owned sticker appearance > populated v3 upgrades to v4 and wear persists across reopen [20.65ms]
+
+ 26 pass
+ 0 fail
+ 439 expect() calls
+Ran 26 tests across 4 files. [659.00ms]

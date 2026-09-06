@@ -1,0 +1,9 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-editor.integration.test.ts:
+(pass) placed sticker editor previews, saves and restores physical customization [31705.06ms]
+
+ 1 pass
+ 0 fail
+ 19 expect() calls
+Ran 1 test across 1 file. [32.63s]

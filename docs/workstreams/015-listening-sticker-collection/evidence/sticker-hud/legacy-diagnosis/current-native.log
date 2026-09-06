@@ -1,0 +1,25 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-browser.integration.test.ts:
+sticker_import {
+  status: "partial",
+  reason: "sample_limit",
+  pages: 25,
+  received: 75,
+  accepted: 3,
+  skipped: 0,
+}
+sticker_import {
+  status: "failed",
+  reason: "apple_unavailable",
+  pages: 0,
+  received: 0,
+  accepted: 0,
+  skipped: 0,
+}
+(pass) production browser signs in, collects, reloads, revokes and reconnects its device collection [35974.52ms]
+
+ 1 pass
+ 0 fail
+ 188 expect() calls
+Ran 1 test across 1 file. [36.16s]

@@ -1,0 +1,16 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/sticker-projected-bounds.test.ts:
+(pass) projected bounds follow actual transformed geometry and canvas coordinates [0.61ms]
+
+packages/device/src/sticker-transform-projection.test.ts:
+(pass) quad follows UV artwork order and real pose, including edge midpoint under perspective [0.69ms]
+(pass) frozen plane roundtrips real perspective and orthographic poses, including outboard pointers [0.34ms]
+(pass) invalid and edge-on geometry or inverse rays fail closed [0.15ms]
+(pass) actual rear geometry preserves artwork corners and clockwise physical angle across the branch cut [2.22ms]
+(pass) captures DOMRect prototype getters explicitly and keeps their values frozen [0.12ms]
+
+ 6 pass
+ 0 fail
+ 46 expect() calls
+Ran 6 tests across 2 files. [36.00ms]

@@ -1,0 +1,17 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-restoration.integration.test.ts:
+sticker_import {
+  status: "failed",
+  reason: "apple_unavailable",
+  pages: 0,
+  received: 0,
+  accepted: 0,
+  skipped: 0,
+}
+(pass) registered reload paints saved rear before SDK setup or passive Apple import, preserving concurrent access [5528.57ms]
+
+ 1 pass
+ 0 fail
+ 85 expect() calls
+Ran 1 test across 1 file. [5.71s]

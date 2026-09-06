@@ -1,0 +1,26 @@
+[
+  {
+    "step": "keyboard-placement-painted",
+    "elapsedMs": 31785
+  },
+  {
+    "step": "placed-seat-clicked",
+    "elapsedMs": 31797
+  },
+  {
+    "step": "return-control-visible",
+    "elapsedMs": 31798
+  },
+  {
+    "step": "return-persisted",
+    "elapsedMs": 31844
+  },
+  {
+    "step": "pack-closed",
+    "elapsedMs": 31882
+  },
+  {
+    "step": "same-device-signed-in-again",
+    "elapsedMs": 32290
+  }
+]

@@ -1,0 +1,129 @@
+{
+  "source": {
+    "digest": "b8c9289a81740be981fa4ffdd902b1d69a2f4f1756350e62d7bb586aeaa588f7",
+    "fileCount": 390
+  },
+  "requests": [
+    {
+      "path": "/api/stickers/device",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/session",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/packs/open",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/placements",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "path": "/",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/favicon.ico",
+      "method": "GET",
+      "status": 404
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/apple/developer-token",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/device",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/session",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/placements",
+      "method": "PUT",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/apple/developer-token",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/device",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/session",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "path": "/api/stickers/placements",
+      "method": "PUT",
+      "status": 200
+    }
+  ],
+  "passed": true
+}

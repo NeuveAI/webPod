@@ -1,0 +1,125 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/sticker-hud-layout.test.ts:
+(pass) minimum and normal art have separate reachable grips and tools at desktop/mobile edges [2.18ms]
+
+apps/web/src/sticker-runtime.test.ts:
+(pass) sticker runtime lifecycle > logout invalidates a delayed import instead of restoring the prior collection [2.76ms]
+(pass) sticker runtime lifecycle > retry after failed bootstrap attaches the same listening subscription once [1.91ms]
+(pass) sticker runtime lifecycle > a stale placement revision reloads server state and does not show an optimistic save [2.03ms]
+(pass) sticker runtime lifecycle > listening starts with a baseline, resets after seeks and stops at teardown [6.46ms]
+(pass) sticker runtime lifecycle > logout during failed conflict recovery cannot restore the prior error status [2.57ms]
+(pass) device preparation completes before credential transfer and logout cancels a delayed callback [1.41ms]
+(pass) registered session restoration > valid DB lease publishes before passive ingestion and survives its failure [4.04ms]
+(pass) registered session restoration > same provider keeps valid content through read failure, invalid lease clears it [3.99ms]
+(pass) registered session restoration > replacement and confirmed authorization loss invalidate a late DB response [4.07ms]
+(pass) registered session restoration > late GET cannot rewind an opened pack with unchanged placement revision [3.88ms]
+(pass) registered session restoration > late import reconciles new access with newer placement and pack state [4.05ms]
+(pass) registered session restoration > scheduled refresh deduplicates pending import and tears down its clock [6.56ms]
+(pass) guarded editor write checks its source after waiting for the serialized queue [1.59ms]
+
+apps/web/src/music-runtime.test.ts:
+(pass) music runtime selection > production is Apple-only regardless of stale query or build flags [0.01ms]
+(pass) music runtime selection > quiesces an authorized transport before its controls leave the screen [0.16ms]
+(pass) music runtime selection > unlocks after one page per collection and streams later pages into the same source [1.74ms]
+(pass) music runtime selection > optional empty radio discovery preserves completed Apple library loading [1.56ms]
+(pass) music runtime selection > optional error radio discovery preserves completed Apple library loading [1.36ms]
+(pass) music runtime selection > optional pending radio discovery preserves completed Apple library loading [1.41ms]
+(pass) music runtime selection > bounds relationship and search track identity memory [1.96ms]
+
+apps/web/src/sticker-hud-model.test.ts:
+(pass) same-ID pending lock survives dismiss/reselect; source guard and Undo capture canonical result [0.41ms]
+(pass) authoritative removal after successful write cannot leave HUD permanently saving [0.09ms]
+(pass) failed auto-save restores saved pose and retains guarded retry; remote change invalidates Undo [0.19ms]
+
+apps/web/src/sticker-editor-model.test.ts:
+(pass) one-copy live draft and gesture cancellation retain inventory identity and values [0.13ms]
+(pass) fixed center constrains rotated size; nonfinite values do not enter draft [0.04ms]
+(pass) gesture save dispatches captured source once and rebases later cancellation to canonical result [0.10ms]
+(pass) failed auto-save restores authority, conflict adopts canonical source, dismissed failure stays local [0.19ms]
+(pass) same-ID reselect rebases after pending write and cannot revive a signed-out session [0.09ms]
+
+packages/stickers/src/appearance.test.ts:
+(pass) legacy inventory defaults to original and validates canonical owned appearance identity [0.09ms]
+
+packages/device/src/sticker-program-preparation.test.ts:
+(pass) successful preparation preserves exact variants and holds warmed program owners until abort [28.37ms]
+(pass) original unmount cannot invalidate captured cloned-program metadata while pending [12.45ms]
+(pass) pre-abort does not clone or compile; in-flight abort cancels polling and settles once [27.28ms]
+(pass) abort raised inside synchronous compile defers disposal until compile returns [0.30ms]
+(pass) context loss cancels before invalid program queries; restoration requires a fresh generation [27.29ms]
+(pass) missing metadata, throwing readiness and synchronous compile failure reject without leaked owners [105.20ms]
+(pass) never-ready programs time out, clear their timer, and cannot report late readiness [47.67ms]
+(pass) cancellation raised while polling does not dispose a program during its readiness call [0.20ms]
+
+packages/device/src/sticker-projected-bounds.test.ts:
+(pass) projected bounds follow actual transformed geometry and canvas coordinates [0.67ms]
+
+packages/device/src/sticker-transform-projection.test.ts:
+(pass) quad follows UV artwork order and real pose, including edge midpoint under perspective [0.42ms]
+(pass) frozen plane roundtrips real perspective and orthographic poses, including outboard pointers [0.25ms]
+(pass) invalid and edge-on geometry or inverse rays fail closed [0.12ms]
+(pass) actual rear geometry preserves artwork corners and clockwise physical angle across the branch cut [1.48ms]
+(pass) captures DOMRect prototype getters explicitly and keeps their values frozen [0.09ms]
+
+packages/device/src/sticker-wear.test.ts:
+(pass) wear changes one retained uniform without material versions or shader variants [0.14ms]
+(pass) prepared clones retain the same mutable wear owner and deterministic artwork seed [0.04ms]
+
+packages/server-core/src/stickers/stickers.test.ts:
+(pass) sticker ownership, persistence and earning ledger > B1 enrichment before library import preserves membership through partial/complete retries [9.32ms]
+(pass) sticker ownership, persistence and earning ledger > B2 late starter excludes already-owned first art and consumes all-owned eligibility without empty packs [12.56ms]
+(pass) sticker ownership, persistence and earning ledger > B2 mixed late starter gives only unowned eligible first art [9.68ms]
+(pass) sticker ownership, persistence and earning ledger > B3 null import can resolve, resolved metadata survives weaker snapshots, checked unknown does not loop [3.63ms]
+(pass) sticker ownership, persistence and earning ledger > starter deduplicates and import membership earns no time; owner isolation [1.41ms]
+(pass) sticker ownership, persistence and earning ledger > sequential observations credit server elapsed, retries do not, two tabs cannot double time [2.54ms]
+(pass) sticker ownership, persistence and earning ledger > 5 minute new genre grant is exactly once and opens idempotently [8.39ms]
+(pass) sticker ownership, persistence and earning ledger > placement validates rotated bounds, owned identity and stale revision [1.12ms]
+(pass) sticker ownership, persistence and earning ledger > new database migration repeats and inventory persists across reopen [11.25ms]
+(pass) sticker ownership, persistence and earning ledger > v1 upgrades preserve collection/grants and reject unknown future schemas [5.00ms]
+(pass) bounded Apple metadata ingestion > canonical IDs, exact genre aliases, pagination and duplicate rows [0.90ms]
+(pass) bounded Apple metadata ingestion > later-page rate limit rejects the entire snapshot; previously persisted taste and credits survive [1.15ms]
+(pass) bounded Apple metadata ingestion > repeated next paths, malformed pages and oversized responses reject without false completion [0.73ms]
+(pass) bounded Apple metadata ingestion > page ceiling returns explicit partial snapshot [1.42ms]
+(pass) bounded Apple metadata ingestion > upstream pagination cannot redirect credential-bearing requests and failure is safe [0.08ms]
+(pass) HTTP validation and Effect runtime > B3 HTTP enriches missing genre once and accepts authoritative unknown without network loop [2.35ms]
+(pass) HTTP validation and Effect runtime > Effect runtime scopes storage and executes real repository operations [1.97ms]
+(pass) HTTP validation and Effect runtime > oversized and invalid observations are rejected before domain work [0.10ms]
+(pass) HTTP validation and Effect runtime > cross-origin bootstrap and unauthenticated reads never expose repository data [0.58ms]
+(pass) durable owned sticker appearance > wear and geometry share ownership/revision transaction; return retains wear and omission preserves it [1.60ms]
+(pass) durable owned sticker appearance > populated v2 upgrades to v4 and wear persists across reopen [6.99ms]
+(pass) durable owned sticker appearance > populated v3 upgrades to v4 and wear persists across reopen [4.46ms]
+
+packages/server-core/src/stickers/live.test.ts:
+(pass) device collection sessions > preparation alone cannot read; verified import survives logout, reconnect, rotation, restart and remains isolated [8.74ms]
+(pass) device collection sessions > failed upstream authorization never grants a session or creates a collection [3.41ms]
+sticker_import {
+  status: "failed",
+  reason: "cancelled",
+  pages: 0,
+  received: 0,
+  accepted: 0,
+  skipped: 0,
+}
+(pass) device collection sessions > logout while upstream import is suspended prevents activation and grants [3.63ms]
+sticker_import {
+  status: "failed",
+  reason: "apple_unavailable",
+  pages: 0,
+  received: 0,
+  accepted: 0,
+  skipped: 0,
+}
+(pass) device collection sessions > failed library import returns explicit failed inventory without erasing prior grants [5.10ms]
+(pass) device collection sessions > catalogue enrichment has no user token and stale device generation cannot write [7.06ms]
+(pass) logout revokes captured active access even when the device cookie is missing [3.72ms]
+(pass) rapid authenticated reload reuses inventory and bounded preparation rejects excess work [5.58ms]
+(pass) logout interrupts catalogue enrichment without metadata or listening credit writes [4.77ms]
+(pass) runtime disposal cancels admitted upstream work and releases database ownership [3.71ms]
+(pass) global upstream admission is bounded and forged session secrets cannot resolve an owner [5.41ms]
+(pass) incoming request abort cancels Apple fetch and releases device admission without grants [4.73ms]
+
+ 79 pass
+ 0 fail
+ 1983 expect() calls
+Ran 79 tests across 12 files. [568.00ms]

@@ -1,0 +1,9 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-hud.integration.test.ts:
+(pass) HUD transforms, gesture saves, cancellation and recovery use actual route and artwork [18930.31ms]
+
+ 1 pass
+ 0 fail
+ 130 expect() calls
+Ran 1 test across 1 file. [19.13s]

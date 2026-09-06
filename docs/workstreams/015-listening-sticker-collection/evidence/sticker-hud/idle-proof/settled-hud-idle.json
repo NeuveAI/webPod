@@ -1,0 +1,22 @@
+{
+  "source": {
+    "digest": "ca951f4625156b5b7fcda2ca1b9e656aec1d95b66eed2bbd0e1b2cf896c7d059",
+    "fileCount": 395
+  },
+  "beforeTransformDraws": 539,
+  "activeTransformDraws": 1097,
+  "methods": [
+    "WebGL.drawArrays",
+    "WebGL.drawElements",
+    "WebGL2.drawArrays",
+    "WebGL2.drawElements",
+    "WebGL2.drawArraysInstanced",
+    "WebGL2.drawElementsInstanced",
+    "WebGL2.drawRangeElements"
+  ],
+  "before": 1841,
+  "after": 1841,
+  "elapsedMs": 3002.5,
+  "hudCount": 1,
+  "presence": "1.000"
+}
