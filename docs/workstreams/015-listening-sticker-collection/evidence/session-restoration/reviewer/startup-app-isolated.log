@@ -1,0 +1,10 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/dev-startup.integration.test.ts:
+(pass) app shipped dev script renders both product routes and loads anonymous SQLite transport [55961.16ms]
+
+ 1 pass
+ 2 filtered out
+ 0 fail
+ 1023 expect() calls
+Ran 1 test across 1 file. [56.47s]

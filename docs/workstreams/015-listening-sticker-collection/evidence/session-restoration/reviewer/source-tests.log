@@ -1,0 +1,79 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/sticker-runtime.test.ts:
+(pass) sticker runtime lifecycle > logout invalidates a delayed import instead of restoring the prior collection [8.85ms]
+(pass) sticker runtime lifecycle > retry after failed bootstrap attaches the same listening subscription once [6.61ms]
+(pass) sticker runtime lifecycle > a stale placement revision reloads server state and does not show an optimistic save [6.75ms]
+(pass) sticker runtime lifecycle > listening starts with a baseline, resets after seeks and stops at teardown [27.10ms]
+(pass) sticker runtime lifecycle > logout during failed conflict recovery cannot restore the prior error status [13.46ms]
+(pass) device preparation completes before credential transfer and logout cancels a delayed callback [16.27ms]
+(pass) registered session restoration > valid DB lease publishes before passive ingestion and survives its failure [6.05ms]
+(pass) registered session restoration > same provider keeps valid content through read failure, invalid lease clears it [8.98ms]
+(pass) registered session restoration > replacement and confirmed authorization loss invalidate a late DB response [12.03ms]
+(pass) registered session restoration > late GET cannot rewind an opened pack with unchanged placement revision [6.80ms]
+(pass) registered session restoration > late import reconciles new access with newer placement and pack state [5.41ms]
+(pass) registered session restoration > scheduled refresh deduplicates pending import and tears down its clock [7.42ms]
+
+apps/web/src/music-runtime.test.ts:
+(pass) music runtime selection > production is Apple-only regardless of stale query or build flags [0.05ms]
+(pass) music runtime selection > quiesces an authorized transport before its controls leave the screen [0.72ms]
+(pass) music runtime selection > unlocks after one page per collection and streams later pages into the same source [3.90ms]
+(pass) music runtime selection > optional empty radio discovery preserves completed Apple library loading [3.40ms]
+(pass) music runtime selection > optional error radio discovery preserves completed Apple library loading [1.86ms]
+(pass) music runtime selection > optional pending radio discovery preserves completed Apple library loading [2.32ms]
+(pass) music runtime selection > bounds relationship and search track identity memory [4.43ms]
+
+packages/server-core/src/stickers/stickers.test.ts:
+(pass) sticker ownership, persistence and earning ledger > B1 enrichment before library import preserves membership through partial/complete retries [44.48ms]
+(pass) sticker ownership, persistence and earning ledger > B2 late starter excludes already-owned first art and consumes all-owned eligibility without empty packs [120.43ms]
+(pass) sticker ownership, persistence and earning ledger > B2 mixed late starter gives only unowned eligible first art [95.31ms]
+(pass) sticker ownership, persistence and earning ledger > B3 null import can resolve, resolved metadata survives weaker snapshots, checked unknown does not loop [33.41ms]
+(pass) sticker ownership, persistence and earning ledger > starter deduplicates and import membership earns no time; owner isolation [22.29ms]
+(pass) sticker ownership, persistence and earning ledger > sequential observations credit server elapsed, retries do not, two tabs cannot double time [42.44ms]
+(pass) sticker ownership, persistence and earning ledger > 5 minute new genre grant is exactly once and opens idempotently [162.60ms]
+(pass) sticker ownership, persistence and earning ledger > placement validates rotated bounds, owned identity and stale revision [17.28ms]
+(pass) sticker ownership, persistence and earning ledger > new database migration repeats and inventory persists across reopen [26.64ms]
+(pass) sticker ownership, persistence and earning ledger > v1 upgrades preserve collection/grants and reject unknown future schemas [47.72ms]
+(pass) bounded Apple metadata ingestion > canonical IDs, exact genre aliases, pagination and duplicate rows [13.01ms]
+(pass) bounded Apple metadata ingestion > later-page rate limit rejects the entire snapshot; previously persisted taste and credits survive [30.80ms]
+(pass) bounded Apple metadata ingestion > repeated next paths, malformed pages and oversized responses reject without false completion [10.48ms]
+(pass) bounded Apple metadata ingestion > page ceiling returns explicit partial snapshot [5.88ms]
+(pass) bounded Apple metadata ingestion > upstream pagination cannot redirect credential-bearing requests and failure is safe [0.29ms]
+(pass) HTTP validation and Effect runtime > B3 HTTP enriches missing genre once and accepts authoritative unknown without network loop [40.98ms]
+(pass) HTTP validation and Effect runtime > Effect runtime scopes storage and executes real repository operations [38.98ms]
+(pass) HTTP validation and Effect runtime > oversized and invalid observations are rejected before domain work [24.65ms]
+(pass) HTTP validation and Effect runtime > cross-origin bootstrap and unauthenticated reads never expose repository data [11.04ms]
+
+packages/server-core/src/stickers/live.test.ts:
+(pass) device collection sessions > preparation alone cannot read; verified import survives logout, reconnect, rotation, restart and remains isolated [88.62ms]
+(pass) device collection sessions > failed upstream authorization never grants a session or creates a collection [31.24ms]
+sticker_import {
+  status: "failed",
+  reason: "cancelled",
+  pages: 0,
+  received: 0,
+  accepted: 0,
+  skipped: 0,
+}
+(pass) device collection sessions > logout while upstream import is suspended prevents activation and grants [20.78ms]
+sticker_import {
+  status: "failed",
+  reason: "apple_unavailable",
+  pages: 0,
+  received: 0,
+  accepted: 0,
+  skipped: 0,
+}
+(pass) device collection sessions > failed library import returns explicit failed inventory without erasing prior grants [54.90ms]
+(pass) device collection sessions > catalogue enrichment has no user token and stale device generation cannot write [61.39ms]
+(pass) logout revokes captured active access even when the device cookie is missing [26.65ms]
+(pass) rapid authenticated reload reuses inventory and bounded preparation rejects excess work [64.61ms]
+(pass) logout interrupts catalogue enrichment without metadata or listening credit writes [27.84ms]
+(pass) runtime disposal cancels admitted upstream work and releases database ownership [20.27ms]
+(pass) global upstream admission is bounded and forged session secrets cannot resolve an owner [88.36ms]
+(pass) incoming request abort cancels Apple fetch and releases device admission without grants [49.65ms]
+
+ 49 pass
+ 0 fail
+ 219 expect() calls
+Ran 49 tests across 4 files. [2.09s]

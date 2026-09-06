@@ -1,0 +1,29 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/sticker-runtime.test.ts:
+(pass) sticker runtime lifecycle > logout invalidates a delayed import instead of restoring the prior collection [15.79ms]
+(pass) sticker runtime lifecycle > retry after failed bootstrap attaches the same listening subscription once [5.32ms]
+(pass) sticker runtime lifecycle > a stale placement revision reloads server state and does not show an optimistic save [8.12ms]
+(pass) sticker runtime lifecycle > listening starts with a baseline, resets after seeks and stops at teardown [10.62ms]
+(pass) sticker runtime lifecycle > logout during failed conflict recovery cannot restore the prior error status [4.09ms]
+(pass) device preparation completes before credential transfer and logout cancels a delayed callback [1.96ms]
+(pass) registered session restoration > valid DB lease publishes before passive ingestion and survives its failure [13.25ms]
+(pass) registered session restoration > same provider keeps valid content through read failure, invalid lease clears it [5.01ms]
+(pass) registered session restoration > replacement and confirmed authorization loss invalidate a late DB response [6.20ms]
+(pass) registered session restoration > late GET cannot rewind an opened pack with unchanged placement revision [5.45ms]
+(pass) registered session restoration > late import reconciles new access with newer placement and pack state [6.09ms]
+(pass) registered session restoration > scheduled refresh deduplicates pending import and tears down its clock [9.77ms]
+
+apps/web/src/music-runtime.test.ts:
+(pass) music runtime selection > production is Apple-only regardless of stale query or build flags [0.06ms]
+(pass) music runtime selection > quiesces an authorized transport before its controls leave the screen [1.05ms]
+(pass) music runtime selection > unlocks after one page per collection and streams later pages into the same source [6.36ms]
+(pass) music runtime selection > optional empty radio discovery preserves completed Apple library loading [2.57ms]
+(pass) music runtime selection > optional error radio discovery preserves completed Apple library loading [2.19ms]
+(pass) music runtime selection > optional pending radio discovery preserves completed Apple library loading [1.96ms]
+(pass) music runtime selection > bounds relationship and search track identity memory [7.19ms]
+
+ 19 pass
+ 0 fail
+ 65 expect() calls
+Ran 19 tests across 2 files. [474.00ms]

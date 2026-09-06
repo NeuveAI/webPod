@@ -1,0 +1,7 @@
+{
+  "nativeFingerprint": "57a57f92119dae7590598c619cd550c35cb81cfc0d32083da0b8623060046743",
+  "finalFingerprint": "c11bd0eee34d0f42feba78e3a37b558a7184f40168011100d4e7dfefe9b2fde4",
+  "changed": [
+    "apps/web/scripts/dev-startup.integration.test.ts"
+  ]
+}

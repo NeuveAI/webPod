@@ -1,0 +1,36 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/dev-startup.integration.test.ts:
+(pass) canonical dev keeps Bun and root env semantics while using the unbundled config runner [2.54ms]
+108 |     try {
+109 |       await browserExpect.poll(async () => fetch(origin + '/@vite/client', { headers: { connection: 'close' }, signal: AbortSignal.timeout(1000) }).then(async (response) => { await response.arrayBuffer(); return response.headers.get('x-webpod-config-restart') }).catch(() => null), { timeout: 15_000 }).toBe('observed')
+110 |     } catch { throw new Error(`Config restart did not apply; ${output.slice(-2500)}`) }
+111 |     await Bun.write(helperPath, "export const startupMarker = 'second'\n")
+112 |     await browserExpect.poll(async () => fetch(origin + '/@vite/client', { headers: { connection: 'close' }, signal: AbortSignal.timeout(1000) }).then(async (response) => { await response.arrayBuffer(); return response.headers.get('x-webpod-config-helper') }).catch(() => null), { timeout: 15_000 }).toBe('second')
+113 |     await page.goto(origin + '/')
+                     ^
+error: goto: net::ERR_ABORTED at http://127.0.0.1:50959/
+Call log:
+[2m  - navigating to "http://127.0.0.1:50959/", waiting until "load"[22m
+
+  log: [ "  - navigating to \"http://127.0.0.1:50959/\", waiting until \"load\"" ],
+
+      at /Users/vinicius/code/webPod/apps/web/scripts/dev-startup.integration.test.ts:113:16
+      at processTicksAndRejections (native:7:39)
+(fail) root shipped dev script renders both product routes and loads anonymous SQLite transport [42225.42ms]
+49 |     while (Date.now() < deadline && child.exitCode === null) {
+50 |       ready = await fetch(origin + '/@vite/client', { headers: { connection: 'close' }, signal: AbortSignal.timeout(1000) }).then(async (response) => { await response.arrayBuffer(); return response.ok }).catch(() => false)
+51 |       if (ready) break
+52 |       await pause(100)
+53 |     }
+54 |     if (!ready) throw new Error(`Shipped ${launcher} dev readiness failed; exit=${String(child.exitCode)}; isolated credential-free startup tail: ${output.slice(-2000)}`)
+                               ^
+error: Shipped app dev readiness failed; exit=null; isolated credential-free startup tail: $ bun node_modules/vite/bin/vite.js dev --configLoader runner --port 3000 --host "127.0.0.1" --port "51740" --strictPort
+
+      at <anonymous> (/Users/vinicius/code/webPod/apps/web/scripts/dev-startup.integration.test.ts:54:27)
+(fail) app shipped dev script renders both product routes and loads anonymous SQLite transport [56540.67ms]
+
+ 1 pass
+ 2 fail
+ 1025 expect() calls
+Ran 3 tests across 1 file. [99.27s]

@@ -1,0 +1,34 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/dev-startup.integration.test.ts:
+(pass) canonical dev keeps Bun and root env semantics while using the unbundled config runner [2.86ms]
+49 |     while (Date.now() < deadline && child.exitCode === null) {
+50 |       ready = await fetch(origin + '/@vite/client', { headers: { connection: 'close' }, signal: AbortSignal.timeout(1000) }).then(async (response) => { await response.arrayBuffer(); return response.ok }).catch(() => false)
+51 |       if (ready) break
+52 |       await pause(100)
+53 |     }
+54 |     if (!ready) throw new Error(`Shipped ${launcher} dev readiness failed; exit=${String(child.exitCode)}; isolated credential-free startup tail: ${output.slice(-2000)}`)
+                               ^
+error: Shipped root dev readiness failed; exit=null; isolated credential-free startup tail: $ bun --env-file=.env.local run --cwd apps/web dev --host "127.0.0.1" --port "55216" --strictPort
+$ bun node_modules/vite/bin/vite.js dev --configLoader runner --port 3000 --host "127.0.0.1" --port "55216" --strictPort
+
+      at <anonymous> (/Users/vinicius/code/webPod/apps/web/scripts/dev-startup.integration.test.ts:54:27)
+(fail) root shipped dev script renders both product routes and loads anonymous SQLite transport [60163.86ms]
+108 |     try {
+109 |       await browserExpect.poll(async () => fetch(origin + '/@vite/client', { headers: { connection: 'close' }, signal: AbortSignal.timeout(1000) }).then(async (response) => { await response.arrayBuffer(); return response.headers.get('x-webpod-config-restart') }).catch(() => null), { timeout: 15_000 }).toBe('observed')
+110 |     } catch { throw new Error(`Config restart did not apply; ${output.slice(-2500)}`) }
+111 |     // HTTP readiness can precede Vite's reconnect-triggered location.reload().
+112 |     // Observe that real reload instead of racing it with a second navigation.
+113 |     const helperRestartDocument = page.waitForResponse((response) =>
+                                             ^
+TimeoutError: waitForResponse: Timeout 15000ms exceeded while waiting for event "response"
+  log: [],
+
+      at /Users/vinicius/code/webPod/apps/web/scripts/dev-startup.integration.test.ts:113:40
+      at processTicksAndRejections (native:7:39)
+(fail) app shipped dev script renders both product routes and loads anonymous SQLite transport [56346.14ms]
+
+ 1 pass
+ 2 fail
+ 1025 expect() calls
+Ran 3 tests across 1 file. [117.08s]

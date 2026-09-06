@@ -1,0 +1,11 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/dev-startup.integration.test.ts:
+(pass) canonical dev keeps Bun and root env semantics while using the unbundled config runner [3.74ms]
+(pass) root shipped dev script renders both product routes and loads anonymous SQLite transport [43583.30ms]
+(pass) app shipped dev script renders both product routes and loads anonymous SQLite transport [48093.35ms]
+
+ 3 pass
+ 0 fail
+ 2051 expect() calls
+Ran 3 tests across 1 file. [92.27s]
