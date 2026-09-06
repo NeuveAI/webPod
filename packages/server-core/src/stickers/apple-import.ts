@@ -24,7 +24,7 @@ async function readAppleJson(response: Response): Promise<unknown> {
   try { return JSON.parse(new TextDecoder().decode(buffer)) as unknown } catch { throw new StickerError('apple_response', 502, 'Apple Music returned unreadable data.') }
 }
 
-export interface AppleStickerAccess { readonly developerToken: string; readonly musicUserToken: string; readonly fetch?: typeof fetch }
+export interface AppleStickerAccess { readonly developerToken: string; readonly musicUserToken?: string; readonly signal?: AbortSignal; readonly fetch?: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response> }
 
 /** Fixed Apple origin, no redirects, no cookies, bounded timeout and safe errors. Credentials remain request-local. */
 export function createAppleStickerClient(access: AppleStickerAccess) {
@@ -32,7 +32,7 @@ export function createAppleStickerClient(access: AppleStickerAccess) {
   async function request(path: string, signal: AbortSignal): Promise<Record<string, unknown>> {
     let response: Response
     try {
-      response = await fetcher(`${APPLE_ORIGIN}${path}`, { headers: { authorization: `Bearer ${access.developerToken}`, 'music-user-token': access.musicUserToken, accept: 'application/json' }, redirect: 'error', signal })
+      response = await fetcher(`${APPLE_ORIGIN}${path}`, { headers: { authorization: `Bearer ${access.developerToken}`, ...(access.musicUserToken === undefined ? {} : { 'music-user-token': access.musicUserToken }), accept: 'application/json' }, redirect: 'error', signal: access.signal === undefined ? signal : AbortSignal.any([signal, access.signal]) })
     } catch { throw new StickerError('apple_unavailable', 503, 'Apple Music is temporarily unavailable. Try again.') }
     if (response.status === 401 || response.status === 403) throw new StickerError('apple_authorization', 401, 'Reconnect Apple Music to collect stickers.')
     if (!response.ok) throw new StickerError('apple_unavailable', 503, 'Apple Music is temporarily unavailable. Try again.')

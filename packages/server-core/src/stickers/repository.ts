@@ -1,3 +1,4 @@
+import { createStickerSessions } from './sessions.ts'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import {
   STICKER_GENRES, getSticker, isStickerPlacement, MAX_STICKER_PLACEMENTS,
@@ -54,6 +55,7 @@ export function createStickerRepository(db: StickerDatabase, now: () => number =
     db.insert(tables.tracks).values(values).onConflictDoUpdate({ target: [tables.tracks.owner, tables.tracks.catalogId], set: values }).run()
   }
   return {
+    sessions: createStickerSessions(db, now),
     inventory,
     ensureOwner(owner: string) {
       db.insert(tables.collections).values({ owner, createdAt: now() }).onConflictDoNothing().run()

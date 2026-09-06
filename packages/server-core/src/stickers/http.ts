@@ -32,10 +32,12 @@ export function parseListeningObservation(body: Record<string, unknown>): Listen
   return { eventId, streamId, sequence, catalogId, positionMs, playing }
 }
 export interface StickerHttpServices {
+  readonly prepare: (request: Request) => Promise<readonly string[]>
+  readonly authorized: <A>(request: Request, operation: (repository: StickerRepository, owner: string) => A) => Promise<A>
   readonly resolveOwner: (request: Request) => Promise<string>
   readonly run: <A>(operation: (repository: StickerRepository) => A) => Promise<A>
   readonly bootstrap: (request: Request, musicUserToken: string) => Promise<{ readonly inventory: StickerInventory; readonly cookies: readonly string[] }>
-  readonly enrich: (owner: string, catalogId: string) => Promise<void>
+  readonly enrich: (owner: string, catalogId: string, request?: Request) => Promise<void>
   readonly logout: (request: Request) => Promise<readonly string[]>
 }
 
@@ -50,6 +52,7 @@ export async function handleStickerRequest(request: Request, services: StickerHt
   try {
     const path = new URL(request.url).pathname
     if (request.method !== 'GET') assertStickerSameOrigin(request)
+    if (path === '/api/stickers/device' && request.method === 'POST') return reply({ ready: true }, 200, await services.prepare(request))
     if (path === '/api/stickers/session' && request.method === 'POST') {
       const body = await readStickerBody(request); const token = body['musicUserToken']
       if (typeof token !== 'string' || token.length < 1 || token.length > 16_384 || /[\r\n]/.test(token)) invalid()
@@ -58,21 +61,22 @@ export async function handleStickerRequest(request: Request, services: StickerHt
     }
     if (path === '/api/stickers/session' && request.method === 'DELETE') return reply({ signedOut: true }, 200, await services.logout(request))
     const owner = await services.resolveOwner(request)
-    if (path === '/api/stickers' && request.method === 'GET') return reply(await services.run((repository) => repository.inventory(owner)))
+    const run = <A>(operation: (repository: StickerRepository, owner: string) => A): Promise<A> => services.authorized(request, operation)
+    if (path === '/api/stickers' && request.method === 'GET') return reply(await run((repository, owner) => repository.inventory(owner)))
     const body = await readStickerBody(request)
     if (path === '/api/stickers/listening' && request.method === 'POST') {
       const observation = parseListeningObservation(body)
-      if (await services.run((repository) => repository.needsEnrichment(owner, observation.catalogId))) await services.enrich(owner, observation.catalogId)
-      return reply(await services.run((repository) => repository.observe(owner, observation)))
+      if (await run((repository, owner) => repository.needsEnrichment(owner, observation.catalogId))) await services.enrich(owner, observation.catalogId, request)
+      return reply(await run((repository, owner) => repository.observe(owner, observation)))
     }
     if (path === '/api/stickers/packs/open' && request.method === 'POST') {
       if (typeof body['packId'] !== 'string' || body['packId'].length > 100) invalid()
-      const id = body['packId']; return reply(await services.run((repository) => repository.openPack(owner, id)))
+      const id = body['packId']; return reply(await run((repository, owner) => repository.openPack(owner, id)))
     }
     if (path === '/api/stickers/placements' && request.method === 'PUT') {
       const revision = body['revision']; const placements = body['placements']
       if (typeof revision !== 'number' || !Number.isSafeInteger(revision) || revision < 0 || !Array.isArray(placements) || placements.length > MAX_STICKER_PLACEMENTS || !placements.every(isStickerPlacement)) invalid()
-      return reply(await services.run((repository) => repository.place(owner, revision, placements)))
+      return reply(await run((repository, owner) => repository.place(owner, revision, placements)))
     }
     return reply({ code: 'not_found', message: 'Sticker endpoint not found.' }, 404)
   } catch (cause) {

@@ -158,7 +158,7 @@ describe('sticker ownership, persistence and earning ledger', () => {
       repository.ensureOwner('a'); repository.enrichTrack('a', { catalogId: '123', genre: null, durationMs: 300_000 })
       repository.importTracks('a', [{ catalogId: '456', genre: 'pop', durationMs: 300_000 }], 'complete')
       // Reconstruct the published neutral v1 column set in this isolated fixture.
-      first.db.$client.exec('ALTER TABLE sticker_collections DROP COLUMN starter_evaluated; ALTER TABLE sticker_tracks DROP COLUMN catalog_checked; DELETE FROM sticker_schema WHERE version=2;')
+      first.db.$client.exec('ALTER TABLE sticker_collections DROP COLUMN starter_evaluated; ALTER TABLE sticker_tracks DROP COLUMN catalog_checked; DROP TABLE sticker_sessions; DROP TABLE sticker_devices; DELETE FROM sticker_schema WHERE version>1;')
       first.close()
       const upgraded = openStickerDatabase(path)
       try {
@@ -227,6 +227,7 @@ describe('HTTP validation and Effect runtime', () => {
     const f = fixture(); let enrichments = 0
     f.repository.importTracks('a', [{ catalogId: '123', genre: null, durationMs: 300_000 }], 'complete')
     const services: StickerHttpServices = {
+      prepare: async () => [], authorized: async (_request, operation) => operation(f.repository, 'a'),
       resolveOwner: async () => 'a', run: async (operation) => operation(f.repository),
       bootstrap: async () => ({ inventory: f.repository.inventory('a'), cookies: [] }), logout: async () => [],
       enrich: async (owner, catalogId) => { enrichments++; f.repository.enrichTrack(owner, { catalogId, genre: null, durationMs: 300_000 }) },
@@ -255,6 +256,7 @@ describe('HTTP validation and Effect runtime', () => {
   test('cross-origin bootstrap and unauthenticated reads never expose repository data', async () => {
     const f = fixture(); let bootstraps = 0
     const services: StickerHttpServices = {
+      prepare: async () => [], authorized: async (_request, operation) => operation(f.repository, 'a'),
       resolveOwner: async () => { throw new StickerError('unauthorized', 401, 'Sign in.') },
       run: async (operation) => operation(f.repository),
       bootstrap: async () => { bootstraps++; return { inventory: f.repository.inventory('a'), cookies: [] } },
