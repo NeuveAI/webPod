@@ -24,14 +24,14 @@ export function openStickerDatabase(path: string) {
     const hasSchema = client.query<{ name: string }, []>("SELECT name FROM sqlite_master WHERE type='table' AND name='sticker_schema'").get()
     if (hasSchema !== null) {
       const current = client.query<{ version: number | null }, []>('SELECT MAX(version) AS version FROM sticker_schema').get()
-      if ((current?.version ?? 0) > 3) throw new Error('Sticker database schema is newer than this runtime')
+      if ((current?.version ?? 0) > 4) throw new Error('Sticker database schema is newer than this runtime')
     }
     client.exec('PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL; PRAGMA busy_timeout=3000;')
     client.transaction(() => {
       client.exec('CREATE TABLE IF NOT EXISTS sticker_schema (version INTEGER PRIMARY KEY)')
       const row = client.query<{ version: number | null }, []>('SELECT MAX(version) AS version FROM sticker_schema').get()
       const version = row?.version ?? 0
-      if (version > 3) throw new Error('Sticker database schema is newer than this runtime')
+      if (version > 4) throw new Error('Sticker database schema is newer than this runtime')
       client.exec(MIGRATION_V1)
       if (version < 2) {
         client.exec(`ALTER TABLE sticker_collections ADD COLUMN starter_evaluated INTEGER NOT NULL DEFAULT 0;
@@ -46,6 +46,10 @@ export function openStickerDatabase(path: string) {
         CREATE INDEX sticker_session_device ON sticker_sessions(device_hash);
         CREATE INDEX sticker_session_expiry ON sticker_sessions(expires_at);
         INSERT INTO sticker_schema(version) VALUES (3);
+      `)
+      if (version < 4) client.exec(`
+        ALTER TABLE sticker_collections ADD COLUMN appearances TEXT NOT NULL DEFAULT '[]';
+        INSERT INTO sticker_schema(version) VALUES (4);
       `)
     })()
     return { db: drizzle(client, { schema }), close: () => client.close() }

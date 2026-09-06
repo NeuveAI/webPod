@@ -1,5 +1,5 @@
 import { integer, primaryKey, sqliteTable, text } from 'drizzle-orm/sqlite-core'
-import type { StickerGenre, StickerPlacement, StickerId } from '@webpod/stickers'
+import type { StickerGenre, StickerPlacement, StickerId, StickerAppearance } from '@webpod/stickers'
 
 export const collections = sqliteTable('sticker_collections', {
   owner: text('owner').primaryKey(),
@@ -7,6 +7,7 @@ export const collections = sqliteTable('sticker_collections', {
   importStatus: text('import_status', { enum: ['pending', 'complete', 'partial', 'failed'] }).notNull().default('pending'),
   revision: integer('revision').notNull().default(0),
   placements: text('placements', { mode: 'json' }).$type<readonly StickerPlacement[]>().notNull().default([]),
+  appearances: text('appearances', { mode: 'json' }).$type<readonly StickerAppearance[]>().notNull().default([]),
   lastCreditAt: integer('last_credit_at').notNull().default(0),
   starterEvaluated: integer('starter_evaluated', { mode: 'boolean' }).notNull().default(false),
 })

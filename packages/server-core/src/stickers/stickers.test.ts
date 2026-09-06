@@ -158,7 +158,7 @@ describe('sticker ownership, persistence and earning ledger', () => {
       repository.ensureOwner('a'); repository.enrichTrack('a', { catalogId: '123', genre: null, durationMs: 300_000 })
       repository.importTracks('a', [{ catalogId: '456', genre: 'pop', durationMs: 300_000 }], 'complete')
       // Reconstruct the published neutral v1 column set in this isolated fixture.
-      first.db.$client.exec('ALTER TABLE sticker_collections DROP COLUMN starter_evaluated; ALTER TABLE sticker_tracks DROP COLUMN catalog_checked; DROP TABLE sticker_sessions; DROP TABLE sticker_devices; DELETE FROM sticker_schema WHERE version>1;')
+      first.db.$client.exec('ALTER TABLE sticker_collections DROP COLUMN appearances; ALTER TABLE sticker_collections DROP COLUMN starter_evaluated; ALTER TABLE sticker_tracks DROP COLUMN catalog_checked; DROP TABLE sticker_sessions; DROP TABLE sticker_devices; DELETE FROM sticker_schema WHERE version>1;')
       first.close()
       const upgraded = openStickerDatabase(path)
       try {
@@ -268,5 +268,54 @@ describe('HTTP validation and Effect runtime', () => {
       const unauthenticated = await handleStickerRequest(new Request('https://webpod.test/api/stickers'), services)
       expect(unauthenticated.status).toBe(401); expect(unauthenticated.headers.get('cache-control')).toBe('no-store')
     } finally { f.close() }
+  })
+})
+
+describe('durable owned sticker appearance', () => {
+  test('wear and geometry share ownership/revision transaction; return retains wear and omission preserves it', () => {
+    const f = fixture()
+    try {
+      f.repository.importTracks('a', [{ catalogId: '123', genre: 'rock', durationMs: 300000 }], 'complete')
+      const original = { stickerId: 'PW-C01' as const, surface: 'back' as const, x: .5, y: .5, width: .2, rotationDeg: 0 }
+      const saved = f.repository.place('a', 0, [{ ...original, wear: .7 }])
+      expect(saved.appearances).toEqual([{ stickerId: original.stickerId, wear: .7 }])
+      expect(saved.placements[0]?.wear).toBe(.7)
+      expect(f.db.$client.query<{ placements: string }, []>('SELECT placements FROM sticker_collections WHERE owner=\'a\'').get()?.placements).not.toContain('wear')
+      expect(() => f.repository.place('a', 0, [{ ...original, wear: .2 }])).toThrow('changed')
+      expect(() => f.repository.place('b', 0, [{ ...original, wear: .2 }])).toThrow('owned')
+      expect(f.repository.inventory('a').appearances).toEqual(saved.appearances)
+      const returned = f.repository.place('a', 1, [])
+      expect(returned.placements).toEqual([]); expect(returned.appearances).toEqual(saved.appearances)
+      expect(f.repository.place('a', 2, [original]).placements[0]?.wear).toBe(.7)
+      const reset = f.repository.place('a', 3, [{ ...original, wear: 0 }])
+      expect(reset.placementRevision).toBe(4); expect(reset.placements[0]?.wear).toBe(0)
+      f.db.$client.query('UPDATE sticker_collections SET placements=? WHERE owner=?').run(JSON.stringify([{ ...original, wear: .99 }]), 'a')
+      expect(f.repository.inventory('a').placements[0]?.wear).toBe(0)
+      for (const wear of [-.01, 1.01, NaN, Infinity, null, '0.5']) expect(isStickerPlacement({ ...original, wear })).toBe(false)
+      expect(isStickerPlacement(original)).toBe(true)
+      expect(isStickerPlacement({ ...original, wear: 1 })).toBe(true)
+    } finally { f.close() }
+  })
+  for (const version of [2, 3]) test(`populated v${version} upgrades to v4 and wear persists across reopen`, () => {
+    const directory = mkdtempSync(join(tmpdir(), 'webpod-wear-migration-')); const path = join(directory, 'test.sqlite')
+    try {
+      const first = openStickerDatabase(path); const initial = createStickerRepository(first.db)
+      initial.ensureOwner('a'); initial.importTracks('a', [{ catalogId: '123', genre: 'rock', durationMs: 300000 }], 'complete')
+      const original = { stickerId: 'PW-C01' as const, surface: 'back' as const, x: .5, y: .5, width: .2, rotationDeg: 15 }
+      initial.place('a', 0, [original]); const prior = initial.inventory('a')
+      first.db.$client.exec('ALTER TABLE sticker_collections DROP COLUMN appearances; DELETE FROM sticker_schema WHERE version=4;')
+      if (version === 2) first.db.$client.exec('DROP TABLE sticker_sessions; DROP TABLE sticker_devices; DELETE FROM sticker_schema WHERE version=3;')
+      first.close()
+      const upgraded = openStickerDatabase(path); const repository = createStickerRepository(upgraded.db)
+      expect(repository.inventory('a')).toEqual(prior)
+      repository.place('a', 1, [{ ...original, wear: .65 }]); repository.place('a', 2, []); upgraded.close()
+      const reopened = openStickerDatabase(path)
+      try {
+        const repo = createStickerRepository(reopened.db)
+        expect(repo.inventory('a').placements).toEqual([])
+        expect(repo.place('a', 3, [original]).placements[0]?.wear).toBe(.65)
+        expect(repo.inventory('a').packs).toEqual(prior.packs)
+      } finally { reopened.close() }
+    } finally { rmSync(directory, { recursive: true, force: true }) }
   })
 })

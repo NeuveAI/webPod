@@ -10,6 +10,15 @@ export interface StickerPlacement {
   readonly y: number
   readonly width: number
   readonly rotationDeg: number
+  /** Omission preserves stored appearance on writes; legacy data renders as zero. */
+  readonly wear?: number
+}
+export interface StickerAppearance { readonly stickerId: StickerId; readonly wear: number }
+export const MAX_STICKER_APPEARANCES = 60
+export function isStickerWear(value: unknown): value is number { return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1 }
+/** Canonical per-owned-sticker appearance; absence means the approved original art. */
+export function stickerWear(inventory: Pick<StickerInventory, 'appearances'>, id: string): number {
+  return inventory.appearances?.find((appearance) => appearance.stickerId === id)?.wear ?? 0
 }
 export const MAX_STICKER_PLACEMENTS = 12
 export const STICKER_PLACEMENT_BOUNDS = { left: 0.08, right: 0.92, top: 0.06, bottom: 0.94, minWidth: 0.08, maxWidth: 0.35 } as const
@@ -24,6 +33,7 @@ export function isStickerPlacement(value: unknown): value is StickerPlacement {
     || !('y' in value) || typeof value.y !== 'number' || !Number.isFinite(value.y)
     || !('width' in value) || typeof value.width !== 'number' || !Number.isFinite(value.width)
     || !('rotationDeg' in value) || typeof value.rotationDeg !== 'number' || !Number.isFinite(value.rotationDeg)) return false
+  if ('wear' in value && !isStickerWear(value.wear)) return false
   const b = STICKER_PLACEMENT_BOUNDS
   if (value.width < b.minWidth || value.width > b.maxWidth || Math.abs(value.rotationDeg) > 180) return false
   const [left, top, right, bottom] = art.visibleBounds
@@ -52,6 +62,7 @@ export interface StickerInventory {
   readonly packs: readonly StickerPack[]
   readonly progress: readonly StickerProgress[]
   readonly placements: readonly StickerPlacement[]
+  readonly appearances?: readonly StickerAppearance[]
   readonly placementRevision: number
   readonly importStatus: 'pending' | 'complete' | 'partial' | 'failed'
 }
@@ -71,6 +82,10 @@ function finite(value: unknown): value is number { return typeof value === 'numb
 export function isStickerInventory(value: unknown): value is StickerInventory {
   if (!object(value)) return false
   const ids = value['stickerIds']; const packs = value['packs']; const progress = value['progress']; const placements = value['placements']
+  const appearances = value['appearances']
+  if (appearances !== undefined && (!Array.isArray(appearances) || appearances.length > MAX_STICKER_APPEARANCES
+    || appearances.some((entry: unknown) => !object(entry) || typeof entry['stickerId'] !== 'string' || getSticker(entry['stickerId']) === undefined || !Array.isArray(ids) || !ids.includes(entry['stickerId']) || !isStickerWear(entry['wear']))
+    || new Set(appearances.map((entry: { stickerId: string }) => entry.stickerId)).size !== appearances.length)) return false
   return Array.isArray(ids) && ids.length <= 60 && ids.every((id) => typeof id === 'string' && getSticker(id) !== undefined)
     && Array.isArray(packs) && packs.length <= 61 && packs.every((pack: unknown) => object(pack) && typeof pack['id'] === 'string'
       && (pack['source'] === 'starter' || pack['source'] === 'listening') && finite(pack['earnedAt'])

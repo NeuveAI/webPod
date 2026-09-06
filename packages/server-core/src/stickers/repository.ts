@@ -2,7 +2,7 @@ import { createStickerSessions } from './sessions.ts'
 import { and, desc, eq, sql } from 'drizzle-orm'
 import {
   STICKER_GENRES, getSticker, isStickerPlacement, MAX_STICKER_PLACEMENTS,
-  type ListeningObservation, type StickerGenre, type StickerId, type StickerInventory, type StickerPlacement,
+  type ListeningObservation, type StickerGenre, type StickerId, type StickerInventory, type StickerPlacement, type StickerAppearance,
 } from '@webpod/stickers'
 import type { StickerDatabase } from './database.ts'
 import * as tables from './schema.ts'
@@ -28,7 +28,8 @@ export function createStickerRepository(db: StickerDatabase, now: () => number =
     const totals = db.select().from(tables.credits).where(eq(tables.credits.owner, owner)).all()
     return {
       stickerIds: earned, packs: ownedPacks.map(({ id, source, stickerIds, earnedAt, openedAt }) => ({ id, source, stickerIds, earnedAt, openedAt })),
-      placements: value.placements, placementRevision: value.revision, importStatus: value.importStatus,
+      appearances: value.appearances,
+      placements: value.placements.map(({ wear: _storedWear, ...placement }) => { void _storedWear; const appearance = value.appearances.find((entry) => entry.stickerId === placement.stickerId); return appearance === undefined ? placement : { ...placement, wear: appearance.wear } }), placementRevision: value.revision, importStatus: value.importStatus,
       progress: STICKER_GENRES.map((genre) => {
         const listenedMs = totals.find((row) => row.genre === genre)?.listenedMs ?? 0
         const nextIndex = genreStickers(genre).findIndex((sticker) => !earned.includes(sticker.id))
@@ -138,7 +139,10 @@ export function createStickerRepository(db: StickerDatabase, now: () => number =
           || placements.some((p) => !isStickerPlacement(p) || getSticker(p.stickerId) === undefined || !current.stickerIds.includes(p.stickerId))) {
           throw new StickerError('invalid_placement', 400, 'Place owned stickers inside the backplate.')
         }
-        db.update(tables.collections).set({ placements, revision: revision + 1 }).where(eq(tables.collections.owner, owner)).run()
+        const appearances = new Map((current.appearances ?? []).map((entry) => [entry.stickerId, entry]))
+        for (const placement of placements) if (placement.wear !== undefined) appearances.set(placement.stickerId, { stickerId: placement.stickerId, wear: placement.wear } satisfies StickerAppearance)
+        const geometry = placements.map(({ wear, ...placement }) => { void wear; return placement })
+        db.update(tables.collections).set({ placements: geometry, appearances: [...appearances.values()], revision: revision + 1 }).where(eq(tables.collections.owner, owner)).run()
       }, { behavior: 'immediate' })
       return inventory(owner)
     },
