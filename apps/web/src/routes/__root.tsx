@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Link, Scripts, createRootRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
 import appCss from '../styles/app.css?url'
@@ -14,6 +14,7 @@ export const Route = createRootRoute({
     links: [{ rel: 'stylesheet', href: appCss }],
   }),
   shellComponent: RootDocument,
+  notFoundComponent: NotFound,
 })
 
 /**
@@ -39,4 +40,13 @@ function RootDocument({ children }: { readonly children: ReactNode }) {
       </body>
     </html>
   )
+}
+
+function NotFound() {
+  return <main className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-stone-950 px-6 text-center text-stone-100">
+    <p className="text-sm text-stone-400">404</p>
+    <h1 className="text-2xl font-semibold">This page isn’t here.</h1>
+    <p className="max-w-sm text-sm text-stone-300">Head back to your iPod to keep listening.</p>
+    <Link to="/" className="mt-2 inline-flex min-h-11 items-center rounded-md bg-stone-100 px-4 py-2 text-sm font-medium text-stone-900 hover:bg-stone-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-stone-100">Return to player</Link>
+  </main>
 }
