@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { appendFileSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { appendFileSync, mkdirSync, writeFileSync, existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
@@ -32,6 +32,24 @@ describe('browser source snapshots', () => {
     } finally {
       rmSync(temporaryRoot, { recursive: true, force: true })
     }
+  }, 60_000)
+
+  test('production entry changes provenance while private database state stays out of worktree snapshots', () => {
+    const temporaryRoot = mkdtempSync(join(tmpdir(), 'webpod-production-provenance-'))
+    try {
+      const source = prepareBrowserSourceSnapshot({ repositoryRoot, snapshotRoot: join(temporaryRoot, 'source') })
+      const entry = resolve(source.snapshotRoot, 'apps/web/scripts/start.ts')
+      expect(existsSync(entry)).toBe(true)
+      appendFileSync(entry, '\n// isolated production entry mutation\n')
+      expect(fingerprintBrowserSources(source.snapshotRoot).digest).not.toBe(source.source.digest)
+      mkdirSync(resolve(source.snapshotRoot, 'apps/web/.data'), { recursive: true })
+      writeFileSync(resolve(source.snapshotRoot, 'apps/web/.data/stickers.sqlite'), 'synthetic fixture only')
+      writeFileSync(resolve(source.snapshotRoot, 'apps/web/private.sqlite-wal'), 'synthetic fixture only')
+      const snapshot = prepareBrowserSourceSnapshot({ repositoryRoot: source.snapshotRoot, snapshotRoot: join(temporaryRoot, 'snapshot') })
+      expect(existsSync(resolve(snapshot.snapshotRoot, 'apps/web/.data'))).toBe(false)
+      expect(existsSync(resolve(snapshot.snapshotRoot, 'apps/web/private.sqlite-wal'))).toBe(false)
+      expect(existsSync(resolve(snapshot.snapshotRoot, 'apps/web/scripts/start.ts'))).toBe(true)
+    } finally { rmSync(temporaryRoot, { recursive: true, force: true }) }
   }, 60_000)
 
   test('a reviewed commit snapshot records exact commit and tree identity', () => {

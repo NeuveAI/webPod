@@ -11,6 +11,7 @@ let abort: AbortController | null = null
 let detach: (() => void) | null = null
 let reconnect: (() => Promise<void>) | null = null
 let writes: Promise<void> = Promise.resolve()
+let revocation: Promise<unknown> = Promise.resolve()
 class StickerRequestError extends Error { constructor(readonly status: number) { super('collection_request_failed') } }
 
 /** Response validation is shared with the server domain; never publish unchecked JSON. */
@@ -32,7 +33,20 @@ async function request(path: string, method = 'GET', body?: unknown): Promise<St
 
 /** Private token callback is consumed immediately by this dedicated same-origin POST. */
 export function bootstrapStickerCollection(provider: { withMusicAuthorization<T>(consume: (credential: string) => Promise<T>): Promise<T> }): Promise<StickerInventory> {
-  return provider.withMusicAuthorization((credential) => request('/session', 'POST', { musicUserToken: credential }))
+  const expected = generation
+  const signal = abort?.signal
+  return (async () => {
+    await revocation
+    if (expected !== generation || signal?.aborted) throw new Error('collection_session_changed')
+    // Persist the restricted device cookie before authentication, so logout can revoke an in-flight import.
+    const prepared = await fetch('/api/stickers/device', { method: 'POST', credentials: 'same-origin', cache: 'no-store', signal })
+    if (!prepared.ok) throw new StickerRequestError(prepared.status)
+    if (expected !== generation || signal?.aborted) throw new Error('collection_session_changed')
+    return provider.withMusicAuthorization(async (credential) => {
+      if (expected !== generation || signal?.aborted) throw new Error('collection_session_changed')
+      return inventoryResponse(await fetch('/api/stickers/session', { method: 'POST', credentials: 'same-origin', cache: 'no-store', signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ musicUserToken: credential }) }))
+    })
+  })()
 }
 
 /** Starts only after music authorization succeeds. Import never blocks playable music. */
@@ -66,7 +80,7 @@ export function stopStickerRuntime(revoke = true): void {
   queryClient.clear()
   cancelStickerInteraction()
   deviceStore.set(resetStickerCollectionActionAtom)
-  if (revoke && typeof window !== 'undefined') void fetch('/api/stickers/session', { method: 'DELETE', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}' }).catch(() => undefined)
+  if (revoke && typeof window !== 'undefined') revocation = revocation.catch(() => undefined).then(() => fetch('/api/stickers/session', { method: 'DELETE', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}' })).catch(() => undefined)
 }
 
 /** Refreshes inventory without turning an import failure into successful empty state. */

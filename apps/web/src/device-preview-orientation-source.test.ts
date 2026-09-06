@@ -9,7 +9,7 @@ test('orientation release is bounded while the canonical canvas stays demand-ren
   const controls = source('device-preview-orientation.ts')
   const motion = source('device-orientation-motion.ts')
   const canvas = source('../../../packages/device/src/DeviceCanvas.tsx')
-  const route = source('routes/[_]spike.device.tsx')
+  const route = source('device-page.tsx')
 
   expect(canvas).toContain('frameloop="demand"')
   expect(controls).toContain('requestAnimationFrame')
@@ -22,8 +22,8 @@ test('orientation release is bounded while the canonical canvas stays demand-ren
   expect(route).not.toContain('useState')
 })
 
-test('canonical spike has no broad stage drag or pose-preset controls', () => {
-  const route = source('routes/[_]spike.device.tsx')
+test('canonical product has no broad stage drag or pose-preset controls', () => {
+  const route = source('device-page.tsx')
 
   expect(route).not.toContain('stage.addEventListener("pointerdown"')
   expect(route).not.toContain('Shift-drag')

@@ -46,6 +46,7 @@ export interface BrowserSourceSnapshotOptions {
 export function fingerprintBrowserSources(repositoryRoot = defaultRepositoryRoot): BrowserSourceFingerprint {
   const sourceRoots = [
     resolve(repositoryRoot, 'apps/web/src'),
+    ...(existsSync(resolve(repositoryRoot, 'apps/web/scripts')) ? [resolve(repositoryRoot, 'apps/web/scripts')] : []),
     resolve(repositoryRoot, 'packages'),
     ...(existsSync(resolve(repositoryRoot, 'assets/stickers/playworn')) ? [resolve(repositoryRoot, 'assets/stickers/playworn')] : []),
   ] as const
@@ -147,6 +148,8 @@ function includeSnapshotPath(repositoryRoot: string, sourcePath: string): boolea
     part === 'dist' ||
     part === 'test-results' ||
     part === 'playwright-report' ||
+    part === '.data' ||
+    /\.(?:sqlite|db)(?:-(?:wal|shm|journal))?$/.test(part) ||
     part === 'cert' ||
     part === '.claude',
   )

@@ -92,6 +92,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     envDir: workspaceRoot,
+    environments: { ssr: { build: { rolldownOptions: { external: ['bun', 'bun:sqlite'] } } } },
     server: { port: 3000 },
     resolve: { tsconfigPaths: true },
     plugins: [sourceIdentityHealth(), tailwindcss(), tanstackStart({ srcDirectory: 'src' }), viteReact()],

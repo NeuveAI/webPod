@@ -2,7 +2,7 @@ import { afterEach, describe, expect, spyOn, test } from 'bun:test'
 import { createFixtureProvider, type ProgressTick, type MusicProvider } from '@webpod/providers'
 import { deviceStore, stickerInventoryAtom, stickerCollectionStatusAtom } from '@webpod/state'
 import { STICKER_GENRES, type StickerInventory } from '@webpod/stickers'
-import { placeSticker, retryStickerCollection, startStickerRuntime, stopStickerRuntime } from './sticker-runtime'
+import { bootstrapStickerCollection, placeSticker, retryStickerCollection, startStickerRuntime, stopStickerRuntime } from './sticker-runtime'
 
 const inventory: StickerInventory = { stickerIds: ['PW-A01'], packs: [{ id: 'starter', stickerIds: ['PW-A01'], source: 'starter', earnedAt: 1, openedAt: 2 }], placements: [], placementRevision: 0, importStatus: 'complete', progress: STICKER_GENRES.map((genre) => ({ genre, listenedMs: 0, nextThresholdMs: 300_000 })) }
 const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
@@ -92,4 +92,24 @@ describe('sticker runtime lifecycle', () => {
       expect(deviceStore.get(stickerInventoryAtom)).toBeNull()
     } finally { fetchSpy.mockRestore() }
   })
+})
+
+
+test('device preparation completes before credential transfer and logout cancels a delayed callback', async () => {
+  let consume: ((credential: string) => Promise<StickerInventory>) | undefined
+  const paths: string[] = []
+  const fetchSpy = spyOn(globalThis, 'fetch').mockImplementation(Object.assign(async (url: RequestInfo | URL) => { paths.push(String(url)); return Response.json(String(url).endsWith('/device') ? { ready: true } : inventory) }, { preconnect: globalThis.fetch.preconnect }))
+  try {
+    const delayed = { withMusicAuthorization<T>(callback: (credential: string) => Promise<T>): Promise<T> {
+      consume = callback as (credential: string) => Promise<StickerInventory>
+      return new Promise<T>(() => undefined)
+    } }
+    void bootstrapStickerCollection(delayed)
+    await flush()
+    expect(paths).toEqual(['/api/stickers/device'])
+    stopStickerRuntime(false)
+    if (consume === undefined) throw new Error('Credential callback missing')
+    await expect(consume('synthetic')).rejects.toThrow('collection_session_changed')
+    expect(paths).toEqual(['/api/stickers/device'])
+  } finally { fetchSpy.mockRestore() }
 })

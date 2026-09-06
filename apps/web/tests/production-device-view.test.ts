@@ -5,15 +5,19 @@ import { resolve } from 'node:path'
 const source = (path: string): string =>
   readFileSync(resolve(import.meta.dirname, '..', 'src', path), 'utf8')
 
-test('spike owns the product view and the legacy probe can only redirect to it', () => {
+test('root owns the shared product page and diagnostics remain development-only', () => {
   const shared = source('production-device-view.tsx')
   const root = source('routes/index.tsx')
   const probe = source('routes/[_]probe.composite.tsx')
   const spike = source('routes/[_]spike.device.tsx')
 
-  expect(spike).toContain('<ProductionDeviceView')
+  const page = source('device-page.tsx')
+  expect(page).toContain('<ProductionDeviceView')
+  expect(spike).toContain('import.meta.env.DEV ? <DevicePage />')
   expect(probe).toContain("to: '/_spike/device'")
-  expect(root).toContain("to: '/_spike/device'")
+  expect(root).toContain('component: DevicePage')
+  expect(root).not.toContain('redirect')
+  expect(page).toContain('const capture = import.meta.env.DEV')
   expect(root).not.toContain("from '@webpod/panel'")
   expect(root).not.toMatch(/fixture|demo/i)
   expect(probe).toContain('search: {}')

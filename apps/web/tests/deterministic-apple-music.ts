@@ -1,13 +1,15 @@
-import type { Page } from '../../../packages/panel/node_modules/@playwright/test/index.mjs'
+import type { Page } from '@playwright/test'
 
 /** Deterministic provider seam for production-route geometry and input checks. */
-export async function installDeterministicAppleMusic(page: Page, options: { readonly trackTitle?: string; readonly trackCount?: number } = {}): Promise<void> {
-  await page.route('**/api/apple/developer-token', async (route) => route.fulfill({
+interface DeterministicAppleOptions { readonly trackTitle?: string; readonly trackCount?: number; readonly authorized?: boolean; readonly mockDeveloperToken?: boolean }
+
+export async function installDeterministicAppleMusic(page: Page, options: DeterministicAppleOptions = {}): Promise<void> {
+  if (options.mockDeveloperToken !== false) await page.route('**/api/apple/developer-token', async (route) => route.fulfill({
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify({ token: 'browser-proof-token', expiresAt: 4_102_444_800 }),
   }))
-  await page.addInitScript((options: { readonly trackTitle?: string; readonly trackCount?: number }) => {
+  await page.addInitScript((options: DeterministicAppleOptions) => {
     type Listener = (event: unknown) => void
     type Resource = { readonly id: string; readonly type: string; readonly attributes: Readonly<Record<string, unknown>> }
     const listeners = new Map<string, Set<Listener>>()
@@ -46,7 +48,7 @@ export async function installDeterministicAppleMusic(page: Page, options: { read
         async station() { return { data: [] } },
         async stations() { return { data: [] } },
       },
-      isAuthorized: true,
+      isAuthorized: sessionStorage.getItem('deterministic-musickit-authorized') === null ? options.authorized !== false : sessionStorage.getItem('deterministic-musickit-authorized') === 'true',
       musicUserToken: 'browser-proof-user',
       storefrontId: 'us',
       playbackState: 0,
@@ -57,8 +59,8 @@ export async function installDeterministicAppleMusic(page: Page, options: { read
       volume: 1,
       shuffleMode: 0,
       repeatMode: 0,
-      async authorize() { return 'browser-proof-user' },
-      async unauthorize() {},
+      async authorize() { music.isAuthorized = true; sessionStorage.setItem('deterministic-musickit-authorized', 'true'); return 'browser-proof-user' },
+      async unauthorize() { music.isAuthorized = false; sessionStorage.setItem('deterministic-musickit-authorized', 'false') },
       async setQueue(options: Readonly<Record<string, unknown>>) {
         const songs = Array.isArray(options['songs']) ? options['songs'] : []
         queue.items = tracks.filter((track) => songs.includes(track.attributes['playParams'] instanceof Object ? (track.attributes['playParams'] as { globalId?: string }).globalId : undefined))

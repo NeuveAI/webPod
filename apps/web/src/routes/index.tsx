@@ -1,9 +1,8 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { DevicePage } from '../device-page'
 
-/** The public root is only an alias for the Apple-backed product surface. */
+/** Browser-only physical renderer; Start owns the canonical product route. */
 export const Route = createFileRoute('/')({
   ssr: false,
-  beforeLoad: () => {
-    throw redirect({ to: '/_spike/device', search: {}, replace: true })
-  },
+  component: DevicePage,
 })

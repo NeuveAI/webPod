@@ -14,7 +14,13 @@ import { Route as ArtworkRouteImport } from './routes/artwork'
 import { Route as ProbeCapabilitiesRouteImport } from './routes/[_]probe.capabilities'
 import { Route as ProbeCompositeRouteImport } from './routes/[_]probe.composite'
 import { Route as SpikeDeviceRouteImport } from './routes/[_]spike.device'
+import { Route as ApiStickersRouteImport } from './routes/api.stickers'
 import { Route as ApiAppleDeveloperTokenRouteImport } from './routes/api.apple.developer-token'
+import { Route as ApiStickersDeviceRouteImport } from './routes/api.stickers.device'
+import { Route as ApiStickersListeningRouteImport } from './routes/api.stickers.listening'
+import { Route as ApiStickersPlacementsRouteImport } from './routes/api.stickers.placements'
+import { Route as ApiStickersSessionRouteImport } from './routes/api.stickers.session'
+import { Route as ApiStickersPacksOpenRouteImport } from './routes/api.stickers.packs.open'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -41,10 +47,40 @@ const SpikeDeviceRoute = SpikeDeviceRouteImport.update({
   path: '/_spike/device',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStickersRoute = ApiStickersRouteImport.update({
+  id: '/api/stickers',
+  path: '/api/stickers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAppleDeveloperTokenRoute = ApiAppleDeveloperTokenRouteImport.update({
   id: '/api/apple/developer-token',
   path: '/api/apple/developer-token',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiStickersDeviceRoute = ApiStickersDeviceRouteImport.update({
+  id: '/device',
+  path: '/device',
+  getParentRoute: () => ApiStickersRoute,
+} as any)
+const ApiStickersListeningRoute = ApiStickersListeningRouteImport.update({
+  id: '/listening',
+  path: '/listening',
+  getParentRoute: () => ApiStickersRoute,
+} as any)
+const ApiStickersPlacementsRoute = ApiStickersPlacementsRouteImport.update({
+  id: '/placements',
+  path: '/placements',
+  getParentRoute: () => ApiStickersRoute,
+} as any)
+const ApiStickersSessionRoute = ApiStickersSessionRouteImport.update({
+  id: '/session',
+  path: '/session',
+  getParentRoute: () => ApiStickersRoute,
+} as any)
+const ApiStickersPacksOpenRoute = ApiStickersPacksOpenRouteImport.update({
+  id: '/packs/open',
+  path: '/packs/open',
+  getParentRoute: () => ApiStickersRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -53,7 +89,13 @@ export interface FileRoutesByFullPath {
   '/_probe/capabilities': typeof ProbeCapabilitiesRoute
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
+  '/api/stickers': typeof ApiStickersRouteWithChildren
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
+  '/api/stickers/device': typeof ApiStickersDeviceRoute
+  '/api/stickers/listening': typeof ApiStickersListeningRoute
+  '/api/stickers/placements': typeof ApiStickersPlacementsRoute
+  '/api/stickers/session': typeof ApiStickersSessionRoute
+  '/api/stickers/packs/open': typeof ApiStickersPacksOpenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,7 +103,13 @@ export interface FileRoutesByTo {
   '/_probe/capabilities': typeof ProbeCapabilitiesRoute
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
+  '/api/stickers': typeof ApiStickersRouteWithChildren
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
+  '/api/stickers/device': typeof ApiStickersDeviceRoute
+  '/api/stickers/listening': typeof ApiStickersListeningRoute
+  '/api/stickers/placements': typeof ApiStickersPlacementsRoute
+  '/api/stickers/session': typeof ApiStickersSessionRoute
+  '/api/stickers/packs/open': typeof ApiStickersPacksOpenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,7 +118,13 @@ export interface FileRoutesById {
   '/_probe/capabilities': typeof ProbeCapabilitiesRoute
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
+  '/api/stickers': typeof ApiStickersRouteWithChildren
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
+  '/api/stickers/device': typeof ApiStickersDeviceRoute
+  '/api/stickers/listening': typeof ApiStickersListeningRoute
+  '/api/stickers/placements': typeof ApiStickersPlacementsRoute
+  '/api/stickers/session': typeof ApiStickersSessionRoute
+  '/api/stickers/packs/open': typeof ApiStickersPacksOpenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -80,7 +134,13 @@ export interface FileRouteTypes {
     | '/_probe/capabilities'
     | '/_probe/composite'
     | '/_spike/device'
+    | '/api/stickers'
     | '/api/apple/developer-token'
+    | '/api/stickers/device'
+    | '/api/stickers/listening'
+    | '/api/stickers/placements'
+    | '/api/stickers/session'
+    | '/api/stickers/packs/open'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -88,7 +148,13 @@ export interface FileRouteTypes {
     | '/_probe/capabilities'
     | '/_probe/composite'
     | '/_spike/device'
+    | '/api/stickers'
     | '/api/apple/developer-token'
+    | '/api/stickers/device'
+    | '/api/stickers/listening'
+    | '/api/stickers/placements'
+    | '/api/stickers/session'
+    | '/api/stickers/packs/open'
   id:
     | '__root__'
     | '/'
@@ -96,7 +162,13 @@ export interface FileRouteTypes {
     | '/_probe/capabilities'
     | '/_probe/composite'
     | '/_spike/device'
+    | '/api/stickers'
     | '/api/apple/developer-token'
+    | '/api/stickers/device'
+    | '/api/stickers/listening'
+    | '/api/stickers/placements'
+    | '/api/stickers/session'
+    | '/api/stickers/packs/open'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -105,6 +177,7 @@ export interface RootRouteChildren {
   ProbeCapabilitiesRoute: typeof ProbeCapabilitiesRoute
   ProbeCompositeRoute: typeof ProbeCompositeRoute
   SpikeDeviceRoute: typeof SpikeDeviceRoute
+  ApiStickersRoute: typeof ApiStickersRouteWithChildren
   ApiAppleDeveloperTokenRoute: typeof ApiAppleDeveloperTokenRoute
 }
 
@@ -145,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SpikeDeviceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/stickers': {
+      id: '/api/stickers'
+      path: '/api/stickers'
+      fullPath: '/api/stickers'
+      preLoaderRoute: typeof ApiStickersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/apple/developer-token': {
       id: '/api/apple/developer-token'
       path: '/api/apple/developer-token'
@@ -152,8 +232,63 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAppleDeveloperTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/stickers/device': {
+      id: '/api/stickers/device'
+      path: '/device'
+      fullPath: '/api/stickers/device'
+      preLoaderRoute: typeof ApiStickersDeviceRouteImport
+      parentRoute: typeof ApiStickersRoute
+    }
+    '/api/stickers/listening': {
+      id: '/api/stickers/listening'
+      path: '/listening'
+      fullPath: '/api/stickers/listening'
+      preLoaderRoute: typeof ApiStickersListeningRouteImport
+      parentRoute: typeof ApiStickersRoute
+    }
+    '/api/stickers/placements': {
+      id: '/api/stickers/placements'
+      path: '/placements'
+      fullPath: '/api/stickers/placements'
+      preLoaderRoute: typeof ApiStickersPlacementsRouteImport
+      parentRoute: typeof ApiStickersRoute
+    }
+    '/api/stickers/session': {
+      id: '/api/stickers/session'
+      path: '/session'
+      fullPath: '/api/stickers/session'
+      preLoaderRoute: typeof ApiStickersSessionRouteImport
+      parentRoute: typeof ApiStickersRoute
+    }
+    '/api/stickers/packs/open': {
+      id: '/api/stickers/packs/open'
+      path: '/packs/open'
+      fullPath: '/api/stickers/packs/open'
+      preLoaderRoute: typeof ApiStickersPacksOpenRouteImport
+      parentRoute: typeof ApiStickersRoute
+    }
   }
 }
+
+interface ApiStickersRouteChildren {
+  ApiStickersDeviceRoute: typeof ApiStickersDeviceRoute
+  ApiStickersListeningRoute: typeof ApiStickersListeningRoute
+  ApiStickersPlacementsRoute: typeof ApiStickersPlacementsRoute
+  ApiStickersSessionRoute: typeof ApiStickersSessionRoute
+  ApiStickersPacksOpenRoute: typeof ApiStickersPacksOpenRoute
+}
+
+const ApiStickersRouteChildren: ApiStickersRouteChildren = {
+  ApiStickersDeviceRoute: ApiStickersDeviceRoute,
+  ApiStickersListeningRoute: ApiStickersListeningRoute,
+  ApiStickersPlacementsRoute: ApiStickersPlacementsRoute,
+  ApiStickersSessionRoute: ApiStickersSessionRoute,
+  ApiStickersPacksOpenRoute: ApiStickersPacksOpenRoute,
+}
+
+const ApiStickersRouteWithChildren = ApiStickersRoute._addFileChildren(
+  ApiStickersRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -161,6 +296,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProbeCapabilitiesRoute: ProbeCapabilitiesRoute,
   ProbeCompositeRoute: ProbeCompositeRoute,
   SpikeDeviceRoute: SpikeDeviceRoute,
+  ApiStickersRoute: ApiStickersRouteWithChildren,
   ApiAppleDeveloperTokenRoute: ApiAppleDeveloperTokenRoute,
 }
 export const routeTree = rootRouteImport
