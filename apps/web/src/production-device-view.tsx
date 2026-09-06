@@ -10,6 +10,7 @@ import { useAtomValue } from 'jotai'
 import { deviceStore, stickerInteractionAtom, equippedStickersAtom } from '@webpod/state'
 import { STICKER_CATALOGUE } from '@webpod/stickers'
 import { FRONT_DEVICE_ORIENTATION, type StickerRearProjection } from '@webpod/device'
+import { activeStickerCollectionAtom, stickerCollectionsAtom, stickerSheetRevealAtom, stickerDragOffsetAtom, stickerWorkspaceLoweringAtom } from './sticker-collections-model'
 import { StickerCollection } from './sticker-collection'
 import { openStickerPack, placeSticker, removeSticker, retryStickerCollection, stopStickerRuntime } from './sticker-runtime'
 import { stickerFinishCalibrationAtom, reportStickerArtworkFailure, reportStickerArtworkReady } from './sticker-interaction'
@@ -143,6 +144,11 @@ export function ProductionDeviceView({
   interactionAudioEnabled,
 }: ProductionDeviceViewProps) {
   const stickerInteraction = useAtomValue(stickerInteractionAtom, { store: deviceStore })
+  const collection = useAtomValue(activeStickerCollectionAtom, { store: deviceStore })
+  const collections = useAtomValue(stickerCollectionsAtom, { store: deviceStore })
+  const sheetReveal = useAtomValue(stickerSheetRevealAtom, { store: deviceStore })
+  const dragOffset = useAtomValue(stickerDragOffsetAtom, { store: deviceStore })
+  const workspaceLowering = useAtomValue(stickerWorkspaceLoweringAtom, { store: deviceStore })
   const stickerPlacements = useAtomValue(equippedStickersAtom, { store: deviceStore })
   const calibratedFinish = useAtomValue(stickerFinishCalibrationAtom, { store: deviceStore })
   useEffect(() => () => stopStickerRuntime(false), [])
@@ -174,7 +180,7 @@ export function ProductionDeviceView({
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
       onTransportPress={onTransportPress}
-      stickerScene={{ assets: STICKER_CATALOGUE, placements: stickerPlacements, pack: stickerInteraction.stage === 'hidden' ? null : { progress: stickerInteraction.progress, peel: stickerInteraction.peel, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
+      stickerScene={{ assets: STICKER_CATALOGUE, placements: stickerPlacements, pack: stickerInteraction.stage === 'hidden' ? null : { progress: stickerInteraction.progress, peel: stickerInteraction.peel, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, dragOffset, workspaceLowering, sheet: collection === null ? undefined : { neighbors: collections.filter((item) => item.genre !== collection.genre).slice(0, 2).flatMap((item) => item.slots[0] === undefined ? [] : [{ ink: item.ink, stickerId: item.slots[0].art.id }]), reveal: sheetReveal, ink: collection.ink, slots: collection.slots.map((slot) => ({ stickerId: slot.art.id, state: slot.state })) } }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
       panel={(
         <ProductionPanelView
           colourway={colourway}

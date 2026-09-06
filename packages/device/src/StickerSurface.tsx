@@ -30,9 +30,9 @@ function EquippedSticker({ art, placement, rear, roughness, scene }: {
   return <StickerPrint art={art} geometry={geometry} roughness={roughness} finishEnabled={scene.finishEnabled !== false} onError={scene.onArtworkError} onReady={scene.onArtworkReady} />;
 }
 /** One map alpha-tests before physical lighting, clipping both print and satin response. */
-export function StickerPrint({ art, geometry, roughness, finishEnabled, onError, onReady }: {
+export function StickerPrint({ art, geometry, roughness, finishEnabled, onError, onReady, appearance = 'earned' }: {
   readonly art: StickerArtwork; readonly geometry: BufferGeometry; readonly roughness: Texture;
-  readonly finishEnabled: boolean; readonly onError?: (id: string) => void; readonly onReady?: (id: string) => void;
+  readonly appearance?: 'earned' | 'locked' | 'placed'; readonly finishEnabled: boolean; readonly onError?: (id: string) => void; readonly onReady?: (id: string) => void;
 }) {
   const { texture, failed } = useStickerTexture(art.url);
   const invalidate = useThree((state) => state.invalidate);
@@ -44,11 +44,25 @@ export function StickerPrint({ art, geometry, roughness, finishEnabled, onError,
     const shared = { ...STICKER_LAMINATE, map: texture, roughnessMap: roughness,
       envMap: studio.texture, alphaTest: STICKER_SURFACE.alphaThreshold, transparent: true, depthWrite: false };
     const front = new MeshPhysicalMaterial({ ...shared, side: FrontSide, clearcoat: finishEnabled ? STICKER_LAMINATE.clearcoat : 0 });
+    if (appearance !== 'earned') {
+      front.onBeforeCompile = (shader) => { shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>\n diffuseColor.rgb = ${appearance === 'placed' ? 'vec3(0.69, 0.65, 0.56)' : 'mix(vec3(dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114))), vec3(0.42, 0.40, 0.34), 0.35)'};`); };
+      if (appearance === 'placed') front.onBeforeCompile = (shader) => {
+        shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>
+          vec2 cutStep = fwidth(vMapUv) * 1.3;
+          float cutNeighbor = min(min(texture2D(map, vMapUv + vec2(cutStep.x, 0.0)).a, texture2D(map, vMapUv - vec2(cutStep.x, 0.0)).a), min(texture2D(map, vMapUv + vec2(0.0, cutStep.y)).a, texture2D(map, vMapUv - vec2(0.0, cutStep.y)).a));
+          diffuseColor.rgb = vec3(0.43, 0.40, 0.34);
+          diffuseColor.a *= mix(0.15, 0.9, 1.0 - cutNeighbor);
+        `);
+      };
+      front.customProgramCacheKey = () => `webpod-sticker-seat-${appearance}`;
+      front.opacity = appearance === 'placed' ? 1 : .85;
+      front.clearcoat = 0;
+    }
     const back = new MeshPhysicalMaterial({ ...shared, side: BackSide, clearcoat: 0 });
     back.onBeforeCompile = vinylBackingShader;
     back.customProgramCacheKey = () => "webpod-sticker-backing-v1";
     return { front, back };
-  }, [texture, roughness, studio.texture, finishEnabled]);
+  }, [texture, roughness, studio.texture, finishEnabled, appearance]);
   useEffect(() => () => { materials.front.dispose(); materials.back.dispose(); }, [materials]);
   if (texture === null) return null;
   // Meshes borrow geometry/maps. Their owners dispose those, while this component
@@ -61,5 +75,5 @@ export function StickerPrint({ art, geometry, roughness, finishEnabled, onError,
 
 /** Keep source alpha/UV exactly while the peeled adhesive underside remains unprinted. */
 const vinylBackingShader: MeshPhysicalMaterial["onBeforeCompile"] = (shader) => {
-  shader.fragmentShader = shader.fragmentShader.replace("#include <map_fragment>", "#include <map_fragment>\n diffuseColor.rgb = vec3(0.79, 0.73, 0.61);");
+  shader.fragmentShader = shader.fragmentShader.replace("#include <map_fragment>", "#include <map_fragment>\n diffuseColor.rgb = vec3(0.66, 0.60, 0.49);");
 };
