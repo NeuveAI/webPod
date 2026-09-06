@@ -51,3 +51,15 @@
 - Format feedback: not applicable.
 - Backlog signals: none.
 - Feedback artifact: unavailability recorded here.
+
+## Packet-laminate follow-up approval
+
+The post-delivery goal audit found that the original owner request explicitly included laminate on the packet exterior, not only the vinyl stickers. The previous matte sleeve therefore missed one literal fidelity requirement despite its earlier technical/material-construction approval. The designer's post-delivery consolidated brief recorded that gap before this bounded correction; it does not retroactively claim an earlier standalone brief.
+
+Independent source and visual re-review now **APPROVE** the correction. `sticker-sleeve.ts` partitions the unchanged extrusion into positive-Z printed exterior, negative-Z raw interior and raw cut/bevel groups. The exterior and printed folds/neighbors use one matte protective MeshPhysicalMaterial coat; geometry, UVs, silhouette and raw-edge assignment are verified by the new responsive-scale test. No coincident coat mesh, extra light, permanent scheduler or artwork mutation was added. Existing ownership/disposal remains unchanged.
+
+The first coat iteration was rejected as too visually subtle. The final actual 375px coat/no-coat pair shows a broad soft satin bloom on the exterior, with the raw rim remaining matte; desktop response is quieter but coherent. Final sealed/open desktop and sealed/open phone captures retain printed color/cutlines, readable detail and correct inserted liner clearance. Evidence is `evidence/tactile-pack-laminate/coated/`; the engineer's isolated `comparison-no-coat/` snapshot differs in clearcoat=0 and the inactive coat-roughness value, documented exactly in its README. No dedicated oblique packet manipulation is claimed.
+
+Independent final native production run: **138 assertions,14.80s**, preserving all direct-pointer/touch/keyboard, failed-save, return/cancel, lower-rear visibility and persistence gates. Renderer paper/sleeve/surface/cache suites: **13 tests,154,461 assertions**; app/device typechecks and scoped lint pass, as does diff whitespace check. Logs are `evidence/tactile-pack-laminate/reviewer-browser.log` and `reviewer-source.log`. Unchanged root-startup, backend and flick gates were reused, not needlessly rerun.
+
+Final source fingerprint: `78f9687938df885fef966c105f25b3a8c6498b5bf1c8fcec2a232598ea6c511e`,376 files. Client SHA256 `2e7a886a52ff7d324ae6e516b135a72cf7b8fca5720cc66e050f0752bd1600da`; server SHA256 `af4b5ee0a343dbb71719f093eeb5664ade2a0a0f8121bc7dbcf7b5225d521e65`. Material credibility remains a restrained/stylized3/5, not a claim of photorealism or owner taste approval. The explicit exterior-coat omission is resolved; small captions and other previously documented optical refinements remain nonblocking.

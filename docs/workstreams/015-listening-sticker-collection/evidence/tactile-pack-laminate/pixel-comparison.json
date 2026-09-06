@@ -1,0 +1,101 @@
+{
+  "purpose": "Supporting bounded coat contribution measurement; human normal-scale visual judgment is authoritative. These metrics include art/type in the sampled packet region.",
+  "comparisons": [
+    {
+      "image": "desktop-sealed-sleeve.png",
+      "region": [
+        865,
+        540,
+        1170,
+        865
+      ],
+      "meanAbsoluteRGBDifference": [
+        1.0310214375788147,
+        0.5806002522068096,
+        0.33844136191677177
+      ],
+      "samples": [
+        {
+          "xy": [
+            880,
+            555
+          ],
+          "coated": [
+            194,
+            138,
+            108
+          ],
+          "uncoated": [
+            196,
+            138,
+            106
+          ]
+        },
+        {
+          "xy": [
+            1155,
+            850
+          ],
+          "coated": [
+            163,
+            102,
+            70
+          ],
+          "uncoated": [
+            165,
+            104,
+            71
+          ]
+        }
+      ]
+    },
+    {
+      "image": "mobile-open-sheet.png",
+      "region": [
+        56,
+        510,
+        320,
+        780
+      ],
+      "meanAbsoluteRGBDifference": [
+        0.8326879910213244,
+        2.3429854096520764,
+        4.263159371492705
+      ],
+      "samples": [
+        {
+          "xy": [
+            71,
+            525
+          ],
+          "coated": [
+            194,
+            146,
+            123
+          ],
+          "uncoated": [
+            194,
+            138,
+            108
+          ]
+        },
+        {
+          "xy": [
+            305,
+            765
+          ],
+          "coated": [
+            158,
+            98,
+            67
+          ],
+          "uncoated": [
+            159,
+            99,
+            68
+          ]
+        }
+      ]
+    }
+  ]
+}

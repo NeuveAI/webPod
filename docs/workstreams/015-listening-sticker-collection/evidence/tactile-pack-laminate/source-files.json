@@ -1,0 +1,6 @@
+{
+  "packages/device/src/StickerPackScene.tsx": "17bf14170fe6e73b42d87650534ea0b9a520e67e0d8a9407dedb940aea30cb69",
+  "packages/device/src/sticker-sleeve.ts": "ca84d3d9d1fc74539bff66b277c0a8c3eea6f9c92980fa3f078ac70d5a862394",
+  "packages/device/src/sticker-sleeve.test.ts": "5d0e23a2e9222fa1a386837dfaa65e941f2179a6e5f00e76757daf24718de0a6",
+  "apps/web/scripts/sticker-browser.integration.test.ts": "56ba8cd0d6743e0b81894dd836af2804cdef82ad8eb394ad551f04c107873d29"
+}

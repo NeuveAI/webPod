@@ -1,5 +1,7 @@
 # Tactile sticker collections
 
+Latest material correction: the designer's [consolidated briefing](tactile-design-brief.md) and [independent goal audit](reviews/goal-completion-audit.md) identified the packet exterior as still lacking the originally requested laminate. That correction is now implemented: coated printed exterior and folds, raw paper interior/cut edges. Actual desktop/phone sealed/open views and native production interactions independently pass on source fingerprint `78f9687938df885fef966c105f25b3a8c6498b5bf1c8fcec2a232598ea6c511e` (376 files). Evidence is in evidence/tactile-pack-laminate/. Earlier source counts and screenshots below remain attributed to their original checkpoint; the collection mechanisms are unchanged.
+
 The rejected text toolbar and single-art wrapper are replaced by genre-specific PLAYWORN paper sleeves and five-sticker release liners. The same sixty approved artwork files and server earning/ownership rules remain authoritative. Mixed starter grants appear in their respective genre collections; future stickers show the actual listening milestones, while placed stickers leave die-cut seats.
 
 Flip the iPod to its back, pull a collection into view and slide its liner out. Browse collections with the adjacent arrows. Hover, focus or tap a sticker for its meaning and earning progress. Peel an earned sticker directly from its seat and drag it onto the backplate. On a phone, the packet lowers after separation to expose the lower rear while the device stays still. Keyboard placement and cancellation remain available.

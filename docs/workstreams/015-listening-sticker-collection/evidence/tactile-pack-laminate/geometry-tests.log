@@ -1,0 +1,15 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/sticker-paper.test.ts:
+(pass) curled thin stock has finite smooth normals and separated front/back surfaces at every vertex [21.04ms]
+(pass) stock curl leaves sheet UVs unchanged and only bends the unprinted corner in XY [5.93ms]
+(pass) unpeeled adhesive tail stays on the bowed printed seat throughout partial peeling [3.48ms]
+(pass) inserted and partially emerging liner cannot curl through the sleeve face [374.20ms]
+
+packages/device/src/sticker-sleeve.test.ts:
+(pass) pocket exterior coating never includes interior cap or cut rim at responsive scales [6.24ms]
+
+ 5 pass
+ 0 fail
+ 77434 expect() calls
+Ran 5 tests across 2 files. [435.00ms]

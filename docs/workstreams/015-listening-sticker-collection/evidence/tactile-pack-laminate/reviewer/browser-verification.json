@@ -1,0 +1,570 @@
+{
+  "passed": true,
+  "sourceFingerprint": {
+    "digest": "28e1c0fb907bca11621e8a986255bdcf9634052eec365fa5334c1aee4503be96",
+    "fileCount": 376
+  },
+  "builtClientSha256": "2e7a886a52ff7d324ae6e516b135a72cf7b8fca5720cc66e050f0752bd1600da",
+  "materialConstruction": "fixed paper sleeve, translated release liner, laminated vinyl",
+  "nativeMobileTouch": true,
+  "simulatedServiceFailures": 1,
+  "lowerRearVisiblePreview": true,
+  "twoEarnedKeyboardIdentity": true,
+  "closeAndFlickDuringLinerReturn": true,
+  "durationMs": 14547,
+  "builtServerSha256": "af4b5ee0a343dbb71719f093eeb5664ade2a0a0f8121bc7dbcf7b5225d521e65",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/device",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/session",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/listening",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/device",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/session",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/packs/open",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/packs/open",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/stickers/placements",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/stickers/placements",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/stickers/placements",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/stickers/placements",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/stickers/placements",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/device",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/session",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/stickers/placements",
+      "status": 503
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/stickers/placements",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/stickers/placements",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/stickers/placements",
+      "status": 200
+    },
+    {
+      "method": "PUT",
+      "path": "/api/stickers/placements",
+      "status": 200
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/stickers/session",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/device",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/session",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/device",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/stickers/session",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/stickers",
+      "status": 200
+    }
+  ],
+  "appleVerifications": 4,
+  "syntheticSignatures": 4,
+  "nativeHttpOnlyCookies": true,
+  "realSQLite": true,
+  "sameDeviceReloadAndReconnect": true,
+  "separateBrowserIsolation": true,
+  "apiInterceptions": 0
+}
