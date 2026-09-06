@@ -1,0 +1,62 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/device-preview-orientation.test.ts:
+(pass) external device preview orientation > publishes only real changes and reset preserves room and colourway [0.76ms]
+(pass) external device preview orientation > normal drag reaches the rear, wraps yaw, and clamps pitch [0.20ms]
+(pass) external device preview orientation > malformed external orientation cannot poison the shared store [0.10ms]
+(pass) external device preview orientation > Option drag is an explicit bounded roll gesture without yaw drift [0.04ms]
+(pass) external device preview orientation > captures mouse movement beyond the edge and releases exactly once [1.95ms]
+(pass) external device preview orientation > production release continues over frames and a fast yaw flick lands opposite [1.26ms]
+(pass) external device preview orientation > a new grab and blur interrupt release motion without an idle frame [0.89ms]
+(pass) external device preview orientation > reduced motion resolves a fast semantic release without scheduling [0.26ms]
+(pass) external device preview orientation > supports touch and makes duplicate pointers, cancel, blur, and dispose safe [0.38ms]
+(pass) external device preview orientation > teardown remains silent when the browser has already dropped capture [0.56ms]
+(pass) external device preview orientation > pointercancel settles an edge pose, clears capture and permits another grab [0.44ms]
+(pass) external device preview orientation > lostpointercapture settles an edge pose, clears capture and permits another grab [0.56ms]
+(pass) external device preview orientation > a held release cannot refresh stale flick samples [0.36ms]
+(pass) external device preview orientation > keyboard interrupts a captured drag and unrelated keys do not interrupt settling [0.43ms]
+(pass) external device preview orientation > re-grabbing samples the current pose and external reset cancels all pending work [0.52ms]
+(pass) external device preview orientation > failed capture does not strand a settling device [0.34ms]
+(pass) external device preview orientation > idle window blur preserves a chosen inspection pose [0.08ms]
+(pass) external device preview orientation > keyboard fallback is stage-scoped, supports roll, and resets [0.26ms]
+
+apps/web/src/device-flick-regression.test.ts:
+(pass) slow held drag settles a useful face instead of remaining edge-on [0.26ms]
+(pass) passing the rear before releasing does not add a full revolution [0.22ms]
+(pass) a short deliberate flick works below the former binary speed cliff [0.07ms]
+(pass) release direction follows a fresh reversal rather than the earlier drag [0.13ms]
+(pass) reduced motion settles the held drag immediately without frames [0.03ms]
+(pass) tiny reversal cannot borrow the preceding drag distance to flip [0.33ms]
+
+apps/web/src/device-preview-orientation-source.test.ts:
+(pass) orientation release is bounded while the canonical canvas stays demand-rendered [1.24ms]
+(pass) canonical product has no broad stage drag or pose-preset controls [0.47ms]
+(pass) shell handlers are attached to the physical enclosure, never the stage [0.82ms]
+
+apps/web/src/device-orientation-motion.test.ts:
+(pass) device release motion > weights recent timestamped samples and rejects stale, zero-time and outlier input [0.14ms]
+(pass) device release motion > face settling is time-based at 30, 60, 120 and variable frame rates [0.56ms]
+(pass) device release motion > release retains more forward travel with higher velocity before the same destination [0.16ms]
+(pass) device release motion > a semantic flick settles exactly front to rear clockwise [0.07ms]
+(pass) device release motion > a semantic flick settles exactly front to rear counter-clockwise [0.03ms]
+(pass) device release motion > a semantic flick settles exactly rear to front clockwise [0.03ms]
+(pass) device release motion > a semantic flick settles exactly rear to front counter-clockwise [0.02ms]
+(pass) device release motion > opposite-face settling ends identically at 30, 60, 120 and variable rates [0.34ms]
+(pass) device release motion > the flick threshold and edge-hemisphere tie are deterministic [0.08ms]
+(pass) device release motion > reduced motion resolves a semantic flick immediately and never coasts [0.04ms]
+(pass) device release motion > the semantic spring never exceeds its authored overshoot [0.12ms]
+
+packages/device/src/orientation.test.ts:
+(pass) D-064 verification modes > only the front and rear reference poses are canonical stop-table poses [0.05ms]
+(pass) D-064 verification modes > rotated and custom poses are physical-continuity validations [0.04ms]
+
+packages/device/src/orientation-grab.test.ts:
+(pass) device enclosure orientation grab > leaves browser gesture suppression to the application touch-action boundary [3.59ms]
+(pass) device enclosure orientation grab > accepts primary mouse, pen, and touch without accepting secondary input [0.33ms]
+(pass) device enclosure orientation grab > admits the physical perimeter and corners, never face controls [0.35ms]
+(pass) device enclosure orientation grab > rejects a shell behind the LCD, wheel, or Select ray hit [0.17ms]
+
+ 44 pass
+ 0 fail
+ 229 expect() calls
+Ran 44 tests across 6 files. [329.00ms]

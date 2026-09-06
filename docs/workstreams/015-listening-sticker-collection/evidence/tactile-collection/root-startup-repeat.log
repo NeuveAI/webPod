@@ -1,0 +1,27 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/dev-startup.integration.test.ts: (run #1)
+(pass) root shipped dev script renders both product routes and loads anonymous SQLite transport [10255.90ms]
+
+apps/web/scripts/dev-startup.integration.test.ts: (run #2)
+(pass) root shipped dev script renders both product routes and loads anonymous SQLite transport [10280.47ms]
+
+apps/web/scripts/dev-startup.integration.test.ts: (run #3)
+41 |     while (Date.now() < deadline && child.exitCode === null) {
+42 |       ready = await fetch(origin + '/@vite/client', { signal: AbortSignal.timeout(1000) }).then((response) => response.ok).catch(() => false)
+43 |       if (ready) break
+44 |       await pause(100)
+45 |     }
+46 |     if (!ready) throw new Error(`Shipped ${launcher} dev readiness failed; exit=${String(child.exitCode)}; isolated credential-free startup tail: ${output.slice(-2000)}`)
+                               ^
+error: Shipped root dev readiness failed; exit=null; isolated credential-free startup tail: $ bun --env-file=.env.local run --cwd apps/web dev --host "127.0.0.1" --port "58636" --strictPort
+$ bun node_modules/vite/bin/vite.js dev --port 3000 --host "127.0.0.1" --port "58636" --strictPort
+
+      at <anonymous> (/Users/vinicius/code/webPod/apps/web/scripts/dev-startup.integration.test.ts:46:27)
+(fail) root shipped dev script renders both product routes and loads anonymous SQLite transport [49911.36ms]
+
+ 2 pass
+ 3 filtered out
+ 1 fail
+ 2021 expect() calls
+Ran 3 tests across 1 file. [70.58s]

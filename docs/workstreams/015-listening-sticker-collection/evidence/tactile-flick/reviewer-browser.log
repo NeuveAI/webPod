@@ -1,0 +1,81 @@
+[W5B SOURCE 87ca93c9d7002c123d533a3e17e0b5a2c4871d8f2d186c17556a3cb73e129cb7 FILES 372 WORKTREE-SNAPSHOT]
+[WebServer] Resolving dependencies
+
+[WebServer] Resolved, downloaded and extracted [1]
+
+[WebServer] $ bun node_modules/vite/bin/vite.js dev --port 3000 --host "127.0.0.1" --port "4317" --strictPort
+
+[WebServer] (node:6131) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+Running 12 tests using 1 worker
+
+(node:6133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE 87ca93c9d7002c123d533a3e17e0b5a2c4871d8f2d186c17556a3cb73e129cb7 FILES 372 WORKTREE-SNAPSHOT]
+
+
+[1/12] apps/web/tests/device-orientation.e2e.ts:23:0 › a visible shell edge captures free yaw/pitch through release
+[WebServer] 4:41:08 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:41:08 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[2/12] apps/web/tests/device-orientation.e2e.ts:46:0 › pointer release keeps moving across frames and a fast flick lands on the opposite face
+[WebServer] 4:41:18 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:41:18 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[3/12] apps/web/tests/device-orientation.e2e.ts:81:0 › slow deliberate drag settles a face and tiny held drag returns front
+[WebServer] 4:41:27 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:41:27 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[4/12] apps/web/tests/device-orientation.e2e.ts:91:0 › front center, LCD, click wheel, and Select do not begin orientation
+[WebServer] 4:41:36 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:41:40 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[5/12] apps/web/tests/device-orientation.e2e.ts:128:0 › touch captures the same physical edge and rotates without scrolling
+[WebServer] 4:41:43 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:41:48 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[6/12] apps/web/tests/device-orientation.e2e.ts:170:0 › edge drag reaches the rear, pitch is bounded, and Option drag rolls
+[WebServer] 4:41:52 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:41:52 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[7/12] apps/web/tests/device-orientation.e2e.ts:203:0 › a projected rounded corner is an orientation handle
+[WebServer] 4:42:02 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:42:02 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[8/12] apps/web/tests/device-orientation.e2e.ts:219:0 › pointer cancellation ends capture and Reset view preserves chosen appearance
+[WebServer] 4:42:11 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:42:11 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[9/12] apps/web/tests/device-orientation.e2e.ts:252:0 › pose presets stay absent and the device stage does not select labels
+[WebServer] 4:42:18 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:42:18 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[10/12] apps/web/tests/device-orientation.e2e.ts:267:0 › repeated short flicks and fresh reversal stay responsive
+[WebServer] 4:42:25 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:42:33 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[11/12] apps/web/tests/device-orientation.e2e.ts:311:0 › native lost capture settles and an in-flight grab follows its caught pose
+[WebServer] 4:42:40 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:42:40 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+[12/12] apps/web/tests/device-orientation.e2e.ts:353:0 › reduced-motion touch release reaches the same rear without an idle animation
+[WebServer] 4:42:48 PM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 4:42:48 PM [vite] (client) [console.error] Apple Music library loading failed: Apple Music token service returned 503
+
+  12 passed (2.0m)

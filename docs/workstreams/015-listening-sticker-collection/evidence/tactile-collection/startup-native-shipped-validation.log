@@ -1,0 +1,21 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/dev-startup.integration.test.ts: (run #1)
+(pass) canonical dev keeps Bun and root env semantics while loading TypeScript config natively [0.20ms]
+(pass) root shipped dev script renders both product routes and loads anonymous SQLite transport [10604.41ms]
+(pass) app shipped dev script renders both product routes and loads anonymous SQLite transport [10445.88ms]
+
+apps/web/scripts/dev-startup.integration.test.ts: (run #2)
+(pass) canonical dev keeps Bun and root env semantics while loading TypeScript config natively [0.17ms]
+(pass) root shipped dev script renders both product routes and loads anonymous SQLite transport [10222.44ms]
+(pass) app shipped dev script renders both product routes and loads anonymous SQLite transport [9987.45ms]
+
+apps/web/scripts/dev-startup.integration.test.ts: (run #3)
+(pass) canonical dev keeps Bun and root env semantics while loading TypeScript config natively [0.77ms]
+(pass) root shipped dev script renders both product routes and loads anonymous SQLite transport [10446.47ms]
+(pass) app shipped dev script renders both product routes and loads anonymous SQLite transport [10491.92ms]
+
+ 9 pass
+ 0 fail
+ 6069 expect() calls
+Ran 9 tests across 1 file. [62.34s]

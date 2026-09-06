@@ -1,0 +1,30 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/dev-startup.integration.test.ts:
+100 |     const config = await Bun.file(configPath).text()
+101 |     expect(config).toContain('server: { port: 3000 },')
+102 |     await Bun.write(configPath, config.replace('server: { port: 3000 },', "server: { port: 3000, headers: { 'x-webpod-config-restart': 'observed' } },"))
+103 |     try {
+104 | await browserExpect.poll(async () => fetch(origin + '/@vite/client', { signal: AbortSignal.timeout(1000) }).then((response) => response.headers.get('x-webpod-config-restart')).catch(() => null), { timeout: 15_000 }).toBe('observed')
+105 |     } catch { throw new Error(`Config restart did not apply; ${output.slice(-2500)}`) }
+                              ^
+error: Config restart did not apply; $ bun --env-file=.env.local run --cwd apps/web dev --host "127.0.0.1" --port "59091" --strictPort
+$ bun node_modules/vite/bin/vite.js dev --configLoader native --port 3000 --host "127.0.0.1" --port "59091" --strictPort
+
+  VITE v8.2.2  ready in 1772 ms
+
+  ➜  Local:   http://127.0.0.1:59091/
+5:41:17 PM [vite] (ssr) connected.
+5:41:20 PM [vite] (ssr) page reload src/styles/app.css
+5:41:20 PM [vite] (ssr) program reload
+5:41:20 PM [vite] (client) hmr update /src/styles/app.css?direct, /src/routes/__root.tsx
+5:41:20 PM [vite] vite.config.ts changed, restarting server...
+
+      at <anonymous> (/Users/vinicius/code/webPod/apps/web/scripts/dev-startup.integration.test.ts:105:25)
+(fail) root shipped dev script renders both product routes and loads anonymous SQLite transport [25822.28ms]
+
+ 0 pass
+ 2 filtered out
+ 1 fail
+ 1009 expect() calls
+Ran 1 test across 1 file. [25.96s]

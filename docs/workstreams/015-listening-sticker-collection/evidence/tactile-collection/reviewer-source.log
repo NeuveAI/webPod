@@ -1,0 +1,40 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/sticker-return.test.ts:
+(pass) missed and cancelled rear drops reverse from the displayed pose and release their frame owner [1.75ms]
+
+apps/web/src/sticker-motion.test.ts:
+(pass) sticker pull physics > a fresh upward flick opens; holding that gesture restores distance-based release [0.09ms]
+(pass) sticker pull physics > analytic response is invariant to frame subdivision before settling [0.02ms]
+(pass) sticker pull physics > settled springs stop scheduling and background pauses terminate safely [0.02ms]
+
+apps/web/src/sticker-collections-model.test.ts:
+(pass) mixed starter remains two genre sheets with five honest seats each [0.25ms]
+(pass) opening a mixed grant reveals earned seats across its genre sheets without granting future art [0.07ms]
+(pass) display thresholds stay identical to server earning policy and unknown collections are absent [0.02ms]
+(pass) shared liner layout fits narrow and short viewports and retains five reachable seats [0.06ms]
+(pass) keyboard and meaning intents cannot borrow another earned sticker preview [0.02ms]
+(pass) partial peel anchors remaining contact, releases continuously, and reduced motion follows directly [0.04ms]
+
+packages/device/src/sticker-texture-cache.test.ts:
+(pass) shared sticker artwork recovery and ownership > first failure recovers for both live subscribers with exactly one explicit retry [0.19ms]
+(pass) shared sticker artwork recovery and ownership > repeated failures never schedule automatic requests and retry touches failed entries only [0.03ms]
+(pass) shared sticker artwork recovery and ownership > late completion after final unmount disposes resources without resurrecting state [0.02ms]
+(pass) shared sticker artwork recovery and ownership > superseded request completion cannot replace or dispose successful retry resources [0.04ms]
+
+packages/device/src/sticker-paper.test.ts:
+(pass) curled thin stock has finite smooth normals and separated front/back surfaces at every vertex [23.11ms]
+(pass) stock curl leaves sheet UVs unchanged and only bends the unprinted corner in XY [5.35ms]
+(pass) unpeeled adhesive tail stays on the bowed printed seat throughout partial peeling [3.66ms]
+(pass) inserted and partially emerging liner cannot curl through the sleeve face [364.89ms]
+
+packages/device/src/sticker-surface.test.ts:
+(pass) production sticker surface > all 60 manifest silhouettes preserve their UV crop and conform to the actual rear cap [15.42ms]
+(pass) production sticker surface > rear-view right placement moves toward model -X and invalid off-body points fail [3.34ms]
+(pass) production sticker surface > peel is actual continuous curvature, stable print UVs, with a fixed contact region [0.45ms]
+(pass) production sticker surface > microtexture is deterministic and has nonzero green roughness data [0.65ms]
+
+ 22 pass
+ 0 fail
+ 152111 expect() calls
+Ran 22 tests across 6 files. [483.00ms]

@@ -1,0 +1,39 @@
+[
+  {
+    "path": "/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-startup-probe-KZR30X/source/node_modules",
+    "exists": true,
+    "real": "/private/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-startup-probe-KZR30X/source/node_modules",
+    "symlink": false
+  },
+  {
+    "path": "/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-startup-probe-KZR30X/source/apps/web/node_modules",
+    "exists": true,
+    "real": "/private/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-startup-probe-KZR30X/source/apps/web/node_modules",
+    "symlink": false
+  },
+  {
+    "path": "/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-startup-probe-KZR30X/source/apps/web/node_modules/vite",
+    "exists": true,
+    "real": "/private/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-startup-probe-KZR30X/source/node_modules/.bun/vite@8.2.2+48d981d0a960deea/node_modules/vite",
+    "symlink": true
+  },
+  {
+    "path": "/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-startup-probe-KZR30X/source/node_modules/.vite-temp",
+    "exists": false,
+    "real": null,
+    "symlink": null
+  },
+  {
+    "path": "/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-startup-probe-KZR30X/source/apps/web/node_modules/.vite-temp",
+    "exists": true,
+    "real": "/private/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-startup-probe-KZR30X/source/apps/web/node_modules/.vite-temp",
+    "symlink": false,
+    "files": []
+  },
+  {
+    "path": "/var/folders/ft/7tsjkpcn20q5fx1q8dwv26x80000gn/T/webpod-startup-probe-KZR30X/source/apps/web/node_modules/.vite",
+    "exists": false,
+    "real": null,
+    "symlink": null
+  }
+]

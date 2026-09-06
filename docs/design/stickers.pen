@@ -24917,6 +24917,1518 @@
           "fontWeight": "normal"
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "mDLRC",
+      "x": 2580,
+      "y": 2540,
+      "name": "PLAYWORN — tactile pack / structural exploration",
+      "clip": true,
+      "width": 1440,
+      "height": 900,
+      "fill": "#11171C",
+      "layout": "none",
+      "children": [
+        {
+          "type": "text",
+          "id": "KOutg",
+          "x": 48,
+          "y": 40,
+          "name": "Title",
+          "fill": "#EEE8D9",
+          "content": "A collection you can hold.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 36,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "bePie",
+          "x": 48,
+          "y": 100,
+          "name": "Purpose",
+          "fill": "#B6B9B6",
+          "content": "Three physical arrangements. The device stays the destination.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 16,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "ye3HV",
+          "x": 48,
+          "y": 180,
+          "name": "Sleeve + loose liner",
+          "width": 408,
+          "height": 620,
+          "fill": "#1B2328",
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "D5k0xm",
+              "x": 24,
+              "y": 24,
+              "name": "Concept label 0",
+              "fill": "#EEE8D9",
+              "content": "Sleeve + loose liner",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 18,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "rectangle",
+              "id": "VwMmU",
+              "x": 40,
+              "y": 88,
+              "name": "Liner",
+              "fill": "#E9E2D1",
+              "width": 328,
+              "height": 320,
+              "stroke": "#20211F",
+              "strokeWidth": 0.5
+            },
+            {
+              "type": "frame",
+              "id": "zeVLS",
+              "x": 58,
+              "y": 110,
+              "name": "PW-C01 — Soundcheck",
+              "width": 90,
+              "height": 96,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "images/rock-vEs72.png",
+                "mode": "fit"
+              },
+              "layout": "none"
+            },
+            {
+              "type": "frame",
+              "id": "FAYsX",
+              "x": 153,
+              "y": 110,
+              "name": "PW-C02 — Riff Rider",
+              "width": 90,
+              "height": 96,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "images/rock-wdCid.png",
+                "mode": "fit"
+              },
+              "layout": "none"
+            },
+            {
+              "type": "frame",
+              "id": "Zo811",
+              "x": 248,
+              "y": 110,
+              "name": "PW-C03 — Last Encore",
+              "opacity": 0.25,
+              "width": 90,
+              "height": 96,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "images/rock-JlK2l.png",
+                "mode": "fit"
+              },
+              "layout": "none"
+            },
+            {
+              "type": "frame",
+              "id": "hfJqY",
+              "x": 58,
+              "y": 220,
+              "name": "PW-C04 — Feedback",
+              "opacity": 0.25,
+              "width": 90,
+              "height": 96,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "images/rock-I6K46.png",
+                "mode": "fit"
+              },
+              "layout": "none"
+            },
+            {
+              "type": "frame",
+              "id": "PeoOP",
+              "x": 153,
+              "y": 220,
+              "name": "PW-C05 — Stage Dive",
+              "opacity": 0.25,
+              "width": 90,
+              "height": 96,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "images/rock-pnBhr.png",
+                "mode": "fit"
+              },
+              "layout": "none"
+            },
+            {
+              "type": "rectangle",
+              "id": "vtO90",
+              "x": 32,
+              "y": 355,
+              "name": "Sleeve pocket",
+              "fill": "#C86737",
+              "width": 344,
+              "height": 120,
+              "stroke": "#20211F",
+              "strokeWidth": 0.5
+            },
+            {
+              "type": "text",
+              "id": "G7Pcdu",
+              "x": 48,
+              "y": 374,
+              "name": "Brand",
+              "fill": "#211C15",
+              "content": "PLAYWORN",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "z5kk80",
+              "x": 48,
+              "y": 401,
+              "name": "Collection",
+              "fill": "#211C15",
+              "content": "LIVE WIRE",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 34,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "o0djdK",
+              "x": 24,
+              "y": 510,
+              "name": "Evaluation 0",
+              "fill": "#C7CBC6",
+              "textGrowth": "fixed-width",
+              "width": 356,
+              "content": "CHOSEN\nOne liner; five die-cut seats.\nPeel straight onto the device.",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "qdxGi",
+          "x": 504,
+          "y": 180,
+          "name": "Fold-out booklet",
+          "width": 408,
+          "height": 620,
+          "fill": "#1B2328",
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "n9uTsz",
+              "x": 24,
+              "y": 24,
+              "name": "Concept label 1",
+              "fill": "#EEE8D9",
+              "content": "Fold-out booklet",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 18,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "rectangle",
+              "id": "XdQr6",
+              "x": 25,
+              "y": 128,
+              "name": "Booklet leaf 0",
+              "fill": "#EEE8DA",
+              "width": 174,
+              "height": 288,
+              "stroke": "#20211F",
+              "strokeWidth": 0.5
+            },
+            {
+              "type": "frame",
+              "id": "H8U8s",
+              "x": 38,
+              "y": 170,
+              "name": "PW-C01 — Soundcheck",
+              "width": 144,
+              "height": 170,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "images/rock-vEs72.png",
+                "mode": "fit"
+              },
+              "layout": "none"
+            },
+            {
+              "type": "rectangle",
+              "id": "OlPJU",
+              "x": 204,
+              "y": 128,
+              "name": "Booklet leaf 1",
+              "fill": "#DCD4C2",
+              "width": 174,
+              "height": 288,
+              "stroke": "#20211F",
+              "strokeWidth": 0.5
+            },
+            {
+              "type": "frame",
+              "id": "HV9CT",
+              "x": 217,
+              "y": 170,
+              "name": "PW-C02 — Riff Rider",
+              "width": 144,
+              "height": 170,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "images/rock-wdCid.png",
+                "mode": "fit"
+              },
+              "layout": "none"
+            },
+            {
+              "type": "text",
+              "id": "ctuWq",
+              "x": 24,
+              "y": 510,
+              "name": "Evaluation 1",
+              "fill": "#C7CBC6",
+              "textGrowth": "fixed-width",
+              "width": 356,
+              "content": "Too wide on a phone.\nA hinge adds a second gesture\nbetween browsing and sticking.",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "GtviL",
+          "x": 960,
+          "y": 180,
+          "name": "Fan of envelopes",
+          "width": 408,
+          "height": 620,
+          "fill": "#1B2328",
+          "layout": "none",
+          "children": [
+            {
+              "type": "text",
+              "id": "ENfjT",
+              "x": 24,
+              "y": 24,
+              "name": "Concept label 2",
+              "fill": "#EEE8D9",
+              "content": "Fan of envelopes",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 18,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "rectangle",
+              "id": "t9SFy",
+              "x": 40,
+              "y": 110,
+              "name": "Envelope 0",
+              "fill": "#C86737",
+              "width": 224,
+              "height": 288,
+              "stroke": "#20211F",
+              "strokeWidth": 0.5
+            },
+            {
+              "type": "text",
+              "id": "TPYdV",
+              "x": 55,
+              "y": 126,
+              "name": "Brand 0",
+              "fill": "#191A19",
+              "content": "PLAYWORN",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "IT6MW",
+              "x": 64,
+              "y": 164,
+              "name": "PW-C01 — Soundcheck",
+              "width": 168,
+              "height": 180,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "images/rock-vEs72.png",
+                "mode": "fit"
+              },
+              "layout": "none"
+            },
+            {
+              "type": "rectangle",
+              "id": "OsZg3",
+              "x": 88,
+              "y": 160,
+              "name": "Envelope 1",
+              "fill": "#7191A5",
+              "width": 224,
+              "height": 288,
+              "stroke": "#20211F",
+              "strokeWidth": 0.5
+            },
+            {
+              "type": "text",
+              "id": "I7mRWG",
+              "x": 103,
+              "y": 176,
+              "name": "Brand 1",
+              "fill": "#191A19",
+              "content": "PLAYWORN",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "G8jgyt",
+              "x": 112,
+              "y": 214,
+              "name": "PW-C01 — Soundcheck",
+              "width": 168,
+              "height": 180,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "images/rock-vEs72.png",
+                "mode": "fit"
+              },
+              "layout": "none"
+            },
+            {
+              "type": "rectangle",
+              "id": "p9gDR1",
+              "x": 136,
+              "y": 210,
+              "name": "Envelope 2",
+              "fill": "#BF9D5C",
+              "width": 224,
+              "height": 288,
+              "stroke": "#20211F",
+              "strokeWidth": 0.5
+            },
+            {
+              "type": "text",
+              "id": "lqddU",
+              "x": 151,
+              "y": 226,
+              "name": "Brand 2",
+              "fill": "#191A19",
+              "content": "PLAYWORN",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "e9YHO",
+              "x": 160,
+              "y": 264,
+              "name": "PW-C01 — Soundcheck",
+              "width": 168,
+              "height": 180,
+              "fill": {
+                "type": "image",
+                "enabled": true,
+                "url": "images/rock-vEs72.png",
+                "mode": "fit"
+              },
+              "layout": "none"
+            },
+            {
+              "type": "text",
+              "id": "LSaVp",
+              "x": 24,
+              "y": 510,
+              "name": "Evaluation 2",
+              "fill": "#C7CBC6",
+              "textGrowth": "fixed-width",
+              "width": 356,
+              "content": "Useful as the collection shelf.\nKeep the fan shallow so covers\ndo not hide earned progress.",
+              "fontFamily": "IBM Plex Mono",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "S6zdw",
+      "x": 4140,
+      "y": 2540,
+      "name": "PLAYWORN — tactile collection / desktop storyboard",
+      "width": 1540,
+      "height": 960,
+      "fill": "#11171C",
+      "layout": "none",
+      "children": [
+        {
+          "type": "text",
+          "id": "y6YuR",
+          "x": 48,
+          "y": 40,
+          "name": "Header",
+          "fill": "#EEE8D9",
+          "content": "Your listening. Your marks.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 32,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "tZxeB",
+          "x": 48,
+          "y": 92,
+          "name": "Interaction",
+          "fill": "#BDC4C0",
+          "content": "Pull a collection out. Peel a favourite. Make the back yours.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 15,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "s5WHI",
+          "x": 80,
+          "y": 178,
+          "name": "Backplate target",
+          "fill": "#8C969A",
+          "width": 428,
+          "height": 650,
+          "stroke": "#20211F",
+          "strokeWidth": 0.5
+        },
+        {
+          "type": "rectangle",
+          "id": "xhwIo",
+          "x": 84,
+          "y": 182,
+          "name": "Steel inner face",
+          "fill": "#B9C0C0",
+          "width": 420,
+          "height": 642,
+          "stroke": "#20211F",
+          "strokeWidth": 0.5
+        },
+        {
+          "type": "text",
+          "id": "QFpz7",
+          "x": 236,
+          "y": 452,
+          "name": "Device mark",
+          "fill": "#7A8386",
+          "content": "webPod",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 24,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "EAUUB",
+          "x": 136,
+          "y": 248,
+          "name": "PW-C01 — Soundcheck",
+          "rotation": 8,
+          "width": 130,
+          "height": 150,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-vEs72.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "I3C1z",
+          "x": 96,
+          "y": 850,
+          "name": "Placed state",
+          "fill": "#C6CAC4",
+          "content": "Stuck. Your mark stays here.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 14,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "qQ51w",
+          "x": 682,
+          "y": 296,
+          "name": "Liner",
+          "fill": "#E9E2D1",
+          "width": 408,
+          "height": 396,
+          "stroke": "#20211F",
+          "strokeWidth": 0.5
+        },
+        {
+          "type": "text",
+          "id": "SVBHP",
+          "x": 706,
+          "y": 320,
+          "name": "Liner title",
+          "fill": "#292B26",
+          "content": "LIVE WIRE",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 28,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "hiOwm",
+          "x": 706,
+          "y": 362,
+          "name": "Collection count",
+          "fill": "#5B5C52",
+          "content": "ROCK     2 / 5 COLLECTED",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "rK4FD",
+          "x": 710,
+          "y": 404,
+          "name": "PW-C01 — Soundcheck",
+          "opacity": 0.12,
+          "width": 112,
+          "height": 102,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-vEs72.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "PM6DE",
+          "x": 726,
+          "y": 507,
+          "name": "Slot state 0",
+          "fill": "#57584E",
+          "content": "ON IPOD",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 10,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "mGEsO",
+          "x": 830,
+          "y": 404,
+          "name": "PW-C02 — Riff Rider",
+          "width": 112,
+          "height": 102,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-wdCid.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "u4zP46",
+          "x": 846,
+          "y": 507,
+          "name": "Slot state 1",
+          "fill": "#57584E",
+          "content": "PEEL ↗",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 10,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "kLmdv",
+          "x": 950,
+          "y": 404,
+          "name": "PW-C03 — Last Encore",
+          "opacity": 0.24,
+          "width": 112,
+          "height": 102,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-JlK2l.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "qIIB5",
+          "x": 966,
+          "y": 507,
+          "name": "Slot state 2",
+          "fill": "#57584E",
+          "content": "60 MIN",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 10,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "R4Oz1",
+          "x": 710,
+          "y": 519,
+          "name": "PW-C04 — Feedback",
+          "opacity": 0.24,
+          "width": 112,
+          "height": 102,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-I6K46.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "qaCus",
+          "x": 726,
+          "y": 622,
+          "name": "Slot state 3",
+          "fill": "#57584E",
+          "content": "3 HR",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 10,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "KEZDx",
+          "x": 830,
+          "y": 519,
+          "name": "PW-C05 — Stage Dive",
+          "opacity": 0.24,
+          "width": 112,
+          "height": 102,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-pnBhr.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "WMh6x",
+          "x": 846,
+          "y": 622,
+          "name": "Slot state 4",
+          "fill": "#57584E",
+          "content": "10 HR",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 10,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "Bq1Ml",
+          "x": 674,
+          "y": 672,
+          "name": "Sleeve pocket",
+          "fill": "#C86737",
+          "width": 424,
+          "height": 104,
+          "stroke": "#20211F",
+          "strokeWidth": 0.5
+        },
+        {
+          "type": "text",
+          "id": "XKlli",
+          "x": 698,
+          "y": 690,
+          "name": "Sleeve logo",
+          "fill": "#211C15",
+          "content": "PLAYWORN",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 14,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "HIc0w",
+          "x": 698,
+          "y": 712,
+          "name": "Sleeve title",
+          "fill": "#211C15",
+          "content": "LIVE WIRE",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 32,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "A2FUK",
+          "x": 674,
+          "y": 768,
+          "name": "Folded crimp",
+          "fill": "#A54B28",
+          "width": 424,
+          "height": 8,
+          "stroke": "#20211F",
+          "strokeWidth": 0.5
+        },
+        {
+          "type": "rectangle",
+          "id": "mIeiX",
+          "x": 1160,
+          "y": 320,
+          "name": "Meaning slip",
+          "fill": "#EAE5D8",
+          "width": 300,
+          "height": 174,
+          "stroke": "#20211F",
+          "strokeWidth": 0.5
+        },
+        {
+          "type": "text",
+          "id": "K8DXZ",
+          "x": 1180,
+          "y": 340,
+          "name": "Meaning heading",
+          "fill": "#252921",
+          "content": "RIFF RIDER",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 20,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "z3HbIl",
+          "x": 1180,
+          "y": 378,
+          "name": "Meaning",
+          "fill": "#4E534A",
+          "textGrowth": "fixed-width",
+          "width": 260,
+          "content": "A little louder, a little longer.\n\nEarned · 15 min of rock\nDrag onto your iPod to stick.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 13,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "awDrC",
+          "x": 1160,
+          "y": 532,
+          "name": "Keyboard parity",
+          "fill": "#B6BEB9",
+          "textGrowth": "fixed-width",
+          "width": 300,
+          "content": "Hover, focus or tap for meaning.\nLocked seats show your next milestone.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 13,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "uArtg",
+          "x": 650,
+          "y": 832,
+          "name": "Scene storyboard",
+          "fill": "#BDC4C0",
+          "textGrowth": "fixed-width",
+          "width": 800,
+          "content": "TEASE → PULL → OPEN LINER → PEEL → PRESS DOWN\nSpring return on missed drops · unprinted adhesive underside · laminate catches the studio light",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 13,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "CpEOz",
+      "x": 5800,
+      "y": 2540,
+      "name": "PLAYWORN — tactile collection / 375px",
+      "width": 375,
+      "height": 812,
+      "fill": "#11171C",
+      "layout": "none",
+      "children": [
+        {
+          "type": "rectangle",
+          "id": "tfduy",
+          "x": 60,
+          "y": 56,
+          "name": "Backplate target",
+          "fill": "#B9C0C0",
+          "width": 255,
+          "height": 422,
+          "stroke": "#20211F",
+          "strokeWidth": 0.5
+        },
+        {
+          "type": "text",
+          "id": "pnxum",
+          "x": 134,
+          "y": 210,
+          "name": "Device mark",
+          "fill": "#7A8386",
+          "content": "webPod",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 20,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "o1SQqr",
+          "x": 87,
+          "y": 95,
+          "name": "PW-C01 — Soundcheck",
+          "rotation": 8,
+          "width": 90,
+          "height": 110,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-vEs72.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "rectangle",
+          "id": "A136V0",
+          "x": 28,
+          "y": 406,
+          "name": "Liner",
+          "fill": "#E9E2D1",
+          "width": 319,
+          "height": 296,
+          "stroke": "#20211F",
+          "strokeWidth": 0.5
+        },
+        {
+          "type": "text",
+          "id": "WPFJ6",
+          "x": 48,
+          "y": 424,
+          "name": "Collection",
+          "fill": "#292B26",
+          "content": "LIVE WIRE",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 25,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "rriIJ",
+          "x": 48,
+          "y": 460,
+          "name": "Progress",
+          "fill": "#5B5C52",
+          "content": "ROCK · 2 OF 5",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 11,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "An9Hl",
+          "x": 45,
+          "y": 493,
+          "name": "PW-C01 — Soundcheck",
+          "opacity": 0.12,
+          "width": 88,
+          "height": 82,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-vEs72.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "h3qEb0",
+          "x": 51,
+          "y": 574,
+          "name": "Seat label 0",
+          "fill": "#57584E",
+          "content": "ON IPOD",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 10,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "jnbTS",
+          "x": 141,
+          "y": 493,
+          "name": "PW-C02 — Riff Rider",
+          "width": 88,
+          "height": 82,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-wdCid.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "QUPxm",
+          "x": 147,
+          "y": 574,
+          "name": "Seat label 1",
+          "fill": "#57584E",
+          "content": "PEEL ↗",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 10,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "Da718",
+          "x": 237,
+          "y": 493,
+          "name": "PW-C03 — Last Encore",
+          "opacity": 0.24,
+          "width": 88,
+          "height": 82,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-JlK2l.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "AvOBP",
+          "x": 243,
+          "y": 574,
+          "name": "Seat label 2",
+          "fill": "#57584E",
+          "content": "60 MIN",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 10,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "hc7Cn",
+          "x": 45,
+          "y": 586,
+          "name": "PW-C04 — Feedback",
+          "opacity": 0.24,
+          "width": 88,
+          "height": 82,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-I6K46.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "h20Nby",
+          "x": 51,
+          "y": 667,
+          "name": "Seat label 3",
+          "fill": "#57584E",
+          "content": "3 HR",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 10,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "PIL7k",
+          "x": 141,
+          "y": 586,
+          "name": "PW-C05 — Stage Dive",
+          "opacity": 0.24,
+          "width": 88,
+          "height": 82,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/rock-pnBhr.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "SC9I3",
+          "x": 147,
+          "y": 667,
+          "name": "Seat label 4",
+          "fill": "#57584E",
+          "content": "10 HR",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 10,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "rectangle",
+          "id": "ta6G6",
+          "x": 20,
+          "y": 698,
+          "name": "Pocket",
+          "fill": "#C86737",
+          "width": 335,
+          "height": 80,
+          "stroke": "#20211F",
+          "strokeWidth": 0.5
+        },
+        {
+          "type": "text",
+          "id": "rbtJe",
+          "x": 40,
+          "y": 714,
+          "name": "Brand",
+          "fill": "#211C15",
+          "content": "PLAYWORN",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "MPAxx",
+          "x": 204,
+          "y": 735,
+          "name": "Close",
+          "fill": "#211C15",
+          "content": "↓  SLIDE AWAY",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "KtAo6",
+          "x": 84,
+          "y": 366,
+          "name": "Pack switch",
+          "fill": "#EEE8D9",
+          "content": "‹    LIVE WIRE    ›",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 13,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "I3j07",
+      "x": 4140,
+      "y": 3620,
+      "name": "PLAYWORN — palpable materials / construction study",
+      "width": 2040,
+      "height": 1120,
+      "fill": "#151B1D",
+      "layout": "none",
+      "children": [
+        {
+          "type": "text",
+          "id": "R8TUiY",
+          "x": 48,
+          "y": 40,
+          "name": "Title",
+          "fill": "#ECE5D6",
+          "content": "Three materials. Three different responses.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 30,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "I4HJb",
+          "x": 48,
+          "y": 92,
+          "name": "Study disclaimer",
+          "fill": "#B5BBB5",
+          "textGrowth": "fixed-width",
+          "width": 1400,
+          "content": "MATERIAL STUDY / illustrations explain construction, not measured manufacturing simulation.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 13,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "ZHusV",
+          "x": 48,
+          "y": 142,
+          "name": "Material 0",
+          "fill": "#ECE5D6",
+          "content": "The printed sleeve",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 22,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "MBsaZ",
+          "x": 48,
+          "y": 190,
+          "name": "The printed sleeve — material illustration",
+          "width": 452,
+          "height": 480,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "./images/generated-1788705993375.png",
+            "mode": "fill"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "WK6ne",
+          "x": 546,
+          "y": 142,
+          "name": "Material 1",
+          "fill": "#ECE5D6",
+          "content": "The release liner",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 22,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "udvzI",
+          "x": 546,
+          "y": 190,
+          "name": "The release liner — material illustration",
+          "width": 452,
+          "height": 480,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "./images/generated-1788705992648.png",
+            "mode": "fill"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "NjpU5",
+          "x": 1044,
+          "y": 142,
+          "name": "Material 2",
+          "fill": "#ECE5D6",
+          "content": "The laminated vinyl",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 22,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "JPf1k",
+          "x": 1044,
+          "y": 190,
+          "name": "The laminated vinyl — material illustration",
+          "width": 452,
+          "height": 480,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "./images/generated-1788705993245.png",
+            "mode": "fill"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "f12Y1",
+          "x": 48,
+          "y": 710,
+          "name": "Outer behavior",
+          "fill": "#ECE5D6",
+          "textGrowth": "fixed-width",
+          "width": 448,
+          "content": "CHOSEN / FOLDED PAPER SLEEVE\n\nRecord-store paper sleeve relative.\nMatte ink sinks into paper fibres.\nFolded + glued edge, not thick cardboard.\nStiffer than its contents; corners flex.\nA thumb notch exposes the release liner.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 14,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "DWlZn",
+          "x": 546,
+          "y": 710,
+          "name": "Liner behavior",
+          "fill": "#ECE5D6",
+          "textGrowth": "fixed-width",
+          "width": 448,
+          "content": "SILICONE-COATED RELEASE PAPER\n\nAvery: paper backing with thin silicone.\nWaxy, smooth face; rougher paper edge.\nSlight curl from handling, faint cut seats.\nPeeling pulls against a stationary liner.\nThe liner remains in the sleeve.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 14,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "PD0zl",
+          "x": 1044,
+          "y": 710,
+          "name": "Vinyl behavior",
+          "fill": "#ECE5D6",
+          "textGrowth": "fixed-width",
+          "width": 448,
+          "content": "PRINT + CLEAR LAMINATE + ADHESIVE\n\nSticker Mule: vinyl with protective coat.\nCoat catches light independently of ink.\nDie-cut edge, flexible print, unprinted back.\nCurl reveals the adhesive underside.\nPress down removes the lifted shadow.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 14,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "G9ZUyU",
+          "x": 48,
+          "y": 982,
+          "name": "Sources",
+          "fill": "#B5BBB5",
+          "textGrowth": "fixed-width",
+          "width": 1440,
+          "content": "PRIMARY MATERIAL REFERENCES\nAvery: What makes up a label / Backing paper, liner paper, release liner info\nSticker Mule: Sticker packs vs sticker sheets / Weatherproof stickers\nRendering roughness and stiffness are tuned visual analogies, not manufacturer measurements.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "cF30G",
+          "x": 1542,
+          "y": 142,
+          "name": "Alternative construction",
+          "fill": "#ECE5D6",
+          "content": "Alternative: retail pouch",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 22,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "i3QRW",
+          "x": 1542,
+          "y": 190,
+          "name": "Clear retail pouch — alternative material illustration",
+          "width": 452,
+          "height": 480,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "./images/generated-1788706069683.png",
+            "mode": "fill"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "y0RApB",
+          "x": 1542,
+          "y": 710,
+          "name": "Pouch tradeoff",
+          "fill": "#ECE5D6",
+          "textGrowth": "fixed-width",
+          "width": 448,
+          "content": "CLEAR / FROSTED RESEALABLE POUCH\n\nSticker Mule retail pack relative.\nPoly film + header + rigid paper backer.\nCrisp specular folds, soft film flex.\nZip mouth must open before liner moves.\n\nNot chosen: repeated open/close adds\na barrier to frequent device customization.\nPaper pocket invites returning and browsing.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 14,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "qinMA",
+      "x": 4140,
+      "y": 4820,
+      "name": "PLAYWORN — verified rigid sleeve / runtime storyboard",
+      "width": 2140,
+      "height": 1120,
+      "fill": "#151B1D",
+      "layout": "none",
+      "children": [
+        {
+          "type": "text",
+          "id": "f0xo4",
+          "x": 40,
+          "y": 32,
+          "name": "PW-C01 caption",
+          "fill": "#ECE5D6",
+          "content": "One sleeve. One liner. A device to make yours.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 30,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "KhuIV",
+          "x": 40,
+          "y": 88,
+          "name": "PW-C01 caption",
+          "fill": "#B5BBB5",
+          "content": "ACTUAL RUNTIME / fixed paper sleeve • liner slides through mouth • vinyl peels from a stationary seat",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 14,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "p2nrPW",
+          "x": 40,
+          "y": 160,
+          "name": "PW-C01 — Soundcheck",
+          "width": 760,
+          "height": 535,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/tactile-runtime-desktop-open-sheet.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "frame",
+          "id": "GYQQj",
+          "x": 850,
+          "y": 160,
+          "name": "PW-C01 — Soundcheck",
+          "width": 375,
+          "height": 812,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/tactile-runtime-mobile-open-sheet.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "frame",
+          "id": "rocMM",
+          "x": 1290,
+          "y": 160,
+          "name": "PW-C01 — Soundcheck",
+          "width": 375,
+          "height": 812,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/tactile-runtime-mobile-reduced-motion-free-drag.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "frame",
+          "id": "qHaBI",
+          "x": 1730,
+          "y": 160,
+          "name": "PW-C01 — Soundcheck",
+          "width": 375,
+          "height": 812,
+          "fill": {
+            "type": "image",
+            "enabled": true,
+            "url": "images/tactile-runtime-mobile-lower-rear-preview.png",
+            "mode": "fit"
+          },
+          "layout": "none"
+        },
+        {
+          "type": "text",
+          "id": "ZMzjA",
+          "x": 40,
+          "y": 734,
+          "name": "PW-C01 caption",
+          "fill": "#ECE5D6",
+          "textGrowth": "fixed-width",
+          "width": 720,
+          "content": "01 / Browse a printed genre sleeve. Pull out its same-size liner.\n\n02 / Five kiss-cut seats: earned vinyl, future artwork, vacant die-cut impression.\n\n03 / Peel resists until the last edge releases. Free vinyl follows the pointer.\n\n04 / On a phone, the packet lowers after separation. The device stays still; its lower rear remains visible.\n\n05 / Missed drops return continuously. Put away retracts the liner before lowering the sleeve.",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 16,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "w1SPA",
+          "x": 850,
+          "y": 1000,
+          "name": "PW-C01 caption",
+          "fill": "#B5BBB5",
+          "content": "LINER OPEN / rear re-framed upward",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 13,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "jz41S",
+          "x": 1290,
+          "y": 1000,
+          "name": "PW-C01 caption",
+          "fill": "#B5BBB5",
+          "content": "DETACHED / packet makes room",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 13,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "SZDEI",
+          "x": 1730,
+          "y": 1000,
+          "name": "PW-C01 caption",
+          "fill": "#B5BBB5",
+          "content": "LOWER REAR / visible landing",
+          "fontFamily": "IBM Plex Mono",
+          "fontSize": 13,
+          "fontWeight": "normal"
+        }
+      ]
     }
   ],
   "fileToken": "e77f84ac-e2d7-4d47-9502-dbd292ebdb42"

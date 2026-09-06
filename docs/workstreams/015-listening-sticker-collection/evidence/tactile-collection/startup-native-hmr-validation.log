@@ -1,0 +1,59 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/dev-startup.integration.test.ts:
+(pass) canonical dev keeps Bun and root env semantics while loading TypeScript config natively [0.21ms]
+9676 |
+9677 | // packages/utils/stackTrace.ts
+9678 | function captureRawStack() {
+9679 |   const stackTraceLimit = Error.stackTraceLimit;
+9680 |   Error.stackTraceLimit = 50;
+9681 |   const error = new Error();
+                           ^
+error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "observed"
+Received: null
+
+Call Log:
+- Timeout 15000ms exceeded while waiting on the predicate
+ matcherResult: {
+  pass: false,
+  message: "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"observed\"\nReceived: null\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate",
+  name: "toBe",
+},
+
+      at captureRawStack (/Users/vinicius/code/webPod/node_modules/.bun/playwright-core@1.62.1/node_modules/playwright-core/lib/coreBundle.js:9681:21)
+      at callMatcherAsStep (/Users/vinicius/code/webPod/node_modules/.bun/playwright@1.62.1/node_modules/playwright/lib/matchers/expect.js:13310:57)
+      at /Users/vinicius/code/webPod/apps/web/scripts/dev-startup.integration.test.ts:103:221
+      at processTicksAndRejections (native:7:39)
+(fail) root shipped dev script renders both product routes and loads anonymous SQLite transport [24708.75ms]
+9676 |
+9677 | // packages/utils/stackTrace.ts
+9678 | function captureRawStack() {
+9679 |   const stackTraceLimit = Error.stackTraceLimit;
+9680 |   Error.stackTraceLimit = 50;
+9681 |   const error = new Error();
+                           ^
+error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "observed"
+Received: null
+
+Call Log:
+- Timeout 15000ms exceeded while waiting on the predicate
+ matcherResult: {
+  pass: false,
+  message: "expect(received).toBe(expected) // Object.is equality\n\nExpected: \"observed\"\nReceived: null\n\nCall Log:\n- Timeout 15000ms exceeded while waiting on the predicate",
+  name: "toBe",
+},
+
+      at captureRawStack (/Users/vinicius/code/webPod/node_modules/.bun/playwright-core@1.62.1/node_modules/playwright-core/lib/coreBundle.js:9681:21)
+      at callMatcherAsStep (/Users/vinicius/code/webPod/node_modules/.bun/playwright@1.62.1/node_modules/playwright/lib/matchers/expect.js:13310:57)
+      at /Users/vinicius/code/webPod/apps/web/scripts/dev-startup.integration.test.ts:103:221
+      at processTicksAndRejections (native:7:39)
+(fail) app shipped dev script renders both product routes and loads anonymous SQLite transport [25627.30ms]
+
+ 1 pass
+ 2 fail
+ 2021 expect() calls
+Ran 3 tests across 1 file. [50.47s]

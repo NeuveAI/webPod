@@ -1,0 +1,135 @@
+{
+  "diagnosis": "Repeated pre-readiness stall on default bundled config; exact upstream cause not claimed",
+  "runtime": "Bun 1.4.0 / Vite 8.2.2",
+  "baselineFailureDeadlineMs": 45000,
+  "baselineStallsReproduced": 3,
+  "shippedRepeatedGate": {
+    "passes": 9,
+    "failures": 0,
+    "assertions": 6075,
+    "rootLaunches": 3,
+    "appLaunches": 3,
+    "durationSeconds": 84.84,
+    "sourceFingerprint": "5ee3af207b4b7f13d1829b88f7936ce6a99ec45e875bf435574b5b023ee298ab",
+    "log": "startup-runner-shipped-validation.log",
+    "checks": [
+      "canonical root env/cwd and Bun runtime",
+      "root and spike SSR routes reach T1",
+      "anonymous native SQLite HTTP transport",
+      "no Bun or server implementation in client modules",
+      "CSS HMR",
+      "main config restart applies response header",
+      "imported config helper restart applies changed header",
+      "final route render after both restarts"
+    ]
+  },
+  "rootEnvAndCwdPreserved": true,
+  "timeoutIncreased": false,
+  "automaticRetryAdded": false,
+  "cacheSharedWithUser": false,
+  "selectedConfigLoader": "runner",
+  "rejectedNativeCandidate": {
+    "reason": "Installed native config reload retained stale main-config and imported-helper values",
+    "readinessProbes": [
+      {
+        "ready": true,
+        "durationMs": 1645,
+        "exit": "null",
+        "sourceFingerprint": "871f4e90be5d81a5b86b6d9f0dbe12f4a9e64318743fac79dffefe0e9cca431b"
+      },
+      {
+        "ready": true,
+        "durationMs": 1646,
+        "exit": "null",
+        "sourceFingerprint": "871f4e90be5d81a5b86b6d9f0dbe12f4a9e64318743fac79dffefe0e9cca431b"
+      },
+      {
+        "ready": true,
+        "durationMs": 1649,
+        "exit": "null",
+        "sourceFingerprint": "871f4e90be5d81a5b86b6d9f0dbe12f4a9e64318743fac79dffefe0e9cca431b"
+      },
+      {
+        "ready": true,
+        "durationMs": 1644,
+        "exit": "null",
+        "sourceFingerprint": "871f4e90be5d81a5b86b6d9f0dbe12f4a9e64318743fac79dffefe0e9cca431b"
+      },
+      {
+        "ready": true,
+        "durationMs": 1642,
+        "exit": "null",
+        "sourceFingerprint": "871f4e90be5d81a5b86b6d9f0dbe12f4a9e64318743fac79dffefe0e9cca431b"
+      },
+      {
+        "ready": true,
+        "durationMs": 1645,
+        "exit": "null",
+        "sourceFingerprint": "871f4e90be5d81a5b86b6d9f0dbe12f4a9e64318743fac79dffefe0e9cca431b"
+      },
+      {
+        "ready": true,
+        "durationMs": 1550,
+        "exit": "null",
+        "sourceFingerprint": "871f4e90be5d81a5b86b6d9f0dbe12f4a9e64318743fac79dffefe0e9cca431b"
+      },
+      {
+        "ready": true,
+        "durationMs": 1654,
+        "exit": "null",
+        "sourceFingerprint": "871f4e90be5d81a5b86b6d9f0dbe12f4a9e64318743fac79dffefe0e9cca431b"
+      }
+    ]
+  },
+  "isolatedRunnerConfigProbes": [
+    {
+      "ready": true,
+      "durationMs": 1741,
+      "exit": "null",
+      "sourceFingerprint": "93d646974c2a1ca4020c8d9f5e138730a09b944651fb0b6e4cb12cb1104b93be"
+    },
+    {
+      "ready": true,
+      "durationMs": 1643,
+      "exit": "null",
+      "sourceFingerprint": "93d646974c2a1ca4020c8d9f5e138730a09b944651fb0b6e4cb12cb1104b93be"
+    },
+    {
+      "ready": true,
+      "durationMs": 1638,
+      "exit": "null",
+      "sourceFingerprint": "93d646974c2a1ca4020c8d9f5e138730a09b944651fb0b6e4cb12cb1104b93be"
+    },
+    {
+      "ready": true,
+      "durationMs": 1742,
+      "exit": "null",
+      "sourceFingerprint": "93d646974c2a1ca4020c8d9f5e138730a09b944651fb0b6e4cb12cb1104b93be"
+    },
+    {
+      "ready": true,
+      "durationMs": 1745,
+      "exit": "null",
+      "sourceFingerprint": "93d646974c2a1ca4020c8d9f5e138730a09b944651fb0b6e4cb12cb1104b93be"
+    },
+    {
+      "ready": true,
+      "durationMs": 1638,
+      "exit": "null",
+      "sourceFingerprint": "93d646974c2a1ca4020c8d9f5e138730a09b944651fb0b6e4cb12cb1104b93be"
+    },
+    {
+      "ready": true,
+      "durationMs": 1637,
+      "exit": "null",
+      "sourceFingerprint": "93d646974c2a1ca4020c8d9f5e138730a09b944651fb0b6e4cb12cb1104b93be"
+    },
+    {
+      "ready": true,
+      "durationMs": 1645,
+      "exit": "null",
+      "sourceFingerprint": "93d646974c2a1ca4020c8d9f5e138730a09b944651fb0b6e4cb12cb1104b93be"
+    }
+  ],
+  "restartHarnessCorrection": "Await route T1 after CSS-triggered SSR reload; consume probe response bodies and use Connection: close for restart probes. No independent production teardown defect claimed."
+}
