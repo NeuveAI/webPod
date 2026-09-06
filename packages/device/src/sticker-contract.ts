@@ -60,6 +60,13 @@ export interface StickerProjectedQuad {
   readonly edges: readonly [StickerScreenPoint, StickerScreenPoint, StickerScreenPoint, StickerScreenPoint];
   readonly center: StickerScreenPoint;
 }
+export interface StickerProjectedContour {
+  /** Closed actual alpha boundary loops, including holes; no duplicate closing point. */
+  readonly paths: readonly (readonly StickerScreenPoint[])[];
+  /** External boundary anchors in artwork-local TL/TR/BR/BL sectors. */
+  readonly anchors: readonly [StickerScreenPoint, StickerScreenPoint, StickerScreenPoint, StickerScreenPoint];
+  readonly center: StickerScreenPoint;
+}
 export interface StickerTransformPlane {
   /** Frozen, unbounded rear coordinates. Cancel the gesture on viewport/pose changes. */
   readonly project: (clientX: number, clientY: number) => StickerScreenPoint | null;
@@ -67,6 +74,7 @@ export interface StickerTransformPlane {
 
 /** Runtime camera handle; never persist this or put it in Jotai user data. */
 export interface StickerRearProjection {
+  readonly contour?: (placement: DeviceStickerPlacement) => StickerProjectedContour | null;
   readonly quad?: (placement: DeviceStickerPlacement) => StickerProjectedQuad | null;
   readonly beginTransform?: (placement: DeviceStickerPlacement) => StickerTransformPlane | null;
   readonly project: (clientX: number, clientY: number) => {readonly x: number; readonly y: number} | null;

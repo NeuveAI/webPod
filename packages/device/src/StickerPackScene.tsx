@@ -1,3 +1,4 @@
+import { projectedStickerContour } from './sticker-contour';
 import { useThree } from '@react-three/fiber';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { BackSide, DoubleSide, FrontSide, Group, Mesh, Raycaster, Vector2, Vector3 } from 'three';
@@ -110,6 +111,9 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
     }, quad(placement: import('./sticker-contract').DeviceStickerPlacement) {
       const print = scene.getObjectByName('device-equipped-stickers')?.getObjectByName(`sticker-${placement.stickerId}`);
       return print instanceof Mesh ? stickerProjectedQuad(print, camera, gl.domElement.getBoundingClientRect()) : null;
+    }, contour(placement: import('./sticker-contract').DeviceStickerPlacement) {
+      const print = scene.getObjectByName('device-equipped-stickers')?.getObjectByName(`sticker-${placement.stickerId}`);
+      return print instanceof Mesh ? projectedStickerContour(print, camera, gl.domElement.getBoundingClientRect(), placement.wear ?? 0) : null;
     }, beginTransform(placement: import('./sticker-contract').DeviceStickerPlacement) {
       const print = scene.getObjectByName('device-equipped-stickers')?.getObjectByName(`sticker-${placement.stickerId}`);
       const content = scene.getObjectByName(DEVICE_CONTENT_NAME);

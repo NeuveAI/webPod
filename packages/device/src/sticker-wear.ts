@@ -1,7 +1,9 @@
 import type { MeshPhysicalMaterial } from 'three';
+import { prepareStickerDamage } from './sticker-alpha';
 
 /** One uniform owner is intentionally shared by preparation clones and the live print. */
-export function applyStickerWear(material: MeshPhysicalMaterial, stickerId: string) {
+export function applyStickerWear(material: MeshPhysicalMaterial, stickerId: string, backing = false) {
+  const field = material.map === null ? null : prepareStickerDamage(material.map, stickerId);
   const amount = { value: 0 };
   let seed = 2166136261;
   for (const character of stickerId) seed = Math.imul(seed ^ character.charCodeAt(0), 16777619);
@@ -9,21 +11,39 @@ export function applyStickerWear(material: MeshPhysicalMaterial, stickerId: stri
   const patch = (shader: Pick<Parameters<MeshPhysicalMaterial['onBeforeCompile']>[0], 'uniforms' | 'fragmentShader'>) => {
     shader.uniforms['stickerWear'] = amount;
     shader.uniforms['stickerWearSeed'] = identity;
+    shader.uniforms['stickerDamageField'] = { value: field?.texture ?? null };
+    shader.uniforms['stickerDamageEnabled'] = { value: field !== null };
     shader.fragmentShader = `uniform float stickerWear;
       uniform float stickerWearSeed;
+      uniform sampler2D stickerDamageField;
+      uniform bool stickerDamageEnabled;
       float stickerDamage = 0.0;
       float stickerHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7)) + stickerWearSeed) * 43758.5453); }
+      float stickerNoise(vec2 p) {
+        vec2 cell = floor(p); vec2 f = fract(p); f = f * f * (3.0 - 2.0 * f);
+        return mix(mix(stickerHash(cell), stickerHash(cell + vec2(1.0, 0.0)), f.x), mix(stickerHash(cell + vec2(0.0, 1.0)), stickerHash(cell + vec2(1.0)), f.x), f.y);
+      }
       ${shader.fragmentShader}`;
     shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>
       #ifdef USE_MAP
-      if (stickerWear > 0.0) {
+      if (stickerDamageEnabled && stickerWear > 0.0) {
+        float damageOnset = texture2D(stickerDamageField, vMapUv).r;
+        diffuseColor.a *= 1.0 - step(damageOnset, stickerWear) * (1.0 - step(0.999, damageOnset));
+      }
+      ${backing ? 'diffuseColor.rgb = vec3(0.66, 0.60, 0.49);' : ''}
+      if (stickerWear > 0.0 && ${backing ? 'false' : 'true'}) {
         vec2 uv = vMapUv;
         vec2 edgeStep = vec2(0.012);
         float adjacentAlpha = min(min(texture2D(map, uv + vec2(edgeStep.x, 0.0)).a, texture2D(map, uv - vec2(edgeStep.x, 0.0)).a), min(texture2D(map, uv + vec2(0.0, edgeStep.y)).a, texture2D(map, uv - vec2(0.0, edgeStep.y)).a));
-        float edgeScuff = (1.0 - smoothstep(0.1, 0.9, adjacentAlpha)) * smoothstep(0.28, 0.78, stickerHash(floor(uv * 61.0)));
-        float abrasionPatch = smoothstep(0.91, 0.99, stickerHash(floor(uv * vec2(49.0, 57.0)))) * step(0.3, stickerHash(floor(uv * 213.0)));
-        float line = abs(fract(uv.y * 23.0 + uv.x * 6.0 + stickerWearSeed) - 0.5);
-        float hairline = (1.0 - smoothstep(0.015, 0.045, line)) * step(0.7, stickerHash(floor(uv * vec2(9.0, 23.0))));
+        float edgeScuff = (1.0 - smoothstep(0.1, 0.9, adjacentAlpha)) * smoothstep(0.35, 0.8, stickerNoise(uv * 95.0));
+        float abrasionPatch = smoothstep(0.72, 0.92, stickerNoise(uv * vec2(91.0, 113.0))) * smoothstep(0.35, 0.8, stickerNoise(uv * 281.0));
+        vec2 scratchCell = floor(uv * 12.0);
+        vec2 scratchLocal = fract(uv * 12.0) - 0.5;
+        float scratchAngle = stickerHash(scratchCell) * 6.283185;
+        vec2 scratchAxis = vec2(cos(scratchAngle), sin(scratchAngle));
+        float scratchAlong = dot(scratchLocal, scratchAxis);
+        float scratchAcross = abs(dot(scratchLocal, vec2(-scratchAxis.y, scratchAxis.x)));
+        float hairline = (1.0 - smoothstep(0.012, 0.035, scratchAcross)) * (1.0 - smoothstep(0.15, 0.42, abs(scratchAlong))) * step(0.45, stickerHash(scratchCell + 7.0));
         stickerDamage = clamp(stickerWear * (edgeScuff * 0.95 + abrasionPatch * 0.65 + hairline * 0.8), 0.0, 0.9);
         diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.72, 0.68, 0.58), stickerDamage);
       }
@@ -32,6 +52,6 @@ export function applyStickerWear(material: MeshPhysicalMaterial, stickerId: stri
     shader.fragmentShader = shader.fragmentShader.replace('#include <lights_physical_fragment>', '#include <lights_physical_fragment>\n #ifdef USE_CLEARCOAT\n material.clearcoat *= 1.0 - stickerDamage * 0.8;\n material.clearcoatRoughness = mix(material.clearcoatRoughness, 0.95, stickerDamage);\n #endif');
   };
   material.onBeforeCompile = patch;
-  material.customProgramCacheKey = () => 'webpod-sticker-wear-v1';
+  material.customProgramCacheKey = () => `webpod-sticker-wear-v3-${backing ? 'back' : 'front'}`;
   return { amount, identity, patch, set(value: number) { amount.value = Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0; } };
 }

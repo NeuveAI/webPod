@@ -63,11 +63,10 @@ export function StickerPrint({ art, geometry, roughness, finishEnabled, onError,
       front.clearcoat = 0;
     }
     const back = new MeshPhysicalMaterial({ ...shared, side: BackSide, clearcoat: 0 });
-    back.onBeforeCompile = vinylBackingShader;
-    back.customProgramCacheKey = () => "webpod-sticker-backing-v1";
-    return { front, back, wearing };
+    const backingWear = applyStickerWear(back, art.id, true);
+    return { front, back, wearing, backingWear };
   }, [texture, roughness, studio.texture, finishEnabled, appearance, art.id]);
-  useLayoutEffect(() => { materials.wearing.set(appearance === 'earned' ? wear : 0); invalidate(); }, [materials, wear, appearance, invalidate]);
+  useLayoutEffect(() => { materials.wearing.set(appearance === 'earned' ? wear : 0); materials.backingWear.set(appearance === 'earned' ? wear : 0); invalidate(); }, [materials, wear, appearance, invalidate]);
   useEffect(() => () => { materials.front.dispose(); materials.back.dispose(); }, [materials]);
   if (texture === null) return null;
   // Meshes borrow geometry/maps. Their owners dispose those, while this component
@@ -77,8 +76,3 @@ export function StickerPrint({ art, geometry, roughness, finishEnabled, onError,
     <mesh name={`sticker-backing-${art.id}`} geometry={geometry} material={materials.back} dispose={null} raycast={() => {}} renderOrder={3} />
   </group>;
 }
-
-/** Keep source alpha/UV exactly while the peeled adhesive underside remains unprinted. */
-const vinylBackingShader: MeshPhysicalMaterial["onBeforeCompile"] = (shader) => {
-  shader.fragmentShader = shader.fragmentShader.replace("#include <map_fragment>", "#include <map_fragment>\n diffuseColor.rgb = vec3(0.66, 0.60, 0.49);");
-};

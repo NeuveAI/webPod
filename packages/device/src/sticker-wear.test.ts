@@ -10,7 +10,7 @@ test('wear changes one retained uniform without material versions or shader vari
   for (let index = 0; index <= 100; index++) { wear.set(index / 100); expect(shader.uniforms['stickerWear']).toBe(wear.amount); expect(front.version).toBe(version); expect(front.customProgramCacheKey()).toBe(key); }
   expect(wear.amount.value).toBe(1); wear.set(0); expect(wear.amount.value).toBe(0);
   expect(shader.fragmentShader).not.toContain('diffuseColor.a =');
-  expect(shader.fragmentShader).not.toContain('diffuseColor.a *=');
+  expect(shader.fragmentShader).toContain('diffuseColor.a *= 1.0 - step(damageOnset, stickerWear)');
   expect(shader.fragmentShader).not.toContain('discard');
   expect(shader.fragmentShader).toContain('material.clearcoatRoughness');
   expect(front.map).toBe(map); front.dispose(); map.dispose();
