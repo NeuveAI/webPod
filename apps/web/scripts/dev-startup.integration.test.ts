@@ -110,7 +110,16 @@ for (const launcher of ['root', 'app'] as const) test(`${launcher} shipped dev s
     } catch { throw new Error(`Config restart did not apply; ${output.slice(-2500)}`) }
     await Bun.write(helperPath, "export const startupMarker = 'second'\n")
     await browserExpect.poll(async () => fetch(origin + '/@vite/client', { headers: { connection: 'close' }, signal: AbortSignal.timeout(1000) }).then(async (response) => { await response.arrayBuffer(); return response.headers.get('x-webpod-config-helper') }).catch(() => null), { timeout: 15_000 }).toBe('second')
-    await page.goto(origin + '/')
+    // Vite may reload independently after its websocket reconnects. Retry only
+    // that navigation cancellation once; all other failures remain fatal.
+    let restartedDocument: Awaited<ReturnType<typeof page.goto>> = null
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try { restartedDocument = await page.goto(origin + '/'); break }
+      catch (error) {
+        if (attempt !== 0 || !(error instanceof Error) || !error.message.includes('net::ERR_ABORTED')) throw error
+      }
+    }
+    expect(restartedDocument?.status()).toBe(200)
     await browserExpect(page.locator('.webpod-device-preview__device')).toHaveAttribute('data-composite-tier', 'T1', { timeout: 30_000 })
     expect(browserErrors).toEqual([])
     expect(output).not.toMatch(/Cannot find module ["']bun|Failed to resolve dependency: bun|Failed to run dependency scan|could not be resolved|Internal server error/)
