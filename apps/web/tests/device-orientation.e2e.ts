@@ -1,4 +1,6 @@
 import { expect, test, type Page } from '../../../packages/panel/node_modules/@playwright/test/index.mjs'
+import { mkdirSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { DEVICE_LAYOUT } from '../../../packages/device/src/layout'
 
 test.use({
@@ -9,11 +11,11 @@ test.use({
 })
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
   const device = page.locator('.webpod-device-preview__device')
-  await expect(device).toHaveAttribute('data-composite-tier', 'T1')
+  await expect(device).toHaveAttribute('data-composite-tier', 'T1', { timeout: 20_000 })
   await expect
-    .poll(() => device.locator('canvas').getAttribute('data-wp-camera-fit-distance'))
+    .poll(() => device.locator('canvas').getAttribute('data-wp-camera-fit-distance'), { timeout: 20_000 })
     .not.toBeNull()
   await resetOrientation(page)
 })
@@ -60,7 +62,7 @@ test('pointer release keeps moving across frames and a fast flick lands on the o
   const atRelease = await orientation(page)
   expect(
     Math.abs(Number(await stage.getAttribute('data-orientation-release-yaw-velocity'))),
-  ).toBeGreaterThanOrEqual(340)
+  ).toBeGreaterThanOrEqual(280)
   expect(await stage.getAttribute('data-orientation-motion')).toBe('opposite-face')
   const laterFrames: number[] = []
   for (let frame = 0; frame < 4; frame += 1) {
@@ -76,17 +78,14 @@ test('pointer release keeps moving across frames and a fast flick lands on the o
   await expect(stage).not.toHaveAttribute('data-orientation-motion')
 })
 
-test('ordinary production coast scales with measured release velocity', async ({ page }) => {
-  const slow = await measureOrdinaryRelease(page, 14, 30)
-  const fast = await measureOrdinaryRelease(page, 18, 25)
-
-  expect(slow.velocity).toBeGreaterThan(0)
-  expect(fast.velocity).toBeGreaterThan(slow.velocity * 1.25)
-  expect(fast.travel).toBeGreaterThan(slow.travel * 1.25)
-  expect(fast.travel / fast.velocity).toBeCloseTo(
-    slow.travel / slow.velocity,
-    2,
-  )
+test('slow deliberate drag settles a face and tiny held drag returns front', async ({ page }) => {
+  const box = await projectedDeviceBox(page)
+  const edge = { x: box.left + box.width * 0.025, y: box.top + box.height * 0.5 }
+  await drag(page, edge, { x: edge.x + 240, y: edge.y })
+  await expect.poll(async () => (await orientation(page)).yawDeg).toBe(180)
+  await resetOrientation(page)
+  await drag(page, edge, { x: edge.x + 40, y: edge.y })
+  await expect.poll(async () => (await orientation(page)).yawDeg).toBe(0)
 })
 
 test('front center, LCD, click wheel, and Select do not begin orientation', async ({ page }) => {
@@ -187,7 +186,7 @@ test('edge drag reaches the rear, pitch is bounded, and Option drag rolls', asyn
     y: rearBox.top + rearBox.height * 0.5,
   }
   await drag(page, rearEdge, { x: rearEdge.x + 20, y: rearEdge.y })
-  await expect.poll(async () => (await orientation(page)).yawDeg).toBeLessThan(-170)
+  await expect.poll(async () => (await orientation(page)).yawDeg).toBe(180)
 
   await resetOrientation(page)
   await drag(page, edge, { x: edge.x, y: edge.y + 400 })
@@ -214,7 +213,7 @@ test('a projected rounded corner is an orientation handle', async ({ page }) => 
   await page.mouse.move(corner.x, corner.y)
   await expect(stage).toHaveAttribute('data-orientation-grab', 'ready')
   await drag(page, corner, { x: corner.x + 35, y: corner.y + 20 })
-  await expect.poll(async () => (await orientation(page)).yawDeg).toBeGreaterThan(10)
+  await expect.poll(async () => (await orientation(page)).yawDeg).toBe(0)
 })
 
 test('pointer cancellation ends capture and Reset view preserves chosen appearance', async ({ page }) => {
@@ -263,6 +262,107 @@ test('pose presets stay absent and the device stage does not select labels', asy
     'user-select',
     'none',
   )
+})
+
+test('repeated short flicks and fresh reversal stay responsive', async ({ page }) => {
+  const stage = page.locator('.webpod-device-preview__stage')
+  const evidence = resolve(import.meta.dirname, '../../../docs/workstreams/015-listening-sticker-collection/evidence/tactile-flick')
+  mkdirSync(evidence, { recursive: true })
+  for (let repeat = 0; repeat < 4; repeat++) {
+    const box = await projectedDeviceBox(page)
+    const edge = { x: box.left + box.width * 0.025, y: box.top + box.height * 0.5 }
+    await page.mouse.move(edge.x, edge.y)
+    await page.mouse.down()
+    await expect(stage).toHaveAttribute('data-orientation-grab', 'active')
+    await page.waitForTimeout(12)
+    for (const amount of [30, 60, 90]) {
+      await page.mouse.move(edge.x + amount, edge.y)
+      await page.waitForTimeout(8)
+    }
+    await page.mouse.up()
+    await expect(stage).not.toHaveAttribute('data-orientation-motion')
+    await expect.poll(async () => angularErrorDegrees((await orientation(page)).yawDeg, repeat % 2 === 0 ? 180 : 0)).toBeLessThan(0.001)
+    await expect(stage).not.toHaveAttribute('data-orientation-grab', 'active')
+    if (repeat === 0) await page.screenshot({ path: resolve(evidence, 'rear-after-short-flick.png') })
+  }
+  const box = await projectedDeviceBox(page)
+  const edge = { x: box.left + box.width * 0.025, y: box.top + box.height * 0.5 }
+  await page.mouse.move(edge.x, edge.y)
+  await page.mouse.down()
+  await expect(stage).toHaveAttribute('data-orientation-grab', 'active')
+  for (const amount of [25, 50, 75, 100]) {
+    await page.waitForTimeout(12)
+    await page.mouse.move(edge.x + amount, edge.y)
+  }
+  await page.waitForTimeout(20)
+  await page.mouse.move(edge.x + 50, edge.y)
+  await page.mouse.up()
+  expect(Number(await stage.getAttribute('data-orientation-release-yaw-velocity'))).toBeLessThan(0)
+  await expect(stage).not.toHaveAttribute('data-orientation-motion')
+  await expect.poll(async () => angularErrorDegrees((await orientation(page)).yawDeg, 180)).toBeLessThan(0.001)
+  await resetOrientation(page)
+  // Probe wheel after repeated captures; it must never initiate enclosure drag.
+  const wheel = devicePoint(box, DEVICE_LAYOUT.wheel.centerX, DEVICE_LAYOUT.wheel.centerY)
+  await page.mouse.click(wheel.x, wheel.y)
+  expect(await orientation(page)).toEqual({ pitchDeg: 0, yawDeg: 0, rollDeg: 0 })
+  await page.screenshot({ path: resolve(evidence, 'front-after-repeated-flicks.png') })
+})
+
+test('native lost capture settles and an in-flight grab follows its caught pose', async ({ page }) => {
+  const stage = page.locator('.webpod-device-preview__stage')
+  const box = await projectedDeviceBox(page)
+  const edge = { x: box.left + box.width * 0.025, y: box.top + box.height * 0.5 }
+  await page.mouse.move(edge.x, edge.y)
+  await page.mouse.down()
+  await page.mouse.move(edge.x + 240, edge.y)
+  const pointerId = Number(await stage.getAttribute('data-orientation-pointer-id'))
+  await page.locator('.webpod-device-preview canvas').evaluate((canvas, id) => {
+    if (!canvas.hasPointerCapture(id)) throw new Error('native canvas capture missing')
+    canvas.releasePointerCapture(id)
+  }, pointerId)
+  // Browsers process pending capture changes before the next pointer event.
+  await page.mouse.move(edge.x + 241, edge.y)
+  await expect(stage).not.toHaveAttribute('data-orientation-grab', 'active')
+  await page.mouse.up()
+  await expect.poll(async () => (await orientation(page)).yawDeg).toBe(180)
+  await resetOrientation(page)
+  await page.mouse.move(edge.x, edge.y)
+  await page.mouse.down()
+  for (const amount of [30, 60, 90]) {
+    await page.waitForTimeout(12)
+    await page.mouse.move(edge.x + amount, edge.y)
+  }
+  await page.mouse.up()
+  await expect(stage).toHaveAttribute('data-orientation-motion', 'opposite-face')
+  // The top midpoint remains on the enclosure as yaw changes; catch the actual
+  // mesh through the normal raycast, without setting orientation or time.
+  const top = { x: box.left + box.width / 2, y: box.top + box.height * 0.015 }
+  await page.mouse.move(top.x, top.y)
+  await page.mouse.down()
+  await expect(stage).toHaveAttribute('data-orientation-grab', 'active')
+  const caught = await orientation(page)
+  expect(Math.abs(caught.yawDeg)).toBeLessThan(179.9)
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))))
+  expect(await orientation(page)).toEqual(caught)
+  await page.mouse.move(top.x - 20, top.y)
+  await expect.poll(async () => (await orientation(page)).yawDeg).toBeCloseTo(caught.yawDeg - 8.4, 4)
+  await page.mouse.up()
+  await expect(stage).not.toHaveAttribute('data-orientation-motion')
+})
+
+test('reduced-motion touch release reaches the same rear without an idle animation', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  const box = await projectedDeviceBox(page)
+  const edge = { x: box.left + box.width * 0.025, y: box.top + box.height * 0.5 }
+  const session = await page.context().newCDPSession(page)
+  await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ ...edge, id: 31 }] })
+  for (const amount of [40, 80, 120]) {
+    await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: edge.x + amount, y: edge.y, id: 31 }] })
+    await page.waitForTimeout(12)
+  }
+  await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+  await expect.poll(async () => angularErrorDegrees((await orientation(page)).yawDeg, 180)).toBeLessThan(0.001)
+  await expect(page.locator('.webpod-device-preview__stage')).not.toHaveAttribute('data-orientation-motion')
 })
 
 async function resetOrientation(page: Page): Promise<void> {
@@ -335,40 +435,6 @@ async function drag(
   // must not be replayed as inertia; deliberate flick tests release immediately.
   await page.waitForTimeout(90)
   await page.mouse.up()
-}
-
-async function measureOrdinaryRelease(
-  page: Page,
-  stepPixels: number,
-  waitMs: number,
-): Promise<{
-  readonly velocity: number
-  readonly travel: number
-}> {
-  await resetOrientation(page)
-  const box = await projectedDeviceBox(page)
-  const start = {
-    x: box.left + box.width * 0.025,
-    y: box.top + box.height * 0.5,
-  }
-  const stage = page.locator('.webpod-device-preview__stage')
-  await page.mouse.move(start.x, start.y)
-  await page.mouse.down()
-  for (const multiplier of [1, 2, 3]) {
-    await page.mouse.move(start.x + stepPixels * multiplier, start.y)
-    await page.waitForTimeout(waitMs)
-  }
-  await page.mouse.up()
-  const velocity = Number(
-    await stage.getAttribute('data-orientation-release-yaw-velocity'),
-  )
-  await expect(stage).not.toHaveAttribute('data-orientation-motion')
-  const settled = await orientation(page)
-  const directYawDeg = stepPixels * 3 * 0.42
-  return {
-    velocity,
-    travel: settled.yawDeg - directYawDeg,
-  }
 }
 
 function angularErrorDegrees(value: number, target: number): number {

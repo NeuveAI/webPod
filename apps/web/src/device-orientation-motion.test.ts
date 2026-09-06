@@ -38,7 +38,7 @@ describe('device release motion', () => {
         ],
         200,
       ),
-    ).toEqual({ xPxPerSecond: 0, yPxPerSecond: 0 })
+    ).toEqual({ xImpulseTravelPx: 0, xPxPerSecond: 0, yPxPerSecond: 0 })
     expect(
       estimatePointerReleaseVelocity(
         [
@@ -47,10 +47,10 @@ describe('device release motion', () => {
         ],
         20,
       ),
-    ).toEqual({ xPxPerSecond: 0, yPxPerSecond: 0 })
+    ).toEqual({ xImpulseTravelPx: 0, xPxPerSecond: 0, yPxPerSecond: 0 })
   })
 
-  test('ordinary coast is time-based at 30, 60, 120 and variable frame rates', () => {
+  test('face settling is time-based at 30, 60, 120 and variable frame rates', () => {
     const velocity = {
       pitchDegPerSecond: 80,
       yawDegPerSecond: 360,
@@ -91,7 +91,7 @@ describe('device release motion', () => {
     expect(results[0]?.orientation.yawDeg).toBeGreaterThan(15)
   })
 
-  test('ordinary release travel is proportional to measured release velocity', () => {
+  test('release retains more forward travel with higher velocity before the same destination', () => {
     const start = { pitchDeg: 0, yawDeg: 12, rollDeg: 0 }
     const slow = beginDeviceOrientationRelease(
       start,
@@ -114,7 +114,9 @@ describe('device release motion', () => {
     const fastTravel = fastFrame.orientation.yawDeg - start.yawDeg
 
     expect(slowTravel).toBeGreaterThan(0)
-    expect(fastTravel).toBeCloseTo(slowTravel * 2, 10)
+    expect(fastTravel).toBeGreaterThan(slowTravel)
+    expect(runToRest(slow, 1 / 60).orientation.yawDeg).toBe(0)
+    expect(runToRest(fast, 1 / 60).orientation.yawDeg).toBe(0)
   })
 
   for (const testCase of [
@@ -170,7 +172,7 @@ describe('device release motion', () => {
   })
 
   test('the flick threshold and edge-hemisphere tie are deterministic', () => {
-    expect(ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND).toBe(340)
+    expect(ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND).toBe(280)
     const below = beginDeviceOrientationRelease(
       { pitchDeg: 0, yawDeg: 90, rollDeg: 0 },
       { pitchDeg: 0, yawDeg: 100, rollDeg: 0 },
@@ -190,7 +192,7 @@ describe('device release motion', () => {
       false,
     )
 
-    expect(below.motion?.kind).toBe('coast')
+    expect(below.motion?.kind).toBe('face-settle')
     expect(at.motion?.kind).toBe('opposite-face')
     expect(at.motion?.targetYawDeg).toBe(180)
   })
@@ -205,7 +207,7 @@ describe('device release motion', () => {
     const ordinary = beginDeviceOrientationRelease(
       { pitchDeg: 10, yawDeg: 0, rollDeg: 2 },
       { pitchDeg: 10, yawDeg: 30, rollDeg: 2 },
-      { ...ZERO_VELOCITY, yawDegPerSecond: 300 },
+      { ...ZERO_VELOCITY, yawDegPerSecond: 200 },
       true,
     )
 
@@ -214,7 +216,7 @@ describe('device release motion', () => {
       motion: null,
     })
     expect(ordinary).toEqual({
-      orientation: { pitchDeg: 10, yawDeg: 30, rollDeg: 2 },
+      orientation: { pitchDeg: 10, yawDeg: 0, rollDeg: 2 },
       motion: null,
     })
   })

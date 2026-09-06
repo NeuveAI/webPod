@@ -177,6 +177,12 @@ export function bindDeviceOrientationControls(
   let motionFrame: number | null = null
   let lastMotionFrameMs = 0
   let grabbable = false
+  let publishing = false
+  let observedOrientation = store.getSnapshot().orientation
+  const publishOrientation = (orientation: DeviceOrientation) => {
+    publishing = true
+    try { return store.setOrientation(orientation) } finally { publishing = false }
+  }
 
   const reflectAffordance = () => {
     if (active !== null) {
@@ -211,8 +217,10 @@ export function bindDeviceOrientationControls(
     if (current === null) return
     const elapsedSeconds = (timestampMs - lastMotionFrameMs) / 1_000
     lastMotionFrameMs = timestampMs
-    const advanced = advanceDeviceOrientationRelease(current, elapsedSeconds)
-    store.setOrientation(advanced.orientation)
+    const advanced = motionEnvironment.reducedMotion()
+      ? { orientation: { ...current.orientation, yawDeg: current.targetYawDeg }, motion: null }
+      : advanceDeviceOrientationRelease(current, elapsedSeconds)
+    publishOrientation(advanced.orientation)
     releaseMotion = advanced.motion
     reflectAffordance()
     if (releaseMotion !== null) {
@@ -220,9 +228,9 @@ export function bindDeviceOrientationControls(
     }
   }
 
-  const beginReleaseMotion = (grab: ActiveOrientationGrab, timestampMs: number) => {
+  const beginReleaseMotion = (grab: ActiveOrientationGrab, timestampMs: number, cancelled = false) => {
     const pointerVelocity = estimatePointerReleaseVelocity(
-      grab.samples,
+      cancelled ? [] : grab.samples,
       timestampMs,
     )
     const deviceVelocity = pointerVelocityToDeviceVelocity(
@@ -236,8 +244,9 @@ export function bindDeviceOrientationControls(
       grab.currentOrientation,
       deviceVelocity,
       motionEnvironment.reducedMotion(),
+      pointerVelocity.xImpulseTravelPx * DEVICE_ORIENTATION_DRAG_GAIN.yawDegPerPixel,
     )
-    store.setOrientation(release.orientation)
+    publishOrientation(release.orientation)
     releaseMotion = release.motion
     if (releaseMotion !== null) {
       lastMotionFrameMs = motionEnvironment.now()
@@ -276,12 +285,12 @@ export function bindDeviceOrientationControls(
 
   const begin = (start: DeviceOrientationGrabStart): boolean => {
     if (active !== null) return false
-    stopMotion()
     try {
       start.capture.setPointerCapture(start.pointerId)
     } catch {
       return false
     }
+    stopMotion()
 
     const onMove: EventListener = (event) => {
       const current = active
@@ -292,7 +301,7 @@ export function bindDeviceOrientationControls(
       updateGrab(
         current,
         pointer,
-        store,
+        { setOrientation: publishOrientation },
       )
     }
     const onRelease: EventListener = (event) => {
@@ -305,18 +314,24 @@ export function bindDeviceOrientationControls(
       ) {
         return
       }
-      updateGrab(current, pointer, store)
+      updateGrab(current, pointer, { setOrientation: publishOrientation })
       const released = finish(pointer.pointerId, true)
       if (released !== null) beginReleaseMotion(released, pointer.timestampMs)
       if (released !== null && event.cancelable) event.preventDefault()
     }
     const onCancel: EventListener = (event) => {
       const pointerId = pointerIdOf(event)
-      if (pointerId !== null) finish(pointerId, false)
+      if (pointerId !== null) {
+        const cancelled = finish(pointerId, true)
+        if (cancelled !== null) beginReleaseMotion(cancelled, motionEnvironment.now(), true)
+      }
     }
     const onLostCapture: EventListener = (event) => {
       const pointerId = pointerIdOf(event)
-      if (pointerId !== null) finish(pointerId, false)
+      if (pointerId !== null) {
+        const cancelled = finish(pointerId, true)
+        if (cancelled !== null) beginReleaseMotion(cancelled, motionEnvironment.now(), true)
+      }
     }
     const startOrientation = store.getSnapshot().orientation
     active = {
@@ -350,25 +365,28 @@ export function bindDeviceOrientationControls(
     if (event.target !== stage) return
     const keyboard = keyboardInputOf(event)
     if (keyboard === null) return
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home'].includes(keyboard.key)) return
+    const grab = active
+    if (grab !== null) finish(grab.start.pointerId, true)
     stopMotion()
     const step = keyboard.shiftKey ? 12 : 5
     const current = store.getSnapshot().orientation
     if (keyboard.key === 'ArrowLeft') {
-      store.setOrientation(
+      publishOrientation(
         keyboard.altKey
           ? { ...current, rollDeg: current.rollDeg - step }
           : { ...current, yawDeg: current.yawDeg - step },
       )
     } else if (keyboard.key === 'ArrowRight') {
-      store.setOrientation(
+      publishOrientation(
         keyboard.altKey
           ? { ...current, rollDeg: current.rollDeg + step }
           : { ...current, yawDeg: current.yawDeg + step },
       )
     } else if (keyboard.key === 'ArrowUp') {
-      store.setOrientation({ ...current, pitchDeg: current.pitchDeg + step })
+      publishOrientation({ ...current, pitchDeg: current.pitchDeg + step })
     } else if (keyboard.key === 'ArrowDown') {
-      store.setOrientation({ ...current, pitchDeg: current.pitchDeg - step })
+      publishOrientation({ ...current, pitchDeg: current.pitchDeg - step })
     } else if (keyboard.key === 'Home') {
       store.resetOrientation()
     } else {
@@ -378,11 +396,24 @@ export function bindDeviceOrientationControls(
   }
 
   const onBlur: EventListener = () => {
+    const interrupted = active !== null || releaseMotion !== null
     const current = active
     if (current !== null) finish(current.start.pointerId, true)
     stopMotion()
+    const orientation = store.getSnapshot().orientation
+    if (interrupted) publishOrientation({ ...orientation, yawDeg: Math.round(orientation.yawDeg / 180) * 180 })
   }
 
+  const unsubscribe = store.subscribe(() => {
+    const next = store.getSnapshot().orientation
+    const changed = !sameOrientation(observedOrientation, next)
+    observedOrientation = next
+    if (!changed || publishing) return
+    // Reset/preset/tool writes supersede the gesture rather than being undone
+    // by its next animation frame or pointer sample.
+    if (active !== null) finish(active.start.pointerId, true)
+    stopMotion()
+  })
   stage.addEventListener('keydown', onKeyDown)
   blurHost.addEventListener('blur', onBlur)
   return {
@@ -392,6 +423,7 @@ export function bindDeviceOrientationControls(
       reflectAffordance()
     },
     dispose() {
+      unsubscribe()
       const current = active
       if (current !== null) finish(current.start.pointerId, true)
       stopMotion()
@@ -461,7 +493,7 @@ function pointerMoveOf(event: Event, fallbackTimestampMs: number): {
 function updateGrab(
   grab: ActiveOrientationGrab,
   pointer: PointerMotionSample & { readonly pointerId: number },
-  store: DevicePreviewStore,
+  store: Pick<DevicePreviewStore, 'setOrientation'>,
 ): void {
   const deltaX = pointer.clientX - grab.start.clientX
   const deltaY = pointer.clientY - grab.start.clientY
@@ -479,7 +511,8 @@ function updateGrab(
         ? 0
         : deltaX * DEVICE_ORIENTATION_DRAG_GAIN.yawDegPerPixel),
   }
-  grab.samples.push(pointer)
+  const last = grab.samples.at(-1)
+  if (last?.clientX !== pointer.clientX || last.clientY !== pointer.clientY) grab.samples.push(pointer)
   if (grab.samples.length > 12) grab.samples.splice(0, grab.samples.length - 12)
   store.setOrientation(grab.currentOrientation)
 }

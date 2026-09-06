@@ -3,6 +3,15 @@ import {
   type DeviceOrientation,
 } from '@webpod/device'
 
+/* ANIMATION STORYBOARD
+ * grab      stop release motion; follow the pointer directly
+ * release   project recent intent, then spring to a usable front/back face
+ * settle    retain bounded pitch/roll inertia; relinquish the last frame
+ * reduced   publish the same destination immediately
+ */
+export const ORIENTATION_RELEASE_PROJECTION_SECONDS = 0.12
+export const ORIENTATION_FLICK_MIN_TRAVEL_DEG = 8
+
 export const DEVICE_ORIENTATION_DRAG_GAIN = Object.freeze({
   pitchDegPerPixel: 0.28,
   yawDegPerPixel: 0.42,
@@ -16,7 +25,7 @@ export const ORIENTATION_RELEASE_SAMPLE_STALE_MS = 72
 /** Corrupted/coalesced pointer jumps above this rate do not enter inertia. */
 export const ORIENTATION_MAX_POINTER_SPEED_PX_PER_SECOND = 5_000
 /** A deliberate yaw flick always resolves to the opposite starting hemisphere. */
-export const ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND = 340
+export const ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND = 280
 /** Exponential free-coast drag, expressed per second rather than per frame. */
 export const ORIENTATION_COAST_DECAY_PER_SECOND = 7.5
 /** Natural frequency of the opposite-face settling spring. */
@@ -35,6 +44,8 @@ export type PointerMotionSample = {
 }
 
 export type PointerVelocity = {
+  /** Signed travel since the latest horizontal reversal, within the sample window. */
+  readonly xImpulseTravelPx: number
   readonly xPxPerSecond: number
   readonly yPxPerSecond: number
 }
@@ -46,11 +57,11 @@ export type DeviceOrientationVelocity = {
 }
 
 export type DeviceOrientationReleaseMotion = {
-  readonly kind: 'coast' | 'opposite-face'
+  readonly kind: 'face-settle' | 'opposite-face'
   /** Yaw is intentionally unwrapped until the external store publishes it. */
   readonly orientation: DeviceOrientation
   readonly velocity: DeviceOrientationVelocity
-  readonly targetYawDeg: number | null
+  readonly targetYawDeg: number
   readonly flickDirection: -1 | 0 | 1
 }
 
@@ -71,7 +82,7 @@ export function estimatePointerReleaseVelocity(
   releaseTimestampMs: number,
 ): PointerVelocity {
   if (!Number.isFinite(releaseTimestampMs) || samples.length < 2) {
-    return { xPxPerSecond: 0, yPxPerSecond: 0 }
+    return { xImpulseTravelPx: 0, xPxPerSecond: 0, yPxPerSecond: 0 }
   }
   const lowerBound = releaseTimestampMs - ORIENTATION_RELEASE_SAMPLE_WINDOW_MS
   const recent = samples.filter(
@@ -80,10 +91,10 @@ export function estimatePointerReleaseVelocity(
       sample.timestampMs >= lowerBound &&
       sample.timestampMs <= releaseTimestampMs,
   )
-  if (recent.length < 2) return { xPxPerSecond: 0, yPxPerSecond: 0 }
+  if (recent.length < 2) return { xImpulseTravelPx: 0, xPxPerSecond: 0, yPxPerSecond: 0 }
 
   const first = recent[0]
-  if (first === undefined) return { xPxPerSecond: 0, yPxPerSecond: 0 }
+  if (first === undefined) return { xImpulseTravelPx: 0, xPxPerSecond: 0, yPxPerSecond: 0 }
   const accepted: PointerMotionSample[] = [first]
   for (const sample of recent.slice(1)) {
     const previous = accepted.at(-1)
@@ -98,6 +109,7 @@ export function estimatePointerReleaseVelocity(
         elapsedMs) *
       1_000
     if (speed > ORIENTATION_MAX_POINTER_SPEED_PX_PER_SECOND) continue
+    if (sample.clientX === previous.clientX && sample.clientY === previous.clientY) continue
     accepted.push(sample)
   }
   const last = accepted.at(-1)
@@ -106,12 +118,14 @@ export function estimatePointerReleaseVelocity(
     last === undefined ||
     releaseTimestampMs - last.timestampMs > ORIENTATION_RELEASE_SAMPLE_STALE_MS
   ) {
-    return { xPxPerSecond: 0, yPxPerSecond: 0 }
+    return { xImpulseTravelPx: 0, xPxPerSecond: 0, yPxPerSecond: 0 }
   }
 
+  let xImpulseTravelPx = 0
   let weightedX = 0
   let weightedY = 0
-  let totalWeight = 0
+  let xWeight = 0
+  let yWeight = 0
   const segmentCount = accepted.length - 1
   for (let index = 1; index < accepted.length; index += 1) {
     const previous = accepted[index - 1]
@@ -121,14 +135,23 @@ export function estimatePointerReleaseVelocity(
     if (!(elapsedMs > 0)) continue
     const recency = 1 + (2 * index) / segmentCount
     const weight = elapsedMs * recency
-    weightedX += ((sample.clientX - previous.clientX) / elapsedMs) * 1_000 * weight
-    weightedY += ((sample.clientY - previous.clientY) / elapsedMs) * 1_000 * weight
-    totalWeight += weight
+    // A directional reversal starts a new impulse, rather than borrowing the
+    // stronger old gesture. Separate axes preserve diagonal pitch intent.
+    const dx = sample.clientX - previous.clientX
+    const dy = sample.clientY - previous.clientY
+    if (dx * weightedX < 0) { weightedX = 0; xWeight = 0; xImpulseTravelPx = 0 }
+    if (dy * weightedY < 0) { weightedY = 0; yWeight = 0 }
+    xImpulseTravelPx += dx
+    weightedX += (dx / elapsedMs) * 1_000 * weight
+    weightedY += (dy / elapsedMs) * 1_000 * weight
+    xWeight += weight
+    yWeight += weight
   }
-  if (!(totalWeight > 0)) return { xPxPerSecond: 0, yPxPerSecond: 0 }
+  if (!(xWeight > 0) || !(yWeight > 0)) return { xImpulseTravelPx: 0, xPxPerSecond: 0, yPxPerSecond: 0 }
   return {
-    xPxPerSecond: weightedX / totalWeight,
-    yPxPerSecond: weightedY / totalWeight,
+    xImpulseTravelPx,
+    xPxPerSecond: weightedX / xWeight,
+    yPxPerSecond: weightedY / yWeight,
   }
 }
 
@@ -150,55 +173,48 @@ export function pointerVelocityToDeviceVelocity(
 }
 
 /**
- * Starts coast or semantic opposite-face motion from one pointer release.
- * Reduced motion keeps ordinary releases still and resolves semantic flips in
+ * Starts nearest-face or semantic opposite-face motion from one pointer release.
+ * Reduced motion resolves the same destination in
  * one state write, without retaining an animation frame.
+ * The live controller must supply yawImpulseTravelDeg from recent samples so a
+ * reversal cannot borrow earlier travel. The default is for callers that only
+ * have a single start/release segment, such as deterministic motion probes.
  */
 export function beginDeviceOrientationRelease(
   startOrientation: DeviceOrientation,
   currentOrientation: DeviceOrientation,
   velocity: DeviceOrientationVelocity,
   reducedMotion: boolean,
+  yawImpulseTravelDeg = currentOrientation.yawDeg - startOrientation.yawDeg,
 ): DeviceOrientationRelease {
   const yawSpeed = velocity.yawDegPerSecond
   const isOppositeFaceFlick =
-    Math.abs(yawSpeed) >= ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND
-  if (isOppositeFaceFlick) {
-    const direction = Math.sign(yawSpeed) as -1 | 1
-    const targetYawDeg = oppositeFaceTargetYaw(
-      startOrientation.yawDeg,
-      currentOrientation.yawDeg,
-      direction,
-    )
-    if (reducedMotion) {
-      return {
-        orientation: { ...currentOrientation, yawDeg: targetYawDeg },
-        motion: null,
-      }
-    }
-    return {
-      orientation: currentOrientation,
-      motion: {
-        kind: 'opposite-face',
-        orientation: currentOrientation,
-        velocity,
-        targetYawDeg,
-        flickDirection: direction,
-      },
-    }
+    Math.abs(yawSpeed) >= ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND &&
+    Math.abs(yawImpulseTravelDeg) >= ORIENTATION_FLICK_MIN_TRAVEL_DEG
+  // Projection cannot magnify a sub-threshold corrective twitch into a flip.
+  // Keep its look-ahead within twice the actual latest impulse travel.
+  const projectedTravel = Math.sign(yawSpeed) * Math.min(
+    Math.abs(yawSpeed) * ORIENTATION_RELEASE_PROJECTION_SECONDS,
+    Math.abs(yawImpulseTravelDeg) * 2,
+  )
+  const targetYawDeg = isOppositeFaceFlick
+    ? oppositeFaceTargetYaw(startOrientation.yawDeg, currentOrientation.yawDeg, yawSpeed < 0 ? -1 : 1)
+    : Math.round((currentOrientation.yawDeg + projectedTravel) / 180) * 180 + 0
+  if (reducedMotion) {
+    return { orientation: { ...currentOrientation, yawDeg: targetYawDeg }, motion: null }
   }
-
-  if (reducedMotion || settledVelocity(velocity)) {
-    return { orientation: currentOrientation, motion: null }
+  const displacement = targetYawDeg - currentOrientation.yawDeg
+  if (Math.abs(displacement) <= ORIENTATION_SETTLE_DISTANCE_DEG && settledVelocity(velocity)) {
+    return { orientation: { ...currentOrientation, yawDeg: targetYawDeg }, motion: null }
   }
   return {
     orientation: currentOrientation,
     motion: {
-      kind: 'coast',
+      kind: isOppositeFaceFlick ? 'opposite-face' : 'face-settle',
       orientation: currentOrientation,
       velocity,
-      targetYawDeg: null,
-      flickDirection: 0,
+      targetYawDeg,
+      flickDirection: displacement < 0 ? -1 : 1,
     },
   }
 }
@@ -226,48 +242,6 @@ export function advanceDeviceOrientationRelease(
     DEVICE_ORIENTATION_LIMITS.rollMax,
   )
 
-  if (motion.kind === 'coast' || motion.targetYawDeg === null) {
-    const yaw = decay(
-      motion.orientation.yawDeg,
-      motion.velocity.yawDegPerSecond,
-      elapsedSeconds,
-    )
-    const orientation = {
-      pitchDeg: pitch.position,
-      yawDeg: yaw.position,
-      rollDeg: roll.position,
-    }
-    const velocity = {
-      pitchDegPerSecond: pitch.velocity,
-      yawDegPerSecond: yaw.velocity,
-      rollDegPerSecond: roll.velocity,
-    }
-    return settledVelocity(velocity)
-      ? {
-          orientation: {
-            pitchDeg: coastRestPosition(
-              orientation.pitchDeg,
-              velocity.pitchDegPerSecond,
-              DEVICE_ORIENTATION_LIMITS.pitchMin,
-              DEVICE_ORIENTATION_LIMITS.pitchMax,
-            ),
-            yawDeg:
-              orientation.yawDeg +
-              velocity.yawDegPerSecond / ORIENTATION_COAST_DECAY_PER_SECOND,
-            rollDeg: coastRestPosition(
-              orientation.rollDeg,
-              velocity.rollDegPerSecond,
-              DEVICE_ORIENTATION_LIMITS.rollMin,
-              DEVICE_ORIENTATION_LIMITS.rollMax,
-            ),
-          },
-          motion: null,
-        }
-      : {
-          orientation,
-          motion: { ...motion, orientation, velocity },
-        }
-  }
 
   const yaw = springAxis(
     motion.orientation.yawDeg,
@@ -330,18 +304,11 @@ function oppositeFaceTargetYaw(
   currentYawDeg: number,
   direction: -1 | 1,
 ): number {
-  const startedFront = Math.cos((startYawDeg * Math.PI) / 180) >= 0
-  const oppositeOffset = startedFront ? 180 : 0
-  if (direction > 0) {
-    let target =
-      oppositeOffset + Math.ceil((currentYawDeg - oppositeOffset) / 360) * 360
-    if (target <= currentYawDeg + Number.EPSILON) target += 360
-    return target
-  }
-  let target =
-    oppositeOffset + Math.floor((currentYawDeg - oppositeOffset) / 360) * 360
-  if (target >= currentYawDeg - Number.EPSILON) target -= 360
-  return target
+  const startFace = Math.round((startYawDeg - direction * 1e-8) / 180) * 180
+  const intended = startFace + direction * 180
+  // Choose the closest copy of the intended face, including one already
+  // crossed by the drag. Never demand an extra revolution after overshooting.
+  return intended + Math.trunc((currentYawDeg - intended) / 360) * 360
 }
 
 function decay(
