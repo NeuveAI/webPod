@@ -1,10 +1,11 @@
 import { atom, useAtomValue } from 'jotai'
-import { useEffect, useLayoutEffect, useRef } from 'react'
-import { deviceStore, stickerInventoryAtom } from '@webpod/state'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { deviceStore, stickerInventoryAtom, stickerInteractionAtom } from '@webpod/state'
 import type { StickerProjectedContour, StickerProjectedQuad, StickerTransformPlane } from '@webpod/device'
 import { BODY_H, BODY_W } from '@webpod/tokens'
 import type { StickerPlacement } from '@webpod/stickers'
 import { applyStickerEditor, resetStickerAppearance, dismissStickerEditor, previewStickerEdit, revertStickerEditor, retryStickerEdit, setStickerEditorProperty, stickerEditorAtom, stickerEditorFailureAtom, stickerEditorGestureAtom, stickerEditorCancelAtom, undoStickerEdit, type StickerEditorProperty, type StickerEditorState } from './sticker-editor-model'
+import { stickerProjectionVersionAtom } from './sticker-collections-model'
 import { chooseHudLayout, type HudLayout } from './sticker-hud-layout'
 
 /* ANIMATION STORYBOARD — on-object precision tools
@@ -18,6 +19,7 @@ const HUD = { stiffness: 300, damping: 25, maxStep: .032, settle: .002 }
 const releaseAtom = atom<{ corner: number; kind: 'width' | 'rotationDeg'; x: number; y: number; progress: number; epoch: number } | null>(null)
 const rangeGestureAtom = atom<'active' | 'cancelled' | null>(null)
 const lastPresentedAtom = atom<StickerEditorState | null>(null)
+const shownEditorAtom = atom(get => get(stickerEditorAtom) ?? get(lastPresentedAtom))
 const layoutAtom = atom<HudLayout | null>(null)
 const dragVisualAtom = atom<{ corner: number; property: 'width' | 'rotationDeg'; pointer: { x: number; y: number } } | null>(null)
 const presenceAtom = atom(0)
@@ -40,22 +42,30 @@ function Icon({ kind }: { kind: string }) {
   const paths: Record<string, string> = { rotate: 'M5 8a7 7 0 1 1-1 8M5 3v5h5', size: 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M8 16l8-8', wear: 'M5 5l14 14M5 13l6 6M13 5l6 6M4 19l2-2M17 7l3-3', pack: 'M4 6h16v14H4zM8 6V3h8v3M8 12l4 4 4-4M12 9v7', undo: 'M4 4v6h6M4 10a8 8 0 1 1 1 9', precise: 'M4 7h16M4 17h16M8 4v6M16 14v6' }
   return <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[kind]} /></svg>
 }
-export function StickerEditor({ screen, quad, contour, beginTransform, place, returnToPack }: {
+type StickerEditorProps = {
   readonly screen: (placement: StickerPlacement) => { x: number; y: number } | null
   readonly contour?: (placement: StickerPlacement) => StickerProjectedContour | null
   readonly quad?: (placement: StickerPlacement) => StickerProjectedQuad | null
   readonly beginTransform?: (placement: StickerPlacement) => StickerTransformPlane | null
   readonly place: (placement: StickerPlacement, expectedSource?: StickerPlacement) => Promise<void>
   readonly returnToPack: (id: string) => void
-}) {
+}
+/** Moving a sticker never retains the appearance HUD, including its exit animation. */
+export function StickerEditor(props: StickerEditorProps) {
+  const interaction = useAtomValue(stickerInteractionAtom, { store: deviceStore })
+  if (interaction.stage === 'peeling' || interaction.stage === 'placing' || interaction.stage === 'settling') return null
+  return <StickerAppearanceEditor {...props} />
+}
+function StickerAppearanceEditor({ screen, quad, contour, beginTransform, place, returnToPack }: StickerEditorProps) {
   const state = useAtomValue(stickerEditorAtom, { store: deviceStore }), failure = useAtomValue(stickerEditorFailureAtom, { store: deviceStore })
   const tooltip = useAtomValue(tooltipAtom, { store: deviceStore })
   const release = useAtomValue(releaseAtom, { store: deviceStore })
   const presence = useAtomValue(presenceAtom, { store: deviceStore }), viewport = useAtomValue(viewportAtom, { store: deviceStore })
-  const last = useAtomValue(lastPresentedAtom, { store: deviceStore }), savedLayout = useAtomValue(layoutAtom, { store: deviceStore }), dragVisual = useAtomValue(dragVisualAtom, { store: deviceStore }), gesture = useAtomValue(stickerEditorGestureAtom, { store: deviceStore })
+  const shown = useAtomValue(shownEditorAtom, { store: deviceStore })
+  const projectionVersion = useAtomValue(stickerProjectionVersionAtom, { store: deviceStore })
+  const savedLayout = useAtomValue(layoutAtom, { store: deviceStore }), dragVisual = useAtomValue(dragVisualAtom, { store: deviceStore }), gesture = useAtomValue(stickerEditorGestureAtom, { store: deviceStore })
   const drag = useRef<Drag | null>(null), velocity = useRef(0), activeId = useRef<string | null>(null), range = useRef<HTMLInputElement>(null)
   useLayoutEffect(() => { if (state !== null) deviceStore.set(lastPresentedAtom, state) }, [state])
-  const shown = state ?? last
   const selectedId = state?.source.stickerId ?? null
   const projectionKey = (source: StickerPlacement): string => JSON.stringify([source, { ...source, x: source.x + .1 }, { ...source, y: source.y + .1 }].map(p => screen(p)).map(p => p === null ? null : [Math.round(p.x * 100), Math.round(p.y * 100)]))
   useLayoutEffect(() => {
@@ -128,12 +138,13 @@ export function StickerEditor({ screen, quad, contour, beginTransform, place, re
     onBlur: () => deviceStore.set(tooltipAtom, null),
   })
   const tooltipView = tooltip === null ? null : <div id="sticker-contour-tooltip" role="tooltip" popover={typeof HTMLElement !== 'undefined' && 'popover' in HTMLElement.prototype ? 'manual' : undefined} className="pointer-events-auto fixed max-w-56 rounded-lg bg-[#202a31] px-3 py-2 text-xs text-white shadow-lg" style={{ left: tooltip.x, top: tooltip.y, margin: 0, right: 'auto', bottom: 'auto', border: 0 }} onPointerEnter={event => { tooltipPointer={x:event.clientX,y:event.clientY};if (tooltipTimer !== null) clearTimeout(tooltipTimer) }} onPointerMove={event=>{tooltipPointer={x:event.clientX,y:event.clientY}}} onPointerLeave={() => { if (!document.activeElement?.hasAttribute('aria-describedby')) deviceStore.set(tooltipAtom, null) }}>{tooltip.text}</div>
+  const draft = shown?.draft
+  const { shape } = useMemo(() => ({ version: projectionVersion, shape: draft === undefined || contour === undefined ? null : contour(draft) }), [draft, contour, projectionVersion])
   if (shown === null || presence <= 0) {
     if (failure === null) return null
     const source = deviceStore.get(stickerInventoryAtom)?.placements.find(p => p.stickerId === failure.stickerId), point = source === undefined ? null : screen(source)
     return <><div data-sticker-editor-failure role="alert" className="pointer-events-auto fixed z-40 rounded-full bg-[#242a2e] px-3 text-xs text-white" style={{ left: Math.max(16, Math.min(viewport.width - 220, point?.x ?? 16)), top: Math.max(64, Math.min(viewport.height - 60, point?.y ?? 64)) }}>{failure.message}{failure.attempted !== undefined && <button className="min-h-11 px-3 underline" {...tipEvents('retry', 'Retry saving this change')} onClick={() => retryStickerEdit(place)}>Retry</button>}</div>{tooltipView}</>
   }
-  const shape = contour?.(shown.draft)
   if (shape == null) return null
   const arrangement = gesture && savedLayout !== null ? savedLayout : chooseHudLayout(shape, viewport.width, viewport.height, (deviceStore.get(stickerInventoryAtom)?.placements ?? []).filter(p => p.stickerId !== shown.source.stickerId).flatMap(p => { const q = quad?.(p); return q == null ? [] : [{ left: Math.min(...q.corners.map(p => p.x)), right: Math.max(...q.corners.map(p => p.x)), top: Math.min(...q.corners.map(p => p.y)), bottom: Math.max(...q.corners.map(p => p.y)) }] }))
   const grips = shape.anchors.map((anchor, i) => {

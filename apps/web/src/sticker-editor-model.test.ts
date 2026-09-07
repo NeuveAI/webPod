@@ -71,3 +71,26 @@ test('reset preserves size/center/ownership, clears owned wear and safely straig
   })
   expect(calls).toBe(1);expect(deviceStore.get(stickerEditorAtom)?.message).toContain('as far as')
 })
+
+test('rendered placements retain identity across metadata while every editor publication remains observable', () => {
+  seed()
+  const initial = deviceStore.get(stickerEditorPlacementsAtom)
+  let editorPublications = 0, placementPublications = 0
+  const stopEditor = deviceStore.sub(stickerEditorAtom, () => { editorPublications++ })
+  const stopPlacements = deviceStore.sub(stickerEditorPlacementsAtom, () => { placementPublications++ })
+  try {
+    setStickerEditorProperty('wear')
+    expect(editorPublications).toBe(1); expect(placementPublications).toBe(0)
+    expect(deviceStore.get(stickerEditorPlacementsAtom)).toBe(initial)
+    previewStickerEdit(.35)
+    expect(editorPublications).toBe(2); expect(placementPublications).toBe(1)
+    expect(deviceStore.get(stickerEditorPlacementsAtom)[0]?.wear).toBe(.35)
+    const latest = deviceStore.get(stickerEditorPlacementsAtom)
+    setStickerEditorProperty('rotationDeg')
+    expect(editorPublications).toBe(3); expect(placementPublications).toBe(1)
+    expect(deviceStore.get(stickerEditorPlacementsAtom)).toBe(latest)
+    previewStickerEdit(17)
+    expect(deviceStore.get(stickerEditorPlacementsAtom)[0]).toEqual({ ...source, wear: .35, rotationDeg: 17 })
+    expect(placementPublications).toBe(2)
+  } finally { stopEditor(); stopPlacements() }
+})

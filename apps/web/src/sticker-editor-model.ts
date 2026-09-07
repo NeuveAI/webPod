@@ -1,4 +1,5 @@
 import { atom } from 'jotai'
+import { selectAtom } from 'jotai/utils'
 import { deviceStore, stickerInventoryAtom } from '@webpod/state'
 import { isStickerPlacement, type StickerPlacement } from '@webpod/stickers'
 
@@ -25,10 +26,12 @@ export function sameStickerPose(a: StickerPlacement, b: StickerPlacement): boole
   return a.stickerId === b.stickerId && a.x === b.x && a.y === b.y && a.width === b.width && a.rotationDeg === b.rotationDeg && (a.wear ?? 0) === (b.wear ?? 0)
 }
 export const stickerEditorDirtyAtom = atom((get) => { const state = get(stickerEditorAtom); return state !== null && !sameStickerPose(state.source, state.draft) })
-export const stickerEditorPlacementsAtom = atom((get) => {
+const projectedEditorPlacementsAtom = atom((get) => {
   const inventory = get(stickerInventoryAtom), state = get(stickerEditorAtom)
   return (inventory?.placements ?? []).map((item) => state?.source.stickerId === item.stickerId ? state.draft : item)
 })
+/** Metadata-only editor publications keep the rendered placement identity. */
+export const stickerEditorPlacementsAtom = selectAtom(projectedEditorPlacementsAtom, placements => placements, (a, b) => a.length === b.length && a.every((placement, index) => placement === b[index]))
 export function selectStickerEditor(source: StickerPlacement, keyboard = false): void {
   deviceStore.set(stickerEditorFailureAtom, null)
   deviceStore.set(stickerEditorAtom, { source, draft: source, property: 'rotationDeg', phase: stickerEditPending(source.stickerId) ? 'saving' : 'editing', message: null, keyboard })
