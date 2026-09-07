@@ -148,8 +148,12 @@ function StickerAppearanceEditor({ fit, screen, quad, contour, beginTransform, p
     onBlur: () => deviceStore.set(tooltipAtom, null),
   })
   const tooltipView = tooltip === null ? null : <div id="sticker-contour-tooltip" role="tooltip" popover={typeof HTMLElement !== 'undefined' && 'popover' in HTMLElement.prototype ? 'manual' : undefined} className="pointer-events-auto fixed max-w-56 rounded-lg bg-[#202a31] px-3 py-2 text-xs text-white shadow-lg" style={{ left: tooltip.x, top: tooltip.y, margin: 0, right: 'auto', bottom: 'auto', border: 0 }} onPointerEnter={event => { tooltipPointer={x:event.clientX,y:event.clientY};if (tooltipTimer !== null) clearTimeout(tooltipTimer) }} onPointerMove={event=>{tooltipPointer={x:event.clientX,y:event.clientY}}} onPointerLeave={() => { if (!document.activeElement?.hasAttribute('aria-describedby')) deviceStore.set(tooltipAtom, null) }}>{tooltip.text}</div>
-  const draft = shown?.draft
-  const { shape } = useMemo(() => ({ version: projectionVersion, shape: draft === undefined || contour === undefined ? null : contour(draft) }), [draft, contour, projectionVersion])
+  // Projection is keyed to committed renderer geometry, not the requested
+  // draft. Reading the mesh on a draft render samples the previous frame.
+  const { shape } = useMemo(() => {
+    const presented = deviceStore.get(shownEditorAtom)
+    return { version: projectionVersion, id: selectedId, shape: presented === null || contour === undefined ? null : contour(presented.draft) }
+  }, [contour, projectionVersion, selectedId])
   if (shown === null || presence <= 0) {
     if (failure === null) return null
     const source = deviceStore.get(stickerInventoryAtom)?.placements.find(p => p.stickerId === failure.stickerId), point = source === undefined ? null : screen(source)

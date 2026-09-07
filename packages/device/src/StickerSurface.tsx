@@ -33,6 +33,10 @@ function EquippedSticker({ art, placement, rear, wrap, roughness, scene, renderO
     try { return createStickerSurfaceGeometry(art, { stickerId, surface, x, y, width, rotationDeg }, rear, wrap); } catch { return null; }
   }, [art, stickerId, surface, x, y, width, rotationDeg, rear, wrap]);
   useEffect(() => () => geometry?.dispose(), [geometry]);
+  // Child material layout effects run first, so alpha and mesh refer to the
+  // same committed pose before the DOM editor projects its outline.
+  const onSurfaceReady = scene.onSurfaceReady;
+  useLayoutEffect(() => { if (geometry) onSurfaceReady?.(); }, [geometry, placement.wear, onSurfaceReady]);
   if (geometry === null) return null;
   return <StickerPrint renderOrder={renderOrder} visible={!isStickerCarried(scene.pack, placement.stickerId)} wear={placement.wear ?? 0} art={art} geometry={geometry} roughness={roughness} finishEnabled={scene.finishEnabled !== false} onError={scene.onArtworkError} onReady={scene.onArtworkReady} />;
 }

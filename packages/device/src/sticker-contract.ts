@@ -53,6 +53,8 @@ export interface DeviceStickerScene {
   readonly onPrepared?: (ids: readonly string[]) => void;
   /** Calibration seam: disables only clearcoat, preserving the printed map. */
   readonly finishEnabled?: boolean;
+  /** Mesh and damage field committed; consumers can now read the current outline. */
+  readonly onSurfaceReady?: () => void;
   readonly onProjectionReady?: (handle: StickerRearProjection | null) => void;
   readonly onArtworkReady?: (id: string) => void;
   readonly onArtworkError?: (id: string) => void;

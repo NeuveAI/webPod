@@ -174,7 +174,7 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
     } };
     projectionHandle.current = handle; onProjectionReady?.(handle);
     return () => { projectionHandle.current = null; onProjectionReady?.(null); };
-  }, [camera, gl, orientation.visibleFace, scene, onProjectionReady, packVisible, stickerScene.placements, stickerScene.pack?.sourcePlacement?.stickerId, calculatedPresentation, rearCarry]);
+  }, [camera, gl, orientation.visibleFace, scene, onProjectionReady, packVisible, stickerScene.pack?.sourcePlacement?.stickerId, calculatedPresentation, rearCarry]);
   const pack = stickerScene.pack;
   if (pack === null) return null;
   const visible = viewport.getCurrentViewport(camera, new Vector3(0, 0, PACK.depth));

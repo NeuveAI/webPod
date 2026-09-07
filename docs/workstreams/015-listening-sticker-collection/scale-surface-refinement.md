@@ -48,3 +48,9 @@ Evidence: focused test files beside implementation and browser test-results outs
 - Applying the source support planes after the free-carry blend constrained detached side/bottom vertices to their previous shell edges and stretched artwork into strips.
 - Moved the constraint before transport interpolation and pointer-plane clearance. It now constrains the source peel; fully detached transport retains the free-sheet geometry exactly.
 - Added a large wrapped On Repeat regression that reproduces deformation with the previous ordering and verifies exact free-sheet coordinates with the corrected ordering. Five carry tests, device TypeScript and changed-file lint pass.
+
+### Rotation outline synchronization
+
+- The DOM editor queried the scene mesh on draft renders before the renderer had committed that pose. Removed that premature query and the projection-handle teardown on every placement change.
+- Equipped geometry now publishes a renderer-ready notification after its mesh and child material effects commit. The existing Jotai projection revision drives the outline refresh. No additional mirrored pose state or storage was introduced.
+- Regression verifies no contour calculation against the previous mesh during a draft update, followed by one calculation with current values on the commit notification. Twelve editor/contour tests, app/device TypeScript and changed-file lint pass. Full browser motion latency was not benchmarked in this follow-up.

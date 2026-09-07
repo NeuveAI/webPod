@@ -24,8 +24,9 @@ test('moving suppresses all appearance controls, while idle selection retains ro
   const source = { stickerId: 'PW-C03' as const, surface: 'back' as const, x: .5, y: .5, width: .25, rotationDeg: 0, wear: .2 }
   const points = [{ x: 100, y: 100 }, { x: 200, y: 100 }, { x: 200, y: 300 }, { x: 100, y: 300 }] as const
   let contourCalls = 0
+  let projectedWear: number | undefined
   try {
-    await act(async () => { updateStickerInteraction({ ...initial, stage: 'hidden' }); selectStickerEditor(source); root.render(<StickerEditor screen={() => ({ x: 150, y: 200 })} contour={() => { contourCalls++; return { paths: [points], anchors: points, center: { x: 150, y: 200 } } }} place={async () => {}} returnToPack={() => {}} />) })
+    await act(async () => { updateStickerInteraction({ ...initial, stage: 'hidden' }); selectStickerEditor(source); root.render(<StickerEditor screen={() => ({ x: 150, y: 200 })} contour={placement => { contourCalls++; projectedWear = placement.wear; return { paths: [points], anchors: points, center: { x: 150, y: 200 } } }} place={async () => {}} returnToPack={() => {}} />) })
     expect(host.querySelector('[data-sticker-contour]')).not.toBeNull()
     expect(host.querySelectorAll('[data-hud-handle="rotate"]')).toHaveLength(4)
     expect(host.querySelector('[aria-label="Sticker wear"]')).not.toBeNull()
@@ -36,11 +37,13 @@ test('moving suppresses all appearance controls, while idle selection retains ro
     await act(async () => previewStickerEdit(.35))
     expect(deviceStore.get(stickerEditorAtom)?.draft.wear).toBe(.35)
     expect(metadataCalls).toBe(0)
-    expect(contourCalls - beforePreview).toBe(1)
+    expect(contourCalls - beforePreview).toBe(0)
+    expect(projectedWear).toBe(.2)
     expect(host.querySelector<HTMLInputElement>('[aria-label="Sticker wear"]')?.value).toBe('0.35')
     const beforeReady = contourCalls
     await act(async () => deviceStore.set(stickerProjectionVersionAtom, version => version + 1))
     expect(contourCalls - beforeReady).toBe(1)
+    expect(projectedWear).toBe(.35)
     reducedMotion = false
     await act(async () => dismissStickerEditor())
     expect(host.querySelector('[data-sticker-contour]')).not.toBeNull()
