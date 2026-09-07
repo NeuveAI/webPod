@@ -1,0 +1,1258 @@
+[
+  {
+    "name": "1280-side",
+    "path": [
+      {
+        "point": {
+          "x": 564.0471168363002,
+          "y": 143.72441380494425
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 566.2480640037348,
+          "y": 147.0644484703574
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 568.4490111711694,
+          "y": 150.40448313577056
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 570.649958338604,
+          "y": 153.74451780118372
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 572.8509055060387,
+          "y": 157.08455246659688
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 575.0518526734733,
+          "y": 160.42458713201003
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 577.2527998409079,
+          "y": 163.7646217974232
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 579.4537470083425,
+          "y": 167.10465646283635
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 582.1092155190902,
+          "y": 171.1344473683347
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 584.7646840298379,
+          "y": 175.16423827383306
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 587.4201525405856,
+          "y": 179.1940291793314
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 590.0756210513332,
+          "y": 183.22382008482975
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 592.7310895620809,
+          "y": 187.25361099032813
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 595.3865580728286,
+          "y": 191.28340189582647
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 598.0420265835763,
+          "y": 195.31319280132485
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.05500989197424529,
+          "y": 0.10377745958983031
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 600.697495094324,
+          "y": 199.3429837068232
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.05706480633370682,
+          "y": 0.1101437907400074
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 603.3529636050716,
+          "y": 203.37277461232156
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.05911972069316812,
+          "y": 0.11651012189018443
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 606.0084321158193,
+          "y": 207.4025655178199
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.06117463505262967,
+          "y": 0.1228764530403615
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 608.663900626567,
+          "y": 211.43235642331825
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.06322954941209122,
+          "y": 0.12924278419053856
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 611.3193691373148,
+          "y": 215.46214732881663
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.06528446377155273,
+          "y": 0.13560911534071565
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 613.9748376480625,
+          "y": 219.49193823431497
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.06733937813101429,
+          "y": 0.14197544649089275
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 616.6303061588102,
+          "y": 223.52172913981332
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.06939429249047584,
+          "y": 0.14834177764106976
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 619.2857746695579,
+          "y": 227.5515200453117
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.07144920684993734,
+          "y": 0.1547081087912469
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 621.9412431803055,
+          "y": 231.58131095081004
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.07350412120939867,
+          "y": 0.1610744399414239
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 624.5967116910532,
+          "y": 235.61110185630838
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.07555903556886022,
+          "y": 0.167440771091601
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 627.2521802018009,
+          "y": 239.64089276180675
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.07761394992832173,
+          "y": 0.1738071022417781
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 629.9076487125486,
+          "y": 243.6706836673051
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.07966886428778326,
+          "y": 0.18017343339195513
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 632.5631172232963,
+          "y": 247.70047457280344
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.08172377864724484,
+          "y": 0.18653976454213217
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 635.2185857340439,
+          "y": 251.73026547830182
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.08377869300670611,
+          "y": 0.1929060956923092
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 637.8740542447916,
+          "y": 255.76005638380016
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.08583360736616764,
+          "y": 0.1992724268424863
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 640.5295227555393,
+          "y": 259.78984728929856
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.08788852172562917,
+          "y": 0.20563875799266346
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 643.184991266287,
+          "y": 263.8196381947969
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.08994343608509071,
+          "y": 0.21200508914284044
+        },
+        "error": null
+      }
+    ]
+  },
+  {
+    "name": "1280-front",
+    "path": [
+      {
+        "point": {
+          "x": 760.187082016781,
+          "y": 138.30704681973657
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 757.7066394993487,
+          "y": 138.6191444290103
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 755.2261969819165,
+          "y": 138.93124203828404
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 752.7457544644842,
+          "y": 139.24333964755778
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 750.265311947052,
+          "y": 139.5554372568315
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 747.7848694296198,
+          "y": 139.86753486610525
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 745.3044269121875,
+          "y": 140.17963247537898
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 742.8239843947553,
+          "y": 140.49173008465272
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 736.356508214528,
+          "y": 141.3054896617032
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 729.8890320343008,
+          "y": 142.11924923875372
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 723.4215558540736,
+          "y": 142.93300881580421
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 716.9540796738464,
+          "y": 143.74676839285473
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 710.4866034936192,
+          "y": 144.56052796990522
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 704.0191273133921,
+          "y": 145.3742875469557
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 697.5516511331649,
+          "y": 146.18804712400623
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 691.0841749529377,
+          "y": 147.00180670105672
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 684.6166987727105,
+          "y": 147.81556627810724
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 678.1492225924833,
+          "y": 148.62932585515773
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 671.6817464122561,
+          "y": 149.44308543220825
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 665.2142702320289,
+          "y": 150.25684500925874
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 658.7467940518017,
+          "y": 151.07060458630923
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 652.2793178715744,
+          "y": 151.88436416335975
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 645.8118416913472,
+          "y": 152.69812374041024
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 639.34436551112,
+          "y": 153.51188331746076
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 632.8768893308928,
+          "y": 154.32564289451125
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 626.4094131506656,
+          "y": 155.13940247156177
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 619.9419369704385,
+          "y": 155.95316204861226
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 613.4744607902112,
+          "y": 156.76692162566275
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 607.0069846099841,
+          "y": 157.58068120271327
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 600.5395084297569,
+          "y": 158.39444077976376
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 594.0720322495297,
+          "y": 159.20820035681427
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 587.6045560693025,
+          "y": 160.02195993386476
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      }
+    ]
+  },
+  {
+    "name": "375-side",
+    "path": [
+      {
+        "point": {
+          "x": 143.32557331803363,
+          "y": 225.33272468394543
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 145.58819204018107,
+          "y": 228.63129354303993
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 147.85081076232848,
+          "y": 231.92986240213443
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 150.1134294844759,
+          "y": 235.22843126122893
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 152.37604820662332,
+          "y": 238.5270001203234
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 154.63866692877073,
+          "y": 241.8255689794179
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 156.90128565091817,
+          "y": 245.1241378385124
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 159.16390437306558,
+          "y": 248.4227066976069
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 160.42543298460015,
+          "y": 250.26183184588433
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 161.68696159613472,
+          "y": 252.10095699416178
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 162.9484902076693,
+          "y": 253.9400821424392
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 164.21001881920384,
+          "y": 255.7792072907166
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 165.4715474307384,
+          "y": 257.61833243899406
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 166.73307604227298,
+          "y": 259.45745758727145
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 167.99460465380756,
+          "y": 261.2965827355489
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 169.25613326534213,
+          "y": 263.13570788382634
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 170.51766187687667,
+          "y": 264.97483303210373
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 171.77919048841125,
+          "y": 266.8139581803812
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 173.04071909994582,
+          "y": 268.6530833286586
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 174.3022477114804,
+          "y": 270.492208476936
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 175.56377632301496,
+          "y": 272.33133362521346
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 176.82530493454954,
+          "y": 274.1704587734909
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 178.0868335460841,
+          "y": 276.0095839217683
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.07846518915197141,
+          "y": 0.16144029039346575
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 179.34836215761865,
+          "y": 277.84870907004574
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.08021878198055048,
+          "y": 0.16636185896370725
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 180.60989076915322,
+          "y": 279.68783421832313
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.08197237480912972,
+          "y": 0.17128342753394865
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 181.8714193806878,
+          "y": 281.5269593666006
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.08372596763770887,
+          "y": 0.17620499610419021
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 183.13294799222237,
+          "y": 283.366084514878
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.08547956046628802,
+          "y": 0.18112656467443172
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 184.39447660375694,
+          "y": 285.2052096631554
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.08723315329486726,
+          "y": 0.18604813324467312
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 185.6560052152915,
+          "y": 287.04433481143286
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.08898674612344631,
+          "y": 0.19096970181491457
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 186.91753382682606,
+          "y": 288.8834599597103
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.09074033895202546,
+          "y": 0.19589127038515614
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 188.17906243836063,
+          "y": 290.7225851079877
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.09249393178060472,
+          "y": 0.20081283895539753
+        },
+        "error": null
+      },
+      {
+        "point": {
+          "x": 189.4405910498952,
+          "y": 292.56171025626514
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.09424752460918387,
+          "y": 0.20573440752563904
+        },
+        "error": null
+      }
+    ]
+  },
+  {
+    "name": "375-front",
+    "path": [
+      {
+        "point": {
+          "x": 240.26991816215292,
+          "y": 215.95693580529422
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 237.82333379193955,
+          "y": 216.4709639362634
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 235.3767494217262,
+          "y": 216.98499206723258
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 232.93016505151283,
+          "y": 217.49902019820178
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 230.48358068129946,
+          "y": 218.01304832917094
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 228.0369963110861,
+          "y": 218.52707646014014
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 225.59041194087274,
+          "y": 219.0411045911093
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 223.14382757065937,
+          "y": 219.5551327220785
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 218.58865689698823,
+          "y": 220.51217548591688
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 214.03348622331708,
+          "y": 221.46921824975527
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 209.4783155496459,
+          "y": 222.4262610135937
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 204.92314487597477,
+          "y": 223.38330377743208
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 200.36797420230363,
+          "y": 224.34034654127046
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 195.8128035286325,
+          "y": 225.29738930510885
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 191.25763285496134,
+          "y": 226.25443206894724
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 186.70246218129017,
+          "y": 227.21147483278565
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 182.14729150761903,
+          "y": 228.16851759662404
+        },
+        "admitted": false,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 177.5921208339479,
+          "y": 229.12556036046243
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 173.03695016027675,
+          "y": 230.08260312430082
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 168.4817794866056,
+          "y": 231.0396458881392
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 163.92660881293446,
+          "y": 231.99668865197762
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 159.3714381392633,
+          "y": 232.953731415816
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 154.81626746559215,
+          "y": 233.9107741796544
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 150.261096791921,
+          "y": 234.86781694349278
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 145.70592611824986,
+          "y": 235.8248597073312
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 141.1507554445787,
+          "y": 236.7819024711696
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 136.59558477090758,
+          "y": 237.73894523500798
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 132.0404140972364,
+          "y": 238.69598799884636
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 127.48524342356527,
+          "y": 239.65303076268475
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 122.93007274989412,
+          "y": 240.61007352652314
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 118.37490207622297,
+          "y": 241.56711629036155
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      },
+      {
+        "point": {
+          "x": 113.81973140255182,
+          "y": 242.52415905419994
+        },
+        "admitted": true,
+        "center": null,
+        "error": null
+      }
+    ]
+  }
+]

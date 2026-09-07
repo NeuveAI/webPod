@@ -1,0 +1,162 @@
+{
+  "status": "preflight passed; no C03 solve",
+  "runtime": "1.4.0",
+  "commit": "79190a1f03845794b1bba1777f30037349967658",
+  "urls": {
+    "ammo.wasm.js": "https://raw.githubusercontent.com/kripken/ammo.js/79190a1f03845794b1bba1777f30037349967658/builds/ammo.wasm.js",
+    "ammo.wasm.wasm": "https://raw.githubusercontent.com/kripken/ammo.js/79190a1f03845794b1bba1777f30037349967658/builds/ammo.wasm.wasm"
+  },
+  "digests": {
+    "ammo.wasm.js": "040d0fbbda2d27b712d5acd68653fad334b5b2e00257c95fbee479fd121342a3",
+    "ammo.wasm.wasm": "2233804e614f9f646da21c680cf30e057a00c3e69dd57f965fa92d08ac3184f6",
+    "LICENSE": "f9a230c1a7f6cb856a80b31041e8c0228c5eece8ef6f564b79b3bc8097927a97",
+    "ammo.idl": "936666319d8471cd093559a7df4b643e75325585c2b02271e64379fb83183e19"
+  },
+  "license": "zlib; exact LICENSE cached unchanged",
+  "initializationMs": 6.261208999999999,
+  "fixtureAndCleanupMs": 2.2010830000000006,
+  "heapInitialBytes": 67108864,
+  "heapAfterCleanupBytes": 67108864,
+  "observed": {
+    "nodes": 4,
+    "faces": 2,
+    "bendingLinks": 1,
+    "clusters": 3,
+    "collisionFlags": 97,
+    "staticMargin": 0,
+    "softMargin": 0.10000000149011612,
+    "pinnedInverseMass": 0,
+    "pinnedPosition": [
+      -1,
+      -1,
+      1
+    ],
+    "oneStepMs": 0.23379199999999756
+  },
+  "required": [
+    "Ammo.btSoftBodyRigidBodyCollisionConfiguration",
+    "Ammo.btCollisionDispatcher",
+    "Ammo.btDbvtBroadphase",
+    "Ammo.btSequentialImpulseConstraintSolver",
+    "Ammo.btDefaultSoftBodySolver",
+    "Ammo.btSoftRigidDynamicsWorld",
+    "Ammo.btSoftBodyHelpers",
+    "Ammo.btTriangleMesh",
+    "Ammo.btBvhTriangleMeshShape",
+    "Ammo.btDefaultMotionState",
+    "Ammo.btRigidBodyConstructionInfo",
+    "Ammo.btRigidBody",
+    "Ammo.destroy",
+    "world.getWorldInfo",
+    "world.setGravity",
+    "world.addSoftBody",
+    "world.removeSoftBody",
+    "world.addRigidBody",
+    "world.removeRigidBody",
+    "world.stepSimulation",
+    "helper.CreateFromTriMesh",
+    "soft.get_m_cfg",
+    "soft.get_m_nodes",
+    "soft.get_m_materials",
+    "soft.appendMaterial",
+    "soft.generateBendingConstraints",
+    "soft.generateClusters",
+    "soft.addForce",
+    "soft.setMass",
+    "soft.setTotalMass",
+    "soft.getCollisionShape",
+    "config.set_kDF",
+    "config.set_kDP",
+    "config.set_kPR",
+    "config.set_kVC",
+    "config.set_kMT",
+    "config.set_piterations",
+    "config.set_viterations",
+    "config.set_citerations",
+    "config.set_collisions",
+    "config.get_collisions",
+    "node.get_m_x",
+    "node.get_m_q",
+    "node.get_m_v",
+    "node.get_m_f",
+    "node.get_m_im",
+    "node.set_m_im"
+  ],
+  "creationLedger": [
+    {
+      "name": "soft-rigid configuration",
+      "destroyed": true
+    },
+    {
+      "name": "dispatcher",
+      "destroyed": true
+    },
+    {
+      "name": "broadphase",
+      "destroyed": true
+    },
+    {
+      "name": "constraint solver",
+      "destroyed": true
+    },
+    {
+      "name": "soft solver",
+      "destroyed": true
+    },
+    {
+      "name": "world",
+      "destroyed": true
+    },
+    {
+      "name": "zero vector",
+      "destroyed": true
+    },
+    {
+      "name": "static triangle mesh",
+      "destroyed": true
+    },
+    {
+      "name": "triangle a",
+      "destroyed": true
+    },
+    {
+      "name": "triangle b",
+      "destroyed": true
+    },
+    {
+      "name": "triangle c",
+      "destroyed": true
+    },
+    {
+      "name": "static BVH shape",
+      "destroyed": true
+    },
+    {
+      "name": "static transform",
+      "destroyed": true
+    },
+    {
+      "name": "static motion state",
+      "destroyed": true
+    },
+    {
+      "name": "static construction info",
+      "destroyed": true
+    },
+    {
+      "name": "static body",
+      "destroyed": true
+    },
+    {
+      "name": "soft helper",
+      "destroyed": true
+    },
+    {
+      "name": "soft body",
+      "destroyed": true
+    }
+  ],
+  "ownedCreated": 18,
+  "ownedDestroyed": 18,
+  "heapQualification": "HEAP8 measures reserved WASM capacity, not live allocations. Borrowed world/config/node/material wrappers were not destroyed; all owning objects explicitly destroyed. Isolated process exits after report."
+}

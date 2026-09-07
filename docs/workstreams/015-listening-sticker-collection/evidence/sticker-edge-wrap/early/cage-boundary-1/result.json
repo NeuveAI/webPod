@@ -1,0 +1,68 @@
+{
+  "scope": "Diagnostic finite/fold and sampler handoff test only; not visual, clearance or self-intersection acceptance",
+  "rows": [
+    {
+      "name": "corner-angle-0",
+      "x": 156.09,
+      "y": 266.616,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.7350086553487927,
+      "ms": 32.53449999999998
+    },
+    {
+      "name": "corner-angle-45",
+      "x": 156.09,
+      "y": 266.616,
+      "rotation": 45,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.791455655813845,
+      "ms": 20.665750000000003
+    },
+    {
+      "name": "corner-angle-90",
+      "x": 156.09,
+      "y": 266.616,
+      "rotation": 90,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.738696269886559,
+      "ms": 19.78470900000002
+    },
+    {
+      "name": "before-tangency",
+      "x": 156.09,
+      "y": 249.99,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.4666676703284256,
+      "ms": 1291.850625
+    },
+    {
+      "name": "after-tangency",
+      "x": 156.09,
+      "y": 250.01,
+      "rotation": 0,
+      "error": "Error: Collapsed corner cage"
+    },
+    {
+      "name": "near-straight-normal",
+      "x": 156.09,
+      "y": 250.1,
+      "rotation": 45,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.004394261270945646,
+      "ms": 12.906833000000006
+    }
+  ],
+  "boundary": null
+}

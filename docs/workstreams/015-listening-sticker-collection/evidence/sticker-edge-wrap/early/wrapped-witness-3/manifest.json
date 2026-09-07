@@ -1,0 +1,138 @@
+[
+  {
+    "name": "wrapped-1280-side",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "face": "side",
+    "rightStepsFromRear": 5,
+    "pickup": {
+      "x": 561.8461696688656,
+      "y": 140.3843791395311
+    },
+    "partial": {
+      "x": 568.4490111711694,
+      "y": 150.40448313577056
+    },
+    "release": {
+      "x": 643.184991266287,
+      "y": 263.8196381947969
+    },
+    "expectedCenter": {
+      "x": 0.35,
+      "y": 0.15
+    },
+    "occluded": {
+      "x": 567.0681229844442,
+      "y": 147.83122958236646
+    },
+    "flickEnd": {
+      "x": 447.06812298444424,
+      "y": 182.83122958236646
+    },
+    "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-3/wrapped-1280-side.json"
+  },
+  {
+    "name": "wrapped-1280-front",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "face": "front",
+    "rightStepsFromRear": 15,
+    "pickup": {
+      "x": 762.6675245342133,
+      "y": 137.99494921046283
+    },
+    "partial": {
+      "x": 750.7614004505385,
+      "y": 139.49301773497677
+    },
+    "release": {
+      "x": 587.6045560693025,
+      "y": 160.02195993386476
+    },
+    "expectedCenter": {
+      "x": 0.35,
+      "y": 0.017
+    },
+    "occluded": {
+      "x": 831.3879468122576,
+      "y": 180.38755075802538
+    },
+    "flickEnd": {
+      "x": 711.3879468122576,
+      "y": 215.38755075802538
+    },
+    "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-3/wrapped-1280-front.json"
+  },
+  {
+    "name": "wrapped-375-side",
+    "viewport": {
+      "width": 375,
+      "height": 812
+    },
+    "face": "side",
+    "rightStepsFromRear": 5,
+    "pickup": {
+      "x": 141.06295459588623,
+      "y": 222.03415582485093
+    },
+    "partial": {
+      "x": 147.85081076232848,
+      "y": 231.92986240213443
+    },
+    "release": {
+      "x": 189.4405910498952,
+      "y": 292.56171025626514
+    },
+    "expectedCenter": {
+      "x": 0.35,
+      "y": 0.15
+    },
+    "occluded": {
+      "x": 145.29667239632863,
+      "y": 223.88266199834328
+    },
+    "flickEnd": {
+      "x": 85.29667239632863,
+      "y": 258.8826619983433
+    },
+    "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-3/wrapped-375-side.json"
+  },
+  {
+    "name": "wrapped-375-front",
+    "viewport": {
+      "width": 375,
+      "height": 812
+    },
+    "face": "front",
+    "rightStepsFromRear": 15,
+    "pickup": {
+      "x": 242.7165025323663,
+      "y": 215.44290767432503
+    },
+    "partial": {
+      "x": 230.97289755534214,
+      "y": 217.91024270297711
+    },
+    "release": {
+      "x": 113.81973140255182,
+      "y": 242.52415905419994
+    },
+    "expectedCenter": {
+      "x": 0.35,
+      "y": 0.017
+    },
+    "occluded": {
+      "x": 305.3337228173019,
+      "y": 241.42507169344458
+    },
+    "flickEnd": {
+      "x": 245.33372281730192,
+      "y": 276.4250716934446
+    },
+    "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-3/wrapped-375-front.json"
+  }
+]

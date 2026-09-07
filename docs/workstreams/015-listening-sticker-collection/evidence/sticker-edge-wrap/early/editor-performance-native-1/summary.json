@@ -1,0 +1,210 @@
+{
+  "identity": {
+    "source": "3b3fdaae539628faa89e10fe1e76b385666263924d3f4cd365e0db9112439f8e",
+    "artifacts": "d9fe4fe1693743f440b5a8b64a54f386aaf7d576951e78e3c8880f0605f14373"
+  },
+  "zeroDrift": true,
+  "functionalCompleted": [
+    {
+      "width": 1280,
+      "pointer": "native mouse",
+      "angle": 43.48863995988086,
+      "wear": 0.885,
+      "final": {
+        "stickerId": "PW-C01",
+        "surface": "back",
+        "x": 0.4,
+        "y": 0.4,
+        "width": 0.25,
+        "rotationDeg": 43.48863995988086,
+        "wear": 0.885
+      }
+    }
+  ],
+  "failure": {
+    "case": "375 rotation",
+    "preReleaseDOMAngle": 69.97109740724056,
+    "savedAngle": 76.75635496526479,
+    "classification": "pending actual event/commit chronology; no retry"
+  },
+  "reports": [
+    {
+      "name": "1280-cold-selection",
+      "longTaskSupport": "available",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "insufficient",
+          "duration": 3.3000000715255737,
+          "firstCallbackMs": 2.5,
+          "maxGapMs": 2.5,
+          "allGapP95Ms": 2.5,
+          "frameP95Ms": null,
+          "longTasks": [],
+          "rafCount": 1
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "within-gross-stall-budget",
+          "duration": 827.0999999046326,
+          "firstCallbackMs": 35.09999990463257,
+          "maxGapMs": 35.09999990463257,
+          "allGapP95Ms": 18.5,
+          "frameP95Ms": 16.700000000000045,
+          "longTasks": [],
+          "rafCount": 50
+        }
+      ]
+    },
+    {
+      "name": "1280-rotation",
+      "longTaskSupport": "available",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "within-gross-stall-budget",
+          "duration": 420.10000002384186,
+          "firstCallbackMs": 14,
+          "maxGapMs": 18.59999990463257,
+          "allGapP95Ms": 18.5,
+          "frameP95Ms": 16.700000000000273,
+          "longTasks": [],
+          "rafCount": 25
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "within-gross-stall-budget",
+          "duration": 807.6000000238419,
+          "firstCallbackMs": 8.799999952316284,
+          "maxGapMs": 18.700000047683716,
+          "allGapP95Ms": 18.399999976158142,
+          "frameP95Ms": 16.700000000000273,
+          "longTasks": [],
+          "rafCount": 48
+        }
+      ]
+    },
+    {
+      "name": "1280-wear",
+      "longTaskSupport": "available",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "within-gross-stall-budget",
+          "duration": 506.1999999284744,
+          "firstCallbackMs": 13,
+          "maxGapMs": 122.20000004768372,
+          "allGapP95Ms": 23.199999928474426,
+          "frameP95Ms": 16.799999999999727,
+          "longTasks": [],
+          "rafCount": 24
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "insufficient",
+          "duration": 13.399999976158142,
+          "firstCallbackMs": 8.399999976158142,
+          "maxGapMs": 8.399999976158142,
+          "allGapP95Ms": 8.399999976158142,
+          "frameP95Ms": null,
+          "longTasks": [],
+          "rafCount": 1
+        }
+      ]
+    },
+    {
+      "name": "1280-move-cancel",
+      "longTaskSupport": "available",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "within-gross-stall-budget",
+          "duration": 467.2999999523163,
+          "firstCallbackMs": 1.899999976158142,
+          "maxGapMs": 29.100000023841858,
+          "allGapP95Ms": 18.399999976158142,
+          "frameP95Ms": 16.700000000000045,
+          "longTasks": [],
+          "rafCount": 28
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "within-gross-stall-budget",
+          "duration": 917.3999999761581,
+          "firstCallbackMs": 7.799999952316284,
+          "maxGapMs": 18.5,
+          "allGapP95Ms": 18.399999976158142,
+          "frameP95Ms": 16.700000000000273,
+          "longTasks": [],
+          "rafCount": 56
+        }
+      ]
+    },
+    {
+      "name": "1280-cleanup",
+      "longTaskSupport": "available",
+      "windows": []
+    },
+    {
+      "name": "375-cold-selection",
+      "longTaskSupport": "available",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "insufficient",
+          "duration": 14.100000023841858,
+          "firstCallbackMs": 13.700000047683716,
+          "maxGapMs": 13.700000047683716,
+          "allGapP95Ms": 13.700000047683716,
+          "frameP95Ms": null,
+          "longTasks": [],
+          "rafCount": 1
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "within-gross-stall-budget",
+          "duration": 811.2000000476837,
+          "firstCallbackMs": 18.800000071525574,
+          "maxGapMs": 18.800000071525574,
+          "allGapP95Ms": 18.100000023841858,
+          "frameP95Ms": 16.700000000000045,
+          "longTasks": [],
+          "rafCount": 48
+        }
+      ]
+    },
+    {
+      "name": "375-rotation",
+      "longTaskSupport": "available",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "within-gross-stall-budget",
+          "duration": 550.1000000238419,
+          "firstCallbackMs": 15.899999976158142,
+          "maxGapMs": 18.399999976158142,
+          "allGapP95Ms": 18.399999976158142,
+          "frameP95Ms": 16.700000000000273,
+          "longTasks": [],
+          "rafCount": 33
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "within-gross-stall-budget",
+          "duration": 808.3999999761581,
+          "firstCallbackMs": 16.299999952316284,
+          "maxGapMs": 18.300000071525574,
+          "allGapP95Ms": 18.09999990463257,
+          "frameP95Ms": 16.799999999999727,
+          "longTasks": [],
+          "rafCount": 48
+        }
+      ]
+    },
+    {
+      "name": "375-cleanup",
+      "longTaskSupport": "available",
+      "windows": []
+    }
+  ]
+}

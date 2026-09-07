@@ -1,0 +1,9 @@
+import {actualShell} from '../wrapped-witness-4/source-shell';
+import {createStickerWrapSurface} from '/Users/vinicius/code/webPod/packages/device/src/sticker-wrap';
+import {createStickerSurfaceGeometry} from '/Users/vinicius/code/webPod/packages/device/src/sticker-surface';
+import {DEFAULT_DEVICE_FORM} from '/Users/vinicius/code/webPod/packages/device/src/form';
+import {getSticker} from '/Users/vinicius/code/webPod/packages/stickers/src/catalogue';
+const shell=actualShell(),faces=shell.faces.filter(f=>f.source!=='top cap and outer bevel candidate support'&&!f.source.includes('rear')).map(f=>({geometry:f.geometry,offset:f.transform?[f.transform.elements[12],f.transform.elements[13],f.transform.elements[14]]:undefined})),wrap=createStickerWrapSurface(DEFAULT_DEVICE_FORM,faces),art=getSticker('PW-C03')!;
+const old=await Bun.file(import.meta.dir+'/../wrapped-witness-5/candidates.json').json(),rows=[],start=performance.now();
+for(const r of old.results)for(const t of r.chosen.trajectory.filter(t=>t.admitted)){const placement={stickerId:art.id,surface:'back' as const,...t.center,width:.35,rotationDeg:0,wear:1};try{const g=createStickerSurfaceGeometry(art,placement,shell.rear,wrap);rows.push({name:r.viewport.width+'-'+r.face,point:t.point,placement,finite:[...g.getAttribute('position').array].every(Number.isFinite),vertices:g.getAttribute('position').count});g.dispose();}catch(e){rows.push({name:r.viewport.width+'-'+r.face,point:t.point,placement,error:String(e)});}}
+await Bun.write(import.meta.dir+'/trajectory.json',JSON.stringify({scope:'Every previously admitted unchanged native path center, complete96 mesh. New inverse path still requires recomputation after mapper correction.',elapsed:performance.now()-start,rows},null,2));console.log(rows.length,rows.filter(r=>r.error||!r.finite));shell.dispose();

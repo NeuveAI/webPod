@@ -1,0 +1,60 @@
+import {actualShell} from '/tmp/webpod-fermi-shell';
+import {Vector3} from '/Users/vinicius/code/webPod/packages/device/node_modules/three';
+const phase=(name)=>console.error(JSON.stringify({phase:name,at:performance.now()}));
+const dir='/tmp/webpod-ammo-79190a1f';
+const data=await Bun.file(`${dir}/seed-preflight-tolerant.json`).json();
+if(data.blockedCount!==0||data.seed.length!==1089)throw Error('Unadmitted seed');
+const factory=require(`${dir}/ammo.wasm.js`),init=performance.now();
+const Ammo=await factory({wasmBinary:new Uint8Array(await Bun.file(`${dir}/ammo.wasm.wasm`).arrayBuffer())});
+const initializationMs=performance.now()-init,heapInitial=Ammo.HEAP8.byteLength;
+const shellStart=performance.now(),shell=actualShell(),shellMs=performance.now()-shellStart;
+const rest=[],indices=[];for(let row=0;row<=32;row++)for(let col=0;col<=32;col++){rest.push([(col/32-.5)*data.width,(row/32-.5)*data.height,0]);if(row<32&&col<32){const a=row*33+col;indices.push(a,a+1,a+33,a+34,a+33,a+1);}}
+const pins=new Set(data.pins.map(p=>p.id)),results=[];
+for(const hz of[120,240]){
+ const ledger=[],own=(name,object)=>{ledger.push({name,object,destroyed:false});return object;};
+ let world,soft,rigid,addedSoft=false,addedRigid=false,result;
+ try{
+  phase('start native world');const constructionStart=performance.now();
+  const config=own('configuration',new Ammo.btSoftBodyRigidBodyCollisionConfiguration()),dispatcher=own('dispatcher',new Ammo.btCollisionDispatcher(config)),broadphase=own('broadphase',new Ammo.btDbvtBroadphase()),solver=own('constraint solver',new Ammo.btSequentialImpulseConstraintSolver()),softSolver=own('soft solver',new Ammo.btDefaultSoftBodySolver());
+  world=own('world',new Ammo.btSoftRigidDynamicsWorld(dispatcher,broadphase,solver,config,softSolver));
+  const zero=own('zero',new Ammo.btVector3(0,0,0));world.setGravity(zero);world.getWorldInfo().set_m_gravity(zero);
+  const mesh=own('static mesh',new Ammo.btTriangleMesh(true,true)),vectors=[0,1,2].map(i=>own(`triangle vector ${i}`,new Ammo.btVector3(0,0,0))),point=new Vector3();
+  phase('start static triangle copy');let staticTriangles=0;const triangleStart=performance.now();
+  // Candidate-support copies duplicate original front geometry and are not added twice.
+  for(const face of shell.faces.filter(f=>f.source!=='top cap and outer bevel candidate support')){const p=face.geometry.getAttribute('position'),ix=face.geometry.index;for(let j=0;j<(ix?.count??p.count);j+=3){for(let k=0;k<3;k++){point.fromBufferAttribute(p,ix?ix.getX(j+k):j+k);if(face.transform)point.applyMatrix4(face.transform);vectors[k].setValue(point.x,point.y,point.z);}mesh.addTriangle(...vectors,false);staticTriangles++;}}
+  phase('finished triangle copy, start BVH');const triangleCopyMs=performance.now()-triangleStart,bvhStart=performance.now(),shape=own('static shape',new Ammo.btBvhTriangleMeshShape(mesh,true,true));shape.setMargin(0);const nativeBvhMs=performance.now()-bvhStart;
+  phase('finished BVH');const transform=own('transform',new Ammo.btTransform());transform.setIdentity();const motion=own('motion',new Ammo.btDefaultMotionState(transform)),info=own('construction info',new Ammo.btRigidBodyConstructionInfo(0,motion,shape,zero));rigid=own('rigid body',new Ammo.btRigidBody(info));rigid.setRestitution(0);world.addRigidBody(rigid);addedRigid=true;
+  phase('start soft trimesh');const helper=own('soft helper',new Ammo.btSoftBodyHelpers()),constraintStart=performance.now();soft=own('soft body',helper.CreateFromTriMesh(world.getWorldInfo(),rest.flat(),indices,indices.length/3,false));
+  phase('finished soft trimesh');const cfg=soft.get_m_cfg();cfg.set_kDF(.5);cfg.set_kDP(.05);cfg.set_kPR(0);cfg.set_kVC(0);cfg.set_kMT(0);cfg.set_piterations(10);cfg.set_viterations(10);cfg.set_citerations(4);cfg.set_collisions(0x61);
+  soft.get_m_materials().at(0).set_m_kLST(1);const bend=soft.appendMaterial();bend.set_m_kLST(.05);phase('start bending');const bendingLinks=soft.generateBendingConstraints(2,bend);phase('finished bending');
+  soft.setTotalMass(1,true);const nodes=soft.get_m_nodes();
+  // Keep link rest lengths from the original planar mesh. Move only dynamic state.
+  for(let i=0;i<1089;i++){const node=nodes.at(i),p=data.seed[i];node.get_m_x().setValue(...p);node.get_m_q().setValue(...p);node.get_m_v().setValue(0,0,0);node.get_m_f().setValue(0,0,0);if(pins.has(i))soft.setMass(i,0);}
+  phase('start clusters');soft.getCollisionShape().setMargin(.1);const constraintMs=performance.now()-constraintStart,clusterStart=performance.now(),clusterCount=soft.generateClusters(128,16),clusterMs=performance.now()-clusterStart;
+  phase({name:'finished clusters',staticTriangles,clusterCount,bendingLinks,triangleCopyMs,nativeBvhMs,clusterMs});world.addSoftBody(soft,1,-1);addedSoft=true;if(process.env.CONSTRUCTION_ONLY==='1')throw Error('Construction-only diagnostic complete');
+  const force=own('force vector',new Ammo.btVector3(0,0,0)),constructionMs=performance.now()-constructionStart,heapAfterConstruction=Ammo.HEAP8.byteLength;
+  const capture=()=>Array.from({length:1089},(_,i)=>{const n=nodes.at(i),x=n.get_m_x(),v=n.get_m_v();return{position:[x.x(),x.y(),x.z()],velocity:[v.x(),v.y(),v.z()]};});
+  const press=349/120,total=press+.5,dt=1/hz,steps=Math.round(total*hz),times=[],snapshots=[];
+  let forceMs=0,nativeMs=0,copyMs=0,completed=0,status='completed fixed-target substrate diagnostic';
+  for(let step=0;step<steps;step++){
+   if(forceMs+nativeMs>=2000){status='CPU cap: incomplete physical schedule';break;}
+   const t=step*dt,forceStart=performance.now(),ramp=Math.min(1,t/.1);let admitted=0;
+   for(let i=0;i<1089;i++){if(pins.has(i))continue;const node=nodes.at(i),p=node.get_m_x(),v=node.get_m_v(),target=data.targets[i].position;const dx=target[0]-p.x(),dy=target[1]-p.y(),dz=target[2]-p.z();
+    if(t>=press&&Math.hypot(dx,dy,dz)>.25)continue;
+    const ax=400*dx-40*v.x(),ay=400*dy-40*v.y(),az=400*dz-40*v.z(),scale=Math.min(1,400/Math.max(1e-30,Math.hypot(ax,ay,az)))*ramp/node.get_m_im();force.setValue(ax*scale,ay*scale,az*scale);soft.addForce(force,i);admitted++;
+   }
+   const fm=performance.now()-forceStart;forceMs+=fm;const nativeStart=performance.now();phase({name:'before native step',hz,step:step+1,forceMs,nativeMs});world.stepSimulation(dt,0);phase({name:'after native step',hz,step:step+1});const nm=performance.now()-nativeStart;nativeMs+=nm;completed=step+1;times.push({step:completed,time:completed*dt,forceMs:fm,nativeMs:nm,admitted});
+   if(completed===Math.round(press*hz)||completed===steps){const c=performance.now();snapshots.push({phase:completed===steps?'fixed-target capture end':'press end',time:completed*dt,nodes:capture()});copyMs+=performance.now()-c;}
+  }
+  const c=performance.now(),finalNodes=capture();copyMs+=performance.now()-c;
+  result={hz,status,requestedSteps:steps,completedSteps:completed,physicalTime:completed*dt,pressSeconds:press,captureSeconds:.5,forceMs,nativeMs,solverPlusForceMs:forceMs+nativeMs,copyMs,triangleCopyMs,nativeBvhMs,constraintMs,clusterMs,constructionMs,staticTriangles,bendingLinks,clusterCount,collidableClusters:clusterCount-1,clusterQualification:'Pinned implementation includes a non-colliding aggregate cluster; count minus one assumes exactly that master remains.',heapAfterConstruction,rest,indices,finalNodes,snapshots,times,pins:data.pins};
+ }finally{
+  if(addedSoft)world.removeSoftBody(soft);if(addedRigid)world.removeRigidBody(rigid);
+  for(const entry of [...ledger].reverse()){Ammo.destroy(entry.object);entry.destroyed=true;}
+  await Bun.write(`${dir}/cleanup-${hz}.json`,JSON.stringify(ledger.map(({name,destroyed})=>({name,destroyed}))));
+ }
+ result.cleanup=ledger.map(({name,destroyed})=>({name,destroyed}));result.heapAfterCleanup=Ammo.HEAP8.byteLength;results.push(result);
+ await Bun.write(`${dir}/c03-fixed-target-${hz}.json`,JSON.stringify(result));
+ console.log(JSON.stringify(Object.fromEntries(Object.entries(result).filter(([k])=>!['rest','indices','finalNodes','snapshots','times','cleanup'].includes(k)))));
+}
+shell.dispose();await Bun.write(`${dir}/c03-fixed-target-summary.json`,JSON.stringify({variant:'LIMITED frozen initial exterior target substrate/press diagnostic. Capture is distance to frozen target, NOT current-support adhesion; no physical tack success/failure inference.',initializationMs,shellMs,heapInitial,sourceSeed:'seed-preflight-tolerant.json',results:results.map(({rest,indices,finalNodes,snapshots,times,...r})=>r)},null,2));

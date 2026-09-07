@@ -1,0 +1,22 @@
+import { Vector3, ExtrudeGeometry } from '/Users/vinicius/code/webPod/node_modules/.bun/three@0.185.1/node_modules/three/build/three.module.js';
+import {createStickerWrapSurface} from '/Users/vinicius/code/webPod/packages/device/src/sticker-wrap';
+import {DEFAULT_DEVICE_FORM as form} from '/Users/vinicius/code/webPod/packages/device/src/form';
+import {DEVICE_LAYOUT} from '/Users/vinicius/code/webPod/packages/device/src/layout';
+import {silhouetteShape} from '/Users/vinicius/code/webPod/packages/device/src/shapes';
+import {frontShellPlan,productShellDepths} from '/Users/vinicius/code/webPod/packages/device/src/product-shell';
+const b=DEVICE_LAYOUT.body,p=frontShellPlan(b.width,b.height,b.cornerR,form.seamWidth,form.frontBevel);
+const face=new ExtrudeGeometry(silhouetteShape(p.faceWidth,p.faceHeight,p.faceCornerR,2,48),{depth:form.frontThickness-2*form.frontBevel,bevelEnabled:true,bevelThickness:form.frontBevel,bevelSize:form.frontBevel,bevelSegments:16,steps:1});face.translate(0,0,productShellDepths(b.depth,form.frontThickness).seamZ+form.frontBevel);
+const s=createStickerWrapSurface(form,[{geometry:face}]);
+const n=16,w=115.5,h=w*1.9768211920529801,anchor=s.anchor(157,268),N=(n+1)**2,C=8*(n+1)+8;
+let q=Array.from({length:N},(_,i)=>({x:anchor.x-(i%(n+1)/n-.5)*w,y:anchor.y-(Math.floor(i/(n+1))/n-.5)*h}));
+const sample=(q)=>q.map(v=>s.sample(v.x,v.y,0));
+let pts=sample(q);
+const edges=[]; const triangles=[];
+for(let y=0;y<=n;y++)for(let x=0;x<=n;x++){const a=y*(n+1)+x;if(x<n)edges.push([a,a+1,w/n]);if(y<n)edges.push([a,a+n+1,h/n]);if(x<n&&y<n){edges.push([a,a+n+2,Math.hypot(w,h)/n],[a+1,a+n+1,Math.hypot(w,h)/n]);triangles.push([a,a+n+1,a+1],[a+1,a+n+1,a+n+2]);}}
+const origin=pts[C].point.clone(),tx=pts[C+1].point.clone().sub(origin).normalize(),normal=pts[C].normal.clone(),ty=normal.clone().cross(tx).normalize();
+const orientation=pts[C+1].point.clone().sub(origin).dot(ty);
+function evaluate(ps,gradient=false){const g=gradient?ps.map(()=>new Vector3()):null;let e=0;for(const[a,b,l]of edges){const d=ps[a].point.clone().sub(ps[b].point),len=d.length(),strain=(len-l)/l;e+=strain*strain;if(g&&len>1e-9){d.multiplyScalar(2*strain/(l*len));g[a].add(d);g[b].sub(d);}}for(const[a,b,c]of triangles){const ab=ps[b].point.clone().sub(ps[a].point),ac=ps[c].point.clone().sub(ps[a].point),norm=ps[a].normal.clone().add(ps[b].normal).add(ps[c].normal).normalize(),area=ab.clone().cross(ac).dot(norm)/(w*h/n**2);if(area<=0)return {e:Infinity,g};if(area<.5){const penalty=1/area-2;e+=.05*penalty*penalty;if(g){const factor=-.1*penalty/(area*area)/(w*h/n**2),gb=ac.clone().cross(norm).multiplyScalar(factor),gc=norm.clone().cross(ab).multiplyScalar(factor);g[b].add(gb);g[c].add(gc);g[a].sub(gb).sub(gc);}}}const d=ps[C+1].point.clone().sub(ps[C].point),o=(d.dot(ty)-orientation)/(w/n);e+=10*o*o;if(g)g[C+1].addScaledVector(ty,20*o/(w/n));return {e,g};}
+function valid(ps){return triangles.every(([a,b,c])=>ps[b].point.clone().sub(ps[a].point).cross(ps[c].point.clone().sub(ps[a].point)).dot(ps[a].normal.clone().add(ps[b].normal).add(ps[c].normal))>1e-6);}
+
+q=JSON.parse(await Bun.file('/tmp/webpod-drape-experiment.json').text()).q;
+for(const factor of [1,2,4,8]){const nn=n*factor;const pp=[];for(let y=0;y<=nn;y++)for(let x=0;x<=nn;x++){const cx=Math.min(n-1,Math.floor(x/factor)),cy=Math.min(n-1,Math.floor(y/factor)),u=x/factor-cx,v=y/factor-cy;const ids=[cy*(n+1)+cx,cy*(n+1)+cx+1,(cy+1)*(n+1)+cx,(cy+1)*(n+1)+cx+1],weights=[(1-u)*(1-v),u*(1-v),(1-u)*v,u*v];let xx=0,yy=0;for(let k=0;k<4;k++){xx+=q[ids[k]].x*weights[k];yy+=q[ids[k]].y*weights[k];}pp.push(s.sample(xx,yy,0));}const rows=[];for(let row=0;row<nn;row++)for(let col=0;col<nn;col++){const a=row*(nn+1)+col;for(const[i,j,k]of[[a,a+1,a+nn+1],[a+nn+2,a+nn+1,a+1]]){const du=pp[j].point.clone().sub(pp[i].point).multiplyScalar(nn/w),dv=pp[k].point.clone().sub(pp[i].point).multiplyScalar(nn/h),A=du.lengthSq(),B=dv.lengthSq(),D=du.dot(dv),root=Math.sqrt((A-B)**2+4*D*D);rows.push({min:Math.sqrt(Math.max(0,(A+B-root)/2)),max:Math.sqrt((A+B+root)/2)});}}let low=rows.map(r=>r.min).sort((a,b)=>a-b),high=rows.map(r=>r.max).sort((a,b)=>a-b);console.log({factor,min:low[0],p05:low[Math.floor(.05*low.length)],p95:high[Math.floor(.95*high.length)],max:high.at(-1)});}face.dispose();

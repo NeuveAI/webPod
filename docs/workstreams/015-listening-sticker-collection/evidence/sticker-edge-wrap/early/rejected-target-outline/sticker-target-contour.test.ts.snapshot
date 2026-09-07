@@ -1,0 +1,48 @@
+import { expect, test } from 'bun:test';
+import { BufferGeometry, Matrix4, OrthographicCamera, Vector3 } from 'three';
+import { createStickerTargetContourSlot } from './sticker-target-contour';
+import type { DeviceStickerPlacement } from './sticker-contract';
+
+test('target contour borrows exact prepared pose, rejects stale fields, and cleans up symmetrically', () => {
+  const slot = createStickerTargetContourSlot();
+  const pose: DeviceStickerPlacement = { stickerId: 'test', surface: 'back', x: .3, y: .2, width: .2, rotationDeg: 37, wear: .1 };
+  const geometry = new BufferGeometry(); let disposed = false; geometry.addEventListener('dispose', () => { disposed = true; });
+  const field = { width: 1, height: 1, alpha: new Uint8Array([255]), onset: new Uint8Array([255]), boundaryCandidates: new Uint32Array([0]) };
+  expect(slot.read(pose, pose)).toBeNull();
+  const release = slot.publish(pose, geometry, field);
+  const ready = slot.read(pose, { ...pose });
+  expect(ready?.mesh.geometry).toBe(geometry); expect(ready?.field).toBe(field);
+  expect(slot.read(pose, pose)).toBe(ready);
+  for (const changed of [{ stickerId: 'other' }, { surface: 'front' }, { x: .31 }, { y: .21 }, { width: .21 }, { rotationDeg: 38 }, { wear: .2 }]) {
+    const mismatch = { ...pose, ...changed } as DeviceStickerPlacement;
+    expect(slot.read(mismatch, mismatch)).toBeNull(); expect(slot.read(pose, mismatch)).toBeNull();
+  }
+  expect(slot.read(pose, null)).toBeNull();
+  release(); expect(slot.read(pose, pose)).toBeNull(); expect(disposed).toBe(false);
+  const nextRelease = slot.publish(pose, geometry, field);
+  release(); expect(slot.read(pose, pose)).not.toBeNull();
+  nextRelease(); expect(slot.read(pose, pose)).toBeNull(); expect(disposed).toBe(false);
+  geometry.dispose();
+});
+
+
+test('borrowed target projection refreshes manual world transforms with pinned Three semantics', async () => {
+  const { createStickerSurfaceGeometry } = await import('./sticker-surface');
+  const { projectStickerContourField } = await import('./sticker-contour');
+  const art = { id: 'test', url: '', width: 1, height: 1, visibleBounds: [0, 0, 1, 1] as const };
+  const placement: DeviceStickerPlacement = { stickerId: 'test', surface: 'back', x: .5, y: .5, width: .08, rotationDeg: 0 };
+  const rear = new BufferGeometry(), geometry = createStickerSurfaceGeometry(art, placement, rear), slot = createStickerTargetContourSlot();
+  const field = { width: 1, height: 1, alpha: new Uint8Array([255]), onset: new Uint8Array([255]), boundaryCandidates: new Uint32Array([0]) };
+  const release = slot.publish(placement, geometry, field), target = slot.read(placement, placement); if (!target) throw new Error('Missing target');
+  const camera = new OrthographicCamera(-200, 200, 300, -300, 1, 2000); camera.position.z = -1000; camera.lookAt(0, 0, 0); camera.updateMatrixWorld();
+  const rect = { left: 11, top: 17, width: 400, height: 600 };
+  for (const angle of [.4, .7]) {
+    const matrix = new Matrix4().makeRotationY(angle); matrix.setPosition(23, -19, 11); target.setWorldMatrix(matrix);
+    const contour = projectStickerContourField(target.mesh, camera, rect, field); expect(contour).not.toBeNull();
+    const expected = new Vector3().fromBufferAttribute(geometry.getAttribute('position'), 4704).applyMatrix4(matrix).project(camera);
+    expect(contour?.center.x).toBeCloseTo(rect.left + (expected.x + 1) * rect.width / 2, 8);
+    expect(contour?.center.y).toBeCloseTo(rect.top + (1 - expected.y) * rect.height / 2, 8);
+    expect(target.mesh.matrixWorld.equals(matrix)).toBe(true);
+  }
+  release(); geometry.dispose(); rear.dispose();
+});

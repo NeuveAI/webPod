@@ -1,0 +1,211 @@
+{
+  "variant": "Explicit collision-path experiment:flags0x62,generateClusters(0),same64MiB/mesh/fixed-targetforces/margins/iterations; no physicaladhesionclaim",
+  "requestedPhysicalSchedule": {
+    "press": 2.908333333333333,
+    "capture": 0.5
+  },
+  "runs": [
+    {
+      "hz": 120,
+      "completedSteps": 121,
+      "physicalTime": 1.0083333333333333,
+      "nativeMs": 1979.5417050000008,
+      "forceMs": 24.30799599999898,
+      "nativeMedianMs": 17.161000000000058,
+      "nativeP95Ms": 19.40370800000005,
+      "maximumNativeMs": 20.220625000000155,
+      "principals": [
+        0.937246749151948,
+        1.0619067532154147
+      ],
+      "shellTriangles": 155,
+      "selfPairs": 0,
+      "priorNonsharedPairResults": [
+        {
+          "pair": [
+            845,
+            848
+          ],
+          "intersects": false
+        },
+        {
+          "pair": [
+            1130,
+            1133
+          ],
+          "intersects": false
+        },
+        {
+          "pair": [
+            1130,
+            1134
+          ],
+          "intersects": false
+        },
+        {
+          "pair": [
+            1131,
+            1134
+          ],
+          "intersects": false
+        },
+        {
+          "pair": [
+            1131,
+            1135
+          ],
+          "intersects": false
+        },
+        {
+          "pair": [
+            1132,
+            1135
+          ],
+          "intersects": false
+        }
+      ],
+      "rootIncidentFaces": [
+        991,
+        992,
+        993,
+        994,
+        995,
+        1054,
+        1055,
+        1056,
+        1057,
+        1058,
+        1118,
+        1119,
+        1120
+      ],
+      "rootIncidentContacts": [],
+      "nonrootShellContacts": 155,
+      "maxSampledVertexGap": 73.91869694358455,
+      "timingQualification": "120Hz isolated;240Hz overlapped briefly with120Hz read-only audit and is confounded wall timing, not a clean cost comparison."
+    },
+    {
+      "hz": 240,
+      "completedSteps": 135,
+      "physicalTime": 0.5625,
+      "nativeMs": 1981.8732519999992,
+      "forceMs": 27.83899999999869,
+      "nativeMedianMs": 15.890333000000055,
+      "nativeP95Ms": 19.15820800000006,
+      "maximumNativeMs": 20.580375000000004,
+      "principals": [
+        0.978192112964232,
+        1.0229249212597713
+      ],
+      "shellTriangles": 58,
+      "selfPairs": 0,
+      "priorNonsharedPairResults": [
+        {
+          "pair": [
+            845,
+            848
+          ],
+          "intersects": false
+        },
+        {
+          "pair": [
+            1130,
+            1133
+          ],
+          "intersects": false
+        },
+        {
+          "pair": [
+            1130,
+            1134
+          ],
+          "intersects": false
+        },
+        {
+          "pair": [
+            1131,
+            1134
+          ],
+          "intersects": false
+        },
+        {
+          "pair": [
+            1131,
+            1135
+          ],
+          "intersects": false
+        },
+        {
+          "pair": [
+            1132,
+            1135
+          ],
+          "intersects": false
+        }
+      ],
+      "rootIncidentFaces": [
+        991,
+        992,
+        993,
+        994,
+        995,
+        1054,
+        1055,
+        1056,
+        1057,
+        1058,
+        1118,
+        1119,
+        1120
+      ],
+      "rootIncidentContacts": [
+        1054,
+        1055
+      ],
+      "nonrootShellContacts": 56,
+      "maxSampledVertexGap": 97.23996349429788,
+      "timingQualification": "120Hz isolated;240Hz overlapped briefly with120Hz read-only audit and is confounded wall timing, not a clean cost comparison."
+    }
+  ],
+  "clusterCount": 2048,
+  "aggregateCount": 0,
+  "connectivityBoolEntries": 4194304,
+  "estimatedConnectivityPayloadBytes": 4194304,
+  "allocationQualification": "Source-derived bool table payload, not directly measured live allocation. Cluster/native hull/cache overhead is additional; reservedWASM64MiB is not live nativebytes.",
+  "commonHalfSecond": [
+    {
+      "hz": 120,
+      "physicalTime": 0.5,
+      "principals": [
+        0.9549915279757717,
+        1.0471521787434086
+      ],
+      "shellTriangles": 83,
+      "selfPairs": 0,
+      "maxSampledVertexGap": 93.51158175970917
+    },
+    {
+      "hz": 240,
+      "physicalTime": 0.5,
+      "principals": [
+        0.9787339952627927,
+        1.020728451686553
+      ],
+      "shellTriangles": 55,
+      "selfPairs": 0,
+      "maxSampledVertexGap": 98.0429411532902
+    }
+  ],
+  "commonPositions": {
+    "maximumDifference": 9.163882095752479,
+    "rmsDifference": 4.415202838014648
+  },
+  "stratification120": {
+    "behindExposedFacetNodes": 47,
+    "shellTrianglesWithBehindNode": 130,
+    "allNodeOutsideChordCases": 2,
+    "uncertainTriangles": 23
+  },
+  "periodicMeshes": "Unique snapshots every30steps plus exact finalstep121/135. Original material/index/position/velocity preserved. No per-native-step swept trajectory proof.",
+  "termination": "Both runs reached2s force+native wall-time cap before pressing complete; completed native step can overshoot slightly. NoOOM;19ownersdestroyed each; each isolatedprocess exited."
+}

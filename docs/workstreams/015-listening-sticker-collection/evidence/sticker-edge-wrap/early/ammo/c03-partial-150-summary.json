@@ -1,0 +1,135 @@
+{
+  "status": "Midpress diagnostic only,150steps120Hz,1.25s; before2.908333s pressing endpoint. No adhesion/convergence/completion claim.",
+  "nativeMs": 519.2796719999986,
+  "forceMs": 24.51062700000125,
+  "nativeStepQuantilesMs": {
+    "0": 2.980583000000024,
+    "0.05": 3.0149580000000924,
+    "0.5": 3.350416999999993,
+    "0.95": 3.873625000000061,
+    "1": 10.564624999999978
+  },
+  "fullTriangleCount": 2048,
+  "principalStretch": [
+    0.9310895488865051,
+    1.0617365774146685
+  ],
+  "degenerateTriangleCount": 0,
+  "shellIntersectingTriangleCount": 134,
+  "selfOverlapPairs": [
+    {
+      "a": 845,
+      "b": 847,
+      "sharedVertex": true
+    },
+    {
+      "a": 845,
+      "b": 848,
+      "sharedVertex": false
+    },
+    {
+      "a": 846,
+      "b": 848,
+      "sharedVertex": true
+    },
+    {
+      "a": 1130,
+      "b": 1133,
+      "sharedVertex": false
+    },
+    {
+      "a": 1130,
+      "b": 1134,
+      "sharedVertex": false
+    },
+    {
+      "a": 1131,
+      "b": 1133,
+      "sharedVertex": true
+    },
+    {
+      "a": 1131,
+      "b": 1134,
+      "sharedVertex": false
+    },
+    {
+      "a": 1131,
+      "b": 1135,
+      "sharedVertex": false
+    },
+    {
+      "a": 1132,
+      "b": 1134,
+      "sharedVertex": true
+    },
+    {
+      "a": 1132,
+      "b": 1135,
+      "sharedVertex": false
+    }
+  ],
+  "vertexSupportGapQuantiles": {
+    "0": 0.0004876856607182047,
+    "0.05": 0.9156411484480081,
+    "0.5": 14.219572279721003,
+    "0.95": 47.016174404574755,
+    "1": 62.08300164809371
+  },
+  "maxVelocity": 68.4396364288306,
+  "pins": [
+    {
+      "id": 544,
+      "seed": [
+        157.06940564484464,
+        268.0717146567886,
+        3.105956494633084
+      ],
+      "final": [
+        157.0694122314453,
+        268.07171630859375,
+        3.105956554412842
+      ],
+      "drift": 6.790827816703465e-06,
+      "nearestSupportGap": 0.10000575234629377
+    },
+    {
+      "id": 545,
+      "seed": [
+        159.04335115816082,
+        266.38187711400735,
+        5.6110664882443535
+      ],
+      "final": [
+        159.04335021972656,
+        266.3818664550781,
+        5.6110663414001465
+      ],
+      "drift": 1.0701167896220032e-05,
+      "nearestSupportGap": 0.27931697825256224
+    },
+    {
+      "id": 577,
+      "seed": [
+        153.728898979148,
+        271.7551638044967,
+        8.222861075417127
+      ],
+      "final": [
+        153.72889709472656,
+        271.7551574707031,
+        8.222861289978027
+      ],
+      "drift": 6.6116580088637575e-06,
+      "nearestSupportGap": 0.5354497901546287
+    }
+  ],
+  "periodicExportLimitation": "The checkpoint writer ran every30steps but replaced the same file. Only final150step mesh is retained; earlier30/60/90/120 positions cannot be reconstructed. Per-step timing/admission timeline is durable. No swept trajectory certificate is claimed.",
+  "oracleLimitations": "Metrics cover both halves and full original material. Gap is sampled vertices only, not interior certification; support partition/exterior identity not implied. Complete triangle shell intersections checked; wholly-inside triangles require separate swept invariant. Self-intersection checks include connected pairs with relative1e-6 triangle-interior shrink to exclude expected shared edges, so this is a bounded diagnostic and not an exact CCD/contact-separation certificate. Original-alpha weighting not yet computed.",
+  "sampledGapGate": "At least one vertex is62.083units from support; no adaptive bound is needed to reject\u22642gap for this partial state. This does not predict final pressing/capture state.",
+  "sourceHashes": {
+    "/tmp/webpod-ammo-79190a1f/c03-partial-150.ts": "ae15baefee9fa8a05590ec082ad8729309135a82c693cc5ad628bbc526e0d06a",
+    "/tmp/webpod-ammo-79190a1f/c03-audit.ts": "c2d4899ed97800f4459a3da335389687ee5ef8273edbe58153d8bf90743fa109",
+    "/tmp/webpod-fermi-shell.ts": "590a42f69876c52b01bdc95f75a8f3f74ffc95b85ca395e178259233a76d3cf9",
+    "/tmp/webpod-ammo-79190a1f/seed-preflight-tolerant.json": "3d9f0a4700df51c1bec9fe6b907be46ac24cdd893f2f1e9a0e5a23ddc5fc9269"
+  }
+}

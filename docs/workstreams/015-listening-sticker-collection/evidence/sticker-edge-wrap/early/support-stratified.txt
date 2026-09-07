@@ -1,0 +1,8 @@
+import {Vector3} from '/Users/vinicius/code/webPod/node_modules/.bun/three@0.185.1/node_modules/three/build/three.module.js';
+import {actualShell} from '/tmp/webpod-actual-shell';
+import {createStickerCollision} from '/Users/vinicius/code/webPod/packages/device/src/sticker-collision';
+const shell=actualShell(),collider=createStickerCollision(shell.faces),saved=JSON.parse(await Bun.file('/tmp/webpod-actual-edge.json').text());
+const trajectories=saved.rest.map((r,i)=>{const initial=new Vector3(165.18,-r.y,20.0339805825-r.x),end=new Vector3(...saved.positions[i]);return Array.from({length:21},(_,j)=>initial.clone().lerp(end,j/20));});
+
+const references=trajectories.map(points=>points.map(p=>collider.closestApprovedSupport(p,100)));
+const results=[];for(const near of [true,false]){const before=collider.getSupportStats(),t=performance.now();let count=0;for(let i=0;i<trajectories.length;i++){const q=collider.createSupportQuery();for(let j=0;j<trajectories[i].length;j++){if((references[i][j]?.distance<=2)!==near)continue;q.sample(trajectories[i][j],100);count++;}q.dispose();}const after=collider.getSupportStats();results.push({near,count,ms:performance.now()-t,nodes:after.nodes-before.nodes,triangles:after.triangles-before.triangles});}console.log(results);await Bun.write('/tmp/webpod-support-stratified.json',JSON.stringify(results));collider.dispose();shell.dispose();

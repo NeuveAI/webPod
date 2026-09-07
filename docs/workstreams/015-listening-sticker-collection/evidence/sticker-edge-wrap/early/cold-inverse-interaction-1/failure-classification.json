@@ -1,0 +1,93 @@
+{
+  "classification": "Invalid hidden-flick witness assertion; shell occlusion does not imply orientation edge eligibility",
+  "cases": [
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "face": "side",
+      "point": {
+        "x": 575.3041649870038,
+        "y": 114.74586146808969
+      },
+      "shellPoint": [
+        146.64338143775376,
+        248.95946550061242,
+        -28.033981323242188
+      ],
+      "shellSource": "actual cut rear",
+      "signedDistance": -18.35661856224624,
+      "band": 18,
+      "orientationEligible": false
+    },
+    {
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "face": "front",
+      "point": {
+        "x": 816.1064667751089,
+        "y": 138.56145326648382
+      },
+      "shellPoint": [
+        142.68578309992859,
+        252.53599405686694,
+        28.23629519987071
+      ],
+      "shellSource": "actual crowned front collision only",
+      "signedDistance": -21.52604616517072,
+      "band": 18,
+      "orientationEligible": false
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "face": "side",
+      "point": {
+        "x": 147.88815563231293,
+        "y": 200.7312152394008
+      },
+      "shellPoint": [
+        149.1896617410407,
+        255.5568841305376,
+        -28.0339813232423
+      ],
+      "shellSource": "actual cut rear",
+      "signedDistance": -14.393615221049687,
+      "band": 18,
+      "orientationEligible": true
+    },
+    {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "face": "front",
+      "point": {
+        "x": 301.97919498190083,
+        "y": 237.29843164829458
+      },
+      "shellPoint": [
+        151.227607269801,
+        223.05646794799588,
+        28.352324574100066
+      ],
+      "shellSource": "actual crowned front collision only",
+      "signedDistance": -13.772392730198987,
+      "band": 18,
+      "orientationEligible": true
+    }
+  ],
+  "provenance": {
+    "passed": true,
+    "testDeltas": [],
+    "buildToEnd": [],
+    "artifactDeltas": []
+  },
+  "processExited": true,
+  "productChanges": false
+}

@@ -1,0 +1,6 @@
+{
+  "packages/device/src/sticker-strip.ts": "586ebcf5b8be596acb217fc216f2d5ff7fd1c441955ad05abd7c8578719b9474",
+  "packages/device/src/sticker-insert-bridge.ts": "c6a3ec41f8ceb86715c686c60d04219efee2c30b635af54eb89946c6b8b93e3b",
+  "packages/device/src/sticker-wrap.ts": "fd9f25da317234a16386c1721e3483c8fd6ff6a708f8ca7659658d2edca0c13c",
+  "packages/device/src/sticker-surface.ts": "28c1054dafe1e2bc3be02caa52a4a443548c1f0fd8138669f3ea8d0ae3335b23"
+}

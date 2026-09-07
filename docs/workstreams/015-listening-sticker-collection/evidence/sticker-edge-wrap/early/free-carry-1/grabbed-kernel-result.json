@@ -1,0 +1,1310 @@
+[
+  {
+    "name": "1280-side",
+    "edge": 1,
+    "start": 0.46830175205690505,
+    "stages": [
+      {
+        "distance": 0,
+        "q": 0,
+        "transport": 0,
+        "curl": 0,
+        "finite": true,
+        "minimumArea": 0.4598468081534567,
+        "zero": 0,
+        "minimumNormalDot": 0.9999999999999994,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 561.8461545061228,
+          "y": 140.38438640676446
+        },
+        "pointer": {
+          "x": 561.8461696688656,
+          "y": 140.3843791395311
+        },
+        "pointerError": 0.00001681432275205659
+      },
+      {
+        "distance": 0.064,
+        "q": 0.00125,
+        "transport": 0,
+        "curl": 0.001,
+        "finite": true,
+        "minimumArea": 0.4598468081534567,
+        "zero": 0,
+        "minimumNormalDot": 0.9993584817494802,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 561.8557538150853,
+          "y": 140.398227168891
+        },
+        "pointer": {
+          "x": 561.8813848235446,
+          "y": 140.4378196941777
+        },
+        "pointerError": 0.047164781916375374
+      },
+      {
+        "distance": 0.128,
+        "q": 0.0025,
+        "transport": 0,
+        "curl": 0.002,
+        "finite": true,
+        "minimumArea": 0.4598468081534567,
+        "zero": 0,
+        "minimumNormalDot": 0.997018496567177,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 561.8981250523357,
+          "y": 140.46171646967397
+        },
+        "pointer": {
+          "x": 561.9165999782235,
+          "y": 140.49126024882432
+        },
+        "pointerError": 0.03484476679569243
+      },
+      {
+        "distance": 1,
+        "q": 0.01953125,
+        "transport": 0,
+        "curl": 0.015625,
+        "finite": true,
+        "minimumArea": 0.257415545836315,
+        "zero": 0,
+        "minimumNormalDot": 0.39013744164968023,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 562.3934170955913,
+          "y": 141.2146071281766
+        },
+        "pointer": {
+          "x": 562.3964064607243,
+          "y": 141.2193878058844
+        },
+        "pointerError": 0.005638367072486654
+      },
+      {
+        "distance": 2,
+        "q": 0.0390625,
+        "transport": 0,
+        "curl": 0.03125,
+        "finite": true,
+        "minimumArea": 0.2893866938459132,
+        "zero": 0,
+        "minimumNormalDot": 0.1627062376115903,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 562.9451221049924,
+          "y": 142.05198163856923
+        },
+        "pointer": {
+          "x": 562.9466432525829,
+          "y": 142.05439647223767
+        },
+        "pointerError": 0.0028539992358912972
+      },
+      {
+        "distance": 8,
+        "q": 0.15625,
+        "transport": 0,
+        "curl": 0.125,
+        "finite": true,
+        "minimumArea": 0.1776769851447032,
+        "zero": 0,
+        "minimumNormalDot": -0.6739111619426479,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 566.2476701425275,
+          "y": 147.06383619000803
+        },
+        "pointer": {
+          "x": 566.2480640037348,
+          "y": 147.0644484703574
+        },
+        "pointerError": 0.0007280205195670114
+      },
+      {
+        "distance": 16,
+        "q": 0.3125,
+        "transport": 0,
+        "curl": 0.25,
+        "finite": true,
+        "minimumArea": 0.10712871690154574,
+        "zero": 0,
+        "minimumNormalDot": -0.6635348045166006,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 570.6497523184833,
+          "y": 153.7442262345243
+        },
+        "pointer": {
+          "x": 570.649958338604,
+          "y": 153.74451780118372
+        },
+        "pointerError": 0.000357008973366338
+      },
+      {
+        "distance": 20,
+        "q": 0.390625,
+        "transport": 0,
+        "curl": 0.3125,
+        "finite": true,
+        "minimumArea": 0.07114479857195725,
+        "zero": 0,
+        "minimumNormalDot": -0.655248770965307,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 572.8507394435219,
+          "y": 157.08432416457785
+        },
+        "pointer": {
+          "x": 572.8509055060387,
+          "y": 157.08455246659688
+        },
+        "pointerError": 0.00028230935401855374
+      },
+      {
+        "distance": 32,
+        "q": 0.625,
+        "transport": 0,
+        "curl": 0.5,
+        "finite": true,
+        "minimumArea": 0.09605897672467886,
+        "zero": 0,
+        "minimumNormalDot": -0.6216844580034685,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 579.4536380547353,
+          "y": 167.10450447258006
+        },
+        "pointer": {
+          "x": 579.4537470083425,
+          "y": 167.10465646283635
+        },
+        "pointerError": 0.00018700782477345688
+      },
+      {
+        "distance": 48,
+        "q": 0.9375,
+        "transport": 0,
+        "curl": 0.75,
+        "finite": true,
+        "minimumArea": 0.11760397713383312,
+        "zero": 0,
+        "minimumNormalDot": -0.5763402134953063,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 588.2574566645999,
+          "y": 180.46469345340734
+        },
+        "pointer": {
+          "x": 588.2575356780809,
+          "y": 180.464795124489
+        },
+        "pointerError": 0.00012876388868345964
+      },
+      {
+        "distance": 51.2,
+        "q": 1,
+        "transport": 0,
+        "curl": 0.8,
+        "finite": true,
+        "minimumArea": 0.12796369418032602,
+        "zero": 0,
+        "minimumNormalDot": -0.6047281773745391,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 590.0182219147503,
+          "y": 183.13674563361442
+        },
+        "pointer": {
+          "x": 590.0182934120286,
+          "y": 183.13682285681952
+        },
+        "pointerError": 0.00010523917622980705
+      },
+      {
+        "distance": 54.4,
+        "q": 1,
+        "transport": 0.24999999999999967,
+        "curl": 0.85,
+        "finite": true,
+        "minimumArea": 0.23739230778457515,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 591.7789924720507,
+          "y": 185.80877065595888
+        },
+        "pointer": {
+          "x": 591.7790511459763,
+          "y": 185.80885058915004
+        },
+        "pointerError": 0.00009915616262656358
+      },
+      {
+        "distance": 57.6,
+        "q": 1,
+        "transport": 0.4999999999999999,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.008257306330522093,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 593.5397653184716,
+          "y": 188.48084178530772
+        },
+        "pointer": {
+          "x": 593.539808879924,
+          "y": 188.48087832148056
+        },
+        "pointerError": 0.00005685500906963595
+      },
+      {
+        "distance": 60.8,
+        "q": 1,
+        "transport": 0.7499999999999996,
+        "curl": 0.95,
+        "finite": true,
+        "minimumArea": 0.5345367012237131,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 595.3005473581196,
+          "y": 191.15288987254328
+        },
+        "pointer": {
+          "x": 595.3005666138716,
+          "y": 191.15290605381108
+        },
+        "pointerError": 0.00002515188687601398
+      },
+      {
+        "distance": 64,
+        "q": 1,
+        "transport": 0.9999999999999998,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.430650732702796,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 597.0613230886994,
+          "y": 193.82494086818716
+        },
+        "pointer": {
+          "x": 597.0613243478193,
+          "y": 193.82493378614163
+        },
+        "pointerError": 0.000007193104465193533
+      },
+      {
+        "distance": 147.82512329403863,
+        "q": 1,
+        "transport": 1,
+        "curl": 0.49704926023576823,
+        "finite": true,
+        "minimumArea": 1.4306421467120494,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 643.1849904769308,
+          "y": 263.81963655187394
+        },
+        "pointer": {
+          "x": 643.184991266287,
+          "y": 263.8196381947969
+        },
+        "pointerError": 0.0000018227120103069538
+      }
+    ]
+  },
+  {
+    "name": "1280-front",
+    "edge": 0,
+    "start": 0.1563829603551182,
+    "stages": [
+      {
+        "distance": 0,
+        "q": 0,
+        "transport": 0,
+        "curl": 0,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.9999999999999994,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 762.6675236007583,
+          "y": 137.99495216797845
+        },
+        "pointer": {
+          "x": 762.6675245342133,
+          "y": 137.99494921046283
+        },
+        "pointerError": 0.0000031013282431129073
+      },
+      {
+        "distance": 0.064,
+        "q": 0.00125,
+        "transport": 0,
+        "curl": 0.001,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.9990286853031042,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 762.6990248535465,
+          "y": 137.94018273350068
+        },
+        "pointer": {
+          "x": 762.6994339350066,
+          "y": 137.93947137578076
+        },
+        "pointerError": 0.0008205957876555928
+      },
+      {
+        "distance": 0.128,
+        "q": 0.0025,
+        "transport": 0,
+        "curl": 0.002,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.996091946856494,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 762.7305261063349,
+          "y": 137.8854132990228
+        },
+        "pointer": {
+          "x": 762.7313433357999,
+          "y": 137.88399354109868
+        },
+        "pointerError": 0.0016381625565278697
+      },
+      {
+        "distance": 1,
+        "q": 0.01953125,
+        "transport": 0,
+        "curl": 0.015625,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.8744346885770794,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 763.1618819393921,
+          "y": 137.13536283188435
+        },
+        "pointer": {
+          "x": 763.1661089216085,
+          "y": 137.12810804355527
+        },
+        "pointerError": 0.008396388054264986
+      },
+      {
+        "distance": 2,
+        "q": 0.0390625,
+        "transport": 0,
+        "curl": 0.03125,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.8166210505954605,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 763.661932657905,
+          "y": 136.26591636965742
+        },
+        "pointer": {
+          "x": 763.6646933090038,
+          "y": 136.2612668766477
+        },
+        "pointerError": 0.005407307993511304
+      },
+      {
+        "distance": 8,
+        "q": 0.15625,
+        "transport": 0,
+        "curl": 0.125,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.7805379142979902,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 766.6553817872353,
+          "y": 131.0616025846342
+        },
+        "pointer": {
+          "x": 766.6561996333755,
+          "y": 131.06021987520228
+        },
+        "pointerError": 0.0016064736792485677
+      },
+      {
+        "distance": 16,
+        "q": 0.3125,
+        "transport": 0,
+        "curl": 0.25,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.7952335099501936,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 770.6444575100677,
+          "y": 124.12620827265795
+        },
+        "pointer": {
+          "x": 770.6448747325377,
+          "y": 124.12549053994172
+        },
+        "pointerError": 0.0008301896418324769
+      },
+      {
+        "distance": 20,
+        "q": 0.390625,
+        "transport": 0,
+        "curl": 0.3125,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.8054525157045459,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 772.6388737464968,
+          "y": 120.65870755891464
+        },
+        "pointer": {
+          "x": 772.6392122821188,
+          "y": 120.65812587231144
+        },
+        "pointerError": 0.0006730272444304073
+      },
+      {
+        "distance": 32,
+        "q": 0.625,
+        "transport": 0,
+        "curl": 0.5,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.8426063402066825,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 778.6220096886016,
+          "y": 110.25637404129942
+        },
+        "pointer": {
+          "x": 778.6222249308621,
+          "y": 110.25603186942061
+        },
+        "pointerError": 0.0004042410485984436
+      },
+      {
+        "distance": 48,
+        "q": 0.9375,
+        "transport": 0,
+        "curl": 0.75,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.889847148841256,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 786.5994337756007,
+          "y": 96.38680727496053
+        },
+        "pointer": {
+          "x": 786.5995751291865,
+          "y": 96.3865731988995
+        },
+        "pointerError": 0.0002734454947089376
+      },
+      {
+        "distance": 51.2,
+        "q": 1,
+        "transport": 0,
+        "curl": 0.8,
+        "finite": true,
+        "minimumArea": 0.46555050550783583,
+        "zero": 0,
+        "minimumNormalDot": 0.8979187767562155,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 788.1949095467073,
+          "y": 93.61291055227335
+        },
+        "pointer": {
+          "x": 788.1950451688515,
+          "y": 93.61268146479529
+        },
+        "pointerError": 0.0002662225358493004
+      },
+      {
+        "distance": 54.4,
+        "q": 1,
+        "transport": 0.24999999999999967,
+        "curl": 0.85,
+        "finite": true,
+        "minimumArea": 0.16047525896794199,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 789.7904165385535,
+          "y": 90.8389827391958
+        },
+        "pointer": {
+          "x": 789.7905152085164,
+          "y": 90.83878973069106
+        },
+        "pointerError": 0.00021676725877317716
+      },
+      {
+        "distance": 57.6,
+        "q": 1,
+        "transport": 0.4999999999999999,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.005320236976337631,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 791.3859083619162,
+          "y": 88.06500805019995
+        },
+        "pointer": {
+          "x": 791.3859852481812,
+          "y": 88.06489799658684
+        },
+        "pointerError": 0.0001342508677950505
+      },
+      {
+        "distance": 60.8,
+        "q": 1,
+        "transport": 0.7499999999999996,
+        "curl": 0.95,
+        "finite": true,
+        "minimumArea": 0.600302623587759,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 792.9814163809287,
+          "y": 85.29107205369192
+        },
+        "pointer": {
+          "x": 792.9814552878461,
+          "y": 85.29100626248263
+        },
+        "pointerError": 0.00007643449114251065
+      },
+      {
+        "distance": 64,
+        "q": 1,
+        "transport": 0.9999999999999998,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.4306400697000454,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 794.576929104836,
+          "y": 82.51711911368628
+        },
+        "pointer": {
+          "x": 794.5769253275109,
+          "y": 82.51711452837839
+        },
+        "pointerError": 0.000005940810837820923
+      },
+      {
+        "distance": 116.89315588269709,
+        "q": 1,
+        "transport": 1,
+        "curl": 0.6826410647038175,
+        "finite": true,
+        "minimumArea": 1.4306438232623986,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 820.9486190796827,
+          "y": 36.667157568411675
+        },
+        "pointer": {
+          "x": 820.9486270506884,
+          "y": 36.667149561597284
+        },
+        "pointerError": 0.000011298053338556796
+      }
+    ]
+  },
+  {
+    "name": "375-side",
+    "edge": 1,
+    "start": 0.4683015070581683,
+    "stages": [
+      {
+        "distance": 0,
+        "q": 0,
+        "transport": 0,
+        "curl": 0,
+        "finite": true,
+        "minimumArea": 0.4598468081534567,
+        "zero": 0,
+        "minimumNormalDot": 0.9999999999999994,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 141.06294551164774,
+          "y": 222.03415984527658
+        },
+        "pointer": {
+          "x": 141.06295459588623,
+          "y": 222.03415582485093
+        },
+        "pointerError": 0.000009934143710146227
+      },
+      {
+        "distance": 0.064,
+        "q": 0.00125,
+        "transport": 0,
+        "curl": 0.001,
+        "finite": true,
+        "minimumArea": 0.4598468081534567,
+        "zero": 0,
+        "minimumNormalDot": 0.9981628081226063,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 141.07290914804693,
+          "y": 222.04818721849333
+        },
+        "pointer": {
+          "x": 141.09915649544058,
+          "y": 222.08693292659643
+        },
+        "pointerError": 0.04679907201659147
+      },
+      {
+        "distance": 0.128,
+        "q": 0.0025,
+        "transport": 0,
+        "curl": 0.002,
+        "finite": true,
+        "minimumArea": 0.4598468081534567,
+        "zero": 0,
+        "minimumNormalDot": 0.9916783079898087,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 141.1165895687595,
+          "y": 222.11132398871445
+        },
+        "pointer": {
+          "x": 141.13535839499494,
+          "y": 222.13971002834194
+        },
+        "pointerError": 0.03402992923867601
+      },
+      {
+        "distance": 1,
+        "q": 0.01953125,
+        "transport": 0,
+        "curl": 0.015625,
+        "finite": true,
+        "minimumArea": 0.4598468081534567,
+        "zero": 0,
+        "minimumNormalDot": -0.7824156611593245,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 141.6255838138801,
+          "y": 222.85421894960055
+        },
+        "pointer": {
+          "x": 141.62860927642308,
+          "y": 222.85879803962456
+        },
+        "pointerError": 0.005488304751646949
+      },
+      {
+        "distance": 2,
+        "q": 0.0390625,
+        "transport": 0,
+        "curl": 0.03125,
+        "finite": true,
+        "minimumArea": 0.1706152289123427,
+        "zero": 0,
+        "minimumNormalDot": -0.9702108852443361,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 142.19272581658635,
+          "y": 223.68111942172087
+        },
+        "pointer": {
+          "x": 142.19426395695993,
+          "y": 223.68344025439816
+        },
+        "pointerError": 0.0027842665326552117
+      },
+      {
+        "distance": 8,
+        "q": 0.15625,
+        "transport": 0,
+        "curl": 0.125,
+        "finite": true,
+        "minimumArea": 0.0677273189583899,
+        "zero": 0,
+        "minimumNormalDot": -0.99996599277102,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 145.58779638268894,
+          "y": 228.6307043295517
+        },
+        "pointer": {
+          "x": 145.58819204018107,
+          "y": 228.63129354303993
+        },
+        "pointerError": 0.0007097305022375828
+      },
+      {
+        "distance": 16,
+        "q": 0.3125,
+        "transport": 0,
+        "curl": 0.25,
+        "finite": true,
+        "minimumArea": 0.011374770493841932,
+        "zero": 0,
+        "minimumNormalDot": -0.9998209245252381,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 150.11322674356225,
+          "y": 235.2281427569061
+        },
+        "pointer": {
+          "x": 150.1134294844759,
+          "y": 235.22843126122893
+        },
+        "pointerError": 0.00035261682086749674
+      },
+      {
+        "distance": 20,
+        "q": 0.390625,
+        "transport": 0,
+        "curl": 0.3125,
+        "finite": true,
+        "minimumArea": 0.05904290076223119,
+        "zero": 0,
+        "minimumNormalDot": -0.9966556308693292,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 152.37588575040039,
+          "y": 238.52677242595183
+        },
+        "pointer": {
+          "x": 152.37604820662332,
+          "y": 238.52700012032344
+        },
+        "pointerError": 0.00027970833243010584
+      },
+      {
+        "distance": 32,
+        "q": 0.625,
+        "transport": 0,
+        "curl": 0.5,
+        "finite": true,
+        "minimumArea": 0.04964758021416718,
+        "zero": 0,
+        "minimumNormalDot": -0.9996646640102085,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 159.1637999053798,
+          "y": 248.42256461852904
+        },
+        "pointer": {
+          "x": 159.16390437306558,
+          "y": 248.4227066976069
+        },
+        "pointerError": 0.000176351812419466
+      },
+      {
+        "distance": 48,
+        "q": 0.9375,
+        "transport": 0,
+        "curl": 0.75,
+        "finite": true,
+        "minimumArea": 0.026360324809354626,
+        "zero": 0,
+        "minimumNormalDot": -0.9998388183862368,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 168.214306890194,
+          "y": 261.61688707175557
+        },
+        "pointer": {
+          "x": 168.21437926165524,
+          "y": 261.61698213398495
+        },
+        "pointerError": 0.00011947575426278
+      },
+      {
+        "distance": 51.2,
+        "q": 1,
+        "transport": 0,
+        "curl": 0.8,
+        "finite": true,
+        "minimumArea": 0.02000754263198307,
+        "zero": 0,
+        "minimumNormalDot": -0.9992287260408332,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 170.02440515572042,
+          "y": 264.2557556469894
+        },
+        "pointer": {
+          "x": 170.02447423937318,
+          "y": 264.25583722126055
+        },
+        "pointerError": 0.0001068967389013626
+      },
+      {
+        "distance": 54.4,
+        "q": 1,
+        "transport": 0.24999999999999967,
+        "curl": 0.85,
+        "finite": true,
+        "minimumArea": 0.17709631441139506,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 171.83451422874748,
+          "y": 266.89462446897625
+        },
+        "pointer": {
+          "x": 171.83456921709111,
+          "y": 266.89469230853615
+        },
+        "pointerError": 0.00008732653562155488
+      },
+      {
+        "distance": 57.6,
+        "q": 1,
+        "transport": 0.4999999999999999,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.008832579347281128,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 173.64462729931344,
+          "y": 269.53349577708735
+        },
+        "pointer": {
+          "x": 173.64466419480902,
+          "y": 269.53354739581175
+        },
+        "pointerError": 0.00006344895824906733
+      },
+      {
+        "distance": 60.8,
+        "q": 1,
+        "transport": 0.7499999999999996,
+        "curl": 0.95,
+        "finite": true,
+        "minimumArea": 0.567122683563379,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 175.4547382266732,
+          "y": 272.1723693354119
+        },
+        "pointer": {
+          "x": 175.45475917252696,
+          "y": 272.1724024830873
+        },
+        "pointerError": 0.00003921093184886797
+      },
+      {
+        "distance": 64,
+        "q": 1,
+        "transport": 0.9999999999999998,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.4306506419625813,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 177.26485340786184,
+          "y": 274.811252200125
+        },
+        "pointer": {
+          "x": 177.2648541502449,
+          "y": 274.8112575703629
+        },
+        "pointerError": 0.000005421308658607428
+      },
+      {
+        "distance": 85.52503518240933,
+        "q": 1,
+        "transport": 1,
+        "curl": 0.8708497889055441,
+        "finite": true,
+        "minimumArea": 1.430640472529761,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 189.4405903896279,
+          "y": 292.56170071282077
+        },
+        "pointer": {
+          "x": 189.4405910498952,
+          "y": 292.56171025626514
+        },
+        "pointerError": 0.000009566257548663475
+      }
+    ]
+  },
+  {
+    "name": "375-front",
+    "edge": 0,
+    "start": 0.07292436158546568,
+    "stages": [
+      {
+        "distance": 0,
+        "q": 0,
+        "transport": 0,
+        "curl": 0,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.9999999999999994,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 242.71650490249152,
+          "y": 215.442905435789
+        },
+        "pointer": {
+          "x": 242.7165025323663,
+          "y": 215.44290767432503
+        },
+        "pointerError": 0.000003260143741318417
+      },
+      {
+        "distance": 0.064,
+        "q": 0.00125,
+        "transport": 0,
+        "curl": 0.001,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.9976334805885029,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 242.72977905307133,
+          "y": 215.38034789760334
+        },
+        "pointer": {
+          "x": 242.72978453522302,
+          "y": 215.38030105806035
+        },
+        "pointerError": 0.00004715927029344532
+      },
+      {
+        "distance": 0.128,
+        "q": 0.0025,
+        "transport": 0,
+        "curl": 0.002,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.9902521570015066,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 242.74304743478947,
+          "y": 215.31779035941776
+        },
+        "pointer": {
+          "x": 242.74306653807977,
+          "y": 215.31769444179565
+        },
+        "pointerError": 0.00009780146180106213
+      },
+      {
+        "distance": 1,
+        "q": 0.01953125,
+        "transport": 0,
+        "curl": 0.015625,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.7385402462780415,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 242.92394744623013,
+          "y": 214.4651118458646
+        },
+        "pointer": {
+          "x": 242.92403382700283,
+          "y": 214.4646792951893
+        },
+        "pointerError": 0.0004410915149875257
+      },
+      {
+        "distance": 2,
+        "q": 0.0390625,
+        "transport": 0,
+        "curl": 0.03125,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.5965950653143055,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 243.13151347788397,
+          "y": 213.4867210880235
+        },
+        "pointer": {
+          "x": 243.13156512163934,
+          "y": 213.4864509160536
+        },
+        "pointerError": 0.0002750635759044874
+      },
+      {
+        "distance": 8,
+        "q": 0.15625,
+        "transport": 0,
+        "curl": 0.125,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.5744171029868351,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 244.3767381288062,
+          "y": 207.61716326191322
+        },
+        "pointer": {
+          "x": 244.37675288945852,
+          "y": 207.6170806412393
+        },
+        "pointerError": 0.00008392885447485253
+      },
+      {
+        "distance": 16,
+        "q": 0.3125,
+        "transport": 0,
+        "curl": 0.25,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.5598270036647462,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 246.03699603985032,
+          "y": 199.79129244407054
+        },
+        "pointer": {
+          "x": 246.03700324655074,
+          "y": 199.7912536081536
+        },
+        "pointerError": 0.00003949892372467218
+      },
+      {
+        "distance": 20,
+        "q": 0.390625,
+        "transport": 0,
+        "curl": 0.3125,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.5628885658256524,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 246.86712261331218,
+          "y": 195.87837268465685
+        },
+        "pointer": {
+          "x": 246.86712842509684,
+          "y": 195.87834009161074
+        },
+        "pointerError": 0.00003310715173435535
+      },
+      {
+        "distance": 32,
+        "q": 0.625,
+        "transport": 0,
+        "curl": 0.5,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.5954134305255241,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 249.35749986408058,
+          "y": 184.13961289402823
+        },
+        "pointer": {
+          "x": 249.35750396073516,
+          "y": 184.13959954198216
+        },
+        "pointerError": 0.000013966377946071849
+      },
+      {
+        "distance": 48,
+        "q": 0.9375,
+        "transport": 0,
+        "curl": 0.75,
+        "finite": true,
+        "minimumArea": 0.4598482707877986,
+        "zero": 0,
+        "minimumNormalDot": 0.6664393010363926,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 252.6780066735095,
+          "y": 168.48796156632247
+        },
+        "pointer": {
+          "x": 252.6780046749196,
+          "y": 168.48794547581073
+        },
+        "pointerError": 0.000016214158301259997
+      },
+      {
+        "distance": 51.2,
+        "q": 1,
+        "transport": 0,
+        "curl": 0.8,
+        "finite": true,
+        "minimumArea": 0.4678447004833817,
+        "zero": 0,
+        "minimumNormalDot": 0.6818272376820356,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 253.34210216240785,
+          "y": 165.3576280226218
+        },
+        "pointer": {
+          "x": 253.34210481775648,
+          "y": 165.35761466257645
+        },
+        "pointerError": 0.000013621368810852769
+      },
+      {
+        "distance": 54.4,
+        "q": 1,
+        "transport": 0.24999999999999967,
+        "curl": 0.85,
+        "finite": true,
+        "minimumArea": 0.11644508789236653,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 254.00620447798764,
+          "y": 162.22729031699012
+        },
+        "pointer": {
+          "x": 254.00620496059338,
+          "y": 162.22728384934217
+        },
+        "pointerError": 0.000006485628597355616
+      },
+      {
+        "distance": 57.6,
+        "q": 1,
+        "transport": 0.4999999999999999,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.005083363162318122,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 254.67030543893986,
+          "y": 159.09694963353974
+        },
+        "pointer": {
+          "x": 254.67030510343025,
+          "y": 159.09695303610786
+        },
+        "pointerError": 0.00000341906954459007
+      },
+      {
+        "distance": 60.8,
+        "q": 1,
+        "transport": 0.7499999999999996,
+        "curl": 0.95,
+        "finite": true,
+        "minimumArea": 0.5508369806060815,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 255.3344056705332,
+          "y": 155.96663634434142
+        },
+        "pointer": {
+          "x": 255.33440524626715,
+          "y": 155.96662222287358
+        },
+        "pointerError": 0.000014127839738807308
+      },
+      {
+        "distance": 64,
+        "q": 1,
+        "transport": 0.9999999999999998,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.4306353573784627,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 255.99850633864344,
+          "y": 152.8362858287932
+        },
+        "pointer": {
+          "x": 255.99850538910403,
+          "y": 152.8362914096393
+        },
+        "pointerError": 0.000005661048345141767
+      },
+      {
+        "distance": 98.12036121951348,
+        "q": 1,
+        "transport": 1,
+        "curl": 0.7952778326829191,
+        "finite": true,
+        "minimumArea": 1.4306325179746315,
+        "zero": 0,
+        "minimumNormalDot": null,
+        "outsideMaxError": 0,
+        "screen": {
+          "x": 263.07954646093265,
+          "y": 119.45877503378578
+        },
+        "pointer": {
+          "x": 263.0795481264556,
+          "y": 119.45878575834953
+        },
+        "pointerError": 0.000010853120952934279
+      }
+    ]
+  }
+]

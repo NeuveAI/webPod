@@ -1,0 +1,23 @@
+Date: 2026-09-07
+Working directory: /Users/vinicius/code/webPod
+Base HEAD: 1aeee5d715adc3e51c4d6d5b62712f78a863bbfe
+
+Command: bun test apps/web/src/device-preview-orientation.test.ts apps/web/src/device-orientation-motion.test.ts apps/web/src/device-flick-regression.test.ts
+Exit: 0
+Result: 46 pass, 0 fail, 226 expect() calls, 3 files.
+
+Command: bunx --bun eslint apps/web/src/device-preview-orientation.ts apps/web/src/device-preview-orientation.test.ts
+Exit: 0
+Result: no diagnostics.
+
+Command: bunx tsc --noEmit -p apps/web/tsconfig.json
+Exit: 2
+Result: packages/composite/src/interaction-audio.ts(289,27): error TS2367: This comparison appears to be unintentional because the types '`agent:${string}` | "human:touch" | "human:mouse" | "human:key"' and '"system"' have no overlap.
+Attribution: concurrent core implementation surface, reported directly to core implementer; no orientation type diagnostics.
+
+SHA-256 at completed focused validation:
+6e26eafc57a816730a417241804a414d85ca0dac3f5608f2f9010c5ea2f81483  apps/web/src/device-preview-orientation.ts
+33e33b6cd771b0f6649228cd3600dcf6f37a49f3eae35ec642716167738b3e3e  apps/web/src/device-preview-orientation.test.ts
+
+Implementation delta: 2 files, 177 insertions, 1 deletion.
+No browser/native WebMCP proof performed in this bounded slice.

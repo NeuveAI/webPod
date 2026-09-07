@@ -1,0 +1,5 @@
+# Review contract
+
+Be extra critical. Question every line. Assume the code is wrong until proven right. If you find ANY critical or major issue, verdict MUST be REQUEST_CHANGES.
+
+Read scope.md, decisions.md, evidence/spec-research.md and the implementation diary first. Inspect canonical sources and complete execution paths, including unchanged siblings. The owner explicitly requires audible agent controls; legacy silence comments cannot override D1. Verify native WebMCP against the actual current spec, not older navigator APIs or backend MCP conventions. Test input validation, aborted registration/execution, in-flight concurrency, lifecycle cleanup, honest timing/progress, real shared control/SFX parity and sticker origin restoration. Independently run app typecheck, lint and focused tests. Each finding needs severity, exact file:line, reproducible mechanism and impact. No unrelated rescope. No Neuve/board tools exist in this repo. Keep findings in assigned review file and relay blockers verbatim.

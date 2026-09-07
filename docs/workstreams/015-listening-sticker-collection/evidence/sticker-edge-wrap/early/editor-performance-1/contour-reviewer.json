@@ -1,0 +1,177 @@
+{
+  "scope": "Counterfactual exact old closure vs current hoisted helper; isolated Bun, not browser. Actual source rear/front/glass/wheel/select subset and captured desktop-side matrices. Alpha warmed equally per pair; alternating order; full output exact equality.",
+  "bvhBuildMs": 303.978083,
+  "boundaryCandidates": 23578,
+  "rows": [
+    {
+      "i": 0,
+      "wear": 0.2,
+      "rotationDeg": 0,
+      "geometryMs": 20.116457999999966,
+      "alphaMs": 2.8576249999999845,
+      "baseline": {
+        "ms": 59.686166999999955,
+        "samples": 2754,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 29.823415999999952,
+        "samples": 2754,
+        "revision": 1
+      }
+    },
+    {
+      "i": 1,
+      "wear": 0.30000000000000004,
+      "rotationDeg": 0,
+      "geometryMs": 11.7974999999999,
+      "alphaMs": 1.9089170000000877,
+      "cached": {
+        "ms": 28.19120799999996,
+        "samples": 2870,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 29.172916999999984,
+        "samples": 2870,
+        "revision": 1
+      }
+    },
+    {
+      "i": 2,
+      "wear": 0.4,
+      "rotationDeg": 0,
+      "geometryMs": 10.072750000000042,
+      "alphaMs": 1.1512920000000122,
+      "baseline": {
+        "ms": 27.74762499999997,
+        "samples": 2985,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 27.2382080000001,
+        "samples": 2985,
+        "revision": 1
+      }
+    },
+    {
+      "i": 3,
+      "wear": 0.5,
+      "rotationDeg": 0,
+      "geometryMs": 7.738790999999992,
+      "alphaMs": 2.162417000000005,
+      "cached": {
+        "ms": 28.28374999999994,
+        "samples": 3087,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 29.95241599999997,
+        "samples": 3087,
+        "revision": 1
+      }
+    },
+    {
+      "i": 4,
+      "wear": 0.6000000000000001,
+      "rotationDeg": 0,
+      "geometryMs": 7.649374999999964,
+      "alphaMs": 1.1636250000000246,
+      "baseline": {
+        "ms": 29.449707999999987,
+        "samples": 3106,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 28.924958999999944,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 5,
+      "wear": 0.6,
+      "rotationDeg": 0.5,
+      "geometryMs": 8.202874999999949,
+      "alphaMs": 0.0024580000001606095,
+      "cached": {
+        "ms": 29.464083000000073,
+        "samples": 3106,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 28.767084000000068,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 6,
+      "wear": 0.6,
+      "rotationDeg": 1,
+      "geometryMs": 7.529457999999977,
+      "alphaMs": 0.001125000000001819,
+      "baseline": {
+        "ms": 29.729417000000012,
+        "samples": 3106,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 30.336291000000074,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 7,
+      "wear": 0.6,
+      "rotationDeg": 1.5,
+      "geometryMs": 7.881750000000011,
+      "alphaMs": 0.0023330000001351436,
+      "cached": {
+        "ms": 29.88366700000006,
+        "samples": 3106,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 29.084375000000136,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 8,
+      "wear": 0.6,
+      "rotationDeg": 2,
+      "geometryMs": 7.566624999999931,
+      "alphaMs": 0.0006670000000212895,
+      "baseline": {
+        "ms": 28.541375000000016,
+        "samples": 3106,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 29.023459000000003,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 9,
+      "wear": 0.6,
+      "rotationDeg": 2.5,
+      "geometryMs": 7.7242089999999735,
+      "alphaMs": 0.0022910000000138098,
+      "cached": {
+        "ms": 28.43145800000002,
+        "samples": 3106,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 29.019000000000005,
+        "samples": 3106,
+        "revision": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "method": "Centroid alpha>=16 from immutable PW-C03 visible bounds. Fixture material axes are opposite production axes, so image u=1-fixtureU and v=1-fixtureV. Nominal front fixture only; not actual production geometry, not multi-sample area coverage. This corrects the earlier un-reversed centroid classification.",
+  "full": {
+    "triangles": 18432,
+    "areaQuantiles": {
+      "0": 0.4119850095396397,
+      "0.01": 0.5996225913095872,
+      "0.05": 0.7276464739574373,
+      "0.5": 0.999319914950531,
+      "0.95": 1.1220569768180757,
+      "0.99": 1.6080287885499873,
+      "1": 2.584785689564094
+    },
+    "principalMin": 0.16899550544608752,
+    "principalMax": 3.0573826207773513,
+    "minimumAreaTriangle": {
+      "area": 0.4119850095396397,
+      "x": 157,
+      "y": 268,
+      "angle": 1.5707963267948966,
+      "col": 31,
+      "row": 0,
+      "triangle": 0,
+      "contact": [
+        58.383944963194324,
+        53.575553831537455,
+        28.033981323242188
+      ],
+      "stretchMin": 0.17408302043297494,
+      "stretchMax": 2.3666007662031627
+    }
+  },
+  "alphaOccupied": {
+    "triangles": 10206,
+    "areaQuantiles": {
+      "0": 0.4291490525764075,
+      "0.01": 0.6663336921037949,
+      "0.05": 0.8007922015705004,
+      "0.5": 0.99950771438513,
+      "0.95": 1.110626941166753,
+      "0.99": 1.6376931943960087,
+      "1": 2.584785689564094
+    },
+    "principalMin": 0.16899550544608752,
+    "principalMax": 3.0573826207773513,
+    "minimumAreaTriangle": {
+      "area": 0.4291490525764075,
+      "x": 157,
+      "y": 268,
+      "angle": 1.5707963267948966,
+      "col": 27,
+      "row": 0,
+      "triangle": 0,
+      "contact": [
+        57.65806870936074,
+        48.169811426855915,
+        28.033981323242188
+      ],
+      "stretchMin": 0.18289101179582778,
+      "stretchMax": 2.346474265534138
+    }
+  }
+}

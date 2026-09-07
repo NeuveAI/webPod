@@ -1,0 +1,5 @@
+import {actualShell} from './webpod-actual-shell';
+import {createStickerWrapSurface} from '/Users/vinicius/code/webPod/packages/device/src/sticker-wrap';
+import {DEFAULT_DEVICE_FORM} from '/Users/vinicius/code/webPod/packages/device/src/form';
+const shell=actualShell();const wrap=createStickerWrapSurface(DEFAULT_DEVICE_FORM,shell.faces.filter(f=>!f.source.includes('rear')&&!f.source.includes('approved')).map(f=>({geometry:f.geometry,offset:f.transform?[f.transform.elements[12],f.transform.elements[13],f.transform.elements[14]]:undefined})));const strip=wrap.rightStrip(165,0);const results=[];
+for(const y of[53])for(const step of[.0001,.00001]){let max=0,where=0;for(let dx=11.227;dx<11.230;dx+=step){const speed=strip.sample(dx+step,y,0).point.distanceTo(strip.sample(dx,y,0).point)/step;if(speed>max){max=speed;where=dx;}}results.push({y,step,max,where});}console.log(JSON.stringify(results));shell.dispose();

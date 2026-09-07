@@ -1,0 +1,248 @@
+Core verification checkpoint 2026-09-06T22:28:18.416008+00:00
+HEAD 2f1001a0b72b1829a581123e4cc4691f0c60319e
+
+Core source fingerprint (SHA256):
+d75b820025087fdb8957d3d77d36d9e68548cd6dede9e6b1b287a4549dd75e52  apps/web/src/webmcp.ts
+a8e72c657fe9b28c6a833f14218ad7a1ac213465b469a52bc814f44c7b837dc1  apps/web/src/device-page.tsx
+a7cbf71ccd274daad281a6add5fd5c0f22ebfe83a6a3502f8eb0282fe355adcb  apps/web/package.json
+423f317acacb717e7ab3e6c915503fee4ee0b5e26c70e187b110350431ab9d8b  bun.lock
+02e86e599b8fef94f22966d27b6a5e9d789b45881acd41e11e7cd4bec0744a96  packages/tools/package.json
+eb9756df83bb563a93c310092b335b269024e7e8feaea540ec459e4ff6a65b17  packages/tools/src/index.ts
+98a0feefdf386c0b678368c8a11ca0d82b8c95ec186007889cefd0a347d8f8f7  packages/tools/src/native.ts
+e2abdc691b23bee4e9b091ca75728e03e4835401ca7767ad21e7de0e3f26a529  packages/tools/src/interactions.ts
+e8be20684f16efc4ce1daa461c11a21d01bac072a4799f2d6b5bb7d2b39a77a9  packages/tools/src/interactions.test.ts
+c46a7ca9103cd2bfffbc5daafcfbcad33dd9640e09bc706051aca86f49479076  packages/composite/src/agent-controls.ts
+6de7866918abc0af21813f0a26e17201fb866595faf6fee41b2e4ee565b0c570  packages/composite/src/CompositeDevice.tsx
+8e863101f5a22a878a35f492c08ea85bd2dfd0ffdb35547a764e950aed4c0980  packages/composite/src/CompositeDevice.integration.test.tsx
+1ba80c8d782734ba2f43540cf14ed3ff19144569367da3844d50778e16f8eace  packages/composite/src/index.ts
+e6dd2a7eb7c5329c9623ab7ae28358b3c444c275582adb74aa4a02a362624160  packages/composite/src/interaction-audio.ts
+c48f0d6518712f4f8eff91c6e0c636610d5515d6b007d38165559f5c64b12cce  packages/composite/src/interaction-audio.test.ts
+7eb8b664e7a08d360833b67e82453a4ff096f7708c1c9f595fb49d55f12add69  packages/device/src/index.ts
+c1ed53bb66ba17f02bfcfe9475bc7417ef35b835ed863886891f4707508e0b03  packages/state/src/contract.ts
+2b6beef089f831205ee3f92b84933eef9e75812de3a1a83603c87980ad0adca9  packages/state/src/silence.ts
+4979f1305fb081c18b085dbd78d6fa103f99a0bf0772dca08d75aafdfaf9ed95  packages/state/src/detent.ts
+33c131235ed85ec12313ac303374d1b2ac251323ed05f94cb81cbba1831847ce  packages/state/src/store.ts
+55dfc0cfc0d864de1a1519fe4563778a0e9168a86b35160cde1406931ab765a1  packages/state/src/store.test.ts
+bd201a4963b2660ff14adeb9e46e230296fd3fde359836f3ad00f598599e9057  packages/state/src/detent.test.ts
+c68c6b9b3ceceda746f0babef97d770e512fdf1785256f22fe0310df9fe63276  packages/state/src/feedback.test.ts
+dad49cdee8e83e553835be4f3272ab444eb39aeb948fd739b073a6a5254100d7  packages/panel/src/Panel.tsx
+3bce56d33e7616192fdb389a73394aa13b5db5fc53fa3e01b239affc097367e2  packages/panel/src/Panel.integration.test.tsx
+4fc0e06bbd06d946846c42441654068a1758b78128ffc404a7aadc680510628d  packages/panel/src/page-readiness.ts
+89e331001548ff8057e74f9642a835ecfe90d8bf3e34cefd0c437b42bad14561  packages/panel/src/page-readiness.test.ts
+78ea86a370f3ef3ce33e32e516bc04daa9e2819a8ca1ade40dc7f3c0120efe0c  packages/panel/src/index.ts
+
+COMMAND: bun install --frozen-lockfile
+EXIT: 0
+
+COMMAND: bun test packages/tools packages/panel/src/page-readiness.test.ts packages/panel/src/Panel.integration.test.tsx packages/composite/src/CompositeDevice.integration.test.tsx
+EXIT: 0
+bun test v1.4.0 (34cbb9a40)
+
+packages/tools/src/interactions.test.ts:
+(pass) WebMCP interaction contracts > full list and separate zero-based selection include rows outside the viewport [0.97ms]
+(pass) WebMCP interaction contracts > long traversal accelerates without exceeding five audible items per second [1.39ms]
+(pass) WebMCP interaction contracts > clamps next/previous at boundaries with honest requested and actual counts [0.92ms]
+(pass) WebMCP interaction contracts > read-only status works during movement and concurrent mutation is rejected [0.22ms]
+(pass) WebMCP interaction contracts > list replacement or human selection interrupts before the next detent [0.28ms]
+(pass) WebMCP interaction contracts > cancellation clears in-flight progress and permits a later call [0.13ms]
+(pass) WebMCP interaction contracts > delayed wakes cannot cause catch-up bursts and consecutive calls retain the speed bound [0.31ms]
+(pass) WebMCP interaction contracts > pre-aborted calls and readiness/Hold changes during a wait cannot mutate [0.18ms]
+(pass) WebMCP interaction contracts > strict runtime schemas reject extra fields, invalid counts, numbers, and buttons [0.23ms]
+(pass) WebMCP interaction contracts > Hold and non-ready pages reject navigation; global menu remains available while loading [0.14ms]
+(pass) WebMCP interaction contracts > selection reports actionable failure if Hold or the control blocks the press after admission [0.06ms]
+(pass) WebMCP interaction contracts > all five buttons and physical orientation delegate with cancellation [0.12ms]
+(pass) current-draft native registration > async registration uses only canonical dictionary fields and abort cleanup [0.21ms]
+(pass) current-draft native registration > native feature detection preserves receiver, caches document identity and leaves unsupported documents untouched [0.10ms]
+(pass) current-draft native registration > disposal stops pending registered navigation without clearing a remounted operation [0.28ms]
+(pass) current-draft native registration > duplicate mount rejected, partial failures abort previous registrations and allow remount [0.09ms]
+(pass) current-draft native registration > dispose aborts executing callbacks and abort before registration stops registration [0.08ms]
+
+packages/panel/src/Panel.integration.test.tsx:
+(pass) mounted playback selection > removing one of multiple panel subscribers cannot mark the remaining mounted panel unavailable [22.82ms]
+(pass) mounted playback selection > page readiness tracks active-track buffering episodes, errors and provider replacement [21.18ms]
+(pass) mounted playback selection > browsing retains live play/pause status and Songs hides only artist subtitles [15.10ms]
+(pass) mounted playback selection > progressive library revisions do not restart a stationary track dwell [769.39ms]
+(pass) mounted playback selection > Center cycles substantive modes and the wheel controls volume, scrub, and queue [18.22ms]
+(pass) mounted playback selection > a rejected provider volume write rolls the visible feedback value back without dismissing it [3.38ms]
+(pass) mounted playback selection > a ready-to-ready track identity change dismisses visible volume feedback [4.49ms]
+(pass) mounted playback selection > reconstructed Now Playing restores authoritative track and queue position [3.96ms]
+(pass) mounted playback selection > a late queue read cannot replace a newer authoritative queue [4.35ms]
+(pass) mounted playback selection > a stale copy of the same catalog song cannot confirm a different pending occurrence [3.58ms]
+(pass) mounted playback selection > play resolution and a matching MusicKit item stay pending until its playback clock advances [8.34ms]
+(pass) mounted playback selection > audible provider truth clears starting while the play command is unresolved [3.85ms]
+(pass) mounted playback selection > a rapid second song selection keeps metadata aligned with the winning transport [4.84ms]
+(pass) mounted playback selection > station playback adopts the provider track and clears loading after its clock advances [3.31ms]
+(pass) mounted playback selection > a late relationship response cannot replace the screen after navigation leaves its shell [3.35ms]
+(pass) mounted playback selection > a rejected play request keeps the selected occurrence on Now Playing [3.17ms]
+
+packages/panel/src/page-readiness.test.ts:
+(pass) page clocks use real operation timestamps, read without resetting, and freeze at completion [0.04ms]
+(pass) already-loading mounts without a known operation start report unknown elapsed time [0.01ms]
+(pass) error settlement and provider replacement cannot inherit old operation clocks [0.02ms]
+
+packages/composite/src/CompositeDevice.integration.test.tsx:
+(pass) mounted composite input boundary > production arc callbacks move the singleton store and restore application focus [2.70ms]
+(pass) mounted composite input boundary > selection suppression is gesture-scoped and restores prior outside ranges [1.20ms]
+(pass) mounted composite input boundary > the mounted boundary consumes the store feedback stream once and disposes audio [0.54ms]
+(pass) mounted composite input boundary > all four cardinal sectors publish one accepted feedback event [0.68ms]
+(pass) mounted composite input boundary > a short annular tap stays cardinal while movement takeover changes volume without double action [0.43ms]
+(pass) mounted composite input boundary > provider transport owns next when accepted and falls back to list paging when declined [0.23ms]
+(pass) mounted composite input boundary > rejected provider transport is consumed without list paging or accepted feedback [0.22ms]
+(pass) mounted composite input boundary > holding Menu for 600ms returns to root without also popping it [0.22ms]
+(pass) mounted composite input boundary > rejected Play/Pause, mute and raw DOM click never enter audio [0.25ms]
+(pass) mounted composite input boundary > cardinal semantics have no raw DOM click wiring to double-fire [0.28ms]
+(pass) mounted composite input boundary > keyboard physical semantics fire on release once and cancel on blur [0.94ms]
+(pass) mounted composite input boundary > agent buttons share all five semantic/audio edges and cancel on unmount [413.01ms]
+(pass) mounted composite input boundary > same-channel human takeover stays pressed while cross-channel takeover releases abandoned agent travel [2.64ms]
+(pass) mounted composite input boundary > multiple mounted public boundaries consume one feedback sequence once [0.45ms]
+(pass) mounted composite input boundary > the mounted mute prop reaches the runtime without constructing settings UI [0.37ms]
+
+ 51 pass
+ 0 fail
+ 366 expect() calls
+Ran 51 tests across 4 files. [1463.00ms]
+
+
+COMMAND: bun run typecheck
+EXIT: 0
+$ bun run scripts/typecheck.ts
+
+── tsc --noEmit -p apps/web/tsconfig.json
+   ok  apps/web
+
+── tsc --noEmit -p packages/composite/tsconfig.json
+   ok  packages/composite
+
+── tsc --noEmit -p packages/device/tsconfig.json
+   ok  packages/device
+
+── tsc --noEmit -p packages/panel/tsconfig.json
+   ok  packages/panel
+
+── tsc --noEmit -p packages/providers/tsconfig.json
+   ok  packages/providers
+
+── tsc --noEmit -p packages/server-core/tsconfig.json
+   ok  packages/server-core
+
+── tsc --noEmit -p packages/state/tsconfig.json
+   ok  packages/state
+
+── tsc --noEmit -p packages/stickers/tsconfig.json
+   ok  packages/stickers
+
+── tsc --noEmit -p packages/tokens/tsconfig.json
+   ok  packages/tokens
+
+── tsc --noEmit -p packages/tools/tsconfig.json
+   ok  packages/tools
+
+── tsc --noEmit -p packages/ui/tsconfig.json
+   ok  packages/ui
+
+── tsc --noEmit -p scripts/tsconfig.json
+   ok  scripts
+
+12/12 projects clean
+
+
+COMMAND: bunx tsc --noEmit -p apps/web/tsconfig.json
+EXIT: 0
+
+
+COMMAND: bun run build
+EXIT: 0
+$ bun run --cwd apps/web build
+$ bun node_modules/vite/bin/vite.js build
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 305 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/assets/index-CpWc2OJ7.css                    20.99 kB │ gzip:   5.04 kB
+dist/client/assets/app-BWOTVn3m.css                      36.02 kB │ gzip:   8.53 kB
+dist/client/assets/routes-gK2iNdNA.js                     0.07 kB │ gzip:   0.08 kB
+dist/client/assets/___spike.device-DVzem9ya.js            0.18 kB │ gzip:   0.17 kB
+dist/client/assets/___probe.capabilities-VVxv1mhd.js      0.54 kB │ gzip:   0.35 kB
+dist/client/assets/index-DoBJVACY.js                  1,861.07 kB │ gzip: 571.85 kB
+
+✓ built in 329ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+vite v8.2.2 building ssr environment for production...
+transforming...
+✓ 568 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/assets/start-XEGAwR_q.js                         0.21 kB │ gzip:   0.17 kB
+dist/server/assets/routes-2jZDur0R.js                        0.27 kB │ gzip:   0.20 kB
+dist/server/assets/empty-plugin-adapters-63t6GYbj.js         0.28 kB │ gzip:   0.18 kB
+dist/server/assets/___spike.device-C6C-5_gG.js               0.45 kB │ gzip:   0.31 kB
+dist/server/assets/___probe.capabilities-D7pMbVRr.js         0.81 kB │ gzip:   0.45 kB
+dist/server/assets/_tanstack-start-manifest_v-BW6s81s4.js    1.09 kB │ gzip:   0.45 kB
+dist/server/assets/router-ZWoHMm5e.js                      321.34 kB │ gzip:  78.07 kB
+dist/server/assets/src-BJC6scYX.js                         429.93 kB │ gzip: 120.30 kB
+dist/server/server.js                                      689.93 kB │ gzip: 160.18 kB
+
+✓ built in 170ms
+
+
+COMMAND: bunx --bun eslint apps/web/src/webmcp.ts apps/web/src/device-page.tsx packages/tools/src/index.ts packages/tools/src/native.ts packages/tools/src/interactions.ts packages/tools/src/interactions.test.ts packages/composite/src/agent-controls.ts packages/composite/src/CompositeDevice.tsx packages/composite/src/CompositeDevice.integration.test.tsx packages/composite/src/index.ts packages/composite/src/interaction-audio.ts packages/composite/src/interaction-audio.test.ts packages/device/src/index.ts packages/state/src/contract.ts packages/state/src/silence.ts packages/state/src/detent.ts packages/state/src/store.ts packages/state/src/store.test.ts packages/state/src/detent.test.ts packages/state/src/feedback.test.ts packages/panel/src/Panel.tsx packages/panel/src/Panel.integration.test.tsx packages/panel/src/page-readiness.ts packages/panel/src/page-readiness.test.ts packages/panel/src/index.ts
+EXIT: 0
+
+
+COMMAND: bunx --bun eslint packages/tools/src packages/panel/src/Panel.tsx packages/panel/src/Panel.integration.test.tsx
+EXIT: 0
+
+
+COMMAND: bun run lint
+EXIT: 1
+Unrelated pre-existing evidence-script failures; no source files changed by this slice appear in this log.
+/Users/vinicius/code/webPod/docs/workstreams/008-lighting-and-hardware/evidence/hardware/probe-strip.ts
+/Users/vinicius/code/webPod/docs/workstreams/009-product-studio-and-flat-display/evidence/display/tone-mapping-parity.ts
+/Users/vinicius/code/webPod/docs/workstreams/009-product-studio-and-flat-display/evidence/final-display/capture.ts
+/Users/vinicius/code/webPod/docs/workstreams/009-product-studio-and-flat-display/evidence/mutant-aperture.ts
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/final-coverage/probe.ts
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/isolation/capture.ts
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/isolation/rays.ts
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/isolation/rear-isolation.ts
+/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/direct-manipulation/performance/after-observer-init.js
+/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/direct-manipulation/performance/fixture.mjs
+/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/direct-manipulation/performance/observer-init.js
+/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/direct-manipulation/performance/webgl-instrumentation.js
+✖ 111 problems (111 errors, 0 warnings)
+
+Native/eval evidence is owned by spec_research; see evidence/native-evals.md. Orientation proofs are owned by interaction_research. No sticker file edited in this slice.
+
+COMMAND: bun test packages/tools packages/state packages/composite packages/panel apps/web/src
+EXIT: 1
+13 |     expect(store.set(equipStickerActionAtom, placement)).toBe(true);
+14 |     expect(store.get(equippedStickersAtom)).toEqual([placement]);
+15 |     expect(notifications).toBe(1);
+16 |     expect(store.set(equipStickerActionAtom, { ...placement, stickerId: 'PW-A02' })).toBe(false);
+17 |     expect(store.set(equipStickerActionAtom, { ...placement, x: Number.NaN })).toBe(false);
+18 |     expect(store.set(equipStickerActionAtom, { ...placement, width: .35, x: .9 })).toBe(false);
+                                                                                        ^
+error: expect(received).toBe(expected)
+
+Expected: false
+Received: true
+
+      at <anonymous> (/Users/vinicius/code/webPod/packages/state/src/stickers.test.ts:18:84)
+(fail) externally shared sticker state > external writes notify rendered selectors and reject unearned/invalid placements [0.37ms]
+(pass) externally shared sticker state > duplicate equips replace and account reset clears all gesture/inventory state [0.11ms]
+
+packages/state/src/announce.test.ts:
+(pass) U13 — a flick announces once > 30 detents through the real store produce exactly ONE announcement [0.48ms]
+
+1 tests failed:
+(fail) externally shared sticker state > external writes notify rendered selectors and reject unearned/invalid placements [0.37ms]
+
+ 577 pass
+ 1 fail
+ 4381 expect() calls
+Ran 578 tests across 50 files. [4.01s]
+Attribution: packages/state/src/stickers.test.ts was not modified by core; concurrent edge-wrap behavior in packages/stickers/src/index.ts accepts this placement. Deferred to sticker owner/lead.

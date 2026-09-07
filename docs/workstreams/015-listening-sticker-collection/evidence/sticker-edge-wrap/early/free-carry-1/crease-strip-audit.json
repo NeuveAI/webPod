@@ -1,0 +1,74 @@
+{
+  "untouched": {
+    "triangles": 12168,
+    "contacts": 0,
+    "minimumStretch": 0.29331217879410815,
+    "maximumStretch": 1.572971049528628,
+    "minimumAreaRatio": 0.32140588617427907,
+    "worst": {
+      "triangle": 18241,
+      "ids": [
+        9216,
+        9312,
+        9313
+      ],
+      "minimumStretch": 0.29331217879410815,
+      "maximumStretch": 1.0957809099358655,
+      "areaRatio": 0.32140588617427907
+    }
+  },
+  "crease-collar": {
+    "triangles": 360,
+    "contacts": 0,
+    "minimumStretch": 0.22714276689874768,
+    "maximumStretch": 1.469638637366727,
+    "minimumAreaRatio": 0.23184724249082117,
+    "worst": {
+      "triangle": 15963,
+      "ids": [
+        8065,
+        8161,
+        8162
+      ],
+      "minimumStretch": 0.22714276689874768,
+      "maximumStretch": 1.0207115359925618,
+      "areaRatio": 0.23184724249082117
+    }
+  },
+  "end-collar": {
+    "triangles": 1968,
+    "contacts": 159,
+    "minimumStretch": 0.025726873252133645,
+    "maximumStretch": 9.253734161259715,
+    "minimumAreaRatio": 0.03054041758584525,
+    "worst": {
+      "triangle": 15593,
+      "ids": [
+        7878,
+        7974,
+        7975
+      ],
+      "minimumStretch": 0.025726873252133645,
+      "maximumStretch": 1.1871018015495685,
+      "areaRatio": 0.03054041758584525
+    }
+  },
+  "core": {
+    "triangles": 3936,
+    "contacts": 0,
+    "minimumStretch": 0.861753406530957,
+    "maximumStretch": 1.0568502464307994,
+    "minimumAreaRatio": 0.9106922276147212,
+    "worst": {
+      "triangle": 10588,
+      "ids": [
+        5349,
+        5446,
+        5350
+      ],
+      "minimumStretch": 0.8618854455363123,
+      "maximumStretch": 1.0566279223430195,
+      "areaRatio": 0.9106922276147212
+    }
+  }
+}

@@ -1,0 +1,590 @@
+{
+  "version": 1,
+  "build": {
+    "source": "020e29bc3b161cb60685679d10643fe595ee90f488f949fe45598f014a35087b",
+    "artifacts": "7b8e0799416e32ce44c69e63918e4fa6ee88c18bc685af74601f2401b9271e6c"
+  },
+  "sampler": {
+    "path": "packages/device/src/sticker-corner-cage.ts",
+    "sha256": "a641c30c51f62a8411bc240d5922d924afc13b6eed5188d6709bc47b3a55a5e3"
+  },
+  "seed": [
+    {
+      "stickerId": "PW-C03",
+      "surface": "back",
+      "x": 0.027,
+      "y": 0.017,
+      "width": 0.35,
+      "rotationDeg": 0,
+      "wear": 1
+    },
+    {
+      "stickerId": "PW-F01",
+      "surface": "back",
+      "x": 0.65,
+      "y": 0.72,
+      "width": 0.25,
+      "rotationDeg": 0,
+      "wear": 0.6
+    }
+  ],
+  "viewport": {
+    "width": 375,
+    "height": 812
+  },
+  "pose": {
+    "face": "side",
+    "rightStepsFromRear": 5
+  },
+  "cameraWorld": [
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    2028.7559814453125,
+    1
+  ],
+  "cameraProjection": [
+    8.081133842468262,
+    0,
+    0,
+    0,
+    0,
+    3.732050895690918,
+    0,
+    0,
+    0,
+    0,
+    -1.936155915260315,
+    -1,
+    0,
+    0,
+    -2504.097412109375,
+    0
+  ],
+  "contentWorld": [
+    -0.5,
+    0,
+    0.8660253882408142,
+    0,
+    0,
+    1,
+    0,
+    0,
+    -0.8660253882408142,
+    0,
+    -0.5,
+    0,
+    1.039230465888977,
+    -0.2008357048034668,
+    0.6000000238418579,
+    1
+  ],
+  "pickup": {
+    "point": {
+      "x": 141.06295459588623,
+      "y": 222.03415582485093
+    },
+    "uv": [
+      0.5231626629829407,
+      0.31023186445236206
+    ],
+    "effectiveAlpha": 0.9921568627450981,
+    "stickerDistance": 1892.079878034841,
+    "shellDistance": 1892.2628227470789
+  },
+  "occluded": {
+    "point": {
+      "x": 147.88815563231293,
+      "y": 200.7312152394008
+    },
+    "uv": [
+      0.6417242288589478,
+      0.9321068525314331
+    ],
+    "effectiveAlpha": 0.9921568627450981,
+    "stickerDistance": 2013.5336388578514,
+    "shellDistance": 1902.7933160328143
+  },
+  "attached": {
+    "uv": [
+      0.5231626629829407,
+      0.31023186445236206
+    ],
+    "partialPointer": {
+      "x": 147.85081076232848,
+      "y": 231.92986240213443
+    }
+  },
+  "attribution": {
+    "capturePath": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/cold-inverse-matrix-1/matrix-375-side.json",
+    "captureSha256": "418881138f3f5a67c1af71f0ff071543a5056620a3f56d4ac08e05a909ab3c2e",
+    "sourceBufferSha256": {
+      "position": "3a8c7b7aaf6841b8ca383e9796facc786dbd78996dca5cf358d5d71d03fcbb2c",
+      "uv": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52",
+      "index": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+    },
+    "selectedInkDrawId": 635,
+    "draws": [
+      {
+        "id": 635,
+        "pass": 9,
+        "program": 18,
+        "raster": {
+          "cullEnabled": true,
+          "cullFace": 1029,
+          "frontFace": 2305
+        }
+      },
+      {
+        "id": 636,
+        "pass": 9,
+        "program": 19,
+        "raster": {
+          "cullEnabled": true,
+          "cullFace": 1029,
+          "frontFace": 2304
+        }
+      }
+    ],
+    "actualShellSources": [
+      {
+        "source": "actual cut rear",
+        "position": {
+          "fnv1a": "def0757c",
+          "sha256": "397c3cb50e9dfa9916cf09224d9cb05ee2373eab391430de22bd62c9797cf367",
+          "byteLength": 797976
+        },
+        "transform": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1
+        ],
+        "draws": [
+          {
+            "id": 564,
+            "pass": 9,
+            "modelMatrix": [
+              -0.5,
+              0,
+              0.8660253882408142,
+              0,
+              0,
+              1,
+              0,
+              0,
+              -0.8660253882408142,
+              0,
+              -0.5,
+              0,
+              1.039230465888977,
+              -0.2008357048034668,
+              0.6000000238418579,
+              1
+            ],
+            "modelViewMatrix": [
+              -0.5,
+              0,
+              0.8660253882408142,
+              0,
+              0,
+              1,
+              0,
+              0,
+              -0.8660253882408142,
+              0,
+              -0.5,
+              0,
+              1.039230465888977,
+              -0.2008357048034668,
+              -2028.156005859375,
+              1
+            ],
+            "position": {
+              "id": 1,
+              "revision": 1,
+              "byteLength": 797976,
+              "fnv1a": "def0757c",
+              "layout": {
+                "size": 3,
+                "type": 5126,
+                "normalized": false,
+                "stride": 12,
+                "offset": 0
+              }
+            },
+            "maxMatrixError": 0
+          }
+        ]
+      }
+    ],
+    "grabSourceSha256": "a8607e3c235b67bd7a7a5fc3108fc87615d04287584dccf86ee1fbbaf2ecbda3",
+    "coordinateSpace": "Distances and UV mesh are in captured content coordinates; actual model/view/projection matrices are recorded.",
+    "partialAttached": {
+      "point": {
+        "x": 141.06295459588623,
+        "y": 222.03415582485093
+      },
+      "uv": [
+        0.5231626629829407,
+        0.31023186445236206
+      ],
+      "effectiveAlpha": 0.9921568627450981,
+      "stickerDistance": 1892.079878034841,
+      "shellDistance": 1892.2628227470789,
+      "local": [
+        159.83143615722656,
+        228.1429443359375,
+        -24.639991760253906
+      ],
+      "shellPoint": [
+        159.67701076852723,
+        228.16498399924902,
+        -24.544410275111773
+      ],
+      "shellSource": "actual cut rear",
+      "row": 0.6979166666666666,
+      "col": 0.53125,
+      "facing": 0.9841196373607197,
+      "sourceFrontier": 0.234375
+    },
+    "trajectory": [
+      {
+        "point": {
+          "x": 141.9114366166915,
+          "y": 223.27111914701138
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 142.75991863749678,
+          "y": 224.5080824691718
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 143.60840065830206,
+          "y": 225.74504579133225
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 144.45688267910737,
+          "y": 226.98200911349267
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 145.30536469991264,
+          "y": 228.21897243565311
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 146.15384672071792,
+          "y": 229.45593575781356
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 147.0023287415232,
+          "y": 230.69289907997398
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 147.85081076232848,
+          "y": 231.92986240213443
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 149.58371827431043,
+          "y": 234.45618939605654
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 151.31662578629238,
+          "y": 236.98251638997866
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 153.04953329827433,
+          "y": 239.50884338390077
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 154.78244081025628,
+          "y": 242.03517037782288
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 156.51534832223822,
+          "y": 244.561497371745
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 158.24825583422017,
+          "y": 247.0878243656671
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 159.9811633462021,
+          "y": 249.61415135958921
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 161.71407085818404,
+          "y": 252.14047835351133
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 163.446978370166,
+          "y": 254.66680534743344
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 165.17988588214794,
+          "y": 257.1931323413556
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 166.9127933941299,
+          "y": 259.7194593352777
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 168.64570090611184,
+          "y": 262.2457863291998
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 170.3786084180938,
+          "y": 264.7721133231219
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 172.11151593007574,
+          "y": 267.298440317044
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 173.8444234420577,
+          "y": 269.82476731096614
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 175.57733095403964,
+          "y": 272.35109430488825
+        },
+        "admitted": false,
+        "center": null,
+        "solveMs": null
+      },
+      {
+        "point": {
+          "x": 177.3102384660216,
+          "y": 274.87742129881036
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.2550661445890042,
+          "y": 0.11242906279457981
+        },
+        "solveMs": 0.22866700000008677
+      },
+      {
+        "point": {
+          "x": 179.0431459780035,
+          "y": 277.4037482927325
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.2686488841081249,
+          "y": 0.11777920003008452
+        },
+        "solveMs": 0.06895799999983865
+      },
+      {
+        "point": {
+          "x": 180.77605348998546,
+          "y": 279.9300752866546
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.28207050720788596,
+          "y": 0.12309687904342681
+        },
+        "solveMs": 0.054374999999936335
+      },
+      {
+        "point": {
+          "x": 182.5089610019674,
+          "y": 282.4564022805767
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.2955424182390325,
+          "y": 0.12843315051340176
+        },
+        "solveMs": 0.052500000000009095
+      },
+      {
+        "point": {
+          "x": 184.24186851394936,
+          "y": 284.9827292744988
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.309070050496387,
+          "y": 0.13378838726960202
+        },
+        "solveMs": 0.05229199999985212
+      },
+      {
+        "point": {
+          "x": 185.9747760259313,
+          "y": 287.5090562684209
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.3226497710551816,
+          "y": 0.13916685271940893
+        },
+        "solveMs": 0.06345899999996618
+      },
+      {
+        "point": {
+          "x": 187.70768353791325,
+          "y": 290.03538326234303
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.33628413682553393,
+          "y": 0.14456743871912286
+        },
+        "solveMs": 0.05087499999990541
+      },
+      {
+        "point": {
+          "x": 189.4405910498952,
+          "y": 292.56171025626514
+        },
+        "admitted": true,
+        "center": {
+          "x": 0.3499722638998124,
+          "y": 0.1499877971692169
+        },
+        "solveMs": 0.05475000000001273
+      }
+    ],
+    "scope": "Exact actual submitted equipped geometry, painted alpha and same-pass source-correlated rear/front/glass ray witnesses. Other assembly hardware is not reconstructed here; selected rays are away from hardware apertures. Native production visibility uses the full scene and must accept/refuse these exact points."
+  }
+}

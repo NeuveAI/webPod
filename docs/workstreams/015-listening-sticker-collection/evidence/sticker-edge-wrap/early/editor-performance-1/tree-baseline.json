@@ -1,0 +1,11 @@
+{
+  "mode": "baseline",
+  "buildAndHashMs": 317.12308300000007,
+  "treeHash": "8c98ea15aeb5038a561dfe3eae57aa7234583e9c3e7804bdb2641cffa882b59c",
+  "buildMs": 298.20875,
+  "stats": {
+    "triangleCount": 203743,
+    "nodeCount": 65535,
+    "typedBytes": 15484468
+  }
+}

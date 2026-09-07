@@ -1,0 +1,246 @@
+[
+  {
+    "name": "1280-side",
+    "stages": [
+      {
+        "transport": 0,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 0.4731329163282294,
+        "zero": 0,
+        "pickedAnchorDistance": 32.02097688700181
+      },
+      {
+        "transport": 0.000001,
+        "curl": 0.9999998,
+        "finite": true,
+        "minimumArea": 0.4731341960290483,
+        "zero": 0,
+        "pickedAnchorDistance": 32.020937676009694
+      },
+      {
+        "transport": 0.25,
+        "curl": 0.85,
+        "finite": true,
+        "minimumArea": 0.7181992341856693,
+        "zero": 0,
+        "pickedAnchorDistance": 20.56385920778144
+      },
+      {
+        "transport": 0.5,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.9657065929326016,
+        "zero": 0,
+        "pickedAnchorDistance": 14.481784472514402
+      },
+      {
+        "transport": 0.75,
+        "curl": 0.95,
+        "finite": true,
+        "minimumArea": 1.1302564228390362,
+        "zero": 0,
+        "pickedAnchorDistance": 7.624474867859515
+      },
+      {
+        "transport": 1,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.430654579410093,
+        "zero": 0,
+        "pickedAnchorDistance": 0.0000072109277809944805
+      },
+      {
+        "transport": 1,
+        "curl": 0.497049,
+        "finite": true,
+        "minimumArea": 1.4306421873172388,
+        "zero": 0,
+        "pickedAnchorDistance": 0.000007452661989186142
+      }
+    ]
+  },
+  {
+    "name": "1280-front",
+    "stages": [
+      {
+        "transport": 0,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 0.4731356366370777,
+        "zero": 0,
+        "pickedAnchorDistance": 219.67669016658107
+      },
+      {
+        "transport": 0.000001,
+        "curl": 0.9999998,
+        "finite": true,
+        "minimumArea": 0.4731339181356002,
+        "zero": 0,
+        "pickedAnchorDistance": 219.67646808202596
+      },
+      {
+        "transport": 0.25,
+        "curl": 0.85,
+        "finite": true,
+        "minimumArea": 0.2644536264078669,
+        "zero": 0,
+        "pickedAnchorDistance": 160.42427248097758
+      },
+      {
+        "transport": 0.5,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.0017465639399581573,
+        "zero": 0,
+        "pickedAnchorDistance": 108.15428017559275
+      },
+      {
+        "transport": 0.75,
+        "curl": 0.95,
+        "finite": true,
+        "minimumArea": 0.6255052509765121,
+        "zero": 0,
+        "pickedAnchorDistance": 54.55884193636866
+      },
+      {
+        "transport": 1,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.430643731862877,
+        "zero": 0,
+        "pickedAnchorDistance": 0.0000016165182274337044
+      },
+      {
+        "transport": 1,
+        "curl": 0.497049,
+        "finite": true,
+        "minimumArea": 1.4306460182752123,
+        "zero": 0,
+        "pickedAnchorDistance": 0.000003269533092882304
+      }
+    ]
+  },
+  {
+    "name": "375-side",
+    "stages": [
+      {
+        "transport": 0,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 0.4731329163282294,
+        "zero": 0,
+        "pickedAnchorDistance": 32.02081908914672
+      },
+      {
+        "transport": 0.000001,
+        "curl": 0.9999998,
+        "finite": true,
+        "minimumArea": 0.4731341960290483,
+        "zero": 0,
+        "pickedAnchorDistance": 32.020779878154435
+      },
+      {
+        "transport": 0.25,
+        "curl": 0.85,
+        "finite": true,
+        "minimumArea": 0.7181103481725304,
+        "zero": 0,
+        "pickedAnchorDistance": 20.563749873633817
+      },
+      {
+        "transport": 0.5,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.9656948609255182,
+        "zero": 0,
+        "pickedAnchorDistance": 14.481722695912381
+      },
+      {
+        "transport": 0.75,
+        "curl": 0.95,
+        "finite": true,
+        "minimumArea": 1.1308051870482576,
+        "zero": 0,
+        "pickedAnchorDistance": 7.62444220193648
+      },
+      {
+        "transport": 1,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.4306517688353813,
+        "zero": 0,
+        "pickedAnchorDistance": 0.000007773283108224279
+      },
+      {
+        "transport": 1,
+        "curl": 0.497049,
+        "finite": true,
+        "minimumArea": 1.4306402435077836,
+        "zero": 0,
+        "pickedAnchorDistance": 0.000010091429524286492
+      }
+    ]
+  },
+  {
+    "name": "375-front",
+    "stages": [
+      {
+        "transport": 0,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 0.4731356366370777,
+        "zero": 0,
+        "pickedAnchorDistance": 255.9195095499468
+      },
+      {
+        "transport": 0.000001,
+        "curl": 0.9999998,
+        "finite": true,
+        "minimumArea": 0.47313516277251705,
+        "zero": 0,
+        "pickedAnchorDistance": 255.91924611923565
+      },
+      {
+        "transport": 0.25,
+        "curl": 0.85,
+        "finite": true,
+        "minimumArea": 0.2635763524642672,
+        "zero": 0,
+        "pickedAnchorDistance": 192.28043110862532
+      },
+      {
+        "transport": 0.5,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.0016941504317555083,
+        "zero": 0,
+        "pickedAnchorDistance": 128.43997239632176
+      },
+      {
+        "transport": 0.75,
+        "curl": 0.95,
+        "finite": true,
+        "minimumArea": 0.6283195622009236,
+        "zero": 0,
+        "pickedAnchorDistance": 64.18134249768421
+      },
+      {
+        "transport": 1,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.4306363890209544,
+        "zero": 0,
+        "pickedAnchorDistance": 0.000003981106260685509
+      },
+      {
+        "transport": 1,
+        "curl": 0.497049,
+        "finite": true,
+        "minimumArea": 1.4306321570000495,
+        "zero": 0,
+        "pickedAnchorDistance": 0.0000056614661733011235
+      }
+    ]
+  }
+]

@@ -1,0 +1,319 @@
+{
+  "input": "native mouse",
+  "samples": [
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 763.9139855027015,
+      "y": 135.82784629319391,
+      "driverTimeMs": 13011.096666
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 765.1604464711896,
+      "y": 133.660743375925,
+      "driverTimeMs": 13027.637958
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 766.4069074396779,
+      "y": 131.49364045865607,
+      "driverTimeMs": 13045.382458
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 767.653368408166,
+      "y": 129.32653754138715,
+      "driverTimeMs": 13111.756083
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 768.8998293766542,
+      "y": 127.15943462411822,
+      "driverTimeMs": 13134.885375
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 770.1462903451425,
+      "y": 124.99233170684928,
+      "driverTimeMs": 13151.809291
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 771.3927513136306,
+      "y": 122.82522878958036,
+      "driverTimeMs": 13167.863791
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 772.6392122821188,
+      "y": 120.65812587231144,
+      "driverTimeMs": 13184.477083
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 821.3879468122576,
+      "y": 183.30421742469204,
+      "driverTimeMs": 15451.345083
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 811.3879468122576,
+      "y": 186.22088409135873,
+      "driverTimeMs": 15467.151291
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 801.3879468122576,
+      "y": 189.13755075802538,
+      "driverTimeMs": 15484.728458
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 791.3879468122576,
+      "y": 192.05421742469204,
+      "driverTimeMs": 15500.902375
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 781.3879468122576,
+      "y": 194.97088409135873,
+      "driverTimeMs": 15517.821791
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 771.3879468122576,
+      "y": 197.88755075802538,
+      "driverTimeMs": 15535.839791
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 761.3879468122576,
+      "y": 200.80421742469204,
+      "driverTimeMs": 15552.390125
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 751.3879468122576,
+      "y": 203.72088409135873,
+      "driverTimeMs": 15568.65425
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 741.3879468122576,
+      "y": 206.63755075802538,
+      "driverTimeMs": 15585.583583
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 731.3879468122576,
+      "y": 209.55421742469204,
+      "driverTimeMs": 15600.787625
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 721.3879468122576,
+      "y": 212.47088409135873,
+      "driverTimeMs": 15616.938291
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 711.3879468122576,
+      "y": 215.38755075802538,
+      "driverTimeMs": 15635.549333
+    },
+    {
+      "phase": "invalid-release-lift",
+      "x": 763.9139855027015,
+      "y": 135.82784629319391,
+      "driverTimeMs": 16976.545208
+    },
+    {
+      "phase": "invalid-release-lift",
+      "x": 765.1604464711896,
+      "y": 133.660743375925,
+      "driverTimeMs": 16994.304291
+    },
+    {
+      "phase": "invalid-release-lift",
+      "x": 766.4069074396779,
+      "y": 131.49364045865607,
+      "driverTimeMs": 17011.8875
+    },
+    {
+      "phase": "invalid-release-lift",
+      "x": 767.653368408166,
+      "y": 129.32653754138715,
+      "driverTimeMs": 17073.226
+    },
+    {
+      "phase": "invalid-release-lift",
+      "x": 768.8998293766542,
+      "y": 127.15943462411822,
+      "driverTimeMs": 17100.170416
+    },
+    {
+      "phase": "invalid-release-lift",
+      "x": 770.1462903451425,
+      "y": 124.99233170684928,
+      "driverTimeMs": 17116.898875
+    },
+    {
+      "phase": "invalid-release-lift",
+      "x": 771.3927513136306,
+      "y": 122.82522878958036,
+      "driverTimeMs": 17134.662666
+    },
+    {
+      "phase": "invalid-release-lift",
+      "x": 772.6392122821188,
+      "y": 120.65812587231144,
+      "driverTimeMs": 17148.913833
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 774.6521045641425,
+      "y": 117.15850185936502,
+      "driverTimeMs": 17167.895666
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 776.6649968461663,
+      "y": 113.65887784641859,
+      "driverTimeMs": 17184.35775
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 778.67788912819,
+      "y": 110.15925383347218,
+      "driverTimeMs": 17201.038
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 780.6907814102137,
+      "y": 106.65962982052575,
+      "driverTimeMs": 17217.64525
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 782.7036736922374,
+      "y": 103.16000580757932,
+      "driverTimeMs": 17234.360916
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 784.7165659742612,
+      "y": 99.66038179463291,
+      "driverTimeMs": 17249.798458
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 786.7294582562849,
+      "y": 96.16075778168648,
+      "driverTimeMs": 17266.159541
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 788.7423505383086,
+      "y": 92.66113376874006,
+      "driverTimeMs": 17283.449875
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 790.7552428203325,
+      "y": 89.16150975579363,
+      "driverTimeMs": 17301.291
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 792.7681351023562,
+      "y": 85.6618857428472,
+      "driverTimeMs": 17315.676458
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 794.7810273843799,
+      "y": 82.16226172990079,
+      "driverTimeMs": 17334.4565
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 796.7939196664036,
+      "y": 78.66263771695436,
+      "driverTimeMs": 17425.646208
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 798.8068119484274,
+      "y": 75.16301370400794,
+      "driverTimeMs": 17504.554833
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 800.8197042304511,
+      "y": 71.66338969106152,
+      "driverTimeMs": 17584.2425
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 802.8325965124748,
+      "y": 68.16376567811508,
+      "driverTimeMs": 17664.685333
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 804.8454887944986,
+      "y": 64.66414166516867,
+      "driverTimeMs": 17747.371
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 806.8583810765223,
+      "y": 61.16451765222225,
+      "driverTimeMs": 17830.437166
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 808.871273358546,
+      "y": 57.664893639275824,
+      "driverTimeMs": 17915.043833
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 810.8841656405698,
+      "y": 54.165269626329405,
+      "driverTimeMs": 18000.335708
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 812.8970579225935,
+      "y": 50.66564561338298,
+      "driverTimeMs": 18085.696791
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 814.9099502046172,
+      "y": 47.16602160043655,
+      "driverTimeMs": 18168.945458
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 816.9228424866409,
+      "y": 43.666397587490124,
+      "driverTimeMs": 18251.927958
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 818.9357347686647,
+      "y": 40.16677357454371,
+      "driverTimeMs": 18334.99975
+    },
+    {
+      "phase": "invalid-release-valid-carry",
+      "x": 820.9486270506884,
+      "y": 36.667149561597284,
+      "driverTimeMs": 18417.917291
+    }
+  ],
+  "timing": "driver event completion timestamps; not render latency",
+  "source": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-7/wrapped-1280-front.json"
+}

@@ -1,0 +1,234 @@
+Sticker implementation checks
+HEAD 2f1001a0b72b1829a581123e4cc4691f0c60319e
+
+Owned source SHA256:
+0ce921981cc6c768014d13c2186ff5b743b8f2faf895bba82826f97eb8f69037 packages/tools/src/stickers.ts
+5cdb2402a0b1e94c52f49599fca5fe265fe9e9de90f29ad190dabb30b74bfbad packages/tools/src/stickers.test.ts
+f6fcf97698c68d46e43ad070e379631fd656f31bd3b6f70a072143705a436e34 packages/tools/src/interactions.ts
+e447a5381fcbc2374d257cfef369e29b8cf745b590e6293654173c31383ecf95 packages/tools/src/index.ts
+02d51a16adc5d6af967d003a25ed1a9f1e4c67ec260bfb9f6438b7b567f2d6fc apps/web/src/sticker-webmcp.ts
+0a701af7531dd4557868b31ea905dc77400b3f50a70a7002454faf88e53b6152 apps/web/src/sticker-webmcp.test.ts
+3e5885c0306c3dd9c57825641b0fe09d1336216bbffa1f5f7d3895a787fd8b8e apps/web/src/sticker-interaction.ts
+2db146a0209bbc0e837efc220fc50d14879ad8ad98b2ec5dcb2542418ffd61a7 apps/web/src/sticker-interaction-lifecycle.test.ts
+de20d76ceea8ca97e766881e91cbefcbe2f911072a676b41fffa33834f077829 apps/web/src/sticker-collection.tsx
+0955d8f676621e242c2d941fea3bcc28733622ddb4d43c54ef29e3f3689159af apps/web/src/webmcp.ts
+
+Commands/results:
+bun test packages/tools/src/stickers.test.ts apps/web/src/sticker-webmcp.test.ts apps/web/src/sticker-interaction-lifecycle.test.ts
+Exit 0: 17 pass, 0 fail, 86 expect calls.
+bun test packages/tools packages/state/src/stickers.test.ts apps/web/src/sticker-webmcp.test.ts apps/web/src/sticker-interaction-lifecycle.test.ts apps/web/src/sticker-editor-model.test.ts apps/web/src/sticker-runtime.test.ts apps/web/src/sticker-collections-model.test.ts
+Test process reported 61 pass, 1 fail, 355 expect calls. Capturing shell used tail and returned 0, NOT the test exit; the test failure is explicitly retained. Sole failure protected packages/state/src/stickers.test.ts18 expects width .35 x .9 invalid under old bounds, while concurrent canonical domain now accepts rear edge wrapping. Full raw output follows.
+bun run typecheck
+Exit 0: 12/12 projects clean.
+bunx tsc --noEmit -p apps/web/tsconfig.json
+Exit 0.
+bunx eslint packages/tools/src/stickers.ts packages/tools/src/stickers.test.ts packages/tools/src/interactions.ts packages/tools/src/index.ts apps/web/src/sticker-webmcp.ts apps/web/src/sticker-webmcp.test.ts apps/web/src/sticker-interaction.ts apps/web/src/sticker-interaction-lifecycle.test.ts apps/web/src/sticker-collection.tsx apps/web/src/webmcp.ts
+Exit 0.
+bun run build
+Exit 0, successful client and server builds. Capturing build shell tail returns 0; full output independently contains successful completion.
+
+Broader focused test output:
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/sticker-interaction-lifecycle.test.ts:
+(pass) shared sticker spring publication ownership > synchronous cancellation at intermediate publication cannot requeue the old frame [1.02ms]
+(pass) shared sticker spring publication ownership > synchronous supersede at final reduced publication suppresses old completion [0.20ms]
+(pass) shared sticker spring publication ownership > synchronous supersede at final animated publication suppresses old completion [0.16ms]
+
+apps/web/src/sticker-runtime.test.ts:
+(pass) sticker runtime lifecycle > logout invalidates a delayed import instead of restoring the prior collection [2.60ms]
+(pass) sticker runtime lifecycle > retry after failed bootstrap attaches the same listening subscription once [2.36ms]
+(pass) sticker runtime lifecycle > a stale placement revision reloads server state and does not show an optimistic save [2.21ms]
+(pass) sticker runtime lifecycle > listening starts with a baseline, resets after seeks and stops at teardown [11.74ms]
+(pass) sticker runtime lifecycle > logout during failed conflict recovery cannot restore the prior error status [3.75ms]
+(pass) device preparation completes before credential transfer and logout cancels a delayed callback [1.68ms]
+(pass) registered session restoration > valid DB lease publishes before passive ingestion and survives its failure [5.02ms]
+(pass) registered session restoration > same provider keeps valid content through read failure, invalid lease clears it [5.75ms]
+(pass) registered session restoration > replacement and confirmed authorization loss invalidate a late DB response [4.43ms]
+(pass) registered session restoration > late GET cannot rewind an opened pack with unchanged placement revision [4.39ms]
+(pass) registered session restoration > late import reconciles new access with newer placement and pack state [4.78ms]
+(pass) registered session restoration > scheduled refresh deduplicates pending import and tears down its clock [7.60ms]
+(pass) guarded editor write checks its source after waiting for the serialized queue [2.23ms]
+
+apps/web/src/sticker-webmcp.test.ts:
+(pass) mounted sticker adapter shared state and persistence > all catalogue statuses include locked/sealed/owned/placed and open UI never claims packs [2.45ms]
+(pass) mounted sticker adapter shared state and persistence > collection carry uses visible shared preview, clamps edits and release writes nothing [0.98ms]
+(pass) mounted sticker adapter shared state and persistence > placed release restores exact origin; placement keeps all properties and passes expectedSource [1.21ms]
+(pass) mounted sticker adapter shared state and persistence > invalid physical silhouette is rejected; failed save retains draft and retry uses real command [0.63ms]
+(pass) mounted sticker adapter shared state and persistence > background inventory refresh keeps unchanged carry; lost ownership or origin invalidates [0.37ms]
+(pass) mounted sticker adapter shared state and persistence > passive human detail selection is not held and explicit grab supersedes it [0.32ms]
+(pass) mounted sticker adapter shared state and persistence > human takeover, face flip, aborted invocation and unmount prevent stale carry mutations [0.30ms]
+(pass) mounted sticker adapter shared state and persistence > abort synchronously during settling publication never admits persistence [0.30ms]
+(pass) mounted sticker adapter shared state and persistence > abort after persistence admission preserves eventual saved inventory; late write cannot mutate remounted operation [0.42ms]
+(pass) mounted sticker adapter shared state and persistence > bounded timeout keeps actual save pending until it really settles, including remount [1.75ms]
+(pass) mounted sticker adapter shared state and persistence > save rejects concurrent sticker changes and reports elapsed frozen on completion [0.47ms]
+
+apps/web/src/sticker-collections-model.test.ts:
+(pass) mixed starter remains two genre sheets with five honest seats each [0.18ms]
+(pass) opening a mixed grant reveals earned seats across its genre sheets without granting future art [0.07ms]
+(pass) display thresholds stay identical to server earning policy and unknown collections are absent [0.03ms]
+(pass) shared liner layout fits narrow and short viewports and retains five reachable seats [0.08ms]
+(pass) keyboard and meaning intents cannot borrow another earned sticker preview [0.02ms]
+(pass) partial peel anchors remaining contact, releases continuously, and reduced motion follows directly [0.05ms]
+(pass) ready collection requires its five prepared seats and survives same-session refresh/error [0.31ms]
+
+apps/web/src/sticker-editor-model.test.ts:
+(pass) one-copy live draft and gesture cancellation retain inventory identity and values [0.14ms]
+(pass) full rear edge permits rotated maximum size without moving center; nonfinite values stay out [0.03ms]
+(pass) gesture save dispatches captured source once and rebases later cancellation to canonical result [0.30ms]
+(pass) failed auto-save restores authority, conflict adopts canonical source, dismissed failure stays local [0.22ms]
+(pass) same-ID reselect rebases after pending write and cannot revive a signed-out session [0.10ms]
+(pass) reset preserves size/center/ownership, clears owned wear and fully straightens at the edge [0.11ms]
+
+packages/tools/src/interactions.test.ts:
+(pass) WebMCP interaction contracts > full list and separate zero-based selection include rows outside the viewport [0.78ms]
+(pass) WebMCP interaction contracts > long traversal accelerates without exceeding five audible items per second [2.19ms]
+(pass) WebMCP interaction contracts > clamps next/previous at boundaries with honest requested and actual counts [2.37ms]
+(pass) WebMCP interaction contracts > read-only status works during movement and concurrent mutation is rejected [0.29ms]
+(pass) WebMCP interaction contracts > list replacement or human selection interrupts before the next detent [0.28ms]
+(pass) WebMCP interaction contracts > cancellation clears in-flight progress and permits a later call [0.16ms]
+(pass) WebMCP interaction contracts > delayed wakes cannot cause catch-up bursts and consecutive calls retain the speed bound [0.42ms]
+(pass) WebMCP interaction contracts > pre-aborted calls and readiness/Hold changes during a wait cannot mutate [0.20ms]
+(pass) WebMCP interaction contracts > strict runtime schemas reject extra fields, invalid counts, numbers, and buttons [0.23ms]
+(pass) WebMCP interaction contracts > Hold and non-ready pages reject navigation; global menu remains available while loading [0.12ms]
+(pass) WebMCP interaction contracts > selection reports actionable failure if Hold or the control blocks the press after admission [0.06ms]
+(pass) WebMCP interaction contracts > all five buttons and physical orientation delegate with cancellation [0.12ms]
+(pass) current-draft native registration > async registration uses only canonical dictionary fields and abort cleanup [0.21ms]
+(pass) current-draft native registration > native feature detection preserves receiver, caches document identity and leaves unsupported documents untouched [0.12ms]
+(pass) current-draft native registration > disposal stops pending registered navigation without clearing a remounted operation [0.26ms]
+(pass) current-draft native registration > duplicate mount rejected, partial failures abort previous registrations and allow remount [0.11ms]
+(pass) current-draft native registration > dispose aborts executing callbacks and abort before registration stops registration [0.08ms]
+
+packages/tools/src/stickers.test.ts:
+(pass) native sticker tool contracts > nine discoverable tools route to live controls with accurate read hints [1.15ms]
+(pass) native sticker tool contracts > runtime rejects malformed fields, nonfinite values and range errors before invoking [0.33ms]
+(pass) native sticker tool contracts > cross-family lease rejects concurrent mutations but allows reads and releases after abort [0.47ms]
+
+packages/state/src/stickers.test.ts:
+13 |     expect(store.set(equipStickerActionAtom, placement)).toBe(true);
+14 |     expect(store.get(equippedStickersAtom)).toEqual([placement]);
+15 |     expect(notifications).toBe(1);
+16 |     expect(store.set(equipStickerActionAtom, { ...placement, stickerId: 'PW-A02' })).toBe(false);
+17 |     expect(store.set(equipStickerActionAtom, { ...placement, x: Number.NaN })).toBe(false);
+18 |     expect(store.set(equipStickerActionAtom, { ...placement, width: .35, x: .9 })).toBe(false);
+                                                                                        ^
+error: expect(received).toBe(expected)
+
+Expected: false
+Received: true
+
+      at <anonymous> (/Users/vinicius/code/webPod/packages/state/src/stickers.test.ts:18:84)
+(fail) externally shared sticker state > external writes notify rendered selectors and reject unearned/invalid placements [0.35ms]
+(pass) externally shared sticker state > duplicate equips replace and account reset clears all gesture/inventory state [0.10ms]
+
+1 tests failed:
+(fail) externally shared sticker state > external writes notify rendered selectors and reject unearned/invalid placements [0.35ms]
+
+ 61 pass
+ 1 fail
+ 355 expect() calls
+Ran 62 tests across 8 files. [156.00ms]
+
+Exact exit-status rerun
+$ bun test packages/tools packages/state/src/stickers.test.ts apps/web/src/sticker-webmcp.test.ts apps/web/src/sticker-interaction-lifecycle.test.ts apps/web/src/sticker-editor-model.test.ts apps/web/src/sticker-runtime.test.ts apps/web/src/sticker-collections-model.test.ts
+Exit 1
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/sticker-interaction-lifecycle.test.ts:
+(pass) shared sticker spring publication ownership > synchronous cancellation at intermediate publication cannot requeue the old frame [1.01ms]
+(pass) shared sticker spring publication ownership > synchronous supersede at final reduced publication suppresses old completion [0.17ms]
+(pass) shared sticker spring publication ownership > synchronous supersede at final animated publication suppresses old completion [0.22ms]
+
+apps/web/src/sticker-runtime.test.ts:
+(pass) sticker runtime lifecycle > logout invalidates a delayed import instead of restoring the prior collection [2.60ms]
+(pass) sticker runtime lifecycle > retry after failed bootstrap attaches the same listening subscription once [1.87ms]
+(pass) sticker runtime lifecycle > a stale placement revision reloads server state and does not show an optimistic save [2.46ms]
+(pass) sticker runtime lifecycle > listening starts with a baseline, resets after seeks and stops at teardown [9.67ms]
+(pass) sticker runtime lifecycle > logout during failed conflict recovery cannot restore the prior error status [3.52ms]
+(pass) device preparation completes before credential transfer and logout cancels a delayed callback [1.71ms]
+(pass) registered session restoration > valid DB lease publishes before passive ingestion and survives its failure [4.44ms]
+(pass) registered session restoration > same provider keeps valid content through read failure, invalid lease clears it [4.21ms]
+(pass) registered session restoration > replacement and confirmed authorization loss invalidate a late DB response [4.58ms]
+(pass) registered session restoration > late GET cannot rewind an opened pack with unchanged placement revision [4.63ms]
+(pass) registered session restoration > late import reconciles new access with newer placement and pack state [4.56ms]
+(pass) registered session restoration > scheduled refresh deduplicates pending import and tears down its clock [6.85ms]
+(pass) guarded editor write checks its source after waiting for the serialized queue [1.86ms]
+
+apps/web/src/sticker-webmcp.test.ts:
+(pass) mounted sticker adapter shared state and persistence > all catalogue statuses include locked/sealed/owned/placed and open UI never claims packs [1.16ms]
+(pass) mounted sticker adapter shared state and persistence > collection carry uses visible shared preview, clamps edits and release writes nothing [1.16ms]
+(pass) mounted sticker adapter shared state and persistence > placed release restores exact origin; placement keeps all properties and passes expectedSource [1.67ms]
+(pass) mounted sticker adapter shared state and persistence > invalid physical silhouette is rejected; failed save retains draft and retry uses real command [0.68ms]
+(pass) mounted sticker adapter shared state and persistence > background inventory refresh keeps unchanged carry; lost ownership or origin invalidates [0.41ms]
+(pass) mounted sticker adapter shared state and persistence > passive human detail selection is not held and explicit grab supersedes it [0.35ms]
+(pass) mounted sticker adapter shared state and persistence > human takeover, face flip, aborted invocation and unmount prevent stale carry mutations [0.32ms]
+(pass) mounted sticker adapter shared state and persistence > abort synchronously during settling publication never admits persistence [0.33ms]
+(pass) mounted sticker adapter shared state and persistence > abort after persistence admission preserves eventual saved inventory; late write cannot mutate remounted operation [0.41ms]
+(pass) mounted sticker adapter shared state and persistence > bounded timeout keeps actual save pending until it really settles, including remount [1.88ms]
+(pass) mounted sticker adapter shared state and persistence > save rejects concurrent sticker changes and reports elapsed frozen on completion [0.49ms]
+
+apps/web/src/sticker-collections-model.test.ts:
+(pass) mixed starter remains two genre sheets with five honest seats each [0.10ms]
+(pass) opening a mixed grant reveals earned seats across its genre sheets without granting future art [0.06ms]
+(pass) display thresholds stay identical to server earning policy and unknown collections are absent [0.03ms]
+(pass) shared liner layout fits narrow and short viewports and retains five reachable seats [0.07ms]
+(pass) keyboard and meaning intents cannot borrow another earned sticker preview [0.01ms]
+(pass) partial peel anchors remaining contact, releases continuously, and reduced motion follows directly [0.06ms]
+(pass) ready collection requires its five prepared seats and survives same-session refresh/error [0.33ms]
+
+apps/web/src/sticker-editor-model.test.ts:
+(pass) one-copy live draft and gesture cancellation retain inventory identity and values [0.28ms]
+(pass) full rear edge permits rotated maximum size without moving center; nonfinite values stay out [0.03ms]
+(pass) gesture save dispatches captured source once and rebases later cancellation to canonical result [0.29ms]
+(pass) failed auto-save restores authority, conflict adopts canonical source, dismissed failure stays local [0.23ms]
+(pass) same-ID reselect rebases after pending write and cannot revive a signed-out session [0.13ms]
+(pass) reset preserves size/center/ownership, clears owned wear and fully straightens at the edge [0.15ms]
+
+packages/tools/src/interactions.test.ts:
+(pass) WebMCP interaction contracts > full list and separate zero-based selection include rows outside the viewport [0.73ms]
+(pass) WebMCP interaction contracts > long traversal accelerates without exceeding five audible items per second [1.52ms]
+(pass) WebMCP interaction contracts > clamps next/previous at boundaries with honest requested and actual counts [2.61ms]
+(pass) WebMCP interaction contracts > read-only status works during movement and concurrent mutation is rejected [0.22ms]
+(pass) WebMCP interaction contracts > list replacement or human selection interrupts before the next detent [0.24ms]
+(pass) WebMCP interaction contracts > cancellation clears in-flight progress and permits a later call [0.12ms]
+(pass) WebMCP interaction contracts > delayed wakes cannot cause catch-up bursts and consecutive calls retain the speed bound [0.26ms]
+(pass) WebMCP interaction contracts > pre-aborted calls and readiness/Hold changes during a wait cannot mutate [0.17ms]
+(pass) WebMCP interaction contracts > strict runtime schemas reject extra fields, invalid counts, numbers, and buttons [0.22ms]
+(pass) WebMCP interaction contracts > Hold and non-ready pages reject navigation; global menu remains available while loading [0.13ms]
+(pass) WebMCP interaction contracts > selection reports actionable failure if Hold or the control blocks the press after admission [0.06ms]
+(pass) WebMCP interaction contracts > all five buttons and physical orientation delegate with cancellation [0.12ms]
+(pass) current-draft native registration > async registration uses only canonical dictionary fields and abort cleanup [0.20ms]
+(pass) current-draft native registration > native feature detection preserves receiver, caches document identity and leaves unsupported documents untouched [0.11ms]
+(pass) current-draft native registration > disposal stops pending registered navigation without clearing a remounted operation [0.23ms]
+(pass) current-draft native registration > duplicate mount rejected, partial failures abort previous registrations and allow remount [0.10ms]
+(pass) current-draft native registration > dispose aborts executing callbacks and abort before registration stops registration [0.08ms]
+
+packages/tools/src/stickers.test.ts:
+(pass) native sticker tool contracts > nine discoverable tools route to live controls with accurate read hints [0.42ms]
+(pass) native sticker tool contracts > runtime rejects malformed fields, nonfinite values and range errors before invoking [0.14ms]
+(pass) native sticker tool contracts > cross-family lease rejects concurrent mutations but allows reads and releases after abort [0.18ms]
+
+packages/state/src/stickers.test.ts:
+13 |     expect(store.set(equipStickerActionAtom, placement)).toBe(true);
+14 |     expect(store.get(equippedStickersAtom)).toEqual([placement]);
+15 |     expect(notifications).toBe(1);
+16 |     expect(store.set(equipStickerActionAtom, { ...placement, stickerId: 'PW-A02' })).toBe(false);
+17 |     expect(store.set(equipStickerActionAtom, { ...placement, x: Number.NaN })).toBe(false);
+18 |     expect(store.set(equipStickerActionAtom, { ...placement, width: .35, x: .9 })).toBe(false);
+                                                                                        ^
+error: expect(received).toBe(expected)
+
+Expected: false
+Received: true
+
+      at <anonymous> (/Users/vinicius/code/webPod/packages/state/src/stickers.test.ts:18:84)
+(fail) externally shared sticker state > external writes notify rendered selectors and reject unearned/invalid placements [0.23ms]
+(pass) externally shared sticker state > duplicate equips replace and account reset clears all gesture/inventory state [0.07ms]
+
+1 tests failed:
+(fail) externally shared sticker state > external writes notify rendered selectors and reject unearned/invalid placements [0.23ms]
+
+ 61 pass
+ 1 fail
+ 355 expect() calls
+Ran 62 tests across 8 files. [152.00ms]

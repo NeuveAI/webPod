@@ -1,0 +1,22 @@
+{
+  "pose": {
+    "id": "PW-C03",
+    "x": 0.027,
+    "y": 0.017,
+    "width": 0.35,
+    "rotationDeg": 0
+  },
+  "finite": true,
+  "zeroAreaTriangles": 0,
+  "trianglesOpposedToSampledNormals": 0,
+  "minimumTriangleArea": 0.7350086553487927,
+  "vertices": 9409,
+  "triangles": 18432,
+  "coldGeometryMs": 32.652666,
+  "qualification": "Bounded pre-render guard only; no contact, visual or runtime acceptance",
+  "sourceHashes": {
+    "packages/device/src/sticker-corner-cage.ts": "6091a56d57741537b3417c835b96f377d89379346ec5033151bc0df3f8a63c6e",
+    "packages/device/src/sticker-wrap.ts": "049ebffbfc44fb4f4831267e24e7df3f85ced1708af9feafacb1ad5636286543",
+    "packages/device/src/sticker-surface.ts": "680797085f9b82e5b20f88c4d1bf66b68a1b89ae9b74bcbff24d3b124b8ab046"
+  }
+}

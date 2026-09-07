@@ -1,0 +1,9 @@
+# Completed replacement interaction proof
+
+Current immutable cold-inverse-matrix-1 build; product/test source unchanged. Pickup, release and expected center are byte-identical to witness2. Only hidden-flick points and stronger partial endpoints changed. Actual source positions/UV/index hashes, FrontSide raster state, current sampler/grab build hashes, same-pass rear/front/glass buffer fingerprints and model transforms are validated by finalize.ts.
+
+All hidden rays have first shell contact in the existing18-unit orientation band, with insets7.51,9.95,9.66,9.34. The generator additionally requires a10-unit diagnostic band and no foreground FrontSide alpha hit, and records the exact production predicate and shell source. Witness2 desktop points were outside the18-unit band and are superseded for the orientation assertion; no product behavior was broadened. Backfacing remains an independent reason hidden ink cannot be grabbed, so the negative native case does not isolate BVH behavior.
+
+Side partial distance32px gives source frontier.625 and visible attached row.697917. Front partial20px gives frontier.390625 and visible attached row.427083. The exact front view has no visible ink beyond row.427, so a32/40px front pull cannot supply a visible attached reference; side supplies the stronger contact view. No contact claim is made for hidden rear material based solely on a front screenshot.
+
+The driver keeps8 partial samples plus24 carry samples. projectCenter is called only above64px. All18/18/10/15 admitted calls return accepted exact shown-UV centers; no partial prewarm. Source-bound native event flow, attached contact, landing and performance remain the acceptance gate. generate.ts takes absolute capture/output directories; finalize.ts takes the output directory. Scripts retain original artwork and source assembly geometry; the fixture omits other hardware and native production full-scene visibility remains authoritative.

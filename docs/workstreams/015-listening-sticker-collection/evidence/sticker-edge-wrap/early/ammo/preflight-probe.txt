@@ -1,0 +1,53 @@
+const directory = '/tmp/webpod-ammo-79190a1f';
+const urls = Object.fromEntries(['ammo.wasm.js', 'ammo.wasm.wasm'].map(file => [file, `https://raw.githubusercontent.com/kripken/ammo.js/79190a1f03845794b1bba1777f30037349967658/builds/${file}`]));
+const digests: Record<string,string> = {};
+for (const file of ['ammo.wasm.js','ammo.wasm.wasm','LICENSE','ammo.idl']) digests[file] = new Bun.CryptoHasher('sha256').update(await Bun.file(`${directory}/${file}`).arrayBuffer()).digest('hex');
+const factory = require(`${directory}/ammo.wasm.js`);
+const begin = performance.now();
+const Ammo = await factory({wasmBinary: new Uint8Array(await Bun.file(`${directory}/ammo.wasm.wasm`).arrayBuffer())});
+const initializationMs = performance.now()-begin;
+const heapInitial = Ammo.HEAP8.byteLength;
+const ledger: {name:string,object:unknown,destroyed:boolean}[]=[];
+const own=(name:string,object:unknown)=>{ledger.push({name,object,destroyed:false});return object;};
+const required: string[]=[];
+const check=(object:any,names:string[],prefix:string)=>{for(const name of names){if(typeof object[name]!=='function')throw Error(`Missing ${prefix}.${name}`);required.push(`${prefix}.${name}`);}};
+check(Ammo,['btSoftBodyRigidBodyCollisionConfiguration','btCollisionDispatcher','btDbvtBroadphase','btSequentialImpulseConstraintSolver','btDefaultSoftBodySolver','btSoftRigidDynamicsWorld','btSoftBodyHelpers','btTriangleMesh','btBvhTriangleMeshShape','btDefaultMotionState','btRigidBodyConstructionInfo','btRigidBody','destroy'],'Ammo');
+let world:any,soft:any,rigid:any,addedSoft=false,addedRigid=false,observed:any;
+const start=performance.now();
+try {
+ const configuration=own('soft-rigid configuration',new Ammo.btSoftBodyRigidBodyCollisionConfiguration());
+ const dispatcher=own('dispatcher',new Ammo.btCollisionDispatcher(configuration));
+ const broadphase=own('broadphase',new Ammo.btDbvtBroadphase());
+ const solver=own('constraint solver',new Ammo.btSequentialImpulseConstraintSolver());
+ const softSolver=own('soft solver',new Ammo.btDefaultSoftBodySolver());
+ world=own('world',new Ammo.btSoftRigidDynamicsWorld(dispatcher,broadphase,solver,configuration,softSolver));
+ check(world,['getWorldInfo','setGravity','addSoftBody','removeSoftBody','addRigidBody','removeRigidBody','stepSimulation'],'world');
+ const zero=own('zero vector',new Ammo.btVector3(0,0,0)); world.setGravity(zero);world.getWorldInfo().set_m_gravity(zero);
+ const mesh=own('static triangle mesh',new Ammo.btTriangleMesh(true,true));
+ const a=own('triangle a',new Ammo.btVector3(-2,-2,0)),b=own('triangle b',new Ammo.btVector3(2,-2,0)),c=own('triangle c',new Ammo.btVector3(0,2,0));
+ mesh.addTriangle(a,b,c,true);
+ const shape=own('static BVH shape',new Ammo.btBvhTriangleMeshShape(mesh,true,true));shape.setMargin(0);
+ const transform=own('static transform',new Ammo.btTransform());transform.setIdentity();
+ const motion=own('static motion state',new Ammo.btDefaultMotionState(transform));
+ const info=own('static construction info',new Ammo.btRigidBodyConstructionInfo(0,motion,shape,zero));
+ rigid=own('static body',new Ammo.btRigidBody(info));world.addRigidBody(rigid);addedRigid=true;
+ const helper=own('soft helper',new Ammo.btSoftBodyHelpers());check(helper,['CreateFromTriMesh'],'helper');
+ soft=own('soft body',helper.CreateFromTriMesh(world.getWorldInfo(),[-1,-1,1,1,-1,1,-1,1,1,1,1,1],[0,1,2,1,3,2],2,false));
+ check(soft,['get_m_cfg','get_m_nodes','get_m_materials','appendMaterial','generateBendingConstraints','generateClusters','addForce','setMass','setTotalMass','getCollisionShape'],'soft');
+ const cfg=soft.get_m_cfg();check(cfg,['set_kDF','set_kDP','set_kPR','set_kVC','set_kMT','set_piterations','set_viterations','set_citerations','set_collisions','get_collisions'],'config');
+ cfg.set_kDF(.5);cfg.set_kDP(.05);cfg.set_kPR(0);cfg.set_kVC(0);cfg.set_kMT(0);cfg.set_piterations(10);cfg.set_viterations(10);cfg.set_citerations(4);cfg.set_collisions(0x61);
+ soft.get_m_materials().at(0).set_m_kLST(1);
+ const bend=soft.appendMaterial();bend.set_m_kLST(.05);
+ const bendingLinks=soft.generateBendingConstraints(2,bend),clusters=soft.generateClusters(2,4);
+ soft.setTotalMass(1,true);soft.setMass(0,0);soft.getCollisionShape().setMargin(.1);
+ const node=soft.get_m_nodes().at(0);check(node,['get_m_x','get_m_q','get_m_v','get_m_f','get_m_im','set_m_im'],'node');
+ world.addSoftBody(soft,1,-1);addedSoft=true;
+ const stepStart=performance.now();world.stepSimulation(1/120,0);const oneStepMs=performance.now()-stepStart;
+ observed={nodes:soft.get_m_nodes().size(),faces:soft.get_m_faces().size(),bendingLinks,clusters,collisionFlags:cfg.get_collisions(),staticMargin:shape.getMargin(),softMargin:soft.getCollisionShape().getMargin(),pinnedInverseMass:node.get_m_im(),pinnedPosition:[node.get_m_x().x(),node.get_m_x().y(),node.get_m_x().z()],oneStepMs};
+} finally {
+ if(addedSoft)world.removeSoftBody(soft);
+ if(addedRigid)world.removeRigidBody(rigid);
+ for(const entry of [...ledger].reverse()){Ammo.destroy(entry.object);entry.destroyed=true;}
+}
+const result={status:'preflight passed; no C03 solve',runtime:Bun.version,commit:'79190a1f03845794b1bba1777f30037349967658',urls,digests,license:'zlib; exact LICENSE cached unchanged',initializationMs,fixtureAndCleanupMs:performance.now()-start,heapInitialBytes:heapInitial,heapAfterCleanupBytes:Ammo.HEAP8.byteLength,observed,required,creationLedger:ledger.map(({name,destroyed})=>({name,destroyed})),ownedCreated:ledger.length,ownedDestroyed:ledger.filter(x=>x.destroyed).length,heapQualification:'HEAP8 measures reserved WASM capacity, not live allocations. Borrowed world/config/node/material wrappers were not destroyed; all owning objects explicitly destroyed. Isolated process exits after report.'};
+console.log(JSON.stringify(result,null,2));

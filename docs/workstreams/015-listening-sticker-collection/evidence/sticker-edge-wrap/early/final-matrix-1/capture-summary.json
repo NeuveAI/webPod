@@ -1,0 +1,219 @@
+{
+  "source": {
+    "digest": "890a4fcfb4f2461a34c1bf7c46da34f04ef787e4df35e992bdf8def12dcd7000",
+    "fileCount": 437
+  },
+  "buildManifestSHA": "968e1b1d2ac452b2719c16a759ad94040b5c39b252d0188790955929f920cfba",
+  "artifactManifestSHA": "9139f541bf2632fa7b803a9bf93e703e6a21d756de120c9770874fb0d17b94e8",
+  "buildDeltas": 0,
+  "testDeltas": 0,
+  "buildToEnd": 0,
+  "artifactDeltas": 0,
+  "passed": true,
+  "captures": [
+    {
+      "width": 1280,
+      "face": "side",
+      "candidates": [
+        {
+          "id": 137,
+          "pass": 9,
+          "count": 55296,
+          "buffers": [
+            {
+              "role": "position",
+              "byteLength": 112908,
+              "sha256": "166513d40bd510fe720419813652dce544a9e606ce1f58c875d2ccabe75668b4"
+            },
+            {
+              "role": "uv",
+              "byteLength": 75272,
+              "sha256": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52"
+            },
+            {
+              "role": "index",
+              "byteLength": 110592,
+              "sha256": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+            }
+          ]
+        },
+        {
+          "id": 138,
+          "pass": 9,
+          "count": 55296,
+          "buffers": [
+            {
+              "role": "position",
+              "byteLength": 112908,
+              "sha256": "166513d40bd510fe720419813652dce544a9e606ce1f58c875d2ccabe75668b4"
+            },
+            {
+              "role": "uv",
+              "byteLength": 75272,
+              "sha256": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52"
+            },
+            {
+              "role": "index",
+              "byteLength": 110592,
+              "sha256": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+            }
+          ]
+        }
+      ],
+      "bytes": 24691508
+    },
+    {
+      "width": 1280,
+      "face": "front",
+      "candidates": [
+        {
+          "id": 175,
+          "pass": 12,
+          "count": 55296,
+          "buffers": [
+            {
+              "role": "position",
+              "byteLength": 112908,
+              "sha256": "166513d40bd510fe720419813652dce544a9e606ce1f58c875d2ccabe75668b4"
+            },
+            {
+              "role": "uv",
+              "byteLength": 75272,
+              "sha256": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52"
+            },
+            {
+              "role": "index",
+              "byteLength": 110592,
+              "sha256": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+            }
+          ]
+        },
+        {
+          "id": 176,
+          "pass": 12,
+          "count": 55296,
+          "buffers": [
+            {
+              "role": "position",
+              "byteLength": 112908,
+              "sha256": "166513d40bd510fe720419813652dce544a9e606ce1f58c875d2ccabe75668b4"
+            },
+            {
+              "role": "uv",
+              "byteLength": 75272,
+              "sha256": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52"
+            },
+            {
+              "role": "index",
+              "byteLength": 110592,
+              "sha256": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+            }
+          ]
+        }
+      ],
+      "bytes": 22789212
+    },
+    {
+      "width": 375,
+      "face": "side",
+      "candidates": [
+        {
+          "id": 127,
+          "pass": 9,
+          "count": 55296,
+          "buffers": [
+            {
+              "role": "position",
+              "byteLength": 112908,
+              "sha256": "166513d40bd510fe720419813652dce544a9e606ce1f58c875d2ccabe75668b4"
+            },
+            {
+              "role": "uv",
+              "byteLength": 75272,
+              "sha256": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52"
+            },
+            {
+              "role": "index",
+              "byteLength": 110592,
+              "sha256": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+            }
+          ]
+        },
+        {
+          "id": 128,
+          "pass": 9,
+          "count": 55296,
+          "buffers": [
+            {
+              "role": "position",
+              "byteLength": 112908,
+              "sha256": "166513d40bd510fe720419813652dce544a9e606ce1f58c875d2ccabe75668b4"
+            },
+            {
+              "role": "uv",
+              "byteLength": 75272,
+              "sha256": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52"
+            },
+            {
+              "role": "index",
+              "byteLength": 110592,
+              "sha256": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+            }
+          ]
+        }
+      ],
+      "bytes": 24691508
+    },
+    {
+      "width": 375,
+      "face": "front",
+      "candidates": [
+        {
+          "id": 175,
+          "pass": 13,
+          "count": 55296,
+          "buffers": [
+            {
+              "role": "position",
+              "byteLength": 112908,
+              "sha256": "166513d40bd510fe720419813652dce544a9e606ce1f58c875d2ccabe75668b4"
+            },
+            {
+              "role": "uv",
+              "byteLength": 75272,
+              "sha256": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52"
+            },
+            {
+              "role": "index",
+              "byteLength": 110592,
+              "sha256": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+            }
+          ]
+        },
+        {
+          "id": 176,
+          "pass": 13,
+          "count": 55296,
+          "buffers": [
+            {
+              "role": "position",
+              "byteLength": 112908,
+              "sha256": "166513d40bd510fe720419813652dce544a9e606ce1f58c875d2ccabe75668b4"
+            },
+            {
+              "role": "uv",
+              "byteLength": 75272,
+              "sha256": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52"
+            },
+            {
+              "role": "index",
+              "byteLength": 110592,
+              "sha256": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+            }
+          ]
+        }
+      ],
+      "bytes": 22789212
+    }
+  ]
+}

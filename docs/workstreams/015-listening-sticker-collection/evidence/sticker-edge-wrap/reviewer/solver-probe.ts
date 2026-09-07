@@ -1,0 +1,186 @@
+import { Vector3, type BufferGeometry } from '/Users/vinicius/code/webPod/packages/device/src/../node_modules/three/build/three.module.js';
+import { DEVICE_LAYOUT } from '/Users/vinicius/code/webPod/packages/device/src/layout';
+import type { DeviceFormParams } from '/Users/vinicius/code/webPod/packages/device/src/form';
+import { rearShellSections, productShellDepths } from '/Users/vinicius/code/webPod/packages/device/src/product-shell';
+
+export interface StickerWrapFace { readonly geometry: BufferGeometry; readonly offset?: readonly [number, number, number] }
+export interface StickerWrapPoint { readonly point: Vector3; readonly normal: Vector3 }
+type Vertex = readonly [number, number, number];
+type Triangle = readonly [Vertex, Vertex, Vertex];
+type Section = { r: number; z: number; length: number };
+const BUCKET = 12;
+
+/** Exact vertical intersections of borrowed front triangles, accelerated by bounded XY buckets. */
+function frontEnvelope(faces: readonly StickerWrapFace[]) {
+  const buckets = new Map<string, Triangle[]>();
+  const all: Triangle[] = [];
+  for (const face of faces) {
+    const p = face.geometry.getAttribute('position'); const indices = face.geometry.index;
+    const count = indices?.count ?? p.count; const offset = face.offset ?? [0, 0, 0];
+    for (let i = 0; i < count; i += 3) {
+      const vertex = (j: number): Vertex => { const k = indices ? indices.getX(i + j) : i + j; return [p.getX(k) + offset[0], p.getY(k) + offset[1], p.getZ(k) + offset[2]]; };
+      const a = vertex(0), b = vertex(1), c = vertex(2);
+      const area = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+      const triangle: Triangle = [a, b, c]; all.push(triangle);
+      if (Math.abs(area) < 1e-10) continue;
+      const x0 = Math.floor(Math.min(a[0], b[0], c[0]) / BUCKET), x1 = Math.floor(Math.max(a[0], b[0], c[0]) / BUCKET);
+      const y0 = Math.floor(Math.min(a[1], b[1], c[1]) / BUCKET), y1 = Math.floor(Math.max(a[1], b[1], c[1]) / BUCKET);
+      for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const key = `${x},${y}`; const list = buckets.get(key); if (list) list.push(triangle); else buckets.set(key, [triangle]); }
+    }
+  }
+  const height = (x: number, y: number): number | null => {
+    let top = -Infinity;
+    for (const [a, b, c] of buckets.get(`${Math.floor(x / BUCKET)},${Math.floor(y / BUCKET)}`) ?? []) {
+      const denominator = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1]);
+      const u = ((b[1] - c[1]) * (x - c[0]) + (c[0] - b[0]) * (y - c[1])) / denominator;
+      const v = ((c[1] - a[1]) * (x - c[0]) + (a[0] - c[0]) * (y - c[1])) / denominator;
+      if (u >= -1e-7 && v >= -1e-7 && u + v <= 1 + 1e-7) top = Math.max(top, u * a[2] + v * b[2] + (1 - u - v) * c[2]);
+    }
+    return Number.isFinite(top) ? top : null;
+  };
+  return { height, meridian(angle: number, minimumZ: number): readonly { r: number; z: number; bridge: boolean }[] {
+    const cosine = Math.cos(angle), sine = Math.sin(angle);
+    const segments: { a: { r: number; z: number }; b: { r: number; z: number } }[] = [];
+    const radii = new Set<number>();
+    for (const triangle of all) {
+      const intersections: { r: number; z: number }[] = [];
+      for (let i = 0; i < 3; i++) {
+        const a = triangle[i], b = triangle[(i + 1) % 3]; if (!a || !b) continue;
+        const da = a[1] * cosine - a[0] * sine, db = b[1] * cosine - b[0] * sine;
+        if (Math.abs(da) < 1e-9) intersections.push({ r: a[0] * cosine + a[1] * sine, z: a[2] });
+        if (da * db < 0) { const t = da / (da - db); intersections.push({ r: (a[0] + (b[0] - a[0]) * t) * cosine + (a[1] + (b[1] - a[1]) * t) * sine, z: a[2] + (b[2] - a[2]) * t }); }
+      }
+      intersections.sort((a, b) => a.r - b.r);
+      const a = intersections[0], b = intersections.at(-1);
+      if (!a || !b || b.r < 0 || b.r - a.r < 1e-8) continue;
+      const aa = a.r < 0 ? { r: 0, z: a.z + (b.z - a.z) * -a.r / (b.r - a.r) } : a;
+      segments.push({ a: aa, b }); radii.add(aa.r); radii.add(b.r);
+    }
+    const sorted = [...radii].sort((a, b) => b - a); const result: { r: number; z: number; bridge: boolean }[] = [];
+    for (let i = 1; i < sorted.length; i++) {
+      const outer = sorted[i - 1], inner = sorted[i]; if (outer === undefined || inner === undefined || outer - inner < 1e-8) continue;
+      const middle = (outer + inner) / 2;
+      let selected: typeof segments[number] | undefined; let highest = -Infinity;
+      const value = (s: typeof segments[number], r: number) => s.a.z + (s.b.z - s.a.z) * (r - s.a.r) / (s.b.r - s.a.r);
+      for (const segment of segments) if (middle >= segment.a.r - 1e-8 && middle <= segment.b.r + 1e-8) { const z = value(segment, middle); if (z > highest && z >= minimumZ - 1e-5) { highest = z; selected = segment; } }
+      if (selected) { result.push({ r: outer, z: value(selected, outer), bridge: true }, { r: inner, z: value(selected, inner), bridge: false }); }
+    }
+    return result;
+  } };
+}
+/** Radial intersection with the actual circular-corner plan used by the production shell. */
+function radiusAt(angle: number, inset: number): number {
+  const { width, height, cornerR } = DEVICE_LAYOUT.body;
+  const x = Math.abs(Math.cos(angle)), y = Math.abs(Math.sin(angle)); const hw = width / 2 - inset, hh = height / 2 - inset;
+  const r = cornerR - inset; const candidate = Math.min(x < 1e-10 ? Infinity : hw / x, y < 1e-10 ? Infinity : hh / y);
+  if (candidate * x <= hw - r || candidate * y <= hh - r) return candidate;
+  const projection = x * (hw - r) + y * (hh - r);
+  return projection + Math.sqrt(Math.max(0, projection * projection - (hw - r) ** 2 - (hh - r) ** 2 + r * r));
+}
+
+/** Device-centered meridian atlas. Saved centers remain rear XY; chart coordinates are ephemeral.
+ * Front samples use the highest real triangle intersection. Missing assembly seams are
+ * bridged only between real endpoints and bounded to 12 model units along a meridian.
+ * Borrows all input geometry and owns only CPU lookup data; caller releases it with its shell.
+ */
+export function createStickerWrapSurface(form: DeviceFormParams, faces: readonly StickerWrapFace[]) {
+  const { depth } = DEVICE_LAYOUT.body; const { seamZ } = productShellDepths(depth, form.frontThickness);
+  const rear = rearShellSections(depth, seamZ, form.rearCrownInset); const front = frontEnvelope(faces);
+  const angularSegments = 512;
+  const profiles = new Map<number, readonly Section[]>();
+  const profile = (index: number): readonly Section[] => {
+    index = (index % angularSegments + angularSegments) % angularSegments;
+    const cached = profiles.get(index); if (cached) return cached;
+    const angle = index / angularSegments * Math.PI * 2; const output: Section[] = [];
+    const push = (r: number, z: number) => { const previous = output.at(-1); output.push({ r, z, length: previous ? previous.length + Math.hypot(r - previous.r, z - previous.z) : 0 }); };
+    for (const section of rear) push(radiusAt(angle, section.inset), section.z);
+    // Exact triangle-plane envelope vertices include front steps and bevels;
+    // .5-unit chords could otherwise cut through raised glass/wheel boundaries.
+    for (const point of front.meridian(angle, seamZ)) {
+      const previous = output.at(-1);
+      if (previous && point.bridge && Math.hypot(point.r - previous.r, point.z - previous.z) > 12) throw new Error('Sticker wrap crosses an unsupported front gap');
+      if (previous && Math.hypot(point.r - previous.r, point.z - previous.z) < 1e-8) continue;
+      push(point.r, point.z);
+    }
+    if (output.length === rear.length) throw new Error('Sticker wrap has no adjoining front surface');
+    profiles.set(index, output); return output;
+  };
+  const sampleProfile = (sections: readonly Section[], distance: number) => {
+    const last = sections.at(-1); if (!last || distance > last.length) throw new Error('Sticker wrap exceeds the physical front chart');
+    let lo = 0; let hi = sections.length - 1;
+    while (hi - lo > 1) { const mid = (lo + hi) >> 1; if ((sections[mid]?.length ?? 0) < distance) lo = mid; else hi = mid; }
+    const a = sections[lo], b = sections[hi]; if (!a || !b) throw new Error('Invalid wrap profile');
+    const t = Math.max(0, Math.min(1, (distance - a.length) / Math.max(1e-9, b.length - a.length)));
+    return { r: a.r + (b.r - a.r) * t, z: a.z + (b.z - a.z) * t };
+  };
+  const atDepth = (angle: number, distance: number): Vector3 => {
+    const cap = radiusAt(angle, form.rearCrownInset);
+    const phase = (angle / (Math.PI * 2) + 1) % 1 * angularSegments; const index = Math.floor(phase); const mix = phase - index;
+    const first = profile(index), second = profile(index + 1);
+    const a = sampleProfile(first, distance), b = sampleProfile(second, distance);
+    const interpolatedCap = (first[0]?.r ?? cap) * (1 - mix) + (second[0]?.r ?? cap) * mix;
+    const capCorrection = (cap - interpolatedCap) * Math.max(0, 1 - distance / .25);
+    const radial = a.r + (b.r - a.r) * mix + capCorrection;
+    return new Vector3(Math.cos(angle) * radial, Math.sin(angle) * radial, a.z + (b.z - a.z) * mix);
+  };
+  const arc = (from: number, to: number, distance: number, physical: boolean): number => {
+    let length = 0; let previous: Vector3 | null = null;
+    for (let i = 0; i <= 12; i++) {
+      const angle = from + (to - from) * i / 12;
+      const radius = radiusAt(angle, form.rearCrownInset) + distance;
+      const point = physical ? atDepth(angle, distance) : new Vector3(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
+      if (previous) length += previous.distanceTo(point); previous = point;
+    }
+    return length;
+  };
+  const position = (x: number, y: number, centerAngle?: number): Vector3 => {
+    const r = Math.hypot(x, y); const angle = Math.atan2(y, x); const cap = radiusAt(angle, form.rearCrownInset);
+    if (r <= cap) return new Vector3(x, y, -depth / 2);
+    const distance = r - cap;
+    if (centerAngle === undefined) return atDepth(angle, distance);
+    // Keep tangential material distance physical at this wrap depth instead of
+    // allowing the global radial chart to compress lettering toward the front.
+    const original = Math.atan2(Math.sin(angle - centerAngle), Math.cos(angle - centerAngle));
+    if (Math.abs(original) < 1e-9) return atDepth(angle, distance);
+    const target = arc(centerAngle, centerAngle + original, distance, false);
+    const sign = Math.sign(original); let lower = 0; let upper = Math.abs(original);
+    while (arc(centerAngle, centerAngle + sign * upper, distance, true) < target) {
+      upper *= 1.5; if (upper > Math.PI) throw new Error('Sticker spans beyond the injective wrap chart');
+    }
+    for (let iteration = 0; iteration < 24; iteration++) {
+      const middle = (lower + upper) / 2;
+      if (arc(centerAngle, centerAngle + sign * middle, distance, true) < target) lower = middle; else upper = middle;
+    }
+    const delta = sign * (lower + upper) / 2;
+    console.log(JSON.stringify({x,y,distance,original,delta,target,residual:arc(centerAngle,centerAngle+delta,distance,true)-target}));return atDepth(centerAngle + delta, distance);
+  };
+  return {
+    /** Exact rear-center XY to latent meridian arclength coordinate, never persisted. */
+    anchor(x: number, y: number): { x: number; y: number } {
+      const r = Math.hypot(x, y); const angle = Math.atan2(y, x); const cap = radiusAt(angle, form.rearCrownInset);
+      if (r <= cap) return { x, y };
+      const phase = (angle / (Math.PI * 2) + 1) % 1 * angularSegments;
+      const inverse = (index: number) => { const sections = profile(index); for (let i = 1; i < rear.length; i++) { const a = sections[i - 1], b = sections[i]; if (a && b && r <= b.r + 1e-6) { const t = Math.max(0, Math.min(1, (r - a.r) / Math.max(1e-9, b.r - a.r))); return a.length + (b.length - a.length) * t; } } return sections[rear.length - 1]?.length ?? 0; };
+      const index = Math.floor(phase); const fraction = phase - index; const mapped = cap + inverse(index) * (1 - fraction) + inverse(index + 1) * fraction;
+      return { x: Math.cos(angle) * mapped, y: Math.sin(angle) * mapped };
+    },
+    sample(x: number, y: number, lift = .18, center?: { readonly x: number; readonly y: number }): StickerWrapPoint {
+      if (![x, y, lift].every(Number.isFinite)) throw new Error('Invalid sticker wrap coordinate');
+      const angle = center === undefined ? undefined : Math.atan2(center.y, center.x);
+      const point = position(x, y, angle); const epsilon = .025;
+      const tx = position(x + epsilon, y, angle).sub(position(x - epsilon, y, angle)); const ty = position(x, y + epsilon, angle).sub(position(x, y - epsilon, angle));
+      const normal = ty.cross(tx).normalize();
+      if (normal.lengthSq() < .5) throw new Error('Degenerate sticker wrap Jacobian');
+      return { point: point.addScaledVector(normal, lift), normal };
+    },
+  };
+}
+export type StickerWrapSurface = ReturnType<typeof createStickerWrapSurface>;
+
+const wrapSurfaces = new WeakMap<BufferGeometry, StickerWrapSurface>();
+/** Share one actual-shell sampler between equipped prints and the packet's borrowed rear geometry. */
+export function bindStickerWrapSurface(rear: BufferGeometry, surface: StickerWrapSurface): () => void {
+  wrapSurfaces.set(rear, surface);
+  return () => { if (wrapSurfaces.get(rear) === surface) wrapSurfaces.delete(rear); };
+}
+export function stickerWrapSurface(rear: BufferGeometry): StickerWrapSurface | undefined { return wrapSurfaces.get(rear); }

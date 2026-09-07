@@ -1,0 +1,241 @@
+{
+  "build": {
+    "source": "3ff2616c7037279bdb2975140b3a0fe6edc6fbb67deb37fb196be3ec0f31ad8d",
+    "artifacts": "413a37ca018946847bded9de03eba3ea885d49c6b58c95a3eba5f0cd3d4d0bd8"
+  },
+  "inputText": "[\n  {\n    \"name\": \"wrapped-1280-side\",\n    \"viewport\": {\n      \"width\": 1280,\n      \"height\": 900\n    },\n    \"face\": \"side\",\n    \"rightStepsFromRear\": 5,\n    \"pickup\": {\n      \"x\": 561.8461696688656,\n      \"y\": 140.3843791395311\n    },\n    \"partial\": {\n      \"x\": 579.4537470083425,\n      \"y\": 167.10465646283635\n    },\n    \"release\": {\n      \"x\": 643.184991266287,\n      \"y\": 263.8196381947969\n    },\n    \"expectedCenter\": {\n      \"x\": 0.08994343608509071,\n      \"y\": 0.21200508914284044\n    },\n    \"occluded\": {\n      \"x\": 567.0681229844442,\n      \"y\": 147.83122958236646\n    },\n    \"flickEnd\": {\n      \"x\": 447.06812298444424,\n      \"y\": 182.83122958236646\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-7/wrapped-1280-side.json\"\n  },\n  {\n    \"name\": \"wrapped-1280-front\",\n    \"viewport\": {\n      \"width\": 1280,\n      \"height\": 900\n    },\n    \"face\": \"front\",\n    \"rightStepsFromRear\": 15,\n    \"pickup\": {\n      \"x\": 762.6675245342133,\n      \"y\": 137.99494921046283\n    },\n    \"partial\": {\n      \"x\": 772.6392122821188,\n      \"y\": 120.65812587231144\n    },\n    \"release\": {\n      \"x\": 820.9486270506884,\n      \"y\": 36.667149561597284\n    },\n    \"expectedCenter\": {\n      \"x\": 0.19999999999999984,\n      \"y\": 0.15000000000000002\n    },\n    \"invalid\": {\n      \"x\": 587.6045560693025,\n      \"y\": 160.02195993386476\n    },\n    \"occluded\": {\n      \"x\": 831.3879468122576,\n      \"y\": 180.38755075802538\n    },\n    \"flickEnd\": {\n      \"x\": 711.3879468122576,\n      \"y\": 215.38755075802538\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-7/wrapped-1280-front.json\"\n  },\n  {\n    \"name\": \"wrapped-375-side\",\n    \"viewport\": {\n      \"width\": 375,\n      \"height\": 812\n    },\n    \"face\": \"side\",\n    \"rightStepsFromRear\": 5,\n    \"pickup\": {\n      \"x\": 141.06295459588623,\n      \"y\": 222.03415582485093\n    },\n    \"partial\": {\n      \"x\": 159.16390437306558,\n      \"y\": 248.4227066976069\n    },\n    \"release\": {\n      \"x\": 189.4405910498952,\n      \"y\": 292.56171025626514\n    },\n    \"expectedCenter\": {\n      \"x\": 0.09424752460918387,\n      \"y\": 0.20573440752563904\n    },\n    \"occluded\": {\n      \"x\": 145.29667239632863,\n      \"y\": 223.88266199834328\n    },\n    \"flickEnd\": {\n      \"x\": 85.29667239632863,\n      \"y\": 258.8826619983433\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-7/wrapped-375-side.json\"\n  },\n  {\n    \"name\": \"wrapped-375-front\",\n    \"viewport\": {\n      \"width\": 375,\n      \"height\": 812\n    },\n    \"face\": \"front\",\n    \"rightStepsFromRear\": 15,\n    \"pickup\": {\n      \"x\": 242.7165025323663,\n      \"y\": 215.44290767432503\n    },\n    \"partial\": {\n      \"x\": 246.86712842509684,\n      \"y\": 195.87834009161074\n    },\n    \"release\": {\n      \"x\": 263.0795481264556,\n      \"y\": 119.45878575834953\n    },\n    \"expectedCenter\": {\n      \"x\": 0.35,\n      \"y\": 0.1500000000000002\n    },\n    \"invalid\": {\n      \"x\": 113.81973140255182,\n      \"y\": 242.52415905419994\n    },\n    \"occluded\": {\n      \"x\": 305.3337228173019,\n      \"y\": 241.42507169344458\n    },\n    \"flickEnd\": {\n      \"x\": 245.33372281730192,\n      \"y\": 276.4250716934446\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-7/wrapped-375-front.json\"\n  }\n]",
+  "inputSHA256": "81f6f983f6cfcfd81793663167eb879ac7744c8eb95e6bc792d9525eac118a19",
+  "seed": [
+    {
+      "stickerId": "PW-C03",
+      "surface": "back",
+      "x": 0.027,
+      "y": 0.017,
+      "width": 0.35,
+      "rotationDeg": 0,
+      "wear": 1
+    },
+    {
+      "stickerId": "PW-F01",
+      "surface": "back",
+      "x": 0.65,
+      "y": 0.72,
+      "width": 0.25,
+      "rotationDeg": 0,
+      "wear": 0.6
+    }
+  ],
+  "records": [
+    {
+      "face": "side",
+      "travel": 16,
+      "pointer": {
+        "x": 570.649958338604,
+        "y": 153.74451780118372
+      },
+      "originalPickup": {
+        "x": 561.8461696688656,
+        "y": 140.3843791395311
+      },
+      "state": {
+        "data-sticker-stage": "peeling",
+        "data-sticker-reduced-motion": "false",
+        "data-sticker-progress": "0",
+        "data-sticker-workspace-lowering": "0",
+        "data-sticker-sheet-reveal": "0",
+        "data-sticker-peel": "0.2499998470252181",
+        "data-sticker-landing": "0"
+      }
+    },
+    {
+      "face": "side",
+      "travel": 32,
+      "pointer": {
+        "x": 579.4537470083425,
+        "y": 167.10465646283635
+      },
+      "originalPickup": {
+        "x": 561.8461696688656,
+        "y": 140.3843791395311
+      },
+      "state": {
+        "data-sticker-stage": "peeling",
+        "data-sticker-reduced-motion": "false",
+        "data-sticker-progress": "0",
+        "data-sticker-workspace-lowering": "0",
+        "data-sticker-sheet-reveal": "0",
+        "data-sticker-peel": "0.4999996940504362",
+        "data-sticker-landing": "0"
+      }
+    },
+    {
+      "face": "side",
+      "travel": 51.2,
+      "pointer": {
+        "x": 590.0182934120286,
+        "y": 183.13682285681952
+      },
+      "originalPickup": {
+        "x": 561.8461696688656,
+        "y": 140.3843791395311
+      },
+      "state": {
+        "data-sticker-stage": "peeling",
+        "data-sticker-reduced-motion": "false",
+        "data-sticker-progress": "0",
+        "data-sticker-workspace-lowering": "0",
+        "data-sticker-sheet-reveal": "0",
+        "data-sticker-peel": "0.7999999302777694",
+        "data-sticker-landing": "0"
+      }
+    },
+    {
+      "face": "side",
+      "travel": 57.6,
+      "pointer": {
+        "x": 593.539808879924,
+        "y": 188.48087832148056
+      },
+      "originalPickup": {
+        "x": 561.8461696688656,
+        "y": 140.3843791395311
+      },
+      "state": {
+        "data-sticker-stage": "peeling",
+        "data-sticker-reduced-motion": "false",
+        "data-sticker-progress": "0",
+        "data-sticker-workspace-lowering": "0",
+        "data-sticker-sheet-reveal": "0",
+        "data-sticker-peel": "0.8999996591892504",
+        "data-sticker-landing": "0"
+      }
+    },
+    {
+      "face": "side",
+      "travel": 64,
+      "pointer": {
+        "x": 597.0613243478193,
+        "y": 193.82493378614163
+      },
+      "originalPickup": {
+        "x": 561.8461696688656,
+        "y": 140.3843791395311
+      },
+      "state": {
+        "data-sticker-stage": "peeling",
+        "data-sticker-reduced-motion": "false",
+        "data-sticker-progress": "0",
+        "data-sticker-workspace-lowering": "0",
+        "data-sticker-sheet-reveal": "0",
+        "data-sticker-peel": "0.9999999128472118",
+        "data-sticker-landing": "0"
+      }
+    },
+    {
+      "face": "front",
+      "travel": 16,
+      "pointer": {
+        "x": 770.6448747325377,
+        "y": 124.12549053994172
+      },
+      "originalPickup": {
+        "x": 762.6675245342133,
+        "y": 137.99494921046283
+      },
+      "state": {
+        "data-sticker-stage": "peeling",
+        "data-sticker-reduced-motion": "false",
+        "data-sticker-progress": "0",
+        "data-sticker-workspace-lowering": "0",
+        "data-sticker-sheet-reveal": "0",
+        "data-sticker-peel": "0.2500000772207494",
+        "data-sticker-landing": "0"
+      }
+    },
+    {
+      "face": "front",
+      "travel": 32,
+      "pointer": {
+        "x": 778.6222249308621,
+        "y": 110.25603186942062
+      },
+      "originalPickup": {
+        "x": 762.6675245342133,
+        "y": 137.99494921046283
+      },
+      "state": {
+        "data-sticker-stage": "peeling",
+        "data-sticker-reduced-motion": "false",
+        "data-sticker-progress": "0",
+        "data-sticker-workspace-lowering": "0",
+        "data-sticker-sheet-reveal": "0",
+        "data-sticker-peel": "0.5000000511059968",
+        "data-sticker-landing": "0"
+      }
+    },
+    {
+      "face": "front",
+      "travel": 51.2,
+      "pointer": {
+        "x": 788.1950451688515,
+        "y": 93.61268146479529
+      },
+      "originalPickup": {
+        "x": 762.6675245342133,
+        "y": 137.99494921046283
+      },
+      "state": {
+        "data-sticker-stage": "peeling",
+        "data-sticker-reduced-motion": "false",
+        "data-sticker-progress": "0",
+        "data-sticker-workspace-lowering": "0",
+        "data-sticker-sheet-reveal": "0",
+        "data-sticker-peel": "0.800000090007641",
+        "data-sticker-landing": "0"
+      }
+    },
+    {
+      "face": "front",
+      "travel": 57.6,
+      "pointer": {
+        "x": 791.3859852481812,
+        "y": 88.06489799658685
+      },
+      "originalPickup": {
+        "x": 762.6675245342133,
+        "y": 137.99494921046283
+      },
+      "state": {
+        "data-sticker-stage": "peeling",
+        "data-sticker-reduced-motion": "false",
+        "data-sticker-progress": "0",
+        "data-sticker-workspace-lowering": "0",
+        "data-sticker-sheet-reveal": "0",
+        "data-sticker-peel": "0.8999999100340126",
+        "data-sticker-landing": "0"
+      }
+    },
+    {
+      "face": "front",
+      "travel": 64,
+      "pointer": {
+        "x": 794.576925327511,
+        "y": 82.51711452837841
+      },
+      "originalPickup": {
+        "x": 762.6675245342133,
+        "y": 137.99494921046283
+      },
+      "state": {
+        "data-sticker-stage": "peeling",
+        "data-sticker-reduced-motion": "false",
+        "data-sticker-progress": "0",
+        "data-sticker-workspace-lowering": "0",
+        "data-sticker-sheet-reveal": "0",
+        "data-sticker-peel": "0.9999997300604652",
+        "data-sticker-landing": "0"
+      }
+    }
+  ],
+  "scope": "Candidate phase inspection, desktop mouse only. Original pickup reference is fixed, not the moving material UV. Coordinates inherited from prior witnesses; actual current carry admission checked. Screenshots/markers add timing overhead; not performance or full interaction acceptance."
+}

@@ -1,0 +1,790 @@
+[
+  {
+    "name": "1280-side",
+    "stages": [
+      {
+        "transport": 0,
+        "curl": 0.8,
+        "finite": true,
+        "minimumArea": 0.47309155320781426,
+        "zero": 0,
+        "pickedAnchorDistance": 25.86320762845806
+      },
+      {
+        "transport": 0.05,
+        "curl": 0.81,
+        "finite": true,
+        "minimumArea": 0.5080264747080376,
+        "zero": 0,
+        "pickedAnchorDistance": 24.866299740393366
+      },
+      {
+        "transport": 0.1,
+        "curl": 0.8200000000000001,
+        "finite": true,
+        "minimumArea": 0.5471263215422825,
+        "zero": 0,
+        "pickedAnchorDistance": 23.8378536935027
+      },
+      {
+        "transport": 0.15,
+        "curl": 0.8300000000000001,
+        "finite": true,
+        "minimumArea": 0.5893120047908206,
+        "zero": 0,
+        "pickedAnchorDistance": 22.777926759769183
+      },
+      {
+        "transport": 0.2,
+        "curl": 0.8400000000000001,
+        "finite": true,
+        "minimumArea": 0.6337665121311021,
+        "zero": 0,
+        "pickedAnchorDistance": 21.686571932397754
+      },
+      {
+        "transport": 0.25,
+        "curl": 0.8500000000000001,
+        "finite": true,
+        "minimumArea": 0.6799597359231025,
+        "zero": 0,
+        "pickedAnchorDistance": 20.563857010721595
+      },
+      {
+        "transport": 0.3,
+        "curl": 0.8600000000000001,
+        "finite": true,
+        "minimumArea": 0.727467727420439,
+        "zero": 0,
+        "pickedAnchorDistance": 19.40982376322621
+      },
+      {
+        "transport": 0.35,
+        "curl": 0.8700000000000001,
+        "finite": true,
+        "minimumArea": 0.7759612341633861,
+        "zero": 0,
+        "pickedAnchorDistance": 18.224552826156227
+      },
+      {
+        "transport": 0.4,
+        "curl": 0.88,
+        "finite": true,
+        "minimumArea": 0.8252025844427142,
+        "zero": 0,
+        "pickedAnchorDistance": 17.00807075005499
+      },
+      {
+        "transport": 0.45,
+        "curl": 0.89,
+        "finite": true,
+        "minimumArea": 0.8750412382023727,
+        "zero": 0,
+        "pickedAnchorDistance": 15.760462709267802
+      },
+      {
+        "transport": 0.5,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.9252908822736157,
+        "zero": 0,
+        "pickedAnchorDistance": 14.481782851455534
+      },
+      {
+        "transport": 0.55,
+        "curl": 0.91,
+        "finite": true,
+        "minimumArea": 0.9758357916079199,
+        "zero": 0,
+        "pickedAnchorDistance": 13.17210122241532
+      },
+      {
+        "transport": 0.6,
+        "curl": 0.92,
+        "finite": true,
+        "minimumArea": 1.0265558895875215,
+        "zero": 0,
+        "pickedAnchorDistance": 11.831451575127012
+      },
+      {
+        "transport": 0.65,
+        "curl": 0.93,
+        "finite": true,
+        "minimumArea": 1.077375395406385,
+        "zero": 0,
+        "pickedAnchorDistance": 10.459934286919093
+      },
+      {
+        "transport": 0.7,
+        "curl": 0.9400000000000001,
+        "finite": true,
+        "minimumArea": 1.1281900818749027,
+        "zero": 0,
+        "pickedAnchorDistance": 9.05758724931374
+      },
+      {
+        "transport": 0.75,
+        "curl": 0.9500000000000001,
+        "finite": true,
+        "minimumArea": 1.1665005508811765,
+        "zero": 0,
+        "pickedAnchorDistance": 7.624471874852173
+      },
+      {
+        "transport": 0.8,
+        "curl": 0.9600000000000001,
+        "finite": true,
+        "minimumArea": 1.2055154972570783,
+        "zero": 0,
+        "pickedAnchorDistance": 6.160701507445755
+      },
+      {
+        "transport": 0.85,
+        "curl": 0.9700000000000001,
+        "finite": true,
+        "minimumArea": 1.25140771615199,
+        "zero": 0,
+        "pickedAnchorDistance": 4.666284000583487
+      },
+      {
+        "transport": 0.9,
+        "curl": 0.98,
+        "finite": true,
+        "minimumArea": 1.3042518604726352,
+        "zero": 0,
+        "pickedAnchorDistance": 3.141313831826753
+      },
+      {
+        "transport": 0.95,
+        "curl": 0.99,
+        "finite": true,
+        "minimumArea": 1.3640035155767287,
+        "zero": 0,
+        "pickedAnchorDistance": 1.5858644909596176
+      },
+      {
+        "transport": 1,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.430654579410093,
+        "zero": 0,
+        "pickedAnchorDistance": 0.0000072109277809944805
+      },
+      {
+        "transport": 0.000001,
+        "curl": 0.8000002,
+        "finite": true,
+        "minimumArea": 0.47309155320781426,
+        "zero": 0,
+        "pickedAnchorDistance": 25.863178013731225
+      },
+      {
+        "transport": 0.999999,
+        "curl": 0.9999998,
+        "finite": true,
+        "minimumArea": 1.430644363989298,
+        "zero": 0,
+        "pickedAnchorDistance": 0.00004121722147858477
+      },
+      {
+        "transport": 1,
+        "curl": 0.497049,
+        "finite": true,
+        "minimumArea": 1.4306421873172388,
+        "zero": 0,
+        "pickedAnchorDistance": 0.000007452661989186142
+      }
+    ]
+  },
+  {
+    "name": "1280-front",
+    "stages": [
+      {
+        "transport": 0,
+        "curl": 0.8,
+        "finite": true,
+        "minimumArea": 0.47309461186808,
+        "zero": 0,
+        "pickedAnchorDistance": 211.01187635019483
+      },
+      {
+        "transport": 0.05,
+        "curl": 0.81,
+        "finite": true,
+        "minimumArea": 0.5264339670198896,
+        "zero": 0,
+        "pickedAnchorDistance": 201.0458332980138
+      },
+      {
+        "transport": 0.1,
+        "curl": 0.8200000000000001,
+        "finite": true,
+        "minimumArea": 0.5792715932892659,
+        "zero": 0,
+        "pickedAnchorDistance": 191.00124539109243
+      },
+      {
+        "transport": 0.15,
+        "curl": 0.8300000000000001,
+        "finite": true,
+        "minimumArea": 0.6315809953973048,
+        "zero": 0,
+        "pickedAnchorDistance": 180.88094373923443
+      },
+      {
+        "transport": 0.2,
+        "curl": 0.8400000000000001,
+        "finite": true,
+        "minimumArea": 0.6833342826596119,
+        "zero": 0,
+        "pickedAnchorDistance": 170.68767832872675
+      },
+      {
+        "transport": 0.25,
+        "curl": 0.8500000000000001,
+        "finite": true,
+        "minimumArea": 0.7345211747605703,
+        "zero": 0,
+        "pickedAnchorDistance": 160.4242753394057
+      },
+      {
+        "transport": 0.3,
+        "curl": 0.8600000000000001,
+        "finite": true,
+        "minimumArea": 0.785155573434055,
+        "zero": 0,
+        "pickedAnchorDistance": 150.09354123594457
+      },
+      {
+        "transport": 0.35,
+        "curl": 0.8700000000000001,
+        "finite": true,
+        "minimumArea": 0.8351697983945092,
+        "zero": 0,
+        "pickedAnchorDistance": 139.69831223089153
+      },
+      {
+        "transport": 0.4,
+        "curl": 0.88,
+        "finite": true,
+        "minimumArea": 0.8068659505479562,
+        "zero": 0,
+        "pickedAnchorDistance": 129.24146437598574
+      },
+      {
+        "transport": 0.45,
+        "curl": 0.89,
+        "finite": true,
+        "minimumArea": 0.78925479366838,
+        "zero": 0,
+        "pickedAnchorDistance": 118.72581670105244
+      },
+      {
+        "transport": 0.5,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.7846270882304274,
+        "zero": 0,
+        "pickedAnchorDistance": 108.15427268170605
+      },
+      {
+        "transport": 0.55,
+        "curl": 0.91,
+        "finite": true,
+        "minimumArea": 0.7927727430249305,
+        "zero": 0,
+        "pickedAnchorDistance": 97.52969889016703
+      },
+      {
+        "transport": 0.6,
+        "curl": 0.92,
+        "finite": true,
+        "minimumArea": 0.813735023387076,
+        "zero": 0,
+        "pickedAnchorDistance": 86.85497153162402
+      },
+      {
+        "transport": 0.65,
+        "curl": 0.93,
+        "finite": true,
+        "minimumArea": 0.8474035290895874,
+        "zero": 0,
+        "pickedAnchorDistance": 76.1329781963118
+      },
+      {
+        "transport": 0.7,
+        "curl": 0.9400000000000001,
+        "finite": true,
+        "minimumArea": 0.893594316745992,
+        "zero": 0,
+        "pickedAnchorDistance": 65.36664246880734
+      },
+      {
+        "transport": 0.75,
+        "curl": 0.9500000000000001,
+        "finite": true,
+        "minimumArea": 0.9523599762892411,
+        "zero": 0,
+        "pickedAnchorDistance": 54.558843729823835
+      },
+      {
+        "transport": 0.8,
+        "curl": 0.9600000000000001,
+        "finite": true,
+        "minimumArea": 1.0235330878470699,
+        "zero": 0,
+        "pickedAnchorDistance": 43.71250937506538
+      },
+      {
+        "transport": 0.85,
+        "curl": 0.9700000000000001,
+        "finite": true,
+        "minimumArea": 1.107031072854589,
+        "zero": 0,
+        "pickedAnchorDistance": 32.83053774576028
+      },
+      {
+        "transport": 0.9,
+        "curl": 0.98,
+        "finite": true,
+        "minimumArea": 1.2028051308741399,
+        "zero": 0,
+        "pickedAnchorDistance": 21.91585653162482
+      },
+      {
+        "transport": 0.95,
+        "curl": 0.99,
+        "finite": true,
+        "minimumArea": 1.310657481830401,
+        "zero": 0,
+        "pickedAnchorDistance": 10.971367123095833
+      },
+      {
+        "transport": 1,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.430643731862877,
+        "zero": 0,
+        "pickedAnchorDistance": 0.0000016165182274337044
+      },
+      {
+        "transport": 0.000001,
+        "curl": 0.8000002,
+        "finite": true,
+        "minimumArea": 0.4730957791941779,
+        "zero": 0,
+        "pickedAnchorDistance": 211.0116591899137
+      },
+      {
+        "transport": 0.999999,
+        "curl": 0.9999998,
+        "finite": true,
+        "minimumArea": 1.4306089507760755,
+        "zero": 0,
+        "pickedAnchorDistance": 0.00022240628820593733
+      },
+      {
+        "transport": 1,
+        "curl": 0.497049,
+        "finite": true,
+        "minimumArea": 1.4306460182752123,
+        "zero": 0,
+        "pickedAnchorDistance": 0.000003269533092882304
+      }
+    ]
+  },
+  {
+    "name": "375-side",
+    "stages": [
+      {
+        "transport": 0,
+        "curl": 0.8,
+        "finite": true,
+        "minimumArea": 0.47309155320781426,
+        "zero": 0,
+        "pickedAnchorDistance": 25.863078947457122
+      },
+      {
+        "transport": 0.05,
+        "curl": 0.81,
+        "finite": true,
+        "minimumArea": 0.5080227138471489,
+        "zero": 0,
+        "pickedAnchorDistance": 24.86616505331949
+      },
+      {
+        "transport": 0.1,
+        "curl": 0.8200000000000001,
+        "finite": true,
+        "minimumArea": 0.547122828455598,
+        "zero": 0,
+        "pickedAnchorDistance": 23.837727722480384
+      },
+      {
+        "transport": 0.15,
+        "curl": 0.8300000000000001,
+        "finite": true,
+        "minimumArea": 0.5893147866593585,
+        "zero": 0,
+        "pickedAnchorDistance": 22.77780064104891
+      },
+      {
+        "transport": 0.2,
+        "curl": 0.8400000000000001,
+        "finite": true,
+        "minimumArea": 0.6337758571395071,
+        "zero": 0,
+        "pickedAnchorDistance": 21.686456239102082
+      },
+      {
+        "transport": 0.25,
+        "curl": 0.8500000000000001,
+        "finite": true,
+        "minimumArea": 0.679961804479043,
+        "zero": 0,
+        "pickedAnchorDistance": 20.56375919142686
+      },
+      {
+        "transport": 0.3,
+        "curl": 0.8600000000000001,
+        "finite": true,
+        "minimumArea": 0.7274611692482529,
+        "zero": 0,
+        "pickedAnchorDistance": 19.409721629237335
+      },
+      {
+        "transport": 0.35,
+        "curl": 0.8700000000000001,
+        "finite": true,
+        "minimumArea": 0.7759530613159145,
+        "zero": 0,
+        "pickedAnchorDistance": 18.224454810427133
+      },
+      {
+        "transport": 0.4,
+        "curl": 0.88,
+        "finite": true,
+        "minimumArea": 0.8252032645953572,
+        "zero": 0,
+        "pickedAnchorDistance": 17.007976371508025
+      },
+      {
+        "transport": 0.45,
+        "curl": 0.89,
+        "finite": true,
+        "minimumArea": 0.8750357277153327,
+        "zero": 0,
+        "pickedAnchorDistance": 15.76038418415463
+      },
+      {
+        "transport": 0.5,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.9252959713972592,
+        "zero": 0,
+        "pickedAnchorDistance": 14.481719832334687
+      },
+      {
+        "transport": 0.55,
+        "curl": 0.91,
+        "finite": true,
+        "minimumArea": 0.9758295063703463,
+        "zero": 0,
+        "pickedAnchorDistance": 13.172041933584737
+      },
+      {
+        "transport": 0.6,
+        "curl": 0.92,
+        "finite": true,
+        "minimumArea": 1.026560448565716,
+        "zero": 0,
+        "pickedAnchorDistance": 11.831395033644935
+      },
+      {
+        "transport": 0.65,
+        "curl": 0.93,
+        "finite": true,
+        "minimumArea": 1.0773752122453328,
+        "zero": 0,
+        "pickedAnchorDistance": 10.459878112129147
+      },
+      {
+        "transport": 0.7,
+        "curl": 0.9400000000000001,
+        "finite": true,
+        "minimumArea": 1.1281925232531056,
+        "zero": 0,
+        "pickedAnchorDistance": 9.05753527533342
+      },
+      {
+        "transport": 0.75,
+        "curl": 0.9500000000000001,
+        "finite": true,
+        "minimumArea": 1.1665091054860264,
+        "zero": 0,
+        "pickedAnchorDistance": 7.624448857264126
+      },
+      {
+        "transport": 0.8,
+        "curl": 0.9600000000000001,
+        "finite": true,
+        "minimumArea": 1.2055190438743837,
+        "zero": 0,
+        "pickedAnchorDistance": 6.160660465047276
+      },
+      {
+        "transport": 0.85,
+        "curl": 0.9700000000000001,
+        "finite": true,
+        "minimumArea": 1.2514198726395054,
+        "zero": 0,
+        "pickedAnchorDistance": 4.666264155614944
+      },
+      {
+        "transport": 0.9,
+        "curl": 0.98,
+        "finite": true,
+        "minimumArea": 1.3042506883071978,
+        "zero": 0,
+        "pickedAnchorDistance": 3.141304084443481
+      },
+      {
+        "transport": 0.95,
+        "curl": 0.99,
+        "finite": true,
+        "minimumArea": 1.3639943384176016,
+        "zero": 0,
+        "pickedAnchorDistance": 1.585867528197122
+      },
+      {
+        "transport": 1,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.4306517688353813,
+        "zero": 0,
+        "pickedAnchorDistance": 0.000007773283108224279
+      },
+      {
+        "transport": 0.000001,
+        "curl": 0.8000002,
+        "finite": true,
+        "minimumArea": 0.47309155320781426,
+        "zero": 0,
+        "pickedAnchorDistance": 25.863049332644678
+      },
+      {
+        "transport": 0.999999,
+        "curl": 0.9999998,
+        "finite": true,
+        "minimumArea": 1.4306446621222568,
+        "zero": 0,
+        "pickedAnchorDistance": 0.000026691747169666482
+      },
+      {
+        "transport": 1,
+        "curl": 0.497049,
+        "finite": true,
+        "minimumArea": 1.4306402435077836,
+        "zero": 0,
+        "pickedAnchorDistance": 0.000010091429524286492
+      }
+    ]
+  },
+  {
+    "name": "375-front",
+    "stages": [
+      {
+        "transport": 0,
+        "curl": 0.8,
+        "finite": true,
+        "minimumArea": 0.47309461186808,
+        "zero": 0,
+        "pickedAnchorDistance": 255.20136310655752
+      },
+      {
+        "transport": 0.05,
+        "curl": 0.81,
+        "finite": true,
+        "minimumArea": 0.5180985462223531,
+        "zero": 0,
+        "pickedAnchorDistance": 242.7148968842168
+      },
+      {
+        "transport": 0.1,
+        "curl": 0.8200000000000001,
+        "finite": true,
+        "minimumArea": 0.5638631037732784,
+        "zero": 0,
+        "pickedAnchorDistance": 230.17554000880216
+      },
+      {
+        "transport": 0.15,
+        "curl": 0.8300000000000001,
+        "finite": true,
+        "minimumArea": 0.6102199809881333,
+        "zero": 0,
+        "pickedAnchorDistance": 217.5873244374255
+      },
+      {
+        "transport": 0.2,
+        "curl": 0.8400000000000001,
+        "finite": true,
+        "minimumArea": 0.6570353179513319,
+        "zero": 0,
+        "pickedAnchorDistance": 204.95427910030847
+      },
+      {
+        "transport": 0.25,
+        "curl": 0.8500000000000001,
+        "finite": true,
+        "minimumArea": 0.7042224803287994,
+        "zero": 0,
+        "pickedAnchorDistance": 192.28043499879837
+      },
+      {
+        "transport": 0.3,
+        "curl": 0.8600000000000001,
+        "finite": true,
+        "minimumArea": 0.7517119747761505,
+        "zero": 0,
+        "pickedAnchorDistance": 179.5698080184535
+      },
+      {
+        "transport": 0.35,
+        "curl": 0.8700000000000001,
+        "finite": true,
+        "minimumArea": 0.7994370415612828,
+        "zero": 0,
+        "pickedAnchorDistance": 166.8264388444174
+      },
+      {
+        "transport": 0.4,
+        "curl": 0.88,
+        "finite": true,
+        "minimumArea": 0.8473791362362225,
+        "zero": 0,
+        "pickedAnchorDistance": 154.05433156894378
+      },
+      {
+        "transport": 0.45,
+        "curl": 0.89,
+        "finite": true,
+        "minimumArea": 0.8954958585758643,
+        "zero": 0,
+        "pickedAnchorDistance": 141.25750585123882
+      },
+      {
+        "transport": 0.5,
+        "curl": 0.9,
+        "finite": true,
+        "minimumArea": 0.9437558406466613,
+        "zero": 0,
+        "pickedAnchorDistance": 128.4399747484459
+      },
+      {
+        "transport": 0.55,
+        "curl": 0.91,
+        "finite": true,
+        "minimumArea": 0.9625029255477645,
+        "zero": 0,
+        "pickedAnchorDistance": 115.60573134372301
+      },
+      {
+        "transport": 0.6,
+        "curl": 0.92,
+        "finite": true,
+        "minimumArea": 0.9776658147132338,
+        "zero": 0,
+        "pickedAnchorDistance": 102.75877271413253
+      },
+      {
+        "transport": 0.65,
+        "curl": 0.93,
+        "finite": true,
+        "minimumArea": 1.0021581591858593,
+        "zero": 0,
+        "pickedAnchorDistance": 89.90308152783545
+      },
+      {
+        "transport": 0.7,
+        "curl": 0.9400000000000001,
+        "finite": true,
+        "minimumArea": 1.0358635386083608,
+        "zero": 0,
+        "pickedAnchorDistance": 77.04261255835021
+      },
+      {
+        "transport": 0.75,
+        "curl": 0.9500000000000001,
+        "finite": true,
+        "minimumArea": 1.078754187641974,
+        "zero": 0,
+        "pickedAnchorDistance": 64.18134124475431
+      },
+      {
+        "transport": 0.8,
+        "curl": 0.9600000000000001,
+        "finite": true,
+        "minimumArea": 1.13086393181162,
+        "zero": 0,
+        "pickedAnchorDistance": 51.323173321031874
+      },
+      {
+        "transport": 0.85,
+        "curl": 0.9700000000000001,
+        "finite": true,
+        "minimumArea": 1.1921308143023748,
+        "zero": 0,
+        "pickedAnchorDistance": 38.47207505496323
+      },
+      {
+        "transport": 0.9,
+        "curl": 0.98,
+        "finite": true,
+        "minimumArea": 1.262501035792349,
+        "zero": 0,
+        "pickedAnchorDistance": 25.631926014256248
+      },
+      {
+        "transport": 0.95,
+        "curl": 0.99,
+        "finite": true,
+        "minimumArea": 1.3420041522686268,
+        "zero": 0,
+        "pickedAnchorDistance": 12.806607311474073
+      },
+      {
+        "transport": 1,
+        "curl": 1,
+        "finite": true,
+        "minimumArea": 1.4306363890209544,
+        "zero": 0,
+        "pickedAnchorDistance": 0.000003981106260685509
+      },
+      {
+        "transport": 0.000001,
+        "curl": 0.8000002,
+        "finite": true,
+        "minimumArea": 0.4730963730072275,
+        "zero": 0,
+        "pickedAnchorDistance": 255.2011034588077
+      },
+      {
+        "transport": 0.999999,
+        "curl": 0.9999998,
+        "finite": true,
+        "minimumArea": 1.4306075429220269,
+        "zero": 0,
+        "pickedAnchorDistance": 0.0002540501331488309
+      },
+      {
+        "transport": 1,
+        "curl": 0.497049,
+        "finite": true,
+        "minimumArea": 1.4306321570000495,
+        "zero": 0,
+        "pickedAnchorDistance": 0.0000056614661733011235
+      }
+    ]
+  }
+]

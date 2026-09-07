@@ -1,0 +1,189 @@
+{
+  "source": {
+    "digest": "005b39cb6ce7f174eb695699d7e2dfbddb704a727bfe827bd4fbeefc2163213f",
+    "fileCount": 438
+  },
+  "buildManifestSHA": "020e29bc3b161cb60685679d10643fe595ee90f488f949fe45598f014a35087b",
+  "artifactManifestSHA": "7b8e0799416e32ce44c69e63918e4fa6ee88c18bc685af74601f2401b9271e6c",
+  "buildDeltas": 0,
+  "testDeltas": 0,
+  "buildToEnd": 0,
+  "artifactDeltas": 0,
+  "passed": true,
+  "frames": [
+    {
+      "width": 1280,
+      "face": "rear",
+      "candidates": [
+        {
+          "id": 325,
+          "pass": 5,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2305
+          }
+        },
+        {
+          "id": 326,
+          "pass": 5,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2304
+          }
+        }
+      ],
+      "drawArrays": 204
+    },
+    {
+      "width": 1280,
+      "face": "side",
+      "candidates": [
+        {
+          "id": 789,
+          "pass": 11,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2305
+          }
+        },
+        {
+          "id": 790,
+          "pass": 11,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2304
+          }
+        }
+      ],
+      "drawArrays": 180
+    },
+    {
+      "width": 1280,
+      "face": "front",
+      "candidates": [
+        {
+          "id": 1235,
+          "pass": 18,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2305
+          }
+        },
+        {
+          "id": 1236,
+          "pass": 18,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2304
+          }
+        }
+      ],
+      "drawArrays": 208
+    },
+    {
+      "width": 375,
+      "face": "rear",
+      "candidates": [
+        {
+          "id": 325,
+          "pass": 5,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2305
+          }
+        },
+        {
+          "id": 326,
+          "pass": 5,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2304
+          }
+        }
+      ],
+      "drawArrays": 204
+    },
+    {
+      "width": 375,
+      "face": "side",
+      "candidates": [
+        {
+          "id": 635,
+          "pass": 9,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2305
+          }
+        },
+        {
+          "id": 636,
+          "pass": 9,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2304
+          }
+        }
+      ],
+      "drawArrays": 180
+    },
+    {
+      "width": 375,
+      "face": "front",
+      "candidates": [
+        {
+          "id": 893,
+          "pass": 13,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2305
+          }
+        },
+        {
+          "id": 894,
+          "pass": 13,
+          "kind": "drawElements",
+          "count": 55296,
+          "raster": {
+            "cullEnabled": true,
+            "cullFace": 1029,
+            "frontFace": 2304
+          }
+        }
+      ],
+      "drawArrays": 208
+    }
+  ]
+}

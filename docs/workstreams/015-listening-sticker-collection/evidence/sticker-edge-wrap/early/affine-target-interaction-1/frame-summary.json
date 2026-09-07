@@ -1,0 +1,90 @@
+[
+  {
+    "phase": "partial-peel-cancel",
+    "windows": [
+      {
+        "kind": "input",
+        "reason": "Escape",
+        "stages": [
+          "tease",
+          "peeling"
+        ],
+        "rafCount": 17,
+        "maxGapMs": 33.299999999999955,
+        "p95": 33.299999999999955,
+        "over50": 0,
+        "over100": 0,
+        "status": "within-gross-stall-budget",
+        "longTasks": 0
+      },
+      {
+        "kind": "release-to-settled",
+        "reason": "awaited-settlement",
+        "stages": [
+          "peeling",
+          "open"
+        ],
+        "rafCount": 56,
+        "maxGapMs": 16.799999999999727,
+        "p95": 16.799999999999727,
+        "over50": 0,
+        "over100": 0,
+        "status": "within-gross-stall-budget",
+        "longTasks": 0
+      }
+    ]
+  },
+  {
+    "phase": "hidden-shell-flick",
+    "windows": [
+      {
+        "kind": "input",
+        "reason": "pointerup",
+        "stages": [
+          "tease"
+        ],
+        "rafCount": 22,
+        "maxGapMs": 116.60000000000014,
+        "p95": null,
+        "over50": 1,
+        "over100": 1,
+        "status": "within-gross-stall-budget",
+        "longTasks": 1
+      }
+    ]
+  },
+  {
+    "phase": "final-cleanup",
+    "windows": [
+      {
+        "kind": "input",
+        "reason": "Escape",
+        "stages": [
+          "tease",
+          "peeling"
+        ],
+        "rafCount": 334,
+        "maxGapMs": 16.800000000000182,
+        "p95": 16.799999999999272,
+        "over50": 0,
+        "over100": 0,
+        "status": "within-gross-stall-budget",
+        "longTasks": 0
+      },
+      {
+        "kind": "release-to-settled",
+        "reason": "disposed",
+        "stages": [
+          "peeling"
+        ],
+        "rafCount": 2,
+        "maxGapMs": 21.899999952316648,
+        "p95": 21.899999952316648,
+        "over50": 0,
+        "over100": 0,
+        "status": "insufficient",
+        "longTasks": 0
+      }
+    ]
+  }
+]

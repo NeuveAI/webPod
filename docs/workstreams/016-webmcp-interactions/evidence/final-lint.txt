@@ -1,0 +1,143 @@
+$ bunx --bun eslint .
+
+/Users/vinicius/code/webPod/docs/workstreams/008-lighting-and-hardware/evidence/hardware/probe-strip.ts
+  1:74  error  'Vector3' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/vinicius/code/webPod/docs/workstreams/009-product-studio-and-flat-display/evidence/display/tone-mapping-parity.ts
+  14:27  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  15:27  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  18:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  18:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  19:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:97  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:84  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vinicius/code/webPod/docs/workstreams/009-product-studio-and-flat-display/evidence/final-display/capture.ts
+  18:43  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  18:97  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  22:28  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  23:32  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  24:70  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vinicius/code/webPod/docs/workstreams/009-product-studio-and-flat-display/evidence/mutant-aperture.ts
+  125:9  error  'miterBand' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/final-coverage/probe.ts
+   9:43   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+   9:97   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  11:94   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  11:185  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  11:293  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  11:321  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  11:760  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:93   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/isolation/capture.ts
+  14:25   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:95   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:177  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  17:11   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:27   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:85   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:129  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:189  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:120  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/isolation/rays.ts
+  14:25   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:95   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:177  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  17:11   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:27   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:85   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:129  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:189  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:120  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:196  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  27:245  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:273  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:657  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:688  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vinicius/code/webPod/docs/workstreams/012-continuous-front-cover/evidence/isolation/rear-isolation.ts
+  14:25   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:95   error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  16:177  error  Forbidden non-null assertion              @typescript-eslint/no-non-null-assertion
+  17:11   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:27   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  17:85   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:129  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:189  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:120  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/direct-manipulation/performance/after-observer-init.js
+  1:15    error  'window' is not defined                  no-undef
+  1:106   error  'performance' is not defined             no-undef
+  1:200   error  'PerformanceObserver' is not defined     no-undef
+  1:393   error  'MutationObserver' is not defined        no-undef
+  1:423   error  'document' is not defined                no-undef
+  1:498   error  'performance' is not defined             no-undef
+  1:543   error  'document' is not defined                no-undef
+  1:689   error  'document' is not defined                no-undef
+  1:743   error  'performance' is not defined             no-undef
+  1:827   error  'performance' is not defined             no-undef
+  1:934   error  'requestAnimationFrame' is not defined   no-undef
+  1:969   error  'requestAnimationFrame' is not defined   no-undef
+  1:1009  error  'location' is not defined                no-undef
+  1:1033  error  'MusicKit' is not defined                no-undef
+  2:2     error  'window' is not defined                  no-undef
+  2:213   error  'WebGL2RenderingContext' is not defined  no-undef
+  2:344   error  'performance' is not defined             no-undef
+  2:424   error  'performance' is not defined             no-undef
+  2:456   error  'window' is not defined                  no-undef
+
+/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/direct-manipulation/performance/fixture.mjs
+   7:44   error  'process' is not defined   no-undef
+  20:20   error  'URL' is not defined       no-undef
+  21:44   error  'Response' is not defined  no-undef
+  22:42   error  'Response' is not defined  no-undef
+  23:10   error  'Response' is not defined  no-undef
+  29:16   error  'Bun' is not defined       no-undef
+  30:24   error  'URL' is not defined       no-undef
+  35:36   error  'Response' is not defined  no-undef
+  35:74   error  'Bun' is not defined       no-undef
+  35:114  error  'Bun' is not defined       no-undef
+  43:25   error  'Headers' is not defined   no-undef
+  44:16   error  'Response' is not defined  no-undef
+  48:130  error  'Bun' is not defined       no-undef
+  48:146  error  'process' is not defined   no-undef
+  49:1    error  'console' is not defined   no-undef
+  51:144  error  'process' is not defined   no-undef
+  52:1    error  'process' is not defined   no-undef
+  52:28   error  'process' is not defined   no-undef
+
+/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/direct-manipulation/performance/observer-init.js
+  1:13   error  'window' is not defined                 no-undef
+  1:33   error  'cancelAnimationFrame' is not defined   no-undef
+  1:54   error  'window' is not defined                 no-undef
+  1:93   error  'window' is not defined                 no-undef
+  1:145  error  'window' is not defined                 no-undef
+  1:226  error  'performance' is not defined            no-undef
+  1:320  error  'PerformanceObserver' is not defined    no-undef
+  1:512  error  'document' is not defined               no-undef
+  1:571  error  'MutationObserver' is not defined       no-undef
+  1:615  error  'performance' is not defined            no-undef
+  1:715  error  'performance' is not defined            no-undef
+  1:820  error  'requestAnimationFrame' is not defined  no-undef
+  1:856  error  'requestAnimationFrame' is not defined  no-undef
+  1:911  error  'document' is not defined               no-undef
+
+/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/direct-manipulation/performance/webgl-instrumentation.js
+  1:2    error  'window' is not defined                  no-undef
+  1:213  error  'WebGL2RenderingContext' is not defined  no-undef
+  1:344  error  'performance' is not defined             no-undef
+  1:424  error  'performance' is not defined             no-undef
+  1:456  error  'window' is not defined                  no-undef
+
+/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/reviewer/solver-probe.test.ts
+  2:27  error  'Vector3' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 112 problems (112 errors, 0 warnings)
+
+error: script "lint" exited with code 1

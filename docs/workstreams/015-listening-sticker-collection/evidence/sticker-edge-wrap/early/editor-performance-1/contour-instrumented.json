@@ -1,0 +1,177 @@
+{
+  "scope": "Counterfactual exact old closure vs current hoisted helper; isolated Bun, not browser. Actual source rear/front/glass/wheel/select subset and captured desktop-side matrices. Alpha warmed equally per pair; alternating order; full output exact equality.",
+  "bvhBuildMs": 303.94441599999993,
+  "boundaryCandidates": 23578,
+  "rows": [
+    {
+      "i": 0,
+      "wear": 0.2,
+      "rotationDeg": 0,
+      "geometryMs": 20.356625000000008,
+      "alphaMs": 2.803792000000044,
+      "baseline": {
+        "ms": 61.51970800000004,
+        "samples": 2754,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 30.204625000000078,
+        "samples": 2754,
+        "revision": 1
+      }
+    },
+    {
+      "i": 1,
+      "wear": 0.30000000000000004,
+      "rotationDeg": 0,
+      "geometryMs": 11.608834000000002,
+      "alphaMs": 1.8367920000000595,
+      "cached": {
+        "ms": 29.75345799999991,
+        "samples": 2870,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 30.14458300000001,
+        "samples": 2870,
+        "revision": 1
+      }
+    },
+    {
+      "i": 2,
+      "wear": 0.4,
+      "rotationDeg": 0,
+      "geometryMs": 9.719083000000069,
+      "alphaMs": 1.328542000000084,
+      "baseline": {
+        "ms": 28.246875000000045,
+        "samples": 2985,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 28.000958999999966,
+        "samples": 2985,
+        "revision": 1
+      }
+    },
+    {
+      "i": 3,
+      "wear": 0.5,
+      "rotationDeg": 0,
+      "geometryMs": 7.822499999999991,
+      "alphaMs": 1.1959590000000162,
+      "cached": {
+        "ms": 29.359166999999957,
+        "samples": 3087,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 29.17050000000006,
+        "samples": 3087,
+        "revision": 1
+      }
+    },
+    {
+      "i": 4,
+      "wear": 0.6000000000000001,
+      "rotationDeg": 0,
+      "geometryMs": 7.503332999999998,
+      "alphaMs": 1.1844999999999573,
+      "baseline": {
+        "ms": 29.257582999999954,
+        "samples": 3106,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 29.312084000000027,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 5,
+      "wear": 0.6,
+      "rotationDeg": 0.5,
+      "geometryMs": 8.597584000000097,
+      "alphaMs": 0.003500000000030923,
+      "cached": {
+        "ms": 29.77000000000021,
+        "samples": 3106,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 29.521875000000136,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 6,
+      "wear": 0.6,
+      "rotationDeg": 1,
+      "geometryMs": 7.593665999999985,
+      "alphaMs": 0.0014159999998355488,
+      "baseline": {
+        "ms": 30.014707999999928,
+        "samples": 3106,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 29.78170799999998,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 7,
+      "wear": 0.6,
+      "rotationDeg": 1.5,
+      "geometryMs": 7.682375000000093,
+      "alphaMs": 0.0017080000000078144,
+      "cached": {
+        "ms": 29.504416999999876,
+        "samples": 3106,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 29.513582999999926,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 8,
+      "wear": 0.6,
+      "rotationDeg": 2,
+      "geometryMs": 7.4682920000000195,
+      "alphaMs": 0.0009580000000823929,
+      "baseline": {
+        "ms": 28.896207999999888,
+        "samples": 3106,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 28.734708000000182,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 9,
+      "wear": 0.6,
+      "rotationDeg": 2.5,
+      "geometryMs": 7.492917000000034,
+      "alphaMs": 0.002083000000084212,
+      "cached": {
+        "ms": 27.926333999999997,
+        "samples": 3106,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 28.999249999999847,
+        "samples": 3106,
+        "revision": 1
+      }
+    }
+  ]
+}

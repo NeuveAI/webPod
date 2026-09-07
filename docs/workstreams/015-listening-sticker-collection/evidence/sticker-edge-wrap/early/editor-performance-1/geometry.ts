@@ -1,0 +1,8 @@
+import {actualShell} from '../wrapped-witness-4/source-shell';
+import {createStickerWrapSurface} from '/Users/vinicius/code/webPod/packages/device/src/sticker-wrap';
+import {createStickerSurfaceGeometry} from '/Users/vinicius/code/webPod/packages/device/src/sticker-surface';
+import {DEFAULT_DEVICE_FORM} from '/Users/vinicius/code/webPod/packages/device/src/form';
+import {getSticker} from '/Users/vinicius/code/webPod/packages/stickers/src/catalogue';
+const shell=actualShell(),wrap=createStickerWrapSurface(DEFAULT_DEVICE_FORM,shell.faces.filter(f=>!f.source.includes('rear')&&f.source!=='top cap and outer bevel candidate support').map(f=>({geometry:f.geometry,offset:f.transform?[f.transform.elements[12],f.transform.elements[13],f.transform.elements[14]]:undefined}))),art=getSticker('PW-C03'),records=[];
+for(const center of[{x:.5,y:.5},{x:.027,y:.017}]) {const times=[],counts=[],hashes=[];for(let i=0;i<40;i++){const start=performance.now(),geometry=createStickerSurfaceGeometry(art,{stickerId:art.id,surface:'back',...center,width:.35,rotationDeg:i*.5},shell.rear,wrap);times.push(performance.now()-start);counts.push(geometry.getAttribute('position').count);hashes.push(new Bun.CryptoHasher('sha256').update(new Uint8Array(geometry.getAttribute('position').array.buffer)).digest('hex'));geometry.dispose();}const sorted=times.slice(1).sort((a,b)=>a-b);records.push({center,times,coldMs:times[0],medianMs:sorted[Math.floor(sorted.length/2)],p95Ms:sorted[Math.floor(sorted.length*.95)],vertices:counts,hashes});}
+await Bun.write(import.meta.dir+'/geometry.json',JSON.stringify(records,null,2));console.log(records.map(r=>({center:r.center,cold:r.coldMs,median:r.medianMs,p95:r.p95Ms})));shell.dispose();

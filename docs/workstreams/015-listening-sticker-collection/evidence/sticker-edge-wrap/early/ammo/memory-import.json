@@ -1,0 +1,16 @@
+{
+  "binary": "ammo.wasm.wasm",
+  "method": "Read standard WASM import section2, unsigned LEB128 memory limits",
+  "imports": [
+    {
+      "module": "a",
+      "name": "memory",
+      "kind": "memory",
+      "flags": 1,
+      "minimumPages": 1024,
+      "maximumPages": 1024,
+      "minimumBytes": 67108864,
+      "maximumBytes": 67108864
+    }
+  ]
+}

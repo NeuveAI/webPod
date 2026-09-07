@@ -1,0 +1,8 @@
+import {actualShell} from './webpod-actual-shell';
+import {createStickerWrapSurface} from '/Users/vinicius/code/webPod/packages/device/src/sticker-wrap';
+import {DEFAULT_DEVICE_FORM} from '/Users/vinicius/code/webPod/packages/device/src/form';
+import {stickerSheetTriangleMetric} from '/Users/vinicius/code/webPod/packages/device/src/sticker-sheet-metric';
+const shell=actualShell();const start=performance.now();const wrap=createStickerWrapSurface(DEFAULT_DEVICE_FORM,shell.faces.filter(f=>!f.source.includes('rear')&&!f.source.includes('approved')).map(f=>({geometry:f.geometry,offset:f.transform?[f.transform.elements[12],f.transform.elements[13],f.transform.elements[14]]:undefined})));const built=performance.now();const strip=wrap.rightStrip(165,0);const points=[],rest=[];const n=Number(process.env.GRID??24),w=Number(process.env.WIDTH??115.5),h=w*1064/1146;
+for(let y=0;y<=n;y++)for(let x=0;x<=n;x++){const dx=(x/n-.5)*w,dy=(y/n-.5)*h;rest.push({x:dx,y:dy});points.push(strip.sample(dx,dy,0).point);}
+const sampled=performance.now();let min=Infinity,max=0,area=Infinity,worstMin=null,worstMax=null;for(let y=0;y<n;y++)for(let x=0;x<n;x++){const a=y*(n+1)+x,b=a+1,c=a+n+1;for(const ids of[[a,b,c],[b,c+1,c]]){const m=stickerSheetTriangleMetric(ids.map(i=>rest[i]),ids.map(i=>points[i]));if(m.minimumStretch<min)worstMin={ids,points:ids.map(i=>points[i]),rest:ids.map(i=>rest[i])};if(m.maximumStretch>max)worstMax={ids,points:ids.map(i=>points[i]),rest:ids.map(i=>rest[i])};min=Math.min(min,m.minimumStretch);max=Math.max(max,m.maximumStretch);area=Math.min(area,m.areaRatio);}}
+console.log(JSON.stringify({buildMs:built-start,sampleMs:sampled-built,min,max,area,worstMin,worstMax,points:points.map(p=>p.toArray()),rest}));shell.dispose();

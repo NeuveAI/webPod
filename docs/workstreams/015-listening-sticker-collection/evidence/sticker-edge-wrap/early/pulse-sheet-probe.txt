@@ -1,0 +1,31 @@
+import {Vector3,BufferGeometry,Float32BufferAttribute} from '/Users/vinicius/code/webPod/node_modules/.bun/three@0.185.1/node_modules/three/build/three.module.js';
+import {createStickerWrapSurface} from '/Users/vinicius/code/webPod/packages/device/src/sticker-wrap';
+import {stickerSheetTriangleMetric} from '/Users/vinicius/code/webPod/packages/device/src/sticker-sheet-metric';
+import {ExtrudeGeometry} from '/Users/vinicius/code/webPod/node_modules/.bun/three@0.185.1/node_modules/three/build/three.module.js';
+import {createStickerCollision} from '/Users/vinicius/code/webPod/packages/device/src/sticker-collision';
+import {createRearShellGeometry,frontShellPlan,productShellDepths} from '/Users/vinicius/code/webPod/packages/device/src/product-shell';
+import {silhouetteShape} from '/Users/vinicius/code/webPod/packages/device/src/shapes';
+import {DEFAULT_DEVICE_FORM as f} from '/Users/vinicius/code/webPod/packages/device/src/form';
+import {DEVICE_LAYOUT} from '/Users/vinicius/code/webPod/packages/device/src/layout';
+const b=DEVICE_LAYOUT.body;const rear=createRearShellGeometry({width:b.width,height:b.height,depth:b.depth,cornerR:b.cornerR,exponent:b.exponent,frontThickness:f.frontThickness,rearCrownInset:f.rearCrownInset,frontRimInset:f.seamWidth+f.frontBevel+.25});
+const plan=frontShellPlan(b.width,b.height,b.cornerR,f.seamWidth,f.frontBevel),front=new ExtrudeGeometry(silhouetteShape(plan.faceWidth,plan.faceHeight,plan.faceCornerR,2,48),{depth:f.frontThickness-2*f.frontBevel,bevelEnabled:true,bevelThickness:f.frontBevel,bevelSize:f.frontBevel,bevelSegments:16,steps:1});front.translate(0,0,productShellDepths(b.depth,f.frontThickness).seamZ+f.frontBevel);
+
+// Nominal unobstructed front fixture: explicitly remove its hidden rear cap.
+const source=front.getAttribute('position'),out=[];for(let i=0;i<source.count;i+=3){const a=new Vector3().fromBufferAttribute(source,i),b=new Vector3().fromBufferAttribute(source,i+1),c=new Vector3().fromBufferAttribute(source,i+2);if(b.clone().sub(a).cross(c.clone().sub(a)).normalize().z<-.9999)continue;out.push(...a.toArray(),...b.toArray(),...c.toArray());}const outside=new BufferGeometry();outside.setAttribute('position',new Float32BufferAttribute(out,3));
+const collider=createStickerCollision([{geometry:rear,source:'source rear before ports',kind:'surface',adhesiveSupport:true},{geometry:outside,source:'unobstructed nominal front exterior',kind:'surface',adhesiveSupport:true}]);
+const wrap=createStickerWrapSurface(f,[{geometry:front}]);
+const n=16,W=115.5,H=W*1064/1146,anchor=wrap.anchor(165,0),C=n/2*(n+1)+n/2,N=(n+1)**2;
+const rest=Array.from({length:N},(_,i)=>({x:(i%(n+1)/n-.5)*W,y:(Math.floor(i/(n+1))/n-.5)*H}));
+const ps=rest.map(p=>wrap.sample(anchor.x-p.x,anchor.y-p.y,.18,anchor).point),fixed=ps[C].clone();
+const frameNormal=wrap.sample(anchor.x,anchor.y,0).normal,frameX=ps[C+1].clone().sub(fixed).projectOnPlane(frameNormal).normalize(),frameY=frameNormal.clone().cross(frameX).normalize();
+const edges=[];for(let y=0;y<=n;y++)for(let x=0;x<=n;x++){const a=y*(n+1)+x;if(x<n)edges.push([a,a+1,W/n]);if(y<n)edges.push([a,a+n+1,H/n]);if(x<n&&y<n)edges.push([a,a+n+2,Math.hypot(W,H)/n],[a+1,a+n+1,Math.hypot(W,H)/n]);}
+const weight=i=>i===C?0:1,t=performance.now();
+for(let iter=0;iter<200;iter++){
+for(const[a,b,l]of edges){const d=ps[b].clone().sub(ps[a]),len=d.length(),den=weight(a)+weight(b);if(den&&len>1e-9){d.multiplyScalar((len-l)/(len*den));ps[a].addScaledVector(d,weight(a));ps[b].addScaledVector(d,-weight(b));}}
+// Local tangent direction constraint, center itself remains exactly fixed.
+ps[C+1].addScaledVector(frameY,-ps[C+1].clone().sub(fixed).dot(frameY));
+for(let i=0;i<N;i++)if(weight(i)){const hit=collider.closestApprovedSupport(ps[i],30);if(hit){const gap=hit.signedDistance-.18;ps[i].addScaledVector(hit.normal,gap<0?-gap:-gap*.03);}}
+for(const[a,b]of edges){for(const t of [.25,.5,.75]){const p=ps[a].clone().lerp(ps[b],t),hit=collider.closestApprovedSupport(p,30);if(hit&&hit.signedDistance<.18){const wa=1-t,wb=t,den=weight(a)*wa*wa+weight(b)*wb*wb;if(den){const correction=(.18-hit.signedDistance)/den;ps[a].addScaledVector(hit.normal,correction*wa*weight(a));ps[b].addScaledVector(hit.normal,correction*wb*weight(b));}}}}
+}
+let minimum=Infinity,maximum=0,intersections=0;for(let y=0;y<n;y++)for(let x=0;x<n;x++){const a=y*(n+1)+x;for(const ids of[[a,a+1,a+n+1],[a+n+2,a+n+1,a+1]]){const m=stickerSheetTriangleMetric(ids.map(i=>rest[i]),ids.map(i=>ps[i]));if(!m)throw new Error('Collapsed candidate');minimum=Math.min(minimum,m.minimumStretch);maximum=Math.max(maximum,m.maximumStretch);if(collider.intersectsTriangle(...ids.map(i=>ps[i])))intersections++;}}
+console.log({n,minimum,maximum,intersections,ms:performance.now()-t,stats:collider.stats});await Bun.write('/tmp/webpod-pulse-sheet.json',JSON.stringify({rest,positions:ps.map(p=>p.toArray()),minimum,maximum,intersections}));collider.dispose();outside.dispose();rear.dispose();front.dispose();

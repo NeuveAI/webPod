@@ -1,0 +1,18 @@
+{
+  "errors": [
+    {
+      "kind": "console",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "kind": "pageerror",
+      "message": "Bend has no actual front support",
+      "stack": "Error: Bend has no actual front support\n    at ne (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4139:71174)\n    at ue (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4139:72018)\n    at Object.ye [as point] (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4139:72551)\n    at LN (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4150:26283)\n    at http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4216:300377\n    at Object._n [as useMemo] (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4146:27976)\n    at e.useMemo (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:1:7742)\n    at LL (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4216:300350)\n    at yt (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4146:19264)\n    at er (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4146:37018)"
+    },
+    {
+      "kind": "console",
+      "text": "Error: Bend has no actual front support\n    at ne (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4139:71174)\n    at ue (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4139:72018)\n    at Object.ye [as point] (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4139:72551)\n    at LN (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4150:26283)\n    at http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4216:300377\n    at Object._n [as useMemo] (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4146:27976)\n    at e.useMemo (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:1:7742)\n    at LL (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4216:300350)\n    at yt (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4146:19264)\n    at er (http://127.0.0.1:52084/assets/index-DdoKJDQu.js:4146:37018)"
+    }
+  ],
+  "body": "Something went wrong!\nHide Error\nBend has no actual front support"
+}

@@ -1,0 +1,54 @@
+import {Vector3,BufferGeometry,Float32BufferAttribute} from '/Users/vinicius/code/webPod/node_modules/.bun/three@0.185.1/node_modules/three/build/three.module.js';
+import {createStickerWrapSurface} from '/Users/vinicius/code/webPod/packages/device/src/sticker-wrap';
+import {stickerSheetTriangleMetric} from '/Users/vinicius/code/webPod/packages/device/src/sticker-sheet-metric';
+import {ExtrudeGeometry} from '/Users/vinicius/code/webPod/node_modules/.bun/three@0.185.1/node_modules/three/build/three.module.js';
+import {createStickerCollision} from '/Users/vinicius/code/webPod/packages/device/src/sticker-collision';
+import {createRearShellGeometry,frontShellPlan,productShellDepths} from '/Users/vinicius/code/webPod/packages/device/src/product-shell';
+import {silhouetteShape} from '/Users/vinicius/code/webPod/packages/device/src/shapes';
+import {DEFAULT_DEVICE_FORM as f} from '/Users/vinicius/code/webPod/packages/device/src/form';
+import {DEVICE_LAYOUT} from '/Users/vinicius/code/webPod/packages/device/src/layout';
+const b=DEVICE_LAYOUT.body;const rear=createRearShellGeometry({width:b.width,height:b.height,depth:b.depth,cornerR:b.cornerR,exponent:b.exponent,frontThickness:f.frontThickness,rearCrownInset:f.rearCrownInset,frontRimInset:f.seamWidth+f.frontBevel+.25});
+const plan=frontShellPlan(b.width,b.height,b.cornerR,f.seamWidth,f.frontBevel),front=new ExtrudeGeometry(silhouetteShape(plan.faceWidth,plan.faceHeight,plan.faceCornerR,2,48),{depth:f.frontThickness-2*f.frontBevel,bevelEnabled:true,bevelThickness:f.frontBevel,bevelSize:f.frontBevel,bevelSegments:16,steps:1});front.translate(0,0,productShellDepths(b.depth,f.frontThickness).seamZ+f.frontBevel);
+
+// Nominal unobstructed front fixture: explicitly remove its hidden rear cap.
+const source=front.getAttribute('position'),out=[];for(let i=0;i<source.count;i+=3){const a=new Vector3().fromBufferAttribute(source,i),b=new Vector3().fromBufferAttribute(source,i+1),c=new Vector3().fromBufferAttribute(source,i+2);if(b.clone().sub(a).cross(c.clone().sub(a)).normalize().z<-.9999)continue;out.push(...a.toArray(),...b.toArray(),...c.toArray());}const outside=new BufferGeometry();outside.setAttribute('position',new Float32BufferAttribute(out,3));
+const collider=createStickerCollision([{geometry:rear,source:'source rear before ports',kind:'surface',adhesiveSupport:true},{geometry:outside,source:'unobstructed nominal front exterior',kind:'surface',adhesiveSupport:true}]);
+const wrap=createStickerWrapSurface(f,[{geometry:front}]);
+
+async function run(refined){
+const cuts=Array.from({length:17},(_,i)=>i/16);if(refined)for(let i=4;i<12;i++)for(const t of [.25,.5,.75])cuts.push((i+t)/16);cuts.sort((a,b)=>a-b);
+const nx=cuts.length-1,ny=nx,W=115.5,H=W*597/302,anchor=wrap.anchor(157,268),C=cuts.indexOf(.5)*(nx+1)+cuts.indexOf(.5),N=(nx+1)*(ny+1);
+const rest=Array.from({length:N},(_,i)=>({x:(cuts[i%(nx+1)]-.5)*W,y:(cuts[Math.floor(i/(nx+1))]-.5)*H}));
+const ps=rest.map(p=>wrap.sample(anchor.x-p.x,anchor.y-p.y,.18,anchor).point),fixed=ps[C].clone();
+const frameNormal=wrap.sample(anchor.x,anchor.y,0).normal,frameX=ps[C+1].clone().sub(fixed).projectOnPlane(frameNormal).normalize(),frameY=frameNormal.clone().cross(frameX).normalize();
+const edges=[],triangles=[],adjacency=new Map(),bends=[];
+for(let y=0;y<=ny;y++)for(let x=0;x<=nx;x++){const a=y*(nx+1)+x;if(x<nx)edges.push([a,a+1]);if(y<ny)edges.push([a,a+nx+1]);if(x<nx&&y<ny){edges.push([a,a+nx+2],[a+1,a+nx+1]);triangles.push([a,a+1,a+nx+1],[a+nx+2,a+nx+1,a+1]);}}
+for(const ids of triangles)for(let i=0;i<3;i++){const a=ids[i],b=ids[(i+1)%3],c=ids[(i+2)%3],key=[a,b].sort((a,b)=>a-b).join(',');const prior=adjacency.get(key);if(prior)bends.push([prior.opposite,c,prior.a,prior.b]);else adjacency.set(key,{a,b,opposite:c});}
+const lengths=edges.map(([a,b])=>Math.hypot(rest[b].x-rest[a].x,rest[b].y-rest[a].y));
+const areas=triangles.map(([a,b,c])=>Math.abs((rest[b].x-rest[a].x)*(rest[c].y-rest[a].y)-(rest[b].y-rest[a].y)*(rest[c].x-rest[a].x)));
+const weight=i=>i===C?0:1,t0=performance.now(),phases=[];
+const tracked=triangles.filter(ids=>ids.some(i=>Math.abs(rest[i].x+10)<10&&Math.abs(rest[i].y+7)<15));
+function track(iter,phase){if(iter%20!==0&&iter!==199)return;let min=Infinity,max=0,area=Infinity;for(const ids of tracked){const m=stickerSheetTriangleMetric(ids.map(i=>rest[i]),ids.map(i=>ps[i]));min=Math.min(min,m?.minimumStretch??0);max=Math.max(max,m?.maximumStretch??Infinity);area=Math.min(area,m?.areaRatio??0);}phases.push({iter,phase,min,max,area});}
+function pointContact(i){if(!weight(i))return;const hit=collider.closestApprovedSupport(ps[i],50);if(!hit)return;const gap=hit.signedDistance-.18;const correction=gap<0?-gap:gap>2?-(gap-2):-gap*.03;ps[i].addScaledVector(hit.normal,correction);}
+for(let iter=0;iter<200;iter++){
+const previous=ps.map(p=>p.clone());
+for(let e=0;e<edges.length;e++){const[a,b]=edges[e],l=lengths[e],d=ps[b].clone().sub(ps[a]),len=d.length(),den=weight(a)+weight(b);if(den&&len>1e-9){d.multiplyScalar((len-l)/(len*den));ps[a].addScaledVector(d,weight(a));ps[b].addScaledVector(d,-weight(b));}}
+ps[C+1].addScaledVector(frameY,-ps[C+1].clone().sub(fixed).dot(frameY));track(iter,'distance-frame');
+for(let j=0;j<triangles.length;j++){const[a,b,c]=triangles[j],ab=ps[b].clone().sub(ps[a]),ac=ps[c].clone().sub(ps[a]),cross=ab.clone().cross(ac),area=cross.length();if(area<1e-9)continue;const normal=cross.multiplyScalar(1/area),gb=ac.clone().cross(normal),gc=normal.clone().cross(ab),ga=gb.clone().add(gc).negate(),den=weight(a)*ga.lengthSq()+weight(b)*gb.lengthSq()+weight(c)*gc.lengthSq();if(den){const scale=(area-areas[j])/den;ps[a].addScaledVector(ga,-scale*weight(a));ps[b].addScaledVector(gb,-scale*weight(b));ps[c].addScaledVector(gc,-scale*weight(c));}}
+track(iter,'area');
+// Independent dihedral bending, gradients from the primary PBD formulation.
+for(const[a,b,c,d]of bends){const p0=ps[a],p1=ps[b],p2=ps[c],p3=ps[d],edge=p3.clone().sub(p2),len=edge.length();if(len<1e-9)continue;const n0=p2.clone().sub(p0).cross(p3.clone().sub(p0)),n1=p3.clone().sub(p1).cross(p2.clone().sub(p1));if(n0.lengthSq()<1e-12||n1.lengthSq()<1e-12)continue;n0.multiplyScalar(1/n0.lengthSq());n1.multiplyScalar(1/n1.lengthSq());const g0=n0.clone().multiplyScalar(len),g1=n1.clone().multiplyScalar(len),g2=n0.clone().multiplyScalar(p0.clone().sub(p3).dot(edge)/len).addScaledVector(n1,p1.clone().sub(p3).dot(edge)/len),g3=n0.clone().multiplyScalar(p2.clone().sub(p0).dot(edge)/len).addScaledVector(n1,p2.clone().sub(p1).dot(edge)/len);n0.normalize();n1.normalize();const angle=Math.acos(Math.max(-1,Math.min(1,n0.dot(n1)))),den=weight(a)*g0.lengthSq()+weight(b)*g1.lengthSq()+weight(c)*g2.lengthSq()+weight(d)*g3.lengthSq();if(den<1e-12)continue;let scale=angle*.03/den;if(n0.clone().cross(n1).dot(edge)>0)scale=-scale;for(const[i,g]of[[a,g0],[b,g1],[c,g2],[d,g3]])ps[i].addScaledVector(g,-weight(i)*scale);}
+track(iter,'bend');
+for(let i=0;i<N;i++)pointContact(i);track(iter,'point-gap');
+for(const ids of triangles){if(!collider.intersectsTriangle(...ids.map(i=>ps[i])))continue;for(let r=0;r<=6;r++)for(let c=0;c<=6-r;c++){const weights=[r/6,c/6,1-(r+c)/6],p=new Vector3();ids.forEach((id,k)=>p.addScaledVector(ps[id],weights[k]));const hit=collider.closestApprovedSupport(p,30);if(!hit||hit.signedDistance>=.18)continue;const den=ids.reduce((v,id,k)=>v+weight(id)*weights[k]**2,0);if(den)ids.forEach((id,k)=>ps[id].addScaledVector(hit.normal,(.18-hit.signedDistance)/den*weight(id)*weights[k]));}}
+track(iter,'triangle-contact');
+// A vertex sweep is an extra gate, not a claim of complete triangle CCD.
+for(let i=0;i<N;i++)if(weight(i)){const old=collider.closestApprovedSupport(previous[i],50);if(old&&old.signedDistance>=.179){const hit=collider.castSegment(previous[i],ps[i]);if(hit)ps[i].copy(hit.point).addScaledVector(hit.normal,.18);}pointContact(i);}
+track(iter,'sweep-gap');
+}
+let minimum=Infinity,maximum=0,intersections=0,maxGap=0;const metrics=[];
+for(const ids of triangles){const m=stickerSheetTriangleMetric(ids.map(i=>rest[i]),ids.map(i=>ps[i]));minimum=Math.min(minimum,m?.minimumStretch??0);maximum=Math.max(maximum,m?.maximumStretch??Infinity);metrics.push({ids,...m,normal:undefined});if(collider.intersectsTriangle(...ids.map(i=>ps[i])))intersections++;}
+for(const p of ps){const hit=collider.closestApprovedSupport(p,50);maxGap=Math.max(maxGap,hit?hit.distance-.18:Infinity);}
+const summary={refined,nx,ny,N,minimum,maximum,intersections,maxGap,ms:performance.now()-t0};console.log(summary);await Bun.write('/tmp/webpod-c03-completed-'+(refined?'refined':'coarse')+'.json',JSON.stringify({summary,rest,positions:ps.map(p=>p.toArray()),metrics,phases}));
+}
+await run(false);await run(true);collider.dispose();outside.dispose();rear.dispose();front.dispose();

@@ -1,0 +1,13 @@
+{
+  "source": {
+    "digest": "6c86ffc6f2f5006d25de9c4c47ad32660c8756e74f02da9dc89ce6a6c6fadebe",
+    "fileCount": 437
+  },
+  "buildManifestSHA": "fc110d05cbd969a7d1ebaa9c8e0151756d767c878396d21691adaf7db0fa6d02",
+  "artifactManifestSHA": "0aff24d6700f847477c74164b04f9fbacf0dc1c605c704a32b75eb52035c5f1f",
+  "buildDeltas": 0,
+  "testDeltas": 0,
+  "buildToEnd": 0,
+  "artifactDeltas": 0,
+  "passed": true
+}

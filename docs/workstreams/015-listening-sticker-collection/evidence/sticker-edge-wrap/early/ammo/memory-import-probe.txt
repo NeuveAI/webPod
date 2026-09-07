@@ -1,0 +1,33 @@
+import pathlib,json
+b=pathlib.Path('/tmp/webpod-ammo-79190a1f/ammo.wasm.wasm').read_bytes();i=8
+
+def u():
+ global i
+ v=0;s=0
+ while True:
+  a=b[i];i+=1;v|=(a&127)<<s
+  if a<128:return v
+  s+=7
+
+def string():
+ global i
+ n=u();v=b[i:i+n].decode();i+=n;return v
+
+def limits():
+ f=u();lo=u();hi=u() if f&1 else None
+ return {'flags':f,'minimumPages':lo,'maximumPages':hi,'minimumBytes':lo*65536,'maximumBytes':None if hi is None else hi*65536}
+
+imports=[]
+while i<len(b):
+ section=b[i];i+=1;length=u();end=i+length
+ if section==2:
+  count=u()
+  for _ in range(count):
+   module,name=string(),string();kind=b[i];i+=1
+   if kind==0:u()
+   elif kind==1:i+=1;limits()
+   elif kind==2:imports.append({'module':module,'name':name,'kind':'memory',**limits()})
+   elif kind==3:i+=2
+   else:raise ValueError(kind)
+ i=end
+print(json.dumps({'binary':'ammo.wasm.wasm','method':'Read standard WASM import section2, unsigned LEB128 memory limits','imports':imports},indent=2))

@@ -1,0 +1,11 @@
+{
+  "baseHEAD": "2f1001a0b72b1829a581123e4cc4691f0c60319e",
+  "subject": "Keep sticker editing responsive and hide controls during moves",
+  "files": [
+    "apps/web/src/sticker-editor.tsx",
+    "apps/web/src/sticker-editor-model.ts",
+    "apps/web/src/sticker-editor-model.test.ts",
+    "apps/web/src/sticker-editor-carry.test.tsx"
+  ],
+  "scope": "Selective app-only index patch; no staging or worktree changes. Existing device and native performance dependencies remain excluded."
+}

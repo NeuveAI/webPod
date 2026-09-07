@@ -1,0 +1,10 @@
+import {Vector3} from '/Users/vinicius/code/webPod/node_modules/.bun/three@0.185.1/node_modules/three/build/three.module.js';
+import {actualShell} from '/tmp/webpod-actual-shell';
+import {createStickerCollision} from '/Users/vinicius/code/webPod/packages/device/src/sticker-collision';
+const shell=actualShell(),collider=createStickerCollision(shell.faces),saved=JSON.parse(await Bun.file('/tmp/webpod-actual-edge.json').text());
+const trajectories=saved.rest.map((r,i)=>{const initial=new Vector3(165.18,-r.y,20.0339805825-r.x),end=new Vector3(...saved.positions[i]);return Array.from({length:21},(_,j)=>initial.clone().lerp(end,j/20));});
+let maxError=0,maxNormalError=0,refreshes=0;const startCold=performance.now(),before=collider.getSupportStats();
+const cold=trajectories.map(points=>points.map(p=>collider.closestApprovedSupport(p,100)));const coldMs=performance.now()-startCold,afterCold=collider.getSupportStats(),startWarm=performance.now();
+for(let i=0;i<trajectories.length;i++){const query=collider.createSupportQuery();let prior=-1;for(let j=0;j<trajectories[i].length;j++){const hit=query.sample(trajectories[i][j],100),reference=cold[i][j];if(hit&&reference){maxError=Math.max(maxError,Math.abs(hit.distance-reference.distance),hit.point.distanceTo(reference.point));maxNormalError=Math.max(maxNormalError,hit.normal.distanceTo(reference.normal));if(hit.facetIndex!==prior)refreshes++;prior=hit.facetIndex;}else if(hit!==reference)throw new Error('Missing support mismatch');}query.dispose();}
+const warmMs=performance.now()-startWarm,afterWarm=collider.getSupportStats(),delta=(a,b)=>({queries:a.queries-b.queries,nodes:a.nodes-b.nodes,triangles:a.triangles-b.triangles});
+const result={method:'21 linear query points between saved initial and final actual-edge vertices; representative crossing queries, not full solver trajectory replay',coldMs,warmMs,cold:delta(afterCold,before),warm:delta(afterWarm,afterCold),maxError,maxNormalError,facetChanges:refreshes};console.log(result);await Bun.write('/tmp/webpod-support-benchmark.json',JSON.stringify(result));collider.dispose();shell.dispose();

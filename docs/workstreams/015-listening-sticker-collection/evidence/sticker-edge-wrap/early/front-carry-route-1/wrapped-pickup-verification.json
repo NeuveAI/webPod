@@ -1,0 +1,1613 @@
+{
+  "manifestText": "[\n  {\n    \"name\": \"wrapped-1280-side\",\n    \"viewport\": {\n      \"width\": 1280,\n      \"height\": 900\n    },\n    \"face\": \"side\",\n    \"rightStepsFromRear\": 5,\n    \"pickup\": {\n      \"x\": 561.8461696688656,\n      \"y\": 140.3843791395311\n    },\n    \"partial\": {\n      \"x\": 579.4537470083425,\n      \"y\": 167.10465646283635\n    },\n    \"release\": {\n      \"x\": 643.184991266287,\n      \"y\": 263.8196381947969\n    },\n    \"expectedCenter\": {\n      \"x\": 0.35,\n      \"y\": 0.15\n    },\n    \"occluded\": {\n      \"x\": 567.0681229844442,\n      \"y\": 147.83122958236646\n    },\n    \"flickEnd\": {\n      \"x\": 447.06812298444424,\n      \"y\": 182.83122958236646\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-1280-side.json\"\n  },\n  {\n    \"name\": \"wrapped-1280-front\",\n    \"viewport\": {\n      \"width\": 1280,\n      \"height\": 900\n    },\n    \"face\": \"front\",\n    \"rightStepsFromRear\": 15,\n    \"pickup\": {\n      \"x\": 762.6675245342133,\n      \"y\": 137.99494921046283\n    },\n    \"partial\": {\n      \"x\": 742.8239843947553,\n      \"y\": 140.49173008465272\n    },\n    \"release\": {\n      \"x\": 587.6045560693025,\n      \"y\": 160.02195993386476\n    },\n    \"expectedCenter\": {\n      \"x\": 0.35,\n      \"y\": 0.017\n    },\n    \"occluded\": {\n      \"x\": 831.3879468122576,\n      \"y\": 180.38755075802538\n    },\n    \"flickEnd\": {\n      \"x\": 711.3879468122576,\n      \"y\": 215.38755075802538\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-1280-front.json\"\n  },\n  {\n    \"name\": \"wrapped-375-side\",\n    \"viewport\": {\n      \"width\": 375,\n      \"height\": 812\n    },\n    \"face\": \"side\",\n    \"rightStepsFromRear\": 5,\n    \"pickup\": {\n      \"x\": 141.06295459588623,\n      \"y\": 222.03415582485093\n    },\n    \"partial\": {\n      \"x\": 159.16390437306558,\n      \"y\": 248.4227066976069\n    },\n    \"release\": {\n      \"x\": 189.4405910498952,\n      \"y\": 292.56171025626514\n    },\n    \"expectedCenter\": {\n      \"x\": 0.35,\n      \"y\": 0.15\n    },\n    \"occluded\": {\n      \"x\": 145.29667239632863,\n      \"y\": 223.88266199834328\n    },\n    \"flickEnd\": {\n      \"x\": 85.29667239632863,\n      \"y\": 258.8826619983433\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-375-side.json\"\n  },\n  {\n    \"name\": \"wrapped-375-front\",\n    \"viewport\": {\n      \"width\": 375,\n      \"height\": 812\n    },\n    \"face\": \"front\",\n    \"rightStepsFromRear\": 15,\n    \"pickup\": {\n      \"x\": 242.7165025323663,\n      \"y\": 215.44290767432503\n    },\n    \"partial\": {\n      \"x\": 223.14382757065937,\n      \"y\": 219.5551327220785\n    },\n    \"release\": {\n      \"x\": 113.81973140255182,\n      \"y\": 242.52415905419994\n    },\n    \"expectedCenter\": {\n      \"x\": 0.35,\n      \"y\": 0.017\n    },\n    \"occluded\": {\n      \"x\": 305.3337228173019,\n      \"y\": 241.42507169344458\n    },\n    \"flickEnd\": {\n      \"x\": 245.33372281730192,\n      \"y\": 276.4250716934446\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-375-front.json\"\n  }\n]",
+  "manifestSHA256": "cc7d2d119d016ee7560d767b0370d8217a6bf4ff3a80d093130b62a09ae00cf9",
+  "build": {
+    "source": "8e86f0403f1111b02fb8749982a9d97a141f1ebb0d1188f4dd3e840bbb8db7d2",
+    "artifacts": "f5bd098341408ed7e205ee70295e772030e4375d7e92021d16351845dacc4e34"
+  },
+  "inputs": [
+    {
+      "witness": {
+        "name": "wrapped-1280-side",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "face": "side",
+        "rightStepsFromRear": 5,
+        "pickup": {
+          "x": 561.8461696688656,
+          "y": 140.3843791395311
+        },
+        "partial": {
+          "x": 579.4537470083425,
+          "y": 167.10465646283635
+        },
+        "release": {
+          "x": 643.184991266287,
+          "y": 263.8196381947969
+        },
+        "expectedCenter": {
+          "x": 0.35,
+          "y": 0.15
+        },
+        "occluded": {
+          "x": 567.0681229844442,
+          "y": 147.83122958236646
+        },
+        "flickEnd": {
+          "x": 447.06812298444424,
+          "y": 182.83122958236646
+        },
+        "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-1280-side.json"
+      },
+      "proof": {
+        "version": 1,
+        "build": {
+          "source": "8e86f0403f1111b02fb8749982a9d97a141f1ebb0d1188f4dd3e840bbb8db7d2",
+          "artifacts": "f5bd098341408ed7e205ee70295e772030e4375d7e92021d16351845dacc4e34"
+        },
+        "sampler": {
+          "path": "packages/device/src/sticker-corner-cage.ts",
+          "sha256": "a641c30c51f62a8411bc240d5922d924afc13b6eed5188d6709bc47b3a55a5e3"
+        },
+        "seed": [
+          {
+            "stickerId": "PW-C03",
+            "surface": "back",
+            "x": 0.027,
+            "y": 0.017,
+            "width": 0.35,
+            "rotationDeg": 0,
+            "wear": 1
+          },
+          {
+            "stickerId": "PW-F01",
+            "surface": "back",
+            "x": 0.65,
+            "y": 0.72,
+            "width": 0.25,
+            "rotationDeg": 0,
+            "wear": 0.6
+          }
+        ],
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "pose": {
+          "face": "side",
+          "rightStepsFromRear": 5
+        },
+        "cameraWorld": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1387.7459716796875,
+          1
+        ],
+        "cameraProjection": [
+          2.624098300933838,
+          0,
+          0,
+          0,
+          0,
+          3.732050895690918,
+          0,
+          0,
+          0,
+          0,
+          -1.7090742588043213,
+          -1,
+          0,
+          0,
+          -1442.1593017578125,
+          0
+        ],
+        "contentWorld": [
+          -0.5,
+          0,
+          0.8660253882408142,
+          0,
+          0,
+          1,
+          0,
+          0,
+          -0.8660253882408142,
+          0,
+          -0.5,
+          0,
+          1.039230465888977,
+          -0.2008357048034668,
+          0.6000000238418579,
+          1
+        ],
+        "pickup": {
+          "point": {
+            "x": 561.8461696688656,
+            "y": 140.3843791395311
+          },
+          "uv": [
+            0.5231626629829407,
+            0.31023186445236206
+          ],
+          "effectiveAlpha": 0.9921568627450981,
+          "stickerDistance": 1258.5597744268664,
+          "shellDistance": 1258.744858240867
+        },
+        "occluded": {
+          "point": {
+            "x": 567.0681229844442,
+            "y": 147.83122958236646
+          },
+          "uv": [
+            0.45992985367774963,
+            0.9321068525314331
+          ],
+          "effectiveAlpha": 0.9921568627450981,
+          "stickerDistance": 1362.4314816179524,
+          "shellDistance": 1257.9151579139823
+        },
+        "attached": {
+          "uv": [
+            0.5231626629829407,
+            0.31023186445236206
+          ],
+          "partialPointer": {
+            "x": 579.4537470083425,
+            "y": 167.10465646283635
+          }
+        },
+        "attribution": {
+          "capturePath": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/canvas-ray-matrix-1/matrix-1280-side.json",
+          "captureSha256": "dcdb1c3916b99dbc2e82fede82589ab1f05e7d2a30aa04c12a90aa2134abad2f",
+          "sourceBufferSha256": {
+            "position": "3a8c7b7aaf6841b8ca383e9796facc786dbd78996dca5cf358d5d71d03fcbb2c",
+            "uv": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52",
+            "index": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+          },
+          "selectedInkDrawId": 635,
+          "draws": [
+            {
+              "id": 635,
+              "pass": 9,
+              "program": 18,
+              "raster": {
+                "cullEnabled": true,
+                "cullFace": 1029,
+                "frontFace": 2305
+              }
+            },
+            {
+              "id": 636,
+              "pass": 9,
+              "program": 19,
+              "raster": {
+                "cullEnabled": true,
+                "cullFace": 1029,
+                "frontFace": 2304
+              }
+            }
+          ],
+          "actualShellSources": [
+            {
+              "source": "actual cut rear",
+              "position": {
+                "fnv1a": "def0757c",
+                "sha256": "397c3cb50e9dfa9916cf09224d9cb05ee2373eab391430de22bd62c9797cf367",
+                "byteLength": 797976
+              },
+              "transform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1
+              ],
+              "draws": [
+                {
+                  "id": 564,
+                  "pass": 9,
+                  "modelMatrix": [
+                    -0.5,
+                    0,
+                    0.8660253882408142,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    -0.8660253882408142,
+                    0,
+                    -0.5,
+                    0,
+                    1.039230465888977,
+                    -0.2008357048034668,
+                    0.6000000238418579,
+                    1
+                  ],
+                  "modelViewMatrix": [
+                    -0.5,
+                    0,
+                    0.8660253882408142,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    -0.8660253882408142,
+                    0,
+                    -0.5,
+                    0,
+                    1.039230465888977,
+                    -0.2008357048034668,
+                    -1387.14599609375,
+                    1
+                  ],
+                  "position": {
+                    "id": 1,
+                    "revision": 1,
+                    "byteLength": 797976,
+                    "fnv1a": "def0757c",
+                    "layout": {
+                      "size": 3,
+                      "type": 5126,
+                      "normalized": false,
+                      "stride": 12,
+                      "offset": 0
+                    }
+                  },
+                  "maxMatrixError": 0
+                }
+              ]
+            }
+          ],
+          "grabSourceSha256": "a8607e3c235b67bd7a7a5fc3108fc87615d04287584dccf86ee1fbbaf2ecbda3",
+          "coordinateSpace": "Distances and UV mesh are in captured content coordinates; actual model/view/projection matrices are recorded.",
+          "occludedOrientation": {
+            "eligible": true,
+            "signedBoundaryDistance": -7.511541040440989,
+            "band": 18,
+            "diagnosticMarginBand": 10,
+            "foregroundInkDistance": null,
+            "predicate": "packages/device/src/orientation-grab.ts:isDeviceOuterGrabPoint"
+          },
+          "partialAttached": {
+            "point": {
+              "x": 561.8461696688656,
+              "y": 140.3843791395311
+            },
+            "uv": [
+              0.5231626629829407,
+              0.31023186445236206
+            ],
+            "effectiveAlpha": 0.9921568627450981,
+            "stickerDistance": 1258.5597744268664,
+            "shellDistance": 1258.744858240867,
+            "local": [
+              159.83143615722656,
+              228.1429443359375,
+              -24.639991760253906
+            ],
+            "shellPoint": [
+              159.67820082598655,
+              228.17646550489113,
+              -24.5417508181946
+            ],
+            "shellSource": "actual cut rear",
+            "row": 0.6979166666666666,
+            "col": 0.53125,
+            "facing": 0.9727732591527568,
+            "sourceFrontier": 0.6249999999999998
+          },
+          "trajectory": [
+            {
+              "point": {
+                "x": 564.0471168363002,
+                "y": 143.72441380494425
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 566.2480640037348,
+                "y": 147.0644484703574
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 568.4490111711694,
+                "y": 150.40448313577056
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 570.649958338604,
+                "y": 153.74451780118372
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 572.8509055060387,
+                "y": 157.08455246659688
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 575.0518526734733,
+                "y": 160.42458713201003
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 577.2527998409079,
+                "y": 163.7646217974232
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 579.4537470083425,
+                "y": 167.10465646283635
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 582.1092155190902,
+                "y": 171.1344473683347
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 584.7646840298379,
+                "y": 175.16423827383306
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 587.4201525405856,
+                "y": 179.1940291793314
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 590.0756210513332,
+                "y": 183.22382008482975
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 592.7310895620809,
+                "y": 187.25361099032813
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 595.3865580728286,
+                "y": 191.28340189582647
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 598.0420265835763,
+                "y": 195.31319280132485
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.14144432733980355,
+                "y": 0.06772459645300671
+              },
+              "solveMs": 0.8092499999999063
+            },
+            {
+              "point": {
+                "x": 600.697495094324,
+                "y": 199.3429837068232
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.1534964487289917,
+                "y": 0.07243512823249759
+              },
+              "solveMs": 0.2762079999999969
+            },
+            {
+              "point": {
+                "x": 603.3529636050716,
+                "y": 203.37277461232156
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.16529235532433356,
+                "y": 0.07709051435792408
+              },
+              "solveMs": 0.15950000000009368
+            },
+            {
+              "point": {
+                "x": 606.0084321158193,
+                "y": 207.4025655178199
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.17714648485207324,
+                "y": 0.08176999643678717
+              },
+              "solveMs": 0.13133400000003803
+            },
+            {
+              "point": {
+                "x": 608.663900626567,
+                "y": 211.43235642331825
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.18906435530014304,
+                "y": 0.08647426569719435
+              },
+              "solveMs": 0.15625
+            },
+            {
+              "point": {
+                "x": 611.3193691373148,
+                "y": 215.46214732881663
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.20104465128121762,
+                "y": 0.09120352691719741
+              },
+              "solveMs": 0.2059590000000071
+            },
+            {
+              "point": {
+                "x": 613.9748376480625,
+                "y": 219.49193823431497
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.21308967278315638,
+                "y": 0.09595868783071887
+              },
+              "solveMs": 0.11549999999999727
+            },
+            {
+              "point": {
+                "x": 616.6303061588102,
+                "y": 223.52172913981332
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.2251986607192915,
+                "y": 0.10073661328849487
+              },
+              "solveMs": 0.12637500000005275
+            },
+            {
+              "point": {
+                "x": 619.2857746695579,
+                "y": 227.5515200453117
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.23737510096326442,
+                "y": 0.10554407047357889
+              },
+              "solveMs": 0.10004100000003291
+            },
+            {
+              "point": {
+                "x": 621.9412431803055,
+                "y": 231.58131095081004
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.2496158922760091,
+                "y": 0.11037596582862036
+              },
+              "solveMs": 0.10149999999998727
+            },
+            {
+              "point": {
+                "x": 624.5967116910532,
+                "y": 235.61110185630838
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.2619226817180781,
+                "y": 0.1152339082128424
+              },
+              "solveMs": 0.10024999999995998
+            },
+            {
+              "point": {
+                "x": 627.2521802018009,
+                "y": 239.64089276180675
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.27429599380066944,
+                "y": 0.1201162181718256
+              },
+              "solveMs": 0.10074999999994816
+            },
+            {
+              "point": {
+                "x": 629.9076487125486,
+                "y": 243.6706836673051
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.2867363833064893,
+                "y": 0.12502878674703516
+              },
+              "solveMs": 0.10795800000005329
+            },
+            {
+              "point": {
+                "x": 632.5631172232963,
+                "y": 247.70047457280344
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.2992459616303871,
+                "y": 0.12996614526113714
+              },
+              "solveMs": 0.11391699999990124
+            },
+            {
+              "point": {
+                "x": 635.2185857340439,
+                "y": 251.73026547830182
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.3118208239539608,
+                "y": 0.13493040304135218
+              },
+              "solveMs": 0.11037499999997635
+            },
+            {
+              "point": {
+                "x": 637.8740542447916,
+                "y": 255.76005638380016
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.3244664538792491,
+                "y": 0.13992176291094405
+              },
+              "solveMs": 0.11525000000006003
+            },
+            {
+              "point": {
+                "x": 640.5295227555393,
+                "y": 259.78984728929856
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.33717975191124683,
+                "y": 0.1449404616087162
+              },
+              "solveMs": 0.09850000000005821
+            },
+            {
+              "point": {
+                "x": 643.184991266287,
+                "y": 263.8196381947969
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.3499640271899359,
+                "y": 0.14998673684390662
+              },
+              "solveMs": 0.10258399999997891
+            }
+          ],
+          "scope": "Exact actual submitted equipped geometry, painted alpha and same-pass source-correlated rear/front/glass ray witnesses. Other assembly hardware is not reconstructed here; selected rays are away from hardware apertures. Native production visibility uses the full scene and must accept/refuse these exact points."
+        }
+      },
+      "proofText": "{\n  \"version\": 1,\n  \"build\": {\n    \"source\": \"8e86f0403f1111b02fb8749982a9d97a141f1ebb0d1188f4dd3e840bbb8db7d2\",\n    \"artifacts\": \"f5bd098341408ed7e205ee70295e772030e4375d7e92021d16351845dacc4e34\"\n  },\n  \"sampler\": {\n    \"path\": \"packages/device/src/sticker-corner-cage.ts\",\n    \"sha256\": \"a641c30c51f62a8411bc240d5922d924afc13b6eed5188d6709bc47b3a55a5e3\"\n  },\n  \"seed\": [\n    {\n      \"stickerId\": \"PW-C03\",\n      \"surface\": \"back\",\n      \"x\": 0.027,\n      \"y\": 0.017,\n      \"width\": 0.35,\n      \"rotationDeg\": 0,\n      \"wear\": 1\n    },\n    {\n      \"stickerId\": \"PW-F01\",\n      \"surface\": \"back\",\n      \"x\": 0.65,\n      \"y\": 0.72,\n      \"width\": 0.25,\n      \"rotationDeg\": 0,\n      \"wear\": 0.6\n    }\n  ],\n  \"viewport\": {\n    \"width\": 1280,\n    \"height\": 900\n  },\n  \"pose\": {\n    \"face\": \"side\",\n    \"rightStepsFromRear\": 5\n  },\n  \"cameraWorld\": [\n    1,\n    0,\n    0,\n    0,\n    0,\n    1,\n    0,\n    0,\n    0,\n    0,\n    1,\n    0,\n    0,\n    0,\n    1387.7459716796875,\n    1\n  ],\n  \"cameraProjection\": [\n    2.624098300933838,\n    0,\n    0,\n    0,\n    0,\n    3.732050895690918,\n    0,\n    0,\n    0,\n    0,\n    -1.7090742588043213,\n    -1,\n    0,\n    0,\n    -1442.1593017578125,\n    0\n  ],\n  \"contentWorld\": [\n    -0.5,\n    0,\n    0.8660253882408142,\n    0,\n    0,\n    1,\n    0,\n    0,\n    -0.8660253882408142,\n    0,\n    -0.5,\n    0,\n    1.039230465888977,\n    -0.2008357048034668,\n    0.6000000238418579,\n    1\n  ],\n  \"pickup\": {\n    \"point\": {\n      \"x\": 561.8461696688656,\n      \"y\": 140.3843791395311\n    },\n    \"uv\": [\n      0.5231626629829407,\n      0.31023186445236206\n    ],\n    \"effectiveAlpha\": 0.9921568627450981,\n    \"stickerDistance\": 1258.5597744268664,\n    \"shellDistance\": 1258.744858240867\n  },\n  \"occluded\": {\n    \"point\": {\n      \"x\": 567.0681229844442,\n      \"y\": 147.83122958236646\n    },\n    \"uv\": [\n      0.45992985367774963,\n      0.9321068525314331\n    ],\n    \"effectiveAlpha\": 0.9921568627450981,\n    \"stickerDistance\": 1362.4314816179524,\n    \"shellDistance\": 1257.9151579139823\n  },\n  \"attached\": {\n    \"uv\": [\n      0.5231626629829407,\n      0.31023186445236206\n    ],\n    \"partialPointer\": {\n      \"x\": 579.4537470083425,\n      \"y\": 167.10465646283635\n    }\n  },\n  \"attribution\": {\n    \"capturePath\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/canvas-ray-matrix-1/matrix-1280-side.json\",\n    \"captureSha256\": \"dcdb1c3916b99dbc2e82fede82589ab1f05e7d2a30aa04c12a90aa2134abad2f\",\n    \"sourceBufferSha256\": {\n      \"position\": \"3a8c7b7aaf6841b8ca383e9796facc786dbd78996dca5cf358d5d71d03fcbb2c\",\n      \"uv\": \"e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52\",\n      \"index\": \"47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879\"\n    },\n    \"selectedInkDrawId\": 635,\n    \"draws\": [\n      {\n        \"id\": 635,\n        \"pass\": 9,\n        \"program\": 18,\n        \"raster\": {\n          \"cullEnabled\": true,\n          \"cullFace\": 1029,\n          \"frontFace\": 2305\n        }\n      },\n      {\n        \"id\": 636,\n        \"pass\": 9,\n        \"program\": 19,\n        \"raster\": {\n          \"cullEnabled\": true,\n          \"cullFace\": 1029,\n          \"frontFace\": 2304\n        }\n      }\n    ],\n    \"actualShellSources\": [\n      {\n        \"source\": \"actual cut rear\",\n        \"position\": {\n          \"fnv1a\": \"def0757c\",\n          \"sha256\": \"397c3cb50e9dfa9916cf09224d9cb05ee2373eab391430de22bd62c9797cf367\",\n          \"byteLength\": 797976\n        },\n        \"transform\": [\n          1,\n          0,\n          0,\n          0,\n          0,\n          1,\n          0,\n          0,\n          0,\n          0,\n          1,\n          0,\n          0,\n          0,\n          0,\n          1\n        ],\n        \"draws\": [\n          {\n            \"id\": 564,\n            \"pass\": 9,\n            \"modelMatrix\": [\n              -0.5,\n              0,\n              0.8660253882408142,\n              0,\n              0,\n              1,\n              0,\n              0,\n              -0.8660253882408142,\n              0,\n              -0.5,\n              0,\n              1.039230465888977,\n              -0.2008357048034668,\n              0.6000000238418579,\n              1\n            ],\n            \"modelViewMatrix\": [\n              -0.5,\n              0,\n              0.8660253882408142,\n              0,\n              0,\n              1,\n              0,\n              0,\n              -0.8660253882408142,\n              0,\n              -0.5,\n              0,\n              1.039230465888977,\n              -0.2008357048034668,\n              -1387.14599609375,\n              1\n            ],\n            \"position\": {\n              \"id\": 1,\n              \"revision\": 1,\n              \"byteLength\": 797976,\n              \"fnv1a\": \"def0757c\",\n              \"layout\": {\n                \"size\": 3,\n                \"type\": 5126,\n                \"normalized\": false,\n                \"stride\": 12,\n                \"offset\": 0\n              }\n            },\n            \"maxMatrixError\": 0\n          }\n        ]\n      }\n    ],\n    \"grabSourceSha256\": \"a8607e3c235b67bd7a7a5fc3108fc87615d04287584dccf86ee1fbbaf2ecbda3\",\n    \"coordinateSpace\": \"Distances and UV mesh are in captured content coordinates; actual model/view/projection matrices are recorded.\",\n    \"occludedOrientation\": {\n      \"eligible\": true,\n      \"signedBoundaryDistance\": -7.511541040440989,\n      \"band\": 18,\n      \"diagnosticMarginBand\": 10,\n      \"foregroundInkDistance\": null,\n      \"predicate\": \"packages/device/src/orientation-grab.ts:isDeviceOuterGrabPoint\"\n    },\n    \"partialAttached\": {\n      \"point\": {\n        \"x\": 561.8461696688656,\n        \"y\": 140.3843791395311\n      },\n      \"uv\": [\n        0.5231626629829407,\n        0.31023186445236206\n      ],\n      \"effectiveAlpha\": 0.9921568627450981,\n      \"stickerDistance\": 1258.5597744268664,\n      \"shellDistance\": 1258.744858240867,\n      \"local\": [\n        159.83143615722656,\n        228.1429443359375,\n        -24.639991760253906\n      ],\n      \"shellPoint\": [\n        159.67820082598655,\n        228.17646550489113,\n        -24.5417508181946\n      ],\n      \"shellSource\": \"actual cut rear\",\n      \"row\": 0.6979166666666666,\n      \"col\": 0.53125,\n      \"facing\": 0.9727732591527568,\n      \"sourceFrontier\": 0.6249999999999998\n    },\n    \"trajectory\": [\n      {\n        \"point\": {\n          \"x\": 564.0471168363002,\n          \"y\": 143.72441380494425\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 566.2480640037348,\n          \"y\": 147.0644484703574\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 568.4490111711694,\n          \"y\": 150.40448313577056\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 570.649958338604,\n          \"y\": 153.74451780118372\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 572.8509055060387,\n          \"y\": 157.08455246659688\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 575.0518526734733,\n          \"y\": 160.42458713201003\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 577.2527998409079,\n          \"y\": 163.7646217974232\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 579.4537470083425,\n          \"y\": 167.10465646283635\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 582.1092155190902,\n          \"y\": 171.1344473683347\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 584.7646840298379,\n          \"y\": 175.16423827383306\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 587.4201525405856,\n          \"y\": 179.1940291793314\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 590.0756210513332,\n          \"y\": 183.22382008482975\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 592.7310895620809,\n          \"y\": 187.25361099032813\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 595.3865580728286,\n          \"y\": 191.28340189582647\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 598.0420265835763,\n          \"y\": 195.31319280132485\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.14144432733980355,\n          \"y\": 0.06772459645300671\n        },\n        \"solveMs\": 0.8092499999999063\n      },\n      {\n        \"point\": {\n          \"x\": 600.697495094324,\n          \"y\": 199.3429837068232\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.1534964487289917,\n          \"y\": 0.07243512823249759\n        },\n        \"solveMs\": 0.2762079999999969\n      },\n      {\n        \"point\": {\n          \"x\": 603.3529636050716,\n          \"y\": 203.37277461232156\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.16529235532433356,\n          \"y\": 0.07709051435792408\n        },\n        \"solveMs\": 0.15950000000009368\n      },\n      {\n        \"point\": {\n          \"x\": 606.0084321158193,\n          \"y\": 207.4025655178199\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.17714648485207324,\n          \"y\": 0.08176999643678717\n        },\n        \"solveMs\": 0.13133400000003803\n      },\n      {\n        \"point\": {\n          \"x\": 608.663900626567,\n          \"y\": 211.43235642331825\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.18906435530014304,\n          \"y\": 0.08647426569719435\n        },\n        \"solveMs\": 0.15625\n      },\n      {\n        \"point\": {\n          \"x\": 611.3193691373148,\n          \"y\": 215.46214732881663\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.20104465128121762,\n          \"y\": 0.09120352691719741\n        },\n        \"solveMs\": 0.2059590000000071\n      },\n      {\n        \"point\": {\n          \"x\": 613.9748376480625,\n          \"y\": 219.49193823431497\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.21308967278315638,\n          \"y\": 0.09595868783071887\n        },\n        \"solveMs\": 0.11549999999999727\n      },\n      {\n        \"point\": {\n          \"x\": 616.6303061588102,\n          \"y\": 223.52172913981332\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.2251986607192915,\n          \"y\": 0.10073661328849487\n        },\n        \"solveMs\": 0.12637500000005275\n      },\n      {\n        \"point\": {\n          \"x\": 619.2857746695579,\n          \"y\": 227.5515200453117\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.23737510096326442,\n          \"y\": 0.10554407047357889\n        },\n        \"solveMs\": 0.10004100000003291\n      },\n      {\n        \"point\": {\n          \"x\": 621.9412431803055,\n          \"y\": 231.58131095081004\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.2496158922760091,\n          \"y\": 0.11037596582862036\n        },\n        \"solveMs\": 0.10149999999998727\n      },\n      {\n        \"point\": {\n          \"x\": 624.5967116910532,\n          \"y\": 235.61110185630838\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.2619226817180781,\n          \"y\": 0.1152339082128424\n        },\n        \"solveMs\": 0.10024999999995998\n      },\n      {\n        \"point\": {\n          \"x\": 627.2521802018009,\n          \"y\": 239.64089276180675\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.27429599380066944,\n          \"y\": 0.1201162181718256\n        },\n        \"solveMs\": 0.10074999999994816\n      },\n      {\n        \"point\": {\n          \"x\": 629.9076487125486,\n          \"y\": 243.6706836673051\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.2867363833064893,\n          \"y\": 0.12502878674703516\n        },\n        \"solveMs\": 0.10795800000005329\n      },\n      {\n        \"point\": {\n          \"x\": 632.5631172232963,\n          \"y\": 247.70047457280344\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.2992459616303871,\n          \"y\": 0.12996614526113714\n        },\n        \"solveMs\": 0.11391699999990124\n      },\n      {\n        \"point\": {\n          \"x\": 635.2185857340439,\n          \"y\": 251.73026547830182\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.3118208239539608,\n          \"y\": 0.13493040304135218\n        },\n        \"solveMs\": 0.11037499999997635\n      },\n      {\n        \"point\": {\n          \"x\": 637.8740542447916,\n          \"y\": 255.76005638380016\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.3244664538792491,\n          \"y\": 0.13992176291094405\n        },\n        \"solveMs\": 0.11525000000006003\n      },\n      {\n        \"point\": {\n          \"x\": 640.5295227555393,\n          \"y\": 259.78984728929856\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.33717975191124683,\n          \"y\": 0.1449404616087162\n        },\n        \"solveMs\": 0.09850000000005821\n      },\n      {\n        \"point\": {\n          \"x\": 643.184991266287,\n          \"y\": 263.8196381947969\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.3499640271899359,\n          \"y\": 0.14998673684390662\n        },\n        \"solveMs\": 0.10258399999997891\n      }\n    ],\n    \"scope\": \"Exact actual submitted equipped geometry, painted alpha and same-pass source-correlated rear/front/glass ray witnesses. Other assembly hardware is not reconstructed here; selected rays are away from hardware apertures. Native production visibility uses the full scene and must accept/refuse these exact points.\"\n  }\n}",
+      "evidenceSHA256": "c449d009a642aaf91c1ed67722e44f91a6f2de95b2ee2cac51ebaa82225520c2"
+    },
+    {
+      "witness": {
+        "name": "wrapped-1280-front",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "face": "front",
+        "rightStepsFromRear": 15,
+        "pickup": {
+          "x": 762.6675245342133,
+          "y": 137.99494921046283
+        },
+        "partial": {
+          "x": 742.8239843947553,
+          "y": 140.49173008465272
+        },
+        "release": {
+          "x": 587.6045560693025,
+          "y": 160.02195993386476
+        },
+        "expectedCenter": {
+          "x": 0.35,
+          "y": 0.017
+        },
+        "occluded": {
+          "x": 831.3879468122576,
+          "y": 180.38755075802538
+        },
+        "flickEnd": {
+          "x": 711.3879468122576,
+          "y": 215.38755075802538
+        },
+        "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-1280-front.json"
+      },
+      "proof": {
+        "version": 1,
+        "build": {
+          "source": "8e86f0403f1111b02fb8749982a9d97a141f1ebb0d1188f4dd3e840bbb8db7d2",
+          "artifacts": "f5bd098341408ed7e205ee70295e772030e4375d7e92021d16351845dacc4e34"
+        },
+        "sampler": {
+          "path": "packages/device/src/sticker-corner-cage.ts",
+          "sha256": "a641c30c51f62a8411bc240d5922d924afc13b6eed5188d6709bc47b3a55a5e3"
+        },
+        "seed": [
+          {
+            "stickerId": "PW-C03",
+            "surface": "back",
+            "x": 0.027,
+            "y": 0.017,
+            "width": 0.35,
+            "rotationDeg": 0,
+            "wear": 1
+          },
+          {
+            "stickerId": "PW-F01",
+            "surface": "back",
+            "x": 0.65,
+            "y": 0.72,
+            "width": 0.25,
+            "rotationDeg": 0,
+            "wear": 0.6
+          }
+        ],
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "pose": {
+          "face": "front",
+          "rightStepsFromRear": 15
+        },
+        "cameraWorld": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1387.7459716796875,
+          1
+        ],
+        "cameraProjection": [
+          2.624098300933838,
+          0,
+          0,
+          0,
+          0,
+          3.732050895690918,
+          0,
+          0,
+          0,
+          0,
+          -1.7090742588043213,
+          -1,
+          0,
+          0,
+          -1442.1593017578125,
+          0
+        ],
+        "contentWorld": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          -0.2008357048034668,
+          -1.2000000476837158,
+          1
+        ],
+        "pickup": {
+          "point": {
+            "x": 762.6675245342133,
+            "y": 137.99494921046283
+          },
+          "uv": [
+            0.45992985367774963,
+            0.8318044543266296
+          ],
+          "effectiveAlpha": 0.9921568627450981,
+          "stickerDistance": 1388.1253826256566,
+          "shellDistance": 1388.4411839962693
+        },
+        "occluded": {
+          "point": {
+            "x": 831.3879468122576,
+            "y": 180.38755075802538
+          },
+          "uv": [
+            0.5152586102485657,
+            0.31023186445236206
+          ],
+          "effectiveAlpha": 0.9921568627450981,
+          "stickerDistance": 1438.0713489985462,
+          "shellDistance": 1386.7017080195094
+        },
+        "attached": {
+          "uv": [
+            0.3650806248188019,
+            0.5710181593894958
+          ],
+          "partialPointer": {
+            "x": 742.8239843947553,
+            "y": 140.49173008465272
+          }
+        },
+        "attribution": {
+          "capturePath": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/canvas-ray-matrix-1/matrix-1280-front.json",
+          "captureSha256": "362d2c933e62b1235f6d1ce75f91d7c5ed5288ffe1ae6a9f3f3de516ab849e4b",
+          "sourceBufferSha256": {
+            "position": "3a8c7b7aaf6841b8ca383e9796facc786dbd78996dca5cf358d5d71d03fcbb2c",
+            "uv": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52",
+            "index": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+          },
+          "selectedInkDrawId": 1019,
+          "draws": [
+            {
+              "id": 1019,
+              "pass": 15,
+              "program": 18,
+              "raster": {
+                "cullEnabled": true,
+                "cullFace": 1029,
+                "frontFace": 2305
+              }
+            },
+            {
+              "id": 1020,
+              "pass": 15,
+              "program": 19,
+              "raster": {
+                "cullEnabled": true,
+                "cullFace": 1029,
+                "frontFace": 2304
+              }
+            }
+          ],
+          "actualShellSources": [
+            {
+              "source": "actual crowned front collision only",
+              "position": {
+                "fnv1a": "4971605b",
+                "sha256": "9bed576fae5374f4c843ea0000bc1b31ec90f19ecffccb56e9f31c0bc318864a",
+                "byteLength": 6097212
+              },
+              "transform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1
+              ],
+              "draws": [
+                {
+                  "id": 964,
+                  "pass": 15,
+                  "modelMatrix": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    -0.2008357048034668,
+                    -1.2000000476837158,
+                    1
+                  ],
+                  "modelViewMatrix": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    -0.2008357048034668,
+                    -1388.946044921875,
+                    1
+                  ],
+                  "position": {
+                    "id": 148,
+                    "revision": 1,
+                    "byteLength": 6097212,
+                    "fnv1a": "4971605b",
+                    "layout": {
+                      "size": 3,
+                      "type": 5126,
+                      "normalized": false,
+                      "stride": 12,
+                      "offset": 0
+                    }
+                  },
+                  "maxMatrixError": 0
+                }
+              ]
+            },
+            {
+              "source": "actual glass collision",
+              "position": {
+                "fnv1a": "0394bc75",
+                "sha256": "0e9db2ce0f1b5b4781ca497fc1be49b6996fe2c419b7221aaf52d5b994cacfde",
+                "byteLength": 624
+              },
+              "transform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                150,
+                27.368972150108263,
+                1
+              ],
+              "draws": [
+                {
+                  "id": 1015,
+                  "pass": 15,
+                  "modelMatrix": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    149.79916381835938,
+                    26.16897201538086,
+                    1
+                  ],
+                  "modelViewMatrix": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    149.79916381835938,
+                    -1361.5770263671875,
+                    1
+                  ],
+                  "position": {
+                    "id": 170,
+                    "revision": 1,
+                    "byteLength": 624,
+                    "fnv1a": "0394bc75",
+                    "layout": {
+                      "size": 3,
+                      "type": 5126,
+                      "normalized": false,
+                      "stride": 12,
+                      "offset": 0
+                    }
+                  },
+                  "maxMatrixError": 4.76837158203125e-7
+                }
+              ]
+            }
+          ],
+          "grabSourceSha256": "a8607e3c235b67bd7a7a5fc3108fc87615d04287584dccf86ee1fbbaf2ecbda3",
+          "coordinateSpace": "Distances and UV mesh are in captured content coordinates; actual model/view/projection matrices are recorded.",
+          "occludedOrientation": {
+            "eligible": true,
+            "signedBoundaryDistance": -9.94705664984312,
+            "band": 18,
+            "diagnosticMarginBand": 10,
+            "foregroundInkDistance": null,
+            "predicate": "packages/device/src/orientation-grab.ts:isDeviceOuterGrabPoint"
+          },
+          "partialAttached": {
+            "point": {
+              "x": 838.0246630021127,
+              "y": 145.60721930049644
+            },
+            "uv": [
+              0.3650806248188019,
+              0.5710181593894958
+            ],
+            "effectiveAlpha": 0.9921568627450981,
+            "stickerDistance": 1392.0861869082275,
+            "shellDistance": 1392.2709884155324,
+            "local": [
+              160.43641662597656,
+              246.81500244140625,
+              28.304372787475586
+            ],
+            "shellPoint": [
+              160.4577147983871,
+              246.8477408380402,
+              28.12374559589034
+            ],
+            "shellSource": "actual crowned front collision only",
+            "row": 0.4270833333333333,
+            "col": 0.11458333333333333,
+            "facing": 0.9571225001094467,
+            "sourceFrontier": 0.39062500000000083
+          },
+          "trajectory": [
+            {
+              "point": {
+                "x": 760.187082016781,
+                "y": 138.30704681973657
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 757.7066394993487,
+                "y": 138.6191444290103
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 755.2261969819165,
+                "y": 138.93124203828404
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 752.7457544644842,
+                "y": 139.24333964755778
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 750.265311947052,
+                "y": 139.5554372568315
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 747.7848694296198,
+                "y": 139.86753486610525
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 745.3044269121875,
+                "y": 140.17963247537898
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 742.8239843947553,
+                "y": 140.49173008465272
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 736.356508214528,
+                "y": 141.3054896617032
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 729.8890320343008,
+                "y": 142.11924923875372
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 723.4215558540736,
+                "y": 142.93300881580421
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 716.9540796738464,
+                "y": 143.74676839285473
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 710.4866034936192,
+                "y": 144.56052796990522
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 704.0191273133921,
+                "y": 145.3742875469557
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null
+            },
+            {
+              "point": {
+                "x": 697.5516511331649,
+                "y": 146.18804712400623
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.1478863389628624,
+                "y": 0.03731641720624812
+              },
+              "solveMs": 0.39562500000010914
+            },
+            {
+              "point": {
+                "x": 691.0841749529377,
+                "y": 147.00180670105672
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.15977291495117263,
+                "y": 0.03612068047687955
+              },
+              "solveMs": 0.06337499999995089
+            },
+            {
+              "point": {
+                "x": 684.6166987727105,
+                "y": 147.81556627810724
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.17166219532761368,
+                "y": 0.03492564733903919
+              },
+              "solveMs": 0.0655420000000504
+            },
+            {
+              "point": {
+                "x": 678.1492225924833,
+                "y": 148.62932585515773
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.18355083524530602,
+                "y": 0.03373044440482853
+              },
+              "solveMs": 0.06066600000008293
+            },
+            {
+              "point": {
+                "x": 671.6817464122561,
+                "y": 149.44308543220825
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.19544074283668056,
+                "y": 0.032535574603232476
+              },
+              "solveMs": 0.06020799999987503
+            },
+            {
+              "point": {
+                "x": 665.2142702320289,
+                "y": 150.25684500925874
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.20732937419461195,
+                "y": 0.031340369158311454
+              },
+              "solveMs": 0.06541599999991377
+            },
+            {
+              "point": {
+                "x": 658.7467940518017,
+                "y": 151.07060458630923
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.21921915507617185,
+                "y": 0.030145496846096853
+              },
+              "solveMs": 0.06112499999994725
+            },
+            {
+              "point": {
+                "x": 652.2793178715744,
+                "y": 151.88436416335975
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.2311077591549296,
+                "y": 0.028950288890465137
+              },
+              "solveMs": 0.06987499999991087
+            },
+            {
+              "point": {
+                "x": 645.8118416913472,
+                "y": 152.69812374041024
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.24299749486086586,
+                "y": 0.027755414067923923
+              },
+              "solveMs": 0.05400000000008731
+            },
+            {
+              "point": {
+                "x": 639.34436551112,
+                "y": 153.51188331746076
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.25488676763770995,
+                "y": 0.026560385964752353
+              },
+              "solveMs": 0.05724999999983993
+            },
+            {
+              "point": {
+                "x": 632.8768893308928,
+                "y": 154.32564289451125
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.2667759322649861,
+                "y": 0.025365342785602596
+              },
+              "solveMs": 0.054333000000042375
+            },
+            {
+              "point": {
+                "x": 626.4094131506656,
+                "y": 155.13940247156177
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.27866516533942354,
+                "y": 0.024170312172103914
+              },
+              "solveMs": 0.060042000000066764
+            },
+            {
+              "point": {
+                "x": 619.9419369704385,
+                "y": 155.95316204861226
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.29055427375818194,
+                "y": 0.02297526648262682
+              },
+              "solveMs": 0.06045799999992596
+            },
+            {
+              "point": {
+                "x": 613.4744607902112,
+                "y": 156.76692162566275
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.302443462760946,
+                "y": 0.02178023335880047
+              },
+              "solveMs": 0.05399999999985994
+            },
+            {
+              "point": {
+                "x": 607.0069846099841,
+                "y": 157.58068120271327
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.314332653716106,
+                "y": 0.0205851851589971
+              },
+              "solveMs": 0.0546670000001086
+            },
+            {
+              "point": {
+                "x": 600.5395084297569,
+                "y": 158.39444077976376
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.3262218166035418,
+                "y": 0.019390149524552425
+              },
+              "solveMs": 0.053583000000116954
+            },
+            {
+              "point": {
+                "x": 594.0720322495297,
+                "y": 159.20820035681427
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.33811048695562773,
+                "y": 0.018194944093356313
+              },
+              "solveMs": 0.061916999999994005
+            },
+            {
+              "point": {
+                "x": 587.6045560693025,
+                "y": 160.02195993386476
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.3499999633468154,
+                "y": 0.01700007179486529
+              },
+              "solveMs": 0.05687500000021828
+            }
+          ],
+          "scope": "Exact actual submitted equipped geometry, painted alpha and same-pass source-correlated rear/front/glass ray witnesses. Other assembly hardware is not reconstructed here; selected rays are away from hardware apertures. Native production visibility uses the full scene and must accept/refuse these exact points."
+        }
+      },
+      "proofText": "{\n  \"version\": 1,\n  \"build\": {\n    \"source\": \"8e86f0403f1111b02fb8749982a9d97a141f1ebb0d1188f4dd3e840bbb8db7d2\",\n    \"artifacts\": \"f5bd098341408ed7e205ee70295e772030e4375d7e92021d16351845dacc4e34\"\n  },\n  \"sampler\": {\n    \"path\": \"packages/device/src/sticker-corner-cage.ts\",\n    \"sha256\": \"a641c30c51f62a8411bc240d5922d924afc13b6eed5188d6709bc47b3a55a5e3\"\n  },\n  \"seed\": [\n    {\n      \"stickerId\": \"PW-C03\",\n      \"surface\": \"back\",\n      \"x\": 0.027,\n      \"y\": 0.017,\n      \"width\": 0.35,\n      \"rotationDeg\": 0,\n      \"wear\": 1\n    },\n    {\n      \"stickerId\": \"PW-F01\",\n      \"surface\": \"back\",\n      \"x\": 0.65,\n      \"y\": 0.72,\n      \"width\": 0.25,\n      \"rotationDeg\": 0,\n      \"wear\": 0.6\n    }\n  ],\n  \"viewport\": {\n    \"width\": 1280,\n    \"height\": 900\n  },\n  \"pose\": {\n    \"face\": \"front\",\n    \"rightStepsFromRear\": 15\n  },\n  \"cameraWorld\": [\n    1,\n    0,\n    0,\n    0,\n    0,\n    1,\n    0,\n    0,\n    0,\n    0,\n    1,\n    0,\n    0,\n    0,\n    1387.7459716796875,\n    1\n  ],\n  \"cameraProjection\": [\n    2.624098300933838,\n    0,\n    0,\n    0,\n    0,\n    3.732050895690918,\n    0,\n    0,\n    0,\n    0,\n    -1.7090742588043213,\n    -1,\n    0,\n    0,\n    -1442.1593017578125,\n    0\n  ],\n  \"contentWorld\": [\n    1,\n    0,\n    0,\n    0,\n    0,\n    1,\n    0,\n    0,\n    0,\n    0,\n    1,\n    0,\n    0,\n    -0.2008357048034668,\n    -1.2000000476837158,\n    1\n  ],\n  \"pickup\": {\n    \"point\": {\n      \"x\": 762.6675245342133,\n      \"y\": 137.99494921046283\n    },\n    \"uv\": [\n      0.45992985367774963,\n      0.8318044543266296\n    ],\n    \"effectiveAlpha\": 0.9921568627450981,\n    \"stickerDistance\": 1388.1253826256566,\n    \"shellDistance\": 1388.4411839962693\n  },\n  \"occluded\": {\n    \"point\": {\n      \"x\": 831.3879468122576,\n      \"y\": 180.38755075802538\n    },\n    \"uv\": [\n      0.5152586102485657,\n      0.31023186445236206\n    ],\n    \"effectiveAlpha\": 0.9921568627450981,\n    \"stickerDistance\": 1438.0713489985462,\n    \"shellDistance\": 1386.7017080195094\n  },\n  \"attached\": {\n    \"uv\": [\n      0.3650806248188019,\n      0.5710181593894958\n    ],\n    \"partialPointer\": {\n      \"x\": 742.8239843947553,\n      \"y\": 140.49173008465272\n    }\n  },\n  \"attribution\": {\n    \"capturePath\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/canvas-ray-matrix-1/matrix-1280-front.json\",\n    \"captureSha256\": \"362d2c933e62b1235f6d1ce75f91d7c5ed5288ffe1ae6a9f3f3de516ab849e4b\",\n    \"sourceBufferSha256\": {\n      \"position\": \"3a8c7b7aaf6841b8ca383e9796facc786dbd78996dca5cf358d5d71d03fcbb2c\",\n      \"uv\": \"e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52\",\n      \"index\": \"47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879\"\n    },\n    \"selectedInkDrawId\": 1019,\n    \"draws\": [\n      {\n        \"id\": 1019,\n        \"pass\": 15,\n        \"program\": 18,\n        \"raster\": {\n          \"cullEnabled\": true,\n          \"cullFace\": 1029,\n          \"frontFace\": 2305\n        }\n      },\n      {\n        \"id\": 1020,\n        \"pass\": 15,\n        \"program\": 19,\n        \"raster\": {\n          \"cullEnabled\": true,\n          \"cullFace\": 1029,\n          \"frontFace\": 2304\n        }\n      }\n    ],\n    \"actualShellSources\": [\n      {\n        \"source\": \"actual crowned front collision only\",\n        \"position\": {\n          \"fnv1a\": \"4971605b\",\n          \"sha256\": \"9bed576fae5374f4c843ea0000bc1b31ec90f19ecffccb56e9f31c0bc318864a\",\n          \"byteLength\": 6097212\n        },\n        \"transform\": [\n          1,\n          0,\n          0,\n          0,\n          0,\n          1,\n          0,\n          0,\n          0,\n          0,\n          1,\n          0,\n          0,\n          0,\n          0,\n          1\n        ],\n        \"draws\": [\n          {\n            \"id\": 964,\n            \"pass\": 15,\n            \"modelMatrix\": [\n              1,\n              0,\n              0,\n              0,\n              0,\n              1,\n              0,\n              0,\n              0,\n              0,\n              1,\n              0,\n              0,\n              -0.2008357048034668,\n              -1.2000000476837158,\n              1\n            ],\n            \"modelViewMatrix\": [\n              1,\n              0,\n              0,\n              0,\n              0,\n              1,\n              0,\n              0,\n              0,\n              0,\n              1,\n              0,\n              0,\n              -0.2008357048034668,\n              -1388.946044921875,\n              1\n            ],\n            \"position\": {\n              \"id\": 148,\n              \"revision\": 1,\n              \"byteLength\": 6097212,\n              \"fnv1a\": \"4971605b\",\n              \"layout\": {\n                \"size\": 3,\n                \"type\": 5126,\n                \"normalized\": false,\n                \"stride\": 12,\n                \"offset\": 0\n              }\n            },\n            \"maxMatrixError\": 0\n          }\n        ]\n      },\n      {\n        \"source\": \"actual glass collision\",\n        \"position\": {\n          \"fnv1a\": \"0394bc75\",\n          \"sha256\": \"0e9db2ce0f1b5b4781ca497fc1be49b6996fe2c419b7221aaf52d5b994cacfde\",\n          \"byteLength\": 624\n        },\n        \"transform\": [\n          1,\n          0,\n          0,\n          0,\n          0,\n          1,\n          0,\n          0,\n          0,\n          0,\n          1,\n          0,\n          0,\n          150,\n          27.368972150108263,\n          1\n        ],\n        \"draws\": [\n          {\n            \"id\": 1015,\n            \"pass\": 15,\n            \"modelMatrix\": [\n              1,\n              0,\n              0,\n              0,\n              0,\n              1,\n              0,\n              0,\n              0,\n              0,\n              1,\n              0,\n              0,\n              149.79916381835938,\n              26.16897201538086,\n              1\n            ],\n            \"modelViewMatrix\": [\n              1,\n              0,\n              0,\n              0,\n              0,\n              1,\n              0,\n              0,\n              0,\n              0,\n              1,\n              0,\n              0,\n              149.79916381835938,\n              -1361.5770263671875,\n              1\n            ],\n            \"position\": {\n              \"id\": 170,\n              \"revision\": 1,\n              \"byteLength\": 624,\n              \"fnv1a\": \"0394bc75\",\n              \"layout\": {\n                \"size\": 3,\n                \"type\": 5126,\n                \"normalized\": false,\n                \"stride\": 12,\n                \"offset\": 0\n              }\n            },\n            \"maxMatrixError\": 4.76837158203125e-7\n          }\n        ]\n      }\n    ],\n    \"grabSourceSha256\": \"a8607e3c235b67bd7a7a5fc3108fc87615d04287584dccf86ee1fbbaf2ecbda3\",\n    \"coordinateSpace\": \"Distances and UV mesh are in captured content coordinates; actual model/view/projection matrices are recorded.\",\n    \"occludedOrientation\": {\n      \"eligible\": true,\n      \"signedBoundaryDistance\": -9.94705664984312,\n      \"band\": 18,\n      \"diagnosticMarginBand\": 10,\n      \"foregroundInkDistance\": null,\n      \"predicate\": \"packages/device/src/orientation-grab.ts:isDeviceOuterGrabPoint\"\n    },\n    \"partialAttached\": {\n      \"point\": {\n        \"x\": 838.0246630021127,\n        \"y\": 145.60721930049644\n      },\n      \"uv\": [\n        0.3650806248188019,\n        0.5710181593894958\n      ],\n      \"effectiveAlpha\": 0.9921568627450981,\n      \"stickerDistance\": 1392.0861869082275,\n      \"shellDistance\": 1392.2709884155324,\n      \"local\": [\n        160.43641662597656,\n        246.81500244140625,\n        28.304372787475586\n      ],\n      \"shellPoint\": [\n        160.4577147983871,\n        246.8477408380402,\n        28.12374559589034\n      ],\n      \"shellSource\": \"actual crowned front collision only\",\n      \"row\": 0.4270833333333333,\n      \"col\": 0.11458333333333333,\n      \"facing\": 0.9571225001094467,\n      \"sourceFrontier\": 0.39062500000000083\n    },\n    \"trajectory\": [\n      {\n        \"point\": {\n          \"x\": 760.187082016781,\n          \"y\": 138.30704681973657\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 757.7066394993487,\n          \"y\": 138.6191444290103\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 755.2261969819165,\n          \"y\": 138.93124203828404\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 752.7457544644842,\n          \"y\": 139.24333964755778\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 750.265311947052,\n          \"y\": 139.5554372568315\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 747.7848694296198,\n          \"y\": 139.86753486610525\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 745.3044269121875,\n          \"y\": 140.17963247537898\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 742.8239843947553,\n          \"y\": 140.49173008465272\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 736.356508214528,\n          \"y\": 141.3054896617032\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 729.8890320343008,\n          \"y\": 142.11924923875372\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 723.4215558540736,\n          \"y\": 142.93300881580421\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 716.9540796738464,\n          \"y\": 143.74676839285473\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 710.4866034936192,\n          \"y\": 144.56052796990522\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 704.0191273133921,\n          \"y\": 145.3742875469557\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null\n      },\n      {\n        \"point\": {\n          \"x\": 697.5516511331649,\n          \"y\": 146.18804712400623\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.1478863389628624,\n          \"y\": 0.03731641720624812\n        },\n        \"solveMs\": 0.39562500000010914\n      },\n      {\n        \"point\": {\n          \"x\": 691.0841749529377,\n          \"y\": 147.00180670105672\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.15977291495117263,\n          \"y\": 0.03612068047687955\n        },\n        \"solveMs\": 0.06337499999995089\n      },\n      {\n        \"point\": {\n          \"x\": 684.6166987727105,\n          \"y\": 147.81556627810724\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.17166219532761368,\n          \"y\": 0.03492564733903919\n        },\n        \"solveMs\": 0.0655420000000504\n      },\n      {\n        \"point\": {\n          \"x\": 678.1492225924833,\n          \"y\": 148.62932585515773\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.18355083524530602,\n          \"y\": 0.03373044440482853\n        },\n        \"solveMs\": 0.06066600000008293\n      },\n      {\n        \"point\": {\n          \"x\": 671.6817464122561,\n          \"y\": 149.44308543220825\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.19544074283668056,\n          \"y\": 0.032535574603232476\n        },\n        \"solveMs\": 0.06020799999987503\n      },\n      {\n        \"point\": {\n          \"x\": 665.2142702320289,\n          \"y\": 150.25684500925874\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.20732937419461195,\n          \"y\": 0.031340369158311454\n        },\n        \"solveMs\": 0.06541599999991377\n      },\n      {\n        \"point\": {\n          \"x\": 658.7467940518017,\n          \"y\": 151.07060458630923\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.21921915507617185,\n          \"y\": 0.030145496846096853\n        },\n        \"solveMs\": 0.06112499999994725\n      },\n      {\n        \"point\": {\n          \"x\": 652.2793178715744,\n          \"y\": 151.88436416335975\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.2311077591549296,\n          \"y\": 0.028950288890465137\n        },\n        \"solveMs\": 0.06987499999991087\n      },\n      {\n        \"point\": {\n          \"x\": 645.8118416913472,\n          \"y\": 152.69812374041024\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.24299749486086586,\n          \"y\": 0.027755414067923923\n        },\n        \"solveMs\": 0.05400000000008731\n      },\n      {\n        \"point\": {\n          \"x\": 639.34436551112,\n          \"y\": 153.51188331746076\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.25488676763770995,\n          \"y\": 0.026560385964752353\n        },\n        \"solveMs\": 0.05724999999983993\n      },\n      {\n        \"point\": {\n          \"x\": 632.8768893308928,\n          \"y\": 154.32564289451125\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.2667759322649861,\n          \"y\": 0.025365342785602596\n        },\n        \"solveMs\": 0.054333000000042375\n      },\n      {\n        \"point\": {\n          \"x\": 626.4094131506656,\n          \"y\": 155.13940247156177\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.27866516533942354,\n          \"y\": 0.024170312172103914\n        },\n        \"solveMs\": 0.060042000000066764\n      },\n      {\n        \"point\": {\n          \"x\": 619.9419369704385,\n          \"y\": 155.95316204861226\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.29055427375818194,\n          \"y\": 0.02297526648262682\n        },\n        \"solveMs\": 0.06045799999992596\n      },\n      {\n        \"point\": {\n          \"x\": 613.4744607902112,\n          \"y\": 156.76692162566275\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.302443462760946,\n          \"y\": 0.02178023335880047\n        },\n        \"solveMs\": 0.05399999999985994\n      },\n      {\n        \"point\": {\n          \"x\": 607.0069846099841,\n          \"y\": 157.58068120271327\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.314332653716106,\n          \"y\": 0.0205851851589971\n        },\n        \"solveMs\": 0.0546670000001086\n      },\n      {\n        \"point\": {\n          \"x\": 600.5395084297569,\n          \"y\": 158.39444077976376\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.3262218166035418,\n          \"y\": 0.019390149524552425\n        },\n        \"solveMs\": 0.053583000000116954\n      },\n      {\n        \"point\": {\n          \"x\": 594.0720322495297,\n          \"y\": 159.20820035681427\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.33811048695562773,\n          \"y\": 0.018194944093356313\n        },\n        \"solveMs\": 0.061916999999994005\n      },\n      {\n        \"point\": {\n          \"x\": 587.6045560693025,\n          \"y\": 160.02195993386476\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.3499999633468154,\n          \"y\": 0.01700007179486529\n        },\n        \"solveMs\": 0.05687500000021828\n      }\n    ],\n    \"scope\": \"Exact actual submitted equipped geometry, painted alpha and same-pass source-correlated rear/front/glass ray witnesses. Other assembly hardware is not reconstructed here; selected rays are away from hardware apertures. Native production visibility uses the full scene and must accept/refuse these exact points.\"\n  }\n}",
+      "evidenceSHA256": "e53f9100a40ce272608965ab9701da015aa1c07d8a9a584a17e6463ec76c15d0"
+    }
+  ],
+  "witnesses": [
+    {
+      "name": "wrapped-1280-side",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "face": "side",
+      "rightStepsFromRear": 5,
+      "pickup": {
+        "x": 561.8461696688656,
+        "y": 140.3843791395311
+      },
+      "partial": {
+        "x": 579.4537470083425,
+        "y": 167.10465646283635
+      },
+      "release": {
+        "x": 643.184991266287,
+        "y": 263.8196381947969
+      },
+      "expectedCenter": {
+        "x": 0.35,
+        "y": 0.15
+      },
+      "occluded": {
+        "x": 567.0681229844442,
+        "y": 147.83122958236646
+      },
+      "flickEnd": {
+        "x": 447.06812298444424,
+        "y": 182.83122958236646
+      },
+      "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-1280-side.json"
+    },
+    {
+      "name": "wrapped-1280-front",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "face": "front",
+      "rightStepsFromRear": 15,
+      "pickup": {
+        "x": 762.6675245342133,
+        "y": 137.99494921046283
+      },
+      "partial": {
+        "x": 742.8239843947553,
+        "y": 140.49173008465272
+      },
+      "release": {
+        "x": 587.6045560693025,
+        "y": 160.02195993386476
+      },
+      "expectedCenter": {
+        "x": 0.35,
+        "y": 0.017
+      },
+      "occluded": {
+        "x": 831.3879468122576,
+        "y": 180.38755075802538
+      },
+      "flickEnd": {
+        "x": 711.3879468122576,
+        "y": 215.38755075802538
+      },
+      "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-1280-front.json"
+    },
+    {
+      "name": "wrapped-375-side",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "face": "side",
+      "rightStepsFromRear": 5,
+      "pickup": {
+        "x": 141.06295459588623,
+        "y": 222.03415582485093
+      },
+      "partial": {
+        "x": 159.16390437306558,
+        "y": 248.4227066976069
+      },
+      "release": {
+        "x": 189.4405910498952,
+        "y": 292.56171025626514
+      },
+      "expectedCenter": {
+        "x": 0.35,
+        "y": 0.15
+      },
+      "occluded": {
+        "x": 145.29667239632863,
+        "y": 223.88266199834328
+      },
+      "flickEnd": {
+        "x": 85.29667239632863,
+        "y": 258.8826619983433
+      },
+      "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-375-side.json"
+    },
+    {
+      "name": "wrapped-375-front",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "face": "front",
+      "rightStepsFromRear": 15,
+      "pickup": {
+        "x": 242.7165025323663,
+        "y": 215.44290767432503
+      },
+      "partial": {
+        "x": 223.14382757065937,
+        "y": 219.5551327220785
+      },
+      "release": {
+        "x": 113.81973140255182,
+        "y": 242.52415905419994
+      },
+      "expectedCenter": {
+        "x": 0.35,
+        "y": 0.017
+      },
+      "occluded": {
+        "x": 305.3337228173019,
+        "y": 241.42507169344458
+      },
+      "flickEnd": {
+        "x": 245.33372281730192,
+        "y": 276.4250716934446
+      },
+      "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-375-front.json"
+    }
+  ],
+  "outcomes": [
+    {
+      "witness": {
+        "name": "wrapped-1280-side",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "face": "side",
+        "rightStepsFromRear": 5,
+        "pickup": {
+          "x": 561.8461696688656,
+          "y": 140.3843791395311
+        },
+        "partial": {
+          "x": 579.4537470083425,
+          "y": 167.10465646283635
+        },
+        "release": {
+          "x": 643.184991266287,
+          "y": 263.8196381947969
+        },
+        "expectedCenter": {
+          "x": 0.35,
+          "y": 0.15
+        },
+        "occluded": {
+          "x": 567.0681229844442,
+          "y": 147.83122958236646
+        },
+        "flickEnd": {
+          "x": 447.06812298444424,
+          "y": 182.83122958236646
+        },
+        "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-1280-side.json"
+      },
+      "partialPeel": 0.4999996940504362,
+      "placed": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.3499636947071318,
+        "y": 0.14998672972652427,
+        "width": 0.35,
+        "rotationDeg": 0,
+        "wear": 1
+      },
+      "interactionAssertionsPassed": true,
+      "attachedContactVisualReview": "pending: compare attached and partial-peel originals against material witness"
+    }
+  ],
+  "attachedContactAcceptance": "pending independent visual review"
+}

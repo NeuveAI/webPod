@@ -1,0 +1,24 @@
+import { Vector3, ExtrudeGeometry } from '/Users/vinicius/code/webPod/node_modules/.bun/three@0.185.1/node_modules/three/build/three.module.js';
+import {createStickerWrapSurface} from '/Users/vinicius/code/webPod/packages/device/src/sticker-wrap';
+import {DEFAULT_DEVICE_FORM as form} from '/Users/vinicius/code/webPod/packages/device/src/form';
+import {DEVICE_LAYOUT} from '/Users/vinicius/code/webPod/packages/device/src/layout';
+import {silhouetteShape} from '/Users/vinicius/code/webPod/packages/device/src/shapes';
+import {frontShellPlan,productShellDepths} from '/Users/vinicius/code/webPod/packages/device/src/product-shell';
+const b=DEVICE_LAYOUT.body,p=frontShellPlan(b.width,b.height,b.cornerR,form.seamWidth,form.frontBevel);
+const face=new ExtrudeGeometry(silhouetteShape(p.faceWidth,p.faceHeight,p.faceCornerR,2,48),{depth:form.frontThickness-2*form.frontBevel,bevelEnabled:true,bevelThickness:form.frontBevel,bevelSize:form.frontBevel,bevelSegments:16,steps:1});face.translate(0,0,productShellDepths(b.depth,form.frontThickness).seamZ+form.frontBevel);
+const s=createStickerWrapSurface(form,[{geometry:face}]);
+const n=16,w=115.5,h=w*1.9768211920529801,anchor=s.anchor(157,268),N=(n+1)**2,C=8*(n+1)+8;
+let q=Array.from({length:N},(_,i)=>({x:anchor.x-(i%(n+1)/n-.5)*w,y:anchor.y-(Math.floor(i/(n+1))/n-.5)*h}));
+const sample=(q)=>q.map(v=>s.sample(v.x,v.y,0));
+let pts=sample(q);
+const edges=[]; const triangles=[];
+for(let y=0;y<=n;y++)for(let x=0;x<=n;x++){const a=y*(n+1)+x;if(x<n)edges.push([a,a+1,w/n]);if(y<n)edges.push([a,a+n+1,h/n]);if(x<n&&y<n){edges.push([a,a+n+2,Math.hypot(w,h)/n],[a+1,a+n+1,Math.hypot(w,h)/n]);triangles.push([a,a+n+1,a+1],[a+1,a+n+1,a+n+2]);}}
+const origin=pts[C].point.clone(),tx=pts[C+1].point.clone().sub(origin).normalize(),normal=pts[C].normal.clone(),ty=normal.clone().cross(tx).normalize();
+const orientation=pts[C+1].point.clone().sub(origin).dot(ty);
+function evaluate(ps,gradient=false){const g=gradient?ps.map(()=>new Vector3()):null;let e=0;for(const[a,b,l]of edges){const d=ps[a].point.clone().sub(ps[b].point),len=d.length(),strain=(len-l)/l;e+=strain*strain;if(g&&len>1e-9){d.multiplyScalar(2*strain/(l*len));g[a].add(d);g[b].sub(d);}}for(const[a,b,c]of triangles){const ab=ps[b].point.clone().sub(ps[a].point),ac=ps[c].point.clone().sub(ps[a].point),norm=ps[a].normal.clone().add(ps[b].normal).add(ps[c].normal).normalize(),area=ab.clone().cross(ac).dot(norm)/(w*h/n**2);if(area<=0)return {e:Infinity,g};if(area<.5){const penalty=1/area-2;e+=.05*penalty*penalty;if(g){const factor=-.1*penalty/(area*area)/(w*h/n**2),gb=ac.clone().cross(norm).multiplyScalar(factor),gc=norm.clone().cross(ab).multiplyScalar(factor);g[b].add(gb);g[c].add(gc);g[a].sub(gb).sub(gc);}}}const d=ps[C+1].point.clone().sub(ps[C].point),o=(d.dot(ty)-orientation)/(w/n);e+=10*o*o;if(g)g[C+1].addScaledVector(ty,20*o/(w/n));return {e,g};}
+function valid(ps){return triangles.every(([a,b,c])=>ps[b].point.clone().sub(ps[a].point).cross(ps[c].point.clone().sub(ps[a].point)).dot(ps[a].normal.clone().add(ps[b].normal).add(ps[c].normal))>1e-6);}
+let last=evaluate(pts).e;const start=performance.now();let iter=0,stalled=false;
+for(;iter<5000;iter++){const {g}=evaluate(pts,true);const direction=q.map((v,i)=>{if(i===C)return {x:0,y:0};const eps=.01,dx=s.sample(v.x+eps,v.y,0).point.sub(s.sample(v.x-eps,v.y,0).point).multiplyScalar(1/(2*eps)),dy=s.sample(v.x,v.y+eps,0).point.sub(s.sample(v.x,v.y-eps,0).point).multiplyScalar(1/(2*eps));const a=dx.lengthSq(),b=dx.dot(dy),c=dy.lengthSq(),det=a*c-b*b;if(det<1e-9)return {x:0,y:0};const gx=g[i].dot(dx),gy=g[i].dot(dy);return {x:-(c*gx-b*gy)/det,y:-(a*gy-b*gx)/det};});let step=100,accepted=false;for(let trial=0;trial<20;trial++){const next=q.map((v,i)=>({x:v.x+direction[i].x*step,y:v.y+direction[i].y*step}));try{const pp=sample(next),e=evaluate(pp).e;if(e<last&&valid(pp)){q=next;pts=pp;last=e;accepted=true;break;}}catch{}step*=.5;}if(!accepted){stalled=true;break;}if(iter%100===0)console.log({iter,e:last,step});}
+const rows=[];for(let row=0;row<n;row++)for(let col=0;col<n;col++){let a=row*(n+1)+col;for(const[i,j,k]of[[a,a+1,a+n+1],[a+n+2,a+n+1,a+1]]){const du=pts[j].point.clone().sub(pts[i].point).multiplyScalar(n/w),dv=pts[k].point.clone().sub(pts[i].point).multiplyScalar(n/h),A=du.lengthSq(),B=dv.lengthSq(),D=du.dot(dv),root=Math.sqrt((A-B)**2+4*D*D);rows.push({col,row,min:Math.sqrt(Math.max(0,(A+B-root)/2)),max:Math.sqrt((A+B+root)/2)});}}
+console.log({iter,stalled,e:last,ms:performance.now()-start,min:Math.min(...rows.map(r=>r.min)),max:Math.max(...rows.map(r=>r.max))});
+await Bun.write('/tmp/webpod-drape-experiment.json',JSON.stringify({q,points:pts.map(p=>p.point.toArray()),rows,iter,stalled,energy:last}));face.dispose();

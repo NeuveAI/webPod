@@ -1,0 +1,1 @@
+{"method":"21 linear query points between saved initial and final actual-edge vertices; representative crossing queries, not full solver trajectory replay","coldMs":56.856500000000096,"warmMs":32.62029099999995,"cold":{"queries":6069,"nodes":1315701,"triangles":401468},"warm":{"queries":6069,"nodes":1009775,"triangles":230792},"maxError":0,"maxNormalError":0,"facetChanges":1100}

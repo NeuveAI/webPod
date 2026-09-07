@@ -1,0 +1,177 @@
+{
+  "scope": "Counterfactual old collision traversal plus old transform closure versus reusable scratch, ray-entry pruning, and hoisted query transforms; isolated Bun, not browser. Baseline contains diagnostic counters (calls/nodes/triangles/fallback/edges/hits), whose increment overhead is included. Hoisting alone did not materially improve warm queries. Actual rear/front/glass/wheel/select subset and captured desktop-side matrices; alpha warmed equally, alternating order, exact full-output equality. Query-cache repeats additionally reuse one exact projected result.",
+  "bvhBuildMs": 224.171916,
+  "boundaryCandidates": 23578,
+  "rows": [
+    {
+      "i": 0,
+      "wear": 0.2,
+      "rotationDeg": 0,
+      "geometryMs": 20.161874999999895,
+      "alphaMs": 3.0049169999999776,
+      "baseline": {
+        "ms": 60.527000000000044,
+        "samples": 2754,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 18.448417000000063,
+        "samples": 2754,
+        "revision": 1
+      }
+    },
+    {
+      "i": 1,
+      "wear": 0.30000000000000004,
+      "rotationDeg": 0,
+      "geometryMs": 11.719165999999973,
+      "alphaMs": 1.8071669999999358,
+      "cached": {
+        "ms": 11.991750000000025,
+        "samples": 2870,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 32.20191699999987,
+        "samples": 2870,
+        "revision": 1
+      }
+    },
+    {
+      "i": 2,
+      "wear": 0.4,
+      "rotationDeg": 0,
+      "geometryMs": 9.672124999999824,
+      "alphaMs": 1.1889579999999569,
+      "baseline": {
+        "ms": 29.645249999999805,
+        "samples": 2985,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 7.125749999999925,
+        "samples": 2985,
+        "revision": 1
+      }
+    },
+    {
+      "i": 3,
+      "wear": 0.5,
+      "rotationDeg": 0,
+      "geometryMs": 7.738749999999982,
+      "alphaMs": 1.1649999999999636,
+      "cached": {
+        "ms": 7.392499999999927,
+        "samples": 3087,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 31.317000000000007,
+        "samples": 3087,
+        "revision": 1
+      }
+    },
+    {
+      "i": 4,
+      "wear": 0.6000000000000001,
+      "rotationDeg": 0,
+      "geometryMs": 7.860584000000017,
+      "alphaMs": 1.1094170000001213,
+      "baseline": {
+        "ms": 30.454541000000063,
+        "samples": 3106,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 7.547334000000092,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 5,
+      "wear": 0.6,
+      "rotationDeg": 0.5,
+      "geometryMs": 8.267334000000119,
+      "alphaMs": 0.0015419999999721767,
+      "cached": {
+        "ms": 7.779875000000175,
+        "samples": 3106,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 32.02724999999987,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 6,
+      "wear": 0.6,
+      "rotationDeg": 1,
+      "geometryMs": 7.793833000000177,
+      "alphaMs": 0.0019589999999425345,
+      "baseline": {
+        "ms": 29.556332999999995,
+        "samples": 3106,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 7.616333000000168,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 7,
+      "wear": 0.6,
+      "rotationDeg": 1.5,
+      "geometryMs": 7.239749999999958,
+      "alphaMs": 0.0015000000000782165,
+      "cached": {
+        "ms": 7.720374999999876,
+        "samples": 3106,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 28.862958000000162,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 8,
+      "wear": 0.6,
+      "rotationDeg": 2,
+      "geometryMs": 7.427583000000141,
+      "alphaMs": 0.0012500000000272848,
+      "baseline": {
+        "ms": 29.608040999999957,
+        "samples": 3106,
+        "revision": 1
+      },
+      "cached": {
+        "ms": 7.4375830000001315,
+        "samples": 3106,
+        "revision": 1
+      }
+    },
+    {
+      "i": 9,
+      "wear": 0.6,
+      "rotationDeg": 2.5,
+      "geometryMs": 7.314000000000078,
+      "alphaMs": 0.0007499999999254214,
+      "cached": {
+        "ms": 7.584041999999954,
+        "samples": 3106,
+        "revision": 1
+      },
+      "baseline": {
+        "ms": 28.174916999999823,
+        "samples": 3106,
+        "revision": 1
+      }
+    }
+  ]
+}

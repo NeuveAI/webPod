@@ -1,0 +1,319 @@
+{
+  "input": "native mouse",
+  "samples": [
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 564.0471168363002,
+      "y": 143.72441380494425,
+      "driverTimeMs": 3643.0365
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 566.2480640037348,
+      "y": 147.0644484703574,
+      "driverTimeMs": 3660.283792
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 568.4490111711694,
+      "y": 150.40448313577056,
+      "driverTimeMs": 3708.459375
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 570.649958338604,
+      "y": 153.74451780118372,
+      "driverTimeMs": 3733.572709
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 572.8509055060387,
+      "y": 157.08455246659688,
+      "driverTimeMs": 3749.650667
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 575.0518526734733,
+      "y": 160.42458713201003,
+      "driverTimeMs": 3766.156959
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 577.2527998409079,
+      "y": 163.7646217974232,
+      "driverTimeMs": 3781.800292
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 579.4537470083425,
+      "y": 167.10465646283635,
+      "driverTimeMs": 3799.257709
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 557.0681229844442,
+      "y": 150.74789624903312,
+      "driverTimeMs": 6135.074125
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 547.0681229844442,
+      "y": 153.6645629156998,
+      "driverTimeMs": 6149.604542
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 537.0681229844442,
+      "y": 156.58122958236646,
+      "driverTimeMs": 6166.661459
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 527.0681229844442,
+      "y": 159.49789624903312,
+      "driverTimeMs": 6182.35625
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 517.0681229844442,
+      "y": 162.4145629156998,
+      "driverTimeMs": 6200.45025
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 507.06812298444424,
+      "y": 165.33122958236646,
+      "driverTimeMs": 6216.345625
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 497.06812298444424,
+      "y": 168.24789624903312,
+      "driverTimeMs": 6233.178459
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 487.06812298444424,
+      "y": 171.1645629156998,
+      "driverTimeMs": 6249.88925
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 477.06812298444424,
+      "y": 174.08122958236646,
+      "driverTimeMs": 6267.566875
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 467.06812298444424,
+      "y": 176.99789624903312,
+      "driverTimeMs": 6282.24125
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 457.06812298444424,
+      "y": 179.9145629156998,
+      "driverTimeMs": 6299.905875
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 447.06812298444424,
+      "y": 182.83122958236646,
+      "driverTimeMs": 6316.236959
+    },
+    {
+      "phase": "relocation-lift",
+      "x": 564.0471168363002,
+      "y": 143.72441380494425,
+      "driverTimeMs": 7625.216334
+    },
+    {
+      "phase": "relocation-lift",
+      "x": 566.2480640037348,
+      "y": 147.0644484703574,
+      "driverTimeMs": 7643.665042
+    },
+    {
+      "phase": "relocation-lift",
+      "x": 568.4490111711694,
+      "y": 150.40448313577056,
+      "driverTimeMs": 7682.709334
+    },
+    {
+      "phase": "relocation-lift",
+      "x": 570.649958338604,
+      "y": 153.74451780118372,
+      "driverTimeMs": 7699.530375
+    },
+    {
+      "phase": "relocation-lift",
+      "x": 572.8509055060387,
+      "y": 157.08455246659688,
+      "driverTimeMs": 7716.291209
+    },
+    {
+      "phase": "relocation-lift",
+      "x": 575.0518526734733,
+      "y": 160.42458713201003,
+      "driverTimeMs": 7732.417625
+    },
+    {
+      "phase": "relocation-lift",
+      "x": 577.2527998409079,
+      "y": 163.7646217974232,
+      "driverTimeMs": 7749.180417
+    },
+    {
+      "phase": "relocation-lift",
+      "x": 579.4537470083425,
+      "y": 167.10465646283635,
+      "driverTimeMs": 7765.474
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 582.1092155190902,
+      "y": 171.1344473683347,
+      "driverTimeMs": 7781.0595
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 584.7646840298379,
+      "y": 175.16423827383306,
+      "driverTimeMs": 7798.991625
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 587.4201525405856,
+      "y": 179.1940291793314,
+      "driverTimeMs": 7815.825584
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 590.0756210513332,
+      "y": 183.22382008482975,
+      "driverTimeMs": 7832.777917
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 592.7310895620809,
+      "y": 187.25361099032813,
+      "driverTimeMs": 7848.991667
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 595.3865580728286,
+      "y": 191.28340189582647,
+      "driverTimeMs": 7865.71575
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 598.0420265835763,
+      "y": 195.31319280132485,
+      "driverTimeMs": 7881.82375
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 600.697495094324,
+      "y": 199.3429837068232,
+      "driverTimeMs": 7921.932709
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 603.3529636050716,
+      "y": 203.37277461232154,
+      "driverTimeMs": 7951.440334
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 606.0084321158193,
+      "y": 207.4025655178199,
+      "driverTimeMs": 7988.389709
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 608.663900626567,
+      "y": 211.43235642331825,
+      "driverTimeMs": 8018.165167
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 611.3193691373148,
+      "y": 215.46214732881663,
+      "driverTimeMs": 8056.128625
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 613.9748376480625,
+      "y": 219.49193823431497,
+      "driverTimeMs": 8085.197
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 616.6303061588102,
+      "y": 223.52172913981332,
+      "driverTimeMs": 8121.343417
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 619.2857746695579,
+      "y": 227.5515200453117,
+      "driverTimeMs": 8149.852209
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 621.9412431803055,
+      "y": 231.58131095081004,
+      "driverTimeMs": 8182.540209
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 624.5967116910532,
+      "y": 235.61110185630838,
+      "driverTimeMs": 8218.572667
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 627.2521802018009,
+      "y": 239.64089276180675,
+      "driverTimeMs": 8254.404917
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 629.9076487125486,
+      "y": 243.6706836673051,
+      "driverTimeMs": 8282.722542
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 632.5631172232963,
+      "y": 247.70047457280344,
+      "driverTimeMs": 8318.229417
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 635.2185857340439,
+      "y": 251.73026547830182,
+      "driverTimeMs": 8354.009917
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 637.8740542447916,
+      "y": 255.76005638380016,
+      "driverTimeMs": 8389.681
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 640.5295227555393,
+      "y": 259.7898472892985,
+      "driverTimeMs": 8417.018334
+    },
+    {
+      "phase": "relocation-carry",
+      "x": 643.184991266287,
+      "y": 263.8196381947969,
+      "driverTimeMs": 8451.847875
+    }
+  ],
+  "timing": "driver event completion timestamps; not render latency",
+  "source": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-1280-side.json"
+}

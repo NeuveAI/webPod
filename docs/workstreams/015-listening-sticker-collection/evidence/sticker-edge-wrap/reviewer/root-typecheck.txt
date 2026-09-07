@@ -1,0 +1,19 @@
+Lead sanity check on the frozen front-residual-1-native checkout
+Command: bun run typecheck
+Exit code: 0
+
+apps/web: ok
+packages/composite: ok
+packages/device: ok
+packages/panel: ok
+packages/providers: ok
+packages/server-core: ok
+packages/state: ok
+packages/stickers: ok
+packages/tokens: ok
+packages/tools: ok
+packages/ui: ok
+scripts: ok
+
+12/12 projects clean.
+This is type-system validation, not final native interaction acceptance.

@@ -1,0 +1,194 @@
+[
+  {
+    "witness": "wrapped-1280-side",
+    "phase": "partial-peel-cancel",
+    "windows": [
+      {
+        "kind": "input",
+        "reason": "Escape",
+        "stages": [
+          "tease",
+          "peeling"
+        ],
+        "rafCount": 16,
+        "maxGapMs": 33.399999999999864,
+        "p95": 33.399999999999864,
+        "over50": 0,
+        "over100": 0,
+        "status": "within-gross-stall-budget",
+        "longTasks": 0
+      },
+      {
+        "kind": "release-to-settled",
+        "reason": "awaited-settlement",
+        "stages": [
+          "peeling",
+          "open"
+        ],
+        "rafCount": 55,
+        "maxGapMs": 16.800000000000182,
+        "p95": 16.800000000000182,
+        "over50": 0,
+        "over100": 0,
+        "status": "within-gross-stall-budget",
+        "longTasks": 0
+      }
+    ]
+  },
+  {
+    "witness": "wrapped-1280-side",
+    "phase": "hidden-shell-flick",
+    "windows": [
+      {
+        "kind": "input",
+        "reason": "pointerup",
+        "stages": [
+          "tease"
+        ],
+        "rafCount": 21,
+        "maxGapMs": 100,
+        "p95": null,
+        "over50": 1,
+        "over100": 0,
+        "status": "within-gross-stall-budget",
+        "longTasks": 1
+      }
+    ]
+  },
+  {
+    "witness": "wrapped-1280-side",
+    "phase": "uninterrupted-lift-carry-release",
+    "windows": [
+      {
+        "kind": "input",
+        "reason": "pointerup",
+        "stages": [
+          "tease",
+          "peeling",
+          "placing"
+        ],
+        "rafCount": 50,
+        "maxGapMs": 33.299999999999955,
+        "p95": 16.799999999999955,
+        "over50": 0,
+        "over100": 0,
+        "status": "within-gross-stall-budget",
+        "longTasks": 0
+      },
+      {
+        "kind": "release-to-settled",
+        "reason": "awaited-settlement",
+        "stages": [
+          "placing",
+          "settling",
+          "open"
+        ],
+        "rafCount": 116,
+        "maxGapMs": 18.200000047683716,
+        "p95": 15,
+        "over50": 0,
+        "over100": 0,
+        "status": "within-gross-stall-budget",
+        "longTasks": 0
+      }
+    ]
+  },
+  {
+    "witness": "wrapped-1280-side",
+    "phase": "final-cleanup",
+    "windows": []
+  },
+  {
+    "witness": "wrapped-1280-front",
+    "phase": "partial-peel-cancel",
+    "windows": [
+      {
+        "kind": "input",
+        "reason": "Escape",
+        "stages": [
+          null,
+          "peeling"
+        ],
+        "rafCount": 19,
+        "maxGapMs": 33.399999999999864,
+        "p95": 33.399999999999864,
+        "over50": 0,
+        "over100": 0,
+        "status": "insufficient",
+        "longTasks": 0
+      },
+      {
+        "kind": "release-to-settled",
+        "reason": "awaited-settlement",
+        "stages": [
+          "peeling",
+          null
+        ],
+        "rafCount": 55,
+        "maxGapMs": 16.799999999999955,
+        "p95": 16.799999999999955,
+        "over50": 0,
+        "over100": 0,
+        "status": "within-gross-stall-budget",
+        "longTasks": 0
+      }
+    ]
+  },
+  {
+    "witness": "wrapped-1280-front",
+    "phase": "hidden-shell-flick",
+    "windows": [
+      {
+        "kind": "input",
+        "reason": "pointerup",
+        "stages": [
+          null
+        ],
+        "rafCount": 21,
+        "maxGapMs": 16.799999999999955,
+        "p95": null,
+        "over50": 0,
+        "over100": 0,
+        "status": "within-gross-stall-budget",
+        "longTasks": 0
+      }
+    ]
+  },
+  {
+    "witness": "wrapped-1280-front",
+    "phase": "final-cleanup",
+    "windows": [
+      {
+        "kind": "input",
+        "reason": "Escape",
+        "stages": [
+          null,
+          "peeling",
+          "placing"
+        ],
+        "rafCount": 365,
+        "maxGapMs": 50.09999999999991,
+        "p95": 16.800000000000182,
+        "over50": 1,
+        "over100": 0,
+        "status": "within-gross-stall-budget",
+        "longTasks": 14
+      },
+      {
+        "kind": "release-to-settled",
+        "reason": "disposed",
+        "stages": [
+          "placing",
+          "peeling"
+        ],
+        "rafCount": 2,
+        "maxGapMs": 16.700000047683716,
+        "p95": 16.700000047683716,
+        "over50": 0,
+        "over100": 0,
+        "status": "insufficient",
+        "longTasks": 0
+      }
+    ]
+  }
+]

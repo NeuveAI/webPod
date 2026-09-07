@@ -1,0 +1,8 @@
+{
+  "calls": 60664,
+  "nodeVisits": 9620540,
+  "triangleTests": 7690848,
+  "fallbacks": 7611326,
+  "edgeChecks": 11879520,
+  "winningHits": 34702
+}

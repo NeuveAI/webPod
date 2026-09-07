@@ -1,0 +1,15 @@
+{
+  "sourceManifestSHA256": "8e86f0403f1111b02fb8749982a9d97a141f1ebb0d1188f4dd3e840bbb8db7d2",
+  "artifactManifestSHA256": "f5bd098341408ed7e205ee70295e772030e4375d7e92021d16351845dacc4e34",
+  "provenance": {
+    "passed": true,
+    "testDeltas": [],
+    "buildToEnd": [],
+    "artifactDeltas": []
+  },
+  "processesExited": true,
+  "sourceFingerprint": {
+    "digest": "901253b6cd12e2868552cbecf2fc4b86712973564f33ae89b29e07a560fa8dde",
+    "fileCount": 440
+  }
+}

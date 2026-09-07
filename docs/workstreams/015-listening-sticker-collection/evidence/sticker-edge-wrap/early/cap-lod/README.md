@@ -1,0 +1,11 @@
+# Cap-only LOD certificate: rejected candidate
+
+No native replay was performed. This isolated fixture calls the production crown tessellator with12-unit spacing, preserving the same extrusion, apertures and crown. Only exposed +1cap replacement was considered. Originalnoncap/backcap/rear/overlays would remain unchanged.
+
+The actual front resource has30,475exposedcaptriangles,30,475backcaptriangles and108,417othertriangles. The earlier assumption that its169kfaces were mostly exposedcap was incorrect. The declared protected boundary band retains296of696occupied12-unitcells. Its finalcandidate has16,565captriangles:1.84×capreduction and only13,910of203,743totalcollidertriangles removed (6.83%). This misses the proposed4×capreduction target. Trianglecount alone is not measured collision-cost attribution.
+
+The overlay contains237,426candidate/original polygonvertices, including projectededgecrossings. Per-candidate projectedcoveragearea error is at most2.42e−13. Rawheightdifference is−.003178…+.010278. A globalfreevertexlift of.011787 would bound the largestoutwarddifference to.021300, but16vertices on onefixed-endpointcollarchord remain up to.00008346beloworiginal. This exceeds the1e−5 numericalallowance and cannot be repaired by liftingvertices withzerobarycentricweight. The certificate is thereforeFAILED. No topologychange, extra collarcell, errorbudgetincrease or native step followed.
+
+The initialcandidate also missed some gridinterfacepoints because Float32coordinates near274units differ from nominalgridplanes by morethan1e−5. Gridmembership was corrected to a3.1e−5 predicatebound (oneFloat32ULP atthat scale), withoutmovingvertices or changingthe1e−5heighttolerance. Both failure stages are retained.
+
+The savedcandidate is a diagnosticfailure, not an acceptedcollisionproxy. Per-trianglearea overlay alone does not completeglobaldomain/hole/T-junctioncertification; these gates remain pending and are not waived by the smallareaerror. Exactmesh/probe/sourcehashes are provided for independentreview. Reproduce with `bun /tmp/webpod-cap-lod.ts` afterrestoringtheexacttemporaryactual-shellfixture fromitsprobecopy. No productsource, dependency, binary, force, collisionmargin or renderedartworkchanged.

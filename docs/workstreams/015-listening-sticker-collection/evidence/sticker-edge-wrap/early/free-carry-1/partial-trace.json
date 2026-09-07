@@ -1,0 +1,394 @@
+[
+  {
+    "name": "1280-side",
+    "pickedUV": [
+      0.52333275236032,
+      0.31012865019079805
+    ],
+    "pickedRow": 67.01028934781189,
+    "stages": [
+      {
+        "distance": 0,
+        "curl": 0,
+        "frontier": 0,
+        "detachedMaterialLength": 0,
+        "sourceScreen": {
+          "x": 561.8461537543045,
+          "y": 140.38438448585546
+        },
+        "peeledScreen": {
+          "x": 561.8461537543045,
+          "y": 140.38438448585546
+        },
+        "pointer": {
+          "x": 561.8461696688656,
+          "y": 140.3843791395311
+        },
+        "pointDisplacementModel": 0,
+        "pointerError": 0.00001678858063863524,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 16,
+        "curl": 0.25,
+        "frontier": 0.3125,
+        "detachedMaterialLength": 71.35088990066225,
+        "sourceScreen": {
+          "x": 561.8461537543045,
+          "y": 140.38438448585546
+        },
+        "peeledScreen": {
+          "x": 561.8461537543045,
+          "y": 140.38438448585546
+        },
+        "pointer": {
+          "x": 570.649958338604,
+          "y": 153.74451780118372
+        },
+        "pointDisplacementModel": 0,
+        "pointerError": 16.0000042925581,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 32,
+        "curl": 0.5,
+        "frontier": 0.625,
+        "detachedMaterialLength": 142.7017798013245,
+        "sourceScreen": {
+          "x": 561.8461537543045,
+          "y": 140.38438448585546
+        },
+        "peeledScreen": {
+          "x": 561.8461537543045,
+          "y": 140.38438448585546
+        },
+        "pointer": {
+          "x": 579.4537470083425,
+          "y": 167.10465646283635
+        },
+        "pointDisplacementModel": 0,
+        "pointerError": 32.000004292553974,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 51.2,
+        "curl": 0.8,
+        "frontier": 1,
+        "detachedMaterialLength": 228.3228476821192,
+        "sourceScreen": {
+          "x": 561.8461537543045,
+          "y": 140.38438448585546
+        },
+        "peeledScreen": {
+          "x": 560.633728523594,
+          "y": 143.24244246750945
+        },
+        "pointer": {
+          "x": 590.0182934120286,
+          "y": 183.13682285681952
+        },
+        "pointDisplacementModel": 25.863206994711263,
+        "pointerError": 49.548100269632876,
+        "offset": null,
+        "depthLift": 0
+      }
+    ]
+  },
+  {
+    "name": "1280-front",
+    "pickedUV": [
+      0.4593356207724211,
+      0.8316764075290233
+    ],
+    "pickedRow": 15.012764194091346,
+    "stages": [
+      {
+        "distance": 0,
+        "curl": 0,
+        "frontier": 0,
+        "detachedMaterialLength": 0,
+        "sourceScreen": {
+          "x": 762.667523665212,
+          "y": 137.99495141575497
+        },
+        "peeledScreen": {
+          "x": 762.667523665212,
+          "y": 137.99495141575497
+        },
+        "pointer": {
+          "x": 762.6675245342133,
+          "y": 137.99494921046283
+        },
+        "pointDisplacementModel": 0,
+        "pointerError": 0.0000023703325929472078,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 16,
+        "curl": 0.25,
+        "frontier": 0.3125,
+        "detachedMaterialLength": 71.35088990066225,
+        "sourceScreen": {
+          "x": 762.667523665212,
+          "y": 137.99495141575497
+        },
+        "peeledScreen": {
+          "x": 776.8338216169935,
+          "y": 119.61612526247485
+        },
+        "pointer": {
+          "x": 770.6448747325377,
+          "y": 124.12549053994172
+        },
+        "pointDisplacementModel": 23.92007341247847,
+        "pointerError": 7.657508651267693,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 32,
+        "curl": 0.5,
+        "frontier": 0.625,
+        "detachedMaterialLength": 142.7017798013245,
+        "sourceScreen": {
+          "x": 762.667523665212,
+          "y": 137.99495141575497
+        },
+        "peeledScreen": {
+          "x": 907.8114363530057,
+          "y": 69.56453314130859
+        },
+        "pointer": {
+          "x": 778.6222249308621,
+          "y": 110.25603186942061
+        },
+        "pointDisplacementModel": 138.63979085516587,
+        "pointerError": 135.446116284725,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 51.2,
+        "curl": 0.8,
+        "frontier": 1,
+        "detachedMaterialLength": 228.3228476821192,
+        "sourceScreen": {
+          "x": 762.667523665212,
+          "y": 137.99495141575497
+        },
+        "peeledScreen": {
+          "x": 994.3081409144954,
+          "y": 183.76557841944023
+        },
+        "pointer": {
+          "x": 788.1950451688515,
+          "y": 93.61268146479529
+        },
+        "pointDisplacementModel": 211.01187641078747,
+        "pointerError": 224.96700439657326,
+        "offset": null,
+        "depthLift": 0
+      }
+    ]
+  },
+  {
+    "name": "375-side",
+    "pickedUV": [
+      0.523332845312102,
+      0.3101279460501647
+    ],
+    "pickedRow": 67.01035954957152,
+    "stages": [
+      {
+        "distance": 0,
+        "curl": 0,
+        "frontier": 0,
+        "detachedMaterialLength": 0,
+        "sourceScreen": {
+          "x": 141.0629451302268,
+          "y": 222.03415896230732
+        },
+        "peeledScreen": {
+          "x": 141.0629451302268,
+          "y": 222.03415896230732
+        },
+        "pointer": {
+          "x": 141.06295459588623,
+          "y": 222.03415582485093
+        },
+        "pointDisplacementModel": 0,
+        "pointerError": 0.000009972078057970795,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 16,
+        "curl": 0.25,
+        "frontier": 0.3125,
+        "detachedMaterialLength": 71.35088990066225,
+        "sourceScreen": {
+          "x": 141.0629451302268,
+          "y": 222.03415896230732
+        },
+        "peeledScreen": {
+          "x": 141.0629451302268,
+          "y": 222.03415896230732
+        },
+        "pointer": {
+          "x": 150.1134294844759,
+          "y": 235.22843126122893
+        },
+        "pointDisplacementModel": 0,
+        "pointerError": 16.00000276701844,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 32,
+        "curl": 0.5,
+        "frontier": 0.625,
+        "detachedMaterialLength": 142.7017798013245,
+        "sourceScreen": {
+          "x": 141.0629451302268,
+          "y": 222.03415896230732
+        },
+        "peeledScreen": {
+          "x": 141.0629451302268,
+          "y": 222.03415896230732
+        },
+        "pointer": {
+          "x": 159.16390437306558,
+          "y": 248.4227066976069
+        },
+        "pointDisplacementModel": 0,
+        "pointerError": 32.000002767017,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 51.2,
+        "curl": 0.8,
+        "frontier": 1,
+        "detachedMaterialLength": 228.3228476821192,
+        "sourceScreen": {
+          "x": 141.0629451302268,
+          "y": 222.03415896230732
+        },
+        "peeledScreen": {
+          "x": 140.6724185064907,
+          "y": 225.00696111185587
+        },
+        "pointer": {
+          "x": 170.02447423937318,
+          "y": 264.25583722126055
+        },
+        "pointDisplacementModel": 25.863078313393494,
+        "pointerError": 49.01038105950246,
+        "offset": null,
+        "depthLift": 0
+      }
+    ]
+  },
+  {
+    "name": "375-front",
+    "pickedUV": [
+      0.5145457020436541,
+      0.912038961505608
+    ],
+    "pickedRow": 7.000738712204706,
+    "stages": [
+      {
+        "distance": 0,
+        "curl": 0,
+        "frontier": 0,
+        "detachedMaterialLength": 0,
+        "sourceScreen": {
+          "x": 242.71650492221474,
+          "y": 215.44290500690138
+        },
+        "peeledScreen": {
+          "x": 242.71650492221474,
+          "y": 215.44290500690138
+        },
+        "pointer": {
+          "x": 242.7165025323663,
+          "y": 215.44290767432503
+        },
+        "pointDisplacementModel": 0,
+        "pointerError": 0.000003581413756533027,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 16,
+        "curl": 0.25,
+        "frontier": 0.3125,
+        "detachedMaterialLength": 71.35088990066225,
+        "sourceScreen": {
+          "x": 242.71650492221474,
+          "y": 215.44290500690138
+        },
+        "peeledScreen": {
+          "x": 256.30389886554275,
+          "y": 182.12584581143523
+        },
+        "pointer": {
+          "x": 246.03700324655074,
+          "y": 199.7912536081536
+        },
+        "pointDisplacementModel": 50.96044975052671,
+        "pointerError": 20.432224016871864,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 32,
+        "curl": 0.5,
+        "frontier": 0.625,
+        "detachedMaterialLength": 142.7017798013245,
+        "sourceScreen": {
+          "x": 242.71650492221474,
+          "y": 215.44290500690138
+        },
+        "peeledScreen": {
+          "x": 358.45342301603506,
+          "y": 162.6304493080265
+        },
+        "pointer": {
+          "x": 249.35750396073516,
+          "y": 184.13959954198216
+        },
+        "pointDisplacementModel": 191.20590356462301,
+        "pointerError": 111.19605702680029,
+        "offset": null,
+        "depthLift": 0
+      },
+      {
+        "distance": 51.2,
+        "curl": 0.8,
+        "frontier": 1,
+        "detachedMaterialLength": 228.3228476821192,
+        "sourceScreen": {
+          "x": 242.71650492221474,
+          "y": 215.44290500690138
+        },
+        "peeledScreen": {
+          "x": 406.06685665337073,
+          "y": 245.41571486930263
+        },
+        "pointer": {
+          "x": 253.34210481775648,
+          "y": 165.35761466257645
+        },
+        "pointDisplacementModel": 255.20136190261653,
+        "pointerError": 172.43592790355544,
+        "offset": null,
+        "depthLift": 0
+      }
+    ]
+  }
+]

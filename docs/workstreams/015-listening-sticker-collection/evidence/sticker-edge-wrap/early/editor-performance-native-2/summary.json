@@ -1,0 +1,274 @@
+{
+  "identity": {
+    "source": "61ba54082a9a11ad7cbe9858a6d016bed82a13aa870a0240a0b364f93d9e55ee",
+    "artifacts": "d9fe4fe1693743f440b5a8b64a54f386aaf7d576951e78e3c8880f0605f14373"
+  },
+  "passed": true,
+  "tests": 4,
+  "assertions": 741,
+  "outcomes": [
+    {
+      "width": 1280,
+      "pointer": "native mouse",
+      "angle": 43.48863995988086,
+      "wear": 0.885,
+      "final": {
+        "stickerId": "PW-C01",
+        "surface": "back",
+        "x": 0.4,
+        "y": 0.4,
+        "width": 0.25,
+        "rotationDeg": 43.48863995988086,
+        "wear": 0.885
+      }
+    },
+    {
+      "width": 375,
+      "pointer": "native touch",
+      "angle": 76.75635496526479,
+      "wear": 0.885,
+      "final": {
+        "stickerId": "PW-C01",
+        "surface": "back",
+        "x": 0.4,
+        "y": 0.4,
+        "width": 0.25,
+        "rotationDeg": 76.75635496526479,
+        "wear": 0.885
+      }
+    }
+  ],
+  "reports": [
+    {
+      "name": "1280-cold-selection",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "insufficient",
+          "durationMs": 2.899999976158142,
+          "firstCallbackMs": 2.399999976158142,
+          "maxGapMs": 2.399999976158142,
+          "executionP95Ms": 2.399999976158142,
+          "rAFIntervalP95Ms": null,
+          "longTasks": [],
+          "cadenceAvailable": false
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "within-gross-stall-budget",
+          "durationMs": 827.7000000476837,
+          "firstCallbackMs": 36.39999997615814,
+          "maxGapMs": 36.39999997615814,
+          "executionP95Ms": 18.5,
+          "rAFIntervalP95Ms": 16.700000000000045,
+          "longTasks": [],
+          "cadenceAvailable": true
+        }
+      ]
+    },
+    {
+      "name": "1280-rotation",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "within-gross-stall-budget",
+          "durationMs": 433.89999997615814,
+          "firstCallbackMs": 15.300000071525574,
+          "maxGapMs": 19,
+          "executionP95Ms": 17.800000071525574,
+          "rAFIntervalP95Ms": 16.700000000000273,
+          "longTasks": [],
+          "cadenceAvailable": true
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "within-gross-stall-budget",
+          "durationMs": 820.5,
+          "firstCallbackMs": 14.300000071525574,
+          "maxGapMs": 18.600000023841858,
+          "executionP95Ms": 18.100000023841858,
+          "rAFIntervalP95Ms": 16.799999999999727,
+          "longTasks": [],
+          "cadenceAvailable": true
+        }
+      ]
+    },
+    {
+      "name": "1280-wear",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "within-gross-stall-budget",
+          "durationMs": 434.40000009536743,
+          "firstCallbackMs": 15.800000071525574,
+          "maxGapMs": 24.5,
+          "executionP95Ms": 18.5,
+          "rAFIntervalP95Ms": 16.800000000000182,
+          "longTasks": [],
+          "cadenceAvailable": true
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "completed-short-window",
+          "durationMs": 20,
+          "firstCallbackMs": 15,
+          "maxGapMs": 15,
+          "executionP95Ms": 15,
+          "rAFIntervalP95Ms": null,
+          "longTasks": [],
+          "cadenceAvailable": false
+        }
+      ]
+    },
+    {
+      "name": "1280-move-cancel",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "within-gross-stall-budget",
+          "durationMs": 448.39999997615814,
+          "firstCallbackMs": 2,
+          "maxGapMs": 30.799999952316284,
+          "executionP95Ms": 19.5,
+          "rAFIntervalP95Ms": 16.700000000000045,
+          "longTasks": [],
+          "cadenceAvailable": true
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "within-gross-stall-budget",
+          "durationMs": 904.9000000953674,
+          "firstCallbackMs": 7.600000023841858,
+          "maxGapMs": 18.5,
+          "executionP95Ms": 18.399999976158142,
+          "rAFIntervalP95Ms": 16.799999999999955,
+          "longTasks": [],
+          "cadenceAvailable": true
+        }
+      ]
+    },
+    {
+      "name": "1280-cleanup",
+      "windows": []
+    },
+    {
+      "name": "375-cold-selection",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "insufficient",
+          "durationMs": 14.5,
+          "firstCallbackMs": 14.099999904632568,
+          "maxGapMs": 14.099999904632568,
+          "executionP95Ms": 14.099999904632568,
+          "rAFIntervalP95Ms": null,
+          "longTasks": [],
+          "cadenceAvailable": false
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "within-gross-stall-budget",
+          "durationMs": 814.8999999761581,
+          "firstCallbackMs": 17.699999928474426,
+          "maxGapMs": 18.5,
+          "executionP95Ms": 18.100000023841858,
+          "rAFIntervalP95Ms": 16.700000000000045,
+          "longTasks": [],
+          "cadenceAvailable": true
+        }
+      ]
+    },
+    {
+      "name": "375-rotation",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "within-gross-stall-budget",
+          "durationMs": 583.1999999284744,
+          "firstCallbackMs": 16.199999928474426,
+          "maxGapMs": 18.899999976158142,
+          "executionP95Ms": 18.800000071525574,
+          "rAFIntervalP95Ms": 16.700000000000273,
+          "longTasks": [],
+          "cadenceAvailable": true
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "within-gross-stall-budget",
+          "durationMs": 812.1000000238419,
+          "firstCallbackMs": 16.399999976158142,
+          "maxGapMs": 18.100000023841858,
+          "executionP95Ms": 17.59999990463257,
+          "rAFIntervalP95Ms": 16.799999999999727,
+          "longTasks": [],
+          "cadenceAvailable": true
+        }
+      ]
+    },
+    {
+      "name": "375-wear",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "within-gross-stall-budget",
+          "durationMs": 850.6000000238419,
+          "firstCallbackMs": 17.200000047683716,
+          "maxGapMs": 25.700000047683716,
+          "executionP95Ms": 25,
+          "rAFIntervalP95Ms": 16.799999999999727,
+          "longTasks": [],
+          "cadenceAvailable": true
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "completed-short-window",
+          "durationMs": 20.5,
+          "firstCallbackMs": 14.5,
+          "maxGapMs": 14.5,
+          "executionP95Ms": 14.5,
+          "rAFIntervalP95Ms": null,
+          "longTasks": [],
+          "cadenceAvailable": false
+        }
+      ]
+    },
+    {
+      "name": "375-move-cancel",
+      "windows": [
+        {
+          "kind": "input",
+          "status": "within-gross-stall-budget",
+          "durationMs": 633.3999999761581,
+          "firstCallbackMs": 18.300000071525574,
+          "maxGapMs": 43.89999997615814,
+          "executionP95Ms": 20.600000023841858,
+          "rAFIntervalP95Ms": 16.799999999999955,
+          "longTasks": [],
+          "cadenceAvailable": true
+        },
+        {
+          "kind": "release-to-settled",
+          "status": "within-gross-stall-budget",
+          "durationMs": 909,
+          "firstCallbackMs": 13.600000023841858,
+          "maxGapMs": 18.600000023841858,
+          "executionP95Ms": 17.700000047683716,
+          "rAFIntervalP95Ms": 16.800000000000182,
+          "longTasks": [],
+          "cadenceAvailable": true
+        }
+      ]
+    },
+    {
+      "name": "375-cleanup",
+      "windows": []
+    }
+  ],
+  "limitations": [
+    "Scheduling proxy, not photon/input-to-paint latency.",
+    "Final two-rAF presentation boundary included in measured input window.",
+    "Video encoding remains enabled.",
+    "Original native1 wear116.6ms rAF gap remains unattributed; not repeated here.",
+    "Ordinary rear C01 appearance editing, not full-range wrapped acceptance."
+  ]
+}

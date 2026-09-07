@@ -1,0 +1,6 @@
+{
+  "preloadSHA256": "5e07b4358c97bb8c280051063906bc9063b68a067f581fa0ec73c63d1f24fe3c",
+  "driverSHA256": "1f84a25d2b2e4e1b42a953b221d59b164c01935887da88bc2e5a2a2ea3f39c2d",
+  "installedAt": "2026-09-07T05:48:18.897Z",
+  "instrumentation": "Passive capture/bubble delivered events, DOM angle and next-rAF; numeric PUT placements only. CPU/scheduler trace confined to desktop wear; diagnostic overhead and existing video encoding present."
+}

@@ -1,0 +1,202 @@
+diff --git a/apps/web/src/sticker-editor.tsx b/apps/web/src/sticker-editor.tsx
+--- a/apps/web/src/sticker-editor.tsx
++++ b/apps/web/src/sticker-editor.tsx
+@@ -1,10 +1,11 @@
+ import { atom, useAtomValue } from 'jotai'
+-import { useEffect, useLayoutEffect, useRef } from 'react'
+-import { deviceStore, stickerInventoryAtom } from '@webpod/state'
++import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
++import { deviceStore, stickerInventoryAtom, stickerInteractionAtom } from '@webpod/state'
+ import type { StickerProjectedContour, StickerProjectedQuad, StickerTransformPlane } from '@webpod/device'
+ import { BODY_H, BODY_W } from '@webpod/tokens'
+ import type { StickerPlacement } from '@webpod/stickers'
+ import { applyStickerEditor, resetStickerAppearance, dismissStickerEditor, previewStickerEdit, revertStickerEditor, retryStickerEdit, setStickerEditorProperty, stickerEditorAtom, stickerEditorFailureAtom, stickerEditorGestureAtom, stickerEditorCancelAtom, undoStickerEdit, type StickerEditorProperty, type StickerEditorState } from './sticker-editor-model'
++import { stickerProjectionVersionAtom } from './sticker-collections-model'
+ import { chooseHudLayout, type HudLayout } from './sticker-hud-layout'
+ 
+ /* ANIMATION STORYBOARD — on-object precision tools
+@@ -18,6 +19,7 @@
+ const releaseAtom = atom<{ corner: number; kind: 'width' | 'rotationDeg'; x: number; y: number; progress: number; epoch: number } | null>(null)
+ const rangeGestureAtom = atom<'active' | 'cancelled' | null>(null)
+ const lastPresentedAtom = atom<StickerEditorState | null>(null)
++const shownEditorAtom = atom(get => get(stickerEditorAtom) ?? get(lastPresentedAtom))
+ const layoutAtom = atom<HudLayout | null>(null)
+ const dragVisualAtom = atom<{ corner: number; property: 'width' | 'rotationDeg'; pointer: { x: number; y: number } } | null>(null)
+ const presenceAtom = atom(0)
+@@ -40,22 +42,30 @@
+   const paths: Record<string, string> = { rotate: 'M5 8a7 7 0 1 1-1 8M5 3v5h5', size: 'M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5M8 16l8-8', wear: 'M5 5l14 14M5 13l6 6M13 5l6 6M4 19l2-2M17 7l3-3', pack: 'M4 6h16v14H4zM8 6V3h8v3M8 12l4 4 4-4M12 9v7', undo: 'M4 4v6h6M4 10a8 8 0 1 1 1 9', precise: 'M4 7h16M4 17h16M8 4v6M16 14v6' }
+   return <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[kind]} /></svg>
+ }
+-export function StickerEditor({ screen, quad, contour, beginTransform, place, returnToPack }: {
++type StickerEditorProps = {
+   readonly screen: (placement: StickerPlacement) => { x: number; y: number } | null
+   readonly contour?: (placement: StickerPlacement) => StickerProjectedContour | null
+   readonly quad?: (placement: StickerPlacement) => StickerProjectedQuad | null
+   readonly beginTransform?: (placement: StickerPlacement) => StickerTransformPlane | null
+   readonly place: (placement: StickerPlacement, expectedSource?: StickerPlacement) => Promise<void>
+   readonly returnToPack: (id: string) => void
+-}) {
++}
++/** Moving a sticker never retains the appearance HUD, including its exit animation. */
++export function StickerEditor(props: StickerEditorProps) {
++  const interaction = useAtomValue(stickerInteractionAtom, { store: deviceStore })
++  if (interaction.stage === 'peeling' || interaction.stage === 'placing' || interaction.stage === 'settling') return null
++  return <StickerAppearanceEditor {...props} />
++}
++function StickerAppearanceEditor({ screen, quad, contour, beginTransform, place, returnToPack }: StickerEditorProps) {
+   const state = useAtomValue(stickerEditorAtom, { store: deviceStore }), failure = useAtomValue(stickerEditorFailureAtom, { store: deviceStore })
+   const tooltip = useAtomValue(tooltipAtom, { store: deviceStore })
+   const release = useAtomValue(releaseAtom, { store: deviceStore })
+   const presence = useAtomValue(presenceAtom, { store: deviceStore }), viewport = useAtomValue(viewportAtom, { store: deviceStore })
+-  const last = useAtomValue(lastPresentedAtom, { store: deviceStore }), savedLayout = useAtomValue(layoutAtom, { store: deviceStore }), dragVisual = useAtomValue(dragVisualAtom, { store: deviceStore }), gesture = useAtomValue(stickerEditorGestureAtom, { store: deviceStore })
++  const shown = useAtomValue(shownEditorAtom, { store: deviceStore })
++  const projectionVersion = useAtomValue(stickerProjectionVersionAtom, { store: deviceStore })
++  const savedLayout = useAtomValue(layoutAtom, { store: deviceStore }), dragVisual = useAtomValue(dragVisualAtom, { store: deviceStore }), gesture = useAtomValue(stickerEditorGestureAtom, { store: deviceStore })
+   const drag = useRef<Drag | null>(null), velocity = useRef(0), activeId = useRef<string | null>(null), range = useRef<HTMLInputElement>(null)
+   useLayoutEffect(() => { if (state !== null) deviceStore.set(lastPresentedAtom, state) }, [state])
+-  const shown = state ?? last
+   const selectedId = state?.source.stickerId ?? null
+   const projectionKey = (source: StickerPlacement): string => JSON.stringify([source, { ...source, x: source.x + .1 }, { ...source, y: source.y + .1 }].map(p => screen(p)).map(p => p === null ? null : [Math.round(p.x * 100), Math.round(p.y * 100)]))
+   useLayoutEffect(() => {
+@@ -128,12 +138,13 @@
+     onBlur: () => deviceStore.set(tooltipAtom, null),
+   })
+   const tooltipView = tooltip === null ? null : <div id="sticker-contour-tooltip" role="tooltip" popover={typeof HTMLElement !== 'undefined' && 'popover' in HTMLElement.prototype ? 'manual' : undefined} className="pointer-events-auto fixed max-w-56 rounded-lg bg-[#202a31] px-3 py-2 text-xs text-white shadow-lg" style={{ left: tooltip.x, top: tooltip.y, margin: 0, right: 'auto', bottom: 'auto', border: 0 }} onPointerEnter={event => { tooltipPointer={x:event.clientX,y:event.clientY};if (tooltipTimer !== null) clearTimeout(tooltipTimer) }} onPointerMove={event=>{tooltipPointer={x:event.clientX,y:event.clientY}}} onPointerLeave={() => { if (!document.activeElement?.hasAttribute('aria-describedby')) deviceStore.set(tooltipAtom, null) }}>{tooltip.text}</div>
++  const draft = shown?.draft
++  const { shape } = useMemo(() => ({ version: projectionVersion, shape: draft === undefined || contour === undefined ? null : contour(draft) }), [draft, contour, projectionVersion])
+   if (shown === null || presence <= 0) {
+     if (failure === null) return null
+     const source = deviceStore.get(stickerInventoryAtom)?.placements.find(p => p.stickerId === failure.stickerId), point = source === undefined ? null : screen(source)
+     return <><div data-sticker-editor-failure role="alert" className="pointer-events-auto fixed z-40 rounded-full bg-[#242a2e] px-3 text-xs text-white" style={{ left: Math.max(16, Math.min(viewport.width - 220, point?.x ?? 16)), top: Math.max(64, Math.min(viewport.height - 60, point?.y ?? 64)) }}>{failure.message}{failure.attempted !== undefined && <button className="min-h-11 px-3 underline" {...tipEvents('retry', 'Retry saving this change')} onClick={() => retryStickerEdit(place)}>Retry</button>}</div>{tooltipView}</>
+   }
+-  const shape = contour?.(shown.draft)
+   if (shape == null) return null
+   const arrangement = gesture && savedLayout !== null ? savedLayout : chooseHudLayout(shape, viewport.width, viewport.height, (deviceStore.get(stickerInventoryAtom)?.placements ?? []).filter(p => p.stickerId !== shown.source.stickerId).flatMap(p => { const q = quad?.(p); return q == null ? [] : [{ left: Math.min(...q.corners.map(p => p.x)), right: Math.max(...q.corners.map(p => p.x)), top: Math.min(...q.corners.map(p => p.y)), bottom: Math.max(...q.corners.map(p => p.y)) }] }))
+   const grips = shape.anchors.map((anchor, i) => {
+diff --git a/apps/web/src/sticker-editor-model.ts b/apps/web/src/sticker-editor-model.ts
+--- a/apps/web/src/sticker-editor-model.ts
++++ b/apps/web/src/sticker-editor-model.ts
+@@ -1,4 +1,5 @@
+ import { atom } from 'jotai'
++import { selectAtom } from 'jotai/utils'
+ import { deviceStore, stickerInventoryAtom } from '@webpod/state'
+ import { isStickerPlacement, type StickerPlacement } from '@webpod/stickers'
+ 
+@@ -25,10 +26,12 @@
+   return a.stickerId === b.stickerId && a.x === b.x && a.y === b.y && a.width === b.width && a.rotationDeg === b.rotationDeg && (a.wear ?? 0) === (b.wear ?? 0)
+ }
+ export const stickerEditorDirtyAtom = atom((get) => { const state = get(stickerEditorAtom); return state !== null && !sameStickerPose(state.source, state.draft) })
+-export const stickerEditorPlacementsAtom = atom((get) => {
++const projectedEditorPlacementsAtom = atom((get) => {
+   const inventory = get(stickerInventoryAtom), state = get(stickerEditorAtom)
+   return (inventory?.placements ?? []).map((item) => state?.source.stickerId === item.stickerId ? state.draft : item)
+ })
++/** Metadata-only editor publications keep the rendered placement identity. */
++export const stickerEditorPlacementsAtom = selectAtom(projectedEditorPlacementsAtom, placements => placements, (a, b) => a.length === b.length && a.every((placement, index) => placement === b[index]))
+ export function selectStickerEditor(source: StickerPlacement, keyboard = false): void {
+   deviceStore.set(stickerEditorFailureAtom, null)
+   deviceStore.set(stickerEditorAtom, { source, draft: source, property: 'rotationDeg', phase: stickerEditPending(source.stickerId) ? 'saving' : 'editing', message: null, keyboard })
+diff --git a/apps/web/src/sticker-editor-model.test.ts b/apps/web/src/sticker-editor-model.test.ts
+--- a/apps/web/src/sticker-editor-model.test.ts
++++ b/apps/web/src/sticker-editor-model.test.ts
+@@ -71,3 +71,26 @@
+   })
+   expect(calls).toBe(1);expect(deviceStore.get(stickerEditorAtom)?.message).toContain('as far as')
+ })
++
++test('rendered placements retain identity across metadata while every editor publication remains observable', () => {
++  seed()
++  const initial = deviceStore.get(stickerEditorPlacementsAtom)
++  let editorPublications = 0, placementPublications = 0
++  const stopEditor = deviceStore.sub(stickerEditorAtom, () => { editorPublications++ })
++  const stopPlacements = deviceStore.sub(stickerEditorPlacementsAtom, () => { placementPublications++ })
++  try {
++    setStickerEditorProperty('wear')
++    expect(editorPublications).toBe(1); expect(placementPublications).toBe(0)
++    expect(deviceStore.get(stickerEditorPlacementsAtom)).toBe(initial)
++    previewStickerEdit(.35)
++    expect(editorPublications).toBe(2); expect(placementPublications).toBe(1)
++    expect(deviceStore.get(stickerEditorPlacementsAtom)[0]?.wear).toBe(.35)
++    const latest = deviceStore.get(stickerEditorPlacementsAtom)
++    setStickerEditorProperty('rotationDeg')
++    expect(editorPublications).toBe(3); expect(placementPublications).toBe(1)
++    expect(deviceStore.get(stickerEditorPlacementsAtom)).toBe(latest)
++    previewStickerEdit(17)
++    expect(deviceStore.get(stickerEditorPlacementsAtom)[0]).toEqual({ ...source, wear: .35, rotationDeg: 17 })
++    expect(placementPublications).toBe(2)
++  } finally { stopEditor(); stopPlacements() }
++})
+diff --git a/apps/web/src/sticker-editor-carry.test.tsx b/apps/web/src/sticker-editor-carry.test.tsx
+new file mode 100644
+--- /dev/null
++++ b/apps/web/src/sticker-editor-carry.test.tsx
+@@ -0,0 +1,69 @@
++import { expect, test } from 'bun:test'
++import { act } from 'react'
++import { createRequire } from 'node:module'
++import { deviceStore, stickerInteractionAtom } from '@webpod/state'
++import { stickerProjectionVersionAtom } from './sticker-collections-model'
++import { updateStickerInteraction } from './sticker-interaction'
++import { StickerEditor } from './sticker-editor'
++import { resetStickerEditor, selectStickerEditor, setStickerEditorProperty, previewStickerEdit, stickerEditorAtom, dismissStickerEditor } from './sticker-editor-model'
++
++test('moving suppresses all appearance controls, while idle selection retains rotation and wear', async () => {
++  const require = createRequire(new URL('../../../packages/composite/package.json', import.meta.url))
++  const { GlobalRegistrator } = require('@happy-dom/global-registrator') as { GlobalRegistrator: { register(): void; unregister(): void } }
++  GlobalRegistrator.register()
++  const previousAct = Object.getOwnPropertyDescriptor(globalThis, 'IS_REACT_ACT_ENVIRONMENT')
++  Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true })
++  const originalMatch = globalThis.matchMedia
++  let reducedMotion = true
++  globalThis.matchMedia = query => ({ matches: reducedMotion, media: query, onchange: null, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {}, dispatchEvent: () => true })
++  const oldRequest = globalThis.requestAnimationFrame, oldCancel = globalThis.cancelAnimationFrame
++  globalThis.requestAnimationFrame = () => 1; globalThis.cancelAnimationFrame = () => {}
++  const initial = deviceStore.get(stickerInteractionAtom)
++  const { createRoot } = await import('react-dom/client')
++  const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
++  const source = { stickerId: 'PW-C03' as const, surface: 'back' as const, x: .5, y: .5, width: .25, rotationDeg: 0, wear: .2 }
++  const points = [{ x: 100, y: 100 }, { x: 200, y: 100 }, { x: 200, y: 300 }, { x: 100, y: 300 }] as const
++  let contourCalls = 0
++  try {
++    await act(async () => { updateStickerInteraction({ ...initial, stage: 'hidden' }); selectStickerEditor(source); root.render(<StickerEditor screen={() => ({ x: 150, y: 200 })} contour={() => { contourCalls++; return { paths: [points], anchors: points, center: { x: 150, y: 200 } } }} place={async () => {}} returnToPack={() => {}} />) })
++    expect(host.querySelector('[data-sticker-contour]')).not.toBeNull()
++    expect(host.querySelectorAll('[data-hud-handle="rotate"]')).toHaveLength(4)
++    expect(host.querySelector('[aria-label="Sticker wear"]')).not.toBeNull()
++    const beforeMetadata = contourCalls
++    await act(async () => setStickerEditorProperty('wear'))
++    const metadataCalls = contourCalls - beforeMetadata
++    const beforePreview = contourCalls
++    await act(async () => previewStickerEdit(.35))
++    expect(deviceStore.get(stickerEditorAtom)?.draft.wear).toBe(.35)
++    expect(metadataCalls).toBe(0)
++    expect(contourCalls - beforePreview).toBe(1)
++    expect(host.querySelector<HTMLInputElement>('[aria-label="Sticker wear"]')?.value).toBe('0.35')
++    const beforeReady = contourCalls
++    await act(async () => deviceStore.set(stickerProjectionVersionAtom, version => version + 1))
++    expect(contourCalls - beforeReady).toBe(1)
++    reducedMotion = false
++    await act(async () => dismissStickerEditor())
++    expect(host.querySelector('[data-sticker-contour]')).not.toBeNull()
++    expect(host.querySelector<HTMLInputElement>('[aria-label="Sticker wear"]')?.value).toBe('0.35')
++    const beforeSwitch = contourCalls
++    await act(async () => selectStickerEditor({ ...source, stickerId: 'PW-C02', wear: .6 }))
++    expect(contourCalls - beforeSwitch).toBe(1)
++    expect(host.querySelector('[data-sticker-editor]')?.getAttribute('data-sticker-editor')).toBe('PW-C02')
++    expect(host.querySelector<HTMLInputElement>('[aria-label="Sticker wear"]')?.value).toBe('0.6')
++    reducedMotion = true
++    for (const stage of ['peeling', 'placing', 'settling'] as const) {
++      await act(async () => { selectStickerEditor(source); updateStickerInteraction({ ...initial, stage }) })
++      expect(host.querySelector('[data-sticker-editor]')).toBeNull()
++      expect(host.querySelector('svg, button, input')).toBeNull()
++    }
++    await act(async () => { updateStickerInteraction({ ...initial, stage: 'hidden' }); selectStickerEditor(source) })
++    expect(host.querySelector('[data-sticker-contour]')).not.toBeNull()
++    expect(host.querySelector('[aria-label="Sticker wear"]')).not.toBeNull()
++  } finally {
++    await act(async () => root.unmount()); host.remove(); resetStickerEditor(); updateStickerInteraction(initial)
++    globalThis.requestAnimationFrame = oldRequest; globalThis.cancelAnimationFrame = oldCancel
++    globalThis.matchMedia = originalMatch
++    if (previousAct === undefined) Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT'); else Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', previousAct)
++    GlobalRegistrator.unregister()
++  }
++})

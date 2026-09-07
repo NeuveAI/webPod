@@ -1,0 +1,4 @@
+import {actualShell} from './webpod-actual-shell';
+import {Vector3} from '/Users/vinicius/code/webPod/packages/device/node_modules/three';
+const shell=actualShell();let maximumZ=-Infinity;for(const face of shell.faces){const p=face.geometry.getAttribute('position');for(let i=0;i<p.count;i++){const v=new Vector3().fromBufferAttribute(p,i);if(face.transform)v.applyMatrix4(face.transform);maximumZ=Math.max(maximumZ,v.z);}}
+const a=await Bun.file('/tmp/webpod-fan-compatibility.json').json();console.log(JSON.stringify({maximumActualShellZ:maximumZ,apexZ:a.apex[2],minimumPossibleApexGap:a.apex[2]-maximumZ,unavoidableGeneratorLengthAboveShellZ:(a.apex[2]-maximumZ)/(a.apex[2]-a.center[2])*Math.hypot(57.75,57.75)}));shell.dispose();

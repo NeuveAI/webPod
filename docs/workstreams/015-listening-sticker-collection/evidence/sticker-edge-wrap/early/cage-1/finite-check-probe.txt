@@ -1,0 +1,12 @@
+import {actualShell} from '/tmp/webpod-fermi-shell';
+import {createStickerWrapSurface,bindStickerWrapSurface} from '/Users/vinicius/code/webPod/packages/device/src/sticker-wrap';
+import {createStickerSurfaceGeometry} from '/Users/vinicius/code/webPod/packages/device/src/sticker-surface';
+import {DEFAULT_DEVICE_FORM} from '/Users/vinicius/code/webPod/packages/device/src/form';
+import {getSticker} from '/Users/vinicius/code/webPod/packages/stickers/src/catalogue';
+import {Vector3} from '/Users/vinicius/code/webPod/packages/device/node_modules/three';
+const shell=actualShell(),faces=shell.faces.filter(f=>f.source!=='top cap and outer bevel candidate support').filter(f=>!f.source.includes('rear')).map(f=>({geometry:f.geometry,offset:f.transform?[f.transform.elements[12],f.transform.elements[13],f.transform.elements[14]]:undefined})),surface=createStickerWrapSurface(DEFAULT_DEVICE_FORM,faces),release=bindStickerWrapSurface(shell.rear,surface),art=getSticker('PW-C03');
+console.log(art);
+const begin=performance.now(),g=createStickerSurfaceGeometry(art,{stickerId:'PW-C03',surface:'back',x:.027,y:.017,width:.35,rotationDeg:0,wear:1},shell.rear),p=g.getAttribute('position'),n=g.getAttribute('normal'),ix=g.index;let finite=true,zero=0,reversed=0,minArea=Infinity;
+for(let i=0;i<p.count;i++)finite&&=[p.getX(i),p.getY(i),p.getZ(i)].every(Number.isFinite);
+for(let i=0;i<ix.count;i+=3){const ids=[0,1,2].map(k=>ix.getX(i+k)),ps=ids.map(j=>new Vector3().fromBufferAttribute(p,j)),cross=ps[1].clone().sub(ps[0]).cross(ps[2].clone().sub(ps[0])),normal=ids.reduce((sum,j)=>sum.add(new Vector3().fromBufferAttribute(n,j)),new Vector3());minArea=Math.min(minArea,cross.length()/2);if(cross.length()<1e-10)zero++;if(cross.dot(normal)<0)reversed++;}
+console.log(JSON.stringify({finite,zero,reversed,minArea,vertices:p.count,triangles:ix.count/3,constructionMs:performance.now()-begin}));g.dispose();release();shell.dispose();

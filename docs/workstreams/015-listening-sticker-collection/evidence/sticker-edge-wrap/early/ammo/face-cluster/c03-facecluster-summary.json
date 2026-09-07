@@ -1,0 +1,146 @@
+{
+  "variant": "LIMITED frozen initial exterior target substrate/press diagnostic. Capture is distance to frozen target, NOT current-support adhesion; no physical tack success/failure inference.",
+  "initializationMs": 6.674792000000004,
+  "shellMs": 260.826709,
+  "heapInitial": 67108864,
+  "sourceSeed": "seed-preflight-tolerant.json",
+  "results": [
+    {
+      "hz": 240,
+      "status": "CPU cap: incomplete physical schedule",
+      "requestedSteps": 818,
+      "completedSteps": 135,
+      "physicalTime": 0.5625,
+      "pressSeconds": 2.908333333333333,
+      "captureSeconds": 0.5,
+      "forceMs": 27.83899999999869,
+      "nativeMs": 1981.8732519999992,
+      "solverPlusForceMs": 2009.712251999998,
+      "copyMs": 2.9410819999999376,
+      "triangleCopyMs": 31.059874999999977,
+      "nativeBvhMs": 88.58045800000002,
+      "constraintMs": 5.323624999999993,
+      "clusterMs": 21.769499999999994,
+      "constructionMs": 148.47083400000002,
+      "staticTriangles": 203743,
+      "bendingLinks": 6015,
+      "clusterCount": 2048,
+      "collidableClusters": 2048,
+      "connectivityBooleanEntries": 4194304,
+      "connectivityPayloadBytes": 4194304,
+      "clusterQualification": "Pinned k=0 face branch has no master: one collidable cluster per face. Connectivity bool payload assumes pinned wasm bool is one byte; allocation overhead is not measured.",
+      "heapAfterConstruction": 67108864,
+      "pins": [
+        {
+          "id": 544,
+          "position": [
+            157.06940564484464,
+            268.0717146567886,
+            3.105956494633084
+          ],
+          "gap": 0.09999999999996718,
+          "source": "rear without hidden seam return"
+        },
+        {
+          "id": 545,
+          "position": [
+            159.04335115816082,
+            266.38187711400735,
+            5.6110664882443535
+          ],
+          "gap": 0.2793243193975346,
+          "source": "rear without hidden seam return"
+        },
+        {
+          "id": 577,
+          "position": [
+            153.728898979148,
+            271.7551638044967,
+            8.222861075417127
+          ],
+          "gap": 0.5354560739969888,
+          "source": "rear without hidden seam return"
+        }
+      ],
+      "cleanup": [
+        {
+          "name": "configuration",
+          "destroyed": true
+        },
+        {
+          "name": "dispatcher",
+          "destroyed": true
+        },
+        {
+          "name": "broadphase",
+          "destroyed": true
+        },
+        {
+          "name": "constraint solver",
+          "destroyed": true
+        },
+        {
+          "name": "soft solver",
+          "destroyed": true
+        },
+        {
+          "name": "world",
+          "destroyed": true
+        },
+        {
+          "name": "zero",
+          "destroyed": true
+        },
+        {
+          "name": "static mesh",
+          "destroyed": true
+        },
+        {
+          "name": "triangle vector 0",
+          "destroyed": true
+        },
+        {
+          "name": "triangle vector 1",
+          "destroyed": true
+        },
+        {
+          "name": "triangle vector 2",
+          "destroyed": true
+        },
+        {
+          "name": "static shape",
+          "destroyed": true
+        },
+        {
+          "name": "transform",
+          "destroyed": true
+        },
+        {
+          "name": "motion",
+          "destroyed": true
+        },
+        {
+          "name": "construction info",
+          "destroyed": true
+        },
+        {
+          "name": "rigid body",
+          "destroyed": true
+        },
+        {
+          "name": "soft helper",
+          "destroyed": true
+        },
+        {
+          "name": "soft body",
+          "destroyed": true
+        },
+        {
+          "name": "force vector",
+          "destroyed": true
+        }
+      ],
+      "heapAfterCleanup": 67108864
+    }
+  ]
+}

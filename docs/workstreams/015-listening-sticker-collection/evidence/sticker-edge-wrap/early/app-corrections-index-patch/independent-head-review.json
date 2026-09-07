@@ -1,0 +1,27 @@
+{
+  "base": "2f1001a0b72b1829a581123e4cc4691f0c60319e",
+  "patchSha256": "426126b49f2b98fec9be65a41a1349c61205eabba2b0c14b1787409eadb639b5",
+  "scratch": "/tmp/webpod-app-patch-review",
+  "changedPaths": [
+    "apps/web/src/sticker-editor-carry.test.tsx",
+    "apps/web/src/sticker-editor-model.test.ts",
+    "apps/web/src/sticker-editor-model.ts",
+    "apps/web/src/sticker-editor.tsx"
+  ],
+  "expectedPaths": [
+    "apps/web/src/sticker-editor-carry.test.tsx",
+    "apps/web/src/sticker-editor-model.test.ts",
+    "apps/web/src/sticker-editor-model.ts",
+    "apps/web/src/sticker-editor.tsx"
+  ],
+  "exactFourFileScope": true,
+  "tests": {
+    "tests": 8,
+    "assertions": 67,
+    "passed": true
+  },
+  "typecheck": "bunx --no-install tsc --noEmit -p apps/web/tsconfig.json: passed",
+  "lint": "four patch files against HEAD eslint config: passed",
+  "workspaceResolution": "@webpod/state,stickers,device,tokens resolve under /private/tmp/webpod-app-patch-review/packages",
+  "limits": "External dependency artifacts reused from installed node_modules; all workspace source modules are HEAD-backed. No index or working source mutation; no native evidence attributed to this patch alone."
+}

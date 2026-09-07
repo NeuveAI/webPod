@@ -1,0 +1,7195 @@
+{
+  "witness": {
+    "name": "wrapped-1280-front",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "face": "front",
+    "rightStepsFromRear": 15,
+    "pickup": {
+      "x": 762.6675245342133,
+      "y": 137.99494921046283
+    },
+    "partial": {
+      "x": 742.8239843947553,
+      "y": 140.49173008465272
+    },
+    "release": {
+      "x": 587.6045560693025,
+      "y": 160.02195993386476
+    },
+    "expectedCenter": {
+      "x": 0.35,
+      "y": 0.017
+    },
+    "occluded": {
+      "x": 831.3879468122576,
+      "y": 180.38755075802538
+    },
+    "flickEnd": {
+      "x": 711.3879468122576,
+      "y": 215.38755075802538
+    },
+    "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-5/wrapped-1280-front.json"
+  },
+  "route": {
+    "records": [
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 762.6675415039062,
+          "y": 137.9949493408203,
+          "id": 1,
+          "button": -1,
+          "buttons": 0,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 762.6675415039062,
+          "offsetY": 137.9949493408203,
+          "phase": 1,
+          "stage": null
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 762.6675415039062,
+          "y": 137.9949493408203,
+          "id": 1,
+          "button": -1,
+          "buttons": 0,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 762.6675415039062,
+          "offsetY": 137.9949493408203,
+          "phase": 1,
+          "stage": null
+        }
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 762.6675415039062,
+          "y": 137.9949493408203,
+          "id": 1,
+          "button": -1,
+          "buttons": 0,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 762.6675415039062,
+          "offsetY": 137.9949493408203,
+          "phase": 3,
+          "stage": null
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointerdown",
+          "x": 762.6675415039062,
+          "y": 137.9949493408203,
+          "id": 1,
+          "button": 0,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 762.6675415039062,
+          "offsetY": 137.9949493408203,
+          "phase": 1,
+          "stage": null
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointerdown",
+          "x": 762.6675415039062,
+          "y": 137.9949493408203,
+          "id": 1,
+          "button": 0,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 762.6675415039062,
+          "offsetY": 137.9949493408203,
+          "phase": 1,
+          "stage": null
+        }
+      },
+      {
+        "method": "preventDefault",
+        "event": {
+          "type": "pointerdown",
+          "x": 762.6675415039062,
+          "y": 137.9949493408203,
+          "id": 1,
+          "button": 0,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 762.6675415039062,
+          "offsetY": 137.9949493408203,
+          "phase": 1,
+          "stage": null
+        },
+        "stack": "Error\n    at Event.<computed> [as preventDefault] (<anonymous>:19:69)\n    at HTMLDocument.n (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:15576)"
+      },
+      {
+        "method": "stopImmediatePropagation",
+        "event": {
+          "type": "pointerdown",
+          "x": 762.6675415039062,
+          "y": 137.9949493408203,
+          "id": 1,
+          "button": 0,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": true,
+          "cancelBubble": false,
+          "offsetX": 762.6675415039062,
+          "offsetY": 137.9949493408203,
+          "phase": 1,
+          "stage": null
+        },
+        "stack": "Error\n    at Event.<computed> [as stopImmediatePropagation] (<anonymous>:19:69)\n    at HTMLDocument.n (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:15595)"
+      },
+      {
+        "method": "setPointerCapture",
+        "id": 1,
+        "target": {
+          "tag": "CANVAS",
+          "id": "",
+          "class": null
+        },
+        "stack": "Error\n    at Element.<computed> [as setPointerCapture] (<anonymous>:26:68)\n    at HTMLDocument.n (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:15628)"
+      },
+      {
+        "event": {
+          "type": "gotpointercapture",
+          "x": 760.1870727539062,
+          "y": 138.3070526123047,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 760.1870727539062,
+          "offsetY": 138.3070526123047,
+          "phase": 1,
+          "stage": null
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "gotpointercapture",
+          "x": 760.1870727539062,
+          "y": 138.3070526123047,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 760.1870727539062,
+          "offsetY": 138.3070526123047,
+          "phase": 1,
+          "stage": null
+        }
+      },
+      {
+        "event": {
+          "type": "gotpointercapture",
+          "x": 760.1870727539062,
+          "y": 138.3070526123047,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 760.1870727539062,
+          "offsetY": 138.3070526123047,
+          "phase": 3,
+          "stage": null
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 760.1870727539062,
+          "y": 138.3070526123047,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 760.1870727539062,
+          "offsetY": 138.3070526123047,
+          "phase": 1,
+          "stage": null
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 760.1870727539062,
+          "y": 138.3070526123047,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 760.1870727539062,
+          "offsetY": 138.3070526123047,
+          "phase": 1,
+          "stage": null
+        }
+      },
+      {
+        "method": "stopImmediatePropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 760.1870727539062,
+          "y": 138.3070526123047,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 760.1870727539062,
+          "offsetY": 138.3070526123047,
+          "phase": 1,
+          "stage": null
+        },
+        "stack": "Error\n    at Event.<computed> [as stopImmediatePropagation] (<anonymous>:19:69)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:15818)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 757.7066650390625,
+          "y": 138.619140625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 757.7066650390625,
+          "offsetY": 138.619140625,
+          "phase": 1,
+          "stage": null
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 757.7066650390625,
+          "y": 138.619140625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 757.7066650390625,
+          "offsetY": 138.619140625,
+          "phase": 1,
+          "stage": null
+        }
+      },
+      {
+        "method": "stopImmediatePropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 757.7066650390625,
+          "y": 138.619140625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 757.7066650390625,
+          "offsetY": 138.619140625,
+          "phase": 1,
+          "stage": null
+        },
+        "stack": "Error\n    at Event.<computed> [as stopImmediatePropagation] (<anonymous>:19:69)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:15818)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 755.2261962890625,
+          "y": 138.93124389648438,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 755.2261962890625,
+          "offsetY": 138.93124389648438,
+          "phase": 1,
+          "stage": null
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 755.2261962890625,
+          "y": 138.93124389648438,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 755.2261962890625,
+          "offsetY": 138.93124389648438,
+          "phase": 1,
+          "stage": null
+        }
+      },
+      {
+        "method": "stopImmediatePropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 755.2261962890625,
+          "y": 138.93124389648438,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 755.2261962890625,
+          "offsetY": 138.93124389648438,
+          "phase": 1,
+          "stage": null
+        },
+        "stack": "Error\n    at Event.<computed> [as stopImmediatePropagation] (<anonymous>:19:69)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:15818)"
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointerdown",
+          "x": 762.6675415039062,
+          "y": 137.9949493408203,
+          "id": 1,
+          "button": 0,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": null,
+          "path": [],
+          "prevented": true,
+          "cancelBubble": false,
+          "offsetX": 762.6675415039062,
+          "offsetY": 137.9949493408203,
+          "phase": 0,
+          "stage": null
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at ee (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:7672)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16140)"
+      },
+      {
+        "method": "setPointerCapture",
+        "id": 1,
+        "target": {
+          "tag": "CANVAS",
+          "id": "",
+          "class": null
+        },
+        "stack": "Error\n    at Element.<computed> [as setPointerCapture] (<anonymous>:26:68)\n    at ee (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:7869)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16140)"
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 755.2261962890625,
+          "y": 138.93124389648438,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": true,
+          "offsetX": 755.2261962890625,
+          "offsetY": 138.93124389648438,
+          "phase": 1,
+          "stage": null
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16186)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 752.7457275390625,
+          "y": 139.24334716796875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 752.7457275390625,
+          "offsetY": 139.24334716796875,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 752.7457275390625,
+          "y": 139.24334716796875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 752.7457275390625,
+          "offsetY": 139.24334716796875,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 752.7457275390625,
+          "y": 139.24334716796875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 752.7457275390625,
+          "offsetY": 139.24334716796875,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 750.2653198242188,
+          "y": 139.55543518066406,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 750.2653198242188,
+          "offsetY": 139.55543518066406,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 750.2653198242188,
+          "y": 139.55543518066406,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 750.2653198242188,
+          "offsetY": 139.55543518066406,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 750.2653198242188,
+          "y": 139.55543518066406,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 750.2653198242188,
+          "offsetY": 139.55543518066406,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 747.7848510742188,
+          "y": 139.86753845214844,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 747.7848510742188,
+          "offsetY": 139.86753845214844,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 747.7848510742188,
+          "y": 139.86753845214844,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 747.7848510742188,
+          "offsetY": 139.86753845214844,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 747.7848510742188,
+          "y": 139.86753845214844,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 747.7848510742188,
+          "offsetY": 139.86753845214844,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 745.304443359375,
+          "y": 140.17962646484375,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 745.304443359375,
+          "offsetY": 140.17962646484375,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 745.304443359375,
+          "y": 140.17962646484375,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 745.304443359375,
+          "offsetY": 140.17962646484375,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 745.304443359375,
+          "y": 140.17962646484375,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 745.304443359375,
+          "offsetY": 140.17962646484375,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 742.823974609375,
+          "y": 140.49172973632812,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 742.823974609375,
+          "offsetY": 140.49172973632812,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 742.823974609375,
+          "y": 140.49172973632812,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 742.823974609375,
+          "offsetY": 140.49172973632812,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 742.823974609375,
+          "y": 140.49172973632812,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 742.823974609375,
+          "offsetY": 140.49172973632812,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 736.3565063476562,
+          "y": 141.3054962158203,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 736.3565063476562,
+          "offsetY": 141.3054962158203,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 736.3565063476562,
+          "y": 141.3054962158203,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 736.3565063476562,
+          "offsetY": 141.3054962158203,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 736.3565063476562,
+          "y": 141.3054962158203,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 736.3565063476562,
+          "offsetY": 141.3054962158203,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 729.8890380859375,
+          "y": 142.11924743652344,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 729.8890380859375,
+          "offsetY": 142.11924743652344,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 729.8890380859375,
+          "y": 142.11924743652344,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 729.8890380859375,
+          "offsetY": 142.11924743652344,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 729.8890380859375,
+          "y": 142.11924743652344,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 729.8890380859375,
+          "offsetY": 142.11924743652344,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 723.4215698242188,
+          "y": 142.93301391601562,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 723.4215698242188,
+          "offsetY": 142.93301391601562,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 723.4215698242188,
+          "y": 142.93301391601562,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 723.4215698242188,
+          "offsetY": 142.93301391601562,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 723.4215698242188,
+          "y": 142.93301391601562,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 723.4215698242188,
+          "offsetY": 142.93301391601562,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 716.9541015625,
+          "y": 143.74676513671875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 716.9541015625,
+          "offsetY": 143.74676513671875,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 716.9541015625,
+          "y": 143.74676513671875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 716.9541015625,
+          "offsetY": 143.74676513671875,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 716.9541015625,
+          "y": 143.74676513671875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 716.9541015625,
+          "offsetY": 143.74676513671875,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 710.4866333007812,
+          "y": 144.56053161621094,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 710.4866333007812,
+          "offsetY": 144.56053161621094,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 710.4866333007812,
+          "y": 144.56053161621094,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 710.4866333007812,
+          "offsetY": 144.56053161621094,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 710.4866333007812,
+          "y": 144.56053161621094,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 710.4866333007812,
+          "offsetY": 144.56053161621094,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 704.0191040039062,
+          "y": 145.37428283691406,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 704.0191040039062,
+          "offsetY": 145.37428283691406,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 704.0191040039062,
+          "y": 145.37428283691406,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 704.0191040039062,
+          "offsetY": 145.37428283691406,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 704.0191040039062,
+          "y": 145.37428283691406,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 704.0191040039062,
+          "offsetY": 145.37428283691406,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 697.5516357421875,
+          "y": 146.18804931640625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 697.5516357421875,
+          "offsetY": 146.18804931640625,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 697.5516357421875,
+          "y": 146.18804931640625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 697.5516357421875,
+          "offsetY": 146.18804931640625,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 697.5516357421875,
+          "y": 146.18804931640625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 697.5516357421875,
+          "offsetY": 146.18804931640625,
+          "phase": 1,
+          "stage": null,
+          "carry": "peeling"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 691.0841674804688,
+          "y": 147.00180053710938,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 691.0841674804688,
+          "offsetY": 147.00180053710938,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 691.0841674804688,
+          "y": 147.00180053710938,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 691.0841674804688,
+          "offsetY": 147.00180053710938,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 691.0841674804688,
+          "y": 147.00180053710938,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 691.0841674804688,
+          "offsetY": 147.00180053710938,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 684.61669921875,
+          "y": 147.81556701660156,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 684.61669921875,
+          "offsetY": 147.81556701660156,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 684.61669921875,
+          "y": 147.81556701660156,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 684.61669921875,
+          "offsetY": 147.81556701660156,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 684.61669921875,
+          "y": 147.81556701660156,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 684.61669921875,
+          "offsetY": 147.81556701660156,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 678.1492309570312,
+          "y": 148.6293182373047,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 678.1492309570312,
+          "offsetY": 148.6293182373047,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 678.1492309570312,
+          "y": 148.6293182373047,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 678.1492309570312,
+          "offsetY": 148.6293182373047,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 678.1492309570312,
+          "y": 148.6293182373047,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 678.1492309570312,
+          "offsetY": 148.6293182373047,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 671.6817626953125,
+          "y": 149.44308471679688,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 671.6817626953125,
+          "offsetY": 149.44308471679688,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 671.6817626953125,
+          "y": 149.44308471679688,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 671.6817626953125,
+          "offsetY": 149.44308471679688,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 671.6817626953125,
+          "y": 149.44308471679688,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 671.6817626953125,
+          "offsetY": 149.44308471679688,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 665.2142944335938,
+          "y": 150.25685119628906,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 665.2142944335938,
+          "offsetY": 150.25685119628906,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 665.2142944335938,
+          "y": 150.25685119628906,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 665.2142944335938,
+          "offsetY": 150.25685119628906,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 665.2142944335938,
+          "y": 150.25685119628906,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 665.2142944335938,
+          "offsetY": 150.25685119628906,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 658.7467651367188,
+          "y": 151.0706024169922,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 658.7467651367188,
+          "offsetY": 151.0706024169922,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 658.7467651367188,
+          "y": 151.0706024169922,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 658.7467651367188,
+          "offsetY": 151.0706024169922,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 658.7467651367188,
+          "y": 151.0706024169922,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 658.7467651367188,
+          "offsetY": 151.0706024169922,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 652.279296875,
+          "y": 151.88436889648438,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 652.279296875,
+          "offsetY": 151.88436889648438,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 652.279296875,
+          "y": 151.88436889648438,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 652.279296875,
+          "offsetY": 151.88436889648438,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 652.279296875,
+          "y": 151.88436889648438,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 652.279296875,
+          "offsetY": 151.88436889648438,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 645.8118286132812,
+          "y": 152.6981201171875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 645.8118286132812,
+          "offsetY": 152.6981201171875,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 645.8118286132812,
+          "y": 152.6981201171875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 645.8118286132812,
+          "offsetY": 152.6981201171875,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 645.8118286132812,
+          "y": 152.6981201171875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 645.8118286132812,
+          "offsetY": 152.6981201171875,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 639.3443603515625,
+          "y": 153.5118865966797,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 639.3443603515625,
+          "offsetY": 153.5118865966797,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 639.3443603515625,
+          "y": 153.5118865966797,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 639.3443603515625,
+          "offsetY": 153.5118865966797,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 639.3443603515625,
+          "y": 153.5118865966797,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 639.3443603515625,
+          "offsetY": 153.5118865966797,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 632.8768920898438,
+          "y": 154.3256378173828,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 632.8768920898438,
+          "offsetY": 154.3256378173828,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 632.8768920898438,
+          "y": 154.3256378173828,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 632.8768920898438,
+          "offsetY": 154.3256378173828,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 632.8768920898438,
+          "y": 154.3256378173828,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 632.8768920898438,
+          "offsetY": 154.3256378173828,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 626.409423828125,
+          "y": 155.139404296875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 626.409423828125,
+          "offsetY": 155.139404296875,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 626.409423828125,
+          "y": 155.139404296875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 626.409423828125,
+          "offsetY": 155.139404296875,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 626.409423828125,
+          "y": 155.139404296875,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 626.409423828125,
+          "offsetY": 155.139404296875,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 619.9419555664062,
+          "y": 155.95315551757812,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 619.9419555664062,
+          "offsetY": 155.95315551757812,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 619.9419555664062,
+          "y": 155.95315551757812,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 619.9419555664062,
+          "offsetY": 155.95315551757812,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 619.9419555664062,
+          "y": 155.95315551757812,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 619.9419555664062,
+          "offsetY": 155.95315551757812,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 613.4744873046875,
+          "y": 156.7669219970703,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 613.4744873046875,
+          "offsetY": 156.7669219970703,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 613.4744873046875,
+          "y": 156.7669219970703,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 613.4744873046875,
+          "offsetY": 156.7669219970703,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "pointermove",
+          "x": 613.4744873046875,
+          "y": 156.7669219970703,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 613.4744873046875,
+          "offsetY": 156.7669219970703,
+          "phase": 1,
+          "stage": null,
+          "carry": "placing"
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at N (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:8429)\n    at HTMLDocument.r (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16222)"
+      },
+      {
+        "event": {
+          "type": "lostpointercapture",
+          "x": 607.0069580078125,
+          "y": 157.5806884765625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": "document",
+          "current": "document",
+          "path": [
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 607.0069580078125,
+          "offsetY": 157.5806884765625,
+          "phase": 2
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "lostpointercapture",
+          "x": 607.0069580078125,
+          "y": 157.5806884765625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": "document",
+          "current": "document",
+          "path": [
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 607.0069580078125,
+          "offsetY": 157.5806884765625,
+          "phase": 2
+        }
+      },
+      {
+        "method": "stopPropagation",
+        "event": {
+          "type": "lostpointercapture",
+          "x": 607.0069580078125,
+          "y": 157.5806884765625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": "document",
+          "current": "document",
+          "path": [
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 607.0069580078125,
+          "offsetY": 157.5806884765625,
+          "phase": 2
+        },
+        "stack": "Error\n    at Event.<computed> [as stopPropagation] (<anonymous>:19:69)\n    at P (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:10404)\n    at HTMLDocument.o (http://127.0.0.1:51596/assets/index-DdoKJDQu.js:4231:16760)"
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 607.0069580078125,
+          "y": 157.5806884765625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 607.0069580078125,
+          "offsetY": 157.5806884765625,
+          "phase": 1
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 607.0069580078125,
+          "y": 157.5806884765625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 607.0069580078125,
+          "offsetY": 157.5806884765625,
+          "phase": 1
+        }
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 607.0069580078125,
+          "y": 157.5806884765625,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 607.0069580078125,
+          "offsetY": 157.5806884765625,
+          "phase": 3
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 600.5394897460938,
+          "y": 158.39443969726562,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 600.5394897460938,
+          "offsetY": 158.39443969726562,
+          "phase": 1
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 600.5394897460938,
+          "y": 158.39443969726562,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 600.5394897460938,
+          "offsetY": 158.39443969726562,
+          "phase": 1
+        }
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 600.5394897460938,
+          "y": 158.39443969726562,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 600.5394897460938,
+          "offsetY": 158.39443969726562,
+          "phase": 3
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 594.072021484375,
+          "y": 159.2082061767578,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 594.072021484375,
+          "offsetY": 159.2082061767578,
+          "phase": 1
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 594.072021484375,
+          "y": 159.2082061767578,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 594.072021484375,
+          "offsetY": 159.2082061767578,
+          "phase": 1
+        }
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 594.072021484375,
+          "y": 159.2082061767578,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 594.072021484375,
+          "offsetY": 159.2082061767578,
+          "phase": 3
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 587.6045532226562,
+          "y": 160.02195739746094,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 587.6045532226562,
+          "offsetY": 160.02195739746094,
+          "phase": 1
+        },
+        "capture": true
+      },
+      {
+        "after": {
+          "type": "pointermove",
+          "x": 587.6045532226562,
+          "y": 160.02195739746094,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 587.6045532226562,
+          "offsetY": 160.02195739746094,
+          "phase": 1
+        }
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 587.6045532226562,
+          "y": 160.02195739746094,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HTML",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 587.6045532226562,
+          "offsetY": 160.02195739746094,
+          "phase": 3
+        },
+        "capture": false
+      }
+    ],
+    "elements": [
+      {
+        "tag": "HTML",
+        "id": "",
+        "class": null
+      }
+    ],
+    "active": {
+      "tag": "BODY",
+      "id": "",
+      "class": null
+    },
+    "canvas": []
+  },
+  "scope": "Exact second front pickup and all32 moves; no before-down screenshot, stop before placing assertion; instrumentation may affect timing"
+}

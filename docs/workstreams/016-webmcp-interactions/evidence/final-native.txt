@@ -1,0 +1,59 @@
+[W5B SOURCE 90bc096f21d68c487d522332a8519777148c1fa998819b5149a0e339975d2944 FILES 415 WORKTREE-SNAPSHOT]
+[WebServer] Resolving dependencies
+
+[WebServer] Resolved, downloaded and extracted [1]
+
+[WebServer] $ bun node_modules/vite/bin/vite.js dev --configLoader runner --port 3000 --host "127.0.0.1" --port "4329" --strictPort
+
+[WebServer] (node:69400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+
+[WebServer] (Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+Running 11 tests using 1 worker
+
+(node:69640) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `bun --trace-warnings ...` to show where the warning was created)
+
+
+[W5B SOURCE 90bc096f21d68c487d522332a8519777148c1fa998819b5149a0e339975d2944 FILES 415 WORKTREE-SNAPSHOT]
+
+
+[1/11] apps/web/tests/webmcp-native.e2e.ts:88:0 › native registry exposes unique current-draft schemas and complete selected list
+[WebServer] 12:42:53 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[2/11] apps/web/tests/webmcp-native.e2e.ts:110:69 › upstream deterministic smoke: Read the complete song list and traverse it through the real wheel
+[WebServer] 12:42:56 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[3/11] apps/web/tests/webmcp-native.e2e.ts:110:69 › upstream deterministic smoke: Carry, edit, release and persist owned stickers through the physical pack
+[WebServer] 12:43:04 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[4/11] apps/web/tests/webmcp-native.e2e.ts:136:0 › native invalid arguments reject without changing selection or orientation
+[WebServer] 12:43:09 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[5/11] apps/web/tests/webmcp-native.e2e.ts:159:0 › native traversal is paced in the visible list and emits SFX after trusted unlock
+[WebServer] 12:43:11 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[6/11] apps/web/tests/webmcp-native.e2e.ts:202:0 › native cancellation stops traversal and releases interaction ownership
+[WebServer] 12:43:16 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[7/11] apps/web/tests/webmcp-native.e2e.ts:230:0 › native orientation returns physical state and document reload registers once
+[WebServer] 12:43:20 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 12:43:24 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[8/11] apps/web/tests/webmcp-native.e2e.ts:272:0 › native sticker catalog includes every owned, locked, sealed and placed entry
+[WebServer] 12:43:26 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[9/11] apps/web/tests/webmcp-native.e2e.ts:291:0 › native held placed-sticker edits release to exact origin and failed save remains retryable
+[WebServer] 12:43:30 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[WebServer] 12:43:35 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[10/11] apps/web/tests/webmcp-native.e2e.ts:330:0 › human pack close and front flip interrupt native carry without persistence
+[WebServer] 12:43:38 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+[11/11] apps/web/tests/webmcp-native.e2e.ts:342:0 › native abort during persistence cannot undo an accepted server placement
+[WebServer] 12:43:45 AM [vite] (client) [console.warn] THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+
+  11 passed (1.0m)

@@ -1,0 +1,6 @@
+import {actualShell} from './webpod-actual-shell';
+import {createStickerCollision} from '/Users/vinicius/code/webPod/packages/device/src/sticker-collision';
+import {Vector3} from '/Users/vinicius/code/webPod/packages/device/node_modules/three';
+const data=await Bun.file('/tmp/webpod-shared-strip-lift.json').json();const shell=actualShell();const collider=createStickerCollision(shell.faces);const support=createStickerCollision(shell.faces.filter(f=>f.source.includes('rear')||f.source.includes('approved')||f.source.includes('glass')).map(f=>({...f,adhesiveSupport:true})));const points=data.points.map(p=>new Vector3(...p)),n=Math.sqrt(points.length)-1;let hits=0,gap=0,worst=null;const started=performance.now();
+for(let y=0;y<n;y++)for(let x=0;x<n;x++){const a=y*(n+1)+x,b=a+1,c=a+n+1;for(const ids of [[a,b,c],[b,c+1,c]]){if(collider.intersectsTriangle(...ids.map(i=>points[i])))hits++;for(const bary of [[1,0,0],[0,1,0],[0,0,1],[1/3,1/3,1/3]]){const p=new Vector3();for(let k=0;k<3;k++)p.addScaledVector(points[ids[k]],bary[k]);const hit=support.closestApprovedSupport(p,100);if(hit.distance>gap){gap=hit.distance;worst={p:p.toArray(),source:hit.source,contact:hit.point.toArray()};}}}}
+console.log(JSON.stringify({hits,gap,worst,elapsedMs:performance.now()-started}));collider.dispose();support.dispose();shell.dispose();

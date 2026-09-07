@@ -1,0 +1,23 @@
+{
+  "method": "Observed exact probe summaries; earlier complete mesh outputs replaced by final6-unit trial. These summaries retain rejected outcomes, not reconstructed raw meshes.",
+  "trials": [
+    {
+      "span": 8,
+      "maxGap": 2.04437745371267,
+      "maxStretch": 1.097171387036443,
+      "intersections": 0
+    },
+    {
+      "span": 6.5,
+      "maxGap": 2.0050251145450204,
+      "maxStretch": 1.1375801829349175,
+      "intersections": 0
+    },
+    {
+      "span": 6,
+      "maxGap": 1.9262649310141278,
+      "maxStretch": 1.1529041872029016,
+      "intersections": 0
+    }
+  ]
+}

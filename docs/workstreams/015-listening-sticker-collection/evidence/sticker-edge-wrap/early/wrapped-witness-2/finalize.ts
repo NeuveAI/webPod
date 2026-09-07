@@ -1,0 +1,26 @@
+import { Matrix4 } from '/Users/vinicius/code/webPod/packages/device/node_modules/three';
+const root='/Users/vinicius/code/webPod/',directory=process.argv[2];if(!directory)throw Error('Expected absolute witness directory');
+const hash=(s:string)=>new Bun.CryptoHasher('sha256').update(s).digest('hex');
+const data=await Bun.file(directory+'/candidates.json').json(),samplerPath='packages/device/src/sticker-corner-cage.ts',samplerHash=hash(await Bun.file(root+samplerPath).text()),grabHash=hash(await Bun.file(root+'packages/device/src/sticker-surface-grab.ts').text());
+const manifest=[];for(const r of data.results){
+ if(!r.chosen||r.chosen.trajectory.some(t=>t.admitted&&t.center===null))throw Error('Unsolved admitted path: '+r.viewport.width+' '+r.face);
+ const capture=await Bun.file(r.capturePath).json(),candidates=capture.submitted.candidates;
+ const build=await Bun.file(r.capturePath.replace(/matrix-[^/]+\.json$/, 'build-provenance.json')).json();
+ if(build.sourceAfter[samplerPath]!==samplerHash||build.sourceAfter['packages/device/src/sticker-surface-grab.ts']!==grabHash)throw Error('Current sampler/grab does not match immutable build');
+ if(hash(JSON.stringify(build.sourceAfter))!==r.build.source||hash(JSON.stringify(build.artifacts))!==r.build.artifacts)throw Error('Capture build identity mismatch');
+ const matching=candidates.filter(c=>c.rawBuffers.every(b=>data.bufferHashes[b.role]===b.sha256));if(matching.length!==2)throw Error('Source buffers mismatch');
+ const ink=matching.filter(c=>c.draw.raster?.cullEnabled===true&&c.draw.raster?.cullFace===1029&&c.draw.raster?.frontFace===2305);if(ink.length!==1)throw Error('Ambiguous actual FrontSide ink draw');
+ const requiredSources=new Set([r.chosen.pickup.shellSource,r.hidden.shellSource,r.attached.shellSource]);
+ const samePass=matching[0].draw.pass,world=new Matrix4().fromArray(r.matrices.contentWorld),cameraWorld=new Matrix4().fromArray(r.matrices.cameraWorld);
+ const correlation=r.shellDrawCorrelation.filter(f=>requiredSources.has(f.source)).map(f=>{
+  const expected=world.clone().multiply(new Matrix4().fromArray(f.transform));const draws=f.draws.filter(d=>d.pass===samePass).map(d=>{const model=d.modelMatrix?new Matrix4().fromArray(d.modelMatrix):d.modelViewMatrix?cameraWorld.clone().multiply(new Matrix4().fromArray(d.modelViewMatrix)):null;return{...d,maxMatrixError:model?Math.max(...model.elements.map((v,i)=>Math.abs(v-expected.elements[i]))):null}}).filter(d=>d.maxMatrixError!==null&&d.maxMatrixError<.001);
+  if(draws.length===0)throw Error('Missing actual same-pass shell source/model correlation: '+f.source);return{...f,draws};
+ });
+ if(correlation.length!==requiredSources.size)throw Error('Missing source coverage');
+ const clean=h=>({point:h.point,uv:h.uv,effectiveAlpha:h.effectiveAlpha,stickerDistance:h.stickerDistance,shellDistance:h.shellDistance});
+ const name=`wrapped-${r.viewport.width}-${r.face}`,proofPath=directory+'/'+name+'.json';
+ const proof={version:1,build:r.build,sampler:{path:samplerPath,sha256:samplerHash},seed:capture.seed,viewport:r.viewport,pose:r.pose,...r.matrices,pickup:clean(r.chosen.pickup),occluded:clean(r.hidden),attached:{uv:r.attached.uv,partialPointer:r.chosen.partial},attribution:{capturePath:r.capturePath,captureSha256:r.captureSha256,sourceBufferSha256:data.bufferHashes,selectedInkDrawId:ink[0].draw.id,draws:matching.map(c=>({id:c.draw.id,pass:c.draw.pass,program:c.draw.program,raster:c.draw.raster??null})),actualShellSources:correlation,grabSourceSha256:grabHash,coordinateSpace:'Distances and UV mesh are in captured content coordinates; actual model/view/projection matrices are recorded.',partialAttached:{...r.attached,sourceFrontier:12/64/.8},trajectory:r.chosen.trajectory,scope:'Exact actual submitted equipped geometry, painted alpha and same-pass source-correlated rear/front/glass ray witnesses. Other assembly hardware is not reconstructed here; selected rays are away from hardware apertures. Native production visibility uses the full scene and must accept/refuse these exact points.'}};
+ await Bun.write(proofPath,JSON.stringify(proof,null,2));const occluded=r.hidden.point,dx=r.viewport.width===375?-60:-120;
+ manifest.push({name,viewport:r.viewport,face:r.face,rightStepsFromRear:r.pose.rightStepsFromRear,pickup:r.chosen.pickup.point,partial:r.chosen.partial,release:r.chosen.release,expectedCenter:r.chosen.expectedCenter,occluded,flickEnd:{x:Math.max(20,Math.min(r.viewport.width-20,occluded.x+dx)),y:Math.min(r.viewport.height-80,occluded.y+35)},evidence:proofPath});
+}
+await Bun.write(directory+'/manifest.json',JSON.stringify(manifest,null,2));console.log(directory+'/manifest.json');

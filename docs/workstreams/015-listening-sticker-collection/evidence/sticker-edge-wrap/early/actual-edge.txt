@@ -1,0 +1,26 @@
+import {Vector3} from '/Users/vinicius/code/webPod/node_modules/.bun/three@0.185.1/node_modules/three/build/three.module.js';
+import {actualShell} from '/tmp/webpod-actual-shell';
+import {createStickerCollision} from '/Users/vinicius/code/webPod/packages/device/src/sticker-collision';
+import {stickerSheetTriangleMetric} from '/Users/vinicius/code/webPod/packages/device/src/sticker-sheet-metric';
+const construction=performance.now(),shell=actualShell(),geometryMs=performance.now()-construction,bvhStart=performance.now(),collider=createStickerCollision(shell.faces),bvhMs=performance.now()-bvhStart;
+let maximumX=-Infinity;for(const face of shell.faces){const p=face.geometry.getAttribute('position');for(let i=0;i<p.count;i++){const v=new Vector3().fromBufferAttribute(p,i);if(face.transform)v.applyMatrix4(face.transform);maximumX=Math.max(maximumX,v.x);}}
+if(maximumX>165.18)throw new Error('Tangent seed is not exterior');
+const n=16,W=115.5,H=W*1064/1146,N=(n+1)**2,C=8*(n+1)+8,rest=Array.from({length:N},(_,i)=>({x:(i%(n+1)/n-.5)*W,y:(Math.floor(i/(n+1))/n-.5)*H}));
+const ps=rest.map(p=>new Vector3(165.18,-p.y,20.0339805825-p.x));
+const triangles=[],edges=[],keys=new Set();for(let y=0;y<n;y++)for(let x=0;x<n;x++){const a=y*(n+1)+x;triangles.push([a,a+1,a+n+1],[a+n+2,a+n+1,a+1]);}for(const ids of triangles)for(let k=0;k<3;k++){const a=ids[k],b=ids[(k+1)%3],key=[a,b].sort((a,b)=>a-b).join(',');if(keys.has(key))continue;keys.add(key);edges.push([a,b,Math.hypot(rest[b].x-rest[a].x,rest[b].y-rest[a].y)]);}
+const weight=i=>i===C?0:1,frames=[],loadTimes=[],start=performance.now();let queryMs=0,queries=0;
+function support(p){const t=performance.now(),hit=collider.closestApprovedSupport(p,100);queryMs+=performance.now()-t;queries++;return hit;}
+function measure(){let min=Infinity,max=0,hits=0,gap=0;for(const ids of triangles){const m=stickerSheetTriangleMetric(ids.map(i=>rest[i]),ids.map(i=>ps[i]));min=Math.min(min,m?.minimumStretch??0);max=Math.max(max,m?.maximumStretch??Infinity);if(collider.intersectsTriangle(...ids.map(i=>ps[i])))hits++;}for(const p of ps){const s=support(p);gap=Math.max(gap,s?s.distance-.18:Infinity);}return{min,max,hits,gap};}
+frames.push({load:0,...measure()});if(frames[0].hits)throw new Error('Tangent seed intersects actual shell');
+for(let load=1;load<=50;load++){
+const t0=performance.now(),active=Math.hypot(W,H)/2*Math.min(1,2*load/50);
+for(let i=0;i<N;i++)if(weight(i)&&Math.hypot(rest[i].x,rest[i].y)<=active){const h=support(ps[i]);if(h){const target=h.point.clone().addScaledVector(h.normal,.18),delta=target.sub(ps[i]),length=delta.length();if(length)ps[i].addScaledVector(delta,Math.min(.4,length*.12)/length);}}
+for(let iteration=0;iteration<8;iteration++){
+for(const[a,b,l]of edges){const d=ps[b].clone().sub(ps[a]),length=d.length(),den=weight(a)+weight(b);if(length&&den){d.multiplyScalar((length-l)/(length*den));ps[a].addScaledVector(d,weight(a));ps[b].addScaledVector(d,-weight(b));}}
+ps[C+1].y=ps[C].y;
+for(let i=0;i<N;i++)if(weight(i)){const h=support(ps[i]);if(h&&h.signedDistance<.18)ps[i].addScaledVector(h.normal,.18-h.signedDistance);}
+for(const[a,b]of edges)for(const t of[.25,.5,.75]){const p=ps[a].clone().lerp(ps[b],t),h=support(p);if(!h||h.signedDistance>=.18)continue;const wa=1-t,wb=t,den=weight(a)*wa*wa+weight(b)*wb*wb;if(den){const correction=(.18-h.signedDistance)/den;ps[a].addScaledVector(h.normal,correction*weight(a)*wa);ps[b].addScaledVector(h.normal,correction*weight(b)*wb);}}
+}
+loadTimes.push(performance.now()-t0);if(load%10===0||load===50){const m=measure();frames.push({load,...m});console.log({load,...m});}
+}
+const summary={geometryMs,bvhMs,stats:collider.stats,maximumX,solveAndMeasurementMs:performance.now()-start,queries,queryMs,maxLoadMs:Math.max(...loadTimes),meanLoadMs:loadTimes.reduce((a,b)=>a+b,0)/loadTimes.length,...measure()};console.log(summary);await Bun.write('/tmp/webpod-actual-edge.json',JSON.stringify({summary,frames,rest,positions:ps.map(p=>p.toArray())}));collider.dispose();shell.dispose();

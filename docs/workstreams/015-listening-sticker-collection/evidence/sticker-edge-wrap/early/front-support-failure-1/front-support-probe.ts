@@ -1,0 +1,5 @@
+import {actualShell} from '/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-4/source-shell';
+import {createStickerWrapSurface} from '/tmp/front-support-wrap';
+import {DEFAULT_DEVICE_FORM} from '/Users/vinicius/code/webPod/packages/device/src/form';
+const shell=actualShell(),faces=shell.faces.filter(f=>f.source!=='top cap and outer bevel candidate support'&&!f.source.includes('rear')).map(f=>({geometry:f.geometry,offset:f.transform?[f.transform.elements[12],f.transform.elements[13],f.transform.elements[14]]:undefined}));const wrap=createStickerWrapSurface(DEFAULT_DEVICE_FORM,faces);const width=.35*330,height=width*597/302;
+const center={x:.314332653716106,y:.0205851851589971},cage=wrap.cornerCage((.5-center.x)*330,(.5-center.y)*552,Math.hypot(width,height)/2);let failures=[];for(let row=0;row<=96;row++)for(let col=0;col<=96;col++){try{cage.point((col/96-.5)*width,(row/96-.5)*height);}catch(e){failures.push({row,col,error:JSON.parse(e.message)});}}console.log(JSON.stringify({center,width,height,count:failures.length,failures:failures.slice(0,12)},null,2));shell.dispose();

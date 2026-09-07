@@ -1,0 +1,1867 @@
+{
+  "manifestText": "[\n  {\n    \"name\": \"wrapped-1280-side\",\n    \"viewport\": {\n      \"width\": 1280,\n      \"height\": 900\n    },\n    \"face\": \"side\",\n    \"rightStepsFromRear\": 5,\n    \"pickup\": {\n      \"x\": 561.8461696688656,\n      \"y\": 140.3843791395311\n    },\n    \"partial\": {\n      \"x\": 579.4537470083425,\n      \"y\": 167.10465646283635\n    },\n    \"release\": {\n      \"x\": 643.184991266287,\n      \"y\": 263.8196381947969\n    },\n    \"expectedCenter\": {\n      \"x\": 0.08994343608509071,\n      \"y\": 0.21200508914284044\n    },\n    \"occluded\": {\n      \"x\": 567.0681229844442,\n      \"y\": 147.83122958236646\n    },\n    \"flickEnd\": {\n      \"x\": 447.06812298444424,\n      \"y\": 182.83122958236646\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-6/wrapped-1280-side.json\"\n  },\n  {\n    \"name\": \"wrapped-1280-front\",\n    \"viewport\": {\n      \"width\": 1280,\n      \"height\": 900\n    },\n    \"face\": \"front\",\n    \"rightStepsFromRear\": 15,\n    \"pickup\": {\n      \"x\": 762.6675245342133,\n      \"y\": 137.99494921046283\n    },\n    \"partial\": {\n      \"x\": 772.6392122821188,\n      \"y\": 120.65812587231144\n    },\n    \"release\": {\n      \"x\": 820.9486270506884,\n      \"y\": 36.667149561597284\n    },\n    \"expectedCenter\": {\n      \"x\": 0.19999999999999984,\n      \"y\": 0.15000000000000002\n    },\n    \"invalid\": {\n      \"x\": 587.6045560693025,\n      \"y\": 160.02195993386476\n    },\n    \"occluded\": {\n      \"x\": 831.3879468122576,\n      \"y\": 180.38755075802538\n    },\n    \"flickEnd\": {\n      \"x\": 711.3879468122576,\n      \"y\": 215.38755075802538\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-6/wrapped-1280-front.json\"\n  },\n  {\n    \"name\": \"wrapped-375-side\",\n    \"viewport\": {\n      \"width\": 375,\n      \"height\": 812\n    },\n    \"face\": \"side\",\n    \"rightStepsFromRear\": 5,\n    \"pickup\": {\n      \"x\": 141.06295459588623,\n      \"y\": 222.03415582485093\n    },\n    \"partial\": {\n      \"x\": 159.16390437306558,\n      \"y\": 248.4227066976069\n    },\n    \"release\": {\n      \"x\": 189.4405910498952,\n      \"y\": 292.56171025626514\n    },\n    \"expectedCenter\": {\n      \"x\": 0.09424752460918387,\n      \"y\": 0.20573440752563904\n    },\n    \"occluded\": {\n      \"x\": 145.29667239632863,\n      \"y\": 223.88266199834328\n    },\n    \"flickEnd\": {\n      \"x\": 85.29667239632863,\n      \"y\": 258.8826619983433\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-6/wrapped-375-side.json\"\n  },\n  {\n    \"name\": \"wrapped-375-front\",\n    \"viewport\": {\n      \"width\": 375,\n      \"height\": 812\n    },\n    \"face\": \"front\",\n    \"rightStepsFromRear\": 15,\n    \"pickup\": {\n      \"x\": 242.7165025323663,\n      \"y\": 215.44290767432503\n    },\n    \"partial\": {\n      \"x\": 246.86712842509684,\n      \"y\": 195.87834009161074\n    },\n    \"release\": {\n      \"x\": 263.0795481264556,\n      \"y\": 119.45878575834953\n    },\n    \"expectedCenter\": {\n      \"x\": 0.35,\n      \"y\": 0.1500000000000002\n    },\n    \"invalid\": {\n      \"x\": 113.81973140255182,\n      \"y\": 242.52415905419994\n    },\n    \"occluded\": {\n      \"x\": 305.3337228173019,\n      \"y\": 241.42507169344458\n    },\n    \"flickEnd\": {\n      \"x\": 245.33372281730192,\n      \"y\": 276.4250716934446\n    },\n    \"evidence\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-6/wrapped-375-front.json\"\n  }\n]",
+  "manifestSHA256": "c63792c4bd3dfe93b5909d5f74047353d52c201e89e6bd2ffde9da471771a112",
+  "build": {
+    "source": "52c6892dd17181e17226c6d074d50415f3fb3e0fdde7be2764fa8685e9d959a4",
+    "artifacts": "07d71b1b4f97c07dd43e866e63e6a0c6a5d757c3b35dcc1aa6721c6ec4500b53"
+  },
+  "inputs": [
+    {
+      "witness": {
+        "name": "wrapped-1280-side",
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "face": "side",
+        "rightStepsFromRear": 5,
+        "pickup": {
+          "x": 561.8461696688656,
+          "y": 140.3843791395311
+        },
+        "partial": {
+          "x": 579.4537470083425,
+          "y": 167.10465646283635
+        },
+        "release": {
+          "x": 643.184991266287,
+          "y": 263.8196381947969
+        },
+        "expectedCenter": {
+          "x": 0.08994343608509071,
+          "y": 0.21200508914284044
+        },
+        "occluded": {
+          "x": 567.0681229844442,
+          "y": 147.83122958236646
+        },
+        "flickEnd": {
+          "x": 447.06812298444424,
+          "y": 182.83122958236646
+        },
+        "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-6/wrapped-1280-side.json"
+      },
+      "proof": {
+        "version": 1,
+        "build": {
+          "source": "52c6892dd17181e17226c6d074d50415f3fb3e0fdde7be2764fa8685e9d959a4",
+          "artifacts": "07d71b1b4f97c07dd43e866e63e6a0c6a5d757c3b35dcc1aa6721c6ec4500b53"
+        },
+        "sampler": {
+          "path": "packages/device/src/sticker-corner-cage.ts",
+          "sha256": "4f4c7b9bdb46e761f3243e2e59994a545b31b70b05428382ca4f36d040a5189b"
+        },
+        "seed": [
+          {
+            "stickerId": "PW-C03",
+            "surface": "back",
+            "x": 0.027,
+            "y": 0.017,
+            "width": 0.35,
+            "rotationDeg": 0,
+            "wear": 1
+          },
+          {
+            "stickerId": "PW-F01",
+            "surface": "back",
+            "x": 0.65,
+            "y": 0.72,
+            "width": 0.25,
+            "rotationDeg": 0,
+            "wear": 0.6
+          }
+        ],
+        "viewport": {
+          "width": 1280,
+          "height": 900
+        },
+        "pose": {
+          "face": "side",
+          "rightStepsFromRear": 5
+        },
+        "cameraWorld": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          1387.7459716796875,
+          1
+        ],
+        "cameraProjection": [
+          2.624098300933838,
+          0,
+          0,
+          0,
+          0,
+          3.732050895690918,
+          0,
+          0,
+          0,
+          0,
+          -1.7090742588043213,
+          -1,
+          0,
+          0,
+          -1442.1593017578125,
+          0
+        ],
+        "contentWorld": [
+          -0.5,
+          0,
+          0.8660253882408142,
+          0,
+          0,
+          1,
+          0,
+          0,
+          -0.8660253882408142,
+          0,
+          -0.5,
+          0,
+          1.039230465888977,
+          -0.2008357048034668,
+          0.6000000238418579,
+          1
+        ],
+        "pickup": {
+          "point": {
+            "x": 561.8461696688656,
+            "y": 140.3843791395311
+          },
+          "uv": [
+            0.52333275236032,
+            0.31012865019079805
+          ],
+          "effectiveAlpha": 0.9921568627450981,
+          "stickerDistance": 1258.5622424564535,
+          "shellDistance": 1258.744858240867
+        },
+        "occluded": {
+          "point": {
+            "x": 567.0681229844442,
+            "y": 147.83122958236646
+          },
+          "uv": [
+            0.4590519388765654,
+            0.9319488440006141
+          ],
+          "effectiveAlpha": 0.9921568627450981,
+          "stickerDistance": 1362.4314816179526,
+          "shellDistance": 1257.9151579139823
+        },
+        "attached": {
+          "uv": [
+            0.5231626629829407,
+            0.31023186445236206
+          ],
+          "partialPointer": {
+            "x": 579.4537470083425,
+            "y": 167.10465646283635
+          }
+        },
+        "attribution": {
+          "capturePath": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/affine-target-matrix-1/matrix-1280-side.json",
+          "captureSha256": "6ccf7be2e467028d242b70c46090e078e95876c06078130edf51579a7e1f303a",
+          "sourceBufferSha256": {
+            "position": "da61406194596390be2b1c05bbba791ab8e19afc1e7b8ec5c63042c64bf13d76",
+            "uv": "e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52",
+            "index": "47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879"
+          },
+          "selectedInkDrawId": 558,
+          "draws": [
+            {
+              "id": 558,
+              "pass": 8,
+              "program": 18,
+              "raster": {
+                "cullEnabled": true,
+                "cullFace": 1029,
+                "frontFace": 2305
+              }
+            },
+            {
+              "id": 559,
+              "pass": 8,
+              "program": 19,
+              "raster": {
+                "cullEnabled": true,
+                "cullFace": 1029,
+                "frontFace": 2304
+              }
+            }
+          ],
+          "actualShellSources": [
+            {
+              "source": "actual cut rear",
+              "position": {
+                "fnv1a": "def0757c",
+                "sha256": "397c3cb50e9dfa9916cf09224d9cb05ee2373eab391430de22bd62c9797cf367",
+                "byteLength": 797976
+              },
+              "transform": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1
+              ],
+              "draws": [
+                {
+                  "id": 487,
+                  "pass": 8,
+                  "modelMatrix": [
+                    -0.5,
+                    0,
+                    0.8660253882408142,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    -0.8660253882408142,
+                    0,
+                    -0.5,
+                    0,
+                    1.039230465888977,
+                    -0.2008357048034668,
+                    0.6000000238418579,
+                    1
+                  ],
+                  "modelViewMatrix": [
+                    -0.5,
+                    0,
+                    0.8660253882408142,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    -0.8660253882408142,
+                    0,
+                    -0.5,
+                    0,
+                    1.039230465888977,
+                    -0.2008357048034668,
+                    -1387.14599609375,
+                    1
+                  ],
+                  "position": {
+                    "id": 1,
+                    "revision": 1,
+                    "byteLength": 797976,
+                    "fnv1a": "def0757c",
+                    "layout": {
+                      "size": 3,
+                      "type": 5126,
+                      "normalized": false,
+                      "stride": 12,
+                      "offset": 0
+                    }
+                  },
+                  "maxMatrixError": 0
+                }
+              ]
+            }
+          ],
+          "grabSourceSha256": "408227d0553bc4441f96574b4e8403839e273ad30662a228d3dc18ff8a225a88",
+          "coordinateSpace": "Distances and UV mesh are in captured content coordinates; actual model/view/projection matrices are recorded.",
+          "occludedOrientation": {
+            "eligible": true,
+            "signedBoundaryDistance": -7.511541040441216,
+            "band": 18,
+            "diagnosticMarginBand": 10,
+            "foregroundInkDistance": null,
+            "predicate": "packages/device/src/orientation-grab.ts:isDeviceOuterGrabPoint",
+            "actualFirstShellPoint": [
+              157.48845895955878,
+              222.75016123460864,
+              -27.701477573544025
+            ]
+          },
+          "partialAttached": {
+            "point": {
+              "x": 561.7586980907249,
+              "y": 140.38803817774686
+            },
+            "uv": [
+              0.5231626629829407,
+              0.31023186445236206
+            ],
+            "effectiveAlpha": 0.9921568627450981,
+            "stickerDistance": 1258.569018015103,
+            "shellDistance": 1258.7541153627767,
+            "local": [
+              159.85801696777344,
+              228.1414794921875,
+              -24.58061981201172
+            ],
+            "shellPoint": [
+              159.7047754664345,
+              228.17500265062228,
+              -24.482363676163573
+            ],
+            "shellSource": "actual cut rear",
+            "row": 0.6979166666666666,
+            "col": 0.53125,
+            "facing": 0.9723039941271653,
+            "attachment": {
+              "vertexIndex": 6550,
+              "sourceUV": [
+                0.5231626629829407,
+                0.31023186445236206
+              ],
+              "exactGridVertex": true,
+              "frontier": 0.625,
+              "row": 0.6979166666666666,
+              "gridRow": 67,
+              "frontGridRow": 60,
+              "rowMargin": 0.07291666666666663,
+              "sourcePosition": [
+                159.85801696777344,
+                228.1414794921875,
+                -24.58061981201172
+              ],
+              "peelPosition": [
+                159.85801696777344,
+                228.1414794921875,
+                -24.58061981201172
+              ],
+              "maxPositionError": 0,
+              "transportWeight": 0
+            },
+            "sourceFrontier": 0.6249999999999998
+          },
+          "trajectory": [
+            {
+              "point": {
+                "x": 564.0471168363002,
+                "y": 143.72441380494425
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 566.2480640037348,
+                "y": 147.0644484703574
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 568.4490111711694,
+                "y": 150.40448313577056
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 570.649958338604,
+                "y": 153.74451780118372
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 572.8509055060387,
+                "y": 157.08455246659688
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 575.0518526734733,
+                "y": 160.42458713201003
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 577.2527998409079,
+                "y": 163.7646217974232
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 579.4537470083425,
+                "y": 167.10465646283635
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 582.1092155190902,
+                "y": 171.1344473683347
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 584.7646840298379,
+                "y": 175.16423827383306
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 587.4201525405856,
+                "y": 179.1940291793314
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 590.0756210513332,
+                "y": 183.22382008482975
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 592.7310895620809,
+                "y": 187.25361099032813
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 595.3865580728286,
+                "y": 191.28340189582647
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 598.0420265835763,
+                "y": 195.31319280132485
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.05500989197424529,
+                "y": 0.10377745958983031
+              },
+              "solveMs": 0.07491600000003018,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "5cce36ede3dfa9db389a07322e84a1aa3a0063c701cd91fea49d2e1bf85dd38c"
+              }
+            },
+            {
+              "point": {
+                "x": 600.697495094324,
+                "y": 199.3429837068232
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.05706480633370682,
+                "y": 0.1101437907400074
+              },
+              "solveMs": 0.023541999999906693,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "930fd987cbad95f3abaf3dfcd6a7645bd4f861de2a24681e38a04ca2523ea780"
+              }
+            },
+            {
+              "point": {
+                "x": 603.3529636050716,
+                "y": 203.37277461232156
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.05911972069316812,
+                "y": 0.11651012189018443
+              },
+              "solveMs": 0.01087500000005548,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "b22ec3e938b52a3601b29c4823568ce433dfbeec380e940ce2a7a002cf191100"
+              }
+            },
+            {
+              "point": {
+                "x": 606.0084321158193,
+                "y": 207.4025655178199
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06117463505262967,
+                "y": 0.1228764530403615
+              },
+              "solveMs": 0.006250000000022737,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "8d93d48b8e2d3a12927d01e21bb1f6cab9215d3703c59674bd64aa029bc39353"
+              }
+            },
+            {
+              "point": {
+                "x": 608.663900626567,
+                "y": 211.43235642331825
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06322954941209122,
+                "y": 0.12924278419053856
+              },
+              "solveMs": 0.005750000000034561,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "8acbfc358a97c9c7475e354151745c39ed290c2fa0069960daa07650defa33fb"
+              }
+            },
+            {
+              "point": {
+                "x": 611.3193691373148,
+                "y": 215.46214732881663
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06528446377155273,
+                "y": 0.13560911534071565
+              },
+              "solveMs": 0.00454200000012861,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "0883e0c3d2265bca2693399e8a9f294aea1f3d0f9745aab8587b36b819a3658a"
+              }
+            },
+            {
+              "point": {
+                "x": 613.9748376480625,
+                "y": 219.49193823431497
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06733937813101429,
+                "y": 0.14197544649089275
+              },
+              "solveMs": 0.009083000000146058,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "9eb1e1cff1e1352b4ed8e58c4eebc31b00192f17f4fd146c4e9940297c64f4b2"
+              }
+            },
+            {
+              "point": {
+                "x": 616.6303061588102,
+                "y": 223.52172913981332
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06939429249047584,
+                "y": 0.14834177764106976
+              },
+              "solveMs": 0.005916999999953987,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "64f3cbdab0f1419cdf5b0a4b42ad148310c9d9770e095ae57bfd7ca510b74e16"
+              }
+            },
+            {
+              "point": {
+                "x": 619.2857746695579,
+                "y": 227.5515200453117
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07144920684993734,
+                "y": 0.1547081087912469
+              },
+              "solveMs": 0.004124999999930878,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "b9abb4d20a1f1eeef606f609d622f623a37b8630f4caeee92a60218d8b4f07b7"
+              }
+            },
+            {
+              "point": {
+                "x": 621.9412431803055,
+                "y": 231.58131095081004
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07350412120939867,
+                "y": 0.1610744399414239
+              },
+              "solveMs": 0.005708000000140601,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "693e6e96cc5fa5e9c41894ae5ac88ffdba62439226930e1c1af0f65e3cb1cb61"
+              }
+            },
+            {
+              "point": {
+                "x": 624.5967116910532,
+                "y": 235.61110185630838
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07555903556886022,
+                "y": 0.167440771091601
+              },
+              "solveMs": 0.004916999999977634,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "c1e5f8c4c9c2e4a65e42f4587bb008eaa839a4d083df29bf9fa8a8df07d56e0d"
+              }
+            },
+            {
+              "point": {
+                "x": 627.2521802018009,
+                "y": 239.64089276180675
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07761394992832173,
+                "y": 0.1738071022417781
+              },
+              "solveMs": 0.012707999999975073,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "53b93d30d4f78f4919add61c506afd8eb9ef0199d881763ec174a9290eebb5b9"
+              }
+            },
+            {
+              "point": {
+                "x": 629.9076487125486,
+                "y": 243.6706836673051
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07966886428778326,
+                "y": 0.18017343339195513
+              },
+              "solveMs": 0.005125000000134605,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "69cbd114cfba7961ebda5a632bad8c95470065956f13627f913e58ebdabe8ad9"
+              }
+            },
+            {
+              "point": {
+                "x": 632.5631172232963,
+                "y": 247.70047457280344
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08172377864724484,
+                "y": 0.18653976454213217
+              },
+              "solveMs": 0.0028339999998934218,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "85599fdeb24b367841955ff45b8d4a71dbbc2d6fb0b734366ba573025ad2fb35"
+              }
+            },
+            {
+              "point": {
+                "x": 635.2185857340439,
+                "y": 251.73026547830182
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08377869300670611,
+                "y": 0.1929060956923092
+              },
+              "solveMs": 0.003416999999899417,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "f2ddf97fc11f735111d78444402840f30d96a0c027f47d792166ccb4e42f0bf8"
+              }
+            },
+            {
+              "point": {
+                "x": 637.8740542447916,
+                "y": 255.76005638380016
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08583360736616764,
+                "y": 0.1992724268424863
+              },
+              "solveMs": 0.0071250000000873115,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "064fddcfd686f9c34d3efef4020ef580899b4ae5cd95179dbdf5da65f6f4b0cc"
+              }
+            },
+            {
+              "point": {
+                "x": 640.5295227555393,
+                "y": 259.78984728929856
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08788852172562917,
+                "y": 0.20563875799266346
+              },
+              "solveMs": 0.002292000000124972,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "bd6b2a406d7453978f61afa30622191df7d592ba49c5a8696668fc3aa1393fcb"
+              }
+            },
+            {
+              "point": {
+                "x": 643.184991266287,
+                "y": 263.8196381947969
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08994343608509071,
+                "y": 0.21200508914284044
+              },
+              "solveMs": 0.002084000000195374,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "5028c67eab654557072b46ebd4edb0b65ecaf37b0a4a5cc44a914e2e4fd5a9c5"
+              }
+            }
+          ],
+          "negativeTrajectory": [
+            {
+              "point": {
+                "x": 564.0471168363002,
+                "y": 143.72441380494425
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 566.2480640037348,
+                "y": 147.0644484703574
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 568.4490111711694,
+                "y": 150.40448313577056
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 570.649958338604,
+                "y": 153.74451780118372
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 572.8509055060387,
+                "y": 157.08455246659688
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 575.0518526734733,
+                "y": 160.42458713201003
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 577.2527998409079,
+                "y": 163.7646217974232
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 579.4537470083425,
+                "y": 167.10465646283635
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 582.1092155190902,
+                "y": 171.1344473683347
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 584.7646840298379,
+                "y": 175.16423827383306
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 587.4201525405856,
+                "y": 179.1940291793314
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 590.0756210513332,
+                "y": 183.22382008482975
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 592.7310895620809,
+                "y": 187.25361099032813
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 595.3865580728286,
+                "y": 191.28340189582647
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 598.0420265835763,
+                "y": 195.31319280132485
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.05500989197424529,
+                "y": 0.10377745958983031
+              },
+              "solveMs": 0.07491600000003018,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "5cce36ede3dfa9db389a07322e84a1aa3a0063c701cd91fea49d2e1bf85dd38c"
+              }
+            },
+            {
+              "point": {
+                "x": 600.697495094324,
+                "y": 199.3429837068232
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.05706480633370682,
+                "y": 0.1101437907400074
+              },
+              "solveMs": 0.023541999999906693,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "930fd987cbad95f3abaf3dfcd6a7645bd4f861de2a24681e38a04ca2523ea780"
+              }
+            },
+            {
+              "point": {
+                "x": 603.3529636050716,
+                "y": 203.37277461232156
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.05911972069316812,
+                "y": 0.11651012189018443
+              },
+              "solveMs": 0.01087500000005548,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "b22ec3e938b52a3601b29c4823568ce433dfbeec380e940ce2a7a002cf191100"
+              }
+            },
+            {
+              "point": {
+                "x": 606.0084321158193,
+                "y": 207.4025655178199
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06117463505262967,
+                "y": 0.1228764530403615
+              },
+              "solveMs": 0.006250000000022737,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "8d93d48b8e2d3a12927d01e21bb1f6cab9215d3703c59674bd64aa029bc39353"
+              }
+            },
+            {
+              "point": {
+                "x": 608.663900626567,
+                "y": 211.43235642331825
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06322954941209122,
+                "y": 0.12924278419053856
+              },
+              "solveMs": 0.005750000000034561,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "8acbfc358a97c9c7475e354151745c39ed290c2fa0069960daa07650defa33fb"
+              }
+            },
+            {
+              "point": {
+                "x": 611.3193691373148,
+                "y": 215.46214732881663
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06528446377155273,
+                "y": 0.13560911534071565
+              },
+              "solveMs": 0.00454200000012861,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "0883e0c3d2265bca2693399e8a9f294aea1f3d0f9745aab8587b36b819a3658a"
+              }
+            },
+            {
+              "point": {
+                "x": 613.9748376480625,
+                "y": 219.49193823431497
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06733937813101429,
+                "y": 0.14197544649089275
+              },
+              "solveMs": 0.009083000000146058,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "9eb1e1cff1e1352b4ed8e58c4eebc31b00192f17f4fd146c4e9940297c64f4b2"
+              }
+            },
+            {
+              "point": {
+                "x": 616.6303061588102,
+                "y": 223.52172913981332
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06939429249047584,
+                "y": 0.14834177764106976
+              },
+              "solveMs": 0.005916999999953987,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "64f3cbdab0f1419cdf5b0a4b42ad148310c9d9770e095ae57bfd7ca510b74e16"
+              }
+            },
+            {
+              "point": {
+                "x": 619.2857746695579,
+                "y": 227.5515200453117
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07144920684993734,
+                "y": 0.1547081087912469
+              },
+              "solveMs": 0.004124999999930878,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "b9abb4d20a1f1eeef606f609d622f623a37b8630f4caeee92a60218d8b4f07b7"
+              }
+            },
+            {
+              "point": {
+                "x": 621.9412431803055,
+                "y": 231.58131095081004
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07350412120939867,
+                "y": 0.1610744399414239
+              },
+              "solveMs": 0.005708000000140601,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "693e6e96cc5fa5e9c41894ae5ac88ffdba62439226930e1c1af0f65e3cb1cb61"
+              }
+            },
+            {
+              "point": {
+                "x": 624.5967116910532,
+                "y": 235.61110185630838
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07555903556886022,
+                "y": 0.167440771091601
+              },
+              "solveMs": 0.004916999999977634,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "c1e5f8c4c9c2e4a65e42f4587bb008eaa839a4d083df29bf9fa8a8df07d56e0d"
+              }
+            },
+            {
+              "point": {
+                "x": 627.2521802018009,
+                "y": 239.64089276180675
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07761394992832173,
+                "y": 0.1738071022417781
+              },
+              "solveMs": 0.012707999999975073,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "53b93d30d4f78f4919add61c506afd8eb9ef0199d881763ec174a9290eebb5b9"
+              }
+            },
+            {
+              "point": {
+                "x": 629.9076487125486,
+                "y": 243.6706836673051
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07966886428778326,
+                "y": 0.18017343339195513
+              },
+              "solveMs": 0.005125000000134605,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "69cbd114cfba7961ebda5a632bad8c95470065956f13627f913e58ebdabe8ad9"
+              }
+            },
+            {
+              "point": {
+                "x": 632.5631172232963,
+                "y": 247.70047457280344
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08172377864724484,
+                "y": 0.18653976454213217
+              },
+              "solveMs": 0.0028339999998934218,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "85599fdeb24b367841955ff45b8d4a71dbbc2d6fb0b734366ba573025ad2fb35"
+              }
+            },
+            {
+              "point": {
+                "x": 635.2185857340439,
+                "y": 251.73026547830182
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08377869300670611,
+                "y": 0.1929060956923092
+              },
+              "solveMs": 0.003416999999899417,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "f2ddf97fc11f735111d78444402840f30d96a0c027f47d792166ccb4e42f0bf8"
+              }
+            },
+            {
+              "point": {
+                "x": 637.8740542447916,
+                "y": 255.76005638380016
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08583360736616764,
+                "y": 0.1992724268424863
+              },
+              "solveMs": 0.0071250000000873115,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "064fddcfd686f9c34d3efef4020ef580899b4ae5cd95179dbdf5da65f6f4b0cc"
+              }
+            },
+            {
+              "point": {
+                "x": 640.5295227555393,
+                "y": 259.78984728929856
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08788852172562917,
+                "y": 0.20563875799266346
+              },
+              "solveMs": 0.002292000000124972,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "bd6b2a406d7453978f61afa30622191df7d592ba49c5a8696668fc3aa1393fcb"
+              }
+            },
+            {
+              "point": {
+                "x": 643.184991266287,
+                "y": 263.8196381947969
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08994343608509071,
+                "y": 0.21200508914284044
+              },
+              "solveMs": 0.002084000000195374,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "5028c67eab654557072b46ebd4edb0b65ecaf37b0a4a5cc44a914e2e4fd5a9c5"
+              }
+            }
+          ],
+          "reentryTrajectory": [
+            {
+              "point": {
+                "x": 564.0471168363002,
+                "y": 143.72441380494425
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 566.2480640037348,
+                "y": 147.0644484703574
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 568.4490111711694,
+                "y": 150.40448313577056
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 570.649958338604,
+                "y": 153.74451780118372
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 572.8509055060387,
+                "y": 157.08455246659688
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 575.0518526734733,
+                "y": 160.42458713201003
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 577.2527998409079,
+                "y": 163.7646217974232
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 579.4537470083425,
+                "y": 167.10465646283635
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 582.1092155190902,
+                "y": 171.1344473683347
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 584.7646840298379,
+                "y": 175.16423827383306
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 587.4201525405856,
+                "y": 179.1940291793314
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 590.0756210513332,
+                "y": 183.22382008482975
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 592.7310895620809,
+                "y": 187.25361099032813
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 595.3865580728286,
+                "y": 191.28340189582647
+              },
+              "admitted": false,
+              "center": null,
+              "solveMs": null,
+              "fullMesh": null
+            },
+            {
+              "point": {
+                "x": 598.0420265835763,
+                "y": 195.31319280132485
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.05500989197424529,
+                "y": 0.10377745958983031
+              },
+              "solveMs": 0.07491600000003018,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "5cce36ede3dfa9db389a07322e84a1aa3a0063c701cd91fea49d2e1bf85dd38c"
+              }
+            },
+            {
+              "point": {
+                "x": 600.697495094324,
+                "y": 199.3429837068232
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.05706480633370682,
+                "y": 0.1101437907400074
+              },
+              "solveMs": 0.023541999999906693,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "930fd987cbad95f3abaf3dfcd6a7645bd4f861de2a24681e38a04ca2523ea780"
+              }
+            },
+            {
+              "point": {
+                "x": 603.3529636050716,
+                "y": 203.37277461232156
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.05911972069316812,
+                "y": 0.11651012189018443
+              },
+              "solveMs": 0.01087500000005548,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "b22ec3e938b52a3601b29c4823568ce433dfbeec380e940ce2a7a002cf191100"
+              }
+            },
+            {
+              "point": {
+                "x": 606.0084321158193,
+                "y": 207.4025655178199
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06117463505262967,
+                "y": 0.1228764530403615
+              },
+              "solveMs": 0.006250000000022737,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "8d93d48b8e2d3a12927d01e21bb1f6cab9215d3703c59674bd64aa029bc39353"
+              }
+            },
+            {
+              "point": {
+                "x": 608.663900626567,
+                "y": 211.43235642331825
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06322954941209122,
+                "y": 0.12924278419053856
+              },
+              "solveMs": 0.005750000000034561,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "8acbfc358a97c9c7475e354151745c39ed290c2fa0069960daa07650defa33fb"
+              }
+            },
+            {
+              "point": {
+                "x": 611.3193691373148,
+                "y": 215.46214732881663
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06528446377155273,
+                "y": 0.13560911534071565
+              },
+              "solveMs": 0.00454200000012861,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "0883e0c3d2265bca2693399e8a9f294aea1f3d0f9745aab8587b36b819a3658a"
+              }
+            },
+            {
+              "point": {
+                "x": 613.9748376480625,
+                "y": 219.49193823431497
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06733937813101429,
+                "y": 0.14197544649089275
+              },
+              "solveMs": 0.009083000000146058,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "9eb1e1cff1e1352b4ed8e58c4eebc31b00192f17f4fd146c4e9940297c64f4b2"
+              }
+            },
+            {
+              "point": {
+                "x": 616.6303061588102,
+                "y": 223.52172913981332
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.06939429249047584,
+                "y": 0.14834177764106976
+              },
+              "solveMs": 0.005916999999953987,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "64f3cbdab0f1419cdf5b0a4b42ad148310c9d9770e095ae57bfd7ca510b74e16"
+              }
+            },
+            {
+              "point": {
+                "x": 619.2857746695579,
+                "y": 227.5515200453117
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07144920684993734,
+                "y": 0.1547081087912469
+              },
+              "solveMs": 0.004124999999930878,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "b9abb4d20a1f1eeef606f609d622f623a37b8630f4caeee92a60218d8b4f07b7"
+              }
+            },
+            {
+              "point": {
+                "x": 621.9412431803055,
+                "y": 231.58131095081004
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07350412120939867,
+                "y": 0.1610744399414239
+              },
+              "solveMs": 0.005708000000140601,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "693e6e96cc5fa5e9c41894ae5ac88ffdba62439226930e1c1af0f65e3cb1cb61"
+              }
+            },
+            {
+              "point": {
+                "x": 624.5967116910532,
+                "y": 235.61110185630838
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07555903556886022,
+                "y": 0.167440771091601
+              },
+              "solveMs": 0.004916999999977634,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "c1e5f8c4c9c2e4a65e42f4587bb008eaa839a4d083df29bf9fa8a8df07d56e0d"
+              }
+            },
+            {
+              "point": {
+                "x": 627.2521802018009,
+                "y": 239.64089276180675
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07761394992832173,
+                "y": 0.1738071022417781
+              },
+              "solveMs": 0.012707999999975073,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "53b93d30d4f78f4919add61c506afd8eb9ef0199d881763ec174a9290eebb5b9"
+              }
+            },
+            {
+              "point": {
+                "x": 629.9076487125486,
+                "y": 243.6706836673051
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.07966886428778326,
+                "y": 0.18017343339195513
+              },
+              "solveMs": 0.005125000000134605,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "69cbd114cfba7961ebda5a632bad8c95470065956f13627f913e58ebdabe8ad9"
+              }
+            },
+            {
+              "point": {
+                "x": 632.5631172232963,
+                "y": 247.70047457280344
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08172377864724484,
+                "y": 0.18653976454213217
+              },
+              "solveMs": 0.0028339999998934218,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "85599fdeb24b367841955ff45b8d4a71dbbc2d6fb0b734366ba573025ad2fb35"
+              }
+            },
+            {
+              "point": {
+                "x": 635.2185857340439,
+                "y": 251.73026547830182
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08377869300670611,
+                "y": 0.1929060956923092
+              },
+              "solveMs": 0.003416999999899417,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "f2ddf97fc11f735111d78444402840f30d96a0c027f47d792166ccb4e42f0bf8"
+              }
+            },
+            {
+              "point": {
+                "x": 637.8740542447916,
+                "y": 255.76005638380016
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08583360736616764,
+                "y": 0.1992724268424863
+              },
+              "solveMs": 0.0071250000000873115,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "064fddcfd686f9c34d3efef4020ef580899b4ae5cd95179dbdf5da65f6f4b0cc"
+              }
+            },
+            {
+              "point": {
+                "x": 640.5295227555393,
+                "y": 259.78984728929856
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08788852172562917,
+                "y": 0.20563875799266346
+              },
+              "solveMs": 0.002292000000124972,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "bd6b2a406d7453978f61afa30622191df7d592ba49c5a8696668fc3aa1393fcb"
+              }
+            },
+            {
+              "point": {
+                "x": 643.184991266287,
+                "y": 263.8196381947969
+              },
+              "admitted": true,
+              "center": {
+                "x": 0.08994343608509071,
+                "y": 0.21200508914284044
+              },
+              "solveMs": 0.002084000000195374,
+              "fullMesh": {
+                "vertices": 9409,
+                "indices": 55296,
+                "positionSha256": "5028c67eab654557072b46ebd4edb0b65ecaf37b0a4a5cc44a914e2e4fd5a9c5"
+              }
+            }
+          ],
+          "capturedMaterialTriangle": {
+            "face": {
+              "a": 6550,
+              "b": 6647,
+              "c": 6551
+            },
+            "pointWorld": [
+              -57.53774201331076,
+              227.94255562449885,
+              151.33565286525987
+            ]
+          },
+          "mapping": "Frozen actual triangle UV-oriented bounded affine frame. Every valid admitted target has a complete original-UV 96-grid mesh check.",
+          "scope": "Exact actual submitted equipped geometry, painted alpha and same-pass source-correlated rear/front/glass ray witnesses. Other assembly hardware is not reconstructed here; selected rays are away from hardware apertures. Native production visibility uses the full scene and must accept/refuse these exact points."
+        }
+      },
+      "proofText": "{\n  \"version\": 1,\n  \"build\": {\n    \"source\": \"52c6892dd17181e17226c6d074d50415f3fb3e0fdde7be2764fa8685e9d959a4\",\n    \"artifacts\": \"07d71b1b4f97c07dd43e866e63e6a0c6a5d757c3b35dcc1aa6721c6ec4500b53\"\n  },\n  \"sampler\": {\n    \"path\": \"packages/device/src/sticker-corner-cage.ts\",\n    \"sha256\": \"4f4c7b9bdb46e761f3243e2e59994a545b31b70b05428382ca4f36d040a5189b\"\n  },\n  \"seed\": [\n    {\n      \"stickerId\": \"PW-C03\",\n      \"surface\": \"back\",\n      \"x\": 0.027,\n      \"y\": 0.017,\n      \"width\": 0.35,\n      \"rotationDeg\": 0,\n      \"wear\": 1\n    },\n    {\n      \"stickerId\": \"PW-F01\",\n      \"surface\": \"back\",\n      \"x\": 0.65,\n      \"y\": 0.72,\n      \"width\": 0.25,\n      \"rotationDeg\": 0,\n      \"wear\": 0.6\n    }\n  ],\n  \"viewport\": {\n    \"width\": 1280,\n    \"height\": 900\n  },\n  \"pose\": {\n    \"face\": \"side\",\n    \"rightStepsFromRear\": 5\n  },\n  \"cameraWorld\": [\n    1,\n    0,\n    0,\n    0,\n    0,\n    1,\n    0,\n    0,\n    0,\n    0,\n    1,\n    0,\n    0,\n    0,\n    1387.7459716796875,\n    1\n  ],\n  \"cameraProjection\": [\n    2.624098300933838,\n    0,\n    0,\n    0,\n    0,\n    3.732050895690918,\n    0,\n    0,\n    0,\n    0,\n    -1.7090742588043213,\n    -1,\n    0,\n    0,\n    -1442.1593017578125,\n    0\n  ],\n  \"contentWorld\": [\n    -0.5,\n    0,\n    0.8660253882408142,\n    0,\n    0,\n    1,\n    0,\n    0,\n    -0.8660253882408142,\n    0,\n    -0.5,\n    0,\n    1.039230465888977,\n    -0.2008357048034668,\n    0.6000000238418579,\n    1\n  ],\n  \"pickup\": {\n    \"point\": {\n      \"x\": 561.8461696688656,\n      \"y\": 140.3843791395311\n    },\n    \"uv\": [\n      0.52333275236032,\n      0.31012865019079805\n    ],\n    \"effectiveAlpha\": 0.9921568627450981,\n    \"stickerDistance\": 1258.5622424564535,\n    \"shellDistance\": 1258.744858240867\n  },\n  \"occluded\": {\n    \"point\": {\n      \"x\": 567.0681229844442,\n      \"y\": 147.83122958236646\n    },\n    \"uv\": [\n      0.4590519388765654,\n      0.9319488440006141\n    ],\n    \"effectiveAlpha\": 0.9921568627450981,\n    \"stickerDistance\": 1362.4314816179526,\n    \"shellDistance\": 1257.9151579139823\n  },\n  \"attached\": {\n    \"uv\": [\n      0.5231626629829407,\n      0.31023186445236206\n    ],\n    \"partialPointer\": {\n      \"x\": 579.4537470083425,\n      \"y\": 167.10465646283635\n    }\n  },\n  \"attribution\": {\n    \"capturePath\": \"/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/affine-target-matrix-1/matrix-1280-side.json\",\n    \"captureSha256\": \"6ccf7be2e467028d242b70c46090e078e95876c06078130edf51579a7e1f303a\",\n    \"sourceBufferSha256\": {\n      \"position\": \"da61406194596390be2b1c05bbba791ab8e19afc1e7b8ec5c63042c64bf13d76\",\n      \"uv\": \"e92f24ea33c24a3c5580ee3839631624b166a25cf36ea9e8e0f7a953feac6a52\",\n      \"index\": \"47e6f2c078c0802d332369106d92461e3194bbc06b48d6f199a6c6c03e93f879\"\n    },\n    \"selectedInkDrawId\": 558,\n    \"draws\": [\n      {\n        \"id\": 558,\n        \"pass\": 8,\n        \"program\": 18,\n        \"raster\": {\n          \"cullEnabled\": true,\n          \"cullFace\": 1029,\n          \"frontFace\": 2305\n        }\n      },\n      {\n        \"id\": 559,\n        \"pass\": 8,\n        \"program\": 19,\n        \"raster\": {\n          \"cullEnabled\": true,\n          \"cullFace\": 1029,\n          \"frontFace\": 2304\n        }\n      }\n    ],\n    \"actualShellSources\": [\n      {\n        \"source\": \"actual cut rear\",\n        \"position\": {\n          \"fnv1a\": \"def0757c\",\n          \"sha256\": \"397c3cb50e9dfa9916cf09224d9cb05ee2373eab391430de22bd62c9797cf367\",\n          \"byteLength\": 797976\n        },\n        \"transform\": [\n          1,\n          0,\n          0,\n          0,\n          0,\n          1,\n          0,\n          0,\n          0,\n          0,\n          1,\n          0,\n          0,\n          0,\n          0,\n          1\n        ],\n        \"draws\": [\n          {\n            \"id\": 487,\n            \"pass\": 8,\n            \"modelMatrix\": [\n              -0.5,\n              0,\n              0.8660253882408142,\n              0,\n              0,\n              1,\n              0,\n              0,\n              -0.8660253882408142,\n              0,\n              -0.5,\n              0,\n              1.039230465888977,\n              -0.2008357048034668,\n              0.6000000238418579,\n              1\n            ],\n            \"modelViewMatrix\": [\n              -0.5,\n              0,\n              0.8660253882408142,\n              0,\n              0,\n              1,\n              0,\n              0,\n              -0.8660253882408142,\n              0,\n              -0.5,\n              0,\n              1.039230465888977,\n              -0.2008357048034668,\n              -1387.14599609375,\n              1\n            ],\n            \"position\": {\n              \"id\": 1,\n              \"revision\": 1,\n              \"byteLength\": 797976,\n              \"fnv1a\": \"def0757c\",\n              \"layout\": {\n                \"size\": 3,\n                \"type\": 5126,\n                \"normalized\": false,\n                \"stride\": 12,\n                \"offset\": 0\n              }\n            },\n            \"maxMatrixError\": 0\n          }\n        ]\n      }\n    ],\n    \"grabSourceSha256\": \"408227d0553bc4441f96574b4e8403839e273ad30662a228d3dc18ff8a225a88\",\n    \"coordinateSpace\": \"Distances and UV mesh are in captured content coordinates; actual model/view/projection matrices are recorded.\",\n    \"occludedOrientation\": {\n      \"eligible\": true,\n      \"signedBoundaryDistance\": -7.511541040441216,\n      \"band\": 18,\n      \"diagnosticMarginBand\": 10,\n      \"foregroundInkDistance\": null,\n      \"predicate\": \"packages/device/src/orientation-grab.ts:isDeviceOuterGrabPoint\",\n      \"actualFirstShellPoint\": [\n        157.48845895955878,\n        222.75016123460864,\n        -27.701477573544025\n      ]\n    },\n    \"partialAttached\": {\n      \"point\": {\n        \"x\": 561.7586980907249,\n        \"y\": 140.38803817774686\n      },\n      \"uv\": [\n        0.5231626629829407,\n        0.31023186445236206\n      ],\n      \"effectiveAlpha\": 0.9921568627450981,\n      \"stickerDistance\": 1258.569018015103,\n      \"shellDistance\": 1258.7541153627767,\n      \"local\": [\n        159.85801696777344,\n        228.1414794921875,\n        -24.58061981201172\n      ],\n      \"shellPoint\": [\n        159.7047754664345,\n        228.17500265062228,\n        -24.482363676163573\n      ],\n      \"shellSource\": \"actual cut rear\",\n      \"row\": 0.6979166666666666,\n      \"col\": 0.53125,\n      \"facing\": 0.9723039941271653,\n      \"attachment\": {\n        \"vertexIndex\": 6550,\n        \"sourceUV\": [\n          0.5231626629829407,\n          0.31023186445236206\n        ],\n        \"exactGridVertex\": true,\n        \"frontier\": 0.625,\n        \"row\": 0.6979166666666666,\n        \"gridRow\": 67,\n        \"frontGridRow\": 60,\n        \"rowMargin\": 0.07291666666666663,\n        \"sourcePosition\": [\n          159.85801696777344,\n          228.1414794921875,\n          -24.58061981201172\n        ],\n        \"peelPosition\": [\n          159.85801696777344,\n          228.1414794921875,\n          -24.58061981201172\n        ],\n        \"maxPositionError\": 0,\n        \"transportWeight\": 0\n      },\n      \"sourceFrontier\": 0.6249999999999998\n    },\n    \"trajectory\": [\n      {\n        \"point\": {\n          \"x\": 564.0471168363002,\n          \"y\": 143.72441380494425\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 566.2480640037348,\n          \"y\": 147.0644484703574\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 568.4490111711694,\n          \"y\": 150.40448313577056\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 570.649958338604,\n          \"y\": 153.74451780118372\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 572.8509055060387,\n          \"y\": 157.08455246659688\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 575.0518526734733,\n          \"y\": 160.42458713201003\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 577.2527998409079,\n          \"y\": 163.7646217974232\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 579.4537470083425,\n          \"y\": 167.10465646283635\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 582.1092155190902,\n          \"y\": 171.1344473683347\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 584.7646840298379,\n          \"y\": 175.16423827383306\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 587.4201525405856,\n          \"y\": 179.1940291793314\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 590.0756210513332,\n          \"y\": 183.22382008482975\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 592.7310895620809,\n          \"y\": 187.25361099032813\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 595.3865580728286,\n          \"y\": 191.28340189582647\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 598.0420265835763,\n          \"y\": 195.31319280132485\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.05500989197424529,\n          \"y\": 0.10377745958983031\n        },\n        \"solveMs\": 0.07491600000003018,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"5cce36ede3dfa9db389a07322e84a1aa3a0063c701cd91fea49d2e1bf85dd38c\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 600.697495094324,\n          \"y\": 199.3429837068232\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.05706480633370682,\n          \"y\": 0.1101437907400074\n        },\n        \"solveMs\": 0.023541999999906693,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"930fd987cbad95f3abaf3dfcd6a7645bd4f861de2a24681e38a04ca2523ea780\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 603.3529636050716,\n          \"y\": 203.37277461232156\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.05911972069316812,\n          \"y\": 0.11651012189018443\n        },\n        \"solveMs\": 0.01087500000005548,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"b22ec3e938b52a3601b29c4823568ce433dfbeec380e940ce2a7a002cf191100\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 606.0084321158193,\n          \"y\": 207.4025655178199\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06117463505262967,\n          \"y\": 0.1228764530403615\n        },\n        \"solveMs\": 0.006250000000022737,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"8d93d48b8e2d3a12927d01e21bb1f6cab9215d3703c59674bd64aa029bc39353\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 608.663900626567,\n          \"y\": 211.43235642331825\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06322954941209122,\n          \"y\": 0.12924278419053856\n        },\n        \"solveMs\": 0.005750000000034561,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"8acbfc358a97c9c7475e354151745c39ed290c2fa0069960daa07650defa33fb\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 611.3193691373148,\n          \"y\": 215.46214732881663\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06528446377155273,\n          \"y\": 0.13560911534071565\n        },\n        \"solveMs\": 0.00454200000012861,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"0883e0c3d2265bca2693399e8a9f294aea1f3d0f9745aab8587b36b819a3658a\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 613.9748376480625,\n          \"y\": 219.49193823431497\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06733937813101429,\n          \"y\": 0.14197544649089275\n        },\n        \"solveMs\": 0.009083000000146058,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"9eb1e1cff1e1352b4ed8e58c4eebc31b00192f17f4fd146c4e9940297c64f4b2\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 616.6303061588102,\n          \"y\": 223.52172913981332\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06939429249047584,\n          \"y\": 0.14834177764106976\n        },\n        \"solveMs\": 0.005916999999953987,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"64f3cbdab0f1419cdf5b0a4b42ad148310c9d9770e095ae57bfd7ca510b74e16\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 619.2857746695579,\n          \"y\": 227.5515200453117\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07144920684993734,\n          \"y\": 0.1547081087912469\n        },\n        \"solveMs\": 0.004124999999930878,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"b9abb4d20a1f1eeef606f609d622f623a37b8630f4caeee92a60218d8b4f07b7\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 621.9412431803055,\n          \"y\": 231.58131095081004\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07350412120939867,\n          \"y\": 0.1610744399414239\n        },\n        \"solveMs\": 0.005708000000140601,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"693e6e96cc5fa5e9c41894ae5ac88ffdba62439226930e1c1af0f65e3cb1cb61\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 624.5967116910532,\n          \"y\": 235.61110185630838\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07555903556886022,\n          \"y\": 0.167440771091601\n        },\n        \"solveMs\": 0.004916999999977634,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"c1e5f8c4c9c2e4a65e42f4587bb008eaa839a4d083df29bf9fa8a8df07d56e0d\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 627.2521802018009,\n          \"y\": 239.64089276180675\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07761394992832173,\n          \"y\": 0.1738071022417781\n        },\n        \"solveMs\": 0.012707999999975073,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"53b93d30d4f78f4919add61c506afd8eb9ef0199d881763ec174a9290eebb5b9\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 629.9076487125486,\n          \"y\": 243.6706836673051\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07966886428778326,\n          \"y\": 0.18017343339195513\n        },\n        \"solveMs\": 0.005125000000134605,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"69cbd114cfba7961ebda5a632bad8c95470065956f13627f913e58ebdabe8ad9\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 632.5631172232963,\n          \"y\": 247.70047457280344\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08172377864724484,\n          \"y\": 0.18653976454213217\n        },\n        \"solveMs\": 0.0028339999998934218,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"85599fdeb24b367841955ff45b8d4a71dbbc2d6fb0b734366ba573025ad2fb35\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 635.2185857340439,\n          \"y\": 251.73026547830182\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08377869300670611,\n          \"y\": 0.1929060956923092\n        },\n        \"solveMs\": 0.003416999999899417,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"f2ddf97fc11f735111d78444402840f30d96a0c027f47d792166ccb4e42f0bf8\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 637.8740542447916,\n          \"y\": 255.76005638380016\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08583360736616764,\n          \"y\": 0.1992724268424863\n        },\n        \"solveMs\": 0.0071250000000873115,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"064fddcfd686f9c34d3efef4020ef580899b4ae5cd95179dbdf5da65f6f4b0cc\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 640.5295227555393,\n          \"y\": 259.78984728929856\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08788852172562917,\n          \"y\": 0.20563875799266346\n        },\n        \"solveMs\": 0.002292000000124972,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"bd6b2a406d7453978f61afa30622191df7d592ba49c5a8696668fc3aa1393fcb\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 643.184991266287,\n          \"y\": 263.8196381947969\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08994343608509071,\n          \"y\": 0.21200508914284044\n        },\n        \"solveMs\": 0.002084000000195374,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"5028c67eab654557072b46ebd4edb0b65ecaf37b0a4a5cc44a914e2e4fd5a9c5\"\n        }\n      }\n    ],\n    \"negativeTrajectory\": [\n      {\n        \"point\": {\n          \"x\": 564.0471168363002,\n          \"y\": 143.72441380494425\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 566.2480640037348,\n          \"y\": 147.0644484703574\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 568.4490111711694,\n          \"y\": 150.40448313577056\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 570.649958338604,\n          \"y\": 153.74451780118372\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 572.8509055060387,\n          \"y\": 157.08455246659688\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 575.0518526734733,\n          \"y\": 160.42458713201003\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 577.2527998409079,\n          \"y\": 163.7646217974232\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 579.4537470083425,\n          \"y\": 167.10465646283635\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 582.1092155190902,\n          \"y\": 171.1344473683347\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 584.7646840298379,\n          \"y\": 175.16423827383306\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 587.4201525405856,\n          \"y\": 179.1940291793314\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 590.0756210513332,\n          \"y\": 183.22382008482975\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 592.7310895620809,\n          \"y\": 187.25361099032813\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 595.3865580728286,\n          \"y\": 191.28340189582647\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 598.0420265835763,\n          \"y\": 195.31319280132485\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.05500989197424529,\n          \"y\": 0.10377745958983031\n        },\n        \"solveMs\": 0.07491600000003018,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"5cce36ede3dfa9db389a07322e84a1aa3a0063c701cd91fea49d2e1bf85dd38c\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 600.697495094324,\n          \"y\": 199.3429837068232\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.05706480633370682,\n          \"y\": 0.1101437907400074\n        },\n        \"solveMs\": 0.023541999999906693,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"930fd987cbad95f3abaf3dfcd6a7645bd4f861de2a24681e38a04ca2523ea780\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 603.3529636050716,\n          \"y\": 203.37277461232156\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.05911972069316812,\n          \"y\": 0.11651012189018443\n        },\n        \"solveMs\": 0.01087500000005548,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"b22ec3e938b52a3601b29c4823568ce433dfbeec380e940ce2a7a002cf191100\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 606.0084321158193,\n          \"y\": 207.4025655178199\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06117463505262967,\n          \"y\": 0.1228764530403615\n        },\n        \"solveMs\": 0.006250000000022737,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"8d93d48b8e2d3a12927d01e21bb1f6cab9215d3703c59674bd64aa029bc39353\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 608.663900626567,\n          \"y\": 211.43235642331825\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06322954941209122,\n          \"y\": 0.12924278419053856\n        },\n        \"solveMs\": 0.005750000000034561,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"8acbfc358a97c9c7475e354151745c39ed290c2fa0069960daa07650defa33fb\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 611.3193691373148,\n          \"y\": 215.46214732881663\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06528446377155273,\n          \"y\": 0.13560911534071565\n        },\n        \"solveMs\": 0.00454200000012861,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"0883e0c3d2265bca2693399e8a9f294aea1f3d0f9745aab8587b36b819a3658a\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 613.9748376480625,\n          \"y\": 219.49193823431497\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06733937813101429,\n          \"y\": 0.14197544649089275\n        },\n        \"solveMs\": 0.009083000000146058,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"9eb1e1cff1e1352b4ed8e58c4eebc31b00192f17f4fd146c4e9940297c64f4b2\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 616.6303061588102,\n          \"y\": 223.52172913981332\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06939429249047584,\n          \"y\": 0.14834177764106976\n        },\n        \"solveMs\": 0.005916999999953987,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"64f3cbdab0f1419cdf5b0a4b42ad148310c9d9770e095ae57bfd7ca510b74e16\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 619.2857746695579,\n          \"y\": 227.5515200453117\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07144920684993734,\n          \"y\": 0.1547081087912469\n        },\n        \"solveMs\": 0.004124999999930878,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"b9abb4d20a1f1eeef606f609d622f623a37b8630f4caeee92a60218d8b4f07b7\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 621.9412431803055,\n          \"y\": 231.58131095081004\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07350412120939867,\n          \"y\": 0.1610744399414239\n        },\n        \"solveMs\": 0.005708000000140601,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"693e6e96cc5fa5e9c41894ae5ac88ffdba62439226930e1c1af0f65e3cb1cb61\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 624.5967116910532,\n          \"y\": 235.61110185630838\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07555903556886022,\n          \"y\": 0.167440771091601\n        },\n        \"solveMs\": 0.004916999999977634,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"c1e5f8c4c9c2e4a65e42f4587bb008eaa839a4d083df29bf9fa8a8df07d56e0d\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 627.2521802018009,\n          \"y\": 239.64089276180675\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07761394992832173,\n          \"y\": 0.1738071022417781\n        },\n        \"solveMs\": 0.012707999999975073,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"53b93d30d4f78f4919add61c506afd8eb9ef0199d881763ec174a9290eebb5b9\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 629.9076487125486,\n          \"y\": 243.6706836673051\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07966886428778326,\n          \"y\": 0.18017343339195513\n        },\n        \"solveMs\": 0.005125000000134605,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"69cbd114cfba7961ebda5a632bad8c95470065956f13627f913e58ebdabe8ad9\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 632.5631172232963,\n          \"y\": 247.70047457280344\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08172377864724484,\n          \"y\": 0.18653976454213217\n        },\n        \"solveMs\": 0.0028339999998934218,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"85599fdeb24b367841955ff45b8d4a71dbbc2d6fb0b734366ba573025ad2fb35\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 635.2185857340439,\n          \"y\": 251.73026547830182\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08377869300670611,\n          \"y\": 0.1929060956923092\n        },\n        \"solveMs\": 0.003416999999899417,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"f2ddf97fc11f735111d78444402840f30d96a0c027f47d792166ccb4e42f0bf8\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 637.8740542447916,\n          \"y\": 255.76005638380016\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08583360736616764,\n          \"y\": 0.1992724268424863\n        },\n        \"solveMs\": 0.0071250000000873115,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"064fddcfd686f9c34d3efef4020ef580899b4ae5cd95179dbdf5da65f6f4b0cc\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 640.5295227555393,\n          \"y\": 259.78984728929856\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08788852172562917,\n          \"y\": 0.20563875799266346\n        },\n        \"solveMs\": 0.002292000000124972,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"bd6b2a406d7453978f61afa30622191df7d592ba49c5a8696668fc3aa1393fcb\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 643.184991266287,\n          \"y\": 263.8196381947969\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08994343608509071,\n          \"y\": 0.21200508914284044\n        },\n        \"solveMs\": 0.002084000000195374,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"5028c67eab654557072b46ebd4edb0b65ecaf37b0a4a5cc44a914e2e4fd5a9c5\"\n        }\n      }\n    ],\n    \"reentryTrajectory\": [\n      {\n        \"point\": {\n          \"x\": 564.0471168363002,\n          \"y\": 143.72441380494425\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 566.2480640037348,\n          \"y\": 147.0644484703574\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 568.4490111711694,\n          \"y\": 150.40448313577056\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 570.649958338604,\n          \"y\": 153.74451780118372\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 572.8509055060387,\n          \"y\": 157.08455246659688\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 575.0518526734733,\n          \"y\": 160.42458713201003\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 577.2527998409079,\n          \"y\": 163.7646217974232\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 579.4537470083425,\n          \"y\": 167.10465646283635\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 582.1092155190902,\n          \"y\": 171.1344473683347\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 584.7646840298379,\n          \"y\": 175.16423827383306\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 587.4201525405856,\n          \"y\": 179.1940291793314\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 590.0756210513332,\n          \"y\": 183.22382008482975\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 592.7310895620809,\n          \"y\": 187.25361099032813\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 595.3865580728286,\n          \"y\": 191.28340189582647\n        },\n        \"admitted\": false,\n        \"center\": null,\n        \"solveMs\": null,\n        \"fullMesh\": null\n      },\n      {\n        \"point\": {\n          \"x\": 598.0420265835763,\n          \"y\": 195.31319280132485\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.05500989197424529,\n          \"y\": 0.10377745958983031\n        },\n        \"solveMs\": 0.07491600000003018,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"5cce36ede3dfa9db389a07322e84a1aa3a0063c701cd91fea49d2e1bf85dd38c\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 600.697495094324,\n          \"y\": 199.3429837068232\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.05706480633370682,\n          \"y\": 0.1101437907400074\n        },\n        \"solveMs\": 0.023541999999906693,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"930fd987cbad95f3abaf3dfcd6a7645bd4f861de2a24681e38a04ca2523ea780\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 603.3529636050716,\n          \"y\": 203.37277461232156\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.05911972069316812,\n          \"y\": 0.11651012189018443\n        },\n        \"solveMs\": 0.01087500000005548,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"b22ec3e938b52a3601b29c4823568ce433dfbeec380e940ce2a7a002cf191100\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 606.0084321158193,\n          \"y\": 207.4025655178199\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06117463505262967,\n          \"y\": 0.1228764530403615\n        },\n        \"solveMs\": 0.006250000000022737,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"8d93d48b8e2d3a12927d01e21bb1f6cab9215d3703c59674bd64aa029bc39353\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 608.663900626567,\n          \"y\": 211.43235642331825\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06322954941209122,\n          \"y\": 0.12924278419053856\n        },\n        \"solveMs\": 0.005750000000034561,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"8acbfc358a97c9c7475e354151745c39ed290c2fa0069960daa07650defa33fb\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 611.3193691373148,\n          \"y\": 215.46214732881663\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06528446377155273,\n          \"y\": 0.13560911534071565\n        },\n        \"solveMs\": 0.00454200000012861,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"0883e0c3d2265bca2693399e8a9f294aea1f3d0f9745aab8587b36b819a3658a\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 613.9748376480625,\n          \"y\": 219.49193823431497\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06733937813101429,\n          \"y\": 0.14197544649089275\n        },\n        \"solveMs\": 0.009083000000146058,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"9eb1e1cff1e1352b4ed8e58c4eebc31b00192f17f4fd146c4e9940297c64f4b2\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 616.6303061588102,\n          \"y\": 223.52172913981332\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.06939429249047584,\n          \"y\": 0.14834177764106976\n        },\n        \"solveMs\": 0.005916999999953987,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"64f3cbdab0f1419cdf5b0a4b42ad148310c9d9770e095ae57bfd7ca510b74e16\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 619.2857746695579,\n          \"y\": 227.5515200453117\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07144920684993734,\n          \"y\": 0.1547081087912469\n        },\n        \"solveMs\": 0.004124999999930878,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"b9abb4d20a1f1eeef606f609d622f623a37b8630f4caeee92a60218d8b4f07b7\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 621.9412431803055,\n          \"y\": 231.58131095081004\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07350412120939867,\n          \"y\": 0.1610744399414239\n        },\n        \"solveMs\": 0.005708000000140601,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"693e6e96cc5fa5e9c41894ae5ac88ffdba62439226930e1c1af0f65e3cb1cb61\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 624.5967116910532,\n          \"y\": 235.61110185630838\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07555903556886022,\n          \"y\": 0.167440771091601\n        },\n        \"solveMs\": 0.004916999999977634,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"c1e5f8c4c9c2e4a65e42f4587bb008eaa839a4d083df29bf9fa8a8df07d56e0d\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 627.2521802018009,\n          \"y\": 239.64089276180675\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07761394992832173,\n          \"y\": 0.1738071022417781\n        },\n        \"solveMs\": 0.012707999999975073,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"53b93d30d4f78f4919add61c506afd8eb9ef0199d881763ec174a9290eebb5b9\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 629.9076487125486,\n          \"y\": 243.6706836673051\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.07966886428778326,\n          \"y\": 0.18017343339195513\n        },\n        \"solveMs\": 0.005125000000134605,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"69cbd114cfba7961ebda5a632bad8c95470065956f13627f913e58ebdabe8ad9\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 632.5631172232963,\n          \"y\": 247.70047457280344\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08172377864724484,\n          \"y\": 0.18653976454213217\n        },\n        \"solveMs\": 0.0028339999998934218,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"85599fdeb24b367841955ff45b8d4a71dbbc2d6fb0b734366ba573025ad2fb35\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 635.2185857340439,\n          \"y\": 251.73026547830182\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08377869300670611,\n          \"y\": 0.1929060956923092\n        },\n        \"solveMs\": 0.003416999999899417,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"f2ddf97fc11f735111d78444402840f30d96a0c027f47d792166ccb4e42f0bf8\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 637.8740542447916,\n          \"y\": 255.76005638380016\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08583360736616764,\n          \"y\": 0.1992724268424863\n        },\n        \"solveMs\": 0.0071250000000873115,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"064fddcfd686f9c34d3efef4020ef580899b4ae5cd95179dbdf5da65f6f4b0cc\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 640.5295227555393,\n          \"y\": 259.78984728929856\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08788852172562917,\n          \"y\": 0.20563875799266346\n        },\n        \"solveMs\": 0.002292000000124972,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"bd6b2a406d7453978f61afa30622191df7d592ba49c5a8696668fc3aa1393fcb\"\n        }\n      },\n      {\n        \"point\": {\n          \"x\": 643.184991266287,\n          \"y\": 263.8196381947969\n        },\n        \"admitted\": true,\n        \"center\": {\n          \"x\": 0.08994343608509071,\n          \"y\": 0.21200508914284044\n        },\n        \"solveMs\": 0.002084000000195374,\n        \"fullMesh\": {\n          \"vertices\": 9409,\n          \"indices\": 55296,\n          \"positionSha256\": \"5028c67eab654557072b46ebd4edb0b65ecaf37b0a4a5cc44a914e2e4fd5a9c5\"\n        }\n      }\n    ],\n    \"capturedMaterialTriangle\": {\n      \"face\": {\n        \"a\": 6550,\n        \"b\": 6647,\n        \"c\": 6551\n      },\n      \"pointWorld\": [\n        -57.53774201331076,\n        227.94255562449885,\n        151.33565286525987\n      ]\n    },\n    \"mapping\": \"Frozen actual triangle UV-oriented bounded affine frame. Every valid admitted target has a complete original-UV 96-grid mesh check.\",\n    \"scope\": \"Exact actual submitted equipped geometry, painted alpha and same-pass source-correlated rear/front/glass ray witnesses. Other assembly hardware is not reconstructed here; selected rays are away from hardware apertures. Native production visibility uses the full scene and must accept/refuse these exact points.\"\n  }\n}",
+      "evidenceSHA256": "be4122390354968cdd7b21e811d7b7782cbae2df11cc11f811257758a6b23d3a"
+    }
+  ],
+  "witnesses": [
+    {
+      "name": "wrapped-1280-side",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "face": "side",
+      "rightStepsFromRear": 5,
+      "pickup": {
+        "x": 561.8461696688656,
+        "y": 140.3843791395311
+      },
+      "partial": {
+        "x": 579.4537470083425,
+        "y": 167.10465646283635
+      },
+      "release": {
+        "x": 643.184991266287,
+        "y": 263.8196381947969
+      },
+      "expectedCenter": {
+        "x": 0.08994343608509071,
+        "y": 0.21200508914284044
+      },
+      "occluded": {
+        "x": 567.0681229844442,
+        "y": 147.83122958236646
+      },
+      "flickEnd": {
+        "x": 447.06812298444424,
+        "y": 182.83122958236646
+      },
+      "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-6/wrapped-1280-side.json"
+    },
+    {
+      "name": "wrapped-1280-front",
+      "viewport": {
+        "width": 1280,
+        "height": 900
+      },
+      "face": "front",
+      "rightStepsFromRear": 15,
+      "pickup": {
+        "x": 762.6675245342133,
+        "y": 137.99494921046283
+      },
+      "partial": {
+        "x": 772.6392122821188,
+        "y": 120.65812587231144
+      },
+      "release": {
+        "x": 820.9486270506884,
+        "y": 36.667149561597284
+      },
+      "expectedCenter": {
+        "x": 0.19999999999999984,
+        "y": 0.15000000000000002
+      },
+      "invalid": {
+        "x": 587.6045560693025,
+        "y": 160.02195993386476
+      },
+      "occluded": {
+        "x": 831.3879468122576,
+        "y": 180.38755075802538
+      },
+      "flickEnd": {
+        "x": 711.3879468122576,
+        "y": 215.38755075802538
+      },
+      "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-6/wrapped-1280-front.json"
+    },
+    {
+      "name": "wrapped-375-side",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "face": "side",
+      "rightStepsFromRear": 5,
+      "pickup": {
+        "x": 141.06295459588623,
+        "y": 222.03415582485093
+      },
+      "partial": {
+        "x": 159.16390437306558,
+        "y": 248.4227066976069
+      },
+      "release": {
+        "x": 189.4405910498952,
+        "y": 292.56171025626514
+      },
+      "expectedCenter": {
+        "x": 0.09424752460918387,
+        "y": 0.20573440752563904
+      },
+      "occluded": {
+        "x": 145.29667239632863,
+        "y": 223.88266199834328
+      },
+      "flickEnd": {
+        "x": 85.29667239632863,
+        "y": 258.8826619983433
+      },
+      "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-6/wrapped-375-side.json"
+    },
+    {
+      "name": "wrapped-375-front",
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "face": "front",
+      "rightStepsFromRear": 15,
+      "pickup": {
+        "x": 242.7165025323663,
+        "y": 215.44290767432503
+      },
+      "partial": {
+        "x": 246.86712842509684,
+        "y": 195.87834009161074
+      },
+      "release": {
+        "x": 263.0795481264556,
+        "y": 119.45878575834953
+      },
+      "expectedCenter": {
+        "x": 0.35,
+        "y": 0.1500000000000002
+      },
+      "invalid": {
+        "x": 113.81973140255182,
+        "y": 242.52415905419994
+      },
+      "occluded": {
+        "x": 305.3337228173019,
+        "y": 241.42507169344458
+      },
+      "flickEnd": {
+        "x": 245.33372281730192,
+        "y": 276.4250716934446
+      },
+      "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-6/wrapped-375-front.json"
+    }
+  ],
+  "outcomes": [],
+  "attachedContactAcceptance": "pending independent visual review"
+}

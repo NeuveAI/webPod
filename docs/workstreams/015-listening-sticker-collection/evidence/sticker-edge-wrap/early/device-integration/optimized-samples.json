@@ -1,0 +1,253 @@
+{
+  "axisPairs": [
+    {
+      "one": "top-left",
+      "two": "top-right",
+      "max": 0.02000241321882769
+    },
+    {
+      "one": "right-above",
+      "two": "right-below",
+      "max": 0.020011922306918572
+    }
+  ],
+  "flatError": 0.000007650695727418093,
+  "refinements": [
+    {
+      "centerDelta": 0.02,
+      "maxDelta": 0
+    },
+    {
+      "centerDelta": 0.002,
+      "maxDelta": 0
+    },
+    {
+      "centerDelta": 0.0002,
+      "maxDelta": 0
+    }
+  ],
+  "scope": "Diagnostic finite/fold and sampler handoff test only; not visual, clearance or self-intersection acceptance",
+  "rows": [
+    {
+      "name": "rear-0",
+      "x": 100,
+      "y": 200,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.3390440932030407,
+      "ms": 20.93129200000004
+    },
+    {
+      "name": "rear-45",
+      "x": 100,
+      "y": 200,
+      "rotation": 45,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.3102015879293913,
+      "ms": 12.593250000000012
+    },
+    {
+      "name": "rear-90",
+      "x": 100,
+      "y": 200,
+      "rotation": 90,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.4306708763597202,
+      "ms": 9.512374999999963
+    },
+    {
+      "name": "right-0",
+      "x": 156.09,
+      "y": 200,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.8978662918400433,
+      "ms": 10.792500000000018
+    },
+    {
+      "name": "right-45",
+      "x": 156.09,
+      "y": 200,
+      "rotation": 45,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.1107091192194731,
+      "ms": 9.748833999999988
+    },
+    {
+      "name": "right-90",
+      "x": 156.09,
+      "y": 200,
+      "rotation": 90,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.1927583323429831,
+      "ms": 8.331583999999964
+    },
+    {
+      "name": "entry-0",
+      "x": 156.09,
+      "y": 249.99,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.9012449956489575,
+      "ms": 9.68549999999999
+    },
+    {
+      "name": "entry-45",
+      "x": 156.09,
+      "y": 249.99,
+      "rotation": 45,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.0352691938973482,
+      "ms": 9.088166999999999
+    },
+    {
+      "name": "entry-90",
+      "x": 156.09,
+      "y": 249.99,
+      "rotation": 90,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.9660861070362884,
+      "ms": 7.344499999999982
+    },
+    {
+      "name": "corner-0",
+      "x": 156.09,
+      "y": 266.616,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.9604701291263048,
+      "ms": 10.598832999999956
+    },
+    {
+      "name": "corner-45",
+      "x": 156.09,
+      "y": 266.616,
+      "rotation": 45,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.0276648434029383,
+      "ms": 11.814624999999978
+    },
+    {
+      "name": "corner-90",
+      "x": 156.09,
+      "y": 266.616,
+      "rotation": 90,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.9949206095770017,
+      "ms": 9.95345900000001
+    },
+    {
+      "name": "top-0",
+      "x": 100,
+      "y": 266.616,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.2007413551806783,
+      "ms": 8.200791999999979
+    },
+    {
+      "name": "top-45",
+      "x": 100,
+      "y": 266.616,
+      "rotation": 45,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.5169277553132482,
+      "ms": 8.054332999999986
+    },
+    {
+      "name": "top-90",
+      "x": 100,
+      "y": 266.616,
+      "rotation": 90,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 0.9698738203171932,
+      "ms": 9.495749999999987
+    },
+    {
+      "name": "top-left",
+      "x": -0.01,
+      "y": 266.616,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.4073183786382553,
+      "ms": 7.822375000000022
+    },
+    {
+      "name": "top-right",
+      "x": 0.01,
+      "y": 266.616,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.4073184007214514,
+      "ms": 8.85345799999999
+    },
+    {
+      "name": "right-above",
+      "x": 156.09,
+      "y": 0.01,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.384375977848101,
+      "ms": 17.988666999999964
+    },
+    {
+      "name": "right-below",
+      "x": 156.09,
+      "y": -0.01,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.3843847761760724,
+      "ms": 13.734458000000018
+    },
+    {
+      "name": "flat",
+      "x": 0,
+      "y": 100,
+      "rotation": 0,
+      "finite": true,
+      "zero": 0,
+      "opposed": 0,
+      "minArea": 1.430730342864855,
+      "ms": 17.752708000000098
+    }
+  ],
+  "boundary": null
+}

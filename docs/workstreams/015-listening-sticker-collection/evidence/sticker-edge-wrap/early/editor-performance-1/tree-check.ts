@@ -1,0 +1,2 @@
+import {actualShell} from '../wrapped-witness-4/source-shell';
+const mode=process.argv[2],module=await import('./tree-'+mode+'.ts'),shell=actualShell(),start=performance.now(),collider=module.createStickerCollision(shell.faces.filter(f=>f.source!=='top cap and outer bevel candidate support'));const result={mode,buildAndHashMs:performance.now()-start,treeHash:module.treeHash,buildMs:module.treeBuildMs,stats:collider.stats};await Bun.write(import.meta.dir+'/tree-'+mode+'.json',JSON.stringify(result,null,2));console.log(result);collider.dispose();shell.dispose();

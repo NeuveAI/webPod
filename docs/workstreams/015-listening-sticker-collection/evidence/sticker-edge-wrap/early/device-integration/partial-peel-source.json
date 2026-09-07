@@ -1,0 +1,45 @@
+{
+  "rows": [
+    {
+      "progress": 0,
+      "vertices": 9409,
+      "finite": true,
+      "attachedDelta": 0,
+      "maxDetachedMovement": 0,
+      "ms": 1.1189170000000104
+    },
+    {
+      "progress": 0.1,
+      "vertices": 9409,
+      "finite": true,
+      "attachedDelta": 0,
+      "maxDetachedMovement": 3.6299451587709095,
+      "ms": 3.764915999999971
+    },
+    {
+      "progress": 0.4,
+      "vertices": 9409,
+      "finite": true,
+      "attachedDelta": 0,
+      "maxDetachedMovement": 63.440718653904376,
+      "ms": 2.8950419999999895
+    },
+    {
+      "progress": 0.9,
+      "vertices": 9409,
+      "finite": true,
+      "attachedDelta": 0,
+      "maxDetachedMovement": 243.35957338074851,
+      "ms": 3.035874999999976
+    },
+    {
+      "progress": 1,
+      "vertices": 9409,
+      "finite": true,
+      "attachedDelta": 0,
+      "maxDetachedMovement": 282.0258403592195,
+      "ms": 2.1548329999999964
+    }
+  ],
+  "sourceUnchanged": true
+}

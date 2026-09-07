@@ -1,0 +1,19 @@
+{
+  "status": "First120Hz run aborted OOM in native step184;240Hz not attempted",
+  "variant": "LIMITED fixed initial target substrate/press diagnostic; not physical current-support adhesion",
+  "completedSteps": 183,
+  "physicalTime": 1.525,
+  "nativeMsBeforeFailingStep": 640.3662909999998,
+  "forceMsBeforeFailingStep": 34.47071099999931,
+  "staticTriangles": 203743,
+  "nativeMeshWelding": false,
+  "reusedTriangleVectorCount": 3,
+  "bendingLinks": 6015,
+  "actualClusterCount": 100,
+  "inferredCollidableClusters": 99,
+  "reservedHeapBytes": 67108864,
+  "constructionOnlyResult": "All construction phases completed; intentional diagnostic exception after cluster generation",
+  "initialAttributionCorrection": "Initial message incorrectly attributed OOM to construction; phase instrumentation falsified that",
+  "nativeLiveMemory": "Unavailable in pinned bindings. Owner-destruction ledger is not internal cache deallocation proof. Process exit reclaims isolated heap.",
+  "hypothesis": "SparseSDF defaults allow262144cells of64floats plusmetadata. Source cache budget can exceed fixed64MiB. Actual cellcount at failure is not exposed or measured."
+}

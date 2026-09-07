@@ -1,0 +1,127 @@
+{
+  "input": "native mouse",
+  "samples": [
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 562.6715248566536,
+      "y": 141.63689213906102,
+      "driverTimeMs": 3644.319333
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 563.4968800444416,
+      "y": 142.88940513859097,
+      "driverTimeMs": 3659.161833
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 564.3222352322296,
+      "y": 144.1419181381209,
+      "driverTimeMs": 3676.261708
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 565.1475904200175,
+      "y": 145.39443113765083,
+      "driverTimeMs": 3691.921708
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 565.9729456078055,
+      "y": 146.64694413718075,
+      "driverTimeMs": 3711.763125
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 566.7983007955935,
+      "y": 147.89945713671068,
+      "driverTimeMs": 3767.205292
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 567.6236559833815,
+      "y": 149.15197013624064,
+      "driverTimeMs": 3782.916875
+    },
+    {
+      "phase": "partial-peel-before-cancel",
+      "x": 568.4490111711694,
+      "y": 150.40448313577056,
+      "driverTimeMs": 3800.607667
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 565.3041649870038,
+      "y": 117.66252813475636,
+      "driverTimeMs": 5995.508875
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 555.3041649870038,
+      "y": 120.57919480142301,
+      "driverTimeMs": 6033.728083
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 545.3041649870038,
+      "y": 123.49586146808969,
+      "driverTimeMs": 6050.7265
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 535.3041649870038,
+      "y": 126.41252813475636,
+      "driverTimeMs": 6066.941042
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 525.3041649870038,
+      "y": 129.32919480142303,
+      "driverTimeMs": 6083.547625
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 515.3041649870038,
+      "y": 132.24586146808969,
+      "driverTimeMs": 6100.134292
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 505.3041649870038,
+      "y": 135.16252813475634,
+      "driverTimeMs": 6115.445625
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 495.3041649870038,
+      "y": 138.07919480142303,
+      "driverTimeMs": 6133.963667
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 485.3041649870038,
+      "y": 140.99586146808969,
+      "driverTimeMs": 6150.524333
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 475.3041649870038,
+      "y": 143.91252813475634,
+      "driverTimeMs": 6166.876625
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 465.3041649870038,
+      "y": 146.82919480142303,
+      "driverTimeMs": 6183.783792
+    },
+    {
+      "phase": "occluded-shell-flick",
+      "x": 455.3041649870038,
+      "y": 149.74586146808969,
+      "driverTimeMs": 6200.461083
+    }
+  ],
+  "timing": "driver event completion timestamps; not render latency",
+  "source": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-2/wrapped-1280-side.json"
+}

@@ -1,0 +1,2454 @@
+{
+  "witness": {
+    "name": "wrapped-1280-side",
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "face": "side",
+    "rightStepsFromRear": 5,
+    "pickup": {
+      "x": 561.8461696688656,
+      "y": 140.3843791395311
+    },
+    "partial": {
+      "x": 579.4537470083425,
+      "y": 167.10465646283635
+    },
+    "release": {
+      "x": 643.184991266287,
+      "y": 263.8196381947969
+    },
+    "expectedCenter": {
+      "x": 0.35,
+      "y": 0.15
+    },
+    "occluded": {
+      "x": 567.0681229844442,
+      "y": 147.83122958236646
+    },
+    "flickEnd": {
+      "x": 447.06812298444424,
+      "y": 182.83122958236646
+    },
+    "evidence": "/Users/vinicius/code/webPod/docs/workstreams/015-listening-sticker-collection/evidence/sticker-edge-wrap/early/wrapped-witness-4/wrapped-1280-side.json"
+  },
+  "route": {
+    "records": [
+      {
+        "event": {
+          "type": "pointerdown",
+          "x": 567.068115234375,
+          "y": 147.8312225341797,
+          "id": 1,
+          "button": 0,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "STRONG",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "STRONG",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HEADER",
+              "id": "",
+              "class": "wp-titlebar"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-screen"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel-stage"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-composite-panel-host"
+            },
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 151.08383178710938,
+          "offsetY": 8.689276695251465,
+          "phase": 1,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "method": "preventDefault",
+        "event": {
+          "type": "pointerdown",
+          "x": 567.068115234375,
+          "y": 147.8312225341797,
+          "id": 1,
+          "button": 0,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "STRONG",
+            "id": "",
+            "class": null
+          },
+          "current": {
+            "tag": "DIV",
+            "id": "",
+            "class": "wp-composite-panel-host"
+          },
+          "path": [
+            {
+              "tag": "STRONG",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HEADER",
+              "id": "",
+              "class": "wp-titlebar"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-screen"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel-stage"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-composite-panel-host"
+            },
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 151.08383178710938,
+          "offsetY": 8.689276695251465,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "stack": "Error\n    at Event.<computed> [as preventDefault] (<anonymous>:15:69)\n    at t.preventDefault (http://127.0.0.1:64241/assets/index-De_gNiKS.js:8:16891)\n    at onPointerDown (http://127.0.0.1:64241/assets/index-De_gNiKS.js:4216:446324)\n    at wd (http://127.0.0.1:64241/assets/index-De_gNiKS.js:8:126440)\n    at http://127.0.0.1:64241/assets/index-De_gNiKS.js:8:131435\n    at nn (http://127.0.0.1:64241/assets/index-De_gNiKS.js:8:15079)\n    at Ad (http://127.0.0.1:64241/assets/index-De_gNiKS.js:8:127668)\n    at gp (http://127.0.0.1:64241/assets/index-De_gNiKS.js:9:28490)\n    at mp (http://127.0.0.1:64241/assets/index-De_gNiKS.js:9:28312)"
+      },
+      {
+        "event": {
+          "type": "pointerdown",
+          "x": 567.068115234375,
+          "y": 147.8312225341797,
+          "id": 1,
+          "button": 0,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "STRONG",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "STRONG",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HEADER",
+              "id": "",
+              "class": "wp-titlebar"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-screen"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel-stage"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-composite-panel-host"
+            },
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": true,
+          "cancelBubble": false,
+          "offsetX": 151.08383178710938,
+          "offsetY": 8.689276695251465,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 557.068115234375,
+          "y": 150.74789428710938,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HEADER",
+            "id": "",
+            "class": "wp-titlebar"
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HEADER",
+              "id": "",
+              "class": "wp-titlebar"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-screen"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel-stage"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-composite-panel-host"
+            },
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 225.72409057617188,
+          "offsetY": 16.266136169433594,
+          "phase": 1,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 557.068115234375,
+          "y": 150.74789428710938,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "HEADER",
+            "id": "",
+            "class": "wp-titlebar"
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "HEADER",
+              "id": "",
+              "class": "wp-titlebar"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-screen"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel-stage"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-composite-panel-host"
+            },
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 225.72409057617188,
+          "offsetY": 16.266136169433594,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 547.068115234375,
+          "y": 153.66456604003906,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "LI",
+            "id": "_r_0_-row-0",
+            "class": "wp-list-row"
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "LI",
+              "id": "_r_0_-row-0",
+              "class": "wp-list-row"
+            },
+            {
+              "tag": "OL",
+              "id": "",
+              "class": "wp-list-rows"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-viewport"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-body"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-view"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-screen"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel-stage"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-composite-panel-host"
+            },
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 240.0887451171875,
+          "offsetY": -0.24315452575683594,
+          "phase": 1,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 547.068115234375,
+          "y": 153.66456604003906,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "LI",
+            "id": "_r_0_-row-0",
+            "class": "wp-list-row"
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "LI",
+              "id": "_r_0_-row-0",
+              "class": "wp-list-row"
+            },
+            {
+              "tag": "OL",
+              "id": "",
+              "class": "wp-list-rows"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-viewport"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-body"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-view"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-screen"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel-stage"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-composite-panel-host"
+            },
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 240.0887451171875,
+          "offsetY": -0.24315452575683594,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 537.068115234375,
+          "y": 156.5812225341797,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "LI",
+            "id": "_r_0_-row-0",
+            "class": "wp-list-row"
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "LI",
+              "id": "_r_0_-row-0",
+              "class": "wp-list-row"
+            },
+            {
+              "tag": "OL",
+              "id": "",
+              "class": "wp-list-rows"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-viewport"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-body"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-view"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-screen"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel-stage"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-composite-panel-host"
+            },
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 254.18557739257812,
+          "offsetY": 4.1638031005859375,
+          "phase": 1,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 537.068115234375,
+          "y": 156.5812225341797,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "LI",
+            "id": "_r_0_-row-0",
+            "class": "wp-list-row"
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "LI",
+              "id": "_r_0_-row-0",
+              "class": "wp-list-row"
+            },
+            {
+              "tag": "OL",
+              "id": "",
+              "class": "wp-list-rows"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-viewport"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-body"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-view"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-screen"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel-stage"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-composite-panel-host"
+            },
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 254.18557739257812,
+          "offsetY": 4.1638031005859375,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 527.068115234375,
+          "y": 159.49789428710938,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "svg",
+            "id": "",
+            "class": "wp-icon wp-icon--chevron"
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "svg",
+              "id": "",
+              "class": "wp-icon wp-icon--chevron"
+            },
+            {
+              "tag": "SPAN",
+              "id": "",
+              "class": "wp-list-row__chevron"
+            },
+            {
+              "tag": "LI",
+              "id": "_r_0_-row-0",
+              "class": "wp-list-row"
+            },
+            {
+              "tag": "OL",
+              "id": "",
+              "class": "wp-list-rows"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-viewport"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-body"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-view"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-screen"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel-stage"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-composite-panel-host"
+            },
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 13.021942138671875,
+          "offsetY": 4.333105087280273,
+          "phase": 1,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 527.068115234375,
+          "y": 159.49789428710938,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "svg",
+            "id": "",
+            "class": "wp-icon wp-icon--chevron"
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "svg",
+              "id": "",
+              "class": "wp-icon wp-icon--chevron"
+            },
+            {
+              "tag": "SPAN",
+              "id": "",
+              "class": "wp-list-row__chevron"
+            },
+            {
+              "tag": "LI",
+              "id": "_r_0_-row-0",
+              "class": "wp-list-row"
+            },
+            {
+              "tag": "OL",
+              "id": "",
+              "class": "wp-list-rows"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-viewport"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-body"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-list-view"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-screen"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-panel-stage"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "wp-composite-panel-host"
+            },
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 13.021942138671875,
+          "offsetY": 4.333105087280273,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 517.068115234375,
+          "y": 162.41456604003906,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 517.068115234375,
+          "offsetY": 162.41456604003906,
+          "phase": 1,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 517.068115234375,
+          "y": 162.41456604003906,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 517.068115234375,
+          "offsetY": 162.41456604003906,
+          "phase": 3,
+          "stage": "ready",
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 507.068115234375,
+          "y": 165.3312225341797,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 507.068115234375,
+          "offsetY": 165.3312225341797,
+          "phase": 1,
+          "stage": "ready",
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 507.068115234375,
+          "y": 165.3312225341797,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 507.068115234375,
+          "offsetY": 165.3312225341797,
+          "phase": 3,
+          "stage": "ready",
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 497.068115234375,
+          "y": 168.24789428710938,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 497.068115234375,
+          "offsetY": 168.24789428710938,
+          "phase": 1,
+          "stage": "ready",
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 497.068115234375,
+          "y": 168.24789428710938,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 497.068115234375,
+          "offsetY": 168.24789428710938,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 487.068115234375,
+          "y": 171.16456604003906,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 487.068115234375,
+          "offsetY": 171.16456604003906,
+          "phase": 1,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 487.068115234375,
+          "y": 171.16456604003906,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 487.068115234375,
+          "offsetY": 171.16456604003906,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 477.068115234375,
+          "y": 174.0812225341797,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 477.068115234375,
+          "offsetY": 174.0812225341797,
+          "phase": 1,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 477.068115234375,
+          "y": 174.0812225341797,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 477.068115234375,
+          "offsetY": 174.0812225341797,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 467.068115234375,
+          "y": 176.99789428710938,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 467.068115234375,
+          "offsetY": 176.99789428710938,
+          "phase": 1,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 467.068115234375,
+          "y": 176.99789428710938,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 467.068115234375,
+          "offsetY": 176.99789428710938,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 457.068115234375,
+          "y": 179.91456604003906,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 457.068115234375,
+          "offsetY": 179.91456604003906,
+          "phase": 1,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 457.068115234375,
+          "y": 179.91456604003906,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 457.068115234375,
+          "offsetY": 179.91456604003906,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": false
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 447.068115234375,
+          "y": 182.8312225341797,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 447.068115234375,
+          "offsetY": 182.8312225341797,
+          "phase": 1,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": true
+      },
+      {
+        "event": {
+          "type": "pointermove",
+          "x": 447.068115234375,
+          "y": 182.8312225341797,
+          "id": 1,
+          "button": -1,
+          "buttons": 1,
+          "isPrimary": true,
+          "pointerType": "mouse",
+          "target": {
+            "tag": "CANVAS",
+            "id": "",
+            "class": null
+          },
+          "current": "document",
+          "path": [
+            {
+              "tag": "CANVAS",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__device"
+            },
+            {
+              "tag": "DIV",
+              "id": "",
+              "class": "webpod-device-preview__stage"
+            },
+            {
+              "tag": "MAIN",
+              "id": "",
+              "class": "webpod-device-preview"
+            },
+            {
+              "tag": "BODY",
+              "id": "",
+              "class": null
+            },
+            {
+              "tag": "HTML",
+              "id": "",
+              "class": null
+            },
+            "document",
+            "window"
+          ],
+          "prevented": false,
+          "cancelBubble": false,
+          "offsetX": 447.068115234375,
+          "offsetY": 182.8312225341797,
+          "phase": 3,
+          "stage": null,
+          "carry": "tease"
+        },
+        "capture": false
+      }
+    ],
+    "elements": [
+      {
+        "tag": "STRONG",
+        "id": "",
+        "class": null
+      },
+      {
+        "tag": "HEADER",
+        "id": "",
+        "class": "wp-titlebar"
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "class": "wp-screen"
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "class": "wp-panel"
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "class": "wp-panel-stage"
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "class": "wp-composite-panel-host"
+      },
+      {
+        "tag": "CANVAS",
+        "id": "",
+        "class": null
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "class": null
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "class": null
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "class": "webpod-device-preview__device"
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "class": "webpod-device-preview__stage"
+      },
+      {
+        "tag": "MAIN",
+        "id": "",
+        "class": "webpod-device-preview"
+      },
+      {
+        "tag": "HTML",
+        "id": "",
+        "class": null
+      }
+    ],
+    "active": {
+      "tag": "DIV",
+      "id": "",
+      "class": "webpod-device-preview__stage"
+    },
+    "canvas": [
+      {
+        "rect": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 900,
+          "top": 0,
+          "right": 1280,
+          "bottom": 900,
+          "left": 0
+        },
+        "hasCapture": false
+      }
+    ],
+    "stage": "<div class=\"webpod-device-preview__stage\" role=\"region\" tabindex=\"0\" aria-label=\"Three-dimensional iPod preview. Drag a visible outer edge to rotate, Option or Alt-drag an edge to roll, use arrow keys to rotate, or press Home to reset.\"><div class=\"webpod-device-preview__device\" data-composite-tier=\"T1\" data-composite-ready=\"true\" data-wp-audio-lifecycle=\"running\" data-wp-audio-scheduled-total=\"0\" data-wp-audio-dropped-total=\"0\" style=\"box-sizing: border-box; contain: size layout paint; inline-s"
+  },
+  "scope": "Exact existing hidden sequence; stop after its final native movement, no product mutation or extra gesture"
+}

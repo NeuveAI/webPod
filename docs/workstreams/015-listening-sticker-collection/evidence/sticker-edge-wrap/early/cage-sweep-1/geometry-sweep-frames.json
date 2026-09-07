@@ -1,0 +1,450 @@
+{
+  "kind": "spatial geometry samples through public endpoint and reload",
+  "frames": [
+    {
+      "name": "rear",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.19696969696969696,
+        "y": 0.13768115942028986,
+        "width": 0.35,
+        "rotationDeg": 0,
+        "wear": 1
+      },
+      "modelX": 100,
+      "modelY": 200,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "right-edge",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.02699999999999997,
+        "y": 0.13768115942028986,
+        "width": 0.35,
+        "rotationDeg": 0,
+        "wear": 1
+      },
+      "modelX": 156.09,
+      "modelY": 200,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "corner-entry",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.02699999999999997,
+        "y": 0.0471195652173913,
+        "width": 0.35,
+        "rotationDeg": 0,
+        "wear": 1
+      },
+      "modelX": 156.09,
+      "modelY": 249.99,
+      "cameras": [
+        "rear",
+        "rear-plus-five-right-steps"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "corner",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.02699999999999997,
+        "y": 0.017000000000000015,
+        "width": 0.35,
+        "rotationDeg": 0,
+        "wear": 1
+      },
+      "modelX": 156.09,
+      "modelY": 266.616,
+      "cameras": [
+        "rear",
+        "rear-plus-five-right-steps"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "top-edge",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.19696969696969696,
+        "y": 0.017000000000000015,
+        "width": 0.35,
+        "rotationDeg": 0,
+        "wear": 1
+      },
+      "modelX": 100,
+      "modelY": 266.616,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "rear",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.19696969696969696,
+        "y": 0.13768115942028986,
+        "width": 0.35,
+        "rotationDeg": 45,
+        "wear": 1
+      },
+      "modelX": 100,
+      "modelY": 200,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "right-edge",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.02699999999999997,
+        "y": 0.13768115942028986,
+        "width": 0.35,
+        "rotationDeg": 45,
+        "wear": 1
+      },
+      "modelX": 156.09,
+      "modelY": 200,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "corner-entry",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.02699999999999997,
+        "y": 0.0471195652173913,
+        "width": 0.35,
+        "rotationDeg": 45,
+        "wear": 1
+      },
+      "modelX": 156.09,
+      "modelY": 249.99,
+      "cameras": [
+        "rear",
+        "rear-plus-five-right-steps"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "corner",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.02699999999999997,
+        "y": 0.017000000000000015,
+        "width": 0.35,
+        "rotationDeg": 45,
+        "wear": 1
+      },
+      "modelX": 156.09,
+      "modelY": 266.616,
+      "cameras": [
+        "rear",
+        "rear-plus-five-right-steps"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "top-edge",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.19696969696969696,
+        "y": 0.017000000000000015,
+        "width": 0.35,
+        "rotationDeg": 45,
+        "wear": 1
+      },
+      "modelX": 100,
+      "modelY": 266.616,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "rear",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.19696969696969696,
+        "y": 0.13768115942028986,
+        "width": 0.35,
+        "rotationDeg": 90,
+        "wear": 1
+      },
+      "modelX": 100,
+      "modelY": 200,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "right-edge",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.02699999999999997,
+        "y": 0.13768115942028986,
+        "width": 0.35,
+        "rotationDeg": 90,
+        "wear": 1
+      },
+      "modelX": 156.09,
+      "modelY": 200,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "corner-entry",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.02699999999999997,
+        "y": 0.0471195652173913,
+        "width": 0.35,
+        "rotationDeg": 90,
+        "wear": 1
+      },
+      "modelX": 156.09,
+      "modelY": 249.99,
+      "cameras": [
+        "rear",
+        "rear-plus-five-right-steps"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "corner",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.02699999999999997,
+        "y": 0.017000000000000015,
+        "width": 0.35,
+        "rotationDeg": 90,
+        "wear": 1
+      },
+      "modelX": 156.09,
+      "modelY": 266.616,
+      "cameras": [
+        "rear",
+        "rear-plus-five-right-steps"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "top-edge",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.19696969696969696,
+        "y": 0.017000000000000015,
+        "width": 0.35,
+        "rotationDeg": 90,
+        "wear": 1
+      },
+      "modelX": 100,
+      "modelY": 266.616,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "top-axis-negative",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.500030303030303,
+        "y": 0.017000000000000015,
+        "width": 0.35,
+        "rotationDeg": 0,
+        "wear": 1
+      },
+      "modelX": -0.01,
+      "modelY": 266.616,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "right-axis-negative",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.02699999999999997,
+        "y": 0.5000181159420289,
+        "width": 0.35,
+        "rotationDeg": 0,
+        "wear": 1
+      },
+      "modelX": 156.09,
+      "modelY": -0.01,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "top-axis-positive",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.49996969696969695,
+        "y": 0.017000000000000015,
+        "width": 0.35,
+        "rotationDeg": 0,
+        "wear": 1
+      },
+      "modelX": 0.01,
+      "modelY": 266.616,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    },
+    {
+      "name": "right-axis-positive",
+      "placement": {
+        "stickerId": "PW-C03",
+        "surface": "back",
+        "x": 0.02699999999999997,
+        "y": 0.499981884057971,
+        "width": 0.35,
+        "rotationDeg": 0,
+        "wear": 1
+      },
+      "modelX": 156.09,
+      "modelY": 0.01,
+      "cameras": [
+        "rear"
+      ],
+      "publication": "public revisioned PUT then reload",
+      "artwork": {
+        "id": "PW-C03",
+        "wear": 1,
+        "width": 0.35
+      }
+    }
+  ],
+  "continuityGate": "pending dense numerical path and uninterrupted direct-grab native run; reload frames do not prove temporal continuity",
+  "sourceIdentity": "full source/artifact manifests recorded by enclosing native provenance"
+}

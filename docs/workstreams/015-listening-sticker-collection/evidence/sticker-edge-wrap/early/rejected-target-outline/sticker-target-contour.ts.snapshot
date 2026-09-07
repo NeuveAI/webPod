@@ -1,0 +1,21 @@
+import { Mesh, type BufferGeometry, type Matrix4 } from 'three';
+import type { StickerDamageField } from './sticker-alpha';
+import type { DeviceStickerPlacement } from './sticker-contract';
+
+export function sameStickerTarget(a: DeviceStickerPlacement | null | undefined, b: DeviceStickerPlacement): boolean {
+  return a != null && a.stickerId === b.stickerId && a.surface === b.surface && a.x === b.x && a.y === b.y && a.width === b.width && a.rotationDeg === b.rotationDeg && a.wear === b.wear;
+}
+/** One borrowed target. Publication/cleanup never owns geometry, textures or GPU materials. */
+export function createStickerTargetContourSlot() {
+  let current: { placement: DeviceStickerPlacement; mesh: Mesh; field: StickerDamageField; setWorldMatrix: (matrix: Matrix4) => void } | null = null;
+  return {
+    publish(placement: DeviceStickerPlacement, geometry: BufferGeometry, field: StickerDamageField) {
+      const mesh = new Mesh(geometry, []); mesh.matrixAutoUpdate = false;
+      const resource = { placement: { ...placement }, mesh, field, setWorldMatrix(matrix: Matrix4) { mesh.matrix.copy(matrix); mesh.matrixWorldNeedsUpdate = true; } }; current = resource;
+      return () => { if (current === resource) current = null; };
+    },
+    read(requested: DeviceStickerPlacement, active: DeviceStickerPlacement | null | undefined) {
+      return current && sameStickerTarget(active, requested) && sameStickerTarget(current.placement, requested) ? current : null;
+    },
+  };
+}
