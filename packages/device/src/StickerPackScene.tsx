@@ -1,3 +1,4 @@
+import { useStickerContactSurface } from './use-sticker-contact-surface';
 import { constrainStickerCarryContacts, createStickerGrabPeelGeometry, createStickerFreeCarryGeometry, interpolateStickerCarryGeometry, stickerCarryPointerOffset } from './sticker-free-carry';
 import { createStickerVisibility, stickerVisibilityQuery } from './sticker-visibility';
 import { projectStickerDrop } from './sticker-drop-projection';
@@ -274,8 +275,7 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
   readonly stickerScene: DeviceStickerScene; readonly roughness: ReturnType<typeof createStickerRoughness>;
 }) {
   const { scene, camera, viewport, size, gl } = useThree();
-  const contactSurface = useMemo(() => createStickerVisibility(), []);
-  useEffect(() => () => contactSurface.dispose(), [contactSurface]);
+  const contactSurface = useStickerContactSurface();
   const invalidate = useThree((state) => state.invalidate);
   const orientation = useContext(DeviceCanvasOrientationContext);
   const rearMesh = scene.getObjectByName('device-steel-back');
@@ -357,10 +357,11 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
     // Sweep from an exterior seated contact in model coordinates, independent
     // of camera angle. Never displace the untouched adhesive portion.
     const contactReference = amount > 0 && targetSurface ? targetSurface : sourceSurface;
-    if (contactReference && content) {
+    const collider = contactSurface.current;
+    if (contactReference && content && collider) {
       const started = performance.now();
-      contactSurface.update(content);
-      const report = constrainStickerCarryContacts(contactReference, geometry, content.matrixWorld, contactSurface.castSegment);
+      collider.update(content);
+      const report = constrainStickerCarryContacts(contactReference, geometry, content.matrixWorld, collider.castSegment);
       gl.domElement.setAttribute('data-wp-sticker-peel-contacts', JSON.stringify({ ...report, elapsedMs: +(performance.now() - started).toFixed(2) }));
     }
     positions.needsUpdate = true;
