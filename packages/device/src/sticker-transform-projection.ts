@@ -53,7 +53,12 @@ export function captureStickerTransformPlane(content: Object3D, camera: Camera, 
   const matrix = new Matrix4().copy(content.matrixWorld).invert().multiply(camera.matrixWorld).multiply(camera.projectionMatrixInverse);
   if (!matrix.elements.every(Number.isFinite)) return null;
   const rect = { left: canvas.left, top: canvas.top, width: canvas.width, height: canvas.height };
-  return { project(clientX, clientY) {
+  const contentMatrix = content.matrixWorld.clone(), cameraMatrix = camera.matrixWorld.clone(), projectionMatrix = camera.projectionMatrix.clone();
+  const same = (a: Matrix4, b: Matrix4) => a.elements.every((value, i) => Math.abs(value - (b.elements[i] ?? Infinity)) < 1e-9);
+  return { isValid() {
+    content.updateWorldMatrix(true, false); camera.updateMatrixWorld();
+    return same(content.matrixWorld, contentMatrix) && same(camera.matrixWorld, cameraMatrix) && same(camera.projectionMatrix, projectionMatrix);
+  }, project(clientX, clientY) {
     if (![clientX, clientY].every(Number.isFinite)) return null;
     const x = (clientX - rect.left) / rect.width * 2 - 1; const y = 1 - (clientY - rect.top) / rect.height * 2;
     const near = new Vector3(x, y, -1).applyMatrix4(matrix); const far = new Vector3(x, y, 1).applyMatrix4(matrix);

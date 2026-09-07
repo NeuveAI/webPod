@@ -106,3 +106,26 @@ test('owner-scale field retains fine resolution and its static edge band covers 
   }
   expect(stickerAlphaContours(field, 1).length).toBeGreaterThanOrEqual(2);
 });
+
+test('surface exposure recalculates fraying without changing pristine alpha or interior ink', async () => {
+  const { BufferGeometry, Float32BufferAttribute } = await import('three');
+  const { createSurfaceStickerDamage } = await import('./sticker-alpha');
+  const base = createStickerDamageField(mask(), 'surface-fray');
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('uv', new Float32BufferAttribute([0, 1, 1, 1, 0, 0, 1, 0], 2));
+  geometry.setAttribute('normal', new Float32BufferAttribute([0, 0, -1, 0, 0, -1, 0, 0, -1, 0, 0, -1], 3));
+  expect(createSurfaceStickerDamage(base, geometry).onset).toEqual(base.onset);
+  geometry.setAttribute('normal', new Float32BufferAttribute([0, 0, -1, 1, 0, 0, 0, 0, -1, 1, 0, 0], 3));
+  const wrapped = createSurfaceStickerDamage(base, geometry);
+  let extra = 0;
+  for (let y = 0; y < base.height; y++) for (let x = 0; x < base.width; x++) {
+    const i = y * base.width + x;
+    expect(stickerPixelSurvives(wrapped, x, y, 0)).toBe(stickerPixelSurvives(base, x, y, 0));
+    if (x < 32) expect(wrapped.onset[i]).toBe(base.onset[i]);
+    if ((wrapped.onset[i] ?? 255) < (base.onset[i] ?? 255)) extra++;
+  }
+  expect(extra).toBeGreaterThan(0);
+  expect(stickerPixelSurvives(wrapped, 35, 35, 1)).toBe(true);
+  expect(createSurfaceStickerDamage(base, geometry).onset).toEqual(wrapped.onset);
+  geometry.dispose();
+});

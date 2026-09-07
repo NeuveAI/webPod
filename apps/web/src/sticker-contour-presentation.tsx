@@ -5,7 +5,7 @@ import type { StickerProjectedContour, StickerScreenPoint } from '@webpod/device
 
 /** Occlusion cuts are open strokes, never synthetic segments across the shell. */
 export function StickerContourPaths({ shape }: { readonly shape: StickerProjectedContour }) {
-  return shape.paths.map((path, index) => <path key={index} d={`M${path.map(point => `${point.x},${point.y}`).join('L')}${shape.closed?.[index] === false ? '' : 'Z'}`} stroke="rgba(255,255,255,.85)" strokeWidth="1" />)
+  return shape.paths.map((path, index) => <path key={index} d={`M${path.map(point => `${point.x},${point.y}`).join('L')}${shape.closed?.[index] === false ? '' : 'Z'}`} stroke="var(--contour-ink, rgba(255,255,255,.85))" strokeWidth="1" />)
 }
 
 type GripRenderer = (point: StickerScreenPoint, index: number, retainedHidden: boolean) => ReactNode

@@ -66,3 +66,55 @@ test('proper-frame carry transition keeps exact endpoints, reversible samples an
   expect((after.x - before.x) * 420).toBeCloseTo(81, 8); expect((before.y - after.y) * 300).toBeCloseTo(123, 8);
   source.dispose(); start.dispose(); free.dispose(); rear.dispose();
 });
+
+test('tilted large-sticker peels cannot sweep through the steel while adhesive contacts stay fixed', async () => {
+  const { Euler } = await import('three');
+  const { getSticker } = await import('@webpod/stickers');
+  const { createRearShellGeometry } = await import('./product-shell');
+  const { createStickerRearChart } = await import('./sticker-rear-chart');
+  const { createStickerCollision } = await import('./sticker-collision');
+  const { createStickerGrabPeelGeometry } = await import('./sticker-free-carry');
+  const { DEVICE_LAYOUT } = await import('./layout');
+  const { DEFAULT_DEVICE_FORM } = await import('./form');
+  const art = getSticker('PW-B01'); if (!art) throw new Error('Missing artwork');
+  const rear = createRearShellGeometry({ ...DEVICE_LAYOUT.body, frontThickness: DEFAULT_DEVICE_FORM.frontThickness, rearCrownInset: DEFAULT_DEVICE_FORM.rearCrownInset });
+  const collider = createStickerCollision([{ geometry: rear, source: 'steel', kind: 'surface' }]);
+  const placement = { stickerId: art.id, surface: 'back' as const, x: .5, y: .35, width: .92, rotationDeg: 0 };
+  const source = createStickerSurfaceGeometry(art, placement, rear, createStickerRearChart(DEFAULT_DEVICE_FORM));
+  const camera = new PerspectiveCamera(40, 1.4, 1, 3000); camera.position.set(0, 0, 1000); camera.lookAt(0, 0, 0); camera.updateMatrixWorld();
+  const uv = [.65, .9] as const, point = stickerGeometryUvPoint(source, ...uv), anchor = { uv, point: point.toArray() as [number, number, number], tangentU: [-1, 0, 0] as const };
+  let prevented = 0;
+  for (const yaw of [120, 180, 240]) for (const pitch of [-30, -9.55, 30]) for (const pull of [{ x: 120, y: 150 }, { x: -100, y: -180 }]) for (const mode of ['grab', 'scripted'] as const) {
+    const world = new Matrix4().makeRotationFromEuler(new Euler(pitch * Math.PI / 180, yaw * Math.PI / 180, .2));
+    const shown = mode === 'grab' ? createStickerGrabPeelGeometry(source, art, placement, anchor, world, camera, .7, pull, 800, 900) : createRearStickerPeelGeometry(art, placement, rear, .7, source);
+    if (mode === 'scripted') {
+      shown.applyMatrix4(world);
+      const free = createStickerFreeCarryGeometry(art, placement, source, world, camera, null, .7);
+      interpolateStickerCarryGeometry(shown, free, ...uv, .5); free.dispose();
+    }
+    const before = new Float32Array(shown.getAttribute('position').array);
+    const result = constrainStickerCarryContacts(source, shown, world, collider.castSegment); prevented += result.contacts;
+    const inverse = world.clone().invert(), p = shown.getAttribute('position'), s = source.getAttribute('position');
+    for (let i = 0; i < p.count; i++) {
+      const start = new Vector3().fromBufferAttribute(s, i), end = new Vector3().fromBufferAttribute(p, i).applyMatrix4(inverse);
+      expect(collider.castSegment(start, end)).toBeNull();
+      const originalWorld = start.applyMatrix4(world);
+      if (originalWorld.distanceTo(new Vector3().fromArray(before, i * 3)) < 1e-4) {
+        expect([p.getX(i), p.getY(i), p.getZ(i)]).toEqual(Array.from(before.subarray(i * 3, i * 3 + 3)));
+      }
+    }
+    const ids = shown.index;
+    if (!ids) throw new Error('Missing topology');
+    let overlaps = 0;
+    for (let i = 0; i < ids.count; i += 3) {
+      const a = new Vector3().fromBufferAttribute(p, ids.getX(i)).applyMatrix4(inverse);
+      const b = new Vector3().fromBufferAttribute(p, ids.getX(i + 1)).applyMatrix4(inverse);
+      const c = new Vector3().fromBufferAttribute(p, ids.getX(i + 2)).applyMatrix4(inverse);
+      if (b.clone().sub(a).cross(c.clone().sub(a)).lengthSq() > 1e-12 && collider.intersectsTriangle(a, b, c)) overlaps++;
+    }
+    expect(overlaps).toBe(0);
+    shown.dispose();
+  }
+  expect(prevented).toBeGreaterThan(0);
+  collider.dispose(); source.dispose(); rear.dispose();
+});

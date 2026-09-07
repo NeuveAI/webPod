@@ -117,13 +117,13 @@ test('full-front transport has no discontinuous tail displacement with nonzero c
 
 test('captured UV inverse samples the displayed adjacency-lifted triangles exactly', async () => {
   const { sampleStickerSurfaceGrid } = await import('./sticker-surface');
-  const rear = rearShell(), art = STICKER_CATALOGUE[10], width = 66, height = 66;
-  const geometry = createStickerSurfaceGeometry({ ...art, width: 100, height: 100, visibleBounds: [0, 0, 100, 100] }, { stickerId: art.id, surface: 'back', x: .5, y: .5, width: .2, rotationDeg: 0 }, rear);
-  const pointAt = (x: number, y: number) => new Vector3(x, 40 * Math.sin(y / 40), -40 * Math.cos(y / 40));
+  const { createStickerRearChart } = await import('./sticker-rear-chart');
+  const { DEFAULT_DEVICE_FORM } = await import('./form');
+  const rear = rearShell(), art = STICKER_CATALOGUE[10], width = 330, height = 330;
+  const chart = createStickerRearChart(DEFAULT_DEVICE_FORM);
+  const geometry = createStickerSurfaceGeometry({ ...art, width: 100, height: 100, visibleBounds: [0, 0, 100, 100] }, { stickerId: art.id, surface: 'back', x: .8, y: .3, width: 1, rotationDeg: 0 }, rear, chart);
+  const pointAt = chart.cornerCage(-99, 110.4, { width, height, angle: 0 }).point;
   const p = geometry.getAttribute('position'), n = STICKER_SURFACE.segments;
-  for (let row = 0; row <= n; row++) for (let col = 0; col <= n; col++) { const point = pointAt(-((col / n - .5) * width), -((row / n - .5) * height)); p.setXYZ(row * (n + 1) + col, point.x, point.y, point.z); }
-  geometry.computeVertexNormals(); const normal = geometry.getAttribute('normal');
-  for (let i = 0; i < p.count; i++) p.setXYZ(i, p.getX(i) + normal.getX(i) * .18, p.getY(i) + normal.getY(i) * .18, p.getZ(i) + normal.getZ(i) * .18);
   for (const [u, v] of [[0, 0], [1, 1], [.13, .71], [.51, .33], [.995, .1]]) {
     if (u === undefined || v === undefined) throw new Error('Missing test UV');
     const gx = u * n, gy = v * n, col = Math.min(n - 1, Math.floor(gx)), row = Math.min(n - 1, Math.floor(gy)), x = gx - col, y = gy - row;

@@ -1,5 +1,5 @@
 import { MeshPhysicalMaterial, Vector3, type Camera, type Mesh } from 'three';
-import { prepareStickerDamage, stickerPixelSurvives, type StickerDamageField } from './sticker-alpha';
+import { getStickerMaterialDamage, stickerPixelSurvives, type StickerDamageField } from './sticker-alpha';
 import type { StickerProjectedContour, StickerScreenPoint } from './sticker-contract';
 import { STICKER_SURFACE } from './sticker-surface';
 import { stickerProjectedQuad } from './sticker-transform-projection';
@@ -55,7 +55,7 @@ export function projectedStickerContour(print: Mesh, camera: Camera, canvas: { r
   if (!(material instanceof MeshPhysicalMaterial) || !material.map) return null;
   const id = print.name.startsWith('sticker-') ? print.name.slice(8) : '';
   if (!id) return null;
-  const resource = prepareStickerDamage(material.map, id); if (!resource) return null;
+  const resource = getStickerMaterialDamage(material, id); if (!resource) return null;
   return projectStickerContourField(print, camera, canvas, resource.field, wear, visible, occlusion);
 }
 

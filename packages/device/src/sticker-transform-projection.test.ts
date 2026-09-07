@@ -101,3 +101,18 @@ test('captures DOMRect prototype getters explicitly and keeps their values froze
   expect(stickerProjectedQuad(mesh, camera, rect)).toBeNull();
   mesh.geometry.dispose(); mesh.material.dispose();
 });
+
+test('gesture validity ignores sticker refitting but detects camera and device movement', () => {
+  const { content, mesh, camera } = fixture();
+  const plane = present(captureStickerTransformPlane(content, camera, canvas, 0));
+  mesh.position.set(20, 15, 0); mesh.scale.setScalar(2);
+  mesh.geometry.scale(1.5, 1.5, 1);
+  expect(plane.isValid?.()).toBe(true);
+  content.rotation.y = .1;
+  expect(plane.isValid?.()).toBe(false);
+  content.rotation.y = 0;
+  expect(plane.isValid?.()).toBe(true);
+  camera.position.x = 10;
+  expect(plane.isValid?.()).toBe(false);
+  mesh.geometry.dispose(); mesh.material.dispose();
+});

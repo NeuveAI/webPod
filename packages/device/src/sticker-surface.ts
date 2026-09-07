@@ -34,8 +34,22 @@ export function sampleStickerSurfaceGrid(pointAt: (dx: number, dy: number) => Ve
         normal.set(Math.fround(normal.x + cross.x), Math.fround(normal.y + cross.y), Math.fround(normal.z + cross.z));
       }
     }
+    // Chords spanning the shoulder can cut through steel even when their
+    // vertices sit on it. Compensate using the exact material-chart midpoint.
+    let bendClearance = 0;
+    for (let y = Math.max(0, row - 1); y <= Math.min(n - 1, row); y++) for (let x = Math.max(0, col - 1); x <= Math.min(n - 1, col); x++) {
+      const a = y * stride + x, b = a + 1, c = a + stride;
+      for (const ids of [[a, c, b], [b, c, c + 1]]) {
+        if (!ids.includes(index)) continue;
+        let u = 0, v = 0; const midpoint = new Vector3();
+        for (const id of ids) { u += id % stride / n; v += Math.floor(id / stride) / n; midpoint.add(base(id)); }
+        const px = (u / 3 - .5) * width, py = (v / 3 - .5) * height;
+        const exact = pointAt(-(px * cosine - py * sine), -(px * sine + py * cosine));
+        bendClearance = Math.max(bendClearance, exact.distanceTo(midpoint.divideScalar(3)));
+      }
+    }
     normal.normalize(); normal.set(Math.fround(normal.x), Math.fround(normal.y), Math.fround(normal.z));
-    const point = base(index).clone().addScaledVector(normal, STICKER_SURFACE.lift);
+    const point = base(index).clone().addScaledVector(normal, STICKER_SURFACE.lift + bendClearance);
     return point.set(Math.fround(point.x), Math.fround(point.y), Math.fround(point.z));
   };
   const gx = Math.max(0, Math.min(n, u * n)), gy = Math.max(0, Math.min(n, v * n));
@@ -128,7 +142,20 @@ export function createStickerSurfaceGeometry(art: StickerArtwork, placement: Dev
       // inversions and transient vectors for every vertex on each pointer pose.
       geometry.computeVertexNormals();
       const p = geometry.getAttribute('position'), n = geometry.getAttribute('normal');
-      for (let i = 0; i < p.count; i++) p.setXYZ(i, p.getX(i) + n.getX(i) * STICKER_SURFACE.lift, p.getY(i) + n.getY(i) * STICKER_SURFACE.lift, p.getZ(i) + n.getZ(i) * STICKER_SURFACE.lift);
+      const clearance = new Float32Array(p.count);
+      const midpoint = new Vector3();
+      for (let i = 0; i < indices.length; i += 3) {
+        const triangle = indices.slice(i, i + 3); let u = 0, v = 0; midpoint.set(0, 0, 0);
+        for (const id of triangle) { u += id % (segments + 1) / segments; v += Math.floor(id / (segments + 1)) / segments; midpoint.add(new Vector3().fromBufferAttribute(p, id)); }
+        const px = (u / 3 - .5) * width, py = (v / 3 - .5) * height;
+        const exact = corner.point(-(px * cosine - py * sine), -(px * sine + py * cosine));
+        const sag = exact.distanceTo(midpoint.divideScalar(3));
+        for (const id of triangle) clearance[id] = Math.max(clearance[id] ?? 0, sag);
+      }
+      for (let i = 0; i < p.count; i++) {
+        const lift = STICKER_SURFACE.lift + (clearance[i] ?? 0);
+        p.setXYZ(i, p.getX(i) + n.getX(i) * lift, p.getY(i) + n.getY(i) * lift, p.getZ(i) + n.getZ(i) * lift);
+      }
     }
     geometry.computeBoundingBox();
     geometry.computeBoundingSphere();

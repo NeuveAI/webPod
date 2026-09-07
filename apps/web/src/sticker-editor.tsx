@@ -5,12 +5,13 @@ import { deviceStore, stickerInventoryAtom, stickerInteractionAtom } from '@webp
 import type { StickerProjectedContour, StickerProjectedQuad, StickerTransformPlane } from '@webpod/device'
 import { BODY_H, BODY_W } from '@webpod/tokens'
 import type { StickerPlacement } from '@webpod/stickers'
-import { applyStickerEditor, resetStickerAppearance, dismissStickerEditor, previewStickerEdit, revertStickerEditor, retryStickerEdit, setStickerEditorProperty, stickerEditorAtom, stickerEditorFailureAtom, stickerEditorGestureAtom, stickerEditorCancelAtom, undoStickerEdit, type StickerEditorProperty, type StickerEditorState } from './sticker-editor-model'
+import { stickerEditorHandleModeAtom, toggleStickerEditorHandleMode, applyStickerEditor, resetStickerAppearance, dismissStickerEditor, previewStickerEdit, revertStickerEditor, retryStickerEdit, setStickerEditorProperty, stickerEditorAtom, stickerEditorFailureAtom, stickerEditorGestureAtom, stickerEditorCancelAtom, undoStickerEdit, type StickerEditorProperty, type StickerEditorState } from './sticker-editor-model'
 import { stickerProjectionVersionAtom } from './sticker-collections-model'
 import { chooseHudLayout, type HudLayout } from './sticker-hud-layout'
 
 /* ANIMATION STORYBOARD — on-object precision tools
  * select: responsive spring spreads grips from print and lifts tool group into place
+ * toggle: 240ms — grips and tools breathe 1 → .96 → 1.025 → 1 as frost changes
  * drag: actual projected geometry follows input directly, without spring lag
  * release: snappy grip feedback settles; guarded save retains the final pose
  * dismiss: presence reverses from its current value; reselect can interrupt immediately
@@ -24,6 +25,7 @@ const shownEditorAtom = atom(get => get(stickerEditorAtom) ?? get(lastPresentedA
 const layoutAtom = atom<HudLayout | null>(null)
 const dragVisualAtom = atom<{ corner: number; property: 'width' | 'rotationDeg'; pointer: { x: number; y: number } } | null>(null)
 const focusedCornerAtom = atom<number | null>(null)
+const modeSwitchedAtom = atom(false)
 const presenceAtom = atom(0)
 const viewportAtom = atom({ width: 1280, height: 900 })
 type Drag = { corner: number; pointerId: number; property: 'width' | 'rotationDeg'; plane: StickerTransformPlane; source: StickerPlacement; radius: number; angle: number; accumulated: number; target: HTMLElement; projection: string; pointer: { x: number; y: number } }
@@ -45,6 +47,7 @@ function Icon({ kind }: { kind: string }) {
   return <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[kind]} /></svg>
 }
 type StickerEditorProps = {
+  readonly fit?: (placement: StickerPlacement) => StickerPlacement
   readonly screen: (placement: StickerPlacement) => { x: number; y: number } | null
   readonly contour?: (placement: StickerPlacement) => StickerProjectedContour | null
   readonly quad?: (placement: StickerPlacement) => StickerProjectedQuad | null
@@ -58,8 +61,12 @@ export function StickerEditor(props: StickerEditorProps) {
   if (interaction.stage === 'peeling' || interaction.stage === 'placing' || interaction.stage === 'settling') return null
   return <StickerAppearanceEditor {...props} />
 }
-function StickerAppearanceEditor({ screen, quad, contour, beginTransform, place, returnToPack }: StickerEditorProps) {
+function StickerAppearanceEditor({ fit, screen, quad, contour, beginTransform, place, returnToPack }: StickerEditorProps) {
   const state = useAtomValue(stickerEditorAtom, { store: deviceStore }), failure = useAtomValue(stickerEditorFailureAtom, { store: deviceStore })
+  const handleMode = useAtomValue(stickerEditorHandleModeAtom, { store: deviceStore })
+  const modeSwitched = useAtomValue(modeSwitchedAtom, { store: deviceStore })
+  const scaling = handleMode === 'width'
+  const handleHint = scaling ? 'Drag outward to enlarge, inward to shrink' : 'Drag to rotate'
   const tooltip = useAtomValue(tooltipAtom, { store: deviceStore })
   const focusedCorner = useAtomValue(focusedCornerAtom, { store: deviceStore })
   const release = useAtomValue(releaseAtom, { store: deviceStore })
@@ -72,7 +79,7 @@ function StickerAppearanceEditor({ screen, quad, contour, beginTransform, place,
   const selectedId = state?.source.stickerId ?? null
   const projectionKey = (source: StickerPlacement): string => JSON.stringify([source, { ...source, x: source.x + .1 }, { ...source, y: source.y + .1 }].map(p => screen(p)).map(p => p === null ? null : [Math.round(p.x * 100), Math.round(p.y * 100)]))
   useLayoutEffect(() => {
-    if (activeId.current !== selectedId) { activeId.current = selectedId; tooltipDismissedAt=null;tooltipPointer=null;deviceStore.set(focusedCornerAtom, null);deviceStore.set(releaseAtom, null); deviceStore.set(layoutAtom, null); deviceStore.set(tooltipAtom, null) }
+    if (activeId.current !== selectedId) { activeId.current = selectedId; deviceStore.set(modeSwitchedAtom, false); tooltipDismissedAt=null;tooltipPointer=null;deviceStore.set(focusedCornerAtom, null);deviceStore.set(releaseAtom, null); deviceStore.set(layoutAtom, null); deviceStore.set(tooltipAtom, null) }
   }, [selectedId])
   const cancel = (): void => {
     const held = drag.current; drag.current = null; deviceStore.set(dragVisualAtom, null)
@@ -86,7 +93,7 @@ function StickerAppearanceEditor({ screen, quad, contour, beginTransform, place,
     if (tooltip !== null && element !== null && 'showPopover' in element && !element.matches(':popover-open')) element.showPopover()
   }, [tooltip])
   useEffect(() => () => { if (tooltipTimer !== null) clearTimeout(tooltipTimer) }, [])
-  useLayoutEffect(() => { if (drag.current !== null && (selectedId !== drag.current.source.stickerId || projectionKey(drag.current.source) !== drag.current.projection)) cancel() })
+  useLayoutEffect(() => { if (drag.current !== null && (selectedId !== drag.current.source.stickerId || (drag.current.plane.isValid ? !drag.current.plane.isValid() : projectionKey(drag.current.source) !== drag.current.projection))) cancel() })
   useEffect(() => {
     const update = (): void => { cancel(); deviceStore.set(layoutAtom, null); deviceStore.set(viewportAtom, { width: innerWidth, height: innerHeight }) }
     const hidden = (): void => { if (document.hidden) cancel() }
@@ -124,7 +131,7 @@ function StickerAppearanceEditor({ screen, quad, contour, beginTransform, place,
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
   }, [release?.epoch])
-  useEffect(() => { if (state?.keyboard) document.querySelector<HTMLElement>('[data-hud-handle="rotate"]')?.focus() }, [selectedId, state?.keyboard])
+  useEffect(() => { if (state?.keyboard) document.querySelector<HTMLElement>('[data-hud-handle]')?.focus() }, [selectedId, state?.keyboard])
   const tip = (id: string, text: string, element: HTMLElement): void => {
     if (deviceStore.get(stickerEditorGestureAtom)) return
     if (tooltipTimer !== null) clearTimeout(tooltipTimer)
@@ -181,8 +188,12 @@ function StickerAppearanceEditor({ screen, quad, contour, beginTransform, place,
     const point = held.plane.project(event.clientX, event.clientY); if (point === null) return
     const dx = (point.x - held.source.x) * BODY_W, dy = (point.y - held.source.y) * BODY_H
     if (Math.hypot(dx, dy) < 1e-6) return
-    if (held.property === 'width') previewStickerEdit(held.source.width * Math.hypot(dx, dy) / held.radius)
-    else { const angle = Math.atan2(dy, dx); held.accumulated += Math.atan2(Math.sin(angle - held.angle), Math.cos(angle - held.angle)); held.angle = angle; const degrees = held.source.rotationDeg + held.accumulated * 180 / Math.PI; previewStickerEdit(((degrees + 180) % 360 + 360) % 360 - 180) }
+    if (held.property === 'width') {
+      previewStickerEdit(held.source.width * Math.hypot(dx, dy) / held.radius, fit)
+      const message = deviceStore.get(stickerEditorAtom)?.message
+      deviceStore.set(tooltipAtom, message ? { id: `corner-${held.corner}`, text: message, x: Math.max(12, Math.min(viewport.width - 224, event.clientX - 106)), y: Math.max(64, Math.min(viewport.height - 52, event.clientY - 52)) } : null)
+    }
+    else { const angle = Math.atan2(dy, dx); held.accumulated += Math.atan2(Math.sin(angle - held.angle), Math.cos(angle - held.angle)); held.angle = angle; const degrees = held.source.rotationDeg + held.accumulated * 180 / Math.PI; previewStickerEdit(((degrees + 180) % 360 + 360) % 360 - 180, fit) }
   }
   const finish = (event: React.PointerEvent): void => {
     if (drag.current?.pointerId !== event.pointerId) return
@@ -195,14 +206,27 @@ function StickerAppearanceEditor({ screen, quad, contour, beginTransform, place,
     event.preventDefault(); event.stopPropagation(); deviceStore.set(tooltipAtom,null);deviceStore.set(stickerEditorGestureAtom, true); setStickerEditorProperty(property)
     const current = deviceStore.get(stickerEditorAtom)?.draft; if (current === undefined) return
     const step = property === 'rotationDeg' ? 1 : property === 'width' ? .005 : .01
-    previewStickerEdit((current[property] ?? 0) + (event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -step : step))
+    previewStickerEdit((current[property] ?? 0) + (event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -step : step), fit)
   }
   const commitKey = (): void => { deviceStore.set(stickerEditorGestureAtom, false); void applyStickerEditor(place) }
-  const handle = (point: { x: number; y: number }, index: number, retainedHidden: boolean) => <button key={index} type="button" data-hud-handle="rotate" data-contour-corner={index} tabIndex={retainedHidden ? -1 : 0} aria-label={`Rotate sticker, ${['top left', 'top right', 'bottom right', 'bottom left'][index]} corner`} {...tipEvents(`corner-${index}`, 'Drag to rotate')} onFocus={event => { deviceStore.set(focusedCornerAtom, index); tipEvents(`corner-${index}`, 'Drag to rotate').onFocus(event) }} onBlur={() => { if (deviceStore.get(focusedCornerAtom) === index) deviceStore.set(focusedCornerAtom, null); tipEvents(`corner-${index}`, 'Drag to rotate').onBlur() }} className={`${buttonClass} contour-grip`} style={{ position: 'fixed', left: point.x - 22, top: point.y - 22, touchAction: 'none', pointerEvents: retainedHidden ? 'none' : undefined, cursor: 'grab', transform: `scale(${.8 + presence * .2})` }} aria-disabled={state === null || state.phase === 'saving'} onPointerDown={event => { if (!retainedHidden) begin(event, 'rotationDeg', index) }} onPointerMove={event=>{move(event);tipEvents(`corner-${index}`,'Drag to rotate').onPointerMove(event)}} onPointerUp={finish} onPointerCancel={cancel} onLostPointerCapture={() => { if (drag.current !== null) cancel() }} onKeyDown={event => keys(event, 'rotationDeg')} onKeyUp={event => { if (event.key !== 'Escape') commitKey() }}><svg aria-hidden="true" viewBox="0 0 32 32" width="28" height="28" style={{ transform: `translate(${retainedHidden ? 0 : (visibleGrips[index]?.x ?? point.x)-point.x}px,${retainedHidden ? 0 : (visibleGrips[index]?.y ?? point.y)-point.y}px)`, pointerEvents: 'none' }}><g transform={`rotate(${index * 90 + shown.draft.rotationDeg} 16 16)`}><path d="M9 24V13Q9 9 13 9H24" fill="none" stroke="rgba(36,45,51,.24)" strokeWidth="9" strokeLinecap="round"/><path d="M9 23V13Q9 9 13 9H23" fill="none" stroke="rgba(255,255,255,.85)" strokeWidth="6" strokeLinecap="round"/></g></svg></button>
-  return <div data-sticker-editor={shown.source.stickerId} data-editor-phase={shown.phase} data-hud-presence={presence.toFixed(3)} data-hud-release={release?.progress ?? 1} inert={state === null} role="group" aria-label="Sticker controls" className="pointer-events-none fixed inset-0 z-40" style={{ opacity: Math.min(1, presence) }} onKeyDown={event => { event.stopPropagation(); if (event.key === 'Escape') { event.preventDefault(); if (deviceStore.get(stickerEditorGestureAtom)) cancel(); else if (dismissStickerTooltip()) { /* Keep the selected sticker. */ } else { const id = shown.source.stickerId; dismissStickerEditor(); document.querySelector<HTMLElement>(`[data-sticker-placed="${id}"]`)?.focus() } } else if (event.key === '[' || event.key === ']') { event.preventDefault();deviceStore.set(tooltipAtom,null); setStickerEditorProperty('width'); previewStickerEdit(shown.draft.width + (event.key === '[' ? -.005 : .005)); void applyStickerEditor(place) } else if ((event.metaKey || event.ctrlKey) && event.key === 'z') { event.preventDefault(); void undoStickerEdit(place) } }}>
+  const handle = (point: { x: number; y: number }, index: number, retainedHidden: boolean) => <button key={index} type="button" data-hud-handle={scaling ? 'scale' : 'rotate'} data-contour-corner={index} tabIndex={retainedHidden ? -1 : 0} aria-label={`${scaling ? 'Scale' : 'Rotate'} sticker, ${['top left', 'top right', 'bottom right', 'bottom left'][index]} corner`} {...tipEvents(`corner-${index}`, handleHint)} onFocus={event => { deviceStore.set(focusedCornerAtom, index); tipEvents(`corner-${index}`, handleHint).onFocus(event) }} onBlur={() => { if (deviceStore.get(focusedCornerAtom) === index) deviceStore.set(focusedCornerAtom, null); tipEvents(`corner-${index}`, handleHint).onBlur() }} className={`${buttonClass} contour-grip`} style={{ position: 'fixed', left: point.x - 22, top: point.y - 22, touchAction: 'none', pointerEvents: retainedHidden ? 'none' : undefined, cursor: scaling ? (index % 2 === 0 ? 'nwse-resize' : 'nesw-resize') : 'grab', transform: `scale(${.8 + presence * .2})` }} aria-disabled={state === null || state.phase === 'saving'} onPointerDown={event => { if (!retainedHidden) begin(event, handleMode, index) }} onPointerMove={event=>{move(event);tipEvents(`corner-${index}`,handleHint).onPointerMove(event)}} onPointerUp={finish} onPointerCancel={cancel} onLostPointerCapture={() => { if (drag.current !== null) cancel() }} onKeyDown={event => keys(event, handleMode)} onKeyUp={event => { if (event.key !== 'Escape') commitKey() }}><svg aria-hidden="true" viewBox="0 0 32 32" width="28" height="28" style={{ transform: `translate(${retainedHidden ? 0 : (visibleGrips[index]?.x ?? point.x)-point.x}px,${retainedHidden ? 0 : (visibleGrips[index]?.y ?? point.y)-point.y}px)`, pointerEvents: 'none' }}><g className="contour-grip-pulse"><g transform={`rotate(${index * 90 + shown.draft.rotationDeg} 16 16)`}><path d={scaling ? 'M9 20V9H20M9 9L23 23' : 'M9 24V13Q9 9 13 9H24'} fill="none" stroke="rgba(36,45,51,.24)" strokeWidth="9" strokeLinecap="round"/><path d={scaling ? 'M9 20V9H20M9 9L23 23' : 'M9 23V13Q9 9 13 9H23'} fill="none" stroke="var(--contour-ink, rgba(255,255,255,.85))" strokeWidth="6" strokeLinecap="round"/></g></g></svg></button>
+  return <div data-sticker-editor={shown.source.stickerId} data-editor-phase={shown.phase} data-hud-width={shown.draft.width} data-hud-mode={scaling ? 'scale' : 'rotate'} data-hud-mode-switched={modeSwitched} data-hud-presence={presence.toFixed(3)} data-hud-release={release?.progress ?? 1} inert={state === null} role="group" aria-label="Sticker controls" className="pointer-events-none fixed inset-0 z-40" style={{ opacity: Math.min(1, presence) }} onKeyDown={event => { event.stopPropagation(); if (event.key === 'Escape') { event.preventDefault(); if (deviceStore.get(stickerEditorGestureAtom)) cancel(); else if (dismissStickerTooltip()) { /* Keep the selected sticker. */ } else { const id = shown.source.stickerId; dismissStickerEditor(); document.querySelector<HTMLElement>(`[data-sticker-placed="${id}"]`)?.focus() } } else if (event.key === '[' || event.key === ']') { event.preventDefault();deviceStore.set(tooltipAtom,null); setStickerEditorProperty('width'); previewStickerEdit(shown.draft.width + (event.key === '[' ? -.005 : .005), fit); void applyStickerEditor(place) } else if ((event.metaKey || event.ctrlKey) && event.key === 'z') { event.preventDefault(); void undoStickerEdit(place) } }}>
     <style>{`
       [data-sticker-editor] [aria-disabled=true] { opacity:.35; }
       .contour-glass { background:rgba(255,255,255,.74); border:1px solid rgba(255,255,255,.8); color:#263139; box-shadow:0 2px 12px #0003,inset 0 1px 0 #fff9; }
+      [data-sticker-editor]:has([data-hud-scale][aria-pressed=true]) { --contour-ink:rgba(173,221,255,.95); }
+      [data-hud-mode=scale] .contour-glass { background:rgba(185,223,250,.80); border-color:rgba(222,243,255,.95); color:#163c58; }
+      [data-hud-scale][aria-pressed=true] { background:rgba(93,173,231,.26); color:#124769; box-shadow:inset 0 0 0 1px rgba(63,136,190,.24); }
+      [data-hud-mode=scale] [data-hud-wear] .contour-glass > div:last-child { background:rgba(215,240,255,.95); border-color:#e8f7ff; }
+      .contour-glass { transition:background-color 160ms ease-out,border-color 160ms ease-out; }
+      [data-sticker-contour] path, .contour-grip path { transition:stroke 160ms ease-out; }
+      .contour-grip-pulse { transform-box:view-box; transform-origin:16px 16px; }
+      [data-hud-mode-switched=true][data-hud-mode=scale] .contour-grip-pulse,
+      [data-hud-mode-switched=true][data-hud-mode=scale] [data-hud-tools] svg { animation:contour-mode-scale 240ms ease-out; }
+      [data-hud-mode-switched=true][data-hud-mode=rotate] .contour-grip-pulse,
+      [data-hud-mode-switched=true][data-hud-mode=rotate] [data-hud-tools] svg { animation:contour-mode-rotate 240ms ease-out; }
+      @keyframes contour-mode-scale { 0%{scale:1} 35%{scale:.96} 70%{scale:1.025} 100%{scale:1} }
+      @keyframes contour-mode-rotate { 0%{scale:1} 35%{scale:.96} 70%{scale:1.025} 100%{scale:1} }
       @supports (backdrop-filter:blur(12px)) { .contour-glass { backdrop-filter:blur(12px) saturate(1.1); } }
       [data-hud-wear]:focus-within { outline:2px solid white; outline-offset:2px; border-radius:22px; }
       .contour-wear-input { appearance:none; }
@@ -211,20 +235,21 @@ function StickerAppearanceEditor({ screen, quad, contour, beginTransform, place,
       .contour-grip { filter:drop-shadow(0 2px 3px #0005); }
       .contour-grip:active svg { animation:contour-press 360ms linear both; }
       @keyframes contour-press { 0%{scale:1} 24%{scale:.86} 58%{scale:1.08} 82%{scale:.98} 100%{scale:1} }
-      @media (prefers-reduced-transparency:reduce) { .contour-glass { background:#f3f5f6; backdrop-filter:none; } .contour-grip path:last-child { stroke:#fff; } }
-      @media (prefers-contrast:more) { .contour-glass { background:#fff; border-color:#263139; } [data-hud-wear]:focus-within { outline:2px solid white; outline-offset:2px; border-radius:22px; }
+      @media (prefers-reduced-transparency:reduce) { .contour-glass { background:#f3f5f6; backdrop-filter:none; } .contour-grip path:last-child { stroke:var(--contour-ink,#fff); } [data-hud-mode=scale] .contour-glass { background:#c7e7ff; } }
+      @media (prefers-contrast:more) { .contour-glass { background:#fff; border-color:#263139; } [data-hud-mode=scale] .contour-glass { background:#c7e7ff; border-color:#163c58; } [data-hud-wear]:focus-within { outline:2px solid white; outline-offset:2px; border-radius:22px; }
       .contour-grip { filter:drop-shadow(0 0 1px #000); } }
-      @media (prefers-reduced-motion:reduce) { .contour-grip:active svg { animation:none; } }
+      @media (prefers-reduced-motion:reduce) { [data-sticker-editor][data-hud-mode-switched] .contour-grip-pulse, [data-sticker-editor][data-hud-mode-switched] [data-hud-tools] svg, .contour-grip:active svg { animation:none; } .contour-glass, [data-sticker-contour] path, .contour-grip path { transition:none; } }
     `}</style>
     <svg data-sticker-contour className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true"><g fill="none" strokeLinejoin="round"><StickerContourPaths shape={shape} /></g></svg>
-    <StickerContourGrips points={grips} visible={shape.anchorVisible} pointerOwner={dragVisual?.property === 'rotationDeg' ? dragVisual.corner : null} focusOwner={focusedCorner} render={handle} />
+    <StickerContourGrips points={grips} visible={shape.anchorVisible} pointerOwner={dragVisual?.corner ?? null} focusOwner={focusedCorner} render={handle} />
     <div data-hud-wear className="pointer-events-auto fixed h-11 w-36" style={{ left: arrangement.wear.x, top: arrangement.wear.y, transform: `translateY(${(1 - presence) * 6}px)` }}><div className="contour-glass absolute inset-x-0 top-3 h-5 rounded-full" aria-hidden="true"><div className="absolute inset-x-3 top-[8px] h-[2px] rounded-full bg-[#536675]/20"/><div className="absolute top-[3px] h-3 w-8 rounded-full border border-white/90 bg-white/75 shadow-[0_1px_3px_#0003]" style={{left:(shown.draft.wear??0)*112}}/></div><input ref={range} aria-label="Sticker wear" {...tipEvents('wear', 'Adjust wear')} type="range" className="contour-wear-input relative h-11 w-full cursor-ew-resize opacity-0 focus-visible:opacity-0" min="0" max="1" step=".005" value={shown.draft.wear ?? 0} aria-disabled={shown.phase === 'saving'} onPointerDown={event => { if(shown.phase==='saving'){event.preventDefault();return} deviceStore.set(tooltipAtom, null); setStickerEditorProperty('wear'); deviceStore.set(rangeGestureAtom, 'active'); deviceStore.set(layoutAtom, arrangement); deviceStore.set(stickerEditorGestureAtom, true) }} onPointerUp={() => { const cancelled = deviceStore.get(rangeGestureAtom) === 'cancelled'; deviceStore.set(rangeGestureAtom, null); if (!cancelled) commitKey() }} onPointerCancel={() => { cancel(); deviceStore.set(rangeGestureAtom, null) }} onChange={event => { if(shown.phase==='saving'){deviceStore.set(stickerEditorAtom,current=>current===null?null:{...current});return} if (deviceStore.get(rangeGestureAtom) !== 'cancelled') { setStickerEditorProperty('wear'); previewStickerEdit(Number(event.currentTarget.value)) } else deviceStore.set(stickerEditorAtom, current => current === null ? null : { ...current }) }} onKeyDown={event => { if(shown.phase==='saving'){event.preventDefault();return} if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) { deviceStore.set(tooltipAtom,null);setStickerEditorProperty('wear'); deviceStore.set(rangeGestureAtom, null); deviceStore.set(stickerEditorGestureAtom, true) } }} onKeyUp={event => { if (event.key !== 'Escape') commitKey() }}/></div>
     <div data-hud-tools className="contour-glass pointer-events-auto fixed flex rounded-full" style={{ left: arrangement.tools.x, top: arrangement.tools.y, transform: `translateY(${(1 - presence) * 8}px)` }}>
-      <button className={buttonClass} aria-label="Return to pack" {...tipEvents('return', 'Peel and return to pack')} aria-disabled={shown.phase === 'saving'} onClick={() => { if(shown.phase==='saving')return; deviceStore.set(tooltipAtom, null); dismissStickerEditor(); returnToPack(shown.source.stickerId) }}><Icon kind="pack" /></button>
+      <button type="button" data-hud-scale className={buttonClass} aria-label="Scale sticker" aria-pressed={scaling} {...tipEvents('scale', scaling ? 'Switch handles back to rotation' : 'Switch handles to scale')} disabled={shown.phase === 'saving' || gesture} onClick={() => { toggleStickerEditorHandleMode(); deviceStore.set(modeSwitchedAtom, true); deviceStore.set(tooltipAtom, null); deviceStore.set(releaseAtom, null) }}><Icon kind="size" /></button>
+      <button className={buttonClass} aria-label="Return to pack"  {...tipEvents('return', 'Peel and return to pack')} aria-disabled={shown.phase === 'saving'} onClick={() => { if(shown.phase==='saving')return; deviceStore.set(tooltipAtom, null); dismissStickerEditor(); returnToPack(shown.source.stickerId) }}><Icon kind="pack" /></button>
       <button className={buttonClass} aria-label="Reset wear and straighten" {...tipEvents('reset', 'Reset wear and straighten')} aria-disabled={shown.phase === 'saving'} onClick={() => resetStickerAppearance(place)}><Icon kind="undo" /></button>
     </div>
     {tooltipView}
-    {shown.message !== null && <span role="status" className="fixed max-w-56 rounded bg-[#242a2e] px-2 py-1 text-[11px] text-white" style={{ left: arrangement.tools.x, top: arrangement.tools.y + 52 }}>{shown.message}</span>}
+    {shown.message !== null && tooltip?.text !== shown.message && <span role="status" className="fixed max-w-56 rounded bg-[#242a2e] px-2 py-1 text-[11px] text-white" style={{ left: arrangement.tools.x, top: arrangement.tools.y + 52 }}>{shown.message}</span>}
     {shown.phase === 'saving' && <span role="status" className="fixed rounded bg-[#242a2e] px-2 py-1 text-[11px] text-white" style={{ left: arrangement.tools.x, top: arrangement.tools.y - 24 }}>Saving…</span>}
     {failure?.stickerId === shown.source.stickerId && <div role="alert" className="pointer-events-auto fixed rounded bg-[#242a2e] px-3 text-xs text-white" style={{ left: arrangement.tools.x, top: arrangement.tools.y + 52 }}>{failure.message}{failure.attempted !== undefined && <button className="min-h-11 px-2 underline" {...tipEvents('retry', 'Retry saving this change')} onClick={() => retryStickerEdit(place)}>Retry</button>}</div>}
   </div>

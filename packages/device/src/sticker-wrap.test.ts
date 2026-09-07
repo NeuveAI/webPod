@@ -10,12 +10,14 @@ function fixture() {
   const front = new PlaneGeometry(330, 552); front.translate(0, 0, DEVICE_LAYOUT.body.depth / 2);
   return { front, wrap: createStickerWrapSurface(DEFAULT_DEVICE_FORM, [{ geometry: front }]) };
 }
-test('unified chart retains exact saved rear centers and the full flat artwork', () => {
+test('steel chart retains flat artwork and fits legacy edge centers behind the seam', () => {
   const { front, wrap } = fixture();
   for (const [x, y] of [[0, 0], [0, 100], [100, 0], [156.09, 266.616], [165, 0], [0, 276], [-156.09, -266.616]]) {
     if (x === undefined || y === undefined) throw new Error('Missing fixture center');
     const cage = wrap.cornerCage(x, y, { width: 115.5, height: 228.32284768211915, angle: 0 }), root = cage.point(0, 0);
-    expect(root.x).toBeCloseTo(x, 6); expect(root.y).toBeCloseTo(y, 6);
+    const fitted = wrap.fit(x, y, { width: 115.5, height: 228.32284768211915, angle: 0 });
+    expect(root.x).toBeCloseTo(fitted.x, 6); expect(root.y).toBeCloseTo(fitted.y, 6);
+    expect(root.z).toBeLessThan(wrap.seamZ);
   }
   const flat = wrap.cornerCage(0, 100, { width: 115.5, height: 228.32284768211915, angle: 0 });
   for (const dx of [-57, 0, 57]) for (const dy of [-114, 0, 114]) expect(flat.point(dx, dy).distanceTo(new Vector3(dx, 100 + dy, -DEVICE_LAYOUT.body.depth / 2))).toBeLessThan(1e-6);
@@ -52,7 +54,7 @@ test('initial child geometry uses explicit sampler before effect setup; replay a
   geometry.dispose(); rear.dispose(); front.dispose();
 });
 
-test('every admitted front-carry center prepares a complete mesh, including the opposite-edge crash', async () => {
+test('legacy front-carry centers relocate onto complete steel-only meshes, including the opposite-edge crash', async () => {
   const { BufferGeometry } = await import('three');
   const { getSticker } = await import('@webpod/stickers');
   const { createStickerSurfaceGeometry } = await import('./sticker-surface');
@@ -79,11 +81,12 @@ test('every admitted front-carry center prepares a complete mesh, including the 
   rear.dispose(); front.dispose();
 });
 
-test('constant-weight flat roots remain exact even with large nonlinear chart residual', () => {
+test('fitted flat regions retain the exact artwork metric', () => {
   const { front, wrap } = fixture();
   const cage = wrap.cornerCage(-100, 200, { width: 115.5, height: 228.32284768211915, angle: 173 * Math.PI / 180 });
+  const fitted = wrap.fit(-100, 200, { width: 115.5, height: 228.32284768211915, angle: 173 * Math.PI / 180 });
   for (const dx of [-20, 0, 70]) for (const dy of [-80, 0, 40]) {
-    expect(cage.point(dx, dy).distanceTo(new Vector3(-100 + dx, 200 + dy, -DEVICE_LAYOUT.body.depth / 2))).toBeLessThan(1e-6);
+    expect(cage.point(dx, dy).distanceTo(new Vector3(fitted.x + dx, fitted.y + dy, -DEVICE_LAYOUT.body.depth / 2))).toBeLessThan(1e-6);
   }
   front.dispose();
 });

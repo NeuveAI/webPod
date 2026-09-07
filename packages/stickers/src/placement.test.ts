@@ -10,7 +10,7 @@ const perimeter = [
   }))),
 ]
 test('all catalogue aspects and rotations may wrap at every full rear edge and rounded corner', () => {
-  for (const art of STICKER_CATALOGUE) for (const point of perimeter) for (const width of [.08, .35]) for (const rotationDeg of [-180, -137, -45, 0, 37, 90, 180]) {
+  for (const art of STICKER_CATALOGUE) for (const point of perimeter) for (const width of [.08, .35, .8, 1.2]) for (const rotationDeg of [-180, -137, -45, 0, 37, 90, 180]) {
     expect(isStickerPlacement({ stickerId: art.id, surface: 'back', ...point, width, rotationDeg, wear: 1 })).toBe(true)
   }
 })
@@ -30,5 +30,5 @@ test('legacy body-space coordinates retain exact values and strict placement fie
   const before = JSON.stringify(saved)
   expect(isStickerPlacement(saved)).toBe(true)
   expect(JSON.stringify(saved)).toBe(before)
-  for (const bad of [{ x: NaN }, { y: Infinity }, { width: .079 }, { width: .351 }, { rotationDeg: 181 }, { rotationDeg: NaN }, { wear: -1 }, { wear: 1.001 }, { stickerId: 'foreign' }, { surface: 'front' }]) expect(isStickerPlacement({ ...saved, ...bad })).toBe(false)
+  for (const bad of [{ x: NaN }, { y: Infinity }, { width: .079 }, { width: 1.201 }, { rotationDeg: 181 }, { rotationDeg: NaN }, { wear: -1 }, { wear: 1.001 }, { stickerId: 'foreign' }, { surface: 'front' }]) expect(isStickerPlacement({ ...saved, ...bad })).toBe(false)
 })

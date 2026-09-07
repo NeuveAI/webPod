@@ -21,7 +21,7 @@ export function stickerWear(inventory: Pick<StickerInventory, 'appearances'>, id
   return inventory.appearances?.find((appearance) => appearance.stickerId === id)?.wear ?? 0
 }
 export const MAX_STICKER_PLACEMENTS = 12
-export const STICKER_PLACEMENT_BOUNDS = { left: 0, right: 1, top: 0, bottom: 1, minWidth: 0.08, maxWidth: 0.35 } as const
+export const STICKER_PLACEMENT_BOUNDS = { left: 0, right: 1, top: 0, bottom: 1, minWidth: 0.08, maxWidth: 1.2 } as const
 
 /** Full physical rear silhouette. Coordinates retain the original body-relative meaning. */
 export function isStickerRearCenter(x: number, y: number): boolean {

@@ -9,21 +9,24 @@ import { isStickerCarried, type DeviceStickerPlacement, type DeviceStickerScene,
 import { useStudioEnvironmentSnapshot } from './StudioEnvironment';
 import { applyStickerWear } from './sticker-wear';
 import { prepareStickerAlpha } from './sticker-hit';
+import { prepareStickerSurfaceDamage } from './sticker-alpha';
 
-/** Sticker geometry lives beneath device-model-content, inheriting the real shell pose. */
+/** Placement array is bottom-to-top. Explicit transparent draw order must win
+ * over camera-distance sorting; depth testing still hides ink behind the shell.
+ * Sticker geometry lives beneath device-model-content, inheriting the real shell pose. */
 export function StickerSurface({ scene, rear, wrap }: { readonly scene: DeviceStickerScene; readonly rear: BufferGeometry; readonly wrap: StickerWrapSurface }) {
   const roughness = useMemo(() => createStickerRoughness(), []);
   useEffect(() => () => roughness.dispose(), [roughness]);
   return <group name="device-equipped-stickers">
-    {scene.placements.map((placement) => {
+    {scene.placements.map((placement, index) => {
       const art = scene.assets.find((asset) => asset.id === placement.stickerId);
-      return art === undefined ? null : <EquippedSticker key={placement.stickerId} art={art} placement={placement} rear={rear} wrap={wrap} roughness={roughness} scene={scene} />;
+      return art === undefined ? null : <EquippedSticker renderOrder={3 + index / (scene.placements.length + 1)} key={placement.stickerId} art={art} placement={placement} rear={rear} wrap={wrap} roughness={roughness} scene={scene} />;
     })}
   </group>;
 }
-function EquippedSticker({ art, placement, rear, wrap, roughness, scene }: {
+function EquippedSticker({ art, placement, rear, wrap, roughness, scene, renderOrder }: {
   readonly art: StickerArtwork; readonly placement: DeviceStickerPlacement; readonly rear: BufferGeometry;
-  readonly roughness: Texture; readonly scene: DeviceStickerScene; readonly wrap: StickerWrapSurface;
+  readonly renderOrder: number; readonly roughness: Texture; readonly scene: DeviceStickerScene; readonly wrap: StickerWrapSurface;
 }) {
   const { stickerId, surface, x, y, width, rotationDeg } = placement;
   const geometry = useMemo(() => {
@@ -31,12 +34,12 @@ function EquippedSticker({ art, placement, rear, wrap, roughness, scene }: {
   }, [art, stickerId, surface, x, y, width, rotationDeg, rear, wrap]);
   useEffect(() => () => geometry?.dispose(), [geometry]);
   if (geometry === null) return null;
-  return <StickerPrint visible={!isStickerCarried(scene.pack, placement.stickerId)} wear={placement.wear ?? 0} art={art} geometry={geometry} roughness={roughness} finishEnabled={scene.finishEnabled !== false} onError={scene.onArtworkError} onReady={scene.onArtworkReady} />;
+  return <StickerPrint renderOrder={renderOrder} visible={!isStickerCarried(scene.pack, placement.stickerId)} wear={placement.wear ?? 0} art={art} geometry={geometry} roughness={roughness} finishEnabled={scene.finishEnabled !== false} onError={scene.onArtworkError} onReady={scene.onArtworkReady} />;
 }
 /** One map alpha-tests before physical lighting, clipping both print and satin response. */
-export function StickerPrint({ art, geometry, roughness, finishEnabled, onError, onReady, appearance = 'earned', visible = true, wear = 0 }: {
-  readonly art: StickerArtwork; readonly geometry: BufferGeometry; readonly roughness: Texture;
-  readonly wear?: number; readonly visible?: boolean; readonly appearance?: 'earned' | 'locked' | 'placed'; readonly finishEnabled: boolean; readonly onError?: (id: string) => void; readonly onReady?: (id: string) => void;
+export function StickerPrint({ art, geometry, wearGeometry = geometry, roughness, finishEnabled, onError, onReady, appearance = 'earned', visible = true, wear = 0, renderOrder = 4 }: {
+  readonly art: StickerArtwork; readonly geometry: BufferGeometry; readonly wearGeometry?: BufferGeometry | null; readonly roughness: Texture;
+  readonly renderOrder?: number; readonly wear?: number; readonly visible?: boolean; readonly appearance?: 'earned' | 'locked' | 'placed'; readonly finishEnabled: boolean; readonly onError?: (id: string) => void; readonly onReady?: (id: string) => void;
 }) {
   const { texture, failed } = useStickerTexture(art.url);
   const invalidate = useThree((state) => state.invalidate);
@@ -67,13 +70,18 @@ export function StickerPrint({ art, geometry, roughness, finishEnabled, onError,
     const backingWear = applyStickerWear(back, art.id, true);
     return { front, back, wearing, backingWear };
   }, [texture, roughness, studio.texture, finishEnabled, appearance, art.id]);
+  useLayoutEffect(() => {
+    const damage = texture ? prepareStickerSurfaceDamage(texture, art.id, wearGeometry ?? undefined) : null;
+    materials.wearing.setDamage(damage); materials.backingWear.setDamage(damage);
+    invalidate();
+  }, [materials, texture, art.id, wearGeometry, invalidate]);
   useLayoutEffect(() => { materials.wearing.set(appearance === 'earned' ? wear : 0); materials.backingWear.set(appearance === 'earned' ? wear : 0); invalidate(); }, [materials, wear, appearance, invalidate]);
   useEffect(() => () => { materials.front.dispose(); materials.back.dispose(); }, [materials]);
   if (texture === null) return null;
   // Meshes borrow geometry/maps. Their owners dispose those, while this component
   // owns exactly these two physical materials, including the unprinted underside.
   return <group visible={visible} name={`sticker-print-${art.id}`}>
-    <mesh name={`sticker-${art.id}`} geometry={geometry} material={materials.front} dispose={null} raycast={() => {}} renderOrder={3} />
-    <mesh name={`sticker-backing-${art.id}`} geometry={geometry} material={materials.back} dispose={null} raycast={() => {}} renderOrder={3} />
+    <mesh name={`sticker-${art.id}`} geometry={geometry} material={materials.front} dispose={null} raycast={() => {}} renderOrder={renderOrder} />
+    <mesh name={`sticker-backing-${art.id}`} geometry={geometry} material={materials.back} dispose={null} raycast={() => {}} renderOrder={renderOrder} />
   </group>;
 }

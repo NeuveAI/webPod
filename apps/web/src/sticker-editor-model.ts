@@ -17,6 +17,14 @@ export const stickerEditorAtom = atom<StickerEditorState | null>(null)
 export const stickerEditorFailureAtom = atom<{ readonly stickerId: string; readonly message: string; readonly attempted?: StickerPlacement; readonly expected?: StickerPlacement } | null>(null)
 export const stickerEditorPendingAtom = atom<Readonly<Record<string, StickerPlacement>>>({})
 export const stickerEditorUndoAtom = atom<{ readonly before: StickerPlacement; readonly after: StickerPlacement } | null>(null)
+// Handle mode is independent of the current edit property: adjusting wear must
+// not silently switch scale grips back to rotation.
+export const stickerEditorHandleModeAtom = atom<'rotationDeg' | 'width'>('rotationDeg')
+export function toggleStickerEditorHandleMode(): void {
+  const state = deviceStore.get(stickerEditorAtom)
+  if (state === null || state.phase === 'saving' || deviceStore.get(stickerEditorGestureAtom)) return
+  deviceStore.set(stickerEditorHandleModeAtom, mode => mode === 'width' ? 'rotationDeg' : 'width')
+}
 export const stickerEditorGestureAtom = atom(false)
 export const stickerEditorCancelAtom = atom(0)
 export function cancelStickerEditorGesture(): void { deviceStore.set(stickerEditorCancelAtom, n => n + 1) }
@@ -33,6 +41,7 @@ const projectedEditorPlacementsAtom = atom((get) => {
 /** Metadata-only editor publications keep the rendered placement identity. */
 export const stickerEditorPlacementsAtom = selectAtom(projectedEditorPlacementsAtom, placements => placements, (a, b) => a.length === b.length && a.every((placement, index) => placement === b[index]))
 export function selectStickerEditor(source: StickerPlacement, keyboard = false): void {
+  deviceStore.set(stickerEditorHandleModeAtom, 'rotationDeg')
   deviceStore.set(stickerEditorFailureAtom, null)
   deviceStore.set(stickerEditorAtom, { source, draft: source, property: 'rotationDeg', phase: stickerEditPending(source.stickerId) ? 'saving' : 'editing', message: null, keyboard })
 }
@@ -60,12 +69,13 @@ export function constrainedStickerEdit(source: StickerPlacement, property: Stick
   }
   return { ...source, [property]: initial + (value - initial) * low }
 }
-export function previewStickerEdit(value: number): void {
+export function previewStickerEdit(value: number, fit?: (placement: StickerPlacement) => StickerPlacement): void {
   const state = deviceStore.get(stickerEditorAtom)
   if (state === null || state.phase === 'saving') return
-  const draft = constrainedStickerEdit(state.draft, state.property, value)
+  const requested = constrainedStickerEdit(state.draft, state.property, value)
+  const draft = fit?.(requested) ?? requested
   const actual = state.property === 'wear' ? draft.wear ?? 0 : draft[state.property]
-  deviceStore.set(stickerEditorAtom, { ...state, draft, message: Math.abs(actual - value) > .001 ? 'That is the adjustment limit.' : null })
+  deviceStore.set(stickerEditorAtom, { ...state, draft, message: Math.abs(actual - value) > .001 ? state.property === 'width' ? (actual < value ? 'Maximum sticker size reached.' : 'Minimum sticker size reached.') : 'That is the adjustment limit.' : null })
 }
 type StickerWrite = (placement: StickerPlacement, expectedSource?: StickerPlacement) => Promise<void>
 export async function applyStickerEditor(place: StickerWrite, undo = false): Promise<void> {

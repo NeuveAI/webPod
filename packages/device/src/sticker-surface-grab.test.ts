@@ -41,7 +41,7 @@ test('viewport, camera and content changes invalidate; numerical grazing cannot 
   expect(Math.abs((moved?.x ?? Infinity) - placement.x)).toBeLessThanOrEqual(20 / 330 + 1e-6);
   grazing.dispose();
 });
-test('four captured side/front camera views use a fixed affine frame from shown triangle UVs', async () => {
+test('steel-side camera views use a fixed affine frame from shown triangle UVs', async () => {
   const { createStickerWrapSurface } = await import('./sticker-wrap');
   const { createStickerSurfaceGeometry, sampleStickerSurfaceGrid, stickerVisibleAspect } = await import('./sticker-surface');
   const { DEFAULT_DEVICE_FORM } = await import('./form');
@@ -61,7 +61,12 @@ test('four captured side/front camera views use a fixed affine frame from shown 
     const [u, v] = f.uv;
     if (u === undefined || v === undefined) throw new Error('Missing captured UV');
     const local = sampleStickerSurfaceGrid(cage.point, width, height, 0, (u * art.width - left) / (right - left), ((1 - v) * art.height - top) / (bottom - top));
-    const ndc = local.applyMatrix4(content.matrixWorld).project(camera), rect = f.rect;
+    const normal = cage.sample(0, 0).normal.transformDirection(content.matrixWorld);
+    const world = local.clone().applyMatrix4(content.matrixWorld);
+    camera.matrixAutoUpdate = true;
+    camera.position.copy(world).addScaledVector(normal, 900);
+    camera.lookAt(world); camera.updateMatrixWorld(true);
+    const ndc = world.project(camera), rect = f.rect;
     const pointer = { x: rect.left + (ndc.x + 1) * rect.width / 2, y: rect.top + (1 - ndc.y) * rect.height / 2 };
     const ray = new Raycaster(); ray.setFromCamera(new Vector2(ndc.x, ndc.y), camera);
     const hit = ray.intersectObject(mesh, false)[0]; if (hit === undefined) throw new Error('Expected visible painted triangle');

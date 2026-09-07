@@ -77,6 +77,7 @@ export interface StickerProjectedContour {
   readonly center: StickerScreenPoint;
 }
 export interface StickerTransformPlane {
+  readonly isValid?: () => boolean;
   /** Frozen, unbounded rear coordinates. Cancel the gesture on viewport/pose changes. */
   readonly project: (clientX: number, clientY: number) => StickerScreenPoint | null;
 }
@@ -97,6 +98,7 @@ export interface StickerSurfaceGrab {
 
 /** Runtime camera handle; never persist this or put it in Jotai user data. */
 export interface StickerRearProjection {
+  readonly fit?: (placement: DeviceStickerPlacement) => DeviceStickerPlacement;
   /** Authoritative visible painted surface pickup; null must not fall back to rear hit. */
   readonly grab?: (clientX: number, clientY: number) => StickerSurfaceGrab | null;
   /** Equipped appearance-editor contour, projected through the actual shown surface. */
@@ -108,7 +110,7 @@ export interface StickerRearProjection {
   readonly bounds?: (placement: DeviceStickerPlacement) => { readonly left: number; readonly top: number; readonly right: number; readonly bottom: number } | null;
   readonly screen: (placement: DeviceStickerPlacement) => { readonly x: number; readonly y: number } | null;
 }
-export const STICKER_PACK_LAYOUT = Object.freeze({ maxWidthPx: 320, widthRatio: .70, heightRatio: 1.05, teasePx: 44, bottomGapPx: 32, desktopBreakpoint: 960, desktopCenter: .79, linerTravel: .72 });
+export const STICKER_PACK_LAYOUT = Object.freeze({ maxWidthPx: 320, widthRatio: .70, heightRatio: 1.05, teasePx: 44, bottomGapPx: 32, desktopBreakpoint: 960, desktopCenter: .79, linerTravel: .90 });
 /** One pixel layout drives the DOM hit regions and camera-projected physical liner. */
 export function stickerPackViewportLayout(viewportWidth: number, viewportHeight: number) {
   const width = Math.min(STICKER_PACK_LAYOUT.maxWidthPx, viewportWidth * STICKER_PACK_LAYOUT.widthRatio, viewportHeight * .64 / (STICKER_PACK_LAYOUT.heightRatio * (1 + STICKER_PACK_LAYOUT.linerTravel)));
@@ -116,7 +118,7 @@ export function stickerPackViewportLayout(viewportWidth: number, viewportHeight:
 }
 /** Five seats on a single liner: the lower pair is centered rather than leaving a blank cell. */
 export const STICKER_SHEET_SLOTS = Object.freeze([
-  { x: .19, y: .35 }, { x: .5, y: .35 }, { x: .81, y: .35 }, { x: .345, y: .59 }, { x: .655, y: .59 },
+  { x: .19, y: .45 }, { x: .5, y: .45 }, { x: .81, y: .45 }, { x: .345, y: .70 }, { x: .655, y: .70 },
 ]);
 export const STICKER_SHEET_PRINT_WIDTH = .245;
 

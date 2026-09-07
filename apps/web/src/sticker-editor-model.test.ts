@@ -1,7 +1,7 @@
 import { afterEach, expect, test } from 'bun:test'
 import { deviceStore, receiveStickerInventoryActionAtom, resetStickerCollectionActionAtom } from '@webpod/state'
 import { isStickerPlacement, type StickerInventory, type StickerPlacement } from '@webpod/stickers'
-import { applyStickerEditor, resetStickerAppearance, constrainedStickerEdit, dismissStickerEditor, previewStickerEdit, resetStickerEditor, revertStickerEditor, selectStickerEditor, setStickerEditorProperty, stickerEditorAtom, stickerEditorDirtyAtom, stickerEditorFailureAtom, stickerEditorPlacementsAtom } from './sticker-editor-model'
+import { stickerEditorHandleModeAtom, stickerEditorGestureAtom, toggleStickerEditorHandleMode, applyStickerEditor, resetStickerAppearance, constrainedStickerEdit, dismissStickerEditor, previewStickerEdit, resetStickerEditor, revertStickerEditor, selectStickerEditor, setStickerEditorProperty, stickerEditorAtom, stickerEditorDirtyAtom, stickerEditorFailureAtom, stickerEditorPlacementsAtom } from './sticker-editor-model'
 const source: StickerPlacement = { stickerId: 'PW-C01', surface: 'back', x: .5, y: .5, width: .25, rotationDeg: 0, wear: .2 }
 const inventory: StickerInventory = { stickerIds: ['PW-C01'], packs: [], placements: [source], placementRevision: 1, progress: [], importStatus: 'complete' }
 function seed() { deviceStore.set(receiveStickerInventoryActionAtom, inventory); selectStickerEditor(source) }
@@ -94,4 +94,21 @@ test('rendered placements retain identity across metadata while every editor pub
     expect(deviceStore.get(stickerEditorPlacementsAtom)[0]).toEqual({ ...source, wear: .35, rotationDeg: 17 })
     expect(placementPublications).toBe(2)
   } finally { stopEditor(); stopPlacements() }
+})
+
+test('handle mode survives wear edits and cannot change during a gesture or save', () => {
+  seed()
+  toggleStickerEditorHandleMode()
+  expect(deviceStore.get(stickerEditorHandleModeAtom)).toBe('width')
+  setStickerEditorProperty('wear'); previewStickerEdit(.4)
+  expect(deviceStore.get(stickerEditorHandleModeAtom)).toBe('width')
+  deviceStore.set(stickerEditorGestureAtom, true)
+  toggleStickerEditorHandleMode()
+  expect(deviceStore.get(stickerEditorHandleModeAtom)).toBe('width')
+  deviceStore.set(stickerEditorGestureAtom, false)
+  deviceStore.set(stickerEditorAtom, state => state === null ? null : { ...state, phase: 'saving' })
+  toggleStickerEditorHandleMode()
+  expect(deviceStore.get(stickerEditorHandleModeAtom)).toBe('width')
+  selectStickerEditor(source)
+  expect(deviceStore.get(stickerEditorHandleModeAtom)).toBe('rotationDeg')
 })

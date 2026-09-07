@@ -201,7 +201,9 @@ export function placeSticker(placement: StickerPlacement, expectedSource?: Stick
       const current = inventory.placements.find((item) => item.stickerId === expectedSource.stickerId)
       if (current === undefined || placement.stickerId !== expectedSource.stickerId || !sameStickerPose(current, expectedSource)) throw new StickerRequestError(409)
     }
-    return request('/placements', 'PUT', { revision: inventory.placementRevision, placements: [...inventory.placements.filter((item) => item.stickerId !== placement.stickerId), placement] })
+    return request('/placements', 'PUT', { revision: inventory.placementRevision, placements: expectedSource === undefined
+      ? [...inventory.placements.filter((item) => item.stickerId !== placement.stickerId), placement]
+      : inventory.placements.map(item => item.stickerId === placement.stickerId ? placement : item) })
   })
 }
 
