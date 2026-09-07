@@ -27,7 +27,8 @@
     "three": "0.185.1",
     "@webpod/stickers": "workspace:*",
     "@tanstack/query-core": "^5.90.21",
-    "@webpod/state": "workspace:*"
+    "@webpod/state": "workspace:*",
+    "@webpod/tools": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",

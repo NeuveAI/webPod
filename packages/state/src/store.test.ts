@@ -269,15 +269,15 @@ describe('actions', () => {
     expect(store.get(currentScreenAtom)?.screenId).toBe('S03')
   })
 
-  test('an agent press is silent; a human press clicks', () => {
+  test('agent and human presses click with distinct provenance', () => {
     const store = createDeviceStore()
 
     const byAgent = store.set(pressActionAtom, {
       button: 'menu',
       source: 'agent',
     })
-    expect(byAgent.silenced).toBe(true)
-    expect(byAgent.clickerTicks).toBe(0)
+    expect(byAgent.silenced).toBe(false)
+    expect(byAgent.clickerTicks).toBe(1)
     expect(byAgent.actor).toBe('agent:unknown')
 
     const byHuman = store.set(pressActionAtom, {
@@ -310,7 +310,7 @@ describe('actions', () => {
       source: 'agent',
       path: 'key',
     })
-    expect(store.get(interactionFeedbackAtom)).toBeNull()
+    expect(store.get(interactionFeedbackAtom)).toMatchObject({ actor: 'agent:unknown', clickerTicks: 1 })
 
     store.set(acceptedExternalPressActionAtom, {
       button: 'play-pause',

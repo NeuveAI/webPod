@@ -63,8 +63,8 @@ test('keyboard and meaning intents cannot borrow another earned sticker preview'
 })
 
 test('partial peel anchors remaining contact, releases continuously, and reduced motion follows directly', () => {
-  expect(stickerPeelMotion(48, 0, false)).toEqual({ peel: .75, detached: false, offset: null })
-  expect(stickerPeelMotion(64, 0, false)).toEqual({ peel: 1, detached: false, offset: null })
+  expect(stickerPeelMotion(48, 0, false)).toEqual({ peel: .75, sourcePeelFront: .9375, detachTransport: 0, detached: false, offset: null })
+  expect(stickerPeelMotion(64, 0, false)).toEqual({ peel: 1, sourcePeelFront: 1, detachTransport: 1, detached: false, offset: null })
   const released = stickerPeelMotion(64.01, 0, false)
   expect(released.detached).toBe(true)
   expect(released.offset?.x).toBeCloseTo(.01)
@@ -72,8 +72,9 @@ test('partial peel anchors remaining contact, releases continuously, and reduced
   const free = stickerPeelMotion(164, 0, false)
   expect(free.offset?.x).toBe(164)
   expect(free.peel).toBeCloseTo(.4)
-  expect(stickerPeelMotion(10, 5, false, 64, 164)).toEqual({ peel: free.peel, detached: true, offset: { x: 10, y: 5 } })
-  expect(stickerPeelMotion(50, 20, true)).toEqual({ peel: 0, detached: true, offset: { x: 50, y: 20 } })
+  expect(free.sourcePeelFront).toBe(1); expect(free.detachTransport).toBe(1)
+  expect(stickerPeelMotion(10, 5, false, 64, 164)).toEqual({ peel: free.peel, sourcePeelFront: 1, detachTransport: 1, detached: true, offset: { x: 10, y: 5 } })
+  expect(stickerPeelMotion(50, 20, true)).toEqual({ peel: 0, sourcePeelFront: 1, detachTransport: 1, detached: true, offset: { x: 50, y: 20 } })
 })
 
 

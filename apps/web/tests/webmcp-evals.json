@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Read the complete song list and traverse it through the real wheel",
+    "messages": [{ "role": "user", "type": "message", "content": "Show the selected Albums row, navigate one item forward to Songs, select it, read all eleven songs, then traverse eight items forward and back before returning to the menu." }],
+    "expectedCall": [
+      { "functionName": "webpod_list_status", "arguments": {}, "result": { "screenId": "S03", "isList": true, "selectedItem": { "position": 3, "item": { "label": "Albums" } } } },
+      { "functionName": "webpod_navigate_list", "arguments": { "direction": "next", "items": 1 }, "result": { "direction": "next", "requestedItems": 1, "completedItems": 1, "destination": { "selectedItem": { "position": 4, "item": { "label": "Songs" } } } } },
+      { "functionName": "webpod_select_item", "arguments": {}, "result": { "accepted": true, "pageState": { "interactionReady": { "$type": "boolean" }, "elapsedMs": { "$gte": 0 } } } },
+      { "functionName": "webpod_list_status", "arguments": {}, "result": { "screenId": "S09", "count": 11, "selectedItem": { "position": 0 }, "items": { "$type": "array" } } },
+      { "functionName": "webpod_navigate_list", "arguments": { "direction": "next", "items": 8 }, "result": { "requestedItems": 8, "completedItems": 8, "destination": { "selectedItem": { "position": 8 } } } },
+      { "functionName": "webpod_navigate_list", "arguments": { "direction": "previous", "items": 8 }, "result": { "requestedItems": 8, "completedItems": 8, "destination": { "selectedItem": { "position": 0 } } } },
+      { "functionName": "webpod_click_wheel", "arguments": { "button": "menu" }, "result": { "accepted": true } },
+      { "functionName": "webpod_page_state", "arguments": {}, "result": { "interactionReady": true, "status": "ready", "elapsedMs": { "$gte": 0 }, "progressPercent": null } },
+      { "functionName": "webpod_rotate_ipod", "arguments": { "xDeg": 10, "yDeg": 20 }, "result": { "orientation": { "pitchDeg": 10, "yawDeg": 20 } } },
+      { "functionName": "webpod_flick_ipod", "arguments": { "face": "back" }, "result": { "orientation": { "pitchDeg": 10, "yawDeg": 180 } } },
+      { "functionName": "webpod_flick_ipod", "arguments": { "face": "front" }, "result": { "orientation": { "pitchDeg": 10, "yawDeg": 0 } } }
+    ]
+  },
+  {
+    "name": "Carry, edit, release and persist owned stickers through the physical pack",
+    "messages": [{ "role": "user", "type": "message", "content": "Show the back, open the sticker collection without claiming a sealed pack, inspect ownership, browse forward and back, pick up Night Shift, rotate and wear it, release it, then pick it up again and place it in the center before closing the pack." }],
+    "expectedCall": [
+      { "functionName": "webpod_flick_ipod", "arguments": { "face": "back" }, "result": { "orientation": { "yawDeg": 180 } } },
+      { "functionName": "webpod_open_sticker_pack", "arguments": {}, "result": { "held": null } },
+      { "functionName": "webpod_sticker_list", "arguments": {}, "result": { "count": 60, "held": null, "items": { "$type": "array" } } },
+      { "functionName": "webpod_navigate_sticker_collection", "arguments": { "direction": "next" }, "result": { "selectedCollection": { "index": 0, "genre": "metal" } } },
+      { "functionName": "webpod_navigate_sticker_collection", "arguments": { "direction": "previous" }, "result": { "selectedCollection": { "index": 2, "genre": "rock" } } },
+      { "functionName": "webpod_navigate_sticker_collection", "arguments": { "direction": "next" }, "result": { "selectedCollection": { "index": 0, "genre": "metal" } } },
+      { "functionName": "webpod_get_sticker", "arguments": { "stickerId": "PW-A01", "source": "collection" }, "result": { "held": { "stickerId": "PW-A01", "source": "collection" } } },
+      { "functionName": "webpod_rotate_sticker", "arguments": { "degrees": 15 }, "result": { "held": { "placement": { "rotationDeg": 15 } } } },
+      { "functionName": "webpod_add_sticker_wear", "arguments": { "amount": 0.25 }, "result": { "held": { "placement": { "wear": 0.25 } } } },
+      { "functionName": "webpod_release_sticker", "arguments": {}, "result": { "held": null } },
+      { "functionName": "webpod_get_sticker", "arguments": { "stickerId": "PW-A01", "source": "collection" }, "result": { "held": { "placement": { "rotationDeg": 0, "wear": 0 } } } },
+      { "functionName": "webpod_place_sticker", "arguments": { "x": 0.5, "y": 0.5 }, "result": { "placement": { "stickerId": "PW-A01", "x": 0.5, "y": 0.5 } } },
+      { "functionName": "webpod_close_sticker_pack", "arguments": {}, "result": { "held": null } }
+    ]
+  }
+]

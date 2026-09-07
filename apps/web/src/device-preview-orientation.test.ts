@@ -497,6 +497,141 @@ describe('external device preview orientation', () => {
   })
 })
 
+describe('tool orientation controls', () => {
+  function setup() {
+    const stage = new FakeStage()
+    const blur = new EventTarget()
+    const store = createDevicePreviewStore()
+    const frames = new FrameEnvironment()
+    const controls = bindDeviceOrientationControls(stage, store, blur, frames)
+    return { stage, blur, store, frames, controls }
+  }
+
+  test('rotates degree deltas with actual clamping and rejects nonfinite input', () => {
+    const { controls, store } = setup()
+    expect(controls.rotate(90, 20).orientation).toEqual({ pitchDeg: 45, yawDeg: 20, rollDeg: 0 })
+    expect(controls.rotate(-5, 10).orientation).toEqual({ pitchDeg: 40, yawDeg: 30, rollDeg: 0 })
+    const before = store.getSnapshot()
+    expect(() => controls.rotate(NaN, 0)).toThrow('finite')
+    expect(() => controls.rotate(0, Infinity)).toThrow('finite')
+    expect(store.getSnapshot()).toBe(before)
+    controls.dispose()
+    expect(() => controls.rotate(0, 0)).toThrow('disposed')
+  })
+
+  test('flick resolves only after shared physical spring settles at the requested face', async () => {
+    const { controls, frames, store } = setup()
+    let settled = false
+    const result = controls.flick('back', new AbortController().signal).then((value) => { settled = true; return value })
+    frames.step(16)
+    await Promise.resolve()
+    expect(settled).toBe(false)
+    expect(store.getSnapshot().orientation.yawDeg).toBeGreaterThan(0)
+    expect(store.getSnapshot().orientation.yawDeg).toBeLessThan(180)
+    frames.runUntilIdle()
+    expect((await result).orientation.yawDeg).toBe(180)
+    expect(controls.isAnimating()).toBe(false)
+    const front = controls.flick('front', new AbortController().signal)
+    frames.runUntilIdle()
+    expect((await front).orientation.yawDeg % 360).toBe(0)
+    controls.dispose()
+  })
+
+  test('reduced motion settles without frames and reacts during a flick', async () => {
+    const { controls, frames } = setup()
+    frames.reduced = true
+    expect((await controls.flick('back', new AbortController().signal)).orientation.yawDeg).toBe(180)
+    expect(frames.pendingFrames).toBe(0)
+    frames.reduced = false
+    const result = controls.flick('front', new AbortController().signal)
+    frames.step(16)
+    frames.reduced = true
+    frames.step(16)
+    expect((await result).orientation.yawDeg % 360).toBe(0)
+    expect(frames.pendingFrames).toBe(0)
+    controls.dispose()
+  })
+
+  test('concurrent and already-aborted calls leave the admitted flick intact', async () => {
+    const { controls, frames } = setup()
+    const cancelled = new AbortController()
+    cancelled.abort()
+    await expect(controls.flick('back', cancelled.signal)).rejects.toThrow('aborted')
+    expect(frames.pendingFrames).toBe(0)
+    const admitted = controls.flick('back', new AbortController().signal)
+    await expect(controls.flick('front', new AbortController().signal)).rejects.toThrow('busy')
+    frames.runUntilIdle()
+    expect((await admitted).orientation.yawDeg).toBe(180)
+    controls.dispose()
+  })
+
+  for (const interruption of ['abort', 'dispose', 'blur', 'external-write', 'rotate', 'human-grab'] as const) {
+    test(`${interruption} rejects the pending flick and removes its frame`, async () => {
+      const { controls, frames, store, blur } = setup()
+      const abort = new AbortController()
+      const result = controls.flick('back', abort.signal)
+      const rejected = result.then(() => null, (error: unknown) => error)
+      frames.step(16)
+      if (interruption === 'abort') abort.abort()
+      if (interruption === 'dispose') controls.dispose()
+      if (interruption === 'blur') blur.dispatchEvent(new Event('blur'))
+      if (interruption === 'external-write') store.setPose('edge')
+      if (interruption === 'rotate') controls.rotate(2, 3)
+      if (interruption === 'human-grab') {
+        expect(controls.begin(grabStart(new EventTarget(), new FakeCapture(), 'mouse', 5, 0, 0))).toBe(true)
+        expect(() => controls.rotate(1, 1)).toThrow('held')
+        await expect(controls.flick('front', new AbortController().signal)).rejects.toThrow('busy')
+      }
+      expect(await rejected).toMatchObject({ name: 'AbortError' })
+      expect(frames.pendingFrames).toBe(0)
+      const stopped = store.getSnapshot()
+      frames.step(100)
+      expect(store.getSnapshot()).toBe(stopped)
+      controls.dispose()
+      await expect(controls.flick('front', abort.signal)).rejects.toThrow('disposed')
+    })
+  }
+
+  test('abort from an orientation subscriber cannot resurrect the frame loop', async () => {
+    const { controls, frames, store } = setup()
+    const abort = new AbortController()
+    const unsubscribe = store.subscribe(() => abort.abort())
+    const result = controls.flick('back', abort.signal)
+    const rejected = result.then(() => null, (error: unknown) => error)
+    frames.step(16)
+    expect(await rejected).toMatchObject({ name: 'AbortError' })
+    expect(frames.pendingFrames).toBe(0)
+    expect(controls.isAnimating()).toBe(false)
+    unsubscribe()
+    controls.dispose()
+  })
+
+  for (const phase of ['intermediate', 'settlement'] as const) {
+    test(`nested external mutation during ${phase} publication cancels and preserves the override`, async () => {
+      const { controls, frames, store } = setup()
+      let overridden = false
+      const unsubscribe = store.subscribe(() => {
+        if (overridden || (phase === 'settlement' && store.getSnapshot().orientation.yawDeg !== 180)) return
+        overridden = true
+        store.setPose('edge')
+      })
+      const result = controls.flick('back', new AbortController().signal)
+      const rejected = result.then(() => null, (error: unknown) => error)
+      if (phase === 'intermediate') frames.step(16)
+      else frames.runUntilIdle()
+      expect(overridden).toBe(true)
+      expect(await rejected).toMatchObject({ name: 'AbortError' })
+      expect(store.getSnapshot().pose).toBe('edge')
+      expect(controls.isAnimating()).toBe(false)
+      expect(frames.pendingFrames).toBe(0)
+      frames.runUntilIdle()
+      expect(store.getSnapshot().orientation).toEqual(DEVICE_ORIENTATION_PRESETS.edge)
+      unsubscribe()
+      controls.dispose()
+    })
+  }
+})
+
 function grabStart(
   host: EventTarget,
   capture: DeviceOrientationPointerCapture,

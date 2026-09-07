@@ -22,6 +22,7 @@ import {
   type DeviceCameraFit,
 } from "./camera-fit";
 import { applyDeviceRendererDefaults } from "./renderer-defaults";
+import { deviceCanvasEvents } from "./canvas-events";
 import { StudioEnvironment, type StudioEnvironmentProps } from "./StudioEnvironment";
 import { DEVICE_CONTENT_NAME } from "./ViewerLitDeviceFrame";
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
@@ -141,6 +142,7 @@ export function DeviceCanvas({
   const initialDistance = cameraDistance ?? DEFAULT_CAMERA_DISTANCE;
   return (
     <Canvas
+      events={deviceCanvasEvents}
       className={className}
       frameloop="demand"
       dpr={dpr}

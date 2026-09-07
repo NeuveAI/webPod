@@ -1,30 +1,13 @@
-/**
- * The silence rule, in one place, for everything that can make a noise.
- *
- * 001 §4.7 and §15.2 #3: the clicker and the haptic actuator are gated on
- * `source !== "agent" && source !== "system"`, at **one** call site rather than
- * scattered across the call sites that produce feedback.
- *
- * ⚑ Why this is a module and not a line: the rule has more than one caller.
- * The detent reducer needs it, and so does the press handler, because a press
- * is not a detent and cannot be routed through the reducer. An earlier version
- * wrote the predicate out twice — both copies correct, and two places to
- * change a rule whose entire design argument is that there must be one. The
- * argument survives only if the predicate is a thing rather than a habit.
- *
- * The rule itself is load-bearing and not a style choice. Touch and sound are
- * the signature of a hand. A device that clicked and buzzed for something that
- * was not a hand would spend the product's best attribution channel on a lie,
- * and a phone buzzing in a pocket nobody is holding sends its owner reaching
- * for it.
- */
-
+/** Human and agent interactions share sound; system reconciliation stays silent. */
 import type { Actor, DetentSource, HumanActor, InputPath } from './contract'
 
 /** Whether provenance belongs to a physical human input path. */
 export function isHumanActor(actor: Actor): actor is HumanActor {
   return actor === 'human:touch' || actor === 'human:mouse' || actor === 'human:key'
 }
+
+/** Agent provenance remains audible; automatic reconciliation never is. */
+export function isAudibleActor(actor: Actor): actor is Exclude<Actor, 'system'> { return actor !== 'system' }
 
 /**
  * Whether movement from this source is silent.
@@ -33,7 +16,7 @@ export function isHumanActor(actor: Actor): actor is HumanActor {
  * pulse or a spring asks here.
  */
 export function isSilenced(source: DetentSource): boolean {
-  return source !== 'human'
+  return source === 'system'
 }
 
 /**
@@ -92,6 +75,6 @@ export function feedbackFor(
     // Haptics exist on touch only. A mouse, a trackpad and a keyboard have no
     // actuator, and pretending otherwise would put a `navigator.vibrate` call
     // behind a gesture that cannot feel it.
-    hapticPulses: silenced || path !== 'touch-arc' ? 0 : count,
+    hapticPulses: source !== 'human' || path !== 'touch-arc' ? 0 : count,
   }
 }

@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Inspect page and turn the physical iPod without a music account",
+    "messages": [{ "role": "user", "type": "message", "content": "Read page readiness and list status, rotate the iPod, then show its back and front." }],
+    "expectedCall": [
+      { "functionName": "webpod_page_state", "arguments": {}, "result": { "status": { "$type": "string" }, "elapsedMs": { "$any": true }, "progressPercent": null } },
+      { "functionName": "webpod_list_status", "arguments": {}, "result": { "count": { "$gte": 0 }, "items": { "$type": "array" } } },
+      { "functionName": "webpod_rotate_ipod", "arguments": { "xDeg": 10, "yDeg": 20 }, "result": { "orientation": { "pitchDeg": 10, "yawDeg": 20 } } },
+      { "functionName": "webpod_flick_ipod", "arguments": { "face": "back" }, "result": { "orientation": { "pitchDeg": 10, "yawDeg": 180 } } },
+      { "functionName": "webpod_flick_ipod", "arguments": { "face": "front" }, "result": { "orientation": { "pitchDeg": 10, "yawDeg": 0 } } }
+    ]
+  }
+]

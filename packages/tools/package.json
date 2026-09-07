@@ -8,5 +8,9 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@webpod/state": "workspace:*",
+    "jotai": "2.20.3"
   }
 }

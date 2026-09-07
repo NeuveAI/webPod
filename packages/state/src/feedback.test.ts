@@ -15,15 +15,15 @@ import {
 import { createDeviceStore } from './testing'
 
 describe('authoritative interaction feedback stream', () => {
-  test('the public event shape cannot represent agent-owned audible feedback', () => {
+  test('the public event shape cannot represent system-owned audible feedback', () => {
     const malformed: InteractionFeedbackEvent = {
       seq: 1,
       control: 'wheel',
       origin: 'detent',
       clickerTicks: 1,
       silenced: false,
-      // @ts-expect-error Only human actors can inhabit an eligible feedback event.
-      actor: 'agent:review-plant',
+      // @ts-expect-error System reconciliation cannot inhabit an audible feedback event.
+      actor: 'system',
     }
     void malformed
   })
@@ -69,7 +69,7 @@ describe('authoritative interaction feedback stream', () => {
     })
   })
 
-  test('sub-detent travel and agent/system actions publish nothing', () => {
+  test('sub-detent and system actions stay silent while agent movement publishes feedback', () => {
     const store = createDeviceStore()
     let notifications = 0
     const unsubscribe = store.sub(interactionFeedbackAtom, () => {
@@ -92,12 +92,12 @@ describe('authoritative interaction feedback stream', () => {
     unsubscribe()
 
     expect(subDetent.clickerTicks).toBe(0)
-    expect(agent.silenced).toBeTrue()
-    expect(agent.clickerTicks).toBe(0)
+    expect(agent.silenced).toBeFalse()
+    expect(agent.clickerTicks).toBeGreaterThan(0)
     expect(system.silenced).toBeTrue()
     expect(system.clickerTicks).toBe(0)
-    expect(notifications).toBe(0)
-    expect(store.get(interactionFeedbackAtom)).toBeNull()
+    expect(notifications).toBe(1)
+    expect(store.get(interactionFeedbackAtom)).toMatchObject({ actor: 'agent:unknown' })
   })
 
   test('coasted detents publish only the budget returned by the coast action', () => {

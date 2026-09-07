@@ -1,3 +1,4 @@
+import type { StickerWrapSurface } from './sticker-wrap';
 import { useThree } from '@react-three/fiber';
 import { useEffect, useLayoutEffect, useMemo } from 'react';
 import { BackSide, FrontSide, MeshPhysicalMaterial, type BufferGeometry, type Texture } from 'three';
@@ -10,24 +11,24 @@ import { applyStickerWear } from './sticker-wear';
 import { prepareStickerAlpha } from './sticker-hit';
 
 /** Sticker geometry lives beneath device-model-content, inheriting the real shell pose. */
-export function StickerSurface({ scene, rear }: { readonly scene: DeviceStickerScene; readonly rear: BufferGeometry }) {
+export function StickerSurface({ scene, rear, wrap }: { readonly scene: DeviceStickerScene; readonly rear: BufferGeometry; readonly wrap: StickerWrapSurface }) {
   const roughness = useMemo(() => createStickerRoughness(), []);
   useEffect(() => () => roughness.dispose(), [roughness]);
   return <group name="device-equipped-stickers">
     {scene.placements.map((placement) => {
       const art = scene.assets.find((asset) => asset.id === placement.stickerId);
-      return art === undefined ? null : <EquippedSticker key={placement.stickerId} art={art} placement={placement} rear={rear} roughness={roughness} scene={scene} />;
+      return art === undefined ? null : <EquippedSticker key={placement.stickerId} art={art} placement={placement} rear={rear} wrap={wrap} roughness={roughness} scene={scene} />;
     })}
   </group>;
 }
-function EquippedSticker({ art, placement, rear, roughness, scene }: {
+function EquippedSticker({ art, placement, rear, wrap, roughness, scene }: {
   readonly art: StickerArtwork; readonly placement: DeviceStickerPlacement; readonly rear: BufferGeometry;
-  readonly roughness: Texture; readonly scene: DeviceStickerScene;
+  readonly roughness: Texture; readonly scene: DeviceStickerScene; readonly wrap: StickerWrapSurface;
 }) {
   const { stickerId, surface, x, y, width, rotationDeg } = placement;
   const geometry = useMemo(() => {
-    try { return createStickerSurfaceGeometry(art, { stickerId, surface, x, y, width, rotationDeg }, rear); } catch { return null; }
-  }, [art, stickerId, surface, x, y, width, rotationDeg, rear]);
+    try { return createStickerSurfaceGeometry(art, { stickerId, surface, x, y, width, rotationDeg }, rear, wrap); } catch { return null; }
+  }, [art, stickerId, surface, x, y, width, rotationDeg, rear, wrap]);
   useEffect(() => () => geometry?.dispose(), [geometry]);
   if (geometry === null) return null;
   return <StickerPrint visible={!isStickerCarried(scene.pack, placement.stickerId)} wear={placement.wear ?? 0} art={art} geometry={geometry} roughness={roughness} finishEnabled={scene.finishEnabled !== false} onError={scene.onArtworkError} onReady={scene.onArtworkReady} />;

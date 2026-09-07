@@ -15,7 +15,10 @@ describe('externally shared sticker state', () => {
     expect(notifications).toBe(1);
     expect(store.set(equipStickerActionAtom, { ...placement, stickerId: 'PW-A02' })).toBe(false);
     expect(store.set(equipStickerActionAtom, { ...placement, x: Number.NaN })).toBe(false);
-    expect(store.set(equipStickerActionAtom, { ...placement, width: .35, x: .9 })).toBe(false);
+    expect(store.set(equipStickerActionAtom, { ...placement, width: .35, x: .9 })).toBe(true);
+    expect(store.get(equippedStickersAtom)[0]?.x).toBe(.9);
+    expect(store.set(equipStickerActionAtom, { ...placement, width: .35, x: 0, y: 0 })).toBe(false);
+    expect(store.get(equippedStickersAtom)[0]?.x).toBe(.9);
     unsubscribe();
   });
   test('duplicate equips replace and account reset clears all gesture/inventory state', () => {

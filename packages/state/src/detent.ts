@@ -18,9 +18,8 @@
  *   lands on row 15, not near it.
  * - **Sound and vibration are gated once, here.** `source` decides, and the
  *   decision is reported as {@link DetentOutcome.silenced} so a call site
- *   cannot re-derive it wrongly. Touch and sound are the signature of a hand;
- *   a device that clicked and buzzed for something that was not a hand would
- *   spend the product's best attribution channel on a lie.
+ *   cannot re-derive it wrongly. Agent sound retains agent provenance, while
+ *   system reconciliation stays silent and haptics remain human touch only.
  */
 
 import { DETENT, IDLE_DETENT_ACCUMULATOR, KEY_REPEAT_WINDOW_MS } from './contract'

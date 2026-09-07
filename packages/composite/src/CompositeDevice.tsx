@@ -1,6 +1,8 @@
+import { bindAgentWheelControls, bindAgentControlPhysics, getAgentControlPhysics } from './agent-controls'
 import { useThree } from '@react-three/fiber'
 import {
   ClickWheelInputSurface,
+  useControlPhysics,
   DEVICE_LAYOUT,
   DeviceCanvas,
   FRONT_DEVICE_ORIENTATION,
@@ -21,6 +23,8 @@ import {
 import {
   acceptedExternalPressActionAtom,
   deviceStore,
+  holdEngagedAtom,
+  type DetentSource,
   pressActionAtom,
   returnToRootActionAtom,
   type DeviceStore,
@@ -281,6 +285,13 @@ export function CompositeInputBoundary({
 class CompositeInputController {
   private runtime: ClickWheelRuntime | null = null
   private store: DeviceStore | null = null
+  private centerContactGeneration = 0
+  private wheelContactGeneration = 0
+  private humanArcActive = false
+  private humanKeyActive = false
+  private agentPressActive = false
+  private lifetime = new AbortController()
+  private agentOperation: AbortController | null = null
   private activeSelectPointerId: number | null = null
   private applicationFocus: HTMLElement | null = null
   private selection: ScopedGestureSelection | null = null
@@ -294,6 +305,9 @@ class CompositeInputController {
 
   readonly handlers: CompositeArcHandlers = {
     onArcStart: (sample) => {
+      this.humanArcActive = true
+      this.wheelContactGeneration += 1
+      this.agentOperation?.abort(new DOMException('Interrupted by human input.', 'AbortError'))
       this.selection?.start()
       try {
         this.runtime?.arcStart(sample)
@@ -305,6 +319,7 @@ class CompositeInputController {
     },
     onArcMove: (sample) => this.runtime?.arcMove(sample),
     onArcEnd: (end) => {
+      this.humanArcActive = false
       try {
         this.runtime?.arcEnd(end)
       } finally {
@@ -313,6 +328,8 @@ class CompositeInputController {
       this.restoreApplicationFocus()
     },
     onSelectStart: (start) => {
+      this.centerContactGeneration += 1
+      this.agentOperation?.abort(new DOMException('Interrupted by human input.', 'AbortError'))
       if (this.activeSelectPointerId !== null) return
       this.activeSelectPointerId = start.pointerId
       this.audioButtonDown(
@@ -337,6 +354,8 @@ class CompositeInputController {
       this.restoreApplicationFocus()
     },
     onCardinalStart: (start) => {
+      this.wheelContactGeneration += 1
+      this.agentOperation?.abort(new DOMException('Interrupted by human input.', 'AbortError'))
       this.cardinalStartTimes.set(start.pointerId, start.timestampMs)
       this.audioButtonDown(
         pointerAudioContactId(start.pointerId, start.button),
@@ -375,6 +394,7 @@ class CompositeInputController {
   ) {}
 
   attach(root: HTMLDivElement): () => void {
+    this.lifetime = new AbortController()
     const generation = this.attachmentGeneration + 1
     this.attachmentGeneration = generation
     const runtimeDependencies = this.createDependencies()
@@ -397,11 +417,14 @@ class CompositeInputController {
     this.selection = selection
     this.audio = audio
     this.audioRoot = root
+    const detachAgent = bindAgentWheelControls(runtimeDependencies.store, { press: (button, signal) => this.pressAsAgent(button, signal) })
     const detachWheel = attachCompositeWheelListener(root, runtime)
     const detachKeyboard = this.attachKeyboardControls(root)
     return () => {
+      this.lifetime.abort()
       this.attachmentGeneration += 1
       audioAttached = false
+      detachAgent()
       detachKeyboard()
       detachWheel()
       detachAudio()
@@ -412,6 +435,8 @@ class CompositeInputController {
       if (this.runtime === runtime) this.runtime = null
       if (this.store === runtimeDependencies.store) this.store = null
       this.activeSelectPointerId = null
+      this.humanArcActive = false
+      this.humanKeyActive = false
       this.cardinalStartTimes.clear()
       this.suppressedCardinalPointerId = null
       if (this.selection === selection) this.selection = null
@@ -445,7 +470,7 @@ class CompositeInputController {
   private audioButtonDown(
     id: string,
     button: ClickWheelCardinalButton | 'center',
-    source: 'pointer' | 'key',
+    source: 'pointer' | 'key' | 'agent',
     timestampMs: number,
   ): void {
     const audio = this.audio
@@ -471,55 +496,84 @@ class CompositeInputController {
     }
   }
 
+  /** Shared semantic dispatch for pointer, keyboard and WebMCP input. */
   private dispatchPhysicalPress(
     button: ClickWheelCardinalButton | 'center',
     path: 'touch-arc' | 'mouse-arc' | 'key',
-  ): void {
+    source: DetentSource = 'human',
+    signal?: AbortSignal,
+  ): Promise<boolean> {
     const store = this.store
-    if (store === null) return
+    if (store === null || store.get(holdEngagedAtom)) return Promise.resolve(false)
+    signal?.throwIfAborted()
     if (button === 'menu' || button === 'center') {
-      store.set(pressActionAtom, { button, source: 'human', path })
-      return
-    }
-
-    const handler = this.onTransportPress
-    if (handler === undefined) {
-      if (button !== 'play-pause') store.set(pressActionAtom, { button, source: 'human', path })
-      return
+      store.set(pressActionAtom, { button, source, path })
+      return Promise.resolve(true)
     }
     const generation = this.attachmentGeneration
+    const apply = (accepted: boolean): boolean => {
+      if (generation !== this.attachmentGeneration || this.store !== store || signal?.aborted || store.get(holdEngagedAtom)) return false
+      if (accepted) store.set(acceptedExternalPressActionAtom, { button, source, path })
+      else if (button !== 'play-pause') store.set(pressActionAtom, { button, source, path })
+      return accepted || button !== 'play-pause'
+    }
     let result: boolean | Promise<boolean>
+    try { result = this.onTransportPress?.(button) ?? false } catch { return Promise.resolve(false) }
+    if (typeof result === 'boolean') return Promise.resolve(apply(result))
+    return new Promise<boolean>((resolve) => {
+      const abort = () => resolve(false)
+      signal?.addEventListener('abort', abort, { once: true })
+      void result.then((accepted) => { signal?.removeEventListener('abort', abort); resolve(apply(accepted)) }, () => { signal?.removeEventListener('abort', abort); resolve(false) })
+    })
+  }
+
+  /** Visible button travel and contact SFX use the same physical owners as human input. */
+  private async pressAsAgent(button: ClickWheelCardinalButton | 'center', signal: AbortSignal): Promise<boolean> {
+    signal.throwIfAborted()
+    const store = this.store
+    if (store === null || store.get(holdEngagedAtom)) return false
+    if (this.agentPressActive) throw new Error('A click-wheel press is already active.')
+    if (this.hasHumanContact()) throw new Error('A human wheel contact is active.')
+    this.agentPressActive = true
+    const operation = new AbortController()
+    this.agentOperation = operation
+    signal = AbortSignal.any([signal, this.lifetime.signal, operation.signal, AbortSignal.timeout(30_000)])
+    const physical = getAgentControlPhysics(store)
+    const contactGeneration = button === 'center' ? ++this.centerContactGeneration : ++this.wheelContactGeneration
+    const audioId = `agent:${button}`
+    let released = false
     try {
-      result = handler(button)
-    } catch {
-      return
-    }
-    if (typeof result === 'boolean') {
-      if (result) {
-        store.set(acceptedExternalPressActionAtom, {
-          button,
-          source: 'human',
-          path,
-        })
-      } else if (button !== 'play-pause') {
-        store.set(pressActionAtom, { button, source: 'human', path })
-      }
-      return
-    }
-    void result.then(
-      (accepted) => {
-        if (
-          generation !== this.attachmentGeneration ||
-          this.store !== store
-        ) return
-        if (accepted) {
-          store.set(acceptedExternalPressActionAtom, { button, source: 'human', path })
-        } else if (button !== 'play-pause') {
-          store.set(pressActionAtom, { button, source: 'human', path })
+      if (button === 'center') physical?.pressSelect()
+      else physical?.pressWheel({ menu: 270, next: 0, 'play-pause': 90, previous: 180 }[button])
+      this.audioButtonDown(audioId, button, 'agent', performance.now())
+      await new Promise<void>((resolve, reject) => {
+        const abort = () => { clearTimeout(timer); reject(signal.reason) }
+        const timer = setTimeout(() => { signal.removeEventListener('abort', abort); resolve() }, 80)
+        signal.addEventListener('abort', abort, { once: true })
+      })
+      signal.throwIfAborted()
+      if (button === 'center') physical?.releaseSelect()
+      else physical?.releaseWheel()
+      this.audioButtonUp(audioId, performance.now(), 'release')
+      released = true
+      const accepted = await this.dispatchPhysicalPress(button, 'key', 'agent', signal)
+      signal.throwIfAborted()
+      return accepted
+    } finally {
+      if (!released) {
+        if (contactGeneration === (button === 'center' ? this.centerContactGeneration : this.wheelContactGeneration)) {
+          if (button === 'center') physical?.releaseSelect()
+          else physical?.releaseWheel()
         }
-      },
-      () => undefined,
-    )
+        this.audioButtonUp(audioId, performance.now(), signal.aborted ? 'cancel' : 'release')
+      }
+      this.agentPressActive = false
+      if (this.agentOperation === operation) this.agentOperation = null
+    }
+  }
+
+  private hasHumanContact(): boolean {
+    return this.humanArcActive || this.humanKeyActive || this.activeSelectPointerId !== null || this.cardinalStartTimes.size > 0
   }
 
   private attachKeyboardControls(root: HTMLDivElement): () => void {
@@ -531,6 +585,7 @@ class CompositeInputController {
       readonly startedAt: number
     } | null = null
     const clear = () => {
+      this.humanKeyActive = false
       active = null
     }
     const onKeyDown = (event: KeyboardEvent) => {
@@ -541,8 +596,11 @@ class CompositeInputController {
         active !== null ||
         !isApplicationKeyboardTarget(event.target, root)
       ) return
+      this.agentOperation?.abort(new DOMException('Interrupted by human input.', 'AbortError'))
       const audioId = keyAudioContactId(event.key, button)
       active = { key: event.key, button, audioId, startedAt: event.timeStamp }
+      this.humanKeyActive = true
+      if (button === 'center') this.centerContactGeneration += 1
       event.preventDefault()
       if (button !== 'center') event.stopPropagation()
       this.audioButtonDown(audioId, button, 'key', event.timeStamp)
@@ -551,6 +609,7 @@ class CompositeInputController {
       const current = active
       if (current === null || event.key !== current.key) return
       active = null
+      this.humanKeyActive = false
       event.preventDefault()
       if (current.button !== 'center') event.stopPropagation()
       this.audioButtonUp(current.audioId, event.timeStamp, 'release')
@@ -696,6 +755,8 @@ function CompositeSceneBridge({
   readonly onCardinalEnd: (end: ClickWheelCardinalEnd) => void
   readonly onCardinalPress: (press: ClickWheelCardinalPress) => void
 }) {
+  const controlPhysics = useControlPhysics()
+  useEffect(() => controlPhysics === null ? undefined : bindAgentControlPhysics(deviceStore, controlPhysics), [controlPhysics])
   const renderer = useThree((state) => state.gl)
   const camera = useThree((state) => state.camera)
   const scene = useThree((state) => state.scene)

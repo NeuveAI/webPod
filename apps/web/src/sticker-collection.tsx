@@ -1,3 +1,5 @@
+import { pickStickerSource, releaseStickerCandidate, sampleOwnedStickerRelease, publishOwnedStickerPull, type StickerGrab } from './sticker-grab'
+import { mountStickerToolControls, type StickerUiActions } from './sticker-webmcp'
 import { atom, useAtomValue } from 'jotai'
 import { useEffect, useRef, useSyncExternalStore, type PointerEvent as ReactPointerEvent } from 'react'
 import { getCompositeTierSnapshot, subscribeCompositeTier } from '@webpod/composite'
@@ -5,10 +7,11 @@ import { deviceStore, stickerCollectionStatusAtom, stickerInteractionAtom, stick
 import { getSticker, isStickerPlacement, stickerWear, type StickerPlacement, type StickerInventory } from '@webpod/stickers'
 import type { DeviceOrientation } from '@webpod/device'
 import { deviceFrontVisibility, STICKER_PACK_LAYOUT, STICKER_SHEET_SLOTS, stickerPackViewportLayout, retryStickerArtwork } from '@webpod/device'
-import { animateStickerValue, returnStickerToSheet, resetStickerCarry, cancelStickerInteraction, releaseStickerPull, revealStickerPack, setStickerRearVisible, updateStickerInteraction, stickerArtworkFailureAtom, getStickerInteractionGeneration, supersedeStickerInteraction } from './sticker-interaction'
+import { animateStickerValue, returnStickerToSheet, resetStickerCarry, cancelStickerInteraction, releaseStickerPull, revealStickerPack, setStickerRearVisible, updateStickerInteraction, updateHeldStickerPreview, stickerArtworkFailureAtom, getStickerInteractionGeneration, supersedeStickerInteraction } from './sticker-interaction'
 import { activeStickerCollectionAtom, stickerCollectionsAtom, selectedStickerGenreAtom, stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, genreLabel, formatListeningMinutes, stickerPlacementForIntent, stickerPeelMotion, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerProjectionVersionAtom, stickerPreparedIdsAtom, type CollectionSlot } from './sticker-collections-model'
 import { estimatePointerReleaseVelocity, type PointerMotionSample } from './device-orientation-motion'
 
+import { captureStickerCarryAnchor, mountStickerCarryAnchorLifecycle, stickerSourceAnchorAtom, updateStickerSourcePull } from './sticker-carry-anchor'
 import { StickerEditor, dismissStickerTooltip } from './sticker-editor'
 import { STICKER_SELECT_TRAVEL, dismissStickerEditor, resetStickerEditor, selectStickerEditor, stickerEditorAtom, stickerEditorGestureAtom, stickerEditPending, cancelStickerEditorGesture } from './sticker-editor-model'
 
@@ -17,6 +20,7 @@ const REAR = { admit: -0.7, leave: -0.45 } as const
 const SERVER_TIER: ReturnType<typeof getCompositeTierSnapshot> = { tier: 'T4', reason: 'Device rendering begins in the browser.', report: null, contextLost: false }
 const readServerTier = (): ReturnType<typeof getCompositeTierSnapshot> => SERVER_TIER
 interface StickerPointer {
+  readonly grab?: StickerGrab | null
   readonly kind: 'pull' | 'liner' | 'peel' | 'rear'
   readonly pointerId: number
   readonly startX: number
@@ -28,7 +32,7 @@ interface StickerPointer {
   readonly travel: number
   readonly samples: readonly PointerMotionSample[]
 }
-interface RearCandidate { readonly event: globalThis.PointerEvent; readonly canvas: HTMLCanvasElement; readonly source: StickerPlacement }
+interface RearCandidate { readonly event: globalThis.PointerEvent; readonly canvas: HTMLCanvasElement; readonly source: StickerPlacement; readonly grab: StickerGrab | null }
 const rearCandidateAtom = atom<RearCandidate | null>(null)
 const viewportAtom = atom({ width: 480, height: 800 })
 const suppressClickAtom = atom(false)
@@ -36,6 +40,10 @@ const pointerAtom = atom<StickerPointer | null>(null)
 const reducedMotionAtom = atom(false)
 const rearAdmittedAtom = atom(false)
 const collectionMessageAtom = atom<string | null>(null)
+function clearRearCandidate(): RearCandidate | null {
+  return releaseStickerCandidate(() => deviceStore.get(rearCandidateAtom), () => deviceStore.set(rearCandidateAtom, null))
+}
+
 function releaseCapturedStickerPointer(target: HTMLElement | null): void {
   const pointer = deviceStore.get(pointerAtom)
   deviceStore.set(pointerAtom, null)
@@ -43,6 +51,7 @@ function releaseCapturedStickerPointer(target: HTMLElement | null): void {
 }
 
 export interface StickerCollectionCommands {
+  readonly grab?: (x: number, y: number) => StickerGrab | null
   readonly contour?: (placement: StickerPlacement) => import('@webpod/device').StickerProjectedContour | null
   readonly quad?: (placement: StickerPlacement) => import('@webpod/device').StickerProjectedQuad | null
   readonly beginTransform?: (placement: StickerPlacement) => import('@webpod/device').StickerTransformPlane | null
@@ -58,6 +67,7 @@ export interface StickerCollectionCommands {
 
 /** Semantic overlay for the same lit 3D pack. Drag and keyboard share store actions. */
 export function StickerCollection({ orientation, commands }: { readonly orientation: DeviceOrientation; readonly commands: StickerCollectionCommands }) {
+  useEffect(mountStickerCarryAnchorLifecycle, [])
   useAtomValue(stickerProjectionVersionAtom, { store: deviceStore })
   const editor = useAtomValue(stickerEditorAtom, { store: deviceStore })
   const usable = useAtomValue(stickerCollectionUsableAtom, { store: deviceStore })
@@ -69,6 +79,8 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
   const rear = useAtomValue(rearAdmittedAtom, { store: deviceStore })
   const message = useAtomValue(collectionMessageAtom, { store: deviceStore })
   const artworkFailure = useAtomValue(stickerArtworkFailureAtom, { store: deviceStore })
+  const poseKey = useRef(JSON.stringify(orientation))
+  const toolActions = useRef<StickerUiActions | null>(null)
   const host = useRef<HTMLDivElement>(null)
   const lip = useRef<HTMLButtonElement>(null)
   const captureTarget = useRef<HTMLElement | null>(null)
@@ -103,7 +115,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
       }
     }
     change(); query.addEventListener('change', change)
-    return () => { query.removeEventListener('change', change); releaseCapturedStickerPointer(captureTarget.current); setStickerRearVisible(false); deviceStore.set(rearAdmittedAtom, false) }
+    return () => { query.removeEventListener('change', change); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); setStickerRearVisible(false); cancelStickerInteraction(); deviceStore.set(rearAdmittedAtom, false) }
   }, [])
   useEffect(() => {
     const visible = deviceFrontVisibility(orientation)
@@ -111,10 +123,14 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     const next = compositeTier.tier === 'T1' && visible < (admitted ? REAR.leave : REAR.admit)
     deviceStore.set(rearAdmittedAtom, next)
     setStickerRearVisible(next)
-    if (!next) { releaseCapturedStickerPointer(captureTarget.current); dismissStickerEditor(); deviceStore.set(rearCandidateAtom, null) }
+    const key = JSON.stringify(orientation)
+    if (poseKey.current !== key || compositeTier.tier !== 'T1') {
+      clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); dismissStickerEditor(); cancelStickerInteraction()
+    }
+    poseKey.current = key
   }, [orientation, compositeTier.tier, usable])
   useEffect(() => {
-    if (status === 'signed-out') { resetStickerEditor(); deviceStore.set(rearCandidateAtom, null); releaseCapturedStickerPointer(captureTarget.current); cancelStickerInteraction(); deviceStore.set(collectionMessageAtom, null); deviceStore.set(selectedStickerGenreAtom, null); deviceStore.set(stickerSheetRevealAtom, 0); resetStickerCarry() }
+    if (status === 'signed-out') { resetStickerEditor(); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); cancelStickerInteraction(); deviceStore.set(collectionMessageAtom, null); deviceStore.set(selectedStickerGenreAtom, null); deviceStore.set(stickerSheetRevealAtom, 0); resetStickerCarry() }
   }, [status])
 
   /** Every new command/selection/gesture owns presentation; older server writes may still finish. */
@@ -147,7 +163,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     animateStickerValue('sheet', { position: sheetReveal, velocity: 0, target: 0 }, reducedMotion, lower)
     lip.current?.focus()
   }
-  const start = (event: Pick<globalThis.PointerEvent, 'isPrimary' | 'button' | 'pointerId' | 'clientX' | 'clientY' | 'timeStamp' | 'stopPropagation'>, target: HTMLElement, kind: StickerPointer['kind'], slot?: CollectionSlot, sourcePlacement: StickerPlacement | null = null): void => {
+  const start = (event: Pick<globalThis.PointerEvent, 'isPrimary' | 'button' | 'pointerId' | 'clientX' | 'clientY' | 'timeStamp' | 'stopPropagation'>, target: HTMLElement, kind: StickerPointer['kind'], slot?: CollectionSlot, sourcePlacement: StickerPlacement | null = null, grab: StickerGrab | null = null): void => {
     if (!event.isPrimary || event.button !== 0) return
     deviceStore.set(suppressClickAtom, false)
     event.stopPropagation(); if (kind === 'peel' && slot?.state !== 'earned') return
@@ -158,13 +174,17 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     if (slot !== undefined) updateStickerInteraction({ selectedStickerId: slot.art.id, peel: 0, previewPlacement: null, landing: 0, sourcePlacement })
     target.setPointerCapture(event.pointerId)
     captureTarget.current = target
-    deviceStore.set(pointerAtom, { kind, maxDistance: 0, returnWorkspace: false, pointerId: event.pointerId, stickerId: slot?.art.id ?? null, startX: event.clientX, startY: event.clientY, startProgress: kind === 'liner' ? deviceStore.get(stickerSheetRevealAtom) : deviceStore.get(stickerInteractionAtom).progress, travel: kind === 'liner' ? layout.height * PACK.linerTravel : layout.height + PACK.bottomGapPx - PACK.teasePx, samples: [sample(event)] })
+    deviceStore.set(pointerAtom, { kind, grab, maxDistance: 0, returnWorkspace: false, pointerId: event.pointerId, stickerId: slot?.art.id ?? null, startX: event.clientX, startY: event.clientY, startProgress: kind === 'liner' ? deviceStore.get(stickerSheetRevealAtom) : deviceStore.get(stickerInteractionAtom).progress, travel: kind === 'liner' ? layout.height * PACK.linerTravel : layout.height + PACK.bottomGapPx - PACK.teasePx, samples: [sample(event)] })
     updateStickerInteraction({ stage: kind === 'pull' ? 'pulling' : kind === 'liner' ? 'open' : 'peeling' })
+    if (sourcePlacement !== null) captureStickerCarryAnchor(sourcePlacement, grab?.anchor)
   }
   const begin = (event: ReactPointerEvent<HTMLButtonElement>, kind: StickerPointer['kind'], slot?: CollectionSlot): void => start(event, event.currentTarget, kind, slot)
   const move = (event: Pick<globalThis.PointerEvent, 'pointerId' | 'clientX' | 'clientY' | 'timeStamp' | 'stopPropagation'>): void => {
     const pointer = deviceStore.get(pointerAtom)
     if (pointer === null || pointer.pointerId !== event.pointerId) return
+    const moveGeneration = getStickerInteractionGeneration(), moveOwner = deviceStore.get(stickerSourceAnchorAtom)
+    const ownsMove = () => moveGeneration === getStickerInteractionGeneration() && deviceStore.get(pointerAtom)?.pointerId === pointer.pointerId && deviceStore.get(stickerSourceAnchorAtom) === moveOwner
+    if (pointer.grab?.isValid?.() === false) { releaseCapturedStickerPointer(captureTarget.current); cancelStickerInteraction(); return }
     event.stopPropagation()
     const maxDistance = Math.max(pointer.maxDistance, Math.hypot(event.clientX - pointer.startX, event.clientY - pointer.startY))
     deviceStore.set(pointerAtom, { ...pointer, maxDistance, samples: [...pointer.samples.slice(-11), sample(event)] })
@@ -180,10 +200,10 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
       deviceStore.set(stickerWorkspaceLoweringAtom, viewport.width < PACK.desktopBreakpoint && !returning ? exposure * exposure * (3 - 2 * exposure) : 0)
       const dragged = pointer.stickerId === null ? undefined : getSticker(pointer.stickerId)
       const source = deviceStore.get(stickerInteractionAtom).sourcePlacement
-      const pickup = source == null ? null : commands.project(pointer.startX, pointer.startY)
+      const pickup = source == null || pointer.grab != null ? null : commands.project(pointer.startX, pointer.startY)
       const seatBounds = source == null ? undefined : host.current?.querySelector<HTMLElement>(`[data-sticker-slot="${source.stickerId}"]`)?.getBoundingClientRect()
       const overOwnSeat = seatBounds !== undefined && event.clientX >= seatBounds.left && event.clientX <= seatBounds.right && event.clientY >= seatBounds.top && event.clientY <= seatBounds.bottom
-      const projected = motion.detached && !overOwnSeat ? commands.project(event.clientX, event.clientY) : null
+      const projected = motion.detached && !overOwnSeat ? (pointer.grab != null ? pointer.grab.projectCenter(event.clientX, event.clientY) : commands.project(event.clientX, event.clientY)) : null
       const point = projected === null ? null : source == null || pickup === null ? projected : { x: projected.x - (pickup.x - source.x), y: projected.y - (pickup.y - source.y) }
       if (source != null && returning) {
         deviceStore.set(stickerWorkspaceLoweringAtom, 0)
@@ -191,21 +211,23 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
         updateStickerInteraction({ progress: 1 })
       }
       const preview = dragged === undefined || point === null ? null : { stickerId: dragged.id, surface: 'back' as const, ...point, width: source?.width ?? PACK.placementWidth, rotationDeg: source?.rotationDeg ?? 0, wear: source?.wear ?? inventory?.appearances?.find((item) => item.stickerId === dragged.id)?.wear ?? 0 }
-      updateStickerInteraction({ peel: motion.peel, stage: preview !== null && isStickerPlacement(preview) ? 'placing' : 'peeling' })
+      updateStickerInteraction({ peel: motion.peel, sourcePeelFront: motion.sourcePeelFront, detachTransport: motion.detachTransport })
       deviceStore.set(stickerDragOffsetAtom, motion.offset)
-      // The renderer consumes the same rear projection and deformation as placement persistence.
-      if (preview !== null && isStickerPlacement(preview)) {
-        const wasPlacing = deviceStore.get(stickerInteractionAtom).previewPlacement !== null
-        updateStickerInteraction({ previewPlacement: preview })
-        if (!wasPlacing) animateStickerValue('landing', { position: 0, velocity: 0, target: 0.97 }, reducedMotion, () => {})
-      }
-      else { updateStickerInteraction({ previewPlacement: null, landing: 0 }) }
+      if (!publishOwnedStickerPull(ownsMove, () => {
+        if (source != null && moveOwner !== null) updateStickerSourcePull(source, { x: event.clientX - pointer.startX, y: event.clientY - pointer.startY }, moveOwner)
+      })) return
+      // Keep the carried sheet on its pointer plane; the existing release spring
+      // docks it to this target only after the user lets go.
+      updateHeldStickerPreview(preview)
     }
   }
   const end = (event: Pick<globalThis.PointerEvent, 'pointerId' | 'clientX' | 'clientY' | 'timeStamp' | 'stopPropagation'>, cancelled = false): void => {
     const pointer = deviceStore.get(pointerAtom)
     if (pointer === null || pointer.pointerId !== event.pointerId) return
-    if (!cancelled) { move(event); deviceStore.set(suppressClickAtom, Math.hypot(event.clientX - pointer.startX, event.clientY - pointer.startY) >= 4) }
+    if (!cancelled) {
+      if (!sampleOwnedStickerRelease(pointer.pointerId, () => deviceStore.get(pointerAtom)?.pointerId ?? null, getStickerInteractionGeneration, () => move(event))) return
+      deviceStore.set(suppressClickAtom, Math.hypot(event.clientX - pointer.startX, event.clientY - pointer.startY) >= 4)
+    }
     event.stopPropagation(); deviceStore.set(pointerAtom, null)
     if (captureTarget.current?.hasPointerCapture(event.pointerId)) captureTarget.current.releasePointerCapture(event.pointerId)
     captureTarget.current = null
@@ -353,42 +375,40 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
   }
   // Native capture arbitration sees only painted rear pixels before the shell's R3F lane.
   useEffect(() => {
-    const clearCandidate = (): RearCandidate | null => {
-      const candidate = deviceStore.get(rearCandidateAtom)
-      deviceStore.set(rearCandidateAtom, null)
-      if (candidate?.canvas.hasPointerCapture(candidate.event.pointerId)) candidate.canvas.releasePointerCapture(candidate.event.pointerId)
-      return candidate
-    }
+    const clearCandidate = clearRearCandidate
     const down = (event: globalThis.PointerEvent): void => {
-      if (!rear || !event.isPrimary || event.button !== 0 || !(event.target instanceof Element) || event.target.closest('[data-sticker-editor],[data-sticker-editor-failure],[data-sticker-collection],button,a,input') !== null) return
+      if (compositeTier.tier !== 'T1' || !event.isPrimary || event.button !== 0 || !(event.target instanceof Element) || event.target.closest('[data-sticker-editor],[data-sticker-editor-failure],[data-sticker-collection],button,a,input') !== null) return
       const canvas = event.target.closest('.webpod-device-preview__stage')?.querySelector('canvas')
       if (!(canvas instanceof HTMLCanvasElement)) { dismissStickerEditor(); return }
-      const source = commands.hit(event.clientX, event.clientY)
-      if (source === null) { dismissStickerEditor(); return }
+      const picked = pickStickerSource(rear, commands, event.clientX, event.clientY)
+      if (picked === null) { dismissStickerEditor(); return }
+      const { source, grab } = picked
       event.preventDefault(); event.stopImmediatePropagation()
       clearCandidate()
       canvas.setPointerCapture(event.pointerId)
-      deviceStore.set(rearCandidateAtom, { event, canvas, source })
+      deviceStore.set(rearCandidateAtom, { event, canvas, source, grab })
     }
     const moved = (event: globalThis.PointerEvent): void => {
       const candidate = deviceStore.get(rearCandidateAtom)
       if (candidate !== null && candidate.event.pointerId === event.pointerId) {
+        if (candidate.grab?.isValid?.() === false) { clearCandidate(); return }
         event.stopImmediatePropagation()
         if (Math.hypot(event.clientX - candidate.event.clientX, event.clientY - candidate.event.clientY) < STICKER_SELECT_TRAVEL) return
         if (stickerEditPending(candidate.source.stickerId)) return
-        deviceStore.set(rearCandidateAtom, null)
-        dismissStickerEditor()
         const own = deviceStore.get(stickerCollectionsAtom).find((item) => item.slots.some((slot) => slot.art.id === candidate.source.stickerId))
         const slot = own?.slots.find((item) => item.art.id === candidate.source.stickerId)
         if (own === undefined || slot === undefined) { clearCandidate(); return }
+        deviceStore.set(rearCandidateAtom, null)
+        dismissStickerEditor()
         deviceStore.set(selectedStickerGenreAtom, own.genre)
-        start(candidate.event, candidate.canvas, 'rear', slot, candidate.source)
+        start(candidate.event, candidate.canvas, 'rear', slot, candidate.source, candidate.grab)
         move(event)
       } else if (deviceStore.get(pointerAtom)?.kind === 'rear') move(event)
     }
     const released = (event: globalThis.PointerEvent): void => {
       const candidate = deviceStore.get(rearCandidateAtom)
       if (candidate !== null && candidate.event.pointerId === event.pointerId) {
+        if (candidate.grab?.isValid?.() === false) { clearCandidate(); return }
         event.stopImmediatePropagation(); clearCandidate()
         if (Math.hypot(event.clientX - candidate.event.clientX, event.clientY - candidate.event.clientY) >= STICKER_SELECT_TRAVEL) return
         if (deviceStore.get(stickerEditorAtom)?.source.stickerId === candidate.source.stickerId) return
@@ -404,6 +424,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     }
     const escaped = (event: globalThis.KeyboardEvent): void => {
       if (event.key !== 'Escape') return
+      if (deviceStore.get(rearCandidateAtom) !== null) { event.preventDefault(); event.stopImmediatePropagation(); clearCandidate(); return }
       if (event.target instanceof Element && event.target.closest('[data-sticker-editor]')) return
       if (deviceStore.get(stickerEditorGestureAtom)) { event.preventDefault(); event.stopImmediatePropagation(); cancelStickerEditorGesture(); return }
       if (dismissStickerTooltip()) { event.preventDefault(); event.stopImmediatePropagation(); return }
@@ -414,7 +435,25 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     document.addEventListener('pointerdown', down, true); document.addEventListener('pointermove', moved, true); document.addEventListener('pointerup', released, true); document.addEventListener('pointercancel', cancelled, true); document.addEventListener('lostpointercapture', cancelled, true)
     return () => { document.removeEventListener('keydown', escaped, true); document.removeEventListener('pointerdown', down, true); document.removeEventListener('pointermove', moved, true); document.removeEventListener('pointerup', released, true); document.removeEventListener('pointercancel', cancelled, true); document.removeEventListener('lostpointercapture', cancelled, true) }
   })
-  if (!rear || compositeTier.tier !== 'T1') return null
+  // The tool registry points at the same current handlers as the mounted overlay.
+  useEffect(() => {
+    toolActions.current = {
+      rear: () => deviceStore.get(rearAdmittedAtom),
+      humanBusy: () => deviceStore.get(pointerAtom) !== null || deviceStore.get(rearCandidateAtom) !== null || deviceStore.get(stickerEditorGestureAtom),
+      reducedMotion: () => deviceStore.get(reducedMotionAtom),
+      open: () => { admitIntent(); revealStickerPack(deviceStore.get(reducedMotionAtom)) },
+      close,
+      navigate: switchCollection,
+      lift: liftKeyboard,
+      place: commands.place,
+    }
+  })
+  useEffect(() => mountStickerToolControls(() => {
+    const actions = toolActions.current
+    if (actions === null) throw new Error('Sticker UI handlers are not ready.')
+    return actions
+  }), [])
+  if (compositeTier.tier !== 'T1' || !rear && !carryingRear && editor === null) return null
   if (!usable && interaction.sourcePlacement == null && editor === null) return artworkFailure !== null
     ? <p role="status" className="pointer-events-auto absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs text-stone-800">This pack’s artwork couldn’t load. <button type="button" className={buttonClass} onClick={() => { retryStickerArtwork() }}>Retry artwork</button></p>
     : <StickerImportStatus status={inventory?.importStatus} retry={() => run(commands.retry)} usable={false} />
@@ -425,7 +464,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
         if (point === null) return null
         return <button key={placement.stickerId} type="button" data-sticker-placed={placement.stickerId} aria-label={`Edit ${getSticker(placement.stickerId)?.name ?? 'sticker'}. Enter opens adjustments.`} className="pointer-events-none absolute h-11 w-11 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#eee7d9]" style={{ left: point.x - 22, top: point.y - 22 }} onKeyDown={(event) => placedKey(event, placement)} />
       })}
-      {usable && editor === null ? <div className="pointer-events-auto absolute text-[#29291f]" data-sticker-collection={collection?.genre} style={{ left: layout.centerX - layout.width / 2, width: layout.width, height: layout.height, bottom: PACK.bottomGapPx, transform: `translateY(${(layout.height + PACK.bottomGapPx - PACK.teasePx) * (1 - interaction.progress) - layout.height * PACK.linerTravel * sheetReveal + (viewport.width < PACK.desktopBreakpoint ? layout.height * PACK.linerTravel * workspaceLowering : 0)}px)` }}>
+      {rear && usable && editor === null ? <div className="pointer-events-auto absolute text-[#29291f]" data-sticker-collection={collection?.genre} style={{ left: layout.centerX - layout.width / 2, width: layout.width, height: layout.height, bottom: PACK.bottomGapPx, transform: `translateY(${(layout.height + PACK.bottomGapPx - PACK.teasePx) * (1 - interaction.progress) - layout.height * PACK.linerTravel * sheetReveal + (viewport.width < PACK.desktopBreakpoint ? layout.height * PACK.linerTravel * workspaceLowering : 0)}px)` }}>
         <button ref={lip} type="button" className="absolute -top-1 left-0 z-10 min-h-11 w-full touch-none rounded-sm px-4 font-mono text-[10px] font-semibold tracking-[.14em] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#e2ac69]" aria-label="Pull sticker pack into view" aria-expanded={expanded} onPointerDown={(event) => begin(event, 'pull')} onPointerMove={move} onPointerUp={(event) => end(event)} onPointerCancel={(event) => end(event, true)} onLostPointerCapture={(event) => end(event, true)} onClick={(event) => { if (event.detail === 0) { admitIntent(); revealStickerPack(reducedMotion) } }}>
           {expanded ? 'PLAYWORN  /  LISTENING COLLECTION' : 'PLAYWORN  /  PULL TO COLLECT ↑'}
         </button>

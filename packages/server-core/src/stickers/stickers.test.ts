@@ -127,20 +127,46 @@ describe('sticker ownership, persistence and earning ledger', () => {
       expect(f.repository.openPack('a', pack.id).packs[0]?.openedAt).toBe(opened.packs[0]?.openedAt)
     } finally { f.close() }
   })
-  test('placement validates rotated bounds, owned identity and stale revision', () => {
+  test('placement validates full rear centers, owned identity and stale revision', () => {
     const f = fixture()
     try {
       const owned = f.repository.importTracks('a', [{ catalogId: '123', genre: 'metal', durationMs: 300_000 }], 'complete').stickerIds[0]
       if (owned === undefined) throw new Error('missing sticker')
       const placement = { stickerId: owned, surface: 'back' as const, x: 0.5, y: 0.5, width: 0.25, rotationDeg: 35 }
       expect(isStickerPlacement(placement)).toBe(true)
-      expect(isStickerPlacement({ ...placement, x: 0.08 })).toBe(false)
+      expect(isStickerPlacement({ ...placement, x: 0 })).toBe(true)
       expect(isStickerPlacement({ ...placement, width: NaN })).toBe(false)
       expect(f.repository.place('a', 0, [placement]).placementRevision).toBe(1)
       expect(() => f.repository.place('a', 0, [placement])).toThrow()
       expect(() => f.repository.place('b', 0, [placement])).toThrow()
       expect(getSticker(owned)).toBeDefined()
     } finally { f.close() }
+  })
+  test('wrapped edge placement saves and reloads unchanged with revision and ownership guards', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'webpod-edge-')); const path = join(directory, 'test.sqlite')
+    const placement = { stickerId: 'PW-C01' as const, surface: 'back' as const, x: 0, y: .5, width: .35, rotationDeg: 137, wear: .8 }
+    try {
+      const first = openStickerDatabase(path)
+      try {
+        const repository = createStickerRepository(first.db)
+        repository.ensureOwner('a'); repository.ensureOwner('b')
+        repository.importTracks('a', [{ catalogId: '123', genre: 'rock', durationMs: 300000 }], 'complete')
+        expect(repository.place('a', 0, [placement]).placements).toEqual([placement])
+        expect(() => repository.place('a', 0, [placement])).toThrow('changed')
+        expect(() => repository.place('b', 0, [placement])).toThrow('owned')
+        expect(() => repository.place('a', 1, [{ ...placement, x: 0, y: 0 }])).toThrow()
+        expect(() => repository.place('a', 1, [placement, placement])).toThrow()
+        expect(repository.inventory('a').placementRevision).toBe(1)
+      } finally { first.close() }
+      const second = openStickerDatabase(path)
+      try {
+        const repository = createStickerRepository(second.db)
+        expect(repository.inventory('a').placements).toEqual([placement])
+        const legacy = { ...placement, x: .37, y: .61, width: .25, rotationDeg: 35 }
+        expect(repository.place('a', 1, [legacy]).placements).toEqual([legacy])
+        expect(repository.inventory('a').placements).toEqual([legacy])
+      } finally { second.close() }
+    } finally { rmSync(directory, { recursive: true, force: true }) }
   })
   test('new database migration repeats and inventory persists across reopen', () => {
     const directory = mkdtempSync(join(tmpdir(), 'webpod-stickers-')); const path = join(directory, 'test.sqlite')

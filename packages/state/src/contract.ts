@@ -22,11 +22,9 @@
  *    rows, highlight index, totals. Its field names are transcribed from the
  *    001 §7.2 tool table rather than invented here, so a later stage can
  *    serialise it without a translation layer that could drift.
- * 3. **`source` is threaded through the reducer, not around it.** Feedback that
- *    signals a hand — the clicker and haptics — is suppressed at exactly one
- *    place, inside the detent reducer, so no call site can forget. Nothing in
- *    this stage emits anything but `"human"`; the seam exists so that the day
- *    something does, the rule is already enforced.
+ * 3. **`source` is threaded through the reducer.** Human and agent interaction
+ * share audible feedback while retaining distinct provenance. System updates
+ * are silent; vibration remains exclusive to actual human touch input.
  *
  * What this file deliberately does **not** contain: any notion of an agent
  * being present, attached, connected or idle. The browser supplies no such
@@ -61,10 +59,8 @@ import {
  * record is derived from this plus the input path by the reducer, so a caller
  * cannot claim to be a hand (001 §8.4).
  *
- * ⚑ `"agent"` and `"system"` are silent: no clicker, no haptics, no springs.
- * Touch and sound are the signature of a hand, and a device that buzzed in a
- * pocket nobody was holding would send its owner reaching for it. Enforced
- * once, inside the detent reducer (001 §4.7, §15.2).
+ * Agent actions share clicker sound with people, while their actor tags remain
+ * distinct. Automatic system updates are silent; only human touch owns haptics.
  */
 export type DetentSource = 'human' | 'agent' | 'system'
 
@@ -1224,7 +1220,7 @@ export type PressOutcome = {
  * {@link PressOutcome}: the effect layer needs the already-decided count and
  * provenance, not another copy of the movement physics or screen transition.
  * Zero-tick and silenced outcomes are not published, so raw sub-detent travel,
- * rejected boundary attempts and non-human actions cannot wake an audio
+ * rejected boundary attempts and system actions cannot wake an audio
  * subscriber.
  */
 export type InteractionFeedbackEvent =
@@ -1235,7 +1231,7 @@ export type InteractionFeedbackEvent =
       readonly button: InteractionPressButton
       readonly clickerTicks: number
       readonly silenced: false
-      readonly actor: HumanActor
+      readonly actor: Exclude<Actor, 'system'>
     }
   | {
       readonly seq: number
@@ -1243,7 +1239,7 @@ export type InteractionFeedbackEvent =
       readonly origin: 'detent' | 'coast'
       readonly clickerTicks: number
       readonly silenced: false
-      readonly actor: HumanActor
+      readonly actor: Exclude<Actor, 'system'>
     }
 
 /* ────────────────────────────────────────────────────────────────────────────

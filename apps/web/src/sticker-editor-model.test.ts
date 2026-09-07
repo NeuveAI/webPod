@@ -14,11 +14,11 @@ test('one-copy live draft and gesture cancellation retain inventory identity and
   revertStickerEditor(); expect(deviceStore.get(stickerEditorPlacementsAtom)).toEqual([source])
   expect(deviceStore.get(stickerEditorDirtyAtom)).toBe(false)
 })
-test('fixed center constrains rotated size; nonfinite values do not enter draft', () => {
-  const edge = { ...source, x: .23 }
+test('full rear edge permits rotated maximum size without moving center; nonfinite values stay out', () => {
+  const edge = { ...source, x: 0, rotationDeg: 137 }
   expect(isStickerPlacement(edge)).toBe(true)
   const result = constrainedStickerEdit(edge, 'width', .35)
-  expect(isStickerPlacement(result)).toBe(true); expect(result.width).toBeLessThan(.35)
+  expect(isStickerPlacement(result)).toBe(true); expect(result.width).toBe(.35)
   expect(result.x).toBe(edge.x); expect(result.y).toBe(edge.y)
   expect(constrainedStickerEdit(edge, 'wear', NaN)).toBe(edge)
 })
@@ -56,21 +56,22 @@ test('same-ID reselect rebases after pending write and cannot revive a signed-ou
   expect(deviceStore.get(stickerEditorAtom)).toBeNull(); expect(deviceStore.get(stickerEditorFailureAtom)).toBeNull()
 })
 
-test('reset preserves size/center/ownership, clears owned wear and safely straightens near edge', async () => {
-  const edge: StickerPlacement = { ...source, stickerId:'PW-F01',x:.20,rotationDeg:90,wear:.9 }
+test('reset preserves size/center/ownership, clears owned wear and fully straightens at the edge', async () => {
+  const edge: StickerPlacement = { ...source, stickerId:'PW-F01',x:0,rotationDeg:90,wear:.9 }
   expect(isStickerPlacement(edge)).toBe(true)
-  expect(isStickerPlacement({...edge,rotationDeg:0})).toBe(false)
+  expect(isStickerPlacement({...edge,rotationDeg:0})).toBe(true)
   const owned={...inventory,stickerIds:['PW-F01'] as const,placements:[edge]}
   deviceStore.set(receiveStickerInventoryActionAtom,owned); selectStickerEditor(edge)
   let calls=0
   await resetStickerAppearance(async(draft,expected)=> {
     calls++; expect(expected).toEqual(edge); expect(isStickerPlacement(draft)).toBe(true)
     expect(draft.x).toBe(edge.x);expect(draft.y).toBe(edge.y);expect(draft.width).toBe(edge.width);expect(draft.wear).toBe(0)
-    expect(draft.rotationDeg).toBeLessThan(90);expect(draft.rotationDeg).toBeGreaterThan(0)
+    expect(draft.rotationDeg).toBe(0)
     deviceStore.set(receiveStickerInventoryActionAtom,{...owned,placements:[draft],placementRevision:2})
   })
-  expect(calls).toBe(1);expect(deviceStore.get(stickerEditorAtom)?.message).toContain('as far as')
+  expect(calls).toBe(1);expect(deviceStore.get(stickerEditorAtom)?.message).toBeNull()
 })
+
 
 test('rendered placements retain identity across metadata while every editor publication remains observable', () => {
   seed()

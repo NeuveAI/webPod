@@ -447,12 +447,12 @@ describe('interaction audio scheduler', () => {
     }).scheduled).toBe(0)
   })
 
-  test('malformed agent provenance remains silent even when its boolean is false', async () => {
+  test('system provenance remains silent even when its boolean is false', async () => {
     const backend = new FakeBackend('running')
     const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
     await runtime.activate()
     const malformed = wheelEvent(1)
-    Reflect.set(malformed, 'actor', 'agent:review-plant')
+    Reflect.set(malformed, 'actor', 'system')
 
     expect(runtime.consume(malformed)).toEqual({
       status: 'silent',
@@ -688,9 +688,7 @@ describe('store and browser lifecycle binding', () => {
 
     expect(backend.resumeCalls).toBe(1)
     expect(backend.specs.map((spec) => spec.kind)).toEqual([
-      'wheel',
-      'wheel',
-      'wheel',
+      'wheel', 'wheel', 'wheel', 'wheel', 'wheel', 'wheel', 'wheel',
     ])
 
     windowTarget.dispatchEvent(new Event('blur'))
@@ -701,7 +699,7 @@ describe('store and browser lifecycle binding', () => {
     detach()
     backend.state = 'running'
     store.set(pressActionAtom, { button: 'menu', source: 'human' })
-    expect(backend.specs).toHaveLength(3)
+    expect(backend.specs).toHaveLength(7)
     runtime.dispose()
   })
 

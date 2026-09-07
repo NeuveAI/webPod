@@ -1,8 +1,49 @@
 import { BufferGeometry, Float32BufferAttribute, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from 'three';
 import { DEVICE_LAYOUT } from './layout';
+import { stickerWrapSurface, type StickerWrapSurface } from './sticker-wrap';
 import type { DeviceStickerPlacement, StickerArtwork } from './sticker-contract';
 
-export const STICKER_SURFACE = Object.freeze({ segments: 24, lift: 0.18, alphaThreshold: 16 / 255 });
+export const STICKER_SURFACE = Object.freeze({ segments: 96, lift: 0.18, alphaThreshold: 16 / 255 });
+
+/** Attached rows remain fixed; the app's separate transport phase releases the
+ * final boundary continuously instead of switching every row at curl=1. */
+export function stickerRearTransportWeight(row: number, frontier: number, transport: number): number {
+  const partial = Math.max(0, Math.min(1, (frontier - row) * 8));
+  return partial + (1 - partial) * Math.max(0, Math.min(1, transport));
+}
+
+/** Exact same indexed grid, base-position quantization and adjacency film lift as
+ * the rendered surface, sampled at a captured material UV without rebuilding it. */
+export function sampleStickerSurfaceGrid(pointAt: (dx: number, dy: number) => Vector3, width: number, height: number, rotation: number, u: number, v: number): Vector3 {
+  const n = STICKER_SURFACE.segments, stride = n + 1, cosine = Math.cos(rotation), sine = Math.sin(rotation);
+  const bases = new Map<number, Vector3>();
+  const base = (index: number) => {
+    let point = bases.get(index); if (point) return point;
+    const px = (index % stride / n - .5) * width, py = (Math.floor(index / stride) / n - .5) * height;
+    point = pointAt(-(px * cosine - py * sine), -(px * sine + py * cosine));
+    point.set(Math.fround(point.x), Math.fround(point.y), Math.fround(point.z)); bases.set(index, point); return point;
+  };
+  const lifted = (index: number) => {
+    const row = Math.floor(index / stride), col = index % stride, normal = new Vector3();
+    for (let y = Math.max(0, row - 1); y <= Math.min(n - 1, row); y++) for (let x = Math.max(0, col - 1); x <= Math.min(n - 1, col); x++) {
+      const a = y * stride + x, b = a + 1, c = a + stride;
+      for (const ids of [[a, c, b], [b, c, c + 1]]) {
+        if (!ids.includes(index)) continue;
+        const aa = ids[0], bb = ids[1], cc = ids[2]; if (aa === undefined || bb === undefined || cc === undefined) continue;
+        const cross = base(bb).clone().sub(base(aa)).cross(base(cc).clone().sub(base(aa)));
+        normal.set(Math.fround(normal.x + cross.x), Math.fround(normal.y + cross.y), Math.fround(normal.z + cross.z));
+      }
+    }
+    normal.normalize(); normal.set(Math.fround(normal.x), Math.fround(normal.y), Math.fround(normal.z));
+    const point = base(index).clone().addScaledVector(normal, STICKER_SURFACE.lift);
+    return point.set(Math.fround(point.x), Math.fround(point.y), Math.fround(point.z));
+  };
+  const gx = Math.max(0, Math.min(n, u * n)), gy = Math.max(0, Math.min(n, v * n));
+  const col = Math.min(n - 1, Math.floor(gx)), row = Math.min(n - 1, Math.floor(gy)), x = gx - col, y = gy - row;
+  const a = row * stride + col, b = a + 1, c = a + stride;
+  return x + y <= 1 ? lifted(a).multiplyScalar(1 - x - y).addScaledVector(lifted(b), x).addScaledVector(lifted(c), y)
+    : lifted(b).multiplyScalar(1 - y).addScaledVector(lifted(c), 1 - x).addScaledVector(lifted(c + 1), x + y - 1);
+}
 
 /** Visible print dimensions; alpha padding never shrinks a catalogue design. */
 export function stickerVisibleAspect(art: StickerArtwork): number {
@@ -14,7 +55,7 @@ export function stickerVisibleAspect(art: StickerArtwork): number {
 }
 
 /** Projects onto the exact rear mesh, including its rolled shoulder and normals. */
-export function createStickerSurfaceGeometry(art: StickerArtwork, placement: DeviceStickerPlacement, rear: BufferGeometry): BufferGeometry {
+export function createStickerSurfaceGeometry(art: StickerArtwork, placement: DeviceStickerPlacement, rear: BufferGeometry, preparedWrap?: StickerWrapSurface): BufferGeometry {
   const aspect = stickerVisibleAspect(art);
   if (![placement.x, placement.y, placement.width, placement.rotationDeg].every(Number.isFinite) || placement.width <= 0 || placement.surface !== 'back') {
     throw new Error('Invalid sticker placement');
@@ -25,6 +66,9 @@ export function createStickerSurfaceGeometry(art: StickerArtwork, placement: Dev
   const angle = placement.rotationDeg * Math.PI / 180;
   const cosine = Math.cos(angle);
   const sine = Math.sin(angle);
+  const wrap = preparedWrap ?? stickerWrapSurface(rear);
+  const centerX = (.5 - placement.x) * bodyWidth, centerY = (.5 - placement.y) * bodyHeight;
+  const corner = wrap?.cornerCage(centerX, centerY, { width, height, angle });
   const ray = new Raycaster();
   const material = new MeshBasicMaterial();
   const mesh = new Mesh(rear, material);
@@ -44,6 +88,13 @@ export function createStickerSurfaceGeometry(art: StickerArtwork, placement: Dev
       // Rear view's right points along model -X; its down points along -Y.
       const x = (.5 - placement.x) * bodyWidth - (px * cosine - py * sine);
       const y = (.5 - placement.y) * bodyHeight - (px * sine + py * cosine);
+      if (corner) {
+        const point = corner.point(-(px * cosine - py * sine), -(px * sine + py * cosine));
+        positions.push(point.x, point.y, point.z);
+        normals.push(0, 0, 0);
+        uvs.push((left + u * (right - left)) / art.width, 1 - (top + v * (bottom - top)) / art.height);
+        continue;
+      }
       // The actual rear mesh has a flat central cap. Keep the safe interior fast;
       // shoulder vertices use the source mesh instead of a guessed crown formula.
       const onCap = Math.abs(x) < bodyWidth / 2 - DEVICE_LAYOUT.body.cornerR && Math.abs(y) < bodyHeight / 2 - DEVICE_LAYOUT.body.cornerR;
@@ -72,6 +123,13 @@ export function createStickerSurfaceGeometry(art: StickerArtwork, placement: Dev
     geometry.setAttribute('normal', new Float32BufferAttribute(normals, 3));
     geometry.setAttribute('uv', new Float32BufferAttribute(uvs, 2));
     geometry.setIndex(indices);
+    if (corner) {
+      // Adjacency normals use the exact shown mesh. Avoid four extra chart
+      // inversions and transient vectors for every vertex on each pointer pose.
+      geometry.computeVertexNormals();
+      const p = geometry.getAttribute('position'), n = geometry.getAttribute('normal');
+      for (let i = 0; i < p.count; i++) p.setXYZ(i, p.getX(i) + n.getX(i) * STICKER_SURFACE.lift, p.getY(i) + n.getY(i) * STICKER_SURFACE.lift, p.getZ(i) + n.getZ(i) * STICKER_SURFACE.lift);
+    }
     geometry.computeBoundingBox();
     geometry.computeBoundingSphere();
     return geometry;
@@ -79,10 +137,10 @@ export function createStickerSurfaceGeometry(art: StickerArtwork, placement: Dev
 }
 
 /** Inextensible cylindrical peel: arc length follows the backing's original Y. */
-export function createStickerPeelGeometry(art: StickerArtwork, width: number, progress: number): BufferGeometry {
+export function createStickerPeelGeometry(art: StickerArtwork, width: number, progress: number, segments = 24): BufferGeometry {
   const height = width * stickerVisibleAspect(art);
   const amount = Math.max(0, Math.min(1, progress));
-  const segments = 24;
+  if (!Number.isInteger(segments) || segments < 1) throw new Error('Invalid peel topology');
   const positions: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
@@ -114,18 +172,31 @@ export function createStickerPeelGeometry(art: StickerArtwork, width: number, pr
 }
 
 /** Lift from the saved rear pose: unpeeled vertices stay exactly on the original adhesive contact. */
-export function createRearStickerPeelGeometry(art: StickerArtwork, placement: DeviceStickerPlacement, rear: BufferGeometry, progress: number): BufferGeometry {
-  const surface = createStickerSurfaceGeometry(art, placement, rear);
-  const width = placement.width * DEVICE_LAYOUT.body.width;
-  const flat = createStickerPeelGeometry(art, width, 0);
-  const lifted = createStickerPeelGeometry(art, width, progress);
-  const a = flat.getAttribute('position'), b = lifted.getAttribute('position'), output = surface.getAttribute('position');
-  const angle = placement.rotationDeg * Math.PI / 180, cosine = Math.cos(angle), sine = Math.sin(angle);
-  for (let index = 0; index < output.count; index++) {
-    const dx = b.getX(index) - a.getX(index), dy = b.getY(index) - a.getY(index), dz = b.getZ(index) - a.getZ(index);
-    output.setXYZ(index, output.getX(index) - dx * cosine - dy * sine, output.getY(index) - dx * sine + dy * cosine, output.getZ(index) - dz);
+export function createRearStickerPeelGeometry(art: StickerArtwork, placement: DeviceStickerPlacement, rear: BufferGeometry, progress: number, prepared?: BufferGeometry, frontier = progress): BufferGeometry {
+  const surface = prepared?.clone() ?? createStickerSurfaceGeometry(art, placement, rear);
+  const amount = Math.max(0, Math.min(1, frontier));
+  if (amount === 0) return surface;
+  const output = surface.getAttribute('position'), normals = surface.getAttribute('normal');
+  const source = new Float32Array(output.array);
+  const segments = Math.sqrt(output.count) - 1;
+  if (!Number.isInteger(segments)) { surface.dispose(); throw new Error('Invalid rear peel topology'); }
+  const height = placement.width * DEVICE_LAYOUT.body.width * stickerVisibleAspect(art);
+  const radius = height * amount / (Math.PI * Math.max(.001, Math.min(1, progress)));
+  const front = amount * segments, rowA = Math.min(segments - 1, Math.floor(front)), mix = front - rowA;
+  const a = new Vector3(), b = new Vector3(), origin = new Vector3(), tangent = new Vector3(), normal = new Vector3(), normalB = new Vector3();
+  for (let col = 0; col <= segments; col++) {
+    const ia = rowA * (segments + 1) + col, ib = ia + segments + 1;
+    a.fromArray(source, ia * 3); b.fromArray(source, ib * 3); origin.copy(a).lerp(b, mix);
+    tangent.copy(b).sub(a).normalize();
+    normal.fromBufferAttribute(normals, ia); normalB.fromBufferAttribute(normals, ib); normal.lerp(normalB, mix);
+    normal.addScaledVector(tangent, -normal.dot(tangent)).normalize();
+    for (let row = 0; row <= segments; row++) {
+      if (row >= front) continue; // Exact immutable adhesive contact, including wrapped side/front.
+      const distance = (front - row) / segments * height, bend = distance / radius;
+      a.copy(origin).addScaledVector(tangent, -radius * Math.sin(bend)).addScaledVector(normal, radius * (1 - Math.cos(bend)));
+      output.setXYZ(row * (segments + 1) + col, a.x, a.y, a.z);
+    }
   }
   output.needsUpdate = true; surface.computeVertexNormals(); surface.computeBoundingSphere();
-  flat.dispose(); lifted.dispose();
   return surface;
 }

@@ -26,10 +26,16 @@ export interface StickerPackVisual {
   readonly workspaceVisible?: boolean;
   /** Zero keeps print on its backing; one curls it free. */
   readonly peel: number;
+  /** Physical release frontier, distinct from the relaxed free-carry curl. */
+  readonly sourcePeelFront?: number;
+  /** Existing app clock's continuous whole-sheet transport after release. */
+  readonly detachTransport?: number;
   readonly stickerId: string | null;
   readonly placement: DeviceStickerPlacement | null;
   readonly landing: number;
   readonly sourcePlacement?: DeviceStickerPlacement | null;
+  readonly sourceAnchor?: StickerCarryAnchor | null;
+  readonly sourcePull?: { readonly x: number; readonly y: number } | null;
   readonly returnToSheet?: boolean;
   readonly sheet?: { readonly neighbors?: readonly { readonly ink: string; readonly stickerId: string }[]; readonly reveal: number; readonly ink: string; readonly slots: readonly { readonly stickerId: string; readonly state: 'locked' | 'sealed' | 'earned' | 'placed' }[] };
   /** Mobile packet moves aside after peel while the device and held print stay put. */
@@ -63,8 +69,11 @@ export interface StickerProjectedQuad {
 export interface StickerProjectedContour {
   /** Closed actual alpha boundary loops, including holes; no duplicate closing point. */
   readonly paths: readonly (readonly StickerScreenPoint[])[];
+  /** False for boundary spans cut by the physical shell's occlusion. */
+  readonly closed?: readonly boolean[];
   /** External boundary anchors in artwork-local TL/TR/BR/BL sectors. */
   readonly anchors: readonly [StickerScreenPoint, StickerScreenPoint, StickerScreenPoint, StickerScreenPoint];
+  readonly anchorVisible?: readonly [boolean, boolean, boolean, boolean];
   readonly center: StickerScreenPoint;
 }
 export interface StickerTransformPlane {
@@ -72,8 +81,25 @@ export interface StickerTransformPlane {
   readonly project: (clientX: number, clientY: number) => StickerScreenPoint | null;
 }
 
+/** Transient original-material pickup, in device-content coordinates. */
+export interface StickerCarryAnchor {
+  readonly uv: readonly [number, number];
+  readonly point: readonly [number, number, number];
+  readonly tangentU: readonly [number, number, number];
+}
+export interface StickerSurfaceGrab {
+  readonly anchor?: StickerCarryAnchor;
+  readonly placement: DeviceStickerPlacement;
+  readonly projectCenter: (clientX: number, clientY: number) => StickerScreenPoint | null;
+  /** Frozen camera/content/viewport and source pose; ordinary mesh replacement is allowed. */
+  readonly isValid: () => boolean;
+}
+
 /** Runtime camera handle; never persist this or put it in Jotai user data. */
 export interface StickerRearProjection {
+  /** Authoritative visible painted surface pickup; null must not fall back to rear hit. */
+  readonly grab?: (clientX: number, clientY: number) => StickerSurfaceGrab | null;
+  /** Equipped appearance-editor contour, projected through the actual shown surface. */
   readonly contour?: (placement: DeviceStickerPlacement) => StickerProjectedContour | null;
   readonly quad?: (placement: DeviceStickerPlacement) => StickerProjectedQuad | null;
   readonly beginTransform?: (placement: DeviceStickerPlacement) => StickerTransformPlane | null;

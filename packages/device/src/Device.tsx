@@ -1,3 +1,4 @@
+import { bindStickerWrapSurface, createStickerWrapSurface } from './sticker-wrap';
 import { StickerSurface } from "./StickerSurface";
 import type { DeviceStickerScene } from "./sticker-contract";
 import { BACKPLATE_FINISH, createBackplateFinishMaps } from "./backplate-finish";
@@ -20,7 +21,7 @@ import { BACKPLATE_FINISH, createBackplateFinishMaps } from "./backplate-finish"
  * off `onBeforeRender` instead (see `screen-mesh.ts`).
  */
 import { useThree, type ThreeEvent } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   Color,
   ExtrudeGeometry,
@@ -566,6 +567,14 @@ export function Device({
     wheelTopAtCenterZ,
   } = resolveFrontAssemblyDepths(form);
 
+  const wrapSampler = useMemo(() => createStickerWrapSurface(form, [
+      { geometry: frontGeometry },
+      { geometry: glassGeometry, offset: [glass.centerX, glass.centerY, glassFrontZ] },
+      { geometry: ringGeometry, offset: [wheel.centerX, wheel.centerY, wheelSurfaceBaseZ] },
+      { geometry: selectGeometry, offset: [wheel.centerX, wheel.centerY, wheelSurfaceBaseZ] },
+    ]), [frontGeometry, glassGeometry, ringGeometry, selectGeometry, form, glassFrontZ, wheelSurfaceBaseZ]);
+  useLayoutEffect(() => bindStickerWrapSurface(backGeometry, wrapSampler), [backGeometry, wrapSampler]);
+
   // ── The screen mesh boundary (D-011) ──────────────────────────────────────
   // Keep the LCD material identity across enclosure finish changes: the
   // compositor installs its live texture on this object through the mesh handle.
@@ -673,7 +682,7 @@ export function Device({
       lightRig={lightRig}
       form={form}
     >
-      {stickerScene === undefined ? null : <StickerSurface scene={stickerScene} rear={backGeometry} />}
+      {stickerScene === undefined ? null : <StickerSurface scene={stickerScene} rear={backGeometry} wrap={wrapSampler} />}
       {/* §5.2 — the mirror-polished back plate, uncut. */}
       <mesh
         name="device-steel-back"

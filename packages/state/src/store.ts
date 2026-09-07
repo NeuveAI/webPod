@@ -142,7 +142,7 @@ export const reconcileNowPlayingVolumeFeedbackActionAtom = atom(
 const publishInteractionFeedbackAtom = atom(
   null,
   (get, set, draft: InteractionFeedbackDraft): InteractionFeedbackEvent | null => {
-    if (draft.silenced || draft.clickerTicks <= 0 || !isHumanActor(draft.actor)) return null
+    if (draft.silenced || draft.clickerTicks <= 0 || draft.actor === 'system') return null
     const seq = (get(interactionFeedbackAtom)?.seq ?? 0) + 1
     const event: InteractionFeedbackEvent =
       draft.control === 'press'
@@ -273,7 +273,7 @@ export const returnToRootActionAtom = atom(null, (get, set): void => {
  * `handled` and pushes the frame it knows how to build.
  *
  * The silence rule applies to the clicker on a press exactly as it does to a
- * detent: an agent's press is visible and silent.
+ * detent: agent presses click with agent provenance; system presses stay silent.
  */
 export const pressActionAtom = atom(null, (get, set, input: PressInput): PressOutcome => {
   // The same two derivations the reducer uses, from the same module. A press

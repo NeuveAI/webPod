@@ -73,3 +73,5 @@ export type {
   TierFacts,
   WebGLEntryPoint,
 } from './capabilities'
+
+export { getAgentWheelControls, type AgentWheelControls } from './agent-controls'

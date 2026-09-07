@@ -65,7 +65,7 @@ export function previewStickerEdit(value: number): void {
   if (state === null || state.phase === 'saving') return
   const draft = constrainedStickerEdit(state.draft, state.property, value)
   const actual = state.property === 'wear' ? draft.wear ?? 0 : draft[state.property]
-  deviceStore.set(stickerEditorAtom, { ...state, draft, message: Math.abs(actual - value) > .001 ? 'That is the edge of the backplate.' : null })
+  deviceStore.set(stickerEditorAtom, { ...state, draft, message: Math.abs(actual - value) > .001 ? 'That is the adjustment limit.' : null })
 }
 type StickerWrite = (placement: StickerPlacement, expectedSource?: StickerPlacement) => Promise<void>
 export async function applyStickerEditor(place: StickerWrite, undo = false): Promise<void> {
@@ -125,9 +125,6 @@ export async function resetStickerAppearance(place: StickerWrite): Promise<void>
   const state = deviceStore.get(stickerEditorAtom)
   if (state === null || state.phase === 'saving') return
   const draft = { ...constrainedStickerEdit(state.draft, 'rotationDeg', 0), wear: 0 }
-  const limited = Math.abs(draft.rotationDeg) > .001, lease = session
   deviceStore.set(stickerEditorAtom, { ...state, draft, message: null })
   await applyStickerEditor(place)
-  const current = deviceStore.get(stickerEditorAtom)
-  if (session === lease && limited && current !== null && sameStickerPose(current.source, draft) && current.source.stickerId === state.source.stickerId && current.phase === 'editing' && deviceStore.get(stickerEditorFailureAtom) === null) deviceStore.set(stickerEditorAtom, { ...current, message: 'Straightened as far as this position allows.' })
 }

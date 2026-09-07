@@ -1,3 +1,4 @@
+import { mountWebMcp } from './webmcp';
 import {
   DEFAULT_DEVICE_MATERIALS,
   DEVICE_ORIENTATION_PRESETS,
@@ -217,6 +218,8 @@ export function DevicePage() {
       controls.dispose();
     };
   }, []);
+
+  useEffect(() => mountWebMcp(document, () => orientationControlsRef.current), []);
 
   useEffect(() => {
     void selectMusicRuntime(selectedMusicMode);

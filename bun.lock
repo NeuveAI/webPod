@@ -31,6 +31,7 @@
         "@webpod/state": "workspace:*",
         "@webpod/stickers": "workspace:*",
         "@webpod/tokens": "workspace:*",
+        "@webpod/tools": "workspace:*",
         "@webpod/ui": "workspace:*",
         "jotai": "2.20.3",
         "react": "^19.2.8",
@@ -144,6 +145,10 @@
     "packages/tools": {
       "name": "@webpod/tools",
       "version": "0.0.0",
+      "dependencies": {
+        "@webpod/state": "workspace:*",
+        "jotai": "2.20.3",
+      },
     },
     "packages/ui": {
       "name": "@webpod/ui",

@@ -5,7 +5,7 @@ import { detentActionAtom, deviceStore, pressActionAtom, resetStackActionAtom } 
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
-import { Panel, showNowPlayingScreen } from './Panel'
+import { Panel, readPageState, showNowPlayingScreen } from './Panel'
 import { fixtureNavigationSource, mainMenuFrame } from './fixtures'
 import { nowPlayingFrame } from './model'
 import { navigationRoot, selectNavigation } from './navigation'
@@ -29,6 +29,46 @@ afterAll(async () => {
 })
 
 describe('mounted playback selection', () => {
+  test('removing one of multiple panel subscribers cannot mark the remaining mounted panel unavailable', async () => {
+    const provider = createFixtureProvider()
+    await act(async () => root.render(<><Panel key="one" provider={provider} navigationSource={fixtureNavigationSource} accountStatus={null} /><Panel key="two" provider={provider} navigationSource={fixtureNavigationSource} accountStatus={null} /></>))
+    expect(readPageState().interactionReady).toBe(true)
+    await act(async () => root.render(<><Panel key="one" provider={provider} navigationSource={fixtureNavigationSource} accountStatus={null} /></>))
+    expect(readPageState().interactionReady).toBe(true)
+  })
+
+  test('page readiness tracks active-track buffering episodes, errors and provider replacement', async () => {
+    const fixture = createFixtureProvider()
+    const track = fixture.catalog.tracks[0]
+    if (track === undefined) throw new Error('Track fixture missing')
+    let playback: PlaybackState = { ...fixture.playback, status: 'playing', now: track, positionMs: 1000 }
+    const listeners = new Set<(state: PlaybackState) => void>()
+    const provider: MusicProvider = { ...fixture, get playback() { return playback }, onPlaybackChange(listener) { listeners.add(listener); return () => { listeners.delete(listener) } } }
+    await act(async () => root.render(<Panel provider={provider} navigationSource={fixtureNavigationSource} accountStatus={null} />))
+    await act(async () => { deviceStore.set(resetStackActionAtom, [nowPlayingFrame()]) })
+    expect(readPageState().status).toBe('ready')
+    const publish = async (status: PlaybackState['status']) => act(async () => { playback = { ...playback, status }; for (const listener of listeners) listener(playback) })
+    await publish('loading')
+    const first = readPageState()
+    expect(first.status).toBe('buffering')
+    expect(first.interactionReady).toBe(false)
+    expect(first.startedAtMs).not.toBeNull()
+    expect(readPageState().startedAtMs).toBe(first.startedAtMs)
+    await publish('playing')
+    const completed = readPageState().elapsedMs
+    await new Promise((resolve) => setTimeout(resolve, 4))
+    expect(readPageState().elapsedMs).toBe(completed)
+    await publish('loading')
+    expect(readPageState().startedAtMs).toBeGreaterThan(first.startedAtMs ?? 0)
+    await publish('error')
+    expect(readPageState()).toMatchObject({ status: 'error', interactionReady: false, progressPercent: null })
+    const replacement = createFixtureProvider()
+    await act(async () => root.render(<Panel provider={replacement} navigationSource={fixtureNavigationSource} state="loading" accountStatus={null} />))
+    expect(readPageState()).toMatchObject({ status: 'loading', elapsedMs: null })
+    await act(async () => root.render(<Panel provider={replacement} navigationSource={fixtureNavigationSource} state="ready" accountStatus={null} />))
+    expect(readPageState().interactionReady).toBe(true)
+  })
+
   test('browsing retains live play/pause status and Songs hides only artist subtitles', async () => {
     const provider = createFixtureProvider()
     const source = fixtureNavigationSource
@@ -628,6 +668,8 @@ describe('mounted playback selection', () => {
       await Promise.resolve()
     })
     expect(container.querySelector('.wp-list-loading')).not.toBeNull()
+    expect(readPageState()).toMatchObject({ status: 'loading', interactionReady: false, progressPercent: null })
+    expect(readPageState().startedAtMs).not.toBeNull()
 
     await act(async () => {
       deviceStore.set(resetStackActionAtom, [rootFrame])

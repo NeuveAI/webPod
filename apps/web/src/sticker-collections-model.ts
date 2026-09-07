@@ -1,4 +1,5 @@
 import { atom } from 'jotai'
+import { stickerLiftPhase } from './sticker-lift-phase'
 import { stickerInventoryAtom, stickerInteractionAtom } from '@webpod/state'
 import { STICKER_CATALOGUE, STICKER_GENRES, type StickerDefinition, type StickerGenre, type StickerInventory, type StickerPlacement, type StickerId } from '@webpod/stickers'
 
@@ -64,13 +65,13 @@ export function stickerPlacementForIntent(id: StickerId, preview: StickerPlaceme
 /** Peel resistance preserves contact until the final edge releases; free vinyl then relaxes. */
 export function stickerPeelMotion(x: number, y: number, reduced: boolean, travel = 64, releasedDistance = 0) {
   const distance = Math.max(Math.hypot(x, y), releasedDistance);
-  if (reduced) return { peel: 0, detached: distance >= 12, offset: distance < 12 ? null : { x, y } };
-  if (distance <= travel) return { peel: distance / travel, detached: false, offset: null };
+  if (reduced) return { peel: 0, ...stickerLiftPhase(distance >= 12 ? 1 : 0), detached: distance >= 12, offset: distance < 12 ? null : { x, y } };
+  if (distance <= travel) return { peel: distance / travel, ...stickerLiftPhase(distance / travel), detached: false, offset: null };
   const free = distance - travel;
   const recover = Math.min(1, free / travel);
   const ease = recover * recover * (3 - 2 * recover);
   const factor = 1 - travel * (1 - ease) / distance;
-  return { peel: 1 - Math.min(1, free / 100) * .6, detached: true, offset: { x: x * factor, y: y * factor } };
+  return { peel: 1 - Math.min(1, free / 100) * .6, ...stickerLiftPhase(1), detached: true, offset: { x: x * factor, y: y * factor } };
 }
 
 export const stickerWorkspaceLoweringAtom = atom(0);

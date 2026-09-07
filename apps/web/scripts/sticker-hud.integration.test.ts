@@ -6,10 +6,68 @@ import { chromium, expect as browserExpect } from '@playwright/test'
 import { createLiveStickerServer } from '@webpod/server-core/stickers'
 import { isStickerInventory, type StickerInventory } from '@webpod/stickers'
 import { fingerprintBrowserSources } from '../../../scripts/browser-source-fingerprint'
+import { beginEdgeProvenance } from './sticker-edge-provenance'
+import { installStickerMatrixRecorder } from './sticker-matrix-recorder'
+import { verifyStickerEditorPerformance } from './sticker-editor-performance'
+import { installStickerFrameObserver } from './sticker-frame-observer'
+import { verifyStickerEdgeWrap, wrappedWitnesses, wrappedCarryIsNeutral, assertWrappedRelocation, validateWrappedEvidence, wrappedBuildIdentity, WRAPPED_SEED } from './sticker-edge-wrap-driver'
 import { installDeterministicAppleMusic } from '../tests/deterministic-apple-music'
 
+const edgeWrap = process.env.WEBPOD_STICKER_EDGE_WRAP === '1'
 const largeMaterial = process.env.WEBPOD_CONTOUR_LARGE === '1'
-const evidence = process.env.WEBPOD_STICKER_CONTOUR_EVIDENCE_DIR ?? process.env.WEBPOD_STICKER_HUD_EVIDENCE_DIR ?? resolve(import.meta.dirname, '../../../docs/workstreams/015-listening-sticker-collection/evidence/sticker-contour/final')
+const evidence = process.env.WEBPOD_STICKER_EDGE_WRAP_EVIDENCE_DIR ?? process.env.WEBPOD_STICKER_CONTOUR_EVIDENCE_DIR ?? process.env.WEBPOD_STICKER_HUD_EVIDENCE_DIR ?? resolve(import.meta.dirname, '../../../docs/workstreams/015-listening-sticker-collection/evidence/sticker-contour/final')
+
+test('wrapped witness admission rejects missing faces and unsafe screen coordinates', () => {
+  const point = { x: 100, y: 100 }
+  const witnesses = [1280, 375].flatMap(width => ['side', 'front'].map(face => ({ name: `${width}-${face}`, viewport: { width, height: 900 }, face, rightStepsFromRear: face === 'side' ? 5 : 15, pickup: point, partial: point, release: point, occluded: point, flickEnd: point, ...(face === 'front' ? { invalid: { x: 200, y: 100 } } : {}), expectedCenter: { x: .1, y: .1 }, evidence: '/tmp/device-witness.json' })))
+  expect(wrappedWitnesses(witnesses)).toHaveLength(4)
+  expect(() => wrappedWitnesses(witnesses.map(w => ({ ...w, invalid: undefined })))).toThrow()
+  expect(() => wrappedWitnesses(witnesses.map(w => ({ ...w, invalid: { x: NaN, y: 100 } })))).toThrow()
+  expect(() => wrappedWitnesses(undefined)).toThrow()
+  expect(() => wrappedWitnesses(witnesses.slice(1))).toThrow()
+  expect(() => wrappedWitnesses([...witnesses.slice(0, 3), witnesses[0]])).toThrow()
+  expect(() => wrappedWitnesses(witnesses.map(w => ({ ...w, pickup: { x: 2000, y: 100 } })))).toThrow()
+  expect(() => wrappedWitnesses(witnesses.map(w => ({ ...w, expectedCenter: { x: NaN, y: .5 } })))).toThrow()
+  expect(() => wrappedWitnesses(witnesses.map(w => ({ ...w, expectedCenter: { x: .03, y: .02 } })))).toThrow()
+})
+
+test('wrapped cancellation and save gates accept absent idle UI but reject active or duplicate work', () => {
+  expect(wrappedCarryIsNeutral([])).toBe(true)
+  expect(wrappedCarryIsNeutral([{ stage: 'open', peel: '0' }])).toBe(true)
+  expect(wrappedCarryIsNeutral([{ stage: 'peeling', peel: '0' }])).toBe(false)
+  expect(wrappedCarryIsNeutral([{ stage: 'open', peel: '.2' }])).toBe(false)
+  const source = WRAPPED_SEED[0]
+  if (source === undefined) throw new Error('Missing wrapped seed')
+  const placed = { ...source, x: .2, y: .2 }
+  expect(() => assertWrappedRelocation(placed, { x: .2, y: .2 }, 1)).not.toThrow()
+  for (const count of [0, 2]) expect(() => assertWrappedRelocation(placed, { x: .2, y: .2 }, count)).toThrow()
+  expect(() => assertWrappedRelocation(WRAPPED_SEED[0], { x: .03, y: .02 }, 1)).toThrow()
+  expect(() => assertWrappedRelocation(WRAPPED_SEED[0], { x: .2, y: .2 }, 1)).toThrow()
+})
+
+test('wrapped evidence rejects stale build pose UV and false visibility witnesses', () => {
+  const hash = 'a'.repeat(64), build = { sourceAfter: { 'packages/device/src/sticker-corner-cage.ts': hash }, artifacts: { 'apps/web/dist/server/server.js': 'b'.repeat(64) } }
+  const point = { x: 100, y: 100 }
+  const witness = { name: '1280-side', viewport: { width: 1280, height: 900 }, face: 'side' as const, rightStepsFromRear: 5, pickup: point, partial: point, release: point, occluded: { x: 120, y: 100 }, flickEnd: point, expectedCenter: { x: .2, y: .2 }, evidence: '/tmp/proof.json' }
+  const matrix = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+  const proof = { version: 1, build: wrappedBuildIdentity(build), sampler: { path: 'packages/device/src/sticker-corner-cage.ts', sha256: hash }, seed: WRAPPED_SEED, viewport: witness.viewport, pose: { face: witness.face, rightStepsFromRear: 5 }, cameraWorld: matrix, cameraProjection: matrix, contentWorld: matrix, pickup: { point, uv: [.5, .5], effectiveAlpha: 1, stickerDistance: 10, shellDistance: 11 }, occluded: { point: witness.occluded, uv: [.5, .5], effectiveAlpha: 1, stickerDistance: 11, shellDistance: 10 }, attached: { uv: [.4, .4], partialPointer: point } }
+  expect(() => validateWrappedEvidence(proof, witness, build)).not.toThrow()
+  const invalid = [
+    {}, { ...proof, build: { ...proof.build, artifacts: hash } }, { ...proof, seed: [] },
+    { ...proof, viewport: { width: 375, height: 900 } }, { ...proof, pose: { face: 'front', rightStepsFromRear: 15 } },
+    { ...proof, sampler: { ...proof.sampler, sha256: 'c'.repeat(64) } },
+    { ...proof, pickup: { ...proof.pickup, uv: [-1, .5] } }, { ...proof, pickup: { ...proof.pickup, effectiveAlpha: 0 } },
+    { ...proof, pickup: { ...proof.pickup, point: witness.occluded } }, { ...proof, pickup: { ...proof.pickup, stickerDistance: 12 } },
+    { ...proof, occluded: { ...proof.occluded, shellDistance: 12 } },
+  ]
+  const front = { ...witness, face: 'front' as const, invalid: { x: 200, y: 100 } }
+  const frontProof = { ...proof, pose: { ...proof.pose, face: 'front' }, invalid: { point: front.invalid, result: null, mapping: 'captured-triangle-affine' } }
+  expect(() => validateWrappedEvidence(frontProof, front, build)).not.toThrow()
+  expect(() => validateWrappedEvidence({ ...frontProof, invalid: undefined }, front, build)).toThrow()
+  expect(() => validateWrappedEvidence({ ...frontProof, invalid: { ...frontProof.invalid, point: { x: 201, y: 100 } } }, front, build)).toThrow()
+  expect(() => validateWrappedEvidence({ ...frontProof, invalid: { ...frontProof.invalid, result: { x: .2, y: .3 } } }, front, build)).toThrow()
+  for (const stale of invalid) expect(() => validateWrappedEvidence(stale, witness, build)).toThrow()
+})
 
 /** Actual built Start route, native cookies and SQLite; only trusted Apple/signing
  * dependencies are synthetic. No intercepted browser inventory/session endpoints. */
@@ -19,13 +77,17 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
   const fault: { status: number; gate: Promise<void> | null; release: (() => void) | null } = { status: 0, gate: null, release: null }
   try {
     const source = fingerprintBrowserSources()
+    const provenancePath = process.env.WEBPOD_STICKER_EDGE_BUILD_PROVENANCE
+    if (edgeWrap && provenancePath === undefined) throw new Error('Edge native requires WEBPOD_STICKER_EDGE_BUILD_PROVENANCE from the verified build wrapper')
+    const edgeProvenance = edgeWrap && provenancePath !== undefined ? beginEdgeProvenance(provenancePath, evidence) : null
+    if (edgeProvenance !== null) cleanup.push(async () => edgeProvenance.finish())
     await mkdir(evidence, { recursive: true })
-    const now = Date.now()
+    let now = Date.now()
     const service = createLiveStickerServer({ databasePath: resolve(directory, 'collection.sqlite'), now: () => now, developerToken: async () => 'synthetic-developer', fetch: async (input) => {
       const path = new URL(String(input)).pathname
       if (path.endsWith('/storefront')) return Response.json({ data: [{ id: 'us' }] })
       if (path.includes('/library/')) {
-        return Response.json({ data: [{ attributes: { playParams: { catalogId: '123' }, durationInMillis: 240000, genreNames: largeMaterial ? ['Metal'] : ['Rock'] } }, { attributes: { playParams: { catalogId: '124' }, durationInMillis: 240000, genreNames: ['Electronic'] } }] })
+        return Response.json({ data: [{ attributes: { playParams: { catalogId: '123' }, durationInMillis: edgeWrap ? 4_000_000 : 240000, genreNames: largeMaterial ? ['Metal'] : ['Rock'] } }, { attributes: { playParams: { catalogId: '124' }, durationInMillis: 240000, genreNames: ['Electronic'] } }] })
       }
       return Response.json({ data: [] })
     } })
@@ -65,6 +127,17 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
     }
     expect((await context.request.post(origin + '/api/stickers/device', { headers })).status()).toBe(200)
     expect((await context.request.post(origin + '/api/stickers/session', { headers, data: { musicUserToken: 'synthetic-user' } })).status()).toBe(200)
+    if (edgeWrap) {
+      // Earn the third Rock print through the same bounded listening endpoint;
+      // advance only the isolated trusted clock, never production ownership state.
+      for (let sequence = 0; sequence <= 360; sequence++) {
+        now += 10_000
+        expect((await context.request.post(origin + '/api/stickers/listening', { headers, data: {
+          eventId: `edge-${sequence}`, streamId: 'edge-fixture', sequence, catalogId: '123', positionMs: sequence * 10_000, playing: true,
+        } })).status()).toBe(200)
+      }
+      expect((await read()).stickerIds).toContain('PW-C03')
+    }
     const earned = await read(), packId = earned.packs[0]?.id
     if (packId === undefined) throw new Error('Seed pack missing')
     expect((await context.request.post(origin + '/api/stickers/packs/open', { headers, data: { packId } })).status()).toBe(200)
@@ -73,6 +146,8 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
     const page = await context.newPage()
     // Test-owned instrumentation installed before WebGL contexts/programs exist.
     // Counts every standard WebGL draw entry point without a product testing API.
+    if (process.env.WEBPOD_STICKER_MATRIX_CAPTURE === '1') await installStickerMatrixRecorder(page)
+    if ((process.env.WEBPOD_STICKER_EDGE_INTERACTION === '1' || process.env.WEBPOD_STICKER_EDITOR_PERF === '1') && process.env.WEBPOD_STICKER_MATRIX_CAPTURE !== '1') await installStickerFrameObserver(page, process.env.WEBPOD_STICKER_EDITOR_PERF === '1')
     await page.addInitScript(() => {
       const target = window as Window & { __hudDrawProbe?: { calls: number; methods: string[] } }
       const probe = { calls: 0, methods: [] as string[] }; target.__hudDrawProbe = probe
@@ -127,6 +202,26 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
     const select = async (id: string) => { const p = await point(id); await page.mouse.click(p.x, p.y); await browserExpect(page.locator('[data-sticker-editor]')).toHaveAttribute('data-sticker-editor', id); await page.waitForTimeout(350) }
     await page.goto(origin)
     await rear()
+    if (process.env.WEBPOD_STICKER_EDITOR_PERF === '1') {
+      if (!edgeWrap || process.env.WEBPOD_STICKER_MATRIX_CAPTURE === '1') throw new Error('Editor performance requires provenance and recorder off')
+      await verifyStickerEditorPerformance({ page, evidence, read, rear, save: async placements => {
+        const inventory = await read()
+        expect((await context.request.put(origin + '/api/stickers/placements', { headers, data: { revision: inventory.placementRevision, placements } })).status()).toBe(200)
+      } })
+      expect(consoleErrors.filter(error => /WebGLProgram|SHADER|ReferenceError|exceeds rear surface/.test(error))).toEqual([])
+      return
+    }
+    if (edgeWrap) {
+      await verifyStickerEdgeWrap({ page, evidence, read, rear, save: async (placements) => {
+        const inventory = await read()
+        expect((await context.request.put(origin + '/api/stickers/placements', { headers, data: { revision: inventory.placementRevision, placements } })).status()).toBe(200)
+      } })
+      // Full source/artifact manifests are checked in cleanup, including failures.
+      // Exact approved external post-build deltas are disclosed, never claimed tested.
+      expect(consoleErrors.filter(error => /WebGLProgram|SHADER|ReferenceError|exceeds rear surface/.test(error))).toEqual([])
+      await writeFile(resolve(evidence, 'edge-wrap-verification.json'), JSON.stringify({ source, requests, consoleErrors }, null, 2))
+      return
+    }
     if(largeMaterial) {
       for(const id of ['PW-A01','PW-F01']) {
         for(const wear of [0,.5,1]) {

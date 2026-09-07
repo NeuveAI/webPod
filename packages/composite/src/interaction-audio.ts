@@ -1,6 +1,6 @@
 import {
   interactionFeedbackAtom,
-  isHumanActor,
+  isAudibleActor,
   type DeviceStore,
   type InteractionFeedbackEvent,
 } from '@webpod/state'
@@ -36,7 +36,7 @@ export type InteractionAudioButton =
 export type InteractionAudioButtonDown = {
   readonly id: string
   readonly button: InteractionAudioButton
-  readonly source: 'pointer' | 'key'
+  readonly source: 'pointer' | 'key' | 'agent'
   readonly timestampMs: number
 }
 
@@ -287,7 +287,7 @@ export function createInteractionAudioRuntime(
       scheduled: 0,
       dropped: requested,
     })
-    if (event.silenced || !isHumanActor(event.actor)) {
+    if (event.silenced || !isAudibleActor(event.actor)) {
       return remember(silentResult('silenced', requested))
     }
     if (!enabled) return remember(silentResult('disabled', requested))

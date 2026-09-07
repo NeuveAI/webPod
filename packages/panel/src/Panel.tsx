@@ -1,3 +1,4 @@
+import { createPageClock, pageActivityAtom, type PageActivity } from './page-readiness'
 import { Provider, atom, useAtomValue, useSetAtom } from 'jotai'
 import { artworkUrl, type Artwork, type Entity, type FixtureProvider, type MusicProvider, type PlaybackState, type QueueSnapshot, type TrackRef } from '@webpod/providers'
 import {
@@ -64,6 +65,37 @@ const playbackPresentationAtom = atom((get): PlaybackPresentation | null => {
   if (frame === null || observation.provider === null || observation.playback === null) return null
   return derivePlaybackPresentation(frame, get(playbackAttemptAtom), observation.playback, observation.provider)
 })
+const panelContextAtom = atom<{ provider: MusicProvider; source: NavigationDataSource; state: PanelState } | null>(null)
+const operationIdentityAtom = atom<{ startedAtMs: number | null }>({ startedAtMs: null })
+const readinessAtom = atom((get): PageActivity => {
+  const frame = get(currentScreenAtom)
+  const context = get(panelContextAtom)
+  const presentation = get(playbackPresentationAtom)
+  const mode = get(nowPlayingModeAtom)
+  const queue = get(queueViewAtom)
+  const intent = get(navigationIntentAtom)
+  const handled = get(handledReadinessIntentAtom)
+  let status: PageActivity['status'] = 'ready'
+  if (frame === null || context === null) status = 'unavailable'
+  else if (context.state === 'error' || frame.route?.kind === 'status' && frame.route.state === 'error') status = 'error'
+  else if (intent !== null && intent.seq !== handled || context.state === 'loading' || isNavigationLoadingFrame(frame) || frame.route?.kind === 'status' && frame.route.state === 'loading') status = 'loading'
+  else if (frame.route?.kind === 'status') status = 'unavailable'
+  else if (frame.route?.kind === 'now-playing') {
+    if (presentation?.phase === 'failed') status = 'error'
+    else if (presentation?.phase === 'starting' || get(playbackObservationAtom).playback?.status === 'loading') status = 'buffering'
+    else if (mode.mode === 'queue' && (queue.provider !== context.provider || queue.status === 'loading' || mode.queue === 'selecting')) status = 'loading'
+    else if (mode.mode === 'queue' && queue.status === 'error') status = 'error'
+    else if (mode.scrub === 'committing') status = 'buffering'
+  }
+  const library = context?.source.libraryStatus
+  return { status, operationKey: get(operationIdentityAtom), operationStartedAtMs: get(operationIdentityAtom).startedAtMs, loadedItems: frame?.rows.length ?? 0, backgroundLoading: library !== undefined && Object.values(library).some((entry) => entry.state === 'loading') }
+})
+const handledReadinessIntentAtom = atom(0)
+const pageClock = createPageClock()
+let pageReadinessOwners = 0
+// Lifecycle-bound below; the snapshot is externally readable without a React closure.
+export const readPageState = pageClock.read
+
 const handledNowPlayingWheelIntentAtom = atom(0)
 const queueViewAtom = atom<QueueViewState>({ provider: null, status: 'idle', items: [], currentIndex: -1 })
 export const searchQueryAtom = atom('')
@@ -159,6 +191,17 @@ export function Panel({
   )
   const rasterScale = Math.min(1.25, Math.max(1, dynamicTypeScale))
   useEffect(() => {
+    pageReadinessOwners += 1
+    const observe = () => { const activity = deviceStore.get(readinessAtom); deviceStore.set(pageActivityAtom, activity); pageClock.observe(activity) }
+    const stop = deviceStore.sub(readinessAtom, observe)
+    observe()
+    return () => {
+      stop()
+      pageReadinessOwners -= 1
+      if (pageReadinessOwners === 0) pageClock.observe({ status: 'unavailable', operationKey: null, loadedItems: 0, backgroundLoading: false })
+    }
+  }, [])
+  useEffect(() => {
     const accountFrame = accountStatus === undefined ? providerStatusFrame(provider) : accountStatus === null ? null : statusFrame(accountStatus, provider.displayName)
     const sourceChanged = initializedDocument !== document || initializedProvider !== provider || initializedSource !== navigationSource || initializedSession !== session || initializedAccountStatus !== accountStatus
     if (sourceChanged) {
@@ -174,6 +217,8 @@ export function Panel({
       const refreshed = stack.map((frameValue) => refreshNavigationFrame(frameValue, navigationSource, provider))
       if (refreshed.some((frameValue, index) => frameValue !== stack[index])) deviceStore.set(screenStackAtom, refreshed)
     }
+    deviceStore.set(panelContextAtom, { provider, source: navigationSource, state })
+    if (sourceChanged) deviceStore.set(operationIdentityAtom, { startedAtMs: null })
     deviceStore.set(setDensityActionAtom, density)
     deviceStore.set(setDynamicTypeScaleActionAtom, dynamicTypeScale)
   }, [accountStatus, actor, density, dynamicTypeScale, navigationSource, provider, session, sourceRevision, state])
@@ -260,6 +305,7 @@ function PanelSurface({
   useEffect(() => {
     if (navigationIntent === null || navigationIntent.seq <= (handledNavigationSeq.get(document) ?? 0)) return
     handledNavigationSeq.set(document, navigationIntent.seq)
+    deviceStore.set(handledReadinessIntentAtom, navigationIntent.seq)
     if (navigationIntent.kind !== 'select' || frame === null) return
     if (frame.route?.kind === 'now-playing') {
       const modeState = deviceStore.get(nowPlayingModeAtom)
@@ -322,6 +368,7 @@ function PanelSurface({
       }
       return
     }
+    deviceStore.set(operationIdentityAtom, { startedAtMs: Date.now() })
     const selection = selectNavigationImmediate(frame, navigationSource, provider, deviceStore.get(searchQueryAtom))
     if (selection.frame === null) return
     const selectedFrame = selection.frame

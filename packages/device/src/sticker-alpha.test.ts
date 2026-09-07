@@ -47,7 +47,7 @@ test('actual rear triangle projection retains concave boundary and excludes hole
   if (!result) throw new Error('Expected actual contour');
   expect(result.paths).toHaveLength(2); expect(result.paths.some((path) => path.length > 4)).toBe(true);
   const positions = geometry.getAttribute('position');
-  const center = new Vector3().fromBufferAttribute(positions, 312).applyMatrix4(print.matrixWorld).project(camera);
+  const center = new Vector3().fromBufferAttribute(positions, Math.floor(positions.count / 2)).applyMatrix4(print.matrixWorld).project(camera);
   expect(result.center.x).toBeCloseTo(canvas.left + (center.x + 1) * canvas.width / 2);
   expect(result.center.y).toBeCloseTo(canvas.top + (1 - center.y) * canvas.height / 2);
   const outer = result.paths[0]; if (!outer) throw new Error('Missing outer path');

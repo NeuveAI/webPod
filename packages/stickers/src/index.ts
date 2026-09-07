@@ -1,4 +1,4 @@
-import { BODY_H, BODY_W } from '@webpod/tokens'
+import { BODY_CORNER_R, BODY_H, BODY_W } from '@webpod/tokens'
 import { getSticker, STICKER_GENRES, type StickerGenre, type StickerId } from './catalogue.ts'
 export * from './catalogue.ts'
 
@@ -21,9 +21,17 @@ export function stickerWear(inventory: Pick<StickerInventory, 'appearances'>, id
   return inventory.appearances?.find((appearance) => appearance.stickerId === id)?.wear ?? 0
 }
 export const MAX_STICKER_PLACEMENTS = 12
-export const STICKER_PLACEMENT_BOUNDS = { left: 0.08, right: 0.92, top: 0.06, bottom: 0.94, minWidth: 0.08, maxWidth: 0.35 } as const
+export const STICKER_PLACEMENT_BOUNDS = { left: 0, right: 1, top: 0, bottom: 1, minWidth: 0.08, maxWidth: 0.35 } as const
 
-/** Shared server/render boundary: the rotated occupied rectangle must fit the rear safe zone. */
+/** Full physical rear silhouette. Coordinates retain the original body-relative meaning. */
+export function isStickerRearCenter(x: number, y: number): boolean {
+  if (!Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x > 1 || y < 0 || y > 1) return false
+  const dx = Math.max(Math.abs((.5 - x) * BODY_W) - (BODY_W / 2 - BODY_CORNER_R), 0)
+  const dy = Math.max(Math.abs((.5 - y) * BODY_H) - (BODY_H / 2 - BODY_CORNER_R), 0)
+  return dx * dx + dy * dy <= BODY_CORNER_R * BODY_CORNER_R + 1e-10
+}
+
+/** Centers stay on the physical rear; artwork overflow wraps onto adjoining shell surfaces. */
 export function isStickerPlacement(value: unknown): value is StickerPlacement {
   if (typeof value !== 'object' || value === null) return false
   if (!('stickerId' in value) || typeof value.stickerId !== 'string') return false
@@ -36,13 +44,7 @@ export function isStickerPlacement(value: unknown): value is StickerPlacement {
   if ('wear' in value && !isStickerWear(value.wear)) return false
   const b = STICKER_PLACEMENT_BOUNDS
   if (value.width < b.minWidth || value.width > b.maxWidth || Math.abs(value.rotationDeg) > 180) return false
-  const [left, top, right, bottom] = art.visibleBounds
-  const heightInWidthUnits = value.width * (bottom - top) / (right - left)
-  const radians = value.rotationDeg * Math.PI / 180
-  const c = Math.abs(Math.cos(radians)); const s = Math.abs(Math.sin(radians))
-  const halfX = (c * value.width + s * heightInWidthUnits) / 2
-  const halfY = (s * value.width + c * heightInWidthUnits) * BODY_W / BODY_H / 2
-  return value.x - halfX >= b.left && value.x + halfX <= b.right && value.y - halfY >= b.top && value.y + halfY <= b.bottom
+  return isStickerRearCenter(value.x, value.y)
 }
 
 export interface StickerPack {

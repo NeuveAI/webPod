@@ -144,6 +144,10 @@ export type DeviceOrientationMotionEnvironment = {
 }
 
 export type DeviceOrientationControls = {
+  /** Applies finite degree deltas (x=pitch, y=yaw) and returns clamped state. */
+  readonly rotate: (xDeg: number, yDeg: number) => DevicePreviewState
+  /** Uses the physical face spring; resolves only at rest and rejects interruption. */
+  readonly flick: (face: 'front' | 'back', signal: AbortSignal) => Promise<DevicePreviewState>
   /** Called only after the device package raycasts a visible enclosure edge. */
   readonly begin: (start: DeviceOrientationGrabStart) => boolean
   readonly setGrabbable: (grabbable: boolean) => void
@@ -177,11 +181,27 @@ export function bindDeviceOrientationControls(
   let motionFrame: number | null = null
   let lastMotionFrameMs = 0
   let grabbable = false
-  let publishing = false
+  let publishingOrientation: DeviceOrientation | null = null
   let observedOrientation = store.getSnapshot().orientation
+  let disposed = false
+  let motionGeneration = 0
+  let pendingFlick: {
+    readonly resolve: (state: DevicePreviewState) => void
+    readonly reject: (reason: Error) => void
+    readonly cleanup: () => void
+  } | null = null
+  const settleFlick = (error?: Error) => {
+    const pending = pendingFlick
+    pendingFlick = null
+    if (pending === null) return
+    pending.cleanup()
+    if (error === undefined) pending.resolve(store.getSnapshot())
+    else pending.reject(error)
+  }
   const publishOrientation = (orientation: DeviceOrientation) => {
-    publishing = true
-    try { return store.setOrientation(orientation) } finally { publishing = false }
+    const previousPublication = publishingOrientation
+    publishingOrientation = clampDeviceOrientation(orientation)
+    try { return store.setOrientation(orientation) } finally { publishingOrientation = previousPublication }
   }
 
   const reflectAffordance = () => {
@@ -203,6 +223,8 @@ export function bindDeviceOrientationControls(
   }
 
   const stopMotion = () => {
+    motionGeneration += 1
+    settleFlick(new DOMException('Device orientation motion interrupted', 'AbortError'))
     releaseMotion = null
     if (motionFrame !== null) {
       motionEnvironment.cancelFrame(motionFrame)
@@ -215,16 +237,20 @@ export function bindDeviceOrientationControls(
     motionFrame = null
     const current = releaseMotion
     if (current === null) return
+    const generation = motionGeneration
     const elapsedSeconds = (timestampMs - lastMotionFrameMs) / 1_000
     lastMotionFrameMs = timestampMs
     const advanced = motionEnvironment.reducedMotion()
       ? { orientation: { ...current.orientation, yawDeg: current.targetYawDeg }, motion: null }
       : advanceDeviceOrientationRelease(current, elapsedSeconds)
     publishOrientation(advanced.orientation)
+    if (generation !== motionGeneration) return
     releaseMotion = advanced.motion
     reflectAffordance()
     if (releaseMotion !== null) {
       motionFrame = motionEnvironment.requestFrame(onMotionFrame)
+    } else {
+      settleFlick()
     }
   }
 
@@ -284,7 +310,7 @@ export function bindDeviceOrientationControls(
   }
 
   const begin = (start: DeviceOrientationGrabStart): boolean => {
-    if (active !== null) return false
+    if (disposed || active !== null) return false
     try {
       start.capture.setPointerCapture(start.pointerId)
     } catch {
@@ -408,7 +434,9 @@ export function bindDeviceOrientationControls(
     const next = store.getSnapshot().orientation
     const changed = !sameOrientation(observedOrientation, next)
     observedOrientation = next
-    if (!changed || publishing) return
+    // Ignore only our intended value, not external mutations made by another
+    // synchronous subscriber while our publication is still on the stack.
+    if (!changed || (publishingOrientation !== null && sameOrientation(publishingOrientation, next))) return
     // Reset/preset/tool writes supersede the gesture rather than being undone
     // by its next animation frame or pointer sample.
     if (active !== null) finish(active.start.pointerId, true)
@@ -418,11 +446,52 @@ export function bindDeviceOrientationControls(
   blurHost.addEventListener('blur', onBlur)
   return {
     begin,
+    rotate(xDeg, yDeg) {
+      if (disposed) throw new Error('Device orientation controller disposed')
+      if (!Number.isFinite(xDeg) || !Number.isFinite(yDeg)) throw new TypeError('Rotation deltas must be finite degrees')
+      if (active !== null) throw new Error('Device is being held by a person')
+      const current = store.getSnapshot().orientation
+      const pitchDeg = current.pitchDeg + xDeg
+      const yawDeg = current.yawDeg + yDeg
+      if (!Number.isFinite(pitchDeg) || !Number.isFinite(yawDeg)) throw new RangeError('Rotation exceeds finite degree range')
+      stopMotion()
+      return publishOrientation({ ...current, pitchDeg, yawDeg })
+    },
+    flick(face, signal) {
+      if (disposed) return Promise.reject(new Error('Device orientation controller disposed'))
+      if (face !== 'front' && face !== 'back') return Promise.reject(new TypeError('Face must be front or back'))
+      if (signal.aborted) return Promise.reject(new DOMException('Device orientation motion aborted', 'AbortError'))
+      if (active !== null || releaseMotion !== null || pendingFlick !== null) return Promise.reject(new Error('Device orientation is busy'))
+      const current = store.getSnapshot().orientation
+      const baseYaw = face === 'front' ? 0 : 180
+      const targetYawDeg = baseYaw + Math.round((current.yawDeg - baseYaw) / 360) * 360
+      if (motionEnvironment.reducedMotion() || current.yawDeg === targetYawDeg) {
+        return Promise.resolve(publishOrientation({ ...current, yawDeg: targetYawDeg }))
+      }
+      // Admission → existing physical face spring → settlement. No guessed timer.
+      return new Promise<DevicePreviewState>((resolve, reject) => {
+        const onAbort = () => stopMotion()
+        pendingFlick = { resolve, reject, cleanup: () => signal.removeEventListener('abort', onAbort) }
+        signal.addEventListener('abort', onAbort, { once: true })
+        releaseMotion = {
+          kind: 'opposite-face',
+          orientation: current,
+          velocity: { pitchDegPerSecond: 0, yawDegPerSecond: 0, rollDegPerSecond: 0 },
+          targetYawDeg,
+          flickDirection: targetYawDeg < current.yawDeg ? -1 : 1,
+        }
+        lastMotionFrameMs = motionEnvironment.now()
+        motionFrame = motionEnvironment.requestFrame(onMotionFrame)
+        reflectAffordance()
+      })
+    },
     setGrabbable(next) {
       grabbable = next
       reflectAffordance()
     },
     dispose() {
+      if (disposed) return
+      disposed = true
       unsubscribe()
       const current = active
       if (current !== null) finish(current.start.pointerId, true)

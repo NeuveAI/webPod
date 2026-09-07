@@ -1,3 +1,6 @@
+import { Object3D } from 'three'
+import { ControlPhysicsController } from '@webpod/device'
+import { bindAgentControlPhysics, getAgentWheelControls } from './agent-controls'
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 import { readFileSync } from 'node:fs'
@@ -640,6 +643,64 @@ describe('mounted composite input boundary', () => {
     expect(consumed).toHaveLength(5)
     expect(contacts.downs).toHaveLength(6)
     expect(contacts.ups).toHaveLength(5)
+  })
+
+  test('agent buttons share all five semantic/audio edges and cancel on unmount', async () => {
+    const environment = makeEnvironment()
+    seedSingletonScreen()
+    const consumed: InteractionFeedbackEvent[] = []
+    const contacts = { downs: [] as InteractionAudioButtonDown[], ups: [] as InteractionAudioButtonUp[] }
+    const audio = recordingAudio(consumed, true, contacts)
+    await act(async () => root.render(<CompositeInputBoundary createDependencies={() => environment.dependencies} createAudioRuntime={() => audio} onTransportPress={() => true}>{() => <div role="application" tabIndex={0}>Panel</div>}</CompositeInputBoundary>))
+    const controls = getAgentWheelControls(deviceStore)
+    for (const button of ['menu', 'previous', 'next', 'play-pause', 'center'] as const) {
+      await act(async () => { expect(await controls.press(button, new AbortController().signal)).toBe(true) })
+    }
+    expect(contacts.downs.map(({ button }) => button)).toEqual(['menu', 'previous', 'next', 'play-pause', 'center'])
+    expect(contacts.downs.every(({ source }) => source === 'agent')).toBe(true)
+    expect(contacts.ups).toHaveLength(5)
+    expect(consumed.every(({ actor }) => actor === 'agent:unknown')).toBe(true)
+    const pending = controls.press('center', new AbortController().signal)
+    const cancelled = pending.then(() => null, (error: unknown) => error)
+    await act(async () => root.render(null))
+    expect(await cancelled).toBeInstanceOf(DOMException)
+    expect(() => getAgentWheelControls(deviceStore)).toThrow('unavailable')
+  })
+
+  test('same-channel human takeover stays pressed while cross-channel takeover releases abandoned agent travel', async () => {
+    for (const agentCenter of [true, false]) for (const humanCenter of [true, false]) {
+      const environment = makeEnvironment()
+      seedSingletonScreen()
+      const mounted: { handlers: { onSelectStart(start: ClickWheelSelectStart): void; onSelectEnd(end: ClickWheelSelectEnd): void; onArcStart(start: ClickWheelArcSample): void; onArcEnd(end: ClickWheelArcEnd): void } | null } = { handlers: null }
+      await act(async () => root.render(<CompositeInputBoundary createDependencies={() => environment.dependencies}>{(handlers) => { mounted.handlers = handlers; return <div role="application">Panel</div> }}</CompositeInputBoundary>))
+      const physics = new ControlPhysicsController({ invalidate() {}, now: () => 0, requestFrame: () => 1, cancelFrame() {} })
+      physics.setReducedMotion(true)
+      const center = new Object3D(); const wheel = new Object3D()
+      physics.attachSelect(center); physics.attachWheel(wheel)
+      const unbind = bindAgentControlPhysics(deviceStore, physics)
+      const pending = getAgentWheelControls(deviceStore).press(agentCenter ? 'center' : 'menu', new AbortController().signal)
+      const cancelled = pending.then(() => null, (error: unknown) => error)
+      const handlers = mounted.handlers
+      if (handlers === null) throw new Error('Missing mounted handlers')
+      if (humanCenter) {
+        physics.pressSelect()
+        handlers.onSelectStart({ pointerId: 93, pointerType: 'mouse', timestampMs: 0 })
+      } else {
+        physics.pressWheel(0)
+        handlers.onArcStart({ pointerId: 93, pointerType: 'mouse', angleDeg: 0, timestampMs: 0 })
+      }
+      expect(await cancelled).toBeInstanceOf(DOMException)
+      const centerDown = () => center.position.z !== 0
+      const wheelDown = () => wheel.quaternion.x !== 0 || wheel.quaternion.y !== 0 || wheel.quaternion.z !== 0
+      expect(humanCenter ? centerDown() : wheelDown()).toBe(true)
+      if (humanCenter !== agentCenter) expect(agentCenter ? centerDown() : wheelDown()).toBe(false)
+      await expect(getAgentWheelControls(deviceStore).press('center', new AbortController().signal)).rejects.toThrow('human wheel contact')
+      if (humanCenter) { physics.releaseSelect(); handlers.onSelectEnd({ pointerId: 93, timestampMs: 1, reason: 'cancel' }) }
+      else { physics.releaseWheel(); handlers.onArcEnd({ pointerId: 93, timestampMs: 1, reason: 'cancel' }) }
+      expect(centerDown()).toBe(false); expect(wheelDown()).toBe(false)
+      unbind(); physics.dispose()
+      await act(async () => root.render(null))
+    }
   })
 
   test('multiple mounted public boundaries consume one feedback sequence once', async () => {

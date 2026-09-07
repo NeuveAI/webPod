@@ -9,13 +9,16 @@ export interface StickerInteraction {
   readonly selectedStickerId: string | null;
   readonly progress: number;
   readonly peel: number;
+  /** Physical adhesion frontier and free transport are independent of visual curl. */
+  readonly sourcePeelFront?: number;
+  readonly detachTransport?: number;
   readonly previewPlacement: StickerPlacement | null;
   readonly landing: number;
   /** Saved rear pose stays authoritative while a transient print is carried. Null is a sheet origin. */
   readonly sourcePlacement?: StickerPlacement | null;
   readonly returnToSheet?: boolean;
 }
-export const INITIAL_STICKER_INTERACTION: StickerInteraction = Object.freeze({ stage: 'hidden', packId: null, selectedStickerId: null, progress: 0, peel: 0, previewPlacement: null, landing: 0, sourcePlacement: null, returnToSheet: false });
+export const INITIAL_STICKER_INTERACTION: StickerInteraction = Object.freeze({ stage: 'hidden', packId: null, selectedStickerId: null, progress: 0, peel: 0, sourcePeelFront: 0, detachTransport: 0, previewPlacement: null, landing: 0, sourcePlacement: null, returnToSheet: false });
 const inventoryStateAtom = atom<StickerInventory | null>(null);
 const statusStateAtom = atom<StickerCollectionStatus>('signed-out');
 const interactionStateAtom = atom<StickerInteraction>(INITIAL_STICKER_INTERACTION);
@@ -36,12 +39,13 @@ export const setStickerCollectionStatusActionAtom = atom(null, (_get, set, statu
 /** All UI, pointer and WebMCP callers use this one external-store interaction owner. */
 export const setStickerInteractionActionAtom = atom(null, (get, set, next: StickerInteraction): boolean => {
   if (!Number.isFinite(next.progress) || !Number.isFinite(next.peel) || !Number.isFinite(next.landing)) return false;
+  if (!Number.isFinite(next.sourcePeelFront ?? 0) || !Number.isFinite(next.detachTransport ?? 0)) return false;
   if (next.previewPlacement !== null && !isStickerPlacement(next.previewPlacement)) return false;
   if (next.sourcePlacement != null && (!isStickerPlacement(next.sourcePlacement) || next.sourcePlacement.stickerId !== next.selectedStickerId)) return false;
   const inventory = get(inventoryStateAtom);
   if (next.selectedStickerId !== null && !inventory?.stickerIds.some((id) => id === next.selectedStickerId)) return false;
   if (next.packId !== null && !inventory?.packs.some((pack) => pack.id === next.packId)) return false;
-  set(interactionStateAtom, { ...next, progress: Math.max(0, Math.min(1, next.progress)), peel: Math.max(0, Math.min(1, next.peel)), landing: Math.max(0, Math.min(1, next.landing)) });
+  set(interactionStateAtom, { ...next, progress: Math.max(0, Math.min(1, next.progress)), peel: Math.max(0, Math.min(1, next.peel)), sourcePeelFront: Math.max(0, Math.min(1, next.sourcePeelFront ?? 0)), detachTransport: Math.max(0, Math.min(1, next.detachTransport ?? 0)), landing: Math.max(0, Math.min(1, next.landing)) });
   return true;
 });
 /** Optimistic placement publication; persistence/revision reconciliation belongs to API runtime. */

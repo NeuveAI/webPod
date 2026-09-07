@@ -450,11 +450,11 @@ describe('the silence rule, enforced at one call site', () => {
     { path: 'direct', source: 'agent', detents: 14, timestampMs: 0 },
   ]
 
-  test('agent movement is silent and still on every path — visible, never felt', () => {
+  test('agent movement clicks on every path without human haptics', () => {
     for (const input of paths) {
       const outcome = detent(IDLE_DETENT_ACCUMULATOR, input, VISIBLE_ROWS.medium)
-      expect(outcome.silenced).toBe(true)
-      expect(outcome.clickerTicks).toBe(0)
+      expect(outcome.silenced).toBe(false)
+      expect(outcome.clickerTicks).toBe(Math.abs(outcome.detents))
       expect(outcome.hapticPulses).toBe(0)
       // Silence is not stillness: the movement itself still happens, and the
       // human must be able to see it.
@@ -503,7 +503,7 @@ describe('the silence rule, enforced at one call site', () => {
     }, VISIBLE_ROWS.medium)
 
     expect(asAgent.rowDelta).toBe(asHuman.rowDelta)
-    expect(asAgent.clickerTicks).toBe(0)
+    expect(asAgent.clickerTicks).toBe(asHuman.clickerTicks)
     expect(asHuman.clickerTicks).toBe(9)
   })
 })
@@ -562,7 +562,7 @@ describe('the actor tag is derived, never accepted', () => {
     }, VISIBLE_ROWS.medium)
 
     expect(outcome.actor).toBe('agent:example.test')
-    expect(outcome.silenced).toBe(true)
+    expect(outcome.silenced).toBe(false)
   })
 
   test('an agent with no known origin is tagged unknown, not guessed at', () => {
@@ -735,7 +735,7 @@ describe('the inertial coast (001 §4.4, Release row)', () => {
     expect(ticks).toBe(detents)
   })
 
-  test('an agent’s coast is silent, like everything else an agent does', () => {
+  test('agent coast shares sound but never human haptics', () => {
     // An agent has no momentum, so this should never arise — but the silence
     // rule must not have a hole in it just because a path is unreachable
     // today. The coast reads `source` off the accumulator for exactly this.
@@ -758,12 +758,12 @@ describe('the inertial coast (001 §4.4, Release row)', () => {
       detents += Math.abs(outcome.detents)
       ticks += outcome.clickerTicks
       pulses += outcome.hapticPulses
-      expect(outcome.silenced).toBe(true)
+      expect(outcome.silenced).toBe(false)
       coasting = outcome.accumulator
     }
 
     expect(detents).toBeGreaterThan(0)
-    expect(ticks).toBe(0)
+    expect(ticks).toBe(detents)
     expect(pulses).toBe(0)
   })
 
