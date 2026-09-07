@@ -42,3 +42,9 @@ Evidence: focused test files beside implementation and browser test-results outs
 - Destination geometry is created only during landing; paper geometry is skipped during rear carries. The initial pickup projection is retained in the Jotai pointer atom instead of recomputed on every move.
 - Removed the bottom-30%-of-viewport trigger that automatically revealed and latched the pack open during a rear drag. Explicit return actions and existing sheet drop targets remain.
 - Added browser assertions for dragging through the lower viewport without changing pack/sheet reveal and for zero collision queries. These new browser assertions have not been run in this follow-up. Focused geometry/editor tests (22), app/device TypeScript and changed-file lint pass.
+
+### Detached edge tether regression
+
+- Applying the source support planes after the free-carry blend constrained detached side/bottom vertices to their previous shell edges and stretched artwork into strips.
+- Moved the constraint before transport interpolation and pointer-plane clearance. It now constrains the source peel; fully detached transport retains the free-sheet geometry exactly.
+- Added a large wrapped On Repeat regression that reproduces deformation with the previous ordering and verifies exact free-sheet coordinates with the corrected ordering. Five carry tests, device TypeScript and changed-file lint pass.

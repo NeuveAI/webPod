@@ -308,6 +308,14 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
         rearOffset.copy(stickerCarryPointerOffset(anchorPoint, camera, size.width, size.height, pack.sourcePull?.x ?? 0, pack.sourcePull?.y ?? 0));
       } else rearOffset.set(pack.dragOffset?.x ?? 0, -(pack.dragOffset?.y ?? 0), 0).multiplyScalar(worldPixel).applyQuaternion(camera.quaternion);
     }
+    // Constrain the attached peel before blending into the free sheet. Applying
+    // old edge planes after transport pins detached vertices to the old shell
+    // and stretches the backing into a visible tail.
+    if (sourceSurface && rearOrigin && content) {
+      const started = performance.now();
+      const report = constrainStickerCarryExterior(sourceSurface, rearOrigin, content.matrixWorld);
+      gl.domElement.setAttribute('data-wp-sticker-peel-contacts', JSON.stringify({ ...report, elapsedMs: +(performance.now() - started).toFixed(2) }));
+    }
     const transport = (pack.sourcePeelFront ?? pack.peel) >= 1 ? Math.max(0, Math.min(1, pack.detachTransport ?? 0)) : 0;
     const free = sourceSurface && content && pack.sourcePlacement && transport > 0 ? createStickerFreeCarryGeometry(art, pack.sourcePlacement, sourceSurface, content.matrixWorld, camera, pack.sourceAnchor, pack.peel) : null;
     if (free && pack.sourceAnchor) free.translate(rearOffset.x, rearOffset.y, rearOffset.z);
@@ -352,15 +360,6 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
         point.lerp(destination, amount);
       }
       positions.setXYZ(index, point.x, point.y, point.z);
-    }
-    // Every animation path ends here: partial peel, free carry and landing.
-    // Enforce the seated outward support planes in model coordinates.
-    // Never displace the untouched adhesive portion.
-    const contactReference = amount > 0 && targetSurface ? targetSurface : sourceSurface;
-    if (contactReference && content) {
-      const started = performance.now();
-      const report = constrainStickerCarryExterior(contactReference, geometry, content.matrixWorld);
-      gl.domElement.setAttribute('data-wp-sticker-peel-contacts', JSON.stringify({ ...report, elapsedMs: +(performance.now() - started).toFixed(2) }));
     }
     positions.needsUpdate = true;
     geometry.computeVertexNormals(); geometry.computeBoundingSphere();

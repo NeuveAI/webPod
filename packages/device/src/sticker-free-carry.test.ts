@@ -119,3 +119,25 @@ test('tilted large-sticker peels cannot sweep through the steel while adhesive c
   expect(prevented).toBeGreaterThan(0);
   collider.dispose(); source.dispose(); rear.dispose();
 });
+
+test('detached transport releases wrapped-edge constraints and retains the free sheet exactly', async () => {
+  const { getSticker } = await import('@webpod/stickers');
+  const { createStickerRearChart } = await import('./sticker-rear-chart');
+  const { DEFAULT_DEVICE_FORM } = await import('./form');
+  const art = getSticker('PW-B01'); if (!art) throw new Error('Missing artwork');
+  const placement = { stickerId: art.id, surface: 'back' as const, x: .75, y: .35, width: .92, rotationDeg: 0 };
+  const rear = new BufferGeometry(), world = new Matrix4().makeRotationY(Math.PI);
+  const source = createStickerSurfaceGeometry(art, placement, rear, createStickerRearChart(DEFAULT_DEVICE_FORM));
+  const camera = new PerspectiveCamera(40, 1.4, 1, 3000); camera.position.set(0, 0, 1000); camera.lookAt(0, 0, 0); camera.updateMatrixWorld();
+  const free = createStickerFreeCarryGeometry(art, placement, source, world, camera, null, .3);
+  free.translate(-300, -200, 80);
+  const peeled = createRearStickerPeelGeometry(art, placement, rear, 1, source); peeled.applyMatrix4(world);
+  constrainStickerCarryExterior(source, peeled, world);
+  interpolateStickerCarryGeometry(peeled, free, .5, .5, 1);
+  expect(peeled.getAttribute('position').array).toEqual(free.getAttribute('position').array);
+  // The old post-transport constraint corrupts this exact edge-crossing case.
+  const tethered = free.clone();
+  expect(constrainStickerCarryExterior(source, tethered, world).contacts).toBeGreaterThan(0);
+  expect(tethered.getAttribute('position').array).not.toEqual(free.getAttribute('position').array);
+  tethered.dispose(); peeled.dispose(); free.dispose(); source.dispose(); rear.dispose();
+});
