@@ -26,7 +26,7 @@ interface StickerPointer {
   readonly startX: number
   readonly stickerId: string | null
   readonly maxDistance: number
-  readonly returnWorkspace: boolean
+  readonly pickup: { readonly x: number; readonly y: number } | null
   readonly startY: number
   readonly startProgress: number
   readonly travel: number
@@ -175,7 +175,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     if (slot !== undefined) updateStickerInteraction({ selectedStickerId: slot.art.id, peel: 0, previewPlacement: null, landing: 0, sourcePlacement })
     target.setPointerCapture(event.pointerId)
     captureTarget.current = target
-    deviceStore.set(pointerAtom, { kind, grab, maxDistance: 0, returnWorkspace: false, pointerId: event.pointerId, stickerId: slot?.art.id ?? null, startX: event.clientX, startY: event.clientY, startProgress: kind === 'liner' ? deviceStore.get(stickerSheetRevealAtom) : deviceStore.get(stickerInteractionAtom).progress, travel: kind === 'liner' ? layout.height * PACK.linerTravel : layout.height + PACK.bottomGapPx - PACK.teasePx, samples: [sample(event)] })
+    deviceStore.set(pointerAtom, { kind, grab, maxDistance: 0, pickup: sourcePlacement === null ? null : commands.project(event.clientX, event.clientY), pointerId: event.pointerId, stickerId: slot?.art.id ?? null, startX: event.clientX, startY: event.clientY, startProgress: kind === 'liner' ? deviceStore.get(stickerSheetRevealAtom) : deviceStore.get(stickerInteractionAtom).progress, travel: kind === 'liner' ? layout.height * PACK.linerTravel : layout.height + PACK.bottomGapPx - PACK.teasePx, samples: [sample(event)] })
     updateStickerInteraction({ stage: kind === 'pull' ? 'pulling' : kind === 'liner' ? 'open' : 'peeling' })
     if (sourcePlacement !== null) captureStickerCarryAnchor(sourcePlacement, grab?.anchor)
   }
@@ -196,21 +196,14 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
       const motion = stickerPeelMotion(event.clientX - pointer.startX, event.clientY - pointer.startY, reducedMotion, PACK.peelTravelPx, maxDistance)
       const freeDistance = Math.max(0, maxDistance - (reducedMotion ? 12 : PACK.peelTravelPx))
       const exposure = Math.min(1, freeDistance / PACK.peelTravelPx)
-      const returning = pointer.returnWorkspace || pointer.kind === 'rear' && event.clientY > viewport.height * .7
-      if (returning) deviceStore.set(pointerAtom, (current) => current === null ? null : { ...current, returnWorkspace: true })
-      deviceStore.set(stickerWorkspaceLoweringAtom, viewport.width < PACK.desktopBreakpoint && !returning ? exposure * exposure * (3 - 2 * exposure) : 0)
+      deviceStore.set(stickerWorkspaceLoweringAtom, viewport.width < PACK.desktopBreakpoint ? exposure * exposure * (3 - 2 * exposure) : 0)
       const dragged = pointer.stickerId === null ? undefined : getSticker(pointer.stickerId)
       const source = deviceStore.get(stickerInteractionAtom).sourcePlacement
-      const pickup = source == null ? null : commands.project(pointer.startX, pointer.startY)
+      const pickup = pointer.pickup
       const seatBounds = source == null ? undefined : host.current?.querySelector<HTMLElement>(`[data-sticker-slot="${source.stickerId}"]`)?.getBoundingClientRect()
       const overOwnSeat = seatBounds !== undefined && event.clientX >= seatBounds.left && event.clientX <= seatBounds.right && event.clientY >= seatBounds.top && event.clientY <= seatBounds.bottom
       const projected = motion.detached && !overOwnSeat ? commands.project(event.clientX, event.clientY) : null
       const point = projected === null ? null : source == null || pickup === null ? projected : { x: projected.x - (pickup.x - source.x), y: projected.y - (pickup.y - source.y) }
-      if (source != null && returning) {
-        deviceStore.set(stickerWorkspaceLoweringAtom, 0)
-        deviceStore.set(stickerSheetRevealAtom, 1)
-        updateStickerInteraction({ progress: 1 })
-      }
       const preview = dragged === undefined || point === null ? null : { stickerId: dragged.id, surface: 'back' as const, ...point, width: source?.width ?? PACK.placementWidth, rotationDeg: source?.rotationDeg ?? 0, wear: source?.wear ?? inventory?.appearances?.find((item) => item.stickerId === dragged.id)?.wear ?? 0 }
       updateStickerInteraction({ peel: motion.peel, sourcePeelFront: motion.sourcePeelFront, detachTransport: motion.detachTransport })
       deviceStore.set(stickerDragOffsetAtom, motion.offset)

@@ -62,6 +62,13 @@ test('large sticker scales past the old cap and drops beside the shell', async (
   const revision = inventory.placementRevision
   await page.mouse.move(center.x + 22, center.y + 22)
   await page.mouse.down()
+  const packProgress = await page.locator('[data-sticker-stage]').getAttribute('data-sticker-progress')
+  const sheetReveal = await page.locator('[data-sticker-stage]').getAttribute('data-sticker-sheet-reveal')
+  await page.mouse.move(1100, 800, { steps: 20 })
+  await expect(page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-progress', packProgress ?? '0')
+  await expect(page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-sheet-reveal', sheetReveal ?? '0')
+  const contacts = JSON.parse(await page.locator('canvas').getAttribute('data-wp-sticker-peel-contacts') ?? '{}') as { queries: number }
+  expect(contacts.queries).toBe(0)
   await page.mouse.move(1200, 220, { steps: 20 })
   await expect(page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'placing')
   await page.screenshot({ path: info.outputPath('off-device-carry.png') })

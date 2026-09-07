@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { BufferGeometry, Float32BufferAttribute, Matrix4, PerspectiveCamera, Vector3 } from 'three';
-import { constrainStickerCarryContacts, createStickerFreeCarryGeometry, stickerGeometryUvPoint, interpolateStickerCarryGeometry, stickerCarryPointerOffset } from './sticker-free-carry';
+import { constrainStickerCarryExterior, constrainStickerCarryContacts, createStickerFreeCarryGeometry, stickerGeometryUvPoint, interpolateStickerCarryGeometry, stickerCarryPointerOffset } from './sticker-free-carry';
 import { createRearStickerPeelGeometry, createStickerSurfaceGeometry, STICKER_SURFACE } from './sticker-surface';
 
 test('bounded contact keeps attached nodes exact and slides a moving node along its first exterior plane', () => {
@@ -93,7 +93,8 @@ test('tilted large-sticker peels cannot sweep through the steel while adhesive c
       interpolateStickerCarryGeometry(shown, free, ...uv, .5); free.dispose();
     }
     const before = new Float32Array(shown.getAttribute('position').array);
-    const result = constrainStickerCarryContacts(source, shown, world, collider.castSegment); prevented += result.contacts;
+    const result = constrainStickerCarryExterior(source, shown, world);
+    expect(result.queries).toBe(0); prevented += result.contacts;
     const inverse = world.clone().invert(), p = shown.getAttribute('position'), s = source.getAttribute('position');
     for (let i = 0; i < p.count; i++) {
       const start = new Vector3().fromBufferAttribute(s, i), end = new Vector3().fromBufferAttribute(p, i).applyMatrix4(inverse);

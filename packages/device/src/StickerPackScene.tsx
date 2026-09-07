@@ -1,5 +1,4 @@
-import { useStickerContactSurface } from './use-sticker-contact-surface';
-import { constrainStickerCarryContacts, createStickerGrabPeelGeometry, createStickerFreeCarryGeometry, interpolateStickerCarryGeometry, stickerCarryPointerOffset } from './sticker-free-carry';
+import { constrainStickerCarryExterior, createStickerGrabPeelGeometry, createStickerFreeCarryGeometry, interpolateStickerCarryGeometry, stickerCarryPointerOffset } from './sticker-free-carry';
 import { createStickerVisibility, stickerVisibilityQuery } from './sticker-visibility';
 import { projectStickerDrop } from './sticker-drop-projection';
 import { captureStickerSurfaceGrab } from './sticker-surface-grab';
@@ -275,23 +274,24 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
   readonly stickerScene: DeviceStickerScene; readonly roughness: ReturnType<typeof createStickerRoughness>;
 }) {
   const { scene, camera, viewport, size, gl } = useThree();
-  const contactSurface = useStickerContactSurface();
   const invalidate = useThree((state) => state.invalidate);
   const orientation = useContext(DeviceCanvasOrientationContext);
   const rearMesh = scene.getObjectByName('device-steel-back');
   const rearGeometry = rearMesh instanceof Mesh ? rearMesh.geometry : undefined;
   const sourceSurface = useMemo(() => pack.sourcePlacement != null && rearGeometry ? createStickerSurfaceGeometry(art, pack.sourcePlacement, rearGeometry) : null, [art, pack.sourcePlacement, rearGeometry]);
-  const targetSurface = useMemo(() => pack.placement !== null && rearGeometry ? createStickerSurfaceGeometry(art, pack.placement, rearGeometry) : null, [art, pack.placement, rearGeometry]);
+  const landingPlacement = pack.landing > 0 ? pack.placement : null;
+  const targetSurface = useMemo(() => landingPlacement !== null && rearGeometry ? createStickerSurfaceGeometry(art, landingPlacement, rearGeometry) : null, [art, landingPlacement, rearGeometry]);
   useEffect(() => () => sourceSurface?.dispose(), [sourceSurface]);
   useEffect(() => () => targetSurface?.dispose(), [targetSurface]);
   const geometry = useMemo(() => conformStickerToPaper(createStickerPeelGeometry(art, width, 0, STICKER_SURFACE.segments), paperWidth, pixel, seatX), [art, width, paperWidth, pixel, seatX]);
   useEffect(() => () => geometry.dispose(), [geometry]);
   const { x: originX, y: originY, z: originZ } = origin;
   useLayoutEffect(() => {
-    // Reset from the immutable peel shape so repeated effects cannot compound translation.
-    const base = conformStickerToPaper(createStickerPeelGeometry(art, width, pack.peel, STICKER_SURFACE.segments), paperWidth, pixel, seatX);
+    const frameStarted = performance.now();
+    // Paper geometry is only needed for a sheet pickup or an explicit return.
+    const base = !sourceSurface || pack.returnToSheet ? conformStickerToPaper(createStickerPeelGeometry(art, width, pack.peel, STICKER_SURFACE.segments), paperWidth, pixel, seatX) : null;
     const positions = geometry.getAttribute('position');
-    let source = base.getAttribute('position');
+    let source = (base ?? sourceSurface ?? geometry).getAttribute('position');
     const content = scene.getObjectByName(DEVICE_CONTENT_NAME);
     const rear = scene.getObjectByName('device-steel-back');
     content?.updateWorldMatrix(true, true);
@@ -316,7 +316,7 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
       interpolateStickerCarryGeometry(rearOrigin, free, pack.sourceAnchor?.uv[0] ?? sourceUv.getX(centerIndex), pack.sourceAnchor?.uv[1] ?? sourceUv.getY(centerIndex), transport);
     }
     let target: ReturnType<typeof createStickerSurfaceGeometry> | null = null;
-    if (pack.placement !== null && rear instanceof Mesh) {
+    if (pack.landing > 0 && pack.placement !== null && rear instanceof Mesh) {
       try { target = createRearStickerPeelGeometry(art, pack.placement, rear.geometry, pack.peel, targetSurface ?? undefined); } catch { target = null; }
     }
     const targetPositions = target?.getAttribute('position');
@@ -344,7 +344,7 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
         // grab point or apparent size; attached contact stays on the physical rear.
         point.project(camera); point.z += (Math.min(carriedDepth, point.z) - point.z) * lift * detached; point.unproject(camera);
       }
-      if (pack.returnToSheet) {
+      if (pack.returnToSheet && base) {
         destination.fromBufferAttribute(base.getAttribute('position'), index).add(start).add(new Vector3(-(pack.dragOffset?.x ?? 0) * pixel, (pack.dragOffset?.y ?? 0) * pixel, 0));
         point.lerp(destination, amount);
       } else if (targetPositions !== undefined && content !== undefined) {
@@ -354,20 +354,20 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
       positions.setXYZ(index, point.x, point.y, point.z);
     }
     // Every animation path ends here: partial peel, free carry and landing.
-    // Sweep from an exterior seated contact in model coordinates, independent
-    // of camera angle. Never displace the untouched adhesive portion.
+    // Enforce the seated outward support planes in model coordinates.
+    // Never displace the untouched adhesive portion.
     const contactReference = amount > 0 && targetSurface ? targetSurface : sourceSurface;
-    const collider = contactSurface.current;
-    if (contactReference && content && collider) {
+    if (contactReference && content) {
       const started = performance.now();
-      collider.update(content);
-      const report = constrainStickerCarryContacts(contactReference, geometry, content.matrixWorld, collider.castSegment);
+      const report = constrainStickerCarryExterior(contactReference, geometry, content.matrixWorld);
       gl.domElement.setAttribute('data-wp-sticker-peel-contacts', JSON.stringify({ ...report, elapsedMs: +(performance.now() - started).toFixed(2) }));
     }
     positions.needsUpdate = true;
     geometry.computeVertexNormals(); geometry.computeBoundingSphere();
-    base.dispose(); rearOrigin?.dispose(); free?.dispose(); target?.dispose(); invalidate();
-  }, [art, width, geometry, pack.peel, pack.placement, pack.landing, originX, originY, originZ, scene, invalidate, orientation.orientation, paperWidth, pixel, seatX, pack.sourcePlacement, pack.returnToSheet, pack.dragOffset, camera, size.width, size.height, viewport, sourceSurface, targetSurface, pack.sourcePeelFront, pack.detachTransport, pack.sourceAnchor, pack.sourcePull, contactSurface, gl]);
+    base?.dispose(); rearOrigin?.dispose(); free?.dispose(); target?.dispose();
+    gl.domElement.setAttribute('data-wp-sticker-peel-frame-ms', (performance.now() - frameStarted).toFixed(2));
+    invalidate();
+  }, [art, width, geometry, pack.peel, pack.placement, pack.landing, originX, originY, originZ, scene, invalidate, orientation.orientation, paperWidth, pixel, seatX, pack.sourcePlacement, pack.returnToSheet, pack.dragOffset, camera, size.width, size.height, viewport, sourceSurface, targetSurface, pack.sourcePeelFront, pack.detachTransport, pack.sourceAnchor, pack.sourcePull, gl]);
   return <StickerPrint art={art} geometry={geometry} wearGeometry={pack.landing > 0 ? targetSurface : sourceSurface} roughness={roughness} wear={pack.placement?.wear ?? pack.sourcePlacement?.wear ?? stickerScene.appearances?.find((entry) => entry.stickerId === art.id)?.wear ?? 0} finishEnabled={stickerScene.finishEnabled !== false} onError={stickerScene.onArtworkError} onReady={stickerScene.onArtworkReady} />;
 }
 

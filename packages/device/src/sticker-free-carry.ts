@@ -37,6 +37,25 @@ export function constrainStickerCarryContacts(source: BufferGeometry, shownWorld
   return { moved, contacts, unresolved, queries };
 }
 
+/** A seated point's outward supporting plane excludes the convex rear shell.
+ * Project only inward displacement onto that plane. Linear in vertex count,
+ * without scene traversal, BVH construction or thousands of contact raycasts.
+ */
+export function constrainStickerCarryExterior(source: BufferGeometry, shownWorld: BufferGeometry, contentWorld: Matrix4) {
+  const original = source.getAttribute('position'), normals = source.getAttribute('normal'), shown = shownWorld.getAttribute('position');
+  const inverse = contentWorld.clone().invert(), start = new Vector3(), goal = new Vector3(), normal = new Vector3(), delta = new Vector3();
+  let contacts = 0;
+  for (let i = 0; i < shown.count; i++) {
+    start.fromBufferAttribute(original, i); goal.fromBufferAttribute(shown, i).applyMatrix4(inverse);
+    normal.fromBufferAttribute(normals, i).normalize();
+    const inward = delta.copy(goal).sub(start).dot(normal);
+    if (inward >= -1e-4) continue;
+    goal.addScaledVector(normal, -inward).applyMatrix4(contentWorld);
+    shown.setXYZ(i, goal.x, goal.y, goal.z); contacts++;
+  }
+  return { contacts, vertices: shown.count, queries: 0 };
+}
+
 /** Sample the same two indexed material triangles used for shown sticker geometry. */
 export function stickerGeometryUvPoint(geometry: BufferGeometry, u: number, v: number): Vector3 {
   const uv = geometry.getAttribute('uv'), positions = geometry.getAttribute('position'), n = STICKER_SURFACE.segments;

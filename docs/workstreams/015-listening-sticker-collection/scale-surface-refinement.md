@@ -34,3 +34,11 @@ Evidence: focused test files beside implementation and browser test-results outs
 - Sweeps use the actual visible assembly collider in content coordinates and the immutable seated source (or destination while landing). Untouched adhesive vertices remain exact; moving contacts slide at the exterior rather than entering the body.
 - Canvas `data-wp-sticker-peel-contacts` reports moved nodes, contact count, unresolved sweeps, queries and elapsed milliseconds for inspection.
 - Regression covers 36 combinations of yaw, pitch, drag direction and hand/scripted peel. Verifies source-to-output segments and complete output triangles against the steel; no crossings, and attached nodes remain unchanged. Focused tests, TypeScript and lint pass.
+
+### Drag latency and unintended pack opening
+
+- Replaced the per-frame assembly BVH sweeps with a linear outward-support-plane constraint for the convex rear steel. It performs zero collision queries and needs no additional resource lifecycle hook. The 36-case independent triangle/contact checks still pass.
+- Solver-only benchmark across those cases: median 0.086 ms, maximum 0.684 ms. This does not measure full browser input-to-paint latency. Canvas telemetry also exposes the geometry update duration via `data-wp-sticker-peel-frame-ms`.
+- Destination geometry is created only during landing; paper geometry is skipped during rear carries. The initial pickup projection is retained in the Jotai pointer atom instead of recomputed on every move.
+- Removed the bottom-30%-of-viewport trigger that automatically revealed and latched the pack open during a rear drag. Explicit return actions and existing sheet drop targets remain.
+- Added browser assertions for dragging through the lower viewport without changing pack/sheet reveal and for zero collision queries. These new browser assertions have not been run in this follow-up. Focused geometry/editor tests (22), app/device TypeScript and changed-file lint pass.
