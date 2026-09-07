@@ -17,7 +17,7 @@ interface BrowserModelContext {
   executeTool(tool: Omit<ListedTool, 'inputSchema'> & { inputSchema: object | string }, input: object | string, options?: { signal: AbortSignal }): Promise<string>
 }
 
-const coreNames = ['webpod_list_status', 'webpod_navigate_list', 'webpod_select_item', 'webpod_page_state', 'webpod_click_wheel', 'webpod_rotate_ipod', 'webpod_flick_ipod']
+const coreNames = ['webpod_set_volume', 'webpod_debug_trace', 'webpod_device_state', 'webpod_list_status', 'webpod_navigate_list', 'webpod_select_item', 'webpod_page_state', 'webpod_click_wheel', 'webpod_rotate_ipod', 'webpod_flick_ipod']
 const stickerNames = ['webpod_open_sticker_pack', 'webpod_close_sticker_pack', 'webpod_navigate_sticker_collection', 'webpod_sticker_list', 'webpod_get_sticker', 'webpod_release_sticker', 'webpod_rotate_sticker', 'webpod_add_sticker_wear', 'webpod_place_sticker']
 const stickerMocks = new WeakMap<Page, NativeStickerMock>()
 const cases: Eval[] = fixture.map(entry => ({ ...entry, messages: entry.messages.map(message => ({ ...message, role: 'user', type: 'message' })) }))
@@ -93,7 +93,7 @@ test('native registry exposes unique current-draft schemas and complete selected
     expect(tool.name).toMatch(/^[A-Za-z0-9_.-]{1,128}$/u)
     expect(tool.description.length).toBeGreaterThan(20)
     expect(tool.inputSchema).toMatchObject({ type: 'object', additionalProperties: false })
-    expect(tool.annotations.readOnlyHint).toBe(['webpod_page_state', 'webpod_list_status', 'webpod_sticker_list'].includes(tool.name))
+    expect(tool.annotations.readOnlyHint).toBe(['webpod_debug_trace', 'webpod_device_state', 'webpod_page_state', 'webpod_list_status', 'webpod_sticker_list'].includes(tool.name))
   }
   const list = object(await execute(page, 'webpod_list_status'))
   const selected = object(list['selectedItem'])
@@ -105,6 +105,18 @@ test('native registry exposes unique current-draft schemas and complete selected
   await execute(page, 'webpod_page_state')
   await execute(page, 'webpod_page_state')
   expect(await execute(page, 'webpod_list_status')).toEqual(before)
+})
+
+test('volume tool works from a list without navigating and exposes current volume', async ({ page }) => {
+  const before = object(await execute(page, 'webpod_page_state'))
+  const list = await execute(page, 'webpod_list_status')
+  try {
+    expect(await execute(page, 'webpod_set_volume', { level0to100: 25 })).toMatchObject({ volume0to100: 25 })
+    expect(await execute(page, 'webpod_page_state')).toMatchObject({ volume0to100: 25 })
+    expect(await execute(page, 'webpod_list_status')).toEqual(list)
+  } finally {
+    await execute(page, 'webpod_set_volume', { level0to100: before['volume0to100'] })
+  }
 })
 
 for (const [caseIndex, smoke] of compileSmokeTests(cases).entries()) test(`upstream deterministic smoke: ${smoke.name}`, async ({ page }) => {
@@ -228,9 +240,11 @@ test('native cancellation stops traversal and releases interaction ownership', a
 })
 
 test('native orientation returns physical state and document reload registers once', async ({ page }) => {
+  expect(await execute(page, 'webpod_device_state')).toMatchObject({ visibleFace: 'front', isAnimating: false, isBeingHeld: false })
   await execute(page, 'webpod_rotate_ipod', { xDeg: 10, yDeg: 20 })
   expect(await readOrientation(page)).toMatchObject({ pitchDeg: 10, yawDeg: 20 })
   await execute(page, 'webpod_flick_ipod', { face: 'back' })
+  expect(await execute(page, 'webpod_device_state')).toMatchObject({ visibleFace: 'back', isAnimating: false, orientation: { pitchDeg: 10, yawDeg: 180 }, stickers: { inventoryLoaded: true, placed: [{ id: 'PW-B01', placement: stickerMock(page).inventory().placements[0] }] } })
   expect(await readOrientation(page)).toMatchObject({ pitchDeg: 10, yawDeg: 180 })
   await expect(page.locator('.webpod-device-preview__stage')).not.toHaveAttribute('data-orientation-motion')
   await execute(page, 'webpod_flick_ipod', { face: 'front' })

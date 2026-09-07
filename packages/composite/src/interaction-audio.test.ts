@@ -13,6 +13,7 @@ import {
   WHEEL_TICK_RATE_HZ,
   attachInteractionAudioRuntime,
   createInteractionAudioRuntime,
+  readInteractionAudioState,
   type InteractionAudioBackend,
   type InteractionAudioVoice,
   type InteractionVoiceSpec,
@@ -568,6 +569,50 @@ describe('interaction audio scheduler', () => {
 })
 
 describe('store and browser lifecycle binding', () => {
+  test('inspector focus preserves agent wheel and physical button sounds, and tab return resumes them', async () => {
+    const store = createDeviceStore()
+    const backend = new FakeBackend('suspended')
+    const runtime = createInteractionAudioRuntime({ createBackend: () => backend })
+    const root = new EventTarget()
+    const documentTarget = Object.assign(new EventTarget(), { hidden: false })
+    const windowTarget = new EventTarget()
+    const detach = attachInteractionAudioRuntime(runtime, store, { root, documentTarget, windowTarget, isActivationEligible: () => true })
+    try {
+      root.dispatchEvent(new Event('pointerdown'))
+      await runtime.activate()
+      windowTarget.dispatchEvent(new Event('blur'))
+      store.set(detentActionAtom, { path: 'direct', source: 'agent', detents: 1, timestampMs: 1 })
+      runtime.buttonDown({ id: 'agent:menu', button: 'menu', source: 'agent', timestampMs: 2 })
+      runtime.buttonUp({ id: 'agent:menu', timestampMs: 82, reason: 'release' })
+      expect(backend.suspendCalls).toBe(0)
+      expect(backend.specs.map(spec => spec.kind)).toEqual(['wheel', 'wheel', 'button-down', 'button-up'])
+      documentTarget.hidden = true
+      documentTarget.dispatchEvent(new Event('visibilitychange'))
+      await Promise.resolve()
+      expect(runtime.snapshot().lifecycle).toBe('suspended')
+      documentTarget.hidden = false
+      documentTarget.dispatchEvent(new Event('visibilitychange'))
+      await runtime.activate()
+      expect(runtime.snapshot().lifecycle).toBe('running')
+      store.set(detentActionAtom, { path: 'direct', source: 'agent', detents: 1, timestampMs: 100 })
+      expect(backend.specs).toHaveLength(5)
+    } finally { detach(); runtime.dispose() }
+  })
+  test('visibility alone cannot unlock a fresh page', () => {
+    const store = createDeviceStore()
+    let creations = 0
+    const runtime = createInteractionAudioRuntime({ createBackend: () => { creations += 1; return new FakeBackend('running') } })
+    const documentTarget = Object.assign(new EventTarget(), { hidden: false })
+    const detach = attachInteractionAudioRuntime(runtime, store, { root: new EventTarget(), documentTarget, windowTarget: new EventTarget() })
+    expect(readInteractionAudioState(store)).toMatchObject({ requiresUserActivation: true, snapshot: { lifecycle: 'locked' } })
+    documentTarget.dispatchEvent(new Event('visibilitychange'))
+    expect(creations).toBe(0)
+    expect(runtime.snapshot().lifecycle).toBe('locked')
+    runtime.setEnabled(false)
+    expect(readInteractionAudioState(store)).toMatchObject({ snapshot: { enabled: false } })
+    detach(); runtime.dispose()
+    expect(readInteractionAudioState(store).snapshot).toBeNull()
+  })
   test('the default gate rejects script-dispatched events without proving provenance', async () => {
     const store = createDeviceStore()
     let constructions = 0
@@ -692,6 +737,12 @@ describe('store and browser lifecycle binding', () => {
     ])
 
     windowTarget.dispatchEvent(new Event('blur'))
+    await Promise.resolve()
+    expect(backend.suspendCalls).toBe(0)
+    expect(runtime.snapshot().lifecycle).toBe('running')
+
+    documentTarget.hidden = true
+    documentTarget.dispatchEvent(new Event('visibilitychange'))
     await Promise.resolve()
     expect(backend.suspendCalls).toBe(1)
     expect(runtime.snapshot().activeVoices).toBe(0)

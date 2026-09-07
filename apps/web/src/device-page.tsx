@@ -1,4 +1,7 @@
+import { recordInteraction } from './interaction-telemetry';
+import { copyInteractionTrace, mountInteractionTelemetry } from './interaction-telemetry-browser';
 import { mountWebMcp } from './webmcp';
+import { previewStore } from './device-preview-store';
 import {
   DEFAULT_DEVICE_MATERIALS,
   DEVICE_ORIENTATION_PRESETS,
@@ -13,14 +16,13 @@ import {
   type LightRigParams,
   type LightContribution,
 } from "@webpod/device";
-import { useAtomValue } from "jotai";
+import { atom, useAtomValue } from "jotai";
 import { DeviceSettings, InteractionSoundSetting, deviceSettingsStore, interactionAudioEnabledAtom } from "./device-settings";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
 import { applePlaybackDiagnostics, deriveApplePlaybackDiagnosis, serializeApplePlaybackDiagnostics, type AppleEmeCapability, type ApplePlaybackDiagnosticEvent } from "./apple-playback-diagnostics";
 import {
   bindDeviceOrientationControls,
-  createDevicePreviewStore,
   type DeviceOrientationControls,
   type DevicePreviewRoom,
   type DevicePreviewState,
@@ -74,7 +76,6 @@ const GEOMETRY_EVIDENCE_ORIENTATIONS: Readonly<
   bottom: Object.freeze({ pitchDeg: -90, yawDeg: 0, rollDeg: 0 }),
 });
 
-const previewStore = createDevicePreviewStore();
 
 type PreviewApi = {
   readonly get: () => DevicePreviewState;
@@ -150,6 +151,21 @@ const NEUTRAL_DIAGNOSTIC_LIGHT_RIG: LightRigParams = Object.freeze({
   },
 });
 
+const traceCopyStatusAtom = atom('');
+function CopyInteractionTrace() {
+  const status = useAtomValue(traceCopyStatusAtom, { store: deviceSettingsStore });
+  const copy = async () => {
+    deviceSettingsStore.set(traceCopyStatusAtom, 'Copying…');
+    try {
+      await copyInteractionTrace();
+      deviceSettingsStore.set(traceCopyStatusAtom, 'Trace copied');
+    } catch {
+      deviceSettingsStore.set(traceCopyStatusAtom, 'Copy failed. Read webpod_debug_trace in the inspector.');
+    }
+  };
+  return <><button type="button" onClick={() => void copy()}>Copy interaction trace</button><span role="status">{status}</span></>;
+}
+
 /** The canonical browser product page; diagnostic overrides remain development-only. */
 export function DevicePage() {
   const interactionAudioEnabled = useAtomValue(interactionAudioEnabledAtom, { store: deviceSettingsStore });
@@ -211,7 +227,7 @@ export function DevicePage() {
   useEffect(() => {
     const stage = stageRef.current;
     if (stage === null) return;
-    const controls = bindDeviceOrientationControls(stage, previewStore);
+    const controls = bindDeviceOrientationControls(stage, previewStore, window, undefined, import.meta.env.DEV ? recordInteraction : undefined);
     orientationControlsRef.current = controls;
     return () => {
       orientationControlsRef.current = null;
@@ -220,6 +236,7 @@ export function DevicePage() {
   }, []);
 
   useEffect(() => mountWebMcp(document, () => orientationControlsRef.current), []);
+  useEffect(() => import.meta.env.DEV ? mountInteractionTelemetry(document, () => orientationControlsRef.current) : undefined, []);
 
   useEffect(() => {
     void selectMusicRuntime(selectedMusicMode);
@@ -252,6 +269,7 @@ export function DevicePage() {
       data-room={renderedState.room}
       data-colourway={renderedState.colourway}
       data-pose={renderedState.pose}
+      data-orientation={[renderedState.orientation.pitchDeg, renderedState.orientation.yawDeg, renderedState.orientation.rollDeg].join(",")}
       data-evidence-view={evidenceOrientation === null ? undefined : requestedView}
       data-lighting-pass={diagnostic ? "neutral" : lightContribution}
     >
@@ -310,6 +328,7 @@ export function DevicePage() {
             <button type="button" onClick={previewStore.resetOrientation}>Reset view</button>
             <DeviceSettings>
               <PreviewControls state={state} music={music} />
+              {import.meta.env.DEV ? <CopyInteractionTrace /> : null}
               {import.meta.env.DEV ? <PlaybackDiagnostics events={playbackDiagnostics.events} emeCapability={playbackDiagnostics.emeCapability} /> : null}
             </DeviceSettings>
           </nav>

@@ -12,6 +12,17 @@ function highlight<T extends { readonly highlightIndex: number }>(frame: T, inde
 }
 
 describe('typed navigation graph', () => {
+  test('refreshed library rows retain provider identity independently of their labels', async () => {
+    const root = navigationRoot(fixtureNavigationSource, provider)
+    for (const index of [1, 2, 3, 4]) {
+      const selected = (await selectNavigation(highlight(root, index), fixtureNavigationSource, provider)).frame
+      if (selected === null || selected.rows.length === 0) throw new Error('Missing fixture list')
+      const refreshed = refreshNavigationFrame(selected, fixtureNavigationSource, provider)
+      expect(refreshed.rows).not.toBe(selected.rows)
+      expect(refreshed.rows.map(row => row.entityKey)).toEqual(selected.rows.map(row => row.entityKey))
+      expect(refreshed.rows.every(row => typeof row.entityKey === 'string')).toBe(true)
+    }
+  })
   test('marks progressive counts as lower bounds and refreshes without moving the highlight', () => {
     const albums = [...fixtureNavigationSource.albums]
     const source = {

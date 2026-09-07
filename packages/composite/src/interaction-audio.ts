@@ -764,6 +764,17 @@ type InteractionAudioBindingHub = {
 }
 
 const interactionAudioBindingHubs = new WeakMap<DeviceStore, InteractionAudioBindingHub>()
+/** Exposes real sound readiness to agents without constructing or resuming audio. */
+export function readInteractionAudioState(store: DeviceStore) {
+  const hub = interactionAudioBindingHubs.get(store)
+  const owner = hub === undefined ? null : selectInteractionAudioOwner(hub.bindings) ?? [...hub.bindings].at(-1)
+  const snapshot = owner?.runtime.snapshot() ?? null
+  return {
+    snapshot,
+    requiresUserActivation: snapshot?.lifecycle === 'locked',
+    nextAction: snapshot?.lifecycle === 'locked' ? 'Click or press a key on the iPod once to enable interaction sounds.' : null,
+  }
+}
 let nextAttachmentOrder = 0
 let nextActivationOrder = 0
 
@@ -779,6 +790,7 @@ export function attachInteractionAudioRuntime(
 ): () => void {
   const isActivationEligible =
     targets.isActivationEligible ?? ((event: Event) => event.isTrusted)
+  let activated = runtime.snapshot().lifecycle === 'running'
   const report = () => {
     try {
       targets.onSnapshot?.(runtime.snapshot())
@@ -788,21 +800,21 @@ export function attachInteractionAudioRuntime(
   }
   const activate: EventListener = (event) => {
     if (!isActivationEligible(event)) return
+    activated = true
     binding.markActivated()
     void runtime.activate().then(report)
   }
-  const interrupt: EventListener = () => {
-    void runtime.interrupt().then(report)
-  }
   const visibility: EventListener = () => {
     if (targets.documentTarget.hidden) void runtime.interrupt().then(report)
+    else if (activated && runtime.snapshot().enabled) void runtime.activate().then(report)
   }
   const binding = registerInteractionAudioBinding(runtime, store, report)
 
   targets.root.addEventListener('pointerdown', activate, { capture: true })
   targets.root.addEventListener('keydown', activate, { capture: true })
   targets.documentTarget.addEventListener('visibilitychange', visibility)
-  targets.windowTarget.addEventListener('blur', interrupt)
+  // Inspector/DevTools focus blurs a still-visible page. Keep the sound graph
+  // running for agent interactions; physical contacts have their own blur cleanup.
   report()
 
   return () => {
@@ -810,7 +822,6 @@ export function attachInteractionAudioRuntime(
     targets.root.removeEventListener('pointerdown', activate, { capture: true })
     targets.root.removeEventListener('keydown', activate, { capture: true })
     targets.documentTarget.removeEventListener('visibilitychange', visibility)
-    targets.windowTarget.removeEventListener('blur', interrupt)
   }
 }
 

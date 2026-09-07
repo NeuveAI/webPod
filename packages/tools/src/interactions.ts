@@ -1,6 +1,6 @@
 import type { InteractionMutation } from './stickers'
 import { atom } from 'jotai/vanilla'
-import { currentScreenAtom, detentActionAtom, holdEngagedAtom, type DeviceStore, type InteractionPressButton } from '@webpod/state'
+import { currentScreenAtom, detentActionAtom, holdEngagedAtom, type DeviceStore, type InteractionPressButton, type ScreenFrame } from '@webpod/state'
 import { delay, enumInput, finiteInput, objectInput, tool, type NativeTool } from './native'
 
 export type NavigationProgress = { direction: 'next' | 'previous'; requestedItems: number; completedItems: number; startedAtMs: number; nextStepAtMs: number }
@@ -12,6 +12,7 @@ export interface InteractionDependencies {
   readonly press: (button: InteractionPressButton, signal: AbortSignal) => Promise<boolean>
   readonly rotate: (xDeg: number, yDeg: number) => object
   readonly flick: (face: 'front' | 'back', signal: AbortSignal) => Promise<object>
+  readonly setVolume: (level0to100: number, signal: AbortSignal) => Promise<number>
   readonly now?: () => number
   readonly wait?: (milliseconds: number, signal: AbortSignal) => Promise<void>
 }
@@ -26,6 +27,20 @@ export function listStatus(store: DeviceStore) {
 /** Longer requests ramp from deliberate 350ms steps toward a strict 200ms floor. */
 export function navigationStepInterval(requestedItems: number, completedItems: number): number {
   return Math.max(200, 350 - Math.min(150, Math.max(0, requestedItems - 2) * 15, completedItems * 30))
+}
+/** Background sync can rebuild rows, update counts or append a page. Continue
+ * only while every original row still targets the same entity at the same index.
+ * Unidentified rows retain the conservative reference-identity check. */
+function sameTraversalList(initial: ScreenFrame, current: ScreenFrame | null): boolean {
+  if (current === null || current.screenId !== initial.screenId || JSON.stringify(current.route) !== JSON.stringify(initial.route)) return false
+  if (current.rows === initial.rows) return true
+  if (current.rows.length < initial.rows.length) return false
+  return initial.rows.every((row, index) => {
+    const next = current.rows[index]
+    if (next === undefined) return false
+    if (row.entityKey !== undefined) return next.entityKey === row.entityKey
+    return row.destination !== undefined && JSON.stringify(row.destination) === JSON.stringify(next.destination)
+  })
 }
 /** Builds the production interaction tools. One bounded mutating operation owns the device;
  * cancellation stops further steps, and any replaced list or intervening selection interrupts. */
@@ -52,9 +67,19 @@ export function createInteractionTools(deps: InteractionDependencies): readonly 
     return { accepted, reason: accepted ? null : 'The mounted control did not accept the press; check Hold and page state.', pageState: pageState() }
   }
   return [
+    tool('webpod_set_volume', 'Set music playback volume from any screen to an absolute level0to100: 0 mutes, 100 is maximum. Does not change system volume or interaction sound settings. Returns the provider-reported volume0to100. Respects Hold and concurrent device interactions; read webpod_page_state for current volume.', { level0to100: { type: 'number', minimum: 0, maximum: 100 } }, async (input, { signal }) => {
+      const args = objectInput(input, ['level0to100'])
+      const level = finiteInput(args['level0to100'], 'level0to100', 100)
+      if (level < 0) throw new TypeError('level0to100 must be between 0 and 100.')
+      return mutate(signal, async () => {
+        const volume0to100 = await deps.setVolume(level, signal)
+        signal.throwIfAborted()
+        return { volume0to100 }
+      })
+    }),
     tool('webpod_list_status', 'Read the complete current list, count, and selectedItem with its zero-based position as a separate attribute. items includes the selected item; empty and non-list views are explicit.', {}, async (input) => { objectInput(input, []); return listStatus(store) }, true),
-    tool('webpod_page_state', 'Read actual page readiness, loading/buffering state, elapsed milliseconds and progressPercent (null when no real total is known). Read this wall clock to decide when to act; navigation reports direction, requested/completed items and next step time.', {}, async (input) => { objectInput(input, []); return pageState() }, true),
-    tool('webpod_navigate_list', 'Traverse a list next (down) or previous (up) by a positive item count, one audible item at a time, clamped at boundaries. Longer moves accelerate, never above five items per second. Requires an interaction-ready list. Returns requested/completed traversal and destination. Concurrent actions are rejected; cancellation or intervening navigation stops remaining steps.', { direction: { type: 'string', enum: ['next', 'previous'] }, items: { type: 'integer', minimum: 1, maximum: 1000 } }, async (input, { signal }) => {
+    tool('webpod_page_state', 'Read actual page readiness, music volume0to100, loading/buffering state, elapsed milliseconds and progressPercent (null when no real total is known). Read this wall clock to decide when to act; navigation reports direction, requested/completed items and next step time.', {}, async (input) => { objectInput(input, []); return pageState() }, true),
+    tool('webpod_navigate_list', 'Traverse a list next (down) or previous (up) by a positive item count, one audible item at a time, clamped at boundaries. Longer moves accelerate, never above five items per second. Requires an interaction-ready list. Returns requested/completed traversal and destination. Traversal stays within the starting list; background metadata updates and appended pages do not interrupt it. Concurrent actions are rejected; cancellation or intervening navigation stops remaining steps.', { direction: { type: 'string', enum: ['next', 'previous'] }, items: { type: 'integer', minimum: 1, maximum: 1000 } }, async (input, { signal }) => {
       const args = objectInput(input, ['direction', 'items'])
       const direction = enumInput(args['direction'], ['next', 'previous'], 'direction')
       const requestedItems = finiteInput(args['items'], 'items', 1000)
@@ -72,7 +97,7 @@ export function createInteractionTools(deps: InteractionDependencies): readonly 
           for (; completedItems < requestedItems;) {
             signal.throwIfAborted()
             const frame = store.get(currentScreenAtom)
-            if (frame?.rows !== rows || frame.highlightIndex !== expectedPosition || !deps.pageState().interactionReady || store.get(holdEngagedAtom)) throw new Error('Navigation interrupted by a changed list, selection, readiness, or Hold switch.')
+            if (!sameTraversalList(initial, frame) || frame?.highlightIndex !== expectedPosition || !deps.pageState().interactionReady || store.get(holdEngagedAtom)) throw new Error('Navigation interrupted by a changed list, selection, readiness, or Hold switch.')
             const delta = direction === 'next' ? 1 : -1
             if (expectedPosition + delta < 0 || expectedPosition + delta >= rows.length) break
             const interval = navigationStepInterval(requestedItems, completedItems)
@@ -82,7 +107,7 @@ export function createInteractionTools(deps: InteractionDependencies): readonly 
             await wait(nextStepAtMs - now(), signal)
             signal.throwIfAborted()
             const current = store.get(currentScreenAtom)
-            if (current?.rows !== rows || current.highlightIndex !== expectedPosition || !deps.pageState().interactionReady || store.get(holdEngagedAtom)) throw new Error('Navigation interrupted before the next step.')
+            if (!sameTraversalList(initial, current) || current?.highlightIndex !== expectedPosition || !deps.pageState().interactionReady || store.get(holdEngagedAtom)) throw new Error('Navigation interrupted before the next step: list targets, selection, readiness, or Hold changed. Read webpod_list_status and webpod_page_state before retrying.')
             store.set(detentActionAtom, { path: 'direct', source: 'agent', detents: delta, timestampMs: now() })
             expectedPosition += delta
             completedItems += 1
@@ -101,12 +126,12 @@ export function createInteractionTools(deps: InteractionDependencies): readonly 
       const button = enumInput(args['button'], ['menu', 'previous', 'next', 'play-pause', 'center'], 'button')
       return mutate(signal, () => press(button, signal))
     }),
-    tool('webpod_rotate_ipod', 'Rotate the actual iPod by relative degrees: xDeg is pitch and yDeg is yaw, each -360 to 360. Returns the actual clamped production orientation. An active human grab blocks rotation.', { xDeg: { type: 'number', minimum: -360, maximum: 360 }, yDeg: { type: 'number', minimum: -360, maximum: 360 } }, async (input, { signal }) => {
+    tool('webpod_rotate_ipod', 'Read webpod_device_state to inspect the current face and orientation first. Rotate the actual iPod by relative degrees: xDeg is pitch and yDeg is yaw, each -360 to 360. Returns the actual clamped production orientation. An active human grab blocks rotation.', { xDeg: { type: 'number', minimum: -360, maximum: 360 }, yDeg: { type: 'number', minimum: -360, maximum: 360 } }, async (input, { signal }) => {
       const args = objectInput(input, ['xDeg', 'yDeg'])
       const x = finiteInput(args['xDeg'], 'xDeg'); const y = finiteInput(args['yDeg'], 'yDeg')
       return mutate(signal, async () => deps.rotate(x, y))
     }),
-    tool('webpod_flick_ipod', 'Flick the physical iPod to its front or back plate through its existing spring motion. Resolves with actual orientation after settlement. Human intervention, cancellation or teardown interrupts; reduced motion settles immediately.', { face: { type: 'string', enum: ['front', 'back'] } }, async (input, { signal }) => {
+    tool('webpod_flick_ipod', 'Read webpod_device_state to inspect the current face first. Flick the physical iPod to its front or back plate through its existing spring motion. Resolves with actual orientation after settlement. Human intervention, cancellation or teardown interrupts; reduced motion settles immediately.', { face: { type: 'string', enum: ['front', 'back'] } }, async (input, { signal }) => {
       const args = objectInput(input, ['face']); const face = enumInput(args['face'], ['front', 'back'], 'face')
       return mutate(signal, () => deps.flick(face, signal))
     }),

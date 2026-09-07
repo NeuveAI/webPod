@@ -42,7 +42,7 @@ describe('native sticker tool contracts', () => {
     let finish: (() => void) | undefined
     f.controls.open = async signal => new Promise((resolve, reject) => { finish = () => resolve({}); signal.addEventListener('abort', () => reject(signal.reason), { once: true }) })
     const stickers = createStickerTools(() => f.controls, mutation)
-    const core = createInteractionTools({ store: createStore(), mutation, pageState: () => ({ interactionReady: true, status: 'ready' }), press: async () => true, rotate: () => ({}), flick: async () => ({}) })
+    const core = createInteractionTools({ setVolume: async level => level, store: createStore(), mutation, pageState: () => ({ interactionReady: true, status: 'ready' }), press: async () => true, rotate: () => ({}), flick: async () => ({}) })
     const open = stickers.find(tool => tool.name === 'webpod_open_sticker_pack'), rotate = core.find(tool => tool.name === 'webpod_rotate_ipod'), list = stickers.find(tool => tool.name === 'webpod_sticker_list')
     if (open === undefined || rotate === undefined || list === undefined) throw new Error('Missing fixture tools')
     const pending = open.execute({}, { signal: controller.signal })

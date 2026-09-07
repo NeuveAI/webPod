@@ -75,3 +75,4 @@ export type {
 } from './capabilities'
 
 export { getAgentWheelControls, type AgentWheelControls } from './agent-controls'
+export { readInteractionAudioState } from './interaction-audio'

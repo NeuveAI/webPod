@@ -12,7 +12,7 @@ function setup(overrides: Partial<InteractionDependencies> = {}) {
   let time = 0
   const times: number[] = []
   const waits: number[] = []
-  const tools = createInteractionTools({ store, pageState: () => ({ interactionReady: true, status: 'ready' }), press: async () => true, rotate: (x, y) => ({ x, y }), flick: async (face) => ({ face }), now: () => time, wait: async (ms, signal) => { signal.throwIfAborted(); waits.push(ms); time += ms; times.push(time) }, ...overrides })
+  const tools = createInteractionTools({ setVolume: async level => level, store, pageState: () => ({ interactionReady: true, status: 'ready' }), press: async () => true, rotate: (x, y) => ({ x, y }), flick: async (face) => ({ face }), now: () => time, wait: async (ms, signal) => { signal.throwIfAborted(); waits.push(ms); time += ms; times.push(time) }, ...overrides })
   const call = (name: string, input: unknown = {}, signal = new AbortController().signal) => {
     const found = tools.find((tool) => tool.name === `webpod_${name}`)
     if (found === undefined) throw new Error('Missing tool')
@@ -22,6 +22,32 @@ function setup(overrides: Partial<InteractionDependencies> = {}) {
 }
 
 describe('WebMCP interaction contracts', () => {
+  test('volume is global, validates input, and reports provider rounding', async () => {
+    const levels: number[] = []
+    const { call } = setup({ pageState: () => ({ interactionReady: false, status: 'loading' }), setVolume: async level => { levels.push(level); return Math.round(level) } })
+    for (const level of [0, 37.5, 100]) expect(await call('set_volume', { level0to100: level })).toEqual({ volume0to100: Math.round(level) })
+    for (const level of [-1, 101, NaN, Infinity, '50', null, undefined]) await expect(call('set_volume', { level0to100: level })).rejects.toThrow()
+    await expect(call('set_volume', { level0to100: 30, extra: true })).rejects.toThrow()
+    expect(levels).toEqual([0, 37.5, 100])
+  })
+  test('volume respects Hold, cancellation, the interaction lock, and provider failures', async () => {
+    let calls = 0
+    let finish = () => {}
+    const { call, store } = setup({ setVolume: () => { calls++; return new Promise<number>(resolve => { finish = () => resolve(25) }) } })
+    store.set(holdEngagedAtom, true)
+    await expect(call('set_volume', { level0to100: 25 })).rejects.toThrow('Hold')
+    store.set(holdEngagedAtom, false)
+    const controller = new AbortController(); controller.abort()
+    await expect(call('set_volume', { level0to100: 25 }, controller.signal)).rejects.toThrow()
+    expect(calls).toBe(0)
+    const pending = call('set_volume', { level0to100: 25 })
+    await expect(call('click_wheel', { button: 'menu' })).rejects.toThrow('Another device')
+    finish(); await pending
+    expect(await call('click_wheel', { button: 'menu' })).toMatchObject({ accepted: true })
+    const failed = setup({ setVolume: async () => { throw new Error('Provider unavailable') } })
+    await expect(failed.call('set_volume', { level0to100: 10 })).rejects.toThrow('Provider unavailable')
+    expect(await failed.call('click_wheel', { button: 'menu' })).toMatchObject({ accepted: true })
+  })
   test('full list and separate zero-based selection include rows outside the viewport', () => {
     const { store } = setup()
     store.set(detentActionAtom, { path: 'direct', source: 'agent', detents: 17, timestampMs: 0 })
@@ -83,6 +109,38 @@ describe('WebMCP interaction contracts', () => {
     expect(store.get(currentScreenAtom)?.highlightIndex).toBe(0)
     expect(store.get(navigationProgressAtom)).toBeNull()
     expect(await call('click_wheel', { button: 'menu' })).toMatchObject({ accepted: true })
+  })
+  test('background refreshes and appended pages preserve traversal of the original targets', async () => {
+    const { store, call } = setup({ wait: async () => {
+      const current = store.get(currentScreenAtom)
+      if (current === null) throw new Error('Missing frame')
+      store.set(resetStackActionAtom, [{ ...current, rows: [...current.rows.map(row => ({ ...row, sublabel: 'Updated metadata' })), { ...frame(1).rows[0], label: 'Appended', sublabel: null, glyphs: [], provenance: null, index: current.rows.length, entityKey: `appended-${current.rows.length}` }] }])
+    } })
+    store.set(resetStackActionAtom, [{ ...frame(5), rows: frame(5).rows.map((row, index) => ({ ...row, entityKey: `album-${index}` })) }])
+    expect(await call('navigate_list', { direction: 'next', items: 3 })).toMatchObject({ completedItems: 3, destination: { selectedItem: { position: 3 } } })
+  })
+  test('root count refreshes preserve destination identity', async () => {
+    const { store, call } = setup({ wait: async () => {
+      const current = store.get(currentScreenAtom)
+      if (current === null) throw new Error('Missing frame')
+      store.set(resetStackActionAtom, [{ ...current, rows: current.rows.map(row => ({ ...row, sublabel: '100+' })) }])
+    } })
+    const root = frame(2)
+    store.set(resetStackActionAtom, [{ ...root, route: { kind: 'root' }, rows: root.rows.map((row, index) => ({ ...row, destination: index === 0 ? { kind: 'albums' as const } : { kind: 'songs' as const } })) }])
+    expect(await call('navigate_list', { direction: 'next', items: 1 })).toMatchObject({ completedItems: 1 })
+  })
+  test('same-label entity replacements and route changes still interrupt before movement', async () => {
+    for (const changeRoute of [false, true]) {
+      const { store, call } = setup({ wait: async () => {
+        const current = store.get(currentScreenAtom)
+        if (current === null) throw new Error('Missing frame')
+        store.set(resetStackActionAtom, [{ ...current, ...(changeRoute ? { route: { kind: 'songs' as const } } : {}), rows: current.rows.map(row => ({ ...row, entityKey: changeRoute ? row.entityKey : 'different-entity' })) }])
+      } })
+      store.set(resetStackActionAtom, [{ ...frame(3), rows: frame(3).rows.map((row, index) => ({ ...row, entityKey: `album-${index}` })) }])
+      await expect(call('navigate_list', { direction: 'next', items: 2 })).rejects.toThrow('interrupted')
+      expect(store.get(currentScreenAtom)?.highlightIndex).toBe(0)
+      expect(store.get(navigationProgressAtom)).toBeNull()
+    }
   })
   test('delayed wakes cannot cause catch-up bursts and consecutive calls retain the speed bound', async () => {
     let time = 0
@@ -154,7 +212,7 @@ describe('current-draft native registration', () => {
     const context: NativeModelContext = { registerTool: async (tool, options) => { registrations.push({ tool, signal: options.signal }); return undefined } }
     const mount = registerTools(context, tools)
     await mount.ready
-    expect(registrations).toHaveLength(7)
+    expect(registrations).toHaveLength(8)
     for (const registration of registrations) {
       expect(Object.keys(registration.tool).sort()).toEqual(['annotations', 'description', 'execute', 'inputSchema', 'name'])
       expect(Object.keys(registration.tool.annotations).sort()).toEqual(['consequentialHint', 'readOnlyHint', 'untrustedContentHint'])
@@ -175,14 +233,16 @@ describe('current-draft native registration', () => {
     expect(modelContextOf(unsupported)).toBe(context)
     const definition = setup().tools[0]
     if (definition === undefined || context === null) throw new Error('fixture missing')
-    await context.registerTool(definition, { signal: new AbortController().signal })
+    const mount = registerTools(context, [definition])
+    await mount.ready
     expect(calls).toBe(1)
+    mount.dispose()
   })
   test('disposal stops pending registered navigation without clearing a remounted operation', async () => {
     const store = createDeviceStore({ initialStack: [frame()] })
     const registered = new Map<string, NativeTool>()
     const context: NativeModelContext = { registerTool: async (tool, { signal }) => { registered.set(tool.name, tool); signal.addEventListener('abort', () => { if (registered.get(tool.name) === tool) registered.delete(tool.name) }, { once: true }); return undefined } }
-    const options: InteractionDependencies = { store, pageState: () => ({ interactionReady: true, status: 'ready' }), press: async () => true, rotate: () => ({}), flick: async () => ({}) }
+    const options: InteractionDependencies = { setVolume: async level => level, store, pageState: () => ({ interactionReady: true, status: 'ready' }), press: async () => true, rotate: () => ({}), flick: async () => ({}) }
     const first = registerTools(context, createInteractionTools(options)); await first.ready
     const oldTool = registered.get('webpod_navigate_list')
     if (oldTool === undefined) throw new Error('fixture missing')

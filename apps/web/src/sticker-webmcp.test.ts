@@ -5,6 +5,8 @@ import { getStickerToolControls, mountStickerToolControls, readStickerList, read
 import { activeStickerCollectionAtom, selectedStickerGenreAtom, stickerPreparedIdsAtom } from './sticker-collections-model'
 import { cancelStickerInteraction, revealStickerPack, setStickerRearVisible, supersedeStickerInteraction, updateStickerInteraction } from './sticker-interaction'
 import { stickerEditorPendingAtom } from './sticker-editor-model'
+import { createDeviceStateTool } from './device-state-webmcp'
+import { createDevicePreviewStore } from './device-preview-orientation'
 
 const original: StickerPlacement = { stickerId: 'PW-B01', surface: 'back', x: .4, y: .6, width: .2, rotationDeg: 17, wear: .3 }
 const seed = (): StickerInventory => ({ stickerIds: ['PW-A01', 'PW-B01', 'PW-C01'], packs: [{ id: 'opened', source: 'starter', stickerIds: ['PW-A01', 'PW-B01'], earnedAt: 1, openedAt: 2 }, { id: 'sealed', source: 'listening', stickerIds: ['PW-C01'], earnedAt: 1, openedAt: null }], progress: STICKER_GENRES.map(genre => ({ genre, listenedMs: 0, nextThresholdMs: 300000 })), placements: [original], placementRevision: 0, importStatus: 'complete' })
@@ -28,6 +30,87 @@ beforeEach(() => {
 afterEach(() => { dispose?.(); dispose = undefined; setStickerRearVisible(false); deviceStore.set(resetStickerCollectionActionAtom) })
 
 describe('mounted sticker adapter shared state and persistence', () => {
+  test('device state exposes a rendered rear mismatch and rejected sticker calls remain recoverable', async () => {
+    const controls = mount()
+    const preview = createDevicePreviewStore()
+    preview.setPose('rear')
+    rear = false
+    const definition = createDeviceStateTool(() => ({ read: preview.getSnapshot, isActive: () => false, isAnimating: () => false }))
+    expect(await definition.execute({}, { signal: signal() })).toMatchObject({
+      visibleFace: 'back',
+      stickers: { inventoryLoaded: true, pageState: { rearReady: false, interactionReady: false } },
+    })
+    await expect(controls.open(signal())).rejects.toThrow('rendered back face is not ready')
+    rear = true
+    await controls.open(signal())
+    expect(await definition.execute({}, { signal: signal() })).toMatchObject({
+      stickers: { pageState: { rearReady: true, interactionReady: true } },
+    })
+    expect(saved).toEqual([])
+  })
+  test('device state reads live faces and saved placements without opening the sticker UI', async () => {
+    const preview = createDevicePreviewStore()
+    let moving = false
+    const definition = createDeviceStateTool(() => ({ read: preview.getSnapshot, isActive: () => false, isAnimating: () => moving }))
+    const read = () => definition.execute({}, { signal: signal() })
+    const before = inventory()
+    expect(definition.name).toBe('webpod_device_state')
+    expect(definition.annotations.readOnlyHint).toBe(true)
+    expect(await read()).toMatchObject({ visibleFace: 'front', isAnimating: false, stickers: { inventoryLoaded: true, placed: [{ id: original.stickerId, name: expect.any(String), placement: original }], held: null } })
+    preview.setPose('rear')
+    expect(await read()).toMatchObject({ visibleFace: 'back', pose: 'rear', orientation: { yawDeg: 180 } })
+    moving = true
+    preview.setOrientation({ pitchDeg: 15, yawDeg: 90, rollDeg: 5 })
+    expect(await read()).toMatchObject({ visibleFace: 'edge', pose: 'custom', isAnimating: true, orientation: { pitchDeg: 15, yawDeg: 90, rollDeg: 5 } })
+    expect(inventory()).toBe(before)
+    expect(saved).toEqual([])
+    await expect(definition.execute({ rotate: true }, { signal: signal() })).rejects.toThrow('Unknown input field')
+    deviceStore.set(resetStickerCollectionActionAtom)
+    expect(await read()).toMatchObject({ stickers: { inventoryLoaded: false, placed: null } })
+    deviceStore.set(receiveStickerInventoryActionAtom, { ...seed(), placements: [] })
+    expect(await read()).toMatchObject({ stickers: { inventoryLoaded: true, placed: [] } })
+  })
+  test('device state separates held edits from saved placement until persistence', async () => {
+    const controls = mount()
+    await controls.open(signal())
+    await controls.grab(original.stickerId, 'placed', signal())
+    await controls.rotate(20, signal())
+    const preview = createDevicePreviewStore()
+    preview.setPose('rear')
+    const definition = createDeviceStateTool(() => ({ read: preview.getSnapshot, isActive: () => false, isAnimating: () => false }))
+    expect(await definition.execute({}, { signal: signal() })).toMatchObject({ stickers: {
+      placed: [{ placement: original }],
+      held: { stickerId: original.stickerId, placement: { rotationDeg: original.rotationDeg + 20 }, origin: original },
+    } })
+    expect(saved).toEqual([])
+  })
+  test('device state and grab report comparable saved scale/wear and separate draft wear', async () => {
+    const legacy = { stickerId: 'PW-A01' as const, surface: 'back' as const, x: .2, y: .3, width: .1, rotationDeg: 0 }
+    deviceStore.set(receiveStickerInventoryActionAtom, { ...seed(), placements: [original, legacy], appearances: [{ stickerId: legacy.stickerId, wear: .8 }] })
+    const preview = createDevicePreviewStore()
+    const definition = createDeviceStateTool(() => ({ read: preview.getSnapshot, isActive: () => false, isAnimating: () => false }))
+    const controls = mount()
+    expect(await definition.execute({}, { signal: signal() })).toMatchObject({ stickers: { placed: [
+      { id: 'PW-A01', scale: .1, wear: .8 }, { id: 'PW-B01', scale: .2, wear: .3 },
+    ] } })
+    expect(await controls.grab('PW-A01', 'placed', signal())).toMatchObject({
+      items: expect.arrayContaining([expect.objectContaining({ id: 'PW-A01', scale: .1, wear: .8 })]),
+      held: { stickerId: 'PW-A01', scale: .1, wear: .8, origin: legacy },
+    })
+    await controls.wear(.1, signal())
+    expect(await definition.execute({}, { signal: signal() })).toMatchObject({ stickers: {
+      placed: [{ id: 'PW-A01', scale: .1, wear: .8 }, { id: 'PW-B01', scale: .2, wear: .3 }],
+      held: { scale: .1, wear: expect.closeTo(.9) },
+    } })
+    expect(saved).toEqual([])
+  })
+  test('legacy wear defaults to zero and unplaced stickers have no saved scale', () => {
+    const { wear: _wear, ...legacy } = original
+    void _wear
+    deviceStore.set(receiveStickerInventoryActionAtom, { ...seed(), placements: [legacy] })
+    expect(readStickerList().items.find(item => item.id === original.stickerId)).toMatchObject({ scale: .2, wear: 0 })
+    expect(readStickerList().items.find(item => item.id === 'PW-A01')).toMatchObject({ scale: null, wear: 0 })
+  })
   test('all catalogue statuses include locked/sealed/owned/placed and open UI never claims packs', async () => {
     const controls = mount(), before = inventory()
     await controls.open(signal())

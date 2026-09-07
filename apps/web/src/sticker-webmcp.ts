@@ -56,9 +56,9 @@ export function readStickerList() {
     const placement = inventory?.placements.find(item => item.stickerId === art.id) ?? null
     const opened = inventory?.packs.some(pack => pack.openedAt !== null && pack.stickerIds.includes(art.id)) ?? false
     const slot = collections.flatMap(collection => collection.slots).find(slot => slot.art.id === art.id)
-    return { id: art.id, name: art.name, collection: art.collection, genre: art.genre, artworkUrl: art.url, owned, available: owned && (placement !== null || opened), state: !owned ? 'locked' : placement !== null ? 'placed' : opened ? 'earned' : 'sealed', placement, wear: placement?.wear ?? stickerWear(inventory ?? {}, art.id), meaning: slot?.meaning ?? null, remainingMinutes: slot?.remainingMinutes ?? null }
+    return { id: art.id, name: art.name, collection: art.collection, genre: art.genre, artworkUrl: art.url, owned, available: owned && (placement !== null || opened), state: !owned ? 'locked' : placement !== null ? 'placed' : opened ? 'earned' : 'sealed', placement, scale: placement?.width ?? null, wear: placement?.wear ?? stickerWear(inventory ?? {}, art.id), meaning: slot?.meaning ?? null, remainingMinutes: slot?.remainingMinutes ?? null }
   })
-  return { count: items.length, items, selectedCollection: requested === null ? null : { genre: requested.genre, index: collections.findIndex(item => item.genre === requested.genre) }, held: held.selectedStickerId === null || held.previewPlacement === null && held.sourcePlacement == null && held.peel === 0 && held.stage === 'open' ? null : { stickerId: held.selectedStickerId, source: held.sourcePlacement == null ? 'collection' : 'placed', placement: held.previewPlacement, origin: held.sourcePlacement ?? null }, pageState: readStickerPageState() }
+  return { count: items.length, items, selectedCollection: requested === null ? null : { genre: requested.genre, index: collections.findIndex(item => item.genre === requested.genre) }, held: held.selectedStickerId === null || held.previewPlacement === null && held.sourcePlacement == null && held.peel === 0 && held.stage === 'open' ? null : { stickerId: held.selectedStickerId, source: held.sourcePlacement == null ? 'collection' : 'placed', placement: held.previewPlacement, origin: held.sourcePlacement ?? null, scale: held.previewPlacement?.width ?? held.sourcePlacement?.width ?? null, wear: held.previewPlacement?.wear ?? held.sourcePlacement?.wear ?? stickerWear(inventory ?? {}, held.selectedStickerId) }, pageState: readStickerPageState() }
 }
 
 /** Mounts shared sticker actions. Saved inventory remains authoritative through aborts,
@@ -73,7 +73,9 @@ export function mountStickerToolControls(actions: () => StickerUiActions, option
   const complete = (error: string | null = null) => { if (!disposed) deviceStore.set(stickerOperationAtom, current => current === null ? null : { ...current, completedAtMs: Date.now(), saving: false, error }) }
   const requireUi = (signal: AbortSignal, prepared = false) => {
     signal.throwIfAborted()
-    if (disposed || !actions().rear() || deviceStore.get(stickerInventoryAtom) === null) throw new Error('Sticker interaction requires the mounted back face and loaded inventory. Flick to back and read page state.')
+    if (disposed) throw new Error('Sticker controls have unmounted. Read webpod_page_state before retrying.')
+    if (deviceStore.get(stickerInventoryAtom) === null) throw new Error('Sticker inventory has not loaded. Read webpod_page_state before retrying.')
+    if (!actions().rear()) throw new Error('The rendered back face is not ready for sticker interaction. Read webpod_device_state and stickers.pageState.rearReady. If visibleFace is already back, repeating flicks will not establish readiness; the rendered device and orientation state may be out of sync.')
     if (saving || Object.keys(deviceStore.get(stickerEditorPendingAtom)).length > 0 || actions().humanBusy()) throw new Error('A sticker gesture or save is running.')
     if (prepared && !deviceStore.get(stickerCollectionUsableAtom)) throw new Error('The current sticker sheet is still preparing. Read page state.')
   }

@@ -260,6 +260,7 @@ function DeviceProjectionDiagnostics({
   useLayoutEffect(() => {
     const content = scene.getObjectByName(DEVICE_CONTENT_NAME);
     if (content === undefined || !(camera instanceof PerspectiveCamera)) return;
+    canvas.setAttribute("data-wp-scene-orientation", [orientation.pitchDeg, orientation.yawDeg, orientation.rollDeg].join(","));
     content.updateWorldMatrix(true, true);
     const points = boxCorners(deviceEnvelopeBounds(envelope)).map((corner) =>
       corner.applyMatrix4(content.matrixWorld),

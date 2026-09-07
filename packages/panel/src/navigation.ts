@@ -143,17 +143,19 @@ export function providerStatusFrame(provider: MusicProvider): ScreenFrame | null
   return null
 }
 
-const descendRow = (index: number, label: string, sublabel: string | null = null, destination?: NavigationRoute): PanelRow => ({
+const descendRow = (index: number, label: string, sublabel: string | null = null, destination?: NavigationRoute, entityKey?: string): PanelRow => ({
   index,
   label,
   sublabel,
   glyphs: ['descend'],
   provenance: null,
   ...(destination === undefined ? {} : { destination }),
+  ...(entityKey === undefined ? {} : { entityKey }),
 })
 
 const trackRow = (track: TrackRef, index: number): PanelRow => ({
   index,
+  entityKey: track.key,
   label: track.title,
   sublabel: track.artistName,
   glyphs: [],
@@ -211,11 +213,11 @@ export function refreshNavigationFrame(current: ScreenFrame, source: NavigationD
   let refreshed: ScreenFrame | null = null
   if (route.kind === 'root') refreshed = navigationRoot(source, provider)
   else if (route.kind === 'cover-flow') refreshed = albumsFrame('Cover Flow', 'cover-flow', source.albums)
-  else if (route.kind === 'playlists') refreshed = listFrame('S05', 'Playlists', route, source.playlists.map((item, index) => descendRow(index, item.name)))
+  else if (route.kind === 'playlists') refreshed = listFrame('S05', 'Playlists', route, source.playlists.map((item, index) => descendRow(index, item.name, null, undefined, item.key)))
   else if (route.kind === 'artists') refreshed = artistsFrame('Artists', route, source.artists)
   else if (route.kind === 'albums') refreshed = albumsFrame('Albums', 'albums', source.albums)
   else if (route.kind === 'songs') refreshed = songsFrame('Songs', route, source.songs)
-  else if (route.kind === 'stations') refreshed = listFrame('S18', 'Radio', route, source.stations.map((item, index) => descendRow(index, item.name, item.live ? 'Live' : null)))
+  else if (route.kind === 'stations') refreshed = listFrame('S18', 'Radio', route, source.stations.map((item, index) => descendRow(index, item.name, item.live ? 'Live' : null, undefined, item.key)))
   if (refreshed === null) return current
   const highlightIndex = refreshed.rows.length === 0 ? -1 : Math.min(Math.max(0, current.highlightIndex), refreshed.rows.length - 1)
   const windowStart = Math.min(Math.max(0, current.windowStart), Math.max(0, refreshed.rows.length - 1))
@@ -348,26 +350,26 @@ export function navigationLoadingRequestId(frameValue: ScreenFrame): number | nu
 
 function rootDestination(destination: NavigationRoute | undefined, source: NavigationDataSource): ScreenFrame | null {
   if (destination?.kind === 'cover-flow') return albumsFrame('Cover Flow', 'cover-flow', source.albums)
-  if (destination?.kind === 'playlists') return listFrame('S05', 'Playlists', destination, source.playlists.map((item, index) => descendRow(index, item.name)))
+  if (destination?.kind === 'playlists') return listFrame('S05', 'Playlists', destination, source.playlists.map((item, index) => descendRow(index, item.name, null, undefined, item.key)))
   if (destination?.kind === 'artists') return artistsFrame('Artists', destination, source.artists)
   if (destination?.kind === 'albums') return albumsFrame('Albums', 'albums', source.albums)
   if (destination?.kind === 'songs') return songsFrame('Songs', destination, source.songs)
-  if (destination?.kind === 'genres') return listFrame('S10', 'Genres', destination, source.genres.map((item, index) => descendRow(index, item.name)))
-  if (destination?.kind === 'stations') return listFrame('S18', 'Radio', destination, source.stations.map((item, index) => descendRow(index, item.name, item.live ? 'Live' : null)))
+  if (destination?.kind === 'genres') return listFrame('S10', 'Genres', destination, source.genres.map((item, index) => descendRow(index, item.name, null, undefined, item.key)))
+  if (destination?.kind === 'stations') return listFrame('S18', 'Radio', destination, source.stations.map((item, index) => descendRow(index, item.name, item.live ? 'Live' : null, undefined, item.key)))
   if (destination?.kind === 'search-entry') return listFrame('S12', 'Search', destination, [descendRow(0, 'Search Library & Apple Music', 'Type a query', { kind: 'search-request' })])
   return null
 }
 
 function artistsFrame(title: string, route: NavigationRoute, artists: readonly ArtistRef[]): ScreenFrame {
-  return listFrame('S06', title, route, artists.map((item, index) => descendRow(index, item.name)))
+  return listFrame('S06', title, route, artists.map((item, index) => descendRow(index, item.name, null, undefined, item.key)))
 }
 
 function albumsFrame(title: string, kind: 'albums' | 'cover-flow', albums: readonly AlbumRef[]): ScreenFrame {
-  return listFrame(kind === 'cover-flow' ? 'S19' : 'S08', title, { kind }, albums.map((item, index) => descendRow(index, item.title, item.artistName)))
+  return listFrame(kind === 'cover-flow' ? 'S19' : 'S08', title, { kind }, albums.map((item, index) => descendRow(index, item.title, item.artistName, undefined, item.key)))
 }
 
 function artistAlbumsFrame(artist: ArtistRef, albums: readonly AlbumRef[]): ScreenFrame {
-  return withAlbumCollection(listFrame('S07', artist.name, { kind: 'artist-albums', artistKey: artist.key }, albums.map((item, index) => descendRow(index, item.title, item.artistName))), albums)
+  return withAlbumCollection(listFrame('S07', artist.name, { kind: 'artist-albums', artistKey: artist.key }, albums.map((item, index) => descendRow(index, item.title, item.artistName, undefined, item.key))), albums)
 }
 
 function tracksFrame(album: AlbumRef, tracks: readonly TrackRef[]): ScreenFrame {
@@ -393,7 +395,7 @@ function genreFrame(genre: GenreRef): ScreenFrame {
 
 function genreDestination(genreKey: LocalKey, destination: NavigationRoute | undefined, source: NavigationDataSource): ScreenFrame | null {
   if (destination?.kind === 'genre-artists') return artistsFrame('Artists', destination, source.artistsForGenre(genreKey))
-  if (destination?.kind === 'genre-albums') return listFrame('S07', 'Albums', destination, source.albumsForGenre(genreKey).map((item, index) => descendRow(index, item.title, item.artistName)))
+  if (destination?.kind === 'genre-albums') return listFrame('S07', 'Albums', destination, source.albumsForGenre(genreKey).map((item, index) => descendRow(index, item.title, item.artistName, undefined, item.key)))
   if (destination?.kind === 'genre-tracks') return songsFrame('Songs', destination, source.tracksForGenre(genreKey))
   return null
 }

@@ -9,7 +9,12 @@ export interface NativeTool {
   readonly execute: (input: unknown, options: { readonly signal: AbortSignal }) => Promise<object>
 }
 export interface NativeModelContext {
-  registerTool(tool: NativeTool, options: { readonly signal: AbortSignal }): Promise<undefined>
+  registerTool(tool: RegisteredNativeTool, options: { readonly signal: AbortSignal }): Promise<undefined>
+}
+/** Some native implementations omit execution options. Normalize only at the
+ * browser boundary so domain tools always receive a usable cancellation signal. */
+export interface RegisteredNativeTool extends Omit<NativeTool, 'execute'> {
+  readonly execute: (input: unknown, options?: { readonly signal?: AbortSignal }) => Promise<object>
 }
 const contexts = new WeakMap<object, NativeModelContext>()
 const owners = new WeakMap<NativeModelContext, AbortController>()
@@ -39,7 +44,9 @@ export function registerTools(context: NativeModelContext, tools: readonly Nativ
       for (const tool of tools) {
         controller.signal.throwIfAborted()
         await context.registerTool({ ...tool, execute: async (input, options) => {
-          const signal = AbortSignal.any([options.signal, controller.signal])
+          const signal = options?.signal === undefined
+            ? controller.signal
+            : AbortSignal.any([options.signal, controller.signal])
           signal.throwIfAborted()
           return tool.execute(input, { signal })
         } }, { signal: controller.signal })

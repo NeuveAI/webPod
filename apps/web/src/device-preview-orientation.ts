@@ -144,6 +144,7 @@ export type DeviceOrientationMotionEnvironment = {
 }
 
 export type DeviceOrientationControls = {
+  readonly read: () => DevicePreviewState
   /** Applies finite degree deltas (x=pitch, y=yaw) and returns clamped state. */
   readonly rotate: (xDeg: number, yDeg: number) => DevicePreviewState
   /** Uses the physical face spring; resolves only at rest and rejects interruption. */
@@ -175,6 +176,7 @@ export function bindDeviceOrientationControls(
   blurHost: EventTarget = window,
   motionEnvironment: DeviceOrientationMotionEnvironment =
     browserDeviceOrientationMotionEnvironment(),
+  onTrace?: (kind: string, detail: Readonly<Record<string, unknown>>) => void,
 ): DeviceOrientationControls {
   let active: ActiveOrientationGrab | null = null
   let releaseMotion: DeviceOrientationReleaseMotion | null = null
@@ -190,10 +192,15 @@ export function bindDeviceOrientationControls(
     readonly reject: (reason: Error) => void
     readonly cleanup: () => void
   } | null = null
+  const trace = (kind: string, detail: Readonly<Record<string, unknown>> = {}) => {
+    try { onTrace?.(kind, { ...detail, orientation: store.getSnapshot().orientation, held: active !== null, moving: releaseMotion !== null, frameScheduled: motionFrame !== null, generation: motionGeneration }) } catch { /* Observation cannot interrupt controls. */ }
+  }
+  trace('orientation-mounted')
   const settleFlick = (error?: Error) => {
     const pending = pendingFlick
     pendingFlick = null
     if (pending === null) return
+    trace(error === undefined ? 'flick-settled' : 'flick-interrupted', { reason: error?.message ?? null })
     pending.cleanup()
     if (error === undefined) pending.resolve(store.getSnapshot())
     else pending.reject(error)
@@ -223,6 +230,7 @@ export function bindDeviceOrientationControls(
   }
 
   const stopMotion = () => {
+    if (releaseMotion !== null || pendingFlick !== null) trace('motion-stopped')
     motionGeneration += 1
     settleFlick(new DOMException('Device orientation motion interrupted', 'AbortError'))
     releaseMotion = null
@@ -239,6 +247,7 @@ export function bindDeviceOrientationControls(
     if (current === null) return
     const generation = motionGeneration
     const elapsedSeconds = (timestampMs - lastMotionFrameMs) / 1_000
+    if (elapsedSeconds > .25) trace('motion-frame-gap', { elapsedMs: elapsedSeconds * 1000 })
     lastMotionFrameMs = timestampMs
     const advanced = motionEnvironment.reducedMotion()
       ? { orientation: current.kind === 'coast' ? current.orientation : { ...current.orientation, ...(current.kind === 'flick-snap' ? { pitchDeg: 0, rollDeg: 0 } : {}), yawDeg: current.targetYawDeg }, motion: null }
@@ -287,6 +296,7 @@ export function bindDeviceOrientationControls(
     const current = active
     if (current === null || current.start.pointerId !== pointerId) return null
     active = null
+    trace('grab-finished', { pointerId, releaseCapture })
     current.start.host.removeEventListener('pointermove', current.onMove)
     current.start.host.removeEventListener('pointerup', current.onRelease)
     current.start.host.removeEventListener('pointercancel', current.onCancel)
@@ -309,10 +319,11 @@ export function bindDeviceOrientationControls(
   }
 
   const begin = (start: DeviceOrientationGrabStart): boolean => {
-    if (disposed || active !== null) return false
+    if (disposed || active !== null) { trace('grab-rejected', { disposed }); return false }
     try {
       start.capture.setPointerCapture(start.pointerId)
     } catch {
+      trace('capture-failed', { pointerId: start.pointerId })
       return false
     }
     stopMotion()
@@ -377,6 +388,7 @@ export function bindDeviceOrientationControls(
       onCancel,
       onLostCapture,
     }
+    trace('grab-started', { pointerId: start.pointerId })
     start.host.addEventListener('pointermove', onMove, { passive: false })
     start.host.addEventListener('pointerup', onRelease, { passive: false })
     start.host.addEventListener('pointercancel', onCancel)
@@ -391,6 +403,7 @@ export function bindDeviceOrientationControls(
     const keyboard = keyboardInputOf(event)
     if (keyboard === null) return
     if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home'].includes(keyboard.key)) return
+    trace('orientation-key', { key: keyboard.key })
     const grab = active
     if (grab !== null) finish(grab.start.pointerId, true)
     stopMotion()
@@ -421,6 +434,7 @@ export function bindDeviceOrientationControls(
   }
 
   const onBlur: EventListener = () => {
+    trace('orientation-blur')
     const current = active
     if (current !== null) finish(current.start.pointerId, true)
     stopMotion()
@@ -433,6 +447,7 @@ export function bindDeviceOrientationControls(
     // Ignore only our intended value, not external mutations made by another
     // synchronous subscriber while our publication is still on the stack.
     if (!changed || (publishingOrientation !== null && sameOrientation(publishingOrientation, next))) return
+    trace('external-orientation-write')
     // Reset/preset/tool writes supersede the gesture rather than being undone
     // by its next animation frame or pointer sample.
     if (active !== null) finish(active.start.pointerId, true)
@@ -442,7 +457,9 @@ export function bindDeviceOrientationControls(
   blurHost.addEventListener('blur', onBlur)
   return {
     begin,
+    read: store.getSnapshot,
     rotate(xDeg, yDeg) {
+      trace('rotate-request', { xDeg, yDeg })
       if (disposed) throw new Error('Device orientation controller disposed')
       if (!Number.isFinite(xDeg) || !Number.isFinite(yDeg)) throw new TypeError('Rotation deltas must be finite degrees')
       if (active !== null) throw new Error('Device is being held by a person')
@@ -454,6 +471,7 @@ export function bindDeviceOrientationControls(
       return publishOrientation({ ...current, pitchDeg, yawDeg })
     },
     flick(face, signal) {
+      trace('flick-request', { face, aborted: signal.aborted })
       if (disposed) return Promise.reject(new Error('Device orientation controller disposed'))
       if (face !== 'front' && face !== 'back') return Promise.reject(new TypeError('Face must be front or back'))
       if (signal.aborted) return Promise.reject(new DOMException('Device orientation motion aborted', 'AbortError'))
@@ -487,6 +505,7 @@ export function bindDeviceOrientationControls(
     },
     dispose() {
       if (disposed) return
+      trace('orientation-disposed')
       disposed = true
       unsubscribe()
       const current = active

@@ -274,6 +274,8 @@ export type RowProvenance = 'human' | 'agent' | 'system' | null
  * unambiguously.
  */
 export type PanelRow = {
+  /** Stable provider entity identity across live list refreshes. */
+  readonly entityKey?: string
   readonly index: number
   readonly label: string
   /** Secondary line, or `null` when the row is a single line. Never `""`. */
