@@ -418,12 +418,12 @@ export function PreviewControls({ state, music }: { readonly state: DevicePrevie
       <h2 className="mt-3 basis-full text-sm font-semibold">Interaction</h2>
       <InteractionSoundSetting />
       <h2 className="mt-3 basis-full text-sm font-semibold">Apple Music</h2>
-      {music.activeMode === "apple" && (music.phase === "signed-out" || music.phase === "permission-denied") ? (
+      {music.activeMode === "apple" && (music.phase === "signed-out" || music.phase === "permission-denied" || (music.phase === "error" && music.provider.session === null)) ? (
         <button type="button" onClick={() => void authorizeAppleRuntime()}>
           Sign in to Apple Music
         </button>
       ) : null}
-      {music.activeMode === "apple" && music.phase === "authorized" ? (
+      {music.activeMode === "apple" && (music.phase === "authorized" || (music.phase === "error" && music.provider.session !== null)) ? (
         <button type="button" onClick={() => void signOutAppleRuntime()}>
           Sign out of Apple Music
         </button>

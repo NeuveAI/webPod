@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { createFixtureProvider } from '@webpod/providers'
 
 import type { ApplePlaybackDiagnosticEvent } from './apple-playback-diagnostics'
 import { musicRuntime } from './music-runtime'
@@ -37,7 +38,7 @@ describe('playback diagnostic presentation', () => {
     expect(html).toContain('Copy diagnostics')
   })
 
-  test('offers a truthful Apple retry without exposing a production demo fallback', () => {
+  for (const authorized of [true, false]) test(`offers session recovery after a library error with saved authorization ${String(authorized)}`, () => {
     const state = {
       colourway: 'black',
       room: 'dark',
@@ -49,6 +50,7 @@ describe('playback diagnostic presentation', () => {
       requestedMode: 'apple',
       activeMode: 'apple',
       phase: 'error',
+      provider: createFixtureProvider({ authorized }),
       message: 'Apple Music library loading failed',
     } as const
 
@@ -56,7 +58,7 @@ describe('playback diagnostic presentation', () => {
 
     expect(html).toContain('Retry Apple Music')
     expect(html).not.toContain('Use demo library')
-    expect(html).not.toContain('Sign in to Apple Music')
-    expect(html).not.toContain('Sign out of Apple Music')
+    expect(html).toContain(authorized ? 'Sign out of Apple Music' : 'Sign in to Apple Music')
+    expect(html).not.toContain(authorized ? 'Sign in to Apple Music' : 'Sign out of Apple Music')
   })
 })

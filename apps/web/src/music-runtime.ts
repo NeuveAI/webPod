@@ -197,7 +197,6 @@ export async function authorizeAppleRuntime(): Promise<void> {
   restoreStickerSession(provider)
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
-    await provider.configure(); if (selectedOperation !== operation) return
     try { await provider.authorize() } catch (cause) {
       if (selectedOperation !== operation) return
       const denied = provider.appleSessionState.status === 'permission-denied'
@@ -222,5 +221,19 @@ export async function authorizeAppleRuntime(): Promise<void> {
 }
 
 /** Invalidates the MusicKit user session and returns to the signed-out Apple frame. */
-export async function signOutAppleRuntime(): Promise<void> { stopStickerRuntime(true); const selectedOperation = ++operation; if (appleProvider === null) return; try { await appleProvider.unauthorize() } finally { if (selectedOperation === operation) publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider: appleProvider, source: emptySource, message: null }) } }
+export async function signOutAppleRuntime(): Promise<void> {
+  const selectedOperation = ++operation
+  const provider = appleProvider
+  if (provider === null) return
+  publish({ ...snapshot, phase: 'signing-in', message: null })
+  try {
+    await provider.unauthorize()
+    if (selectedOperation !== operation) return
+    stopStickerRuntime(true)
+    publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null })
+  } catch (cause) {
+    if (selectedOperation !== operation) return
+    publish({ ...snapshot, phase: 'error', message: failureMessage('sign-out', cause) })
+  }
+}
 export const musicRuntime = { getSnapshot: (): MusicRuntimeSnapshot => snapshot, subscribe(listener: () => void): () => void { listeners.add(listener); return () => { listeners.delete(listener) } } }
