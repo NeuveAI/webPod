@@ -203,7 +203,7 @@ describe('external device preview orientation', () => {
     controls.dispose()
   })
 
-  test('production release continues over frames and a fast yaw flick lands opposite', () => {
+  test('production release continues over frames and a fast yaw flick coasts to an arbitrary angle', () => {
     const stage = new FakeStage()
     const host = new EventTarget()
     const capture = new FakeCapture()
@@ -227,7 +227,7 @@ describe('external device preview orientation', () => {
     expect(atRelease).toBeCloseTo(37.8, 8)
     expect(controls.isActive()).toBe(false)
     expect(controls.isAnimating()).toBe(true)
-    expect(stage.dataset['orientationMotion']).toBe('opposite-face')
+    expect(stage.dataset['orientationMotion']).toBe('coast')
     expect(frames.pendingFrames).toBe(1)
 
     frames.step(16)
@@ -238,10 +238,35 @@ describe('external device preview orientation', () => {
     expect(afterTwoFrames).toBeGreaterThan(afterOneFrame)
 
     frames.runUntilIdle()
-    expect(store.getSnapshot().orientation.yawDeg).toBe(180)
+    expect(store.getSnapshot().orientation.yawDeg).toBeCloseTo(121.8, 8)
     expect(controls.isAnimating()).toBe(false)
     expect(stage.dataset['orientationMotion']).toBeUndefined()
     expect(frames.pendingFrames).toBe(0)
+    controls.dispose()
+  })
+
+  test('a deliberate horizontal flick snaps flat and can be caught midway', () => {
+    const stage = new FakeStage()
+    const host = new EventTarget()
+    const frames = new FrameEnvironment()
+    const store = createDevicePreviewStore()
+    const controls = bindDeviceOrientationControls(stage, store, new EventTarget(), frames)
+    store.setOrientation({ pitchDeg: 12, yawDeg: 0, rollDeg: -6 })
+    controls.begin(grabStart(host, new FakeCapture(), 'mouse', 31, 0, 0))
+    host.dispatchEvent(pointerEvent('pointermove', 31, 50, 0, 20))
+    host.dispatchEvent(pointerEvent('pointerup', 31, 100, 0, 40))
+    expect(stage.dataset['orientationMotion']).toBe('flick-snap')
+    frames.runUntilIdle()
+    expect(store.getSnapshot().orientation).toEqual({ pitchDeg: 0, yawDeg: 180, rollDeg: 0 })
+    controls.begin(grabStart(host, new FakeCapture(), 'mouse', 32, 0, 0))
+    host.dispatchEvent(pointerEvent('pointermove', 32, 50, 0, 20))
+    host.dispatchEvent(pointerEvent('pointerup', 32, 100, 0, 40))
+    frames.step(16)
+    const caught = store.getSnapshot().orientation
+    controls.begin(grabStart(host, new FakeCapture(), 'mouse', 33, 100, 0))
+    frames.runUntilIdle()
+    expect(store.getSnapshot().orientation).toEqual(caught)
+    expect(controls.isAnimating()).toBe(false)
     controls.dispose()
   })
 
@@ -281,7 +306,7 @@ describe('external device preview orientation', () => {
     controls.dispose()
   })
 
-  test('reduced motion resolves a fast semantic release without scheduling', () => {
+  test('reduced motion preserves the release pose without scheduling', () => {
     const stage = new FakeStage()
     const host = new EventTarget()
     const frames = new FrameEnvironment()
@@ -300,7 +325,7 @@ describe('external device preview orientation', () => {
     host.dispatchEvent(pointerEvent('pointermove', 51, -30, 0, 20))
     host.dispatchEvent(pointerEvent('pointerup', 51, -60, 0, 40))
 
-    expect(store.getSnapshot().orientation.yawDeg).toBe(180)
+    expect(store.getSnapshot().orientation.yawDeg).toBeCloseTo(-25.2, 8)
     expect(controls.isAnimating()).toBe(false)
     expect(frames.pendingFrames).toBe(0)
     controls.dispose()
@@ -361,7 +386,7 @@ describe('external device preview orientation', () => {
   })
 
   for (const ending of ['pointercancel', 'lostpointercapture'] as const) {
-    test(`${ending} settles an edge pose, clears capture and permits another grab`, () => {
+    test(`${ending} preserves an edge pose, clears capture and permits another grab`, () => {
       const stage = new FakeStage()
       const host = new EventTarget()
       const capture = new FakeCapture()
@@ -374,7 +399,7 @@ describe('external device preview orientation', () => {
       expect(controls.isActive()).toBe(false)
       expect(capture.captured.size).toBe(0)
       frames.runUntilIdle()
-      expect(store.getSnapshot().orientation.yawDeg).toBe(180)
+      expect(store.getSnapshot().orientation.yawDeg).toBeCloseTo(100.8, 8)
       expect(controls.begin(grabStart(host, capture, 'mouse', 6, 240, 0))).toBe(true)
       controls.dispose()
       expect(frames.pendingFrames).toBe(0)
@@ -392,7 +417,7 @@ describe('external device preview orientation', () => {
     host.dispatchEvent(pointerEvent('pointerup', 5, 60, 0, 100))
     expect(stage.dataset['orientationReleaseYawVelocity']).toBe('0.000')
     frames.runUntilIdle()
-    expect(store.getSnapshot().orientation.yawDeg).toBe(0)
+    expect(store.getSnapshot().orientation.yawDeg).toBeCloseTo(25.2, 8)
     controls.dispose()
   })
 
@@ -416,7 +441,7 @@ describe('external device preview orientation', () => {
     expect(controls.isAnimating()).toBe(true)
     frames.reduced = true
     frames.step(16)
-    expect(store.getSnapshot().orientation.yawDeg).toBe(180)
+    expect(store.getSnapshot().orientation.yawDeg).toBeCloseTo(25.2, 8)
     expect(frames.pendingFrames).toBe(0)
     controls.dispose()
   })
@@ -458,7 +483,7 @@ describe('external device preview orientation', () => {
     expect(controls.begin(grabStart(host, broken, 'mouse', 6, 0, 0))).toBe(false)
     expect(controls.isAnimating()).toBe(true)
     frames.runUntilIdle()
-    expect(store.getSnapshot().orientation.yawDeg).toBe(180)
+    expect(store.getSnapshot().orientation.yawDeg).toBeCloseTo(109.2, 8)
     controls.dispose()
   })
 

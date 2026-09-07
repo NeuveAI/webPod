@@ -5,12 +5,11 @@ import {
 
 /* ANIMATION STORYBOARD
  * grab      stop release motion; follow the pointer directly
- * release   project recent intent, then spring to a usable front/back face
- * settle    retain bounded pitch/roll inertia; relinquish the last frame
- * reduced   publish the same destination immediately
+ * release   coast in the measured release direction with exponential friction
+ * flick     a deliberate fast horizontal swipe settles the opposite face flat
+ * settle    relinquish the last frame; ordinary drags retain their custom pose
+ * reduced   apply intentional snaps immediately; otherwise retain the dragged pose
  */
-export const ORIENTATION_RELEASE_PROJECTION_SECONDS = 0.12
-export const ORIENTATION_FLICK_MIN_TRAVEL_DEG = 8
 
 export const DEVICE_ORIENTATION_DRAG_GAIN = Object.freeze({
   pitchDegPerPixel: 0.28,
@@ -24,8 +23,10 @@ export const ORIENTATION_RELEASE_SAMPLE_WINDOW_MS = 110
 export const ORIENTATION_RELEASE_SAMPLE_STALE_MS = 72
 /** Corrupted/coalesced pointer jumps above this rate do not enter inertia. */
 export const ORIENTATION_MAX_POINTER_SPEED_PX_PER_SECOND = 5_000
-/** A deliberate yaw flick always resolves to the opposite starting hemisphere. */
-export const ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND = 280
+/** Intentional horizontal flick: about 1,667 px/s and 34 px of recent travel. */
+export const ORIENTATION_SNAP_MIN_SPEED_DEG_PER_SECOND = 700
+export const ORIENTATION_SNAP_MIN_TRAVEL_DEG = 14
+export const ORIENTATION_SNAP_HORIZONTAL_DOMINANCE = 1.5
 /** Exponential free-coast drag, expressed per second rather than per frame. */
 export const ORIENTATION_COAST_DECAY_PER_SECOND = 7.5
 /** Natural frequency of the opposite-face settling spring. */
@@ -57,7 +58,7 @@ export type DeviceOrientationVelocity = {
 }
 
 export type DeviceOrientationReleaseMotion = {
-  readonly kind: 'face-settle' | 'opposite-face'
+  readonly kind: 'coast' | 'opposite-face' | 'flick-snap'
   /** Yaw is intentionally unwrapped until the external store publishes it. */
   readonly orientation: DeviceOrientation
   readonly velocity: DeviceOrientationVelocity
@@ -172,49 +173,44 @@ export function pointerVelocityToDeviceVelocity(
   }
 }
 
-/**
- * Starts nearest-face or semantic opposite-face motion from one pointer release.
- * Reduced motion resolves the same destination in
- * one state write, without retaining an animation frame.
- * The live controller must supply yawImpulseTravelDeg from recent samples so a
- * reversal cannot borrow earlier travel. The default is for callers that only
- * have a single start/release segment, such as deterministic motion probes.
- */
+/** Coasts freely unless recent horizontal intent qualifies for a face snap. */
 export function beginDeviceOrientationRelease(
-  startOrientation: DeviceOrientation,
   currentOrientation: DeviceOrientation,
   velocity: DeviceOrientationVelocity,
   reducedMotion: boolean,
-  yawImpulseTravelDeg = currentOrientation.yawDeg - startOrientation.yawDeg,
+  gesture?: { readonly startYawDeg: number; readonly yawImpulseTravelDeg: number },
 ): DeviceOrientationRelease {
-  const yawSpeed = velocity.yawDegPerSecond
-  const isOppositeFaceFlick =
-    Math.abs(yawSpeed) >= ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND &&
-    Math.abs(yawImpulseTravelDeg) >= ORIENTATION_FLICK_MIN_TRAVEL_DEG
-  // Projection cannot magnify a sub-threshold corrective twitch into a flip.
-  // Keep its look-ahead within twice the actual latest impulse travel.
-  const projectedTravel = Math.sign(yawSpeed) * Math.min(
-    Math.abs(yawSpeed) * ORIENTATION_RELEASE_PROJECTION_SECONDS,
-    Math.abs(yawImpulseTravelDeg) * 2,
-  )
-  const targetYawDeg = isOppositeFaceFlick
-    ? oppositeFaceTargetYaw(startOrientation.yawDeg, currentOrientation.yawDeg, yawSpeed < 0 ? -1 : 1)
-    : Math.round((currentOrientation.yawDeg + projectedTravel) / 180) * 180 + 0
-  if (reducedMotion) {
-    return { orientation: { ...currentOrientation, yawDeg: targetYawDeg }, motion: null }
+  const direction = Math.sign(velocity.yawDegPerSecond)
+  if (
+    gesture !== undefined &&
+    Math.abs(velocity.yawDegPerSecond) >= ORIENTATION_SNAP_MIN_SPEED_DEG_PER_SECOND &&
+    gesture.yawImpulseTravelDeg * direction >= ORIENTATION_SNAP_MIN_TRAVEL_DEG &&
+    Math.abs(velocity.yawDegPerSecond) >= ORIENTATION_SNAP_HORIZONTAL_DOMINANCE *
+      Math.hypot(velocity.pitchDegPerSecond, velocity.rollDegPerSecond)
+  ) {
+    const opposite = Math.round(gesture.startYawDeg / 180) * 180 + direction * 180
+    const targetYawDeg = opposite + Math.round((currentOrientation.yawDeg - opposite) / 360) * 360
+    const remaining = (targetYawDeg - currentOrientation.yawDeg) * direction
+    // Assist only a face still ahead; never pull a completed rotation backward.
+    if (remaining > 0 && remaining <= 180) {
+      if (reducedMotion) return { orientation: { pitchDeg: 0, yawDeg: targetYawDeg, rollDeg: 0 }, motion: null }
+      return {
+        orientation: currentOrientation,
+        motion: { kind: 'flick-snap', orientation: currentOrientation, velocity, targetYawDeg, flickDirection: direction < 0 ? -1 : 1 },
+      }
+    }
   }
-  const displacement = targetYawDeg - currentOrientation.yawDeg
-  if (Math.abs(displacement) <= ORIENTATION_SETTLE_DISTANCE_DEG && settledVelocity(velocity)) {
-    return { orientation: { ...currentOrientation, yawDeg: targetYawDeg }, motion: null }
+  if (reducedMotion || settledVelocity(velocity)) {
+    return { orientation: currentOrientation, motion: null }
   }
   return {
     orientation: currentOrientation,
     motion: {
-      kind: isOppositeFaceFlick ? 'opposite-face' : 'face-settle',
+      kind: 'coast',
       orientation: currentOrientation,
       velocity,
-      targetYawDeg,
-      flickDirection: displacement < 0 ? -1 : 1,
+      targetYawDeg: currentOrientation.yawDeg + velocity.yawDegPerSecond / ORIENTATION_COAST_DECAY_PER_SECOND,
+      flickDirection: 0,
     },
   }
 }
@@ -227,14 +223,18 @@ export function advanceDeviceOrientationRelease(
   if (!(elapsedSeconds > 0) || !Number.isFinite(elapsedSeconds)) {
     return { orientation: motion.orientation, motion }
   }
-  const pitch = decayedAxis(
+  const pitch = motion.kind === 'flick-snap'
+    ? springAxis(motion.orientation.pitchDeg, motion.velocity.pitchDegPerSecond, 0, elapsedSeconds)
+    : decayedAxis(
     motion.orientation.pitchDeg,
     motion.velocity.pitchDegPerSecond,
     elapsedSeconds,
     DEVICE_ORIENTATION_LIMITS.pitchMin,
     DEVICE_ORIENTATION_LIMITS.pitchMax,
   )
-  const roll = decayedAxis(
+  const roll = motion.kind === 'flick-snap'
+    ? springAxis(motion.orientation.rollDeg, motion.velocity.rollDegPerSecond, 0, elapsedSeconds)
+    : decayedAxis(
     motion.orientation.rollDeg,
     motion.velocity.rollDegPerSecond,
     elapsedSeconds,
@@ -242,6 +242,26 @@ export function advanceDeviceOrientationRelease(
     DEVICE_ORIENTATION_LIMITS.rollMax,
   )
 
+  if (motion.kind === 'coast') {
+    const yaw = decay(motion.orientation.yawDeg, motion.velocity.yawDegPerSecond, elapsedSeconds)
+    const orientation = { pitchDeg: pitch.position, yawDeg: yaw.position, rollDeg: roll.position }
+    const velocity = {
+      pitchDegPerSecond: pitch.velocity,
+      yawDegPerSecond: yaw.velocity,
+      rollDegPerSecond: roll.velocity,
+    }
+    if (settledVelocity(velocity)) {
+      return {
+        orientation: {
+          pitchDeg: coastRestPosition(pitch.position, pitch.velocity, DEVICE_ORIENTATION_LIMITS.pitchMin, DEVICE_ORIENTATION_LIMITS.pitchMax),
+          yawDeg: motion.targetYawDeg,
+          rollDeg: coastRestPosition(roll.position, roll.velocity, DEVICE_ORIENTATION_LIMITS.rollMin, DEVICE_ORIENTATION_LIMITS.rollMax),
+        },
+        motion: null,
+      }
+    }
+    return { orientation, motion: { ...motion, orientation, velocity } }
+  }
 
   const yaw = springAxis(
     motion.orientation.yawDeg,
@@ -273,17 +293,18 @@ export function advanceDeviceOrientationRelease(
     Math.abs(yawPosition - motion.targetYawDeg) <=
       ORIENTATION_SETTLE_DISTANCE_DEG &&
     Math.abs(yawVelocity) <= ORIENTATION_SETTLE_VELOCITY_DEG_PER_SECOND
-  if (yawSettled && settledVelocity({ ...velocity, yawDegPerSecond: 0 })) {
+  if (yawSettled && settledVelocity({ ...velocity, yawDegPerSecond: 0 }) &&
+    (motion.kind !== 'flick-snap' || (Math.abs(pitch.position) <= ORIENTATION_SETTLE_DISTANCE_DEG && Math.abs(roll.position) <= ORIENTATION_SETTLE_DISTANCE_DEG))) {
     return {
       orientation: {
-        pitchDeg: coastRestPosition(
+        pitchDeg: motion.kind === 'flick-snap' ? 0 : coastRestPosition(
           orientation.pitchDeg,
           velocity.pitchDegPerSecond,
           DEVICE_ORIENTATION_LIMITS.pitchMin,
           DEVICE_ORIENTATION_LIMITS.pitchMax,
         ),
         yawDeg: motion.targetYawDeg,
-        rollDeg: coastRestPosition(
+        rollDeg: motion.kind === 'flick-snap' ? 0 : coastRestPosition(
           orientation.rollDeg,
           velocity.rollDegPerSecond,
           DEVICE_ORIENTATION_LIMITS.rollMin,
@@ -297,18 +318,6 @@ export function advanceDeviceOrientationRelease(
     orientation,
     motion: { ...motion, orientation, velocity },
   }
-}
-
-function oppositeFaceTargetYaw(
-  startYawDeg: number,
-  currentYawDeg: number,
-  direction: -1 | 1,
-): number {
-  const startFace = Math.round((startYawDeg - direction * 1e-8) / 180) * 180
-  const intended = startFace + direction * 180
-  // Choose the closest copy of the intended face, including one already
-  // crossed by the drag. Never demand an extra revolution after overshooting.
-  return intended + Math.trunc((currentYawDeg - intended) / 360) * 360
 }
 
 function decay(

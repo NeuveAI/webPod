@@ -1,25 +1,25 @@
 import { expect, test } from 'bun:test'
-import { beginDeviceOrientationRelease, advanceDeviceOrientationRelease, estimatePointerReleaseVelocity, pointerVelocityToDeviceVelocity, DEVICE_ORIENTATION_DRAG_GAIN } from './device-orientation-motion'
+import { beginDeviceOrientationRelease, advanceDeviceOrientationRelease, estimatePointerReleaseVelocity, pointerVelocityToDeviceVelocity } from './device-orientation-motion'
 
 const pose = (yawDeg: number) => ({ pitchDeg: 0, yawDeg, rollDeg: 0 })
 const velocity = (yawDegPerSecond: number) => ({ pitchDegPerSecond: 0, yawDegPerSecond, rollDegPerSecond: 0 })
-function rest(start: number, current: number, speed: number, reduced = false) {
-  let release = beginDeviceOrientationRelease(pose(start), pose(current), velocity(speed), reduced)
+function rest(current: number, speed: number, reduced = false) {
+  let release = beginDeviceOrientationRelease(pose(current), velocity(speed), reduced)
   for (let frame = 0; frame < 300 && release.motion !== null; frame++) release = advanceDeviceOrientationRelease(release.motion, 1 / 60)
   return release
 }
 
-test('slow held drag settles a useful face instead of remaining edge-on', () => {
-  expect(rest(0, 100, 0).orientation.yawDeg).toBe(180)
-  expect(rest(0, 70, 0).orientation.yawDeg).toBe(0)
-  expect(rest(180, 260, 0).orientation.yawDeg).toBe(180)
+test('slow held drag preserves the selected angle', () => {
+  expect(rest(100, 0).orientation.yawDeg).toBe(100)
+  expect(rest(70, 0).orientation.yawDeg).toBe(70)
+  expect(rest(260, 0).orientation.yawDeg).toBe(260)
 })
 test('passing the rear before releasing does not add a full revolution', () => {
-  expect(rest(0, 190, 900).orientation.yawDeg).toBe(180)
-  expect(rest(0, -190, -900).orientation.yawDeg).toBe(-180)
+  expect(rest(190, 900).orientation.yawDeg).toBe(310)
+  expect(rest(-190, -900).orientation.yawDeg).toBe(-310)
 })
 test('a short deliberate flick works below the former binary speed cliff', () => {
-  expect(rest(0, 20, 300).orientation.yawDeg).toBe(180)
+  expect(rest(20, 300).orientation.yawDeg).toBe(60)
 })
 test('release direction follows a fresh reversal rather than the earlier drag', () => {
   const measured = estimatePointerReleaseVelocity([
@@ -31,7 +31,7 @@ test('release direction follows a fresh reversal rather than the earlier drag', 
   expect(measured.xPxPerSecond).toBeLessThan(0)
 })
 test('reduced motion settles the held drag immediately without frames', () => {
-  expect(rest(0, 100, 0, true)).toEqual({ orientation: pose(180), motion: null })
+  expect(rest(100, 0, true)).toEqual({ orientation: pose(100), motion: null })
 })
 
 test('tiny reversal cannot borrow the preceding drag distance to flip', () => {
@@ -41,8 +41,8 @@ test('tiny reversal cannot borrow the preceding drag distance to flip', () => {
       { clientX: 100, clientY: 0, timestampMs: 40 },
       { clientX: lastX, clientY: 0, timestampMs: lastX > 80 ? 41 : 60 },
     ], lastX > 80 ? 41 : 60)
-    let release = beginDeviceOrientationRelease(pose(0), pose(lastX * 0.42), pointerVelocityToDeviceVelocity(measured, false), false, measured.xImpulseTravelPx * DEVICE_ORIENTATION_DRAG_GAIN.yawDegPerPixel)
+    let release = beginDeviceOrientationRelease(pose(lastX * 0.42), pointerVelocityToDeviceVelocity(measured, false), false)
     for (let n = 0; n < 300 && release.motion !== null; n++) release = advanceDeviceOrientationRelease(release.motion, 1 / 60)
-    expect(release.orientation.yawDeg).toBe(lastX > 80 ? 0 : -180)
+    expect(release.orientation.yawDeg).toBeCloseTo(lastX * 0.42 + measured.xPxPerSecond * 0.42 / 7.5, 8)
   }
 })

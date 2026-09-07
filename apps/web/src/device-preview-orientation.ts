@@ -241,7 +241,7 @@ export function bindDeviceOrientationControls(
     const elapsedSeconds = (timestampMs - lastMotionFrameMs) / 1_000
     lastMotionFrameMs = timestampMs
     const advanced = motionEnvironment.reducedMotion()
-      ? { orientation: { ...current.orientation, yawDeg: current.targetYawDeg }, motion: null }
+      ? { orientation: current.kind === 'coast' ? current.orientation : { ...current.orientation, ...(current.kind === 'flick-snap' ? { pitchDeg: 0, rollDeg: 0 } : {}), yawDeg: current.targetYawDeg }, motion: null }
       : advanceDeviceOrientationRelease(current, elapsedSeconds)
     publishOrientation(advanced.orientation)
     if (generation !== motionGeneration) return
@@ -266,11 +266,10 @@ export function bindDeviceOrientationControls(
     stage.dataset['orientationReleaseYawVelocity'] =
       deviceVelocity.yawDegPerSecond.toFixed(3)
     const release = beginDeviceOrientationRelease(
-      grab.startOrientation,
       grab.currentOrientation,
       deviceVelocity,
       motionEnvironment.reducedMotion(),
-      pointerVelocity.xImpulseTravelPx * DEVICE_ORIENTATION_DRAG_GAIN.yawDegPerPixel,
+      { startYawDeg: grab.startOrientation.yawDeg, yawImpulseTravelDeg: pointerVelocity.xImpulseTravelPx * DEVICE_ORIENTATION_DRAG_GAIN.yawDegPerPixel },
     )
     publishOrientation(release.orientation)
     releaseMotion = release.motion
@@ -422,12 +421,9 @@ export function bindDeviceOrientationControls(
   }
 
   const onBlur: EventListener = () => {
-    const interrupted = active !== null || releaseMotion !== null
     const current = active
     if (current !== null) finish(current.start.pointerId, true)
     stopMotion()
-    const orientation = store.getSnapshot().orientation
-    if (interrupted) publishOrientation({ ...orientation, yawDeg: Math.round(orientation.yawDeg / 180) * 180 })
   }
 
   const unsubscribe = store.subscribe(() => {

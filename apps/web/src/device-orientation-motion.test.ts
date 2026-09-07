@@ -1,8 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 
 import {
-  ORIENTATION_FLIP_MAX_OVERSHOOT_DEG,
-  ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND,
+  ORIENTATION_COAST_DECAY_PER_SECOND,
   advanceDeviceOrientationRelease,
   beginDeviceOrientationRelease,
   estimatePointerReleaseVelocity,
@@ -50,218 +49,62 @@ describe('device release motion', () => {
     ).toEqual({ xImpulseTravelPx: 0, xPxPerSecond: 0, yPxPerSecond: 0 })
   })
 
-  test('face settling is time-based at 30, 60, 120 and variable frame rates', () => {
-    const velocity = {
-      pitchDegPerSecond: 80,
-      yawDegPerSecond: 360,
-      rollDegPerSecond: -40,
-    }
-    const schedules = [
-      Array.from({ length: 30 }, () => 1 / 30),
-      Array.from({ length: 60 }, () => 1 / 60),
-      Array.from({ length: 120 }, () => 1 / 120),
-      [0.011, 0.027, 0.008, 0.044, 0.019, 0.031, 0.06, 0.08, 0.12, 0.2, 0.4],
-    ]
-    const results = schedules.map((frames) =>
-      advanceFor(
-        beginDeviceOrientationRelease(
-          { pitchDeg: 0, yawDeg: 0, rollDeg: 0 },
-          { pitchDeg: 0, yawDeg: 15, rollDeg: 0 },
-          velocity,
-          false,
-        ),
-        frames,
-      ),
-    )
 
-    for (const result of results.slice(1)) {
-      expect(result.orientation.pitchDeg).toBeCloseTo(
-        results[0]?.orientation.pitchDeg ?? 0,
-        9,
-      )
-      expect(result.orientation.yawDeg).toBeCloseTo(
-        results[0]?.orientation.yawDeg ?? 0,
-        9,
-      )
-      expect(result.orientation.rollDeg).toBeCloseTo(
-        results[0]?.orientation.rollDeg ?? 0,
-        9,
-      )
+  test('a stationary or reduced-motion release retains any chosen angle', () => {
+    for (const yawDeg of [-179, -90, -12, 34, 90, 179, 405]) {
+      const pose = { pitchDeg: 12, yawDeg, rollDeg: -7 }
+      expect(beginDeviceOrientationRelease(pose, ZERO_VELOCITY, false)).toEqual({ orientation: pose, motion: null })
+      expect(beginDeviceOrientationRelease(pose, { ...ZERO_VELOCITY, yawDegPerSecond: 900 }, true)).toEqual({ orientation: pose, motion: null })
     }
-    expect(results[0]?.orientation.yawDeg).toBeGreaterThan(15)
   })
 
-  test('release retains more forward travel with higher velocity before the same destination', () => {
-    const start = { pitchDeg: 0, yawDeg: 12, rollDeg: 0 }
-    const slow = beginDeviceOrientationRelease(
-      start,
-      start,
-      { ...ZERO_VELOCITY, yawDegPerSecond: 160 },
-      false,
-    )
-    const fast = beginDeviceOrientationRelease(
-      start,
-      start,
-      { ...ZERO_VELOCITY, yawDegPerSecond: 320 },
-      false,
-    )
-    if (slow.motion === null || fast.motion === null) {
-      throw new Error('ordinary release unexpectedly settled before its first frame')
+  test('coast distance scales continuously with speed in either direction', () => {
+    for (const speed of [-2100, -900, -280, -160, 160, 279, 280, 900, 2100]) {
+      const pose = { pitchDeg: 0, yawDeg: 38, rollDeg: 0 }
+      let release = beginDeviceOrientationRelease(pose, { ...ZERO_VELOCITY, yawDegPerSecond: speed }, false)
+      let previous = pose.yawDeg
+      for (let frame = 0; frame < 2000 && release.motion !== null; frame++) {
+        release = advanceDeviceOrientationRelease(release.motion, 1 / 120)
+        expect((release.orientation.yawDeg - previous) * Math.sign(speed)).toBeGreaterThanOrEqual(0)
+        previous = release.orientation.yawDeg
+      }
+      expect(release.motion).toBeNull()
+      expect(release.orientation.yawDeg).toBeCloseTo(38 + speed / ORIENTATION_COAST_DECAY_PER_SECOND, 9)
     }
-    const slowFrame = advanceDeviceOrientationRelease(slow.motion, 0.032)
-    const fastFrame = advanceDeviceOrientationRelease(fast.motion, 0.032)
-    const slowTravel = slowFrame.orientation.yawDeg - start.yawDeg
-    const fastTravel = fastFrame.orientation.yawDeg - start.yawDeg
-
-    expect(slowTravel).toBeGreaterThan(0)
-    expect(fastTravel).toBeGreaterThan(slowTravel)
-    expect(runToRest(slow, 1 / 60).orientation.yawDeg).toBe(0)
-    expect(runToRest(fast, 1 / 60).orientation.yawDeg).toBe(0)
   })
 
-  for (const testCase of [
-    { name: 'front to rear clockwise', start: 0, current: 40, velocity: 900, target: 180 },
-    { name: 'front to rear counter-clockwise', start: 0, current: -40, velocity: -900, target: -180 },
-    { name: 'rear to front clockwise', start: 180, current: 220, velocity: 900, target: 360 },
-    { name: 'rear to front counter-clockwise', start: 180, current: 140, velocity: -900, target: 0 },
-  ] as const) {
-    test(`a semantic flick settles exactly ${testCase.name}`, () => {
-      const started = beginDeviceOrientationRelease(
-        { pitchDeg: 8, yawDeg: testCase.start, rollDeg: 3 },
-        { pitchDeg: 8, yawDeg: testCase.current, rollDeg: 3 },
-        { ...ZERO_VELOCITY, yawDegPerSecond: testCase.velocity },
-        false,
-      )
-      expect(started.motion?.kind).toBe('opposite-face')
-      expect(started.motion?.targetYawDeg).toBe(testCase.target)
-
-      const result = runToRest(started, 1 / 120)
+  test('diagonal coasting has the same destination at different frame rates', () => {
+    const pose = { pitchDeg: 7, yawDeg: 170, rollDeg: -3 }
+    const velocity = { pitchDegPerSecond: 60, yawDegPerSecond: 900, rollDegPerSecond: -25 }
+    const initial = beginDeviceOrientationRelease(pose, velocity, false)
+    for (const pattern of [[1 / 30], [1 / 60], [1 / 120], [0.011, 0.027, 0.019, 0.043]]) {
+      const result = runPatternToRest(initial, pattern)
       expect(result.motion).toBeNull()
-      expect(result.orientation.yawDeg).toBe(testCase.target)
-    })
-  }
-
-  test('opposite-face settling ends identically at 30, 60, 120 and variable rates', () => {
-    const initial = beginDeviceOrientationRelease(
-      { pitchDeg: 7, yawDeg: 0, rollDeg: -3 },
-      { pitchDeg: 7, yawDeg: 38, rollDeg: -3 },
-      {
-        pitchDegPerSecond: 60,
-        yawDegPerSecond: 900,
-        rollDegPerSecond: -25,
-      },
-      false,
-    )
-    const patterns = [[1 / 30], [1 / 60], [1 / 120], [0.011, 0.027, 0.019, 0.043]]
-    const results = patterns.map((pattern) => runPatternToRest(initial, pattern))
-
-    for (const result of results) {
-      expect(result.motion).toBeNull()
-      expect(result.orientation.yawDeg).toBe(180)
-    }
-    for (const result of results.slice(1)) {
-      expect(result.orientation.pitchDeg).toBeCloseTo(
-        results[0]?.orientation.pitchDeg ?? 0,
-        9,
-      )
-      expect(result.orientation.rollDeg).toBeCloseTo(
-        results[0]?.orientation.rollDeg ?? 0,
-        9,
-      )
+      expect(result.orientation.pitchDeg).toBeCloseTo(15, 9)
+      expect(result.orientation.yawDeg).toBeCloseTo(290, 9)
+      expect(result.orientation.rollDeg).toBeCloseTo(-3 - 25 / 7.5, 9)
     }
   })
 
-  test('the flick threshold and edge-hemisphere tie are deterministic', () => {
-    expect(ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND).toBe(280)
-    const below = beginDeviceOrientationRelease(
-      { pitchDeg: 0, yawDeg: 90, rollDeg: 0 },
-      { pitchDeg: 0, yawDeg: 100, rollDeg: 0 },
-      {
-        ...ZERO_VELOCITY,
-        yawDegPerSecond: ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND - 1,
-      },
-      false,
-    )
-    const at = beginDeviceOrientationRelease(
-      { pitchDeg: 0, yawDeg: 90, rollDeg: 0 },
-      { pitchDeg: 0, yawDeg: 100, rollDeg: 0 },
-      {
-        ...ZERO_VELOCITY,
-        yawDegPerSecond: ORIENTATION_OPPOSITE_FACE_FLICK_DEG_PER_SECOND,
-      },
-      false,
-    )
-
-    expect(below.motion?.kind).toBe('face-settle')
-    expect(at.motion?.kind).toBe('opposite-face')
-    expect(at.motion?.targetYawDeg).toBe(180)
+  test('coasting respects pitch and roll limits without reversing yaw', () => {
+    const result = runPatternToRest(beginDeviceOrientationRelease(
+      { pitchDeg: 44, yawDeg: -170, rollDeg: -17 },
+      { pitchDegPerSecond: 900, yawDegPerSecond: -900, rollDegPerSecond: -900 }, false,
+    ), [1 / 60])
+    expect(result.orientation).toEqual({ pitchDeg: 45, yawDeg: -290, rollDeg: -18 })
+    expect(result.motion).toBeNull()
   })
 
-  test('reduced motion resolves a semantic flick immediately and never coasts', () => {
-    const semantic = beginDeviceOrientationRelease(
-      { pitchDeg: 10, yawDeg: 0, rollDeg: 2 },
-      { pitchDeg: 10, yawDeg: 30, rollDeg: 2 },
-      { ...ZERO_VELOCITY, yawDegPerSecond: 900 },
-      true,
-    )
-    const ordinary = beginDeviceOrientationRelease(
-      { pitchDeg: 10, yawDeg: 0, rollDeg: 2 },
-      { pitchDeg: 10, yawDeg: 30, rollDeg: 2 },
-      { ...ZERO_VELOCITY, yawDegPerSecond: 200 },
-      true,
-    )
-
-    expect(semantic).toEqual({
-      orientation: { pitchDeg: 10, yawDeg: 180, rollDeg: 2 },
-      motion: null,
-    })
-    expect(ordinary).toEqual({
-      orientation: { pitchDeg: 10, yawDeg: 0, rollDeg: 2 },
-      motion: null,
-    })
-  })
-
-  test('the semantic spring never exceeds its authored overshoot', () => {
-    let release = beginDeviceOrientationRelease(
-      { pitchDeg: 0, yawDeg: 0, rollDeg: 0 },
-      { pitchDeg: 0, yawDeg: 20, rollDeg: 0 },
-      { ...ZERO_VELOCITY, yawDegPerSecond: 2_100 },
-      false,
-    )
-    let maximum = Number.NEGATIVE_INFINITY
-    for (let frame = 0; frame < 600 && release.motion !== null; frame += 1) {
-      release = advanceDeviceOrientationRelease(release.motion, 1 / 240)
-      maximum = Math.max(maximum, release.orientation.yawDeg)
-    }
-    expect(maximum).toBeLessThanOrEqual(
-      180 + ORIENTATION_FLIP_MAX_OVERSHOOT_DEG,
-    )
-    expect(release.orientation.yawDeg).toBe(180)
+  test('a late reversal follows the latest movement direction', () => {
+    const velocity = estimatePointerReleaseVelocity([
+      { clientX: 0, clientY: 0, timestampMs: 0 },
+      { clientX: 60, clientY: 30, timestampMs: 20 },
+      { clientX: 55, clientY: 25, timestampMs: 40 },
+    ], 40)
+    expect(velocity.xPxPerSecond).toBeLessThan(0)
+    expect(velocity.yPxPerSecond).toBeLessThan(0)
   })
 })
-
-function advanceFor(
-  initial: DeviceOrientationRelease,
-  frames: readonly number[],
-): DeviceOrientationRelease {
-  let release = initial
-  for (const elapsed of frames) {
-    if (release.motion === null) break
-    release = advanceDeviceOrientationRelease(release.motion, elapsed)
-  }
-  return release
-}
-
-function runToRest(
-  initial: DeviceOrientationRelease,
-  frameSeconds: number,
-): DeviceOrientationRelease {
-  let release = initial
-  for (let frame = 0; frame < 2_000 && release.motion !== null; frame += 1) {
-    release = advanceDeviceOrientationRelease(release.motion, frameSeconds)
-  }
-  return release
-}
 
 function runPatternToRest(
   initial: DeviceOrientationRelease,
@@ -275,3 +118,37 @@ function runPatternToRest(
   }
   return release
 }
+
+describe('optional flick snap', () => {
+  const pose = { pitchDeg: 12, yawDeg: 40, rollDeg: -6 }
+  const gesture = { startYawDeg: 0, yawImpulseTravelDeg: 20 }
+
+  test('speed and recent travel must both reach the threshold', () => {
+    for (const [speed, travel, kind] of [[699, 20, 'coast'], [700, 13.9, 'coast'], [700, 14, 'flick-snap']] as const) {
+      const release = beginDeviceOrientationRelease(pose, { ...ZERO_VELOCITY, yawDegPerSecond: speed }, false, { ...gesture, yawImpulseTravelDeg: travel })
+      expect(release.motion?.kind).toBe(kind)
+    }
+  })
+
+  test('both faces snap flat in either direction across frame rates', () => {
+    for (const [start, current, speed, target] of [[0, 40, 900, 180], [0, -40, -900, -180], [180, 220, 900, 360], [180, 140, -900, 0]]) {
+      if (start === undefined || current === undefined || speed === undefined || target === undefined) throw new Error('missing case')
+      for (const pattern of [[1 / 30], [1 / 120], [0.01, 0.03, 0.02]]) {
+        const release = beginDeviceOrientationRelease({ ...pose, yawDeg: current }, { pitchDegPerSecond: 40, yawDegPerSecond: speed, rollDegPerSecond: -15 }, false, { startYawDeg: start, yawImpulseTravelDeg: Math.sign(speed) * 20 })
+        expect(release.motion?.kind).toBe('flick-snap')
+        expect(runPatternToRest(release, pattern)).toEqual({ orientation: { pitchDeg: 0, yawDeg: target, rollDeg: 0 }, motion: null })
+      }
+    }
+  })
+
+  test('tiny corrections, diagonal gestures, and already-passed faces coast', () => {
+    expect(beginDeviceOrientationRelease(pose, { ...ZERO_VELOCITY, yawDegPerSecond: -1200 }, false, { ...gesture, yawImpulseTravelDeg: -2 }).motion?.kind).toBe('coast')
+    expect(beginDeviceOrientationRelease(pose, { pitchDegPerSecond: 800, yawDegPerSecond: 900, rollDegPerSecond: 0 }, false, gesture).motion?.kind).toBe('coast')
+    expect(beginDeviceOrientationRelease({ ...pose, yawDeg: 190 }, { ...ZERO_VELOCITY, yawDegPerSecond: 900 }, false, gesture).motion?.kind).toBe('coast')
+  })
+
+  test('reduced motion applies only an intentional snap immediately', () => {
+    expect(beginDeviceOrientationRelease(pose, { ...ZERO_VELOCITY, yawDegPerSecond: 900 }, true, gesture)).toEqual({ orientation: { pitchDeg: 0, yawDeg: 180, rollDeg: 0 }, motion: null })
+    expect(beginDeviceOrientationRelease(pose, { ...ZERO_VELOCITY, yawDegPerSecond: 699 }, true, gesture)).toEqual({ orientation: pose, motion: null })
+  })
+})
