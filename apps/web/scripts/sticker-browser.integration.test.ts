@@ -39,6 +39,7 @@ async function pullLiner(page: Page): Promise<void> {
  * No browser API interception, production test switch, alternate renderer or stored secrets. */
 test('production browser signs in, collects, reloads, revokes and reconnects its device collection', async () => {
   const directory = await mkdtemp(resolve(tmpdir(), 'webpod-sticker-browser-'))
+  const pageErrors: string[] = []
   const cleanup: (() => Promise<unknown>)[] = [() => rm(directory, { recursive: true, force: true })]
   let cleanupFailed: boolean
   try {
@@ -121,6 +122,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'no-preference' })
     cleanup.push(() => context.close())
     const page = await context.newPage()
+    page.on('pageerror', error => { pageErrors.push(error.message) })
     await installDeterministicAppleMusic(page, { authorized: false, mockDeveloperToken: false })
     await page.goto(server.url.origin + '/')
     // An HTML shell is insufficient: the built root must mount the actual product and canvas.
@@ -267,13 +269,19 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
       else await first.page.keyboard.press('Enter')
       await savedOther
       expect((await readInventory(first.context)).placements.map((item) => item.stickerId)).toEqual(['PW-C02'])
+      // Placement completes by tucking the pack away and focusing the rear
+      // sticker. Wait for that handoff before opening its collection again.
+      await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
+      await first.page.getByRole('button', { name: 'Pull sticker pack into view' }).click()
+      await pullLiner(first.page)
       await secondSeat.click()
       const returnedOther = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.request().method() === 'PUT' && response.status() === 200)
       await first.page.getByRole('button', { name: 'Return to sheet' }).click(); await returnedOther
       expect((await readInventory(first.context)).placements).toEqual([])
     }
     const locked = first.page.locator('[data-sticker-slot-state="locked"]').first()
-    await locked.focus()
+    await browserExpect(locked).toBeEnabled()
+    await locked.click()
     await browserExpect(first.page.locator('#sticker-meaning')).toContainText('1 hr')
     await first.page.screenshot({ path: resolve(evidence, 'desktop-locked-meaning.png') })
     const beforeLocked = (await readInventory(first.context)).placements
@@ -285,12 +293,14 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.getByRole('button', { name: 'Next sticker collection' }).click()
     await browserExpect(first.page.locator('[data-sticker-collection]')).toHaveAttribute('data-sticker-collection', 'electronic')
     await first.page.screenshot({ path: resolve(evidence, 'desktop-electronic-sleeve.png') })
-    await pullLiner(first.page)
+    // Turning an open collection unfolds the next liner automatically.
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-sheet-reveal', '1')
     await browserExpect(first.page.locator('[data-sticker-slot]')).toHaveCount(5)
     await browserExpect(first.page.locator('[data-sticker-slot-state="earned"]')).toHaveCount(1)
     await first.page.screenshot({ path: resolve(evidence, 'desktop-electronic-sheet.png') })
     await first.page.getByRole('button', { name: 'Previous sticker collection' }).click()
-    await pullLiner(first.page)
+    await browserExpect(first.page.locator('[data-sticker-collection]')).toHaveAttribute('data-sticker-collection', 'rock')
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-sheet-reveal', '1')
     await browserExpect(first.page.locator('[data-sticker-slot]')).toHaveCount(5)
     const peel = first.page.getByRole('button', { name: new RegExp(`^Peel ${art.name}`) })
     const peelBox = await peel.boundingBox()
@@ -307,6 +317,16 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.mouse.move(1190, 500, { steps: 8 })
     await first.page.screenshot({ path: resolve(evidence, 'desktop-peel-off-device.png') })
     await first.page.mouse.up()
+    // Releasing outside the silhouette adheres to the closest legal rear/edge
+    // placement. Return it explicitly before exercising capture cancellation.
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
+    expect((await readInventory(first.context)).placements).toHaveLength(1)
+    await first.page.getByRole('button', { name: 'Pull sticker pack into view' }).click()
+    await pullLiner(first.page)
+    await first.page.locator(`[data-sticker-slot="${art.id}"]`).click()
+    const offDeviceReturn = first.page.waitForResponse(response => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 200)
+    await first.page.getByRole('button', { name: 'Return to sheet' }).click()
+    await offDeviceReturn
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
     expect((await readInventory(first.context)).placements).toHaveLength(0)
     // Native capture loss while blended onto rear reverses the visual, never saves.
@@ -327,12 +347,12 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.screenshot({ path: resolve(evidence, 'desktop-progressive-press-0.png') })
     await contact
     await first.page.screenshot({ path: resolve(evidence, 'desktop-progressive-contact-mid.png') })
-    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     await first.page.screenshot({ path: resolve(evidence, 'desktop-progressive-press-rest.png') })
     const placed = await readInventory(first.context)
     expect(placed.placements).toHaveLength(1)
     expect(placed.packs[0]?.openedAt !== null).toBe(true)
-    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     const equipped = first.page.locator('[data-sticker-placed="PW-C01"]')
     const equippedBox = await equipped.boundingBox()
     if (equippedBox === null) throw new Error('Placed print semantic projection missing')
@@ -351,7 +371,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     expect(movedInventory.placements[0]?.x).not.toBe(placed.placements[0]?.x)
     expect(movedInventory.placements[0]?.width).toBe(placed.placements[0]?.width)
     expect(movedInventory.placements[0]?.rotationDeg).toBe(placed.placements[0]?.rotationDeg)
-    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     const pickRear = async (): Promise<void> => {
       const origin = await equipped.boundingBox()
       if (origin === null) throw new Error('Rear source missing')
@@ -384,6 +404,8 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     movedInventory = await readInventory(first.context)
     expect(movedInventory.placements[0]?.width).toBe(.18)
     expect(movedInventory.placements[0]?.rotationDeg).toBe(23)
+    await first.page.getByRole('button', { name: 'Pull sticker pack into view' }).click()
+    await pullLiner(first.page)
     await first.page.getByRole('button', { name: 'Put pack away' }).click()
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-sheet-reveal', '0')
@@ -399,6 +421,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await browserExpect(deviceStage).toHaveAttribute('data-orientation-grab', 'active')
     await first.page.mouse.move(560, 450, { steps: 12 }); await first.page.mouse.up()
     await browserExpect(deviceStage).not.toHaveAttribute('data-orientation-grab', 'active')
+    expect(pageErrors).toEqual([])
     await deviceStage.focus(); await first.page.keyboard.press('Home')
     await flipRear(first.page)
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-sheet-reveal', '0')
@@ -485,7 +508,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.mouse.down(); await first.page.mouse.move(700, 310, { steps: 16 })
     const reapplied = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 200)
     await first.page.mouse.up(); await reapplied
-    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     const finalRockInventory = await readInventory(first.context)
     await first.page.setViewportSize({ width: 375, height: 812 })
     await first.page.emulateMedia({ reducedMotion: 'reduce' })
@@ -502,7 +525,8 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.screenshot({ path: resolve(evidence, 'mobile-locked-meaning.png') })
     await first.page.getByRole('button', { name: 'Dismiss sticker meaning' }).click()
     await first.page.getByRole('button', { name: 'Next sticker collection' }).click()
-    await pullLiner(first.page)
+    await browserExpect(first.page.locator('[data-sticker-collection]')).toHaveAttribute('data-sticker-collection', 'electronic')
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-sheet-reveal', '1')
     // Direct touch follows the rendered seat on a 375px viewport, including reduced motion.
     await captureSheet(first.page, 'mobile-electronic-sheet.png')
     const touchSeat = first.page.locator('[data-sticker-slot-state="earned"]').first()
@@ -523,7 +547,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     expect((await readInventory(first.context)).placements).toHaveLength(1)
     await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: touchX, y: touchY }] })
     await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 348, y: 360 }] })
-    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'peeling')
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'placing')
     await first.page.screenshot({ path: resolve(evidence, 'mobile-reduced-motion-free-drag.png') })
     await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 130, y: 170 }] })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'placing')
@@ -550,10 +574,9 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     const touchSaved = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.request().method() === 'PUT' && response.status() === 200)
     await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await touchSaved
     await first.page.screenshot({ path: resolve(evidence, 'mobile-touch-stuck.png') })
-    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     const mobilePlaced = (await readInventory(first.context)).placements.find((item) => item.stickerId !== 'PW-C01')
     if (mobilePlaced === undefined) throw new Error('Touch placement missing')
-    await first.page.getByRole('button', { name: 'Put pack away' }).click()
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     const mobileOrigin = await first.page.locator(`[data-sticker-placed="${mobilePlaced.stickerId}"]`).boundingBox()
     if (mobileOrigin === null) throw new Error('Touch rear origin missing')
@@ -565,14 +588,18 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.screenshot({ path: resolve(evidence, 'mobile-rear-move-preview.png') })
     const mobileMoved = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 200)
     await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await mobileMoved
-    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     const movedMobile = (await readInventory(first.context)).placements.find((item) => item.stickerId === mobilePlaced.stickerId)
     expect(movedMobile?.width).toBe(mobilePlaced.width)
     expect(movedMobile?.rotationDeg).toBe(mobilePlaced.rotationDeg)
     expect(movedMobile?.y).not.toBe(mobilePlaced.y)
-    // A physical bottom approach exposes the sticker's own pack. The first save
-    // fails at the native service; the original authoritative placement survives.
+    // Open the return destination before picking up the rear print. The first
+    // save fails at the native service; the authoritative placement survives.
     for (const reject of [true, false]) {
+      if (await first.page.locator('[data-sticker-slot]').count() === 0) {
+        await first.page.getByRole('button', { name: 'Pull sticker pack into view' }).click()
+        await pullLiner(first.page)
+      }
       const origin = await first.page.locator(`[data-sticker-placed="${mobilePlaced.stickerId}"]`).boundingBox()
       if (origin === null) throw new Error('Moved touch origin missing')
       await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: origin.x + 22, y: origin.y + 22 }] })
@@ -612,6 +639,9 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await keyboardSticker.focus(); await first.page.keyboard.press('ArrowUp')
     const keyboardSaved = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.request().method() === 'PUT' && response.status() === 200)
     await first.page.keyboard.press('Enter'); await keyboardSaved
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
+    await first.page.getByRole('button', { name: 'Pull sticker pack into view' }).click()
+    await pullLiner(first.page)
     await browserExpect(first.page.locator('[data-sticker-slot-state="placed"]')).toHaveCount(1)
     await first.page.screenshot({ path: resolve(evidence, 'mobile-keyboard-stuck.png') })
     // Restore the baseline single placement so reload/recovery assertions remain exact.

@@ -1,11 +1,12 @@
-import { constrainStickerCarryExterior, createStickerGrabPeelGeometry, createStickerFreeCarryGeometry, interpolateStickerCarryGeometry, stickerCarryPointerOffset } from './sticker-free-carry';
+import { fitStickerDrop } from './sticker-drop-fit';
+import { constrainStickerCarryExterior, constrainStickerFreeCarry, constrainStickerLanding, createStickerGrabPeelGeometry, createStickerFreeCarryGeometry, interpolateStickerCarryGeometry, stickerCarryPointerOffset, alignStickerCarryOrigin, createStickerLandingGeometry, anchorStickerToPointer, stickerGeometryUvPoint } from './sticker-free-carry';
 import { createStickerVisibility, stickerVisibilityQuery } from './sticker-visibility';
 import { projectStickerDrop } from './sticker-drop-projection';
 import { captureStickerSurfaceGrab } from './sticker-surface-grab';
 import { stickerWrapSurface } from './sticker-wrap';
 import { projectedStickerContour } from './sticker-contour';
 import { useThree } from '@react-three/fiber';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, type RefObject } from 'react';
 import { BackSide, DoubleSide, FrontSide, Group, Mesh, Raycaster, Vector2, Vector3 } from 'three';
 import { DeviceCanvasOrientationContext } from './DeviceCanvas';
 import { useContext } from 'react';
@@ -32,6 +33,7 @@ import { createStickerPaperGeometry, conformStickerToPaper, stickerPaperCurlProg
  * All clocks and reduced-motion resolution belong to the shared app controller.
  */
 const CARRY_FRAME = Object.freeze({ stiffness: 240, damping: 30, maxStepSeconds: .032, tolerancePx: .15, maxSettleMs: 1800 });
+const PARKED_STICKER_SEGMENTS = 24;
 const PACK = Object.freeze({ depth: 130, linerClearcoat: .55, linerRoughness: .38, linerCoatRoughness: .23 });
 
 /** Existing camera/light rig; no second canvas, renderer, or animation scheduler. */
@@ -43,6 +45,17 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
   const orientation = useContext(DeviceCanvasOrientationContext);
   const roughness = useMemo(() => createStickerRoughness(), []);
   useEffect(() => () => roughness.dispose(), [roughness]);
+  const packRoot = useRef<Group>(null);
+  const studio = useStudioEnvironmentSnapshot();
+  const warmPackKey = stickerScene.preparedSheet?.slots.map(slot => `${slot.stickerId}:${slot.state}`).join('|') ?? '';
+  useEffect(() => {
+    if (!warmPackKey || !packRoot.current) return;
+    const preparation = new AbortController();
+    // Compile the actual sleeve/liner materials while the already-ready sheet
+    // is hidden. Ownership stays alive until this packet or environment changes.
+    void prepareStickerPrograms(gl, packRoot.current, camera, scene, preparation.signal).catch(() => {});
+    return () => preparation.abort();
+  }, [camera, gl, scene, studio.texture, warmPackKey]);
   const onProjectionReady = stickerScene.onProjectionReady;
   const packVisible = stickerScene.pack !== null;
   const restingPresentation = useRef(0);
@@ -55,6 +68,12 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
   useEffect(() => () => { visibility.current?.dispose(); visibility.current = null; }, []);
   const calculatedPresentation = (stickerScene.pack?.progress ?? 0) * (stickerScene.pack?.sheet?.reveal ?? 0);
   const rearCarry = stickerScene.pack?.sourcePlacement != null;
+  useEffect(() => {
+    const content = scene.getObjectByName(DEVICE_CONTENT_NAME);
+    if (!content) return;
+    visibility.current ??= createStickerVisibility();
+    void visibility.current.prepare(content);
+  }, [scene]);
   useLayoutEffect(() => {
     const releasedCarry = previousRearCarry.current && !rearCarry;
     previousRearCarry.current = rearCarry;
@@ -64,13 +83,16 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
     if (model === undefined) return;
     const pixels = viewport.getCurrentViewport(camera, new Vector3()).height / size.height;
     // Keep a substantial upper rear canvas free on a phone as the liner slides out.
-    model.position.y = size.width < STICKER_PACK_LAYOUT.desktopBreakpoint ? Math.min(120, size.height * .15) * pixels * presentation : 0;
-    model.updateWorldMatrix(true, true);
-    const targetY = rearCarry ? restingModelY.current : model.position.y;
+    const targetY = rearCarry ? restingModelY.current : size.width < STICKER_PACK_LAYOUT.desktopBreakpoint ? Math.min(120, size.height * .15) * pixels * presentation : 0;
     const initialY = restingModelY.current;
     let frame: number | null = null;
     const publish = (y: number): void => {
-      model.position.y = y; restingModelY.current = y; model.updateWorldMatrix(true, true); invalidate();
+      restingModelY.current = y;
+      // R3F can replace viewport state during rotation/layout. An unchanged
+      // translation must not write into the DOM root's projection subscription
+      // again: that render can update the canvas viewport and re-enter here.
+      if (model.position.y === y) return;
+      model.position.y = y; model.updateWorldMatrix(true, true); invalidate();
       if (projectionHandle.current !== null) onProjectionReady?.(projectionHandle.current);
     };
     // Only the post-press return settles autonomously. A held print retains the
@@ -99,7 +121,6 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
       visibility.current ??= createStickerVisibility();
       return stickerVisibilityQuery(visibility.current, content, camera);
     };
-    if (content !== undefined) { visibility.current ??= createStickerVisibility(); visibility.current.update(content); }
     const pick = (clientX: number, clientY: number) => {
       const visible = beginVisibility();
       const bounds = gl.domElement.getBoundingClientRect(), equipped = scene.getObjectByName('device-equipped-stickers');
@@ -131,6 +152,14 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
       if (!(rear instanceof Mesh)) return null;
       const wrap = stickerWrapSurface(rear.geometry);
       return wrap === undefined ? null : projectStickerDrop(rear, camera, gl.domElement.getBoundingClientRect(), clientX, clientY, wrap.seamZ);
+    }, resolveDrop(placement: import('./sticker-contract').DeviceStickerPlacement, clientX: number, clientY: number) {
+      const rear = scene.getObjectByName('device-steel-back'), content = scene.getObjectByName(DEVICE_CONTENT_NAME);
+      const art = currentScene.current.assets.find(item => item.id === placement.stickerId);
+      const wrap = rear instanceof Mesh ? stickerWrapSurface(rear.geometry) : undefined;
+      if (!wrap || !art || !content) return placement;
+      content.updateWorldMatrix(true, false);
+      const anchor = currentScene.current.pack?.sourceAnchor;
+      return fitStickerDrop(art, placement, anchor?.uv ?? [.5, .5], { x: clientX, y: clientY }, gl.domElement.getBoundingClientRect(), content.matrixWorld, camera, wrap);
     }, fit(placement: import('./sticker-contract').DeviceStickerPlacement) {
       const rear = scene.getObjectByName('device-steel-back');
       const art = currentScene.current.assets.find(item => item.id === placement.stickerId);
@@ -175,7 +204,10 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
     projectionHandle.current = handle; onProjectionReady?.(handle);
     return () => { projectionHandle.current = null; onProjectionReady?.(null); };
   }, [camera, gl, orientation.visibleFace, scene, onProjectionReady, packVisible, stickerScene.pack?.sourcePlacement?.stickerId, calculatedPresentation, rearCarry]);
-  const pack = stickerScene.pack;
+  const pack: StickerPackVisual | null = stickerScene.pack ?? (stickerScene.preparedSheet ? {
+    progress: 0, peel: 0, stickerId: null, placement: null, landing: 0,
+    sheet: { ...stickerScene.preparedSheet, reveal: 0 },
+  } : null);
   if (pack === null) return null;
   const visible = viewport.getCurrentViewport(camera, new Vector3(0, 0, PACK.depth));
   const pixel = visible.width / size.width;
@@ -201,7 +233,7 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
   const seat = STICKER_SHEET_SLOTS[slotIndex] ?? (pack.sourcePlacement == null ? undefined : { x: .5, y: .5 });
   const printWidth = width * STICKER_SHEET_PRINT_WIDTH;
   const offset = pack.dragOffset;
-  return <group name="sticker-pack-scene">
+  return <group ref={packRoot} visible={stickerScene.pack !== null} name="sticker-pack-scene">
     <group visible={pack.workspaceVisible !== false} position={[x, y - workspaceLowering, PACK.depth]} rotation={[0, -presentation.turnRadians, 0]} name="sticker-pack-wrapper">
       {(sheet?.neighbors ?? []).map((neighbor, index) => <group key={neighbor.stickerId} position={[(index === 0 ? -1 : 1) * pixel * (8 + presentation.fan * STICKER_PACK_MOTION.fanSpread), pixel * 10, -pixel * (8 + index)]} rotation={[0, 0, (index === 0 ? 1 : -1) * (.055 + presentation.fan * STICKER_PACK_MOTION.fanAngle)]}>
         <PackPaper width={width} height={height} pixel={pixel} ink={neighbor.ink} roughness={roughness} />
@@ -209,7 +241,7 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
       </group>)}
       <group position={[0, linerTravel, pixel * 2]}>
         <PackPaper width={width} height={height} pixel={pixel} ink="#e9e2d1" roughness={roughness} liner curlProgress={stickerPaperCurlProgress(width, height, pixel, linerTravel)} />
-      {reveal > .02 ? slots.map((slot, index) => {
+      <group visible={reveal > .02}>{slots.map((slot, index) => {
         const slotArt = stickerScene.assets.find((item) => item.id === slot.stickerId);
         const position = STICKER_SHEET_SLOTS[index];
         if (slotArt === undefined || position === undefined) return null;
@@ -217,7 +249,7 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
         return <group key={slot.stickerId} position={[(position.x - .5) * width, (.5 - position.y) * height, pixel * (5 * (1 - (position.x * 2 - 1) ** 2) + .8)]}>
           <SheetPrint bow={{ pixel, paperWidth: width, seatX: position.x }} art={slotArt} width={Math.min(printWidth, height * .21 / stickerVisibleAspect(slotArt))} appearance={peeling || slot.state === 'placed' ? 'placed' : slot.state === 'locked' || slot.state === 'sealed' ? 'locked' : 'earned'} roughness={roughness} stickerScene={stickerScene} />
         </group>;
-      }) : null}
+      })}</group>
       </group>
       <group position={[0, 0, pixel * 8]}>
         <SleevePocket width={width + pixel * 4} height={height} pixel={pixel} ink={sheet?.ink ?? '#b7aa86'} roughness={roughness} />
@@ -226,11 +258,11 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
     </group>
     {art === undefined || seat === undefined || (pack.peel === 0 && pack.placement === null && pack.dragOffset == null && pack.sourcePlacement == null) ? null : <PeelingPrint paperWidth={width} pixel={pixel} seatX={seat.x} art={art} pack={pack} width={Math.min(printWidth, height * .21 / stickerVisibleAspect(art))}
       origin={new Vector3(x + (seat.x - .5) * width + (offset?.x ?? 0) * pixel, y + linerTravel + (.5 - seat.y) * height - (offset?.y ?? 0) * pixel, PACK.depth + pixel * (2 + 5 * (1 - (seat.x * 2 - 1) ** 2) + .8))}
-      stickerScene={stickerScene} roughness={roughness} />}
+      stickerScene={stickerScene} roughness={roughness} carryCollision={visibility} />}
   </group>;
 }
 /** Release stock bows and curls at its unprinted top corner; the printed sleeve is stiffer. */
-function PackPaper({ width, height, pixel, ink, roughness, liner = false, curlProgress = 1 }: { readonly width: number; readonly height: number; readonly pixel: number; readonly ink: string; readonly roughness: ReturnType<typeof createStickerRoughness>; readonly liner?: boolean; readonly curlProgress?: number }) {
+const PackPaper = memo(function PackPaper({ width, height, pixel, ink, roughness, liner = false, curlProgress = 1 }: { readonly width: number; readonly height: number; readonly pixel: number; readonly ink: string; readonly roughness: ReturnType<typeof createStickerRoughness>; readonly liner?: boolean; readonly curlProgress?: number }) {
   const studio = useStudioEnvironmentSnapshot();
   const stock = useMemo(() => createStickerPaperGeometry(width, height, pixel, liner, curlProgress), [width, height, pixel, liner, curlProgress]);
   useEffect(() => () => { stock.front.dispose(); stock.back.dispose(); stock.edge.dispose(); }, [stock]);
@@ -239,9 +271,9 @@ function PackPaper({ width, height, pixel, ink, roughness, liner = false, curlPr
     <mesh geometry={stock.edge} raycast={() => {}}><meshStandardMaterial color={liner ? '#b6aa92' : '#aa9574'} roughness={.96} side={DoubleSide} /></mesh>
     <mesh geometry={stock.front} raycast={() => {}}><meshPhysicalMaterial {...STICKER_PACK_MATERIAL} color={ink} roughnessMap={roughness} bumpMap={roughness} bumpScale={pixel * .2} roughness={liner ? PACK.linerRoughness : SLEEVE_LAMINATE.roughness} clearcoat={liner ? PACK.linerClearcoat : SLEEVE_LAMINATE.clearcoat} clearcoatRoughness={liner ? PACK.linerCoatRoughness : SLEEVE_LAMINATE.clearcoatRoughness} envMap={studio.texture} side={FrontSide} /></mesh>
   </group>;
-}
+});
 /** Folded/glued paper pocket; the thumb notch and fold thickness identify the sleeve. */
-function SleevePocket({ width, height, pixel, ink, roughness }: { readonly width: number; readonly height: number; readonly pixel: number; readonly ink: string; readonly roughness: ReturnType<typeof createStickerRoughness> }) {
+const SleevePocket = memo(function SleevePocket({ width, height, pixel, ink, roughness }: { readonly width: number; readonly height: number; readonly pixel: number; readonly ink: string; readonly roughness: ReturnType<typeof createStickerRoughness> }) {
   const studio = useStudioEnvironmentSnapshot();
   const geometry = useMemo(() => createStickerSleeveGeometry(width, height, pixel), [width, height, pixel]);
   const exterior = { ...SLEEVE_LAMINATE, color: ink, envMap: studio.texture, roughnessMap: roughness, bumpMap: roughness, bumpScale: pixel * .2 };
@@ -255,11 +287,11 @@ function SleevePocket({ width, height, pixel, ink, roughness }: { readonly width
     {[-1, 1].map((side) => <mesh key={side} position={[side * (width / 2 - pixel * 4), 0, pixel * 1.05]} rotation={[0, side * .045, 0]} raycast={() => {}}><planeGeometry args={[pixel * 7, height - pixel * 2]} /><meshPhysicalMaterial {...exterior} /></mesh>)}
     <mesh position={[0, -height / 2 + pixel * 3, pixel * 1.05]} rotation={[.06, 0, 0]} raycast={() => {}}><planeGeometry args={[width - pixel * 2, pixel * 5]} /><meshPhysicalMaterial {...exterior} /></mesh>
   </group>;
-}
+});
 function SheetPrint({ art, width, appearance, roughness, stickerScene, bow }: { readonly art: StickerArtwork; readonly width: number; readonly appearance: 'earned' | 'locked' | 'placed'; readonly roughness: ReturnType<typeof createStickerRoughness>; readonly stickerScene: DeviceStickerScene; readonly bow?: { pixel: number; paperWidth: number; seatX: number } }) {
   const paperPixel = bow?.pixel ?? 0, paperWidth = bow?.paperWidth ?? 1, seatX = bow?.seatX ?? .5;
   const geometry = useMemo(() => {
-    return conformStickerToPaper(createStickerPeelGeometry(art, width, 0), paperWidth, paperPixel, seatX);
+    return conformStickerToPaper(createStickerPeelGeometry(art, width, 0, PARKED_STICKER_SEGMENTS), paperWidth, paperPixel, seatX);
   }, [art, width, paperPixel, paperWidth, seatX]);
   useEffect(() => () => geometry.dispose(), [geometry]);
   return <StickerPrint art={art} geometry={geometry} roughness={roughness} wear={stickerScene.appearances?.find((entry) => entry.stickerId === art.id)?.wear ?? 0} appearance={appearance} finishEnabled={stickerScene.finishEnabled !== false} onError={stickerScene.onArtworkError} onReady={stickerScene.onArtworkReady} />;
@@ -269,7 +301,8 @@ function CoverPrint({ stickerId, width, pixel, roughness, stickerScene }: { read
   return art === undefined ? null : <group position={[0, -width * .04, pixel * 4]}><SheetPrint art={art} width={width} appearance="earned" roughness={roughness} stickerScene={stickerScene} /></group>;
 }
 
-function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paperWidth, pixel, seatX }: {
+function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paperWidth, pixel, seatX, carryCollision }: {
+  readonly carryCollision: RefObject<ReturnType<typeof createStickerVisibility> | null>;
   readonly paperWidth: number; readonly pixel: number; readonly seatX: number;
   readonly art: StickerArtwork; readonly pack: StickerPackVisual; readonly width: number; readonly origin: Vector3;
   readonly stickerScene: DeviceStickerScene; readonly roughness: ReturnType<typeof createStickerRoughness>;
@@ -306,7 +339,7 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
       const worldPixel = viewport.getCurrentViewport(camera, center).width / size.width;
       if (pack.sourceAnchor) {
         const anchorPoint = new Vector3(...pack.sourceAnchor.point).applyMatrix4(content.matrixWorld);
-        rearOffset.copy(stickerCarryPointerOffset(anchorPoint, camera, size.width, size.height, pack.sourcePull?.x ?? 0, pack.sourcePull?.y ?? 0));
+        rearOffset.copy(stickerCarryPointerOffset(anchorPoint, camera, size.width, size.height, pack.dragOffset?.x ?? 0, pack.dragOffset?.y ?? 0));
       } else rearOffset.set(pack.dragOffset?.x ?? 0, -(pack.dragOffset?.y ?? 0), 0).multiplyScalar(worldPixel).applyQuaternion(camera.quaternion);
     }
     // Constrain the attached peel before blending into the free sheet. Applying
@@ -317,16 +350,19 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
       const report = constrainStickerCarryExterior(sourceSurface, rearOrigin, content.matrixWorld);
       gl.domElement.setAttribute('data-wp-sticker-peel-contacts', JSON.stringify({ ...report, elapsedMs: +(performance.now() - started).toFixed(2) }));
     }
-    const transport = (pack.sourcePeelFront ?? pack.peel) >= 1 ? Math.max(0, Math.min(1, pack.detachTransport ?? 0)) : 0;
+    const rawTransport = (pack.sourcePeelFront ?? pack.peel) >= 1 ? Math.max(0, Math.min(1, pack.detachTransport ?? 0)) : 0;
+    const transport = rawTransport * rawTransport * (3 - 2 * rawTransport);
     const free = sourceSurface && content && pack.sourcePlacement && transport > 0 ? createStickerFreeCarryGeometry(art, pack.sourcePlacement, sourceSurface, content.matrixWorld, camera, pack.sourceAnchor, pack.peel) : null;
-    if (free && pack.sourceAnchor) free.translate(rearOffset.x, rearOffset.y, rearOffset.z);
+    if (free && rearOrigin && pack.sourceAnchor && content) {
+      alignStickerCarryOrigin(rearOrigin, free, pack.sourceAnchor.uv, rearOffset);
+    }
     if (free && rearOrigin) {
       const sourceUv = rearOrigin.getAttribute('uv'), centerIndex = Math.floor(sourceUv.count / 2);
       interpolateStickerCarryGeometry(rearOrigin, free, pack.sourceAnchor?.uv[0] ?? sourceUv.getX(centerIndex), pack.sourceAnchor?.uv[1] ?? sourceUv.getY(centerIndex), transport);
     }
     let target: ReturnType<typeof createStickerSurfaceGeometry> | null = null;
     if (pack.landing > 0 && pack.placement !== null && rear instanceof Mesh) {
-      try { target = createRearStickerPeelGeometry(art, pack.placement, rear.geometry, pack.peel, targetSurface ?? undefined); } catch { target = null; }
+      try { target = targetSurface && content ? createStickerLandingGeometry(art, pack.placement, targetSurface, content.matrixWorld, camera, pack.sourceAnchor?.uv, pack.peel, size.width, size.height) : null; } catch { target = null; }
     }
     const targetPositions = target?.getAttribute('position');
     const amount = targetPositions === undefined && !pack.returnToSheet ? 0 : Math.max(0, Math.min(1, pack.landing));
@@ -356,18 +392,41 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
       if (pack.returnToSheet && base) {
         destination.fromBufferAttribute(base.getAttribute('position'), index).add(start).add(new Vector3(-(pack.dragOffset?.x ?? 0) * pixel, (pack.dragOffset?.y ?? 0) * pixel, 0));
         point.lerp(destination, amount);
-      } else if (targetPositions !== undefined && content !== undefined) {
-        destination.fromBufferAttribute(targetPositions, index).applyMatrix4(content.matrixWorld);
-        point.lerp(destination, amount);
       }
       positions.setXYZ(index, point.x, point.y, point.z);
     }
+    if (pack.sourceAnchor && pack.sourcePlacement && content && !pack.returnToSheet) {
+      anchorStickerToPointer(geometry, art, pack.sourcePlacement, pack.sourceAnchor, content.matrixWorld, camera, pack.sourcePull ?? { x: 0, y: 0 }, size.width, size.height, pack.sourcePeelFront ?? pack.peel, transport);
+    }
+    // Transport, depth lift and landing all happen after the attached-peel
+    // constraint. Resolve the final displayed geometry as well.
+    if (content && targetSurface && target && !pack.returnToSheet) {
+      // Dock the material frames before relaxing the fold. Blending world-space
+      // vertices and then pinning each to a different edge plane tears the sheet.
+      interpolateStickerCarryGeometry(geometry, target, pack.sourceAnchor?.uv[0] ?? .5, pack.sourceAnchor?.uv[1] ?? .5, amount);
+      if (amount < 1) {
+        carryCollision.current ??= createStickerVisibility(); carryCollision.current.update(content);
+        constrainStickerLanding(geometry, target, content.matrixWorld, camera, carryCollision.current.castSegment);
+      }
+    // Full depth lift already clears the entire body; don't raycast every node
+    // again. Transitional frames borrow the warmed picking collider.
+    } else if (content && (rearOrigin === null || transport > 0 || pack.sourceAnchor != null) && !(rearOrigin !== null && lift === 1 && transport === 1 && !pack.returnToSheet)) {
+      carryCollision.current ??= createStickerVisibility();
+      carryCollision.current.update(content);
+      constrainStickerFreeCarry(geometry, content.matrixWorld, camera, carryCollision.current.castSegment, sourceSurface ?? undefined);
+    }
+    if (pack.sourceAnchor && content && amount === 0 && !pack.returnToSheet) {
+      const shown = stickerGeometryUvPoint(geometry, ...pack.sourceAnchor.uv).project(camera);
+      const origin = new Vector3(...pack.sourceAnchor.point).applyMatrix4(content.matrixWorld).project(camera);
+      const error = Math.hypot((shown.x - origin.x) * size.width / 2 - (pack.sourcePull?.x ?? 0), (origin.y - shown.y) * size.height / 2 - (pack.sourcePull?.y ?? 0));
+      gl.domElement.setAttribute('data-wp-sticker-pointer-error', error.toFixed(4));
+    } else gl.domElement.removeAttribute('data-wp-sticker-pointer-error');
     positions.needsUpdate = true;
     geometry.computeVertexNormals(); geometry.computeBoundingSphere();
     base?.dispose(); rearOrigin?.dispose(); free?.dispose(); target?.dispose();
     gl.domElement.setAttribute('data-wp-sticker-peel-frame-ms', (performance.now() - frameStarted).toFixed(2));
     invalidate();
-  }, [art, width, geometry, pack.peel, pack.placement, pack.landing, originX, originY, originZ, scene, invalidate, orientation.orientation, paperWidth, pixel, seatX, pack.sourcePlacement, pack.returnToSheet, pack.dragOffset, camera, size.width, size.height, viewport, sourceSurface, targetSurface, pack.sourcePeelFront, pack.detachTransport, pack.sourceAnchor, pack.sourcePull, gl]);
+  }, [art, width, geometry, pack.peel, pack.placement, pack.landing, originX, originY, originZ, scene, invalidate, orientation.orientation, paperWidth, pixel, seatX, pack.sourcePlacement, pack.returnToSheet, pack.dragOffset, camera, size.width, size.height, viewport, sourceSurface, targetSurface, pack.sourcePeelFront, pack.detachTransport, pack.sourceAnchor, pack.sourcePull, gl, carryCollision]);
   return <StickerPrint art={art} geometry={geometry} wearGeometry={pack.landing > 0 ? targetSurface : sourceSurface} roughness={roughness} wear={pack.placement?.wear ?? pack.sourcePlacement?.wear ?? stickerScene.appearances?.find((entry) => entry.stickerId === art.id)?.wear ?? 0} finishEnabled={stickerScene.finishEnabled !== false} onError={stickerScene.onArtworkError} onReady={stickerScene.onArtworkReady} />;
 }
 
@@ -384,14 +443,18 @@ function PrepareStickerAssets({ scene }: { readonly scene: DeviceStickerScene })
   useLayoutEffect(() => { onPrepared?.(ids.filter((id) => ready.current.has(id))); }, [ids, onPrepared]);
   return <>{ids.map((id) => { const art = scene.assets.find((item) => item.id === id); return art === undefined ? null : <PrepareStickerAsset key={id} art={art} report={report} onError={scene.onArtworkError} />; })}</>;
 }
-function PrepareStickerAsset({ art, report, onError }: { readonly art: StickerArtwork; readonly report: (id: string, ready: boolean) => void; readonly onError?: (id: string) => void }) {
+const PrepareStickerAsset = memo(function PrepareStickerAsset({ art, report, onError }: { readonly art: StickerArtwork; readonly report: (id: string, ready: boolean) => void; readonly onError?: (id: string) => void }) {
   const { texture, failed } = useStickerTexture(art.url);
   const preparationEpoch = useStickerPreparationEpoch();
-  const { gl, camera, scene } = useThree();
+  const gl = useThree(state => state.gl);
+  const camera = useThree(state => state.camera);
+  const scene = useThree(state => state.scene);
   const studio = useStudioEnvironmentSnapshot();
   const group = useRef<Group>(null);
   const roughness = useMemo(() => createStickerRoughness(), []);
-  const geometry = useMemo(() => createStickerPeelGeometry(art, 1, .75), [art]);
+  // Shader variants don't depend on tessellation density. These hidden meshes
+  // only retain compiled programs; they never represent a displayed print.
+  const geometry = useMemo(() => createStickerPeelGeometry(art, 1, .75, 4), [art]);
   useEffect(() => () => { roughness.dispose(); geometry.dispose(); }, [roughness, geometry]);
   useEffect(() => {
     let current = true;
@@ -420,4 +483,4 @@ function PrepareStickerAsset({ art, report, onError }: { readonly art: StickerAr
   return <group ref={group} visible={false} name={`prepared-sticker-${art.id}`}>
     {(['earned', 'locked', 'placed'] as const).map((appearance) => <StickerPrint key={appearance} art={art} geometry={geometry} roughness={roughness} finishEnabled appearance={appearance} />)}
   </group>;
-}
+});

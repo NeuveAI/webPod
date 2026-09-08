@@ -1,6 +1,6 @@
 import type { StickerWrapSurface } from './sticker-wrap';
 import { useThree } from '@react-three/fiber';
-import { useEffect, useLayoutEffect, useMemo } from 'react';
+import { memo, useEffect, useLayoutEffect, useMemo } from 'react';
 import { BackSide, FrontSide, MeshPhysicalMaterial, type BufferGeometry, type Texture } from 'three';
 import { STICKER_LAMINATE } from './materials';
 import { createStickerSurfaceGeometry, STICKER_SURFACE } from './sticker-surface';
@@ -41,7 +41,7 @@ function EquippedSticker({ art, placement, rear, wrap, roughness, scene, renderO
   return <StickerPrint renderOrder={renderOrder} visible={!isStickerCarried(scene.pack, placement.stickerId)} wear={placement.wear ?? 0} art={art} geometry={geometry} roughness={roughness} finishEnabled={scene.finishEnabled !== false} onError={scene.onArtworkError} onReady={scene.onArtworkReady} />;
 }
 /** One map alpha-tests before physical lighting, clipping both print and satin response. */
-export function StickerPrint({ art, geometry, wearGeometry = geometry, roughness, finishEnabled, onError, onReady, appearance = 'earned', visible = true, wear = 0, renderOrder = 4 }: {
+export const StickerPrint = memo(function StickerPrint({ art, geometry, wearGeometry = geometry, roughness, finishEnabled, onError, onReady, appearance = 'earned', visible = true, wear = 0, renderOrder = 4 }: {
   readonly art: StickerArtwork; readonly geometry: BufferGeometry; readonly wearGeometry?: BufferGeometry | null; readonly roughness: Texture;
   readonly renderOrder?: number; readonly wear?: number; readonly visible?: boolean; readonly appearance?: 'earned' | 'locked' | 'placed'; readonly finishEnabled: boolean; readonly onError?: (id: string) => void; readonly onReady?: (id: string) => void;
 }) {
@@ -88,4 +88,4 @@ export function StickerPrint({ art, geometry, wearGeometry = geometry, roughness
     <mesh name={`sticker-${art.id}`} geometry={geometry} material={materials.front} dispose={null} raycast={() => {}} renderOrder={renderOrder} />
     <mesh name={`sticker-backing-${art.id}`} geometry={geometry} material={materials.back} dispose={null} raycast={() => {}} renderOrder={renderOrder} />
   </group>;
-}
+});

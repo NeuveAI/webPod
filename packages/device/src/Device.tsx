@@ -179,14 +179,13 @@ export function Device({
   // A getter, not a value: r3f swaps the camera on some prop changes and the
   // viewport changes on every resize, so the handle must read both at the
   // moment it projects rather than capture them (see `screen-mesh.ts`).
-  const store = useThree((state) => state);
+  const getStore = useThree((state) => state.get);
   const view = useCallback(
-    () => ({
-      camera: store.camera,
-      width: store.size.width,
-      height: store.size.height,
-    }),
-    [store],
+    () => {
+      const store = getStore();
+      return { camera: store.camera, width: store.size.width, height: store.size.height };
+    },
+    [getStore],
   );
   const onShellPointerDown = useCallback(
     (event: ThreeEvent<PointerEvent>) => {

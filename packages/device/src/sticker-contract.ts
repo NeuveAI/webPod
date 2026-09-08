@@ -49,6 +49,8 @@ export interface DeviceStickerScene {
   readonly placements: readonly DeviceStickerPlacement[];
   readonly appearances?: readonly { readonly stickerId: string; readonly wear: number }[];
   readonly pack: StickerPackVisual | null;
+  /** Mounted invisibly after inventory preparation, before the first rear reveal. */
+  readonly preparedSheet?: StickerPackVisual['sheet'];
   /** Prepare only the active collection before advertising its physical controls. */
   readonly prepareIds?: readonly string[];
   readonly onPrepared?: (ids: readonly string[]) => void;
@@ -101,6 +103,7 @@ export interface StickerSurfaceGrab {
 
 /** Runtime camera handle; never persist this or put it in Jotai user data. */
 export interface StickerRearProjection {
+  readonly resolveDrop?: (placement: DeviceStickerPlacement, clientX: number, clientY: number) => DeviceStickerPlacement;
   readonly fit?: (placement: DeviceStickerPlacement) => DeviceStickerPlacement;
   /** Authoritative visible painted surface pickup; null must not fall back to rear hit. */
   readonly grab?: (clientX: number, clientY: number) => StickerSurfaceGrab | null;

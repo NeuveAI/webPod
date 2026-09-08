@@ -4,7 +4,7 @@ import type {
   DeviceOrientationGrabStart,
 } from '@webpod/device'
 import { Panel, showNowPlayingScreen, subscribeToRootScreenEntry, type NavigationStatus, type PanelState } from '@webpod/panel'
-import { useCallback, useEffect, useSyncExternalStore } from 'react'
+import { memo, useCallback, useEffect, useSyncExternalStore } from 'react'
 import { musicRuntime, quiesceMusicProvider, type MusicRuntimeSnapshot } from './music-runtime'
 import { useAtomValue } from 'jotai'
 import { deviceStore, stickerInteractionAtom, stickerInventoryAtom } from '@webpod/state'
@@ -17,10 +17,13 @@ import { stickerSourceAnchorAtom, stickerSourcePullAtom } from './sticker-carry-
 import { adaptStickerGrab } from './sticker-grab'
 import { openStickerPack, placeSticker, removeSticker, retryStickerCollection, stopStickerRuntime } from './sticker-runtime'
 import { stickerFinishCalibrationAtom, reportStickerArtworkFailure, reportStickerArtworkReady } from './sticker-interaction'
+import { createStickerProjectionNotifications } from './sticker-projection-notifications'
 
 let stickerProjection: StickerRearProjection | null = null
-const onStickerSurfaceReady = (): void => { deviceStore.set(stickerProjectionVersionAtom, version => version + 1) }
-const onStickerProjectionReady = (handle: StickerRearProjection | null): void => { stickerProjection = handle; deviceStore.set(stickerProjectionVersionAtom, (version) => version + 1) }
+const projectionNotifications = createStickerProjectionNotifications(() => deviceStore.set(stickerProjectionVersionAtom, version => version + 1))
+const onStickerSurfaceReady = (): void => { projectionNotifications.notify() }
+const onStickerProjectionReady = (handle: StickerRearProjection | null): void => { stickerProjection = handle; projectionNotifications.notify() }
+import.meta.hot?.dispose(() => projectionNotifications.cancel())
 const onStickerPrepared = (ids: readonly string[]): void => {
   for (const id of ids) reportStickerArtworkReady(id)
   deviceStore.set(stickerPreparedIdsAtom, (current) => current.length === ids.length && current.every((id, index) => id === ids[index]) ? current : ids)
@@ -31,7 +34,7 @@ const fitStickerPlacement = (placement: import('@webpod/stickers').StickerPlacem
   const fitted = stickerProjection?.fit?.(placement)
   return isStickerPlacement(fitted) ? fitted : placement
 }
-const stickerCommands = { fit: fitStickerPlacement, retry: retryStickerCollection, openPack: openStickerPack, place: (placement: import('@webpod/stickers').StickerPlacement, expectedSource?: import('@webpod/stickers').StickerPlacement) => placeSticker(fitStickerPlacement(placement), expectedSource), remove: removeSticker, project: (clientX: number, clientY: number) => stickerProjection?.project(clientX, clientY) ?? null, grab: (x: number, y: number) => adaptStickerGrab(stickerProjection?.grab?.(x, y)), hit: (x: number, y: number) => { const hit = stickerProjection?.hit(x, y); return isStickerPlacement(hit) ? hit : null }, contour: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.contour?.(placement) ?? null, quad: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.quad?.(placement) ?? null, beginTransform: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.beginTransform?.(placement) ?? null, bounds: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.bounds?.(placement) ?? null, screen: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.screen(placement) ?? null }
+const stickerCommands = { resolveDrop: (placement: import('@webpod/stickers').StickerPlacement, x: number, y: number) => { const result = stickerProjection?.resolveDrop?.(placement, x, y); return isStickerPlacement(result) ? result : placement }, fit: fitStickerPlacement, retry: retryStickerCollection, openPack: openStickerPack, place: (placement: import('@webpod/stickers').StickerPlacement, expectedSource?: import('@webpod/stickers').StickerPlacement) => placeSticker(fitStickerPlacement(placement), expectedSource), remove: removeSticker, project: (clientX: number, clientY: number) => stickerProjection?.project(clientX, clientY) ?? null, grab: (x: number, y: number) => adaptStickerGrab(stickerProjection?.grab?.(x, y)), hit: (x: number, y: number) => { const hit = stickerProjection?.hit(x, y); return isStickerPlacement(hit) ? hit : null }, contour: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.contour?.(placement) ?? null, quad: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.quad?.(placement) ?? null, beginTransform: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.beginTransform?.(placement) ?? null, bounds: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.bounds?.(placement) ?? null, screen: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.screen(placement) ?? null }
 
 export type ProductionPanelState = PanelState
 
@@ -120,7 +123,7 @@ export function accountStatusForRuntime(
  * setting, but routes do not own independent density, actor, list, or store
  * initialization paths.
  */
-export function ProductionPanelView({
+export const ProductionPanelView = memo(function ProductionPanelView({
   colourway,
   state = 'ready',
   dynamicTypeScale = 1,
@@ -141,7 +144,7 @@ export function ProductionPanelView({
       accountStatus={accountStatus}
     />
   )
-}
+})
 
 /** Renders the production panel through the production composite device. */
 export function ProductionDeviceView({
@@ -172,7 +175,7 @@ export function ProductionDeviceView({
   const editor = useAtomValue(stickerEditorAtom, { store: deviceStore })
   const inventory = useAtomValue(stickerInventoryAtom, { store: deviceStore })
   const calibratedFinish = useAtomValue(stickerFinishCalibrationAtom, { store: deviceStore })
-  useEffect(() => () => stopStickerRuntime(false), [])
+  useEffect(() => () => { stopStickerRuntime(false); projectionNotifications.cancel() }, [])
   useEffect(() => subscribeToRootScreenEntry(() => {
     void pauseProductionPlaybackAtRoot()
   }), [])
@@ -186,6 +189,7 @@ export function ProductionDeviceView({
       : skipProductionPlayback(button),
     [],
   )
+  const preparedSheet = collection === null ? undefined : { neighbors: collections.filter((item) => item.genre !== collection.genre).slice(0, 2).flatMap((item) => item.slots[0] === undefined ? [] : [{ ink: item.ink, stickerId: item.slots[0].art.id }]), reveal: sheetReveal, ink: collection.ink, slots: collection.slots.map((slot) => ({ stickerId: slot.art.id, state: slot.state })) }
   return (
     <>
     <CompositeDevice
@@ -201,7 +205,7 @@ export function ProductionDeviceView({
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
       onTransportPress={onTransportPress}
-      stickerScene={{ assets: STICKER_CATALOGUE, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, appearances: inventory?.appearances, pack: (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { workspaceVisible: collectionUsable && editor === null, progress: stickerInteraction.progress, peel: stickerInteraction.peel, sourcePeelFront: stickerInteraction.sourcePeelFront, detachTransport: stickerInteraction.detachTransport, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, sourceAnchor: sourceAnchor ?? undefined, sourcePull: sourcePull ?? undefined, dragOffset, workspaceLowering, turn: packTurn, sheet: collection === null ? undefined : { neighbors: collections.filter((item) => item.genre !== collection.genre).slice(0, 2).flatMap((item) => item.slots[0] === undefined ? [] : [{ ink: item.ink, stickerId: item.slots[0].art.id }]), reveal: sheetReveal, ink: collection.ink, slots: collection.slots.map((slot) => ({ stickerId: slot.art.id, state: slot.state })) } }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onSurfaceReady: onStickerSurfaceReady, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
+      stickerScene={{ assets: STICKER_CATALOGUE, preparedSheet: collectionUsable ? preparedSheet : undefined, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, appearances: inventory?.appearances, pack: (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { workspaceVisible: collectionUsable && editor === null, progress: stickerInteraction.progress, peel: stickerInteraction.peel, sourcePeelFront: stickerInteraction.sourcePeelFront, detachTransport: stickerInteraction.detachTransport, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, sourceAnchor: sourceAnchor ?? undefined, sourcePull: sourcePull ?? undefined, dragOffset, workspaceLowering, turn: packTurn, sheet: preparedSheet }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onSurfaceReady: onStickerSurfaceReady, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
       panel={(
         <ProductionPanelView
           colourway={colourway}

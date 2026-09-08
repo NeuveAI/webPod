@@ -71,8 +71,11 @@ export function stickerPeelMotion(x: number, y: number, reduced: boolean, travel
   const recover = Math.min(1, free / travel);
   const ease = recover * recover * (3 - 2 * recover);
   const factor = 1 - travel * (1 - ease) / distance;
-  return { peel: 1 - Math.min(1, free / 100) * .6, ...stickerLiftPhase(1), detached: true, offset: { x: x * factor, y: y * factor } };
+  const relax = Math.min(1, free / HELD_CURL.relaxTravelPx);
+  return { peel: 1 - relax * relax * (3 - 2 * relax) * (1 - HELD_CURL.minimum), ...stickerLiftPhase(1), detached: true, offset: { x: x * factor, y: y * factor } };
 }
+
+const HELD_CURL = Object.freeze({ minimum: .75, relaxTravelPx: 100 });
 
 export const stickerWorkspaceLoweringAtom = atom(0);
 

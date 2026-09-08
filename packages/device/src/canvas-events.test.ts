@@ -10,7 +10,7 @@ function fixture() {
   camera.updateMatrixWorld(true);
   const state = {
     camera, pointer: new Vector2(), raycaster: new Raycaster(),
-    gl: { domElement: { getBoundingClientRect: () => rect } },
+    gl: { domElement: { closest: () => null, getBoundingClientRect: () => rect } },
   } as unknown as RootState;
   const compute = (clientX: number, clientY: number, offsetX = clientX, offsetY = clientY) =>
     computeCanvasPointer({ clientX, clientY, offsetX, offsetY } as Parameters<ComputeFunction>[0], state);
@@ -25,6 +25,22 @@ test('composited descendant offsets do not change the actual canvas ray', () => 
   expect(state.raycaster.ray.equals(ray)).toBe(true);
   expect(state.pointer.x).toBeCloseTo(-.1139560578, 8);
   expect(state.pointer.y).toBeCloseTo(.6714861565, 8);
+});
+
+test('native rotation capture skips shell picking only for its owned movement', () => {
+  const { state } = fixture();
+  const owner = { dataset: { orientationPointerId: '7' } };
+  Object.assign(state.gl.domElement, { closest: () => owner });
+  const compute = (type: string, pointerId: number) => computeCanvasPointer({ type, pointerId, clientX: 640, clientY: 450 } as Parameters<ComputeFunction>[0], state);
+  compute('pointermove', 7);
+  expect(state.raycaster.camera).toBeNull();
+  compute('pointermove', 8);
+  expect(state.raycaster.camera).toBe(state.camera);
+  compute('pointerdown', 7);
+  expect(state.raycaster.camera).toBe(state.camera);
+  Object.assign(state.gl.domElement, { closest: () => null });
+  compute('pointermove', 7);
+  expect(state.raycaster.camera).toBe(state.camera);
 });
 
 test('viewport-relative rect handles translation, scroll and axis-aligned CSS scaling', () => {

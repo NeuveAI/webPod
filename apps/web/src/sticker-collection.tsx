@@ -51,6 +51,7 @@ function releaseCapturedStickerPointer(target: HTMLElement | null): void {
 }
 
 export interface StickerCollectionCommands {
+  readonly resolveDrop?: (placement: StickerPlacement, clientX: number, clientY: number) => StickerPlacement
   readonly fit?: (placement: StickerPlacement) => StickerPlacement
   readonly grab?: (x: number, y: number) => StickerGrab | null
   readonly contour?: (placement: StickerPlacement) => import('@webpod/device').StickerProjectedContour | null
@@ -255,7 +256,8 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
         const velocity = estimatePointerReleaseVelocity(pointer.samples, event.timeStamp)
         const projected = commands.project(event.clientX + velocity.xPxPerSecond * PACK.releaseInertiaSeconds, event.clientY + velocity.yPxPerSecond * PACK.releaseInertiaSeconds)
         const candidate = projected === null || current.sourcePlacement != null ? current.previewPlacement : { ...current.previewPlacement, ...projected }
-        const placement = commands.fit?.(isStickerPlacement(candidate) ? candidate : current.previewPlacement) ?? (isStickerPlacement(candidate) ? candidate : current.previewPlacement)
+        const fitted = commands.fit?.(isStickerPlacement(candidate) ? candidate : current.previewPlacement) ?? (isStickerPlacement(candidate) ? candidate : current.previewPlacement)
+        const placement = commands.resolveDrop?.(fitted, event.clientX, event.clientY) ?? fitted
         updateStickerInteraction({ stage: 'settling' })
         run(async (isCurrent) => {
           await commands.place(placement); if (!isCurrent()) return

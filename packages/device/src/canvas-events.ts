@@ -2,6 +2,13 @@ import { events, type ComputeFunction } from "@react-three/fiber";
 
 /** Composited screen descendants have their own offsetX/Y coordinate origin. */
 export const computeCanvasPointer: ComputeFunction = (event, state) => {
+  // Native rotation capture owns movement until release. Re-picking the dense
+  // shell cannot change that owner and only competes with the next render.
+  const owner = state.gl.domElement.closest<HTMLElement>('[data-orientation-grab="active"]');
+  if (event.type === 'pointermove' && 'pointerId' in event && owner?.dataset['orientationPointerId'] === String(event.pointerId)) {
+    Object.assign(state.raycaster, { camera: null });
+    return;
+  }
   const { left, top, width, height } = state.gl.domElement.getBoundingClientRect();
   if (
     !Number.isFinite(event.clientX) || !Number.isFinite(event.clientY) ||

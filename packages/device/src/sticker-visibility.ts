@@ -1,3 +1,4 @@
+import { prepareCollisionInWorker } from './sticker-collision-preparation';
 import { Matrix4, Mesh, Vector3, type Camera, type Object3D } from 'three';
 import { createStickerCollision, type StickerCollisionFace } from './sticker-collision';
 
@@ -20,10 +21,8 @@ export function createStickerVisibility() {
   let disposed = false, revision = 0;
   const identities = new WeakMap<object, number>(); let nextIdentity = 0;
   const identity = (value: object) => { const saved = identities.get(value); if (saved !== undefined) return saved; const id = ++nextIdentity; identities.set(value, id); return id; };
-  return {
-    get revision(): number { return revision; },
-    update(content: Object3D): void {
-      if (disposed) throw new Error('Sticker visibility was disposed');
+  let pending: { key: string; controller: AbortController; promise: Promise<void> } | null = null;
+  const inspect = (content: Object3D) => {
       content.updateWorldMatrix(true, true);
       const faces: StickerCollisionFace[] = [], parts: string[] = [];
       content.traverse(object => {
@@ -44,8 +43,35 @@ export function createStickerVisibility() {
         parts.push(object.uuid, object.geometry.uuid, `${identity(position)}:${backing}:${position.count}:${version}`, index ? `${identity(index)}:${identity(index.array)}:${index.count}:${index.version}` : 'no-index', transform.elements.join(','), ...materials.map(material => `${material.visible}:${material.opacity}`));
         faces.push({ geometry: object.geometry, transform, source: object.name || object.uuid, kind: 'surface' });
       });
-      const nextKey = parts.join('|');
+    return { faces, nextKey: parts.join('|') };
+  };
+  return {
+    get revision(): number { return revision; },
+    /** Build once while the front is shown; pose changes do not alter local collision geometry. */
+    prepare(content: Object3D): Promise<void> {
+      if (disposed) return Promise.resolve();
+      const { faces, nextKey } = inspect(content);
+      if (nextKey === key && collider !== null) return Promise.resolve();
+      if (pending?.key === nextKey) return pending.promise;
+      pending?.controller.abort();
+      const controller = new AbortController();
+      const promise = prepareCollisionInWorker(faces, controller.signal).then(snapshot => {
+        if (disposed || controller.signal.aborted) return;
+        // Only install the snapshot for the exact assembly that was copied.
+        if (inspect(content).nextKey !== nextKey) return;
+        const next = createStickerCollision([], snapshot);
+        collider?.dispose(); collider = next; key = nextKey; revision++;
+      }).catch(() => { /* Pointer queries retain the synchronous correctness fallback. */ }).finally(() => {
+        if (pending?.controller === controller) pending = null;
+      });
+      pending = { key: nextKey, controller, promise };
+      return promise;
+    },
+    update(content: Object3D): void {
+      if (disposed) throw new Error('Sticker visibility was disposed');
+      const { faces, nextKey } = inspect(content);
       if (nextKey === key && collider !== null) return;
+      pending?.controller.abort(); pending = null;
       const next = createStickerCollision(faces);
       collider?.dispose(); collider = next; key = nextKey; revision++;
     },
@@ -61,6 +87,6 @@ export function createStickerVisibility() {
       if (disposed || collider === null) throw new Error('Sticker visibility is not prepared');
       return collider.castSegment(start, end);
     },
-    dispose(): void { if (disposed) return; disposed = true; collider?.dispose(); collider = null; key = ''; },
+    dispose(): void { if (disposed) return; disposed = true; pending?.controller.abort(); pending = null; collider?.dispose(); collider = null; key = ''; },
   };
 }

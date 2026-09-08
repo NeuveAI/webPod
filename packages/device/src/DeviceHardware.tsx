@@ -1,11 +1,11 @@
-import { useEffect, useMemo } from "react";
+import { memo, useEffect, useMemo } from "react";
 import { MeshBasicMaterial, MeshPhysicalMaterial, type Material } from "three";
 import type { DeviceFormParams } from "./form";
 import { createHardwareGeometry, type HardwareMaterial } from "./hardware-geometry";
 import { effectiveStudioEnvironmentIntensity, useStudioEnvironmentSnapshot } from "./StudioEnvironment";
 
 /** Physical connector surfaces use the same studio as the front controls. */
-export function DeviceHardware({ form, isBlack }: { readonly form: DeviceFormParams; readonly isBlack: boolean }) {
+export const DeviceHardware = memo(function DeviceHardware({ form, isBlack }: { readonly form: DeviceFormParams; readonly isBlack: boolean }) {
   const studio = useStudioEnvironmentSnapshot();
   const formSignature = JSON.stringify(form);
   const parts = useMemo(() => createHardwareGeometry(JSON.parse(formSignature) as DeviceFormParams), [formSignature]);
@@ -28,4 +28,4 @@ export function DeviceHardware({ form, isBlack }: { readonly form: DeviceFormPar
   return <group name="device-hardware">{parts.map((part) => (
     <mesh key={part.name} name={part.name} geometry={part.geometry} material={materials[part.material]} />
   ))}</group>;
-}
+});

@@ -17,6 +17,22 @@ export interface StickerCollisionHit {
   readonly kind: 'surface' | 'bridge';
 }
 interface Node { readonly box: Box3; readonly left?: Node; readonly right?: Node; readonly triangles?: readonly number[] }
+interface SerializedNode { readonly bounds: readonly number[]; readonly left?: SerializedNode; readonly right?: SerializedNode; readonly triangles?: readonly number[] }
+export interface StickerCollisionSnapshot {
+  readonly coordinates: Float64Array;
+  readonly provenance: Uint32Array;
+  readonly metadata: { source: string; kind: 'surface' | 'bridge'; adhesiveSupport: boolean }[];
+  readonly root: SerializedNode;
+  readonly nodeCount: number;
+}
+function serializeNode(node: Node): SerializedNode {
+  return { bounds: [...node.box.min.toArray(), ...node.box.max.toArray()], triangles: node.triangles,
+    left: node.left ? serializeNode(node.left) : undefined, right: node.right ? serializeNode(node.right) : undefined };
+}
+function restoreNode(node: SerializedNode): Node {
+  return { box: new Box3(new Vector3().fromArray(node.bounds), new Vector3().fromArray(node.bounds, 3)), triangles: node.triangles,
+    left: node.left ? restoreNode(node.left) : undefined, right: node.right ? restoreNode(node.right) : undefined };
+}
 const EPSILON = 1e-7;
 const LEAF_SIZE = 8;
 
@@ -38,11 +54,11 @@ function coplanarOverlap(a: Triangle, b: Triangle, normal: Vector3): boolean {
  * A ray through an unbridged opening can first hit hidden hardware: provenance is preserved.
  * Final triangle tests also require an exterior-start/sweep or containment invariant in the caller.
  */
-export function createStickerCollision(faces: readonly StickerCollisionFace[]) {
+export function createStickerCollision(faces: readonly StickerCollisionFace[], prepared?: StickerCollisionSnapshot) {
   const raw: number[] = [], owners: number[] = [];
-  const metadata = faces.map(face => ({ source: face.source, kind: face.kind, adhesiveSupport: face.adhesiveSupport === true }));
+  const metadata = prepared?.metadata ?? faces.map(face => ({ source: face.source, kind: face.kind, adhesiveSupport: face.adhesiveSupport === true }));
   const vertex = new Vector3();
-  for (const [owner, face] of faces.entries()) {
+  for (const [owner, face] of (prepared ? [] : faces).entries()) {
     const position = face.geometry.getAttribute('position'), index = face.geometry.index;
     const count = index?.count ?? position.count;
     if (count % 3 !== 0) throw new Error('Sticker collider requires triangle geometry');
@@ -57,7 +73,7 @@ export function createStickerCollision(faces: readonly StickerCollisionFace[]) {
       owners.push(owner);
     }
   }
-  let coordinates = new Float64Array(raw), provenance = new Uint32Array(owners);
+  let coordinates = prepared?.coordinates ?? new Float64Array(raw), provenance = prepared?.provenance ?? new Uint32Array(owners);
   // Build-only caches preserve stable sorting and exact partitions. They are
   // released after construction rather than retained in the collider.
   let buildCenters = new Float64Array(owners.length * 3), buildBounds = new Float64Array(owners.length * 6);
@@ -75,7 +91,7 @@ export function createStickerCollision(faces: readonly StickerCollisionFace[]) {
   const read = (id: number, target: Triangle) => {
     target.a.fromArray(coordinates, id * 9); target.b.fromArray(coordinates, id * 9 + 3); target.c.fromArray(coordinates, id * 9 + 6); return target;
   };
-  let nodeCount = 0;
+  let nodeCount = prepared?.nodeCount ?? 0;
   const build = (ids: number[]): Node => {
     nodeCount++;
     const box = new Box3();
@@ -91,10 +107,10 @@ export function createStickerCollision(faces: readonly StickerCollisionFace[]) {
     ids.sort((a, b) => center(a) - center(b)); const half = ids.length >> 1;
     return { box, left: build(ids.slice(0, half)), right: build(ids.slice(half)) };
   };
-  let root: Node | null = build(Array.from({ length: owners.length }, (_, i) => i));
+  let root: Node | null = prepared ? restoreNode(prepared.root) : build(Array.from({ length: owners.length }, (_, i) => i));
   buildCenters = new Float64Array(0); buildBounds = new Float64Array(0);
   const ensure = () => { if (!root) throw new Error('Sticker collider was disposed'); return root; };
-  const stats = { triangleCount: owners.length, nodeCount, typedBytes: coordinates.byteLength + provenance.byteLength };
+  const stats = { triangleCount: provenance.length, nodeCount, typedBytes: coordinates.byteLength + provenance.byteLength };
   raw.length = 0; owners.length = 0;
   const supportStats = { queries: 0, nodes: 0, triangles: 0 };
   const closestSupport = (point: Vector3, maximumDistance: number, initialFacet = -1): (StickerCollisionHit & { readonly signedDistance: number; readonly facetIndex: number }) | null => {
@@ -126,6 +142,8 @@ export function createStickerCollision(faces: readonly StickerCollisionFace[]) {
   };
   return {
     stats,
+    /** Worker handoff owns these buffers; callers must stop using the sender after transfer. */
+    snapshot(): StickerCollisionSnapshot { return { coordinates, provenance, metadata, root: serializeNode(ensure()), nodeCount }; },
     /** Earliest transverse facet contact on a finite segment. Coplanar sliding is handled by the triangle-overlap gate. */
     castSegment(start: Vector3, end: Vector3): StickerCollisionHit | null {
       const tree = ensure();

@@ -7,6 +7,11 @@ import {
 } from "./renderer-defaults";
 
 describe("device renderer defaults", () => {
+  test('avoids blocking shader logs by default and permits explicit diagnostics', () => {
+    const renderer = { transmissionResolutionScale: 1, debug: { checkShaderErrors: true } };
+    applyDeviceRendererDefaults(renderer); expect(renderer.debug.checkShaderErrors).toBe(false);
+    applyDeviceRendererDefaults(renderer, true); expect(renderer.debug.checkShaderErrors).toBe(true);
+  });
   test("keeps the transmission pass on the native drawing-buffer grid", () => {
     const renderer = { transmissionResolutionScale: 12, toneMapping: NoToneMapping as number, toneMappingExposure: 2 };
     applyDeviceRendererDefaults(renderer);

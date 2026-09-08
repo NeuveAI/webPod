@@ -71,10 +71,19 @@ test('partial peel anchors remaining contact, releases continuously, and reduced
   expect(released.peel).toBeGreaterThan(.99)
   const free = stickerPeelMotion(164, 0, false)
   expect(free.offset?.x).toBe(164)
-  expect(free.peel).toBeCloseTo(.4)
+  expect(free.peel).toBeCloseTo(.75)
   expect(free.sourcePeelFront).toBe(1); expect(free.detachTransport).toBe(1)
   expect(stickerPeelMotion(10, 5, false, 64, 164)).toEqual({ peel: free.peel, sourcePeelFront: 1, detachTransport: 1, detached: true, offset: { x: 10, y: 5 } })
   expect(stickerPeelMotion(50, 20, true)).toEqual({ peel: 0, sourcePeelFront: 1, detachTransport: 1, detached: true, offset: { x: 50, y: 20 } })
+})
+
+test('held curl relaxes with zero endpoint slope and stays curled on long drags', () => {
+  const step = .001;
+  const startSlope = (stickerPeelMotion(64 + step, 0, false).peel - stickerPeelMotion(64, 0, false).peel) / step;
+  const endSlope = (stickerPeelMotion(164, 0, false).peel - stickerPeelMotion(164 - step, 0, false).peel) / step;
+  expect(Math.abs(startSlope)).toBeLessThan(.00001);
+  expect(Math.abs(endSlope)).toBeLessThan(.00001);
+  expect(stickerPeelMotion(1000, 0, false).peel).toBe(.75);
 })
 
 

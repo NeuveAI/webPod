@@ -6,6 +6,96 @@ import type { StickerCollisionHit } from './sticker-collision';
 
 type StickerContactCast = (start: Vector3, end: Vector3) => StickerCollisionHit | null;
 
+export function alignStickerCarryOrigin(peeled: BufferGeometry, free: BufferGeometry, uv: readonly [number, number], offset: Vector3): void {
+  const delta = stickerGeometryUvPoint(peeled, uv[0], uv[1]).sub(stickerGeometryUvPoint(free, uv[0], uv[1])).add(offset);
+  free.translate(delta.x, delta.y, delta.z);
+}
+
+/** Pin the sampled material point, not the sticker center, to the raw pointer.
+ * Attached material has zero weight; transport smoothly releases the last edge.
+ */
+export function anchorStickerToPointer(geometry: BufferGeometry, art: StickerArtwork, placement: DeviceStickerPlacement, anchor: StickerCarryAnchor, world: Matrix4, camera: Camera, pull: { readonly x: number; readonly y: number }, width: number, height: number, frontier: number, transport: number): void {
+  const q = Math.max(0, Math.min(1, frontier)); if (q === 0) return;
+  const region = stickerGrabPeelRegion(art, placement, anchor), n = STICKER_SURFACE.segments, advance = q * (1 - region.start), crease = region.start + advance;
+  const weight = (i: number) => {
+    const distance = crease - region.coordinate(i % (n + 1) / n, Math.floor(i / (n + 1)) / n);
+    const t = Math.max(0, Math.min(1, distance / Math.max(advance, 1e-12))), attached = t * t * (3 - 2 * t);
+    return attached + (1 - attached) * transport;
+  };
+  const uv = geometry.getAttribute('uv');
+  const gx = Math.max(0, Math.min(n, (anchor.uv[0] - uv.getX(0)) / (uv.getX(n) - uv.getX(0)) * n));
+  const gy = Math.max(0, Math.min(n, (uv.getY(0) - anchor.uv[1]) / (uv.getY(0) - uv.getY(n * (n + 1))) * n));
+  const x = Math.min(n - 1, Math.floor(gx)), y = Math.min(n - 1, Math.floor(gy)), fx = gx - x, fy = gy - y, a = y * (n + 1) + x, b = a + 1, c = a + n + 1;
+  const atWeight = fx + fy <= 1 ? weight(a) * (1 - fx - fy) + weight(b) * fx + weight(c) * fy : weight(b) * (1 - fy) + weight(c) * (1 - fx) + weight(c + 1) * (fx + fy - 1);
+  if (atWeight < 1e-8) return;
+  const current = stickerGeometryUvPoint(geometry, anchor.uv[0], anchor.uv[1]);
+  const desired = new Vector3(...anchor.point).applyMatrix4(world).project(camera);
+  desired.x += pull.x * 2 / width; desired.y -= pull.y * 2 / height;
+  desired.z = current.clone().project(camera).z;
+  const correction = desired.unproject(camera).sub(current).divideScalar(atWeight);
+  const p = geometry.getAttribute('position'), point = new Vector3();
+  for (let i = 0; i < p.count; i++) {
+    const amount = weight(i); if (amount === 0) continue;
+    point.fromBufferAttribute(p, i).addScaledVector(correction, amount);
+    p.setXYZ(i, point.x, point.y, point.z);
+  }
+}
+
+/** Reverse the same grabbed-edge fold at the new seat, with an exact seated endpoint. */
+export function createStickerLandingGeometry(art: StickerArtwork, placement: DeviceStickerPlacement, seated: BufferGeometry, world: Matrix4, camera: Camera, grabbedUv: readonly [number, number] | undefined, curl: number, width: number, height: number): BufferGeometry {
+  const uv = grabbedUv ?? [.5, .95] as const;
+  const point = stickerGeometryUvPoint(seated, uv[0], uv[1]);
+  const tangent = stickerGeometryUvPoint(seated, Math.min(1, uv[0] + .001), uv[1]).sub(stickerGeometryUvPoint(seated, Math.max(0, uv[0] - .001), uv[1])).normalize();
+  const anchor = { uv, point: point.toArray() as [number, number, number], tangentU: tangent.toArray() as [number, number, number] };
+  const shown = createStickerGrabPeelGeometry(seated, art, placement, anchor, world, camera, curl, { x: width, y: height }, width, height);
+  constrainStickerCarryExterior(seated, shown, world);
+  return shown;
+}
+
+/** Keep a docking sheet coherent: one camera-depth correction for the entire
+ * sheet, never a different projection for each vertex. Hidden destination
+ * material is allowed to wrap behind the shell at its authored seat.
+ */
+export function constrainStickerLanding(shown: BufferGeometry, destination: BufferGeometry, world: Matrix4, camera: Camera, cast: StickerContactCast): void {
+  const inverse = world.clone().invert(), eye = camera.getWorldPosition(new Vector3()).applyMatrix4(inverse);
+  const p = shown.getAttribute('position'), target = destination.getAttribute('position'), point = new Vector3(), end = new Vector3();
+  let scale = 1;
+  for (let i = 0; i < p.count; i++) {
+    point.fromBufferAttribute(p, i).applyMatrix4(inverse);
+    const hit = cast(eye, point); if (!hit) continue;
+    end.fromBufferAttribute(target, i).applyMatrix4(inverse);
+    if (cast(eye, end)) continue;
+    scale = Math.min(scale, Math.max(0, hit.distance - STICKER_SURFACE.lift) / eye.distanceTo(point));
+  }
+  if (scale === 1) return;
+  eye.applyMatrix4(world);
+  for (let i = 0; i < p.count; i++) {
+    point.fromBufferAttribute(p, i).sub(eye).multiplyScalar(scale).add(eye);
+    p.setXYZ(i, point.x, point.y, point.z);
+  }
+}
+
+/** Resolve free carry against the current body, not the old attachment planes.
+ * Moving toward the camera along its ray preserves the pointer's screen position.
+ * Call after transport and pointer offsets; attached and landing geometry use
+ * their seated support planes instead.
+ */
+export function constrainStickerFreeCarry(shownWorld: BufferGeometry, contentWorld: Matrix4, camera: Camera, cast: StickerContactCast, stationarySource?: BufferGeometry): void {
+  const inverse = contentWorld.clone().invert(), eye = camera.getWorldPosition(new Vector3()).applyMatrix4(inverse);
+  const positions = shownWorld.getAttribute('position'), point = new Vector3(), direction = new Vector3();
+  for (let i = 0; i < positions.count; i++) {
+    point.fromBufferAttribute(positions, i).applyMatrix4(inverse);
+    if (stationarySource && direction.fromBufferAttribute(stationarySource.getAttribute('position'), i).distanceToSquared(point) < 1e-8) continue;
+    const hit = cast(eye, point);
+    if (!hit) continue;
+    direction.copy(eye).sub(hit.point).normalize();
+    // Keep a full film thickness even at grazing angles.
+    const clearance = STICKER_SURFACE.lift / Math.max(.01, Math.abs(direction.dot(hit.normal)));
+    point.copy(hit.point).addScaledVector(direction, Math.min(hit.distance, clearance)).applyMatrix4(contentWorld);
+    positions.setXYZ(i, point.x, point.y, point.z);
+  }
+}
+
 /** Bounded first-contact sliding. Coordinates and film distance are content-local.
  * The caller supplies an independently exterior seated source. This constrains
  * nodes only; it does not certify triangle interiors or a complete swept sheet.
@@ -83,7 +173,20 @@ export function createStickerFreeCarryGeometry(art: StickerArtwork, placement: D
   const axisX = right.clone().multiplyScalar((b.x - a.x) * (camera.projectionMatrix.elements[5] ?? 1) / (camera.projectionMatrix.elements[0] ?? 1)).addScaledVector(up, b.y - a.y);
   if (axisX.lengthSq() < 1e-20) axisX.copy(right); else axisX.normalize();
   const axisY = normal.clone().cross(axisX).normalize();
-  const geometry = createStickerPeelGeometry(art, placement.width * DEVICE_LAYOUT.body.width * contentWorld.getMaxScaleOnAxis(), curl, n);
+  const materialWidth = placement.width * DEVICE_LAYOUT.body.width * contentWorld.getMaxScaleOnAxis();
+  const geometry = createStickerPeelGeometry(art, materialWidth, anchor ? 0 : curl, n);
+  if (anchor) {
+    const region = stickerGrabPeelRegion(art, placement, anchor), [left, top, right, bottom] = art.visibleBounds;
+    const length = region.edge % 2 === 0 ? materialWidth * (bottom - top) / (right - left) : materialWidth;
+    const radius = length / Math.PI, amount = Math.max(0, Math.min(1, curl)), p = geometry.getAttribute('position'), materialUv = geometry.getAttribute('uv');
+    const x = region.edge === 1 ? 1 : region.edge === 3 ? -1 : 0, y = region.edge === 0 ? 1 : region.edge === 2 ? -1 : 0;
+    for (let i = 0; i < p.count; i++) {
+      const u = (materialUv.getX(i) * art.width - left) / (right - left), v = ((1 - materialUv.getY(i)) * art.height - top) / (bottom - top);
+      const distance = Math.max(0, (amount - region.coordinate(u, v)) * length), bend = distance / radius;
+      const displacement = radius * Math.sin(bend) - distance;
+      p.setXYZ(i, p.getX(i) + x * displacement, p.getY(i) + y * displacement, radius * (1 - Math.cos(bend)));
+    }
+  }
   const at = stickerGeometryUvPoint(geometry, anchor?.uv[0] ?? uv.getX(centerIndex), anchor?.uv[1] ?? uv.getY(centerIndex));
   const output = geometry.getAttribute('position'), point = new Vector3();
   for (let i = 0; i < output.count; i++) {
@@ -140,24 +243,44 @@ export function stickerGrabPeelRegion(art: StickerArtwork, placement: DeviceStic
   return { edge, coordinate, start: coordinate(u, v) };
 }
 
-/** Local peel displacement starts at the captured material point. Original
- * wrapped positions outside the advancing half-plane remain untouched.
+/** The grabbed material point seeds a curved fold toward its nearest edge.
+ * Original wrapped positions beyond the advancing crease remain untouched.
  */
 export function createStickerGrabPeelGeometry(source: BufferGeometry, art: StickerArtwork, placement: DeviceStickerPlacement, anchor: StickerCarryAnchor, contentWorld: Matrix4, camera: Camera, frontier: number, pull: { readonly x: number; readonly y: number }, width: number, height: number): BufferGeometry {
   const geometry = source.clone(); geometry.applyMatrix4(contentWorld);
   const q = Math.max(0, Math.min(1, frontier)); if (q === 0 || pull.x === 0 && pull.y === 0) return geometry;
   const region = stickerGrabPeelRegion(art, placement, anchor), advance = q * (1 - region.start), crease = region.start + advance;
   if (advance <= 1e-12) return geometry;
-  const point = new Vector3(...anchor.point).applyMatrix4(contentWorld), delta = stickerCarryPointerOffset(point, camera, width, height, pull.x, pull.y), normal = new Vector3(0, 0, 1).applyQuaternion(camera.getWorldQuaternion(new Quaternion()));
+  const point = new Vector3(...anchor.point).applyMatrix4(contentWorld), delta = stickerCarryPointerOffset(point, camera, width, height, pull.x, pull.y);
+  const normal = stickerGeometryUvPointNormals(source, anchor).transformDirection(contentWorld);
+  const tangentU = new Vector3(...anchor.tangentU).transformDirection(contentWorld), tangentV = normal.clone().cross(tangentU).normalize();
+  const towardEdge = region.edge === 0 ? tangentV : region.edge === 1 ? tangentU : region.edge === 2 ? tangentV.negate() : tangentU.negate();
+  const materialWidth = placement.width * DEVICE_LAYOUT.body.width * contentWorld.getMaxScaleOnAxis();
+  const materialHeight = materialWidth * (art.visibleBounds[3] - art.visibleBounds[1]) / (art.visibleBounds[2] - art.visibleBounds[0]);
+  const length = region.edge % 2 === 0 ? materialHeight : materialWidth;
+  // A cylindrical fold preserves material length. Its tangent joins the seated
+  // region continuously, unlike a weighted translation of the entire print.
+  const eased = q * q * (3 - 2 * q);
+  const angle = GRAB_PEEL.maximumAngle * eased * Math.min(1, delta.length() / (length * GRAB_PEEL.engagement));
+  const radius = Math.max(crease * length, 1e-6) / Math.max(angle, 1e-6);
   const positions = geometry.getAttribute('position'), uv = geometry.getAttribute('uv'), [left, top, right, bottom] = art.visibleBounds;
   const vertex = new Vector3();
   for (let i = 0; i < positions.count; i++) {
     const u = (uv.getX(i) * art.width - left) / (right - left), v = ((1 - uv.getY(i)) * art.height - top) / (bottom - top), a = region.coordinate(u, v);
     if (a >= crease) continue;
-    const t = Math.max(0, Math.min(1, (crease - a) / advance)), weight = t * t * (3 - 2 * t);
-    vertex.fromBufferAttribute(positions, i).addScaledVector(delta, weight).addScaledVector(normal, Math.sin(Math.PI * weight) * delta.length() * .15);
+    const distance = (crease - a) * length, bend = distance / radius;
+    vertex.fromBufferAttribute(positions, i).addScaledVector(towardEdge, radius * Math.sin(bend) - distance).addScaledVector(normal, radius * (1 - Math.cos(bend)));
     positions.setXYZ(i, vertex.x, vertex.y, vertex.z);
   }
   geometry.computeVertexNormals(); geometry.computeBoundingSphere();
   return geometry;
+}
+
+const GRAB_PEEL = Object.freeze({ maximumAngle: Math.PI * .8, engagement: .03 });
+
+function stickerGeometryUvPointNormals(source: BufferGeometry, anchor: StickerCarryAnchor): Vector3 {
+  const uv = source.getAttribute('uv'), n = STICKER_SURFACE.segments;
+  const x = Math.round(Math.max(0, Math.min(n, (anchor.uv[0] - uv.getX(0)) / (uv.getX(n) - uv.getX(0)) * n)));
+  const y = Math.round(Math.max(0, Math.min(n, (uv.getY(0) - anchor.uv[1]) / (uv.getY(0) - uv.getY(n * (n + 1))) * n)));
+  return new Vector3().fromBufferAttribute(source.getAttribute('normal'), y * (n + 1) + x).normalize();
 }
