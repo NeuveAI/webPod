@@ -1,3 +1,4 @@
+import { animateStickerPackPresence } from './sticker-pack-presence'
 import { deviceStore, stickerInteractionAtom, stickerInventoryAtom, setStickerInteractionActionAtom, INITIAL_STICKER_INTERACTION, type StickerInteraction } from '@webpod/state'
 import type { PointerMotionSample } from './device-orientation-motion'
 import { advanceStickerSpring, resolveStickerPullRelease, type StickerSpring } from './sticker-motion'
@@ -71,10 +72,18 @@ export function cancelStickerInteraction(): void {
 export function setStickerRearVisible(visible: boolean): void {
   const changed = rearVisible !== visible
   rearVisible = visible
-  if (!visible) { if (changed && deviceStore.get(stickerInteractionAtom).sourcePlacement == null) cancelStickerInteraction(); return }
+  if (!visible) {
+    if (changed && deviceStore.get(stickerInteractionAtom).sourcePlacement == null) {
+      interactionGeneration += 1
+      stopStickerAnimation()
+      animateStickerPackPresence(0, () => { if (!rearVisible) cancelStickerInteraction() })
+    }
+    return
+  }
   // Existing rear vinyl owns a valid gesture lane even while its sheet is loading.
   // Readiness admits only the packet, never the physical rear animation clock.
   if (!deviceStore.get(stickerCollectionUsableAtom)) return
+  animateStickerPackPresence(1, () => {})
   const current = deviceStore.get(stickerInteractionAtom)
   if (current.sourcePlacement != null) return
   if (!changed && current.stage !== 'hidden' && !(current.progress === 0 && current.sourcePlacement == null)) return

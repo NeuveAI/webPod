@@ -1,0 +1,19 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/browser-welcome-policy.test.ts:
+(pass) browser welcome policy > observed API support wins over a stale presentation tier [0.16ms]
+(pass) browser welcome policy > available APIs bypass setup even for old and unrecognized browser versions [0.01ms]
+(pass) browser welcome policy > a future Chrome version never implies that the experiment has shipped
+(pass) browser welcome policy > older Chrome receives update guidance
+(pass) browser welcome policy > unknown Chromium version can still receive feature-based guidance
+(pass) browser welcome policy > Safari, Firefox, Chrome on iOS, and Android receive desktop browser guidance [0.03ms]
+(pass) browser welcome policy > missing graphics takes priority over a flag that cannot fix it
+(pass) browser welcome policy > reduced motion is not misreported as a disabled experiment
+(pass) preview turn storyboard > holds both faces long enough to read the screen and see the stickers [0.03ms]
+(pass) preview turn storyboard > returns to the same physical angle across the loop seam [0.06ms]
+(pass) preview turn storyboard > turns continuously forward and eases into each hold [0.04ms]
+
+ 11 pass
+ 0 fail
+ 27 expect() calls
+Ran 11 tests across 1 file. [16.00ms]

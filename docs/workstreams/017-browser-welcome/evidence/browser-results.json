@@ -1,0 +1,11 @@
+{
+  "browser": "152.0.7977.76",
+  "copy": "Copied. Paste into the address bar of a new tab.",
+  "check": "Not ready yet. After changing the setting, relaunch Chrome and return here.",
+  "copyDenied": "Select the address below and copy it manually.",
+  "pausePixelsIdentical": true,
+  "experimentalCanvasCount": 0,
+  "musicPlayerCount": 0,
+  "mobileOverflow": false,
+  "reducedPixelsIdentical": true
+}

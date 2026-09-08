@@ -11,7 +11,7 @@ export const Route = createRootRoute({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: 'webPod' },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }],
+    links: [{ rel: 'stylesheet', href: appCss }, { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
   }),
   shellComponent: RootDocument,
   notFoundComponent: NotFound,
@@ -47,6 +47,6 @@ function NotFound() {
     <p className="text-sm text-stone-400">404</p>
     <h1 className="text-2xl font-semibold">This page isn’t here.</h1>
     <p className="max-w-sm text-sm text-stone-300">Head back to your iPod to keep listening.</p>
-    <Link to="/" className="mt-2 inline-flex min-h-11 items-center rounded-md bg-stone-100 px-4 py-2 text-sm font-medium text-stone-900 hover:bg-stone-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-stone-100">Return to player</Link>
+    <Link to="/webpod" className="mt-2 inline-flex min-h-11 items-center rounded-md bg-stone-100 px-4 py-2 text-sm font-medium text-stone-900 hover:bg-stone-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-stone-100">Return to player</Link>
   </main>
 }

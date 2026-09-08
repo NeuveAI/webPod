@@ -17,7 +17,14 @@ function capturedProgram(properties: unknown): ReadyProgram {
   const program = properties.currentProgram;
   if (program === null || typeof program !== 'object' || !('isReady' in program) || typeof program.isReady !== 'function') throw new Error('Sticker program readiness is unsupported');
   const isReady = program.isReady;
-  return { isReady: () => Reflect.apply(isReady, program, []) === true };
+  return { isReady: () => {
+    // Three clears this handle on destroy(), but isReady() retains the deleted
+    // native program in its closure. Never let a late poll query that handle.
+    if ('program' in program && program.program === undefined) {
+      throw new DOMException('Sticker program was disposed during preparation', 'AbortError');
+    }
+    return Reflect.apply(isReady, program, []) === true;
+  } };
 }
 
 /** Prepares exact sticker shader variants without borrowing their disposal lifetime.

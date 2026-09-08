@@ -2,6 +2,7 @@ import { recordInteraction } from './interaction-telemetry';
 import { copyInteractionTrace, mountInteractionTelemetry } from './interaction-telemetry-browser';
 import { mountWebMcp } from './webmcp';
 import { previewStore } from './device-preview-store';
+import { BrowserExperience } from './browser-welcome';
 import {
   DEFAULT_DEVICE_MATERIALS,
   DEVICE_ORIENTATION_PRESETS,
@@ -168,6 +169,10 @@ function CopyInteractionTrace() {
 
 /** The canonical browser product page; diagnostic overrides remain development-only. */
 export function DevicePage() {
+  return <BrowserExperience><InteractiveDevicePage /></BrowserExperience>;
+}
+
+function InteractiveDevicePage() {
   const interactionAudioEnabled = useAtomValue(interactionAudioEnabledAtom, { store: deviceSettingsStore });
   const state = useSyncExternalStore(
     previewStore.subscribe,
@@ -252,7 +257,7 @@ export function DevicePage() {
     if (!import.meta.env.DEV) return;
     window.__webpodDevicePreview = {
       get: previewStore.getSnapshot,
-      reset: previewStore.resetOrientation,
+      reset: () => orientationControlsRef.current?.reset() ?? previewStore.resetOrientation(),
       setColourway: previewStore.setColourway,
       setOrientation: previewStore.setOrientation,
       setPose: previewStore.setPose,
@@ -325,7 +330,7 @@ export function DevicePage() {
             Drag a visible edge to rotate · Option/Alt-drag to roll
           </p>
           <nav className="webpod-device-preview__controls" aria-label="Device controls">
-            <button type="button" onClick={previewStore.resetOrientation}>Reset view</button>
+            <button type="button" onClick={() => orientationControlsRef.current?.reset()}>Reset view</button>
             <DeviceSettings>
               <PreviewControls state={state} music={music} />
               {import.meta.env.DEV ? <CopyInteractionTrace /> : null}
@@ -470,14 +475,6 @@ const DEVICE_PREVIEW_CSS = `
   }
   .webpod-device-preview__stage[data-orientation-grab="active"] {
     user-select: none;
-  }
-  .webpod-device-preview__stage:focus-visible::after {
-    content: "";
-    position: absolute;
-    inset: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
-    border: 2px solid rgb(125 211 252 / .78);
-    border-radius: 18px;
-    pointer-events: none;
   }
   .webpod-device-preview__device,
   .webpod-device-preview__device > div,

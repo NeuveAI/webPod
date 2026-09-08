@@ -5,7 +5,7 @@ export const Route = createFileRoute('/_probe/composite')({
   ssr: false,
   beforeLoad: () => {
     throw redirect({
-      to: '/_spike/device',
+      to: '/webpod',
       search: {},
       replace: true,
     })

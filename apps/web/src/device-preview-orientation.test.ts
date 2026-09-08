@@ -432,6 +432,7 @@ describe('external device preview orientation', () => {
     host.dispatchEvent(pointerEvent('pointermove', 5, 60, 0, 20))
     stage.dispatchEvent(keyboardEvent('Home', { altKey: false, shiftKey: false }))
     host.dispatchEvent(pointerEvent('pointermove', 5, 100, 0, 40))
+    frames.runUntilIdle()
     expect(store.getSnapshot().orientation.yawDeg).toBe(0)
     expect(controls.isActive()).toBe(false)
     expect(capture.captured.size).toBe(0)
@@ -501,7 +502,8 @@ describe('external device preview orientation', () => {
     const stage = new FakeStage()
     const store = createDevicePreviewStore()
     store.resetOrientation()
-    const controls = bindDeviceOrientationControls(stage, store, new EventTarget())
+    const frames = new FrameEnvironment()
+    const controls = bindDeviceOrientationControls(stage, store, new EventTarget(), frames)
 
     const right = keyboardEvent('ArrowRight', { altKey: false, shiftKey: false })
     stage.dispatchEvent(right)
@@ -517,6 +519,7 @@ describe('external device preview orientation', () => {
       rollDeg: 12,
     })
     stage.dispatchEvent(keyboardEvent('Home', { altKey: false, shiftKey: false }))
+    frames.runUntilIdle()
     expect(store.getSnapshot().orientation).toEqual(FRONT_DEVICE_ORIENTATION)
     controls.dispose()
   })
@@ -531,6 +534,30 @@ describe('tool orientation controls', () => {
     const controls = bindDeviceOrientationControls(stage, store, blur, frames)
     return { stage, blur, store, frames, controls }
   }
+
+  test('reset springs every axis to front and a new command interrupts it', () => {
+    const { controls, frames, store } = setup()
+    store.setOrientation({ pitchDeg: 25, yawDeg: 170, rollDeg: 20 })
+    controls.reset()
+    expect(store.getSnapshot().orientation.yawDeg).toBe(170)
+    frames.step(100)
+    expect(store.getSnapshot().orientation.yawDeg).toBeGreaterThan(0)
+    expect(store.getSnapshot().orientation.yawDeg).toBeLessThan(170)
+    frames.runUntilIdle()
+    expect(store.getSnapshot().orientation).toEqual(FRONT_DEVICE_ORIENTATION)
+    store.setPose('rear')
+    controls.reset()
+    frames.step(32)
+    controls.rotate(5, 10)
+    const interrupted = store.getSnapshot()
+    frames.runUntilIdle()
+    expect(store.getSnapshot()).toBe(interrupted)
+    frames.reduced = true
+    controls.reset()
+    expect(store.getSnapshot().orientation).toEqual(FRONT_DEVICE_ORIENTATION)
+    expect(frames.pendingFrames).toBe(0)
+    controls.dispose()
+  })
 
   test('rotates degree deltas with actual clamping and rejects nonfinite input', () => {
     const { controls, store } = setup()

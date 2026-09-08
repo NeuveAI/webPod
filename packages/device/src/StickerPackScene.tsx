@@ -218,7 +218,8 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
   const progress = Math.max(0, Math.min(1, pack.progress));
   const start = -visible.height / 2 - height / 2 + STICKER_PACK_LAYOUT.teasePx * pixel;
   const end = -visible.height / 2 + height / 2 + STICKER_PACK_LAYOUT.bottomGapPx * pixel;
-  const y = start + (end - start) * progress;
+  const presenceTravel = height * (progress + STICKER_PACK_LAYOUT.linerTravel * (pack.sheet?.reveal ?? 0)) + (STICKER_PACK_LAYOUT.teasePx + STICKER_PACK_LAYOUT.bottomGapPx) * pixel;
+  const y = start + (end - start) * progress - (1 - (pack.presence ?? 1)) * presenceTravel;
   // Lower the backing workspace on phones after detachment. The carried print
   // keeps the original origin, so its world position remains under the pointer.
   const workspaceLowering = size.width < STICKER_PACK_LAYOUT.desktopBreakpoint

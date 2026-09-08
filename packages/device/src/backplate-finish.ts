@@ -6,6 +6,8 @@ export const BACKPLATE_ENGRAVING = {
   name: "WebPod",
   badge: "CLASSIC",
   detail: "DESIGNED FOR MUSIC",
+  tribute: "This player is built in the original image of the iPod",
+  credit: "Original design by Apple Inc",
 } as const;
 
 export const BACKPLATE_FINISH = {
@@ -28,7 +30,7 @@ export function backplateRoughnessAt(x: number, y: number): number {
     (BACKPLATE_FINISH.faceRoughness - BACKPLATE_FINISH.edgeRoughness);
 }
 
-export function createBackplateFinishMaps(content: Readonly<{ name: string; badge: string; detail: string }> = BACKPLATE_ENGRAVING) {
+export function createBackplateFinishMaps(content: Readonly<{ name: string; badge: string; detail: string; tribute: string; credit: string }> = BACKPLATE_ENGRAVING) {
   if (typeof document === "undefined") return null;
   const { width, height } = DEVICE_LAYOUT.body;
   const canvas = document.createElement("canvas");
@@ -62,7 +64,10 @@ export function createBackplateFinishMaps(content: Readonly<{ name: string; badg
     ctx.font = '24px Arial, sans-serif'; ctx.fillText(content.name, 0, -27);
     ctx.lineWidth = 0.65; ctx.beginPath(); ctx.roundRect(-29, 155, 58, 22, 4); ctx.stroke();
     ctx.font = '12px Arial, sans-serif'; ctx.fillText(content.badge, 0, 166);
-    ctx.font = '4.5px Arial, sans-serif'; ctx.fillText(content.detail, 0, 193);
+    ctx.font = '5.5px Arial, sans-serif'; ctx.fillText(content.detail, 0, 193);
+    ctx.font = '5px Arial, sans-serif';
+    ctx.fillText(content.tribute, 0, 214);
+    ctx.fillText(content.credit, 0, 226);
     ctx.restore();
   }
   engrave(context, "#FFFFFF");

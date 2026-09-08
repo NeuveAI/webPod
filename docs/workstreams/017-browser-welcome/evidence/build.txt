@@ -1,0 +1,36 @@
+$ bun run --cwd apps/web build
+$ bun node_modules/vite/bin/vite.js build
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 334 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/assets/sticker-collision-worker-BWLPkAF4.js    118.50 kB
+dist/client/assets/index-Bp4NEpW6.css                       25.58 kB │ gzip:   6.14 kB
+dist/client/assets/app--qIsLbmM.css                         35.93 kB │ gzip:   8.51 kB
+dist/client/assets/routes-v-kU4xZ9.js                        0.07 kB │ gzip:   0.08 kB
+dist/client/assets/___spike.device-BFqhJ1qo.js               0.18 kB │ gzip:   0.17 kB
+dist/client/assets/___probe.capabilities-C267YRS4.js         0.54 kB │ gzip:   0.35 kB
+dist/client/assets/index-CFUVz82c.js                     1,942.95 kB │ gzip: 599.75 kB
+
+✓ built in 401ms
+[plugin builtin:vite-reporter]
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+vite v8.2.2 building ssr environment for production...
+transforming...
+✓ 594 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/assets/start-XEGAwR_q.js                         0.21 kB │ gzip:   0.17 kB
+dist/server/assets/routes-iyiFa7s2.js                        0.27 kB │ gzip:   0.20 kB
+dist/server/assets/empty-plugin-adapters-63t6GYbj.js         0.28 kB │ gzip:   0.18 kB
+dist/server/assets/___spike.device-DpT-5yeB.js               0.45 kB │ gzip:   0.30 kB
+dist/server/assets/___probe.capabilities-8JEgzCfO.js         0.81 kB │ gzip:   0.45 kB
+dist/server/assets/_tanstack-start-manifest_v-C1Ghzomn.js    1.09 kB │ gzip:   0.45 kB
+dist/server/server.js                                      689.95 kB │ gzip: 160.19 kB
+dist/server/assets/router-5fORZavo.js                      906.22 kB │ gzip: 236.26 kB
+
+✓ built in 227ms

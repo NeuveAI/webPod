@@ -1,3 +1,4 @@
+import { stickerPackPresenceAtom } from './sticker-pack-presence'
 import { CompositeDevice } from '@webpod/composite'
 import type {
   DeviceOrientation,
@@ -160,6 +161,7 @@ export function ProductionDeviceView({
   onOrientationGrabHoverChange,
   interactionAudioEnabled,
 }: ProductionDeviceViewProps) {
+  const packPresence = useAtomValue(stickerPackPresenceAtom, { store: deviceStore })
   const preparationIds = useAtomValue(stickerPreparationIdsAtom, { store: deviceStore })
   const collectionUsable = useAtomValue(stickerCollectionUsableAtom, { store: deviceStore })
   const stickerInteraction = useAtomValue(stickerInteractionAtom, { store: deviceStore })
@@ -205,7 +207,7 @@ export function ProductionDeviceView({
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
       onTransportPress={onTransportPress}
-      stickerScene={{ assets: STICKER_CATALOGUE, preparedSheet: collectionUsable ? preparedSheet : undefined, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, appearances: inventory?.appearances, pack: (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { workspaceVisible: collectionUsable && editor === null, progress: stickerInteraction.progress, peel: stickerInteraction.peel, sourcePeelFront: stickerInteraction.sourcePeelFront, detachTransport: stickerInteraction.detachTransport, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, sourceAnchor: sourceAnchor ?? undefined, sourcePull: sourcePull ?? undefined, dragOffset, workspaceLowering, turn: packTurn, sheet: preparedSheet }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onSurfaceReady: onStickerSurfaceReady, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
+      stickerScene={{ assets: STICKER_CATALOGUE, preparedSheet: collectionUsable ? preparedSheet : undefined, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, appearances: inventory?.appearances, pack: (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { presence: packPresence, workspaceVisible: collectionUsable && editor === null, progress: stickerInteraction.progress, peel: stickerInteraction.peel, sourcePeelFront: stickerInteraction.sourcePeelFront, detachTransport: stickerInteraction.detachTransport, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, sourceAnchor: sourceAnchor ?? undefined, sourcePull: sourcePull ?? undefined, dragOffset, workspaceLowering, turn: packTurn, sheet: preparedSheet }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onSurfaceReady: onStickerSurfaceReady, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
       panel={(
         <ProductionPanelView
           colourway={colourway}

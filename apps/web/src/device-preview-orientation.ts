@@ -144,6 +144,7 @@ export type DeviceOrientationMotionEnvironment = {
 }
 
 export type DeviceOrientationControls = {
+  readonly reset: () => DevicePreviewState
   readonly read: () => DevicePreviewState
   /** Applies finite degree deltas (x=pitch, y=yaw) and returns clamped state. */
   readonly rotate: (xDeg: number, yDeg: number) => DevicePreviewState
@@ -398,6 +399,27 @@ export function bindDeviceOrientationControls(
     return true
   }
 
+  // ANIMATION STORYBOARD: reset interrupts the current gesture, springs all
+  // axes to the nearest front, then relinquishes the scheduler at rest.
+  // Reduced motion reaches the identical state immediately.
+  const reset = (): DevicePreviewState => {
+    if (disposed) return store.getSnapshot()
+    if (active !== null) finish(active.start.pointerId, true)
+    stopMotion()
+    const current = store.getSnapshot().orientation
+    const targetYawDeg = Math.round(current.yawDeg / 360) * 360
+    if (motionEnvironment.reducedMotion()) return publishOrientation(FRONT_DEVICE_ORIENTATION)
+    releaseMotion = {
+      kind: 'flick-snap', orientation: current,
+      velocity: { pitchDegPerSecond: 0, yawDegPerSecond: 0, rollDegPerSecond: 0 },
+      targetYawDeg, flickDirection: targetYawDeg < current.yawDeg ? -1 : 1,
+    }
+    lastMotionFrameMs = motionEnvironment.now()
+    motionFrame = motionEnvironment.requestFrame(onMotionFrame)
+    reflectAffordance()
+    return store.getSnapshot()
+  }
+
   const onKeyDown: EventListener = (event) => {
     if (event.target !== stage) return
     const keyboard = keyboardInputOf(event)
@@ -426,7 +448,7 @@ export function bindDeviceOrientationControls(
     } else if (keyboard.key === 'ArrowDown') {
       publishOrientation({ ...current, pitchDeg: current.pitchDeg - step })
     } else if (keyboard.key === 'Home') {
-      store.resetOrientation()
+      reset()
     } else {
       return
     }
@@ -457,6 +479,7 @@ export function bindDeviceOrientationControls(
   blurHost.addEventListener('blur', onBlur)
   return {
     begin,
+    reset,
     read: store.getSnapshot,
     rotate(xDeg, yDeg) {
       trace('rotate-request', { xDeg, yDeg })

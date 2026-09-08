@@ -146,3 +146,22 @@ test('cancellation raised while polling does not dispose a program during its re
   await expect(h.run()).rejects.toMatchObject({ name: 'AbortError' });
   expect([...h.disposals.values()]).toEqual([1]); h.disposeBorrowed();
 });
+
+
+test('a destroyed captured program rejects without querying its deleted GPU handle', async () => {
+  const h = harness();
+  let polls = 0;
+  const program: { program: object | undefined; isReady: () => boolean } = {
+    program: {}, isReady: () => { polls++; return false; },
+  };
+  h.afterCompile(() => {
+    for (const material of h.clones) h.properties.set(material, { currentProgram: program });
+  });
+  const task = h.run();
+  expect(polls).toBe(1);
+  program.program = undefined;
+  await expect(task).rejects.toMatchObject({ name: 'AbortError' });
+  expect(polls).toBe(1);
+  expect([...h.disposals.values()]).toEqual([1]);
+  h.disposeBorrowed();
+});

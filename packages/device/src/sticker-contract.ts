@@ -20,6 +20,7 @@ export interface DeviceStickerPlacement {
 
 /** Continuous visual values are driven by the application's shared Jotai actions. */
 export interface StickerPackVisual {
+  readonly presence?: number;
   /** Zero exposes the bottom lip; one brings the entire pack into view. */
   readonly progress: number;
   /** Rear carry can survive an unready packet without exposing its workspace. */

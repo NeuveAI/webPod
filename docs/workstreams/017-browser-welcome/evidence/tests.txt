@@ -1,0 +1,60 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/production-device-view.test.ts:
+(pass) production device provider status > keeps failures visible while Apple Music remains the active provider [0.03ms]
+(pass) production device provider status > pauses provider playback when navigation returns to the root [2.65ms]
+(pass) production device provider status > delegates next and previous to the provider-owned ad-hoc queue [1.60ms]
+(pass) production device provider status > defers loading transport exactly once and routes Play/Pause through provider cancellation [1.45ms]
+Music playback could not skip previous: Playback transport context was superseded
+(pass) production device provider status > cancels a deferred loading skip when its provider context is replaced [1.37ms]
+Music playback could not skip next: immediate transport failure
+Music playback could not skip previous: deferred transport failure
+(pass) production device provider status > rejects admitted immediate and deferred provider failures without declaring fallback [2.84ms]
+(pass) production device provider status > keeps playlist traversal in provider order [1.41ms]
+(pass) production device provider status > keeps shuffled playback on the provider-owned queue order [1.39ms]
+(pass) production device provider status > a second Play/Pause press during a pending resume becomes pause instead of another play [1.47ms]
+(pass) production device provider status > ordinary skip waits behind an admitted root pause on the same transport queue [1.36ms]
+(pass) production device provider status > an out-of-band Panel selection after root pause makes the next physical press pause [1.32ms]
+(pass) production device provider status > a settled request does not leave stale intent after an external stop [1.28ms]
+
+apps/web/src/browser-welcome-policy.test.ts:
+(pass) browser welcome policy > available APIs bypass setup even for old and unrecognized browser versions [0.06ms]
+(pass) browser welcome policy > a future Chrome version never implies that the experiment has shipped [0.05ms]
+(pass) browser welcome policy > older Chrome receives update guidance
+(pass) browser welcome policy > unknown Chromium version can still receive feature-based guidance
+(pass) browser welcome policy > Safari, Firefox, Chrome on iOS, and Android receive desktop browser guidance [0.02ms]
+(pass) browser welcome policy > missing graphics takes priority over a flag that cannot fix it
+(pass) browser welcome policy > reduced motion is not misreported as a disabled experiment
+(pass) preview turn storyboard > holds both faces long enough to read the screen and see the stickers [0.02ms]
+(pass) preview turn storyboard > returns to the same physical angle across the loop seam [0.01ms]
+(pass) preview turn storyboard > turns continuously forward and eases into each hold [0.03ms]
+
+packages/composite/src/CompositeDevice.test.tsx:
+(pass) CompositeDevice public boundary > renders on the server without touching document [2.58ms]
+(pass) CompositeCoordinator lifecycle > replaces renderer and camera without retaining a detached source [0.19ms]
+(pass) CompositeCoordinator lifecycle > resyncs geometry without polling [0.02ms]
+(pass) CompositeCoordinator lifecycle > context loss detaches and restore attaches once [0.05ms]
+(pass) CompositeCoordinator lifecycle > cleans a source whose attach fails and can retry [0.07ms]
+(pass) CompositeCoordinator lifecycle > repeated clear, reattach, and dispose are idempotent [0.04ms]
+
+packages/composite/src/CompositeDevice.integration.test.tsx:
+(pass) mounted composite input boundary > production arc callbacks move the singleton store and restore application focus [8.22ms]
+(pass) mounted composite input boundary > selection suppression is gesture-scoped and restores prior outside ranges [2.02ms]
+(pass) mounted composite input boundary > the mounted boundary consumes the store feedback stream once and disposes audio [1.47ms]
+(pass) mounted composite input boundary > all four cardinal sectors publish one accepted feedback event [1.03ms]
+(pass) mounted composite input boundary > a short annular tap stays cardinal while movement takeover changes volume without double action [0.84ms]
+(pass) mounted composite input boundary > provider transport owns next when accepted and falls back to list paging when declined [0.46ms]
+(pass) mounted composite input boundary > rejected provider transport is consumed without list paging or accepted feedback [0.34ms]
+(pass) mounted composite input boundary > holding Menu for 600ms returns to root without also popping it [0.40ms]
+(pass) mounted composite input boundary > rejected Play/Pause, mute and raw DOM click never enter audio [0.44ms]
+(pass) mounted composite input boundary > cardinal semantics have no raw DOM click wiring to double-fire [0.47ms]
+(pass) mounted composite input boundary > keyboard physical semantics fire on release once and cancel on blur [1.10ms]
+(pass) mounted composite input boundary > agent buttons share all five semantic/audio edges and cancel on unmount [412.31ms]
+(pass) mounted composite input boundary > same-channel human takeover stays pressed while cross-channel takeover releases abandoned agent travel [9.21ms]
+(pass) mounted composite input boundary > multiple mounted public boundaries consume one feedback sequence once [1.91ms]
+(pass) mounted composite input boundary > the mounted mute prop reaches the runtime without constructing settings UI [1.03ms]
+
+ 43 pass
+ 0 fail
+ 189 expect() calls
+Ran 43 tests across 4 files. [624.00ms]

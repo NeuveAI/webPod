@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArtworkRouteImport } from './routes/artwork'
+import { Route as WebpodRouteImport } from './routes/webpod'
 import { Route as ProbeCapabilitiesRouteImport } from './routes/[_]probe.capabilities'
 import { Route as ProbeCompositeRouteImport } from './routes/[_]probe.composite'
 import { Route as SpikeDeviceRouteImport } from './routes/[_]spike.device'
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
 const ArtworkRoute = ArtworkRouteImport.update({
   id: '/artwork',
   path: '/artwork',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WebpodRoute = WebpodRouteImport.update({
+  id: '/webpod',
+  path: '/webpod',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProbeCapabilitiesRoute = ProbeCapabilitiesRouteImport.update({
@@ -86,6 +92,7 @@ const ApiStickersPacksOpenRoute = ApiStickersPacksOpenRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/artwork': typeof ArtworkRoute
+  '/webpod': typeof WebpodRoute
   '/_probe/capabilities': typeof ProbeCapabilitiesRoute
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/artwork': typeof ArtworkRoute
+  '/webpod': typeof WebpodRoute
   '/_probe/capabilities': typeof ProbeCapabilitiesRoute
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/artwork': typeof ArtworkRoute
+  '/webpod': typeof WebpodRoute
   '/_probe/capabilities': typeof ProbeCapabilitiesRoute
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/artwork'
+    | '/webpod'
     | '/_probe/capabilities'
     | '/_probe/composite'
     | '/_spike/device'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/artwork'
+    | '/webpod'
     | '/_probe/capabilities'
     | '/_probe/composite'
     | '/_spike/device'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/artwork'
+    | '/webpod'
     | '/_probe/capabilities'
     | '/_probe/composite'
     | '/_spike/device'
@@ -174,6 +186,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ArtworkRoute: typeof ArtworkRoute
+  WebpodRoute: typeof WebpodRoute
   ProbeCapabilitiesRoute: typeof ProbeCapabilitiesRoute
   ProbeCompositeRoute: typeof ProbeCompositeRoute
   SpikeDeviceRoute: typeof SpikeDeviceRoute
@@ -195,6 +208,13 @@ declare module '@tanstack/react-router' {
       path: '/artwork'
       fullPath: '/artwork'
       preLoaderRoute: typeof ArtworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/webpod': {
+      id: '/webpod'
+      path: '/webpod'
+      fullPath: '/webpod'
+      preLoaderRoute: typeof WebpodRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_probe/capabilities': {
@@ -293,6 +313,7 @@ const ApiStickersRouteWithChildren = ApiStickersRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArtworkRoute: ArtworkRoute,
+  WebpodRoute: WebpodRoute,
   ProbeCapabilitiesRoute: ProbeCapabilitiesRoute,
   ProbeCompositeRoute: ProbeCompositeRoute,
   SpikeDeviceRoute: SpikeDeviceRoute,

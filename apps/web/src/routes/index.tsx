@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { DevicePage } from '../device-page'
+import { LandingPage } from '../browser-welcome'
 
-/** Browser-only physical renderer; Start owns the canonical product route. */
+/** Public introduction and browser setup, independent of the player route. */
 export const Route = createFileRoute('/')({
   ssr: false,
-  component: DevicePage,
+  component: LandingPage,
 })

@@ -1,3 +1,4 @@
+import { stickerPackPresenceAtom, resetStickerPackPresence } from './sticker-pack-presence'
 import { pickStickerSource, releaseStickerCandidate, sampleOwnedStickerRelease, publishOwnedStickerPull, type StickerGrab } from './sticker-grab'
 import { mountStickerToolControls, type StickerUiActions } from './sticker-webmcp'
 import { atom, useAtomValue } from 'jotai'
@@ -68,6 +69,16 @@ export interface StickerCollectionCommands {
 }
 
 /** Semantic overlay for the same lit 3D pack. Drag and keyboard share store actions. */
+/* ANIMATION STORYBOARD
+ * rear admitted: controls decelerate into view (300ms)
+ * rear leaves: controls fade out (200ms), interaction stops immediately
+ * reduced motion: opacity only, 150ms
+ */
+const REAR_UI_MOTION = {
+  enterMs: 300, exitMs: 200, reducedMs: 150, travelPx: 8,
+  enterEase: 'cubic-bezier(0, 0, 0, 1)', exitEase: 'cubic-bezier(.3, 0, 1, 1)',
+} as const
+
 export function StickerCollection({ orientation, commands }: { readonly orientation: DeviceOrientation; readonly commands: StickerCollectionCommands }) {
   useEffect(mountStickerCarryAnchorLifecycle, [])
   useAtomValue(stickerProjectionVersionAtom, { store: deviceStore })
@@ -78,6 +89,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
   const inventory = useAtomValue(stickerInventoryAtom, { store: deviceStore })
   const status = useAtomValue(stickerCollectionStatusAtom, { store: deviceStore })
   const reducedMotion = useAtomValue(reducedMotionAtom, { store: deviceStore })
+  const packPresence = useAtomValue(stickerPackPresenceAtom, { store: deviceStore })
   const rear = useAtomValue(rearAdmittedAtom, { store: deviceStore })
   const message = useAtomValue(collectionMessageAtom, { store: deviceStore })
   const artworkFailure = useAtomValue(stickerArtworkFailureAtom, { store: deviceStore })
@@ -118,7 +130,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
       }
     }
     change(); query.addEventListener('change', change)
-    return () => { query.removeEventListener('change', change); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); setStickerRearVisible(false); cancelStickerInteraction(); deviceStore.set(rearAdmittedAtom, false) }
+    return () => { query.removeEventListener('change', change); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); setStickerRearVisible(false); resetStickerPackPresence(); cancelStickerInteraction(); deviceStore.set(rearAdmittedAtom, false) }
   }, [])
   useEffect(() => {
     const visible = deviceFrontVisibility(orientation)
@@ -128,7 +140,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     setStickerRearVisible(next)
     const key = JSON.stringify(orientation)
     if (poseKey.current !== key || compositeTier.tier !== 'T1') {
-      clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); dismissStickerEditor(); cancelStickerInteraction()
+      clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); dismissStickerEditor(); if (deviceStore.get(stickerInteractionAtom).sourcePlacement != null) cancelStickerInteraction()
     }
     poseKey.current = key
   }, [orientation, compositeTier.tier, usable])
@@ -472,18 +484,21 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     return actions
   }), [])
   const presentation = stickerPackPresentation(interaction.progress, sheetReveal, packTurn)
-  if (compositeTier.tier !== 'T1' || !rear && !carryingRear && editor === null) return null
-  if (!usable && interaction.sourcePlacement == null && editor === null) return artworkFailure !== null
+  const rearUiVisible = rear || packPresence > .001 || carryingRear || editor !== null
+  const presenceMs = reducedMotion ? REAR_UI_MOTION.reducedMs : rearUiVisible ? REAR_UI_MOTION.enterMs : REAR_UI_MOTION.exitMs
+  const presenceEase = rearUiVisible ? REAR_UI_MOTION.enterEase : REAR_UI_MOTION.exitEase
+  if (compositeTier.tier !== 'T1') return null
+  if (!usable && interaction.sourcePlacement == null && editor === null) return !rearUiVisible ? null : artworkFailure !== null
     ? <p role="status" className="pointer-events-auto absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs text-stone-800">This pack’s artwork couldn’t load. <button type="button" className={buttonClass} onClick={() => { retryStickerArtwork() }}>Retry artwork</button></p>
     : <StickerImportStatus status={inventory?.importStatus} retry={() => run(commands.retry)} usable={false} />
   return (
-    <div ref={host} className="pointer-events-none absolute inset-0 z-20" data-sticker-turn={packTurn} data-sticker-stage={interaction.stage} data-sticker-reduced-motion={reducedMotion} data-sticker-progress={interaction.progress} data-sticker-workspace-lowering={workspaceLowering} data-sticker-sheet-reveal={sheetReveal} data-sticker-peel={interaction.peel} data-sticker-landing={interaction.landing} onKeyDown={(event) => { event.stopPropagation(); if (event.key === 'Escape') { event.preventDefault(); if (deviceStore.get(stickerInteractionAtom).sourcePlacement != null) { releaseCapturedStickerPointer(captureTarget.current); returnStickerToSheet(reducedMotion) } else if (detail !== undefined) deviceStore.set(stickerDetailIdAtom, null); else close() } }}>
+    <div ref={host} inert={!rear} aria-hidden={!rearUiVisible} style={{ opacity: rearUiVisible ? 1 : 0, transform: `translateY(${rearUiVisible || reducedMotion ? 0 : REAR_UI_MOTION.travelPx}px)`, transition: `opacity ${presenceMs}ms ${presenceEase}, transform ${presenceMs}ms ${presenceEase}` }} className="pointer-events-none absolute inset-0 z-20" data-sticker-turn={packTurn} data-sticker-stage={interaction.stage} data-sticker-reduced-motion={reducedMotion} data-sticker-progress={interaction.progress} data-sticker-workspace-lowering={workspaceLowering} data-sticker-sheet-reveal={sheetReveal} data-sticker-peel={interaction.peel} data-sticker-landing={interaction.landing} onKeyDown={(event) => { event.stopPropagation(); if (event.key === 'Escape') { event.preventDefault(); if (deviceStore.get(stickerInteractionAtom).sourcePlacement != null) { releaseCapturedStickerPointer(captureTarget.current); returnStickerToSheet(reducedMotion) } else if (detail !== undefined) deviceStore.set(stickerDetailIdAtom, null); else close() } }}>
       {(inventory?.placements ?? []).map((placement) => {
         const point = commands.screen(placement)
         if (point === null) return null
         return <button key={placement.stickerId} type="button" data-sticker-placed={placement.stickerId} aria-label={`Edit ${getSticker(placement.stickerId)?.name ?? 'sticker'}. Enter opens adjustments.`} className="pointer-events-none absolute h-11 w-11 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#eee7d9]" style={{ left: point.x - 22, top: point.y - 22 }} onKeyDown={(event) => placedKey(event, placement)} />
       })}
-      {rear && usable && editor === null ? <div className="pointer-events-auto absolute text-[#29291f]" data-sticker-collection={collection?.genre} style={{ left: layout.centerX - layout.width / 2, width: layout.width, height: layout.height, bottom: PACK.bottomGapPx, transformOrigin: `50% ${layout.height / 2 + layout.height * PACK.linerTravel * sheetReveal}px`, transform: `translateY(${(layout.height + PACK.bottomGapPx - PACK.teasePx) * (1 - interaction.progress) - layout.height * PACK.linerTravel * sheetReveal + (viewport.width < PACK.desktopBreakpoint ? layout.height * PACK.linerTravel * workspaceLowering : 0)}px) perspective(1000px) rotateY(${presentation.turnRadians}rad)` }}>
+      {(rear || packPresence > .001) && usable && editor === null ? <div className="pointer-events-auto absolute text-[#29291f]" data-sticker-collection={collection?.genre} style={{ left: layout.centerX - layout.width / 2, width: layout.width, height: layout.height, bottom: PACK.bottomGapPx, transformOrigin: `50% ${layout.height / 2 + layout.height * PACK.linerTravel * sheetReveal}px`, transform: `translateY(${(1 - packPresence) * (layout.height * (interaction.progress + PACK.linerTravel * sheetReveal) + PACK.teasePx + PACK.bottomGapPx) + (layout.height + PACK.bottomGapPx - PACK.teasePx) * (1 - interaction.progress) - layout.height * PACK.linerTravel * sheetReveal + (viewport.width < PACK.desktopBreakpoint ? layout.height * PACK.linerTravel * workspaceLowering : 0)}px) perspective(1000px) rotateY(${presentation.turnRadians}rad)` }}>
         <button ref={lip} type="button" className="absolute top-0 left-0 z-10 min-h-11 w-full cursor-pointer touch-none rounded-sm bg-[#eee7d9] px-3 font-mono text-[11px] font-semibold tracking-[.06em] hover:bg-[#f6f0e5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9a4c22]" aria-label={expanded ? sheetOpen ? 'Close sticker liner' : 'Pull sticker liner open' : 'Pull sticker pack into view'} aria-expanded={expanded ? sheetOpen : false} onPointerDown={(event) => begin(event, expanded ? 'liner' : 'pull')} onPointerMove={move} onPointerUp={(event) => end(event)} onPointerCancel={(event) => end(event, true)} onLostPointerCapture={(event) => end(event, true)} onClick={(event) => { if (event.detail === 0) { if (!expanded) { admitIntent(); revealStickerPack(reducedMotion) } else if (sheetOpen) { admitIntent(); animateStickerValue('sheet', { position: deviceStore.get(stickerSheetRevealAtom), velocity: 0, target: 0 }, reducedMotion, () => {}) } else openCollection() } }}>
           <span style={{ opacity: presentation.textOpacity }}>PLAYWORN / STICKER COLLECTION <span className="inline-block" aria-hidden="true" style={{ transform: `rotate(${sheetReveal * 180}deg)` }}>↑</span></span>
         </button>
