@@ -9,7 +9,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { BackSide, DoubleSide, FrontSide, Group, Mesh, Raycaster, Vector2, Vector3 } from 'three';
 import { DeviceCanvasOrientationContext } from './DeviceCanvas';
 import { useContext } from 'react';
-import { STICKER_PACK_LAYOUT, isStickerCarried, stickerPackViewportLayout, STICKER_SHEET_SLOTS, STICKER_SHEET_PRINT_WIDTH, type StickerRearProjection, type DeviceStickerScene, type StickerArtwork, type StickerPackVisual } from './sticker-contract';
+import { stickerPackPresentation, STICKER_PACK_MOTION, STICKER_PACK_LAYOUT, isStickerCarried, stickerPackViewportLayout, STICKER_SHEET_SLOTS, STICKER_SHEET_PRINT_WIDTH, type StickerRearProjection, type DeviceStickerScene, type StickerArtwork, type StickerPackVisual } from './sticker-contract';
 import { STICKER_PACK_MATERIAL } from './materials';
 import { createStickerPeelGeometry, createStickerSurfaceGeometry, createRearStickerPeelGeometry, stickerVisibleAspect, STICKER_SURFACE, stickerRearTransportWeight } from './sticker-surface';
 import { createStickerRoughness, useStickerTexture, useStickerPreparationEpoch } from './sticker-textures';
@@ -193,6 +193,7 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
     ? height * STICKER_PACK_LAYOUT.linerTravel * Math.max(0, Math.min(1, pack.workspaceLowering ?? 0)) : 0;
   const sheet = pack.sheet;
   const reveal = sheet?.reveal ?? 0;
+  const presentation = stickerPackPresentation(progress, reveal, pack.turn);
   const linerTravel = height * STICKER_PACK_LAYOUT.linerTravel * reveal;
   const art = stickerScene.assets.find((item) => item.id === pack.stickerId);
   const slots = sheet?.slots ?? [];
@@ -201,8 +202,8 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
   const printWidth = width * STICKER_SHEET_PRINT_WIDTH;
   const offset = pack.dragOffset;
   return <group name="sticker-pack-scene">
-    <group visible={pack.workspaceVisible !== false} position={[x, y - workspaceLowering, PACK.depth]} name="sticker-pack-wrapper">
-      {(sheet?.neighbors ?? []).map((neighbor, index) => <group key={neighbor.stickerId} position={[(index === 0 ? -1 : 1) * pixel * 8, pixel * 10, -pixel * (8 + index)]} rotation={[0, 0, (index === 0 ? 1 : -1) * .055]}>
+    <group visible={pack.workspaceVisible !== false} position={[x, y - workspaceLowering, PACK.depth]} rotation={[0, -presentation.turnRadians, 0]} name="sticker-pack-wrapper">
+      {(sheet?.neighbors ?? []).map((neighbor, index) => <group key={neighbor.stickerId} position={[(index === 0 ? -1 : 1) * pixel * (8 + presentation.fan * STICKER_PACK_MOTION.fanSpread), pixel * 10, -pixel * (8 + index)]} rotation={[0, 0, (index === 0 ? 1 : -1) * (.055 + presentation.fan * STICKER_PACK_MOTION.fanAngle)]}>
         <PackPaper width={width} height={height} pixel={pixel} ink={neighbor.ink} roughness={roughness} />
         <group position={[0, 0, pixel * 2]}><CoverPrint stickerId={neighbor.stickerId} width={width * .58} pixel={pixel} roughness={roughness} stickerScene={stickerScene} /></group>
       </group>)}

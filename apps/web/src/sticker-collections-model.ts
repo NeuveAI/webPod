@@ -94,3 +94,6 @@ export const stickerPreparationIdsAtom = atom((get) => [...new Set([get(activeSt
 
 /** Semantic rear controls refresh after the renderer publishes its physical frame. */
 export const stickerProjectionVersionAtom = atom(0)
+
+/** Signed packet turn shared by DOM and canvas; zero is the interactive resting pose. */
+export const stickerPackTurnAtom = atom(0)

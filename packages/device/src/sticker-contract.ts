@@ -40,6 +40,7 @@ export interface StickerPackVisual {
   readonly sheet?: { readonly neighbors?: readonly { readonly ink: string; readonly stickerId: string }[]; readonly reveal: number; readonly ink: string; readonly slots: readonly { readonly stickerId: string; readonly state: 'locked' | 'sealed' | 'earned' | 'placed' }[] };
   /** Mobile packet moves aside after peel while the device and held print stay put. */
   readonly workspaceLowering?: number;
+  readonly turn?: number;
   readonly dragOffset?: { readonly x: number; readonly y: number } | null;
 }
 
@@ -127,4 +128,13 @@ export const STICKER_SHEET_PRINT_WIDTH = .245;
 /** One presentation owner for both static rear and sheet seats during persistence. */
 export function isStickerCarried(pack: StickerPackVisual | null, stickerId: string): boolean {
   return pack !== null && pack.stickerId === stickerId && (pack.peel > 0 || pack.placement !== null || pack.dragOffset != null || pack.sourcePlacement != null);
+}
+
+/** One pose for the HTML packet and its canvas paper. Turn edge-on before swapping ink. */
+export const STICKER_PACK_MOTION = { turnRadians: Math.PI / 2, fanSpread: 5, fanAngle: .018 } as const;
+export function stickerPackPresentation(progress: number, sheet: number, turn = 0) {
+  const reveal = Math.max(0, Math.min(1, progress));
+  const chrome = Math.max(0, Math.min(1, (reveal - .55) / .45));
+  return { chrome: chrome * chrome * (3 - 2 * chrome), turnRadians: turn * STICKER_PACK_MOTION.turnRadians,
+    textOpacity: 1 - Math.min(1, Math.abs(turn) * 2), fan: reveal * (.4 + .6 * sheet) };
 }

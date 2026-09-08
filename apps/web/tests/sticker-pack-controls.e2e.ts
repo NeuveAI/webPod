@@ -19,12 +19,14 @@ for (const viewport of [{ width: 1280, height: 900 }, { width: 375, height: 812 
     await page.evaluate(() => (window as typeof window & { __webpodDevicePreview?: { setPose(pose: string): void } }).__webpodDevicePreview?.setPose('rear'))
     const overlay = page.locator('[data-sticker-stage]')
     await page.getByRole('button', { name: 'Pull sticker pack into view' }).click()
-    const liner = page.getByRole('button', { name: 'Pull sticker liner open' })
+    const liner = page.getByRole('button', { name: /Pull sticker liner open|Close sticker liner/ })
     await expect(liner).toBeVisible()
     await liner.click()
     await expect(overlay).toHaveAttribute('data-sticker-sheet-reveal', '1')
     for (let i = 0; i < 4; i++) {
+      const before = await page.locator('[data-sticker-collection]').getAttribute('data-sticker-collection')
       await page.getByRole('button', { name: 'Next sticker collection' }).click()
+      await expect(page.locator('[data-sticker-collection]')).not.toHaveAttribute('data-sticker-collection', before ?? '')
       await expect(overlay).toHaveAttribute('data-sticker-sheet-reveal', '1')
       await expect(page.locator('[data-sticker-slot]')).toHaveCount(5)
     }

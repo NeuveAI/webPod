@@ -54,3 +54,12 @@ Evidence: focused test files beside implementation and browser test-results outs
 - The DOM editor queried the scene mesh on draft renders before the renderer had committed that pose. Removed that premature query and the projection-handle teardown on every placement change.
 - Equipped geometry now publishes a renderer-ready notification after its mesh and child material effects commit. The existing Jotai projection revision drives the outline refresh. No additional mirrored pose state or storage was introduced.
 - Regression verifies no contour calculation against the previous mesh during a draft update, followed by one calculation with current values on the commit notification. Twelve editor/contour tests, app/device TypeScript and changed-file lint pass. Full browser motion latency was not benchmarked in this follow-up.
+
+
+## Packet motion and placement dismissal — September 8
+
+Packet navigation now tucks the liner, turns the HTML and canvas paper edge-on on one Jotai-owned spring clock, waits for prepared collection art, and reveals the next liner. Opening fans the neighboring sleeves and eases the navigation/metadata in. Stable collection copy and a rotating arrow replace abrupt action-text swaps; cover and liner titles hand off as the paper slides. Reduced motion resolves the same states immediately. New gestures cancel the pending turn; no component-local state or additional animation effect was introduced.
+
+Successful pointer and keyboard placement now dismiss all packet/carry state instead of leaving an invisible open overlay intercepting the device. Keyboard focus returns to the placed sticker.
+
+Verification: 22 targeted collection, interaction lifecycle, and spring tests passed; web/device typechecks and changed-file lint passed. Live Chrome check: navigated from After Hours to Loud Hearts with the liner staying open; placed On Repeat, observed stage=tease/progress=0/sheet=0, and immediately opened its editor. Dismissal during navigation settled at stage=tease/turn=0/sheet=0 without reopening. No browser errors. The Playwright pack-control regression was updated for the accessible liner labels and to wait for the actual collection change; that suite was not run in this pass. Live placement used the keyboard/meaning action; pointer landing shares its dismissal action but was not re-dragged in this pass.

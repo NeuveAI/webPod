@@ -5,7 +5,7 @@ import { atom } from 'jotai'
 import { stickerCarryAnchorAtom, stickerSourceAnchorAtom, stickerSourcePullAtom, updateStickerSourcePull } from './sticker-carry-anchor'
 import { isStickerPlacement, type StickerPlacement } from '@webpod/stickers'
 import { stickerLiftAnimation, stickerLiftPhase, stickerLiftProgress } from './sticker-lift-phase'
-import { stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerPreparationIdsAtom } from './sticker-collections-model'
+import { stickerPackTurnAtom, stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerPreparationIdsAtom } from './sticker-collections-model'
 
 /** Development calibration only; production always enables the physical finish. */
 export const stickerFinishCalibrationAtom = atom(true)
@@ -24,7 +24,7 @@ let rearVisible = false
 let interactionGeneration = 0
 export const getStickerInteractionGeneration = (): number => interactionGeneration
 /** A new gesture/selection takes ownership from any pending completion. */
-export function supersedeStickerInteraction(): void { interactionGeneration += 1; stopStickerAnimation() }
+export function supersedeStickerInteraction(): void { interactionGeneration += 1; stopStickerAnimation(); deviceStore.set(stickerPackTurnAtom, 0) }
 
 /** All semantic and pointer actions publish through the same public device store. */
 export function updateStickerInteraction(patch: Partial<StickerInteraction>): void {
@@ -57,6 +57,7 @@ export function resetStickerCarry(): void {
 export function cancelStickerInteraction(): void {
   interactionGeneration += 1
   stopStickerAnimation()
+  deviceStore.set(stickerPackTurnAtom, 0)
   deviceStore.set(stickerDetailIdAtom, null)
   deviceStore.set(stickerSheetRevealAtom, 0)
   deviceStore.set(stickerWorkspaceLoweringAtom, 0)
@@ -83,7 +84,7 @@ export function setStickerRearVisible(visible: boolean): void {
 }
 
 /** Reduced motion uses the exact same stable state without scheduling an animation. */
-export function animateStickerValue(field: 'progress' | 'peel' | 'landing' | 'sheet' | 'return', spring: StickerSpring, reducedMotion: boolean, onComplete: () => void): void {
+export function animateStickerValue(field: 'progress' | 'peel' | 'landing' | 'sheet' | 'return' | 'turn', spring: StickerSpring, reducedMotion: boolean, onComplete: () => void, direction = 1): void {
   stopStickerAnimation()
   const animation = animationGeneration, gesture = interactionGeneration
   const isCurrent = () => animation === animationGeneration && gesture === interactionGeneration
@@ -97,7 +98,8 @@ export function animateStickerValue(field: 'progress' | 'peel' | 'landing' | 'sh
   const publish = (value: number): void => {
     if (field === 'return' || field === 'peel') deviceStore.set(stickerWorkspaceLoweringAtom, workspace * (field === 'return' ? value : spring.position === 0 ? 0 : value / spring.position))
     if (!isCurrent()) return
-    if (field === 'sheet') deviceStore.set(stickerSheetRevealAtom, Math.max(0, Math.min(1, value)))
+    if (field === 'turn') deviceStore.set(stickerPackTurnAtom, Math.max(0, Math.min(1, value)) * direction)
+    else if (field === 'sheet') deviceStore.set(stickerSheetRevealAtom, Math.max(0, Math.min(1, value)))
     else if (field === 'return') { if (returnOrigin !== null) deviceStore.set(stickerDragOffsetAtom, { x: returnOrigin.x * value, y: returnOrigin.y * value }); if (!isCurrent()) return; if (returnPull !== null && returnAnchor !== null && returnSource != null) { const scale = spring.position === 0 ? 0 : Math.max(0, Math.min(1, value / spring.position)); updateStickerSourcePull(returnSource, { x: returnPull.x * scale, y: returnPull.y * scale }, returnAnchor) }; if (!isCurrent() || returnAnchor !== null && deviceStore.get(stickerSourceAnchorAtom) !== returnAnchor) return; updateStickerInteraction({ peel: returnPeel * value, ...stickerLiftPhase(initialLift * Math.max(0, Math.min(1, value))), landing: returnLanding * value }) }
     else if (field === 'peel') updateStickerInteraction({ peel: value, ...stickerLiftAnimation(initialLift, spring.position, spring.target, value) })
     else updateStickerInteraction({ [field]: value })
@@ -111,7 +113,7 @@ export function animateStickerValue(field: 'progress' | 'peel' | 'landing' | 'sh
     const next = advanceStickerSpring(current, (timestamp - previous) / 1000)
     previous = timestamp
     // The liner is visibly closed at its first clamped zero; do not wait through invisible undershoot.
-    if (next === null || field === 'sheet' && spring.target === 0 && next.position <= 0) { publish(spring.target); if (isCurrent()) onComplete(); return }
+    if (next === null || field === 'turn' && spring.target === 1 && next.position >= 1 || field === 'sheet' && spring.target === 0 && next.position <= 0) { publish(spring.target); if (isCurrent()) onComplete(); return }
     current = next
     publish(next.position)
     if (isCurrent()) animationFrame = requestAnimationFrame(frame)

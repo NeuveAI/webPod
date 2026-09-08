@@ -4,7 +4,7 @@ import { captureStickerCarryAnchor, mountStickerCarryAnchorLifecycle, stickerCar
 import { publishOwnedStickerPull } from './sticker-grab'
 import { STICKER_GENRES } from '@webpod/stickers'
 import { animateStickerValue, getStickerInteractionGeneration, cancelStickerInteraction, resetStickerCarry, returnStickerToSheet, setStickerRearVisible, supersedeStickerInteraction, updateHeldStickerPreview, updateStickerInteraction } from './sticker-interaction'
-import { activeStickerCollectionAtom, stickerPreparedIdsAtom, stickerDragOffsetAtom } from './sticker-collections-model'
+import { stickerSheetRevealAtom, stickerWorkspaceLoweringAtom, stickerPackTurnAtom, activeStickerCollectionAtom, stickerPreparedIdsAtom, stickerDragOffsetAtom } from './sticker-collections-model'
 
 const frames = new Map<number, FrameRequestCallback>()
 let sequence = 0
@@ -203,4 +203,30 @@ test('a stale move cannot adopt a same-source owner replaced during preceding ph
       expect(deviceStore.get(stickerInteractionAtom).peel).toBe(.2)
     }
   } finally { unmount() }
+})
+
+
+test('completed placement dismisses the sheet and its interaction owner together', () => {
+  deviceStore.set(stickerSheetRevealAtom, 1)
+  deviceStore.set(stickerWorkspaceLoweringAtom, 1)
+  deviceStore.set(stickerDragOffsetAtom, { x: 100, y: -150 })
+  updateStickerInteraction({ progress: 1, stage: 'settling', selectedStickerId: 'PW-A01', peel: .8, landing: 1 })
+  animateStickerValue('peel', { position: .8, velocity: 0, target: 0 }, true, cancelStickerInteraction)
+  expect(deviceStore.get(stickerInteractionAtom)).toMatchObject({ stage: 'tease', progress: 0, selectedStickerId: null, previewPlacement: null, landing: 0 })
+  expect(deviceStore.get(stickerSheetRevealAtom)).toBe(0)
+  expect(deviceStore.get(stickerWorkspaceLoweringAtom)).toBe(0)
+  expect(deviceStore.get(stickerDragOffsetAtom)).toBeNull()
+  expect(frames.size).toBe(0)
+})
+
+test('packet turn is signed, reduced-motion immediate, and interruptible without a stale swap', () => {
+  let swaps = 0
+  animateStickerValue('turn', { position: 0, velocity: 0, target: 1 }, true, () => { swaps++ }, -1)
+  expect(deviceStore.get(stickerPackTurnAtom)).toBe(-1)
+  expect(swaps).toBe(1)
+  animateStickerValue('turn', { position: 1, velocity: 0, target: 0 }, false, () => { swaps++ }, -1)
+  supersedeStickerInteraction()
+  expect(deviceStore.get(stickerPackTurnAtom)).toBe(0)
+  expect(frames.size).toBe(0)
+  expect(swaps).toBe(1)
 })

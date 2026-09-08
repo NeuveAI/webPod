@@ -10,7 +10,7 @@ import { useAtomValue } from 'jotai'
 import { deviceStore, stickerInteractionAtom, stickerInventoryAtom } from '@webpod/state'
 import { STICKER_CATALOGUE, isStickerPlacement } from '@webpod/stickers'
 import { FRONT_DEVICE_ORIENTATION, type StickerRearProjection } from '@webpod/device'
-import { activeStickerCollectionAtom, stickerCollectionsAtom, stickerSheetRevealAtom, stickerDragOffsetAtom, stickerWorkspaceLoweringAtom, stickerPreparedIdsAtom, stickerCollectionUsableAtom, stickerPreparationIdsAtom, requestedStickerCollectionAtom, displayedStickerGenreAtom, stickerProjectionVersionAtom } from './sticker-collections-model'
+import { stickerPackTurnAtom, activeStickerCollectionAtom, stickerCollectionsAtom, stickerSheetRevealAtom, stickerDragOffsetAtom, stickerWorkspaceLoweringAtom, stickerPreparedIdsAtom, stickerCollectionUsableAtom, stickerPreparationIdsAtom, requestedStickerCollectionAtom, displayedStickerGenreAtom, stickerProjectionVersionAtom } from './sticker-collections-model'
 import { stickerEditorAtom, stickerEditorPlacementsAtom } from './sticker-editor-model'
 import { StickerCollection } from './sticker-collection'
 import { stickerSourceAnchorAtom, stickerSourcePullAtom } from './sticker-carry-anchor'
@@ -166,6 +166,7 @@ export function ProductionDeviceView({
   const sourcePull = useAtomValue(stickerSourcePullAtom, { store: deviceStore })
   const sourceAnchor = useAtomValue(stickerSourceAnchorAtom, { store: deviceStore })
   const dragOffset = useAtomValue(stickerDragOffsetAtom, { store: deviceStore })
+  const packTurn = useAtomValue(stickerPackTurnAtom, { store: deviceStore })
   const workspaceLowering = useAtomValue(stickerWorkspaceLoweringAtom, { store: deviceStore })
   const stickerPlacements = useAtomValue(stickerEditorPlacementsAtom, { store: deviceStore })
   const editor = useAtomValue(stickerEditorAtom, { store: deviceStore })
@@ -200,7 +201,7 @@ export function ProductionDeviceView({
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
       onTransportPress={onTransportPress}
-      stickerScene={{ assets: STICKER_CATALOGUE, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, appearances: inventory?.appearances, pack: (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { workspaceVisible: collectionUsable && editor === null, progress: stickerInteraction.progress, peel: stickerInteraction.peel, sourcePeelFront: stickerInteraction.sourcePeelFront, detachTransport: stickerInteraction.detachTransport, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, sourceAnchor: sourceAnchor ?? undefined, sourcePull: sourcePull ?? undefined, dragOffset, workspaceLowering, sheet: collection === null ? undefined : { neighbors: collections.filter((item) => item.genre !== collection.genre).slice(0, 2).flatMap((item) => item.slots[0] === undefined ? [] : [{ ink: item.ink, stickerId: item.slots[0].art.id }]), reveal: sheetReveal, ink: collection.ink, slots: collection.slots.map((slot) => ({ stickerId: slot.art.id, state: slot.state })) } }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onSurfaceReady: onStickerSurfaceReady, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
+      stickerScene={{ assets: STICKER_CATALOGUE, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, appearances: inventory?.appearances, pack: (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { workspaceVisible: collectionUsable && editor === null, progress: stickerInteraction.progress, peel: stickerInteraction.peel, sourcePeelFront: stickerInteraction.sourcePeelFront, detachTransport: stickerInteraction.detachTransport, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, sourceAnchor: sourceAnchor ?? undefined, sourcePull: sourcePull ?? undefined, dragOffset, workspaceLowering, turn: packTurn, sheet: collection === null ? undefined : { neighbors: collections.filter((item) => item.genre !== collection.genre).slice(0, 2).flatMap((item) => item.slots[0] === undefined ? [] : [{ ink: item.ink, stickerId: item.slots[0].art.id }]), reveal: sheetReveal, ink: collection.ink, slots: collection.slots.map((slot) => ({ stickerId: slot.art.id, state: slot.state })) } }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onSurfaceReady: onStickerSurfaceReady, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
       panel={(
         <ProductionPanelView
           colourway={colourway}
