@@ -63,3 +63,23 @@ test('reload and tab return keep the footer and portal on the same frame boundar
   }
   await other.close()
 })
+
+test('landing teaser descends before the demo loop and skips travel for reduced motion', async ({ page }) => {
+  await installDeterministicAppleMusic(page)
+  await page.goto('/')
+  const teaser = page.locator('[data-teaser-entrance]')
+  await expect(teaser).toHaveAttribute('data-teaser-entrance', 'entering')
+  const entry = await teaser.evaluate(element => {
+    const animation = element.getAnimations()[0]
+    const frames = animation?.effect instanceof KeyframeEffect ? animation.effect.getKeyframes() : []
+    return { first: frames[0]?.transform, last: frames.at(-1)?.transform }
+  })
+  expect(entry.first).toMatch(/^translateY\(-/)
+  expect(entry.last).toBe('translateY(0px)')
+  await expect(teaser).toHaveAttribute('data-teaser-entrance', 'complete')
+  expect(await teaser.evaluate(element => getComputedStyle(element).transform)).toBe('none')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.reload()
+  await expect(teaser).toHaveAttribute('data-teaser-entrance', 'complete')
+  expect(await teaser.evaluate(element => element.getAnimations().length)).toBe(0)
+})

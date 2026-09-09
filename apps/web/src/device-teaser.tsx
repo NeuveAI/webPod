@@ -1,10 +1,11 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { DeviceCanvas, DEVICE_MODEL_NAME, DEVICE_CONTENT_NAME, DEFAULT_DEVICE_ENVELOPE, DEFAULT_LIGHT_RIG, type LightRigParams, deviceOrientationToRotation, type ScreenMeshHandle, type DeviceStickerScene } from '@webpod/device'
 import { STICKER_CATALOGUE } from '@webpod/stickers'
-import { useCallback, useEffect, useRef, type RefObject } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject } from 'react'
 import { CanvasTexture, MeshBasicMaterial, SRGBColorSpace, LinearMipmapLinearFilter, Euler, Matrix4, Vector3 } from 'three'
 import { previewYaw } from './browser-welcome-policy'
 import { loadTeaserFrames, teaserFrameIndex, TEASER_SCREEN } from './teaser-screen'
+import { mountTeaserEntrance } from './teaser-entrance'
 
 /* ANIMATION STORYBOARD (24 seconds, looping)
  *  0–7s   Browse the demo library, then show Now Playing.
@@ -36,13 +37,18 @@ const SCREEN = TEASER_SCREEN
 
 /** Read-only model showcase. No provider, player state, or experimental DOM APIs. */
 export function DeviceTeaser({ paused, reducedMotion }: { readonly paused: boolean; readonly reducedMotion: boolean }) {
+  const entrance = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    if (entrance.current) return mountTeaserEntrance(entrance.current)
+    return undefined
+  }, [])
   const screen = useRef<ScreenMeshHandle | null>(null)
   const onScreenMeshReady = useCallback((handle: ScreenMeshHandle) => { screen.current = handle }, [])
-  return <DeviceCanvas colourway="black" orientation={FRONT} lightRig={PREVIEW_LIGHT_RIG} cameraSafePadding={16}
+  return <div ref={entrance} className="webpod-teaser" data-teaser-entrance="waiting"><DeviceCanvas colourway="black" orientation={FRONT} lightRig={PREVIEW_LIGHT_RIG} cameraSafePadding={16}
     dpr={[1, 2]} stickerScene={PREVIEW_STICKERS} onScreenMeshReady={onScreenMeshReady}>
     <TeaserEdgeAlignment />
     <TeaserAnimation screen={screen} paused={paused} reducedMotion={reducedMotion} />
-  </DeviceCanvas>
+  </DeviceCanvas></div>
 }
 
 /** Align copy to the resting device, recalculating after camera/viewport changes.
@@ -89,6 +95,7 @@ function TeaserAnimation({ screen, paused, reducedMotion }: {
 }) {
   const scene = useThree((state) => state.scene)
   const renderer = useThree((state) => state.gl)
+  const camera = useThree((state) => state.camera)
   const invalidate = useThree((state) => state.invalidate)
   const elapsed = useRef(0)
 
@@ -111,6 +118,7 @@ function TeaserAnimation({ screen, paused, reducedMotion }: {
     let frame = 0
     let previous: number | null = null
     let lastScreenFrame = -1
+    const entrance = renderer.domElement.closest<HTMLElement>('[data-teaser-entrance]')
     const render = () => {
       const seconds = reducedMotion ? 0 : elapsed.current
       model.rotation.set(...deviceOrientationToRotation({ ...FRONT, yawDeg: previewYaw(seconds) }))
@@ -133,27 +141,37 @@ function TeaserAnimation({ screen, paused, reducedMotion }: {
     const sync = () => {
       cancelAnimationFrame(frame)
       previous = null
-      if (images.length > 0 && !document.hidden && !paused && !reducedMotion) frame = requestAnimationFrame(tick)
+      if (entrance?.dataset['teaserEntrance'] === 'complete' && images.length > 0 && !document.hidden && !paused && !reducedMotion) frame = requestAnimationFrame(tick)
     }
-    void loadTeaserFrames().then((frames) => {
+    void loadTeaserFrames().then(async (frames) => {
       if (disposed) return
       images = frames
       render()
       handle.setMaterial(material)
+      await renderer.compileAsync(scene, camera)
+      if (disposed) return
+      renderer.initTexture(texture)
+      invalidate()
+      entrance?.dispatchEvent(new Event('teaser-ready'))
       sync()
     }).catch(() => {
       // Keep the physical device visible if a static asset cannot be fetched.
-      if (!disposed) handle.setMaterial(null)
+      if (!disposed) {
+        handle.setMaterial(null)
+        entrance?.dispatchEvent(new Event('teaser-ready'))
+      }
     })
     document.addEventListener('visibilitychange', sync)
+    entrance?.addEventListener('teaser-settled', sync)
     return () => {
       disposed = true
       cancelAnimationFrame(frame)
       document.removeEventListener('visibilitychange', sync)
+      entrance?.removeEventListener('teaser-settled', sync)
       handle.setMaterial(null)
       material.dispose()
       texture.dispose()
     }
-  }, [invalidate, paused, reducedMotion, renderer, scene, screen])
+  }, [camera, invalidate, paused, reducedMotion, renderer, scene, screen])
   return null
 }
