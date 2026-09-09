@@ -7,6 +7,25 @@
 @source "../**/*.{ts,tsx}";
 @source "../../../../packages/*/src/**/*.{ts,tsx}";
 
+/* Capture only the departing home page; the incoming WebGL scene stays live. */
+:root { view-transition-name: none; }
+.webpod-welcome[data-departing] { view-transition-name: webpod-home; }
+::view-transition-group(webpod-home) { animation-duration: 300ms; }
+::view-transition-old(webpod-home) {
+  transform-origin: 50% 50%;
+  animation: webpod-home-out 300ms cubic-bezier(.4, 0, 1, 1) both;
+}
+::view-transition-new(webpod-home) { animation: none; }
+@keyframes webpod-home-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.22); }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(webpod-home),
+  ::view-transition-old(webpod-home),
+  ::view-transition-new(webpod-home) { animation: none; }
+}
+
 /* The rear pack owns the bottom gesture area; keep device controls reachable above it. */
 .webpod-device-preview:has([data-sticker-stage]) .webpod-device-preview__controls {
   inset-block-start: max(16px, env(safe-area-inset-top));

@@ -2,7 +2,7 @@ import { musicRuntime, ensureMusicRuntime, authorizeAppleRuntime } from './music
 import { getCompositeTierSnapshot, HTML_IN_CANVAS_FLAG, refreshCompositeTier, subscribeCompositeTier, type CapabilityReport } from '@webpod/composite'
 import { atom, createStore, useAtomValue } from 'jotai'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Component, useEffect, useSyncExternalStore, type ReactNode } from 'react'
+import { Component, useEffect, useRef, useSyncExternalStore, type ReactNode } from 'react'
 import { browserWelcomeReason, welcomeAction, type WelcomeReason } from './browser-welcome-policy'
 import { DeviceTeaser } from './device-teaser'
 import './styles/browser-welcome.css'
@@ -12,6 +12,7 @@ const pausedAtom = atom(false)
 const reducedMotionAtom = atom(false)
 const copyStatusAtom = atom('')
 const checkStatusAtom = atom('')
+const authorizationAttemptedAtom = atom(false)
 
 /** Select the welcome before mounting player effects, account runtimes or controls. */
 export function BrowserExperience({ children, landing = false }: { readonly children: ReactNode; readonly landing?: boolean }) {
@@ -51,17 +52,39 @@ const GUIDANCE: Record<WelcomeReason, { title: string; description: string }> = 
 
 function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport; readonly reason: WelcomeReason | null }) {
   const navigate = useNavigate()
+  const welcomeRef = useRef<HTMLElement>(null)
+  const enterDevice = async () => {
+    const welcome = welcomeRef.current
+    if (!welcome || welcome.dataset['departing']) return
+    welcome.dataset['departing'] = 'true'
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const model = welcome.querySelector<HTMLElement>('.webpod-welcome__model')
+    // Finish the live player's descent before the router captures the home snapshot.
+    const exit = !reduced && model ? model.animate([
+      { transform: 'translateY(0)' },
+      { transform: `translateY(${window.innerHeight - model.getBoundingClientRect().top + 32}px)` },
+    ], { duration: 520, easing: 'cubic-bezier(.55, 0, .85, .45)', fill: 'forwards' }) : null
+    try {
+      await exit?.finished
+      if (welcome.isConnected) await navigate({ to: '/webpod', viewTransition: !reduced })
+    } finally {
+      exit?.cancel()
+      delete welcome.dataset['departing']
+    }
+  }
   const music = useSyncExternalStore(musicRuntime.subscribe, musicRuntime.getSnapshot, musicRuntime.getSnapshot)
   const signedIn = music.provider.session?.status === 'authorized'
   const signingIn = music.phase === 'signing-in'
   const action = welcomeAction(signedIn, signingIn, reason === null)
+  const authorizationAttempted = useAtomValue(authorizationAttemptedAtom, { store: welcomeStore })
   useEffect(() => { ensureMusicRuntime() }, [music.provider])
   const signIn = async () => {
+    welcomeStore.set(authorizationAttemptedAtom, true)
     await authorizeAppleRuntime()
     const current = musicRuntime.getSnapshot()
     const capability = getCompositeTierSnapshot().report
     if (current.provider.session?.status === 'authorized' && capability !== null && browserWelcomeReason(capability) === null) {
-      void navigate({ to: '/webpod' })
+      await enterDevice()
     }
   }
   const paused = useAtomValue(pausedAtom, { store: welcomeStore })
@@ -95,7 +118,7 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
       ? 'Ready. Open webPod to start listening.'
       : 'Not ready yet. After changing the setting, relaunch Chrome and return here.')
   }
-  return <main className="webpod-welcome" data-browser-welcome={reason}>
+  return <main ref={welcomeRef} className="webpod-welcome" data-browser-welcome={reason}>
     <header className="webpod-welcome__masthead">
       <span className="webpod-welcome__wordmark">webPod</span>
       {reason === null ? null : <span className="webpod-welcome__edition">A little music time machine.</span>}
@@ -137,9 +160,14 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
       </div>
     <div className="webpod-welcome__play-action">
       {action.kind === 'sign-in' ? <button type="button" className="webpod-welcome__primary" disabled={action.disabled} onClick={() => void signIn()}>{action.label} <span aria-hidden="true">↗</span></button>
-        : !action.disabled ? <Link to="/webpod" className="webpod-welcome__primary">Lets get playing! <span aria-hidden="true">↗</span></Link>
+        : !action.disabled ? <Link to="/webpod" className="webpod-welcome__primary" onClick={event => {
+          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+          event.preventDefault()
+          void enterDevice()
+        }}>Lets get playing! <span aria-hidden="true">↗</span></Link>
           : <button type="button" className="webpod-welcome__primary" disabled aria-describedby="browser-setup-title">Lets get playing! <span aria-hidden="true">↗</span></button>}
-      {music.phase === 'error' || music.phase === 'permission-denied' ? <p className="webpod-welcome__auth-status" role="status">Sign-in couldn’t be completed. Please try again.</p> : null}
+      {!signedIn ? <p className="webpod-welcome__auth-status">Continue securely with Apple to connect your music library.<br />webPod never sees your Apple Account password.</p> : null}
+      {music.phase === 'error' || music.phase === 'permission-denied' ? <p className="webpod-welcome__auth-status" role="status">{!authorizationAttempted ? 'Apple Music is temporarily unavailable. Try connecting again shortly.' : music.phase === 'permission-denied' ? 'Access wasn’t granted. You can connect again when you’re ready.' : 'Couldn’t connect to Apple Music. Please try again.'}</p> : null}
     </div>
     </section>
     <footer className="webpod-welcome__footer">

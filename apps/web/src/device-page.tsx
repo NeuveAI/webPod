@@ -7,6 +7,8 @@ import { recordInteraction } from './interaction-telemetry';
 import { mountInteractionTelemetry } from './interaction-telemetry-browser';
 import { mountWebMcp } from './webmcp';
 import { previewStore } from './device-preview-store';
+import { mountDeviceReveal } from './device-reveal';
+import { DeviceRevealPortal } from './device-reveal-portal';
 import { BrowserExperience } from './browser-welcome';
 import {
   DEFAULT_DEVICE_MATERIALS,
@@ -24,7 +26,7 @@ import {
 } from "@webpod/device";
 import { useAtomValue } from "jotai";
 import { DeviceSettings, InteractionSoundSetting, deviceSettingsStore, interactionAudioEnabledAtom } from "./device-settings";
-import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
 
 import { applePlaybackDiagnostics, deriveApplePlaybackDiagnosis, serializeApplePlaybackDiagnostics, type AppleEmeCapability, type ApplePlaybackDiagnosticEvent } from "./apple-playback-diagnostics";
 import {
@@ -232,6 +234,12 @@ function InteractiveDevicePage() {
   }, []);
 
   useEffect(() => mountWebMcp(document, () => orientationControlsRef.current), []);
+  useLayoutEffect(() => {
+    const stage = stageRef.current;
+    if (stage === null || capture) return;
+    stage.focus({ preventScroll: true });
+    return mountDeviceReveal(stage, previewStore);
+  }, [capture]);
   useEffect(() => import.meta.env.DEV ? mountInteractionTelemetry(document, () => orientationControlsRef.current) : undefined, []);
 
   useEffect(() => {
@@ -270,8 +278,10 @@ function InteractiveDevicePage() {
       data-lighting-pass={diagnostic ? "neutral" : lightContribution}
     >
       <style>{DEVICE_PREVIEW_CSS}</style>
+      {capture ? null : <DeviceRevealPortal />}
       <div
         ref={stageRef}
+        data-device-reveal={capture ? 'complete' : 'warming'}
         className="webpod-device-preview__stage"
         role="region"
         tabIndex={0}
@@ -442,6 +452,8 @@ const DEVICE_PREVIEW_CSS = `
     user-select: none;
     position: fixed;
     inset: 0;
+    contain: layout paint;
+    isolation: isolate;
     min-inline-size: 0;
     overflow: clip;
     color: #eef2f7;
@@ -460,6 +472,16 @@ const DEVICE_PREVIEW_CSS = `
   }
   .webpod-device-preview__stage[data-orientation-grab="active"] {
     user-select: none;
+  }
+  .webpod-device-preview__stage:is([data-device-reveal="warming"], [data-device-reveal="entering"]) {
+    transform: translateY(var(--device-reveal-y, 110%));
+    will-change: transform;
+  }
+  .webpod-device-preview__stage:is([data-device-reveal="warming"], [data-device-reveal="entering"]) [data-sticker-stage] {
+    visibility: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .webpod-device-preview__stage:is([data-device-reveal="warming"], [data-device-reveal="entering"]) { transform: none; }
   }
   .webpod-device-preview__device,
   .webpod-device-preview__device > div,

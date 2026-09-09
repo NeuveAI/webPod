@@ -70,7 +70,7 @@ describe('preview turn storyboard', () => {
 
  test('landing action permits sign-in without setup and gates only authenticated play', () => {
    for (const ready of [false, true]) {
-     expect(welcomeAction(false, false, ready)).toEqual({ kind: 'sign-in', label: 'Sign in to play', disabled: false })
+     expect(welcomeAction(false, false, ready)).toEqual({ kind: 'sign-in', label: 'Connect Apple Music', disabled: false })
      expect(welcomeAction(false, true, ready).disabled).toBe(true)
      expect(welcomeAction(true, false, ready)).toEqual({ kind: 'play', label: 'Lets get playing!', disabled: !ready })
    }

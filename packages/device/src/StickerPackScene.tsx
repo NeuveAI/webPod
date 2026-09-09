@@ -22,6 +22,7 @@ import { stickerProjectedBounds } from './sticker-projected-bounds';
 import { intersectStickerPrint, prepareStickerAlpha } from './sticker-hit';
 import { prepareStickerPrograms } from './sticker-program-preparation';
 import { DEVICE_LAYOUT } from './layout';
+import { isDeviceOuterGrabPoint } from './orientation-grab';
 import { createStickerSleeveGeometry, SLEEVE_LAMINATE } from './sticker-sleeve';
 import { createStickerPaperGeometry, conformStickerToPaper, stickerPaperCurlProgress } from './sticker-paper';
 
@@ -58,6 +59,9 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
   }, [camera, gl, scene, studio.texture, warmPackKey]);
   const onProjectionReady = stickerScene.onProjectionReady;
   const packVisible = stickerScene.pack !== null;
+  useLayoutEffect(() => {
+    gl.domElement.setAttribute('data-wp-pack-visible', String(packVisible));
+  }, [gl, packVisible]);
   const restingPresentation = useRef(0);
   const restingModelY = useRef(0);
   const previousRearCarry = useRef(false);
@@ -126,6 +130,19 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
       const bounds = gl.domElement.getBoundingClientRect(), equipped = scene.getObjectByName('device-equipped-stickers');
       if (equipped === undefined || bounds.width <= 0 || bounds.height <= 0) return null;
       const ray = new Raycaster(); ray.setFromCamera(new Vector2((clientX - bounds.left) / bounds.width * 2 - 1, 1 - (clientY - bounds.top) / bounds.height * 2), camera);
+      // The physical perimeter remains a rotation handle even under vinyl.
+      // Native sticker capture runs before R3F, so yield here to the shell lane.
+      const shellHits = ['device-body', 'device-steel-back'].flatMap(name => {
+        const shell = scene.getObjectByName(name);
+        if (!(shell instanceof Mesh)) return [];
+        shell.updateWorldMatrix(true, false);
+        return ray.intersectObject(shell, false);
+      }).sort((a, b) => a.distance - b.distance);
+      const shellHit = shellHits[0];
+      if (shellHit !== undefined) {
+        const local = shellHit.object.worldToLocal(shellHit.point.clone());
+        if (isDeviceOuterGrabPoint(local.x, local.y)) return null;
+      }
       // Match transparent compositing: latest placement with visible ink wins,
       // even when curved/tessellated surfaces differ slightly in ray distance.
       for (const placement of [...currentScene.current.placements].reverse()) {
@@ -205,7 +222,7 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
     return () => { projectionHandle.current = null; onProjectionReady?.(null); };
   }, [camera, gl, orientation.visibleFace, scene, onProjectionReady, packVisible, stickerScene.pack?.sourcePlacement?.stickerId, calculatedPresentation, rearCarry]);
   const pack: StickerPackVisual | null = stickerScene.pack ?? (stickerScene.preparedSheet ? {
-    progress: 0, peel: 0, stickerId: null, placement: null, landing: 0,
+    presence: 0, progress: 0, peel: 0, stickerId: null, placement: null, landing: 0,
     sheet: { ...stickerScene.preparedSheet, reveal: 0 },
   } : null);
   if (pack === null) return null;
@@ -216,7 +233,8 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
   const height = layout.height * pixel;
   const x = (layout.centerX - size.width / 2) * pixel;
   const progress = Math.max(0, Math.min(1, pack.progress));
-  const start = -visible.height / 2 - height / 2 + STICKER_PACK_LAYOUT.teasePx * pixel;
+  // Keep the pull lip above the frame edge, matching the DOM hit region.
+  const start = -visible.height / 2 - height / 2 + (STICKER_PACK_LAYOUT.teasePx + STICKER_PACK_LAYOUT.bottomGapPx) * pixel;
   const end = -visible.height / 2 + height / 2 + STICKER_PACK_LAYOUT.bottomGapPx * pixel;
   const presenceTravel = height * (progress + STICKER_PACK_LAYOUT.linerTravel * (pack.sheet?.reveal ?? 0)) + (STICKER_PACK_LAYOUT.teasePx + STICKER_PACK_LAYOUT.bottomGapPx) * pixel;
   const y = start + (end - start) * progress - (1 - (pack.presence ?? 1)) * presenceTravel;

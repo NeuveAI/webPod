@@ -11,7 +11,11 @@ export const Route = createRootRoute({
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { title: 'webPod' },
     ],
-    links: [{ rel: 'stylesheet', href: appCss }, { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+    links: [
+      { rel: 'stylesheet', href: appCss },
+      { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      { rel: 'apple-music-app-icon', sizes: '120x120', href: 'https://webpod.vercel.app/apple-music-icon.png' },
+    ],
   }),
   shellComponent: RootDocument,
   notFoundComponent: NotFound,

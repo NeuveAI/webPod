@@ -28,6 +28,6 @@ export function previewYaw(seconds: number): number {
 
 /** Authentication stays available before experimental rendering is enabled. */
 export function welcomeAction(signedIn: boolean, signingIn: boolean, browserReady: boolean) {
-  if (!signedIn) return { kind: 'sign-in', label: signingIn ? 'Connecting…' : 'Sign in to play', disabled: signingIn } as const
+  if (!signedIn) return { kind: 'sign-in', label: signingIn ? 'Connecting…' : 'Connect Apple Music', disabled: signingIn } as const
   return { kind: 'play', label: 'Lets get playing!', disabled: !browserReady } as const
 }

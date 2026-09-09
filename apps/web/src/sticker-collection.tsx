@@ -1,3 +1,4 @@
+import { deviceRevealActiveAtom } from './device-reveal-state'
 import { stickerPackPresenceAtom, resetStickerPackPresence } from './sticker-pack-presence'
 import { pickStickerSource, releaseStickerCandidate, sampleOwnedStickerRelease, publishOwnedStickerPull, type StickerGrab } from './sticker-grab'
 import { mountStickerToolControls, type StickerUiActions } from './sticker-webmcp'
@@ -80,6 +81,7 @@ const REAR_UI_MOTION = {
 } as const
 
 export function StickerCollection({ orientation, commands }: { readonly orientation: DeviceOrientation; readonly commands: StickerCollectionCommands }) {
+  const deviceRevealing = useAtomValue(deviceRevealActiveAtom, { store: deviceStore })
   useEffect(mountStickerCarryAnchorLifecycle, [])
   useAtomValue(stickerProjectionVersionAtom, { store: deviceStore })
   const editor = useAtomValue(stickerEditorAtom, { store: deviceStore })
@@ -135,7 +137,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
   useEffect(() => {
     const visible = deviceFrontVisibility(orientation)
     const admitted = deviceStore.get(rearAdmittedAtom)
-    const next = compositeTier.tier === 'T1' && visible < (admitted ? REAR.leave : REAR.admit)
+    const next = !deviceRevealing && compositeTier.tier === 'T1' && visible < (admitted ? REAR.leave : REAR.admit)
     deviceStore.set(rearAdmittedAtom, next)
     setStickerRearVisible(next)
     const key = JSON.stringify(orientation)
@@ -143,7 +145,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
       clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); dismissStickerEditor(); if (deviceStore.get(stickerInteractionAtom).sourcePlacement != null) cancelStickerInteraction()
     }
     poseKey.current = key
-  }, [orientation, compositeTier.tier, usable])
+  }, [orientation, compositeTier.tier, usable, deviceRevealing])
   useEffect(() => {
     if (status === 'signed-out') { resetStickerEditor(); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); cancelStickerInteraction(); deviceStore.set(collectionMessageAtom, null); deviceStore.set(selectedStickerGenreAtom, null); deviceStore.set(stickerSheetRevealAtom, 0); resetStickerCarry() }
   }, [status])
@@ -189,7 +191,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     if (slot !== undefined) updateStickerInteraction({ selectedStickerId: slot.art.id, peel: 0, previewPlacement: null, landing: 0, sourcePlacement })
     target.setPointerCapture(event.pointerId)
     captureTarget.current = target
-    deviceStore.set(pointerAtom, { kind, grab, maxDistance: 0, pickup: sourcePlacement === null ? null : commands.project(event.clientX, event.clientY), pointerId: event.pointerId, stickerId: slot?.art.id ?? null, startX: event.clientX, startY: event.clientY, startProgress: kind === 'liner' ? deviceStore.get(stickerSheetRevealAtom) : deviceStore.get(stickerInteractionAtom).progress, travel: kind === 'liner' ? layout.height * PACK.linerTravel : layout.height + PACK.bottomGapPx - PACK.teasePx, samples: [sample(event)] })
+    deviceStore.set(pointerAtom, { kind, grab, maxDistance: 0, pickup: sourcePlacement === null ? null : commands.project(event.clientX, event.clientY), pointerId: event.pointerId, stickerId: slot?.art.id ?? null, startX: event.clientX, startY: event.clientY, startProgress: kind === 'liner' ? deviceStore.get(stickerSheetRevealAtom) : deviceStore.get(stickerInteractionAtom).progress, travel: kind === 'liner' ? layout.height * PACK.linerTravel : layout.height - PACK.teasePx, samples: [sample(event)] })
     updateStickerInteraction({ stage: kind === 'pull' ? 'pulling' : kind === 'liner' ? 'open' : 'peeling' })
     if (sourcePlacement !== null) captureStickerCarryAnchor(sourcePlacement, grab?.anchor)
   }
@@ -498,7 +500,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
         if (point === null) return null
         return <button key={placement.stickerId} type="button" data-sticker-placed={placement.stickerId} aria-label={`Edit ${getSticker(placement.stickerId)?.name ?? 'sticker'}. Enter opens adjustments.`} className="pointer-events-none absolute h-11 w-11 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#eee7d9]" style={{ left: point.x - 22, top: point.y - 22 }} onKeyDown={(event) => placedKey(event, placement)} />
       })}
-      {(rear || packPresence > .001) && usable && editor === null ? <div className="pointer-events-auto absolute text-[#29291f]" data-sticker-collection={collection?.genre} style={{ left: layout.centerX - layout.width / 2, width: layout.width, height: layout.height, bottom: PACK.bottomGapPx, transformOrigin: `50% ${layout.height / 2 + layout.height * PACK.linerTravel * sheetReveal}px`, transform: `translateY(${(1 - packPresence) * (layout.height * (interaction.progress + PACK.linerTravel * sheetReveal) + PACK.teasePx + PACK.bottomGapPx) + (layout.height + PACK.bottomGapPx - PACK.teasePx) * (1 - interaction.progress) - layout.height * PACK.linerTravel * sheetReveal + (viewport.width < PACK.desktopBreakpoint ? layout.height * PACK.linerTravel * workspaceLowering : 0)}px) perspective(1000px) rotateY(${presentation.turnRadians}rad)` }}>
+      {(rear || packPresence > .001) && usable && editor === null ? <div className="pointer-events-auto absolute text-[#29291f]" data-sticker-collection={collection?.genre} style={{ left: layout.centerX - layout.width / 2, width: layout.width, height: layout.height, bottom: PACK.bottomGapPx, transformOrigin: `50% ${layout.height / 2 + layout.height * PACK.linerTravel * sheetReveal}px`, transform: `translateY(${(1 - packPresence) * (layout.height * (interaction.progress + PACK.linerTravel * sheetReveal) + PACK.teasePx + PACK.bottomGapPx) + (layout.height - PACK.teasePx) * (1 - interaction.progress) - layout.height * PACK.linerTravel * sheetReveal + (viewport.width < PACK.desktopBreakpoint ? layout.height * PACK.linerTravel * workspaceLowering : 0)}px) perspective(1000px) rotateY(${presentation.turnRadians}rad)` }}>
         <button ref={lip} type="button" className="absolute top-0 left-0 z-10 min-h-11 w-full cursor-pointer touch-none rounded-sm bg-[#eee7d9] px-3 font-mono text-[11px] font-semibold tracking-[.06em] hover:bg-[#f6f0e5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9a4c22]" aria-label={expanded ? sheetOpen ? 'Close sticker liner' : 'Pull sticker liner open' : 'Pull sticker pack into view'} aria-expanded={expanded ? sheetOpen : false} onPointerDown={(event) => begin(event, expanded ? 'liner' : 'pull')} onPointerMove={move} onPointerUp={(event) => end(event)} onPointerCancel={(event) => end(event, true)} onLostPointerCapture={(event) => end(event, true)} onClick={(event) => { if (event.detail === 0) { if (!expanded) { admitIntent(); revealStickerPack(reducedMotion) } else if (sheetOpen) { admitIntent(); animateStickerValue('sheet', { position: deviceStore.get(stickerSheetRevealAtom), velocity: 0, target: 0 }, reducedMotion, () => {}) } else openCollection() } }}>
           <span style={{ opacity: presentation.textOpacity }}>PLAYWORN / STICKER COLLECTION <span className="inline-block" aria-hidden="true" style={{ transform: `rotate(${sheetReveal * 180}deg)` }}>↑</span></span>
         </button>

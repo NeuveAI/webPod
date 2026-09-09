@@ -1,4 +1,5 @@
 import { StickerPackScene } from "./StickerPackScene";
+import { DeviceRenderWarmup } from "./DeviceRenderWarmup";
 /**
  * Demand-rendered physical device canvas. An untouched device schedules no
  * animation loop. Renderer defaults select AgX at exposure1 for photographic
@@ -177,6 +178,7 @@ export function DeviceCanvas({
             orientation={orientation}
           />
           {children}
+          <DeviceRenderWarmup />
         </DeviceCanvasOrientationContext.Provider>
       </ControlPhysicsScope>
     </Canvas>
