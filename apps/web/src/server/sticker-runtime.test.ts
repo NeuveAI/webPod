@@ -4,6 +4,10 @@ import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { stickerDatabasePath } from './sticker-runtime.server'
 
+test('Vercel refuses local SQLite even when an absolute ephemeral path is supplied', () => {
+  expect(() => stickerDatabasePath({ VERCEL: '1', NODE_ENV: 'production', WEBPOD_STICKER_DATABASE_PATH: '/tmp/stickers.sqlite' })).toThrow('durable external sticker storage')
+})
+
 test('production database rejects absent, relative, public, traversal and symlink paths', () => {
   expect(() => stickerDatabasePath({ NODE_ENV: 'production' })).toThrow()
   expect(() => stickerDatabasePath({ WEBPOD_STICKER_DATABASE_PATH: 'relative.sqlite' })).toThrow()

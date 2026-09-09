@@ -7,6 +7,7 @@ let disposed = false
 let instance: ReturnType<typeof createLiveStickerServer> | undefined
 /** No key/DB I/O at import or public SSR. Production path must be explicit and outside static roots. */
 export function stickerDatabasePath(env: Readonly<Record<string, string | undefined>> = process.env): string {
+  if (env['VERCEL'] === '1') throw new Error('Vercel requires durable external sticker storage; local SQLite is not supported')
   const configured = env['WEBPOD_STICKER_DATABASE_PATH']
   if (configured === undefined && env['NODE_ENV'] === 'production') throw new Error('WEBPOD_STICKER_DATABASE_PATH must be an absolute private database path')
   const rawPath = configured ?? resolve(process.cwd(), '.data/stickers.sqlite')

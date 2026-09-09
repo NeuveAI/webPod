@@ -15,3 +15,4 @@ export {
   type ArtworkTransportShape,
 } from './artwork-proxy.ts'
 export * from './apple-developer-token.ts'
+export { provisionAppleRuntimeKey } from './apple-runtime-key.ts'

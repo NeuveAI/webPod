@@ -1,0 +1,26 @@
+# Production on Vercel still requires the durable-storage migration in docs/deployment.md.
+FROM oven/bun:1.4.0 AS build
+WORKDIR /app
+COPY . .
+RUN bun install --frozen-lockfile
+RUN bun run build
+
+# Install into a clean stage: --production does not prune an existing dev install.
+FROM oven/bun:1.4.0 AS production-dependencies
+WORKDIR /app
+COPY . .
+RUN bun install --frozen-lockfile --production
+
+FROM oven/bun:1.4.0 AS runtime
+WORKDIR /app
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000
+COPY --from=build /app/package.json ./package.json
+COPY --from=production-dependencies /app/node_modules ./node_modules
+COPY --from=production-dependencies /app/packages ./packages
+COPY --from=build /app/apps/web/package.json ./apps/web/package.json
+COPY --from=production-dependencies /app/apps/web/node_modules ./apps/web/node_modules
+COPY --from=build /app/apps/web/dist ./apps/web/dist
+COPY --from=build /app/apps/web/scripts/start.ts ./apps/web/scripts/start.ts
+USER bun
+EXPOSE 3000
+CMD ["bun", "apps/web/scripts/start.ts"]
