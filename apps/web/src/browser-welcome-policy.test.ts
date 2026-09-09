@@ -1,3 +1,4 @@
+import { welcomeAction } from './browser-welcome-policy'
 import { describe, expect, test } from 'bun:test'
 import type { CapabilityReport } from '@webpod/composite'
 import { browserWelcomeReason, previewYaw } from './browser-welcome-policy'
@@ -66,3 +67,11 @@ describe('preview turn storyboard', () => {
     }
   })
 })
+
+ test('landing action permits sign-in without setup and gates only authenticated play', () => {
+   for (const ready of [false, true]) {
+     expect(welcomeAction(false, false, ready)).toEqual({ kind: 'sign-in', label: 'Sign in to play', disabled: false })
+     expect(welcomeAction(false, true, ready).disabled).toBe(true)
+     expect(welcomeAction(true, false, ready)).toEqual({ kind: 'play', label: 'Lets get playing!', disabled: !ready })
+   }
+ })

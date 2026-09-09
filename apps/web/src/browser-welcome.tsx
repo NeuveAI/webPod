@@ -1,8 +1,9 @@
+import { musicRuntime, ensureMusicRuntime, authorizeAppleRuntime } from './music-runtime'
 import { getCompositeTierSnapshot, HTML_IN_CANVAS_FLAG, refreshCompositeTier, subscribeCompositeTier, type CapabilityReport } from '@webpod/composite'
 import { atom, createStore, useAtomValue } from 'jotai'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { Component, useEffect, useSyncExternalStore, type ReactNode } from 'react'
-import { browserWelcomeReason, type WelcomeReason } from './browser-welcome-policy'
+import { browserWelcomeReason, welcomeAction, type WelcomeReason } from './browser-welcome-policy'
 import { DeviceTeaser } from './device-teaser'
 import './styles/browser-welcome.css'
 
@@ -49,6 +50,20 @@ const GUIDANCE: Record<WelcomeReason, { title: string; description: string }> = 
 }
 
 function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport; readonly reason: WelcomeReason | null }) {
+  const navigate = useNavigate()
+  const music = useSyncExternalStore(musicRuntime.subscribe, musicRuntime.getSnapshot, musicRuntime.getSnapshot)
+  const signedIn = music.provider.session?.status === 'authorized'
+  const signingIn = music.phase === 'signing-in'
+  const action = welcomeAction(signedIn, signingIn, reason === null)
+  useEffect(() => { ensureMusicRuntime() }, [music.provider])
+  const signIn = async () => {
+    await authorizeAppleRuntime()
+    const current = musicRuntime.getSnapshot()
+    const capability = getCompositeTierSnapshot().report
+    if (current.provider.session?.status === 'authorized' && capability !== null && browserWelcomeReason(capability) === null) {
+      void navigate({ to: '/webpod' })
+    }
+  }
   const paused = useAtomValue(pausedAtom, { store: welcomeStore })
   const reducedMotion = useAtomValue(reducedMotionAtom, { store: welcomeStore })
   const copyStatus = useAtomValue(copyStatusAtom, { store: welcomeStore })
@@ -120,7 +135,12 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
           </svg>
         </button> : null}
       </div>
-    {reason === null ? <div className="webpod-welcome__play-action"><Link to="/webpod" className="webpod-welcome__primary">Lets get playing! <span aria-hidden="true">↗</span></Link></div> : null}
+    <div className="webpod-welcome__play-action">
+      {action.kind === 'sign-in' ? <button type="button" className="webpod-welcome__primary" disabled={action.disabled} onClick={() => void signIn()}>{action.label} <span aria-hidden="true">↗</span></button>
+        : !action.disabled ? <Link to="/webpod" className="webpod-welcome__primary">Lets get playing! <span aria-hidden="true">↗</span></Link>
+          : <button type="button" className="webpod-welcome__primary" disabled aria-describedby="browser-setup-title">Lets get playing! <span aria-hidden="true">↗</span></button>}
+      {music.phase === 'error' || music.phase === 'permission-denied' ? <p className="webpod-welcome__auth-status" role="status">Sign-in couldn’t be completed. Please try again.</p> : null}
+    </div>
     </section>
     <footer className="webpod-welcome__footer">
       <small>Inspired by one of personal hardware’s most significant innovations, and built for the joy of listening.</small>

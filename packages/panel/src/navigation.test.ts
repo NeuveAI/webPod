@@ -11,10 +11,18 @@ function highlight<T extends { readonly highlightIndex: number }>(frame: T, inde
   return { ...frame, highlightIndex: index }
 }
 
+// Retain coverage of legacy typed routes without exposing them in the Music menu.
+function legacyRoot(source: typeof fixtureNavigationSource, selectedProvider: MusicProvider, kind: 'genres' | 'search-entry') {
+  const root = navigationRoot(source, selectedProvider)
+  const row = root.rows[0]
+  if (row === undefined) throw new Error('Missing root fixture')
+  return { ...root, rows: [{ ...row, destination: { kind } }], highlightIndex: 0 }
+}
+
 describe('typed navigation graph', () => {
   test('refreshed library rows retain provider identity independently of their labels', async () => {
     const root = navigationRoot(fixtureNavigationSource, provider)
-    for (const index of [1, 2, 3, 4]) {
+    for (const index of [0, 1, 2, 3]) {
       const selected = (await selectNavigation(highlight(root, index), fixtureNavigationSource, provider)).frame
       if (selected === null || selected.rows.length === 0) throw new Error('Missing fixture list')
       const refreshed = refreshNavigationFrame(selected, fixtureNavigationSource, provider)
@@ -35,7 +43,7 @@ describe('typed navigation graph', () => {
         songs: { loaded: fixtureNavigationSource.songs.length, state: 'complete' as const },
       },
     }
-    const root = highlight(navigationRoot(source, provider), 1)
+    const root = highlight(navigationRoot(source, provider), 0)
     expect(root.rows.find((row) => row.label === 'Albums')?.sublabel).toBe(`${String(albums.length)}+`)
     const album = albums[0]
     if (album === undefined) throw new Error('fixture album missing')
@@ -43,19 +51,19 @@ describe('typed navigation graph', () => {
 
     const refreshed = refreshNavigationFrame(root, source, provider)
 
-    expect(refreshed.highlightIndex).toBe(1)
+    expect(refreshed.highlightIndex).toBe(0)
     expect(refreshed.rows.find((row) => row.label === 'Albums')?.sublabel).toBe(`${String(albums.length)}+`)
   })
 
   test('playlist rows omit misleading provider counts', async () => {
-    const playlists = (await selectNavigation(highlight(navigationRoot(fixtureNavigationSource, provider), 1), fixtureNavigationSource, provider)).frame
+    const playlists = (await selectNavigation(highlight(navigationRoot(fixtureNavigationSource, provider), 0), fixtureNavigationSource, provider)).frame
     expect(playlists?.rows.length).toBeGreaterThan(0)
     expect(playlists?.rows.every((row) => row.sublabel === null)).toBe(true)
   })
 
   test('artists descend through albums and tracks into provider playback', async () => {
     const root = navigationRoot(fixtureNavigationSource, provider)
-    const artists = (await selectNavigation(highlight(root, 2), fixtureNavigationSource, provider)).frame
+    const artists = (await selectNavigation(highlight(root, 1), fixtureNavigationSource, provider)).frame
     expect(artists?.route?.kind).toBe('artists')
     if (artists === null) throw new Error('artists frame missing')
     const albums = (await selectNavigation(artists, fixtureNavigationSource, provider)).frame
@@ -72,7 +80,7 @@ describe('typed navigation graph', () => {
 
   test('playlist membership produces its own track frame', async () => {
     const root = navigationRoot(fixtureNavigationSource, provider)
-    const playlists = (await selectNavigation(highlight(root, 1), fixtureNavigationSource, provider)).frame
+    const playlists = (await selectNavigation(highlight(root, 0), fixtureNavigationSource, provider)).frame
     if (playlists === null) throw new Error('playlists frame missing')
     const tracks = (await selectNavigation(playlists, fixtureNavigationSource, provider)).frame
     expect(tracks?.route?.kind).toBe('playlist-tracks')
@@ -83,10 +91,10 @@ describe('typed navigation graph', () => {
     const targets: PlayTarget[] = []
     const playbackProvider: MusicProvider = { ...createFixtureProvider({ supports: APPLE_SUPPORTS }), play: async (target) => { if (target !== undefined) targets.push(target) } }
     const root = navigationRoot(fixtureNavigationSource, playbackProvider)
-    const songs = (await selectNavigation(highlight(root, 4), fixtureNavigationSource, playbackProvider)).frame
-    const albums = (await selectNavigation(highlight(root, 3), fixtureNavigationSource, playbackProvider)).frame
-    const playlists = (await selectNavigation(highlight(root, 1), fixtureNavigationSource, playbackProvider)).frame
-    const artists = (await selectNavigation(highlight(root, 2), fixtureNavigationSource, playbackProvider)).frame
+    const songs = (await selectNavigation(highlight(root, 3), fixtureNavigationSource, playbackProvider)).frame
+    const albums = (await selectNavigation(highlight(root, 2), fixtureNavigationSource, playbackProvider)).frame
+    const playlists = (await selectNavigation(highlight(root, 0), fixtureNavigationSource, playbackProvider)).frame
+    const artists = (await selectNavigation(highlight(root, 1), fixtureNavigationSource, playbackProvider)).frame
     if (songs === null || albums === null || playlists === null || artists === null) throw new Error('fixture collection frame missing')
     const albumTracks = (await selectNavigation(highlight(albums, 1), fixtureNavigationSource, playbackProvider)).frame
     const playlistTracks = (await selectNavigation(playlists, fixtureNavigationSource, playbackProvider)).frame
@@ -122,7 +130,7 @@ describe('typed navigation graph', () => {
       },
     }
     const playbackProvider: MusicProvider = { ...provider, play: async (target) => { playedTarget = target } }
-    const playlists = (await selectNavigation(highlight(navigationRoot(changingSource, playbackProvider), 1), changingSource, playbackProvider)).frame
+    const playlists = (await selectNavigation(highlight(navigationRoot(changingSource, playbackProvider), 0), changingSource, playbackProvider)).frame
     if (playlists === null) throw new Error('playlists frame missing')
     const tracks = (await selectNavigation(playlists, changingSource, playbackProvider)).frame
     if (tracks === null) throw new Error('playlist tracks missing')
@@ -146,7 +154,7 @@ describe('typed navigation graph', () => {
         return fixtureNavigationSource.tracksForAlbum(key)
       },
     }
-    const albums = (await selectNavigation(highlight(navigationRoot(source, provider), 3), source, provider)).frame
+    const albums = (await selectNavigation(highlight(navigationRoot(source, provider), 2), source, provider)).frame
     if (albums === null) throw new Error('albums frame missing')
     const preparation = preparationForFrame(albums, source)
     if (preparation === null) throw new Error('album preparation missing')
@@ -159,7 +167,7 @@ describe('typed navigation graph', () => {
   })
 
   test('prefetch scope follows only the highlighted row instead of speculative neighbors', async () => {
-    const albums = (await selectNavigation(highlight(navigationRoot(fixtureNavigationSource, provider), 3), fixtureNavigationSource, provider)).frame
+    const albums = (await selectNavigation(highlight(navigationRoot(fixtureNavigationSource, provider), 2), fixtureNavigationSource, provider)).frame
     if (albums === null) throw new Error('albums frame missing')
     const preparations = preparationsForFrame(highlight(albums, 2), fixtureNavigationSource)
 
@@ -171,7 +179,7 @@ describe('typed navigation graph', () => {
     let resolveTracks: ((tracks: readonly TrackRef[]) => void) | undefined
     const relationship = new Promise<readonly TrackRef[]>((resolve) => { resolveTracks = resolve })
     const source = { ...fixtureNavigationSource, tracksForAlbum: () => relationship }
-    const albums = (await selectNavigation(highlight(navigationRoot(source, provider), 3), source, provider)).frame
+    const albums = (await selectNavigation(highlight(navigationRoot(source, provider), 2), source, provider)).frame
     if (albums === null) throw new Error('albums frame missing')
 
     const selection = selectNavigationImmediate(albums, source, provider)
@@ -194,7 +202,7 @@ describe('typed navigation graph', () => {
       relationshipRequestsAbortable: false,
       tracksForAlbum: () => { reads += 1; return relationship },
     }
-    const albums = (await selectNavigation(highlight(navigationRoot(source, provider), 3), source, provider)).frame
+    const albums = (await selectNavigation(highlight(navigationRoot(source, provider), 2), source, provider)).frame
     if (albums === null) throw new Error('albums frame missing')
     const preparation = preparationForFrame(albums, source)
     if (preparation === null) throw new Error('album preparation missing')
@@ -216,7 +224,7 @@ describe('typed navigation graph', () => {
         options?.signal?.addEventListener('abort', () => { aborted = true; reject(new Error('source disposed')) }, { once: true })
       }),
     }
-    const albums = (await selectNavigation(highlight(navigationRoot(source, provider), 3), source, provider)).frame
+    const albums = (await selectNavigation(highlight(navigationRoot(source, provider), 2), source, provider)).frame
     if (albums === null) throw new Error('albums frame missing')
     const preparation = preparationForFrame(albums, source)
     if (preparation === null) throw new Error('album preparation missing')
@@ -234,7 +242,7 @@ describe('typed navigation graph', () => {
     if (first === undefined || second === undefined) throw new Error('fixture tracks missing')
     const songs = [first, second, first]
     const source = { ...fixtureNavigationSource, songs }
-    const frame = (await selectNavigation(highlight(navigationRoot(source, provider), 4), source, provider)).frame
+    const frame = (await selectNavigation(highlight(navigationRoot(source, provider), 3), source, provider)).frame
     if (frame === null) throw new Error('songs frame missing')
     const selected = highlight(frame, 2)
     const preparation = preparationForFrame(selected, source)
@@ -247,8 +255,8 @@ describe('typed navigation graph', () => {
     const root = navigationRoot(fixtureNavigationSource, provider)
     const album = fixtureNavigationSource.albums[0]
     if (album === undefined) throw new Error('fixture album missing')
-    expect(previewEntityForFrame(highlight(root, 3), fixtureNavigationSource)).toBe(album)
-    expect(previewEntityForFrame(highlight(root, 5), fixtureNavigationSource)).toBeNull()
+    expect(previewEntityForFrame(highlight(root, 2), fixtureNavigationSource)).toBe(album)
+    expect(previewEntityForFrame(highlight(root, -1), fixtureNavigationSource)).toBeNull()
   })
 
   test('selects the exact rendered artist album without fetching the collection again', async () => {
@@ -262,7 +270,7 @@ describe('typed navigation graph', () => {
       },
     }
     const root = navigationRoot(changingSource, provider)
-    const artists = (await selectNavigation(highlight(root, 2), changingSource, provider)).frame
+    const artists = (await selectNavigation(highlight(root, 1), changingSource, provider)).frame
     if (artists === null) throw new Error('artists frame missing')
     const albums = (await selectNavigation(artists, changingSource, provider)).frame
     if (albums === null) throw new Error('artist albums missing')
@@ -279,12 +287,12 @@ describe('typed navigation graph', () => {
 
   test('empty and rejected playable selections never claim success', async () => {
     const emptySource = { ...fixtureNavigationSource, songs: [] }
-    const songs = (await selectNavigation(highlight(navigationRoot(emptySource, provider), 4), emptySource, provider)).frame
+    const songs = (await selectNavigation(highlight(navigationRoot(emptySource, provider), 3), emptySource, provider)).frame
     if (songs === null) throw new Error('songs frame missing')
     expect(await selectNavigation(songs, emptySource, provider)).toEqual({ frame: null, played: false })
 
     const rejectedProvider: MusicProvider = { ...provider, play: async () => { throw new Error('playback refused') } }
-    const populatedSongs = (await selectNavigation(highlight(navigationRoot(fixtureNavigationSource, rejectedProvider), 4), fixtureNavigationSource, rejectedProvider)).frame
+    const populatedSongs = (await selectNavigation(highlight(navigationRoot(fixtureNavigationSource, rejectedProvider), 3), fixtureNavigationSource, rejectedProvider)).frame
     if (populatedSongs === null) throw new Error('populated songs frame missing')
     const rejected = await selectNavigation(populatedSongs, fixtureNavigationSource, rejectedProvider)
     expect(rejected.frame?.route?.kind).toBe('now-playing')
@@ -294,8 +302,8 @@ describe('typed navigation graph', () => {
   })
 
   test('genre offers artist, album and track facets', async () => {
-    const root = navigationRoot(fixtureNavigationSource, provider)
-    const genres = (await selectNavigation(highlight(root, 5), fixtureNavigationSource, provider)).frame
+    const root = legacyRoot(fixtureNavigationSource, provider, 'genres')
+    const genres = (await selectNavigation(highlight(root, 0), fixtureNavigationSource, provider)).frame
     if (genres === null) throw new Error('genres frame missing')
     const facets = (await selectNavigation(genres, fixtureNavigationSource, provider)).frame
     expect(facets?.rows.map((row) => row.label)).toEqual(['Artists', 'Albums', 'Songs'])
@@ -303,14 +311,14 @@ describe('typed navigation graph', () => {
 
   test('every supported root row resolves to its declared real section', async () => {
     const root = navigationRoot(fixtureNavigationSource, provider)
-    const expected: NavigationRoute['kind'][] = ['cover-flow', 'playlists', 'artists', 'albums', 'songs', 'genres', 'stations', 'search-entry']
+    const expected: NavigationRoute['kind'][] = ['playlists', 'artists', 'albums', 'songs', 'stations']
     const resolved = await Promise.all(root.rows.map(async (_row, index) =>
       (await selectNavigation(highlight(root, index), fixtureNavigationSource, provider)).frame?.route?.kind))
     expect(resolved).toEqual(expected)
   })
 
   test('search entry retains the provider result LocalKeys into playback', async () => {
-    const root = navigationRoot(fixtureNavigationSource, provider)
+    const root = legacyRoot(fixtureNavigationSource, provider, 'search-entry')
     const entry = (await selectNavigation(highlight(root, root.rows.length - 1), fixtureNavigationSource, provider)).frame
     if (entry === null) throw new Error('search entry missing')
     const results = (await selectNavigation(entry, fixtureNavigationSource, provider, 'night')).frame
@@ -347,7 +355,7 @@ describe('typed navigation graph', () => {
       ...fixtureNavigationSource,
       trackByKey: (key: typeof catalogueOnly.key) => key === catalogueOnly.key ? catalogueOnly : fixtureNavigationSource.trackByKey(key),
     }
-    const root = navigationRoot(source, searchProvider)
+    const root = legacyRoot(source, searchProvider, 'search-entry')
     const entry = (await selectNavigation(highlight(root, root.rows.length - 1), source, searchProvider)).frame
     if (entry === null) throw new Error('search entry missing')
     const results = (await selectNavigation(entry, source, searchProvider, 'outside')).frame
@@ -368,7 +376,7 @@ describe('typed navigation graph', () => {
 
   test('empty relationships are represented by an empty typed frame', async () => {
     const source = { ...fixtureNavigationSource, playlists: [] }
-    const playlists = (await selectNavigation(highlight(navigationRoot(source, provider), 1), source, provider)).frame
+    const playlists = (await selectNavigation(highlight(navigationRoot(source, provider), 0), source, provider)).frame
     expect(playlists?.route?.kind).toBe('playlists')
     expect(playlists?.rows).toEqual([])
     expect(playlists?.highlightIndex).toBe(-1)

@@ -1,7 +1,7 @@
 /** Real 272×204 Panel frames captured at 3×, preserving the production CSS. */
 export const TEASER_SCREEN = { width: 816, height: 612 } as const
 // Bump when regenerating frames so open tabs do not reuse older captures.
-const FRAME_REVISION = 'artwork-1'
+const FRAME_REVISION = 'menu-3'
 const FRAME_URLS = [
   ...Array.from({ length: 4 }, (_, index) => `/teaser/menu-${index}.png?v=${FRAME_REVISION}`),
   ...Array.from({ length: 8 }, (_, index) => `/teaser/playing-${index}.png?v=${FRAME_REVISION}`),

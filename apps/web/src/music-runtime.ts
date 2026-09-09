@@ -43,11 +43,22 @@ const appleProviderOptions = () => ({
   ...browserAppleProviderOptions(),
   ...(import.meta.env.DEV ? { playbackDiagnostics: applePlaybackDiagnostics } : {}),
 })
-let appleProvider: ReturnType<typeof createAppleProvider> | null = createAppleProvider(appleProviderOptions())
-let snapshot: MusicRuntimeSnapshot = { requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider: appleProvider, source: emptySource, message: null }
-let operation = 0
-const listeners = new Set<() => void>()
-const publish = (next: MusicRuntimeSnapshot): void => { snapshot = next; for (const listener of listeners) listener() }
+interface RuntimeState {
+  readonly provider: ReturnType<typeof createAppleProvider>
+  snapshot: MusicRuntimeSnapshot
+  operation: number
+  readonly listeners: Set<() => void>
+}
+function createRuntimeState(): RuntimeState {
+  const provider = createAppleProvider(appleProviderOptions())
+  return { provider, snapshot: { requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null }, operation: 0, listeners: new Set() }
+}
+// MusicKit caches its API service against the store from its first configure.
+// Preserve the provider AND operation state so HMR cannot split authentication,
+// API credentials, pending library work, and React subscriptions across runtimes.
+const runtimeState = (import.meta.hot?.data['musicRuntimeState'] as RuntimeState | undefined) ?? createRuntimeState()
+if (import.meta.hot) import.meta.hot.data['musicRuntimeState'] = runtimeState
+const publish = (next: MusicRuntimeSnapshot): void => { runtimeState.snapshot = next; for (const listener of runtimeState.listeners) listener() }
 const failureMessage = (stage: string, cause: unknown): string => {
   const detail = cause instanceof Error ? cause.message : 'Unknown failure'
   const safeDetail = detail.replace(/[A-Za-z0-9_-]{40,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/g, '[redacted token]')
@@ -164,76 +175,81 @@ export async function createProgressiveAppleSource(provider: MusicProvider, isCu
 
 /** Selects the production Apple Music runtime. */
 export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> {
-  const selectedOperation = ++operation
+  const selectedOperation = ++runtimeState.operation
   void mode
-  const provider = appleProvider ?? createAppleProvider(appleProviderOptions()); appleProvider = provider
-  restoreStickerSession(provider)
+  const provider = runtimeState.provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
     await provider.configure()
-    if (selectedOperation !== operation) return
-    if (provider.session === null) { stopStickerRuntime(true); publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null }); return }
-    startStickerRuntime(provider, () => bootstrapStickerCollection(provider))
-    const { source, completion } = await createProgressiveAppleSource(provider, () => selectedOperation === operation); if (selectedOperation !== operation) return
+    if (selectedOperation !== runtimeState.operation) return
+    if (provider.session?.status !== 'authorized') { stopStickerRuntime(false); publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null }); return }
+    restoreStickerSession(provider)
+    startStickerRuntime(provider, (refresh) => bootstrapStickerCollection(provider, refresh))
+    const { source, completion } = await createProgressiveAppleSource(provider, () => selectedOperation === runtimeState.operation); if (selectedOperation !== runtimeState.operation) return
     publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null })
     void completion
   } catch (cause) {
-    if (selectedOperation !== operation) return
+    if (selectedOperation !== runtimeState.operation) return
     const message = failureMessage('library loading', cause)
     try {
       await quiesceMusicProvider(provider)
     } catch (pauseCause) {
-      if (selectedOperation === operation) publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message: failureMessage('runtime switch', pauseCause) })
+      if (selectedOperation === runtimeState.operation) publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message: failureMessage('runtime switch', pauseCause) })
       return
     }
-    if (selectedOperation === operation) publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message })
+    if (selectedOperation === runtimeState.operation) publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message })
   }
+}
+
+/** Restore the saved session once when the landing is the first route opened. */
+export function ensureMusicRuntime(): void {
+  if (runtimeState.operation === 0) void selectMusicRuntime('apple')
 }
 
 /** Runs MusicKit authorization from a user gesture and hydrates provider-neutral navigation data. */
 export async function authorizeAppleRuntime(): Promise<void> {
-  const selectedOperation = ++operation
-  const provider = appleProvider ?? createAppleProvider(appleProviderOptions()); appleProvider = provider
-  restoreStickerSession(provider)
+  const selectedOperation = ++runtimeState.operation
+  const provider = runtimeState.provider
+  restoreStickerSession(provider, false)
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
     try { await provider.authorize() } catch (cause) {
-      if (selectedOperation !== operation) return
+      if (selectedOperation !== runtimeState.operation) return
       const denied = provider.appleSessionState.status === 'permission-denied'
       if (denied) stopStickerRuntime(true)
       publish({ requestedMode: 'apple', activeMode: 'apple', phase: denied ? 'permission-denied' : 'error', provider, source: emptySource, message: failureMessage('authorization', cause) })
       return
     }
-    if (selectedOperation !== operation) return
-    startStickerRuntime(provider, () => bootstrapStickerCollection(provider))
+    if (selectedOperation !== runtimeState.operation) return
+    startStickerRuntime(provider, (refresh) => bootstrapStickerCollection(provider, refresh))
     try {
-      const { source, completion } = await createProgressiveAppleSource(provider, () => selectedOperation === operation); if (selectedOperation !== operation) return
+      const { source, completion } = await createProgressiveAppleSource(provider, () => selectedOperation === runtimeState.operation); if (selectedOperation !== runtimeState.operation) return
       publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider, source, message: null })
       void completion
     } catch (cause) {
-      if (selectedOperation !== operation) return
+      if (selectedOperation !== runtimeState.operation) return
       publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message: failureMessage('library loading', cause) })
     }
   } catch (cause) {
-    if (selectedOperation !== operation) return
+    if (selectedOperation !== runtimeState.operation) return
     publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'error', provider, source: emptySource, message: failureMessage('configuration', cause) })
   }
 }
 
 /** Invalidates the MusicKit user session and returns to the signed-out Apple frame. */
 export async function signOutAppleRuntime(): Promise<void> {
-  const selectedOperation = ++operation
-  const provider = appleProvider
+  const selectedOperation = ++runtimeState.operation
+  const provider = runtimeState.provider
   if (provider === null) return
-  publish({ ...snapshot, phase: 'signing-in', message: null })
+  publish({ ...runtimeState.snapshot, phase: 'signing-in', message: null })
   try {
     await provider.unauthorize()
-    if (selectedOperation !== operation) return
+    if (selectedOperation !== runtimeState.operation) return
     stopStickerRuntime(true)
     publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null })
   } catch (cause) {
-    if (selectedOperation !== operation) return
-    publish({ ...snapshot, phase: 'error', message: failureMessage('sign-out', cause) })
+    if (selectedOperation !== runtimeState.operation) return
+    publish({ ...runtimeState.snapshot, phase: 'error', message: failureMessage('sign-out', cause) })
   }
 }
-export const musicRuntime = { getSnapshot: (): MusicRuntimeSnapshot => snapshot, subscribe(listener: () => void): () => void { listeners.add(listener); return () => { listeners.delete(listener) } } }
+export const musicRuntime = { getSnapshot: (): MusicRuntimeSnapshot => runtimeState.snapshot, subscribe(listener: () => void): () => void { runtimeState.listeners.add(listener); return () => { runtimeState.listeners.delete(listener) } } }

@@ -73,9 +73,9 @@ describe('mounted playback selection', () => {
     const provider = createFixtureProvider()
     const source = fixtureNavigationSource
     const menu = navigationRoot(source, provider)
-    const artists = (await selectNavigation({ ...menu, highlightIndex: 2 }, source, provider)).frame
-    const albums = (await selectNavigation({ ...menu, highlightIndex: 3 }, source, provider)).frame
-    const songs = (await selectNavigation({ ...menu, highlightIndex: 4 }, source, provider)).frame
+    const artists = (await selectNavigation({ ...menu, highlightIndex: 1 }, source, provider)).frame
+    const albums = (await selectNavigation({ ...menu, highlightIndex: 2 }, source, provider)).frame
+    const songs = (await selectNavigation({ ...menu, highlightIndex: 3 }, source, provider)).frame
     if (artists === null || albums === null || songs === null) throw new Error('library frames missing')
     await act(async () => root.render(<Panel provider={provider} navigationSource={source} accountStatus={null} />))
     const show = async (frame: typeof songs) => act(async () => {
@@ -124,7 +124,7 @@ describe('mounted playback selection', () => {
       subscribe(listener: () => void) { revisionListeners.add(listener); return () => { revisionListeners.delete(listener) } },
       getRevision: () => revision,
     }
-    const songs = (await selectNavigation({ ...navigationRoot(source, provider), highlightIndex: 4 }, source, provider)).frame
+    const songs = (await selectNavigation({ ...navigationRoot(source, provider), highlightIndex: 3 }, source, provider)).frame
     if (songs === null) throw new Error('songs frame missing')
 
     await act(async () => root.render(<Panel provider={provider} navigationSource={source} accountStatus={null} />))
@@ -437,7 +437,7 @@ describe('mounted playback selection', () => {
       onPlaybackChange(callback) { listeners.add(callback); return () => { listeners.delete(callback) } },
     }
     const rootFrame = navigationRoot(source, pendingProvider)
-    const songs = (await selectNavigation({ ...rootFrame, highlightIndex: 4 }, source, pendingProvider)).frame
+    const songs = (await selectNavigation({ ...rootFrame, highlightIndex: 3 }, source, pendingProvider)).frame
     if (songs === null) throw new Error('songs frame missing')
 
     await act(async () => {
@@ -489,7 +489,7 @@ describe('mounted playback selection', () => {
       onPlaybackChange(listener) { listeners.add(listener); return () => { listeners.delete(listener) } },
     }
     const rootFrame = navigationRoot(fixtureNavigationSource, provider)
-    const songs = (await selectNavigation({ ...rootFrame, highlightIndex: 4 }, fixtureNavigationSource, provider)).frame
+    const songs = (await selectNavigation({ ...rootFrame, highlightIndex: 3 }, fixtureNavigationSource, provider)).frame
     if (songs === null) throw new Error('songs frame missing')
 
     await act(async () => root.render(<Panel provider={provider} navigationSource={fixtureNavigationSource} accountStatus={null} />))
@@ -545,7 +545,7 @@ describe('mounted playback selection', () => {
       get playback() { return currentPlayback },
       onPlaybackChange(listener) { listeners.add(listener); return () => { listeners.delete(listener) } },
     }
-    const songs = (await selectNavigation({ ...navigationRoot(fixtureNavigationSource, provider), highlightIndex: 4 }, fixtureNavigationSource, provider)).frame
+    const songs = (await selectNavigation({ ...navigationRoot(fixtureNavigationSource, provider), highlightIndex: 3 }, fixtureNavigationSource, provider)).frame
     if (songs === null) throw new Error('songs frame missing')
 
     await act(async () => root.render(<Panel provider={provider} navigationSource={fixtureNavigationSource} accountStatus={null} />))
@@ -599,7 +599,7 @@ describe('mounted playback selection', () => {
       get playback() { return currentPlayback },
       onPlaybackChange(listener) { listeners.add(listener); return () => { listeners.delete(listener) } },
     }
-    const songs = (await selectNavigation({ ...navigationRoot(fixtureNavigationSource, provider), highlightIndex: 4 }, fixtureNavigationSource, provider)).frame
+    const songs = (await selectNavigation({ ...navigationRoot(fixtureNavigationSource, provider), highlightIndex: 3 }, fixtureNavigationSource, provider)).frame
     if (songs === null) throw new Error('songs frame missing')
 
     await act(async () => root.render(<Panel provider={provider} navigationSource={fixtureNavigationSource} accountStatus={null} />))
@@ -629,7 +629,7 @@ describe('mounted playback selection', () => {
 
   test('station playback adopts the provider track and clears loading after its clock advances', async () => {
     const provider = createFixtureProvider()
-    const stations = (await selectNavigation({ ...navigationRoot(fixtureNavigationSource, provider), highlightIndex: 6 }, fixtureNavigationSource, provider)).frame
+    const stations = (await selectNavigation({ ...navigationRoot(fixtureNavigationSource, provider), highlightIndex: 4 }, fixtureNavigationSource, provider)).frame
     if (stations === null) throw new Error('stations frame missing')
 
     await act(async () => root.render(<Panel provider={provider} navigationSource={fixtureNavigationSource} accountStatus={null} />))
@@ -659,7 +659,7 @@ describe('mounted playback selection', () => {
     const relationship = new Promise<readonly (typeof fixtureNavigationSource.songs)[number][]>((resolve) => { resolveTracks = resolve })
     const source = { ...fixtureNavigationSource, tracksForAlbum: () => relationship }
     const rootFrame = navigationRoot(source, provider)
-    const albums = (await selectNavigation({ ...rootFrame, highlightIndex: 3 }, source, provider)).frame
+    const albums = (await selectNavigation({ ...rootFrame, highlightIndex: 2 }, source, provider)).frame
     if (albums === null) throw new Error('albums frame missing')
     await act(async () => root.render(<Panel provider={provider} navigationSource={source} accountStatus={null} />))
     await act(async () => {
@@ -691,7 +691,7 @@ describe('mounted playback selection', () => {
       get playback() { return fixture.playback },
     }
     const rootFrame = navigationRoot(fixtureNavigationSource, rejectedProvider)
-    const songs = (await selectNavigation({ ...rootFrame, highlightIndex: 4 }, fixtureNavigationSource, rejectedProvider)).frame
+    const songs = (await selectNavigation({ ...rootFrame, highlightIndex: 3 }, fixtureNavigationSource, rejectedProvider)).frame
     if (songs === null) throw new Error('songs frame missing')
     const selectedIndex = 2
     const selected = fixtureNavigationSource.songs[selectedIndex]

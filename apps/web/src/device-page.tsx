@@ -1,5 +1,10 @@
+import { Button } from '@webpod/ui/components/button';
+import { Field, FieldGroup, FieldLabel, FieldSet, FieldLegend, FieldSeparator } from '@webpod/ui/components/field';
+import { Switch } from '@webpod/ui/components/switch';
+import { ToggleGroup, ToggleGroupItem } from '@webpod/ui/components/toggle-group';
+import { useNavigate } from '@tanstack/react-router';
 import { recordInteraction } from './interaction-telemetry';
-import { copyInteractionTrace, mountInteractionTelemetry } from './interaction-telemetry-browser';
+import { mountInteractionTelemetry } from './interaction-telemetry-browser';
 import { mountWebMcp } from './webmcp';
 import { previewStore } from './device-preview-store';
 import { BrowserExperience } from './browser-welcome';
@@ -17,7 +22,7 @@ import {
   type LightRigParams,
   type LightContribution,
 } from "@webpod/device";
-import { atom, useAtomValue } from "jotai";
+import { useAtomValue } from "jotai";
 import { DeviceSettings, InteractionSoundSetting, deviceSettingsStore, interactionAudioEnabledAtom } from "./device-settings";
 import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 
@@ -32,10 +37,9 @@ import { ProductionDeviceView } from "./production-device-view";
 import {
   authorizeAppleRuntime,
   musicRuntime,
-  resolveMusicRuntimeMode,
+  ensureMusicRuntime,
   selectMusicRuntime,
   signOutAppleRuntime,
-  type MusicRuntimeMode,
 } from "./music-runtime";
 
 function lightingContribution(value: string | null): LightContribution {
@@ -152,27 +156,14 @@ const NEUTRAL_DIAGNOSTIC_LIGHT_RIG: LightRigParams = Object.freeze({
   },
 });
 
-const traceCopyStatusAtom = atom('');
-function CopyInteractionTrace() {
-  const status = useAtomValue(traceCopyStatusAtom, { store: deviceSettingsStore });
-  const copy = async () => {
-    deviceSettingsStore.set(traceCopyStatusAtom, 'Copying…');
-    try {
-      await copyInteractionTrace();
-      deviceSettingsStore.set(traceCopyStatusAtom, 'Trace copied');
-    } catch {
-      deviceSettingsStore.set(traceCopyStatusAtom, 'Copy failed. Read webpod_debug_trace in the inspector.');
-    }
-  };
-  return <><button type="button" onClick={() => void copy()}>Copy interaction trace</button><span role="status">{status}</span></>;
-}
-
 /** The canonical browser product page; diagnostic overrides remain development-only. */
 export function DevicePage() {
   return <BrowserExperience><InteractiveDevicePage /></BrowserExperience>;
 }
 
 function InteractiveDevicePage() {
+  const navigate = useNavigate();
+  const hadAppleSession = useRef(false);
   const interactionAudioEnabled = useAtomValue(interactionAudioEnabledAtom, { store: deviceSettingsStore });
   const state = useSyncExternalStore(
     previewStore.subscribe,
@@ -195,15 +186,15 @@ function InteractiveDevicePage() {
     musicRuntime.getSnapshot,
     musicRuntime.getSnapshot,
   );
-  const playbackDiagnostics = useSyncExternalStore(
-    applePlaybackDiagnostics.subscribe,
-    applePlaybackDiagnostics.getSnapshot,
-    applePlaybackDiagnostics.getSnapshot,
-  );
-  const selectedMusicMode: MusicRuntimeMode = resolveMusicRuntimeMode(
-    search.get("provider"),
-    import.meta.env.VITE_WEBPOD_PROVIDER,
-  );
+  useEffect(() => {
+    if (music.activeMode !== 'apple') return;
+    if (music.phase === 'authorized' || music.provider.session !== null) {
+      hadAppleSession.current = true;
+    } else if (music.phase === 'signed-out' && hadAppleSession.current) {
+      hadAppleSession.current = false;
+      void navigate({ to: '/', replace: true });
+    }
+  }, [music, navigate]);
   const capture = import.meta.env.DEV && search.has("capture");
   const diagnosticMode = search.get("diagnostic");
   const diagnostic = import.meta.env.DEV && diagnosticMode === "neutral";
@@ -244,8 +235,8 @@ function InteractiveDevicePage() {
   useEffect(() => import.meta.env.DEV ? mountInteractionTelemetry(document, () => orientationControlsRef.current) : undefined, []);
 
   useEffect(() => {
-    void selectMusicRuntime(selectedMusicMode);
-  }, [selectedMusicMode]);
+    ensureMusicRuntime();
+  }, [music.provider]);
 
   useEffect(() => {
     if (!import.meta.env.DEV) return;
@@ -333,8 +324,6 @@ function InteractiveDevicePage() {
             <button type="button" onClick={() => orientationControlsRef.current?.reset()}>Reset view</button>
             <DeviceSettings>
               <PreviewControls state={state} music={music} />
-              {import.meta.env.DEV ? <CopyInteractionTrace /> : null}
-              {import.meta.env.DEV ? <PlaybackDiagnostics events={playbackDiagnostics.events} emeCapability={playbackDiagnostics.emeCapability} /> : null}
             </DeviceSettings>
           </nav>
         </>
@@ -396,51 +385,47 @@ function isGeometryEvidenceView(
 }
 
 export function PreviewControls({ state, music }: { readonly state: DevicePreviewState; readonly music: ReturnType<typeof musicRuntime.getSnapshot> }) {
+  const session = useSyncExternalStore(music.provider.onSessionChange, () => music.provider.session, () => null);
+  const signedIn = session?.status === 'authorized';
   return (
-    <section className="webpod-device-settings__options" aria-label="Device preferences">
-      <h2 className="basis-full text-sm font-semibold">Appearance</h2>
-      <button
-        type="button"
-        aria-pressed={state.colourway === "black"}
-        onClick={() => previewStore.setColourway("black")}
-      >
-        Black
-      </button>
-      <button
-        type="button"
-        aria-pressed={state.colourway === "white"}
-        onClick={() => previewStore.setColourway("white")}
-      >
-        Silver
-      </button>
-      <button
-        type="button"
-        aria-pressed={state.room === "light"}
-        onClick={() => previewStore.setRoom(state.room === "dark" ? "light" : "dark")}
-      >
-        Light room
-      </button>
-      <h2 className="mt-3 basis-full text-sm font-semibold">Interaction</h2>
-      <InteractionSoundSetting />
-      <h2 className="mt-3 basis-full text-sm font-semibold">Apple Music</h2>
-      {music.activeMode === "apple" && (music.phase === "signed-out" || music.phase === "permission-denied" || (music.phase === "error" && music.provider.session === null)) ? (
-        <button type="button" onClick={() => void authorizeAppleRuntime()}>
-          Sign in to Apple Music
-        </button>
-      ) : null}
-      {music.activeMode === "apple" && (music.phase === "authorized" || (music.phase === "error" && music.provider.session !== null)) ? (
-        <button type="button" onClick={() => void signOutAppleRuntime()}>
-          Sign out of Apple Music
-        </button>
-      ) : null}
-      {music.requestedMode === "apple" && music.phase === "error" ? (
-        <button className="webpod-device-preview__retry" type="button" onClick={() => void selectMusicRuntime("apple")}>
-          Retry Apple Music
-        </button>
-      ) : null}
-      <output aria-live="polite">
-        {music.message ?? `Apple Music: ${music.phase}`}
-      </output>
+    <section aria-label="Device preferences">
+      <FieldGroup>
+        <FieldSet>
+          <FieldLegend>Appearance</FieldLegend>
+          <FieldGroup>
+            <Field orientation="horizontal">
+              <FieldLabel id="device-finish-label">Finish</FieldLabel>
+              <ToggleGroup type="single" variant="outline" value={state.colourway} aria-labelledby="device-finish-label"
+                onValueChange={(value) => { if (value === 'black' || value === 'white') previewStore.setColourway(value); }}>
+                <ToggleGroupItem value="black">Black</ToggleGroupItem>
+                <ToggleGroupItem value="white">Silver</ToggleGroupItem>
+              </ToggleGroup>
+            </Field>
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor="light-room">Light room</FieldLabel>
+              <Switch id="light-room" checked={state.room === 'light'} onCheckedChange={(checked) => previewStore.setRoom(checked ? 'light' : 'dark')} />
+            </Field>
+          </FieldGroup>
+        </FieldSet>
+        <FieldSeparator />
+        <FieldSet>
+          <FieldLegend>Interaction</FieldLegend>
+          <InteractionSoundSetting />
+        </FieldSet>
+        <FieldSeparator />
+        <FieldGroup>
+          {music.activeMode === "apple" && !signedIn ? (
+            <Button variant="outline" disabled={music.phase === "signing-in"} onClick={() => void authorizeAppleRuntime()}>{music.phase === "signing-in" ? "Connecting…" : "Sign in to Apple Music"}</Button>
+          ) : null}
+          {music.activeMode === "apple" && signedIn ? (
+            <Button variant="outline" onClick={() => void signOutAppleRuntime()}>Sign out of Apple Music</Button>
+          ) : null}
+          {music.requestedMode === "apple" && music.phase === "error" ? (
+            <Button variant="outline" onClick={() => void selectMusicRuntime("apple")}>Retry Apple Music</Button>
+          ) : null}
+          {music.message ? <output className="text-sm text-muted-foreground" aria-live="polite">{music.message}</output> : null}
+        </FieldGroup>
+      </FieldGroup>
     </section>
   );
 }
@@ -493,18 +478,11 @@ const DEVICE_PREVIEW_CSS = `
     gap: 6px;
     pointer-events: none;
   }
-  .webpod-device-settings { pointer-events: auto; font: 500 13px/1.5 ui-sans-serif, system-ui, sans-serif; }
-  .webpod-device-settings__options { display: flex; flex-wrap: wrap; gap: 8px; }
-  .webpod-device-settings__options h2 { margin-bottom: 0; }
-  .webpod-device-settings__options output { flex-basis: 100%; overflow-wrap: anywhere; color: #cbd5e1; }
-  .webpod-device-settings .webpod-device-preview__playback-diagnostics {
-    position: static; inline-size: auto; max-block-size: none; border-color: rgb(255 255 255 / .12);
-  }
-  .webpod-device-preview__controls .webpod-device-settings button {
-    min-block-size: 44px; color: #eef2f7; background: #222b38; border-color: rgb(255 255 255 / .16); backdrop-filter: none;
-  }
-  .webpod-device-preview__controls .webpod-device-settings button[aria-pressed="true"] {
-    color: #111827; background: #e2e8f0; border-color: #f8fafc;
+  .webpod-device-settings { --popover: #151a22; --background: #151a22; --accent: #e2e8f0; --accent-foreground: #111827; --primary: #eadbc2; --primary-foreground: #292722; --ring: #eadbc2; pointer-events: auto; font: 500 13px/1.5 ui-sans-serif, system-ui, sans-serif; }
+  .webpod-device-settings [data-slot="button"] {
+    --accent: #334155;
+    --accent-foreground: #f1f5f9;
+    color: #f1f5f9;
   }
   .webpod-device-preview__selection-note {
     position: absolute;
@@ -548,7 +526,7 @@ const DEVICE_PREVIEW_CSS = `
   .webpod-device-preview__playback-diagnostics ol { padding-inline-start: 22px; }
   .webpod-device-preview__playback-diagnostics li[data-causal="true"] { color: #fda4af; font-weight: 650; }
   .webpod-device-preview__playback-diagnostics li[data-latest="true"] > span { color: #93c5fd; font-weight: 650; }
-  .webpod-device-preview__controls button {
+  .webpod-device-preview__controls > button {
     min-block-size: 36px;
     padding: 8px 12px;
     border: 1px solid rgb(255 255 255 / .15);
@@ -564,13 +542,13 @@ const DEVICE_PREVIEW_CSS = `
     border-color: rgb(15 23 42 / .12);
     background: rgb(255 255 255 / .7);
   }
-  .webpod-device-preview__controls button:focus-visible {
+  .webpod-device-preview__controls > button:focus-visible {
     outline: 2px solid #38bdf8;
     outline-offset: 2px;
   }
   @media (max-width: 520px) {
     .webpod-device-preview__controls { gap: 4px; }
-    .webpod-device-preview__controls button { min-block-size: 34px; padding-inline: 9px; }
+    .webpod-device-preview__controls > button { min-block-size: 34px; padding-inline: 9px; }
     .webpod-device-preview__controls .webpod-device-preview__retry { min-block-size: 44px; }
   }
   @media (hover: hover) and (pointer: fine) {
@@ -582,7 +560,7 @@ const DEVICE_PREVIEW_CSS = `
     }
   }
   @media (prefers-reduced-transparency: reduce) {
-    .webpod-device-preview__controls button { backdrop-filter: none; background: #111827; }
+    .webpod-device-preview__controls > button { backdrop-filter: none; background: #111827; }
     .webpod-device-preview[data-room="light"] .webpod-device-preview__controls > button { background: #fff; }
   }
 `;

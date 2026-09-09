@@ -181,14 +181,11 @@ const frame = (
 /** Builds the complete capability-filtered root from provider-domain data. */
 export function navigationRoot(source: NavigationDataSource, provider: MusicProvider): ScreenFrame {
   const destinations: readonly (readonly [string, string | null, NavigationRoute])[] = [
-    ['Cover Flow', libraryCount(source, 'albums'), { kind: 'cover-flow' }],
     ['Playlists', libraryCount(source, 'playlists'), { kind: 'playlists' }],
     ['Artists', libraryCount(source, 'artists'), { kind: 'artists' }],
     ['Albums', libraryCount(source, 'albums'), { kind: 'albums' }],
     ['Songs', libraryCount(source, 'songs'), { kind: 'songs' }],
-    ['Genres', String(source.genres.length), { kind: 'genres' }],
     ...(provider.supports('stations') ? [['Radio', String(source.stations.length), { kind: 'stations' } as const] as const] : []),
-    ['Search', null, { kind: 'search-entry' }],
   ] as const
   const root = frame(
     'S03',

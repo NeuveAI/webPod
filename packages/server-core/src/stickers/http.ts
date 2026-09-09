@@ -36,7 +36,7 @@ export interface StickerHttpServices {
   readonly authorized: <A>(request: Request, operation: (repository: StickerRepository, owner: string) => A) => Promise<A>
   readonly resolveOwner: (request: Request) => Promise<string>
   readonly run: <A>(operation: (repository: StickerRepository) => A) => Promise<A>
-  readonly bootstrap: (request: Request, musicUserToken: string) => Promise<{ readonly inventory: StickerInventory; readonly cookies: readonly string[] }>
+  readonly bootstrap: (request: Request, musicUserToken: string, restoreOnly?: boolean) => Promise<{ readonly inventory: StickerInventory; readonly cookies: readonly string[] }>
   readonly enrich: (owner: string, catalogId: string, request?: Request) => Promise<void>
   readonly logout: (request: Request) => Promise<readonly string[]>
 }
@@ -56,7 +56,7 @@ export async function handleStickerRequest(request: Request, services: StickerHt
     if (path === '/api/stickers/session' && request.method === 'POST') {
       const body = await readStickerBody(request); const token = body['musicUserToken']
       if (typeof token !== 'string' || token.length < 1 || token.length > 16_384 || /[\r\n]/.test(token)) invalid()
-      const result = await services.bootstrap(request, token)
+      const result = await services.bootstrap(request, token, body['restoreOnly'] === true)
       return reply(result.inventory, 200, result.cookies)
     }
     if (path === '/api/stickers/session' && request.method === 'DELETE') return reply({ signedOut: true }, 200, await services.logout(request))

@@ -32,7 +32,7 @@ for(let i=0;i<4;i++) {
  await page.evaluate(async ({root, index}) => {
   const state = await import(`${root}/packages/state/src/index.ts`)
   const {mainMenuFrame} = await import(`${root}/packages/panel/src/fixtures.ts`)
-  state.deviceStore.set(state.resetStackActionAtom,[{...mainMenuFrame(),highlightIndex:index+1}])
+  state.deviceStore.set(state.resetStackActionAtom,[{...mainMenuFrame(),highlightIndex:index}])
  },{root,index:i})
  await page.waitForTimeout(150)
  await capture('menu-'+i)

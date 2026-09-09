@@ -54,10 +54,12 @@ function restoreFailure(cause: unknown, expected: number): void {
     cancelStickerInteraction(); deviceStore.set(resetStickerCollectionActionAtom); publication += 1
   } else deviceStore.set(setStickerCollectionStatusActionAtom, 'error')
 }
-/** Starts with the registered server lease, before MusicKit configuration/library
- * work. Same provider transitions preserve the current validated device snapshot;
+/** Restores the registered server lease after MusicKit confirms authorization.
+ * Same provider transitions preserve the current validated device snapshot;
  * a replacement provider or confirmed logout starts with no previous identity. */
-export function restoreStickerSession(provider: MusicProvider): void {
+export function restoreStickerSession(provider: MusicProvider, readExistingSession = true): void {
+  // Route mounts must not abort the authenticated import already in flight.
+  if (activeProvider === provider && reconnect !== null) return
   const preserve = activeProvider === provider
   stopStickerRuntime(false, preserve)
   activeProvider = provider
@@ -68,6 +70,7 @@ export function restoreStickerSession(provider: MusicProvider): void {
   const expected = generation, startedAt = publication
   deviceStore.set(setStickerCollectionStatusActionAtom, 'loading')
   restoration = (async () => {
+    if (!readExistingSession) return
     await revocation
     if (expected !== generation) return
     try { await reconcile(await request(''), expected, startedAt) }
@@ -76,7 +79,7 @@ export function restoreStickerSession(provider: MusicProvider): void {
 }
 
 /** Private token callback is consumed immediately by this dedicated same-origin POST. */
-export function bootstrapStickerCollection(provider: { withMusicAuthorization<T>(consume: (credential: string) => Promise<T>): Promise<T> }): Promise<StickerInventory> {
+export function bootstrapStickerCollection(provider: { withMusicAuthorization<T>(consume: (credential: string) => Promise<T>): Promise<T> }, refresh = false): Promise<StickerInventory> {
   const expected = generation
   const signal = abort?.signal
   return (async () => {
@@ -88,7 +91,7 @@ export function bootstrapStickerCollection(provider: { withMusicAuthorization<T>
     if (expected !== generation || signal?.aborted) throw new Error('collection_session_changed')
     return provider.withMusicAuthorization(async (credential) => {
       if (expected !== generation || signal?.aborted) throw new Error('collection_session_changed')
-      return inventoryResponse(await fetch('/api/stickers/session', { method: 'POST', credentials: 'same-origin', cache: 'no-store', signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ musicUserToken: credential }) }))
+      return inventoryResponse(await fetch('/api/stickers/session', { method: 'POST', credentials: 'same-origin', cache: 'no-store', signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ musicUserToken: credential, restoreOnly: !refresh }) }))
     })
   })()
 }
@@ -96,7 +99,7 @@ export function bootstrapStickerCollection(provider: { withMusicAuthorization<T>
 /** Attach music credit after authorization; ingestion runs independently of the
  * already validated DB restoration. One import at a time, on connection/retry and
  * every fifteen visible minutes; no timer or credential outlives this provider. */
-export function startStickerRuntime(provider: MusicProvider, bootstrap: () => Promise<StickerInventory>): void {
+export function startStickerRuntime(provider: MusicProvider, bootstrap: (refresh?: boolean) => Promise<StickerInventory>): void {
   if (activeProvider !== provider) {
     stopStickerRuntime(false)
     activeProvider = provider; abort = new AbortController()
@@ -109,22 +112,23 @@ export function startStickerRuntime(provider: MusicProvider, bootstrap: () => Pr
   let connecting: Promise<void> | null = null
   let lastImport = 0
   const listen = (): void => { if (expected === generation && stopListening === null && deviceStore.get(stickerInventoryAtom) !== null) stopListening = observeListening(provider, expected) }
-  const connect = (): Promise<void> => {
+  const connect = (refresh = false): Promise<void> => {
     if (connecting !== null) return connecting
     connecting = (async () => {
       await restoration
       if (expected !== generation) return
       listen()
+      if (deviceStore.get(stickerInventoryAtom) === null) deviceStore.set(setStickerCollectionStatusActionAtom, 'loading')
       const startedAt = publication
       lastImport = Date.now()
-      try { await reconcile(await bootstrap(), expected, startedAt); listen() }
+      try { await reconcile(await bootstrap(refresh), expected, startedAt); listen() }
       catch (cause) { if (expected === generation) deviceStore.set(setStickerCollectionStatusActionAtom, 'error'); throw cause }
     })().finally(() => { connecting = null })
     return connecting
   }
   const refreshWhenVisible = (): void => {
     if (expected !== generation || provider.session?.status !== 'authorized' || typeof document !== 'undefined' && document.visibilityState !== 'visible') return
-    if (Date.now() - lastImport >= LISTENING.refreshMs) void connect().catch(() => undefined)
+    if (Date.now() - lastImport >= LISTENING.refreshMs) void connect(true).catch(() => undefined)
   }
   const timer = setInterval(refreshWhenVisible, LISTENING.refreshMs)
   if (typeof document !== 'undefined') document.addEventListener('visibilitychange', refreshWhenVisible)

@@ -16,7 +16,7 @@ import { stickerEditorAtom, stickerEditorPlacementsAtom } from './sticker-editor
 import { StickerCollection } from './sticker-collection'
 import { stickerSourceAnchorAtom, stickerSourcePullAtom } from './sticker-carry-anchor'
 import { adaptStickerGrab } from './sticker-grab'
-import { openStickerPack, placeSticker, removeSticker, retryStickerCollection, stopStickerRuntime } from './sticker-runtime'
+import { openStickerPack, placeSticker, removeSticker, retryStickerCollection } from './sticker-runtime'
 import { stickerFinishCalibrationAtom, reportStickerArtworkFailure, reportStickerArtworkReady } from './sticker-interaction'
 import { createStickerProjectionNotifications } from './sticker-projection-notifications'
 
@@ -177,7 +177,9 @@ export function ProductionDeviceView({
   const editor = useAtomValue(stickerEditorAtom, { store: deviceStore })
   const inventory = useAtomValue(stickerInventoryAtom, { store: deviceStore })
   const calibratedFinish = useAtomValue(stickerFinishCalibrationAtom, { store: deviceStore })
-  useEffect(() => () => { stopStickerRuntime(false); projectionNotifications.cancel() }, [])
+  // The account runtime owns collection lifetime; scene cleanup also runs during
+  // StrictMode mounts and must never cancel an authenticated reconnect.
+  useEffect(() => () => { projectionNotifications.cancel() }, [])
   useEffect(() => subscribeToRootScreenEntry(() => {
     void pauseProductionPlaybackAtRoot()
   }), [])

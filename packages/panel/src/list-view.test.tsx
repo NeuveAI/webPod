@@ -60,31 +60,22 @@ describe('the canonical panel list view', () => {
       if (index < 0) throw new Error(`missing ${label} root row`)
       return choose(root, index)
     }
+    expect(root.rows.map(row => row.label)).toEqual(['Playlists', 'Artists', 'Albums', 'Songs', 'Radio'])
     const playlists = await rootFrame('Playlists')
     const artists = await rootFrame('Artists')
     const albums = await rootFrame('Albums')
-    const genres = await rootFrame('Genres')
-    const searchEntry = await rootFrame('Search')
-    const genreFacets = await choose(genres, 0)
     const namedFrames: readonly (readonly [string, ScreenFrame])[] = [
       ['root', root],
       ['playlists', playlists],
       ['artists', artists],
       ['albums', albums],
       ['songs', await rootFrame('Songs')],
-      ['genres', genres],
       ['radio', await rootFrame('Radio')],
-      ['search entry', searchEntry],
-      ['search results', await choose(searchEntry, 0)],
       ['artist albums', await choose(artists, 0)],
-      ['genre facets', genreFacets],
-      ['genre artists', await choose(genreFacets, 0)],
-      ['genre albums', await choose(genreFacets, 1)],
-      ['genre tracks', await choose(genreFacets, 2)],
       ['album tracks', await choose(albums, 0)],
       ['playlist tracks', await choose(playlists, 0)],
     ]
-    expect(namedFrames.map(([name]) => name)).toEqual(['root', 'playlists', 'artists', 'albums', 'songs', 'genres', 'radio', 'search entry', 'search results', 'artist albums', 'genre facets', 'genre artists', 'genre albums', 'genre tracks', 'album tracks', 'playlist tracks'])
+    expect(namedFrames.map(([name]) => name)).toEqual(['root', 'playlists', 'artists', 'albums', 'songs', 'radio', 'artist albums', 'album tracks', 'playlist tracks'])
     for (const [name, frame] of namedFrames) {
       const before = renderFrame({ ...frame, highlightIndex: 0, windowStart: 0 })
       expect(before).toMatch(/class="wp-list-row"[^>]*aria-current="true"/)

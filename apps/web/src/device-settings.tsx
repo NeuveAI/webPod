@@ -1,3 +1,6 @@
+import { Button } from '@webpod/ui/components/button'
+import { Switch } from '@webpod/ui/components/switch'
+import { Field, FieldLabel } from '@webpod/ui/components/field'
 import { atom, createStore, useAtomValue } from 'jotai'
 import { useEffect, useRef, type ReactNode } from 'react'
 
@@ -39,7 +42,7 @@ export function DeviceSettings({ children }: { readonly children: ReactNode }) {
         ref={dialogRef}
         id="device-settings"
         aria-labelledby="device-settings-title"
-        className="webpod-device-settings m-auto max-h-[calc(100dvh-32px)] w-[min(440px,calc(100vw-32px))] overflow-y-auto overscroll-contain rounded-2xl border border-white/15 bg-[#151a22] p-0 text-[#eef2f7] shadow-2xl backdrop:bg-black/50"
+        className="webpod-device-settings m-auto max-h-[calc(100dvh-32px)] w-[min(440px,calc(100vw-32px))] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-popover p-0 text-popover-foreground shadow-2xl backdrop:bg-black/50"
         onKeyDown={(event) => {
           if (event.key !== 'Tab') return
           const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), summary, a[href], [tabindex="0"]'))
@@ -58,11 +61,11 @@ export function DeviceSettings({ children }: { readonly children: ReactNode }) {
         onClose={() => deviceSettingsStore.set(settingsOpenAtom, false)}
         onCancel={() => deviceSettingsStore.set(settingsOpenAtom, false)}
       >
-        <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-white/10 bg-[#151a22] px-5 py-4">
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-border bg-popover px-5 py-4">
           <h1 id="device-settings-title" className="m-0 text-lg font-semibold">Settings</h1>
-          <button type="button" onClick={() => deviceSettingsStore.set(settingsOpenAtom, false)}>Close</button>
+          <Button variant="ghost" size="sm" onClick={() => deviceSettingsStore.set(settingsOpenAtom, false)}>Close</Button>
         </header>
-        <div className="space-y-5 p-5">{children}</div>
+        <div className="p-5">{children}</div>
       </dialog>
     </>
   )
@@ -71,13 +74,9 @@ export function DeviceSettings({ children }: { readonly children: ReactNode }) {
 export function InteractionSoundSetting() {
   const enabled = useAtomValue(interactionAudioEnabledAtom, { store: deviceSettingsStore })
   return (
-    <button
-      type="button"
-      aria-pressed={enabled}
-      onClick={() => deviceSettingsStore.set(interactionAudioEnabledAtom, !enabled)}
-    >
-      Click-wheel sound
-      <span aria-hidden="true"> · {enabled ? 'On' : 'Off'}</span>
-    </button>
+    <Field orientation="horizontal">
+      <FieldLabel htmlFor="click-wheel-sound">Click-wheel sound</FieldLabel>
+      <Switch id="click-wheel-sound" checked={enabled} onCheckedChange={(checked) => deviceSettingsStore.set(interactionAudioEnabledAtom, checked)} />
+    </Field>
   )
 }

@@ -337,7 +337,7 @@ describe('the bare DOM panel', () => {
   test('pending and timed-out playback preserve the exact selected song metadata and artwork', async () => {
     const playbackProvider = createFixtureProvider()
     const root = navigationRoot(fixtureNavigationSource, playbackProvider)
-    const songs = (await selectNavigation({ ...root, highlightIndex: 4 }, fixtureNavigationSource, playbackProvider)).frame
+    const songs = (await selectNavigation({ ...root, highlightIndex: 3 }, fixtureNavigationSource, playbackProvider)).frame
     if (songs === null) throw new Error('songs frame missing')
     const selectedIndex = 2
     const selectedTrack = fixtureNavigationSource.songs[selectedIndex]
@@ -371,7 +371,7 @@ describe('the bare DOM panel', () => {
   test('an authoritative provider event error keeps the confirmed song rendered', async () => {
     const playbackProvider = createFixtureProvider()
     const root = navigationRoot(fixtureNavigationSource, playbackProvider)
-    const songs = (await selectNavigation({ ...root, highlightIndex: 4 }, fixtureNavigationSource, playbackProvider)).frame
+    const songs = (await selectNavigation({ ...root, highlightIndex: 3 }, fixtureNavigationSource, playbackProvider)).frame
     if (songs === null) throw new Error('songs frame missing')
     const nowPlaying = (await selectNavigation({ ...songs, highlightIndex: 1 }, fixtureNavigationSource, playbackProvider)).frame
     const confirmed = playbackProvider.playback.now
@@ -393,7 +393,7 @@ describe('the bare DOM panel', () => {
   test('renders provider playback with queue context produced by the selected frame', async () => {
     const playbackProvider = createFixtureProvider()
     const root = navigationRoot(fixtureNavigationSource, playbackProvider)
-    const songs = (await selectNavigation({ ...root, highlightIndex: 4 }, fixtureNavigationSource, playbackProvider)).frame
+    const songs = (await selectNavigation({ ...root, highlightIndex: 3 }, fixtureNavigationSource, playbackProvider)).frame
     if (songs === null) throw new Error('songs frame missing')
     const selectedIndex = 2
     const nowPlaying = (await selectNavigation({ ...songs, highlightIndex: selectedIndex }, fixtureNavigationSource, playbackProvider)).frame
@@ -410,7 +410,7 @@ describe('the bare DOM panel', () => {
   test('matches a provider-emitted catalog counterpart to its retained library queue position', async () => {
     const fixture = createFixtureProvider()
     const root = navigationRoot(fixtureNavigationSource, fixture)
-    const songs = (await selectNavigation({ ...root, highlightIndex: 4 }, fixtureNavigationSource, fixture)).frame
+    const songs = (await selectNavigation({ ...root, highlightIndex: 3 }, fixtureNavigationSource, fixture)).frame
     if (songs === null) throw new Error('songs frame missing')
     const selectedIndex = 1
     const nowPlaying = (await selectNavigation({ ...songs, highlightIndex: selectedIndex }, fixtureNavigationSource, fixture)).frame
@@ -431,7 +431,7 @@ describe('the bare DOM panel', () => {
     const duplicateSongs = [first, second, first]
     const duplicateSource = { ...fixtureNavigationSource, songs: duplicateSongs }
     const root = navigationRoot(duplicateSource, playbackProvider)
-    const songs = (await selectNavigation({ ...root, highlightIndex: 4 }, duplicateSource, playbackProvider)).frame
+    const songs = (await selectNavigation({ ...root, highlightIndex: 3 }, duplicateSource, playbackProvider)).frame
     if (songs === null) throw new Error('songs frame missing')
     const nowPlaying = (await selectNavigation({ ...songs, highlightIndex: 2 }, duplicateSource, playbackProvider)).frame
     if (nowPlaying === null) throw new Error('now playing frame missing')
@@ -450,7 +450,7 @@ describe('the bare DOM panel', () => {
     const duplicateSongs = [first, second, first]
     const duplicateSource = { ...fixtureNavigationSource, songs: duplicateSongs }
     const root = navigationRoot(duplicateSource, playbackProvider)
-    const songs = (await selectNavigation({ ...root, highlightIndex: 4 }, duplicateSource, playbackProvider)).frame
+    const songs = (await selectNavigation({ ...root, highlightIndex: 3 }, duplicateSource, playbackProvider)).frame
     if (songs === null) throw new Error('songs frame missing')
     const nowPlaying = (await selectNavigation({ ...songs, highlightIndex: 0 }, duplicateSource, playbackProvider)).frame
     if (nowPlaying === null) throw new Error('now playing frame missing')
@@ -474,7 +474,7 @@ describe('the bare DOM panel', () => {
     const duplicateSongs = [first, second, first]
     const duplicateSource = { ...fixtureNavigationSource, songs: duplicateSongs }
     const root = navigationRoot(duplicateSource, playbackProvider)
-    const songs = (await selectNavigation({ ...root, highlightIndex: 4 }, duplicateSource, playbackProvider)).frame
+    const songs = (await selectNavigation({ ...root, highlightIndex: 3 }, duplicateSource, playbackProvider)).frame
     if (songs === null) throw new Error('songs frame missing')
     const nowPlaying = (await selectNavigation({ ...songs, highlightIndex: 2 }, duplicateSource, playbackProvider)).frame
     if (nowPlaying === null) throw new Error('now playing frame missing')

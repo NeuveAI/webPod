@@ -53,16 +53,13 @@ const row = (index: number, label: string, sublabel: string | null = null): Pane
 
 export function mainMenuFrame(provider: FixtureProvider = fixtureProvider): ScreenFrame {
   const rows = [
-    row(0, 'Cover Flow'),
-    row(1, 'Playlists', String(provider.catalog.playlists.length)),
-    row(2, 'Artists', String(provider.catalog.artists.length)),
-    row(3, 'Albums', String(provider.catalog.albums.length)),
-    row(4, 'Songs', String(provider.catalog.tracks.length)),
-    row(5, 'Genres', String(provider.catalog.genres.length)),
-    ...(provider.supports('stations') ? [row(6, 'Radio', String(provider.catalog.stations.length))] : []),
-    row(7, 'Search'),
+    row(0, 'Playlists', String(provider.catalog.playlists.length)),
+    row(1, 'Artists', String(provider.catalog.artists.length)),
+    row(2, 'Albums', String(provider.catalog.albums.length)),
+    row(3, 'Songs', String(provider.catalog.tracks.length)),
+    ...(provider.supports('stations') ? [row(4, 'Radio', String(provider.catalog.stations.length))] : []),
   ]
-  return { screenId: 'S03', title: 'Music', route: { kind: 'root' }, density: 'compact', rows, highlightIndex: 3, windowStart: 0 }
+  return { screenId: 'S03', title: 'Music', route: { kind: 'root' }, density: 'compact', rows, highlightIndex: 2, windowStart: 0 }
 }
 
 export function albumTracksFrame(provider: FixtureProvider = fixtureProvider, minimumRows = 0): ScreenFrame {

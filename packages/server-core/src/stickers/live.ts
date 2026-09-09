@@ -61,7 +61,7 @@ export function createLiveStickerServer(options: LiveStickerOptions) {
       const lease = await session(request)
       return run((repository) => repository.sessions.authorized(lease, (owner) => operation(repository, owner)))
     },
-    bootstrap: async (request, musicUserToken) => {
+    bootstrap: async (request, musicUserToken, restoreOnly = false) => {
       const device = secret(request, DEVICE_COOKIE)
       if (device === undefined) return unauthorized()
       let lease: DeviceLease
@@ -80,6 +80,18 @@ export function createLiveStickerServer(options: LiveStickerOptions) {
         signal.throwIfAborted()
         const apple = createAppleStickerClient({ developerToken, musicUserToken, signal, onImport: options.onImport ?? ((diagnostic) => { if (diagnostic.status !== 'complete' || diagnostic.skipped > 0) console.warn('sticker_import', diagnostic) }), ...(options.fetch === undefined ? {} : { fetch: options.fetch }) })
         const storefront = await apple.verify()
+        // Reconnecting an existing device should not wait for a library scan.
+        // Verification and lease revocation checks still precede every response.
+        if (restoreOnly) {
+          const restored = await run((repository) => repository.sessions.activate(lease, storefront, (owner) => {
+            signal.throwIfAborted()
+            repository.ensureOwner(owner)
+            return repository.inventory(owner)
+          }))
+          if (restored.result.importStatus === 'complete' || restored.result.importStatus === 'partial') {
+            return { inventory: restored.result, cookies: [cookie(request, SESSION_COOKIE, restored.secret, SESSION_TTL_MS)] }
+          }
+        }
         let imported: Awaited<ReturnType<typeof apple.importLibrary>> | null = null
         try { imported = await apple.importLibrary() } catch (cause) {
           if (signal.aborted || (cause instanceof StickerError && cause.code === 'apple_authorization')) throw cause

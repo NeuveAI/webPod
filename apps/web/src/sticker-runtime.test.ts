@@ -9,6 +9,39 @@ const flush = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 
 afterEach(() => stopStickerRuntime(false))
 
 describe('sticker runtime lifecycle', () => {
+  test('route remount preserves an in-flight authenticated collection and its placements', async () => {
+    const provider = createFixtureProvider()
+    let complete!: (value: StickerInventory) => void
+    const pending = new Promise<StickerInventory>((resolve) => { complete = resolve })
+    let imports = 0
+    const bootstrap = () => { imports += 1; return pending }
+    startStickerRuntime(provider, bootstrap)
+    await flush()
+    restoreStickerSession(provider)
+    startStickerRuntime(provider, bootstrap)
+    const saved: StickerInventory = { ...inventory, placementRevision: 7, placements: [{ stickerId: 'PW-A01', surface: 'back' as const, x: 0.5, y: 0.5, width: 0.25, rotationDeg: 0 }] }
+    complete(saved)
+    await flush()
+    expect(imports).toBe(1)
+    expect(deviceStore.get(stickerInventoryAtom)).toEqual(saved)
+    expect(deviceStore.get(stickerCollectionStatusAtom)).toBe('ready')
+  })
+  test('explicit sign-in skips the revoked lease and stays loading through a slow import', async () => {
+    const provider = createFixtureProvider()
+    let complete!: (value: StickerInventory) => void
+    const pending = new Promise<StickerInventory>((resolve) => { complete = resolve })
+    const fetchSpy = spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 401 }))
+    try {
+      restoreStickerSession(provider, false)
+      startStickerRuntime(provider, () => pending)
+      await flush()
+      expect(fetchSpy).not.toHaveBeenCalled()
+      expect(deviceStore.get(stickerCollectionStatusAtom)).toBe('loading')
+      complete(inventory)
+      await flush()
+      expect(deviceStore.get(stickerCollectionStatusAtom)).toBe('ready')
+    } finally { fetchSpy.mockRestore() }
+  })
   test('logout invalidates a delayed import instead of restoring the prior collection', async () => {
     let complete: (value: StickerInventory) => void = () => {}
     const pending = new Promise<StickerInventory>((resolve) => { complete = resolve })

@@ -46,12 +46,14 @@ describe('device collection sessions', () => {
     const inventory = await auth.json(); expect(inventory.stickerIds.length).toBeGreaterThan(0)
     const oldSession = (a.jar.get('webpod_session') ?? 'missing')
     expect((await a.request('/packs/open', 'POST', { packId: inventory.packs[0].id })).status).toBe(200)
+    const placed = await (await a.request('/placements', 'PUT', { revision: 0, placements: [{ stickerId: inventory.stickerIds[0], surface: 'back', x: 0.5, y: 0.5, width: 0.2, rotationDeg: 0 }] })).json()
     await a.request('/session', 'DELETE')
     a.jar.set('webpod_session', oldSession)
     expect((await a.request()).status).toBe(401)
     f.advance(); expect((await a.request('/session', 'POST', { musicUserToken: 'synthetic-user-2' })).status).toBe(200)
     await f.restart()
     const after = await (await a.request()).json()
+    expect(after.placements).toEqual(placed.placements); expect(after.placementRevision).toBe(1)
     expect(after.stickerIds).toEqual(inventory.stickerIds); expect(after.packs[0].openedAt).not.toBeNull()
     await b.request('/device', 'POST'); expect((await b.request()).status).toBe(401)
     const second = await (await b.request('/session', 'POST', { musicUserToken: 'synthetic-other' })).json()
@@ -63,6 +65,32 @@ describe('device collection sessions', () => {
       expect(rows.some((row) => row.owner === 'forged')).toBe(false)
       expect(rows.every((row) => row.secretHash.length === 64)).toBe(true)
     } finally { db.close() }
+  })
+  test('reconnecting restores saved placements without waiting for a new library scan', async () => {
+    let scans = 0
+    let authorized = true
+    const f = fixture(async (input) => {
+      if (String(input).includes('storefront')) return authorized ? Response.json({ data: [{ id: 'us' }] }) : new Response(null, { status: 401 })
+      scans++
+      if (scans > 1) throw new Error('Reconnect must not rescan the library')
+      return Response.json(library)
+    })
+    const a = f.browser()
+    await a.request('/device', 'POST')
+    const first = await (await a.request('/session', 'POST', { musicUserToken: 'synthetic', restoreOnly: true })).json()
+    await a.request('/packs/open', 'POST', { packId: first.packs[0].id })
+    const saved = await (await a.request('/placements', 'PUT', { revision: 0, placements: [{ stickerId: first.stickerIds[0], surface: 'back', x: 0.5, y: 0.5, width: 0.2, rotationDeg: 0 }] })).json()
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await a.request('/session', 'DELETE')
+      const response = await a.request('/session', 'POST', { musicUserToken: 'synthetic', restoreOnly: true })
+      expect(response.status).toBe(200)
+      expect((await response.json()).placements).toEqual(saved.placements)
+    }
+    expect(scans).toBe(1)
+    await a.request('/session', 'DELETE')
+    authorized = false
+    expect((await a.request('/session', 'POST', { musicUserToken: 'synthetic', restoreOnly: true })).status).toBe(401)
+    expect((await a.request()).status).toBe(401)
   })
   test('failed upstream authorization never grants a session or creates a collection', async () => {
     const f = fixture(async () => new Response(null, { status: 401 })); const a = f.browser()
