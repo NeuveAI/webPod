@@ -1,0 +1,22 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/sticker-collision.test.ts:
+(pass) ray entry pruning retains inside starts and returned hits own their scratch-independent vectors [1.47ms]
+(pass) finite segment reports first actual transformed facet and preserves hidden-face provenance [0.46ms]
+(pass) complete triangle query detects collider edges crossing an otherwise external sheet triangle [0.63ms]
+(pass) coplanar contact, separated triangles and bridge provenance remain explicit [0.32ms]
+(pass) disposal releases owned data, rejects reuse and never disposes borrowed geometry [0.36ms]
+(pass) nearest support excludes unapproved hidden facets even when closer [1.59ms]
+(pass) warm facet queries remain exact across deterministic face crossings and resource invalidation [8.10ms]
+(pass) actual long rear facet admits roundoff at its edge without filling a geometric gap [0.21ms]
+
+packages/device/src/sticker-visibility.test.ts:
+(pass) visibility query captures transforms once and refreshes them for the next query [1.31ms]
+(pass) actual assembly sticker visibility > visible front print and hidden opposite print use the same first shell hit [0.28ms]
+(pass) actual assembly sticker visibility > sticker meshes are excluded while transformed child hardware remains physical [0.15ms]
+(pass) actual assembly sticker visibility > global pose changes reuse the BVH; local transforms and buffer updates replace it [0.52ms]
+
+ 12 pass
+ 0 fail
+ 733 expect() calls
+Ran 12 tests across 2 files. [113.00ms]

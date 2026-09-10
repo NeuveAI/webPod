@@ -1,0 +1,10 @@
+{
+  "sharedWorkerMaximum": 1,
+  "ownerBound": 32,
+  "queuedPerOwner": 1,
+  "FIFOAcross32Owners": true,
+  "capacityOverflowRejected": true,
+  "activeCancellationContinuesNext": true,
+  "staleErrorIgnored": true,
+  "lastOwnerTerminates": true
+}

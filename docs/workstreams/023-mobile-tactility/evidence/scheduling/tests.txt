@@ -1,0 +1,444 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/panel/src/navigation.test.ts:
+(pass) typed navigation graph > refreshed library rows retain provider identity independently of their labels [0.58ms]
+(pass) typed navigation graph > marks progressive counts as lower bounds and refreshes without moving the highlight [0.09ms]
+(pass) typed navigation graph > playlist rows omit misleading provider counts [0.06ms]
+(pass) typed navigation graph > artists descend through albums and tracks into provider playback [1.41ms]
+(pass) typed navigation graph > playlist membership produces its own track frame [0.11ms]
+(pass) typed navigation graph > songs, albums, playlists and artists preserve the selected queue and index [0.65ms]
+(pass) typed navigation graph > plays the exact rendered relationship queue without fetching it again [0.19ms]
+(pass) typed navigation graph > stable album intent prefetches relationship data reused by selection [0.15ms]
+(pass) typed navigation graph > prefetch scope follows only the highlighted row instead of speculative neighbors [0.06ms]
+(pass) typed navigation graph > accepted album input returns a typed shell before its relationship resolves [0.09ms]
+(pass) typed navigation graph > accepted input promotes a non-abortable production relationship without duplicate I/O [0.08ms]
+(pass) typed navigation graph > source teardown aborts outstanding speculative relationships [0.16ms]
+(pass) typed navigation graph > track preparation retains the rendered duplicate occurrence and artwork [0.05ms]
+(pass) typed navigation graph > root preview comes from the highlighted live collection and has a neutral null case [0.01ms]
+(pass) typed navigation graph > selects the exact rendered artist album without fetching the collection again [0.09ms]
+(pass) typed navigation graph > empty and rejected playable selections never claim success [0.16ms]
+(pass) typed navigation graph > genre offers artist, album and track facets [0.08ms]
+(pass) typed navigation graph > every supported root row resolves to its declared real section [0.05ms]
+(pass) typed navigation graph > search entry retains the provider result LocalKeys into playback [0.63ms]
+(pass) typed navigation graph > routes by typed destination even when presentation copy changes [0.05ms]
+(pass) typed navigation graph > queries library and catalogue and can play a catalogue-only result [0.19ms]
+(pass) typed navigation graph > unsupported radio is absent instead of disabled [0.12ms]
+(pass) typed navigation graph > empty relationships are represented by an empty typed frame [0.03ms]
+(pass) typed navigation graph > provider session postures are typed frames without caller display state [0.23ms]
+
+packages/panel/src/bounded-async-cache.test.ts:
+(pass) BoundedAsyncCache > coalesces repeated reads and reuses the settled value within its TTL [0.08ms]
+(pass) BoundedAsyncCache > supersedes speculative work when accepted input requests the same key [0.10ms]
+(pass) BoundedAsyncCache > aborts the least recently used request at its hard bound [0.10ms]
+(pass) BoundedAsyncCache > expires and aborts stale work by TTL [0.07ms]
+(pass) BoundedAsyncCache > holds a rejected speculative key without refetching until accepted input retries it [0.07ms]
+
+packages/panel/src/model.test.ts:
+(pass) panel models > formats invalid provider durations as zero instead of leaking NaN [0.03ms]
+(pass) panel models > S03 keeps synchronous rows and removes Radio from the tree when stations are absent [0.18ms]
+(pass) panel models > S08 derives real tracks from the fixture catalogue [0.20ms]
+(pass) panel models > the reference-backed centre cycle exposes standard, scrub, artwork, and queue [0.22ms]
+(pass) panel models > sharp artwork never renders above actualPx [0.20ms]
+(pass) panel models > builds a genuine 120-row fixture for the canonical windowing boundary [0.13ms]
+(pass) panel models > adaptive artwork requires exact 3×3 and 8×8 samples [0.12ms]
+(pass) panel models > adaptive artwork rebalances pale and dark covers in both colourways [0.18ms]
+(pass) panel models > ambient bloom cannot occupy either actor hue window
+
+packages/panel/src/overflow-marquee.test.tsx:
+(pass) overflow marquee > measures only active overflow and records a transform distance [6.77ms]
+
+packages/panel/src/aqua-material.test.ts:
+(pass) the period Aqua LCD material > builds selection from two glass gradients and one structural rim rather than one flat color [7.66ms]
+(pass) the period Aqua LCD material > rejects the three owner-named flattening mutations [29.44ms]
+(pass) the period Aqua LCD material > uses independently legible foregrounds for light and dark Aqua [0.08ms]
+(pass) the period Aqua LCD material > keeps metadata, track numbers, and chevrons on the selected foreground [0.02ms]
+(pass) the period Aqua LCD material > fills pending playback with a recessed, period-authentic Aqua indeterminate stripe [1.18ms]
+(pass) the period Aqua LCD material > shares one fourteen-pixel cylindrical Aqua object across progress, loading, and volume [2.36ms]
+(pass) the period Aqua LCD material > keeps agent attribution without flattening the selected material [0.04ms]
+(pass) the period Aqua LCD material > the scrollbar uses a quiet unstriped well and a bounded blue thumb [0.11ms]
+(pass) the period Aqua LCD material > uses hierarchy, not selection weight, so changing selection never shifts row text [0.04ms]
+(pass) the period Aqua LCD material > rejects a moving stripe overlay anywhere across the full well [0.01ms]
+
+packages/panel/src/list-view.test.tsx:
+(pass) the canonical panel list view > fits exactly nine rows and adds the Aqua rail only for the tenth [4.42ms]
+(pass) the canonical panel list view > one row primitive owns composition, truncation, geometry and Aqua material [0.22ms]
+(pass) the canonical panel list view > every named collection family renders the same current row primitive and follows a wheel detent when scrollable [6.96ms]
+(pass) the canonical panel list view > loading skeleton tracks the active 9, 6 and 4 row viewport geometry [0.30ms]
+(pass) the canonical panel list view > period list routes stay full-width without preview copy competing for space [0.57ms]
+(pass) the canonical panel list view > no bespoke sibling list renderers survive beside the canonical primitive [0.24ms]
+
+packages/panel/src/list-scroll-indicator.test.tsx:
+(pass) the list-owned scroll indicator > is absent whenever the row window cannot move [0.04ms]
+(pass) the list-owned scroll indicator > derives start, middle, and end geometry from the authoritative row window [0.02ms]
+(pass) the list-owned scroll indicator > clamps stale window starts before publishing diagnostic geometry
+(pass) the list-owned scroll indicator > recomputes one mounted indicator as provider-backed lengths change [1.54ms]
+(pass) the list-owned scroll indicator > uses the effective minimum thumb in the ten-thousand-row end travel [0.02ms]
+(pass) the list-owned scroll indicator > renders crisp fixed-track geometry without becoming semantic content [0.06ms]
+(pass) the list-owned scroll indicator > documents the reusable component contract at its export [0.11ms]
+
+packages/panel/src/Panel.integration.test.tsx:
+(pass) mounted playback selection > removing one of multiple panel subscribers cannot mark the remaining mounted panel unavailable [12.61ms]
+(pass) mounted playback selection > page readiness tracks active-track buffering episodes, errors and provider replacement [19.90ms]
+(pass) mounted playback selection > browsing retains live play/pause status and Songs hides only artist subtitles [18.35ms]
+(pass) mounted playback selection > progressive library revisions do not restart a stationary track dwell [775.11ms]
+(pass) mounted playback selection > Center cycles substantive modes and the wheel controls volume, scrub, and queue [30.91ms]
+(pass) mounted playback selection > a rejected provider volume write rolls the visible feedback value back without dismissing it [7.98ms]
+(pass) mounted playback selection > a ready-to-ready track identity change dismisses visible volume feedback [9.29ms]
+(pass) mounted playback selection > reconstructed Now Playing restores authoritative track and queue position [7.22ms]
+(pass) mounted playback selection > a late queue read cannot replace a newer authoritative queue [7.16ms]
+(pass) mounted playback selection > a stale copy of the same catalog song cannot confirm a different pending occurrence [4.89ms]
+(pass) mounted playback selection > play resolution and a matching MusicKit item stay pending until its playback clock advances [8.98ms]
+(pass) mounted playback selection > audible provider truth clears starting while the play command is unresolved [4.66ms]
+(pass) mounted playback selection > a rapid second song selection keeps metadata aligned with the winning transport [5.67ms]
+(pass) mounted playback selection > station playback adopts the provider track and clears loading after its clock advances [5.45ms]
+(pass) mounted playback selection > a late relationship response cannot replace the screen after navigation leaves its shell [4.61ms]
+(pass) mounted playback selection > a rejected play request keeps the selected occurrence on Now Playing [3.37ms]
+(pass) skipping supersedes an unconfirmed selection and exits its scrub preview [5.31ms]
+(pass) the full-context counter advances independently of a rolling upcoming queue [7.22ms]
+(pass) album-tracks shows the exact selected counter before transport responds [4.84ms]
+(pass) playlist-tracks shows the exact selected counter before transport responds [5.83ms]
+(pass) songs shows the exact selected counter before transport responds [4.42ms]
+(pass) genre-tracks shows the exact selected counter before transport responds [4.57ms]
+(pass) search-results shows the exact selected counter before transport responds [3.72ms]
+(pass) artwork prefetch starts immediately on highlight and pointer hover [3.22ms]
+(pass) empty artwork cannot crash highlight, hover, or Now Playing [3.69ms]
+
+packages/panel/src/page-readiness.test.ts:
+(pass) page clocks use real operation timestamps, read without resetting, and freeze at completion [0.06ms]
+(pass) already-loading mounts without a known operation start report unknown elapsed time [0.01ms]
+(pass) error settlement and provider replacement cannot inherit old operation clocks [0.02ms]
+
+packages/panel/src/playback-presentation.test.ts:
+(pass) playback presentation state machine > a matching playing label stays starting until the playback clock advances [0.14ms]
+(pass) playback presentation state machine > a matching queued item does not end starting while MusicKit still reports loading [0.01ms]
+(pass) playback presentation state machine > a duplicate at the wrong queue occurrence cannot confirm the request [0.02ms]
+(pass) playback presentation state machine > a rejected current attempt cannot remain stuck in starting
+(pass) playback presentation state machine > an attempt from a replaced provider cannot poison the active provider [0.23ms]
+
+packages/panel/src/Panel.test.tsx:
+(pass) the bare DOM panel > brings provider-owned transport back into view through the singleton store [0.06ms]
+(pass) the bare DOM panel > reports a physical Menu transition back to the root exactly once [0.09ms]
+(pass) the bare DOM panel > mounts as a bare semantic DOM surface [0.59ms]
+(pass) the bare DOM panel > home keeps the period-authentic full-width list without a modern preview pane [0.87ms]
+(pass) the bare DOM panel > server rendering is pure and cannot seed document-global navigation [0.15ms]
+(pass) the bare DOM panel > renders the light polarity as an explicit product variant [0.06ms]
+(pass) the bare DOM panel > locks the panel and loading rows to the specified raster geometry [0.19ms]
+(pass) the bare DOM panel > fits every declared album row completely inside the fixed list viewport [0.33ms]
+(pass) the bare DOM panel > locks the measured iPod screen hierarchy and Now Playing rhythm [0.14ms]
+(pass) the bare DOM panel > keeps Now Playing queue position out of the title bar and fills the LCD vertically [0.96ms]
+(pass) the bare DOM panel > never renders non-finite provider timing as NaN text or ARIA values [0.59ms]
+(pass) the bare DOM panel > the menu viewport fills the LCD while every density keeps fixed row geometry [0.15ms]
+(pass) the bare DOM panel > owns scroll indication in list panes and never in the preview pane [1.09ms]
+(pass) the bare DOM panel > never authors final panel text below eleven pixels [0.13ms]
+(pass) the bare DOM panel > keeps Now Playing control on the physical click wheel rather than LCD buttons [0.06ms]
+(pass) the bare DOM panel > uses provider commands, subscriptions, and one canonical list path [0.20ms]
+(pass) the bare DOM panel > keeps fixture defaults and writes outside the shipped Panel module [0.18ms]
+(pass) the bare DOM panel > offline mode remains cached metadata and never restores the cut download product [0.24ms]
+(pass) the bare DOM panel > contains the three required accessibility preference branches [0.09ms]
+(pass) the bare DOM panel > reduced motion removes every authored panel animation and transition [0.11ms]
+(pass) the bare DOM panel > light tertiary text uses the AA-verified hierarchy token [0.07ms]
+(pass) the bare DOM panel > keeps the package boundary compatible with DOM rasterization [0.12ms]
+(pass) the bare DOM panel > removes invented playback glyphs and exposes a real wheel control [0.91ms]
+(pass) the bare DOM panel > keeps Now Playing free of invented status shelves and confines pending feedback to progress [3.65ms]
+(pass) the bare DOM panel > keeps unavailable Now Playing mutations absent [0.47ms]
+(pass) the bare DOM panel > does not invent a track, queue index, source, or artwork before provider playback arrives [0.27ms]
+(pass) the bare DOM panel > renders provider-owned pending playback as loading rather than empty [0.30ms]
+(pass) the bare DOM panel > renders a timed-out provider transaction as a bounded failure rather than empty [0.37ms]
+(pass) the bare DOM panel > pending and timed-out playback preserve the exact selected song metadata and artwork [0.65ms]
+(pass) the bare DOM panel > an authoritative provider event error keeps the confirmed song rendered [0.32ms]
+(pass) the bare DOM panel > renders provider playback with queue context produced by the selected frame [0.31ms]
+(pass) the bare DOM panel > matches a provider-emitted catalog counterpart to its retained library queue position [0.32ms]
+(pass) the bare DOM panel > reports the selected occurrence when a playback queue contains duplicate tracks [0.34ms]
+(pass) the bare DOM panel > follows provider queue position from first A through B to the second A [0.50ms]
+(pass) the bare DOM panel > follows provider queue position from the second A back through B to the first A [0.49ms]
+
+packages/panel/src/runtime.test.ts:
+(pass) panel runtime > parallel colourways lease exactly one announcement driver [0.12ms]
+(pass) panel runtime > parallel colourways lease exactly one transient-volume timer [0.04ms]
+(pass) panel runtime > one leased clock advances continuously and stops after final cleanup [0.25ms]
+(pass) panel runtime > RGBA conversion preserves every sampled pixel and rejects partial data [0.05ms]
+(pass) panel runtime > falls back to the already-fetched artwork bytes when ImageDecoder rejects a supported JPEG [0.86ms]
+(pass) panel runtime > stable selection starts work at 700 ms, never at 699 ms [0.11ms]
+(pass) panel runtime > selection changes cancel stale dwell and coalesce identical colourway leases [0.06ms]
+(pass) panel runtime > route changes abort in-flight dwell work and clean up its timer [0.04ms]
+
+packages/composite/src/tier-store.test.ts:
+(pass) authoritative composite tier atom > publishes context loss through Jotai to external subscribers [0.08ms]
+
+packages/composite/src/CompositeDevice.test.tsx:
+(pass) CompositeDevice public boundary > renders on the server without touching document [0.37ms]
+(pass) CompositeCoordinator lifecycle > replaces renderer and camera without retaining a detached source [0.14ms]
+(pass) CompositeCoordinator lifecycle > resyncs geometry without polling [0.02ms]
+(pass) CompositeCoordinator lifecycle > context loss detaches and restore attaches once [0.04ms]
+(pass) CompositeCoordinator lifecycle > cleans a source whose attach fails and can retry [0.05ms]
+(pass) CompositeCoordinator lifecycle > repeated clear, reattach, and dispose are idempotent [0.04ms]
+
+packages/composite/src/capabilities.test.ts:
+(pass) resolveTier > {"webgl":false,"requestPaint":false,"prefersReducedMotion":false} resolves T4 [0.03ms]
+(pass) resolveTier > {"webgl":false,"requestPaint":true,"prefersReducedMotion":false} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":false,"prefersReducedMotion":false} resolves T3
+(pass) resolveTier > {"webgl":true,"requestPaint":true,"prefersReducedMotion":false} resolves T1
+(pass) resolveTier > {"webgl":false,"requestPaint":false,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":false,"requestPaint":true,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":false,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > {"webgl":true,"requestPaint":true,"prefersReducedMotion":true} resolves T4
+(pass) resolveTier > never manufactures the uninstalled polyfill tier [0.02ms]
+(pass) arityOf > reads the declared arity of an own data-property function [0.03ms]
+(pass) arityOf > walks to an inherited data-property function descriptor [0.01ms]
+(pass) arityOf > does not invoke an own IDL-style getter that throws Illegal invocation [0.01ms]
+(pass) arityOf > does not invoke an inherited IDL-style getter
+(pass) arityOf > returns null for a missing descriptor and for non-functions
+
+packages/composite/src/dependency-resolution.test.ts:
+(pass) package-owned dependency resolution > resolves jotai/vanilla from the composite package boundary [0.08ms]
+
+packages/composite/src/click-wheel-runtime.test.ts:
+(pass) click-wheel runtime > keeps seam crossings short and signed [0.01ms]
+(pass) click-wheel runtime > routes mouse and touch arcs through their reducer paths [0.55ms]
+(pass) click-wheel runtime > a new gesture cancels an existing coast [0.14ms]
+(pass) click-wheel runtime > release coasts only when requested and reduced motion is off [0.12ms]
+(pass) click-wheel runtime > the external driver travels the same unclamped distance from 15 to 240Hz [3.02ms]
+(pass) click-wheel runtime > forwards each display frame elapsed time to the coast reducer [0.23ms]
+(pass) click-wheel runtime > cancellation paths never coast [0.12ms]
+(pass) click-wheel runtime > wheel modes pass through and settle at the 120ms idle boundary [0.23ms]
+(pass) click-wheel runtime > wheel idle is rescheduled from the most recent event [0.05ms]
+(pass) click-wheel runtime > dispose removes listeners, timers, frames, and transient input [0.10ms]
+(pass) click-wheel runtime > visibility, blur, and a new reduced-motion preference cancel input [0.20ms]
+
+packages/composite/src/pixel-source.test.ts:
+(pass) panel pixel source seam > declares the one T1 variant that flows end to end
+(pass) panel pixel source seam > freezes nested requirement lists so a consumer cannot mutate the contract [0.01ms]
+(pass) panel pixel source seam > admits a renderer-less tier without fake WebGL or device values
+
+packages/composite/src/CompositeDevice.integration.test.tsx:
+(pass) mounted composite input boundary > production arc callbacks move the singleton store and restore application focus [2.21ms]
+(pass) mounted composite input boundary > selection suppression is gesture-scoped and restores prior outside ranges [1.51ms]
+(pass) mounted composite input boundary > the mounted boundary consumes the store feedback stream once and disposes audio [0.60ms]
+(pass) mounted composite input boundary > all four cardinal sectors publish one accepted feedback event [0.78ms]
+(pass) mounted composite input boundary > a short annular tap stays cardinal while movement takeover changes volume without double action [0.44ms]
+(pass) mounted composite input boundary > provider transport owns next when accepted and falls back to list paging when declined [0.21ms]
+(pass) mounted composite input boundary > rejected provider transport is consumed without list paging or accepted feedback [0.22ms]
+(pass) mounted composite input boundary > holding Menu for 600ms returns to root without also popping it [0.20ms]
+(pass) mounted composite input boundary > rejected Play/Pause, mute and raw DOM click never enter audio [0.24ms]
+(pass) mounted composite input boundary > cardinal semantics have no raw DOM click wiring to double-fire [0.21ms]
+(pass) mounted composite input boundary > keyboard physical semantics fire on release once and cancel on blur [0.85ms]
+(pass) mounted composite input boundary > agent buttons share all five semantic/audio edges and cancel on unmount [408.51ms]
+(pass) mounted composite input boundary > same-channel human takeover stays pressed while cross-channel takeover releases abandoned agent travel [5.57ms]
+(pass) mounted composite input boundary > multiple mounted public boundaries consume one feedback sequence once [0.91ms]
+(pass) mounted composite input boundary > the mounted mute prop reaches the runtime without constructing settings UI [0.79ms]
+
+packages/composite/src/web-audio-backend.test.ts:
+(pass) browser interaction audio graph > builds a compressed transient graph and releases every per-voice node [1.44ms]
+(pass) browser interaction audio graph > uses deterministic bounded procedural buffers with no asset dependency [1.11ms]
+(pass) browser interaction audio graph > first audible interaction stays inside the synchronous latency budget [0.41ms]
+(pass) browser interaction audio graph > the physical switch supports rather than masks the digital actuation [0.03ms]
+(pass) browser interaction audio graph > the owner preview renders the production graph into a PCM WAV [8.19ms]
+
+packages/composite/src/interaction-audio.test.ts:
+(pass) interaction audio scheduler > keeps the clicker budgets literal and reviewable [0.01ms]
+(pass) interaction audio scheduler > does not construct audio or replay feedback before activation [0.07ms]
+(pass) interaction audio scheduler > holds the first click only while a suspended context resumes [0.51ms]
+(pass) interaction audio scheduler > bounds activation-time feedback and reports unsupported audio precisely [0.16ms]
+(pass) interaction audio scheduler > terminal diagnostics survive mute changes and interruption [0.24ms]
+(pass) interaction audio scheduler > a synchronous suspend throw during mute remains terminal failed [0.07ms]
+(pass) interaction audio scheduler > an interruption during resume cannot revive audio in the background [0.08ms]
+(pass) interaction audio scheduler > a newer activation wins over an older deferred blur suspension [0.07ms]
+(pass) interaction audio scheduler > a newer activation wins over an older deferred mute suspension [0.06ms]
+(pass) interaction audio scheduler > center and cardinal switches share digital-down plus two physical phases [0.25ms]
+(pass) interaction audio scheduler > actual hold duration shifts release and duplicate edges stay exact-once [0.10ms]
+(pass) interaction audio scheduler > state press feedback and agent actions cannot duplicate physical voices [0.05ms]
+(pass) interaction audio scheduler > interruption clears a held switch and its reserved release [0.08ms]
+(pass) interaction audio scheduler > the voice cap reserves every admitted button release atomically [0.10ms]
+(pass) interaction audio scheduler > N detents schedule N lighter, 30Hz-spaced ticks with ±2% jitter [0.13ms]
+(pass) interaction audio scheduler > zero budgets and the explicit mute seam create no voices [0.06ms]
+(pass) interaction audio scheduler > muting a held button clears both voices and its release reservation [0.06ms]
+(pass) interaction audio scheduler > system provenance remains silent even when its boolean is false [0.04ms]
+(pass) interaction audio scheduler > rapid detents are articulate, bounded, and cannot build runaway gain [0.09ms]
+(pass) interaction audio scheduler > natural endings release the cap; dispose stops every remaining voice [0.10ms]
+(pass) interaction audio scheduler > resume failure is structured, clears pending work, and never rejects outward [0.07ms]
+(pass) interaction audio scheduler > a stale resume rejection cannot overwrite disposal [0.05ms]
+(pass) interaction audio scheduler > a stale resume rejection cannot overwrite a newer interruption [0.04ms]
+(pass) interaction audio scheduler > graph scheduling failure returns a no-sound result instead of throwing [0.07ms]
+(pass) store and browser lifecycle binding > inspector focus preserves agent wheel and physical button sounds, and tab return resumes them [0.38ms]
+(pass) store and browser lifecycle binding > visibility alone cannot unlock a fresh page [0.10ms]
+(pass) store and browser lifecycle binding > the default gate rejects script-dispatched events without proving provenance [0.08ms]
+(pass) store and browser lifecycle binding > duplicate bindings consume one authoritative sequence exactly once [0.12ms]
+(pass) store and browser lifecycle binding > multiple mounted runtimes share exact-once sequence ownership [0.14ms]
+(pass) store and browser lifecycle binding > an eligible activation signal unlocks once, then state drives sound [0.25ms]
+(pass) store and browser lifecycle binding > audio consumes accepted list movement, never raw outward detent attempts [0.17ms]
+(pass) store and browser lifecycle binding > hidden documents interrupt and clean the graph deterministically [0.12ms]
+(pass) store and browser lifecycle binding > a failing diagnostic observer cannot escape the audio boundary [0.11ms]
+
+packages/composite/src/click-wheel-browser.test.ts:
+(pass) composite browser wheel boundary > uses one non-passive capture listener and removes that listener [0.09ms]
+(pass) composite browser wheel boundary > normalizes unknown modes to pixels without changing line or page [0.02ms]
+
+packages/composite/src/html-in-canvas.test.ts:
+(pass) html-in-canvas invariants > quantizes the authored LCD into stable 1×/2×/3× raster sources [0.02ms]
+(pass) html-in-canvas invariants > ignores host style writes so raster sizing does not request itself forever [0.02ms]
+(pass) html-in-canvas invariants > keeps the native 320×240 LCD source on stable 1×/2×/3× raster grids [0.03ms]
+(pass) html-in-canvas invariants > keeps one interactive DOM panel on the native HTMLTexture path [0.28ms]
+(pass) HTMLTexture RGBA8 upload decodes sRGB once before renderer output encoding [0.58ms]
+
+packages/music-management/src/manager.test.ts:
+(pass) shared music ownership without React > selection occurrence and total are synchronous; A/B/A cannot be confirmed by old A [0.58ms]
+(pass) shared music ownership without React > late A success cannot replace B [0.29ms]
+(pass) shared music ownership without React > late A rejection cannot replace B [0.20ms]
+(pass) shared music ownership without React > progress-only adapter settles selection without a mounted progress consumer [0.24ms]
+(pass) shared music ownership without React > late same-track observation does not strand queue refresh in loading [0.20ms]
+(pass) shared music ownership without React > old queue completion cannot overwrite a newly selected list [0.20ms]
+(pass) shared music ownership without React > pending seek cannot resume after new-selection [0.25ms]
+(pass) shared music ownership without React > pending seek cannot resume after deactivate [0.17ms]
+(pass) shared music ownership without React > pending seek cannot resume after dispose [0.17ms]
+(pass) shared music ownership without React > pending seek cannot resume after account [0.22ms]
+(pass) shared music ownership without React > paused seek resumes once; rejected seek neither resumes nor poisons successor [0.27ms]
+(pass) shared music ownership without React > invalid list target changes neither intent nor queued work [0.21ms]
+(pass) shared music ownership without React > pending skip never crosses a new selection [0.23ms]
+(pass) shared music ownership without React > logout suspends native callbacks before the remote request settles [0.25ms]
+(pass) shared music ownership without React > dispose releases listeners and progress driver [0.17ms]
+(pass) shuffle and partial append failure invalidate ordered occurrence and total [0.32ms]
+(pass) late callbacks from a retired account cannot repopulate a reactivated manager [0.19ms]
+(pass) independent facade callers share seek ordering and pause admission without React [0.30ms]
+(pass) fully observable queues recover counters after append and refresh on tool-selected replacement [0.34ms]
+(pass) managed logout notifies session subscribers once and fences native playback [0.19ms]
+(pass) station rejection exits loading and does not poison later selection [0.32ms]
+(pass) progressive source mutation cannot change an already accepted playback target [0.23ms]
+(pass) pause does not strand an in-flight same-context queue read [0.20ms]
+(pass) complete queue remove recovers and new target hides old items while pending [0.31ms]
+(pass) complete queue reorder recovers and new target hides old items while pending [0.23ms]
+
+packages/music-management/src/auth.test.ts:
+(pass) account during initial data hydration fences old data and settles readiness [1.00ms]
+(pass) logout during initial data hydration fences old data and settles readiness [0.51ms]
+(pass) Spotify redirect does not authorize or load until callback restore [0.80ms]
+(pass) Apple gesture connector performs native authorization; disposal invalidates accepted snapshot [1.65ms]
+(pass) logout retires immediately without activating again while native logout is pending [0.28ms]
+
+packages/music-management/src/apple-contract.test.ts:
+(pass) Apple adapter through common manager preserves exact selection, seek units and native queue confirmation [2.04ms]
+(pass) Apple native window keeps absolute selection separate from queue snapshot size [0.96ms]
+(pass) Apple single-track fallback keeps absolute selection separate from queue snapshot size [0.41ms]
+(pass) Apple station lookup cannot enqueue media after manager deactivation [0.33ms]
+(pass) Apple late pause completion cannot overwrite a newer playback transaction [0.09ms]
+(pass) Apple window append never combines absolute occurrence with native short-window total [0.67ms]
+
+packages/providers/src/apple/relationships.test.ts:
+(pass) D-029 — a 200 is not proof the relationship was requested > there is no parameter a status could arrive in (D-062)
+(pass) D-029 — a 200 is not proof the relationship was requested > requested-but-absent is a distinct failure from absent-because-empty [0.10ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > the two conditions carry different tags, so a caller can branch on them [0.02ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > the error names the relationship and the resource, and says not to read it as "no data" [0.02ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > a relationships object that lacks the key entirely still throws [0.02ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > an explicitly undefined key throws rather than reading as empty [0.01ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > a JSON null value throws with a tag, not a bare TypeError [0.03ms]
+(pass) D-029 — a 200 is not proof the relationship was requested > a present key with no data array is honoured-and-empty
+(pass) D-029 — a 200 is not proof the relationship was requested > data is returned when it is there
+(pass) a typo is caught before the request is built > an unregistered name is refused [0.03ms]
+(pass) a typo is caught before the request is built > similar-songs was measured live as not a relationship [0.01ms]
+(pass) a typo is caught before the request is built > radio was measured live as not a relationship
+(pass) a typo is caught before the request is built > videos was measured live as not a relationship
+(pass) a typo is caught before the request is built > artists was measured live and is accepted
+(pass) a typo is caught before the request is built > station was measured live and is accepted
+(pass) a typo is caught before the request is built > credits was measured live and is accepted
+(pass) a typo is caught before the request is built > lyrics exists and is gated — the registry says so
+(pass) a typo is caught before the request is built > syllable-lyrics exists and is gated — the registry says so
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > albums is documentation-only and is reported as unmeasured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > composers is documentation-only and is reported as unmeasured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > genres is documentation-only and is reported as unmeasured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > library is documentation-only and is reported as unmeasured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > music-videos is documentation-only and is reported as unmeasured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > live-exists is measured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > live-gated is measured
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > an absent measured relationship is reported as a request that was not honoured [0.02ms]
+(pass) D-045 — the gate acts on the evidence class instead of discarding it > an absent documentation-only relationship names both candidate causes [0.02ms]
+(pass) S2's four-state existence oracle > status 200 code null classifies as "exists-with-data" [0.01ms]
+(pass) S2's four-state existence oracle > status 404 code "40403" classifies as "exists-no-data"
+(pass) S2's four-state existence oracle > status 400 code "40012" classifies as "exists-gated"
+(pass) S2's four-state existence oracle > status 400 code "40008" classifies as "not-a-relationship"
+(pass) S2's four-state existence oracle > 40012 and 40008 are never collapsed — that distinction is the whole finding
+(pass) S2's four-state existence oracle > an unrecognised response is inconclusive, never an absence
+
+packages/providers/src/apple/auth.test.ts:
+(pass) rejected cached Apple user authorization clears once and next gesture performs fresh native login [0.36ms]
+(pass) parallel rejected Apple first pages reset cached authorization only once [0.10ms]
+(pass) Apple 500/SERVER_ERROR does not reset authorization [0.07ms]
+(pass) Apple 401/AUTHORIZATION_ERROR does not reset authorization [0.02ms]
+(pass) Apple 403/LICENSING_ERROR does not reset authorization [0.02ms]
+(pass) catalog ACCESS_DENIED never clears a personalized session [0.06ms]
+(pass) late rejected library response cannot invalidate a newer explicit authorization [0.08ms]
+(pass) failed cache reset keeps the rejected token blocked and explicit retry resets before native authorize [0.12ms]
+(pass) native authorization finishing after logout cannot restore a cached signed-in session [0.08ms]
+(pass) old native authorization completion cannot replace the latest successful session [0.06ms]
+(pass) stale native authorization after logout cannot cancel a newer pending gesture [0.07ms]
+
+packages/providers/src/apple/apple-provider.test.ts:
+(pass) Apple provider > discovers supported live radio with the required storefront filter and normalizes stations [0.12ms]
+(pass) Apple provider > passes the required live-radio filter through the legacy SDK facade too [0.05ms]
+(pass) Apple provider > preserves empty and rejected live-radio results without retrying an unfiltered request [0.08ms]
+(pass) Apple provider > uses the current MusicKit script required by the production integration
+(pass) Apple provider > coalesces concurrent configuration before authorization [0.23ms]
+(pass) Apple provider > configures, authorizes, signs out, and reports storefront [0.08ms]
+(pass) Apple provider > maps library pages, preserves stable local identity, and rejects invented cursors [0.12ms]
+(pass) Apple provider > passes the explicit limit and initial offset to every supported library collection [0.11ms]
+(pass) Apple provider > uses the v3 generic API surface for personalized requests [0.07ms]
+(pass) Apple provider > preserves the explicit page size across structured Apple continuations [0.12ms]
+(pass) Apple provider > traverses bare MusicKit arrays beyond 25 items with explicit bounded offsets and stable order [0.75ms]
+(pass) Apple provider > terminates a bare-array listing on its first short page without guessing a total [0.09ms]
+(pass) Apple provider > skips incomplete records without aborting authorization or a later-page traversal [0.47ms]
+(pass) Apple provider > makes one empty terminal request for an exact multiple of the bare-array page size [1.16ms]
+(pass) Apple provider > keeps continuation cursors opaque, single-use, and scoped to their collection [0.59ms]
+(pass) Apple provider > bounds abandoned continuation cursors and retains only the newest handles [2.75ms]
+(pass) Apple provider > preserves legitimate duplicate catalog occurrences and their order across pages [2.61ms]
+(pass) Apple provider > translates structured next metadata into opaque cursors without regressing totals [0.18ms]
+(pass) Apple provider > fails safely when the MusicKit facade repeats a full page despite advancing offsets [0.44ms]
+(pass) Apple provider > subscribes to playback and removes consumer callbacks cleanly [0.09ms]
+(pass) Apple provider > polls MusicKit progress while playing when v3 omits time-change events [0.09ms]
+(pass) Apple provider > preserves the last valid playback sample when MusicKit reports non-finite numbers [0.06ms]
+(pass) Apple provider > drives documented transport primitives [0.16ms]
+(pass) Apple provider > resumes a provider-owned paused item without gating play behind a seek [0.07ms]
+(pass) Apple provider > restarts previous after three seconds and otherwise delegates to the MusicKit queue [0.06ms]
+(pass) Apple provider > restarts an actively playing facade from its live playback time [0.06ms]
+(pass) Apple provider > preserves the playing intent across an item-changing skip [0.03ms]
+(pass) Apple provider > keeps a paused queue paused after an item-changing skip [0.04ms]
+(pass) Apple provider > does not resume a stale skip after a concurrent pause [0.07ms]
+(pass) Apple provider > a pause during an in-flight play transaction cannot restart hidden playback [0.11ms]
+(pass) Apple provider > queues the exact track target and start index before invoking playback [0.13ms]
+(pass) Apple provider > bounds a large song list around the selection and preserves its public queue index [0.41ms]
+(pass) Apple provider > reads shuffled queue order from the live MusicKit facade rather than source order [0.13ms]
+(pass) Apple provider > coalesces idle preparation and reuses its exact queue when playback is selected [0.27ms]
+(pass) Apple provider > retains a prepared queue when MusicKit emits its unpositioned queue before setQueue resolves [0.10ms]
+(pass) Apple provider > does not rebuild a bounded prepared queue when progressive hydration appends distant songs [0.35ms]
+(pass) Apple provider > station start invalidates a completed prepared queue before the original target plays [0.10ms]
+(pass) Apple provider > public queue and ordering mutations invalidate a completed prepared queue identity [0.27ms]
+(pass) Apple provider > an unrelated external queue event invalidates completed preparation identity [0.06ms]
+(pass) Apple provider > station start waits out and invalidates an in-flight preparation before mutating the queue [0.14ms]
+(pass) Apple provider > preparation is a no-op for playing and paused current items [0.10ms]
+(pass) Apple provider > an already-aborted preparation intent never reaches MusicKit [0.05ms]
+(pass) Apple provider > coalesces duplicate selections and stays loading until the selected playback clock advances [0.17ms]
+(pass) Apple provider > reports MusicKit media playback failure even when play resolves and ignores stale success events [0.11ms]
+(pass) Apple provider > treats a raw SDK error during pending B as provider-level and blocks stale success events [0.09ms]
+(pass) Apple provider > uses MusicKit v3 media events and detaches every SDK listener across sign-out and reauthorization [0.08ms]
+(pass) Apple provider > reports every diagnostic hook with its truthful MusicKit event name [0.12ms]
+(pass) Apple provider > rapid A to B to C selection serializes as latest-wins before any stale queue can play [0.18ms]
+(pass) Apple provider > rapid track to station selection shares the latest-wins queue boundary [0.15ms]
+(pass) Apple provider > a user pause invalidates a replacement selection waiting at its pause boundary [0.17ms]
+(pass) Apple provider > does not let a stale item confirm a newly selected queue [0.07ms]
+(pass) Apple provider > requires a post-request queue transition to confirm collection targets [0.33ms]
+(pass) Apple provider > confirms same-collection replay from matching queue container identity and membership [0.26ms]
+(pass) Apple provider > does not confirm a collection request from another collection queue and stale item [0.07ms]
+(pass) Apple provider > times out an unconfirmed selection and permits an identical retry [0.11ms]
+(pass) Apple provider > sign-out cancels pending confirmation and ignores late callbacks [0.08ms]
+(pass) Apple provider > a rejected sign-out preserves the authorized playback transaction and event stream [0.09ms]
+(pass) Apple provider > propagates queue and playback rejections without inventing playback state [0.18ms]
+(pass) Apple provider > fails immediately when MusicKit reports playback unsupported by resolving setQueue with void [0.08ms]
+(pass) Apple provider > suppresses a browser process shim throughout MusicKit runtime configuration and restores it [0.09ms]
+(pass) Apple provider > keeps library and catalog counterparts on one local identity after SDK emission [0.04ms]
+(pass) Apple provider > publishes MusicKit queue position only with an emitted now-playing item [0.05ms]
+(pass) Apple provider > starts station transport exactly once [0.04ms]
+(pass) Apple provider > pauses active media before replacing it with a station queue [0.04ms]
+(pass) Apple provider > keeps the legacy MusicKit library facade as a compatibility fallback [0.19ms]
+(pass) Apple artist albums publish pages before the full request completes [0.11ms]
+
+ 380 pass
+ 0 fail
+ 1684 expect() calls
+Ran 380 tests across 29 files. [1.73s]

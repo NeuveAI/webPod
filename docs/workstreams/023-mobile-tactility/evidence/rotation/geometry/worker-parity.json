@@ -1,0 +1,21 @@
+{
+  "note": "Offline same pure factory run; constructor+index time is host CPU evidence, production executes in worker. Transfer uses real structuredClone buffers.",
+  "workerConstructionAndIndexMs": 270.95495900000003,
+  "workerBuffersDetached": true,
+  "rows": [
+    {
+      "name": "front",
+      "triangles": 169367,
+      "allExpandedAttributesExact": true,
+      "groupsAndBoundsExact": true,
+      "bytes": 5328456
+    },
+    {
+      "name": "back",
+      "triangles": 22166,
+      "allExpandedAttributesExact": true,
+      "groupsAndBoundsExact": true,
+      "bytes": 505828
+    }
+  ]
+}

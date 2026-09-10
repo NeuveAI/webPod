@@ -1,3 +1,4 @@
+import { InteractionHaptics, mountWheelHaptics, cancelWheelHaptics } from './interaction-haptics'
 import { bindAgentWheelControls, bindAgentControlPhysics, getAgentControlPhysics } from './agent-controls'
 import { useThree } from '@react-three/fiber'
 import {
@@ -77,7 +78,9 @@ export interface CompositeDeviceProps {
   readonly panelTone?: PanelOverlayTone
   readonly cameraFov?: number
   readonly cameraDistance?: number
+  readonly cameraMobileFraming?: boolean
   readonly cameraSafePadding?: number
+  readonly projectionDiagnostics?: boolean
   readonly orientation?: DeviceOrientation
   /** Ray-confirmed outer-shell grab seam for diagnostic free orientation. */
   readonly onOrientationGrabStart?: (start: DeviceOrientationGrabStart) => boolean
@@ -105,7 +108,9 @@ export function CompositeDevice({
   panelTone = 'dark',
   cameraFov,
   cameraDistance,
+  cameraMobileFraming,
   cameraSafePadding,
+  projectionDiagnostics = false,
   orientation = FRONT_DEVICE_ORIENTATION,
   onOrientationGrabStart,
   onOrientationGrabHoverChange,
@@ -164,7 +169,9 @@ export function CompositeDevice({
               colourway={colourway}
               cameraFov={cameraFov}
               cameraDistance={cameraDistance}
+              cameraMobileFraming={cameraMobileFraming}
               cameraSafePadding={cameraSafePadding}
+              projectionDiagnostics={projectionDiagnostics}
               orientation={orientation}
               onOrientationGrabStart={onOrientationGrabStart}
               onOrientationGrabHoverChange={onOrientationGrabHoverChange}
@@ -295,6 +302,7 @@ class CompositeInputController {
   private activeSelectPointerId: number | null = null
   private applicationFocus: HTMLElement | null = null
   private selection: ScopedGestureSelection | null = null
+  private readonly haptics = new InteractionHaptics()
   private audio: InteractionAudioRuntime | null = null
   private audioRoot: HTMLDivElement | null = null
   private interactionAudioEnabled = true
@@ -319,6 +327,7 @@ class CompositeInputController {
     },
     onArcMove: (sample) => this.runtime?.arcMove(sample),
     onArcEnd: (end) => {
+      if (this.store !== null) cancelWheelHaptics(this.store)
       this.humanArcActive = false
       try {
         this.runtime?.arcEnd(end)
@@ -332,6 +341,7 @@ class CompositeInputController {
       this.agentOperation?.abort(new DOMException('Interrupted by human input.', 'AbortError'))
       if (this.activeSelectPointerId !== null) return
       this.activeSelectPointerId = start.pointerId
+      if (start.pointerType === 'touch' && !this.store?.get(holdEngagedAtom)) this.haptics.trigger('press')
       this.audioButtonDown(
         pointerAudioContactId(start.pointerId, 'center'),
         'center',
@@ -343,6 +353,7 @@ class CompositeInputController {
     onSelectEnd: (end) => {
       if (this.activeSelectPointerId !== end.pointerId) return
       this.activeSelectPointerId = null
+      if (end.reason !== 'release') this.haptics.cancel()
       this.audioButtonUp(
         pointerAudioContactId(end.pointerId, 'center'),
         end.timestampMs,
@@ -357,6 +368,7 @@ class CompositeInputController {
       this.wheelContactGeneration += 1
       this.agentOperation?.abort(new DOMException('Interrupted by human input.', 'AbortError'))
       this.cardinalStartTimes.set(start.pointerId, start.timestampMs)
+      if (start.pointerType === 'touch' && !this.store?.get(holdEngagedAtom)) this.haptics.trigger('press')
       this.audioButtonDown(
         pointerAudioContactId(start.pointerId, start.button),
         start.button,
@@ -365,6 +377,7 @@ class CompositeInputController {
       )
     },
     onCardinalEnd: (end) => {
+      if (end.reason !== 'release') this.haptics.cancel()
       this.audioButtonUp(
         pointerAudioContactId(end.pointerId, end.button),
         end.timestampMs,
@@ -399,6 +412,8 @@ class CompositeInputController {
     this.attachmentGeneration = generation
     const runtimeDependencies = this.createDependencies()
     const runtime = createClickWheelRuntime(runtimeDependencies)
+    const detachHaptics = this.haptics.mount()
+    const detachWheelHaptics = mountWheelHaptics(runtimeDependencies.store)
     const audio = this.createAudioRuntime()
     audio.setEnabled(this.interactionAudioEnabled)
     const ownerWindow = root.ownerDocument.defaultView ?? window
@@ -428,6 +443,8 @@ class CompositeInputController {
       detachKeyboard()
       detachWheel()
       detachAudio()
+      detachHaptics()
+      detachWheelHaptics()
       audio.dispose()
       clearInteractionAudioDiagnostics(root)
       selection.dispose()
@@ -760,19 +777,14 @@ function CompositeSceneBridge({
   const renderer = useThree((state) => state.gl)
   const camera = useThree((state) => state.camera)
   const scene = useThree((state) => state.scene)
-  const width = useThree((state) => state.size.width)
-  const height = useThree((state) => state.size.height)
-  void width
-  void height
 
   useEffect(() => {
     coordinator.setRenderContext({ renderer, camera, scene })
     return () => coordinator.clearRenderContext(renderer)
   }, [camera, coordinator, renderer, scene])
 
-  useLayoutEffect(() => {
-    coordinator.resyncGeometry()
-  })
+  // The screen handle publishes before its draw, including camera/viewport
+  // changes. A React layout resync would repeat that same transform work.
 
   return (
     <ClickWheelInputSurface

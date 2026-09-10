@@ -82,7 +82,6 @@ function installStudioEnvironment({
 }: StudioInstallation) {
   const room = createProductStudioEnvironment();
   const generator = new PMREMGenerator(gl);
-  generator.compileEquirectangularShader();
   const target = generator.fromScene(room.scene, sigma);
   // A separate reflection environment keeps the metal and direct lamps exact.
   const screenRoom = createProductStudioEnvironment(true);

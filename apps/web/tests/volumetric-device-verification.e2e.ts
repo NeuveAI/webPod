@@ -57,7 +57,7 @@ async function prepareDiagnostic(page: Page, width: number, height: number): Pro
 
 async function prepareInteractive(page: Page, width: number, height: number): Promise<void> {
   await page.setViewportSize({ width, height });
-  await page.goto("/_spike/device", { waitUntil: "domcontentloaded" });
+  await page.goto("/_spike/device?projection-diagnostics=1", { waitUntil: "domcontentloaded" });
   await expect(page.locator(".webpod-device-preview__device")).toBeVisible();
   await expect
     .poll(() =>

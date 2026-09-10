@@ -1,3 +1,4 @@
+import { prepareCollisionCooperatively } from './sticker-collision-cooperative';
 import type { StickerCollisionFace, StickerCollisionSnapshot } from './sticker-collision';
 
 export interface CollisionWorkerFace {
@@ -20,7 +21,7 @@ export function collisionWorkerFaces(faces: readonly StickerCollisionFace[]): Co
       transform: face.transform?.toArray() ?? [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], source: face.source, kind: face.kind, adhesiveSupport: face.adhesiveSupport === true };
   });
 }
-export function prepareCollisionInWorker(faces: readonly StickerCollisionFace[], signal: AbortSignal): Promise<StickerCollisionSnapshot> {
+function prepareInWorker(faces: readonly StickerCollisionFace[], signal: AbortSignal): Promise<StickerCollisionSnapshot> {
   return new Promise((resolve, reject) => {
     if (signal.aborted) { reject(new DOMException('Cancelled', 'AbortError')); return; }
     const worker = new Worker(new URL('./sticker-collision-worker.ts', import.meta.url), { type: 'module' });
@@ -33,9 +34,22 @@ export function prepareCollisionInWorker(faces: readonly StickerCollisionFace[],
       if (event.data.snapshot) resolve(event.data.snapshot); else reject(new Error(event.data.error ?? 'Collision preparation failed'));
     };
     worker.onerror = () => { finish(); reject(new Error('Collision worker failed')); };
+    worker.onmessageerror = () => { finish(); reject(new Error('Collision worker transfer failed')); };
     try {
       const input = collisionWorkerFaces(faces);
       worker.postMessage(input, input.flatMap(face => face.indices ? [face.positions.buffer, face.indices.buffer] : [face.positions.buffer]));
     } catch (error) { finish(); reject(error); }
   });
+}
+
+/** Prefer isolated BVH construction. Worker startup/runtime/transfer/timeout
+ * failure recovers with the exact budgeted builder; cancellation never retries.
+ * Caller still verifies the immutable assembly revision before installation.
+ */
+export async function prepareCollisionInWorker(faces: readonly StickerCollisionFace[], signal: AbortSignal): Promise<StickerCollisionSnapshot> {
+  try { return await prepareInWorker(faces, signal); }
+  catch (error) {
+    if (signal.aborted) throw error;
+    return prepareCollisionCooperatively(faces, signal);
+  }
 }

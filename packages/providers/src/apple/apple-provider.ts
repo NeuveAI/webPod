@@ -789,9 +789,22 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   }
   const relationships = async <T extends AlbumRef | TrackRef>(first: string, kind: T['kind'], options?: { readonly signal?: AbortSignal; readonly onPage?: (items: readonly T[]) => void }): Promise<readonly T[]> => {
     const items: T[] = []; let path: string | null = first; let pages = 0
-    while (path !== null) { options?.signal?.throwIfAborted(); const response = await api(path); options?.signal?.throwIfAborted(); items.push(...resources(response).map((item) => normalize(item, keyFor)).filter((item): item is T => item.kind === kind)); options?.onPage?.([...items]); path = Array.isArray(response) ? null : asText(payload(response)['next']) ?? null; pages += 1; if (pages > 1_000) throw new Error('Apple Music relationship pagination did not terminate') }
-    return items
+    let published: readonly T[] | undefined
+    while (path !== null) {
+      options?.signal?.throwIfAborted()
+      const response = await api(path)
+      options?.signal?.throwIfAborted()
+      items.push(...resources(response).map((item) => normalize(item, keyFor)).filter((item): item is T => item.kind === kind))
+      if (options?.onPage !== undefined) { published = [...items]; options.onPage(published) }
+      path = Array.isArray(response) ? null : asText(payload(response)['next']) ?? null
+      pages += 1
+      if (pages > 1_000) throw new Error('Apple Music relationship pagination did not terminate')
+    }
+    // Completion is the last published immutable snapshot, not a second identity
+    // that makes progressive consumers rebuild an already-current screen.
+    return published ?? items
   }
+
   const storefront = (method: string): string => authorized(method).storefrontId ?? authorized(method).storefrontCountryCode ?? 'us'
   const configure = async (): Promise<void> => {
     if (music !== null) return

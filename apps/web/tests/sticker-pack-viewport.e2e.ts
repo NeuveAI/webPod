@@ -12,7 +12,7 @@ test('rear pack remains reachable above the frame after reveal and resize', asyn
     placements: [], placementRevision: 0, importStatus: 'complete',
     progress: STICKER_GENRES.map(genre => ({ genre, listenedMs: 0, nextThresholdMs: 300_000 })),
   } }))
-  await page.goto('/webpod')
+  await page.goto('/webpod?projection-diagnostics=1')
   await expect(page.locator('[data-device-reveal]')).toHaveAttribute('data-device-reveal', 'complete')
   await page.evaluate(() => window.__webpodDevicePreview?.setPose('rear'))
   const lip = page.getByRole('button', { name: 'Pull sticker pack into view' })
@@ -40,7 +40,7 @@ test('a sticker over the right perimeter cannot steal an enclosure grab', async 
     placementRevision: 0, importStatus: 'complete',
     progress: STICKER_GENRES.map(genre => ({ genre, listenedMs: 0, nextThresholdMs: 300_000 })),
   } }))
-  await page.goto('/webpod')
+  await page.goto('/webpod?projection-diagnostics=1')
   const stage = page.locator('[data-device-reveal]')
   await expect(stage).toHaveAttribute('data-device-reveal', 'complete')
   await page.evaluate(() => window.__webpodDevicePreview?.setPose('rear'))
@@ -86,7 +86,7 @@ test('home transition keeps the prepared pack hidden throughout the entrance', a
     }
     requestAnimationFrame(sample)
   })
-  await page.goto('/')
+  await page.goto('/?projection-diagnostics=1')
   await page.getByRole('link', { name: /Lets get playing/ }).click()
   await expect(page.locator('html')).toHaveAttribute('data-test-transition', 'started')
   await expect(page.locator('html')).toHaveAttribute('data-test-player-exited', 'true')

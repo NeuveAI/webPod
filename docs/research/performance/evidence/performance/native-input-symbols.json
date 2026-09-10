@@ -1,0 +1,1226 @@
+[
+  {
+    "type": "pointerdown",
+    "startOffsetMs": 527.656,
+    "durationMs": 108.196,
+    "sampledMs": 108.311,
+    "groupsMs": {
+      "meshRaycast": 96.416
+    },
+    "topInclusive": [
+      {
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 108.311
+      },
+      {
+        "symbol": "intersectObject",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110701,
+        "sampledMs": 96.416
+      },
+      {
+        "symbol": "Lf",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110908,
+        "sampledMs": 96.416
+      },
+      {
+        "symbol": "raycast",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166017,
+        "sampledMs": 95.87
+      },
+      {
+        "symbol": "_computeIntersections",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166514,
+        "sampledMs": 95.87
+      },
+      {
+        "symbol": "Do",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 168096,
+        "sampledMs": 87.783
+      },
+      {
+        "symbol": "a",
+        "asset": "src-B2IO_406.js",
+        "line": 4201,
+        "column": 321572,
+        "sampledMs": 58.228
+      },
+      {
+        "symbol": "grab",
+        "asset": "index-DlDF9dMF.js",
+        "line": 40,
+        "column": 33442,
+        "sampledMs": 58.228
+      },
+      {
+        "symbol": "fb",
+        "asset": "index-DlDF9dMF.js",
+        "line": 12,
+        "column": 213327,
+        "sampledMs": 58.228
+      },
+      {
+        "symbol": "grab",
+        "asset": "src-B2IO_406.js",
+        "line": 4201,
+        "column": 322587,
+        "sampledMs": 58.228
+      },
+      {
+        "symbol": "n",
+        "asset": "index-DlDF9dMF.js",
+        "line": 40,
+        "column": 16670,
+        "sampledMs": 58.228
+      },
+      {
+        "symbol": "",
+        "asset": "src-B2IO_406.js",
+        "line": 4201,
+        "column": 321863,
+        "sampledMs": 56.95
+      }
+    ],
+    "topSelf": [
+      {
+        "symbol": "getX",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115614,
+        "sampledMs": 18.231
+      },
+      {
+        "symbol": "intersectTriangle",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 162965,
+        "sampledMs": 14.562
+      },
+      {
+        "symbol": "getY",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115793,
+        "sampledMs": 10.841
+      },
+      {
+        "symbol": "getZ",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115976,
+        "sampledMs": 9.336
+      },
+      {
+        "symbol": "subVectors",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 40324,
+        "sampledMs": 7.642
+      },
+      {
+        "symbol": "getVertexPosition",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 165658,
+        "sampledMs": 7.077
+      },
+      {
+        "symbol": "fromBufferAttribute",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 45241,
+        "sampledMs": 6.937
+      },
+      {
+        "symbol": "_computeIntersections",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166514,
+        "sampledMs": 6.789
+      }
+    ]
+  },
+  {
+    "type": "pointerup",
+    "startOffsetMs": 637.36,
+    "durationMs": 116.01,
+    "sampledMs": 116.615,
+    "groupsMs": {
+      "meshRaycast": 36.029,
+      "gc": 3.198
+    },
+    "topInclusive": [
+      {
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 116.615
+      },
+      {
+        "symbol": "dd",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 123218,
+        "sampledMs": 54.118
+      },
+      {
+        "symbol": "_u",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 111133,
+        "sampledMs": 54.118
+      },
+      {
+        "symbol": "od",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 121449,
+        "sampledMs": 54.118
+      },
+      {
+        "symbol": "cd",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 121864,
+        "sampledMs": 54.118
+      },
+      {
+        "symbol": "",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 123280,
+        "sampledMs": 54.118
+      },
+      {
+        "symbol": "Ru",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 116960,
+        "sampledMs": 46.772
+      },
+      {
+        "symbol": "vu",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 112216,
+        "sampledMs": 46.772
+      },
+      {
+        "symbol": "",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 77318,
+        "sampledMs": 40.836
+      },
+      {
+        "symbol": "s",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 74461,
+        "sampledMs": 36.029
+      },
+      {
+        "symbol": "intersectObject",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110701,
+        "sampledMs": 36.029
+      },
+      {
+        "symbol": "Lf",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110908,
+        "sampledMs": 36.029
+      }
+    ],
+    "topSelf": [
+      {
+        "symbol": "get scrollWidth",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 19.806
+      },
+      {
+        "symbol": "removeChild",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 18.684
+      },
+      {
+        "symbol": "getVertexPosition",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 165658,
+        "sampledMs": 8.421
+      },
+      {
+        "symbol": "fromBufferAttribute",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 45241,
+        "sampledMs": 6.5
+      },
+      {
+        "symbol": "getY",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115793,
+        "sampledMs": 4.428
+      },
+      {
+        "symbol": "intersectTriangle",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 162965,
+        "sampledMs": 4.285
+      },
+      {
+        "symbol": "getZ",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115976,
+        "sampledMs": 4.045
+      },
+      {
+        "symbol": "(program)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 3.699
+      }
+    ]
+  },
+  {
+    "type": "pointerdown",
+    "startOffsetMs": 7996.586,
+    "durationMs": 81.939,
+    "sampledMs": 81.965,
+    "groupsMs": {
+      "meshRaycast": 76.091
+    },
+    "topInclusive": [
+      {
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 81.965
+      },
+      {
+        "symbol": "raycast",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166017,
+        "sampledMs": 76.091
+      },
+      {
+        "symbol": "intersectObject",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110701,
+        "sampledMs": 76.091
+      },
+      {
+        "symbol": "Lf",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110908,
+        "sampledMs": 76.091
+      },
+      {
+        "symbol": "_computeIntersections",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166514,
+        "sampledMs": 74.744
+      },
+      {
+        "symbol": "Do",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 168096,
+        "sampledMs": 70.811
+      },
+      {
+        "symbol": "",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 77318,
+        "sampledMs": 40.816
+      },
+      {
+        "symbol": "n",
+        "asset": "index-DlDF9dMF.js",
+        "line": 40,
+        "column": 16670,
+        "sampledMs": 39.565
+      },
+      {
+        "symbol": "a",
+        "asset": "src-B2IO_406.js",
+        "line": 4201,
+        "column": 321572,
+        "sampledMs": 39.565
+      },
+      {
+        "symbol": "grab",
+        "asset": "index-DlDF9dMF.js",
+        "line": 40,
+        "column": 33442,
+        "sampledMs": 39.565
+      },
+      {
+        "symbol": "fb",
+        "asset": "index-DlDF9dMF.js",
+        "line": 12,
+        "column": 213327,
+        "sampledMs": 39.565
+      },
+      {
+        "symbol": "grab",
+        "asset": "src-B2IO_406.js",
+        "line": 4201,
+        "column": 322587,
+        "sampledMs": 39.565
+      }
+    ],
+    "topSelf": [
+      {
+        "symbol": "getX",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115614,
+        "sampledMs": 10.084
+      },
+      {
+        "symbol": "getVertexPosition",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 165658,
+        "sampledMs": 9.002
+      },
+      {
+        "symbol": "subVectors",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 40324,
+        "sampledMs": 8.571
+      },
+      {
+        "symbol": "Do",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 168096,
+        "sampledMs": 8.062
+      },
+      {
+        "symbol": "Eo",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 167807,
+        "sampledMs": 6.919
+      },
+      {
+        "symbol": "getZ",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115976,
+        "sampledMs": 6.36
+      },
+      {
+        "symbol": "intersectTriangle",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 162965,
+        "sampledMs": 6.269
+      },
+      {
+        "symbol": "crossVectors",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 43378,
+        "sampledMs": 6.072
+      }
+    ]
+  },
+  {
+    "type": "pointermove",
+    "startOffsetMs": 8079.741,
+    "durationMs": 44.112,
+    "sampledMs": 44.377,
+    "groupsMs": {
+      "meshRaycast": 37.66
+    },
+    "topInclusive": [
+      {
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 44.377
+      },
+      {
+        "symbol": "",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 77318,
+        "sampledMs": 41.711
+      },
+      {
+        "symbol": "r",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 74222,
+        "sampledMs": 37.75
+      },
+      {
+        "symbol": "s",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 74461,
+        "sampledMs": 37.66
+      },
+      {
+        "symbol": "raycast",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166017,
+        "sampledMs": 37.66
+      },
+      {
+        "symbol": "intersectObject",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110701,
+        "sampledMs": 37.66
+      },
+      {
+        "symbol": "_computeIntersections",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166514,
+        "sampledMs": 37.66
+      },
+      {
+        "symbol": "Lf",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110908,
+        "sampledMs": 37.66
+      },
+      {
+        "symbol": "Do",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 168096,
+        "sampledMs": 35.444
+      },
+      {
+        "symbol": "getVertexPosition",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 165658,
+        "sampledMs": 19.766
+      },
+      {
+        "symbol": "fromBufferAttribute",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 45241,
+        "sampledMs": 11.909
+      },
+      {
+        "symbol": "Eo",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 167807,
+        "sampledMs": 11.834
+      }
+    ],
+    "topSelf": [
+      {
+        "symbol": "getVertexPosition",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 165658,
+        "sampledMs": 7.857
+      },
+      {
+        "symbol": "getX",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115614,
+        "sampledMs": 5.521
+      },
+      {
+        "symbol": "Do",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 168096,
+        "sampledMs": 4.535
+      },
+      {
+        "symbol": "crossVectors",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 43378,
+        "sampledMs": 3.435
+      },
+      {
+        "symbol": "intersectTriangle",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 162965,
+        "sampledMs": 3.026
+      },
+      {
+        "symbol": "Eo",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 167807,
+        "sampledMs": 2.94
+      },
+      {
+        "symbol": "getZ",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115976,
+        "sampledMs": 2.262
+      },
+      {
+        "symbol": "getY",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115793,
+        "sampledMs": 2.12
+      }
+    ]
+  },
+  {
+    "type": "pointerup",
+    "startOffsetMs": 8124.835,
+    "durationMs": 41.438,
+    "sampledMs": 41.598,
+    "groupsMs": {
+      "meshRaycast": 37.959
+    },
+    "topInclusive": [
+      {
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 41.598
+      },
+      {
+        "symbol": "",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 77318,
+        "sampledMs": 39.971
+      },
+      {
+        "symbol": "s",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 74461,
+        "sampledMs": 37.959
+      },
+      {
+        "symbol": "raycast",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166017,
+        "sampledMs": 37.959
+      },
+      {
+        "symbol": "intersectObject",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110701,
+        "sampledMs": 37.959
+      },
+      {
+        "symbol": "_computeIntersections",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166514,
+        "sampledMs": 37.959
+      },
+      {
+        "symbol": "Lf",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110908,
+        "sampledMs": 37.959
+      },
+      {
+        "symbol": "r",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 74222,
+        "sampledMs": 37.959
+      },
+      {
+        "symbol": "Do",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 168096,
+        "sampledMs": 36.459
+      },
+      {
+        "symbol": "getVertexPosition",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 165658,
+        "sampledMs": 18.153
+      },
+      {
+        "symbol": "Eo",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 167807,
+        "sampledMs": 15.208
+      },
+      {
+        "symbol": "fromBufferAttribute",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 45241,
+        "sampledMs": 11.643
+      }
+    ],
+    "topSelf": [
+      {
+        "symbol": "subVectors",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 40324,
+        "sampledMs": 7.755
+      },
+      {
+        "symbol": "getVertexPosition",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 165658,
+        "sampledMs": 6.51
+      },
+      {
+        "symbol": "getX",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115614,
+        "sampledMs": 4.91
+      },
+      {
+        "symbol": "Eo",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 167807,
+        "sampledMs": 4.715
+      },
+      {
+        "symbol": "Do",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 168096,
+        "sampledMs": 4.287
+      },
+      {
+        "symbol": "getY",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115793,
+        "sampledMs": 3.157
+      },
+      {
+        "symbol": "fromBufferAttribute",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 45241,
+        "sampledMs": 1.949
+      },
+      {
+        "symbol": "getZ",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115976,
+        "sampledMs": 1.627
+      }
+    ]
+  },
+  {
+    "type": "pointerdown",
+    "startOffsetMs": 8594.957,
+    "durationMs": 80.525,
+    "sampledMs": 80.799,
+    "groupsMs": {
+      "meshRaycast": 67.762,
+      "gc": 1.189
+    },
+    "topInclusive": [
+      {
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 80.799
+      },
+      {
+        "symbol": "intersectObject",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110701,
+        "sampledMs": 67.762
+      },
+      {
+        "symbol": "Lf",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110908,
+        "sampledMs": 67.762
+      },
+      {
+        "symbol": "raycast",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166017,
+        "sampledMs": 67.648
+      },
+      {
+        "symbol": "_computeIntersections",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166514,
+        "sampledMs": 66.431
+      },
+      {
+        "symbol": "Do",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 168096,
+        "sampledMs": 63.891
+      },
+      {
+        "symbol": "",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 77318,
+        "sampledMs": 38.5
+      },
+      {
+        "symbol": "s",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 74461,
+        "sampledMs": 35.145
+      },
+      {
+        "symbol": "r",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 74222,
+        "sampledMs": 35.145
+      },
+      {
+        "symbol": "n",
+        "asset": "index-DlDF9dMF.js",
+        "line": 40,
+        "column": 16670,
+        "sampledMs": 33.545
+      },
+      {
+        "symbol": "a",
+        "asset": "src-B2IO_406.js",
+        "line": 4201,
+        "column": 321572,
+        "sampledMs": 33.545
+      },
+      {
+        "symbol": "grab",
+        "asset": "index-DlDF9dMF.js",
+        "line": 40,
+        "column": 33442,
+        "sampledMs": 33.545
+      }
+    ],
+    "topSelf": [
+      {
+        "symbol": "getVertexPosition",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 165658,
+        "sampledMs": 11.496
+      },
+      {
+        "symbol": "intersectTriangle",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 162965,
+        "sampledMs": 8.477
+      },
+      {
+        "symbol": "subVectors",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 40324,
+        "sampledMs": 7.313
+      },
+      {
+        "symbol": "getZ",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115976,
+        "sampledMs": 6.631
+      },
+      {
+        "symbol": "crossVectors",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 43378,
+        "sampledMs": 6.427
+      },
+      {
+        "symbol": "Do",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 168096,
+        "sampledMs": 6.17
+      },
+      {
+        "symbol": "dot",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 42774,
+        "sampledMs": 5.591
+      },
+      {
+        "symbol": "fromBufferAttribute",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 45241,
+        "sampledMs": 5.269
+      }
+    ]
+  },
+  {
+    "type": "pointermove",
+    "startOffsetMs": 8675.558,
+    "durationMs": 8.819,
+    "sampledMs": 8.857,
+    "groupsMs": {},
+    "topInclusive": [
+      {
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 8.857
+      },
+      {
+        "symbol": "dd",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 123218,
+        "sampledMs": 6.145
+      },
+      {
+        "symbol": "_u",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 111133,
+        "sampledMs": 6.145
+      },
+      {
+        "symbol": "od",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 121449,
+        "sampledMs": 6.145
+      },
+      {
+        "symbol": "cd",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 121864,
+        "sampledMs": 6.145
+      },
+      {
+        "symbol": "",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 123280,
+        "sampledMs": 6.145
+      },
+      {
+        "symbol": "Ru",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 116960,
+        "sampledMs": 3.707
+      },
+      {
+        "symbol": "vu",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 112216,
+        "sampledMs": 3.707
+      },
+      {
+        "symbol": "Au",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 114863,
+        "sampledMs": 2.438
+      },
+      {
+        "symbol": "So",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 47391,
+        "sampledMs": 2.438
+      },
+      {
+        "symbol": "ku",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 114399,
+        "sampledMs": 2.438
+      },
+      {
+        "symbol": "Nu",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 115805,
+        "sampledMs": 2.438
+      }
+    ],
+    "topSelf": [
+      {
+        "symbol": "setAttribute",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 1.487
+      },
+      {
+        "symbol": "q_",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 65884,
+        "sampledMs": 1.334
+      },
+      {
+        "symbol": "i",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 75323,
+        "sampledMs": 1.331
+      },
+      {
+        "symbol": "r",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 15225,
+        "sampledMs": 1.3
+      },
+      {
+        "symbol": "Tr",
+        "asset": "index-DlDF9dMF.js",
+        "line": 9,
+        "column": 23277,
+        "sampledMs": 1.169
+      },
+      {
+        "symbol": "",
+        "asset": "src-B2IO_406.js",
+        "line": 4119,
+        "column": 35516,
+        "sampledMs": 0.824
+      },
+      {
+        "symbol": "",
+        "asset": "index-DlDF9dMF.js",
+        "line": 12,
+        "column": 102799,
+        "sampledMs": 0.621
+      },
+      {
+        "symbol": "(program)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 0.25
+      }
+    ]
+  },
+  {
+    "type": "pointerup",
+    "startOffsetMs": 8684.469,
+    "durationMs": 41.382,
+    "sampledMs": 41.501,
+    "groupsMs": {
+      "meshRaycast": 35.021
+    },
+    "topInclusive": [
+      {
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 41.501
+      },
+      {
+        "symbol": "",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 77318,
+        "sampledMs": 36.964
+      },
+      {
+        "symbol": "r",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 74222,
+        "sampledMs": 35.84
+      },
+      {
+        "symbol": "s",
+        "asset": "src-B2IO_406.js",
+        "line": 4108,
+        "column": 74461,
+        "sampledMs": 35.021
+      },
+      {
+        "symbol": "raycast",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166017,
+        "sampledMs": 35.021
+      },
+      {
+        "symbol": "intersectObject",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110701,
+        "sampledMs": 35.021
+      },
+      {
+        "symbol": "_computeIntersections",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166514,
+        "sampledMs": 35.021
+      },
+      {
+        "symbol": "Lf",
+        "asset": "src-B2IO_406.js",
+        "line": 5,
+        "column": 110908,
+        "sampledMs": 35.021
+      },
+      {
+        "symbol": "Do",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 168096,
+        "sampledMs": 32.141
+      },
+      {
+        "symbol": "intersectTriangle",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 162965,
+        "sampledMs": 15.578
+      },
+      {
+        "symbol": "Eo",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 167807,
+        "sampledMs": 14.495
+      },
+      {
+        "symbol": "getVertexPosition",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 165658,
+        "sampledMs": 14.217
+      }
+    ],
+    "topSelf": [
+      {
+        "symbol": "getX",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115614,
+        "sampledMs": 6.2
+      },
+      {
+        "symbol": "crossVectors",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 43378,
+        "sampledMs": 4.973
+      },
+      {
+        "symbol": "intersectTriangle",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 162965,
+        "sampledMs": 4.867
+      },
+      {
+        "symbol": "subVectors",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 40324,
+        "sampledMs": 4.809
+      },
+      {
+        "symbol": "Do",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 168096,
+        "sampledMs": 3.788
+      },
+      {
+        "symbol": "getVertexPosition",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 165658,
+        "sampledMs": 3.128
+      },
+      {
+        "symbol": "_computeIntersections",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 166514,
+        "sampledMs": 2.936
+      },
+      {
+        "symbol": "getZ",
+        "asset": "src-B2IO_406.js",
+        "line": 1,
+        "column": 115976,
+        "sampledMs": 2.632
+      }
+    ]
+  }
+]

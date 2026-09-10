@@ -1,0 +1,16 @@
+{
+  "kind": "read-only source audit; no new browser timing",
+  "three": "0.185.1",
+  "fiber": "9.7.0",
+  "currentRenderer": "WebGLRenderer / WebGL2 GPU",
+  "framePolicy": "demand",
+  "studioPmremTargetsPerInstallation": 2,
+  "studioDependsOnOrientation": false,
+  "warmupCompleteDrawsBeforeReady": 2,
+  "unusedStartupCompileCandidate": "compileEquirectangularShader before fromScene-only PMREM use",
+  "webgpuHtmlTextureSupportedInInstalledSource": true,
+  "webgpuHtmlTextureAdditionalCapability": "GPUQueue.copyElementImageToTexture plus HTML canvas paint support",
+  "migrationCustomShaderFamilies": ["LCD color decode", "polycarbonate transport", "glass reflection cards", "sticker appearance", "sticker wear"],
+  "bestBoundedGpuCandidate": "visual-only paper bow/curl on static grid with existing CPU generator fallback",
+  "firstFrontTransmissionAllocationHypothesis": "not established: back-facing visible glass still participates in render list"
+}

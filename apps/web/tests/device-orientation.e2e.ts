@@ -11,7 +11,7 @@ test.use({
 })
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  await page.goto('/?projection-diagnostics=1', { waitUntil: 'domcontentloaded' })
   const device = page.locator('.webpod-device-preview__device')
   await expect(device).toHaveAttribute('data-composite-tier', 'T1', { timeout: 20_000 })
   await expect

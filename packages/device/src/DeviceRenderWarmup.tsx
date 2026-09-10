@@ -10,12 +10,21 @@ export function DeviceRenderWarmup() {
     const canvas = gl.domElement
     if (!canvas.closest('[data-device-reveal="warming"]')) return
     let disposed = false
+    let failed = false
+    // This starts only after the complete scene commits. A stalled driver must
+    // report failure rather than leave entry waiting forever on compileAsync.
+    const deadline = setTimeout(() => {
+      failed = true
+      frames.current = 0
+      canvas.dataset['wpRenderWarm'] = 'failed'
+    }, 10000)
     // Let sibling environment/material effects commit before compiling.
     const start = requestAnimationFrame(() => {
       void (async () => {
         try {
           await gl.compileAsync(scene, camera)
-          if (disposed) return
+          if (disposed || failed) return
+          clearTimeout(deadline)
           const textures = new Set<Texture>()
           scene.traverse(object => {
             if (!(object instanceof Mesh)) return
@@ -27,6 +36,7 @@ export function DeviceRenderWarmup() {
           frames.current = 3
           invalidate()
         } catch {
+          clearTimeout(deadline)
           // The route's bounded fallback still exposes graphics error UI.
           if (!disposed) canvas.dataset['wpRenderWarm'] = 'failed'
         }
@@ -34,6 +44,7 @@ export function DeviceRenderWarmup() {
     })
     return () => {
       disposed = true
+      clearTimeout(deadline)
       cancelAnimationFrame(start)
       frames.current = 0
       delete canvas.dataset['wpRenderWarm']

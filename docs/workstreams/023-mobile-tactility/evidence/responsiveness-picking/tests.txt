@@ -1,0 +1,131 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/probe-raycast.test.ts:
+(pass) first visible probe hit > uses Three's stable type flags across module graphs [0.16ms]
+(pass) first visible probe hit > rejects a nearer unnamed wrong-material occluder [1.13ms]
+(pass) first visible probe hit > fails closed when the transparent decal alpha cannot be proven empty [0.15ms]
+(pass) first visible probe hit > accepts the transformed back mesh only when it is the first hit [0.29ms]
+(pass) first visible probe hit > keeps a transparent decal in front of its opaque backing [0.14ms]
+(pass) first visible probe hit > edge targets fail closed when the nearer visible shell is unnamed [0.12ms]
+(pass) first visible probe hit > solves the actual tessellated mesh surface instead of a nominal z [5.73ms]
+(pass) side-face probe solves > solves the actual visible right shell instead of a front proxy [0.15ms]
+
+packages/device/src/click-wheel-input.integration.test.tsx:
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > mounted wheel and Select ray hits publish pointer intent and clean up [9.32ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > an injected form moves the mounted ray plane with the visible wheel [1.13ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > routes captured wheel gestures without cancelling delegated native events [1.89ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > release-qualified cardinal sectors map mouse, touch and pen exactly once [2.63ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > diagonal edges and radial extremes remain tappable without entering rotation [1.82ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > oblique model-space projection preserves full sectors, diagonal ownership, and movement takeover [2.57ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > movement takeover cancels the cardinal candidate before rotation starts [1.01ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > cancel, lost capture, blur and drag-off reject cardinal presses [4.47ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Select captures mouse, touch and pen and never enters the arc runtime [1.59ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > the mounted r=37 seam belongs only to Select while just outside belongs to the annulus [0.76ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > the production Select target holds the bound plastic at its axial travel until release [1.67ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Select cancel, lost capture and blur each return capture exactly once [0.84ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > Enter travel is scoped to the focused semantic application [1.07ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > window blur cancels capture and leaves the next gesture usable [0.54ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+991 |     let startsToThrow = 1;
+992 |     const mounted = await mountSurface("front", {
+993 |       onArcStart: () => {
+994 |         if (startsToThrow > 0) {
+995 |           startsToThrow -= 1;
+996 |           throw new Error("planted start failure");
+                          ^
+error: planted start failure
+      at onArcStart (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:996:21)
+      at onArcStart (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:211:24)
+      at onPointerMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.tsx:694:32)
+      at onIntersect (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:942:62)
+      at handleIntersects (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:804:11)
+      at handleEvent (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:963:7)
+      at #callDispatchEventListeners (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:239:47)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:117:14)
+      at #goThroughDispatchEventPhases (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:177:38)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:113:18)
+
+(pass) click-wheel mounted R3F event seam > a thrown start callback releases capture and leaves the next gesture usable [1.74ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+1026 |     let movesToThrow = 1;
+1027 |     const mounted = await mountSurface("front", {
+1028 |       onArcMove: () => {
+1029 |         if (movesToThrow > 0) {
+1030 |           movesToThrow -= 1;
+1031 |           throw new Error("planted move failure");
+                           ^
+error: planted move failure
+      at onArcMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:1031:21)
+      at onArcMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.integration.test.tsx:215:24)
+      at onPointerMove (/Users/vinicius/code/webPod/packages/device/src/click-wheel-input.tsx:696:30)
+      at onIntersect (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:942:62)
+      at handleIntersects (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:804:11)
+      at handleEvent (/Users/vinicius/code/webPod/node_modules/.bun/@react-three+fiber@9.7.0+c322101a3e22b31d/node_modules/@react-three/fiber/dist/events-b1bdeb1a.cjs.dev.js:963:7)
+      at #callDispatchEventListeners (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:239:47)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:117:14)
+      at #goThroughDispatchEventPhases (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:177:38)
+      at dispatchEvent (/Users/vinicius/code/webPod/node_modules/.bun/happy-dom@20.11.15/node_modules/happy-dom/lib/event/EventTarget.js:113:18)
+
+(pass) click-wheel mounted R3F event seam > a thrown move callback cancels listeners and capture before rethrowing [1.05ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > native cancel and following lost capture terminate exactly once [0.66ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > unexpected native lost capture reaches the component listener [0.54ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > reconciler unmount cancels and releases an active pointer [0.39ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > reconciler unmount returns an active Select press [0.36ms]
+THREE.Clock: This module has been deprecated. Please use THREE.Timer instead.
+(pass) click-wheel mounted R3F event seam > a back-facing DeviceCanvas context contains no raycastable annulus [0.26ms]
+
+packages/device/src/orientation-grab.test.ts:
+(pass) device enclosure orientation grab > leaves browser gesture suppression to the application touch-action boundary [0.26ms]
+(pass) device enclosure orientation grab > accepts primary mouse, pen, and touch without accepting secondary input [0.04ms]
+(pass) device enclosure orientation grab > admits the physical perimeter and corners, never face controls [0.07ms]
+(pass) device enclosure orientation grab > rejects a shell behind the LCD, wheel, or Select ray hit [0.07ms]
+
+packages/device/src/sticker-hit-grab.test.ts:
+(pass) painted probe hit retains the rendered transformed triangle through affine capture [1.45ms]
+
+packages/device/src/click-wheel-input.test.tsx:
+(pass) click-wheel input geometry > uses the canonical Select and wheel radii [0.01ms]
+(pass) click-wheel input geometry > clockwise and counter-clockwise quarter turns have the right sign [0.01ms]
+(pass) click-wheel input geometry > crosses the signed-angle seam without a reverse jump
+(pass) click-wheel input geometry > refreshes a dirty parent and mesh world transform in production [0.12ms]
+(pass) click-wheel input geometry > returns the transformed body-local angle without moving the hit plane [0.04ms]
+(pass) click-wheel input geometry > returns null when the current ray is parallel to the wheel plane [0.02ms]
+(pass) click-wheel input geometry > accepts primary touch, pen and left mouse only [0.02ms]
+(pass) click-wheel input geometry > maps the complete annulus into deterministic 90-degree sectors [0.05ms]
+(pass) click-wheel capture lifecycle > reports release and releases capture exactly once [0.06ms]
+(pass) click-wheel capture lifecycle > ignores terminal events for a different pointer [0.02ms]
+
+packages/device/src/sticker-visibility.test.ts:
+(pass) visibility query captures transforms once and refreshes them for the next query [1.30ms]
+(pass) actual assembly sticker visibility > visible front print and hidden opposite print use the same first shell hit [0.21ms]
+(pass) actual assembly sticker visibility > sticker meshes are excluded while transformed child hardware remains physical [0.11ms]
+(pass) actual assembly sticker visibility > global pose changes reuse the BVH; local transforms and buffer updates replace it [0.28ms]
+
+packages/device/src/sticker-surface-grab.test.ts:
+(pass) frozen actual triangle material basis retains pickup offset and known rear delta [0.17ms]
+(pass) viewport, camera and content changes invalidate; numerical grazing cannot amplify drag [0.13ms]
+(pass) steel-side camera views use a fixed affine frame from shown triangle UVs [16.36ms]
+(pass) translated rotated print maps its UV-oriented material delta back to rear coordinates [0.15ms]
+
+ 52 pass
+ 0 fail
+ 432 expect() calls
+Ran 52 tests across 7 files. [197.00ms]

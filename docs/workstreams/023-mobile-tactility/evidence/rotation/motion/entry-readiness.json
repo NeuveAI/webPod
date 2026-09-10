@@ -1,0 +1,9 @@
+{
+  "pendingBeyondSafetyTimerWaits": true,
+  "realReadinessStartsEntry": true,
+  "originalFrameCurveAndFinalPose": true,
+  "noCanvasFallback": true,
+  "failedGraphicsFallback": true,
+  "lateFailureFallback": true,
+  "noResidualFrames": true
+}

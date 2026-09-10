@@ -1,0 +1,117 @@
+[
+  {
+    "supported": true,
+    "box": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "wheel": {
+      "x": 195,
+      "y": 533.2363636363636
+    },
+    "actualTouches": {
+      "center": [
+        195,
+        521
+      ],
+      "menu": [
+        195,
+        450
+      ],
+      "arc": [
+        [
+          245,
+          470
+        ],
+        [
+          257,
+          482
+        ],
+        [
+          265,
+          497
+        ],
+        [
+          267,
+          520
+        ],
+        [
+          260,
+          540
+        ],
+        [
+          245,
+          560
+        ]
+      ],
+      "terminal": "touchCancel"
+    },
+    "pulses": [
+      "HAPTIC:[17,3,3,1]",
+      "HAPTIC:[17,3,3,1]",
+      "HAPTIC:[17,3,3,1]",
+      "HAPTIC:[4,4]",
+      "HAPTIC:0",
+      "HAPTIC:0",
+      "HAPTIC:0",
+      "HAPTIC:0"
+    ],
+    "errors": [],
+    "hiddenSwitches": 0
+  },
+  {
+    "supported": false,
+    "box": {
+      "x": 0,
+      "y": 0,
+      "width": 390,
+      "height": 844
+    },
+    "wheel": {
+      "x": 195,
+      "y": 533.2363636363636
+    },
+    "actualTouches": {
+      "center": [
+        195,
+        521
+      ],
+      "menu": [
+        195,
+        450
+      ],
+      "arc": [
+        [
+          245,
+          470
+        ],
+        [
+          257,
+          482
+        ],
+        [
+          265,
+          497
+        ],
+        [
+          267,
+          520
+        ],
+        [
+          260,
+          540
+        ],
+        [
+          245,
+          560
+        ]
+      ],
+      "terminal": "touchCancel"
+    },
+    "pulses": [],
+    "errors": [],
+    "hiddenSwitches": 0
+  }
+]

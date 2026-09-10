@@ -20,6 +20,8 @@ export interface DeviceStickerPlacement {
 
 /** Continuous visual values are driven by the application's shared Jotai actions. */
 export interface StickerPackVisual {
+  /** Changes at gesture, release, cancellation and selection ownership boundaries. */
+  readonly computationEpoch?: number;
   readonly presence?: number;
   /** Slides only the packet workspace away; the held print retains its origin. */
   readonly tuck?: number;
