@@ -73,7 +73,7 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
     }
   }
   const music = useSyncExternalStore(musicRuntime.subscribe, musicRuntime.getSnapshot, musicRuntime.getSnapshot)
-  const signedIn = music.provider.session?.status === 'authorized'
+  const signedIn = music.phase === 'authorized' && music.provider.session?.status === 'authorized'
   const signingIn = music.phase === 'signing-in'
   const action = welcomeAction(signedIn, signingIn, reason === null)
   const authorizationAttempted = useAtomValue(authorizationAttemptedAtom, { store: welcomeStore })
@@ -159,6 +159,7 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
         </button> : null}
       </div>
     <div className="webpod-welcome__play-action">
+      {typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('spotify') ? <p className="webpod-welcome__auth-status" role="status">Spotify sign-in wasn’t completed. Please try again.</p> : null}
       {action.kind === 'sign-in' ? <button type="button" className="webpod-welcome__primary" disabled={action.disabled} onClick={() => void signIn()}>{action.label} <span aria-hidden="true">↗</span></button>
         : !action.disabled ? <Link to="/webpod" className="webpod-welcome__primary" onClick={event => {
           if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
@@ -166,8 +167,9 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
           void enterDevice()
         }}>Lets get playing! <span aria-hidden="true">↗</span></Link>
           : <button type="button" className="webpod-welcome__primary" disabled aria-describedby="browser-setup-title">Lets get playing! <span aria-hidden="true">↗</span></button>}
-      {!signedIn ? <p className="webpod-welcome__auth-status">Continue securely with Apple to connect your music library.<br />webPod never sees your Apple Account password.</p> : null}
-      {music.phase === 'error' || music.phase === 'permission-denied' ? <p className="webpod-welcome__auth-status" role="status">{!authorizationAttempted ? 'Apple Music is temporarily unavailable. Try connecting again shortly.' : music.phase === 'permission-denied' ? 'Access wasn’t granted. You can connect again when you’re ready.' : 'Couldn’t connect to Apple Music. Please try again.'}</p> : null}
+      {!signedIn ? <a className="webpod-welcome__spotify" href="/api/spotify/login">or use Spotify</a> : null}
+      {!signedIn ? <p className="webpod-welcome__auth-status">Connect your music library securely.<br />Apple Music or Spotify Premium required.</p> : null}
+      {music.phase === 'error' || music.phase === 'permission-denied' ? <p className="webpod-welcome__auth-status" role="status">{music.activeMode === 'spotify' ? music.message : !authorizationAttempted ? 'Apple Music is temporarily unavailable. Try connecting again shortly.' : music.phase === 'permission-denied' ? 'Access wasn’t granted. You can connect again when you’re ready.' : 'Couldn’t connect to Apple Music. Please try again.'}</p> : null}
     </div>
     </section>
     <footer className="webpod-welcome__footer">

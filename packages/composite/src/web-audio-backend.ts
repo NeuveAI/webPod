@@ -9,7 +9,7 @@ import {
   createInteractionVoiceSpec,
 } from './interaction-audio'
 
-const MASTER_GAIN = 0.62
+const MASTER_GAIN = 0.8928
 const COMPRESSOR_THRESHOLD_DB = -18
 const COMPRESSOR_KNEE_DB = 6
 const COMPRESSOR_RATIO = 8

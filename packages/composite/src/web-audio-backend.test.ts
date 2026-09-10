@@ -60,7 +60,7 @@ describe('browser interaction audio graph', () => {
     const master = context.gains[0]
     const compressor = context.compressors[0]
     if (master === undefined || compressor === undefined) throw new Error('Master graph missing')
-    expect(master.gain.values).toContainEqual(['set', 0.62, 0.5])
+    expect(master.gain.values).toContainEqual(['set', 0.8928, 0.5])
     expect(compressor.threshold.values).toContainEqual(['set', -18, 0.5])
     expect(compressor.ratio.values).toContainEqual(['set', 8, 0.5])
     expect(master.connections).toEqual([compressor])

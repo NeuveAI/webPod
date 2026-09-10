@@ -12,12 +12,16 @@ export function OverflowMarquee({ text, active = false, className }: OverflowMar
   useEffect(() => {
     const root = rootRef.current
     if (root === null) return
+    if (!active) { root.dataset.overflow = 'false'; return }
     const moving = root.querySelector<HTMLElement>('.wp-marquee__moving')
     if (moving === null) return
     const measure = () => {
-      const overflow = active && moving.scrollWidth > root.clientWidth + 1
-      root.dataset.overflow = overflow ? 'true' : 'false'
-      root.style.setProperty('--wp-marquee-distance', `${Math.max(0, moving.scrollWidth - root.clientWidth)}px`)
+      // Read geometry together before any attribute/style writes.
+      const distance = Math.max(0, moving.scrollWidth - root.clientWidth)
+      const overflow = distance > 1 ? 'true' : 'false'
+      const cssDistance = `${distance}px`
+      if (root.dataset.overflow !== overflow) root.dataset.overflow = overflow
+      if (root.style.getPropertyValue('--wp-marquee-distance') !== cssDistance) root.style.setProperty('--wp-marquee-distance', cssDistance)
     }
     measure()
     if (typeof ResizeObserver === 'undefined') return

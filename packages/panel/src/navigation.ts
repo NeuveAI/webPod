@@ -37,6 +37,8 @@ export interface NavigationDataSource {
   trackByKey(trackKey: LocalKey): TrackRef | null
   tracksForAlbum(albumKey: LocalKey, options?: NavigationLoadOptions): readonly TrackRef[] | Promise<readonly TrackRef[]>
   tracksForPlaylist(playlistKey: LocalKey, options?: NavigationLoadOptions): readonly TrackRef[] | Promise<readonly TrackRef[]>
+  artistAlbumsFailed?(artistKey: LocalKey): boolean
+  artistAlbumsSnapshot?(artistKey: LocalKey): readonly AlbumRef[] | undefined
   albumsForArtist(artistKey: LocalKey, options?: NavigationLoadOptions): readonly AlbumRef[] | Promise<readonly AlbumRef[]>
   albumsForGenre(genreKey: LocalKey): readonly AlbumRef[]
   artistsForGenre(genreKey: LocalKey): readonly ArtistRef[]
@@ -212,6 +214,14 @@ export function refreshNavigationFrame(current: ScreenFrame, source: NavigationD
   else if (route.kind === 'cover-flow') refreshed = albumsFrame('Cover Flow', 'cover-flow', source.albums)
   else if (route.kind === 'playlists') refreshed = listFrame('S05', 'Playlists', route, source.playlists.map((item, index) => descendRow(index, item.name, null, undefined, item.key)))
   else if (route.kind === 'artists') refreshed = artistsFrame('Artists', route, source.artists)
+  else if (route.kind === 'artist-albums') {
+    const albums = source.artistAlbumsSnapshot?.(route.artistKey)
+    const artist = source.artists.find((item) => item.key === route.artistKey)
+    if (albums !== undefined && artist !== undefined) {
+      refreshed = artistAlbumsFrame(artist, albums)
+      if (source.artistAlbumsFailed?.(route.artistKey)) refreshed = { ...refreshed, rows: [...refreshed.rows, { ...descendRow(albums.length, "Couldn't load more albums", 'Press Menu and try again'), glyphs: [] }] }
+    }
+  }
   else if (route.kind === 'albums') refreshed = albumsFrame('Albums', 'albums', source.albums)
   else if (route.kind === 'songs') refreshed = songsFrame('Songs', route, source.songs)
   else if (route.kind === 'stations') refreshed = listFrame('S18', 'Radio', route, source.stations.map((item, index) => descendRow(index, item.name, item.live ? 'Live' : null, undefined, item.key)))

@@ -7,7 +7,9 @@ import { mintLocalKey } from './identity.ts'
 import type { PlaylistRef, TrackRef } from './identity.ts'
 import type { MusicProvider } from './provider.ts'
 import { createFixtureProvider } from './fixture/fixture-provider.ts'
-import { createSpotifyProvider } from './spotify/spotify-provider.ts'
+import { createStubProvider } from './stub.ts'
+import { SPOTIFY_SUPPORTS, SPOTIFY_UNSUPPORTED_REASONS } from './spotify/matrix.ts'
+const createSpotifyStub = () => createStubProvider({ id: 'spotify', displayName: 'Spotify', supports: SPOTIFY_SUPPORTS, unsupportedReasons: SPOTIFY_UNSUPPORTED_REASONS })
 
 const TRACK: TrackRef = {
   kind: 'track',
@@ -63,8 +65,8 @@ const CALLS: readonly (readonly [string, string, (p: MusicProvider) => unknown])
   ['saveToggle', 'saveToggle', (p) => p.saveToggle(TRACK, true)],
 ]
 
-// Apple graduated to a real MusicKit adapter; only Spotify remains a stub.
-for (const [providerName, make] of [['spotify', createSpotifyProvider]] as const) {
+// Exercise the reusable stub independently of the live provider adapters.
+for (const [providerName, make] of [['spotify', createSpotifyStub]] as const) {
   describe(`${providerName} adapter — a compiling stub with a real matrix`, () => {
     const provider = make()
 
@@ -187,7 +189,7 @@ describe('no adapter reaches the network', () => {
       { preconnect: realFetch.preconnect },
     )
     try {
-      const providers = [createAppleProvider(), createSpotifyProvider()]
+      const providers = [createAppleProvider(), createSpotifyStub()]
       for (const provider of providers) {
         for (const capability of CAPABILITIES) {
           provider.supports(capability)
@@ -211,7 +213,7 @@ describe('the two implementations agree on the failure protocol', () => {
   // suite could see it, because every stub test awaited inside a `try`.
   const IMPLEMENTATIONS = [
     ['apple', createAppleProvider()],
-    ['spotify', createSpotifyProvider()],
+    ['spotify', createSpotifyStub()],
     ['fixture', createFixtureProvider({ authorized: false, supports: { search: false } })],
   ] as const
 

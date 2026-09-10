@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 import { createFixtureProvider, type MusicProvider, type PlaybackState, type QueueSnapshot } from '@webpod/providers'
-import { detentActionAtom, deviceStore, pressActionAtom, resetStackActionAtom } from '@webpod/state'
+import { detentActionAtom, deviceStore, pressActionAtom, resetStackActionAtom, type NavigationRoute } from '@webpod/state'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
@@ -192,6 +192,8 @@ describe('mounted playback selection', () => {
     await center()
     expect(container.querySelector('.wp-now')?.getAttribute('data-mode')).toBe('scrub')
     expect(container.querySelector('[role="progressbar"]')?.getAttribute('aria-label')).toBe('Track position, scrubbing')
+    await act(async () => { await provider.pause() })
+    expect(provider.playback.status).toBe('paused')
     const positionBeforeScrub = provider.playback.positionMs
     await act(async () => {
       deviceStore.set(detentActionAtom, { path: 'direct', source: 'human', detents: 1, timestampMs: 2 })
@@ -199,6 +201,7 @@ describe('mounted playback selection', () => {
       await Promise.resolve()
     })
     expect(provider.playback.positionMs).toBe(positionBeforeScrub)
+    expect(provider.playback.status).toBe('paused')
     expect(container.querySelector('.wp-now')?.getAttribute('data-position-ms')).toBe(String(positionBeforeScrub + 5_000))
     expect(container.querySelector('.wp-now')?.getAttribute('data-scrub-state')).toBe('previewing')
 
@@ -206,6 +209,7 @@ describe('mounted playback selection', () => {
     expect(container.querySelector('.wp-now')?.getAttribute('data-mode')).toBe('scrub')
     expect(container.querySelector('.wp-now')?.getAttribute('data-scrub-state')).toBe('clean')
     expect(provider.playback.positionMs).toBe(positionBeforeScrub + 5_000)
+    expect(provider.playback.status).toBe('playing')
 
     await center()
     expect(container.querySelector('.wp-now')?.getAttribute('data-mode')).toBe('artwork')
@@ -234,7 +238,10 @@ describe('mounted playback selection', () => {
     expect(container.querySelector('.wp-now--queue [aria-current="true"]')?.textContent).toBe(selected)
     const selectedTitle = container.querySelector('.wp-now--queue [aria-current="true"] .wp-list-row__primary')?.getAttribute('title')
     if (selectedTitle == null) throw new Error('selected queue title missing')
+    await act(async () => { await provider.pause() })
+    expect(provider.playback.status).toBe('paused')
     await center()
+    expect(provider.playback.status).toBe('playing')
     expect(provider.playback.queueIndex).toBe(0)
     expect(container.querySelector('.wp-now')?.getAttribute('data-mode')).toBe('standard')
     expect(container.querySelector('.wp-now-meta h1 .wp-marquee')?.getAttribute('title')).toBe(provider.playback.now?.title)
@@ -451,7 +458,7 @@ describe('mounted playback selection', () => {
     })
 
     expect(container.querySelector('.wp-now-meta h1 .wp-marquee__rest')?.textContent).toBe(first.title)
-    expect(container.querySelector('.wp-now-count')).toBeNull()
+    expect(container.querySelector('.wp-now-count')?.textContent).toBe('3 of 3')
     expect(container.querySelector('.wp-now')?.getAttribute('aria-busy')).toBe('true')
     expect(container.querySelector('.wp-progress--indeterminate')).not.toBeNull()
     expect(container.textContent).not.toContain('Preparing playback')
@@ -462,7 +469,7 @@ describe('mounted playback selection', () => {
       for (const listener of listeners) listener(currentPlayback)
       await Promise.resolve()
     })
-    expect(container.querySelector('.wp-now-count')).toBeNull()
+    expect(container.querySelector('.wp-now-count')?.textContent).toBe('3 of 3')
     expect(container.querySelector('.wp-now')?.getAttribute('aria-busy')).toBe('true')
 
     await act(async () => {
@@ -714,4 +721,159 @@ describe('mounted playback selection', () => {
     expect(container.querySelector('.wp-actions')).toBeNull()
     expect(container.querySelector('.wp-message')).toBeNull()
   })
+})
+
+
+test('skipping supersedes an unconfirmed selection and exits its scrub preview', async () => {
+  const provider = createFixtureProvider()
+  await act(async () => root.render(<Panel provider={provider} navigationSource={fixtureNavigationSource} accountStatus={null} />))
+  const songs = (await selectNavigation({ ...navigationRoot(fixtureNavigationSource, provider), highlightIndex: 3 }, fixtureNavigationSource, provider)).frame
+  if (!songs) throw new Error('Missing songs')
+  await act(async () => {
+    deviceStore.set(resetStackActionAtom, [songs])
+    deviceStore.set(pressActionAtom, { button: 'center', source: 'human', path: 'key' })
+    await Promise.resolve()
+    await Promise.resolve()
+  })
+  const firstTitle = provider.playback.now?.title
+  await act(async () => {
+    deviceStore.set(pressActionAtom, { button: 'center', source: 'human', path: 'key' })
+    await Promise.resolve()
+    deviceStore.set(detentActionAtom, { path: 'direct', source: 'human', detents: 2, timestampMs: 9900 })
+    await Promise.resolve()
+  })
+  await act(async () => {
+    await provider.skip('next')
+    showNowPlayingScreen({ followPlayback: true })
+    await Promise.resolve()
+  })
+  expect(provider.playback.now?.title).not.toBe(firstTitle)
+  expect(container.querySelector('.wp-now-meta h1')?.textContent).toContain(provider.playback.now?.title ?? 'Missing track')
+  expect(container.querySelector('.wp-now')?.getAttribute('data-mode')).toBe('standard')
+  expect(container.querySelector('.wp-now')?.getAttribute('data-position-ms')).toBe(String(provider.playback.positionMs))
+})
+
+
+test('the full-context counter advances independently of a rolling upcoming queue', async () => {
+  const fixture = createFixtureProvider()
+  const tracks = fixture.catalog.tracks.slice(0, 3)
+  let observed: PlaybackState = { ...fixture.playback, now: tracks[0] ?? null, status: 'playing', queueIndex: 0, queueTotal: 3 }
+  const listeners = new Set<() => void>()
+  const provider: MusicProvider = {
+    ...fixture,
+    get playback() { return observed },
+    onPlaybackChange(cb) { const listener = () => cb(observed); listeners.add(listener); return () => { listeners.delete(listener) } },
+    onProgress() { return () => {} },
+    async queueRead() { return { now: observed.now, next: tracks, history: [] } },
+  }
+  await act(async () => root.render(<Panel provider={provider} navigationSource={fixtureNavigationSource} accountStatus={null} />))
+  await act(async () => { deviceStore.set(resetStackActionAtom, [nowPlayingFrame()]) })
+  expect(container.querySelector('.wp-now-count')?.textContent).toBe('1 of 3')
+  const counterNode = container.querySelector('.wp-now-count')
+  const totalNode = container.querySelector('[data-queue-total]')
+  const totalText = totalNode?.firstChild
+  const ofNode = totalNode?.previousSibling
+  for (const index of [1, 2, 1]) {
+    await act(async () => { observed = { ...observed, now: tracks[index] ?? null, queueIndex: index }; for (const listener of listeners) listener() })
+    expect(container.querySelector('.wp-now-count')?.textContent).toBe(`${index + 1} of 3`)
+    expect(container.querySelector('.wp-now-count')).toBe(counterNode)
+    expect(container.querySelector('[data-queue-total]')?.firstChild).toBe(totalText)
+    expect(totalNode?.previousSibling).toBe(ofNode)
+  }
+  await act(async () => { observed = { ...observed, queueTotal: null }; for (const listener of listeners) listener() })
+  expect(container.querySelector('.wp-now-count')).toBeNull()
+})
+
+
+for (const kind of ['album-tracks', 'playlist-tracks', 'songs', 'genre-tracks', 'search-results'] as const) {
+  test(`${kind} shows the exact selected counter before transport responds`, async () => {
+    const fixture = createFixtureProvider()
+    const tracks = fixture.catalog.tracks.slice(0, 3)
+    const selected = tracks[2]
+    if (!selected) throw new Error('Missing track')
+    const source = { ...fixtureNavigationSource, songs: tracks }
+    let observed: PlaybackState = { ...fixture.playback, now: tracks[0] ?? null, queueIndex: 0, queueTotal: 99, status: 'playing' }
+    const listeners = new Set<() => void>()
+    let release!: () => void
+    const gate = new Promise<void>((resolve) => { release = resolve })
+    const provider: MusicProvider = {
+      ...fixture,
+      get playback() { return observed },
+      async play(target) { expect(target).toMatchObject({ kind: 'tracks', startIndex: 2 }); await gate },
+      onPlaybackChange(cb) { const listener = () => cb(observed); listeners.add(listener); return () => { listeners.delete(listener) } },
+      onProgress() { return () => {} },
+      async queueRead() { return { now: observed.now, history: [], next: [] } },
+    }
+    await act(async () => root.render(<Panel provider={provider} navigationSource={source} accountStatus={null} />))
+    const songs = (await selectNavigation({ ...navigationRoot(source, provider), highlightIndex: 3 }, source, provider)).frame
+    if (!songs) throw new Error('Missing list')
+    const route: NavigationRoute = kind === 'album-tracks' ? { kind, albumKey: selected.key }
+      : kind === 'playlist-tracks' ? { kind, playlistKey: selected.key }
+      : kind === 'genre-tracks' ? { kind, genreKey: selected.key }
+      : kind === 'search-results' ? { kind, query: 'test', trackKeys: tracks.map(track => track.key) }
+      : { kind }
+    await act(async () => {
+      deviceStore.set(resetStackActionAtom, [{ ...songs, route, highlightIndex: 2 }])
+      deviceStore.set(pressActionAtom, { button: 'center', source: 'human', path: 'key' })
+    })
+    expect(container.querySelector('.wp-now-count')?.textContent).toBe('3 of 3')
+    const counter = container.querySelector('.wp-now-count')
+    const total = container.querySelector('[data-queue-total]')?.firstChild
+    await act(async () => {
+      observed = { ...observed, status: 'loading', queueIndex: null, queueTotal: 3 }
+      for (const listener of listeners) listener()
+      release()
+    })
+    expect(container.querySelector('.wp-now-count')?.textContent).toBe('3 of 3')
+    await act(async () => {
+      observed = { ...observed, status: 'playing', now: selected, queueIndex: 2, positionMs: 1000 }
+      for (const listener of listeners) listener()
+    })
+    expect(container.querySelector('.wp-now-count')?.textContent).toBe('3 of 3')
+    expect(container.querySelector('.wp-now-count')).toBe(counter)
+    expect(container.querySelector('[data-queue-total]')?.firstChild).toBe(total)
+    await act(async () => {
+      observed = { ...observed, now: tracks[1] ?? null, queueIndex: 1 }
+      for (const listener of listeners) listener()
+    })
+    expect(container.querySelector('.wp-now-count')?.textContent).toBe('2 of 3')
+  })
+}
+
+test('artwork prefetch starts immediately on highlight and pointer hover', async () => {
+  const fixture = createFixtureProvider()
+  const tracks = fixture.catalog.tracks.slice(0, 2).map((track, index) => ({ ...track, artwork: { kind: 'fixed' as const, sizes: [{ url: `https://i.scdn.co/image/prefetch-${index}`, w: 300, h: 300 }] } }))
+  const source = { ...fixtureNavigationSource, songs: tracks }
+  const requests: string[] = []
+  const originalFetch = globalThis.fetch
+  globalThis.fetch = Object.assign(async (input: RequestInfo | URL) => {
+    requests.push(String(input))
+    return new Response(null, { status: 404 })
+  }, { preconnect: originalFetch.preconnect })
+  try {
+    await act(async () => root.render(<Panel provider={fixture} navigationSource={source} accountStatus={null} />))
+    const songs = (await selectNavigation({ ...navigationRoot(source, fixture), highlightIndex: 3 }, source, fixture)).frame
+    if (!songs) throw new Error('Missing songs')
+    await act(async () => { deviceStore.set(resetStackActionAtom, [songs]) })
+    expect(requests.some(url => url.includes('prefetch-0'))).toBe(true)
+    expect(requests.some(url => url.includes('prefetch-1'))).toBe(false)
+    await act(async () => { container.querySelector('[data-row-index="1"]')?.dispatchEvent(new window.PointerEvent('pointerover', { bubbles: true })) })
+    expect(requests.some(url => url.includes('prefetch-1'))).toBe(true)
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+})
+
+test('empty artwork cannot crash highlight, hover, or Now Playing', async () => {
+  const provider = createFixtureProvider()
+  const tracks = provider.catalog.tracks.slice(0, 2).map(track => ({ ...track, artwork: { kind: 'fixed' as const, sizes: [] } }))
+  const source = { ...fixtureNavigationSource, songs: tracks }
+  await act(async () => root.render(<Panel provider={provider} navigationSource={source} accountStatus={null} />))
+  const songs = (await selectNavigation({ ...navigationRoot(source, provider), highlightIndex: 3 }, source, provider)).frame
+  if (!songs) throw new Error('Missing list')
+  await act(async () => { deviceStore.set(resetStackActionAtom, [songs]) })
+  await act(async () => { container.querySelector('[data-row-index="1"]')?.dispatchEvent(new window.PointerEvent('pointerover', { bubbles: true })) })
+  await act(async () => { deviceStore.set(pressActionAtom, { button: 'center', source: 'human', path: 'key' }) })
+  expect(container.querySelector('.wp-now-meta h1')?.textContent).toContain(tracks[0]?.title ?? '')
+  expect(container.querySelector('.wp-art')).not.toBeNull()
 })

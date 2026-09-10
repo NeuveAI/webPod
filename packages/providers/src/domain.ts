@@ -126,6 +126,10 @@ export interface PlaybackState {
   readonly now: TrackRef | null
   /** Zero-based provider-authoritative position in the active queue, or null until known. */
   readonly queueIndex: number | null
+  /** Full playback-context size when known; null explicitly means unknown.
+   * Omitted by providers whose queueRead history/next already describe the full queue.
+   */
+  readonly queueTotal?: number | null
   readonly positionMs: number
   readonly durationMs: number
   /** App volume, 0–100. Not system volume — §14.3 row 14 on both providers. */

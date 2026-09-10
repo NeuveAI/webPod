@@ -1,6 +1,6 @@
 import { createPageClock, pageActivityAtom, type PageActivity } from './page-readiness'
 import { Provider, atom, useAtomValue, useSetAtom } from 'jotai'
-import { artworkUrl, type Artwork, type Entity, type FixtureProvider, type MusicProvider, type PlaybackState, type QueueSnapshot, type TrackRef } from '@webpod/providers'
+import { artworkUrl, InvalidArtworkError, type Artwork, type Entity, type FixtureProvider, type MusicProvider, type PlaybackState, type QueueSnapshot, type TrackRef } from '@webpod/providers'
 import {
   currentScreenAtom,
   detentActionAtom,
@@ -26,7 +26,7 @@ import {
   type Density,
   type ScreenFrame,
 } from '@webpod/state'
-import { useEffect, useId, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode, type WheelEvent } from 'react'
+import { memo, useEffect, useId, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode, type WheelEvent } from 'react'
 
 import {
   artworkSampleFixture,
@@ -42,8 +42,8 @@ import {
   type NowPlayingCenterState,
   type PanelState,
 } from './model'
-import { isNavigationLoadingFrame, navigationLoadingRequestId, navigationRoot, preparationForFrame, providerStatusFrame, refreshNavigationFrame, selectNavigationImmediate, statusFrame, type NavigationDataSource, type NavigationStatus } from './navigation'
-import { acquireAnnouncer, acquireNowPlayingVolumeFeedback, acquirePlaybackClock, acquireStableSelection, sampleProviderArtwork, type ArtworkSamples } from './runtime'
+import { isNavigationLoadingFrame, navigationLoadingRequestId, navigationRoot, playbackQueueForFrame, preparationForFrame, providerStatusFrame, refreshNavigationFrame, selectNavigationImmediate, statusFrame, type NavigationDataSource, type NavigationStatus } from './navigation'
+import { acquireAnnouncer, acquireNowPlayingVolumeFeedback, acquirePlaybackClock, acquireStableSelection, prefetchProviderArtwork, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import { BoundedAsyncCache } from './bounded-async-cache'
 import { ListViewport, type ListRowContent } from './list-view'
 import { OverflowMarquee } from './overflow-marquee'
@@ -98,6 +98,41 @@ export const readPageState = pageClock.read
 
 const handledNowPlayingWheelIntentAtom = atom(0)
 const queueViewAtom = atom<QueueViewState>({ provider: null, status: 'idle', items: [], currentIndex: -1 })
+// The accepted list selection is authoritative during its playback handoff.
+const selectedQueueCounterAtom = atom((get) => {
+  const frame = get(currentScreenAtom)
+  if (frame === null || !get(playbackPresentationAtom)?.attemptApplies) return null
+  const queue = playbackQueueForFrame(frame)
+  return queue?.startIndex === null || queue === null ? null : queue
+})
+// Separate subscriptions: track changes update only the current-position text.
+const queueCounterTotalAtom = atom((get) => {
+  const selected = get(selectedQueueCounterAtom)
+  if (selected !== null) return selected.tracks.length
+  const observation = get(playbackObservationAtom)
+  if (observation.playback?.queueTotal !== undefined) return observation.playback.queueTotal
+  const queue = get(queueViewAtom)
+  return queue.provider === observation.provider && queue.items.length > 0 ? queue.items.length : null
+})
+const queueCounterIndexAtom = atom((get) => {
+  const selected = get(selectedQueueCounterAtom)
+  if (selected?.startIndex !== undefined && selected.startIndex !== null) return selected.startIndex + 1
+  const observation = get(playbackObservationAtom)
+  const total = get(queueCounterTotalAtom)
+  const queue = get(queueViewAtom)
+  const index = observation.playback?.queueIndex ?? (observation.playback?.queueTotal === undefined && queue.provider === observation.provider ? queue.currentIndex : null)
+  return total !== null && index !== null && index >= 0 && index < total ? index + 1 : null
+})
+const QueueCurrentPosition = memo(function QueueCurrentPosition() {
+  const position = useAtomValue(queueCounterIndexAtom)
+  return <span data-queue-current>{position ?? '–'}</span>
+})
+const queueOfLabel = <span> of </span>
+const QueueCounter = memo(function QueueCounter() {
+  const total = useAtomValue(queueCounterTotalAtom)
+  return total === null ? null : <span className="wp-now-count"><QueueCurrentPosition />{queueOfLabel}<span data-queue-total>{total}</span></span>
+})
+
 export const searchQueryAtom = atom('')
 let initializedDocument: Document | null = null
 let initializedProvider: MusicProvider | null = null
@@ -115,7 +150,16 @@ const subscribeToStaticSource = (): (() => void) => () => {}
 const staticSourceRevision = (): number => 0
 
 /** Brings provider-owned transport back into view without creating a second UI store. */
-export function showNowPlayingScreen(): void {
+export function showNowPlayingScreen(options?: { readonly followPlayback?: boolean }): void {
+  if (options?.followPlayback) {
+    deviceStore.set(playbackAttemptAtom, null)
+    const frame = deviceStore.get(currentScreenAtom)
+    if (frame?.route?.kind === 'now-playing') {
+      const mode = deviceStore.get(nowPlayingModeAtom)
+      deviceStore.set(setNowPlayingModeActionAtom, { frame, mode: 'standard', scrub: 'clean', scrubRevision: mode.scrubRevision + 1, queue: 'clean' })
+      deviceStore.set(setNowPlayingWheelControlActionAtom, null)
+    }
+  }
   if (deviceStore.get(currentScreenAtom)?.route?.kind === 'now-playing') return
   deviceStore.set(pushScreenActionAtom, nowPlayingFrame())
 }
@@ -284,6 +328,12 @@ function PanelSurface({
     ? visibleQueue.provider === provider && visibleQueue.status === 'ready' && queueIndex >= 0 && queueIndex < visibleQueue.items.length ? `${panelId}-queue-row-${queueIndex}` : undefined
     : hasListRows && frame.highlightIndex >= 0 && frame.rows.length > 0 ? `${panelId}-row-${frame.highlightIndex}` : undefined
   const preparationIntentKey = frame === null ? null : preparationForFrame(frame, navigationSource)?.key ?? null
+  useEffect(() => {
+    const current = deviceStore.get(currentScreenAtom)
+    const selected = current === null ? null : preparationForFrame(current, navigationSource)
+    const art = resolvedArtwork(selected?.artwork ? { artwork: selected.artwork } : null, 176)
+    if (art) void prefetchProviderArtwork(art.url).catch(() => undefined)
+  }, [navigationSource, preparationIntentKey])
   useEffect(() => acquireAnnouncer(document, deviceStore), [])
   useEffect(() => acquireNowPlayingVolumeFeedback(document, deviceStore), [])
   useEffect(() => {
@@ -294,10 +344,8 @@ function PanelSurface({
       const selected = preparationForFrame(currentFrame, navigationSource)
       if (selected === null || selected.key !== preparationIntentKey || signal.aborted) return
       const work: Promise<unknown>[] = [selected.prefetchData()]
-      if (selected.artwork !== null) {
-        const resolved = artworkUrl(selected.artwork, 176)
-        work.push(cachedArtworkSamples(resolved.url, 'low'))
-      }
+      const art = resolvedArtwork(selected.artwork ? { artwork: selected.artwork } : null, 176)
+      if (art) work.push(cachedArtworkSamples(art.url, 'low'))
       if (selected.playTarget !== null) work.push(provider.prepare(selected.playTarget, signal))
       await Promise.all(work)
     })
@@ -332,7 +380,13 @@ function PanelSurface({
           deviceStore.set(setNowPlayingModeActionAtom, { frame, ...settleNowPlayingScrub(transition.state, committedRevision, false) })
           return
         }
-        void enqueueNowPlayingWrite(provider, () => provider.seek(control.value)).then(
+        void enqueueNowPlayingWrite(provider, async () => {
+          // Confirming a scrub starts listening at that position, even when paused.
+          // Previewing with the wheel remains silent until this explicit selection.
+          const resume = provider.playback.status === 'paused'
+          await provider.seek(control.value)
+          if (resume) await provider.play()
+        }).then(
           () => {
             const latest = deviceStore.get(nowPlayingModeAtom)
             if (latest.frame !== frame) return
@@ -433,6 +487,19 @@ function PanelSurface({
     if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea') !== null) return
     event.currentTarget.focus({ preventScroll: true })
   }
+  const onPointerOver = (event: PointerEvent<HTMLDivElement>) => {
+    if (!(event.target instanceof Element)) return
+    const row = event.target.closest<HTMLElement>('[data-row-index]')
+    if (!row || (event.relatedTarget instanceof Node && row.contains(event.relatedTarget))) return
+    const current = deviceStore.get(currentScreenAtom)
+    if (current === null) return
+    const selected = preparationForFrame({ ...current, highlightIndex: Number(row.dataset.rowIndex) }, navigationSource)
+    if (!selected) return
+    const art = resolvedArtwork(selected.artwork ? { artwork: selected.artwork } : null, 176)
+    if (art) void prefetchProviderArtwork(art.url).catch(() => undefined)
+    // Relationship pagination stays on sustained selection; passing hover rows
+    // should warm media without starting a catalogue sync for each row.
+  }
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.target instanceof Element && event.target.closest('button, a, input, select, textarea') !== null) return
     event.preventDefault()
@@ -454,6 +521,7 @@ function PanelSurface({
       aria-activedescendant={activeDescendant}
       onKeyDown={onKeyDown}
       onWheel={onWheel}
+      onPointerOver={onPointerOver}
       onPointerDown={onPointerDown}
       onClick={onClick}
     >
@@ -658,13 +726,13 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
     if (!provider.supports('queueRead')) return
     const sequence = ++queueReadSequence
     let live = true
-    setQueueView({ provider, status: 'loading', items: [], currentIndex: -1 })
+    setQueueView((current) => current.provider === provider ? { ...current, status: 'loading' } : { provider, status: 'loading', items: [], currentIndex: -1 })
     void provider.queueRead().then((snapshot) => {
       if (!live || sequence !== queueReadSequence) return
       setQueueView(queueViewFromSnapshot(provider, snapshot))
     }).catch(() => {
       if (!live || sequence !== queueReadSequence) return
-      setQueueView({ provider, status: 'error', items: [], currentIndex: -1 })
+      setQueueView((current) => current.provider === provider ? { ...current, status: 'error' } : { provider, status: 'error', items: [], currentIndex: -1 })
     })
     return () => { live = false }
   }, [mode, playback.now?.key, playback.queueIndex, provider, setQueueView])
@@ -683,11 +751,16 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
     const currentControl = deviceStore.get(nowPlayingWheelControlAtom)
     const pendingScrubIntent = wheelIntent?.kind === 'scrub'
       && wheelIntent.seq > handledWheelIntentSeq
-    const value = (scrubState === 'clean' && !pendingScrubIntent) || currentControl?.kind !== 'scrub'
+    const occurrenceChanged = currentControl?.kind === 'scrub' && currentControl.occurrenceIdentity !== (occurrenceIdentity ?? undefined)
+    if (occurrenceChanged) {
+      const latest = deviceStore.get(nowPlayingModeAtom)
+      deviceStore.set(setNowPlayingModeActionAtom, { ...latest, scrub: 'clean', scrubRevision: latest.scrubRevision + 1 })
+    }
+    const value = occurrenceChanged || (scrubState === 'clean' && !pendingScrubIntent) || currentControl?.kind !== 'scrub'
       ? playback.positionMs
       : Math.min(playback.durationMs, Math.max(0, currentControl.value))
-    configureWheel({ kind: 'scrub', value, minimum: 0, maximum: playback.durationMs, step: 5_000 })
-  }, [configureWheel, handledWheelIntentSeq, mode, playback.durationMs, playback.positionMs, provider, scrubState, wheelIntent])
+    configureWheel({ kind: 'scrub', value, minimum: 0, maximum: playback.durationMs, step: 5_000, occurrenceIdentity: occurrenceIdentity ?? undefined })
+  }, [configureWheel, handledWheelIntentSeq, mode, occurrenceIdentity, playback.durationMs, playback.positionMs, provider, scrubState, wheelIntent])
   useEffect(() => {
     if (mode === 'artwork') {
       configureWheel(null)
@@ -812,7 +885,7 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
     <section className="wp-screen wp-now" aria-label="Now Playing" aria-busy={playbackPending} data-mode={mode} data-wheel-control={wheelControl?.kind} data-scrub-state={mode === 'scrub' ? scrubState : undefined} data-playback-phase={playbackFailed ? 'failed' : playbackPending ? 'starting' : 'ready'} data-playback-indeterminate={playbackPending ? 'true' : undefined} data-art-tone={artworkTone ?? 'provider'} data-art-sample-source={artworkTone === null ? samples === null ? 'pending' : 'provider' : 'fixture'} data-volume={shownVolume} data-position-ms={shownPosition} style={artStyle}>
       <TitleBar title="Now Playing" transport={transportState} />
       <div className="wp-now-body">
-        {queueView.provider === provider && queueView.status === 'ready' && queueView.currentIndex >= 0 ? <span className="wp-now-count">{queueView.currentIndex + 1} of {queueView.items.length}</span> : null}
+        <QueueCounter />
         <div className="wp-now-track">
           <Artwork state="ready" large tone={artworkTone} item={track} />
           <div className="wp-now-meta">
@@ -913,8 +986,13 @@ type ArtworkItem = Entity | { readonly artwork?: Artwork }
 
 function resolvedArtwork(item: ArtworkItem | null, requestedPx: number) {
   if (item === null || !('artwork' in item) || item.artwork === undefined) return null
-  const resolved = artworkUrl(item.artwork, requestedPx)
-  return { ...resolved, renderedPx: Math.min(requestedPx, resolved.actualPx) }
+  try {
+    const resolved = artworkUrl(item.artwork, requestedPx)
+    return { ...resolved, renderedPx: Math.min(requestedPx, resolved.actualPx) }
+  } catch (error) {
+    if (error instanceof InvalidArtworkError) return null
+    throw error
+  }
 }
 
 function Artwork({ state, large = false, tone = null, item }: { readonly state: PanelState; readonly large?: boolean; readonly tone?: ArtworkTone | null; readonly item: ArtworkItem | null }) {

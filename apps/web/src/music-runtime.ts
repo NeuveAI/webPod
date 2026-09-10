@@ -1,5 +1,6 @@
 import {
   createAppleProvider,
+  createSpotifyProvider,
   browserAppleProviderOptions,
   type AlbumRef,
   type ArtistRef,
@@ -15,7 +16,7 @@ import type { NavigationDataSource, NavigationLibraryCollection, NavigationLibra
 import { applePlaybackDiagnostics } from './apple-playback-diagnostics'
 import { bootstrapStickerCollection, restoreStickerSession, startStickerRuntime, disconnectStickerMusic } from './sticker-runtime'
 
-export type MusicRuntimeMode = 'apple'
+export type MusicRuntimeMode = 'apple' | 'spotify'
 export type MusicRuntimePhase = 'signed-out' | 'signing-in' | 'authorized' | 'permission-denied' | 'error'
 export interface MusicRuntimeSnapshot {
   readonly requestedMode: MusicRuntimeMode
@@ -28,9 +29,7 @@ export interface MusicRuntimeSnapshot {
 
 /** Resolves the explicit development query override ahead of the safe build-time default. */
 export function resolveMusicRuntimeMode(queryValue: string | null, configuredValue: string | undefined): MusicRuntimeMode {
-  void queryValue
-  void configuredValue
-  return 'apple'
+  return (queryValue ?? configuredValue) === 'spotify' ? 'spotify' : 'apple'
 }
 
 const emptySource: NavigationDataSource = {
@@ -45,13 +44,14 @@ const appleProviderOptions = () => ({
 })
 interface RuntimeState {
   readonly provider: ReturnType<typeof createAppleProvider>
+  readonly spotify: MusicProvider
   snapshot: MusicRuntimeSnapshot
   operation: number
   readonly listeners: Set<() => void>
 }
 function createRuntimeState(): RuntimeState {
   const provider = createAppleProvider(appleProviderOptions())
-  return { provider, snapshot: { requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null }, operation: 0, listeners: new Set() }
+  return { provider, spotify: createSpotifyProvider(), snapshot: { requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null }, operation: 0, listeners: new Set() }
 }
 // MusicKit caches its API service against the store from its first configure.
 // Preserve the provider AND operation state so HMR cannot split authentication,
@@ -105,6 +105,9 @@ export async function createProgressiveAppleSource(provider: MusicProvider, isCu
   const sourceListeners = new Set<() => void>()
   const notify = (): void => { revision += 1; for (const listener of sourceListeners) listener() }
   const knownTracks = new Map<LocalKey, TrackRef>()
+  const discoveredAlbums = new Map<LocalKey, AlbumRef>()
+  const artistAlbumPages = new Map<LocalKey, readonly AlbumRef[]>()
+  const artistAlbumErrors = new Set<LocalKey>()
   const remember = (tracks: readonly TrackRef[]): readonly TrackRef[] => {
     for (const track of tracks) {
       knownTracks.delete(track.key)
@@ -117,7 +120,7 @@ export async function createProgressiveAppleSource(provider: MusicProvider, isCu
     }
     return tracks
   }
-  const album = (key: LocalKey): AlbumRef | undefined => typedAlbums.find((item) => item.key === key); const artist = (key: LocalKey): ArtistRef | undefined => typedArtists.find((item) => item.key === key); const playlist = (key: LocalKey): PlaylistRef | undefined => typedPlaylists.find((item) => item.key === key)
+  const album = (key: LocalKey): AlbumRef | undefined => typedAlbums.find((item) => item.key === key) ?? discoveredAlbums.get(key); const artist = (key: LocalKey): ArtistRef | undefined => typedArtists.find((item) => item.key === key); const playlist = (key: LocalKey): PlaylistRef | undefined => typedPlaylists.find((item) => item.key === key)
   const source: NavigationDataSource = {
     albums: typedAlbums, artists: typedArtists, genres: [] satisfies readonly GenreRef[], playlists: typedPlaylists, songs: typedSongs, stations,
     get libraryStatus() { return status },
@@ -126,7 +129,27 @@ export async function createProgressiveAppleSource(provider: MusicProvider, isCu
     rememberTracks: (tracks) => { remember(tracks) }, trackByKey: (key) => knownTracks.get(key) ?? null,
     tracksForAlbum: async (key, options) => { const ref = album(key); if (ref === undefined || navigationLoadAborted(options)) return []; const tracks = await provider.relatedTracks(ref); return navigationLoadAborted(options) ? [] : remember(tracks) },
     tracksForPlaylist: async (key, options) => { const ref = playlist(key); if (ref === undefined || navigationLoadAborted(options)) return []; const tracks = await provider.relatedTracks(ref); return navigationLoadAborted(options) ? [] : remember(tracks) },
-    albumsForArtist: async (key, options) => { const ref = artist(key); if (ref === undefined || navigationLoadAborted(options)) return []; const albums = await provider.relatedAlbums(ref); return navigationLoadAborted(options) ? [] : albums },
+    artistAlbumsSnapshot: (key) => artistAlbumPages.get(key),
+    artistAlbumsFailed: (key) => artistAlbumErrors.has(key),
+    albumsForArtist: async (key, options) => {
+      const ref = artist(key)
+      if (ref === undefined || navigationLoadAborted(options)) return []
+      artistAlbumErrors.delete(key)
+      const accept = (albums: readonly AlbumRef[]): void => {
+        if (!isCurrent() || navigationLoadAborted(options)) throw new DOMException('Navigation ended', 'AbortError')
+        for (const value of albums) discoveredAlbums.set(value.key, value)
+        artistAlbumPages.set(key, albums)
+        notify()
+      }
+      try {
+        const albums = await provider.relatedAlbums(ref, { signal: options?.signal, onPage: accept })
+        accept(albums)
+        return albums
+      } catch (error) {
+        if (isCurrent() && !navigationLoadAborted(options)) { artistAlbumErrors.add(key); notify() }
+        throw error
+      }
+    },
     albumsForGenre: () => [], artistsForGenre: () => [], tracksForGenre: () => [],
   }
   const collections: Record<NavigationLibraryCollection, Entity[]> = { playlists: typedPlaylists, artists: typedArtists, albums: typedAlbums, songs: typedSongs }
@@ -142,7 +165,7 @@ export async function createProgressiveAppleSource(provider: MusicProvider, isCu
         collections[kind].push(...page.items.filter((item) => item.kind === expectedKind))
         cursor = page.next
         pages += 1
-        if (pages > 1_000) throw new Error('Apple Music pagination did not terminate')
+        if (pages > 1_000) throw new Error('Music library pagination did not terminate')
         status[kind] = { loaded: collections[kind].length, state: cursor === null ? 'complete' : 'loading' }
         notify()
       }
@@ -150,7 +173,7 @@ export async function createProgressiveAppleSource(provider: MusicProvider, isCu
       if (!isCurrent()) return
       status[kind] = { loaded: collections[kind].length, state: 'error' }
       notify()
-      console.warn(`Apple Music ${kind} sync stopped before completion`)
+      console.warn(`${provider.displayName} ${kind} sync stopped before completion`)
     }
   }
   const loadStations = async (): Promise<void> => {
@@ -176,7 +199,7 @@ export async function createProgressiveAppleSource(provider: MusicProvider, isCu
 /** Selects the production Apple Music runtime. */
 export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> {
   const selectedOperation = ++runtimeState.operation
-  void mode
+  if (mode === 'spotify') { await selectSpotifyRuntime(selectedOperation); return }
   const provider = runtimeState.provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
@@ -204,13 +227,23 @@ export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> 
 
 /** Restore the saved session once when the landing is the first route opened. */
 export function ensureMusicRuntime(): void {
-  if (runtimeState.operation === 0) void selectMusicRuntime('apple')
+  if (runtimeState.operation !== 0) return
+  const query = new URLSearchParams(window.location.search)
+  let saved: string | null = null
+  try { saved = localStorage.getItem('webpod-music-provider') } catch { /* Storage is optional. */ }
+  const mode = resolveMusicRuntimeMode(query.get('music'), saved ?? undefined)
+  if (query.has('music')) {
+    const url = new URL(window.location.href); url.searchParams.delete('music'); window.history.replaceState(window.history.state, '', url)
+    rememberProvider(mode)
+  }
+  void selectMusicRuntime(mode)
 }
 
 /** Runs MusicKit authorization from a user gesture and hydrates provider-neutral navigation data. */
 export async function authorizeAppleRuntime(): Promise<void> {
   const selectedOperation = ++runtimeState.operation
   const provider = runtimeState.provider
+  rememberProvider('apple')
   restoreStickerSession(provider)
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
@@ -240,8 +273,17 @@ export async function authorizeAppleRuntime(): Promise<void> {
 /** Invalidates the MusicKit user session and returns to the signed-out Apple frame. */
 export async function signOutAppleRuntime(): Promise<void> {
   const selectedOperation = ++runtimeState.operation
+  if (runtimeState.snapshot.activeMode === 'spotify') {
+    const provider = runtimeState.spotify
+    try { await provider.unauthorize() } catch {
+      publish({ ...runtimeState.snapshot, phase: 'error', message: 'Could not sign out of Spotify. Please try again.' })
+      return
+    }
+    rememberProvider('apple')
+    if (selectedOperation === runtimeState.operation) publish({ requestedMode: 'spotify', activeMode: 'spotify', phase: 'signed-out', provider, source: emptySource, message: null })
+    return
+  }
   const provider = runtimeState.provider
-  if (provider === null) return
   publish({ ...runtimeState.snapshot, phase: 'signing-in', message: null })
   try {
     await provider.unauthorize()
@@ -254,3 +296,29 @@ export async function signOutAppleRuntime(): Promise<void> {
   }
 }
 export const musicRuntime = { getSnapshot: (): MusicRuntimeSnapshot => runtimeState.snapshot, subscribe(listener: () => void): () => void { runtimeState.listeners.add(listener); return () => { runtimeState.listeners.delete(listener) } } }
+
+function rememberProvider(mode: MusicRuntimeMode): void {
+  try { localStorage.setItem('webpod-music-provider', mode) } catch { /* Storage is optional. */ }
+}
+
+/** Restores Spotify without initializing MusicKit or Apple-only sticker import. */
+async function selectSpotifyRuntime(operation: number): Promise<void> {
+  const provider = runtimeState.spotify
+  publish({ requestedMode: 'spotify', activeMode: 'spotify', phase: 'signing-in', provider, source: emptySource, message: null })
+  try {
+    await provider.configure()
+    if (operation !== runtimeState.operation) return
+    if (provider.session?.status !== 'authorized') {
+      publish({ requestedMode: 'spotify', activeMode: 'spotify', phase: 'signed-out', provider, source: emptySource, message: null })
+      return
+    }
+    rememberProvider('spotify')
+    const { source, completion } = await createProgressiveAppleSource(provider, () => operation === runtimeState.operation)
+    if (operation !== runtimeState.operation) return
+    publish({ requestedMode: 'spotify', activeMode: 'spotify', phase: 'authorized', provider, source, message: null })
+    void completion
+  } catch (cause) {
+    if (operation !== runtimeState.operation) return
+    publish({ requestedMode: 'spotify', activeMode: 'spotify', phase: 'error', provider, source: emptySource, message: cause instanceof Error ? cause.message : 'Could not connect to Spotify. Please try again.' })
+  }
+}

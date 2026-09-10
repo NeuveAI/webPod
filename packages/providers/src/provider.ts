@@ -126,8 +126,8 @@ export interface MusicProvider {
   libraryList(kind: LibraryKind, page?: Cursor): Promise<Page<Entity>>
   /** Fetches the tracks belonging to an album or playlist for provider-neutral drill-down. */
   relatedTracks(ref: AlbumRef | PlaylistRef): Promise<readonly TrackRef[]>
-  /** Fetches the albums belonging to an artist for provider-neutral drill-down. */
-  relatedAlbums(ref: ArtistRef): Promise<readonly AlbumRef[]>
+  /** Fetches all artist albums. onPage publishes a fresh cumulative snapshot after each page; signal stops further pagination. */
+  relatedAlbums(ref: ArtistRef, options?: { readonly signal?: AbortSignal; readonly onPage?: (albums: readonly AlbumRef[]) => void }): Promise<readonly AlbumRef[]>
   /**
    * Adds to the library. Apple's `Add to Library`, Spotify's `Save`.
    *

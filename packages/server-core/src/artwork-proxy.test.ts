@@ -88,6 +88,9 @@ describe('/artwork remote provider sources', () => {
     'https://is1-ssl.mzstatic.com/image/thumb/Music/abc/300x300bb.jpg',
     'https://is12-ssl.mzstatic.com/image/thumb/Features/abc/300x300.jpg',
     'https://i.scdn.co/image/ab67616d00001e02',
+    'https://image-cdn-ak.spotifycdn.com/image/cover',
+    'https://image-cdn-fa.spotifycdn.com/image/cover',
+    `https://mosaic.scdn.co/300/${'a'.repeat(160)}`,
   ])('proxies an allowed provider shape: %s', async (src) => {
     let redirect: RequestRedirect | undefined
     const accept: Array<string | null> = []
@@ -125,6 +128,14 @@ describe('/artwork remote provider sources', () => {
     'data:image/png;base64,AA==',
     'javascript:alert(1)',
     'https://i.scdn.co.evil.example/image/x',
+    'https://image-cdn-fa.spotifycdn.com.evil.example/image/x',
+    'https://image-cdn-fa.spotifycdn.com/admin',
+    'https://mosaic.scdn.co.evil.example/300/abc',
+    'https://mosaic.scdn.co/admin',
+    'https://mosaic.scdn.co/300/not-an-image-id',
+    `http://mosaic.scdn.co/300/${'a'.repeat(160)}`,
+    `https://user:pass@mosaic.scdn.co/300/${'a'.repeat(160)}`,
+    `https://mosaic.scdn.co:444/300/${'a'.repeat(160)}`,
     'https://evil.example/image/thumb/x',
     'http://i.scdn.co/image/x',
     'https://user:pass@i.scdn.co/image/x',
@@ -199,8 +210,24 @@ describe('/artwork response bounds', () => {
     }
   })
 
-  test('rejects image dimensions that disagree with px', async () => {
-    const response = await handleArtworkRequest(artworkRequest(source, 300), {
+  test.each([[268, 320], [320, 268]])('accepts bounded rectangular Spotify artwork %s x %s', async (width, height) => {
+    const response = await handleArtworkRequest(artworkRequest(`https://i.scdn.co/image/portrait-${width}-${height}`, 320), {
+      fetch: fetchStub(() => Promise.resolve(new Response(png(width, height).buffer, { headers: { 'content-type': 'image/png' } }))),
+    })
+    expect(response.status).toBe(200)
+  })
+
+  test('accepts fixed Spotify native dimensions but rejects oversized images', async () => {
+    for (const [width, expected] of [[300, 200], [3001, 502]] as const) {
+      const response = await handleArtworkRequest(artworkRequest(`https://i.scdn.co/image/native-${width}`, 640), {
+        fetch: fetchStub(() => Promise.resolve(new Response(png(width).buffer, { headers: { 'content-type': 'image/png' } }))),
+      })
+      expect(response.status).toBe(expected)
+    }
+  })
+
+  test('rejects resizable Apple image dimensions that disagree with px', async () => {
+    const response = await handleArtworkRequest(artworkRequest('https://is1-ssl.mzstatic.com/image/thumb/test/300x300.jpg', 300), {
       fetch: fetchStub(() => Promise.resolve(new Response(png(640).buffer, { headers: { 'content-type': 'image/png' } }))),
     })
     expect(response.status).toBe(502)

@@ -189,7 +189,6 @@ function InteractiveDevicePage() {
     musicRuntime.getSnapshot,
   );
   useEffect(() => {
-    if (music.activeMode !== 'apple') return;
     if (music.phase === 'authorized' || music.provider.session !== null) {
       hadAppleSession.current = true;
     } else if (music.phase === 'signed-out' && hadAppleSession.current) {
@@ -424,14 +423,17 @@ export function PreviewControls({ state, music }: { readonly state: DevicePrevie
         </FieldSet>
         <FieldSeparator />
         <FieldGroup>
-          {music.activeMode === "apple" && !signedIn ? (
+          {!signedIn ? (
+            <>
             <Button variant="outline" disabled={music.phase === "signing-in"} onClick={() => void authorizeAppleRuntime()}>{music.phase === "signing-in" ? "Connecting…" : "Sign in to Apple Music"}</Button>
+            <a href="/api/spotify/login">or use Spotify</a>
+            </>
           ) : null}
-          {music.activeMode === "apple" && signedIn ? (
-            <Button variant="outline" onClick={() => void signOutAppleRuntime()}>Sign out of Apple Music</Button>
+          {signedIn ? (
+            <Button variant="outline" onClick={() => void signOutAppleRuntime()}>Sign out of {music.provider.displayName}</Button>
           ) : null}
-          {music.requestedMode === "apple" && music.phase === "error" ? (
-            <Button variant="outline" onClick={() => void selectMusicRuntime("apple")}>Retry Apple Music</Button>
+          {music.phase === "error" ? (
+            <Button variant="outline" onClick={() => void selectMusicRuntime(music.activeMode)}>Retry {music.provider.displayName}</Button>
           ) : null}
           {music.message ? <output className="text-sm text-muted-foreground" aria-live="polite">{music.message}</output> : null}
         </FieldGroup>

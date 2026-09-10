@@ -18,6 +18,10 @@ import { Route as SpikeDeviceRouteImport } from './routes/[_]spike.device'
 import { Route as ApiStickersRouteImport } from './routes/api.stickers'
 import { Route as ApiAppleDeveloperTokenRouteImport } from './routes/api.apple.developer-token'
 import { Route as ApiAppleStickersRouteImport } from './routes/api.apple.stickers'
+import { Route as ApiSpotifyCallbackRouteImport } from './routes/api.spotify.callback'
+import { Route as ApiSpotifyLoginRouteImport } from './routes/api.spotify.login'
+import { Route as ApiSpotifyLogoutRouteImport } from './routes/api.spotify.logout'
+import { Route as ApiSpotifyTokenRouteImport } from './routes/api.spotify.token'
 import { Route as ApiStickersDeviceRouteImport } from './routes/api.stickers.device'
 import { Route as ApiStickersListeningRouteImport } from './routes/api.stickers.listening'
 import { Route as ApiStickersPlacementsRouteImport } from './routes/api.stickers.placements'
@@ -69,6 +73,26 @@ const ApiAppleStickersRoute = ApiAppleStickersRouteImport.update({
   path: '/api/apple/stickers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiSpotifyCallbackRoute = ApiSpotifyCallbackRouteImport.update({
+  id: '/api/spotify/callback',
+  path: '/api/spotify/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSpotifyLoginRoute = ApiSpotifyLoginRouteImport.update({
+  id: '/api/spotify/login',
+  path: '/api/spotify/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSpotifyLogoutRoute = ApiSpotifyLogoutRouteImport.update({
+  id: '/api/spotify/logout',
+  path: '/api/spotify/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiSpotifyTokenRoute = ApiSpotifyTokenRouteImport.update({
+  id: '/api/spotify/token',
+  path: '/api/spotify/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStickersDeviceRoute = ApiStickersDeviceRouteImport.update({
   id: '/device',
   path: '/device',
@@ -105,6 +129,10 @@ export interface FileRoutesByFullPath {
   '/api/stickers': typeof ApiStickersRouteWithChildren
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
   '/api/apple/stickers': typeof ApiAppleStickersRoute
+  '/api/spotify/callback': typeof ApiSpotifyCallbackRoute
+  '/api/spotify/login': typeof ApiSpotifyLoginRoute
+  '/api/spotify/logout': typeof ApiSpotifyLogoutRoute
+  '/api/spotify/token': typeof ApiSpotifyTokenRoute
   '/api/stickers/device': typeof ApiStickersDeviceRoute
   '/api/stickers/listening': typeof ApiStickersListeningRoute
   '/api/stickers/placements': typeof ApiStickersPlacementsRoute
@@ -121,6 +149,10 @@ export interface FileRoutesByTo {
   '/api/stickers': typeof ApiStickersRouteWithChildren
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
   '/api/apple/stickers': typeof ApiAppleStickersRoute
+  '/api/spotify/callback': typeof ApiSpotifyCallbackRoute
+  '/api/spotify/login': typeof ApiSpotifyLoginRoute
+  '/api/spotify/logout': typeof ApiSpotifyLogoutRoute
+  '/api/spotify/token': typeof ApiSpotifyTokenRoute
   '/api/stickers/device': typeof ApiStickersDeviceRoute
   '/api/stickers/listening': typeof ApiStickersListeningRoute
   '/api/stickers/placements': typeof ApiStickersPlacementsRoute
@@ -138,6 +170,10 @@ export interface FileRoutesById {
   '/api/stickers': typeof ApiStickersRouteWithChildren
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
   '/api/apple/stickers': typeof ApiAppleStickersRoute
+  '/api/spotify/callback': typeof ApiSpotifyCallbackRoute
+  '/api/spotify/login': typeof ApiSpotifyLoginRoute
+  '/api/spotify/logout': typeof ApiSpotifyLogoutRoute
+  '/api/spotify/token': typeof ApiSpotifyTokenRoute
   '/api/stickers/device': typeof ApiStickersDeviceRoute
   '/api/stickers/listening': typeof ApiStickersListeningRoute
   '/api/stickers/placements': typeof ApiStickersPlacementsRoute
@@ -156,6 +192,10 @@ export interface FileRouteTypes {
     | '/api/stickers'
     | '/api/apple/developer-token'
     | '/api/apple/stickers'
+    | '/api/spotify/callback'
+    | '/api/spotify/login'
+    | '/api/spotify/logout'
+    | '/api/spotify/token'
     | '/api/stickers/device'
     | '/api/stickers/listening'
     | '/api/stickers/placements'
@@ -172,6 +212,10 @@ export interface FileRouteTypes {
     | '/api/stickers'
     | '/api/apple/developer-token'
     | '/api/apple/stickers'
+    | '/api/spotify/callback'
+    | '/api/spotify/login'
+    | '/api/spotify/logout'
+    | '/api/spotify/token'
     | '/api/stickers/device'
     | '/api/stickers/listening'
     | '/api/stickers/placements'
@@ -188,6 +232,10 @@ export interface FileRouteTypes {
     | '/api/stickers'
     | '/api/apple/developer-token'
     | '/api/apple/stickers'
+    | '/api/spotify/callback'
+    | '/api/spotify/login'
+    | '/api/spotify/logout'
+    | '/api/spotify/token'
     | '/api/stickers/device'
     | '/api/stickers/listening'
     | '/api/stickers/placements'
@@ -205,6 +253,10 @@ export interface RootRouteChildren {
   ApiStickersRoute: typeof ApiStickersRouteWithChildren
   ApiAppleDeveloperTokenRoute: typeof ApiAppleDeveloperTokenRoute
   ApiAppleStickersRoute: typeof ApiAppleStickersRoute
+  ApiSpotifyCallbackRoute: typeof ApiSpotifyCallbackRoute
+  ApiSpotifyLoginRoute: typeof ApiSpotifyLoginRoute
+  ApiSpotifyLogoutRoute: typeof ApiSpotifyLogoutRoute
+  ApiSpotifyTokenRoute: typeof ApiSpotifyTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -270,6 +322,34 @@ declare module '@tanstack/react-router' {
       path: '/api/apple/stickers'
       fullPath: '/api/apple/stickers'
       preLoaderRoute: typeof ApiAppleStickersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/spotify/callback': {
+      id: '/api/spotify/callback'
+      path: '/api/spotify/callback'
+      fullPath: '/api/spotify/callback'
+      preLoaderRoute: typeof ApiSpotifyCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/spotify/login': {
+      id: '/api/spotify/login'
+      path: '/api/spotify/login'
+      fullPath: '/api/spotify/login'
+      preLoaderRoute: typeof ApiSpotifyLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/spotify/logout': {
+      id: '/api/spotify/logout'
+      path: '/api/spotify/logout'
+      fullPath: '/api/spotify/logout'
+      preLoaderRoute: typeof ApiSpotifyLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/spotify/token': {
+      id: '/api/spotify/token'
+      path: '/api/spotify/token'
+      fullPath: '/api/spotify/token'
+      preLoaderRoute: typeof ApiSpotifyTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/stickers/device': {
@@ -340,6 +420,10 @@ const rootRouteChildren: RootRouteChildren = {
   ApiStickersRoute: ApiStickersRouteWithChildren,
   ApiAppleDeveloperTokenRoute: ApiAppleDeveloperTokenRoute,
   ApiAppleStickersRoute: ApiAppleStickersRoute,
+  ApiSpotifyCallbackRoute: ApiSpotifyCallbackRoute,
+  ApiSpotifyLoginRoute: ApiSpotifyLoginRoute,
+  ApiSpotifyLogoutRoute: ApiSpotifyLogoutRoute,
+  ApiSpotifyTokenRoute: ApiSpotifyTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

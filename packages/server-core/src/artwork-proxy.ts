@@ -11,6 +11,7 @@ export const ARTWORK_FETCH_TIMEOUT_MS = 5_000
 export const ARTWORK_MAX_CONCURRENT = 8
 export const ARTWORK_CACHE_CONTROL = 'public, max-age=86400, stale-while-revalidate=604800'
 
+const SPOTIFY_FIXED_ARTWORK_HOSTS = new Set(['i.scdn.co', 'image-cdn-ak.spotifycdn.com', 'image-cdn-fa.spotifycdn.com'])
 const REMOTE_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 const FIXTURE_SOURCE = /^\/artwork-source\/([a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?)\/(\d{1,4})x(\d{1,4})\.png$/
 const APPLE_ARTWORK_HOST = /^is\d+-ssl\.mzstatic\.com$/
@@ -137,7 +138,8 @@ function parseRemoteSource(raw: string): RemoteArtworkSource {
     source.password === '' &&
     source.hash === ''
   const isApple = APPLE_ARTWORK_HOST.test(source.hostname) && source.pathname.startsWith('/image/thumb/')
-  const isSpotify = source.hostname === 'i.scdn.co' && source.pathname.startsWith('/image/')
+  const isSpotify = (SPOTIFY_FIXED_ARTWORK_HOSTS.has(source.hostname) && source.pathname.startsWith('/image/'))
+    || (source.hostname === 'mosaic.scdn.co' && /^\/[1-9]\d{0,3}\/(?:[a-f0-9]{40}){1,4}$/.test(source.pathname))
 
   if (!hasCleanAuthority || (!isApple && !isSpotify)) {
     throw new ArtworkProxyError('source_not_allowed', 403, 'artwork source host or path is invalid')
@@ -332,10 +334,15 @@ function webpMetadata(body: Uint8Array): ImageMetadata | null {
   return { contentType: 'image/webp', width, height }
 }
 
-function validateImage(body: Uint8Array, declaredType: string, px: number): ImageMetadata {
+function validateImage(body: Uint8Array, declaredType: string, px: number, fixedSizeSource = false): ImageMetadata {
   const metadata = pngMetadata(body) ?? jpegMetadata(body) ?? webpMetadata(body)
   if (metadata === null || metadata.contentType !== declaredType) throw invalidImage()
-  if (metadata.width !== px || metadata.height !== px) {
+  // Fixed Spotify URLs do not resize to px, and image metadata may omit sizes.
+  // Validate the actual image bounds instead of treating the render hint as a size promise.
+  const dimensionsMatch = fixedSizeSource
+    ? metadata.width > 0 && metadata.height > 0 && Math.max(metadata.width, metadata.height) <= TEMPLATE_ARTWORK_CEILING_PX
+    : metadata.width === px && metadata.height === px
+  if (!dimensionsMatch) {
     throw new ArtworkProxyError('upstream_content_invalid', 502, 'artwork dimensions do not match the requested size')
   }
   return metadata
@@ -429,7 +436,7 @@ async function fetchRemoteArtwork(
       throw new ArtworkProxyError('upstream_content_type', 502, 'artwork server returned a non-image response')
     }
     const body = await readBoundedBody(response, maxBytes)
-    const metadata = validateImage(body, contentType, px)
+    const metadata = validateImage(body, contentType, px, SPOTIFY_FIXED_ARTWORK_HOSTS.has(source.url.hostname))
     return { body, contentType: metadata.contentType }
   } catch (cause) {
     if (cause instanceof ArtworkProxyError) throw cause
