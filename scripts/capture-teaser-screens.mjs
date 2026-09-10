@@ -3,6 +3,7 @@
 import { chromium } from '@playwright/test'
 import { fileURLToPath, URL } from 'node:url'
 import { log } from 'node:console'
+import { TEASER_PLAYBACK_SECONDS } from '../apps/web/src/teaser-screen.ts'
 /* global document */
 const projectRoot = fileURLToPath(new URL('..', import.meta.url)).replace(/\/$/, '')
 const root = '/@fs' + projectRoot
@@ -25,7 +26,13 @@ await page.evaluate(async (root) => {
  host.id='teaser-capture'
  host.style.cssText='position:fixed;left:0;top:0;z-index:2147483647;width:272px;height:204px;transform:scale(3);transform-origin:top left;--wp-raster-scale:1'
  document.body.append(host)
- createRoot(host).render(createElement(Panel,{provider:fixtureProvider,navigationSource:fixtureNavigationSource,colourway:'dark',artworkTone:null}))
+ // Isolate the real Panel stylesheet from the landing page's reset layers.
+ const shadow = host.attachShadow({mode:'open'})
+ const style = document.createElement('style')
+ style.textContent = (await import(`${root}/packages/panel/src/panel.css?inline`)).default
+ const panelHost = document.createElement('div')
+ shadow.append(style, panelHost)
+ createRoot(panelHost).render(createElement(Panel,{provider:fixtureProvider,navigationSource:fixtureNavigationSource,colourway:'dark',artworkTone:null}))
 }, root)
 await page.locator('#teaser-capture .wp-list-row').first().waitFor()
 for(let i=0;i<4;i++) {
@@ -45,11 +52,11 @@ await page.evaluate(async (root) => {
  showNowPlayingScreen()
 }, root)
 await page.waitForTimeout(500)
-for(let i=0;i<8;i++) {
+for(let i=0;i<TEASER_PLAYBACK_SECONDS;i++) {
  await page.evaluate(async ({root, position}) => {
   const {fixtureProvider} = await import(`${root}/packages/panel/src/fixtures.ts`)
   await fixtureProvider.seek(position)
- },{root,position:30000+i*4000})
+ },{root,position:30000+i*1000})
  await page.waitForTimeout(150)
  await capture('playing-'+i)
 }
@@ -57,7 +64,7 @@ async function capture(name) {
  // Fixtures do not serve album URLs. Supply the bundled sample cover while
  // retaining the actual Panel's artwork element, border and sizing.
  await page.evaluate(async (root) => {
-  const art = document.querySelector('#teaser-capture .wp-art')
+  const art = document.querySelector('#teaser-capture').shadowRoot.querySelector('.wp-art')
   const image = art?.querySelector('img')
   if (image) {
    image.src = root + '/packages/panel/src/assets/now-playing-art.png'
