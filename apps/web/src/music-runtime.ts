@@ -43,15 +43,16 @@ interface RuntimeState {
   operation: number
   readonly listeners: Set<() => void>
 }
-function createRuntimeState(): RuntimeState {
-  const provider = createAppleProvider(appleProviderOptions())
-  return { provider, spotify: createSpotifyProvider(), snapshot: { requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider: manageMusic(provider), source: emptySource, message: null }, operation: 0, listeners: new Set() }
+export interface MusicRuntimeResult { readonly snapshot: MusicRuntimeSnapshot; readonly ready: boolean }
+export function musicRuntimeReady(snapshot: MusicRuntimeSnapshot): boolean {
+  return snapshot.phase === 'authorized' && snapshot.provider.session?.status === 'authorized'
 }
-// MusicKit caches its API service against the store from its first configure.
-// Preserve the provider AND operation state so HMR cannot split authentication,
-// API credentials, pending library work, and React subscriptions across runtimes.
-const runtimeState = (import.meta.hot?.data['musicRuntimeState'] as RuntimeState | undefined) ?? createRuntimeState()
-if (import.meta.hot) import.meta.hot.data['musicRuntimeState'] = runtimeState
+
+/** Injectable provider boundary; production and contract tests execute the same startup path. */
+export function createMusicRuntimeController(provider: ReturnType<typeof createAppleProvider>, spotify: MusicProvider, stickers = {
+  restore: restoreStickerSession, start: startStickerRuntime, bootstrap: bootstrapStickerCollection, disconnect: disconnectStickerMusic,
+}) {
+const runtimeState: RuntimeState = { provider, spotify, snapshot: { requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider: manageMusic(provider), source: emptySource, message: null }, operation: 0, listeners: new Set() }
 const publish = (next: MusicRuntimeSnapshot): void => { runtimeState.snapshot = next; for (const listener of runtimeState.listeners) listener() }
 const failureMessage = (stage: string, cause: unknown): string => {
   const detail = cause instanceof Error ? cause.message : 'Unknown failure'
@@ -60,14 +61,8 @@ const failureMessage = (stage: string, cause: unknown): string => {
   return `Apple Music ${stage} failed: ${safeDetail}`
 }
 
-/** Stops an outgoing provider before its controls and status leave the screen. */
-export async function quiesceMusicProvider(provider: MusicProvider): Promise<void> {
-  if (!provider.supports('transport') || provider.session?.status !== 'authorized') return
-  await provider.pause()
-}
-
 /** Selects the production Apple Music runtime. */
-export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> {
+async function selectRuntime(mode: MusicRuntimeMode): Promise<void> {
   musicManager(runtimeState.snapshot.provider).deactivate()
   const selectedOperation = ++runtimeState.operation
   if (mode === 'spotify') { await selectSpotifyRuntime(selectedOperation); return }
@@ -75,12 +70,12 @@ export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> 
   musicManager(provider).activate()
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider: manageMusic(provider), source: emptySource, message: null })
   try {
-    restoreStickerSession(provider)
+    stickers.restore(provider)
     await provider.configure()
     if (selectedOperation !== runtimeState.operation) return
-    if (provider.session?.status !== 'authorized') { restoreStickerSession(provider); publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider: manageMusic(provider), source: emptySource, message: null }); return }
-    restoreStickerSession(provider)
-    startStickerRuntime(provider, (refresh) => bootstrapStickerCollection(provider, refresh))
+    if (provider.session?.status !== 'authorized') { stickers.restore(provider); publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider: manageMusic(provider), source: emptySource, message: null }); return }
+    stickers.restore(provider)
+    stickers.start(provider, (refresh) => stickers.bootstrap(provider, refresh))
     const { source, completion } = await createProgressiveMusicSource(provider, () => selectedOperation === runtimeState.operation); if (selectedOperation !== runtimeState.operation) return
     publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider: manageMusic(provider), source, message: null })
     void completion
@@ -98,7 +93,7 @@ export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> 
 }
 
 /** Restore the saved session once when the landing is the first route opened. */
-export function ensureMusicRuntime(): void {
+function ensureMusicRuntime(): void {
   if (runtimeState.operation !== 0) return
   const query = new URLSearchParams(window.location.search)
   let saved: string | null = null
@@ -112,24 +107,28 @@ export function ensureMusicRuntime(): void {
 }
 
 /** Runs MusicKit authorization from a user gesture and hydrates provider-neutral navigation data. */
-export async function authorizeAppleRuntime(): Promise<void> {
+async function authorizeRuntime(): Promise<void> {
   musicManager(runtimeState.snapshot.provider).deactivate()
   const selectedOperation = ++runtimeState.operation
   const provider = runtimeState.provider
   musicManager(provider).activate()
   rememberProvider('apple')
-  restoreStickerSession(provider)
+  stickers.restore(provider)
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider: manageMusic(provider), source: emptySource, message: null })
   try {
     try { await provider.authorize() } catch (cause) {
       if (selectedOperation !== runtimeState.operation) return
       const denied = provider.appleSessionState.status === 'permission-denied'
-      if (denied) disconnectStickerMusic(provider)
+      if (denied) stickers.disconnect(provider)
       publish({ requestedMode: 'apple', activeMode: 'apple', phase: denied ? 'permission-denied' : 'error', provider: manageMusic(provider), source: emptySource, message: failureMessage('authorization', cause) })
       return
     }
     if (selectedOperation !== runtimeState.operation) return
-    startStickerRuntime(provider, (refresh) => bootstrapStickerCollection(provider, refresh))
+    if (provider.session?.status !== 'authorized') {
+      publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'permission-denied', provider: manageMusic(provider), source: emptySource, message: 'Access wasn’t granted. Please try again.' })
+      return
+    }
+    stickers.start(provider, (refresh) => stickers.bootstrap(provider, refresh))
     try {
       const { source, completion } = await createProgressiveMusicSource(provider, () => selectedOperation === runtimeState.operation); if (selectedOperation !== runtimeState.operation) return
       publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'authorized', provider: manageMusic(provider), source, message: null })
@@ -145,7 +144,7 @@ export async function authorizeAppleRuntime(): Promise<void> {
 }
 
 /** Invalidates the MusicKit user session and returns to the signed-out Apple frame. */
-export async function signOutAppleRuntime(): Promise<void> {
+async function signOutAppleRuntime(): Promise<void> {
   musicManager(runtimeState.snapshot.provider).deactivate()
   const selectedOperation = ++runtimeState.operation
   if (runtimeState.snapshot.activeMode === 'spotify') {
@@ -163,14 +162,14 @@ export async function signOutAppleRuntime(): Promise<void> {
   try {
     await manageMusic(provider).unauthorize()
     if (selectedOperation !== runtimeState.operation) return
-    disconnectStickerMusic(provider)
+    stickers.disconnect(provider)
     publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider: manageMusic(provider), source: emptySource, message: null })
   } catch (cause) {
     if (selectedOperation !== runtimeState.operation) return
     publish({ ...runtimeState.snapshot, phase: 'error', message: failureMessage('sign-out', cause) })
   }
 }
-export const musicRuntime = { getSnapshot: (): MusicRuntimeSnapshot => runtimeState.snapshot, subscribe(listener: () => void): () => void { runtimeState.listeners.add(listener); return () => { runtimeState.listeners.delete(listener) } } }
+const musicRuntime = { getSnapshot: (): MusicRuntimeSnapshot => runtimeState.snapshot, subscribe(listener: () => void): () => void { runtimeState.listeners.add(listener); return () => { runtimeState.listeners.delete(listener) } } }
 
 function rememberProvider(mode: MusicRuntimeMode): void {
   try { localStorage.setItem('webpod-music-provider', mode) } catch { /* Storage is optional. */ }
@@ -198,3 +197,23 @@ async function selectSpotifyRuntime(operation: number): Promise<void> {
     publish({ requestedMode: 'spotify', activeMode: 'spotify', phase: 'error', provider: manageMusic(provider), source: emptySource, message: cause instanceof Error ? cause.message : 'Could not connect to Spotify. Please try again.' })
   }
 }
+
+async function resultOf(start: () => Promise<void>): Promise<MusicRuntimeResult> {
+  const pending = start()
+  const operation = runtimeState.operation
+  await pending
+  return { snapshot: runtimeState.snapshot, ready: operation === runtimeState.operation && musicRuntimeReady(runtimeState.snapshot) }
+}
+const selectMusicRuntime = (mode: MusicRuntimeMode) => resultOf(() => selectRuntime(mode))
+const authorizeAppleRuntime = () => resultOf(authorizeRuntime)
+return { musicRuntime, selectMusicRuntime, authorizeAppleRuntime, signOutAppleRuntime, ensureMusicRuntime }
+}
+
+/** Stops an outgoing provider before its controls and status leave the screen. */
+export async function quiesceMusicProvider(provider: MusicProvider): Promise<void> {
+  if (provider.supports('transport') && provider.session?.status === 'authorized') await provider.pause()
+}
+const controller = (import.meta.hot?.data['musicRuntimeController'] as ReturnType<typeof createMusicRuntimeController> | undefined)
+  ?? createMusicRuntimeController(createAppleProvider(appleProviderOptions()), createSpotifyProvider())
+if (import.meta.hot) import.meta.hot.data['musicRuntimeController'] = controller
+export const { musicRuntime, selectMusicRuntime, authorizeAppleRuntime, signOutAppleRuntime, ensureMusicRuntime } = controller

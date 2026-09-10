@@ -1,4 +1,4 @@
-import { musicRuntime, ensureMusicRuntime, authorizeAppleRuntime } from './music-runtime'
+import { musicRuntime, ensureMusicRuntime, authorizeAppleRuntime, selectMusicRuntime, musicRuntimeReady, type MusicRuntimeSnapshot } from './music-runtime'
 import { getCompositeTierSnapshot, HTML_IN_CANVAS_FLAG, refreshCompositeTier, subscribeCompositeTier, type CapabilityReport } from '@webpod/composite'
 import { atom, createStore, useAtomValue } from 'jotai'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -6,6 +6,7 @@ import { Component, useEffect, useRef, useSyncExternalStore, type ReactNode } fr
 import { browserWelcomeReason, welcomeAction, type WelcomeReason } from './browser-welcome-policy'
 import { DeviceTeaser } from './device-teaser'
 import './styles/browser-welcome.css'
+import { createWelcomeEntry } from './welcome-entry'
 
 const welcomeStore = createStore()
 const pausedAtom = atom(false)
@@ -16,6 +17,7 @@ const authorizationAttemptedAtom = atom(false)
 
 /** Select the welcome before mounting player effects, account runtimes or controls. */
 export function BrowserExperience({ children, landing = false }: { readonly children: ReactNode; readonly landing?: boolean }) {
+  const navigate = useNavigate()
   const snapshot = useSyncExternalStore(subscribeCompositeTier, getCompositeTierSnapshot, getCompositeTierSnapshot)
   useEffect(() => {
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -29,11 +31,20 @@ export function BrowserExperience({ children, landing = false }: { readonly chil
       media.removeEventListener('change', refresh)
     }
   }, [])
+  const music = useSyncExternalStore(musicRuntime.subscribe, musicRuntime.getSnapshot, musicRuntime.getSnapshot)
+  useEffect(() => { ensureMusicRuntime() }, [])
   const report = snapshot.report
   // Keep the existing restoration owner mounted when the live context is lost.
   const reason = report === null || snapshot.contextLost ? null : browserWelcomeReason(report)
   const capture = import.meta.env.DEV && new URLSearchParams(window.location.search).has('capture')
-  if (report === null || (!landing && (reason === null || capture))) return children
+  useEffect(() => {
+    if (!landing && !capture && music.phase !== 'signing-in' && !musicRuntimeReady(music)) {
+      void navigate({ to: '/', replace: true })
+    }
+  }, [landing, capture, music, navigate])
+  if (capture) return children
+  if (report === null) return null
+  if (!landing && reason === null && musicRuntimeReady(music)) return children
   return <BrowserWelcome report={report} reason={reason} />
 }
 
@@ -53,38 +64,43 @@ const GUIDANCE: Record<WelcomeReason, { title: string; description: string }> = 
 function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport; readonly reason: WelcomeReason | null }) {
   const navigate = useNavigate()
   const welcomeRef = useRef<HTMLElement>(null)
-  const enterDevice = async () => {
-    const welcome = welcomeRef.current
-    if (!welcome || welcome.dataset['departing']) return
-    welcome.dataset['departing'] = 'true'
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const model = welcome.querySelector<HTMLElement>('.webpod-welcome__model')
-    // Finish the live player's descent before the router captures the home snapshot.
-    const exit = !reduced && model ? model.animate([
-      { transform: 'translateY(0)' },
-      { transform: `translateY(${window.innerHeight - model.getBoundingClientRect().top + 32}px)` },
-    ], { duration: 520, easing: 'cubic-bezier(.55, 0, .85, .45)', fill: 'forwards' }) : null
-    try {
-      await exit?.finished
-      if (welcome.isConnected) await navigate({ to: '/webpod', viewTransition: !reduced })
-    } finally {
-      exit?.cancel()
-      delete welcome.dataset['departing']
-    }
+  const entry = useRef(createWelcomeEntry(musicRuntime.getSnapshot))
+  const enterDevice = async (accepted: MusicRuntimeSnapshot = musicRuntime.getSnapshot()) => {
+    await entry.current(accepted, async (isCurrent) => {
+      const welcome = welcomeRef.current
+      if (!welcome || welcome.dataset['departing']) return
+      welcome.dataset['departing'] = 'true'
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const model = welcome.querySelector<HTMLElement>('.webpod-welcome__model')
+      // Finish the live player's descent before the router captures the home snapshot.
+      const exit = !reduced && model ? model.animate([
+        { transform: 'translateY(0)' },
+        { transform: `translateY(${window.innerHeight - model.getBoundingClientRect().top + 32}px)` },
+      ], { duration: 520, easing: 'cubic-bezier(.55, 0, .85, .45)', fill: 'forwards' }) : null
+      try {
+        await exit?.finished
+        if (!welcome.isConnected || !isCurrent()) return false
+        await navigate({ to: '/webpod', viewTransition: !reduced })
+        return true
+      } finally {
+        exit?.cancel()
+        delete welcome.dataset['departing']
+      }
+    })
   }
   const music = useSyncExternalStore(musicRuntime.subscribe, musicRuntime.getSnapshot, musicRuntime.getSnapshot)
-  const signedIn = music.phase === 'authorized' && music.provider.session?.status === 'authorized'
+  const signedIn = musicRuntimeReady(music)
   const signingIn = music.phase === 'signing-in'
   const action = welcomeAction(signedIn, signingIn, reason === null)
   const authorizationAttempted = useAtomValue(authorizationAttemptedAtom, { store: welcomeStore })
   useEffect(() => { ensureMusicRuntime() }, [music.provider])
   const signIn = async () => {
     welcomeStore.set(authorizationAttemptedAtom, true)
-    await authorizeAppleRuntime()
-    const current = musicRuntime.getSnapshot()
+    const result = musicRuntime.getSnapshot().activeMode === 'spotify' && musicRuntime.getSnapshot().phase === 'error'
+      ? await selectMusicRuntime('spotify') : await authorizeAppleRuntime()
     const capability = getCompositeTierSnapshot().report
-    if (current.provider.session?.status === 'authorized' && capability !== null && browserWelcomeReason(capability) === null) {
-      await enterDevice()
+    if (result.ready && capability !== null && browserWelcomeReason(capability) === null) {
+      await enterDevice(result.snapshot)
     }
   }
   const paused = useAtomValue(pausedAtom, { store: welcomeStore })
@@ -160,7 +176,7 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
       </div>
     <div className="webpod-welcome__play-action">
       {typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('spotify') ? <p className="webpod-welcome__auth-status" role="status">Spotify sign-in wasn’t completed. Please try again.</p> : null}
-      {action.kind === 'sign-in' ? <button type="button" className="webpod-welcome__primary" disabled={action.disabled} onClick={() => void signIn()}>{action.label} <span aria-hidden="true">↗</span></button>
+      {action.kind === 'sign-in' ? <button type="button" className="webpod-welcome__primary" disabled={action.disabled} onClick={() => void signIn()}>{music.activeMode === 'spotify' && music.phase === 'error' ? 'Retry Spotify' : action.label} <span aria-hidden="true">↗</span></button>
         : !action.disabled ? <Link to="/webpod" className="webpod-welcome__primary" onClick={event => {
           if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
           event.preventDefault()
