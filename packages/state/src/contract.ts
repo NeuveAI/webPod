@@ -345,6 +345,7 @@ export type NavigationRoute =
   | { readonly kind: 'playlist-tracks'; readonly playlistKey: LocalKey }
   | { readonly kind: 'artists' }
   | { readonly kind: 'artist-albums'; readonly artistKey: LocalKey }
+  | { readonly kind: 'artist-tracks'; readonly artistKey: LocalKey }
   | { readonly kind: 'albums' }
   | { readonly kind: 'album-tracks'; readonly albumKey: LocalKey }
   | { readonly kind: 'songs' }
@@ -368,6 +369,14 @@ export type NavigationIntent = {
 
 /** Latest semantic navigation request, or `null` before the first request. */
 export const navigationIntentAtom: PrimitiveAtom<NavigationIntent | null> = atom<NavigationIntent | null>(null)
+
+/** Consumption belongs to the device store, so remounted/HMR panel subscribers cannot replay input. */
+export const handledNavigationIntentAtom = atom(0)
+export const claimNavigationIntentAtom = atom(null, (get, set, sequence: number): boolean => {
+  if (sequence <= get(handledNavigationIntentAtom)) return false
+  set(handledNavigationIntentAtom, sequence)
+  return true
+})
 
 /** The display and in-flight Center action currently owned by Now Playing. */
 export type NowPlayingMode = 'standard' | 'scrub' | 'artwork' | 'queue'

@@ -36,10 +36,128 @@ function harness() {
   }
   const emit = (patch: Partial<PlaybackState>) => { playback = { ...playback, ...patch }; for (const listener of [...playbackListeners]) listener(playback) }
   const progress = (positionMs: number) => { playback = { ...playback, positionMs }; for (const listener of [...progressListeners]) listener({ positionMs, durationMs: playback.durationMs, interpolated: false }) }
+  const silentSnapshot = (patch: Partial<PlaybackState>) => { playback = { ...playback, ...patch } }
   const changeAccount = () => { session = session ? { ...session, userIdentifier: 'new-account' } : null; for (const listener of [...sessionListeners]) listener(session) }
   const manager = () => { const result = musicManager(adapter); owned.push(result); return result }
-  return { adapter, manager, tracks, emit, progress, changeAccount, calls, playbackListeners, progressListeners, sessionListeners }
+  return { adapter, manager, tracks, emit, progress, silentSnapshot, changeAccount, calls, playbackListeners, progressListeners, sessionListeners }
 }
+
+describe('native snapshot reconciliation on progress', () => {
+  test.each(['playing', 'paused', 'loading', 'error'] as const)('observes %s without a playback event or active intent', (status) => {
+    const h = harness(); const manager = h.manager()
+    h.silentSnapshot({ status, now: h.tracks[1] }); h.progress(4250)
+    expect(manager.getSnapshot().intent).toBeNull()
+    expect(manager.getSnapshot().playback).toMatchObject({ status, now: h.tracks[1], positionMs: 4250 })
+  })
+
+  test('clock-only updates do not emit transport events or refresh the queue repeatedly', async () => {
+    const h = harness(); const manager = h.manager()
+    let events = 0; let reads = 0
+    h.adapter.queueRead = async () => { reads += 1; return { history: [], now: h.tracks[0] ?? null, next: [] } }
+    manager.provider.onPlaybackChange(() => { events += 1 })
+    h.silentSnapshot({ status: 'playing', queueIndex: null }); h.progress(250)
+    await flush()
+    const firstEvents = events
+    for (let n = 2; n < 20; n++) h.progress(n * 250)
+    await flush()
+    expect(events).toBe(firstEvents)
+    expect(reads).toBe(1)
+    expect(manager.getSnapshot().playback.positionMs).toBe(4750)
+  })
+
+  test('silent stale selection metadata cannot settle a newer intent', async () => {
+    const h = harness(); const manager = h.manager()
+    await manager.provider.play({ kind: 'tracks', tracks: h.tracks, startIndex: 1 })
+    h.silentSnapshot({ status: 'playing', now: h.tracks[0], queueIndex: 0 }); h.progress(1000)
+    expect(manager.getSnapshot().intent).not.toBeNull()
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'loading', now: h.tracks[1], positionMs: 0 })
+    h.silentSnapshot({ now: h.tracks[1], queueIndex: 1 }); h.progress(1250)
+    expect(manager.getSnapshot().intent).toBeNull()
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'playing', now: h.tracks[1], positionMs: 1250 })
+  })
+
+  test('deactivation rejects retained progress callbacks', () => {
+    const h = harness(); const manager = h.manager()
+    const callbacks = [...h.progressListeners]
+    manager.deactivate()
+    h.silentSnapshot({ status: 'playing', now: h.tracks[1], positionMs: 2000 })
+    for (const callback of callbacks) callback({ positionMs: 2000, durationMs: 10000, interpolated: false })
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'idle', now: null, positionMs: 0 })
+  })
+})
+
+describe('progressive playback continuation', () => {
+  test('starts synchronously and appends only the suffix after native confirmation', async () => {
+    const h = harness(); const manager = h.manager(); const tail = deferred<readonly typeof h.tracks[number][]>()
+    const appended: string[] = []
+    h.adapter.queueAppend = async (tracks) => { appended.push(...tracks.map((track) => track.catalogId)) }
+    h.silentSnapshot({ status: 'loading', now: null, queueIndex: null })
+    const started = manager.playProgressive({ kind: 'tracks', tracks: h.tracks.slice(0, 1) }, tail.promise)
+    expect(h.calls).toEqual(['play'])
+    await started; tail.resolve(h.tracks); await flush()
+    expect(appended).toEqual([])
+    h.emit({ status: 'playing', now: h.tracks[0], queueIndex: 0, positionMs: 0 })
+    expect(manager.getSnapshot().playback.status).toBe('loading')
+    h.progress(250); await flush()
+    expect(appended).toEqual(h.tracks.slice(1).map((track) => track.catalogId))
+    expect(manager.getSnapshot().playback.status).toBe('playing')
+    expect(manager.getSnapshot().playback.queueTotal).toBeNull()
+  })
+
+  test.each(['new-play', 'pause', 'queue-mutation', 'deactivate'] as const)('%s cancels delayed continuation', async (action) => {
+    const h = harness(); const manager = h.manager(); const tail = deferred<readonly typeof h.tracks[number][]>()
+    const appended: string[] = []
+    h.adapter.queueAppend = async (tracks) => { appended.push(...tracks.map((track) => track.catalogId)) }
+    await manager.playProgressive({ kind: 'tracks', tracks: h.tracks.slice(0, 1) }, tail.promise)
+    h.emit({ status: 'playing', now: h.tracks[0], queueIndex: 0, positionMs: 250 })
+    if (action === 'new-play') await manager.provider.play({ kind: 'tracks', tracks: h.tracks, startIndex: 1 })
+    else if (action === 'pause') await manager.provider.pause()
+    else if (action === 'queue-mutation') await manager.provider.queueAppend([])
+    else manager.deactivate()
+    tail.resolve(h.tracks); await flush()
+    expect(appended).toEqual([])
+  })
+
+  test('new selection during one remote append prevents the remaining suffix', async () => {
+    const h = harness(); const manager = h.manager(); const append = deferred<void>()
+    const appended: string[] = []
+    h.adapter.queueAppend = async (tracks) => { appended.push(...tracks.map((track) => track.catalogId)); await append.promise }
+    await manager.playProgressive({ kind: 'tracks', tracks: h.tracks.slice(0, 1) }, Promise.resolve(h.tracks))
+    h.emit({ status: 'playing', now: h.tracks[0], queueIndex: 0, positionMs: 250 }); await flush()
+    expect(appended).toEqual([required(h.tracks[1]).catalogId])
+    await manager.provider.play({ kind: 'tracks', tracks: h.tracks, startIndex: 2 })
+    append.resolve(); await flush()
+    expect(appended).toEqual([required(h.tracks[1]).catalogId])
+    expect(manager.getSnapshot().playback.now).toBe(required(h.tracks[2]))
+  })
+
+  test('tail failure leaves the confirmed prefix playing', async () => {
+    const h = harness(); const manager = h.manager(); const tail = deferred<readonly typeof h.tracks[number][]>()
+    await manager.playProgressive({ kind: 'tracks', tracks: h.tracks.slice(0, 1) }, tail.promise)
+    h.emit({ status: 'playing', now: h.tracks[0], queueIndex: 0, positionMs: 250 })
+    tail.reject(new Error('Unrelated remaining page failed')); await flush()
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'playing', now: h.tracks[0], positionMs: 250 })
+  })
+
+  test('foreground seek runs between suffix appends', async () => {
+    const h = harness(); const manager = h.manager(); const firstAppend = deferred<void>(); const order: string[] = []
+    h.adapter.queueAppend = async (tracks) => { order.push(`append:${required(tracks[0]).catalogId}`); if (order.length === 1) await firstAppend.promise }
+    h.adapter.seek = async () => { order.push('seek') }
+    await manager.playProgressive({ kind: 'tracks', tracks: h.tracks.slice(0, 1) }, Promise.resolve(h.tracks))
+    h.emit({ status: 'playing', now: h.tracks[0], queueIndex: 0, positionMs: 250 }); await flush()
+    const seek = manager.provider.seek(500)
+    firstAppend.resolve(); await seek; await flush()
+    expect(order).toEqual([`append:${required(h.tracks[1]).catalogId}`, 'seek', `append:${required(h.tracks[2]).catalogId}`])
+  })
+
+  test('a reordered completion is not appended to a different prefix', async () => {
+    const h = harness(); const manager = h.manager(); let appends = 0
+    h.adapter.queueAppend = async () => { appends += 1 }
+    await manager.playProgressive({ kind: 'tracks', tracks: h.tracks.slice(0, 1) }, Promise.resolve([...h.tracks].reverse()))
+    h.emit({ status: 'playing', now: h.tracks[0], queueIndex: 0, positionMs: 250 }); await flush()
+    expect(appends).toBe(0)
+  })
+})
 
 describe('shared music ownership without React', () => {
   test('selection occurrence and total are synchronous; A/B/A cannot be confirmed by old A', async () => {

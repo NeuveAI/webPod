@@ -161,7 +161,7 @@ function identityCache(): AppleIdentityCache {
   keyFor.clear = () => keys.clear()
   return keyFor
 }
-function normalize(raw: unknown, keyFor: ReturnType<typeof identityCache>): Entity {
+function normalize(raw: unknown, keyFor: ReturnType<typeof identityCache>, parentArtistName?: string): Entity {
   const resource = record(raw, 'resource'); const id = asText(resource['id']); const rawType = asText(resource['type']); const attrs = record(resource['attributes'], 'attributes')
   if (id === undefined || rawType === undefined) throw new InvalidAppleDataError('Apple resource has no id or type')
   const type = canonicalResourceType(rawType)
@@ -173,7 +173,7 @@ function normalize(raw: unknown, keyFor: ReturnType<typeof identityCache>): Enti
     return { kind: 'track', key, provider: 'apple', catalogId, ...optional(libraryId, 'libraryId'), title, artistName, ...optional(asText(attrs['albumName']), 'albumName'), durationMs: asNumber(attrs['durationInMillis']) ?? 0, ...optional(art, 'artwork'), playable: asBoolean(attrs['playable']) ?? true, ...optional(asText(attrs['isrc']), 'isrc') } as TrackRef
   }
   if (type === 'albums' || type === 'library-albums') {
-    const title = asText(attrs['name']); const artistName = asText(attrs['artistName']); if (title === undefined || artistName === undefined) throw new InvalidAppleDataError('Apple album is missing metadata')
+    const title = asText(attrs['name']); const artistName = asText(attrs['artistName']) ?? asText(parentArtistName); if (title === undefined || artistName === undefined) throw new InvalidAppleDataError('Apple album is missing metadata')
     const year = Number(asText(attrs['releaseDate'])?.slice(0, 4)); return { kind: 'album', key, provider: 'apple', catalogId, ...optional(libraryId, 'libraryId'), title, artistName, trackCount: asNumber(attrs['trackCount']) ?? 0, ...(Number.isInteger(year) && year > 0 ? { releaseYear: year } : {}), ...optional(art, 'artwork') } as AlbumRef
   }
   if (type === 'artists' || type === 'library-artists') { const name = asText(attrs['name']); if (name === undefined) throw new InvalidAppleDataError('Apple artist has no name'); return { kind: 'artist', key, provider: 'apple', catalogId, ...optional(libraryId, 'libraryId'), name, ...optional(art, 'artwork') } as ArtistRef }
@@ -707,7 +707,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     clearUserSession()
     resetUserSessionPromise = instance('unauthorize').unauthorize().then(() => {
       rejectedSessionReset = true
-      continuations.clear(); keyFor.clear()
+      continuations.clear(); relationshipCursors.clear(); keyFor.clear()
       emitPlayback({ ...currentPlayback, status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0 })
     }).finally(() => { resetUserSessionPromise = null })
     return resetUserSessionPromise
@@ -742,7 +742,6 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   }
   const consumeContinuation = (cursor: Cursor, kind: LibraryKind): AppleLibraryContinuation => {
     const continuation = continuations.get(cursor)
-    continuations.delete(cursor)
     if (continuation === undefined || continuation.kind !== kind) throw new InvalidCursorError('apple', cursor)
     return continuation
   }
@@ -767,15 +766,15 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       return [null, index]
     }
   }))
-  const libraryPage = (response: unknown, kind: LibraryKind, request: AppleLibraryContinuation | null): Page<Entity> => {
+  const libraryPage = (response: unknown, kind: LibraryKind, request: AppleLibraryContinuation | null, limit = APPLE_LIBRARY_PAGE_SIZE): Page<Entity> => {
     const rawItems = resources(response)
     const items = normalizeLibraryItems(rawItems)
     if (Array.isArray(response)) {
       const fingerprint = pageFingerprint(rawItems)
       if (request?.source === 'array' && fingerprint === request.previousFingerprint) throw new Error('Apple Music library pagination did not advance')
       const offset = request?.source === 'array' ? request.offset : 0
-      const next = rawItems.length === APPLE_LIBRARY_PAGE_SIZE
-        ? issueContinuation({ kind, source: 'array', offset: offset + APPLE_LIBRARY_PAGE_SIZE, previousFingerprint: fingerprint })
+      const next = rawItems.length === limit
+        ? issueContinuation({ kind, source: 'array', offset: offset + limit, previousFingerprint: fingerprint })
         : null
       return { items, next, total: null }
     }
@@ -787,9 +786,38 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     const total = typeof meta === 'object' && meta !== null ? asNumber(record(meta, 'metadata')['total']) ?? null : null
     return { items, next, total }
   }
-  const relationships = async <T extends AlbumRef | TrackRef>(first: string, kind: T['kind'], options?: { readonly signal?: AbortSignal; readonly onPage?: (items: readonly T[]) => void }): Promise<readonly T[]> => {
+  const relationshipCursors = new Map<string, { readonly owner: string; readonly generation: number; readonly path: string; readonly fingerprint?: string }>()
+  /** MusicKit cannot cancel its transport; signals fence publication and continuation. Bare-array facades use bounded offsets. */
+  const relationshipPage = async <T extends AlbumRef | TrackRef>(first: string, kind: T['kind'], options: import('../provider').RelationshipPageOptions, parentArtistName?: string): Promise<Page<T>> => {
+    if (!Number.isInteger(options.limit) || options.limit < 1) throw new Error('Invalid relationship page limit')
+    const limit = Math.min(100, options.limit)
+    const continuation = options.cursor === undefined ? undefined : relationshipCursors.get(options.cursor)
+    if (options.cursor !== undefined && (continuation?.owner !== first || continuation.generation !== authorizationGeneration)) throw new Error('Invalid Apple Music relationship cursor')
+    const generation = authorizationGeneration
+    options.signal?.throwIfAborted()
+    const requestPath = continuation?.path ?? first
+    const response = await api(requestPath, { limit: String(limit) })
+    options.signal?.throwIfAborted()
+    if (generation !== authorizationGeneration) throw new DOMException('Account changed', 'AbortError')
+    const raw = resources(response)
+    const items = raw.map((item) => normalize(item, keyFor, parentArtistName)).filter((item): item is T => item.kind === kind)
+    const fingerprint = Array.isArray(response) ? pageFingerprint(raw) : undefined
+    if (fingerprint !== undefined && fingerprint === continuation?.fingerprint) throw new Error('Apple Music relationship pagination did not advance')
+    const offset = Number(new URL(requestPath, 'https://api.music.apple.com').searchParams.get('offset') ?? 0)
+    const path = Array.isArray(response) ? raw.length === limit ? `${first}?offset=${offset + raw.length}` : null : asText(payload(response)['next']) ?? null
+    let next: string | null = null
+    if (path !== null) {
+      const url = new URL(path, 'https://api.music.apple.com')
+      if (url.origin !== 'https://api.music.apple.com' || url.pathname !== first || path === continuation?.path) throw new Error('Invalid Apple Music relationship continuation')
+      next = crypto.randomUUID()
+      relationshipCursors.set(next, { owner: first, generation, path: url.pathname + url.search, fingerprint })
+      if (relationshipCursors.size > 512) { const oldest = relationshipCursors.keys().next().value; if (oldest !== undefined) relationshipCursors.delete(oldest) }
+    }
+    return { items, next, total: null }
+  }
+  const relationships = async <T extends AlbumRef | TrackRef>(first: string, kind: T['kind'], options?: { readonly signal?: AbortSignal; readonly onPage?: (items: readonly T[]) => void; readonly parentArtistName?: string }): Promise<readonly T[]> => {
     const items: T[] = []; let path: string | null = first; let pages = 0
-    while (path !== null) { options?.signal?.throwIfAborted(); const response = await api(path); options?.signal?.throwIfAborted(); items.push(...resources(response).map((item) => normalize(item, keyFor)).filter((item): item is T => item.kind === kind)); options?.onPage?.([...items]); path = Array.isArray(response) ? null : asText(payload(response)['next']) ?? null; pages += 1; if (pages > 1_000) throw new Error('Apple Music relationship pagination did not terminate') }
+    while (path !== null) { options?.signal?.throwIfAborted(); const response = await api(path); options?.signal?.throwIfAborted(); items.push(...resources(response).map((item) => normalize(item, keyFor, options?.parentArtistName)).filter((item): item is T => item.kind === kind)); options?.onPage?.([...items]); path = Array.isArray(response) ? null : asText(payload(response)['next']) ?? null; pages += 1; if (pages > 1_000) throw new Error('Apple Music relationship pagination did not terminate') }
     return items
   }
   const storefront = (method: string): string => authorized(method).storefrontId ?? authorized(method).storefrontCountryCode ?? 'us'
@@ -852,28 +880,41 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       if (logoutPromise !== null) return logoutPromise
       logoutPromise = instance('unauthorize').unauthorize().then(() => {
         clearUserSession(); rejectedSessionReset = true
-        continuations.clear(); keyFor.clear()
+        continuations.clear(); relationshipCursors.clear(); keyFor.clear()
         emitPlayback({ ...currentPlayback, status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0 })
       }).finally(() => { logoutPromise = null })
       return logoutPromise
     }, get session() { return currentSession }, onSessionChange(callback) { sessions.add(callback); return () => { sessions.delete(callback) } }, get appleSessionState() { return appleState }, onAppleSessionStateChange(callback) { appleStates.add(callback); return () => { appleStates.delete(callback) } },
     async search(query) { const types = query.kinds.map((kind) => kind === 'track' ? 'songs' : `${kind}s`).filter((kind) => kind !== 'stations'); const path = query.scope === 'library' ? '/v1/me/library/search' : `/v1/catalog/${storefront('search')}/search`; const response = await api(path, { term: query.term, types: (query.scope === 'library' ? types.map((type) => `library-${type}`) : types).join(','), limit: String(Math.min(25, Math.max(1, query.limit ?? 25))), ...(query.cursor === undefined ? {} : { offset: query.cursor }) }); const resultMap = record(payload(response)['results'], 'search results'); const entities: Entity[] = []; for (const section of Object.values(resultMap)) for (const item of resources(section)) entities.push(normalize(item, keyFor)); return { tracks: entities.filter((x): x is TrackRef => x.kind === 'track'), albums: entities.filter((x): x is AlbumRef => x.kind === 'album'), artists: entities.filter((x): x is ArtistRef => x.kind === 'artist'), playlists: entities.filter((x): x is PlaylistRef => x.kind === 'playlist'), stations: entities.filter((x): x is StationRef => x.kind === 'station'), next: null } satisfies SearchResults },
-    async libraryList(kind, cursor) {
+    async libraryList(kind, cursor, options) {
+      const limit = Math.min(100, Math.max(1, options?.limit ?? APPLE_LIBRARY_PAGE_SIZE))
       const names: Record<LibraryKind, string | null> = { playlists: 'playlists', artists: 'artists', albums: 'albums', songs: 'songs', genres: null, composers: null }
       const name = names[kind]
       if (name === null) throw new NotImplementedError('apple', `libraryList(${kind}): Apple exposes no matching library collection endpoint`)
       const path = `/v1/me/library/${name}`
       const continuation = cursor === undefined ? null : consumeContinuation(cursor, kind)
       const response = continuation?.source === 'structured'
-        ? await api(continuation.path, { limit: String(APPLE_LIBRARY_PAGE_SIZE) })
+        ? await api(continuation.path, { limit: String(limit) })
         : await api(path, {
-            limit: String(APPLE_LIBRARY_PAGE_SIZE),
+            limit: String(limit),
             offset: String(continuation?.source === 'array' ? continuation.offset : 0),
           })
-      return libraryPage(response, kind, continuation)
+      const result = libraryPage(response, kind, continuation, limit)
+      // Consume only after success: transport failure must not poison retry of
+      // the last committed source cursor. Successful handles remain single-use.
+      if (cursor !== undefined) continuations.delete(cursor)
+      return result
+    },
+    async relatedTracksPage(ref, options) {
+      const path = ref.libraryId === undefined ? `/v1/catalog/${storefront('relatedTracks')}/${ref.kind}s/${encodeURIComponent(ref.catalogId)}/tracks` : `/v1/me/library/${ref.kind}s/${encodeURIComponent(ref.libraryId)}/tracks`
+      return relationshipPage<TrackRef>(path, 'track', options)
+    },
+    async relatedAlbumsPage(ref, options) {
+      const path = ref.libraryId === undefined ? `/v1/catalog/${storefront('relatedAlbums')}/artists/${encodeURIComponent(ref.catalogId)}/albums` : `/v1/me/library/artists/${encodeURIComponent(ref.libraryId)}/albums`
+      return relationshipPage<AlbumRef>(path, 'album', options, ref.name)
     },
     async relatedTracks(ref) { const path = ref.libraryId === undefined ? `/v1/catalog/${storefront('relatedTracks')}/${ref.kind}s/${encodeURIComponent(ref.catalogId)}/tracks` : `/v1/me/library/${ref.kind}s/${encodeURIComponent(ref.libraryId)}/tracks`; return relationships<TrackRef>(path, 'track') },
-    async relatedAlbums(ref, options) { const path = ref.libraryId === undefined ? `/v1/catalog/${storefront('relatedAlbums')}/artists/${encodeURIComponent(ref.catalogId)}/albums` : `/v1/me/library/artists/${encodeURIComponent(ref.libraryId)}/albums`; return relationships<AlbumRef>(path, 'album', options) },
+    async relatedAlbums(ref, options) { const path = ref.libraryId === undefined ? `/v1/catalog/${storefront('relatedAlbums')}/artists/${encodeURIComponent(ref.catalogId)}/albums` : `/v1/me/library/artists/${encodeURIComponent(ref.libraryId)}/albums`; return relationships<AlbumRef>(path, 'album', { ...options, parentArtistName: ref.name }) },
     async libraryAdd() { throw new NotImplementedError('apple', 'libraryAdd (writes are out of scope)') }, async libraryRemove() { return unsupported('libraryRemove') }, async playlistCreate() { throw new NotImplementedError('apple', 'playlistCreate (writes are out of scope)') }, async playlistAddTracks() { throw new NotImplementedError('apple', 'playlistAddTracks (writes are out of scope)') }, async playlistRemoveTracks() { return unsupported('playlistRemoveTracks') }, async playlistReorder() { return unsupported('playlistReorder') },
     async prepare(target, signal) {
       if (developerTokenNeedsRefresh()) await refreshDeveloperToken()

@@ -1,4 +1,4 @@
-import { manageMusic } from '@webpod/music-management/playback'
+import { manageMusic, musicManager } from '@webpod/music-management/playback'
 import type {
   AlbumRef,
   Artwork,
@@ -70,17 +70,57 @@ function relationshipCaches(source: NavigationDataSource): RelationshipCaches {
 }
 
 const tracksForAlbum = (source: NavigationDataSource, album: AlbumRef, priority: 'low' | 'high' = 'high'): Promise<readonly TrackRef[]> =>
-  relationshipCaches(source).tracks.get(`album:${album.key}`, priority, (signal, requestPriority) => Promise.resolve(source.tracksForAlbum(album.key, { signal, priority: requestPriority })), { supersedeLowPriority: source.relationshipRequestsAbortable === true })
+  source.tracksSnapshot !== undefined
+    ? Promise.resolve(source.tracksForAlbumRef !== undefined ? source.tracksForAlbumRef(album, { priority, ...(priority === 'low' ? { limit: 15 } : {}) }) : source.tracksForAlbum(album.key, { priority, ...(priority === 'low' ? { limit: 15 } : {}) }))
+    : relationshipCaches(source).tracks.get(`album:${album.key}`, priority, (signal, requestPriority) => Promise.resolve(source.tracksForAlbum(album.key, { signal, priority: requestPriority })), { supersedeLowPriority: source.relationshipRequestsAbortable === true })
 
 const tracksForPlaylist = (source: NavigationDataSource, playlist: PlaylistRef, priority: 'low' | 'high' = 'high'): Promise<readonly TrackRef[]> =>
-  relationshipCaches(source).tracks.get(`playlist:${playlist.key}`, priority, (signal, requestPriority) => Promise.resolve(source.tracksForPlaylist(playlist.key, { signal, priority: requestPriority })), { supersedeLowPriority: source.relationshipRequestsAbortable === true })
+  source.tracksSnapshot !== undefined
+    ? Promise.resolve(source.tracksForPlaylist(playlist.key, { priority, ...(priority === 'low' ? { limit: 15 } : {}) }))
+    : relationshipCaches(source).tracks.get(`playlist:${playlist.key}`, priority, (signal, requestPriority) => Promise.resolve(source.tracksForPlaylist(playlist.key, { signal, priority: requestPriority })), { supersedeLowPriority: source.relationshipRequestsAbortable === true })
 
 const albumsForArtist = (source: NavigationDataSource, artist: ArtistRef, priority: 'low' | 'high' = 'high'): Promise<readonly AlbumRef[]> =>
-  relationshipCaches(source).albums.get(`artist:${artist.key}`, priority, (signal, requestPriority) => Promise.resolve(source.albumsForArtist(artist.key, { signal, priority: requestPriority })), { supersedeLowPriority: source.relationshipRequestsAbortable === true })
+  source.tracksSnapshot !== undefined
+    ? Promise.resolve(source.albumsForArtist(artist.key, { priority, ...(priority === 'low' ? { limit: 15 } : {}) }))
+    : relationshipCaches(source).albums.get(`artist:${artist.key}`, priority, (signal, requestPriority) => Promise.resolve(source.albumsForArtist(artist.key, { signal, priority: requestPriority })), { supersedeLowPriority: source.relationshipRequestsAbortable === true })
+
+function artistTracks(source: NavigationDataSource, artist: ArtistRef, priority: 'low' | 'high' = 'high'): Promise<readonly TrackRef[]> {
+  if (source.tracksForArtist !== undefined) return source.tracksForArtist(artist.key, { priority, ...(priority === 'low' ? { limit: 15 } : {}) })
+  return relationshipCaches(source).tracks.get(`artist:${artist.key}`, priority, async () => {
+    const albums = await albumsForArtist(source, artist, priority)
+    const tracks: TrackRef[] = []
+    for (const album of albums) tracks.push(...await tracksForAlbum(source, album, priority))
+    return tracks
+  })
+}
+
+function cachedTracks(source: NavigationDataSource, kind: 'album' | 'playlist' | 'artist', key: LocalKey): readonly TrackRef[] | undefined {
+  return source.tracksSnapshot?.(kind, key) ?? relationshipCaches(source).tracks.peek(`${kind}:${key}`)
+}
+
+/** A warmed prefix is selectable immediately; the request identity also survives progressive refresh. */
+function pendingFrame(value: ScreenFrame): LoadingScreenFrame {
+  return { ...value, navigationLoading: true, navigationRequestId: ++navigationRequestSequence }
+}
+
+const navigationOwners = new WeakMap<NavigationDataSource, number>()
+/** Shared panels release source I/O only when its last mounted owner leaves. */
+export function acquireNavigationCaches(source: NavigationDataSource): () => void {
+  navigationOwners.set(source, (navigationOwners.get(source) ?? 0) + 1)
+  let released = false
+  return () => {
+    if (released) return
+    released = true
+    const remaining = (navigationOwners.get(source) ?? 1) - 1
+    if (remaining > 0) navigationOwners.set(source, remaining)
+    else { navigationOwners.delete(source); clearNavigationCaches(source) }
+  }
+}
 
 /** Aborts speculative relationship work when a source leaves the mounted player. */
 export function clearNavigationCaches(source: NavigationDataSource): void {
   const caches = relationshipRequests.get(source)
+  source.clearRelationships?.()
   caches?.tracks.clear()
   caches?.albums.clear()
   relationshipRequests.delete(source)
@@ -125,7 +165,7 @@ const trackRow = (track: TrackRef, index: number): PanelRow => ({
   index,
   entityKey: track.key,
   label: track.title,
-  sublabel: track.artistName,
+  sublabel: null,
   glyphs: [],
   provenance: null,
 })
@@ -185,7 +225,16 @@ export function refreshNavigationFrame(current: ScreenFrame, source: NavigationD
     const artist = source.artists.find((item) => item.key === route.artistKey)
     if (albums !== undefined && artist !== undefined) {
       refreshed = artistAlbumsFrame(artist, albums)
-      if (source.artistAlbumsFailed?.(route.artistKey)) refreshed = { ...refreshed, rows: [...refreshed.rows, { ...descendRow(albums.length, "Couldn't load more albums", 'Press Menu and try again'), glyphs: [] }] }
+      if (source.artistAlbumsFailed?.(route.artistKey)) refreshed = { ...refreshed, rows: [...refreshed.rows, { ...descendRow(albums.length + 1, "Couldn't load more albums", 'Press Menu and try again'), glyphs: [] }] }
+    }
+  }
+  else if (route.kind === 'album-tracks' || route.kind === 'playlist-tracks' || route.kind === 'artist-tracks') {
+    const kind = route.kind === 'album-tracks' ? 'album' : route.kind === 'playlist-tracks' ? 'playlist' : 'artist'
+    const key = route.kind === 'album-tracks' ? route.albumKey : route.kind === 'playlist-tracks' ? route.playlistKey : route.artistKey
+    const tracks = cachedTracks(source, kind, key)
+    if (tracks !== undefined) {
+      refreshed = trackListFrame(current.screenId, current.title, route, tracks)
+      if (source.tracksFailed?.(kind, key)) refreshed = { ...refreshed, rows: [...refreshed.rows, { ...descendRow(tracks.length, "Couldn't load more songs", 'Press Menu and try again'), glyphs: [] }] }
     }
   }
   else if (route.kind === 'albums') refreshed = albumsFrame('Albums', 'albums', source.albums)
@@ -194,7 +243,7 @@ export function refreshNavigationFrame(current: ScreenFrame, source: NavigationD
   if (refreshed === null) return current
   const highlightIndex = refreshed.rows.length === 0 ? -1 : Math.min(Math.max(0, current.highlightIndex), refreshed.rows.length - 1)
   const windowStart = Math.min(Math.max(0, current.windowStart), Math.max(0, refreshed.rows.length - 1))
-  return { ...refreshed, highlightIndex, windowStart }
+  return { ...current, ...refreshed, highlightIndex, windowStart }
 }
 
 /** Resolves one center-button selection through the typed route graph. */
@@ -208,22 +257,33 @@ export function selectNavigationImmediate(
   const index = current.highlightIndex
   if (route === undefined || index < 0) return { frame: null, played: false }
 
-  if (route.kind === 'root') return { frame: rootDestination(current.rows[index]?.destination, source), played: false }
+  if (route.kind === 'root') {
+    const destination = current.rows[index]?.destination
+    if (destination?.kind === 'cover-flow') void source.ensureLibrary?.('albums')
+    if (destination?.kind === 'artists' || destination?.kind === 'albums' || destination?.kind === 'songs' || destination?.kind === 'playlists') void source.ensureLibrary?.(destination.kind)
+    return { frame: rootDestination(destination, source), played: false }
+  }
   if (route.kind === 'cover-flow' || route.kind === 'albums') {
     const album = source.albums[index]
     if (album === undefined) return { frame: null, played: false }
-    return { frame: loadingTracksFrame(album), resolution: tracksForAlbum(source, album).then((tracks) => tracksFrame(album, tracks)), played: false }
+    return { frame: pendingFrame(tracksFrame(album, cachedTracks(source, 'album', album.key) ?? [])), resolution: tracksForAlbum(source, album).then((tracks) => tracksFrame(album, tracks)), played: false }
   }
   if (route.kind === 'playlists') {
     const playlist = source.playlists[index]
     if (playlist === undefined) return { frame: null, played: false }
-    return { frame: loadingPlaylistFrame(playlist), resolution: tracksForPlaylist(source, playlist).then((tracks) => playlistFrame(playlist, tracks)), played: false }
+    return { frame: pendingFrame(playlistFrame(playlist, cachedTracks(source, 'playlist', playlist.key) ?? [])), resolution: tracksForPlaylist(source, playlist).then((tracks) => playlistFrame(playlist, tracks)), played: false }
   }
   if (route.kind === 'artists' || route.kind === 'genre-artists') {
     const artists = route.kind === 'artists' ? source.artists : source.artistsForGenre(route.genreKey)
     const artist = artists[index]
     if (artist === undefined) return { frame: null, played: false }
-    return { frame: loadingArtistFrame(artist), resolution: albumsForArtist(source, artist).then((albums) => artistAlbumsFrame(artist, albums)), played: false }
+    return { frame: pendingFrame(artistAlbumsFrame(artist, source.artistAlbumsSnapshot?.(artist.key) ?? relationshipCaches(source).albums.peek(`artist:${artist.key}`) ?? [])), resolution: albumsForArtist(source, artist).then((albums) => artistAlbumsFrame(artist, albums)), played: false }
+  }
+  if (route.kind === 'artist-albums' && index === 0) {
+    const artist = source.artists.find((item) => item.key === route.artistKey)
+    if (artist === undefined) return { frame: null, played: false }
+    const allFrame = (tracks: readonly TrackRef[]): ScreenFrame => trackListFrame('S09', artist.name, { kind: 'artist-tracks', artistKey: artist.key }, tracks)
+    return { frame: pendingFrame(allFrame(cachedTracks(source, 'artist', artist.key) ?? [])), resolution: artistTracks(source, artist).then(allFrame), played: false }
   }
   if (route.kind === 'artist-albums' || route.kind === 'genre-albums') {
     let albums = albumCollectionForFrame(current)
@@ -235,7 +295,7 @@ export function selectNavigationImmediate(
         return {
           frame: loading,
           resolution: albumsForArtist(source, artist).then(async (resolved) => {
-            const album = resolved[index]
+            const album = resolved[index - 1]
             return album === undefined ? loading : tracksFrame(album, await tracksForAlbum(source, album))
           }),
           played: false,
@@ -244,9 +304,9 @@ export function selectNavigationImmediate(
         albums = source.albumsForGenre(route.genreKey)
       }
     }
-    const album = albums[index]
+    const album = albums[index - (route.kind === 'artist-albums' ? 1 : 0)]
     if (album === undefined) return { frame: null, played: false }
-    return { frame: loadingTracksFrame(album), resolution: tracksForAlbum(source, album).then((tracks) => tracksFrame(album, tracks)), played: false }
+    return { frame: pendingFrame(tracksFrame(album, cachedTracks(source, 'album', album.key) ?? [])), resolution: tracksForAlbum(source, album).then((tracks) => tracksFrame(album, tracks)), played: false }
   }
   if (route.kind === 'genres') {
     const genre = source.genres[index]
@@ -256,10 +316,15 @@ export function selectNavigationImmediate(
     const destination = current.rows[index]?.destination
     return { frame: genreDestination(route.genreKey, destination, source), played: false }
   }
-  if (route.kind === 'album-tracks' || route.kind === 'playlist-tracks' || route.kind === 'songs' || route.kind === 'genre-tracks' || route.kind === 'search-results') {
+  if (route.kind === 'album-tracks' || route.kind === 'playlist-tracks' || route.kind === 'artist-tracks' || route.kind === 'songs' || route.kind === 'genre-tracks' || route.kind === 'search-results') {
     const tracks = playbackQueueForFrame(current)?.tracks ?? synchronousTracksForRoute(route, source)
     if (tracks[index] === undefined) return { frame: null, played: false }
-    const playback = manageMusic(provider).play({ kind: 'tracks', tracks, startIndex: index })
+    const complete = source.tracksSnapshot === undefined ? Promise.resolve(tracks) : route.kind === 'album-tracks' ? (isAlbumTrackFrame(current) ? tracksForAlbum(source, current.albumRef) : Promise.resolve(source.tracksForAlbum(route.albumKey)))
+      : route.kind === 'playlist-tracks' ? Promise.resolve(source.tracksForPlaylist(route.playlistKey))
+      : route.kind === 'artist-tracks' && source.tracksForArtist !== undefined ? source.tracksForArtist(route.artistKey)
+      : route.kind === 'songs' && source.ensureLibrary !== undefined ? source.ensureLibrary('songs').then(() => source.songs)
+      : Promise.resolve(tracks)
+    const playback = source.tracksSnapshot === undefined ? manageMusic(provider).play({ kind: 'tracks', tracks, startIndex: index }) : musicManager(provider).playProgressive({ kind: 'tracks', tracks, startIndex: index }, complete)
     return { frame: nowPlayingFrame(tracks, index, current.title), played: true, playback }
   }
   if (route.kind === 'stations') {
@@ -293,14 +358,6 @@ export async function selectNavigation(
   const selection = selectNavigationImmediate(current, source, provider, searchQuery)
   if (selection.resolution === undefined) return selection
   return { ...selection, frame: await selection.resolution, resolution: undefined }
-}
-
-function loadingTracksFrame(album: AlbumRef): LoadingScreenFrame {
-  return { ...trackListFrame('S08', album.title, { kind: 'album-tracks', albumKey: album.key }, []), navigationLoading: true, navigationRequestId: ++navigationRequestSequence }
-}
-
-function loadingPlaylistFrame(playlist: PlaylistRef): LoadingScreenFrame {
-  return { ...trackListFrame('S08', playlist.name, { kind: 'playlist-tracks', playlistKey: playlist.key }, []), navigationLoading: true, navigationRequestId: ++navigationRequestSequence }
 }
 
 function loadingArtistFrame(artist: ArtistRef): LoadingScreenFrame {
@@ -338,15 +395,20 @@ function artistsFrame(title: string, route: NavigationRoute, artists: readonly A
 }
 
 function albumsFrame(title: string, kind: 'albums' | 'cover-flow', albums: readonly AlbumRef[]): ScreenFrame {
-  return listFrame(kind === 'cover-flow' ? 'S19' : 'S08', title, { kind }, albums.map((item, index) => descendRow(index, item.title, item.artistName, undefined, item.key)))
+  return listFrame(kind === 'cover-flow' ? 'S19' : 'S08', title, { kind }, albums.map((item, index) => descendRow(index, item.title, null, undefined, item.key)))
 }
 
 function artistAlbumsFrame(artist: ArtistRef, albums: readonly AlbumRef[]): ScreenFrame {
-  return withAlbumCollection(listFrame('S07', artist.name, { kind: 'artist-albums', artistKey: artist.key }, albums.map((item, index) => descendRow(index, item.title, item.artistName, undefined, item.key))), albums)
+  return withAlbumCollection(listFrame('S07', artist.name, { kind: 'artist-albums', artistKey: artist.key }, [descendRow(0, 'All', null, { kind: 'artist-tracks', artistKey: artist.key }), ...albums.map((item, index) => descendRow(index + 1, item.title, null, undefined, item.key))]), albums)
 }
 
 function tracksFrame(album: AlbumRef, tracks: readonly TrackRef[]): ScreenFrame {
-  return trackListFrame('S08', album.title, { kind: 'album-tracks', albumKey: album.key }, tracks)
+  const value = { ...trackListFrame('S08', album.title, { kind: 'album-tracks', albumKey: album.key }, tracks), albumRef: album }
+  return value
+}
+
+function isAlbumTrackFrame(value: ScreenFrame): value is ScreenFrame & { readonly albumRef: AlbumRef } {
+  return 'albumRef' in value
 }
 
 function playlistFrame(playlist: PlaylistRef, tracks: readonly TrackRef[]): ScreenFrame {
@@ -368,7 +430,7 @@ function genreFrame(genre: GenreRef): ScreenFrame {
 
 function genreDestination(genreKey: LocalKey, destination: NavigationRoute | undefined, source: NavigationDataSource): ScreenFrame | null {
   if (destination?.kind === 'genre-artists') return artistsFrame('Artists', destination, source.artistsForGenre(genreKey))
-  if (destination?.kind === 'genre-albums') return listFrame('S07', 'Albums', destination, source.albumsForGenre(genreKey).map((item, index) => descendRow(index, item.title, item.artistName, undefined, item.key)))
+  if (destination?.kind === 'genre-albums') return listFrame('S07', 'Albums', destination, source.albumsForGenre(genreKey).map((item, index) => descendRow(index, item.title, null, undefined, item.key)))
   if (destination?.kind === 'genre-tracks') return songsFrame('Songs', destination, source.tracksForGenre(genreKey))
   return null
 }
@@ -438,7 +500,9 @@ export function previewEntityForFrame(frameValue: ScreenFrame, source: Navigatio
   if (route.kind === 'playlists') return source.playlists[index] ?? null
   if (route.kind === 'artists') return source.artists[index] ?? null
   if (route.kind === 'stations') return source.stations[index] ?? null
-  if (route.kind === 'artist-albums' || route.kind === 'genre-albums') return albumCollectionForFrame(frameValue)?.[index] ?? null
+  if (route.kind === 'artist-albums') return index === 0 ? source.artists.find((item) => item.key === route.artistKey) ?? null : albumCollectionForFrame(frameValue)?.[index - 1] ?? null
+  if (route.kind === 'genre-albums') return source.albumsForGenre(route.genreKey)[index] ?? null
+  if (route.kind === 'genre-artists') return source.artistsForGenre(route.genreKey)[index] ?? null
   return playbackQueueForFrame(frameValue)?.tracks[index] ?? null
 }
 
@@ -465,15 +529,20 @@ export function preparationForFrame(frameValue: ScreenFrame, source: NavigationD
     return { key: `${route.kind}:${entity.key}:${index}`, artwork: entity.artwork ?? null, playTarget: null, async prefetchData() { await tracksForPlaylist(source, entity, 'low') } }
   }
   if (entity.kind === 'artist') {
-    return { key: `${route.kind}:${entity.key}:${index}`, artwork: entity.artwork ?? null, playTarget: null, async prefetchData() { await albumsForArtist(source, entity, 'low') } }
+    return { key: `${route.kind}:${entity.key}:${index}`, artwork: entity.artwork ?? null, playTarget: null, async prefetchData() { if (source.prefetchArtist !== undefined) await source.prefetchArtist(entity.key); else { await albumsForArtist(source, entity, 'low'); await artistTracks(source, entity, 'low') } } }
   }
   return { key: `${route.kind}:${entity.key}:${index}`, artwork: 'artwork' in entity ? entity.artwork ?? null : null, playTarget: null, async prefetchData() {} }
 }
 
-/** The single row backed by sustained user focus; surrounding rows are not intent. */
+/** Immediate neighbors prepare data and artwork only; playback remains selected-row intent. */
 export function preparationsForFrame(frameValue: ScreenFrame, source: NavigationDataSource): readonly NavigationPreparation[] {
-  const preparation = preparationForFrame(frameValue, source)
-  return preparation === null ? [] : [preparation]
+  const preparations: NavigationPreparation[] = []
+  for (const index of [frameValue.highlightIndex, frameValue.highlightIndex - 1, frameValue.highlightIndex + 1]) {
+    if (index < 0 || index >= frameValue.rows.length) continue
+    const preparation = preparationForFrame({ ...frameValue, highlightIndex: index }, source)
+    if (preparation !== null) preparations.push(index === frameValue.highlightIndex ? preparation : { ...preparation, playTarget: null })
+  }
+  return preparations
 }
 
 function isTrackScreenFrame(frameValue: ScreenFrame): frameValue is TrackScreenFrame {

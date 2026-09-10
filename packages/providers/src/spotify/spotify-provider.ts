@@ -40,6 +40,27 @@ function loadSdk(): Promise<void> {
 /** Spotify library and Connect playback adapter. The server owns OAuth and refresh credentials. */
 export function createSpotifyProvider(): MusicProvider {
   const api = createSpotifyApi()
+  const relationshipCursors = new Map<string, { readonly owner: string; readonly generation: number; readonly path: string }>()
+  /** Opaque, bounded cursors cannot be replayed against a different relationship. */
+  const relationshipPage = async (owner: string, path: string, options: import('../provider').RelationshipPageOptions, maximum: number) => {
+    if (!Number.isInteger(options.limit) || options.limit < 1) throw new Error('Invalid relationship page limit')
+    const cursor = options.cursor === undefined ? undefined : relationshipCursors.get(options.cursor)
+    if (options.cursor !== undefined && (cursor?.owner !== owner || cursor.generation !== lifecycle)) throw new Error('Invalid Spotify relationship cursor')
+    const generation = lifecycle
+    const url = new URL(cursor?.path ?? path, 'https://api.spotify.com/v1/')
+    url.searchParams.set('limit', String(Math.min(maximum, options.limit)))
+    const page = pageSchema.parse(await api.request(url.href, 'GET', undefined, 'json', options))
+    if (generation !== lifecycle) throw new DOMException('Account changed', 'AbortError')
+    let next: string | null = null
+    if (page.next !== null) {
+      const nextUrl = new URL(page.next, 'https://api.spotify.com/v1/')
+      if (nextUrl.origin !== url.origin || nextUrl.pathname !== url.pathname || nextUrl.href === url.href) throw new Error('Invalid Spotify relationship continuation')
+      next = crypto.randomUUID()
+      relationshipCursors.set(next, { owner, generation, path: nextUrl.href })
+      if (relationshipCursors.size > 512) { const oldest = relationshipCursors.keys().next().value; if (oldest !== undefined) relationshipCursors.delete(oldest) }
+    }
+    return { ...page, next }
+  }
   let session: Session | null = null
   let lifecycle = 0
   let player: Spotify.Player | null = null
@@ -327,7 +348,7 @@ export function createSpotifyProvider(): MusicProvider {
       device = null
       api.clear()
       session = null
-      cursors.clear()
+      cursors.clear(); relationshipCursors.clear()
       submittedTracks = []
       submittedIndex = null
       currentUid = null
@@ -372,7 +393,7 @@ export function createSpotifyProvider(): MusicProvider {
         }
       }
     },
-    async libraryList(kind, cursor) {
+    async libraryList(kind, cursor, options) {
       const paths = {
         playlists: 'me/playlists?limit=50',
         albums: 'me/albums?limit=50',
@@ -383,7 +404,9 @@ export function createSpotifyProvider(): MusicProvider {
         return { items: [], next: null, total: 0 }
       if (cursor && cursors.get(cursor) !== kind)
         throw new Error('Invalid Spotify library cursor')
-      const raw = await api.request(cursor ?? paths[kind])
+      const url = new URL(cursor ?? paths[kind], 'https://api.spotify.com/v1/')
+      url.searchParams.set('limit', String(Math.min(50, Math.max(1, options?.limit ?? 50))))
+      const raw = await api.request(url.href, 'GET', undefined, 'json', options)
       const page = pageSchema.parse(
         kind === 'artists' ? recordSchema.parse(raw)['artists'] : raw,
       )
@@ -400,6 +423,23 @@ export function createSpotifyProvider(): MusicProvider {
               : api.artist(v),
         )
       return { items, next: page.next, total: page.total ?? null }
+    },
+    async relatedTracksPage(ref, options) {
+      const page = await relationshipPage(`${ref.kind}:${ref.catalogId}`, ref.kind === 'album' ? `albums/${id(ref.catalogId)}/tracks` : `playlists/${id(ref.catalogId)}/items`, options, 50)
+      const items = page.items.flatMap((value) => {
+        if (value === null) return []
+        const item = ref.kind === 'playlist' ? (recordSchema.parse(value)['item'] ?? recordSchema.parse(value)['track']) : value
+        if (!item) return []
+        const parsed = recordSchema.parse(item)
+        if (parsed['type'] === 'episode' || parsed['is_local'] === true || !parsed['id']) return []
+        const track = api.track(item)
+        return [ref.kind === 'album' ? { ...track, albumName: ref.title, artwork: ref.artwork } : track]
+      })
+      return { items, next: page.next, total: page.total ?? null }
+    },
+    async relatedAlbumsPage(ref, options) {
+      const page = await relationshipPage(`artist:${ref.catalogId}`, `artists/${id(ref.catalogId)}/albums?include_groups=album,single`, options, 10)
+      return { items: page.items.map(api.album), next: page.next, total: page.total ?? null }
     },
     async relatedTracks(ref) {
       const values = await all(

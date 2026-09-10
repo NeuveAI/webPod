@@ -11,8 +11,8 @@ import { deviceStore, stickerCollectionStatusAtom, stickerInteractionAtom, stick
 import { getSticker, isStickerPlacement, stickerWear, type StickerPlacement, type StickerInventory } from '@webpod/stickers'
 import type { DeviceOrientation } from '@webpod/device'
 import { stickerPackPresentation, deviceFrontVisibility, STICKER_PACK_LAYOUT, STICKER_SHEET_SLOTS, stickerPackViewportLayout, retryStickerArtwork } from '@webpod/device'
-import { animateStickerValue, returnStickerToSheet, resetStickerCarry, cancelStickerInteraction, releaseStickerPull, revealStickerPack, setStickerRearVisible, updateStickerInteraction, updateHeldStickerPreview, stickerArtworkFailureAtom, getStickerInteractionGeneration, supersedeStickerInteraction } from './sticker-interaction'
-import { stickerPackTurnAtom, activeStickerCollectionAtom, stickerCollectionsAtom, selectedStickerGenreAtom, stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, genreLabel, formatListeningMinutes, stickerPlacementForIntent, stickerPeelMotion, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerProjectionVersionAtom, stickerPreparedIdsAtom, type CollectionSlot } from './sticker-collections-model'
+import { animateStickerValue, returnStickerToSheet, resetStickerCarry, cancelStickerInteraction, releaseStickerPull, revealStickerLiner, revealStickerPack, setStickerRearVisible, updateStickerInteraction, updateHeldStickerPreview, stickerArtworkFailureAtom, getStickerInteractionGeneration, supersedeStickerInteraction } from './sticker-interaction'
+import { stickerPackTurnAtom, activeStickerCollectionAtom, stickerCollectionsAtom, selectedStickerGenreAtom, stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, genreLabel, formatListeningMinutes, stickerPlacementForIntent, stickerPeelMotion, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerProjectionVersionAtom, stickerPreparedIdsAtom, stickerCollectionTransitionAtom, openEarnedStickerPacks, type CollectionSlot } from './sticker-collections-model'
 import { estimatePointerReleaseVelocity, type PointerMotionSample } from './device-orientation-motion'
 
 import { captureStickerCarryAnchor, mountStickerCarryAnchorLifecycle, stickerSourceAnchorAtom, updateStickerSourcePull } from './sticker-carry-anchor'
@@ -139,7 +139,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
       }
     }
     change(); query.addEventListener('change', change)
-    return () => { query.removeEventListener('change', change); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); setStickerRearVisible(false); resetStickerPackPresence(); resetStickerPackTuck(); cancelStickerInteraction(); deviceStore.set(rearAdmittedAtom, false) }
+    return () => { query.removeEventListener('change', change); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); setStickerRearVisible(false); deviceStore.set(stickerCollectionTransitionAtom, null); resetStickerPackPresence(); resetStickerPackTuck(); cancelStickerInteraction(); deviceStore.set(rearAdmittedAtom, false) }
   }, [])
   useEffect(() => {
     const visible = deviceFrontVisibility(orientation)
@@ -154,11 +154,11 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     poseKey.current = key
   }, [orientation, compositeTier.tier, usable, deviceRevealing])
   useEffect(() => {
-    if (status === 'signed-out') { resetStickerEditor(); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); cancelStickerInteraction(); deviceStore.set(collectionMessageAtom, null); deviceStore.set(selectedStickerGenreAtom, null); deviceStore.set(stickerSheetRevealAtom, 0); resetStickerCarry() }
+    if (status === 'signed-out') { deviceStore.set(stickerCollectionTransitionAtom, null); resetStickerEditor(); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); cancelStickerInteraction(); deviceStore.set(collectionMessageAtom, null); deviceStore.set(selectedStickerGenreAtom, null); deviceStore.set(stickerSheetRevealAtom, 0); resetStickerCarry() }
   }, [status])
 
   /** Every new command/selection/gesture owns presentation; older server writes may still finish. */
-  const admitIntent = (): void => { releaseCapturedStickerPointer(captureTarget.current); captureTarget.current = null; supersedeStickerInteraction() }
+  const admitIntent = (): void => { deviceStore.set(stickerCollectionTransitionAtom, null); releaseCapturedStickerPointer(captureTarget.current); captureTarget.current = null; supersedeStickerInteraction() }
   const run = (work: (isCurrent: () => boolean) => Promise<void>): void => {
     admitIntent()
     const generation = getStickerInteractionGeneration()
@@ -318,6 +318,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     const index = collections.findIndex((item) => item.genre === collection.genre)
     const next = collections[(index + direction + collections.length) % collections.length]
     if (next === undefined) return
+    deviceStore.set(stickerCollectionTransitionAtom, next.genre)
     const keepOpen = deviceStore.get(stickerSheetRevealAtom) > .5
     const generation = getStickerInteractionGeneration()
     const isCurrent = () => generation === getStickerInteractionGeneration()
@@ -334,11 +335,12 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
           if (!isCurrent()) return
           deviceStore.set(stickerPackTurnAtom, -direction)
           animateStickerValue('turn', { position: 1, velocity: 0, target: 0 }, reducedMotion, () => {
-            if (keepOpen) { claimCollection(next); animateStickerValue('sheet', { position: 0, velocity: 0, target: 1 }, reducedMotion, () => {}) }
+            if (keepOpen) { claimCollection(next); animateStickerValue('sheet', { position: 0, velocity: 0, target: 1 }, reducedMotion, () => { if (isCurrent()) deviceStore.set(stickerCollectionTransitionAtom, null) }) } else deviceStore.set(stickerCollectionTransitionAtom, null)
           }, -direction)
         }).catch(() => {
           if (!isCurrent()) return
           deviceStore.set(stickerPackTurnAtom, 0)
+          deviceStore.set(stickerCollectionTransitionAtom, null)
           deviceStore.set(collectionMessageAtom, 'This pack could not load. Try again.')
         })
       }, direction)
@@ -348,7 +350,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
   const claimCollection = (targetCollection = collection): void => {
     if (targetCollection === null) return
     const generation = getStickerInteractionGeneration()
-    void (async () => { for (const id of targetCollection.unopenedPackIds) await commands.openPack(id) })().catch(() => {
+    void openEarnedStickerPacks(targetCollection, commands.openPack).catch(() => {
       if (generation === getStickerInteractionGeneration()) deviceStore.set(collectionMessageAtom, 'These stickers could not open yet. Try again.')
     })
   }
@@ -485,7 +487,11 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
       rear: () => deviceStore.get(rearAdmittedAtom),
       humanBusy: () => deviceStore.get(pointerAtom) !== null || deviceStore.get(rearCandidateAtom) !== null || deviceStore.get(stickerEditorGestureAtom),
       reducedMotion: () => deviceStore.get(reducedMotionAtom),
-      open: () => { admitIntent(); revealStickerPack(deviceStore.get(reducedMotionAtom)) },
+      open: async signal => {
+        admitIntent()
+        const target = revealStickerLiner(deviceStore.get(reducedMotionAtom), signal)
+        await openEarnedStickerPacks(target, commands.openPack, signal)
+      },
       close,
       navigate: switchCollection,
       lift: liftKeyboard,

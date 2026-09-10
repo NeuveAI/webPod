@@ -3,8 +3,8 @@ import { deviceStore, receiveStickerInventoryActionAtom, resetStickerCollectionA
 import { captureStickerCarryAnchor, mountStickerCarryAnchorLifecycle, stickerCarryAnchorAtom, stickerSourceAnchorAtom, stickerSourcePullAtom, updateStickerSourcePull } from './sticker-carry-anchor'
 import { publishOwnedStickerPull } from './sticker-grab'
 import { STICKER_GENRES } from '@webpod/stickers'
-import { animateStickerValue, getStickerInteractionGeneration, cancelStickerInteraction, resetStickerCarry, returnStickerToSheet, setStickerRearVisible, supersedeStickerInteraction, updateHeldStickerPreview, updateStickerInteraction } from './sticker-interaction'
-import { stickerSheetRevealAtom, stickerWorkspaceLoweringAtom, stickerPackTurnAtom, activeStickerCollectionAtom, stickerPreparedIdsAtom, stickerDragOffsetAtom } from './sticker-collections-model'
+import { revealStickerLiner, animateStickerValue, getStickerInteractionGeneration, cancelStickerInteraction, resetStickerCarry, returnStickerToSheet, setStickerRearVisible, supersedeStickerInteraction, updateHeldStickerPreview, updateStickerInteraction } from './sticker-interaction'
+import { selectedStickerGenreAtom, stickerCollectionTransitionAtom, stickerSheetRevealAtom, stickerWorkspaceLoweringAtom, stickerPackTurnAtom, activeStickerCollectionAtom, stickerPreparedIdsAtom, stickerDragOffsetAtom } from './sticker-collections-model'
 
 const frames = new Map<number, FrameRequestCallback>()
 let sequence = 0
@@ -229,4 +229,31 @@ test('packet turn is signed, reduced-motion immediate, and interruptible without
   expect(deviceStore.get(stickerPackTurnAtom)).toBe(0)
   expect(frames.size).toBe(0)
   expect(swaps).toBe(1)
+})
+
+
+test('non-reduced reveal completes before opening the liner and front admission clears a pending collection', () => {
+  revealStickerLiner(false)
+  let timestamp = performance.now()
+  for (let step = 0; step < 600 && frames.size > 0; step++) {
+    timestamp += 16
+    const pending = [...frames]; frames.clear()
+    for (const [, frame] of pending) frame(timestamp)
+  }
+  expect(deviceStore.get(stickerInteractionAtom)).toMatchObject({ progress: 1, stage: 'open' })
+  expect(deviceStore.get(stickerSheetRevealAtom)).toBe(1)
+  deviceStore.set(stickerCollectionTransitionAtom, 'pop'); setStickerRearVisible(false)
+  expect(deviceStore.get(stickerCollectionTransitionAtom)).toBeNull()
+})
+
+
+test('opening a liner pins the displayed genre when another sealed pack would change default selection', () => {
+  deviceStore.set(receiveStickerInventoryActionAtom, { stickerIds: ['PW-A01', 'PW-C01'], packs: [{ id: 'metal', source: 'starter', stickerIds: ['PW-A01'], earnedAt: 0, openedAt: 1 }, { id: 'rock', source: 'listening', stickerIds: ['PW-C01'], earnedAt: 0, openedAt: null }], progress: [], placements: [], placementRevision: 0, importStatus: 'complete' })
+  deviceStore.set(selectedStickerGenreAtom, null)
+  updateStickerInteraction({ packId: 'metal' })
+  expect(deviceStore.get(activeStickerCollectionAtom)?.genre).toBe('metal')
+  const opened = revealStickerLiner(true)
+  expect(opened.genre).toBe('metal')
+  expect(deviceStore.get(activeStickerCollectionAtom)?.genre).toBe('metal')
+  expect(deviceStore.get(selectedStickerGenreAtom)).toBe('metal')
 })

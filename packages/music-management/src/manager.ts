@@ -21,6 +21,12 @@ export interface MusicSnapshot {
 }
 const emptyQueue: ManagedQueue = { status: 'idle', items: [], currentIndex: -1 }
 const sameTrack = (a: TrackRef | null, b: TrackRef | null): boolean => a !== null && b !== null && (a.key === b.key || a.provider === b.provider && a.catalogId === b.catalogId)
+/** Progress can carry a newer native snapshot even when no transport event fired. */
+const sameTransport = (a: PlaybackState, b: PlaybackState): boolean => a.status === b.status
+  && (a.now === null && b.now === null || sameTrack(a.now, b.now))
+  && a.now?.title === b.now?.title && a.now?.artistName === b.now?.artistName
+  && a.queueIndex === b.queueIndex && a.queueTotal === b.queueTotal
+  && a.shuffle === b.shuffle && a.repeat === b.repeat && a.volume0to100 === b.volume0to100
 const sessionKey = (session: Session | null): string | null => session === null ? null : `${session.status}:${session.userIdentifier}`
 const cancelled = (): Error => new Error('Playback transport context was superseded')
 
@@ -32,6 +38,8 @@ export interface MusicManager {
   commitSeek(positionMs: number): Promise<void>
   toggle(fallback: readonly TrackRef[]): Promise<void>
   refreshQueue(): Promise<QueueSnapshot>
+  /** Starts the visible prefix in the gesture stack; extends only its still-current confirmed queue. */
+  playProgressive(target: Extract<PlayTarget, { readonly kind: 'tracks' }>, completion: Promise<readonly TrackRef[]>): Promise<void>
   /** Invalidates work before an outgoing provider becomes invisible. Reusable after activation. */
   deactivate(): void
   activate(): void
@@ -46,11 +54,13 @@ export function musicManager(adapter: MusicProvider): MusicManager {
   if (existing) return existing
   const store = createStore()
   const stateAtom = atom<MusicSnapshot>({ playback: adapter.playback, intent: null, queue: emptyQueue })
+  let observedTransport = adapter.playback
   let active = true
   let disposed = false
   let epoch = 0
   let generation = 0
   let readSequence = 0
+  let queueRevision = 0
   let account = sessionKey(adapter.session)
   let context: readonly TrackRef[] = []
   let contextValid = false
@@ -93,6 +103,7 @@ export function musicManager(adapter: MusicProvider): MusicManager {
   const observe = (value: PlaybackState): void => {
     if (!active || disposed) return
     if (pauseRequested && (value.status === 'playing' || value.status === 'loading')) return
+    observedTransport = value
     const current = get()
     const intent = current.intent
     if (intent && value.status === 'error') {
@@ -140,7 +151,8 @@ export function musicManager(adapter: MusicProvider): MusicManager {
     stopProgress = adapter.onProgress((tick) => {
       if (!active || disposed || boundEpoch !== epoch) return
       // O(1): selection occurrence counts are indexed once on play, never per tick.
-      if (get().intent) observe(adapter.playback)
+      const native = adapter.playback
+      if (get().intent || !sameTransport(observedTransport, native)) observe(native)
       if (get().intent) return
       const current = get()
       publish({ ...current, playback: { ...current.playback, positionMs: tick.positionMs, durationMs: tick.durationMs } }, false)
@@ -172,6 +184,11 @@ export function musicManager(adapter: MusicProvider): MusicManager {
     const next = ordered.catch(() => undefined).then(async () => { check(selectedEpoch, selectedGeneration); await work(() => check(selectedEpoch, selectedGeneration)); check(selectedEpoch, selectedGeneration) })
     ordered = next.catch(() => undefined)
     return next
+  }
+  const mutateQueue = (work: (guard: () => void) => Promise<void>): Promise<void> => {
+    queueRevision += 1
+    for (const inspect of [...waiters]) inspect()
+    return enqueue(work)
   }
   const waitUntilReady = (): Promise<void> => {
     const selectedEpoch = epoch; const selectedGeneration = generation
@@ -260,10 +277,10 @@ export function musicManager(adapter: MusicProvider): MusicManager {
     setShuffle: (mode) => enqueue(async (guard) => { await adapter.setShuffle(mode); guard(); observe(adapter.playback) }),
     setRepeat: (mode) => enqueue(async (guard) => { await adapter.setRepeat(mode); guard(); observe(adapter.playback) }),
     queueRead: refreshQueue,
-    queueAppend: (tracks) => enqueue(async (guard) => { if (!adapter.supports('queueAppend')) return adapter.queueAppend(tracks); if (tracks.length > 0) invalidateContext(); await adapter.queueAppend(tracks); guard(); observe(adapter.playback); await refreshQueue() }),
-    queueInsertNext: (tracks) => enqueue(async (guard) => { if (!adapter.supports('queueInsertNext')) return adapter.queueInsertNext(tracks); if (tracks.length > 0) invalidateContext(); await adapter.queueInsertNext(tracks); guard(); observe(adapter.playback); await refreshQueue() }),
-    queueRemove: (positions) => enqueue(async (guard) => { await adapter.queueRemove(positions); guard(); invalidateContext(); await refreshQueue() }),
-    queueReorder: (from, to) => enqueue(async (guard) => { await adapter.queueReorder(from, to); guard(); invalidateContext(); await refreshQueue() }),
+    queueAppend: (tracks) => mutateQueue(async (guard) => { if (!adapter.supports('queueAppend')) return adapter.queueAppend(tracks); if (tracks.length > 0) invalidateContext(); await adapter.queueAppend(tracks); guard(); observe(adapter.playback); await refreshQueue() }),
+    queueInsertNext: (tracks) => mutateQueue(async (guard) => { if (!adapter.supports('queueInsertNext')) return adapter.queueInsertNext(tracks); if (tracks.length > 0) invalidateContext(); await adapter.queueInsertNext(tracks); guard(); observe(adapter.playback); await refreshQueue() }),
+    queueRemove: (positions) => mutateQueue(async (guard) => { await adapter.queueRemove(positions); guard(); invalidateContext(); await refreshQueue() }),
+    queueReorder: (from, to) => mutateQueue(async (guard) => { await adapter.queueReorder(from, to); guard(); invalidateContext(); await refreshQueue() }),
     async stationStart(seed) {
       const selectedEpoch = epoch
       check(selectedEpoch)
@@ -296,6 +313,60 @@ export function musicManager(adapter: MusicProvider): MusicManager {
   }
   const manager: MusicManager = {
     provider, getSnapshot: get, subscribe: (listener) => store.sub(stateAtom, listener), refreshQueue,
+    playProgressive(target, completion) {
+      const prefix = [...target.tracks]
+      const started = play({ ...target, tracks: prefix })
+      const selectedEpoch = epoch; const selectedGeneration = generation; const selectedQueueRevision = queueRevision
+      const guard = (): void => {
+        check(selectedEpoch, selectedGeneration)
+        if (queueRevision !== selectedQueueRevision) throw cancelled()
+      }
+      void Promise.all([started, completion]).then(async ([, complete]) => {
+        guard()
+        if (!adapter.supports('queueAppend') || complete.length <= prefix.length || !prefix.every((track, index) => sameTrack(track, complete[index] ?? null))) return
+        const tail = complete.slice(prefix.length)
+        // Command acceptance is insufficient: wait until the matching selection
+        // has actually started, or was confirmed paused by the native provider.
+        await new Promise<void>((resolve, reject) => {
+          const inspect = (): void => {
+            try {
+              guard()
+              const snapshot = get()
+              if (snapshot.playback.status === 'error') throw new Error('Playback is unavailable')
+              if (snapshot.intent !== null || snapshot.playback.status === 'loading') return
+              if (!contextValid) throw cancelled()
+              waiters.delete(inspect); resolve()
+            } catch (error) { waiters.delete(inspect); reject(error) }
+          }
+          waiters.add(inspect); inspect()
+        })
+        let invalidated = false
+        try {
+          for (const track of tail) {
+            await enqueue(async () => {
+              guard()
+              // Appending can partially succeed and native queue snapshots may
+              // be incomplete. Stop claiming the original ordered total.
+              if (!invalidated) { invalidateContext(); invalidated = true }
+              // One accepted remote request cannot be undone. Single-item calls
+              // let supersession prevent every remaining append in the suffix.
+              await adapter.queueAppend([track])
+              guard()
+            })
+            // Re-enter the command queue for each item so foreground seek,
+            // volume and skip commands can run between remote appends.
+          }
+        } finally {
+          guard()
+          if (invalidated) await enqueue(async () => {
+            guard()
+            observe(adapter.playback)
+            await refreshQueue()
+          })
+        }
+      }).catch(() => { /* Failed/stale tail loading must not stop the audible prefix. */ })
+      return started
+    },
     commitSeek: (ms) => enqueue(async (guard) => { const resume = get().playback.status === 'paused'; await adapter.seek(ms); guard(); if (resume) { pauseRequested = false; await adapter.play(); guard() } observe(adapter.playback) }),
     toggle: (fallback) => {
       if (requestedPlaying === null && get().intent === null) observe(adapter.playback)

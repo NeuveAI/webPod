@@ -52,6 +52,14 @@ import type { AlbumRef, ArtistRef, PlaylistRef, ProviderId, StationRef, TrackRef
  * neither can be driven from a server. Token minting is the server's, and is
  * not part of this interface.
  */
+/** One bounded relationship request. Cursor is scoped to its entity and relation. */
+export interface RelationshipPageOptions {
+  readonly cursor?: Cursor
+  readonly limit: number
+  readonly signal?: AbortSignal
+  readonly priority?: 'low' | 'high'
+}
+
 export interface MusicProvider {
   /**
    * Which service this is.
@@ -123,9 +131,15 @@ export interface MusicProvider {
    * `Page.total` is `null` where the provider does not report one. §11.6 renders
    * an empty slice as a count, so a guessed total puts a wrong number on screen.
    */
-  libraryList(kind: LibraryKind, page?: Cursor): Promise<Page<Entity>>
+  libraryList(kind: LibraryKind, page?: Cursor, options?: { readonly limit?: number; readonly priority?: 'low' | 'high' }): Promise<Page<Entity>>
   /** Fetches the tracks belonging to an album or playlist for provider-neutral drill-down. */
   relatedTracks(ref: AlbumRef | PlaylistRef): Promise<readonly TrackRef[]>
+  /** Bounded album/playlist page; omitted only by legacy in-memory providers. */
+  relatedTracksPage?(ref: AlbumRef | PlaylistRef, options: RelationshipPageOptions): Promise<Page<TrackRef>>
+  /** Bounded artist discography page in the provider's displayed album order. */
+  relatedAlbumsPage?(ref: ArtistRef, options: RelationshipPageOptions): Promise<Page<AlbumRef>>
+  /** Present only for a complete artist-song relationship in the artist's scope; never top tracks. */
+  artistTracksPage?(ref: ArtistRef, options: RelationshipPageOptions): Promise<Page<TrackRef>>
   /** Fetches all artist albums. onPage publishes a fresh cumulative snapshot after each page; signal stops further pagination. */
   relatedAlbums(ref: ArtistRef, options?: { readonly signal?: AbortSignal; readonly onPage?: (albums: readonly AlbumRef[]) => void }): Promise<readonly AlbumRef[]>
   /**

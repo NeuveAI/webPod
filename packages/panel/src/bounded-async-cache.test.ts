@@ -90,3 +90,25 @@ describe('BoundedAsyncCache', () => {
     expect(calls).toBe(2)
   })
 })
+
+test('LFU retains an older frequently read value over a newer once-read value', async () => {
+  const cache = new BoundedAsyncCache<string>({ maxEntries: 2, ttlMs: 1000 })
+  await cache.get('frequent', 'high', async () => 'hot')
+  await cache.get('frequent', 'high', async () => 'unused')
+  await cache.get('newer', 'low', async () => 'cold')
+  await cache.get('incoming', 'high', async () => 'new')
+  expect(cache.peek('frequent')).toBe('hot')
+  expect(cache.peek('newer')).toBeUndefined()
+  expect(cache.peek('incoming')).toBe('new')
+})
+
+test('active ownership survives TTL until released, then expires normally', async () => {
+  let now = 0
+  const cache = new BoundedAsyncCache<string>({ maxEntries: 2, ttlMs: 10, now: () => now })
+  await cache.get('active', 'high', async () => 'data')
+  const release = cache.pin('active')
+  now = 20
+  expect(cache.peek('active')).toBe('data')
+  release()
+  expect(cache.peek('active')).toBeUndefined()
+})

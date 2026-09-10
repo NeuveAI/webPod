@@ -304,3 +304,40 @@ for (const managed of [false, true]) test(`Spotify ${managed ? 'managed' : 'nati
   expect(provider.session).toBeNull()
   expect(provider.playback.status).toBe('idle')
 })
+
+test('Spotify relationship budgets, opaque cursors and playlist duplicates survive continuation', async () => {
+  const requests: { path: string; priority: RequestPriority | undefined }[] = []
+  const track = (index: number) => ({ id: `track${index}`, name: `Song${index}`, artists: [{ id: 'artist', name: 'Artist' }], duration_ms: 1000 })
+  globalThis.fetch = Object.assign(async (input: string | URL | Request, init?: RequestInit) => {
+    if (String(input) === '/api/spotify/token') return Response.json({ accessToken: 'fake', expiresAt: Date.now() + 3600000 })
+    if (String(input) === '/api/spotify/logout') return new Response(null, { status: 204 })
+    const url = new URL(String(input)); requests.push({ path: url.pathname + url.search, priority: init?.priority })
+    const limit = Number(url.searchParams.get('limit'))
+    const offset = Number(url.searchParams.get('offset') ?? 0)
+    const total = url.pathname.includes('/artists/') ? 12 : 20
+    const items = Array.from({ length: Math.min(limit, total - offset) }, (_, index) => url.pathname.includes('/artists/') ? { id: `album${offset + index}`, name: 'Album', artists: [{ id: 'artist', name: 'Artist' }] } : url.pathname.includes('/playlists/') ? { item: track(0) } : track(offset + index))
+    url.searchParams.set('offset', String(offset + items.length))
+    return Response.json({ items, next: offset + items.length < total ? url.href : null, total })
+  }, { preconnect: originalFetch.preconnect })
+  const provider = createSpotifyProvider()
+  const artist = { kind: 'artist', key: mintLocalKey(), provider: 'spotify', catalogId: 'artist', name: 'Artist' } as const
+  const albums = await provider.relatedAlbumsPage?.(artist, { limit: 15, priority: 'low' })
+  expect(albums?.items).toHaveLength(10)
+  expect(requests[0]?.path).toContain('limit=10')
+  const more = await provider.relatedAlbumsPage?.(artist, { limit: 5, cursor: albums?.next ?? undefined })
+  expect(more?.items).toHaveLength(2)
+  const album = albums?.items[0]
+  if (album === undefined || provider.relatedTracksPage === undefined || provider.relatedAlbumsPage === undefined) throw new Error('Missing page')
+  const first = await provider.relatedTracksPage(album, { limit: 5, priority: 'low' })
+  const second = await provider.relatedTracksPage(album, { limit: 15, cursor: first.next ?? undefined })
+  expect(first.items).toHaveLength(5); expect(second.items).toHaveLength(15); expect(second.next).toBeNull()
+  expect(requests[2]?.priority).toBe('low')
+  await expect(provider.relatedTracksPage({ ...album, catalogId: 'other' }, { limit: 5, cursor: first.next ?? undefined })).rejects.toThrow('cursor')
+  const playlist = { kind: 'playlist', key: mintLocalKey(), provider: 'spotify', catalogId: 'playlist', name: 'Playlist', trackCount: 20, editable: false } as const
+  const duplicates = await provider.relatedTracksPage(playlist, { limit: 15 })
+  expect(duplicates.items).toHaveLength(15)
+  expect(new Set(duplicates.items.map((item) => item.key)).size).toBe(1)
+  expect(provider.artistTracksPage).toBeUndefined()
+  await provider.unauthorize()
+  await expect(provider.relatedTracksPage(album, { limit: 5, cursor: first.next ?? undefined })).rejects.toThrow('cursor')
+})
