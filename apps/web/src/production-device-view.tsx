@@ -304,6 +304,7 @@ export async function skipProductionPlayback(
       await enqueueProviderTransport(provider, async () => {
         if (!await waitForPlaybackContext(provider, runtimeContext)) throw new Error('Playback transport context was superseded')
         await provider.skip(direction)
+        showNowPlayingScreen({ followPlayback: true })
       })
     } catch (cause) {
       const detail = cause instanceof Error ? cause.message : 'Unknown playback failure'
@@ -316,7 +317,7 @@ export async function skipProductionPlayback(
   try {
     await enqueueProviderTransport(provider, () => provider.skip(direction))
     if (runtimeContext.getSnapshot().provider !== provider) throw new Error('Playback transport context was superseded')
-    showNowPlayingScreen()
+    showNowPlayingScreen({ followPlayback: true })
     return true
   } catch (cause) {
     const detail = cause instanceof Error ? cause.message : 'Unknown playback failure'

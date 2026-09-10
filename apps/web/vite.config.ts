@@ -83,6 +83,10 @@ function sourceIdentityHealth(): Plugin {
 export default defineConfig(({ mode }) => {
   const workspaceRoot = resolve(import.meta.dirname, '..', '..')
   syncStickerAssets(workspaceRoot)
+  const spotifyEnv = loadEnv(mode, workspaceRoot, 'SPOTIFY_')
+  for (const name of ['SPOTIFY_CLIENT_ID', 'SPOTIFY_CLIENT_SECRET']) {
+    if (process.env[name] === undefined && spotifyEnv[name]) process.env[name] = spotifyEnv[name]
+  }
   const appleServerEnv = loadEnv(mode, workspaceRoot, 'APPLE_')
   const runtimeAppleEnv = normalizeAppleServerEnv(workspaceRoot, appleServerEnv, process.env)
   for (const name of APPLE_SERVER_ENV_NAMES) {
@@ -96,7 +100,7 @@ export default defineConfig(({ mode }) => {
     // likewise leave this Bun-only workspace boundary outside client pre-bundling.
     optimizeDeps: { exclude: ['@webpod/server-core'] },
     environments: { ssr: { build: { rolldownOptions: { external: ['bun', 'bun:sqlite'] } } } },
-    server: { port: 3000 },
+    server: { port: 3000, host: '127.0.0.1' },
     resolve: { tsconfigPaths: true },
     plugins: [sourceIdentityHealth(), tailwindcss(), tanstackStart({ srcDirectory: 'src' }), viteReact()],
   }

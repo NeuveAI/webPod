@@ -25,6 +25,7 @@ export function ListRow({ row, current, id }: { readonly row: ListRowContent; re
   return (
     <li
       id={id}
+      data-row-index={row.index}
       className="wp-list-row"
       role="option"
       aria-selected={current}

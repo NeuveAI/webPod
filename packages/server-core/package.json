@@ -6,16 +6,18 @@
   "exports": {
     ".": "./src/index.ts",
     "./stickers": "./src/stickers/live.ts",
-    "./apple-stickers": "./src/stickers/apple-stickers.ts"
+    "./apple-stickers": "./src/stickers/apple-stickers.ts",
+    "./spotify": "./src/spotify.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@webpod/providers": "workspace:*",
-    "effect": "4.0.0-rc.112",
+    "@webpod/sticker-engine": "workspace:*",
     "@webpod/stickers": "workspace:*",
     "drizzle-orm": "0.45.2",
-    "@webpod/sticker-engine": "workspace:*"
+    "effect": "4.0.0-rc.112",
+    "zod": "^4.6.1"
   }
 }

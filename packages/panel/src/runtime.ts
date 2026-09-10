@@ -5,6 +5,7 @@ import {
   type DeviceStore,
 } from '@webpod/state'
 
+import { BoundedAsyncCache } from './bounded-async-cache'
 import type { RgbSample } from './model'
 
 export interface ArtworkSamples {
@@ -214,12 +215,25 @@ export function rgbSamplesFromRgba(pixels: Uint8Array): readonly RgbSample[] {
  * pixel samples without a canvas. The proxy URL is the same URL rendered by
  * the sharp `<img>`, so treatment and visible art cannot diverge.
  */
+const artworkBytes = new BoundedAsyncCache<{ encoded: ArrayBuffer; type: string }>({ maxEntries: 24, ttlMs: 5 * 60_000 })
+function loadArtworkBytes(url: string, priority: 'high' | 'low' = 'high') {
+  return artworkBytes.get(url, priority, async (signal, fetchPriority) => {
+    const response = await fetch(url, { signal, priority: fetchPriority })
+    if (!response.ok) throw new Error(`Artwork proxy returned ${response.status}`)
+    const type = response.headers.get('content-type')?.split(';')[0]
+    if (!type) throw new Error('Artwork proxy omitted its content type')
+    return { encoded: await response.arrayBuffer(), type }
+  }, { supersedeLowPriority: false })
+}
+
+/** Warm the bytes immediately; scrolling should not decode each passing image. */
+export async function prefetchProviderArtwork(url: string): Promise<void> {
+  await loadArtworkBytes(url, 'low')
+}
+
 export async function sampleProviderArtwork(url: string, signal?: AbortSignal, priority?: 'high' | 'low' | 'auto'): Promise<ArtworkSamples> {
-  const response = await fetch(url, { signal, ...(priority === undefined ? {} : { priority }) })
-  if (!response.ok) throw new Error(`Artwork proxy returned ${response.status}`)
-  const type = response.headers.get('content-type')?.split(';')[0]
-  if (type === undefined || type.length === 0) throw new Error('Artwork proxy omitted its content type')
-  const encoded = await response.arrayBuffer()
+  signal?.throwIfAborted()
+  const { encoded, type } = await loadArtworkBytes(url, priority === 'low' ? 'low' : 'high')
   signal?.throwIfAborted()
   if (typeof ImageDecoder !== 'undefined' && await ImageDecoder.isTypeSupported(type)) {
     try {

@@ -104,3 +104,13 @@ body:has(.webpod-welcome) { margin: 0; }
     isolation: isolate;
   }
 }
+
+.webpod-welcome__spotify {
+  display: inline-block;
+  margin-inline-start: 1.25rem;
+  color: inherit;
+  font-size: 0.875rem;
+  text-underline-offset: 4px;
+}
+.webpod-welcome__spotify:hover { opacity: 0.75; }
+.webpod-welcome__spotify:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; border-radius: 2px; }

@@ -736,9 +736,9 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     const total = typeof meta === 'object' && meta !== null ? asNumber(record(meta, 'metadata')['total']) ?? null : null
     return { items, next, total }
   }
-  const relationships = async <T extends AlbumRef | TrackRef>(first: string, kind: T['kind']): Promise<readonly T[]> => {
+  const relationships = async <T extends AlbumRef | TrackRef>(first: string, kind: T['kind'], options?: { readonly signal?: AbortSignal; readonly onPage?: (items: readonly T[]) => void }): Promise<readonly T[]> => {
     const items: T[] = []; let path: string | null = first; let pages = 0
-    while (path !== null) { const response = await api(path); items.push(...resources(response).map((item) => normalize(item, keyFor)).filter((item): item is T => item.kind === kind)); path = Array.isArray(response) ? null : asText(payload(response)['next']) ?? null; pages += 1; if (pages > 1_000) throw new Error('Apple Music relationship pagination did not terminate') }
+    while (path !== null) { options?.signal?.throwIfAborted(); const response = await api(path); options?.signal?.throwIfAborted(); items.push(...resources(response).map((item) => normalize(item, keyFor)).filter((item): item is T => item.kind === kind)); options?.onPage?.([...items]); path = Array.isArray(response) ? null : asText(payload(response)['next']) ?? null; pages += 1; if (pages > 1_000) throw new Error('Apple Music relationship pagination did not terminate') }
     return items
   }
   const storefront = (method: string): string => authorized(method).storefrontId ?? authorized(method).storefrontCountryCode ?? 'us'
@@ -777,7 +777,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       return libraryPage(response, kind, continuation)
     },
     async relatedTracks(ref) { const path = ref.libraryId === undefined ? `/v1/catalog/${storefront('relatedTracks')}/${ref.kind}s/${encodeURIComponent(ref.catalogId)}/tracks` : `/v1/me/library/${ref.kind}s/${encodeURIComponent(ref.libraryId)}/tracks`; return relationships<TrackRef>(path, 'track') },
-    async relatedAlbums(ref) { const path = ref.libraryId === undefined ? `/v1/catalog/${storefront('relatedAlbums')}/artists/${encodeURIComponent(ref.catalogId)}/albums` : `/v1/me/library/artists/${encodeURIComponent(ref.libraryId)}/albums`; return relationships<AlbumRef>(path, 'album') },
+    async relatedAlbums(ref, options) { const path = ref.libraryId === undefined ? `/v1/catalog/${storefront('relatedAlbums')}/artists/${encodeURIComponent(ref.catalogId)}/albums` : `/v1/me/library/artists/${encodeURIComponent(ref.libraryId)}/albums`; return relationships<AlbumRef>(path, 'album', options) },
     async libraryAdd() { throw new NotImplementedError('apple', 'libraryAdd (writes are out of scope)') }, async libraryRemove() { return unsupported('libraryRemove') }, async playlistCreate() { throw new NotImplementedError('apple', 'playlistCreate (writes are out of scope)') }, async playlistAddTracks() { throw new NotImplementedError('apple', 'playlistAddTracks (writes are out of scope)') }, async playlistRemoveTracks() { return unsupported('playlistRemoveTracks') }, async playlistReorder() { return unsupported('playlistReorder') },
     async prepare(target, signal) {
       if (developerTokenNeedsRefresh()) await refreshDeveloperToken()

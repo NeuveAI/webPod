@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import { createFixtureProvider } from '@webpod/providers'
 import { createDeviceStore } from '@webpod/state/testing'
 
-import { acquireAnnouncer, acquireNowPlayingVolumeFeedback, acquirePlaybackClock, acquireStableSelection, rgbSamplesFromRgba, sampleProviderArtwork, type PlaybackClockHost, type StableSelectionHost } from './runtime'
+import { acquireAnnouncer, acquireNowPlayingVolumeFeedback, acquirePlaybackClock, acquireStableSelection, rgbSamplesFromRgba, prefetchProviderArtwork, sampleProviderArtwork, type PlaybackClockHost, type StableSelectionHost } from './runtime'
 
 function fakeTimeoutHost() {
   let now = 0
@@ -148,6 +148,9 @@ describe('panel runtime', () => {
       URL.createObjectURL = () => { objectUrls += 1; return 'blob:test-artwork' }
       URL.revokeObjectURL = () => { revocations += 1 }
 
+      await prefetchProviderArtwork('/artwork')
+      expect(fetches).toBe(1)
+      expect(objectUrls).toBe(0)
       const samples = await sampleProviderArtwork('/artwork', undefined, 'low')
 
       expect(fetches).toBe(1)
