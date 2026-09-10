@@ -251,3 +251,143 @@ async function fixtureRuntime(): Promise<MusicRuntimeSnapshot> {
 function runtimeContext(runtime: MusicRuntimeSnapshot) {
   return { getSnapshot: () => runtime, subscribe: () => () => {} }
 }
+
+for (const status of [200, 204]) test(`physical Spotify Play/Pause accepts ${status} command acknowledgement without decoding JSON`, async () => {
+  const { createSpotifyProvider, mintLocalKey } = await import('@webpod/providers')
+  const { musicManager } = await import('@webpod/music-management')
+  const originalFetch = globalThis.fetch
+  const originalWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  const events = new Map<string, (...args: never[]) => void>()
+  let pauses = 0
+  let playRequests = 0
+  class Player {
+    addListener(event: string, callback: (...args: never[]) => void) { events.set(event, callback) }
+    async connect() { const ready = events.get('ready'); if (ready) Reflect.apply(ready, null, [{ device_id: 'test-device' }]); return true }
+    disconnect() {}
+    async activateElement() {}
+    async getCurrentState() { return null }
+    async pause() { pauses += 1 }
+  }
+  Object.defineProperty(globalThis, 'window', { configurable: true, value: { Spotify: { Player } } })
+  globalThis.fetch = Object.assign(async (input: string | URL | Request, init?: RequestInit) => {
+    const path = String(input)
+    if (path === '/api/spotify/token') return Response.json({ accessToken: 'synthetic-token', expiresAt: Date.now() + 3600000 })
+    if (path.endsWith('/v1/me')) return Response.json({ id: 'synthetic-user', product: 'premium' })
+    if (path.includes('/me/player/play?')) {
+      expect(init?.method).toBe('PUT')
+      playRequests += 1
+      // Synthetic opaque acknowledgement, matching live status/body shape without copying it.
+      return new Response(status === 200 ? new TextEncoder().encode('synthetic-command-ack') : null, { status })
+    }
+    if (path.endsWith('/me/player/queue')) return Response.json({ currently_playing: null, queue: [] })
+    throw new Error('Unexpected synthetic Spotify request')
+  }, { preconnect: originalFetch.preconnect })
+  const adapter = createSpotifyProvider()
+  const manager = musicManager(adapter)
+  try {
+    await adapter.configure()
+    const fixture = await fixtureRuntime()
+    const first = fixture.source.songs[0]
+    if (!first) throw new Error('Missing synthetic track fixture')
+    const track = { ...first, kind: 'track' as const, key: mintLocalKey(), provider: 'spotify' as const, catalogId: 'track1', title: 'Synthetic song', artistName: 'Synthetic artist', durationMs: 180000 }
+    const snapshot: MusicRuntimeSnapshot = { ...fixture, requestedMode: 'spotify', activeMode: 'spotify', provider: manager.provider, source: { ...fixture.source, songs: [track] } }
+    expect(await toggleProductionPlayback(snapshot)).toBe(true)
+    expect(playRequests).toBe(1)
+    // A command acknowledgement alone is not proof of audible playback.
+    expect(manager.getSnapshot().playback.status).toBe('loading')
+    expect(await toggleProductionPlayback(snapshot)).toBe(true)
+    expect(pauses).toBe(1)
+    const changed = events.get('player_state_changed')
+    if (!changed) throw new Error('Missing SDK listener')
+    Reflect.apply(changed, null, [{ paused: true, position: 250, duration: 180000, shuffle: false, repeat_mode: 0, track_window: { current_track: { id: 'track1', type: 'track', uri: 'spotify:track:track1', name: 'Synthetic song', duration_ms: 180000, artists: [], album: { name: 'Synthetic album', uri: 'spotify:album:album1', images: [] } } } }])
+    expect(await toggleProductionPlayback(snapshot)).toBe(true)
+    expect(playRequests).toBe(2)
+  } finally {
+    manager.dispose()
+    globalThis.fetch = originalFetch
+    if (originalWindow) Object.defineProperty(globalThis, 'window', originalWindow)
+    else Reflect.deleteProperty(globalThis, 'window')
+  }
+})
+
+async function appleControlRuntime() {
+  const { setup } = await import('../../../packages/providers/src/apple/test-fixtures')
+  const { musicManager } = await import('@webpod/music-management')
+  const { provider: adapter, music } = setup()
+  music.setPlaybackState(0); music.setCurrentPlaybackTime(0)
+  await adapter.configure()
+  const first = (await adapter.libraryList('songs')).items[0]
+  if (first?.kind !== 'track') throw new Error('Missing Apple track fixture')
+  const tracks = [first, { ...first, catalogId: 'catalog-song.2', title: 'Second native song' }, first]
+  const fixture = await fixtureRuntime()
+  const manager = musicManager(adapter)
+  const snapshot: MusicRuntimeSnapshot = { ...fixture, provider: manager.provider, source: { ...fixture.source, songs: tracks } }
+  const confirm = (index: number, seconds: number): void => {
+    const items = tracks.map((track) => ({ id: track.catalogId, type: 'songs', attributes: { name: track.title, artistName: track.artistName, durationInMillis: track.durationMs } }))
+    music.setQueueItems(items); music.setQueuePosition(index); music.setNowPlaying(items[index])
+    music.setPlaybackState(3); music.setCurrentPlaybackTime(0)
+    music.emit('queueItemsDidChange'); music.emit('nowPlayingItemDidChange'); music.emit('playbackTimeDidChange')
+    music.setCurrentPlaybackTime(seconds); music.emit('playbackStateDidChange'); music.emit('playbackTimeDidChange')
+  }
+  return { adapter, manager, music, snapshot, tracks, confirm }
+}
+
+test('physical Apple Play/Pause uses void native commands and preserves confirmed selection through pause/resume', async () => {
+  const { adapter, manager, music, snapshot, tracks, confirm } = await appleControlRuntime()
+  try {
+    expect(await toggleProductionPlayback(snapshot)).toBe(true)
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'loading', queueIndex: 0, queueTotal: 3 })
+    confirm(0, 0.25)
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'playing', queueIndex: 0, queueTotal: 3, positionMs: 250 })
+    await manager.provider.play({ kind: 'tracks', tracks, startIndex: 1 })
+    confirm(1, 0.5)
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'playing', queueIndex: 1, queueTotal: 3 })
+    expect(await toggleProductionPlayback(snapshot)).toBe(true)
+    music.setPlaybackState(2); music.emit('playbackStateDidChange')
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'paused', queueIndex: 1, queueTotal: 3 })
+    const before = music.calls.filter((call) => call === 'play').length
+    // fakeMusic.play resolves undefined, as allowed by MusicKit's Promise<void> contract.
+    expect(await toggleProductionPlayback(snapshot)).toBe(true)
+    expect(music.calls.filter((call) => call === 'play').length).toBe(before + 1)
+    confirm(1, 1)
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'playing', queueIndex: 1, queueTotal: 3, positionMs: 1000 })
+  } finally { manager.dispose(); await adapter.unauthorize() }
+})
+
+test('physical Apple rapid Play/Pause cancels a pending void native start and preserves its queue occurrence', async () => {
+  const { adapter, manager, music, snapshot, confirm } = await appleControlRuntime()
+  let releaseStart: (() => void) | undefined
+  const pending = new Promise<void>((resolve) => { releaseStart = resolve })
+  music.play = async () => { music.calls.push('play:pending'); await pending; confirm(0, 0.25) }
+  try {
+    const starting = toggleProductionPlayback(snapshot)
+    for (let n = 0; n < 20; n++) await Promise.resolve()
+    expect(music.calls).toContain('play:pending')
+    const pausing = toggleProductionPlayback(snapshot)
+    for (let n = 0; n < 5; n++) await Promise.resolve()
+    expect(music.calls.at(-1)).toBe('pause')
+    releaseStart?.()
+    expect(await starting).toBe(false)
+    expect(await pausing).toBe(true)
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'paused', queueIndex: 0, queueTotal: 3 })
+    expect(music.calls.filter((call) => call === 'play:pending')).toHaveLength(1)
+  } finally { releaseStart?.(); manager.dispose(); await adapter.unauthorize() }
+})
+
+test('physical Apple rejected resume settles failure and the next void resume recovers without losing the queue', async () => {
+  const { adapter, manager, music, snapshot, confirm } = await appleControlRuntime()
+  try {
+    expect(await toggleProductionPlayback(snapshot)).toBe(true)
+    confirm(0, 0.25)
+    expect(await toggleProductionPlayback(snapshot)).toBe(true)
+    music.setPlaybackState(2); music.emit('playbackStateDidChange')
+    let attempts = 0
+    music.play = async () => { attempts += 1; if (attempts === 1) throw new Error('Synthetic native resume failure') }
+    expect(await toggleProductionPlayback(snapshot)).toBe(false)
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'error', queueIndex: 0, queueTotal: 3 })
+    expect(await toggleProductionPlayback(snapshot)).toBe(true)
+    expect(attempts).toBe(2)
+    confirm(0, 1)
+    expect(manager.getSnapshot().playback).toMatchObject({ status: 'playing', queueIndex: 0, queueTotal: 3, positionMs: 1000 })
+  } finally { manager.dispose(); await adapter.unauthorize() }
+})

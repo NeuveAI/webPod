@@ -520,7 +520,7 @@ export function createSpotifyProvider(): MusicProvider {
         throw new Error('Spotify Premium is required to play music.')
       if (!target && state.now === null) return
       if (!target) {
-        await api.request(`me/player/play?device_id=${id(device)}`, 'PUT')
+        await api.command(`me/player/play?device_id=${id(device)}`, 'PUT')
         return
       }
       if (target.kind === 'station')
@@ -544,7 +544,7 @@ export function createSpotifyProvider(): MusicProvider {
       observationRevision += 1
       publish({ ...state, status: 'loading', queueIndex: null })
       try {
-        await api.request(`me/player/play?device_id=${id(device)}`, 'PUT', body)
+        await api.command(`me/player/play?device_id=${id(device)}`, 'PUT', body)
       } catch (cause) {
         if (isCurrent()) publish({ ...state, status: 'error' })
         throw cause
@@ -583,7 +583,7 @@ export function createSpotifyProvider(): MusicProvider {
       if (mode === 'albums')
         throw new Error('Spotify supports song shuffle only.')
       await connect()
-      await api.request(
+      await api.command(
         `me/player/shuffle?state=${mode !== 'off'}&device_id=${id(device ?? '')}`,
         'PUT',
       )
@@ -591,7 +591,7 @@ export function createSpotifyProvider(): MusicProvider {
     },
     async setRepeat(mode) {
       await connect()
-      await api.request(
+      await api.command(
         `me/player/repeat?state=${mode === 'one' ? 'track' : mode === 'all' ? 'context' : 'off'}&device_id=${id(device ?? '')}`,
         'PUT',
       )
@@ -611,7 +611,7 @@ export function createSpotifyProvider(): MusicProvider {
     async queueAppend(tracks) {
       await connect()
       for (const track of tracks)
-        await api.request(
+        await api.command(
           `me/player/queue?uri=${id(uri(track))}&device_id=${id(device ?? '')}`,
           'POST',
         )

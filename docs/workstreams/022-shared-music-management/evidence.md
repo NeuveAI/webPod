@@ -45,3 +45,25 @@ Lead exercised the existing local `http://127.0.0.1:3000/webpod` route with the 
 Spotify session restoration returned signed-out with no songs, so live Spotify audio was not verified. Its actual adapter under controlled SDK/API fixtures passed the deterministic contract suite. Apple mode is being restored by the lead; no production deployment or account-content mutation is part of this refactor.
 
 Final checks remain847 passing tests/4134 assertions,14/14 project typechecks,changed-file lint,production build and diff check clean. This closeout changes documentation only; source fingerprints above remain unchanged.
+
+## Spotify command acknowledgement fix
+
+Lead observed a successful Spotify PUT/v1/me/player/play response with HTTP200, absent Content-Type and27 non-JSON characters. The normal documented response is204; neither command response supplies JSON entity data. Treating successful command acknowledgements as opaque is a narrowly scoped compatibility decision, not permission to ignore malformed data reads or authentication responses. Raw live response contents and credential-bearing headers were never recorded.
+
+Before fix `/tmp/webpod-spotify-ack-before.log`: physical Spotify Play/Pause using actual adapter failed the synthetic200 acknowledgement case with JSON syntax error;204 case passed. After fix `/tmp/webpod-spotify-ack-final-focused.log`:23 tests pass,77 assertions, covering200/204 start/pause/resume, strict JSON read/create/token failures,403/429/500 commands and401 retry. The acknowledgement itself does not claim audio started.
+
+Broader regression log `/tmp/webpod-spotify-ack-regression.log` covers shared manager, both adapters, mounted Panel and production controls; final focused run additionally includes the401 regression. All-project typecheck refreshed in `/tmp/webpod-spotify-ack-types2.log`; scoped lint in `/tmp/webpod-spotify-ack-final-lint.log`; production build in `/tmp/webpod-spotify-ack-build.log`. No server credentials, identity parsing or common playback policy changed.
+
+Verification results: broader511 passed/2349 assertions; latest focused23 passed/77 assertions;14/14 typechecks clean; explicit four-file lint clean;production build and diff check clean. The focused run adds the401 retry assertion after the broad run. Source held stable for reviewer and lead live validation.
+
+## Requested Apple Play/Pause parity verification
+
+`apps/web/src/production-device-view.test.ts` now exercises the actual Apple adapter through the same production physical-control callback and common manager as Spotify. Three cases cover native Promise<void> start/pause/resume with index1/total3 retained, rapid toggle during pending start with one admitted play and final paused occurrence, and rejected resume with subsequent successful recovery. Native events explicitly confirm playback; command resolution alone is not claimed audible.
+
+`/tmp/webpod-apple-toggle-tests.log`:17 passed,0 failed,88 assertions. Expanded provider/shared/mounted regression log `/tmp/webpod-apple-toggle-regression.log` and all-project typecheck `/tmp/webpod-apple-toggle-types.log` are refreshed; scoped test-file lint `/tmp/webpod-apple-toggle-lint.log` is clean. No additional production source change was needed for Apple parity tests. Lead separately investigates live Spotify loading-state observations before claiming live playback confirmation.
+
+Expanded Apple-parity verification completed:515 tests passed, 0 failed, 2372 assertions across 20 files;14/14 project typechecks clean;scoped lint and diff check clean. Production build from the Spotify response fix remains valid because the Apple extension changes tests/documentation only.
+
+Lead's temporary native SDK diagnostic established Spotify's reported loading state matches its SDK `loading:true`; it is not evidence that common status reconciliation is stale. No speculative HMR/status-repair change was made. The JSON acknowledgement failure is independently fixed, but live audible Spotify playback remains unconfirmed in that session.
+
+Final follow-up review: the independent reviewer APPROVE includes the new Apple physical-control tests (independent run: 32 tests / 117 assertions, web typecheck, lint and diff checks clean). Current live Apple playback verification was blocked before transport by a library HTTP 403, including after a fresh Apple-mode page. No current live Apple play/pause pass is claimed; the earlier workstream smoke remains separate historical evidence. Spotify's opaque successful command response resolves without SyntaxError, but the native SDK remains loading, so live audible playback is unconfirmed.
