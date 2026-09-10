@@ -27,9 +27,10 @@ const PREVIEW_LIGHT_RIG: LightRigParams = {
 const PREVIEW_STICKERS: DeviceStickerScene = {
   assets: STICKER_CATALOGUE.filter((art) => ['PW-A01', 'PW-B01', 'PW-A05'].includes(art.id)),
   placements: [
-    { stickerId: 'PW-A01', surface: 'back', x: .36, y: .29, width: .54, rotationDeg: -14 },
-    { stickerId: 'PW-B01', surface: 'back', x: .66, y: .50, width: .46, rotationDeg: 12 },
-    { stickerId: 'PW-A05', surface: 'back', x: .37, y: .73, width: .48, rotationDeg: -8 },
+    // Frame the central mark and wordmark; let the side edges catch the decals.
+    { stickerId: 'PW-A01', surface: 'back', x: .20, y: .18, width: .54, rotationDeg: -14 },
+    { stickerId: 'PW-B01', surface: 'back', x: .83, y: .65, width: .46, rotationDeg: 12 },
+    { stickerId: 'PW-A05', surface: 'back', x: .18, y: .78, width: .48, rotationDeg: -8 },
   ],
   pack: null,
 }
