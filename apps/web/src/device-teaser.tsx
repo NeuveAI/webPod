@@ -85,6 +85,7 @@ function TeaserEdgeAlignment() {
         }
       }
     }
+    showcase.style.setProperty('--device-viewport-height', `${size.height}px`)
     showcase.style.setProperty('--device-top', `${Math.max(0, top)}px`)
     showcase.style.setProperty('--device-bottom-inset', `${Math.max(0, size.height - bottom)}px`)
   })

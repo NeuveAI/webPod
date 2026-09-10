@@ -21,7 +21,7 @@ test("the rear face stays softly polished while the roll has a narrower specular
 
 test("engraving is generated only as shell roughness and depressed bump, with SSR fallback", async () => {
   expect(createBackplateFinishMaps()).toBeNull();
-  expect(BACKPLATE_ENGRAVING).toEqual({ name: "WebPod", badge: "CLASSIC", detail: "DESIGNED FOR MUSIC", tribute: "This player is built in the original image of the iPod", credit: "Original design by Apple Inc" });
+  expect(BACKPLATE_ENGRAVING).toEqual({ name: "webPod", badge: "CLASSIC", detail: "DESIGNED FOR MUSIC", tribute: "This player is built in the original image of the iPod", credit: "Original design by Apple Inc" });
   const source = await Bun.file(new URL("./backplate-finish.ts", import.meta.url)).text();
   expect(source).not.toMatch(/emissive|MeshBasicMaterial|side:|SRGBColorSpace/);
   expect(source).toContain('engrave(bumpContext, "#000000")');

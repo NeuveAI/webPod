@@ -61,6 +61,17 @@ const GUIDANCE: Record<WelcomeReason, { title: string; description: string }> = 
   'reduced-motion': { title: 'A quieter look at webPod.', description: 'Your browser has HTML in Canvas. You’re seeing a still preview because reduced motion is enabled.' },
 }
 
+type WelcomeActionIconKind = 'connect' | 'connecting' | 'retry' | 'play'
+
+function WelcomeActionIcon({ kind }: { readonly kind: WelcomeActionIconKind }) {
+  return <svg className="webpod-welcome__action-icon" data-kind={kind} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    {kind === 'connect' ? <><path d="M9 18V5l12-2v13M9 9l12-2" /><ellipse cx="6" cy="18" rx="3" ry="2.5" /><ellipse cx="18" cy="16" rx="3" ry="2.5" /></>
+      : kind === 'connecting' ? <><circle cx="12" cy="12" r="8" opacity=".25" /><path d="M12 4a8 8 0 0 1 8 8" /></>
+        : kind === 'retry' ? <><path d="M20 7v5h-5" /><path d="M20 12a8 8 0 1 0-2.3 5.7M20 12a8 8 0 0 0-2.3-5.7" /></>
+          : <path d="m9 5 10 7-10 7Z" fill="currentColor" stroke="none" />}
+  </svg>
+}
+
 function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport; readonly reason: WelcomeReason | null }) {
   const navigate = useNavigate()
   const welcomeRef = useRef<HTMLElement>(null)
@@ -92,12 +103,13 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
   const signedIn = musicRuntimeReady(music)
   const signingIn = music.phase === 'signing-in'
   const action = welcomeAction(signedIn, signingIn, reason === null)
+  const actionIcon: WelcomeActionIconKind = action.kind === 'play' ? 'play' : signingIn ? 'connecting'
+    : music.phase === 'error' || music.phase === 'permission-denied' ? 'retry' : 'connect'
   const authorizationAttempted = useAtomValue(authorizationAttemptedAtom, { store: welcomeStore })
   useEffect(() => { ensureMusicRuntime() }, [music.provider])
-  const signIn = async () => {
+  const signIn = async (provider: 'apple' | 'spotify') => {
     welcomeStore.set(authorizationAttemptedAtom, true)
-    const result = musicRuntime.getSnapshot().activeMode === 'spotify' && musicRuntime.getSnapshot().phase === 'error'
-      ? await selectMusicRuntime('spotify') : await authorizeAppleRuntime()
+    const result = provider === 'spotify' ? await selectMusicRuntime('spotify') : await authorizeAppleRuntime()
     const capability = getCompositeTierSnapshot().report
     if (result.ready && capability !== null && browserWelcomeReason(capability) === null) {
       await enterDevice(result.snapshot)
@@ -160,9 +172,38 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
       </div>
     </section>}
     <section className="webpod-welcome__showcase" aria-label="Device preview">
-      <div className="webpod-welcome__intro">
-        <h2>A thousand songs<span className="webpod-welcome__aside">(or more…)</span><em>That same feeling!</em></h2>
-        <p>Let’s relive one of the best moments in personal hardware history.<br />On your own, or with an agent using WebMCP.</p>
+      <div className="webpod-welcome__content">
+        <div className="webpod-welcome__intro">
+          <h2>A thousand songs<span className="webpod-welcome__aside">(or more…)</span><em>That same feeling!</em></h2>
+          <div className="webpod-welcome__description">
+            <p>Let’s relive one of the best moments in personal hardware history.</p>
+            <p>On your own, or with an agent using WebMCP.</p>
+          </div>
+        </div>
+        <div className="webpod-welcome__play-action">
+          {typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('spotify') ? <p className="webpod-welcome__auth-status" role="status">Spotify sign-in wasn’t completed. Please try again.</p> : null}
+          {action.kind === 'sign-in' ? <div className="webpod-welcome__providers">
+            <span className="webpod-welcome__jam">Jam using</span>
+            <button type="button" className="webpod-welcome__provider webpod-welcome__provider--apple" disabled={signingIn} aria-busy={signingIn && music.activeMode === 'apple'} aria-label={signingIn && music.activeMode === 'apple' ? 'Connecting to Apple Music' : 'Connect Apple Music'} onClick={() => void signIn('apple')}>
+              {music.activeMode === 'apple' && actionIcon !== 'connect' ? <WelcomeActionIcon kind={actionIcon} /> : <img src="/brands/apple-music.svg" width="24" height="24" alt="" />}
+              <span>Apple Music</span>
+            </button>
+            <span className="webpod-welcome__or">or</span>
+            {music.activeMode === 'spotify' && (music.phase === 'error' || signingIn) ? <button type="button" className="webpod-welcome__provider webpod-welcome__provider--spotify" disabled={signingIn} aria-busy={signingIn} aria-label={signingIn ? 'Connecting to Spotify' : 'Retry Spotify'} onClick={() => void signIn('spotify')}>
+              <WelcomeActionIcon kind={actionIcon} /><img src="/brands/spotify.svg" width="88" height="26" alt="Spotify" />
+            </button> : <a className="webpod-welcome__provider webpod-welcome__provider--spotify" href={signingIn ? undefined : musicLoginUrl('spotify')} aria-label="Connect Spotify" aria-disabled={signingIn || undefined} tabIndex={signingIn ? -1 : undefined}>
+              <img src="/brands/spotify.svg" width="88" height="26" alt="Spotify" />
+            </a>}
+            {signingIn ? <span className="webpod-welcome__provider-status" role="status">Connecting…</span> : null}
+          </div>
+            : !action.disabled ? <Link to="/webpod" className="webpod-welcome__primary" onClick={event => {
+              if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+              event.preventDefault()
+              void enterDevice()
+            }}>Lets get playing! <WelcomeActionIcon kind={actionIcon} /></Link>
+              : <button type="button" className="webpod-welcome__primary" disabled aria-describedby="browser-setup-title">Lets get playing! <WelcomeActionIcon kind={actionIcon} /></button>}
+          {music.phase === 'error' || music.phase === 'permission-denied' ? <p className="webpod-welcome__auth-status" role="status">{music.activeMode === 'spotify' ? music.message : !authorizationAttempted ? 'Apple Music is temporarily unavailable. Try connecting again shortly.' : music.phase === 'permission-denied' ? 'Access wasn’t granted. You can connect again when you’re ready.' : 'Couldn’t connect to Apple Music. Please try again.'}</p> : null}
+        </div>
       </div>
       <div className="webpod-welcome__model" role="img" aria-label="A black iPod Classic with a demo music screen. The looping preview turns to show three music stickers on its steel back.">
         {report.environment.webgl2 ? <PreviewBoundary><DeviceTeaser paused={paused} reducedMotion={reducedMotion || report.environment.prefersReducedMotion} /></PreviewBoundary> : <p className="webpod-welcome__no-graphics">The click wheel is waiting.<br />Enable graphics acceleration to take a look.</p>}
@@ -174,23 +215,9 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
           </svg>
         </button> : null}
       </div>
-    <div className="webpod-welcome__play-action">
-      {typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('spotify') ? <p className="webpod-welcome__auth-status" role="status">Spotify sign-in wasn’t completed. Please try again.</p> : null}
-      {action.kind === 'sign-in' ? <button type="button" className="webpod-welcome__primary" disabled={action.disabled} onClick={() => void signIn()}>{music.activeMode === 'spotify' && music.phase === 'error' ? 'Retry Spotify' : action.label} <span aria-hidden="true">↗</span></button>
-        : !action.disabled ? <Link to="/webpod" className="webpod-welcome__primary" onClick={event => {
-          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
-          event.preventDefault()
-          void enterDevice()
-        }}>Lets get playing! <span aria-hidden="true">↗</span></Link>
-          : <button type="button" className="webpod-welcome__primary" disabled aria-describedby="browser-setup-title">Lets get playing! <span aria-hidden="true">↗</span></button>}
-      {!signedIn ? <a className="webpod-welcome__spotify" href={musicLoginUrl('spotify')}>or use Spotify</a> : null}
-      {!signedIn ? <p className="webpod-welcome__auth-status">Connect your music library securely.<br />Apple Music or Spotify Premium required.</p> : null}
-      {music.phase === 'error' || music.phase === 'permission-denied' ? <p className="webpod-welcome__auth-status" role="status">{music.activeMode === 'spotify' ? music.message : !authorizationAttempted ? 'Apple Music is temporarily unavailable. Try connecting again shortly.' : music.phase === 'permission-denied' ? 'Access wasn’t granted. You can connect again when you’re ready.' : 'Couldn’t connect to Apple Music. Please try again.'}</p> : null}
-    </div>
     </section>
     <footer className="webpod-welcome__footer">
       <small>Inspired by one of personal hardware’s most significant innovations, and built for the joy of listening.</small>
-      <small>{report.environment.chromiumMajor === null ? '' : `Chromium ${report.environment.chromiumMajor} · `}{report.requestPaint ? 'HTML in Canvas available' : 'HTML in Canvas unavailable'}</small>
     </footer>
   </main>
 }

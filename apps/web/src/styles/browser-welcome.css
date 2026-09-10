@@ -26,28 +26,29 @@ body:has(.webpod-welcome) { margin: 0; }
 .webpod-welcome__status:empty { display: none; }
 .webpod-welcome__status:not(:empty) { margin-top: 8px; color: #e9dbc3; }
 .webpod-welcome__setup > a:not(.webpod-welcome__flag):not(.webpod-welcome__primary) { display: inline-flex; align-items: center; min-height: 44px; color: #e9dbc3; font-size: 12px; }
-.webpod-welcome__showcase { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); grid-template-rows: minmax(0, 1fr) auto; align-items: start; grid-row: 3; min-height: 0; min-width: 0; }
-.webpod-welcome__intro { grid-column: 1; grid-row: 1; z-index: 1; padding: min(var(--device-top, 48px), 8dvh) 0 16px; }
-.webpod-welcome h2 { font-weight: 450; font-size: clamp(32px, 3.4vw, 56px); line-height: 1.12; letter-spacing: -1.7px; margin: 0 0 24px; }
+.webpod-welcome__showcase { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); grid-template-rows: minmax(0, 1fr); align-items: center; column-gap: clamp(24px, 4vw, 64px); grid-row: 3; min-height: 0; min-width: 0; }
+.webpod-welcome__content { grid-column: 1; grid-row: 1; z-index: 1; min-width: 0; height: calc(var(--device-viewport-height, 100%) - var(--device-top, 48px) - var(--device-bottom-inset, 48px)); min-height: max-content; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; }
+.webpod-welcome__intro { display: contents; }
+.webpod-welcome h2 { font-weight: 450; font-size: clamp(40px, 4.2vw, 72px); line-height: 1.08; letter-spacing: -1.9px; margin: 0; }
 .webpod-welcome h2 em { display: block; font-family: Georgia, serif; font-weight: 400; color: #eadbc2; }
-.webpod-welcome__aside { display: block; margin: 18px 0; font-style: italic; color: #abb2bd; font-size: 18px; line-height: 1.4; letter-spacing: 0; }
-.webpod-welcome__intro > p { max-width: 420px; color: #abb2bd; font-size: 14px; line-height: 1.8; margin: 0; }
-.webpod-welcome__model { grid-column: 2; grid-row: 1 / -1; height: 100%; min-height: 0; min-width: 0; pointer-events: none; }
+.webpod-welcome__aside { display: block; margin: 10px 0 24px; font-style: italic; color: #abb2bd; font-size: 18px; line-height: 1.4; letter-spacing: 0; }
+.webpod-welcome__description > p { max-width: 38ch; color: #abb2bd; font-size: 16px; line-height: 1.65; margin: 0; text-wrap: pretty; }
+.webpod-welcome__description > p + p { margin-top: 16px; font-size: 14px; color: #929ba8; }
+.webpod-welcome__model { grid-column: 2; grid-row: 1 / -1; height: 100%; max-height: 900px; min-height: 0; min-width: 0; pointer-events: none; }
 .webpod-teaser { height: 100%; }
 .webpod-teaser[data-teaser-entrance="waiting"] { visibility: hidden; }
 .webpod-teaser[data-teaser-entrance="entering"] { will-change: transform; }
-.webpod-welcome__caption { position: absolute; right: 0; bottom: 32px; }
+.webpod-welcome__caption { position: absolute; right: 0; bottom: calc((100% - var(--device-viewport-height, 100%)) / 2 + var(--device-bottom-inset, 32px)); }
 .webpod-welcome__caption button { width: 44px; padding: 8px; background: #282e38; }
 .webpod-welcome__footer { grid-row: 4; min-width: 0; display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 16px 0 max(24px, env(safe-area-inset-bottom)); }
-.webpod-welcome__play-action { grid-column: 1; grid-row: 2; min-width: 0; padding-bottom: min(var(--device-bottom-inset, 48px), 6dvh); }
-.webpod-welcome__play-action .webpod-welcome__primary { min-height: 64px; min-width: 248px; padding: 16px 32px; gap: 32px; font-size: 18px; }
+.webpod-welcome__play-action { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; min-width: 0; margin-top: 0; }
+.webpod-welcome__play-action .webpod-welcome__primary { min-height: 64px; min-width: min(248px, 100%); max-width: 100%; padding: 16px 32px; gap: 32px; font-size: 18px; }
 .webpod-welcome__footer small { font-size: 10px; line-height: 1.6; }
-.webpod-welcome__footer small:last-child { text-align: right; }
 .webpod-welcome__no-graphics { display: grid; align-content: center; height: 100%; text-align: center; color: #aab2be; font-size: 15px; line-height: 1.8; }
 @media (max-width: 900px) {
   .webpod-welcome__banner { gap: 24px; padding: 24px; }
   .webpod-welcome__showcase { grid-template-columns: 1fr 1.2fr; }
-  .webpod-welcome h2 { font-size: 36px; }
+  .webpod-welcome h2 { font-size: 40px; }
 }
 @media (max-width: 600px) {
   .webpod-welcome { padding: 0 24px; height: auto; display: flex; flex-direction: column; }
@@ -56,35 +57,36 @@ body:has(.webpod-welcome) { margin: 0; }
   .webpod-welcome__banner { grid-template-columns: 1fr; gap: 12px; padding: 16px; }
   .webpod-welcome__guidance > p { font-size: 13px; }
   .webpod-welcome__showcase { flex: none; display: flex; flex-direction: column; align-items: center; height: auto; }
-  .webpod-welcome__intro { order: 2; text-align: center; padding: 24px 0; }
-  .webpod-welcome h2 { font-size: 36px; margin: 16px 0; }
-  .webpod-welcome__intro > p { font-size: 13px; }
+  .webpod-welcome__content { width: 100%; height: auto; padding: 28px 0 16px; gap: 28px; text-align: left; }
+  .webpod-welcome h2 { font-size: clamp(30px, 9vw, 42px); margin: 0; }
+  .webpod-welcome__description > p { font-size: 14px; }
+  .webpod-welcome__description > p + p { font-size: 13px; }
   .webpod-welcome__model { width: 100%; height: clamp(260px, 45svh, 480px); }
-  .webpod-welcome__caption { order: 1; position: static; align-self: center; padding: 0; }
+  .webpod-welcome__caption { position: static; align-self: center; padding: 0; }
   .webpod-welcome__caption button { margin-top: 0; }
   .webpod-welcome__footer { flex-direction: column; gap: 8px; text-align: center; }
-  .webpod-welcome__play-action { position: static; order: 3; padding: 0 0 24px; text-align: center; }
-  .webpod-welcome__footer small:last-child { text-align: center; }
+  .webpod-welcome__play-action { flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 0; }
+  .webpod-welcome__play-action .webpod-welcome__primary { padding-inline: 24px; gap: 24px; font-size: 16px; }
 }
 
 .webpod-welcome__masthead, .webpod-welcome__banner, .webpod-welcome__footer { flex-shrink: 0; }
 .webpod-welcome .webpod-welcome__primary:disabled { opacity: .5; cursor: not-allowed; background: #eadbc2; color: #292722; }
-.webpod-welcome__auth-status { max-width: 320px; color: #abb2bd; font-size: 12px; line-height: 1.5; margin: 8px 0 0; }
+.webpod-welcome__auth-status { flex-basis: 100%; max-width: 38ch; color: #abb2bd; font-size: 12px; line-height: 1.5; margin: 8px 0 0; }
 
 /* Keep content readable when browser chrome or landscape leaves little height. */
 @media (min-width: 601px) and (max-height: 740px) {
   .webpod-welcome__masthead { min-height: 64px; }
-  .webpod-welcome h2 { font-size: clamp(28px, 3vw, 42px); margin-bottom: 16px; }
+  .webpod-welcome h2 { font-size: clamp(32px, 3.7vw, 52px); }
   .webpod-welcome__aside { margin: 10px 0; }
-  .webpod-welcome__intro > p { font-size: 13px; line-height: 1.6; }
+  .webpod-welcome__description > p { font-size: 14px; line-height: 1.6; }
+  .webpod-welcome__description > p + p { font-size: 13px; }
   .webpod-welcome__play-action .webpod-welcome__primary { min-height: 48px; padding: 12px 24px; font-size: 16px; }
 }
 @media (min-width: 601px) and (max-height: 640px) {
   .webpod-welcome__masthead { min-height: 56px; }
-  .webpod-welcome__intro { padding-top: 12px; padding-bottom: 8px; }
-  .webpod-welcome h2 { font-size: clamp(24px, 2.8vw, 32px); margin-bottom: 12px; }
+  .webpod-welcome__content { gap: 20px; }
+  .webpod-welcome h2 { font-size: clamp(26px, 3.2vw, 36px); }
   .webpod-welcome__aside { margin: 6px 0; font-size: 14px; }
-  .webpod-welcome__play-action { padding-bottom: 8px; }
   .webpod-welcome__footer { gap: 16px; padding: 10px 0 max(12px, env(safe-area-inset-bottom)); }
   .webpod-welcome__banner { gap: 16px; padding: 12px 20px; }
   .webpod-welcome__guidance > p { font-size: 12px; line-height: 1.4; }
@@ -105,12 +107,25 @@ body:has(.webpod-welcome) { margin: 0; }
   }
 }
 
-.webpod-welcome__spotify {
-  display: inline-block;
-  margin-inline-start: 1.25rem;
-  color: inherit;
-  font-size: 0.875rem;
-  text-underline-offset: 4px;
+.webpod-welcome__providers { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 14px 16px; width: min(100%, 380px); }
+.webpod-welcome__jam { grid-column: 1 / -1; }
+.webpod-welcome__jam, .webpod-welcome__or { color: #abb2bd; font-size: 14px; white-space: nowrap; }
+.webpod-welcome .webpod-welcome__provider { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 12px 18px; border: 0; border-radius: 6px; font: 600 16px/1.25 var(--font-ui); text-decoration: none; white-space: nowrap; }
+.webpod-welcome .webpod-welcome__provider--apple { background: #fafafa; color: #111; }
+.webpod-welcome .webpod-welcome__provider--apple:hover { background: #e8e8e8; }
+.webpod-welcome .webpod-welcome__provider--spotify { background: #1ed760; color: #000; }
+.webpod-welcome .webpod-welcome__provider--spotify:hover { background: #3be477; }
+.webpod-welcome__provider img { display: block; flex: none; object-fit: contain; }
+.webpod-welcome .webpod-welcome__provider:is(:disabled, [aria-disabled="true"]) { opacity: .55; cursor: wait; }
+.webpod-welcome__provider-status { grid-column: 1 / -1; color: #abb2bd; font-size: 12px; }
+@media (min-width: 601px) and (max-width: 900px), (max-width: 380px) {
+  .webpod-welcome__providers { width: 100%; display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .webpod-welcome__or { text-align: center; }
 }
-.webpod-welcome__spotify:hover { opacity: 0.75; }
-.webpod-welcome__spotify:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; border-radius: 2px; }
+
+.webpod-welcome__action-icon { flex: none; }
+.webpod-welcome__action-icon[data-kind="connecting"] { animation: webpod-connect-spin 1s linear infinite; }
+@keyframes webpod-connect-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .webpod-welcome__action-icon[data-kind="connecting"] { animation: none; }
+}

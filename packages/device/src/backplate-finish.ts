@@ -3,7 +3,7 @@ import { DEVICE_LAYOUT } from "./layout";
 
 /** Rear-local material treatment; no albedo/lighting is painted into these maps. */
 export const BACKPLATE_ENGRAVING = {
-  name: "WebPod",
+  name: "webPod",
   badge: "CLASSIC",
   detail: "DESIGNED FOR MUSIC",
   tribute: "This player is built in the original image of the iPod",
