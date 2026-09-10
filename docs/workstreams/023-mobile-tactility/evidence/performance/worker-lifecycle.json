@@ -1,0 +1,13 @@
+{
+  "paperOldEpochRejected": true,
+  "paperLatestScheduled": true,
+  "paperHiddenTerminates": true,
+  "staleWorkerErrorIgnored": true,
+  "workerUnavailableExactPaperRecovered": true,
+  "workerUnavailableCarryRecovered": true,
+  "carryLatestEpochFinalPose": true,
+  "carryHiddenStopsPublication": true,
+  "carryVisibleResumes": true,
+  "disposeClearsOwnedFrames": true,
+  "borrowedVisibilityProvenancePreserved": true
+}

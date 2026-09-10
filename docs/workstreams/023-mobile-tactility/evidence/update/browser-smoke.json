@@ -1,0 +1,81 @@
+{
+  "identity": {
+    "buildId": "5d58a387-eb48-423b-bb8e-f205d0d4379c"
+  },
+  "endpointCache": "no-store",
+  "htmlCache": "no-cache, max-age=0, must-revalidate",
+  "clientParity": true,
+  "checks": [
+    "same hidden",
+    "malformed quiet",
+    "failed quiet",
+    "offline quiet",
+    "online/foreground check",
+    "Later suppresses same version",
+    "distinct version shown",
+    "mobile controls >=44px",
+    "explicit reload preserves route/query/hash/storage",
+    "one navigation",
+    "visible-only 60s interval",
+    "one concurrent request",
+    "document cleanup"
+  ],
+  "maximumConcurrent": 1,
+  "requests": 12,
+  "reloadDocumentRequests": 1,
+  "reloadFrameNavigations": [
+    "http://127.0.0.1:4339/webpod?updateProbe=kept&_webpod_version=22222222-2222-4222-8222-222222222222#listen",
+    "http://127.0.0.1:4339/webpod?updateProbe=kept&_webpod_version=22222222-2222-4222-8222-222222222222#listen"
+  ],
+  "layouts": [
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "box": {
+        "x": 12,
+        "y": 762,
+        "width": 366,
+        "height": 70
+      },
+      "buttons": [
+        {
+          "text": "Later",
+          "width": 58.1875,
+          "height": 44
+        },
+        {
+          "text": "Reload",
+          "width": 77.1875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "box": {
+        "x": 12,
+        "y": 440,
+        "width": 296,
+        "height": 116
+      },
+      "buttons": [
+        {
+          "text": "Later",
+          "width": 58.1875,
+          "height": 44
+        },
+        {
+          "text": "Reload",
+          "width": 77.1875,
+          "height": 44
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,57 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/sticker-interaction-lifecycle.test.ts:
+(pass) shared sticker spring publication ownership > synchronous cancellation at intermediate publication cannot requeue the old frame [1.27ms]
+(pass) shared sticker spring publication ownership > synchronous supersede at final reduced publication suppresses old completion [0.25ms]
+(pass) shared sticker spring publication ownership > synchronous supersede at final animated publication suppresses old completion [0.17ms]
+(pass) visible source carry animates with rear packet hidden; cancellation stops the owned clock [0.29ms]
+(pass) hidden packet alone does not keep an animation loop alive [0.12ms]
+(pass) existing clock reverses transport before contact and retargets either physical subphase [0.95ms]
+(pass) held target changes stay free, clear invalid targets and reenter without stale landing [0.30ms]
+(pass) captured material anchor survives release and return but clears on source or lifecycle loss [2.93ms]
+(pass) raw partial pull is current finite delta, reverses from a frozen origin and cannot revive after takeover [0.55ms]
+(pass) a stale move cannot adopt a same-source owner replaced during preceding phase or offset publication [0.51ms]
+(pass) completed placement dismisses the sheet and its interaction owner together [0.16ms]
+(pass) packet turn is signed, reduced-motion immediate, and interruptible without a stale swap [0.10ms]
+
+apps/web/src/production-device-view.test.ts:
+(pass) production device provider status > keeps failures visible while Apple Music remains the active provider [0.03ms]
+(pass) production device provider status > pauses provider playback when navigation returns to the root [3.21ms]
+(pass) production device provider status > delegates next and previous to the provider-owned ad-hoc queue [2.02ms]
+(pass) production device provider status > defers loading transport exactly once and routes Play/Pause through provider cancellation [1.58ms]
+(pass) production device provider status > cancels a deferred loading skip when its provider context is replaced [1.56ms]
+(pass) production device provider status > rejects admitted immediate and deferred provider failures without declaring fallback [1.60ms]
+(pass) production device provider status > keeps playlist traversal in provider order [1.52ms]
+(pass) production device provider status > keeps shuffled playback on the provider-owned queue order [1.48ms]
+Music playback failed: Playback transport context was superseded
+(pass) production device provider status > a second Play/Pause press during a pending resume becomes pause instead of another play [1.87ms]
+(pass) production device provider status > ordinary skip waits behind an admitted root pause on the same transport queue [1.49ms]
+(pass) production device provider status > an out-of-band Panel selection after root pause makes the next physical press pause [1.49ms]
+(pass) production device provider status > a settled request does not leave stale intent after an external stop [1.53ms]
+(pass) physical Spotify Play/Pause accepts 200 command acknowledgement without decoding JSON [4.67ms]
+(pass) physical Spotify Play/Pause accepts 204 command acknowledgement without decoding JSON [1.66ms]
+(pass) physical Apple Play/Pause uses void native commands and preserves confirmed selection through pause/resume [4.09ms]
+Music playback failed: Playback transport context was superseded
+(pass) physical Apple rapid Play/Pause cancels a pending void native start and preserves its queue occurrence [1.60ms]
+Music playback failed: Synthetic native resume failure
+(pass) physical Apple rejected resume settles failure and the next void resume recovers without losing the queue [4.48ms]
+
+apps/web/src/sticker-return.test.ts:
+(pass) missed and cancelled rear drops reverse from the displayed pose and release their frame owner [1.21ms]
+
+apps/web/src/sticker-lift-phase.test.ts:
+(pass) physical lift is continuous at both subphase boundaries with nonzero transport displacement [0.08ms]
+(pass) retarget and return reverse transport before physical contact, independently of free curl [0.06ms]
+
+apps/web/src/sticker-motion.test.ts:
+(pass) sticker pull physics > a fresh upward flick opens; holding that gesture restores distance-based release [0.10ms]
+(pass) sticker pull physics > analytic response is invariant to frame subdivision before settling [0.02ms]
+(pass) sticker pull physics > settled springs stop scheduling and background pauses terminate safely
+
+packages/device/src/sticker-contract.test.ts:
+(pass) a carried print owns its static rear and sheet seat across native write publication [0.04ms]
+
+ 36 pass
+ 0 fail
+ 351 expect() calls
+Ran 36 tests across 6 files. [153.00ms]

@@ -197,6 +197,7 @@ function InteractiveDevicePage() {
     }
   }, [music, navigate]);
   const capture = import.meta.env.DEV && search.has("capture");
+  const projectionDiagnostics = capture || search.has("projection-diagnostics");
   const diagnosticMode = search.get("diagnostic");
   const diagnostic = import.meta.env.DEV && diagnosticMode === "neutral";
   const productionSurfaceCapture =
@@ -269,6 +270,7 @@ function InteractiveDevicePage() {
   return (
     <main
       className="webpod-device-preview"
+      data-mobile-framing={capture ? undefined : "true"}
       data-room={renderedState.room}
       data-colourway={renderedState.colourway}
       data-pose={renderedState.pose}
@@ -291,7 +293,9 @@ function InteractiveDevicePage() {
             className="webpod-device-preview__device"
             colourway={renderedState.colourway}
             cameraFov={30}
+            cameraMobileFraming={!capture}
             cameraSafePadding={capture ? 34 : 48}
+            projectionDiagnostics={projectionDiagnostics}
             orientation={renderedState.orientation}
             materials={NEUTRAL_DIAGNOSTIC_MATERIALS}
             lightRig={NEUTRAL_DIAGNOSTIC_LIGHT_RIG}
@@ -305,6 +309,7 @@ function InteractiveDevicePage() {
             colourway={renderedState.colourway}
             cameraFov={30}
             cameraSafePadding={34}
+            projectionDiagnostics={projectionDiagnostics}
             orientation={renderedState.orientation}
             lightRig={productionLightRig}
             studioEnvironment={undefined}
@@ -317,7 +322,9 @@ function InteractiveDevicePage() {
             className="webpod-device-preview__device"
             colourway={renderedState.colourway}
             cameraFov={30}
+            cameraMobileFraming={!capture}
             cameraSafePadding={capture ? 34 : 48}
+            projectionDiagnostics={projectionDiagnostics}
             orientation={renderedState.orientation}
             onOrientationGrabStart={onOrientationGrabStart}
             onOrientationGrabHoverChange={onOrientationGrabHoverChange}
@@ -555,6 +562,14 @@ const DEVICE_PREVIEW_CSS = `
   .webpod-device-preview__controls > button:focus-visible {
     outline: 2px solid #38bdf8;
     outline-offset: 2px;
+  }
+  @media (max-width: 520px), (max-width: 960px) and (max-height: 520px) {
+    .webpod-device-preview[data-mobile-framing="true"] .webpod-device-preview__stage {
+      inset-block-start: max(8px, env(safe-area-inset-top));
+      inset-block-end: calc(60px + env(safe-area-inset-bottom));
+      inset-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+    }
+    .webpod-device-preview[data-mobile-framing="true"] .webpod-device-preview__controls > button { min-block-size: 44px; }
   }
   @media (max-width: 520px) {
     .webpod-device-preview__controls { gap: 4px; }

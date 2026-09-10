@@ -54,6 +54,7 @@ export function mountDeviceReveal(stage: HTMLElement, store: DevicePreviewStore)
   let hold = 0
   let finished = false
   let publishing = false
+  let fallbackExpired = false
   let unsubscribe = () => {}
   const finish = (front: boolean) => {
     if (finished) return
@@ -89,7 +90,16 @@ export function mountDeviceReveal(stage: HTMLElement, store: DevicePreviewStore)
     else frame = requestAnimationFrame(tick)
   }
   const ready = () => {
-    if (!stage.querySelector('canvas[data-wp-render-warm="ready"]')) return
+    if (finished) return
+    const canvas = stage.querySelector('canvas')
+    // A pending geometry/compile job is not graphics failure. In particular,
+    // Suspense must not let the old safety timer skip the entry trajectory.
+    if (canvas === null || canvas.dataset['wpRenderWarm'] === 'failed') {
+      if (fallbackExpired) finish(true)
+      return
+    }
+    if (canvas.dataset['wpRenderWarm'] !== 'ready') return
+    clearTimeout(timeout)
     observer.disconnect()
     hold = window.setTimeout(() => {
       if (finished) return
@@ -98,8 +108,9 @@ export function mountDeviceReveal(stage: HTMLElement, store: DevicePreviewStore)
     }, Math.max(0, DEVICE_REVEAL_TIMING.warm - (performance.now() - mounted)))
   }
   const observer = new MutationObserver(ready)
-  // A graphics fallback must never remain below the viewport.
-  const timeout = window.setTimeout(() => finish(true), 10000)
+  // No-canvas/failed graphics UI must never remain below the viewport. A real
+  // preparing canvas waits for its bounded worker/compile owner to resolve.
+  const timeout = window.setTimeout(() => { fallbackExpired = true; ready() }, 10000)
   const interrupt = () => finish(elapsed < DEVICE_REVEAL_TIMING.settle)
   const preferenceChanged = () => { if (media.matches) finish(true) }
   stage.dataset['deviceReveal'] = 'warming'

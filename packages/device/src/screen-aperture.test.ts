@@ -215,11 +215,12 @@ describe("square LCD aperture and flat assembly reveal", () => {
       toneMapped: false,
     });
     const device = await Bun.file("packages/device/src/Device.tsx").text();
-    const frontStart = device.indexOf("const frontGeometry");
-    const frontEnd = device.indexOf("  const {\n    ringGeometry");
+    const shells = await Bun.file("packages/device/src/immutable-shells.ts").text();
+    const frontStart = shells.indexOf("const front=");
+    const frontEnd = shells.indexOf("return {front,back}");
     expect(frontStart).toBeGreaterThanOrEqual(0);
     expect(frontEnd).toBeGreaterThan(frontStart);
-    const frontBuild = device.slice(frontStart, frontEnd);
+    const frontBuild = shells.slice(frontStart, frontEnd);
     expect(frontBuild).toContain("squareRoundedRectApertureWalls(");
 
     const glassBuild = device.slice(

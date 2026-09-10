@@ -1,0 +1,41 @@
+[
+  {
+    "viewport": {
+      "width": 320,
+      "height": 500,
+      "safePadding": 8,
+      "safeMarginRatio": 0.04
+    },
+    "distance": 3218.0195942957116,
+    "maxX": 0.8274264916452158,
+    "maxY": 0.9598084577135882,
+    "limitX": 0.95,
+    "limitY": 0.96
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 776,
+      "safePadding": 8,
+      "safeMarginRatio": 0.04
+    },
+    "distance": 3515.1573316886042,
+    "maxX": 0.9589743589743591,
+    "maxY": 0.878052060212228,
+    "limitX": 0.958974358974359,
+    "limitY": 0.96
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 322,
+      "safePadding": 8,
+      "safeMarginRatio": 0.04
+    },
+    "distance": 3250.5004756305034,
+    "maxX": 0.19987562153926114,
+    "maxY": 0.9501377546480159,
+    "limitX": 0.96,
+    "limitY": 0.9503105590062112
+  }
+]

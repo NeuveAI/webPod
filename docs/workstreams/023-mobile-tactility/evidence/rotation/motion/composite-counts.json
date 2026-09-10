@@ -1,0 +1,13 @@
+{
+  "scenario": "60 changed pose renders after removing layout resync",
+  "syncCalls": 60,
+  "viewReads": 120,
+  "layoutReads": 240,
+  "identicalFrameSkipped": true,
+  "cameraProjectionSameFrame": true,
+  "cameraPoseSameFrame": true,
+  "viewportSameFrame": true,
+  "resizeImmediate": true,
+  "DPRRasterAndHitParity": true,
+  "note": "Real source/Three operation counts with fake DOM sizing; not a browser trace or elapsed-time measurement."
+}

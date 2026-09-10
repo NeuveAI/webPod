@@ -1,3 +1,4 @@
+import { stickerHaptics } from './sticker-haptics'
 import { atom, useAtomValue } from 'jotai'
 import { StickerContourGrips, StickerContourPaths } from './sticker-contour-presentation'
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
@@ -85,6 +86,7 @@ function StickerAppearanceEditor({ fit, screen, quad, contour, beginTransform, p
     if (activeId.current !== selectedId) { activeId.current = selectedId; deviceStore.set(modeSwitchedAtom, false); tooltipDismissedAt=null;tooltipPointer=null;deviceStore.set(focusedCornerAtom, null);deviceStore.set(releaseAtom, null); deviceStore.set(layoutAtom, null); deviceStore.set(tooltipAtom, null) }
   }, [selectedId])
   const cancel = (): void => {
+    stickerHaptics.cancel()
     const held = drag.current; drag.current = null; deviceStore.set(dragVisualAtom, null)
     if (deviceStore.get(rangeGestureAtom) === 'active') deviceStore.set(rangeGestureAtom, 'cancelled')
     deviceStore.set(stickerEditorGestureAtom, false); revertStickerEditor()
@@ -187,6 +189,7 @@ function StickerAppearanceEditor({ fit, screen, quad, contour, beginTransform, p
     deviceStore.set(releaseAtom, null); deviceStore.set(layoutAtom, arrangement)
     setStickerEditorProperty(property); deviceStore.set(stickerEditorGestureAtom, true)
     deviceStore.set(tooltipAtom, null); deviceStore.set(dragVisualAtom, { corner, property, pointer: { x: event.clientX, y: event.clientY } })
+    if (event.pointerType === 'touch') stickerHaptics.trigger('pickup')
     drag.current = { corner, pointerId: event.pointerId, property, plane, source: state.draft, radius, angle: Math.atan2(dy, dx), accumulated: 0, target: event.currentTarget, projection: projectionKey(state.draft), pointer: { x: event.clientX, y: event.clientY } }
   }
   const move = (event: React.PointerEvent): void => {
@@ -206,6 +209,8 @@ function StickerAppearanceEditor({ fit, screen, quad, contour, beginTransform, p
     if (drag.current?.pointerId !== event.pointerId) return
     move(event); const held = drag.current; deviceStore.set(releaseAtom, { corner: held.corner, kind: held.property, ...held.pointer, progress: 0, epoch: event.timeStamp }); drag.current = null; deviceStore.set(dragVisualAtom, null); deviceStore.set(stickerEditorGestureAtom, false)
     if (held.target.hasPointerCapture(event.pointerId)) held.target.releasePointerCapture(event.pointerId)
+    stickerHaptics.cancel()
+    if (event.pointerType === 'touch') stickerHaptics.trigger('place')
     void applyStickerEditor(place)
   }
   const keys = (event: React.KeyboardEvent, property: StickerEditorProperty): void => {

@@ -20,7 +20,7 @@ import { StickerCollection } from './sticker-collection'
 import { stickerSourceAnchorAtom, stickerSourcePullAtom } from './sticker-carry-anchor'
 import { adaptStickerGrab } from './sticker-grab'
 import { openStickerPack, placeSticker, removeSticker, retryStickerCollection } from './sticker-runtime'
-import { stickerFinishCalibrationAtom, reportStickerArtworkFailure, reportStickerArtworkReady } from './sticker-interaction'
+import { stickerComputationEpochAtom, stickerFinishCalibrationAtom, reportStickerArtworkFailure, reportStickerArtworkReady } from './sticker-interaction'
 import { createStickerProjectionNotifications } from './sticker-projection-notifications'
 
 let stickerProjection: StickerRearProjection | null = null
@@ -58,7 +58,9 @@ export interface ProductionDeviceViewProps extends ProductionPanelViewProps {
   readonly className?: string
   readonly cameraFov?: number
   readonly cameraDistance?: number
+  readonly cameraMobileFraming?: boolean
   readonly cameraSafePadding?: number
+  readonly projectionDiagnostics?: boolean
   readonly orientation?: DeviceOrientation
   readonly onOrientationGrabStart?: (start: DeviceOrientationGrabStart) => boolean
   readonly onOrientationGrabHoverChange?: (grabbable: boolean) => void
@@ -113,8 +115,10 @@ export function ProductionDeviceView({
   className,
   cameraFov,
   cameraDistance,
+  cameraMobileFraming,
   cameraSafePadding,
   orientation,
+  projectionDiagnostics,
   onOrientationGrabStart,
   onOrientationGrabHoverChange,
   interactionAudioEnabled,
@@ -125,6 +129,7 @@ export function ProductionDeviceView({
   const preparationIds = useAtomValue(stickerPreparationIdsAtom, { store: deviceStore })
   const collectionUsable = useAtomValue(stickerCollectionUsableAtom, { store: deviceStore })
   const stickerInteraction = useAtomValue(stickerInteractionAtom, { store: deviceStore })
+  const computationEpoch = useAtomValue(stickerComputationEpochAtom, { store: deviceStore })
   const collection = useAtomValue(activeStickerCollectionAtom, { store: deviceStore })
   const collections = useAtomValue(stickerCollectionsAtom, { store: deviceStore })
   const sheetReveal = useAtomValue(stickerSheetRevealAtom, { store: deviceStore })
@@ -161,14 +166,16 @@ export function ProductionDeviceView({
       panelTone={colourway === 'white' ? 'light' : 'dark'}
       cameraFov={cameraFov}
       cameraDistance={cameraDistance}
+      cameraMobileFraming={cameraMobileFraming}
       cameraSafePadding={cameraSafePadding}
+      projectionDiagnostics={projectionDiagnostics}
       orientation={orientation}
       onOrientationGrabStart={onOrientationGrabStart}
       onOrientationGrabHoverChange={onOrientationGrabHoverChange}
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
       onTransportPress={onTransportPress}
-      stickerScene={{ assets: STICKER_CATALOGUE, preparedSheet: collectionUsable ? preparedSheet : undefined, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, appearances: inventory?.appearances, pack: deviceRevealing || (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { presence: packPresence, workspaceVisible: collectionUsable, tuck: packTuck, progress: stickerInteraction.progress, peel: stickerInteraction.peel, sourcePeelFront: stickerInteraction.sourcePeelFront, detachTransport: stickerInteraction.detachTransport, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, sourceAnchor: sourceAnchor ?? undefined, sourcePull: sourcePull ?? undefined, dragOffset, workspaceLowering, turn: packTurn, sheet: preparedSheet }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onSurfaceReady: onStickerSurfaceReady, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
+      stickerScene={{ assets: STICKER_CATALOGUE, preparedSheet: collectionUsable ? preparedSheet : undefined, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, appearances: inventory?.appearances, pack: deviceRevealing || (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { presence: packPresence, workspaceVisible: collectionUsable, tuck: packTuck, progress: stickerInteraction.progress, peel: stickerInteraction.peel, computationEpoch, sourcePeelFront: stickerInteraction.sourcePeelFront, detachTransport: stickerInteraction.detachTransport, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, sourceAnchor: sourceAnchor ?? undefined, sourcePull: sourcePull ?? undefined, dragOffset, workspaceLowering, turn: packTurn, sheet: preparedSheet }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onSurfaceReady: onStickerSurfaceReady, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
       panel={(
         <ProductionPanelView
           colourway={colourway}

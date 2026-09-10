@@ -7,16 +7,21 @@ export interface StickerWrapPoint { readonly point: Vector3; readonly normal: Ve
 /** Front meshes remain accepted for assembly API compatibility, never as adhesive support. */
 export function createStickerWrapSurface(form: DeviceFormParams, _faces: readonly StickerWrapFace[]) {
   void _faces;
-  return createStickerRearChart(form);
+  return { ...createStickerRearChart(form), form: { ...form } };
 }
 
-export type StickerWrapSurface = ReturnType<typeof createStickerWrapSurface>;
+export type StickerWrapSurface = ReturnType<typeof createStickerRearChart> & { readonly form?: DeviceFormParams };
 
-const wrapSurfaces = new WeakMap<BufferGeometry, { readonly surface: StickerWrapSurface }>();
+const wrapSurfaces = new WeakMap<BufferGeometry, { readonly surface: StickerWrapSurface }[]>();
 /** Share one actual-shell sampler between equipped prints and the packet's borrowed rear geometry. */
 export function bindStickerWrapSurface(rear: BufferGeometry, surface: StickerWrapSurface): () => void {
   const binding = { surface };
-  wrapSurfaces.set(rear, binding);
-  return () => { if (wrapSurfaces.get(rear) === binding) wrapSurfaces.delete(rear); };
+  const bindings = wrapSurfaces.get(rear) ?? [];
+  bindings.push(binding); wrapSurfaces.set(rear, bindings);
+  return () => {
+    const index = bindings.indexOf(binding);
+    if (index >= 0) bindings.splice(index, 1);
+    if (bindings.length === 0 && wrapSurfaces.get(rear) === bindings) wrapSurfaces.delete(rear);
+  };
 }
-export function stickerWrapSurface(rear: BufferGeometry): StickerWrapSurface | undefined { return wrapSurfaces.get(rear)?.surface; }
+export function stickerWrapSurface(rear: BufferGeometry): StickerWrapSurface | undefined { return wrapSurfaces.get(rear)?.at(-1)?.surface; }

@@ -1,3 +1,7 @@
+import { usePreparedImmutableShells } from './immutable-shell-preparation';
+import { createShellPicking } from './shell-picking';
+import { createOrientationRaycast } from './orientation-picking';
+import { completeDeviceEnvelope } from './device-envelope';
 import { bindStickerWrapSurface, createStickerWrapSurface } from './sticker-wrap';
 import { StickerSurface } from "./StickerSurface";
 import type { DeviceStickerScene } from "./sticker-contract";
@@ -24,28 +28,23 @@ import { useThree, type ThreeEvent } from "@react-three/fiber";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
   Color,
+  type Camera,
+  Vector3,
   ExtrudeGeometry,
   type Group,
   type Material,
-  type Mesh,
+  Mesh,
   MeshBasicMaterial,
   ShapeGeometry,
   type Texture,
 } from "three";
-import { toCreasedNormals } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
-import { frontCoreDepth, tessellateVerticalCrown } from "./curved-shell";
 import { useControlPhysics } from "./ControlPhysicsScope";
 import { AxialSelectControl } from "./AxialSelectControl";
 import {
   createFrontControlPatchGeometry,
   createWheelGapFloorGeometries,
 } from "./front-control-geometry";
-import {
-  createRearShellGeometry,
-  frontShellPlan,
-  productShellDepths,
-} from "./product-shell";
 import {
   createRoomEnvMap,
   type EnvRoomParams,
@@ -65,15 +64,11 @@ import {
   type PhysicalSurfaceParams,
 } from "./materials";
 import {
-  circleHole,
   roundedRectFrameShape,
-  roundedRectHole,
   roundedRectShape,
-  silhouetteShape,
 } from "./shapes";
 import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
 import { createScreenGeometry } from "./screen-geometry";
-import { removeOpaqueApertureWalls, squareRoundedRectApertureWalls } from "./screen-aperture";
 import {
   createPolycarbonateMaterial,
   createCoverGlassMaterial,
@@ -100,7 +95,6 @@ import {
 } from "./orientation-grab";
 import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 import { DeviceHardware } from "./DeviceHardware";
-import { cutHardwareApertures } from "./hardware-apertures";
 import {
   effectiveStudioEnvironmentIntensity,
   useStudioEnvironmentSnapshot,
@@ -157,7 +151,7 @@ const { displayWell, glass, mask } = DEVICE_SURFACE_LAYOUT.front;
 // below consumes that single typed geometry.
 
 /** Bevel segments everywhere. Rolled edges are the §10.4 conic response. */
-const BEVEL_SEGMENTS = 16;
+
 
 export function Device({
   stickerScene,
@@ -173,6 +167,7 @@ export function Device({
   onOrientationGrabStart,
   onOrientationGrabHoverChange,
 }: DeviceProps) {
+  const { front: frontGeometry, back: backGeometry } = usePreparedImmutableShells(form);
   const invalidate = useThree((state) => state.invalidate);
   const controlPhysics = useControlPhysics();
   const wheelAssemblyRef = useRef<Group>(null);
@@ -180,6 +175,26 @@ export function Device({
   // viewport changes on every resize, so the handle must read both at the
   // moment it projects rather than capture them (see `screen-mesh.ts`).
   const getStore = useThree((state) => state.get);
+  const orientationRaycasts = useMemo(() => {
+    const touch = () => {
+      const event = getStore().internal.lastEvent.current;
+      return event !== null && 'pointerType' in event && event.pointerType === 'touch';
+    };
+    const envelope = completeDeviceEnvelope(form);
+    const shellReader = (name: string) => {
+      let shell: Mesh | null = null;
+      return () => {
+        if (shell?.parent) return shell;
+        const object = getStore().scene.getObjectByName(name);
+        shell = object instanceof Mesh ? object : null;
+        return shell;
+      };
+    };
+    return {
+      front: createOrientationRaycast(shellReader('device-body'), touch, envelope),
+      back: createOrientationRaycast(shellReader('device-steel-back'), touch, envelope),
+    };
+  }, [getStore, form]);
   const view = useCallback(
     () => {
       const store = getStore();
@@ -190,14 +205,14 @@ export function Device({
   const onShellPointerDown = useCallback(
     (event: ThreeEvent<PointerEvent>) => {
       if (onOrientationGrabStart === undefined) return;
-      const start = orientationGrabStart(event);
+      const start = orientationGrabStart(event, view());
       if (start === null || !onOrientationGrabStart(start)) return;
       // Browser panning is disabled declaratively by the application root's
       // touch-action. R3F delegates this callback through a native listener
       // that may be passive, so native preventDefault() is not legal here.
       event.stopPropagation();
     },
-    [onOrientationGrabStart],
+    [onOrientationGrabStart, view],
   );
   const onShellPointerMove = useCallback(
     (event: ThreeEvent<PointerEvent>) => {
@@ -271,7 +286,7 @@ export function Device({
   // Built once per shape-affecting input. Under `frameloop="demand"` a rebuild
   // is also a re-render, so the memo keys are the whole render trigger.
 
-  const shellDepths = productShellDepths(body.depth, form.frontThickness);
+
 
   // The thin Classic chassis is two material shells meeting at one seam plane:
   //
@@ -284,110 +299,12 @@ export function Device({
   // back face into a continuous side wall and terminates exactly where the
   // front shell starts. The only plan difference is the intentional 1.2px
   // material seam.
-  const plateBackZ = shellDepths.seamZ;
 
-  const backGeometry = useMemo(() => {
-    const shell = createRearShellGeometry({
-      width: body.width,
-      height: body.height,
-      depth: body.depth,
-      cornerR: body.cornerR,
-      exponent: body.exponent,
-      frontThickness: form.frontThickness,
-      rearCrownInset: form.rearCrownInset,
-      frontRimInset: form.seamWidth + form.frontBevel + 0.25,
-    });
-    const opened = cutHardwareApertures(shell);
-    shell.dispose();
-    return opened;
-  }, [form.frontThickness, form.rearCrownInset, form.seamWidth, form.frontBevel]);
-  useEffect(() => () => backGeometry.dispose(), [backGeometry]);
 
-  const frontGeometry = useMemo(() => {
-    // §5.6 modelled rather than stroked: the aluminum front is inset by
-    // the seam width, so what runs round the perimeter is the steel shell's own
-    // rolled edge, presenting a different angle to the light at every point of
-    // the silhouette — §10.4 prevention #6, for free.
-    const seam = form.seamWidth;
-    const plan = frontShellPlan(
-      body.width,
-      body.height,
-      body.cornerR,
-      seam,
-      form.frontBevel,
-    );
-    const shape = silhouetteShape(
-      plan.faceWidth,
-      plan.faceHeight,
-      plan.faceCornerR,
-      body.exponent,
-      48,
-    );
-    shape.holes.push(
-      roundedRectHole(
-        displayWell.centerX,
-        displayWell.centerY,
-        displayWell.width,
-        displayWell.height,
-        displayWell.cornerR,
-      ),
-    );
-    shape.holes.push(circleHole(wheel.centerX, wheel.centerY, wheel.outerR));
-    const extrusion = new ExtrudeGeometry(shape, {
-      depth: frontCoreDepth(form.frontThickness, form.frontBevel),
-      bevelEnabled: true,
-      bevelThickness: form.frontBevel,
-      bevelSize: form.frontBevel,
-      bevelSegments: BEVEL_SEGMENTS,
-      curveSegments: 1,
-    });
-    // Three applies the outer-shell bevel to holes as well. The flush LCD
-    // opening is square to the glossy face, so collapse only this hole's
-    // generated slope before the shell crown is applied.
-    squareRoundedRectApertureWalls(
-      extrusion,
-      {
-        centerX: displayWell.centerX,
-        centerY: displayWell.centerY,
-        width: displayWell.width,
-        height: displayWell.height,
-        cornerR: displayWell.cornerR,
-      },
-      form.frontBevel,
-    );
-    removeOpaqueApertureWalls(extrusion, {
-      centerX: displayWell.centerX, centerY: displayWell.centerY,
-      width: displayWell.width, height: displayWell.height, cornerR: displayWell.cornerR,
-    });
-    // Smooth the rolled aluminum before deformation; preserve the LCD wall
-    // crease. ExtrudeGeometry starts with an independent normal per triangle.
-    toCreasedNormals(extrusion, Math.PI / 4);
-    const geometry = tessellateVerticalCrown(
-      extrusion,
-      body.height / 2 - seam,
-      form.bodyCrown,
-      undefined,
-      { top: form.topEdgeCrown, bottom: form.bottomEdgeCrown, extent: form.edgeCrownExtent },
-      {
-        halfWidth: body.width / 2 - seam,
-        crown: form.bodyCrossCrown,
-      },
-    );
-    extrusion.dispose();
-    geometry.translate(0, 0, plateBackZ + form.frontBevel);
-    return geometry;
-  }, [
-    form.seamWidth,
-    form.frontThickness,
-    form.frontBevel,
-    form.bodyCrown,
-    form.bodyCrossCrown,
-    form.topEdgeCrown,
-    form.bottomEdgeCrown,
-    form.edgeCrownExtent,
-    plateBackZ,
-  ]);
-  useEffect(() => () => frontGeometry.dispose(), [frontGeometry]);
+  const frontPicking = useMemo(() => createShellPicking(), []);
+  const backPicking = useMemo(() => createShellPicking(), []);
+  useEffect(() => frontPicking.prepare(frontGeometry), [frontGeometry, frontPicking]);
+  useEffect(() => backPicking.prepare(backGeometry), [backGeometry, backPicking]);
 
   const {
     ringGeometry,
@@ -684,8 +601,11 @@ export function Device({
       {stickerScene === undefined ? null : <StickerSurface scene={stickerScene} rear={backGeometry} wrap={wrapSampler} />}
       {/* §5.2 — the mirror-polished back plate, uncut. */}
       <mesh
-        name="device-steel-back"
+        name="device-steel-back-orientation-input"
+        dispose={null}
+        visible={false}
         geometry={backGeometry}
+        raycast={orientationRaycasts.back}
         onPointerDown={
           onOrientationGrabStart === undefined ? undefined : onShellPointerDown
         }
@@ -699,6 +619,12 @@ export function Device({
             ? undefined
             : onShellPointerOut
         }
+      />
+      <mesh
+        name="device-steel-back"
+        dispose={null}
+        raycast={backPicking.raycast}
+        geometry={backGeometry}
       >
         <meshPhysicalMaterial
           name="steel-back"
@@ -730,8 +656,11 @@ export function Device({
       <DeviceHardware form={form} isBlack={isBlack} />
 
       <mesh
-        name="device-body"
+        name="device-body-orientation-input"
+        dispose={null}
+        visible={false}
         geometry={frontGeometry}
+        raycast={orientationRaycasts.front}
         onPointerDown={
           onOrientationGrabStart === undefined ? undefined : onShellPointerDown
         }
@@ -745,6 +674,12 @@ export function Device({
             ? undefined
             : onShellPointerOut
         }
+      />
+      <mesh
+        name="device-body"
+        dispose={null}
+        raycast={frontPicking.raycast}
+        geometry={frontGeometry}
       >
         {isBlack ? (
           <primitive
@@ -886,7 +821,10 @@ export function Device({
   );
 }
 
-function isOrientationGrabHit(event: ThreeEvent<PointerEvent>): boolean {
+function isOrientationGrabHit(
+  event: ThreeEvent<PointerEvent>,
+  view: { readonly camera: Camera; readonly width: number; readonly height: number },
+): boolean {
   if (
     !acceptsDeviceOrientationPointer(event) ||
     !isFirstVisibleDeviceShellHit(event.object, event.intersections)
@@ -894,13 +832,32 @@ function isOrientationGrabHit(event: ThreeEvent<PointerEvent>): boolean {
     return false;
   }
   const localPoint = event.object.worldToLocal(event.point.clone());
-  return isDeviceOuterGrabPoint(localPoint.x, localPoint.y);
+  if (event.pointerType !== "touch") return isDeviceOuterGrabPoint(localPoint.x, localPoint.y);
+  // Preserve front controls even when their glass or decal is not an event
+  // target. Sticker meshes retain first-visible-hit ownership above the shell.
+  const front = event.face !== null && event.face !== undefined && event.face.normal.z > 0;
+  if (front && (
+    (Math.abs(localPoint.x - glass.centerX) <= glass.width / 2 &&
+      Math.abs(localPoint.y - glass.centerY) <= glass.height / 2) ||
+    Math.hypot(localPoint.x - wheel.centerX, localPoint.y - wheel.centerY) <= wheel.outerR
+  )) return false;
+  const project = (point: Vector3) => {
+    point.applyMatrix4(event.object.matrixWorld).project(view.camera);
+    return point.set(point.x * view.width / 2, point.y * view.height / 2, 0);
+  };
+  const origin = project(localPoint.clone());
+  const scaleX = project(localPoint.clone().add(new Vector3(1, 0, 0))).distanceTo(origin);
+  const scaleY = project(localPoint.clone().add(new Vector3(0, 1, 0))).distanceTo(origin);
+  // Size in CSS pixels, bounded at a quarter of the face when viewed edge-on.
+  const band = Math.min(body.width / 4, 44 / Math.max(0.01, Math.min(scaleX, scaleY)));
+  return isDeviceOuterGrabPoint(localPoint.x, localPoint.y, band);
 }
 
 function orientationGrabStart(
   event: ThreeEvent<PointerEvent>,
+  view: { readonly camera: Camera; readonly width: number; readonly height: number },
 ): DeviceOrientationGrabStart | null {
-  if (!isOrientationGrabHit(event)) return null;
+  if (!isOrientationGrabHit(event, view)) return null;
   const host = event.nativeEvent.currentTarget;
   const capture = orientationPointerCapture(event.target);
   const pointerType = orientationPointerType(event.pointerType);

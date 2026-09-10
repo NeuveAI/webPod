@@ -102,6 +102,7 @@ export async function createProgressiveMusicSource(provider: MusicProvider, isCu
       artistAlbumErrors.delete(key)
       const accept = (albums: readonly AlbumRef[]): void => {
         if (!isCurrent() || navigationLoadAborted(options)) throw new DOMException('Navigation ended', 'AbortError')
+        if (artistAlbumPages.get(key) === albums) return
         for (const value of albums) discoveredAlbums.set(value.key, value)
         artistAlbumPages.set(key, albums)
         notify()

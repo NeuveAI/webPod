@@ -8,7 +8,7 @@ import { DeviceRenderWarmup } from "./DeviceRenderWarmup";
  * Old absolute steel stop-table calibration is superseded by the product studio.
  */
 import { Canvas, useThree } from "@react-three/fiber";
-import { createContext, useLayoutEffect, useMemo, type ReactNode } from "react";
+import { createContext, Suspense, useLayoutEffect, useMemo, type ReactNode } from "react";
 import { Box3, PerspectiveCamera } from "three";
 
 import { Device, type DeviceProps } from "./Device";
@@ -41,10 +41,14 @@ import {
 } from "./orientation";
 
 export type DeviceCanvasProps = DeviceProps & {
+  /** Opt-in DOM projection evidence; never required for rendering or input. */
+  readonly projectionDiagnostics?: boolean;
   readonly className?: string;
   /** Explicit canonical-calibration distance. Omit for measured responsive fit. */
   readonly cameraDistance?: number;
   readonly cameraFov?: number;
+  /** Compact phone framing; explicit camera distances retain calibration. */
+  readonly cameraMobileFraming?: boolean;
   /** CSS-pixel safe area around the projected model. */
   readonly cameraSafePadding?: number;
   /** RoomEnvironment/PMREM parameters; `null` disables the studio environment. */
@@ -70,11 +74,12 @@ function publishCameraFitDiagnostics(
   canvas: HTMLCanvasElement,
   fit: DeviceCameraFit,
   safePadding: number,
+  marginRatio: number,
 ) {
   canvas.dataset["wpCameraFitDistance"] = fit.distance.toFixed(4);
   canvas.dataset["wpCameraFitPadding"] = String(safePadding);
   canvas.dataset["wpCameraFitMarginRatio"] = String(
-    DEFAULT_DEVICE_CAMERA_SAFE_MARGIN_RATIO,
+    marginRatio,
   );
   canvas.dataset["wpProjectedLimitX"] = fit.maxNdcX.toFixed(6);
   canvas.dataset["wpProjectedLimitY"] = fit.maxNdcY.toFixed(6);
@@ -121,10 +126,12 @@ export function DeviceCanvas({
   className,
   cameraDistance,
   cameraFov = DEFAULT_CAMERA_FOV,
+  cameraMobileFraming = false,
   cameraSafePadding = DEFAULT_CAMERA_SAFE_PADDING,
   studioEnvironment = {},
   onCameraFit,
   dpr = [1, 3],
+  projectionDiagnostics = false,
   orientation = FRONT_DEVICE_ORIENTATION,
   children,
   ...device
@@ -158,6 +165,9 @@ export function DeviceCanvas({
         position: [0, 0, initialDistance],
       }}
     >
+      {/* Keep DOM canvas mounted while the whole scene prepares; warmup must
+          commit with the real device, never with a partial scene. */}
+      <Suspense fallback={null}>
       <ControlPhysicsScope>
         <DeviceCanvasOrientationContext.Provider value={orientationState}>
           <CanvasPixelDensity enabled={Array.isArray(dpr)} />
@@ -167,31 +177,35 @@ export function DeviceCanvas({
           <Device {...device} form={form} orientation={orientation} />
           {device.stickerScene === undefined ? null : <StickerPackScene scene={device.stickerScene} />}
           <ResponsiveDeviceCamera
+            mobileFraming={cameraMobileFraming}
             explicitDistance={cameraDistance}
             fov={cameraFov}
             envelope={envelope}
             safePadding={cameraSafePadding}
             onFit={onCameraFit}
           />
-          <DeviceProjectionDiagnostics
+          {projectionDiagnostics ? <DeviceProjectionDiagnostics
             envelope={envelope}
             orientation={orientation}
-          />
+          /> : null}
           {children}
           <DeviceRenderWarmup />
         </DeviceCanvasOrientationContext.Provider>
       </ControlPhysicsScope>
+      </Suspense>
     </Canvas>
   );
 }
 
 function ResponsiveDeviceCamera({
+  mobileFraming,
   explicitDistance,
   fov,
   envelope,
   safePadding,
   onFit,
 }: {
+  readonly mobileFraming: boolean;
   readonly explicitDistance: number | undefined;
   readonly fov: number;
   readonly envelope: DeviceEnvelope;
@@ -205,16 +219,24 @@ function ResponsiveDeviceCamera({
 
   useLayoutEffect(() => {
     if (!(camera instanceof PerspectiveCamera)) return;
+    // Narrow portrait and short landscape phone canvases share the same fixed
+    // rotational envelope. A longer lens reduces perspective safety overhead,
+    // making the front larger without moving the camera during manipulation.
+    const compact = mobileFraming && explicitDistance === undefined &&
+      (size.width <= 520 || (size.width <= 960 && size.height <= 520));
+    const padding = compact ? 8 : safePadding;
+    const marginRatio = compact ? 0.04 : DEFAULT_DEVICE_CAMERA_SAFE_MARGIN_RATIO;
+    const fitFov = compact ? 12 : fov;
     const viewport = {
       width: size.width,
       height: size.height,
-      safePadding,
-      safeMarginRatio: DEFAULT_DEVICE_CAMERA_SAFE_MARGIN_RATIO,
+      safePadding: padding,
+      safeMarginRatio: marginRatio,
     };
     const measured = fitPerspectiveCameraToRotationalEnvelope(
       deviceEnvelopeBounds(envelope),
       viewport,
-      fov,
+      fitFov,
     );
     const fit =
       explicitDistance === undefined
@@ -228,14 +250,15 @@ function ResponsiveDeviceCamera({
             ),
             far: explicitDistance + envelope.boundingRadius * 2,
           };
-    applyDeviceCameraFit(camera, fit, viewport);
-    publishCameraFitDiagnostics(canvas, fit, safePadding);
+    applyDeviceCameraFit(camera, fit, viewport, fitFov);
+    publishCameraFitDiagnostics(canvas, fit, padding, marginRatio);
     onFit?.(fit);
     invalidate();
   }, [
     camera,
     canvas,
     explicitDistance,
+    mobileFraming,
     fov,
     invalidate,
     envelope,
@@ -257,6 +280,7 @@ function DeviceProjectionDiagnostics({
 }) {
   const camera = useThree((state) => state.camera);
   const scene = useThree((state) => state.scene);
+  const size = useThree((state) => state.size);
   const canvas = useThree((state) => state.gl.domElement);
 
   useLayoutEffect(() => {
@@ -281,6 +305,8 @@ function DeviceProjectionDiagnostics({
     orientation.rollDeg,
     orientation.yawDeg,
     scene,
+    size.width,
+    size.height,
   ]);
 
   return null;

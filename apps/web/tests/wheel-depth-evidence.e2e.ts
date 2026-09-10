@@ -71,7 +71,7 @@ test("production pointer proves one contact-following rigid wheel tilt in both f
 }) => {
   await mkdir(evidenceDirectory, { recursive: true });
   await page.setViewportSize({ width: 1280, height: 960 });
-  await page.goto("/_spike/device", { waitUntil: "domcontentloaded" });
+  await page.goto("/_spike/device?projection-diagnostics=1", { waitUntil: "domcontentloaded" });
   const root = page.locator(".webpod-device-preview__device");
   const canvas = root.locator("canvas");
   await expect(root).toHaveAttribute("data-composite-tier", "T1");

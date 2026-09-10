@@ -1,0 +1,9 @@
+{
+  "scenario": "60 changed React pose commits each followed by one rendered screen frame",
+  "syncCalls": 120,
+  "transformReads": 120,
+  "layoutReads": 480,
+  "identicalCommitRenderPairs": 60,
+  "expectedSingleOwnerSyncCalls": 60,
+  "note": "Not a browser trace or elapsed-time measurement; proves duplicate work in current wiring under the stated sequence."
+}

@@ -1,3 +1,4 @@
+import { stickerHaptics } from './sticker-haptics'
 import { setStickerPackTucked } from './sticker-pack-tuck'
 import { animateStickerPackPresence } from './sticker-pack-presence'
 import { dismissStickerEditor, stickerToolEditorPropertyAtom } from './sticker-editor-model'
@@ -24,10 +25,13 @@ export const reportStickerArtworkReady = (id: string): void => { deviceStore.set
 let animationFrame: number | null = null
 let animationGeneration = 0
 let rearVisible = false
+/** Ownership of asynchronous geometry, including the release animation boundary. */
+export const stickerComputationEpochAtom = atom(0)
+const advanceComputationEpoch = (): void => { deviceStore.set(stickerComputationEpochAtom, value => value + 1) }
 let interactionGeneration = 0
 export const getStickerInteractionGeneration = (): number => interactionGeneration
 /** A new gesture/selection takes ownership from any pending completion. */
-export function supersedeStickerInteraction(): void { interactionGeneration += 1; deviceStore.set(stickerToolEditorPropertyAtom, null); stopStickerAnimation(); deviceStore.set(stickerPackTurnAtom, 0) }
+export function supersedeStickerInteraction(): void { stickerHaptics.cancel(); interactionGeneration += 1; advanceComputationEpoch(); deviceStore.set(stickerToolEditorPropertyAtom, null); stopStickerAnimation(); deviceStore.set(stickerPackTurnAtom, 0) }
 
 /** All semantic and pointer actions publish through the same public device store. */
 export function updateStickerInteraction(patch: Partial<StickerInteraction>): void {
@@ -49,6 +53,8 @@ export function stopStickerAnimation(): void {
 
 /** A new explicit intent abandons the carried print and restores the packet pose together. */
 export function resetStickerCarry(): void {
+  advanceComputationEpoch()
+  stickerHaptics.cancel()
   deviceStore.set(stickerToolEditorPropertyAtom, null)
   stopStickerAnimation()
   deviceStore.set(stickerDragOffsetAtom, null)
@@ -59,8 +65,9 @@ export function resetStickerCarry(): void {
 
 /** Cancels every transient gesture without changing an earned pack or saved placement. */
 export function cancelStickerInteraction(): void {
+  stickerHaptics.cancel()
   deviceStore.set(stickerToolEditorPropertyAtom, null)
-  interactionGeneration += 1
+  interactionGeneration += 1; advanceComputationEpoch()
   stopStickerAnimation()
   deviceStore.set(stickerPackTurnAtom, 0)
   deviceStore.set(stickerDetailIdAtom, null)
@@ -78,7 +85,7 @@ export function setStickerRearVisible(visible: boolean): void {
   rearVisible = visible
   if (!visible) {
     if (changed && deviceStore.get(stickerInteractionAtom).sourcePlacement == null) {
-      interactionGeneration += 1
+      interactionGeneration += 1; advanceComputationEpoch()
       stopStickerAnimation()
       animateStickerPackPresence(0, () => { if (!rearVisible) cancelStickerInteraction() })
     }
@@ -98,6 +105,7 @@ export function setStickerRearVisible(visible: boolean): void {
 
 /** Reduced motion uses the exact same stable state without scheduling an animation. */
 export function animateStickerValue(field: 'progress' | 'peel' | 'landing' | 'sheet' | 'return' | 'turn', spring: StickerSpring, reducedMotion: boolean, onComplete: () => void, direction = 1): void {
+  advanceComputationEpoch()
   stopStickerAnimation()
   const animation = animationGeneration, gesture = interactionGeneration
   const isCurrent = () => animation === animationGeneration && gesture === interactionGeneration

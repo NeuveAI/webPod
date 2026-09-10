@@ -1,3 +1,4 @@
+import { drainSteps } from './sticker-computation-steps';
 import { BufferGeometry, Float32BufferAttribute, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from 'three';
 import { DEVICE_LAYOUT } from './layout';
 import { stickerWrapSurface, type StickerWrapSurface } from './sticker-wrap';
@@ -69,7 +70,9 @@ export function stickerVisibleAspect(art: StickerArtwork): number {
 }
 
 /** Projects onto the exact rear mesh, including its rolled shoulder and normals. */
-export function createStickerSurfaceGeometry(art: StickerArtwork, placement: DeviceStickerPlacement, rear: BufferGeometry, preparedWrap?: StickerWrapSurface): BufferGeometry {
+export function createStickerSurfaceGeometry(art: StickerArtwork, placement: DeviceStickerPlacement, rear: BufferGeometry, preparedWrap?: StickerWrapSurface): BufferGeometry { return drainSteps(createStickerSurfaceGeometrySteps(art, placement, rear, preparedWrap)); }
+export function* createStickerSurfaceGeometrySteps(art: StickerArtwork, placement: DeviceStickerPlacement, rear: BufferGeometry, preparedWrap?: StickerWrapSurface) {
+  let stepCount = 0;
   const aspect = stickerVisibleAspect(art);
   if (![placement.x, placement.y, placement.width, placement.rotationDeg].every(Number.isFinite) || placement.width <= 0 || placement.surface !== 'back') {
     throw new Error('Invalid sticker placement');
@@ -95,6 +98,7 @@ export function createStickerSurfaceGeometry(art: StickerArtwork, placement: Dev
   const segments = STICKER_SURFACE.segments;
   try {
     for (let row = 0; row <= segments; row++) for (let col = 0; col <= segments; col++) {
+    if (++stepCount % 128 === 0) yield;
       const u = col / segments;
       const v = row / segments;
       const px = (u - .5) * width;
@@ -126,6 +130,7 @@ export function createStickerSurfaceGeometry(art: StickerArtwork, placement: Dev
       uvs.push((left + u * (right - left)) / art.width, 1 - (top + v * (bottom - top)) / art.height);
     }
     for (let row = 0; row < segments; row++) for (let col = 0; col < segments; col++) {
+    if (++stepCount % 128 === 0) yield;
       const a = row * (segments + 1) + col;
       const b = a + 1;
       const c = a + segments + 1;
@@ -145,14 +150,17 @@ export function createStickerSurfaceGeometry(art: StickerArtwork, placement: Dev
       const clearance = new Float32Array(p.count);
       const midpoint = new Vector3();
       for (let i = 0; i < indices.length; i += 3) {
+    if (++stepCount % 128 === 0) yield;
         const triangle = indices.slice(i, i + 3); let u = 0, v = 0; midpoint.set(0, 0, 0);
-        for (const id of triangle) { u += id % (segments + 1) / segments; v += Math.floor(id / (segments + 1)) / segments; midpoint.add(new Vector3().fromBufferAttribute(p, id)); }
+        for (const id of triangle) {
+    if (++stepCount % 128 === 0) yield; u += id % (segments + 1) / segments; v += Math.floor(id / (segments + 1)) / segments; midpoint.add(new Vector3().fromBufferAttribute(p, id)); }
         const px = (u / 3 - .5) * width, py = (v / 3 - .5) * height;
         const exact = corner.point(-(px * cosine - py * sine), -(px * sine + py * cosine));
         const sag = exact.distanceTo(midpoint.divideScalar(3));
         for (const id of triangle) clearance[id] = Math.max(clearance[id] ?? 0, sag);
       }
       for (let i = 0; i < p.count; i++) {
+    if (++stepCount % 128 === 0) yield;
         const lift = STICKER_SURFACE.lift + (clearance[i] ?? 0);
         p.setXYZ(i, p.getX(i) + n.getX(i) * lift, p.getY(i) + n.getY(i) * lift, p.getZ(i) + n.getZ(i) * lift);
       }
@@ -164,7 +172,9 @@ export function createStickerSurfaceGeometry(art: StickerArtwork, placement: Dev
 }
 
 /** Inextensible cylindrical peel: arc length follows the backing's original Y. */
-export function createStickerPeelGeometry(art: StickerArtwork, width: number, progress: number, segments = 24): BufferGeometry {
+export function createStickerPeelGeometry(art: StickerArtwork, width: number, progress: number, segments = 24): BufferGeometry { return drainSteps(createStickerPeelGeometrySteps(art, width, progress, segments)); }
+export function* createStickerPeelGeometrySteps(art: StickerArtwork, width: number, progress: number, segments = 24) {
+  let stepCount = 0;
   const height = width * stickerVisibleAspect(art);
   const amount = Math.max(0, Math.min(1, progress));
   if (!Number.isInteger(segments) || segments < 1) throw new Error('Invalid peel topology');
@@ -175,6 +185,7 @@ export function createStickerPeelGeometry(art: StickerArtwork, width: number, pr
   const curlLength = height * amount;
   const radius = height / Math.PI;
   for (let row = 0; row <= segments; row++) for (let col = 0; col <= segments; col++) {
+    if (++stepCount % 128 === 0) yield;
     const u = col / segments;
     const v = row / segments;
     const distance = v * height;
@@ -184,6 +195,7 @@ export function createStickerPeelGeometry(art: StickerArtwork, width: number, pr
     uvs.push((left + u * (right - left)) / art.width, 1 - (top + v * (bottom - top)) / art.height);
   }
   for (let row = 0; row < segments; row++) for (let col = 0; col < segments; col++) {
+    if (++stepCount % 128 === 0) yield;
     const a = row * (segments + 1) + col;
     const b = a + 1;
     const c = a + segments + 1;
@@ -199,8 +211,10 @@ export function createStickerPeelGeometry(art: StickerArtwork, width: number, pr
 }
 
 /** Lift from the saved rear pose: unpeeled vertices stay exactly on the original adhesive contact. */
-export function createRearStickerPeelGeometry(art: StickerArtwork, placement: DeviceStickerPlacement, rear: BufferGeometry, progress: number, prepared?: BufferGeometry, frontier = progress): BufferGeometry {
-  const surface = prepared?.clone() ?? createStickerSurfaceGeometry(art, placement, rear);
+export function createRearStickerPeelGeometry(art: StickerArtwork, placement: DeviceStickerPlacement, rear: BufferGeometry, progress: number, prepared?: BufferGeometry, frontier = progress): BufferGeometry { return drainSteps(createRearStickerPeelGeometrySteps(art, placement, rear, progress, prepared, frontier)); }
+export function* createRearStickerPeelGeometrySteps(art: StickerArtwork, placement: DeviceStickerPlacement, rear: BufferGeometry, progress: number, prepared?: BufferGeometry, frontier = progress) {
+  let stepCount = 0;
+  const surface = prepared?.clone() ?? (yield* createStickerSurfaceGeometrySteps(art, placement, rear));
   const amount = Math.max(0, Math.min(1, frontier));
   if (amount === 0) return surface;
   const output = surface.getAttribute('position'), normals = surface.getAttribute('normal');
@@ -212,12 +226,14 @@ export function createRearStickerPeelGeometry(art: StickerArtwork, placement: De
   const front = amount * segments, rowA = Math.min(segments - 1, Math.floor(front)), mix = front - rowA;
   const a = new Vector3(), b = new Vector3(), origin = new Vector3(), tangent = new Vector3(), normal = new Vector3(), normalB = new Vector3();
   for (let col = 0; col <= segments; col++) {
+    if (++stepCount % 128 === 0) yield;
     const ia = rowA * (segments + 1) + col, ib = ia + segments + 1;
     a.fromArray(source, ia * 3); b.fromArray(source, ib * 3); origin.copy(a).lerp(b, mix);
     tangent.copy(b).sub(a).normalize();
     normal.fromBufferAttribute(normals, ia); normalB.fromBufferAttribute(normals, ib); normal.lerp(normalB, mix);
     normal.addScaledVector(tangent, -normal.dot(tangent)).normalize();
     for (let row = 0; row <= segments; row++) {
+    if (++stepCount % 128 === 0) yield;
       if (row >= front) continue; // Exact immutable adhesive contact, including wrapped side/front.
       const distance = (front - row) / segments * height, bend = distance / radius;
       a.copy(origin).addScaledVector(tangent, -radius * Math.sin(bend)).addScaledVector(normal, radius * (1 - Math.cos(bend)));

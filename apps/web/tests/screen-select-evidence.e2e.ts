@@ -70,7 +70,7 @@ test("production screen reveal and restrained Select press survive both finishes
 }) => {
   await mkdir(evidenceDirectory, { recursive: true });
   await page.setViewportSize({ width: 1280, height: 960 });
-  await page.goto("/_spike/device", { waitUntil: "domcontentloaded" });
+  await page.goto("/_spike/device?projection-diagnostics=1", { waitUntil: "domcontentloaded" });
   await page.addStyleTag({
     content:
       "*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}",

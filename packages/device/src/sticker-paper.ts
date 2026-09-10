@@ -1,3 +1,4 @@
+import { drainSteps } from './sticker-computation-steps';
 import { BufferGeometry, Float32BufferAttribute, PlaneGeometry, Vector3 } from 'three';
 
 /** Pixel-calibrated stock construction; visual analogues, not manufacturing measurements. */
@@ -14,6 +15,9 @@ export function stickerPaperBow(localX: number, width: number, pixel: number, li
  * intersect a steep curl. The closed perimeter exposes a genuine paper edge.
  */
 export function createStickerPaperGeometry(width: number, height: number, pixel: number, liner: boolean, curlProgress = 1) {
+  return drainSteps(stickerPaperSteps(width, height, pixel, liner, curlProgress));
+}
+export function* stickerPaperSteps(width: number, height: number, pixel: number, liner: boolean, curlProgress = 1) {
   if (![width, height, pixel].every(value => Number.isFinite(value) && value > 0)) throw new RangeError('paper dimensions must be positive and finite');
   const segments = STICKER_PAPER.segments;
   const front = new PlaneGeometry(width, height, segments, segments);
@@ -22,18 +26,22 @@ export function createStickerPaperGeometry(width: number, height: number, pixel:
   const curl = Math.max(0, Math.min(1, curlProgress));
   const radius = reach / (STICKER_PAPER.curlAngle * (curl || 1));
   for (let index = 0; index < positions.count; index++) {
+    if (index % 128 === 0) yield;
     const x = positions.getX(index), y = positions.getY(index);
     const distance = liner && curl > 0 ? Math.max(0, reach - ((width / 2 - x) + (height / 2 - y)) / Math.SQRT2) : 0;
     const angle = distance / radius;
     const contraction = (distance - radius * Math.sin(angle)) / Math.SQRT2;
     positions.setXYZ(index, x - contraction, y - contraction, stickerPaperBow(x, width, pixel, liner) + radius * (1 - Math.cos(angle)));
   }
+  yield;
   front.computeVertexNormals(); front.computeBoundingSphere();
+  yield;
   const back = front.clone();
   const rearPositions = back.getAttribute('position');
   const normals = front.getAttribute('normal');
   const thickness = pixel * (liner ? STICKER_PAPER.linerThicknessPx : STICKER_PAPER.sleeveThicknessPx);
   for (let index = 0; index < positions.count; index++) {
+    if (index % 128 === 0) yield;
     rearPositions.setXYZ(index, positions.getX(index) - normals.getX(index) * thickness, positions.getY(index) - normals.getY(index) * thickness, positions.getZ(index) - normals.getZ(index) * thickness);
   }
   back.computeBoundingSphere();
@@ -47,6 +55,7 @@ export function createStickerPaperGeometry(width: number, height: number, pixel:
   const edgeVertices: number[] = [];
   const point = new Vector3();
   for (let index = 0; index < boundary.length; index++) {
+    if (index % 32 === 0) yield;
     const a = boundary[index], b = boundary[(index + 1) % boundary.length];
     if (a === undefined || b === undefined) continue;
     for (const [attribute, vertex] of [[positions, a], [rearPositions, a], [positions, b], [positions, b], [rearPositions, a], [rearPositions, b]] as const) {
@@ -55,6 +64,7 @@ export function createStickerPaperGeometry(width: number, height: number, pixel:
   }
   const edge = new BufferGeometry();
   edge.setAttribute('position', new Float32BufferAttribute(edgeVertices, 3));
+  yield;
   edge.computeVertexNormals(); edge.computeBoundingSphere();
   return { front, back, edge };
 }

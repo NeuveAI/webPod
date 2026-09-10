@@ -80,7 +80,10 @@ function sourceIdentityHealth(): Plugin {
   }
 }
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
+  // The build launcher owns this value across Start’s separate config loads.
+  const buildIdentity = command === 'build' ? process.env['WEBPOD_BUILD_ID'] : 'development'
+  if (!buildIdentity || command === 'build' && !/^[0-9a-f-]{36}$/.test(buildIdentity)) throw new Error('Build identity missing; use bun run build.')
   const workspaceRoot = resolve(import.meta.dirname, '..', '..')
   syncStickerAssets(workspaceRoot)
   const spotifyEnv = loadEnv(mode, workspaceRoot, 'SPOTIFY_')
@@ -96,6 +99,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     envDir: workspaceRoot,
+    define: { __WEBPOD_BUILD_ID__: JSON.stringify(buildIdentity) },
     // Start removes server handlers from browser modules; its raw dependency scanner must
     // likewise leave this Bun-only workspace boundary outside client pre-bundling.
     optimizeDeps: { exclude: ['@webpod/server-core'] },

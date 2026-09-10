@@ -1,0 +1,63 @@
+[
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "metrics": {
+      "width": 263.180385,
+      "height": 440.549432,
+      "left": 63.4098075,
+      "top": 201.725284,
+      "canvas": {
+        "width": 390,
+        "height": 844
+      },
+      "distance": "2004.0212",
+      "padding": "48"
+    },
+    "probes": [
+      {
+        "name": "edge35",
+        "active": "active",
+        "orientation": {
+          "pitchDeg": 2.8000000000000003,
+          "yawDeg": 14.700000000000045,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "lcd",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "wheel",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "select",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      }
+    ],
+    "rotated": {
+      "x": "0.637203",
+      "y": "0.572625",
+      "distance": "2004.0212"
+    }
+  }
+]

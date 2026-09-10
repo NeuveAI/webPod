@@ -1,0 +1,246 @@
+[
+  {
+    "viewport": {
+      "width": 320,
+      "height": 568
+    },
+    "metrics": {
+      "width": 246.15488,
+      "height": 412.0495,
+      "left": 36.922560000000004,
+      "top": 51.97524999999999,
+      "canvas": {
+        "width": 320,
+        "height": 500
+      },
+      "distance": "3218.0196",
+      "padding": "8"
+    },
+    "probes": [
+      {
+        "name": "edge35",
+        "active": "active",
+        "orientation": {
+          "pitchDeg": 2.8000000000000003,
+          "yawDeg": 14.700000000000045,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "lcd",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "wheel",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "select",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      }
+    ],
+    "rotated": {
+      "x": "0.690998",
+      "y": "0.891777",
+      "distance": "3218.0196"
+    }
+  },
+  {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "metrics": {
+      "width": 349.46808,
+      "height": 584.990316,
+      "left": 20.265960000000007,
+      "top": 103.504842,
+      "canvas": {
+        "width": 390,
+        "height": 776
+      },
+      "distance": "3515.1573",
+      "padding": "8"
+    },
+    "probes": [
+      {
+        "name": "edge35",
+        "active": "active",
+        "orientation": {
+          "pitchDeg": 2.8000000000000003,
+          "yawDeg": 14.700000000000045,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "lcd",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "wheel",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "select",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      }
+    ],
+    "rotated": {
+      "x": "0.799541",
+      "y": "0.814228",
+      "distance": "3515.1573"
+    }
+  },
+  {
+    "viewport": {
+      "width": 844,
+      "height": 390
+    },
+    "metrics": {
+      "width": 156.925342,
+      "height": 262.684219,
+      "left": 343.537329,
+      "top": 37.65789050000001,
+      "canvas": {
+        "width": 844,
+        "height": 322
+      },
+      "distance": "3250.5005",
+      "padding": "8"
+    },
+    "probes": [
+      {
+        "name": "edge35",
+        "active": "active",
+        "orientation": {
+          "pitchDeg": 2.8000000000000003,
+          "yawDeg": 14.700000000000045,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "lcd",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "wheel",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "select",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      }
+    ],
+    "rotated": {
+      "x": "0.166887",
+      "y": "0.882588",
+      "distance": "3250.5005"
+    }
+  },
+  {
+    "viewport": {
+      "width": 1280,
+      "height": 900
+    },
+    "metrics": {
+      "width": 407.95327999999995,
+      "height": 682.8912,
+      "left": 436.02336,
+      "top": 108.55439999999999,
+      "canvas": {
+        "width": 1280,
+        "height": 900
+      },
+      "distance": "1387.7460",
+      "padding": "48"
+    },
+    "probes": [
+      {
+        "name": "edge35",
+        "active": "active",
+        "orientation": {
+          "pitchDeg": 2.8000000000000003,
+          "yawDeg": 14.700000000000045,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "lcd",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "wheel",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      },
+      {
+        "name": "select",
+        "active": null,
+        "orientation": {
+          "pitchDeg": 0,
+          "yawDeg": 0,
+          "rollDeg": 0
+        }
+      }
+    ],
+    "rotated": {
+      "x": "0.320485",
+      "y": "0.846280",
+      "distance": "1387.7460"
+    }
+  }
+]

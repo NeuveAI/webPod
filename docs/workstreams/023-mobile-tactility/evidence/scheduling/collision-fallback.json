@@ -1,0 +1,9 @@
+{
+  "exactSnapshotParity": true,
+  "triangleCount": 2240,
+  "nodeCount": 895,
+  "timerTurnsDuringBuild": 3,
+  "emptyParity": true,
+  "abortBeforeAndDuring": true,
+  "workerUnavailableRecovery": true
+}

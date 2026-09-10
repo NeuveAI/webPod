@@ -1,0 +1,9 @@
+{
+  "complete": true,
+  "incompleteThenReady": true,
+  "failedLink": true,
+  "missingHandle": true,
+  "contextLost": true,
+  "deadline": true,
+  "disposedStalePoll": true
+}

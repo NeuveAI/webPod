@@ -16,6 +16,7 @@ import { Route as ProbeCapabilitiesRouteImport } from './routes/[_]probe.capabil
 import { Route as ProbeCompositeRouteImport } from './routes/[_]probe.composite'
 import { Route as SpikeDeviceRouteImport } from './routes/[_]spike.device'
 import { Route as ApiStickersRouteImport } from './routes/api.stickers'
+import { Route as ApiVersionRouteImport } from './routes/api.version'
 import { Route as ApiAppleDeveloperTokenRouteImport } from './routes/api.apple.developer-token'
 import { Route as ApiAppleStickersRouteImport } from './routes/api.apple.stickers'
 import { Route as ApiSpotifyCallbackRouteImport } from './routes/api.spotify.callback'
@@ -61,6 +62,11 @@ const SpikeDeviceRoute = SpikeDeviceRouteImport.update({
 const ApiStickersRoute = ApiStickersRouteImport.update({
   id: '/api/stickers',
   path: '/api/stickers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVersionRoute = ApiVersionRouteImport.update({
+  id: '/api/version',
+  path: '/api/version',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAppleDeveloperTokenRoute = ApiAppleDeveloperTokenRouteImport.update({
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
   '/api/stickers': typeof ApiStickersRouteWithChildren
+  '/api/version': typeof ApiVersionRoute
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
   '/api/apple/stickers': typeof ApiAppleStickersRoute
   '/api/spotify/callback': typeof ApiSpotifyCallbackRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
   '/api/stickers': typeof ApiStickersRouteWithChildren
+  '/api/version': typeof ApiVersionRoute
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
   '/api/apple/stickers': typeof ApiAppleStickersRoute
   '/api/spotify/callback': typeof ApiSpotifyCallbackRoute
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/_probe/composite': typeof ProbeCompositeRoute
   '/_spike/device': typeof SpikeDeviceRoute
   '/api/stickers': typeof ApiStickersRouteWithChildren
+  '/api/version': typeof ApiVersionRoute
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
   '/api/apple/stickers': typeof ApiAppleStickersRoute
   '/api/spotify/callback': typeof ApiSpotifyCallbackRoute
@@ -190,6 +199,7 @@ export interface FileRouteTypes {
     | '/_probe/composite'
     | '/_spike/device'
     | '/api/stickers'
+    | '/api/version'
     | '/api/apple/developer-token'
     | '/api/apple/stickers'
     | '/api/spotify/callback'
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/_probe/composite'
     | '/_spike/device'
     | '/api/stickers'
+    | '/api/version'
     | '/api/apple/developer-token'
     | '/api/apple/stickers'
     | '/api/spotify/callback'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/_probe/composite'
     | '/_spike/device'
     | '/api/stickers'
+    | '/api/version'
     | '/api/apple/developer-token'
     | '/api/apple/stickers'
     | '/api/spotify/callback'
@@ -251,6 +263,7 @@ export interface RootRouteChildren {
   ProbeCompositeRoute: typeof ProbeCompositeRoute
   SpikeDeviceRoute: typeof SpikeDeviceRoute
   ApiStickersRoute: typeof ApiStickersRouteWithChildren
+  ApiVersionRoute: typeof ApiVersionRoute
   ApiAppleDeveloperTokenRoute: typeof ApiAppleDeveloperTokenRoute
   ApiAppleStickersRoute: typeof ApiAppleStickersRoute
   ApiSpotifyCallbackRoute: typeof ApiSpotifyCallbackRoute
@@ -308,6 +321,13 @@ declare module '@tanstack/react-router' {
       path: '/api/stickers'
       fullPath: '/api/stickers'
       preLoaderRoute: typeof ApiStickersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/version': {
+      id: '/api/version'
+      path: '/api/version'
+      fullPath: '/api/version'
+      preLoaderRoute: typeof ApiVersionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/apple/developer-token': {
@@ -418,6 +438,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProbeCompositeRoute: ProbeCompositeRoute,
   SpikeDeviceRoute: SpikeDeviceRoute,
   ApiStickersRoute: ApiStickersRouteWithChildren,
+  ApiVersionRoute: ApiVersionRoute,
   ApiAppleDeveloperTokenRoute: ApiAppleDeveloperTokenRoute,
   ApiAppleStickersRoute: ApiAppleStickersRoute,
   ApiSpotifyCallbackRoute: ApiSpotifyCallbackRoute,

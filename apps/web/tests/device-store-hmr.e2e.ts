@@ -8,7 +8,7 @@ test.use({ channel: 'chrome', launchOptions: { args: ['--enable-blink-features=C
 
 test('hot updates preserve the store used by mounted orientation callbacks', async ({ page }) => {
   await installDeterministicAppleMusic(page)
-  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  await page.goto('/?projection-diagnostics=1', { waitUntil: 'domcontentloaded' })
   const root = page.locator('.webpod-device-preview')
   const canvas = root.locator('canvas')
   await expect(canvas).toHaveAttribute('data-wp-scene-orientation', '0,0,0')
