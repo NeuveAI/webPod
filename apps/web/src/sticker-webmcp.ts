@@ -1,10 +1,11 @@
+import { setStickerPackTucked, stickerPackTuckAtom, stickerPackTuckedAtom } from './sticker-pack-tuck'
 import { atom } from 'jotai'
 import { deviceStore, stickerCollectionStatusAtom, stickerInteractionAtom, stickerInventoryAtom } from '@webpod/state'
 import { getSticker, STICKER_CATALOGUE, stickerWear, isStickerPlacement, type StickerPlacement } from '@webpod/stickers'
 import type { StickerToolControls } from '@webpod/tools'
 import { activeStickerCollectionAtom, requestedStickerCollectionAtom, stickerCollectionsAtom, stickerCollectionUsableAtom, stickerPreparationIdsAtom, stickerPreparedIdsAtom, stickerSheetRevealAtom, stickerPlacementForIntent } from './sticker-collections-model'
 import { animateStickerValue, cancelStickerInteraction, getStickerInteractionGeneration, resetStickerCarry, supersedeStickerInteraction, updateStickerInteraction, stickerArtworkFailureAtom } from './sticker-interaction'
-import { constrainedStickerEdit, dismissStickerEditor, sameStickerPose, stickerEditPending, stickerEditorPendingAtom } from './sticker-editor-model'
+import { constrainedStickerEdit, dismissStickerEditor, sameStickerPose, stickerEditPending, stickerEditorPendingAtom, stickerToolEditorPropertyAtom } from './sticker-editor-model'
 
 /** Narrow live seam to the same mounted handlers used by the physical overlay. */
 export interface StickerUiActions {
@@ -43,7 +44,7 @@ export function readStickerPageState() {
   const unavailable = mounted === null || deviceStore.get(stickerInventoryAtom) === null || !rearReady
   const error = deviceStore.get(stickerArtworkFailureAtom) ?? operation?.error ?? null
   const status = pendingSaves > 0 ? 'saving' : unavailable ? 'unavailable' : error !== null || collectionStatus === 'error' ? 'error' : operation?.saving ? 'saving' : preparing ? 'loading' : animating ? 'animating' : usable ? 'ready' : 'unavailable'
-  return { status, interactionReady: status === 'ready' && !humanBusy, pendingSaves, rearReady, humanBusy, collectionStatus, loadedItems, totalItems: ids.length, progressPercent: ids.length === 0 ? null : loadedItems / ids.length * 100, startedAtMs: save?.startedAtMs ?? operation?.startedAtMs ?? null, elapsedMs: save !== null ? Date.now() - save.startedAtMs : operation === null ? null : (operation.completedAtMs ?? Date.now()) - operation.startedAtMs, stage: interaction.stage, packOpen: interaction.progress > .9, sheetOpen: deviceStore.get(stickerSheetRevealAtom) > .98 }
+  return { status, interactionReady: status === 'ready' && !humanBusy, pendingSaves, rearReady, humanBusy, collectionStatus, loadedItems, totalItems: ids.length, progressPercent: ids.length === 0 ? null : loadedItems / ids.length * 100, startedAtMs: save?.startedAtMs ?? operation?.startedAtMs ?? null, elapsedMs: save !== null ? Date.now() - save.startedAtMs : operation === null ? null : (operation.completedAtMs ?? Date.now()) - operation.startedAtMs, stage: interaction.stage, packOpen: interaction.progress > .9 && !deviceStore.get(stickerPackTuckedAtom), sheetOpen: deviceStore.get(stickerSheetRevealAtom) > .98 && !deviceStore.get(stickerPackTuckedAtom), packClosing: deviceStore.get(stickerPackTuckedAtom) && deviceStore.get(stickerPackTuckAtom) < .99 }
 }
 /** Full catalogue status includes untouched genres and never infers ownership. */
 export function readStickerList() {
@@ -100,18 +101,21 @@ export function mountStickerToolControls(actions: () => StickerUiActions, option
       if (stickerEditPending(id)) throw new Error('This sticker already has a pending save.')
       const saved = inventory.placements.find(item => item.stickerId === id)
       const slot = deviceStore.get(activeStickerCollectionAtom)?.slots.find(item => item.art.id === id)
-      if (source === 'placed' ? saved === undefined : saved !== undefined || slot?.state !== 'earned' || deviceStore.get(stickerInteractionAtom).progress < .99) throw new Error('Sticker is not available at that source. Collection grabs require its current open UI and an earned, unsealed slot.')
+      if (source === 'placed' ? saved === undefined : saved !== undefined || slot?.state !== 'earned' || deviceStore.get(stickerPackTuckedAtom) || deviceStore.get(stickerInteractionAtom).progress < .99) throw new Error('Sticker is not available at that source. Collection grabs require its current open UI and an earned, unsealed slot.')
       begin(); dismissStickerEditor()
       if (saved !== undefined) actions().lift(saved)
       else { supersedeStickerInteraction(); resetStickerCarry(); deviceStore.set(stickerSheetRevealAtom, 1) }
       const draft = { ...stickerPlacementForIntent(art.id, saved ?? null, .25), wear: saved?.wear ?? stickerWear(inventory, id) }
       updateStickerInteraction({ selectedStickerId: art.id, sourcePlacement: saved ?? null, previewPlacement: draft, landing: .97, peel: .75, stage: 'placing' })
       heldGeneration = getStickerInteractionGeneration(); inventoryAtGrab = inventory
+      deviceStore.set(stickerToolEditorPropertyAtom, 'rotationDeg')
+      setStickerPackTucked(true)
       complete(); return readStickerList()
     },
     release: async signal => { requireHeld(signal); begin(); supersedeStickerInteraction(); clearHeld(); updateStickerInteraction({ stage: deviceStore.get(stickerInteractionAtom).progress > .9 ? 'open' : 'tease' }); complete(); return readStickerList() },
     rotate: async (degrees, signal) => {
       const draft = requireHeld(signal); begin()
+      deviceStore.set(stickerToolEditorPropertyAtom, 'rotationDeg')
       const next = constrainedStickerEdit(draft, 'rotationDeg', draft.rotationDeg + degrees)
       updateStickerInteraction({ previewPlacement: next }); complete()
       return { ...readStickerList(), requestedDegrees: degrees, appliedDegrees: next.rotationDeg - draft.rotationDeg }
@@ -121,6 +125,13 @@ export function mountStickerToolControls(actions: () => StickerUiActions, option
       const next = constrainedStickerEdit(draft, 'wear', (draft.wear ?? 0) + amount)
       updateStickerInteraction({ previewPlacement: next }); complete()
       return { ...readStickerList(), requestedAmount: amount, appliedAmount: (next.wear ?? 0) - (draft.wear ?? 0) }
+    },
+    scale: async (percent, signal) => {
+      const draft = requireHeld(signal); begin()
+      deviceStore.set(stickerToolEditorPropertyAtom, 'width')
+      const next = constrainedStickerEdit(draft, 'width', draft.width * (1 + percent / 100))
+      updateStickerInteraction({ previewPlacement: next }); complete()
+      return { ...readStickerList(), requestedPercent: percent, appliedPercent: (next.width / draft.width - 1) * 100 }
     },
     place: async (x, y, signal) => {
       const draft = requireHeld(signal), placement = { ...draft, x, y }

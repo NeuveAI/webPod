@@ -1,6 +1,7 @@
+import { setStickerPackTucked } from './sticker-pack-tuck'
 import { atom } from 'jotai'
 import { selectAtom } from 'jotai/utils'
-import { deviceStore, stickerInventoryAtom } from '@webpod/state'
+import { deviceStore, stickerInventoryAtom, stickerInteractionAtom } from '@webpod/state'
 import { isStickerPlacement, type StickerPlacement } from '@webpod/stickers'
 
 export const STICKER_SELECT_TRAVEL = 7
@@ -16,6 +17,13 @@ export interface StickerEditorState {
 export const stickerEditorAtom = atom<StickerEditorState | null>(null)
 export const stickerEditorFailureAtom = atom<{ readonly stickerId: string; readonly message: string; readonly attempted?: StickerPlacement; readonly expected?: StickerPlacement } | null>(null)
 export const stickerEditorPendingAtom = atom<Readonly<Record<string, StickerPlacement>>>({})
+/** Presentation of the tool-owned carry; never overlays the saved inventory draft. */
+export const stickerToolEditorPropertyAtom = atom<StickerEditorProperty | null>(null)
+export const stickerToolEditorAtom = atom<StickerEditorState | null>(get => {
+  const property = get(stickerToolEditorPropertyAtom), held = get(stickerInteractionAtom)
+  if (property === null || held.previewPlacement === null || !['placing', 'settling'].includes(held.stage)) return null
+  return { source: held.sourcePlacement ?? held.previewPlacement, draft: held.previewPlacement, property, phase: get(stickerEditorPendingAtom)[held.previewPlacement.stickerId] === undefined ? 'editing' : 'saving', message: null, keyboard: false }
+})
 export const stickerEditorUndoAtom = atom<{ readonly before: StickerPlacement; readonly after: StickerPlacement } | null>(null)
 // Handle mode is independent of the current edit property: adjusting wear must
 // not silently switch scale grips back to rotation.
@@ -41,6 +49,7 @@ const projectedEditorPlacementsAtom = atom((get) => {
 /** Metadata-only editor publications keep the rendered placement identity. */
 export const stickerEditorPlacementsAtom = selectAtom(projectedEditorPlacementsAtom, placements => placements, (a, b) => a.length === b.length && a.every((placement, index) => placement === b[index]))
 export function selectStickerEditor(source: StickerPlacement, keyboard = false): void {
+  setStickerPackTucked(true)
   deviceStore.set(stickerEditorHandleModeAtom, 'rotationDeg')
   deviceStore.set(stickerEditorFailureAtom, null)
   deviceStore.set(stickerEditorAtom, { source, draft: source, property: 'rotationDeg', phase: stickerEditPending(source.stickerId) ? 'saving' : 'editing', message: null, keyboard })

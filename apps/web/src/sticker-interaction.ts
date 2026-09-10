@@ -1,4 +1,6 @@
+import { setStickerPackTucked } from './sticker-pack-tuck'
 import { animateStickerPackPresence } from './sticker-pack-presence'
+import { dismissStickerEditor, stickerToolEditorPropertyAtom } from './sticker-editor-model'
 import { deviceStore, stickerInteractionAtom, stickerInventoryAtom, setStickerInteractionActionAtom, INITIAL_STICKER_INTERACTION, type StickerInteraction } from '@webpod/state'
 import type { PointerMotionSample } from './device-orientation-motion'
 import { advanceStickerSpring, resolveStickerPullRelease, type StickerSpring } from './sticker-motion'
@@ -25,7 +27,7 @@ let rearVisible = false
 let interactionGeneration = 0
 export const getStickerInteractionGeneration = (): number => interactionGeneration
 /** A new gesture/selection takes ownership from any pending completion. */
-export function supersedeStickerInteraction(): void { interactionGeneration += 1; stopStickerAnimation(); deviceStore.set(stickerPackTurnAtom, 0) }
+export function supersedeStickerInteraction(): void { interactionGeneration += 1; deviceStore.set(stickerToolEditorPropertyAtom, null); stopStickerAnimation(); deviceStore.set(stickerPackTurnAtom, 0) }
 
 /** All semantic and pointer actions publish through the same public device store. */
 export function updateStickerInteraction(patch: Partial<StickerInteraction>): void {
@@ -47,6 +49,7 @@ export function stopStickerAnimation(): void {
 
 /** A new explicit intent abandons the carried print and restores the packet pose together. */
 export function resetStickerCarry(): void {
+  deviceStore.set(stickerToolEditorPropertyAtom, null)
   stopStickerAnimation()
   deviceStore.set(stickerDragOffsetAtom, null)
   deviceStore.set(stickerCarryAnchorAtom, null)
@@ -56,6 +59,7 @@ export function resetStickerCarry(): void {
 
 /** Cancels every transient gesture without changing an earned pack or saved placement. */
 export function cancelStickerInteraction(): void {
+  deviceStore.set(stickerToolEditorPropertyAtom, null)
   interactionGeneration += 1
   stopStickerAnimation()
   deviceStore.set(stickerPackTurnAtom, 0)
@@ -138,6 +142,8 @@ export function releaseStickerPull(samples: readonly PointerMotionSample[], time
 
 /** Keyboard/click equivalent of pulling the pack lip. Interruptible by a new drag. */
 export function revealStickerPack(reducedMotion: boolean): void {
+  dismissStickerEditor()
+  setStickerPackTucked(false)
   supersedeStickerInteraction()
   resetStickerCarry()
   const inventory = deviceStore.get(stickerInventoryAtom)
@@ -150,6 +156,7 @@ export function revealStickerPack(reducedMotion: boolean): void {
 
 /** Keeps a missed or cancelled peel continuous from its actual pointer position to its seat. */
 export function returnStickerToSheet(reducedMotion: boolean): void {
+  setStickerPackTucked(false)
   supersedeStickerInteraction()
   updateStickerInteraction({ stage: 'peeling' })
   animateStickerValue('return', { position: 1, velocity: 0, target: 0 }, reducedMotion, () => { deviceStore.set(stickerDragOffsetAtom, null); updateStickerInteraction({ stage: 'open', peel: 0, previewPlacement: null, landing: 0, sourcePlacement: null, returnToSheet: false }) })

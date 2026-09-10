@@ -4,7 +4,7 @@ import { STICKER_GENRES, type StickerInventory, type StickerPlacement } from '@w
 import { getStickerToolControls, mountStickerToolControls, readStickerList, readStickerPageState, type StickerUiActions } from './sticker-webmcp'
 import { activeStickerCollectionAtom, selectedStickerGenreAtom, stickerPreparedIdsAtom } from './sticker-collections-model'
 import { cancelStickerInteraction, revealStickerPack, setStickerRearVisible, supersedeStickerInteraction, updateStickerInteraction } from './sticker-interaction'
-import { stickerEditorPendingAtom } from './sticker-editor-model'
+import { stickerEditorPendingAtom, stickerToolEditorAtom } from './sticker-editor-model'
 import { createDeviceStateTool } from './device-state-webmcp'
 import { createDevicePreviewStore } from './device-preview-orientation'
 
@@ -132,6 +132,33 @@ describe('mounted sticker adapter shared state and persistence', () => {
     expect(deviceStore.get(stickerInteractionAtom).previewPlacement).toMatchObject({ rotationDeg: expect.closeTo(180, 3), wear: 1 })
     await controls.release(signal())
     expect(readStickerList().held).toBeNull(); expect(inventory().placements).toEqual([original]); expect(saved).toEqual([])
+  })
+  test('45 percent scaling updates the visible draft, preserves pose, and persists only on placement', async () => {
+    const controls = mount()
+    await controls.grab(original.stickerId, 'placed', signal())
+    expect(deviceStore.get(stickerToolEditorAtom)?.draft).toEqual(original)
+    expect(await controls.scale(45, signal())).toMatchObject({ requestedPercent: 45, appliedPercent: expect.closeTo(45), held: { scale: original.width * 1.45 } })
+    expect(deviceStore.get(stickerToolEditorAtom)).toMatchObject({ property: 'width', draft: { ...original, width: original.width * 1.45 } })
+    expect(inventory().placements).toEqual([original])
+    await controls.place(original.x, original.y, signal())
+    expect(saved).toEqual([{ ...original, width: original.width * 1.45 }])
+    expect(deviceStore.get(stickerToolEditorAtom)).toBeNull()
+  })
+  test('scaling clamps to domain limits, release discards size, and human takeover removes tool HUD', async () => {
+    const controls = mount()
+    await controls.grab(original.stickerId, 'placed', signal())
+    await controls.scale(10000, signal())
+    expect(readStickerList().held?.scale).toBeCloseTo(1.2, 4)
+    await controls.scale(-100, signal())
+    expect(readStickerList().held?.scale).toBeCloseTo(.08, 4)
+    await controls.release(signal())
+    expect(deviceStore.get(stickerToolEditorAtom)).toBeNull()
+    expect(inventory().placements).toEqual([original])
+    await controls.grab(original.stickerId, 'placed', signal())
+    supersedeStickerInteraction()
+    expect(deviceStore.get(stickerToolEditorAtom)).toBeNull()
+    await expect(controls.scale(45, signal())).rejects.toThrow('agent-held')
+    expect(saved).toEqual([])
   })
   test('placed release restores exact origin; placement keeps all properties and passes expectedSource', async () => {
     const controls = mount(); await controls.grab('PW-B01', 'placed', signal()); await controls.rotate(20, signal()); await controls.wear(.2, signal()); await controls.release(signal())

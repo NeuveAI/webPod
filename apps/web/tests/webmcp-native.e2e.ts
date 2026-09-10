@@ -18,7 +18,7 @@ interface BrowserModelContext {
 }
 
 const coreNames = ['webpod_set_volume', 'webpod_debug_trace', 'webpod_device_state', 'webpod_list_status', 'webpod_navigate_list', 'webpod_select_item', 'webpod_page_state', 'webpod_click_wheel', 'webpod_rotate_ipod', 'webpod_flick_ipod']
-const stickerNames = ['webpod_open_sticker_pack', 'webpod_close_sticker_pack', 'webpod_navigate_sticker_collection', 'webpod_sticker_list', 'webpod_get_sticker', 'webpod_release_sticker', 'webpod_rotate_sticker', 'webpod_add_sticker_wear', 'webpod_place_sticker']
+const stickerNames = ['webpod_open_sticker_pack', 'webpod_close_sticker_pack', 'webpod_navigate_sticker_collection', 'webpod_sticker_list', 'webpod_get_sticker', 'webpod_release_sticker', 'webpod_rotate_sticker', 'webpod_scale_sticker', 'webpod_add_sticker_wear', 'webpod_place_sticker']
 const stickerMocks = new WeakMap<Page, NativeStickerMock>()
 const cases: Eval[] = fixture.map(entry => ({ ...entry, messages: entry.messages.map(message => ({ ...message, role: 'user', type: 'message' })) }))
 
@@ -325,14 +325,22 @@ test('native held placed-sticker edits release to exact origin and failed save r
   expect(mock.placementWrites()).toBe(0)
   await execute(page, 'webpod_get_sticker', { stickerId: 'PW-B01', source: 'placed' })
   expect(await execute(page, 'webpod_sticker_list')).toMatchObject({ held: { placement: original } })
+  await execute(page, 'webpod_scale_sticker', { percent: 45 })
+  const hud = page.locator('[data-sticker-editor]')
+  await expect(hud).toBeVisible()
+  await expect(hud).toHaveAttribute('data-editor-owner', 'agent')
+  await expect(hud).toHaveAttribute('data-hud-mode', 'scale')
+  await expect(hud).toHaveAttribute('data-hud-width', String(original.width * 1.45))
+  await page.screenshot({ path: test.info().outputPath('native-sticker-scale.png') })
   await execute(page, 'webpod_rotate_sticker', { degrees: 15 })
+  await expect(hud).toHaveAttribute('data-hud-mode', 'rotate')
   await execute(page, 'webpod_add_sticker_wear', { amount: .25 })
   mock.failNextPlacement()
   await expect(execute(page, 'webpod_place_sticker', { x: .55, y: .56 })).rejects.toThrow()
   expect(mock.inventory().placements).toEqual([original])
   expect(await execute(page, 'webpod_sticker_list')).toMatchObject({ held: { stickerId: 'PW-B01', source: 'placed' } })
   await execute(page, 'webpod_place_sticker', { x: .55, y: .56 })
-  expect(mock.inventory().placements).toEqual([{ ...original, x: .55, y: .56, rotationDeg: 20, wear: .35 }])
+  expect(mock.inventory().placements).toEqual([{ ...original, width: original.width * 1.45, x: .55, y: .56, rotationDeg: 20, wear: .35 }])
   await expect.poll(async () => object(await execute(page, 'webpod_sticker_list'))['held']).toBeNull()
   await page.reload({ waitUntil: 'domcontentloaded' })
   await openStickerTools(page)

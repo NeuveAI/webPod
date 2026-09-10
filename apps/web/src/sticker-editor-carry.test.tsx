@@ -1,11 +1,11 @@
 import { expect, test } from 'bun:test'
 import { act } from 'react'
 import { createRequire } from 'node:module'
-import { deviceStore, stickerInteractionAtom } from '@webpod/state'
+import { deviceStore, stickerInteractionAtom, stickerInventoryAtom, receiveStickerInventoryActionAtom, resetStickerCollectionActionAtom } from '@webpod/state'
 import { stickerProjectionVersionAtom } from './sticker-collections-model'
 import { updateStickerInteraction } from './sticker-interaction'
 import { StickerEditor } from './sticker-editor'
-import { resetStickerEditor, selectStickerEditor, setStickerEditorProperty, previewStickerEdit, stickerEditorAtom, dismissStickerEditor } from './sticker-editor-model'
+import { resetStickerEditor, selectStickerEditor, setStickerEditorProperty, previewStickerEdit, stickerEditorAtom, dismissStickerEditor, stickerToolEditorPropertyAtom } from './sticker-editor-model'
 
 test('moving suppresses all appearance controls, while idle selection retains rotation and wear', async () => {
   const require = createRequire(new URL('../../../packages/composite/package.json', import.meta.url))
@@ -18,6 +18,7 @@ test('moving suppresses all appearance controls, while idle selection retains ro
   globalThis.matchMedia = query => ({ matches: reducedMotion, media: query, onchange: null, addListener() {}, removeListener() {}, addEventListener() {}, removeEventListener() {}, dispatchEvent: () => true })
   const oldRequest = globalThis.requestAnimationFrame, oldCancel = globalThis.cancelAnimationFrame
   globalThis.requestAnimationFrame = () => 1; globalThis.cancelAnimationFrame = () => {}
+  const initialInventory = deviceStore.get(stickerInventoryAtom)
   const initial = deviceStore.get(stickerInteractionAtom)
   const { createRoot } = await import('react-dom/client')
   const host = document.createElement('div'); document.body.append(host); const root = createRoot(host)
@@ -59,11 +60,25 @@ test('moving suppresses all appearance controls, while idle selection retains ro
       expect(host.querySelector('[data-sticker-editor]')).toBeNull()
       expect(host.querySelector('svg, button, input')).toBeNull()
     }
+    await act(async () => {
+      dismissStickerEditor()
+      deviceStore.set(receiveStickerInventoryActionAtom, { stickerIds: [source.stickerId], placements: [source], packs: [], placementRevision: 0, importStatus: 'complete', progress: [] })
+      updateStickerInteraction({ ...initial, stage: 'placing', selectedStickerId: source.stickerId, sourcePlacement: source, previewPlacement: { ...source, width: .3625, wear: .35 } })
+      deviceStore.set(stickerToolEditorPropertyAtom, 'width')
+    })
+    expect(host.querySelector('[data-sticker-editor]')?.getAttribute('data-editor-owner')).toBe('agent')
+    expect(host.querySelector('[data-sticker-editor]')?.getAttribute('data-hud-width')).toBe('0.3625')
+    expect(host.querySelectorAll('[data-hud-handle="scale"]')).toHaveLength(4)
+    expect(host.querySelector<HTMLInputElement>('[aria-label="Sticker wear"]')?.value).toBe('0.35')
+    await act(async () => deviceStore.set(stickerToolEditorPropertyAtom, 'rotationDeg'))
+    expect(host.querySelectorAll('[data-hud-handle="rotate"]')).toHaveLength(4)
+    await act(async () => deviceStore.set(stickerToolEditorPropertyAtom, null))
+    expect(host.querySelector('[data-sticker-editor]')).toBeNull()
     await act(async () => { updateStickerInteraction({ ...initial, stage: 'hidden' }); selectStickerEditor(source) })
     expect(host.querySelector('[data-sticker-contour]')).not.toBeNull()
     expect(host.querySelector('[aria-label="Sticker wear"]')).not.toBeNull()
   } finally {
-    await act(async () => root.unmount()); host.remove(); resetStickerEditor(); updateStickerInteraction(initial)
+    await act(async () => root.unmount()); host.remove(); deviceStore.set(stickerToolEditorPropertyAtom, null); resetStickerEditor(); if (initialInventory === null) deviceStore.set(resetStickerCollectionActionAtom); else deviceStore.set(receiveStickerInventoryActionAtom, initialInventory); updateStickerInteraction(initial)
     globalThis.requestAnimationFrame = oldRequest; globalThis.cancelAnimationFrame = oldCancel
     globalThis.matchMedia = originalMatch
     if (previousAct === undefined) Reflect.deleteProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT'); else Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', previousAct)
