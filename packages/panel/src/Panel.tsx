@@ -1,6 +1,7 @@
+import { manageMusic, musicManager } from '@webpod/music-management'
 import { createPageClock, pageActivityAtom, type PageActivity } from './page-readiness'
 import { Provider, atom, useAtomValue, useSetAtom } from 'jotai'
-import { artworkUrl, InvalidArtworkError, type Artwork, type Entity, type FixtureProvider, type MusicProvider, type PlaybackState, type QueueSnapshot, type TrackRef } from '@webpod/providers'
+import { artworkUrl, InvalidArtworkError, type Artwork, type Entity, type FixtureProvider, type MusicProvider, type PlaybackState, type TrackRef } from '@webpod/providers'
 import {
   currentScreenAtom,
   detentActionAtom,
@@ -42,12 +43,12 @@ import {
   type NowPlayingCenterState,
   type PanelState,
 } from './model'
-import { isNavigationLoadingFrame, navigationLoadingRequestId, navigationRoot, playbackQueueForFrame, preparationForFrame, providerStatusFrame, refreshNavigationFrame, selectNavigationImmediate, statusFrame, type NavigationDataSource, type NavigationStatus } from './navigation'
+import { isNavigationLoadingFrame, navigationLoadingRequestId, navigationRoot, preparationForFrame, providerStatusFrame, refreshNavigationFrame, selectNavigationImmediate, statusFrame, type NavigationDataSource, type NavigationStatus } from './navigation'
 import { acquireAnnouncer, acquireNowPlayingVolumeFeedback, acquirePlaybackClock, acquireStableSelection, prefetchProviderArtwork, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import { BoundedAsyncCache } from './bounded-async-cache'
 import { ListViewport, type ListRowContent } from './list-view'
 import { OverflowMarquee } from './overflow-marquee'
-import { derivePlaybackPresentation, playbackFrameKey, type PlaybackAttempt, type PlaybackPresentation } from './playback-presentation'
+import { managedPlaybackPresentation, type PlaybackPresentation } from './playback-presentation'
 import './panel.css'
 
 interface PlaybackObservation {
@@ -57,13 +58,12 @@ interface PlaybackObservation {
 
 const sampledArtworkAtom = atom<{ readonly url: string; readonly samples: ArtworkSamples } | null>(null)
 const successResultAtom = atom<SuccessResult | null>(null)
-const playbackAttemptAtom = atom<PlaybackAttempt | null>(null)
 const playbackObservationAtom = atom<PlaybackObservation>({ provider: null, playback: null })
 const playbackPresentationAtom = atom((get): PlaybackPresentation | null => {
   const frame = get(currentScreenAtom)
   const observation = get(playbackObservationAtom)
   if (frame === null || observation.provider === null || observation.playback === null) return null
-  return derivePlaybackPresentation(frame, get(playbackAttemptAtom), observation.playback, observation.provider)
+  return managedPlaybackPresentation(observation.provider)
 })
 const panelContextAtom = atom<{ provider: MusicProvider; source: NavigationDataSource; state: PanelState } | null>(null)
 const operationIdentityAtom = atom<{ startedAtMs: number | null }>({ startedAtMs: null })
@@ -98,39 +98,25 @@ export const readPageState = pageClock.read
 
 const handledNowPlayingWheelIntentAtom = atom(0)
 const queueViewAtom = atom<QueueViewState>({ provider: null, status: 'idle', items: [], currentIndex: -1 })
-// The accepted list selection is authoritative during its playback handoff.
-const selectedQueueCounterAtom = atom((get) => {
-  const frame = get(currentScreenAtom)
-  if (frame === null || !get(playbackPresentationAtom)?.attemptApplies) return null
-  const queue = playbackQueueForFrame(frame)
-  return queue?.startIndex === null || queue === null ? null : queue
-})
-// Separate subscriptions: track changes update only the current-position text.
-const queueCounterTotalAtom = atom((get) => {
-  const selected = get(selectedQueueCounterAtom)
-  if (selected !== null) return selected.tracks.length
-  const observation = get(playbackObservationAtom)
-  if (observation.playback?.queueTotal !== undefined) return observation.playback.queueTotal
-  const queue = get(queueViewAtom)
-  return queue.provider === observation.provider && queue.items.length > 0 ? queue.items.length : null
-})
+// Separate primitive subscriptions preserve the counter shell and static total.
+const queueCounterTotalAtom = atom((get) => get(playbackObservationAtom).playback?.queueTotal ?? null)
 const queueCounterIndexAtom = atom((get) => {
-  const selected = get(selectedQueueCounterAtom)
-  if (selected?.startIndex !== undefined && selected.startIndex !== null) return selected.startIndex + 1
-  const observation = get(playbackObservationAtom)
-  const total = get(queueCounterTotalAtom)
-  const queue = get(queueViewAtom)
-  const index = observation.playback?.queueIndex ?? (observation.playback?.queueTotal === undefined && queue.provider === observation.provider ? queue.currentIndex : null)
-  return total !== null && index !== null && index >= 0 && index < total ? index + 1 : null
+  const playback = get(playbackObservationAtom).playback
+  return playback?.queueIndex === null || playback?.queueIndex === undefined ? null : playback.queueIndex + 1
 })
-const QueueCurrentPosition = memo(function QueueCurrentPosition() {
+const observedProviderAtom = atom((get) => get(playbackObservationAtom).provider)
+const QueueCurrentPosition = memo(function QueueCurrentPosition({ provider }: { provider: MusicProvider }) {
   const position = useAtomValue(queueCounterIndexAtom)
-  return <span data-queue-current>{position ?? '–'}</span>
+  const observedProvider = useAtomValue(observedProviderAtom)
+  const index = observedProvider === provider ? position : provider.playback.queueIndex === null ? null : provider.playback.queueIndex + 1
+  return <span data-queue-current>{index ?? '–'}</span>
 })
 const queueOfLabel = <span> of </span>
-const QueueCounter = memo(function QueueCounter() {
-  const total = useAtomValue(queueCounterTotalAtom)
-  return total === null ? null : <span className="wp-now-count"><QueueCurrentPosition />{queueOfLabel}<span data-queue-total>{total}</span></span>
+const QueueCounter = memo(function QueueCounter({ provider }: { provider: MusicProvider }) {
+  const observedTotal = useAtomValue(queueCounterTotalAtom)
+  const observedProvider = useAtomValue(observedProviderAtom)
+  const total = observedProvider === provider ? observedTotal : provider.playback.queueTotal ?? null
+  return total === null ? null : <span className="wp-now-count"><QueueCurrentPosition provider={provider} />{queueOfLabel}<span data-queue-total>{total}</span></span>
 })
 
 export const searchQueryAtom = atom('')
@@ -143,16 +129,12 @@ const libraryCountLabels = new Set(['Playlists', 'Artists', 'Albums', 'Songs', '
 const successOperations = new WeakMap<Document, Map<string, Promise<SuccessResult>>>()
 const artworkRequests = new BoundedAsyncCache<ArtworkSamples>({ maxEntries: 48, ttlMs: 10 * 60 * 1_000 })
 const handledNavigationSeq = new WeakMap<Document, number>()
-const nowPlayingWrites = new WeakMap<MusicProvider, Promise<void>>()
-let playbackAttemptSequence = 0
-let queueReadSequence = 0
 const subscribeToStaticSource = (): (() => void) => () => {}
 const staticSourceRevision = (): number => 0
 
 /** Brings provider-owned transport back into view without creating a second UI store. */
 export function showNowPlayingScreen(options?: { readonly followPlayback?: boolean }): void {
   if (options?.followPlayback) {
-    deviceStore.set(playbackAttemptAtom, null)
     const frame = deviceStore.get(currentScreenAtom)
     if (frame?.route?.kind === 'now-playing') {
       const mode = deviceStore.get(nowPlayingModeAtom)
@@ -223,10 +205,11 @@ export function Panel({
   artworkTone = null,
   density = null,
   longList = false,
-  provider,
+  provider: adapter,
   navigationSource,
   accountStatus,
 }: PanelProps) {
+  const provider = manageMusic(adapter)
   const session = useSyncExternalStore(provider.onSessionChange, () => provider.session, () => provider.session)
   const sourceRevision = useSyncExternalStore(
     navigationSource.subscribe ?? subscribeToStaticSource,
@@ -250,8 +233,7 @@ export function Panel({
     const sourceChanged = initializedDocument !== document || initializedProvider !== provider || initializedSource !== navigationSource || initializedSession !== session || initializedAccountStatus !== accountStatus
     if (sourceChanged) {
       deviceStore.set(resetStackActionAtom, [accountFrame ?? navigationRoot(navigationSource, provider)])
-      deviceStore.set(playbackAttemptAtom, null)
-      initializedDocument = document
+        initializedDocument = document
       initializedProvider = provider
       initializedSource = navigationSource
       initializedSession = session
@@ -313,7 +295,6 @@ function PanelSurface({
   const move = useSetAtom(detentActionAtom)
   const push = useSetAtom(pushScreenActionAtom)
   const press = useSetAtom(pressActionAtom)
-  const setPlaybackAttempt = useSetAtom(playbackAttemptAtom)
   const navigationIntent = useAtomValue(navigationIntentAtom)
   const visibleRows = useAtomValue(visibleRowCountAtom)
   const density = useAtomValue(effectiveDensityAtom)
@@ -380,13 +361,7 @@ function PanelSurface({
           deviceStore.set(setNowPlayingModeActionAtom, { frame, ...settleNowPlayingScrub(transition.state, committedRevision, false) })
           return
         }
-        void enqueueNowPlayingWrite(provider, async () => {
-          // Confirming a scrub starts listening at that position, even when paused.
-          // Previewing with the wheel remains silent until this explicit selection.
-          const resume = provider.playback.status === 'paused'
-          await provider.seek(control.value)
-          if (resume) await provider.play()
-        }).then(
+        void musicManager(provider).commitSeek(control.value).then(
           () => {
             const latest = deviceStore.get(nowPlayingModeAtom)
             if (latest.frame !== frame) return
@@ -407,7 +382,7 @@ function PanelSurface({
           return
         }
         const target = { kind: 'tracks' as const, tracks: queueView.items.slice(queueIndex), startIndex: 0 }
-        void enqueueNowPlayingWrite(provider, () => provider.play(target)).then(
+        void provider.play(target).then(
           () => {
             const latest = deviceStore.get(nowPlayingModeAtom)
             if (latest.frame !== frame) return
@@ -430,22 +405,8 @@ function PanelSurface({
     if (selection.resolution !== undefined) {
       void selection.resolution.then((resolved) => replacePendingFrame(selectedFrame, resolved)).catch(() => replacePendingFrame(selectedFrame, statusFrame('error')))
     }
-    if (selection.playback !== undefined) {
-      const id = ++playbackAttemptSequence
-      const frameKey = playbackFrameKey(selectedFrame)
-      setPlaybackAttempt({ id, provider, frameKey, status: 'pending' })
-      void selection.playback.then(
-        () => {
-          const current = deviceStore.get(playbackAttemptAtom)
-          if (current?.id === id) deviceStore.set(playbackAttemptAtom, { id, provider, frameKey, status: 'resolved' })
-        },
-        () => {
-          const current = deviceStore.get(playbackAttemptAtom)
-          if (current?.id === id) deviceStore.set(playbackAttemptAtom, { id, provider, frameKey, status: 'rejected' })
-        },
-      )
-    }
-  }, [frame, navigationIntent, navigationSource, provider, push, setPlaybackAttempt])
+    void selection.playback?.catch(() => undefined)
+  }, [frame, navigationIntent, navigationSource, provider, push])
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget) return
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -667,8 +628,6 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
   const mode = modeState.frame === frame ? modeState.mode : 'standard'
   const scrubState = modeState.frame === frame ? modeState.scrub : 'clean'
   const queueState = modeState.frame === frame ? modeState.queue : 'clean'
-  const playbackAttempt = useAtomValue(playbackAttemptAtom)
-  const setPlaybackAttempt = useSetAtom(playbackAttemptAtom)
   const sampledArtwork = useAtomValue(sampledArtworkAtom)
   const setSampledArtwork = useSetAtom(sampledArtworkAtom)
   const setSuccess = useSetAtom(successResultAtom)
@@ -684,7 +643,7 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
   const playbackObservation = useAtomValue(playbackObservationAtom)
   const observedPresentation = useAtomValue(playbackPresentationAtom)
   const presentation = observedPresentation === null || playbackObservation.provider !== provider
-    ? derivePlaybackPresentation(frame, playbackAttempt, provider.playback, provider)
+    ? managedPlaybackPresentation(provider)
     : observedPresentation
   const { playback, track } = presentation
   const occurrenceIdentity = playbackOccurrenceIdentity(playback, track)
@@ -698,9 +657,6 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
     setInterval: (callback, intervalMs) => window.setInterval(callback, intervalMs),
     clearInterval: (handle) => window.clearInterval(handle),
   }) : undefined, [provider])
-  useEffect(() => {
-    if (presentation.settleAttempt) setPlaybackAttempt(null)
-  }, [presentation.settleAttempt, setPlaybackAttempt])
   useEffect(() => {
     if (artworkTone !== null || artUrl === null) return
     let live = true
@@ -723,19 +679,19 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
     return () => { live = false }
   }, [actor, provider, setSuccess, state])
   useEffect(() => {
-    if (!provider.supports('queueRead')) return
-    const sequence = ++queueReadSequence
-    let live = true
-    setQueueView((current) => current.provider === provider ? { ...current, status: 'loading' } : { provider, status: 'loading', items: [], currentIndex: -1 })
-    void provider.queueRead().then((snapshot) => {
-      if (!live || sequence !== queueReadSequence) return
-      setQueueView(queueViewFromSnapshot(provider, snapshot))
-    }).catch(() => {
-      if (!live || sequence !== queueReadSequence) return
-      setQueueView((current) => current.provider === provider ? { ...current, status: 'error' } : { provider, status: 'error', items: [], currentIndex: -1 })
-    })
-    return () => { live = false }
-  }, [mode, playback.now?.key, playback.queueIndex, provider, setQueueView])
+    const manager = musicManager(provider)
+    let previous: ReturnType<typeof manager.getSnapshot>['queue'] | undefined
+    const update = () => {
+      const queue = manager.getSnapshot().queue
+      if (previous === queue) return
+      previous = queue
+      setQueueView({ provider, ...queue })
+    }
+    update()
+    const stop = manager.subscribe(update)
+    void manager.refreshQueue().catch(() => undefined)
+    return stop
+  }, [provider, setQueueView])
   useEffect(() => {
     if (mode !== 'standard') return
     configureWheel(provider.supports('volume')
@@ -783,7 +739,7 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
       return
     }
     const work = () => provider.setVolume(wheelIntent.value)
-    void enqueueNowPlayingWrite(provider, work).catch(() => {
+    void work().catch(() => {
       const playbackNow = provider.playback
       configureWheel({ kind: 'volume', value: playbackNow.volume0to100, minimum: 0, maximum: 100, step: 2, occurrenceIdentity: playbackOccurrenceIdentity(playbackNow, playbackNow.now) ?? undefined })
     })
@@ -885,7 +841,7 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
     <section className="wp-screen wp-now" aria-label="Now Playing" aria-busy={playbackPending} data-mode={mode} data-wheel-control={wheelControl?.kind} data-scrub-state={mode === 'scrub' ? scrubState : undefined} data-playback-phase={playbackFailed ? 'failed' : playbackPending ? 'starting' : 'ready'} data-playback-indeterminate={playbackPending ? 'true' : undefined} data-art-tone={artworkTone ?? 'provider'} data-art-sample-source={artworkTone === null ? samples === null ? 'pending' : 'provider' : 'fixture'} data-volume={shownVolume} data-position-ms={shownPosition} style={artStyle}>
       <TitleBar title="Now Playing" transport={transportState} />
       <div className="wp-now-body">
-        <QueueCounter />
+        <QueueCounter provider={provider} />
         <div className="wp-now-track">
           <Artwork state="ready" large tone={artworkTone} item={track} />
           <div className="wp-now-meta">
@@ -953,29 +909,6 @@ function replacePendingFrame(pending: ScreenFrame, resolved: ScreenFrame): void 
   const requestId = navigationLoadingRequestId(pending)
   if (visible === undefined || requestId === null || navigationLoadingRequestId(visible) !== requestId) return
   deviceStore.set(screenStackAtom, [...stack.slice(0, -1), resolved])
-}
-
-/** Flattens the provider's authoritative play order without reconstructing it. */
-function queueViewFromSnapshot(provider: MusicProvider, snapshot: QueueSnapshot): QueueViewState {
-  const items = [...snapshot.history, ...(snapshot.now === null ? [] : [snapshot.now]), ...snapshot.next]
-  return {
-    provider,
-    status: 'ready',
-    items,
-    currentIndex: snapshot.now === null ? -1 : snapshot.history.length,
-  }
-}
-
-/** Serializes writes per provider so fast wheel turns cannot complete out of order. */
-function enqueueNowPlayingWrite(provider: MusicProvider, write: () => Promise<void>): Promise<void> {
-  const prior = nowPlayingWrites.get(provider) ?? Promise.resolve()
-  const operation = prior.catch(() => undefined).then(write)
-  const settled = operation.then(() => undefined, () => undefined)
-  nowPlayingWrites.set(provider, settled)
-  void settled.then(() => {
-    if (nowPlayingWrites.get(provider) === settled) nowPlayingWrites.delete(provider)
-  })
-  return operation
 }
 
 function FooterReceipt({ children }: { readonly children: ReactNode }) {

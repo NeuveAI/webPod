@@ -26,6 +26,7 @@
         "@tanstack/react-start": "^1.168.49",
         "@webpod/composite": "workspace:*",
         "@webpod/device": "workspace:*",
+        "@webpod/music-management": "workspace:*",
         "@webpod/panel": "workspace:*",
         "@webpod/providers": "workspace:*",
         "@webpod/server-core": "workspace:*",
@@ -89,10 +90,19 @@
         "react-dom": "^19.2.8",
       },
     },
+    "packages/music-management": {
+      "name": "@webpod/music-management",
+      "version": "0.0.0",
+      "dependencies": {
+        "@webpod/providers": "workspace:*",
+        "jotai": "2.20.3",
+      },
+    },
     "packages/panel": {
       "name": "@webpod/panel",
       "version": "0.0.0",
       "dependencies": {
+        "@webpod/music-management": "workspace:*",
         "@webpod/providers": "workspace:*",
         "@webpod/state": "workspace:*",
         "jotai": "2.20.3",
@@ -586,6 +596,8 @@
     "@webpod/composite": ["@webpod/composite@workspace:packages/composite"],
 
     "@webpod/device": ["@webpod/device@workspace:packages/device"],
+
+    "@webpod/music-management": ["@webpod/music-management@workspace:packages/music-management"],
 
     "@webpod/panel": ["@webpod/panel@workspace:packages/panel"],
 

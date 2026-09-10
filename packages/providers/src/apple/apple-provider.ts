@@ -287,7 +287,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     const positionMs = millisecondsFromSeconds(value.currentPlaybackTime, currentPlayback.positionMs)
     const durationMs = millisecondsFromSeconds(value.currentPlaybackDuration, now?.durationMs ?? currentPlayback.durationMs)
     const volume = asNumber(value.volume) ?? currentPlayback.volume0to100 / 100
-    return { status: awaitingPlaybackStart ? 'loading' : observedStatus, now, queueIndex, positionMs, durationMs, volume0to100: Math.round(Math.min(1, Math.max(0, volume)) * 100), shuffle: value.shuffleMode === kit?.PlayerShuffleMode?.['songs'] ? 'songs' : value.shuffleMode === kit?.PlayerShuffleMode?.['albums'] ? 'albums' : 'off', repeat: value.repeatMode === kit?.PlayerRepeatMode?.['one'] ? 'one' : value.repeatMode === kit?.PlayerRepeatMode?.['all'] ? 'all' : 'off' }
+    return { status: awaitingPlaybackStart ? 'loading' : observedStatus, now, queueIndex, ...(playbackQueueOffset > 0 ? { queueTotal: null } : {}), positionMs, durationMs, volume0to100: Math.round(Math.min(1, Math.max(0, volume)) * 100), shuffle: value.shuffleMode === kit?.PlayerShuffleMode?.['songs'] ? 'songs' : value.shuffleMode === kit?.PlayerShuffleMode?.['albums'] ? 'albums' : 'off', repeat: value.repeatMode === kit?.PlayerRepeatMode?.['one'] ? 'one' : value.repeatMode === kit?.PlayerRepeatMode?.['all'] ? 'all' : 'off' }
   }
   const queueCatalogIds = (value: MusicKitInstanceLike): readonly string[] => {
     const ids: string[] = []
@@ -755,7 +755,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     })().catch((cause) => { configurePromise = null; throw cause })
     await configurePromise
   }
-  return {
+  const provider: AppleMusicProvider = {
     id: 'apple', displayName: 'Apple Music', supports: (capability) => APPLE_SUPPORTS[capability], unsupportedReason: (capability) => APPLE_SUPPORTS[capability] ? null : APPLE_UNSUPPORTED_REASONS[capability],
     configure,
     async authorize() { if (music === null) await configure(); else if (developerTokenNeedsRefresh()) await refreshDeveloperToken(); emitAppleState({ status: 'signing-in' }); const value = instance('authorize'); try { const user = await value.authorize(); if (!value.isAuthorized || user === undefined) { const error = new NotAuthorizedError('apple', 'authorize'); emitAppleState({ status: 'permission-denied', message: error.message }); throw error } privateMusicToken = user; playbackEventsEnabled = true; failedPlaybackGeneration = null; bind(value); const session = sessionOf(value); emitSession(session); return session } catch (cause) { if (appleState.status !== 'permission-denied') emitAppleState({ status: 'error', message: cause instanceof Error ? cause.message : 'Apple Music sign-in failed' }); throw cause } },
@@ -943,15 +943,16 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       // resolve a skip before its replacement item is playable; never let that
       // older transition restart playback after the user has paused.
       transactionGeneration += 1
+      const pausedTransaction = transactionGeneration
       if (pending !== null || awaitingPlaybackStart) {
         finishPendingPlayback()
       }
       await value.pause()
       if (pending !== null) {
         await pending.catch(() => undefined)
-        await value.pause()
+        if (transactionGeneration === pausedTransaction) await value.pause()
       }
-      emitPlayback({ ...stateOf(value), status: 'paused' })
+      if (transactionGeneration === pausedTransaction) emitPlayback({ ...stateOf(value), status: 'paused' })
     },
     async skip(direction, count = 1) {
       await waitForPreparationBeforeQueueMutation()
@@ -994,9 +995,31 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       const queue = instance('queueRead').queue; const items = (queue?.items ?? []).map((item) => normalize(item, keyFor)).filter((item): item is TrackRef => item.kind === 'track'); const position = Math.max(0, queue?.position ?? 0); return { now: currentPlayback.now, history: items.slice(0, position), next: items.slice(position + 1) } satisfies QueueSnapshot
     }, async queueAppend(tracks) { await waitForPreparationBeforeQueueMutation(); await instance('queueAppend').playLater({ songs: tracks.map((track) => track.catalogId) }) }, async queueInsertNext(tracks) { await waitForPreparationBeforeQueueMutation(); await instance('queueInsertNext').playNext({ songs: tracks.map((track) => track.catalogId) }) }, async queueRemove() { return unsupported('queueRemove') }, async queueReorder() { return unsupported('queueReorder') },
     async stationsList() { const response = await api(`/v1/catalog/${storefront('stationsList')}/stations`, { 'filter[featured]': 'apple-music-live-radio' }); return resources(response).map((item) => normalize(item, keyFor)).filter((item): item is StationRef => item.kind === 'station') },
-    async stationStart(seed) { await waitForPreparationBeforeQueueMutation(); let station: StationRef; if (seed.type === 'track') { const response = await api(`/v1/catalog/${storefront('stationStart')}/songs/${encodeURIComponent(seed.ref)}/station`); const entity = normalize(resources(response)[0], keyFor); if (entity.kind !== 'station') throw new Error('Apple station response is invalid'); station = entity } else { station = { kind: 'station', key: keyFor('stations', seed.ref), provider: 'apple', catalogId: seed.ref, name: 'Apple Music station', live: false } } const value = instance('stationStart'); if (currentPlayback.now !== null || currentPlayback.status === 'playing' || currentPlayback.status === 'paused' || currentPlayback.status === 'loading') await value.pause(); playbackQueueOffset = 0; await value.setQueue({ station: station.catalogId }); await value.play(); return station },
+    async stationStart(seed) {
+      const requestedStation = ++playRequestGeneration
+      const guard = (): void => {
+        if (!playbackEventsEnabled || requestedStation !== playRequestGeneration) throw new Error('Apple Music station selection was superseded')
+      }
+      await waitForPreparationBeforeQueueMutation()
+      guard()
+      let station: StationRef
+      if (seed.type === 'track') {
+        const response = await api(`/v1/catalog/${storefront('stationStart')}/songs/${encodeURIComponent(seed.ref)}/station`)
+        guard()
+        const entity = normalize(resources(response)[0], keyFor)
+        if (entity.kind !== 'station') throw new Error('Apple station response is invalid')
+        station = entity
+      } else {
+        station = { kind: 'station', key: keyFor('stations', seed.ref), provider: 'apple', catalogId: seed.ref, name: 'Apple Music station', live: false }
+      }
+      guard()
+      // Reuse the same native queue transaction/cancellation path as a station list selection.
+      await provider.play({ kind: 'station', station })
+      return station
+    },
     async lyrics() { return unsupported('lyrics') }, async ratingSet() { throw new NotImplementedError('apple', 'ratingSet (writes are out of scope)') }, async saveToggle() { throw new NotImplementedError('apple', 'saveToggle (writes are out of scope)') },
   }
+  return provider
 }
 
 export function browserAppleProviderOptions(): AppleProviderOptions {

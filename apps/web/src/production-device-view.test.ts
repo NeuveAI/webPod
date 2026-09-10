@@ -1,3 +1,4 @@
+import { manageMusic } from '@webpod/music-management'
 import { describe, expect, test } from 'bun:test'
 import { APPLE_SUPPORTS, createFixtureProvider, type MusicProvider, type PlaybackState } from '@webpod/providers'
 import { createProgressiveAppleSource, type MusicRuntimeSnapshot } from './music-runtime'
@@ -172,12 +173,13 @@ describe('production device provider status', () => {
     const resume = toggleProductionPlayback(snapshot)
     const cancel = toggleProductionPlayback(snapshot)
     for (let index = 0; index < 4; index += 1) await Promise.resolve()
-    expect(calls).toEqual(['play:start'])
+    expect(calls).toEqual(['play:start', 'pause'])
     releasePlay?.()
-    expect(await resume).toBe(true)
+    expect(await resume).toBe(false)
     expect(await cancel).toBe(true)
-    expect(calls).toEqual(['play:start', 'play:end', 'pause'])
+    expect(calls).toEqual(['play:start', 'pause', 'play:end', 'pause'])
     expect(playback.status).toBe('paused')
+    expect(manageMusic(provider).playback.status).toBe('paused')
   })
 
   test('ordinary skip waits behind an admitted root pause on the same transport queue', async () => {
@@ -209,7 +211,7 @@ describe('production device provider status', () => {
     const runtime = await fixtureRuntime()
     await runtime.provider.play({ kind: 'tracks', tracks: runtime.source.songs, startIndex: 0 })
     expect(await pauseProductionPlaybackAtRoot(runtime)).toBe(true)
-    await runtime.provider.play({ kind: 'tracks', tracks: runtime.source.songs, startIndex: 1 })
+    await manageMusic(runtime.provider).play({ kind: 'tracks', tracks: runtime.source.songs, startIndex: 1 })
     expect(runtime.provider.playback.status).toBe('playing')
 
     expect(await toggleProductionPlayback(runtime)).toBe(true)

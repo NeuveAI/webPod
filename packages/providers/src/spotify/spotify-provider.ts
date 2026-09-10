@@ -57,9 +57,9 @@ export function createSpotifyProvider(): MusicProvider {
   }
   let changedAt = Date.now()
   let submittedTracks: readonly TrackRef[] = []
-  let submittedQueueExtended = false
   let submittedIndex: number | null = null
   let currentUid: string | null = null
+  let playGeneration = 0
   let observationRevision = 0
   let pollPending = false
   let progressTicks = 0
@@ -292,7 +292,7 @@ export function createSpotifyProvider(): MusicProvider {
     get playback() {
       // The panel and tools reread this snapshot on progress notifications.
       // Keep the SDK anchor unchanged so interpolation never compounds.
-      return { ...state, positionMs: position(), queueTotal: !submittedQueueExtended && state.shuffle === 'off' && submittedTracks.length > 0 ? submittedTracks.length : null }
+      return { ...state, positionMs: position(), queueTotal: null }
     },
     async configure() {
       const generation = lifecycle
@@ -506,10 +506,15 @@ export function createSpotifyProvider(): MusicProvider {
     },
     async prepare() {},
     async play(target) {
+      const selectedPlay = ++playGeneration
+      const selectedLifecycle = lifecycle
+      const isCurrent = () => selectedPlay === playGeneration && selectedLifecycle === lifecycle
       // Start activation in the gesture stack before awaiting Connect readiness.
       const activation = player?.activateElement()
       await activation
+      if (!isCurrent()) return
       await connect()
+      if (!isCurrent()) return
       if (!device || !player) throw new Error('Spotify player is not ready.')
       if (session?.canPlay === false)
         throw new Error('Spotify Premium is required to play music.')
@@ -532,7 +537,6 @@ export function createSpotifyProvider(): MusicProvider {
               ),
             }
       if (target.kind === 'tracks' && !target.tracks.length) return
-      submittedQueueExtended = false
       submittedTracks = target.kind === 'tracks' ? target.tracks : []
       submittedIndex =
         target.kind === 'tracks' ? (target.startIndex ?? 0) : null
@@ -542,11 +546,12 @@ export function createSpotifyProvider(): MusicProvider {
       try {
         await api.request(`me/player/play?device_id=${id(device)}`, 'PUT', body)
       } catch (cause) {
-        publish({ ...state, status: 'error' })
+        if (isCurrent()) publish({ ...state, status: 'error' })
         throw cause
       }
     },
     async pause() {
+      playGeneration += 1
       if (player && device) await player.pause()
     },
     async skip(direction, count = 1) {
@@ -596,16 +601,15 @@ export function createSpotifyProvider(): MusicProvider {
       const raw = z
         .object({ currently_playing: z.unknown(), queue: z.array(z.unknown()) })
         .parse(await api.request('me/player/queue'))
+      const isTrack = (value: unknown): boolean => recordSchema.safeParse(value).data?.['type'] === 'track'
       return {
-        now: raw.currently_playing ? api.track(raw.currently_playing) : null,
-        next: raw.queue.map(api.track),
+        now: isTrack(raw.currently_playing) ? api.track(raw.currently_playing) : null,
+        next: raw.queue.filter(isTrack).map(api.track),
         history: [],
       }
     },
     async queueAppend(tracks) {
       await connect()
-      // Appending changes the submitted context; its original total is no longer complete.
-      submittedQueueExtended = true
       for (const track of tracks)
         await api.request(
           `me/player/queue?uri=${id(uri(track))}&device_id=${id(device ?? '')}`,
