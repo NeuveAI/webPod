@@ -326,9 +326,6 @@ function InteractiveDevicePage() {
       </div>
       {capture ? null : (
         <>
-          <p className="webpod-device-preview__selection-note">
-            Drag a visible edge to rotate · Option/Alt-drag to roll
-          </p>
           <nav className="webpod-device-preview__controls" aria-label="Device controls">
             <button type="button" onClick={() => orientationControlsRef.current?.reset()}>Reset view</button>
             <DeviceSettings>
@@ -507,17 +504,6 @@ const DEVICE_PREVIEW_CSS = `
     --accent: #334155;
     --accent-foreground: #f1f5f9;
     color: #f1f5f9;
-  }
-  .webpod-device-preview__selection-note {
-    position: absolute;
-    z-index: 4;
-    inset-block-start: max(12px, env(safe-area-inset-top));
-    inset-inline-start: max(14px, env(safe-area-inset-left));
-    margin: 0;
-    color: inherit;
-    font: 500 12px/1.4 ui-sans-serif, system-ui, sans-serif;
-    user-select: none;
-    pointer-events: auto;
   }
   .webpod-device-preview__playback-diagnostics {
     position: absolute;

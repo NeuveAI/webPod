@@ -16,6 +16,12 @@ import { mountTeaserEntrance } from './teaser-entrance'
  * Hidden tabs and Pause stop the clock; reduced motion keeps a still front view.
  */
 const FRONT = { pitchDeg: 0, yawDeg: 0, rollDeg: 0 } as const
+// Fixed product-photo pose for the local social-card exporter only.
+const SOCIAL_CARD_POSE = import.meta.env.DEV && typeof window !== 'undefined'
+  && new URLSearchParams(window.location.search).has('social-card')
+  ? { pitchDeg: 6, yawDeg: -26, rollDeg: -3 } as const : null
+const RESTING_POSE = SOCIAL_CARD_POSE ?? FRONT
+const SOCIAL_CARD_DEPTH_SCALE = 1.8
 // A narrower grazing key and side strip reveal the crown and polished seam.
 // Keep the broad fill subdued so the black face retains its depth.
 const PREVIEW_LIGHT_RIG: LightRigParams = {
@@ -45,8 +51,8 @@ export function DeviceTeaser({ paused, reducedMotion }: { readonly paused: boole
   }, [])
   const screen = useRef<ScreenMeshHandle | null>(null)
   const onScreenMeshReady = useCallback((handle: ScreenMeshHandle) => { screen.current = handle }, [])
-  return <div ref={entrance} className="webpod-teaser" data-teaser-entrance="waiting"><DeviceCanvas colourway="black" orientation={FRONT} lightRig={PREVIEW_LIGHT_RIG} cameraSafePadding={16}
-    dpr={[1, 2]} stickerScene={PREVIEW_STICKERS} onScreenMeshReady={onScreenMeshReady}>
+  return <div ref={entrance} className="webpod-teaser" data-teaser-entrance="waiting"><DeviceCanvas colourway="black" orientation={RESTING_POSE} lightRig={PREVIEW_LIGHT_RIG} cameraSafePadding={16}
+    dpr={[1, 2]} stickerScene={SOCIAL_CARD_POSE ? undefined : PREVIEW_STICKERS} onScreenMeshReady={onScreenMeshReady}>
     <TeaserEdgeAlignment />
     <TeaserAnimation screen={screen} paused={paused} reducedMotion={reducedMotion} />
   </DeviceCanvas></div>
@@ -58,7 +64,7 @@ export function DeviceTeaser({ paused, reducedMotion }: { readonly paused: boole
 function TeaserEdgeAlignment() {
   const previous = useRef('')
   const scratch = useRef({
-    rotation: new Matrix4().makeRotationFromEuler(new Euler(...deviceOrientationToRotation(FRONT))),
+    rotation: new Matrix4().makeRotationFromEuler(new Euler(...deviceOrientationToRotation(RESTING_POSE))),
     transform: new Matrix4(),
     point: new Vector3(),
   })
@@ -101,6 +107,25 @@ function TeaserAnimation({ screen, paused, reducedMotion }: {
   const invalidate = useThree((state) => state.invalidate)
   const elapsed = useRef(0)
 
+  // Exaggerate only the export model's depth; keep the face, lights and live device intact.
+  useLayoutEffect(() => {
+    if (!SOCIAL_CARD_POSE) return
+    const content = scene.getObjectByName(DEVICE_CONTENT_NAME)
+    if (!content) return
+    const originalScale = content.scale.z
+    const originalPosition = content.position.z
+    content.scale.z = originalScale * SOCIAL_CARD_DEPTH_SCALE
+    content.position.z = originalPosition * SOCIAL_CARD_DEPTH_SCALE
+    content.updateMatrix()
+    invalidate()
+    return () => {
+      content.scale.z = originalScale
+      content.position.z = originalPosition
+      content.updateMatrix()
+      invalidate()
+    }
+  }, [scene, invalidate])
+
   useEffect(() => {
     const model = scene.getObjectByName(DEVICE_MODEL_NAME)
     const handle = screen.current
@@ -123,7 +148,7 @@ function TeaserAnimation({ screen, paused, reducedMotion }: {
     const entrance = renderer.domElement.closest<HTMLElement>('[data-teaser-entrance]')
     const render = () => {
       const seconds = reducedMotion ? 0 : elapsed.current
-      model.rotation.set(...deviceOrientationToRotation({ ...FRONT, yawDeg: previewYaw(seconds) }))
+      model.rotation.set(...deviceOrientationToRotation(SOCIAL_CARD_POSE ?? { ...FRONT, yawDeg: previewYaw(seconds) }))
       const screenFrame = teaserFrameIndex(seconds)
       if (screenFrame !== lastScreenFrame) {
         const image = images[screenFrame]

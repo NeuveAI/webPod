@@ -254,10 +254,7 @@ test('pose presets stay absent and the device stage does not select labels', asy
     await expect(page.getByRole('button', { name, exact: true })).toHaveCount(0)
   }
   await expect(page.getByRole('button', { name: 'Reset view' })).toBeVisible()
-  await expect(page.locator('.webpod-device-preview__selection-note')).toHaveCSS(
-    'user-select',
-    'none',
-  )
+  await expect(page.locator('.webpod-device-preview__selection-note')).toHaveCount(0)
   await expect(page.locator('.webpod-device-preview__stage')).toHaveCSS(
     'user-select',
     'none',

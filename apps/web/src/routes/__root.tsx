@@ -1,17 +1,19 @@
 /// <reference types="vite/client" />
 import { HeadContent, Link, Scripts, createRootRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
+import { socialHead } from '../social-meta'
 
 import '../styles/app.css'
 
 export const Route = createRootRoute({
-  head: () => ({
+  head: ({ matches }) => ({
     meta: [
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'webPod' },
+      ...socialHead(matches.at(-1)?.pathname ?? '/').meta,
     ],
     links: [
+      ...socialHead(matches.at(-1)?.pathname ?? '/').links,
       { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
       { rel: 'apple-music-app-icon', sizes: '120x120', href: 'https://webpod.vercel.app/apple-music-icon.png' },
     ],

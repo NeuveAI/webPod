@@ -30,10 +30,7 @@ test('native cursors follow mounted control and authoritative drag state', async
     'cursor',
     'pointer',
   )
-  await expect(page.locator('.webpod-device-preview__selection-note')).toHaveCSS(
-    'user-select',
-    'text',
-  )
+  await expect(page.locator('.webpod-device-preview__selection-note')).toHaveCount(0)
 
   const box = await projectedDeviceBox(page)
   const wheel = devicePoint(

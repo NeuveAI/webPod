@@ -34,7 +34,7 @@ test('production list indication is absent at 8/8 and follows an overflowing son
   await page.addStyleTag({
     content: [
       '*,*::before,*::after{animation:none!important;transition:none!important;caret-color:transparent!important}',
-      '.webpod-device-preview__controls,.webpod-device-preview__selection-note{display:none!important}',
+      '.webpod-device-preview__controls{display:none!important}',
     ].join(''),
   })
   await settleCompositePaint(page)

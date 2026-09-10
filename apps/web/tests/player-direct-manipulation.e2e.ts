@@ -152,16 +152,7 @@ test('scrub presentation remains optimistic through delayed, stale, failed and s
 
 test('device labels cannot be selected, while the real search input remains editable', async ({ page }) => {
   const panel = await openTracks(page, 'white', 11, false)
-  const note = page.locator('.webpod-device-preview__selection-note')
-  await expect(note).toBeVisible()
-  await note.dblclick(); await note.click({ clickCount: 3 })
-  const noteBox = await note.boundingBox()
-  if (!noteBox) throw new Error('Device help label absent')
-  await page.mouse.move(noteBox.x + 2, noteBox.y + 5)
-  await page.mouse.down()
-  await page.mouse.move(noteBox.x + noteBox.width - 2, noteBox.y + 5, { steps: 8 })
-  await page.mouse.up()
-  expect(await page.evaluate(() => window.getSelection()?.toString())).toBe('')
+  await expect(page.locator('.webpod-device-preview__selection-note')).toHaveCount(0)
   const header = panel.locator('.wp-titlebar strong')
   await header.dblclick()
   await header.click({ clickCount: 3 })

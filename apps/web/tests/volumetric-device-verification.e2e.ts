@@ -264,7 +264,15 @@ async function expectWheelGestureDoesNotSelect(page: Page): Promise<void> {
 
   await prepareInteractive(page, 1024, 768);
   await setPreview(page, "front", "black");
-  const note = page.locator(".webpod-device-preview__selection-note");
+  // Keep this gesture-isolation fixture independent of production help text.
+  await page.evaluate(() => {
+    const label = document.createElement("p");
+    label.id = "outside-selection-fixture";
+    label.textContent = "Outside text remains selectable";
+    label.style.cssText = "position:fixed;top:12px;left:14px;z-index:100;user-select:text;pointer-events:auto";
+    document.body.append(label);
+  });
+  const note = page.locator("#outside-selection-fixture");
   const noteBounds = await note.boundingBox();
   if (noteBounds === null) throw new Error("outside selection note has no bounds");
   await page.evaluate(() => document.getSelection()?.removeAllRanges());
