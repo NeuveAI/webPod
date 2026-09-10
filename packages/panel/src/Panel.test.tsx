@@ -1,4 +1,4 @@
-import { manageMusic } from '@webpod/music-management'
+import { manageMusic } from '@webpod/music-management/playback'
 import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { renderToStaticMarkup } from 'react-dom/server'

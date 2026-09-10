@@ -67,3 +67,15 @@ Review lanes: shared-management reviewer owns reviews/shared-management.md (sing
 
 ## Lead closeout
 Both reviews formally APPROVE against stable manager SHA256 80304d9d9db9e0e9b95ab9da16e8a0e7f016fc4571d6d4bffe6f0206f8f2ad97. Lead verified the fingerprint, 847 passing tests/4134 assertions, all 14 project typechecks, changed-file lint, build and diff evidence. Live Apple managed selection/progress/skip/paused seek-resume passed; Spotify session was signed out so live Spotify playback was not exercised. Apple mode restored authorized and paused after smoke. No commits, push, merge or deployment performed for this refactor. Neuve workflow is inapplicable by repository law.
+
+## Auth namespace follow-up — Ready
+
+The owner's latest request explicitly expands the earlier auth exclusion. Implement the architecture addendum: separate public `/auth` and `/playback` namespaces, with Apple Music and Spotify specific auth flows and session lifecycle beneath a common controller. Preserve one adapter session truth and one playback/queue manager. App composition retains routes, storage, HMR and optional stickers; common auth owns attempts/readiness and cancellation, and connector auth owns native restore/authorize/logout/recovery. Redirect initiation is not successful authentication. Session changes retire playback through its existing lifecycle seam.
+
+Implementer owns source and tests; two independent lanes review auth lifecycle/consumer boundaries and native protocol/recovery respectively. Existing login/navigation and playback regressions remain required. Add real-shaped Apple consumed-Response errors, distinct Spotify redirect/restore tests, concurrent invalidation and stale-account fencing. A personalized core-library 403 with native ACCESS_DENIED may be classified using the documented endpoint contract; do not claim the SDK exposes discarded code40300. Catalog/licensing errors, developer-token401 and generic500 must not trigger cached user-session reset. No automatic authorize loops or server credential/header changes. A fresh user gesture initiates reconnection.
+
+Completion requires focused tests, workspace typecheck, changed-file lint/build and both independent approvals. Update existing PR after review; do not merge or deploy.
+
+### Auth follow-up lead closeout
+
+Implemented separate auth and playback namespaces with provider-specific auth/session flows. Native cached Apple authorization recovery and stale attempt/logout races have deterministic regression coverage. Final implementation verification:889tests/4294assertions across45files,14project typechecks,changed-filelint,productionbuild anddiffclean. Independent native and common ownership reviews approve; final source fingerprints verified by lead. Live localApple session reached authorizedplayer with populated corelibrary; exact freshpopup sequence was not witnessed. Updating existing PR2 only; no merge/deployment.

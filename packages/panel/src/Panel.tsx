@@ -1,4 +1,4 @@
-import { manageMusic, musicManager } from '@webpod/music-management'
+import { manageMusic, musicManager } from '@webpod/music-management/playback'
 import { createPageClock, pageActivityAtom, type PageActivity } from './page-readiness'
 import { Provider, atom, useAtomValue, useSetAtom } from 'jotai'
 import { artworkUrl, InvalidArtworkError, type Artwork, type Entity, type FixtureProvider, type MusicProvider, type PlaybackState, type TrackRef } from '@webpod/providers'

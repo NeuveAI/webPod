@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 import { createFixtureProvider, APPLE_SUPPORTS } from '@webpod/providers'
-import { musicManager } from '@webpod/music-management'
+import { musicManager } from '@webpod/music-management/playback'
 import { setup } from '../../../packages/providers/src/apple/test-fixtures'
 import { createMusicRuntimeController, musicRuntimeReady } from './music-runtime'
 import { createWelcomeEntry } from './welcome-entry'
@@ -139,4 +139,21 @@ test('rejected Apple authorization never enters and a retry remains available', 
     expect(await r.finish(await r.authorizeAppleRuntime())).toBe(true)
     expect(r.navigations()).toBe(1)
   } finally { r.dispose() }
+})
+
+test('runtime logout keeps shared playback retired while native logout is pending', async () => {
+  const r = runtime()
+  let resolve!: () => void
+  try {
+    await r.authorizeAppleRuntime()
+    const managed = r.musicRuntime.getSnapshot().provider
+    r.music.unauthorize = () => new Promise<void>(done => { resolve = done })
+    const pending = r.signOutAppleRuntime()
+    await expect(managed.pause()).rejects.toThrow()
+    r.music.setCurrentPlaybackTime(90)
+    r.music.emit('playbackTimeDidChange')
+    expect(musicManager(managed).getSnapshot().playback.positionMs).toBe(0)
+    resolve(); await pending
+    expect(r.musicRuntime.getSnapshot().phase).toBe('signed-out')
+  } finally { resolve?.(); r.dispose() }
 })

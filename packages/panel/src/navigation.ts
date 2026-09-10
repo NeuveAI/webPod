@@ -1,4 +1,4 @@
-import { manageMusic } from '@webpod/music-management'
+import { manageMusic } from '@webpod/music-management/playback'
 import type {
   AlbumRef,
   Artwork,

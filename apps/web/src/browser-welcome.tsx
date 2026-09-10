@@ -1,4 +1,4 @@
-import { musicRuntime, ensureMusicRuntime, authorizeAppleRuntime, selectMusicRuntime, musicRuntimeReady, type MusicRuntimeSnapshot } from './music-runtime'
+import { musicRuntime, ensureMusicRuntime, authorizeAppleRuntime, selectMusicRuntime, musicLoginUrl, musicRuntimeReady, type MusicRuntimeSnapshot } from './music-runtime'
 import { getCompositeTierSnapshot, HTML_IN_CANVAS_FLAG, refreshCompositeTier, subscribeCompositeTier, type CapabilityReport } from '@webpod/composite'
 import { atom, createStore, useAtomValue } from 'jotai'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -183,7 +183,7 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
           void enterDevice()
         }}>Lets get playing! <span aria-hidden="true">↗</span></Link>
           : <button type="button" className="webpod-welcome__primary" disabled aria-describedby="browser-setup-title">Lets get playing! <span aria-hidden="true">↗</span></button>}
-      {!signedIn ? <a className="webpod-welcome__spotify" href="/api/spotify/login">or use Spotify</a> : null}
+      {!signedIn ? <a className="webpod-welcome__spotify" href={musicLoginUrl('spotify')}>or use Spotify</a> : null}
       {!signedIn ? <p className="webpod-welcome__auth-status">Connect your music library securely.<br />Apple Music or Spotify Premium required.</p> : null}
       {music.phase === 'error' || music.phase === 'permission-denied' ? <p className="webpod-welcome__auth-status" role="status">{music.activeMode === 'spotify' ? music.message : !authorizationAttempted ? 'Apple Music is temporarily unavailable. Try connecting again shortly.' : music.phase === 'permission-denied' ? 'Access wasn’t granted. You can connect again when you’re ready.' : 'Couldn’t connect to Apple Music. Please try again.'}</p> : null}
     </div>

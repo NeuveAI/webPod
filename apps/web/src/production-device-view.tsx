@@ -1,4 +1,4 @@
-import { musicManager, manageMusic } from '@webpod/music-management'
+import { musicManager, manageMusic } from '@webpod/music-management/playback'
 import { stickerPackTuckAtom } from './sticker-pack-tuck'
 import { deviceRevealActiveAtom } from './device-reveal-state'
 import { stickerPackPresenceAtom } from './sticker-pack-presence'

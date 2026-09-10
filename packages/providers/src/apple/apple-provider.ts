@@ -101,6 +101,18 @@ export interface AppleMusicProvider extends MusicProvider {
   onAppleSessionStateChange(callback: (state: AppleSessionState) => void): Unsubscribe
 }
 
+/** MusicKit discards the JSON body; classify only its trusted consumed Response boundary. */
+function rejectedLibraryAuthorization(cause: unknown, requestedPath: string): boolean {
+  if (!/^\/v1\/me\/library\/(albums|artists|playlists|songs)$/.test(requestedPath)) return false
+  if (typeof cause !== 'object' || cause === null || !('reason' in cause) || cause.reason !== 'ACCESS_DENIED' || !('data' in cause)) return false
+  const response = cause.data
+  if (!(response instanceof Response) || response.status !== 403) return false
+  try {
+    const url = new URL(response.url)
+    return url.origin === 'https://api.music.apple.com' && url.pathname === requestedPath
+  } catch { return false }
+}
+
 type AppleLibraryContinuation =
   | { readonly kind: LibraryKind; readonly source: 'array'; readonly offset: number; readonly previousFingerprint: string }
   | { readonly kind: LibraryKind; readonly source: 'structured'; readonly path: string }
@@ -230,6 +242,12 @@ async function withoutBrowserProcessShim<T>(globalObject: Record<string, unknown
 export function createAppleProvider(options?: AppleProviderOptions): AppleMusicProvider {
   const configuredOptions = options ?? browserAppleProviderOptions(); let kit: MusicKitGlobalLike | null = null; let music: MusicKitInstanceLike | null = null; let currentSession: Session | null = null; let privateMusicToken: string | null = null
   let configurePromise: Promise<void> | null = null
+  let authorizationGeneration = 0
+  let authorizationIntent: 'authorize' | 'logout' | 'recovery' = 'authorize'
+  let rejectedUserSession = false
+  let rejectedSessionReset = false
+  let resetUserSessionPromise: Promise<void> | null = null
+  let logoutPromise: Promise<void> | null = null
   let playPromise: Promise<void> | null = null
   let replacementPausePromise: Promise<void> | null = null
   let playRequestGeneration = 0
@@ -262,7 +280,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   let currentPlayback: PlaybackState = { status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0, volume0to100: 100, shuffle: 'off', repeat: 'off' }
   const sessions = new Set<(value: Session | null) => void>(); const appleStates = new Set<(value: AppleSessionState) => void>(); const playback = new Set<(value: PlaybackState) => void>(); const progress = new Set<(value: ProgressTick) => void>(); const continuations = new Map<Cursor, AppleLibraryContinuation>(); const keyFor = identityCache()
   const instance = (method: string): MusicKitInstanceLike => { if (music === null) throw new NotAuthorizedError('apple', method); return music }
-  const authorized = (method: string): MusicKitInstanceLike => { const value = instance(method); if (!value.isAuthorized) throw new NotAuthorizedError('apple', method); return value }
+  const authorized = (method: string): MusicKitInstanceLike => { const value = instance(method); if (rejectedUserSession || currentSession === null || !value.isAuthorized) throw new NotAuthorizedError('apple', method); return value }
   const emitAppleState = (value: AppleSessionState): void => { appleState = value; for (const listener of appleStates) listener(value) }
   const emitSession = (value: Session | null): void => { currentSession = value; for (const listener of sessions) listener(value); emitAppleState(value === null ? { status: 'signed-out' } : { status: 'authorized', session: value }) }
   const sessionOf = (value: MusicKitInstanceLike): Session => ({ provider: 'apple', status: 'authorized', userIdentifier: null, storefront: value.storefrontId ?? value.storefrontCountryCode ?? null, canPlay: value.previewOnly !== true, expiresAt: null })
@@ -616,7 +634,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       finishPendingPlayback()
       bind(next)
       playbackEventsEnabled = next.isAuthorized
-      if (next.isAuthorized) {
+      if (next.isAuthorized && !rejectedUserSession) {
         if (priorSession === null) emitSession(sessionOf(next))
         else {
           // MusicKit persists and restores the Music User Token itself. Keep the
@@ -642,7 +660,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
     }
   }
   const developerTokenNeedsRefresh = (): boolean => developerTokenExpiresAtMs > 0 && currentTimeMs() >= developerTokenExpiresAtMs - APPLE_DEVELOPER_TOKEN_REFRESH_LEAD_MS
-  const api = async (path: string, parameters?: Readonly<Record<string, string>>): Promise<unknown> => {
+  const requestApi = async (path: string, parameters?: Readonly<Record<string, string>>): Promise<unknown> => {
     await ensureFreshDeveloperToken()
     const value = authorized('api').api
     const url = new URL(path, 'https://api.music.apple.com')
@@ -675,6 +693,39 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       if (collection === 'stations') return id === undefined ? value.stations(query) : value.station(id, query)
     }
     throw new Error(`Apple MusicKit cannot request ${url.pathname}`)
+  }
+  const clearUserSession = (): void => {
+    rejectedUserSession = true
+    privateMusicToken = null
+    playbackEventsEnabled = false
+    transactionGeneration += 1
+    invalidatePreparation(); finishPendingPlayback(); stopProgressClock(); unbindMusicKit?.()
+    if (currentSession !== null) emitSession(null)
+  }
+  const resetRejectedUserSession = async (): Promise<void> => {
+    if (resetUserSessionPromise !== null) return resetUserSessionPromise
+    clearUserSession()
+    resetUserSessionPromise = instance('unauthorize').unauthorize().then(() => {
+      rejectedSessionReset = true
+      continuations.clear(); keyFor.clear()
+      emitPlayback({ ...currentPlayback, status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0 })
+    }).finally(() => { resetUserSessionPromise = null })
+    return resetUserSessionPromise
+  }
+  const api = async (path: string, parameters?: Readonly<Record<string, string>>): Promise<unknown> => {
+    const generation = authorizationGeneration
+    try { return await requestApi(path, parameters) } catch (cause) {
+      const pathname = new URL(path, 'https://api.music.apple.com').pathname
+      if (generation === authorizationGeneration && rejectedLibraryAuthorization(cause, pathname)) {
+        if (!rejectedUserSession) {
+          authorizationGeneration += 1
+          authorizationIntent = 'recovery'
+          try { await resetRejectedUserSession() } catch { /* Remain invalid; a later explicit reconnect retries reset. */ }
+        } else if (resetUserSessionPromise !== null) await resetUserSessionPromise.catch(() => undefined)
+        throw new Error('Apple Music rejected this saved sign-in. Please connect again.', { cause })
+      }
+      throw cause
+    }
   }
   const issueContinuation = (continuation: AppleLibraryContinuation): Cursor => {
     let cursor: Cursor
@@ -749,7 +800,7 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
       kit = loadedKit
       music = await configureMusicKit(loadedKit)
       bind(music)
-      if (music.isAuthorized) emitSession(sessionOf(music))
+      if (music.isAuthorized && !rejectedUserSession) emitSession(sessionOf(music))
       currentPlayback = stateOf(music)
       scheduleDeveloperTokenRefresh()
     })().catch((cause) => { configurePromise = null; throw cause })
@@ -758,9 +809,54 @@ export function createAppleProvider(options?: AppleProviderOptions): AppleMusicP
   const provider: AppleMusicProvider = {
     id: 'apple', displayName: 'Apple Music', supports: (capability) => APPLE_SUPPORTS[capability], unsupportedReason: (capability) => APPLE_SUPPORTS[capability] ? null : APPLE_UNSUPPORTED_REASONS[capability],
     configure,
-    async authorize() { if (music === null) await configure(); else if (developerTokenNeedsRefresh()) await refreshDeveloperToken(); emitAppleState({ status: 'signing-in' }); const value = instance('authorize'); try { const user = await value.authorize(); if (!value.isAuthorized || user === undefined) { const error = new NotAuthorizedError('apple', 'authorize'); emitAppleState({ status: 'permission-denied', message: error.message }); throw error } privateMusicToken = user; playbackEventsEnabled = true; failedPlaybackGeneration = null; bind(value); const session = sessionOf(value); emitSession(session); return session } catch (cause) { if (appleState.status !== 'permission-denied') emitAppleState({ status: 'error', message: cause instanceof Error ? cause.message : 'Apple Music sign-in failed' }); throw cause } },
+    async authorize() {
+      const attempt = ++authorizationGeneration
+      authorizationIntent = 'authorize'
+      const guard = (): void => { if (attempt !== authorizationGeneration) throw new Error('Apple Music authorization was superseded') }
+      try {
+        if (logoutPromise !== null) { await logoutPromise; guard() }
+        if (resetUserSessionPromise !== null) { await resetUserSessionPromise; guard() }
+        if (rejectedUserSession && !rejectedSessionReset) { await resetRejectedUserSession(); guard() }
+        if (music === null) { await configure(); guard() }
+        else if (developerTokenNeedsRefresh()) { await refreshDeveloperToken(); guard() }
+        emitAppleState({ status: 'signing-in' })
+        const value = instance('authorize')
+        const user = await value.authorize()
+        guard()
+        if (!value.isAuthorized || user === undefined) {
+          const error = new NotAuthorizedError('apple', 'authorize')
+          emitAppleState({ status: 'permission-denied', message: error.message })
+          throw error
+        }
+        privateMusicToken = user; rejectedUserSession = false; rejectedSessionReset = false
+        playbackEventsEnabled = true; failedPlaybackGeneration = null; bind(value)
+        const session = sessionOf(value); emitSession(session)
+        return session
+      } catch (cause) {
+        if (attempt !== authorizationGeneration && rejectedUserSession && currentSession === null) {
+          rejectedSessionReset = false
+          // A newer gesture may still be awaiting its native result. Do not log
+          // it out; if it fails, the next gesture must reset the stale SDK cache.
+          if (authorizationIntent !== 'authorize') {
+            await resetRejectedUserSession().catch(() => undefined)
+          }
+        }
+        if (attempt === authorizationGeneration && appleState.status !== 'permission-denied') emitAppleState({ status: 'error', message: cause instanceof Error ? cause.message : 'Apple Music sign-in failed' })
+        throw cause
+      }
+    },
     async withMusicAuthorization(consume) { const value = authorized('withMusicAuthorization'); const token = value.musicUserToken ?? privateMusicToken; if (token === null || token === undefined || token === '') throw new NotAuthorizedError('apple', 'withMusicAuthorization'); return consume(token) },
-    async unauthorize() { const value = instance('unauthorize'); await value.unauthorize(); privateMusicToken = null; playbackEventsEnabled = false; transactionGeneration += 1; invalidatePreparation(); continuations.clear(); keyFor.clear(); failedPlaybackGeneration = null; playbackQueueOffset = 0; stopProgressClock(); finishPendingPlayback(); unbindMusicKit?.(); emitPlayback({ ...currentPlayback, status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0 }); emitSession(null) }, get session() { return currentSession }, onSessionChange(callback) { sessions.add(callback); return () => { sessions.delete(callback) } }, get appleSessionState() { return appleState }, onAppleSessionStateChange(callback) { appleStates.add(callback); return () => { appleStates.delete(callback) } },
+    async unauthorize() {
+      authorizationGeneration += 1
+      authorizationIntent = 'logout'
+      if (logoutPromise !== null) return logoutPromise
+      logoutPromise = instance('unauthorize').unauthorize().then(() => {
+        clearUserSession(); rejectedSessionReset = true
+        continuations.clear(); keyFor.clear()
+        emitPlayback({ ...currentPlayback, status: 'idle', now: null, queueIndex: null, positionMs: 0, durationMs: 0 })
+      }).finally(() => { logoutPromise = null })
+      return logoutPromise
+    }, get session() { return currentSession }, onSessionChange(callback) { sessions.add(callback); return () => { sessions.delete(callback) } }, get appleSessionState() { return appleState }, onAppleSessionStateChange(callback) { appleStates.add(callback); return () => { appleStates.delete(callback) } },
     async search(query) { const types = query.kinds.map((kind) => kind === 'track' ? 'songs' : `${kind}s`).filter((kind) => kind !== 'stations'); const path = query.scope === 'library' ? '/v1/me/library/search' : `/v1/catalog/${storefront('search')}/search`; const response = await api(path, { term: query.term, types: (query.scope === 'library' ? types.map((type) => `library-${type}`) : types).join(','), limit: String(Math.min(25, Math.max(1, query.limit ?? 25))), ...(query.cursor === undefined ? {} : { offset: query.cursor }) }); const resultMap = record(payload(response)['results'], 'search results'); const entities: Entity[] = []; for (const section of Object.values(resultMap)) for (const item of resources(section)) entities.push(normalize(item, keyFor)); return { tracks: entities.filter((x): x is TrackRef => x.kind === 'track'), albums: entities.filter((x): x is AlbumRef => x.kind === 'album'), artists: entities.filter((x): x is ArtistRef => x.kind === 'artist'), playlists: entities.filter((x): x is PlaylistRef => x.kind === 'playlist'), stations: entities.filter((x): x is StationRef => x.kind === 'station'), next: null } satisfies SearchResults },
     async libraryList(kind, cursor) {
       const names: Record<LibraryKind, string | null> = { playlists: 'playlists', artists: 'artists', albums: 'albums', songs: 'songs', genres: null, composers: null }

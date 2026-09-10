@@ -1,4 +1,4 @@
-import { manageMusic } from '@webpod/music-management'
+import { manageMusic } from '@webpod/music-management/playback'
 import { describe, expect, test } from 'bun:test'
 import { APPLE_SUPPORTS, createFixtureProvider, type MusicProvider, type PlaybackState } from '@webpod/providers'
 import { createProgressiveAppleSource, type MusicRuntimeSnapshot } from './music-runtime'

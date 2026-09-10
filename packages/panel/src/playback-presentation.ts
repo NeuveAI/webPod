@@ -1,8 +1,8 @@
 import type { MusicProvider, PlaybackState } from '@webpod/providers'
 import type { ScreenFrame } from '@webpod/state'
-import { musicManager, deriveSelectionPresentation, type PlaybackAttempt, type PlaybackPresentation } from '@webpod/music-management'
+import { musicManager, deriveSelectionPresentation, type PlaybackAttempt, type PlaybackPresentation } from '@webpod/music-management/playback'
 import { playbackQueueForFrame } from './navigation'
-export type { PlaybackAttempt, PlaybackPresentation } from '@webpod/music-management'
+export type { PlaybackAttempt, PlaybackPresentation } from '@webpod/music-management/playback'
 
 /** Stable identity for one rendered queue occurrence, including duplicates. */
 export function playbackFrameKey(frame: ScreenFrame): string {

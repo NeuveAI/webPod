@@ -1,4 +1,4 @@
-import { manageMusic } from '@webpod/music-management'
+import { manageMusic } from '@webpod/music-management/playback'
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 import { createFixtureProvider, type MusicProvider, type PlaybackState, type QueueSnapshot } from '@webpod/providers'
