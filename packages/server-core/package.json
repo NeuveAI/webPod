@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./stickers": "./src/stickers/live.ts"
+    "./stickers": "./src/stickers/live.ts",
+    "./apple-stickers": "./src/stickers/apple-stickers.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json"
@@ -14,6 +15,7 @@
     "@webpod/providers": "workspace:*",
     "effect": "4.0.0-rc.112",
     "@webpod/stickers": "workspace:*",
-    "drizzle-orm": "0.45.2"
+    "drizzle-orm": "0.45.2",
+    "@webpod/sticker-engine": "workspace:*"
   }
 }

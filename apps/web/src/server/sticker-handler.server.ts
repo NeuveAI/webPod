@@ -1,8 +1,10 @@
+import { appleStickersRoute } from './apple-stickers.server'
 import { handleAppleDeveloperTokenRequest } from '@webpod/server-core'
 import type { createLiveStickerServer } from '@webpod/server-core/stickers'
 import { getStickerServer } from './sticker-runtime.server'
 
 export interface StickerRequestContext {
+  readonly appleStickerOptions?: import('./apple-stickers.server').AppleStickerOptions
   readonly stickerServer?: Pick<ReturnType<typeof createLiveStickerServer>, 'handle'>
   readonly appleTokenOptions?: Parameters<typeof handleAppleDeveloperTokenRequest>[1]
 }
@@ -22,3 +24,5 @@ export function stickerMethodNotAllowed(allow: string): Response {
 export function appleTokenRoute(request: Request, context: StickerRequestContext = {}): Promise<Response> {
   return handleAppleDeveloperTokenRequest(request, context.appleTokenOptions)
 }
+
+export function appleStickerRoute(request: Request, context: StickerRequestContext = {}): Promise<Response> { return appleStickersRoute(request, context.appleStickerOptions) }

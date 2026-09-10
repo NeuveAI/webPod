@@ -1,0 +1,9 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/sticker-restoration.integration.test.ts:
+(pass) local collection restores without Apple session and transfers through backup UI [4255.93ms]
+
+ 1 pass
+ 0 fail
+ 4 expect() calls
+Ran 1 test across 1 file. [4.39s]

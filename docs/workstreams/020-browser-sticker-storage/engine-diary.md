@@ -1,0 +1,22 @@
+# Storage engine implementation
+
+- Read full scope before edits. Used global-patterns/database-drizzle/modern-web-guidance skills; referenced agent-context global.md/db.md paths are missing. Guidance search returned no relevant worker/OPFS result. Grounded API work in user-provided sqlite-wasm reference and installed 3.53.4-build1 plus Drizzle 0.45.2 driver sources.
+- Extracted repository, policy and schema to browser-safe @webpod/sticker-engine. Legacy server reexports the same rules and wraps sessions separately. Signing/Apple code never imported into worker.
+- SQLite WASM runs inside dedicated worker. opfs-sahpool uses no cross-origin isolation headers. Web Locks contain install/unpause, DB open/migrate, whole synchronous repository command, DB close and pool pause. No in-memory fallback. Worker termination cancels queued lock requests; committed commands cannot be undone. Transport caps pending commands at 32 and terminates after 60s timeout.
+- Drizzle's pinned synchronous SQL.js driver is adapted to SQLite OO1 exec; materialized rows avoid leaked statement handles on exceptions. Browser migration creates only collection tables and schema version 1, no auth/device tables.
+- Versioned JSON backup is capped at 8 MiB. It includes tracks, credits, packs, layout, wear and starter state. Validates canonical tracks, IDs, grant keys, ownership, duplicates and bounded safe numbers before replacement. SQL transaction rolls back on insert failure. Revision increases beyond current/imported revisions. Observations intentionally restart: old listening baselines are not portable playback progress. No server DB migration is run.
+
+## Verification
+- `bun test packages/server-core/src/stickers`: 45 pass, 290 assertions after extraction.
+- `bun test packages/sticker-engine/src/engine.test.ts`: 2 pass, 21 assertions. WASM starter/listening/dedup rules, wear/packs/progress backup restore, raw row adapter, hostile backup rejection and trigger-induced failure after deletion rolls back.
+- Engine tsc and scoped changed-file eslint pass.
+- Production build passed; contains hashed worker and 868,907 byte SQLite WASM asset.
+- `bun apps/web/tests/sticker-storage-browser.ts`: passes actual built /webpod and production server. Proves OPFS write/reopen after worker termination, two-tab concurrent revision conflict, persistent same-worker pause/unpause alternating tabs, invalid backup unchanged, valid restore wear/revision, worker termination while queued behind held Web Lock prevents mutation, unavailable OPFS yields explicit failure.
+- Lead/integration own aggregate build/test and full route UI checks. No deployment, commit, existing server database read or credential access performed for implementation.
+
+## HUD fixture migration
+- Migrated legacy HUD suite to import a deterministic fixture backup into real browser OPFS, with all subsequent inventory reads and saves going through the built worker. Native SQLite server is retained solely to generate seeded rewards; its device/session endpoints are not the product persistence path.
+- Test-owned Worker wrapper injects placement admission delays/errors and reports completion to a synthetic HTTP endpoint so existing UI response/count checks remain meaningful. No production fault hooks or HTTP fallback added.
+- Initial migrated run passed 528 UI assertions, then hit an obsolete reduced-motion expectation: existing composite capability policy intentionally removes the physical device for reduced motion. Test now checks glass transparency/contrast independently and checks that reduced motion removes the physical sticker projections while retaining stored wear. Product capability policy unchanged.
+- Final HUD run: `WEBPOD_STICKER_HUD_EVIDENCE_DIR=/tmp/webpod-local-hud-frozen bun test apps/web/scripts/sticker-hud.integration.test.ts` passed 4 tests / 542 assertions in 33 seconds. Evidence and screenshots in `/tmp/webpod-local-hud-frozen`. Native worker writes, failures/retry/conflict, pending edit lock, touch cancellation, wear/return/restick and reload all pass.
+- Test synchronization corrections: poll React media-style settlement; wait observable landing completion rather than a fixed 650ms before independent edits; assert automatic pack tuck after restick instead of clicking a correctly absent tuck button. No interaction production code changed. A preceding run passed every UI assertion but failed final fingerprint because another agent edited a test during execution; the final passing run used a source freeze.

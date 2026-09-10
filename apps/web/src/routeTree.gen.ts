@@ -17,6 +17,7 @@ import { Route as ProbeCompositeRouteImport } from './routes/[_]probe.composite'
 import { Route as SpikeDeviceRouteImport } from './routes/[_]spike.device'
 import { Route as ApiStickersRouteImport } from './routes/api.stickers'
 import { Route as ApiAppleDeveloperTokenRouteImport } from './routes/api.apple.developer-token'
+import { Route as ApiAppleStickersRouteImport } from './routes/api.apple.stickers'
 import { Route as ApiStickersDeviceRouteImport } from './routes/api.stickers.device'
 import { Route as ApiStickersListeningRouteImport } from './routes/api.stickers.listening'
 import { Route as ApiStickersPlacementsRouteImport } from './routes/api.stickers.placements'
@@ -63,6 +64,11 @@ const ApiAppleDeveloperTokenRoute = ApiAppleDeveloperTokenRouteImport.update({
   path: '/api/apple/developer-token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAppleStickersRoute = ApiAppleStickersRouteImport.update({
+  id: '/api/apple/stickers',
+  path: '/api/apple/stickers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStickersDeviceRoute = ApiStickersDeviceRouteImport.update({
   id: '/device',
   path: '/device',
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/_spike/device': typeof SpikeDeviceRoute
   '/api/stickers': typeof ApiStickersRouteWithChildren
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
+  '/api/apple/stickers': typeof ApiAppleStickersRoute
   '/api/stickers/device': typeof ApiStickersDeviceRoute
   '/api/stickers/listening': typeof ApiStickersListeningRoute
   '/api/stickers/placements': typeof ApiStickersPlacementsRoute
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/_spike/device': typeof SpikeDeviceRoute
   '/api/stickers': typeof ApiStickersRouteWithChildren
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
+  '/api/apple/stickers': typeof ApiAppleStickersRoute
   '/api/stickers/device': typeof ApiStickersDeviceRoute
   '/api/stickers/listening': typeof ApiStickersListeningRoute
   '/api/stickers/placements': typeof ApiStickersPlacementsRoute
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/_spike/device': typeof SpikeDeviceRoute
   '/api/stickers': typeof ApiStickersRouteWithChildren
   '/api/apple/developer-token': typeof ApiAppleDeveloperTokenRoute
+  '/api/apple/stickers': typeof ApiAppleStickersRoute
   '/api/stickers/device': typeof ApiStickersDeviceRoute
   '/api/stickers/listening': typeof ApiStickersListeningRoute
   '/api/stickers/placements': typeof ApiStickersPlacementsRoute
@@ -146,6 +155,7 @@ export interface FileRouteTypes {
     | '/_spike/device'
     | '/api/stickers'
     | '/api/apple/developer-token'
+    | '/api/apple/stickers'
     | '/api/stickers/device'
     | '/api/stickers/listening'
     | '/api/stickers/placements'
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/_spike/device'
     | '/api/stickers'
     | '/api/apple/developer-token'
+    | '/api/apple/stickers'
     | '/api/stickers/device'
     | '/api/stickers/listening'
     | '/api/stickers/placements'
@@ -176,6 +187,7 @@ export interface FileRouteTypes {
     | '/_spike/device'
     | '/api/stickers'
     | '/api/apple/developer-token'
+    | '/api/apple/stickers'
     | '/api/stickers/device'
     | '/api/stickers/listening'
     | '/api/stickers/placements'
@@ -192,6 +204,7 @@ export interface RootRouteChildren {
   SpikeDeviceRoute: typeof SpikeDeviceRoute
   ApiStickersRoute: typeof ApiStickersRouteWithChildren
   ApiAppleDeveloperTokenRoute: typeof ApiAppleDeveloperTokenRoute
+  ApiAppleStickersRoute: typeof ApiAppleStickersRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -250,6 +263,13 @@ declare module '@tanstack/react-router' {
       path: '/api/apple/developer-token'
       fullPath: '/api/apple/developer-token'
       preLoaderRoute: typeof ApiAppleDeveloperTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/apple/stickers': {
+      id: '/api/apple/stickers'
+      path: '/api/apple/stickers'
+      fullPath: '/api/apple/stickers'
+      preLoaderRoute: typeof ApiAppleStickersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/stickers/device': {
@@ -319,6 +339,7 @@ const rootRouteChildren: RootRouteChildren = {
   SpikeDeviceRoute: SpikeDeviceRoute,
   ApiStickersRoute: ApiStickersRouteWithChildren,
   ApiAppleDeveloperTokenRoute: ApiAppleDeveloperTokenRoute,
+  ApiAppleStickersRoute: ApiAppleStickersRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

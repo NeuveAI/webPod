@@ -1,103 +1,71 @@
 # Deploying webPod to Vercel
 
-**Status: the public page can run without configured integrations. Apple Music
-and sticker collection readiness still require runtime key provisioning and
-durable storage.** Sticker routes refuse local SQLite when `VERCEL=1`; setting
-a `/tmp` database path is not a workaround. Unavailable storage returns 503 from
-the API without crashing the HTTP server or public SSR.
+webPod stores stickers in the browser using SQLite WASM in a dedicated worker and
+OPFS. Production does not need a sticker database provider, device cookies, or
+collection sessions. Apple Music signing and bounded library/catalog metadata
+requests remain server-side TanStack Start handlers.
 
-The initial container deployment returned HTTP 500 because the launcher eagerly
-validated storage. The launcher now leaves storage validation at the API boundary.
-See [deployment evidence](workstreams/019-vercel-deployment/deployment.md).
+## Persistence and ownership
 
-The [research and migration contract](workstreams/019-vercel-deployment/research.md)
-compares native Bun, Nitro, and OCI deployment using current primary sources.
+A collection belongs to this browser and origin. Normal reloads, Apple logout,
+reconnection and server redeployment preserve it. Another browser, device, preview
+domain or cleared site data starts with a separate collection. Apple authorization
+does not synchronize stickers. Use **Export stickers** and **Import stickers** under
+**Settings → Sticker backups** to transfer a versioned backup. Import requires
+confirmation and replaces the local collection only after validation.
 
-## Prepared image
+Browser storage can be cleared or evicted. Export valuable collections regularly.
+Unavailable OPFS/Web Locks is an explicit storage error; webPod does not silently
+substitute an unsaved in-memory collection. SQLite uses the SAH pool VFS so the app
+does not require COOP/COEP headers that could interfere with MusicKit authorization.
+Workers serialize access across tabs with Web Locks.
 
-`Dockerfile.vercel` builds the workspace using Bun 1.4.0 and its frozen lockfile,
-including the patched Start dependency and manifest-verified sticker assets.
-The runtime contains production dependencies, built client/server output and
-the existing Bun launcher. It runs as the `bun` user and binds to `0.0.0.0`.
-TanStack Start continues to own all dynamic routes.
+Legacy server SQLite implementation and its tests remain available for reference.
+The production browser does not request `/api/stickers` or its cookie endpoints.
+Existing server databases are untouched; this release does not migrate their data.
+`WEBPOD_STICKER_DATABASE_PATH` is unnecessary for the production browser flow.
 
-Build from the **repository root**, not `apps/web`:
+## Container and server configuration
+
+Build from the repository root with Bun and the frozen lockfile:
 
 ```sh
 docker build -f Dockerfile.vercel -t webpod:vercel-prep .
+docker run --rm -p 127.0.0.1:3000:3000 webpod:vercel-prep
 ```
 
-For a local packaging smoke test only, use disposable SQLite with no credentials:
+The root `vercel.json` selects the container service. Use Root Directory `.`;
+leave framework/build/output overrides unset and set `PORT=3000`. The Dockerfile
+owns the build and TanStack Start owns dynamic routes.
 
-```sh
-docker run --rm -p 127.0.0.1:3000:3000 \
-  -e WEBPOD_STICKER_DATABASE_PATH=/tmp/webpod/stickers.sqlite \
-  webpod:vercel-prep
-```
-
-The page and assets should load; authenticated Apple Music requires separate
-configuration. This disposable local database is deliberately not a Vercel
-deployment configuration. Check unauthenticated `/api/stickers` returns 401
-with `Cache-Control: no-store`.
-
-`.dockerignore` allows only build inputs and then excludes secrets/local state.
-`.vercelignore` separately protects source uploads. Neither the local signing
-key, environment files, private SQLite data nor encrypted design source belongs
-in an image. Do not add key contents to Docker `ARG`, `ENV`, or build commands.
-
-## Required before Vercel deployment
-
-1. Implement and verify remote sticker/session storage using the migration
-   contract. Choose a provider and provision separate preview/production data.
-2. Run the [owner-only Apple provisioning command](workstreams/019-vercel-deployment/apple-provisioning.md).
-   The runtime adapter is implemented: it materializes a sensitive environment
-   value into an isolated private temporary directory at startup and sets the
-   effective `APPLE_MUSICKIT_KEY_PATH`. Never paste secrets in chat.
-3. Review shared rate limits and verify request origin/secure cookies under
-   Vercel's proxy. Preserve the repo's server-only signing boundary.
-
-Vercel supports [sensitive environment variables](https://vercel.com/docs/environment-variables/sensitive-environment-variables)
-for Preview and Production. They are an input mechanism, not automatic key-file
-mounts. The existing signer requires:
+Provision Apple credentials using the [owner provisioning instructions](workstreams/019-vercel-deployment/apple-provisioning.md).
+The runtime adapter materializes the sensitive key in a private temporary directory.
+Do not put keys in build arguments, client environment variables, logs or source.
 
 | Variable | Purpose |
 | --- | --- |
 | `APPLE_TEAM_ID` | Apple team identifier |
-| `APPLE_MUSICKIT_KEY_ID` | Explicit Apple Music signing key identifier |
-| `APPLE_MUSICKIT_KEY_PATH` | Absolute path under the runtime temporary root; startup isolates the file in a private subdirectory |
-| `APPLE_MUSICKIT_PRIVATE_KEY` | Sensitive runtime PEM; provision through the owner-run script |
-| `APPLE_TOKEN_TTL_SECONDS` | Optional; defaults to 3600, accepted range 60–3600 |
-| `PORT` | Set to `3000` in Vercel project settings to match this image |
-| Provider-specific database variables | Determined by the storage migration; no remote variables exist yet |
+| `APPLE_MUSICKIT_KEY_ID` | Apple Music signing key identifier |
+| `APPLE_MUSICKIT_KEY_PATH` | Explicit absolute runtime signing-key path |
+| `APPLE_MUSICKIT_PRIVATE_KEY` | Sensitive runtime PEM provisioned by the owner |
+| `APPLE_TOKEN_TTL_SECONDS` | Optional; defaults to 3600, range 60–3600 |
+| `PORT` | Set to `3000` for this image |
 
-Do not use `VITE_` prefixes for server secrets. No live Apple credentials are
-needed to build the app.
+No live Apple credentials are needed to build. `.dockerignore` and `.vercelignore`
+exclude secrets and private local state. The stateless `/api/apple/stickers` POST
+validates same-origin requests, bounds input/upstream response sizes and concurrent
+requests, and returns no-store metadata. It receives a user token only for library
+import; tokens are never forwarded to the storage worker or stored in backups.
 
-## Deployment after blockers are resolved
+## Verification before promotion
 
-Import the repository with project Root Directory `.`. The root `vercel.json`
-explicitly selects a container service and routes requests to it. Automatic
-Dockerfile detection did not select containers in the first actual deployment.
-Leave framework/build/output overrides unset; the Dockerfile owns them.
-Set `PORT=3000` explicitly because Vercel's
-container routing otherwise defaults to 80. `EXPOSE` alone does not configure
-the platform. Native `bunVersion` is unnecessary for an image with a pinned Bun.
-[Vercel container contract](https://vercel.com/docs/functions/container-images).
+- Verify `/`, `/webpod`, emitted CSS/worker/WASM assets and all sticker artwork.
+- Test MusicKit authorization on the actual HTTPS origin without logging tokens.
+- In a new browser, import library, open/place stickers, reload, logout/reconnect.
+- Export/import a backup and confirm invalid backups preserve existing data.
+- Exercise two tabs and unavailable browser storage; verify explicit failure.
+- Confirm requests contain no old sticker device/session API calls.
 
-For CLI deployment, use `bunx --bun vercel` from the root to create a preview
-only after provisioning and migration are complete. No CLI deployment has been
-run by the initial preparation. A subsequent user-authorized deployment created
-`perf-lab/webpod`; see the workstream's deployment evidence for its result.
-
-Before promoting a preview:
-
-- Verify SSR at `/`, `/webpod`, asset responses and all 60 sticker PNGs.
-- Verify MusicKit authorization and origin-bound token flow on the actual HTTPS
-  domain without logging tokens; confirm the intended Apple account/domain setup.
-- Import a library, open a pack, place a sticker, reload, revoke/reconnect, then
-  repeat after redeployment and concurrent requests to prove persistence.
-- Check cold starts, upstream timeouts, no-store API responses, secure cookies,
-  and shutdown. No key or database file may be reachable through static paths.
-
-Keep the prior deployment available for rollback. Database migrations must
-remain compatible with it; rolling back a deployment does not roll back data.
+Keep the previous deployment available for rollback. Browser database and backup
+format compatibility matters across releases. Source changes here do not deploy;
+use `bunx --bun vercel` when deployment is explicitly requested.

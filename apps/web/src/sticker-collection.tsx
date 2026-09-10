@@ -1,3 +1,4 @@
+import { authorizeAppleRuntime, musicRuntime } from './music-runtime'
 import { deviceRevealActiveAtom } from './device-reveal-state'
 import { stickerPackPresenceAtom, resetStickerPackPresence } from './sticker-pack-presence'
 import { pickStickerSource, releaseStickerCandidate, sampleOwnedStickerRelease, publishOwnedStickerPull, type StickerGrab } from './sticker-grab'
@@ -81,6 +82,9 @@ const REAR_UI_MOTION = {
 } as const
 
 export function StickerCollection({ orientation, commands }: { readonly orientation: DeviceOrientation; readonly commands: StickerCollectionCommands }) {
+  const music = useSyncExternalStore(musicRuntime.subscribe, musicRuntime.getSnapshot, musicRuntime.getSnapshot)
+  const session = useSyncExternalStore(music.provider.onSessionChange, () => music.provider.session, () => null)
+  const connectMusic = session?.status === 'authorized' ? undefined : () => { void authorizeAppleRuntime() }
   const deviceRevealing = useAtomValue(deviceRevealActiveAtom, { store: deviceStore })
   useEffect(mountStickerCarryAnchorLifecycle, [])
   useAtomValue(stickerProjectionVersionAtom, { store: deviceStore })
@@ -157,7 +161,10 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     const generation = getStickerInteractionGeneration()
     const isCurrent = (): boolean => generation === getStickerInteractionGeneration()
     deviceStore.set(collectionMessageAtom, null)
-    void work(isCurrent).catch(() => {
+    void work(isCurrent).catch((cause: unknown) => {
+      // A successful local read may require a separate Apple sign-in gesture.
+      // Its import-status control owns that action; this is not a failed edit.
+      if (typeof cause === 'object' && cause !== null && 'code' in cause && cause.code === 'music_authorization_required') return
       if (!isCurrent() || deviceStore.get(stickerCollectionStatusAtom) === 'signed-out') return
       const held = deviceStore.get(stickerInteractionAtom)
       const authoritative = deviceStore.get(stickerInventoryAtom)?.placements.find((item) => item.stickerId === held.selectedStickerId)
@@ -492,7 +499,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
   if (compositeTier.tier !== 'T1') return null
   if (!usable && interaction.sourcePlacement == null && editor === null) return !rearUiVisible ? null : artworkFailure !== null
     ? <p role="status" className="pointer-events-auto absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs text-stone-800">This pack’s artwork couldn’t load. <button type="button" className={buttonClass} onClick={() => { retryStickerArtwork() }}>Retry artwork</button></p>
-    : status === 'loading' ? <p role="status" className="pointer-events-none absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs text-stone-800">Restoring your saved stickers…</p> : status === 'error' ? <p role="alert" className="pointer-events-auto absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs text-stone-800">Your saved stickers couldn’t reconnect. <button type="button" className={buttonClass} onClick={() => run(commands.retry)}>Reconnect stickers</button></p> : <StickerImportStatus status={inventory?.importStatus} retry={() => run(commands.retry)} usable={false} />
+    : status === 'loading' ? <p role="status" className="pointer-events-none absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs text-stone-800">Restoring your saved stickers…</p> : status === 'error' ? <p role="alert" className="pointer-events-auto absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs text-stone-800">This browser couldn’t open sticker storage. Private browsing or browser storage settings may prevent saving. <button type="button" className={buttonClass} onClick={() => run(commands.retry)}>Retry storage</button></p> : <StickerImportStatus connecting={music.phase === 'signing-in'} connect={connectMusic} status={inventory?.importStatus} retry={() => run(commands.retry)} usable={false} />
   return (
     <div ref={host} inert={!rear} aria-hidden={!rearUiVisible} style={{ opacity: rearUiVisible ? 1 : 0, transform: `translateY(${rearUiVisible || reducedMotion ? 0 : REAR_UI_MOTION.travelPx}px)`, transition: `opacity ${presenceMs}ms ${presenceEase}, transform ${presenceMs}ms ${presenceEase}` }} className="pointer-events-none absolute inset-0 z-20" data-sticker-turn={packTurn} data-sticker-stage={interaction.stage} data-sticker-reduced-motion={reducedMotion} data-sticker-progress={interaction.progress} data-sticker-workspace-lowering={workspaceLowering} data-sticker-sheet-reveal={sheetReveal} data-sticker-peel={interaction.peel} data-sticker-landing={interaction.landing} onKeyDown={(event) => { event.stopPropagation(); if (event.key === 'Escape') { event.preventDefault(); if (deviceStore.get(stickerInteractionAtom).sourcePlacement != null) { releaseCapturedStickerPointer(captureTarget.current); returnStickerToSheet(reducedMotion) } else if (detail !== undefined) deviceStore.set(stickerDetailIdAtom, null); else close() } }}>
       {(inventory?.placements ?? []).map((placement) => {
@@ -550,7 +557,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
       </div> : null}
       {message === null ? null : <p role="status" className={message === 'That change didn’t save. Try again.' ? 'pointer-events-auto absolute right-4 top-16 max-w-64 rounded bg-[#242a2e] px-3 py-2 text-xs text-[#eee7d9]' : 'sr-only'}>{message}</p>}
       <StickerEditor fit={commands.fit} screen={commands.screen} quad={commands.quad} contour={commands.contour} beginTransform={commands.beginTransform} place={commands.place} returnToPack={returnPlaced} />
-      {artworkFailure === null ? <StickerImportStatus status={inventory?.importStatus} retry={() => run(commands.retry)} usable={usable} /> : <p role="alert" className="pointer-events-auto absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs leading-relaxed text-stone-800">A sticker image could not load. <button type="button" className={buttonClass} onClick={() => { retryStickerArtwork() }}>Retry artwork</button></p>}
+      {artworkFailure === null ? <StickerImportStatus connecting={music.phase === 'signing-in'} connect={connectMusic} status={inventory?.importStatus} retry={() => run(commands.retry)} usable={usable} /> : <p role="alert" className="pointer-events-auto absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs leading-relaxed text-stone-800">A sticker image could not load. <button type="button" className={buttonClass} onClick={() => { retryStickerArtwork() }}>Retry artwork</button></p>}
     </div>
   )
 }
@@ -560,10 +567,10 @@ const buttonClass = 'min-h-11 shrink-0 rounded-md px-3 py-2 font-medium hover:bg
 const sample = (event: Pick<globalThis.PointerEvent, 'clientX' | 'clientY' | 'timeStamp'>): PointerMotionSample => ({ clientX: event.clientX, clientY: event.clientY, timestampMs: event.timeStamp })
 
 /** Sampling is a successful bounded import; only an actual failed import offers retry. */
-export function StickerImportStatus({ status, retry, usable = false }: { readonly status: StickerInventory['importStatus'] | undefined; readonly retry: () => void; readonly usable?: boolean }) {
+export function StickerImportStatus({ status, retry, connect, connecting = false, usable = false }: { readonly connecting?: boolean; readonly connect?: (() => void) | undefined; readonly status: StickerInventory['importStatus'] | undefined; readonly retry: () => void; readonly usable?: boolean }) {
   if (status !== 'failed') return null
   return <p role="status" className="pointer-events-auto absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs leading-relaxed text-stone-800">
-    {usable ? 'Library sync paused.' : 'Couldn’t sync your library yet.'} <button type="button" className={buttonClass} onClick={retry}>Try again</button>
+    {usable ? 'Library sync paused.' : 'Couldn’t sync your library yet.'} <button type="button" className={buttonClass} disabled={connect !== undefined && connecting} onClick={connect ?? retry}>{connect === undefined ? 'Try again' : connecting ? 'Connecting…' : 'Sign in to Apple Music'}</button>
   </p>
 }
 

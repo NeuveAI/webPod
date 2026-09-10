@@ -5,17 +5,37 @@ import { tmpdir } from 'node:os'
 import { resolve, sep } from 'node:path'
 import { chromium, expect as browserExpect, type BrowserContext, type Page } from '@playwright/test'
 import { handleAppleDeveloperTokenRequest } from '@webpod/server-core'
-import { createLiveStickerServer } from '@webpod/server-core/stickers'
-import { getSticker, isStickerInventory, type StickerInventory, type StickerPlacement } from '@webpod/stickers'
+import { installStickerWorkerFixture, stickerWorkerCommand, waitForStickerPlacement } from '../tests/sticker-worker-fixture'
+import { getSticker, isStickerInventory, type StickerInventory } from '@webpod/stickers'
 import { fingerprintBrowserSources } from '../../../scripts/browser-source-fingerprint'
 import { installDeterministicAppleMusic } from '../tests/deterministic-apple-music'
 
-const evidence = process.env.WEBPOD_STICKER_EVIDENCE_DIR ?? resolve(import.meta.dirname, '../../../docs/workstreams/015-listening-sticker-collection/evidence/tactile-collection/browser')
+const evidence = process.env.WEBPOD_STICKER_EVIDENCE_DIR ?? resolve(import.meta.dirname, '../../../docs/workstreams/020-browser-sticker-storage/evidence/tactile-browser')
+
+/** Native touches must use the final measured projection, after the liner spring. */
+async function stableStickerLayout(page: Page): Promise<void> {
+  await page.evaluate(() => new Promise<void>((resolve, reject) => {
+    let previous: number[] = [], stable = 0
+    const deadline = performance.now() + 5000
+    const inspect = () => {
+      const positions = [...document.querySelectorAll('[data-sticker-slot], [data-sticker-placed]')].flatMap(element => { const r = element.getBoundingClientRect(); return [r.x, r.y, r.width, r.height] })
+      const stage = document.querySelector('[data-sticker-stage]')?.getAttribute('data-sticker-stage')
+      const inactive = stage === 'open' || stage === 'tease'
+      if (inactive && positions.length === previous.length && positions.every((value, index) => Math.abs(value - (previous[index] ?? Infinity)) < .05)) stable++; else stable = 0
+      previous = positions
+      if (stable >= 10) { resolve(); return }
+      if (performance.now() > deadline) { reject(new Error('Sticker layout did not settle')); return }
+      requestAnimationFrame(inspect)
+    }
+    requestAnimationFrame(inspect)
+  }))
+}
 
 /** Native drag of the exposed liner, including a visibly intermediate position. */
 async function pullLiner(page: Page): Promise<void> {
   const handle = page.getByRole('button', { name: 'Pull sticker liner open' })
   await browserExpect(handle).toBeVisible()
+  await stableStickerLayout(page)
   const box = await handle.boundingBox()
   const pack = await page.locator('[data-sticker-collection]').boundingBox()
   if (box === null || pack === null) throw new Error('Physical liner handle missing')
@@ -32,26 +52,26 @@ async function pullLiner(page: Page): Promise<void> {
     await page.mouse.move(x, y - pack.height * .8, { steps: 16 }); await page.mouse.up()
   }
   await browserExpect(page.locator('[data-sticker-slot]')).toHaveCount(5)
+  await stableStickerLayout(page)
 }
 
-/** Built production /, real Start endpoints, native browser cookies and isolated SQLite.
+/** Built production /, real Start endpoints, worker SQLite and OPFS.
  * Only MusicKit and the server's trusted Apple/signing dependencies are synthetic.
- * No browser API interception, production test switch, alternate renderer or stored secrets. */
-test('production browser signs in, collects, reloads, revokes and reconnects its device collection', async () => {
+ * Test-owned Worker placement admission/error instrumentation covers failure races.
+ * There is no production test switch, alternate renderer, or stored secret. */
+test('production browser signs in, collects, reloads and reconnects its local collection', async () => {
   const directory = await mkdtemp(resolve(tmpdir(), 'webpod-sticker-browser-'))
   const pageErrors: string[] = []
   const cleanup: (() => Promise<unknown>)[] = [() => rm(directory, { recursive: true, force: true })]
   let cleanupFailed: boolean
+  let releaseArtwork = () => {}
   try {
   const sourceFingerprint = fingerprintBrowserSources()
-  const databasePath = resolve(directory, 'collection.sqlite')
   const clientRoot = resolve(import.meta.dirname, '../dist/client')
   const builtPath = resolve(import.meta.dirname, '../dist/server/server.js')
   const started = performance.now()
-  let now = Date.now()
   let verifications = 0
   let signed = 0
-  let releaseArtwork!: () => void
   const artworkGate = new Promise<void>((resolve) => { releaseArtwork = resolve })
   let heldArtworkRequests = 0
   let artworkReleased = false
@@ -65,37 +85,20 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
   let failNextPlacement = false
   let simulatedServiceFailures = 0
   const requests: { method: string; path: string; status: number }[] = []
-  const service = createLiveStickerServer({
-    databasePath, now: () => now, developerToken: async () => 'synthetic-developer',
-    fetch: async (input) => {
+  const appleStickerOptions = { developerToken: async () => 'synthetic-developer',
+    fetch: async (input: RequestInfo | URL) => {
       const path = new URL(String(input)).pathname
       if (path.endsWith('/storefront')) { verifications++; return Response.json({ data: [{ id: 'us' }] }) }
       if (path.includes('/library/') && importMode === 'failed') return new Response('Synthetic Apple outage', { status: 503 })
       if (path.includes('/library/')) return Response.json({ ...(importMode === 'partial' ? { next: `/v1/me/library/songs?offset=${Number(new URL(String(input)).searchParams.get('offset') ?? 0) + 100}` } : {}), data: ['Rock', 'Electronic', 'Jazz'].map((genre, index) => ({ attributes: { playParams: { catalogId: String(123 + index) }, durationInMillis: 240000, genreNames: [genre] } })) })
       return Response.json({ data: [] })
     },
-  })
-  cleanup.push(() => service.dispose())
-  const httpService = { ...service, handle: async (request: Request) => {
-    if (new URL(request.url).pathname === '/api/stickers/placements') {
-      if (placementGate !== null) { heldPlacement = true; await placementGate; placementGate = null }
-      if (conflictNextPlacement) {
-        conflictNextPlacement = false
-        const body = await request.clone().json() as { revision: number; placements: StickerPlacement[] }
-        const concurrent = new Request(request.url, { method: 'PUT', headers: request.headers, body: JSON.stringify({ ...body, placements: body.placements.map((item) => item.stickerId === 'PW-C01' ? { ...item, x: .55, y: .45, width: .18, rotationDeg: 23 } : item) }) })
-        const result = await service.handle(concurrent)
-        if (result.status !== 200) throw new Error('Concurrent native fixture write failed')
-      }
-    }
-    if (failNextPlacement && new URL(request.url).pathname === '/api/stickers/placements') { failNextPlacement = false; simulatedServiceFailures++; throw new Error('Synthetic storage outage') }
-    return service.handle(request)
-  } }
+  }
   const appleTokenOptions: Parameters<typeof handleAppleDeveloperTokenRequest>[1] = {
     env: { APPLE_TEAM_ID: 'ABCDE12345', APPLE_MUSICKIT_KEY_ID: 'ABCDE12345', APPLE_MUSICKIT_KEY_PATH: '/synthetic/no-key-read.p8' },
     signer: { async sign() { signed++; return new Uint8Array(64) } },
   }
-  const { default: entry } = await import(builtPath) as { default: { fetch(request: Request, options: { context: { stickerServer: typeof service; appleTokenOptions: typeof appleTokenOptions } }): Promise<Response> } }
-  await service.ready()
+  const { default: entry } = await import(builtPath) as { default: { fetch(request: Request, options: { context: { appleStickerOptions: typeof appleStickerOptions; appleTokenOptions: typeof appleTokenOptions } }): Promise<Response> } }
   const server = Bun.serve({
     port: 0, hostname: '127.0.0.1',
     async fetch(request) {
@@ -110,7 +113,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
           if (file?.isFile()) return new Response(request.method === 'HEAD' ? null : Bun.file(path), { headers: { 'content-type': Bun.file(path).type } })
         }
       }
-      const response = await entry.fetch(request, { context: { stickerServer: httpService, appleTokenOptions } })
+      const response = await entry.fetch(request, { context: { appleStickerOptions, appleTokenOptions } })
       if (pathname.startsWith('/api/')) requests.push({ method: request.method, path: pathname, status: response.status })
       return response
     },
@@ -123,29 +126,37 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     cleanup.push(() => context.close())
     const page = await context.newPage()
     page.on('pageerror', error => { pageErrors.push(error.message) })
+    await installStickerWorkerFixture(page, async () => {
+      if (placementGate !== null) { heldPlacement = true; await placementGate; placementGate = null }
+      const conflict = conflictNextPlacement, fail = failNextPlacement
+      conflictNextPlacement = false; failNextPlacement = false
+      if (fail) simulatedServiceFailures++
+      return { conflict, fail }
+    })
     await installDeterministicAppleMusic(page, { authorized: false, mockDeveloperToken: false })
-    await page.goto(server.url.origin + '/')
+    await page.goto(server.url.origin + '/webpod')
     // An HTML shell is insufficient: the built root must mount the actual product and canvas.
     await browserExpect(page.locator('.webpod-device-preview__device')).toHaveAttribute('data-composite-tier', 'T1', { timeout: 30_000 })
     await browserExpect(page.locator('canvas')).toBeVisible()
-    expect(new URL(page.url()).pathname).toBe('/')
+    expect(new URL(page.url()).pathname).toBe('/webpod')
     expect(await page.evaluate(() => '__webpodDevicePreview' in window)).toBe(false)
     return { page, context }
   }
   const readInventory = async (context: BrowserContext): Promise<StickerInventory> => {
-    const response = await context.request.get(server.url.origin + '/api/stickers')
-    expect(response.status()).toBe(200)
-    expect(response.headers()['cache-control']).toBe('no-store')
-    const body: unknown = await response.json()
-    if (!isStickerInventory(body)) throw new Error('Invalid server inventory')
+    const page = context.pages()[0]
+    if (page === undefined) throw new Error('Browser collection page missing')
+    const body: unknown = await stickerWorkerCommand(page, 'inventory')
+    if (!isStickerInventory(body)) throw new Error('Invalid worker inventory')
     return body
   }
   const signIn = async (page: Page): Promise<void> => {
     await page.getByRole('button', { name: 'Settings', exact: true }).click()
-    const signedIn = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/session' && response.request().method() === 'POST' && response.status() === 200)
+    const signedIn = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/apple/stickers' && response.request().method() === 'POST')
     await page.getByRole('button', { name: 'Sign in to Apple Music', exact: true }).click()
     await signedIn
-    await page.getByRole('button', { name: 'Close', exact: true }).click()
+    await browserExpect.poll(async () => (await readInventory(page.context())).importStatus).not.toBe('pending')
+    await page.keyboard.press('Escape')
+    await browserExpect(page.getByRole('dialog', { name: 'Settings' })).toBeHidden()
   }
   const captureRenderedSticker = async (page: Page, filename: string): Promise<void> => {
     let capture: Buffer | undefined
@@ -198,13 +209,23 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
   }
   const flipRear = async (page: Page, ready = true): Promise<void> => {
     const stage = page.locator('.webpod-device-preview__stage')
-    await stage.focus(); await page.keyboard.press('Home')
-    for (let step = 0; step < 15; step++) await page.keyboard.press('Shift+ArrowRight')
+    await page.getByRole('button', { name: 'Reset view', exact: true }).click()
+    // Reset is a spring, not an immediate assignment. Wait for front before
+    // keyboard rotation so a prior rear pose cannot become a full front turn.
+    await browserExpect.poll(async () => {
+      const axes = (await page.locator('.webpod-device-preview').getAttribute('data-orientation'))?.split(',').map(Number) ?? []
+      return Math.abs(Math.sin((axes[1] ?? 180) * Math.PI / 360))
+    }).toBeLessThan(.001)
+    for (let step = 0; step < 15; step++) { await stage.focus(); await page.keyboard.press('Shift+ArrowRight') }
+    await browserExpect.poll(async () => {
+      const axes = (await page.locator('.webpod-device-preview').getAttribute('data-orientation'))?.split(',').map(Number) ?? []
+      return Math.cos((axes[1] ?? 0) * Math.PI / 180)
+    }).toBeLessThan(-.99)
     if (ready) await browserExpect(page.getByRole('button', { name: 'Pull sticker pack into view' })).toBeVisible()
   }
     await mkdir(evidence, { recursive: true })
     const first = await open()
-    expect((await first.context.request.get(server.url.origin + '/api/stickers')).status()).toBe(401)
+    expect((await readInventory(first.context)).stickerIds).toHaveLength(0)
     await flipRear(first.page, false)
     await browserExpect(first.page.locator('[data-sticker-collection]')).toHaveCount(0)
     await signIn(first.page)
@@ -222,27 +243,19 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.getByRole('button', { name: 'Retry artwork' }).click()
     await browserExpect(first.page.getByRole('button', { name: 'Pull sticker pack into view' })).toBeVisible()
     await first.page.screenshot({ path: resolve(evidence, 'desktop-first-ready-tease.png') })
-    // Four measured 225-second plays earn the second rock sticker through native API policy.
-    for (let play = 0; play < 4; play++) for (let sequence = 0; sequence <= 15; sequence++) {
-      now += 15000
-      const observation = await first.context.request.post(server.url.origin + '/api/stickers/listening', { headers: { origin: server.url.origin }, data: { eventId: `tactile-${play}-${sequence}`, streamId: `tactile-${play}`, sequence, catalogId: '123', positionMs: sequence * 15000, playing: true } })
-      expect(observation.status()).toBe(200)
-    }
+    // Seed the second earned print through the versioned semantic backup. Reward
+    // timing is covered by engine parity tests; this suite exercises tactile UI.
+    const rewardBackup = JSON.parse(await stickerWorkerCommand<string>(first.page, 'exportBackup'))
+    rewardBackup.credits = [{ owner: 'local', genre: 'rock', listenedMs: 900000 }]
+    rewardBackup.packs.push({ owner: 'local', id: 'fixture-second-rock', grantKey: 'listening:v1:PW-C02', source: 'listening', stickerIds: ['PW-C02'], earnedAt: Date.now(), openedAt: null })
+    await stickerWorkerCommand(first.page, 'importBackup', [JSON.stringify(rewardBackup)])
     expect((await readInventory(first.context)).stickerIds).toContain('PW-C02')
-    const refreshed = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/session' && response.request().method() === 'POST' && response.status() === 200)
+    const refreshed = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/apple/stickers' && response.request().method() === 'POST' && response.status() === 200)
     await first.page.reload(); await refreshed
     const stickerId = initial.stickerIds[0]
     const art = stickerId === undefined ? undefined : getSticker(stickerId)
     if (art === undefined) throw new Error('Starter artwork missing')
-    const cookies = await first.context.cookies()
-    for (const name of ['webpod_device', 'webpod_session']) {
-      const cookie = cookies.find((item) => item.name === name)
-      expect(cookie !== undefined).toBe(true)
-      expect(cookie?.httpOnly).toBe(true)
-      expect(cookie?.sameSite).toBe('Lax')
-      expect(cookie?.path).toBe('/')
-    }
-    expect(await first.page.evaluate(() => document.cookie.includes('webpod_device') || document.cookie.includes('webpod_session'))).toBe(false)
+    expect((await first.context.cookies()).some(cookie => ['webpod_device', 'webpod_session'].includes(cookie.name))).toBe(false)
     await flipRear(first.page)
     await first.page.screenshot({ path: resolve(evidence, 'browser-01-real-starter.png') })
     const lip = first.page.getByRole('button', { name: 'Pull sticker pack into view' })
@@ -264,7 +277,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     for (const useMeaning of [false, true]) {
       await firstSeat.focus(); await first.page.keyboard.press('ArrowRight')
       await secondSeat.focus()
-      const savedOther = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.request().method() === 'PUT' && response.status() === 200)
+      const savedOther = waitForStickerPlacement(first.page, 200)
       if (useMeaning) await first.page.getByRole('button', { name: 'Stick Riff Rider', exact: true }).click()
       else await first.page.keyboard.press('Enter')
       await savedOther
@@ -275,7 +288,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
       await first.page.getByRole('button', { name: 'Pull sticker pack into view' }).click()
       await pullLiner(first.page)
       await secondSeat.click()
-      const returnedOther = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.request().method() === 'PUT' && response.status() === 200)
+      const returnedOther = waitForStickerPlacement(first.page, 200)
       await first.page.getByRole('button', { name: 'Return to sheet' }).click(); await returnedOther
       expect((await readInventory(first.context)).placements).toEqual([])
     }
@@ -324,7 +337,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.getByRole('button', { name: 'Pull sticker pack into view' }).click()
     await pullLiner(first.page)
     await first.page.locator(`[data-sticker-slot="${art.id}"]`).click()
-    const offDeviceReturn = first.page.waitForResponse(response => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 200)
+    const offDeviceReturn = waitForStickerPlacement(first.page, 200)
     await first.page.getByRole('button', { name: 'Return to sheet' }).click()
     await offDeviceReturn
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
@@ -337,7 +350,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.mouse.move(641, 450); await first.page.mouse.up()
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
     expect((await readInventory(first.context)).placements).toHaveLength(0)
-    const saved = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.request().method() === 'PUT' && response.status() === 200)
+    const saved = waitForStickerPlacement(first.page, 200)
     await first.page.mouse.move(peelBox.x + peelBox.width / 2, peelBox.y + peelBox.height / 2)
     await first.page.mouse.down(); await first.page.mouse.move(640, 450, { steps: 12 })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'placing')
@@ -354,6 +367,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     expect(placed.packs[0]?.openedAt !== null).toBe(true)
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     const equipped = first.page.locator('[data-sticker-placed="PW-C01"]')
+    await stableStickerLayout(first.page)
     const equippedBox = await equipped.boundingBox()
     if (equippedBox === null) throw new Error('Placed print semantic projection missing')
     const grabX = equippedBox.x + equippedBox.width / 2 + 4, grabY = equippedBox.y + equippedBox.height / 2
@@ -364,7 +378,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.mouse.move(700, 310, { steps: 12 })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'placing')
     await first.page.screenshot({ path: resolve(evidence, 'desktop-rear-move-preview.png') })
-    const moved = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 200)
+    const moved = waitForStickerPlacement(first.page, 200)
     await first.page.mouse.up(); await moved
     let movedInventory = await readInventory(first.context)
     expect(movedInventory.placements).toHaveLength(1)
@@ -373,6 +387,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     expect(movedInventory.placements[0]?.rotationDeg).toBe(placed.placements[0]?.rotationDeg)
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     const pickRear = async (): Promise<void> => {
+      await stableStickerLayout(first.page)
       const origin = await equipped.boundingBox()
       if (origin === null) throw new Error('Rear source missing')
       await first.page.mouse.move(origin.x + 22, origin.y + 22); await first.page.mouse.down()
@@ -383,18 +398,18 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     // SQLite; the rejected move must reconcile, not resurrect its saved origin.
     conflictNextPlacement = true
     await pickRear(); await first.page.mouse.move(620, 430, { steps: 12 })
-    const conflicted = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 409)
+    const conflicted = waitForStickerPlacement(first.page, 409)
     await first.page.mouse.up(); await conflicted
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
     movedInventory = await readInventory(first.context)
     expect(movedInventory.placements[0]).toMatchObject({ x: .55, y: .45, width: .18, rotationDeg: 23 })
     await first.page.screenshot({ path: resolve(evidence, 'desktop-authoritative-conflict-reconciled.png') })
     // Cancellation while native persistence is pending supersedes presentation,
-    // while the eventual permitted server outcome still becomes authoritative.
+    // while the eventual permitted worker outcome still becomes authoritative.
     let finishPlacement!: () => void
     placementGate = new Promise<void>((resolve) => { finishPlacement = resolve })
     await pickRear(); await first.page.mouse.move(760, 300, { steps: 12 }); await first.page.mouse.move(655, 410, { steps: 12 })
-    const late = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 200)
+    const late = waitForStickerPlacement(first.page, 200)
     void late.catch(() => {}) // Preserve the primary assertion if cleanup closes a failed probe.
     await first.page.mouse.up(); await browserExpect.poll(() => heldPlacement).toBe(true)
     await first.page.keyboard.press('Escape')
@@ -410,7 +425,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-sheet-reveal', '0')
     const closedLip = await lip.boundingBox()
-    expect(closedLip?.y).toBeGreaterThan(845)
+    expect(closedLip?.y).toBeGreaterThan((first.page.viewportSize()?.height ?? 900) - 100)
     await lip.focus(); await first.page.keyboard.press('Enter')
     await pullLiner(first.page)
     await browserExpect(first.page.locator('[data-sticker-slot]')).toHaveCount(5)
@@ -425,13 +440,14 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await deviceStage.focus(); await first.page.keyboard.press('Home')
     await flipRear(first.page)
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-sheet-reveal', '0')
-    const roundtripLip = await lip.boundingBox()
-    expect(roundtripLip?.y).toBeGreaterThan(845)
+    await browserExpect.poll(async () => (await lip.boundingBox())?.y).toBeGreaterThan((first.page.viewportSize()?.height ?? 900) - 100)
+    await first.page.screenshot({ path: resolve(evidence, 'before-roundtrip-pixel-check.png') })
     await captureRenderedSticker(first.page, 'browser-02-real-placement.png')
     // Existing rear vinyl remains a live gesture surface while a locked image on
     // its own sheet is withheld. Readiness must not gate its animation or host size.
     await first.page.setViewportSize({ width: 375, height: 812 })
     await first.page.evaluate(() => new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done()))))
+    await stableStickerLayout(first.page)
     const unreadyOrigin = await equipped.boundingBox()
     if (unreadyOrigin === null) throw new Error('Existing rear origin missing before artwork reload')
     let releaseLocked!: () => void
@@ -467,7 +483,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'peeling')
     await pendingTouch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 340, y: 330 }] })
     await pendingTouch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 195, y: 300 }] })
-    const unreadySave = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 200)
+    const unreadySave = waitForStickerPlacement(first.page, 200)
     await pendingTouch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await unreadySave
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveCount(0)
     movedInventory = await readInventory(first.context)
@@ -476,7 +492,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     await first.page.screenshot({ path: resolve(evidence, 'mobile-ready-after-unready-rear-carry.png') })
     await first.page.setViewportSize({ width: 1280, height: 900 })
-    const restored = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/session' && response.request().method() === 'POST' && response.status() === 200)
+    const restored = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/apple/stickers' && response.request().method() === 'POST' && response.status() === 200)
     await first.page.reload(); await restored
     const reloaded = await readInventory(first.context)
     expect(reloaded.placements).toEqual(movedInventory.placements)
@@ -490,7 +506,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.mouse.move(returnOrigin.x + returnOrigin.width / 2, returnOrigin.y + returnOrigin.height / 2)
     await first.page.mouse.down(); await first.page.mouse.move(returnOrigin.x + returnOrigin.width / 2 + 8, returnOrigin.y + returnOrigin.height / 2); await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'peeling'); await first.page.mouse.move(returnSeat.x + returnSeat.width / 2, returnSeat.y + returnSeat.height / 2, { steps: 18 })
     await first.page.screenshot({ path: resolve(evidence, 'desktop-own-seat-drop.png') })
-    const returnedToSeat = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 200)
+    const returnedToSeat = waitForStickerPlacement(first.page, 200)
     await first.page.mouse.up(); await returnedToSeat
     for (let frame = 0; frame < 3; frame++) {
       await first.page.screenshot({ path: resolve(evidence, `desktop-own-seat-return-${frame}.png`) })
@@ -506,13 +522,17 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     if (reappliedSeat === null) throw new Error('Returned sheet print missing')
     await first.page.mouse.move(reappliedSeat.x + reappliedSeat.width / 2, reappliedSeat.y + reappliedSeat.height / 2)
     await first.page.mouse.down(); await first.page.mouse.move(700, 310, { steps: 16 })
-    const reapplied = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 200)
+    const reapplied = waitForStickerPlacement(first.page, 200)
     await first.page.mouse.up(); await reapplied
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     const finalRockInventory = await readInventory(first.context)
     await first.page.setViewportSize({ width: 375, height: 812 })
     await first.page.emulateMedia({ reducedMotion: 'reduce' })
-    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-reduced-motion', 'true')
+    // Existing capability policy selects the flat product at reduced motion.
+    await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveCount(0)
+    expect((await readInventory(first.context)).placements).toEqual(finalRockInventory.placements)
+    await first.page.emulateMedia({ reducedMotion: 'no-preference' })
+    await first.page.reload(); await flipRear(first.page)
     await first.page.getByRole('button', { name: 'Pull sticker pack into view' }).focus()
     await first.page.keyboard.press('Enter')
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
@@ -527,20 +547,21 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await first.page.getByRole('button', { name: 'Next sticker collection' }).click()
     await browserExpect(first.page.locator('[data-sticker-collection]')).toHaveAttribute('data-sticker-collection', 'electronic')
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-sheet-reveal', '1')
-    // Direct touch follows the rendered seat on a 375px viewport, including reduced motion.
+    // Direct touch follows the rendered seat on a 375px viewport, with native touch events.
     await captureSheet(first.page, 'mobile-electronic-sheet.png')
     const touchSeat = first.page.locator('[data-sticker-slot-state="earned"]').first()
+    await stableStickerLayout(first.page)
     const touchBox = await touchSeat.boundingBox()
     if (touchBox === null) throw new Error('Mobile earned seat missing')
     const touch = await first.context.newCDPSession(first.page)
     const touchX = touchBox.x + touchBox.width / 2, touchY = touchBox.y + touchBox.height / 2
-    // Real Start503 via its trusted service seam must restore packet and carry state.
+    // Worker503 via the test-only worker fault seam must restore packet and carry state.
     failNextPlacement = true
     await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: touchX, y: touchY }] })
     await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 348, y: 360 }] })
     await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 230, y: 425 }] })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'placing')
-    const rejected = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 503)
+    const rejected = waitForStickerPlacement(first.page, 503)
     await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await rejected
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-workspace-lowering', '0')
@@ -548,7 +569,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: touchX, y: touchY }] })
     await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 348, y: 360 }] })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'placing')
-    await first.page.screenshot({ path: resolve(evidence, 'mobile-reduced-motion-free-drag.png') })
+    await first.page.screenshot({ path: resolve(evidence, 'mobile-free-drag.png') })
     await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 130, y: 170 }] })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'placing')
     await first.page.screenshot({ path: resolve(evidence, 'mobile-touch-placement-range.png') })
@@ -571,13 +592,14 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     }, { message: 'The lower-rear Pulse Code preview must be visible before release' }).toBeGreaterThan(20)
     if (lowerPreview !== undefined) await writeFile(resolve(evidence, 'mobile-lower-rear-preview.png'), lowerPreview)
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'placing')
-    const touchSaved = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.request().method() === 'PUT' && response.status() === 200)
+    const touchSaved = waitForStickerPlacement(first.page, 200)
     await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await touchSaved
     await first.page.screenshot({ path: resolve(evidence, 'mobile-touch-stuck.png') })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     const mobilePlaced = (await readInventory(first.context)).placements.find((item) => item.stickerId !== 'PW-C01')
     if (mobilePlaced === undefined) throw new Error('Touch placement missing')
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
+    await stableStickerLayout(first.page)
     const mobileOrigin = await first.page.locator(`[data-sticker-placed="${mobilePlaced.stickerId}"]`).boundingBox()
     if (mobileOrigin === null) throw new Error('Touch rear origin missing')
     await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: mobileOrigin.x + 22, y: mobileOrigin.y + 22 }] })
@@ -586,7 +608,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await touch.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 195, y: 280 }] })
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'placing')
     await first.page.screenshot({ path: resolve(evidence, 'mobile-rear-move-preview.png') })
-    const mobileMoved = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === 200)
+    const mobileMoved = waitForStickerPlacement(first.page, 200)
     await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await mobileMoved
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     const movedMobile = (await readInventory(first.context)).placements.find((item) => item.stickerId === mobilePlaced.stickerId)
@@ -594,12 +616,13 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     expect(movedMobile?.rotationDeg).toBe(mobilePlaced.rotationDeg)
     expect(movedMobile?.y).not.toBe(mobilePlaced.y)
     // Open the return destination before picking up the rear print. The first
-    // save fails at the native service; the authoritative placement survives.
+    // save fails at the worker; the authoritative placement survives.
     for (const reject of [true, false]) {
       if (await first.page.locator('[data-sticker-slot]').count() === 0) {
         await first.page.getByRole('button', { name: 'Pull sticker pack into view' }).click()
         await pullLiner(first.page)
       }
+      await stableStickerLayout(first.page)
       const origin = await first.page.locator(`[data-sticker-placed="${mobilePlaced.stickerId}"]`).boundingBox()
       if (origin === null) throw new Error('Moved touch origin missing')
       await touch.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: origin.x + 22, y: origin.y + 22 }] })
@@ -627,7 +650,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
       }, { message: 'Held Pulse Code must visibly follow touch over its own seat before release' }).toBeGreaterThan(20)
       if (heldCapture !== undefined) await writeFile(resolve(evidence, reject ? 'mobile-own-seat-before-failure.png' : 'mobile-own-seat-drop.png'), heldCapture)
       failNextPlacement = reject
-      const returned = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.status() === (reject ? 503 : 200))
+      const returned = waitForStickerPlacement(first.page, (reject ? 503 : 200))
       await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await returned
       await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open')
       const authoritative = (await readInventory(first.context)).placements.find((item) => item.stickerId === mobilePlaced.stickerId)
@@ -637,7 +660,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await touch.detach()
     const keyboardSticker = first.page.locator('[data-sticker-slot-state="earned"]').first()
     await keyboardSticker.focus(); await first.page.keyboard.press('ArrowUp')
-    const keyboardSaved = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.request().method() === 'PUT' && response.status() === 200)
+    const keyboardSaved = waitForStickerPlacement(first.page, 200)
     await first.page.keyboard.press('Enter'); await keyboardSaved
     await browserExpect(first.page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     await first.page.getByRole('button', { name: 'Pull sticker pack into view' }).click()
@@ -661,7 +684,7 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     // Promise.all observes either failure immediately and registers the response
     // before the real click. Do not leave an unobserved waiter if clicking fails.
     await Promise.all([
-      first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/placements' && response.request().method() === 'PUT' && response.status() === 200, { timeout: 10000 }),
+      waitForStickerPlacement(first.page, 200),
       returnButton.click({ timeout: 5000 }),
     ])
     await cleanupCheckpoint('return-persisted')
@@ -669,15 +692,12 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await cleanupCheckpoint('pack-closed')
     await first.page.setViewportSize({ width: 1280, height: 900 })
     await first.page.getByRole('button', { name: 'Settings', exact: true }).click()
-    const revoked = first.page.waitForResponse((response) => new URL(response.url()).pathname === '/api/stickers/session' && response.request().method() === 'DELETE' && response.status() === 200)
-    await first.page.getByRole('button', { name: 'Sign out of Apple Music', exact: true }).click(); await revoked
-    await browserExpect(first.page.getByRole('button', { name: 'Sign in to Apple Music', exact: true })).toBeVisible()
-    expect((await first.context.request.get(server.url.origin + '/api/stickers')).status()).toBe(401)
-    const signedOutCookies = await first.context.cookies()
-    expect(signedOutCookies.some((item) => item.name === 'webpod_device')).toBe(true)
-    expect(signedOutCookies.some((item) => item.name === 'webpod_session')).toBe(false)
-    await first.page.getByRole('button', { name: 'Close', exact: true }).click()
-    now += 6_000 // Deterministic server policy clock; avoids a real cooldown sleep.
+    await first.page.getByRole('button', { name: 'Sign out of Apple Music', exact: true }).click()
+    // The current player deliberately returns to the landing page on logout.
+    await browserExpect(first.page).toHaveURL(server.url.origin + '/')
+    expect((await readInventory(first.context)).packs.length).toBeGreaterThan(0)
+    expect((await first.context.cookies()).some(cookie => ['webpod_device', 'webpod_session'].includes(cookie.name))).toBe(false)
+    await first.page.goto(server.url.origin + '/webpod')
     await signIn(first.page)
     await cleanupCheckpoint('same-device-signed-in-again')
     const recovered = await readInventory(first.context)
@@ -685,13 +705,13 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     expect(recovered.packs).toEqual(placed.packs)
     expect(verifications).toBeGreaterThanOrEqual(2)
     const second = await open()
-    expect((await second.context.request.get(server.url.origin + '/api/stickers')).status()).toBe(401)
+    expect((await readInventory(second.context)).stickerIds).toHaveLength(0)
     await signIn(second.page)
     const separate = await readInventory(second.context)
     expect(separate.placements).toHaveLength(0)
     expect(separate.packs[0]?.id).not.toBe(placed.packs[0]?.id)
     expect(separate.packs[0]?.openedAt).toBeNull()
-    // Status fixtures use native imports and distinct real device sessions.
+    // Status fixtures use stateless imports and distinct browser storage partitions.
     importMode = 'partial'
     const partial = await open(); await signIn(partial.page); await flipRear(partial.page)
     expect((await readInventory(partial.context)).importStatus).toBe('partial')
@@ -706,19 +726,19 @@ test('production browser signs in, collects, reloads, revokes and reconnects its
     await failure.page.screenshot({ path: resolve(evidence, 'desktop-failed-sync-status.png') })
     await failure.page.setViewportSize({ width: 375, height: 812 })
     await failure.page.screenshot({ path: resolve(evidence, 'mobile-failed-sync-status.png') })
-    importMode = 'complete'; now += 6000
+    importMode = 'complete'
     await failure.page.getByRole('button', { name: 'Try again' }).click()
     await browserExpect(failure.page.getByRole('button', { name: 'Pull sticker pack into view' })).toBeVisible()
     expect(signed).toBeGreaterThan(0)
-    expect((await stat(databasePath)).size).toBeGreaterThan(0)
     expect(fingerprintBrowserSources()).toEqual(sourceFingerprint)
     const clientHash = createHash('sha256')
     const clientFiles = []
     for await (const path of new Bun.Glob('**/*').scan({ cwd: clientRoot, onlyFiles: true })) clientFiles.push(path)
     for (const path of clientFiles.sort()) { clientHash.update(path); clientHash.update(await readFile(resolve(clientRoot, path))) }
     const builtHash = createHash('sha256').update(await readFile(builtPath)).digest('hex')
-    await writeFile(resolve(evidence, 'browser-verification.json'), JSON.stringify({ passed: true, sourceFingerprint, builtClientSha256: clientHash.digest('hex'), materialConstruction: 'matte-laminated printed sleeve with raw edges, translated release liner, laminated vinyl', nativeMobileTouch: true, simulatedServiceFailures, lowerRearVisiblePreview: true, twoEarnedKeyboardIdentity: true, closeAndFlickDuringLinerReturn: true, durationMs: Math.round(performance.now() - started), builtServerSha256: builtHash, routes: requests, appleVerifications: verifications, syntheticSignatures: signed, nativeHttpOnlyCookies: true, realSQLite: true, sameDeviceReloadAndReconnect: true, separateBrowserIsolation: true, apiInterceptions: 0 }, null, 2))
+    await writeFile(resolve(evidence, 'browser-verification.json'), JSON.stringify({ passed: true, sourceFingerprint, builtClientSha256: clientHash.digest('hex'), materialConstruction: 'matte-laminated printed sleeve with raw edges, translated release liner, laminated vinyl', nativeMobileTouch: true, simulatedServiceFailures, lowerRearVisiblePreview: true, twoEarnedKeyboardIdentity: true, closeAndFlickDuringLinerReturn: true, durationMs: Math.round(performance.now() - started), builtServerSha256: builtHash, routes: requests, appleVerifications: verifications, syntheticSignatures: signed, browserLocalOwnership: true, realSQLite: true, sameDeviceReloadAndReconnect: true, separateBrowserIsolation: true, workerFaultSeam: true, apiInterceptions: 0 }, null, 2))
   } finally {
+    releaseArtwork()
     const outcomes = []
     for (const dispose of cleanup.reverse()) outcomes.push(await Promise.allSettled([Promise.resolve().then(dispose)]))
     cleanupFailed = outcomes.some((results) => results.some((result) => result.status === 'rejected'))

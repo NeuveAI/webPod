@@ -1,8 +1,12 @@
 import { expect, test } from 'bun:test'
-import { mkdtemp, mkdir, rm, stat, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { resolve, sep } from 'node:path'
 import { chromium, expect as browserExpect } from '@playwright/test'
+import { exportBackup } from '@webpod/sticker-engine'
+import { openStickerDatabase } from '../../../packages/server-core/src/stickers/database'
+import { collections } from '../../../packages/server-core/src/stickers/schema'
+import { installLocalPlacementFaults, localFixtureCommand } from './sticker-local-fixture'
 import { createLiveStickerServer } from '@webpod/server-core/stickers'
 import { isStickerInventory, type StickerInventory } from '@webpod/stickers'
 import { fingerprintBrowserSources } from '../../../scripts/browser-source-fingerprint'
@@ -69,8 +73,8 @@ test('wrapped evidence rejects stale build pose UV and false visibility witnesse
   for (const stale of invalid) expect(() => validateWrappedEvidence(stale, witness, build)).toThrow()
 })
 
-/** Actual built Start route, native cookies and SQLite; only trusted Apple/signing
- * dependencies are synthetic. No intercepted browser inventory/session endpoints. */
+/** Actual built Start route and OPFS persistence. The native server generates a
+ * deterministic fixture only; test-owned worker instrumentation injects save faults. */
 test('Contour rotations, wear, reset, tooltips and recovery use actual route and artwork', async () => {
   const directory = await mkdtemp(resolve(tmpdir(), 'webpod-sticker-editor-'))
   const cleanup: (() => Promise<unknown>)[] = [() => rm(directory, { recursive: true, force: true })]
@@ -96,12 +100,21 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
     const clientRoot = resolve(import.meta.dirname, '../dist/client')
     const { default: entry } = await import(resolve(import.meta.dirname, '../dist/server/server.js')) as { default: { fetch(request: Request, options: { context: Record<string, unknown> }): Promise<Response> } }
     const requests: { path: string; method: string; status: number }[] = []
+    let fixtureSeeding = true
     const server = Bun.serve({ hostname: '127.0.0.1', port: 0, async fetch(request) {
       const path = new URL(request.url).pathname
-      if (path === '/api/stickers/placements' && request.method === 'PUT') {
+      if (fixtureSeeding && path.startsWith('/api/stickers')) return service.handle(request)
+      if (path === '/__test/sticker-admission') {
         if (fault.gate !== null) await fault.gate
-        if (fault.status !== 0) { const status = fault.status; fault.status = 0; requests.push({ path, method: request.method, status }); return new Response('{}', { status }) }
+        const status = fault.status; fault.status = 0
+        return Response.json({ status })
       }
+      if (!fixtureSeeding && path === '/api/stickers/placements' && request.method === 'PUT') {
+        const { status } = await request.json() as { status: number }
+        requests.push({ path, method: request.method, status })
+        return new Response('{}', { status })
+      }
+      if (path === '/api/apple/stickers') return Response.json({ tracks: [], status: 'complete', storefront: 'us' })
       const filePath = resolve(clientRoot, '.' + decodeURIComponent(path))
       if (request.method === 'GET' && filePath.startsWith(clientRoot + sep) && !path.split('/').some((part) => part.startsWith('.'))) {
         if ((await stat(filePath).catch(() => null))?.isFile()) return new Response(Bun.file(filePath))
@@ -118,7 +131,12 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
     const context = await browser.newContext({ viewport: largeMaterial ? {width:2000,height:2400} : { width: 1280, height: 900 }, recordVideo: { dir: resolve(evidence, 'video'), size: { width: 1280, height: 900 } } })
     const origin = server.url.origin
     const headers = { origin }
+    const asset = (await readdir(resolve(clientRoot, 'assets'))).find(name => /^sticker-worker-.*\.js$/.test(name))
+    if (!asset) throw new Error('Built worker missing')
+    const worker = `/assets/${asset}`
+    let localReady = false
     const read = async (): Promise<StickerInventory> => {
+      if (localReady) return localFixtureCommand<StickerInventory>(page, worker, 'inventory')
       const response = await context.request.get(origin + '/api/stickers')
       expect(response.status()).toBe(200)
       const value: unknown = await response.json()
@@ -143,7 +161,13 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
     expect((await context.request.post(origin + '/api/stickers/packs/open', { headers, data: { packId } })).status()).toBe(200)
     const placement = { stickerId: largeMaterial ? 'PW-A01' : 'PW-C01', surface: 'back', x: .4, y: largeMaterial ? .32 : .4, width: largeMaterial ? .35 : .25, rotationDeg: 0 }
     expect((await context.request.put(origin + '/api/stickers/placements', { headers, data: { revision: 0, placements: [placement, { stickerId: 'PW-F01', surface: 'back', x: largeMaterial ? .60 : .65, y: largeMaterial ? .68 : .72, width: largeMaterial ? .35 : .25, rotationDeg: 0 }] } })).status()).toBe(200)
+    const seedDatabase = openStickerDatabase(resolve(directory, 'collection.sqlite'))
+    const owner = seedDatabase.db.select().from(collections).get()?.owner
+    if (!owner) throw new Error('Fixture owner missing')
+    const backup = exportBackup(seedDatabase.db, owner); seedDatabase.close()
+    fixtureSeeding = false
     const page = await context.newPage()
+    await installLocalPlacementFaults(page)
     // Test-owned instrumentation installed before WebGL contexts/programs exist.
     // Counts every standard WebGL draw entry point without a product testing API.
     if (process.env.WEBPOD_STICKER_MATRIX_CAPTURE === '1') await installStickerMatrixRecorder(page)
@@ -200,13 +224,15 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
     const currentPlacement = async (id = 'PW-C01') => { const p = (await read()).placements.find(p => p.stickerId === id); if (p === undefined) throw new Error('Missing saved placement'); return p }
     const center = async (selector: string) => { const box = await page.locator(selector).boundingBox(); if (box === null) throw new Error('Missing control'); return { x: box.x + box.width / 2, y: box.y + box.height / 2 } }
     const select = async (id: string) => { const p = await point(id); await page.mouse.click(p.x, p.y); await browserExpect(page.locator('[data-sticker-editor]')).toHaveAttribute('data-sticker-editor', id); await page.waitForTimeout(350) }
-    await page.goto(origin)
+    await page.goto(origin + '/webpod')
+    await localFixtureCommand(page, worker, 'importBackup', [backup]); localReady = true
+    await page.reload()
     await rear()
     if (process.env.WEBPOD_STICKER_EDITOR_PERF === '1') {
       if (!edgeWrap || process.env.WEBPOD_STICKER_MATRIX_CAPTURE === '1') throw new Error('Editor performance requires provenance and recorder off')
       await verifyStickerEditorPerformance({ page, evidence, read, rear, save: async placements => {
         const inventory = await read()
-        expect((await context.request.put(origin + '/api/stickers/placements', { headers, data: { revision: inventory.placementRevision, placements } })).status()).toBe(200)
+        await localFixtureCommand(page, worker, 'place', [inventory.placementRevision, placements])
       } })
       expect(consoleErrors.filter(error => /WebGLProgram|SHADER|ReferenceError|exceeds rear surface/.test(error))).toEqual([])
       return
@@ -214,7 +240,7 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
     if (edgeWrap) {
       await verifyStickerEdgeWrap({ page, evidence, read, rear, save: async (placements) => {
         const inventory = await read()
-        expect((await context.request.put(origin + '/api/stickers/placements', { headers, data: { revision: inventory.placementRevision, placements } })).status()).toBe(200)
+        await localFixtureCommand(page, worker, 'place', [inventory.placementRevision, placements])
       } })
       // Full source/artifact manifests are checked in cleanup, including failures.
       // Exact approved external post-build deltas are disclosed, never claimed tested.
@@ -416,10 +442,9 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
     // Painted glyph bounds and actual hit routing stay inside each44px target.
     const containment=await page.locator('[data-contour-corner]').evaluateAll(elements=>elements.map(e=>{const r=e.getBoundingClientRect(),svg=e.querySelector('svg')?.getBoundingClientRect();if(svg===undefined)throw new Error('Missing glyph');const hit=document.elementFromPoint(svg.x+svg.width/2,svg.y+svg.height/2);return {inside:svg.left>=r.left&&svg.right<=r.right&&svg.top>=r.top&&svg.bottom<=r.bottom,hit:hit===e||e.contains(hit)}}))
     expect(containment).toHaveLength(4);for(const result of containment){expect(result.inside).toBe(true);expect(result.hit).toBe(true)}
-    await touch.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-transparency',value:'reduce'},{name:'prefers-contrast',value:'more'},{name:'prefers-reduced-motion',value:'reduce'}]})
+    await touch.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-transparency',value:'reduce'},{name:'prefers-contrast',value:'more'}]})
     expect(await page.evaluate(()=>matchMedia('(prefers-reduced-transparency: reduce)').matches)).toBe(true)
-    const glass=await page.locator('[data-hud-tools]').evaluate(e=>({background:getComputedStyle(e).backgroundColor,blur:getComputedStyle(e).backdropFilter}))
-    expect(glass.background).toBe('rgb(255, 255, 255)');expect(glass.blur).toBe('none')
+    await browserExpect.poll(() => page.locator('[data-hud-tools]').evaluate(e=>({background:getComputedStyle(e).backgroundColor,blur:getComputedStyle(e).backdropFilter}))).toEqual({ background: 'rgb(255, 255, 255)', blur: 'none' })
     await shot('mobile-glass-fallback.png','PW-F01')
     await touch.send('Emulation.setEmulatedMedia',{features:[]})
     // Actual native pointercancel followed by a new keyboard wear gesture remains usable.
@@ -442,7 +467,8 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
     const moved = response(); await touch.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); await moved
     expect((await currentPlacement('PW-F01')).y).toBeLessThan(beforeBody.y)
     expect((await currentPlacement('PW-F01')).wear).toBe(beforeBody.wear)
-    await page.waitForTimeout(650)
+    // Wait for actual landing completion before starting the independent edit.
+    await browserExpect.poll(() => page.locator('[data-sticker-stage]').evaluateAll(elements => elements[0]?.getAttribute('data-sticker-stage') ?? 'closed'), { timeout: 10000 }).not.toBe('settling')
     await select('PW-C01')
     const returned = response(); await page.getByRole('button', { name: 'Return to pack', exact: true }).click(); await returned
     await browserExpect(page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'open', { timeout: 10000 })
@@ -452,10 +478,15 @@ test('Contour rotations, wear, reset, tooltips and recovery use actual route and
     await page.locator('[data-sticker-slot="PW-C01"]').focus(); await page.keyboard.press('ArrowUp'); await page.keyboard.press('ArrowLeft')
     const restuck = response(); await page.keyboard.press('Enter'); await restuck
     expect((await currentPlacement()).wear).toBe(1)
-    await page.getByRole('button', { name: 'Put pack away', exact: true }).click(); await page.waitForTimeout(650)
+    // Successful placement automatically tucks the pack away.
+    await browserExpect(page.locator('[data-sticker-stage]')).toHaveAttribute('data-sticker-stage', 'tease')
     await shot('mobile-restuck-worn.png')
     await page.emulateMedia({ reducedMotion: 'reduce', contrast: 'more' })
-    await page.keyboard.press('Escape'); await select('PW-C01'); await shot('mobile-reduced-motion.png')
+    // Current capability policy intentionally removes the physical device for
+    // reduced motion; durable sticker data must remain available unchanged.
+    await browserExpect(page.locator('[data-sticker-placed]')).toHaveCount(0)
+    expect((await currentPlacement()).wear).toBe(1)
+    await page.screenshot({ path: resolve(evidence, 'mobile-reduced-motion.png') })
     await page.emulateMedia({ reducedMotion: 'no-preference', contrast: 'no-preference' })
     await page.reload(); await rear(); expect((await currentPlacement()).wear).toBe(1)
     await shot('mobile-reloaded-wear.png')

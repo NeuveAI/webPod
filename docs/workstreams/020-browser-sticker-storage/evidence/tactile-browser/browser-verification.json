@@ -1,0 +1,131 @@
+{
+  "passed": true,
+  "sourceFingerprint": {
+    "digest": "bf497928252738aa5ac00fad7ffb96dcc16059c3a330bd39d4765f7c90823d97",
+    "fileCount": 510
+  },
+  "builtClientSha256": "87110e16a82d8d248222b42cbf98667376aaaa7361ab6f69491ea6339c93da92",
+  "materialConstruction": "matte-laminated printed sleeve with raw edges, translated release liner, laminated vinyl",
+  "nativeMobileTouch": true,
+  "simulatedServiceFailures": 2,
+  "lowerRearVisiblePreview": true,
+  "twoEarnedKeyboardIdentity": true,
+  "closeAndFlickDuringLinerReturn": true,
+  "durationMs": 73837,
+  "builtServerSha256": "3d17bf728262143d4f2eda18c5abc81224757acbec7a003363720560d9cf359c",
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/apple/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/apple/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/apple/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/apple/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/apple/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/apple/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/apple/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/apple/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/apple/stickers",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/apple/developer-token",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/apple/stickers",
+      "status": 503
+    },
+    {
+      "method": "POST",
+      "path": "/api/apple/stickers",
+      "status": 200
+    }
+  ],
+  "appleVerifications": 11,
+  "syntheticSignatures": 10,
+  "browserLocalOwnership": true,
+  "realSQLite": true,
+  "sameDeviceReloadAndReconnect": true,
+  "separateBrowserIsolation": true,
+  "workerFaultSeam": true,
+  "apiInterceptions": 0
+}

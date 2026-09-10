@@ -1,3 +1,4 @@
+import { StickerBackupControls } from './sticker-backup'
 import { Button } from '@webpod/ui/components/button'
 import { Switch } from '@webpod/ui/components/switch'
 import { Field, FieldLabel } from '@webpod/ui/components/field'
@@ -65,7 +66,12 @@ export function DeviceSettings({ children }: { readonly children: ReactNode }) {
           <h1 id="device-settings-title" className="m-0 text-lg font-semibold">Settings</h1>
           <Button variant="ghost" size="sm" onClick={() => deviceSettingsStore.set(settingsOpenAtom, false)}>Close</Button>
         </header>
-        <div className="p-5">{children}</div>
+        <div className="p-5">{children}
+          <details className="mt-6 border-t border-border pt-4">
+            <summary className="cursor-pointer rounded-sm text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-4">Sticker backups</summary>
+            <div className="pt-3"><StickerBackupControls /></div>
+          </details>
+        </div>
       </dialog>
     </>
   )

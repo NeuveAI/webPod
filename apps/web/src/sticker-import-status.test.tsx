@@ -36,6 +36,18 @@ describe('sticker import status', () => {
     expect(currentCalls).toBe(1)
     expect(oldCalls).toBe(0)
   })
+  test('signed-out failed sync offers an explicit authorization gesture instead of a no-op retry', () => {
+    let connected = 0
+    const connect = () => { connected++ }
+    const view = StickerImportStatus({ status: 'failed', usable: true, connect, retry: () => { throw new Error('Signed-out sync must authorize first') } })
+    const html = renderToStaticMarkup(view)
+    expect(html).toContain('Sign in to Apple Music')
+    expect(html).not.toContain('Try again')
+    expect(html).toContain('Library sync paused.')
+    expect(retryButton(view)?.onClick).toBe(connect)
+    retryButton(view)?.onClick?.()
+    expect(connected).toBe(1)
+  })
   for (const status of ['complete', 'pending', undefined] as const) {
     test(`${String(status)} does not show an import warning`, () => {
       expect(renderToStaticMarkup(<StickerImportStatus status={status} retry={() => {}} />)).toBe('')

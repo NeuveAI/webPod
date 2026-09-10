@@ -2,7 +2,7 @@
 import { HeadContent, Link, Scripts, createRootRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 
-import appCss from '../styles/app.css?url'
+import '../styles/app.css'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -12,7 +12,6 @@ export const Route = createRootRoute({
       { title: 'webPod' },
     ],
     links: [
-      { rel: 'stylesheet', href: appCss },
       { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
       { rel: 'apple-music-app-icon', sizes: '120x120', href: 'https://webpod.vercel.app/apple-music-icon.png' },
     ],

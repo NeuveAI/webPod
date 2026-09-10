@@ -20,6 +20,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@react-three/fiber": "9.7.0",
+        "@sqlite.org/sqlite-wasm": "3.53.4-build1",
         "@tanstack/query-core": "^5.90.21",
         "@tanstack/react-router": "^1.170.32",
         "@tanstack/react-start": "^1.168.49",
@@ -29,6 +30,7 @@
         "@webpod/providers": "workspace:*",
         "@webpod/server-core": "workspace:*",
         "@webpod/state": "workspace:*",
+        "@webpod/sticker-engine": "workspace:*",
         "@webpod/stickers": "workspace:*",
         "@webpod/tokens": "workspace:*",
         "@webpod/tools": "workspace:*",
@@ -114,6 +116,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@webpod/providers": "workspace:*",
+        "@webpod/sticker-engine": "workspace:*",
         "@webpod/stickers": "workspace:*",
         "drizzle-orm": "0.45.2",
         "effect": "4.0.0-rc.112",
@@ -126,6 +129,18 @@
         "@webpod/providers": "workspace:*",
         "@webpod/stickers": "workspace:*",
         "jotai": "2.20.3",
+      },
+    },
+    "packages/sticker-engine": {
+      "name": "@webpod/sticker-engine",
+      "version": "0.0.0",
+      "dependencies": {
+        "@sqlite.org/sqlite-wasm": "3.53.4-build1",
+        "@webpod/stickers": "workspace:*",
+        "drizzle-orm": "0.45.2",
+      },
+      "devDependencies": {
+        "@types/sql.js": "^1.4.9",
       },
     },
     "packages/stickers": {
@@ -435,6 +450,8 @@
 
     "@rolldown/pluginutils": ["@rolldown/pluginutils@1.0.1", "", {}, "sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw=="],
 
+    "@sqlite.org/sqlite-wasm": ["@sqlite.org/sqlite-wasm@3.53.4-build1", "", {}, "sha512-U8pvL0patYHMgieD8JxxYJTlh9m1LUX8+BDYb7MiKQzBI89f2qbdmdcG/PvnPaLm9wsBbv4VlVG453ixnxBOnA=="],
+
     "@tailwindcss/node": ["@tailwindcss/node@4.3.3", "", { "dependencies": { "@jridgewell/remapping": "^2.3.5", "enhanced-resolve": "^5.24.1", "jiti": "^2.7.0", "lightningcss": "1.32.0", "magic-string": "^0.30.21", "source-map-js": "^1.2.1", "tailwindcss": "4.3.3" } }, "sha512-/T8IKEsf9VTU6tLjgC7+sv2mOPtQxzE2jMw7u4Tt40Tx+QSZxpzh95/H6cMKoja9XuW7iMdLJYBB0o9G1CaAgg=="],
 
     "@tailwindcss/oxide": ["@tailwindcss/oxide@4.3.3", "", { "optionalDependencies": { "@tailwindcss/oxide-android-arm64": "4.3.3", "@tailwindcss/oxide-darwin-arm64": "4.3.3", "@tailwindcss/oxide-darwin-x64": "4.3.3", "@tailwindcss/oxide-freebsd-x64": "4.3.3", "@tailwindcss/oxide-linux-arm-gnueabihf": "4.3.3", "@tailwindcss/oxide-linux-arm64-gnu": "4.3.3", "@tailwindcss/oxide-linux-arm64-musl": "4.3.3", "@tailwindcss/oxide-linux-x64-gnu": "4.3.3", "@tailwindcss/oxide-linux-x64-musl": "4.3.3", "@tailwindcss/oxide-wasm32-wasi": "4.3.3", "@tailwindcss/oxide-win32-arm64-msvc": "4.3.3", "@tailwindcss/oxide-win32-x64-msvc": "4.3.3" } }, "sha512-krXjAikiaFSPaK/FkAQT5UTx3VormQaiZ5hBFlJZ9UFQGB/rwg1MZIhHAG9smMQRTdyJxP6Qt5MwMtdyU5FWrA=="],
@@ -507,6 +524,8 @@
 
     "@types/bun": ["@types/bun@1.4.0", "", { "dependencies": { "bun-types": "1.4.0" } }, "sha512-K+lZULY23vRgK/CfTjFIV+tyifaNdSMlPh9j+6mQ/cLfpOznLyAuzgV/JQysyECpkBQLVMSyvjlr2fBUSA9wFQ=="],
 
+    "@types/emscripten": ["@types/emscripten@1.41.6", "", {}, "sha512-uN+9i8bFT5CUcZfyIEYDrSueACEyKGbUs5kC/72DGlZZoinh84sJfVV0i8UOJD1asdzkvLPBRrKs41kZ8MdEXg=="],
+
     "@types/esrecurse": ["@types/esrecurse@4.3.1", "", {}, "sha512-xJBAbDifo5hpffDBuHl0Y8ywswbiAp/Wi7Y/GtAgSlZyIABppyurxVueOPE8LUQOxdlgi6Zqce7uoEpqNTeiUw=="],
 
     "@types/estree": ["@types/estree@1.0.9", "", {}, "sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg=="],
@@ -520,6 +539,8 @@
     "@types/react-dom": ["@types/react-dom@19.2.5", "", { "peerDependencies": { "@types/react": "^19.2.0" } }, "sha512-fMPwH9v7r/pp43yUd2/Mbiex5KouJwwR3dzHkhLREUC6764VyDsqxhAxv6OFEYR1RhjOyD1naqba8ECDBe7ZQg=="],
 
     "@types/react-reconciler": ["@types/react-reconciler@0.28.9", "", { "peerDependencies": { "@types/react": "*" } }, "sha512-HHM3nxyUZ3zAylX8ZEyrDNd2XZOnQ0D5XfunJF5FLQnZbHHYq4UWvW1QfelQNXv1ICNkwYhfxjwfnqivYB6bFg=="],
+
+    "@types/sql.js": ["@types/sql.js@1.4.11", "", { "dependencies": { "@types/emscripten": "*", "@types/node": "*" } }, "sha512-QXIx38p2ZThJaK9vP5ZdqdlRe1FG9I8SmCZOS7FHfB/2qPAjZwkL7/vlfPg6N/oWHuuOaGg/P/IRwfP2W0kWVQ=="],
 
     "@types/stats.js": ["@types/stats.js@0.17.4", "", {}, "sha512-jIBvWWShCvlBqBNIZt0KAshWpvSjhkwkEu4ZUcASoAvhmrgAUI2t1dXrjSL4xXVLB4FznPrIsX3nKXFl/Dt4vA=="],
 
@@ -564,6 +585,8 @@
     "@webpod/server-core": ["@webpod/server-core@workspace:packages/server-core"],
 
     "@webpod/state": ["@webpod/state@workspace:packages/state"],
+
+    "@webpod/sticker-engine": ["@webpod/sticker-engine@workspace:packages/sticker-engine"],
 
     "@webpod/stickers": ["@webpod/stickers@workspace:packages/stickers"],
 

@@ -1,0 +1,23 @@
+{
+  "name": "@webpod/sticker-engine",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./wasm": "./src/wasm.ts",
+    "./policy": "./src/policy.ts",
+    "./schema": "./src/schema.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@webpod/stickers": "workspace:*",
+    "drizzle-orm": "0.45.2",
+    "@sqlite.org/sqlite-wasm": "3.53.4-build1"
+  },
+  "devDependencies": {
+    "@types/sql.js": "^1.4.9"
+  }
+}

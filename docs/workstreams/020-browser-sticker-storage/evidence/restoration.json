@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "localPersistence": true,
+  "unauthorizedRestoration": true,
+  "backupTransfer": true,
+  "invalidBackupPreserved": true,
+  "signedOutReconnect": true,
+  "oldCookieRequests": 0
+}

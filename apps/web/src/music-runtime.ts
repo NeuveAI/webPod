@@ -13,7 +13,7 @@ import {
 } from '@webpod/providers'
 import type { NavigationDataSource, NavigationLibraryCollection, NavigationLibraryCollectionStatus } from '@webpod/panel'
 import { applePlaybackDiagnostics } from './apple-playback-diagnostics'
-import { bootstrapStickerCollection, restoreStickerSession, startStickerRuntime, stopStickerRuntime } from './sticker-runtime'
+import { bootstrapStickerCollection, restoreStickerSession, startStickerRuntime, disconnectStickerMusic } from './sticker-runtime'
 
 export type MusicRuntimeMode = 'apple'
 export type MusicRuntimePhase = 'signed-out' | 'signing-in' | 'authorized' | 'permission-denied' | 'error'
@@ -180,9 +180,10 @@ export async function selectMusicRuntime(mode: MusicRuntimeMode): Promise<void> 
   const provider = runtimeState.provider
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
+    restoreStickerSession(provider)
     await provider.configure()
     if (selectedOperation !== runtimeState.operation) return
-    if (provider.session?.status !== 'authorized') { stopStickerRuntime(false); publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null }); return }
+    if (provider.session?.status !== 'authorized') { restoreStickerSession(provider); publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null }); return }
     restoreStickerSession(provider)
     startStickerRuntime(provider, (refresh) => bootstrapStickerCollection(provider, refresh))
     const { source, completion } = await createProgressiveAppleSource(provider, () => selectedOperation === runtimeState.operation); if (selectedOperation !== runtimeState.operation) return
@@ -210,13 +211,13 @@ export function ensureMusicRuntime(): void {
 export async function authorizeAppleRuntime(): Promise<void> {
   const selectedOperation = ++runtimeState.operation
   const provider = runtimeState.provider
-  restoreStickerSession(provider, false)
+  restoreStickerSession(provider)
   publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signing-in', provider, source: emptySource, message: null })
   try {
     try { await provider.authorize() } catch (cause) {
       if (selectedOperation !== runtimeState.operation) return
       const denied = provider.appleSessionState.status === 'permission-denied'
-      if (denied) stopStickerRuntime(true)
+      if (denied) disconnectStickerMusic(provider)
       publish({ requestedMode: 'apple', activeMode: 'apple', phase: denied ? 'permission-denied' : 'error', provider, source: emptySource, message: failureMessage('authorization', cause) })
       return
     }
@@ -245,7 +246,7 @@ export async function signOutAppleRuntime(): Promise<void> {
   try {
     await provider.unauthorize()
     if (selectedOperation !== runtimeState.operation) return
-    stopStickerRuntime(true)
+    disconnectStickerMusic(provider)
     publish({ requestedMode: 'apple', activeMode: 'apple', phase: 'signed-out', provider, source: emptySource, message: null })
   } catch (cause) {
     if (selectedOperation !== runtimeState.operation) return
