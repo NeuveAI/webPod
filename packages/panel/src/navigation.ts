@@ -1,3 +1,4 @@
+import { manageMusic } from '@webpod/music-management/playback'
 import type {
   AlbumRef,
   Artwork,
@@ -8,48 +9,13 @@ import type {
   MusicProvider,
   PlayTarget,
   PlaylistRef,
-  StationRef,
   TrackRef,
 } from '@webpod/providers'
 import type { NavigationRoute, PanelRow, ScreenFrame } from '@webpod/state'
 import { BoundedAsyncCache } from './bounded-async-cache'
 
-export interface NavigationLoadOptions {
-  readonly signal?: AbortSignal
-  readonly priority?: 'low' | 'high'
-}
-
-/** Provider-domain relationship data required by the screen graph. */
-export interface NavigationDataSource {
-  readonly albums: readonly AlbumRef[]
-  readonly artists: readonly ArtistRef[]
-  readonly genres: readonly GenreRef[]
-  readonly playlists: readonly PlaylistRef[]
-  readonly songs: readonly TrackRef[]
-  readonly stations: readonly StationRef[]
-  /** Optional live-library posture. Incomplete counts are rendered as lower bounds. */
-  readonly libraryStatus?: Readonly<Record<NavigationLibraryCollection, NavigationLibraryCollectionStatus>>
-  /** True only when relationship methods cancel their underlying I/O signal. */
-  readonly relationshipRequestsAbortable?: boolean
-  subscribe?(listener: () => void): () => void
-  getRevision?(): number
-  rememberTracks?(tracks: readonly TrackRef[]): void
-  trackByKey(trackKey: LocalKey): TrackRef | null
-  tracksForAlbum(albumKey: LocalKey, options?: NavigationLoadOptions): readonly TrackRef[] | Promise<readonly TrackRef[]>
-  tracksForPlaylist(playlistKey: LocalKey, options?: NavigationLoadOptions): readonly TrackRef[] | Promise<readonly TrackRef[]>
-  artistAlbumsFailed?(artistKey: LocalKey): boolean
-  artistAlbumsSnapshot?(artistKey: LocalKey): readonly AlbumRef[] | undefined
-  albumsForArtist(artistKey: LocalKey, options?: NavigationLoadOptions): readonly AlbumRef[] | Promise<readonly AlbumRef[]>
-  albumsForGenre(genreKey: LocalKey): readonly AlbumRef[]
-  artistsForGenre(genreKey: LocalKey): readonly ArtistRef[]
-  tracksForGenre(genreKey: LocalKey): readonly TrackRef[]
-}
-
-export type NavigationLibraryCollection = 'playlists' | 'artists' | 'albums' | 'songs'
-export interface NavigationLibraryCollectionStatus {
-  readonly loaded: number
-  readonly state: 'loading' | 'complete' | 'error'
-}
+export type { NavigationDataSource, NavigationLoadOptions, NavigationLibraryCollection, NavigationLibraryCollectionStatus } from '@webpod/music-management'
+import type { NavigationDataSource, NavigationLibraryCollection } from '@webpod/music-management'
 
 export interface NavigationSelection {
   readonly frame: ScreenFrame | null
@@ -293,7 +259,7 @@ export function selectNavigationImmediate(
   if (route.kind === 'album-tracks' || route.kind === 'playlist-tracks' || route.kind === 'songs' || route.kind === 'genre-tracks' || route.kind === 'search-results') {
     const tracks = playbackQueueForFrame(current)?.tracks ?? synchronousTracksForRoute(route, source)
     if (tracks[index] === undefined) return { frame: null, played: false }
-    const playback = provider.play({ kind: 'tracks', tracks, startIndex: index })
+    const playback = manageMusic(provider).play({ kind: 'tracks', tracks, startIndex: index })
     return { frame: nowPlayingFrame(tracks, index, current.title), played: true, playback }
   }
   if (route.kind === 'stations') {
@@ -301,7 +267,7 @@ export function selectNavigationImmediate(
     if (station === undefined) return { frame: null, played: false }
     // Existing station entities use the same serialized play boundary as every
     // other queue target, so rapid cross-kind selections remain latest-wins.
-    const playback = provider.play({ kind: 'station', station })
+    const playback = manageMusic(provider).play({ kind: 'station', station })
     return { frame: nowPlayingFrame(), played: true, playback }
   }
   if (route.kind === 'search-entry' && current.rows[index]?.destination?.kind === 'search-request') {

@@ -1,3 +1,4 @@
+import { manageMusic } from '@webpod/music-management/playback'
 import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -183,7 +184,7 @@ describe('the bare DOM panel', () => {
   test('uses provider commands, subscriptions, and one canonical list path', () => {
     const source = readFileSync(new URL('./Panel.tsx', import.meta.url), 'utf8')
     expect(source).toContain('selectNavigationImmediate(')
-    expect(readFileSync(new URL('./navigation.ts', import.meta.url), 'utf8')).toContain('provider.play(')
+    expect(readFileSync(new URL('./navigation.ts', import.meta.url), 'utf8')).toContain('manageMusic(provider).play(')
     expect(source).toContain('provider.onPlaybackChange')
     expect(source).toContain('provider.onProgress')
     expect(source).toContain('<ListViewport')
@@ -348,7 +349,9 @@ describe('the bare DOM panel', () => {
     const pendingProvider: MusicProvider = {
       ...playbackProvider,
       get playback() { return { ...playbackProvider.playback, status: 'loading' as const, now: null, queueIndex: null } },
+      play: () => new Promise<void>(() => undefined),
     }
+    void manageMusic(pendingProvider).play({ kind: 'tracks', tracks: fixtureNavigationSource.songs, startIndex: selectedIndex })
     const pending = renderToStaticMarkup(<TestPanel state="ready" provider={pendingProvider} />)
     expect(pending).toContain(selectedTrack.title)
     expect(pending).toContain(selectedTrack.artistName)
@@ -359,7 +362,9 @@ describe('the bare DOM panel', () => {
     const failedProvider: MusicProvider = {
       ...playbackProvider,
       get playback() { return { ...playbackProvider.playback, status: 'error' as const, now: null, queueIndex: null } },
+      play: () => Promise.reject(new Error('Playback unavailable')),
     }
+    await manageMusic(failedProvider).play({ kind: 'tracks', tracks: fixtureNavigationSource.songs, startIndex: selectedIndex }).catch(() => undefined)
     const failed = renderToStaticMarkup(<TestPanel state="ready" provider={failedProvider} />)
     expect(failed).toContain(selectedTrack.title)
     expect(failed).toContain(selectedTrack.artistName)
@@ -456,12 +461,12 @@ describe('the bare DOM panel', () => {
     if (nowPlaying === null) throw new Error('now playing frame missing')
     deviceStore.set(resetStackActionAtom, [nowPlaying])
 
-    await playbackProvider.skip('next')
+    await manageMusic(playbackProvider).skip('next')
     const middleHtml = renderToStaticMarkup(<TestPanel state="ready" provider={playbackProvider} navigationSource={duplicateSource} />)
     expect(middleHtml).not.toContain('2 of 3')
     expect(middleHtml).toContain(second.title)
 
-    await playbackProvider.skip('next')
+    await manageMusic(playbackProvider).skip('next')
     const finalHtml = renderToStaticMarkup(<TestPanel state="ready" provider={playbackProvider} navigationSource={duplicateSource} />)
     expect(finalHtml).not.toContain('3 of 3')
     expect(finalHtml).toContain(first.title)
@@ -480,12 +485,12 @@ describe('the bare DOM panel', () => {
     if (nowPlaying === null) throw new Error('now playing frame missing')
     deviceStore.set(resetStackActionAtom, [nowPlaying])
 
-    await playbackProvider.skip('previous')
+    await manageMusic(playbackProvider).skip('previous')
     const middleHtml = renderToStaticMarkup(<TestPanel state="ready" provider={playbackProvider} navigationSource={duplicateSource} />)
     expect(middleHtml).not.toContain('2 of 3')
     expect(middleHtml).toContain(second.title)
 
-    await playbackProvider.skip('previous')
+    await manageMusic(playbackProvider).skip('previous')
     const finalHtml = renderToStaticMarkup(<TestPanel state="ready" provider={playbackProvider} navigationSource={duplicateSource} />)
     expect(finalHtml).not.toContain('1 of 3')
     expect(finalHtml).toContain(first.title)

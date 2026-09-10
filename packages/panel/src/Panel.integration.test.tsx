@@ -1,3 +1,4 @@
+import { manageMusic } from '@webpod/music-management/playback'
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 import { createFixtureProvider, type MusicProvider, type PlaybackState, type QueueSnapshot } from '@webpod/providers'
@@ -478,7 +479,7 @@ describe('mounted playback selection', () => {
       await Promise.resolve()
       await Promise.resolve()
     })
-    expect(container.querySelector('.wp-now-count')).toBeNull()
+    expect(container.querySelector('.wp-now-count')?.textContent).toBe('3 of 3')
     expect(container.querySelector('.wp-now')?.getAttribute('aria-busy')).toBe('false')
     expect(container.querySelector('.wp-status-shelf')).toBeNull()
   })
@@ -743,7 +744,7 @@ test('skipping supersedes an unconfirmed selection and exits its scrub preview',
     await Promise.resolve()
   })
   await act(async () => {
-    await provider.skip('next')
+    await manageMusic(provider).skip('next')
     showNowPlayingScreen({ followPlayback: true })
     await Promise.resolve()
   })

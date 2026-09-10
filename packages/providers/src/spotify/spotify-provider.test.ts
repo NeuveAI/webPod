@@ -1,3 +1,4 @@
+import { musicManager } from '../../../music-management/src/manager'
 import { afterEach, expect, spyOn, test } from 'bun:test'
 import { mintLocalKey } from '../identity'
 import { createSpotifyProvider } from './spotify-provider'
@@ -11,7 +12,7 @@ afterEach(() => {
   else Reflect.deleteProperty(globalThis, 'window')
 })
 
-test('Spotify restores a session, maps current library fields, and routes playback to the browser device', async () => {
+for (const managed of [false, true]) test(`Spotify ${managed ? 'managed' : 'native'} restores session, maps library and routes browser playback`, async () => {
   const listeners = new Map<string, (...args: never[]) => void>()
   const calls: { path: string; body: unknown }[] = []
   let disconnected = false
@@ -121,13 +122,16 @@ test('Spotify restores a session, maps current library fields, and routes playba
       }
       if (path.includes('/playlists/playlist1/items'))
         return Response.json({ items: [{ item: track }], next: null, total: 1 })
+      if (path.endsWith('/me/player/queue')) return Response.json({ currently_playing: track, queue: [{ type: 'episode', id: 'episode1', name: 'Podcast' }, track] })
       if (path.includes('/me/player/play'))
         return new Response(null, { status: 204 })
       throw new Error(`Unexpected test request: ${path}`)
     },
     { preconnect: originalFetch.preconnect },
   )
-  const provider = createSpotifyProvider()
+  const adapter = createSpotifyProvider()
+  const manager = managed ? musicManager(adapter) : null
+  const provider = manager?.provider ?? adapter
   await provider.configure()
   expect(provider.session?.status).toBe('authorized')
   const albumPages: string[][] = []
@@ -162,6 +166,9 @@ test('Spotify restores a session, maps current library fields, and routes playba
   const search = await provider.search({ term: 'playlist', scope: 'catalog', kinds: ['playlist'] })
   expect(search.playlists.map((item) => item.name)).toEqual(['Search playlist'])
   expect((await provider.relatedTracks(playlist))[0]?.key).toBe(song.key)
+  const queue = await provider.queueRead()
+  expect(queue.history).toEqual([])
+  expect(queue.next.map((item) => item.catalogId)).toEqual(['track1'])
   await provider.play({ kind: 'tracks', tracks: [song] })
   expect(calls.at(-1)).toEqual({
     path: 'https://api.spotify.com/v1/me/player/play?device_id=webpod-device',
@@ -191,6 +198,10 @@ test('Spotify restores a session, maps current library fields, and routes playba
   Reflect.apply(changed, null, [sdkState])
   expect(provider.playback.status).toBe('playing')
   expect(provider.playback.now?.artistName).toBe('Test artist')
+  for (const [repeat_mode, repeat] of [[1, 'all'], [2, 'one'], [0, 'off']] as const) {
+    Reflect.apply(changed, null, [{ ...sdkState, repeat_mode }])
+    expect(provider.playback.repeat).toBe(repeat)
+  }
   expect(provider.playback.now?.key).toBe(song.key)
   // Duplicate songs need the submitted occurrence index to settle the panel.
   await provider.play({ kind: 'tracks', tracks: [song, song], startIndex: 1 })
@@ -206,7 +217,7 @@ test('Spotify restores a session, maps current library fields, and routes playba
   }
   Reflect.apply(changed, null, [relinked])
   expect(provider.playback.queueIndex).toBe(1)
-  expect(provider.playback.queueTotal).toBe(2)
+  expect(provider.playback.queueTotal).toBe(managed ? 2 : null)
   expect(provider.playback.now?.key).toBe(song.key)
   expect(provider.playback.now?.catalogId).toBe(song.catalogId)
 
@@ -234,13 +245,13 @@ test('Spotify restores a session, maps current library fields, and routes playba
   const secondSong = { ...song, key: mintLocalKey(), catalogId: 'track2', title: 'Second song' }
   await provider.play({ kind: 'tracks', tracks: [song, secondSong] })
   Reflect.apply(changed, null, [sdkState])
-  expect(provider.playback).toMatchObject({ queueIndex: 0, queueTotal: 2 })
+  expect(provider.playback).toMatchObject({ queueIndex: 0, queueTotal: managed ? 2 : null })
   polledState = { ...sdkState, track_window: { current_track: { ...sdkState.track_window.current_track, id: 'track2', name: 'Second song' } } }
   await provider.skip('next')
-  expect(provider.playback).toMatchObject({ queueIndex: 1, queueTotal: 2 })
+  expect(provider.playback).toMatchObject({ queueIndex: 1, queueTotal: managed ? 2 : null })
   polledState = sdkState
   await provider.skip('previous')
-  expect(provider.playback).toMatchObject({ queueIndex: 0, queueTotal: 2 })
+  expect(provider.playback).toMatchObject({ queueIndex: 0, queueTotal: managed ? 2 : null })
 
   // A skip reconciles metadata immediately even if no SDK event is emitted.
   polledState = { ...sdkState, track_window: { current_track: { ...sdkState.track_window.current_track, id: 'next-track', name: 'Next track' } } }
@@ -271,11 +282,25 @@ test('Spotify restores a session, maps current library fields, and routes playba
     clock.mockRestore()
   }
 
+  if (managed) {
+    await provider.play({ kind: 'tracks', tracks: [song, secondSong], startIndex: 1 })
+    expect(provider.playback.status).toBe('loading')
+    const failed = listeners.get('playback_error')
+    if (!failed) throw new Error('Missing playback error listener')
+    Reflect.apply(failed, null, [{ message: 'Synthetic DRM failure' }])
+    expect(provider.playback.status).toBe('error')
+    expect(provider.playback.now?.catalogId).toBe(secondSong.catalogId)
+    expect(provider.playback.queueIndex).toBe(1)
+    await provider.play({ kind: 'tracks', tracks: [song] })
+    Reflect.apply(changed, null, [sdkState])
+    expect(provider.playback.status).toBe('playing')
+  }
   await expect(
     provider.libraryList('songs', 'https://attacker.example'),
   ).rejects.toThrow('Invalid Spotify library cursor')
   await provider.unauthorize()
   expect(disconnected).toBe(true)
+  manager?.dispose()
   expect(provider.session).toBeNull()
   expect(provider.playback.status).toBe('idle')
 })

@@ -87,6 +87,7 @@ export function createSpotifyApi() {
     path: string,
     method = 'GET',
     body?: object,
+    responseKind: 'json' | 'acknowledgement' = 'json',
   ): Promise<unknown> {
     const url = new URL(path, 'https://api.spotify.com/v1/')
     if (
@@ -120,6 +121,7 @@ export function createSpotifyApi() {
               : `Spotify request failed (${response.status}). Please try again.`,
         )
       if (
+        responseKind === 'acknowledgement' ||
         response.status === 204 ||
         response.headers.get('content-length') === '0'
       )
@@ -201,6 +203,10 @@ export function createSpotifyApi() {
   return {
     accessToken,
     request,
+    /** Void commands are confirmed by HTTP status; successful acknowledgement bodies are opaque. */
+    async command(path: string, method: string, body?: object): Promise<void> {
+      await request(path, method, body, 'acknowledgement')
+    },
     track,
     album,
     artist,
