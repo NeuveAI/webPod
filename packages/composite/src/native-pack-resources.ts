@@ -29,7 +29,7 @@ type QueryPrint=Awaited<ReturnType<typeof preparePrint>>;
 interface RenderPort {readonly id:number;readonly port:MessagePort;transferred:boolean}
 interface ArtworkOwner {readonly id:string;readonly bitmap:NativeStickerArtwork['bitmap'];readonly bytes:number;transferred:boolean}
 export interface NativePackResourceCache {
- readonly owner:object;retired:boolean;
+ readonly owner:object;readonly layout:readonly number[]|null;retired:boolean;
  readonly geometry:Map<string,{query:Shared<QueryGeometry>;render:Shared<RenderPort>}>;
  readonly prints:Map<string,Shared<QueryPrint>>;
  readonly damage:Map<string,Shared<RenderPort>>;
@@ -39,11 +39,13 @@ let artworkSequence=0;
 export async function prepareNativePackFrame(recipe:StickerPackNode,scene:DeviceStickerScene,signal:AbortSignal,options?:{readonly prepareContours?:boolean;readonly owner?:object;readonly reuseFrom?:NativePackResourceCache}) {
  const owner=options?.owner??{},previous=options?.reuseFrom;
  if(previous&&(previous.owner!==owner||previous.retired))throw new Error('Native pack reuse crossed renderer ownership');
- const cache:NativePackResourceCache={owner,retired:false,geometry:new Map(),prints:new Map(),damage:new Map(),artwork:new Map()};
+ const paper=stickerPackLeafSlots(recipe).find(({node})=>node.kind==='paper')?.node;
+ const layout=paper?.kind==='paper'?[paper.size.width,paper.size.height,paper.size.pixel]:null;
+ const cache:NativePackResourceCache={owner,layout,retired:false,geometry:new Map(),prints:new Map(),damage:new Map(),artwork:new Map()};
  const geometry:NativePackResourcePort[]=[],damage:NativeStickerResourcePort[]=[],artworks:NativeStickerArtwork[]=[],prints:NativePackPrint[]=[];
  const reuse:{geometry:{key:string;id:number}[];damage:number[];artworks:string[]}={geometry:[],damage:[],artworks:[]};
  const owners:(()=>void)[]=[],queryOwners:(()=>void)[]=[],prepared=new Map<string,QueryGeometry>(),queryPrints=new Map<string,QueryPrint>();
- let disposed=false,bytes=0,phase='start',printIndex=0;
+ let disposed=false,bytes=0,printIndex=0;
  const releaseQueries=()=>{for(const retire of queryOwners.splice(0).reverse())retire();prepared.clear();queryPrints.clear();cache.prints.clear();cache.geometry.clear();cache.artwork.clear();};
  const release=()=>{if(disposed)return;disposed=true;cache.retired=true;releaseQueries();for(const retire of owners.splice(0).reverse())retire();cache.geometry.clear();cache.damage.clear();cache.artwork.clear();};
  const obtainGeometry=async(input:StickerPackGeometryInput)=>{
@@ -61,7 +63,7 @@ export async function prepareNativePackFrame(recipe:StickerPackNode,scene:Device
  };
  try{
   const slots=stickerPackLeafSlots(recipe);if(slots.length>32)throw new Error('Native pack leaf capacity exceeded');
-  for(const {node,visible}of slots){signal.throwIfAborted();phase=node.kind;
+  for(const {node,visible}of slots){signal.throwIfAborted();
    if(node.kind==='paper'){await obtainGeometry({kind:'gpu-paper',...node.size,liner:node.liner});continue;}
    if(node.kind==='sleeve'){for(const part of stickerPackSleeveParts(node.size))await obtainGeometry(part.geometry);continue;}
    const art=scene.assets.find(item=>item.id===node.artId);if(!art)throw new Error('Native pack artwork missing');
@@ -73,9 +75,9 @@ export async function prepareNativePackFrame(recipe:StickerPackNode,scene:Device
     if(wire.transferred)reuse.artworks.push(wire.id);else artworks.push({id:wire.id,bitmap:wire.bitmap});
    }
    const texture=artUnit.query.value.texture,mesh=await obtainGeometry(node.geometry),surface=mesh.parts['geometry'];if(!surface)throw new Error('Native parked-print geometry missing');
-   phase=`print-${++printIndex}`;const wear=node.appearance==='earned'?node.wear:0,printKey=JSON.stringify([artKey,node.geometryKey,wear,options?.prepareContours!==false]);
+   printIndex++;const wear=node.appearance==='earned'?node.wear:0,printKey=JSON.stringify([artKey,node.geometryKey,wear,options?.prepareContours!==false]);
    let printUnit=cache.prints.get(printKey);
-   if(!printUnit){printUnit=previous?.prints.get(printKey);if(printUnit?.retired)printUnit=undefined;if(!printUnit){const print=await preparePrint({texture,id:art.id,geometry:surface,wearGeometry:surface,wear},signal,{prepareContour:options?.prepareContours!==false});printUnit=shared(print,print.release);}cache.prints.set(printKey,printUnit);retain(printUnit,queryOwners);}
+   if(!printUnit){printUnit=previous?.prints.get(printKey);if(printUnit?.retired)printUnit=undefined;if(!printUnit){const print=await preparePrint({texture,id:art.id,geometry:surface,wearGeometry:surface,wear},signal,{prepareContour:options?.prepareContours!==false,reuseDamage:[...new Map([...cache.prints.values(),...(previous?.prints.values()??[])].filter(value=>!value.retired).flatMap(value=>preparedStickerResources(value.value.geometry)).filter(value=>value.input.kind==='damage').map(value=>[value.key,value])).values()]});printUnit=shared(print,print.release);}cache.prints.set(printKey,printUnit);retain(printUnit,queryOwners);}
    const print=printUnit.value;queryPrints.set(node.id,print);
    const descriptor=preparedStickerResources(print.geometry).find(item=>item.input.kind==='damage');if(!descriptor)throw new Error('Native parked-print damage missing');
    let damageUnit=cache.damage.get(descriptor.key);
@@ -88,5 +90,10 @@ export async function prepareNativePackFrame(recipe:StickerPackNode,scene:Device
   }
   signal.throwIfAborted();const frame:NativePackFrame={key:nativePackResourceKey(recipe,scene),recipe,geometry,damage,artworks,prints,reuse};
   return{frame,cache,release,releaseQueries,prepared,queryPrints,transferred(){for(const unit of cache.geometry.values())unit.render.value.transferred=true;for(const unit of cache.damage.values())unit.value.transferred=true;for(const unit of cache.artwork.values())unit.render.value.transferred=true;}};
- }catch(error){const usage=inspectStickerTransactions();release();if(error instanceof Error&&error.message.includes('capacity'))throw new Error(`${error.message}; native pack phase=${phase}; completed prints=${prints.length}; artworkBytes=${bytes}; transactions=${JSON.stringify(usage)}`,{cause:error});throw error;}
+ }catch(error){const usage=inspectStickerTransactions();release();if(error instanceof Error&&error.message.includes('capacity')){
+  // Layout is exact width/height/pixel; canonical recipe and catalogue recover
+  // print width/bow without embedding artwork objects. Slot array index is ID.
+  const slots=stickerPackLeafSlots(recipe).flatMap(({node})=>node.kind==='print'?[[node.artId,node.appearance==='earned'?0:node.appearance==='locked'?1:2,node.wear]]:[]);
+  throw new Error(`pack capacity ${JSON.stringify({p:printIndex,old:previous?.layout??null,next:layout,ids:scene.prepareIds??[],placed:scene.placements.map(value=>[value.stickerId,value.wear??0]),s:slots,b:[usage.entries,usage.privateOwners,usage.privateBytes,usage.accountedBytes]})}`,{cause:error});
+ }throw error;}
 }

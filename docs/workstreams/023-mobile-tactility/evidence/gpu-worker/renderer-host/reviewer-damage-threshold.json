@@ -1,0 +1,40 @@
+{
+  "method": "Independent exact Float32 boundary inputs versus unchanged authored surface generator",
+  "rows": [
+    {
+      "z": 0.9499999284744263,
+      "exposure": 0.05000007152557373,
+      "certified": false
+    },
+    {
+      "z": 0.949999988079071,
+      "exposure": 0.050000011920928955,
+      "certified": false
+    },
+    {
+      "z": 0.9500001072883606,
+      "exposure": 0.049999892711639404,
+      "certified": true
+    },
+    {
+      "z": -0.9499999284744263,
+      "exposure": 0.05000007152557373,
+      "certified": false
+    },
+    {
+      "z": -0.9500001072883606,
+      "exposure": 0.049999892711639404,
+      "certified": true
+    },
+    {
+      "z": 1,
+      "exposure": 0,
+      "certified": true
+    },
+    {
+      "z": 1.0099999904632568,
+      "exposure": 0,
+      "certified": true
+    }
+  ]
+}

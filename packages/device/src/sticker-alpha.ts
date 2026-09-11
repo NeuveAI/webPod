@@ -6,6 +6,7 @@ export interface StickerDamageField { readonly width: number; readonly height: n
 const masks = new WeakMap<Texture, StickerAlphaMask>();
 const damage = new WeakMap<Texture, { readonly id: string; readonly field: StickerDamageField; readonly texture: DataTexture }>();
 export const STICKER_ALPHA_THRESHOLD = 16;
+export const STICKER_SURFACE_DAMAGE_EXPOSURE_THRESHOLD = .05;
 
 /** Image readback happens once per loaded source, before gesture admission. */
 export function prepareStickerAlpha(texture: Texture): StickerAlphaMask | null {
@@ -109,7 +110,7 @@ export function* createSurfaceStickerDamageSteps(base: StickerDamageField, geome
     const row = Math.max(0, Math.min(n, Math.round((maxV - v) / (maxV - minV) * n)));
     const normalZ = normals.getZ(row * (n + 1) + col);
     const exposure = Math.min(1, Math.max(0, 1 - Math.abs(normalZ)));
-    if (exposure < .05) continue;
+    if (exposure < STICKER_SURFACE_DAMAGE_EXPOSURE_THRESHOLD) continue;
     const distance = base.distance?.[i] ?? 1, original = base.onset[i] ?? 255;
     // Thin connected fibers at exposed rims; no random holes through the print.
     const depth = original < 255 ? distance / (original / 255) : resolution * .45;

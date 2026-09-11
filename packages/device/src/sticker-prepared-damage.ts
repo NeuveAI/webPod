@@ -1,10 +1,12 @@
+import { equalStickerDamageInputs } from './sticker-damage-input';
+import { yieldSteps } from './sticker-computation-steps';
 import { getStickerBoundsIndex, setStickerBoundsIndex } from './sticker-bounds-index';
 import { atom, createStore, useAtomValue } from 'jotai';
 import { useLayoutEffect, useMemo } from 'react';
 import { BufferAttribute, BufferGeometry, DataTexture, NearestFilter, RedFormat, type Texture } from 'three';
 import { prepareStickerAlpha, type StickerDamageResource } from './sticker-alpha';
 import { acquireStickerTransaction, requestStickerTransaction } from './sticker-transaction-broker';
-import { commitPreparedStickerSurface, preparedStickerPlacement, preparedStickerResources, registerPreparedStickerResources } from './sticker-transaction-client';
+import { commitPreparedStickerSurface, preparedStickerPlacement, preparedStickerResources, registerPreparedStickerResources, type PreparedStickerResource } from './sticker-transaction-client';
 import type { StickerDamageRequest, StickerContourRequest } from './sticker-transaction-data';
 import { setPreparedStickerContour, type PreparedStickerContour } from './sticker-contour-preparation-data';
 import { createLatestStickerPreparation } from './sticker-latest-preparation';
@@ -28,14 +30,20 @@ function borrowGeometry(source: BufferGeometry): BufferGeometry {
 }
 /** Contours remain mandatory by default for every visible/query print. Only
  * an invisible shader warmup may omit them; damage identity and bytes are exact. */
-export async function preparePrint(input: PrintInput, signal: AbortSignal, options?: { readonly prepareContour?: boolean }): Promise<PreparedPrint> {
+export async function preparePrint(input: PrintInput, signal: AbortSignal, options?: { readonly prepareContour?: boolean; readonly reuseDamage?: readonly PreparedStickerResource[] }): Promise<PreparedPrint> {
   const { texture, id, geometry, wearGeometry, wear } = input;
   const mask = prepareStickerAlpha(texture); if (!mask) throw new Error('Sticker alpha is unavailable');
   const normals = wearGeometry?.getAttribute('normal'), uv = wearGeometry?.getAttribute('uv');
   if ((normals && !(normals.array instanceof Float32Array)) || (uv && !(uv.array instanceof Float32Array))) throw new Error('Sticker attributes require immutable float32 arrays');
   const surface = normals?.array instanceof Float32Array && uv?.array instanceof Float32Array ? { normals: normals.array, uv: uv.array } : null;
-  const key = `damage:${id}:${identity(texture)}:${wearGeometry ? identity(wearGeometry) : 0}`;
-  const damageInput: StickerDamageRequest = { kind: 'damage', artworkKey: String(identity(texture)), stickerId: id, mask, surface };
+  let key = `damage:${id}:${identity(texture)}:${wearGeometry ? identity(wearGeometry) : 0}`;
+  let damageInput: StickerDamageRequest = { kind: 'damage', artworkKey: String(identity(texture)), stickerId: id, mask, surface };
+  if (options?.reuseDamage?.length) {
+    if (options.reuseDamage.length > 64) throw new Error('Sticker damage reuse candidate capacity exceeded');
+    for (const candidate of options.reuseDamage) {
+      if (candidate.input.kind === 'damage' && candidate.input.stickerId === damageInput.stickerId && candidate.input.artworkKey === damageInput.artworkKey && await yieldSteps(equalStickerDamageInputs(damageInput, candidate.input), signal)) { key = candidate.key; damageInput = candidate.input; break; }
+    }
+  }
   const descriptors = preparedStickerResources(geometry), sources = descriptors.map(resource => acquireStickerTransaction(resource.key, resource.input));
   for (const source of sources) void source.result.catch(() => {});
   const releases: (() => void)[] = sources.map(source => source.release);
