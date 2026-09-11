@@ -1,3 +1,4 @@
+import { installNativeMaterialOutput } from "./native-material-output";
 import {DataTexture, Group, Mesh, NearestFilter, RedFormat, type BufferGeometry, type Object3D, type Texture, type Material} from 'three';
 import {MeshPhysicalNodeMaterial,MeshStandardNodeMaterial} from 'three/webgpu';
 import {restoreShell} from './immutable-shell-transfer';
@@ -60,7 +61,7 @@ export async function prepareStickerPackRenderFrame(frame:NativePackFrame,enviro
   for(const art of frame.artworks){if(textures.has(art.id))throw new Error('Duplicate pack artwork');const texture=restoreDeviceFontTexture(art.bitmap),unit=gpuResource(texture,()=>{texture.dispose();art.bitmap.image.close();});pendingImages.delete(art.bitmap.image);resources.artwork.set(art.id,unit);textures.set(art.id,retainGpu(unit,owners));}
   const roughness=createStickerRoughness();owners.push(()=>roughness.dispose());
   const objects=new Map<string,Object3D>(),curls=new Map<string,ReturnType<typeof installPaperNodes>[]>();
-  const ownedMaterial=<T extends Material>(material:T):T=>{owners.push(()=>material.dispose());return material;};
+  const ownedMaterial=<T extends Material>(material:T):T=>{owners.push(()=>material.dispose());return installNativeMaterialOutput(material);};
   const required=(key:string,part='geometry')=>{const result=geometries.get(key)?.[part];if(!result)throw new Error(`Missing native pack geometry ${part}`);return result;};
   root=createStickerPackGraph(frame.recipe,node=>{
    const group=new Group();objects.set(node.id,group);

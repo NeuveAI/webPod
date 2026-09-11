@@ -1,3 +1,4 @@
+import { assertNativeMaterialOutput } from "./native-material-output";
 import {createNativeCarryAdoption} from './native-carry-adoption';
 import {prepareCarryRenderFrame,createCarryArtworkOwner,closeNativeCarryFrame} from './sticker-carry-render-frame';
 import type {NativeCarryFrameMessage} from '../../composite/src/native-carry-resources';
@@ -6,7 +7,7 @@ import {prepareStickerPackRenderFrame} from './sticker-pack-render-frame';
 import type {NativePackFrame} from '../../composite/src/native-pack-resources';
 import type {StickerPackNode} from './sticker-pack-recipe';
 import { closeStickerFrameMessage, prepareStickerRenderFrame, type NativeEquippedFrameMessage } from './sticker-render-frame';
-import { AgXToneMapping, Group, Mesh, PerspectiveCamera, RectAreaLight, Scene } from 'three';
+import { LinearSRGBColorSpace, NoToneMapping, UnsignedByteType, Group, Mesh, PerspectiveCamera, RectAreaLight, Scene } from 'three';
 import { WebGPURenderer, RectAreaLightNode } from 'three/webgpu';
 import { RectAreaLightTexturesLib } from 'three/addons/lights/RectAreaLightTexturesLib.js';
 import { createRenderBackendOwner, createBackendStudioMaps } from './render-backend-services';
@@ -46,10 +47,12 @@ async function initialize(input: Extract<DeviceRenderWorkerRequest, { type: 'ini
   const abort = new AbortController(), cleanups: (() => void)[] = [];
   release = () => { abort.abort(); for (const cleanup of cleanups.splice(0).reverse()) cleanup(); };
   cleanups.push(() => input.resources.close(), () => disposeDeviceFontAssets(input.fonts));
-  const renderer = new WebGPURenderer({ canvas: input.canvas, antialias: true, alpha: true });
+  const renderer = new WebGPURenderer({ canvas: input.canvas, antialias: true, alpha: true, outputType: UnsignedByteType });
   const previousDeviceLost=renderer.onDeviceLost;
   renderer.onDeviceLost=info=>{previousDeviceLost.call(renderer,info);fail(new Error('Native GPU device lost'));};
-  renderer.toneMapping = AgXToneMapping; renderer.toneMappingExposure = 1;
+  // Encoded fragments blend directly in the plain-unorm, default-sRGB canvas.
+  // Nominal LinearSRGB disables Three’s additional full-scene output conversion.
+  renderer.toneMapping = NoToneMapping; renderer.outputColorSpace = LinearSRGBColorSpace; renderer.toneMappingExposure = 1;
   const backend = createRenderBackendOwner({ kind: 'webgpu', renderer }); cleanups.push(() => backend.dispose());
   const prepared = new Promise<PreparedDeviceRenderLease>((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('Prepared renderer resources timed out')), 15000);
@@ -155,7 +158,7 @@ async function initialize(input: Extract<DeviceRenderWorkerRequest, { type: 'ini
       }
       // The displayed scene stays renderable while the detached candidate
       // compiles. Three restores render globals before its yielding build loop.
-      await backend.compile(candidate.root,camera,scene,abort.signal);
+      assertNativeMaterialOutput(candidate.root); await backend.compile(candidate.root,camera,scene,abort.signal);
       if (retired || sequence !== stickerSequence || frame.computationEpoch !== latestStickerEpoch) {
         candidate.dispose(); publish(pose); send({type:'equipped-frame-rejected',version:1,epoch,sequence}); return;
       }
@@ -174,7 +177,7 @@ async function initialize(input: Extract<DeviceRenderWorkerRequest, { type: 'ini
     try{
       candidate=await prepareStickerPackRenderFrame(frame,studio.texture,abort.signal,pack?.resources);
       if(retired||frame.key!==latestPackKey){candidate.dispose();send({type:'pack-frame-complete',version:1,epoch,sequence,key:frame.key,accepted:false,recipe:null});return;}
-      await backend.compile(candidate.root,camera,scene,abort.signal);
+      assertNativeMaterialOutput(candidate.root); await backend.compile(candidate.root,camera,scene,abort.signal);
       if(retired||frame.key!==latestPackKey){candidate.dispose();publish(pose);send({type:'pack-frame-complete',version:1,epoch,sequence,key:frame.key,accepted:false,recipe:null});return;}
       if(latestPackRecipe)candidate.update(latestPackRecipe);
       if(pendingPackPoseAck!==null){send({type:'pack-pose-consumed',version:1,epoch,notificationSequence:pendingPackPoseAck,accepted:false});pendingPackPoseAck=null;}
@@ -191,7 +194,7 @@ async function initialize(input: Extract<DeviceRenderWorkerRequest, { type: 'ini
   const adoptWarmup=async(frame:NativePackFrame,sequence:number)=>{
     let candidate:Awaited<ReturnType<typeof prepareStickerWarmup>>|null=null;
     try{candidate=await prepareStickerWarmup(frame,studio.texture,abort.signal);
-      if(frame.prints.length){await backend.compile(candidate.root,camera,scene,abort.signal);}
+      if(frame.prints.length){assertNativeMaterialOutput(candidate.root); await backend.compile(candidate.root,camera,scene,abort.signal);}
       if(retired){candidate.dispose();return;}
       warmup?.dispose();warmup=candidate;publish(pose);send({type:'warmup-complete',version:1,epoch,sequence,accepted:true});
     }catch(error){candidate?.dispose();fail(error);}
@@ -203,7 +206,7 @@ async function initialize(input: Extract<DeviceRenderWorkerRequest, { type: 'ini
    try{
     candidate=await prepareCarryRenderFrame(frame,map,studio.texture,abort.signal);
     if(retired||!carryAdoption.compatible(frame.epoch,frame.stamp.assemblyRevision)){candidate.dispose();send({type:'carry-frame-complete',version:1,epoch,sequence:frame.sequence,accepted:false});return;}
-    await backend.compile(candidate.root,camera,scene,abort.signal);
+    assertNativeMaterialOutput(candidate.root); await backend.compile(candidate.root,camera,scene,abort.signal);
     if(retired||!carryAdoption.compatible(frame.epoch,frame.stamp.assemblyRevision)){candidate.dispose();publish(pose);send({type:'carry-frame-complete',version:1,epoch,sequence:frame.sequence,accepted:false});return;}
     const old=carry;carry=candidate;scene.add(candidate.root);old?.dispose();
     send({type:'carry-frame-complete',version:1,epoch,sequence:frame.sequence,accepted:true});
@@ -253,7 +256,7 @@ async function initialize(input: Extract<DeviceRenderWorkerRequest, { type: 'ini
     else if (message.type === 'dispose') { visible=false;projection.pause(true);if(acceptsPose(message.command.pose))motion.command(message.command);retired = true; release?.(); send({ type: 'disposed', version: 1, epoch }); }
   };
   send({ type: 'initialized', version: 1, epoch });
-  await backend.compile(scene, camera, scene, abort.signal); compiled = true; publish(pose);
+  assertNativeMaterialOutput(scene); await backend.compile(scene, camera, scene, abort.signal); compiled = true; publish(pose);
 }
 
 self.onmessage = ({ data }: MessageEvent<DeviceRenderWorkerRequest>) => {

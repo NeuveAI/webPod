@@ -1,3 +1,4 @@
+import { installNativeMaterialOutput } from "./native-material-output";
 import { BackSide, FrontSide, type Texture } from 'three';
 import { STICKER_LAMINATE } from './materials';
 import { STICKER_SURFACE } from './sticker-surface';
@@ -33,6 +34,7 @@ export function createStickerNodeMaterials(input: StickerNodeMaterialInput) {
   if (input.appearance !== 'earned') installStickerSeatNodes(front, input.appearance, input.map);
   const setWear = (value: number) => { const wear = input.appearance === 'earned' ? value : 0; wearing.set(wear); backingWear.set(wear); };
   setWear(input.wear);
+  installNativeMaterialOutput(front); installNativeMaterialOutput(back);
   return {
     front, back, setWear,
     setDamage(resource: StickerNodeDamage | null) { wearing.setDamage(resource); backingWear.setDamage(resource); },

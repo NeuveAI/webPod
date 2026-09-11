@@ -1,0 +1,22 @@
+{
+  "commit": "0cdb4f3fd6ce4b463b44277fb10161dd3bfc8859",
+  "archive": "/tmp/webpod-native-output-original",
+  "files": [
+    {
+      "path": "packages/device/src/device-assembly-materials.ts",
+      "sha256": "3db88cbd8135e0a5f0d25cf6b1e1ffa3347fc6e5bb3b7c03874c930f0c5aaefb"
+    },
+    {
+      "path": "packages/device/src/sticker-material-nodes.ts",
+      "sha256": "bac746d29fe60abe503de9eb3de7a2b0f8a86c3606530460c3f0ea76bdab9866"
+    },
+    {
+      "path": "packages/device/src/sticker-pack-render-frame.ts",
+      "sha256": "846072ae2234a478f0b09123fd083abdd5395fbae428f5f1a3f6fef8670ee0bf"
+    },
+    {
+      "path": "packages/device/src/device-render-worker.ts",
+      "sha256": "8f6464f67e9732fe7a18d97458ab2bebfc160d3d108cb0508c4f3b6911bc56ef"
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import { installNativeMaterialOutput } from "./native-material-output";
 import { Color, MeshBasicMaterial, MeshPhysicalMaterial, type Material, type Texture } from 'three';
 import { MeshBasicNodeMaterial, MeshPhysicalNodeMaterial } from 'three/webgpu';
 import { createPolycarbonateMaterial, createCoverGlassMaterial } from './physical-materials';
@@ -70,5 +71,6 @@ export function createDeviceAssemblyMaterials(input: {
     'hardware/orange': hardware('#F67927', 0, .62),
     'hardware/contact': hardware('#AB9259', .75, .35),
   };
+  if (backend.kind === "webgpu") for (const material of Object.values(materials)) installNativeMaterialOutput(material);
   return { materials, dispose() { for (const material of new Set(Object.values(materials))) if (material !== input.screen) material.dispose(); } };
 }

@@ -1,0 +1,10 @@
+{
+  "checks": 10,
+  "idempotent": true,
+  "originalCacheReceiver": true,
+  "toneMappedCacheIdentity": true,
+  "detachedCoverage": true,
+  "unsupportedOutputAndStockRejected": true,
+  "mutatedOutputRejectedBeforeAdmission": true,
+  "gpuPixelParity": "separate lead-owned probe required"
+}
