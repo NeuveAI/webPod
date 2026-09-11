@@ -1,3 +1,4 @@
+import {registerStickerAssembly,markStickerAssemblyChanged} from './sticker-assembly-revision';
 import { usePreparedImmutableShells } from './immutable-shell-preparation';
 import { createShellPicking } from './shell-picking';
 import { createOrientationRaycast } from './orientation-picking';
@@ -64,7 +65,7 @@ import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 import {
   createWheelLabelMap,
 } from "./textures";
-import { ViewerLitDeviceFrame } from "./ViewerLitDeviceFrame";
+import { ViewerLitDeviceFrame, DEVICE_CONTENT_NAME } from "./ViewerLitDeviceFrame";
 import {
   FRONT_DEVICE_ORIENTATION,
   type DeviceOrientation,
@@ -157,6 +158,14 @@ export function Device({
   const invalidate = useThree((state) => state.invalidate);
   const controlPhysics = useControlPhysics();
   const wheelAssemblyRef = useRef<Group>(null);
+  useLayoutEffect(()=>{
+    let root=wheelAssemblyRef.current?.parent;
+    while(root&&root.name!==DEVICE_CONTENT_NAME)root=root.parent;
+    return root?registerStickerAssembly(root):undefined;
+  },[]);
+  useLayoutEffect(()=>{
+    const wheel=wheelAssemblyRef.current;if(wheel)markStickerAssemblyChanged(wheel);
+  },[prepared,materials,colourway,screenMaterial]);
   // A getter, not a value: r3f swaps the camera on some prop changes and the
   // viewport changes on every resize, so the handle must read both at the
   // moment it projects rather than capture them (see `screen-mesh.ts`).

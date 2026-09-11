@@ -43,7 +43,7 @@ export function createCarryPreparation() {
       const prepare = async () => {
         let source: BufferGeometry | null = null, target: BufferGeometry | null = null;
         const borrowed = contact.snapshot();
-        const collider = createStickerCollision([], { ...borrowed, metadata: borrowed.metadata.map(value => ({ ...value })) });
+        const collider = createStickerCollision([], borrowed);
         try {
           if (job.input.pack.sourcePlacement) source = await yieldSteps(createStickerSurfaceGeometrySteps(job.input.art, job.input.pack.sourcePlacement, assembly), controller.signal);
           if (job.input.pack.landing > 0 && job.input.pack.placement) target = await yieldSteps(createStickerSurfaceGeometrySteps(job.input.art, job.input.pack.placement, assembly), controller.signal);

@@ -418,7 +418,7 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
   useLayoutEffect(() => {
     const content = scene.getObjectByName(DEVICE_CONTENT_NAME), rear = scene.getObjectByName('device-steel-back');
     if (!content || !(rear instanceof Mesh) || !collision) return;
-    content.updateWorldMatrix(true, true); camera.updateWorldMatrix(true, false);
+    content.updateWorldMatrix(true, false); camera.updateWorldMatrix(true, false);
     collision.update(content);
     if (!collision.ready) return;
     const { art: artwork, pack: pose } = latestInput.current;

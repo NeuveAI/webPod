@@ -1,3 +1,4 @@
+import {markStickerAssemblyChanged} from './sticker-assembly-revision';
 /**
  * The device ↔ composite boundary (D-011).
  *
@@ -223,6 +224,7 @@ export function createScreenMeshHandle(deps: HandleDeps): ScreenMeshHandle {
 
     setMaterial(material) {
       mesh.material = material ?? state.deps.defaultMaterial;
+      markStickerAssemblyChanged(mesh);
       state.deps.invalidate();
     },
 

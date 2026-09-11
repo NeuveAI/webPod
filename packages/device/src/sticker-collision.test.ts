@@ -28,7 +28,7 @@ test('finite segment reports first actual transformed facet and preserves hidden
   expect(collider.castSegment(new Vector3(0, 0, 5), new Vector3(0, 0, 3))).toBeNull();
   // Through a missing outer opening, earliest contact alone cannot label adhesive support.
   expect(collider.castSegment(new Vector3(0, 0, 1), new Vector3(0, 0, -1))?.source).toBe('hidden-bottom');
-  expect(collider.stats.triangleCount).toBe(2); expect(collider.stats.typedBytes).toBe(152);
+  expect(collider.stats.triangleCount).toBe(2); expect(collider.stats.typedBytes).toBe(224);
   collider.dispose(); plane.dispose();
 });
 

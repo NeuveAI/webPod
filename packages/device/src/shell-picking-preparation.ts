@@ -1,7 +1,9 @@
 import type { ShellPickingIndex, ShellPickingInput } from './shell-picking-index';
 
-type Job = { input: ShellPickingInput; signal: AbortSignal; resolve: (index: ShellPickingIndex) => void; reject: (error: Error) => void; abort: () => void };
+type Job = { id:number;bytes:number;input: ShellPickingInput; signal: AbortSignal; resolve: (index: ShellPickingIndex) => void; reject: (error: Error) => void; abort: () => void };
 const queue: Job[] = [];
+let nextId=0;
+const MAX_INPUT_BYTES=64*1024*1024;
 let active: Job | null = null;
 let worker: Worker | null = null;
 let deadline: ReturnType<typeof setTimeout> | undefined;
@@ -31,8 +33,8 @@ function pump() {
     if (!worker) {
       worker = new Worker(new URL('./shell-picking-worker.ts', import.meta.url), { type: 'module' });
       const owner = worker;
-      worker.onmessage = (event: MessageEvent<{ index?: ShellPickingIndex; error?: string }>) => {
-        if (worker !== owner) return;
+      worker.onmessage = (event: MessageEvent<{id:number;index?: ShellPickingIndex; error?: string}>) => {
+        if (worker !== owner||active?.id!==event.data.id) return;
         finish(event.data.error ? new Error(event.data.error) : null, event.data.index);
       };
       const fail = () => { if (worker !== owner) return; stop(); finish(new Error('Shell preparation worker failed')); };
@@ -40,7 +42,7 @@ function pump() {
     }
     deadline = setTimeout(() => { stop(); finish(new Error('Shell preparation timed out')); }, 15000);
     const { positions, indices } = job.input;
-    worker.postMessage(job.input, indices ? [positions.buffer, indices.buffer] : [positions.buffer]);
+    worker.postMessage({id:job.id,input:job.input}, indices ? [positions.buffer, indices.buffer] : [positions.buffer]);
   } catch (error) { stop(); finish(error instanceof Error ? error : new Error('Shell preparation failed')); }
 }
 
@@ -48,8 +50,9 @@ function pump() {
  * retain exact source raycasting. Idle/cancelled workers release their Three heap. */
 export function prepareShellPickingIndex(input: ShellPickingInput, signal: AbortSignal): Promise<ShellPickingIndex> {
   return new Promise((resolve, reject) => {
-    if (signal.aborted || queue.length >= 4) { reject(new Error('Shell preparation cancelled or busy')); return; }
-    const job: Job = { input, signal, resolve, reject, abort: () => {
+    const bytes=input.positions.byteLength+(input.indices?.byteLength??0);
+    if (signal.aborted || queue.length >= 4 || bytes+(active?.bytes??0)+queue.reduce((sum,job)=>sum+job.bytes,0)>MAX_INPUT_BYTES) { reject(new Error('Shell preparation cancelled or busy')); return; }
+    const job: Job = { id:++nextId,bytes,input, signal, resolve, reject, abort: () => {
       if (active === job) { stop(); finish(new Error('Shell preparation cancelled')); }
       else {
         const index = queue.indexOf(job); if (index >= 0) queue.splice(index, 1);

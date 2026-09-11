@@ -2,7 +2,6 @@ import { Vector3 } from 'three';
 import type { StickerCollisionFace, StickerCollisionSnapshot } from './sticker-collision';
 import { yieldSteps } from './sticker-computation-steps';
 
-type SerializedNode = StickerCollisionSnapshot['root'];
 
 /** Exact fallback for the worker BVH: identical coordinates, stable median
  * partitions and provenance. Every linear pass and sort merge yields in bounded
@@ -10,7 +9,7 @@ type SerializedNode = StickerCollisionSnapshot['root'];
  * Borrowed input must retain its assembly revision until the caller accepts the
  * result (visibility checks that revision again before installing the snapshot).
  */
-function* collisionSteps(faces: readonly StickerCollisionFace[]): Generator<void, StickerCollisionSnapshot, void> {
+export function* collisionSteps(faces: readonly StickerCollisionFace[]): Generator<void, StickerCollisionSnapshot, void> {
   let triangleCount = 0, work = 0;
   for (const face of faces) {
     const count = face.geometry.index?.count ?? face.geometry.getAttribute('position').count;
@@ -45,8 +44,10 @@ function* collisionSteps(faces: readonly StickerCollisionFace[]): Generator<void
     }
   }
   let nodeCount = 0;
-  function* build(start: number, end: number): Generator<void, SerializedNode, void> {
-    nodeCount++;
+  const nodeBounds:number[]=[],links:number[]=[],leafTriangles:number[]=[];
+  function* build(start: number, end: number): Generator<void, number, void> {
+    const node=nodeCount++;
+    links.push(0,0,0,0);
     const box = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
     for (let i = start; i < end; i++) {
       const offset = (ids[i] ?? 0) * 6;
@@ -56,7 +57,8 @@ function* collisionSteps(faces: readonly StickerCollisionFace[]): Generator<void
       }
       if (++work % 128 === 0) yield;
     }
-    if (end - start <= 8) return { bounds: box, triangles: ids.slice(start, end), left: undefined, right: undefined };
+    for(let axis=0;axis<6;axis++)nodeBounds[node*6+axis]=box[axis]??0;
+    if (end - start <= 8) {links[node*4+2]=leafTriangles.length;links[node*4+3]=end-start;for(let cursor=start;cursor<end;cursor++)leafTriangles.push(ids[cursor]??0);return node;}
     const x = (box[3] ?? 0) - (box[0] ?? 0), y = (box[4] ?? 0) - (box[1] ?? 0), z = (box[5] ?? 0) - (box[2] ?? 0);
     const axis = x >= y && x >= z ? 0 : y >= z ? 1 : 2;
     // Stable bottom-up merge sort matches the synchronous numeric comparator,
@@ -76,9 +78,10 @@ function* collisionSteps(faces: readonly StickerCollisionFace[]): Generator<void
     }
     const half = start + ((end - start) >> 1);
     const left = yield* build(start, half), right = yield* build(half, end);
-    return { bounds: box, triangles: undefined, left, right };
+    links[node*4]=left+1;links[node*4+1]=right+1;return node;
   }
-  const root = yield* build(0, triangleCount);
+  yield* build(0, triangleCount);
+  const root={bounds:Float64Array.from(nodeBounds),links:Uint32Array.from(links),triangles:Uint32Array.from(leafTriangles)};
   return { coordinates, provenance, metadata, root, nodeCount };
 }
 

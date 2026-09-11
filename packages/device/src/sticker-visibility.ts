@@ -1,3 +1,4 @@
+import {stickerAssemblyRevision} from './sticker-assembly-revision';
 import { prepareCollisionInWorker } from './sticker-collision-preparation';
 import { Matrix4, Mesh, Vector3, type Camera, type Object3D } from 'three';
 import { createStickerCollision, type StickerCollisionFace } from './sticker-collision';
@@ -27,8 +28,15 @@ export function createStickerVisibility(options: { readonly workerOnly?: boolean
   const publish = () => { epoch++; for (const listener of listeners) listener(); };
   let assemblyRevision = 0, signature: number[] = [], scratch: number[] = [];
   let cachedFaces: StickerCollisionFace[] = [];
+  let inspectedContent:Object3D|null=null,authority:ReturnType<typeof stickerAssemblyRevision>,authorityRevision=-1;
+  const inspectionStats={walks:0,cacheHits:0};
   const transform = new Matrix4();
   const inspect = (content: Object3D) => {
+      const nextAuthority=stickerAssemblyRevision(content);
+      if(nextAuthority&&inspectedContent===content&&nextAuthority===authority&&nextAuthority.revision===authorityRevision){
+        content.updateWorldMatrix(true,false);inspectionStats.cacheHits++;return {faces:cachedFaces,nextKey:String(assemblyRevision)};
+      }
+      inspectedContent=content;authority=nextAuthority;authorityRevision=nextAuthority?.revision??-1;inspectionStats.walks++;
       content.updateWorldMatrix(true, true);
       scratch.length = 0;
       const meshes: Mesh[] = [];
@@ -63,9 +71,10 @@ export function createStickerVisibility(options: { readonly workerOnly?: boolean
   };
   return {
     get revision(): number { return revision; },
+    getInspectionStats(){return {...inspectionStats};},
     /** False during cold/changed preparation; callers retain their last safe pose. */
     get ready(): boolean { return ready; },
-    /** Borrow immutable prepared data. Consumers must clone, never transfer these buffers. */
+    /** Borrow immutable prepared data. Consumers may borrow for read-only queries or structured-clone once across a worker boundary; never transfer these buffers. */
     snapshot() { if (!ready || !collider) throw new Error('Sticker visibility is not prepared'); return collider.snapshot(); },
     getSnapshot: () => epoch,
     subscribe(listener: () => void): () => void { listeners.add(listener); return () => { listeners.delete(listener); }; },
@@ -112,6 +121,6 @@ export function createStickerVisibility(options: { readonly workerOnly?: boolean
       if (disposed || collider === null || !ready) throw new Error('Sticker visibility is not prepared');
       return collider.castSegment(start, end);
     },
-    dispose(): void { if (disposed) return; disposed = true; ready = false; pending?.controller.abort(); pending = null; collider?.dispose(); collider = null; key = ''; cachedFaces = []; signature = []; scratch = []; listeners.clear(); },
+    dispose(): void { if (disposed) return; disposed = true; ready = false; pending?.controller.abort(); pending = null; collider?.dispose(); collider = null; key = ''; cachedFaces = []; inspectedContent=null;authority=undefined;signature = []; scratch = []; listeners.clear(); },
   };
 }

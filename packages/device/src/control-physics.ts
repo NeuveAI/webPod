@@ -1,3 +1,4 @@
+import {markStickerAssemblyChanged} from './sticker-assembly-revision';
 import {
   type Object3D,
   Quaternion,
@@ -120,6 +121,7 @@ function translateAxialControl(control: BoundAxialControl, depth: number): void 
   control.object.quaternion.copy(control.restQuaternion);
   control.object.scale.copy(control.restScale);
   control.object.updateMatrix();
+  markStickerAssemblyChanged(control.object);
 }
 
 function restoreAxialControl(control: BoundAxialControl): void {
@@ -161,6 +163,7 @@ function tiltRigidAssembly(
     .normalize();
   assembly.object.scale.copy(assembly.restScale);
   assembly.object.updateMatrix();
+  markStickerAssemblyChanged(assembly.object);
 }
 
 function restoreRigidAssembly(assembly: BoundRigidAssembly): void {
@@ -168,6 +171,7 @@ function restoreRigidAssembly(assembly: BoundRigidAssembly): void {
   assembly.object.quaternion.copy(assembly.restQuaternion);
   assembly.object.scale.copy(assembly.restScale);
   assembly.object.updateMatrix();
+  markStickerAssemblyChanged(assembly.object);
 }
 
 function channel(): Channel {

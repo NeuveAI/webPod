@@ -1,0 +1,23 @@
+{
+  "baseline": "d252c4425e18fff1424f26aff9e3dcb6e28e46f8",
+  "segments": 529,
+  "support": 529,
+  "triangles": 529,
+  "exactShellRays": 840,
+  "uvAlphaFilteredRays": 840,
+  "workerCooperativePackedParity": true,
+  "snapshotIdentity": true,
+  "borrowedDisposalSafe": true,
+  "triangleCount": 200913,
+  "nodeCount": 65535,
+  "formerDenseNodeRestorations": 65535,
+  "packedNodeRestorations": 0,
+  "packedTypedBytes": 20267280,
+  "inputCopyBytes": 3874572,
+  "supportWork": {
+    "queries": 529,
+    "nodes": 202503,
+    "triangles": 192669
+  },
+  "claim": "Exact query/representation work counts only; no browser or GPU time measurement"
+}
