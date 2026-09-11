@@ -13,6 +13,8 @@ import { Box3, PerspectiveCamera } from "three";
 
 import { Device, type DeviceProps } from "./Device";
 import { CanvasPixelDensity } from "./CanvasPixelDensity";
+import { createCanvasPixelDensityStore } from "./canvas-pixel-density-store";
+import { useAtomValue } from "jotai";
 import { ControlPhysicsScope } from "./ControlPhysicsScope";
 import {
   applyDeviceCameraFit,
@@ -136,6 +138,15 @@ export function DeviceCanvas({
   children,
   ...device
 }: DeviceCanvasProps) {
+  const automaticDensity = Array.isArray(dpr);
+  const minimumDensity = typeof dpr === 'number' ? dpr : dpr[0];
+  const maximumDensity = typeof dpr === 'number' ? dpr : dpr[1];
+  const densityOwner = useMemo(() => createCanvasPixelDensityStore(
+    automaticDensity
+      ? Math.min(maximumDensity, Math.max(minimumDensity, typeof window === 'undefined' ? 1 : window.devicePixelRatio))
+      : minimumDensity,
+  ), [automaticDensity, minimumDensity, maximumDensity]);
+  const resolvedDensity = useAtomValue(densityOwner.density, { store: densityOwner.store });
   const form = device.form ?? DEFAULT_DEVICE_FORM;
   const envelope = useMemo(() => completeDeviceEnvelope(form), [form]);
   const orientationState = useMemo<DeviceCanvasOrientationState>(
@@ -153,7 +164,7 @@ export function DeviceCanvas({
       events={deviceCanvasEvents}
       className={className}
       frameloop="demand"
-      dpr={dpr}
+      dpr={resolvedDensity}
       gl={{ antialias: true, alpha: true, preserveDrawingBuffer: false }}
       onCreated={({ gl }) => {
         applyDeviceRendererDefaults(gl);
@@ -170,7 +181,7 @@ export function DeviceCanvas({
       <Suspense fallback={null}>
       <ControlPhysicsScope>
         <DeviceCanvasOrientationContext.Provider value={orientationState}>
-          <CanvasPixelDensity enabled={Array.isArray(dpr)} />
+          <CanvasPixelDensity enabled={automaticDensity} onChange={densityOwner.publish} />
           {studioEnvironment === null ? null : (
             <StudioEnvironment {...studioEnvironment} />
           )}

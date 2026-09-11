@@ -1,3 +1,4 @@
+import { createCarryWearCache } from './sticker-carry-wear';
 import { computeStickerCarrySteps } from './sticker-carry-computation';
 import { createStickerSurfaceGeometrySteps } from './sticker-surface';
 import { createStickerCollision } from './sticker-collision';
@@ -10,11 +11,11 @@ import { restorePaperGeometry, transferPaperGeometry } from './sticker-paper-tra
 import type { createStickerVisibility } from './sticker-visibility';
 
 type CarryVisibility = Pick<ReturnType<typeof createStickerVisibility>, 'ready' | 'revision' | 'snapshot'>;
-interface CarryFrame { readonly geometry: BufferGeometry; readonly wearGeometry: BufferGeometry | null; readonly input: CarryInput; readonly pointerError: number | null }
+interface CarryFrame { readonly geometry: BufferGeometry; readonly wearGeometry: BufferGeometry | null; readonly input: CarryInput; readonly pointerError: number | null; readonly releaseWear: () => void }
 interface CarrySnapshot { readonly frame: CarryFrame | null; readonly error: string | null }
 interface CarryJob { readonly id: number; readonly input: CarryInput; readonly owner: string }
 const EMPTY: CarrySnapshot = { frame: null, error: null };
-const release = (frame: CarryFrame) => { frame.geometry.dispose(); frame.wearGeometry?.dispose(); };
+const release = (frame: CarryFrame) => { frame.geometry.dispose(); frame.releaseWear(); };
 const owner = (input: CarryInput) => JSON.stringify([input.pack.computationEpoch, input.art, input.pack.sourcePlacement ?? null, input.pack.sourceAnchor ?? null]);
 
 /**
@@ -24,6 +25,7 @@ const owner = (input: CarryInput) => JSON.stringify([input.pack.computationEpoch
  * and assemblies reject old results. The final pending pose is always computed.
  */
 export function createCarryPreparation() {
+  const wearCache = createCarryWearCache();
   let worker: Worker | null = null, mounted = false, sequence = 0;
   let active: CarryJob | null = null, wanted: CarryJob | null = null;
   let rear: BufferGeometry | null = null, visibility: CarryVisibility | null = null, revision = -1;
@@ -32,7 +34,7 @@ export function createCarryPreparation() {
   let snapshot = EMPTY;
   const retired = new Set<CarryFrame>(), listeners = new Set<() => void>();
   const publish = (next: CarrySnapshot) => { if (snapshot.frame && snapshot.frame !== next.frame) retired.add(snapshot.frame); snapshot = next; for (const listener of listeners) listener(); };
-  const stop = () => { clearTimeout(timeout); timeout = undefined; worker?.terminate(); worker = null; fallback?.abort(); fallback = null; active = null; };
+  const stop = () => { clearTimeout(timeout); timeout = undefined; worker?.terminate(); worker = null; wearCache.clear(); fallback?.abort(); fallback = null; active = null; };
   const fail = () => { stop(); workerFailed = true; dispatch(); };
   const dispatch = (): void => {
     if (!mounted || document.hidden || active || !wanted || !rear || !visibility?.ready) return;
@@ -48,7 +50,7 @@ export function createCarryPreparation() {
           const result = await yieldSteps(computeStickerCarrySteps(job.input, assembly, source, target, collider), controller.signal);
           const wearGeometry = job.input.pack.landing > 0 ? target : source;
           if (wearGeometry === target) target = null; else source = null;
-          const frame = { geometry: result.geometry, wearGeometry, input: job.input, pointerError: result.pointerError };
+          const frame = { geometry: result.geometry, wearGeometry, input: job.input, pointerError: result.pointerError, releaseWear: () => wearGeometry?.dispose() };
           if (!mounted || controller.signal.aborted || !wanted || wanted.owner !== job.owner || !contact.ready || contact.revision !== expectedRevision) { release(frame); return; }
           if (wanted.id === job.id) wanted = null;
           publish({ frame, error: null });
@@ -68,10 +70,15 @@ export function createCarryPreparation() {
         worker.onmessage = ({ data }: MessageEvent<CarryWorkerResult>) => {
           if (worker !== instance || active?.id !== data.id) return;
           const completed = active; active = null; clearTimeout(timeout); timeout = undefined;
-          if (!wanted || completed.owner !== wanted.owner || !visibility?.ready || revision !== visibility.revision) { dispatch(); return; }
           if (!data.geometry || data.error) { fail(); return; }
           try {
-            const frame = { geometry: restorePaperGeometry(data.geometry), wearGeometry: data.wearGeometry ? restorePaperGeometry(data.wearGeometry) : null, input: completed.input, pointerError: data.pointerError ?? null };
+            // Consume immutable payloads even when their pose belongs to an old
+            // epoch: the same worker may reference that revision in its next job.
+            wearCache.accept(data.wearRevision, data.wearGeometry);
+            if (!wanted || completed.owner !== wanted.owner || !visibility?.ready || revision !== visibility.revision) { dispatch(); return; }
+            const geometry = restorePaperGeometry(data.geometry);
+            const wear = wearCache.retain();
+            const frame = { geometry, wearGeometry: wear.geometry, releaseWear: wear.release, input: completed.input, pointerError: data.pointerError ?? null };
             if (wanted.id === completed.id) wanted = null;
             publish({ frame, error: null }); dispatch();
           } catch { fail(); }

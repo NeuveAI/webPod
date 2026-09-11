@@ -79,6 +79,7 @@
         "@react-three/fiber": "9.7.0",
         "@webpod/stickers": "workspace:*",
         "@webpod/tokens": "workspace:*",
+        "jotai": "2.20.3",
         "three": "0.185.1",
       },
       "devDependencies": {

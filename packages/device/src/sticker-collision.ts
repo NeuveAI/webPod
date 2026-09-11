@@ -110,6 +110,7 @@ export function createStickerCollision(faces: readonly StickerCollisionFace[], p
   let root: Node | null = prepared ? restoreNode(prepared.root) : build(Array.from({ length: owners.length }, (_, i) => i));
   buildCenters = new Float64Array(0); buildBounds = new Float64Array(0);
   const ensure = () => { if (!root) throw new Error('Sticker collider was disposed'); return root; };
+  let serializedRoot = prepared?.root;
   const stats = { triangleCount: provenance.length, nodeCount, typedBytes: coordinates.byteLength + provenance.byteLength };
   raw.length = 0; owners.length = 0;
   const supportStats = { queries: 0, nodes: 0, triangles: 0 };
@@ -143,7 +144,11 @@ export function createStickerCollision(faces: readonly StickerCollisionFace[], p
   return {
     stats,
     /** Worker handoff owns these buffers; callers must stop using the sender after transfer. */
-    snapshot(): StickerCollisionSnapshot { return { coordinates, provenance, metadata, root: serializeNode(ensure()), nodeCount }; },
+    snapshot(): StickerCollisionSnapshot {
+      const current = ensure();
+      serializedRoot ??= serializeNode(current);
+      return { coordinates, provenance, metadata, root: serializedRoot, nodeCount };
+    },
     /** Earliest transverse facet contact on a finite segment. Coplanar sliding is handled by the triangle-overlap gate. */
     castSegment(start: Vector3, end: Vector3): StickerCollisionHit | null {
       const tree = ensure();
@@ -243,6 +248,6 @@ export function createStickerCollision(faces: readonly StickerCollisionFace[], p
       };
       return visit(tree);
     },
-    dispose() { segmentStack.length = 0; root = null; coordinates = new Float64Array(); provenance = new Uint32Array(); metadata.length = 0; },
+    dispose() { segmentStack.length = 0; root = null; serializedRoot = undefined; coordinates = new Float64Array(); provenance = new Uint32Array(); metadata.length = 0; },
   };
 }
