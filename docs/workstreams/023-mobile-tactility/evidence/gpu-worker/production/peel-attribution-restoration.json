@@ -1,0 +1,26 @@
+{
+  "restoredExactly": true,
+  "originalRevision": "f89be7f",
+  "files": [
+    {
+      "path": "apps/web/src/production-device-view.tsx",
+      "sha256": "0ead9752b4ced8a8cbe17a787e5d46eee6843572dd9df8a8711d34f7bb862912"
+    },
+    {
+      "path": "apps/web/src/sticker-collection.tsx",
+      "sha256": "9fb6f3c7965e631f4f134ee63696efff415d171539837bb06620edb08d700359"
+    },
+    {
+      "path": "packages/composite/src/WorkerDeviceCanvas.tsx",
+      "sha256": "37ef8fa480960f45e2c9751c6976933353de9bc29724968e1df45f295e4f1de1"
+    },
+    {
+      "path": "packages/composite/src/device-render-host.ts",
+      "sha256": "4b5cf4bd46ed4edb800c9f8a4c6cedddeac9c54332a653042bb44d8aefedc7f9"
+    },
+    {
+      "path": "packages/device/src/sticker-transaction-broker.ts",
+      "sha256": "b05a560fd272a4a74e729251792136799cc4264e8412a484e18654822dd1f44c"
+    }
+  ]
+}
