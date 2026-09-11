@@ -1,0 +1,17 @@
+{
+  "scope": "Phase C1 owner/worker and discriminated pose protocol",
+  "files": [
+    {
+      "path": "packages/device/src/sticker-contour-query.ts",
+      "sha256": "96082b58a246d8987eb0608fe2207020e75f7383b80d1e41956f8760a8849c12"
+    },
+    {
+      "path": "packages/device/src/sticker-contour-query-worker.ts",
+      "sha256": "1bd5708380a6af0eeaa48b5f5c32b597ac5e090cabefdaf9f91c3b4149b85a39"
+    },
+    {
+      "path": "packages/device/src/sticker-contour-query-data.ts",
+      "sha256": "6aca4019141ca4eb6ccb3f18175c7b3d82736e77ef214c8b109ad1e9e05de53e"
+    }
+  ]
+}

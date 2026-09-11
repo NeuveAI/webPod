@@ -1,0 +1,62 @@
+{
+  "checks": [
+    "cold request yields before worker/copy/query work",
+    "installed resources/output reserved before query",
+    "1000 compatible notifications retain one executing and one latest demand",
+    "1000 transport-only sequence changes do not dispatch another identical query",
+    "1000 changed poses still retain one active query",
+    "latest changed pose drains once without duplicate private installation",
+    "actual worker full contour equals synchronous exact kernel",
+    "print candidate reuses exact current collider private owner",
+    "private copies never detach/mutate borrowed collider/contour inputs",
+    "clear retires worker and presentation with zero ownership",
+    "reopen creates valid fresh generation",
+    "real assembly current+candidate outputs retain one shared collider while build completes",
+    "real assembly/build/current/candidate overlap returns to zero under original cap",
+    "late retired-generation result cannot replace new layout/selection result",
+    "synchronous query postMessage failure releases installed resources",
+    "missing result watchdog retires then releases all units",
+    "missing replacement release ACK retains charges until watchdog termination",
+    "native authority stamp echoes without replacing it with GL capture metadata",
+    "canonical empty prepared contour preserves null result without failure",
+    "throwing publication observer cannot strand resources or credit",
+    "candidate capacity rejection retains exact current result and private reservations",
+    "rejected candidate remains latched without admission retry loop",
+    "explicit retry after capacity release installs current demand",
+    "private admission rejection rolls back allocated candidate and shared collider ref",
+    "hard barrier clears retained capacity-error presentation immediately",
+    "private-pressure candidate and hard barrier finish with zero collision ownership",
+    "capacity failure does not disturb an existing reservation",
+    "copy reservation is visible before initial yield",
+    "cancelled copy retains reservation until continuation settles",
+    "cancelled copy settles with zero ownership",
+    "final collision/private ownership zero"
+  ],
+  "assemblyPeak": {
+    "bytes": 70885700,
+    "reservations": 4,
+    "limit": 134217728,
+    "triangles": 200913,
+    "snapshotTypedBytes": 20267280
+  },
+  "queries": 18,
+  "colliders": 14,
+  "prints": 17,
+  "terminations": 16,
+  "budget": {
+    "bytes": 0,
+    "reservations": 0,
+    "limit": 134217728
+  },
+  "transactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "scope": "Actual query and transaction module workers/private MessagePorts; controlled timers/query hold only; synthetic alpha +production prepared geometry. No browser/performance claim."
+}

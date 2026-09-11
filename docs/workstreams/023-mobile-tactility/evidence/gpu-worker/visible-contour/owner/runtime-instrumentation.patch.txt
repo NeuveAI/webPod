@@ -1,0 +1,40 @@
+--- a/packages/device/src/sticker-contour-query.ts
++++ b/packages/device/src/sticker-contour-query.ts
+@@ -56,6 +56,15 @@
+  const requestFrame=options.requestFrame??(callback=>globalThis.requestAnimationFrame(callback));
+  const cancelFrame=options.cancelFrame??(id=>globalThis.cancelAnimationFrame(id));
+  const timeoutMs=options.timeoutMs??15000;
++ // TEMPORARY measurement: at most 100 entries during 15 seconds from first demand.
++ let probeStart:number|null=null,probeRecords=0;
++ const probe=(name:string,start:number,end:number,detail:Record<string,number>)=>{
++  if(probeStart===null||probeRecords>=100||now()-probeStart>15000)return;
++  const origin=performance.timeOrigin;
++  if(!Number.isFinite(start)||!Number.isFinite(end)||end<start||start<origin)return;
++  probeRecords++;
++  try{performance.measure(`wp-contour:${name}`,{start:start-origin,end:end-origin,detail});}catch{/* Measurement never owns application failure. */}
++ };
+  let generation=0,worker:Worker|null=null,disposed=false,state:StickerContourQueryState={result:null,error:null,pending:false};
+  let latest:Captured|null=null,lastDemand:StickerContourDemand|null=null,lastKey='',sequence=0,nextId=0;
+  let current:Pair|null=null,candidate:Pair|null=null,active:{pair:Pair;stamp:Result['stamp']}|null=null;
+@@ -112,6 +121,13 @@
+      try {
+      const previous=current;current=pair;if(candidate===pair)candidate=null;active=null;
+      state={result:data,error:null,pending:latest!==null};
++     const publishedAt=now();
++     const probeDetail={generation:data.stamp.generation,sequence:data.stamp.sequence,
++      colliderBytes:pair.collider.reservation.bytes,outputBytes:pair.print.reservation.bytes};
++     probe('published-age',data.stamp.submittedAt,publishedAt,probeDetail);
++     probe('worker-sweep',data.startedAt,data.completedAt,probeDetail);
++     probe('pre-sweep',data.stamp.submittedAt,data.startedAt,probeDetail);
++     probe('post-sweep',data.completedAt,publishedAt,probeDetail);
+      if(!notify()||worker!==instance)return;
+      send({type:'result-ack',version:1,generation,sequence:data.stamp.sequence});
+      if(previous&&previous!==pair)dropPair(previous);
+@@ -174,6 +190,7 @@
+  return {
+   request(demand:StickerContourDemand){
+    if(disposed)return;
++   probeStart??=now();
+    if(lastDemand&&!hardCompatible(lastDemand,demand)){retire();state={result:null,error:null,pending:false};notify();}
+    if(state.error)return;
+    const key=JSON.stringify([identity(demand.collider.snapshot),demand.collider.revision,identity(demand.print.identity),demand.print.revision,demand.print.descriptor.key,[...demand.print.quad],demand.lineage,demand.pose.layoutRevision,demand.visibilityRevision,demand.projection,demand.contentWorld,demand.cameraWorld]);

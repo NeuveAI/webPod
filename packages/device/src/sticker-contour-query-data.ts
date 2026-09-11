@@ -16,9 +16,14 @@ export interface StickerContourProjection {
 }
 /** The synchronous kernel borrows the callback only for this invocation. */
 export type StickerContourVisibility = (world: Vector3) => boolean;
-/** No independent pose clock: use the renderer/main authority's existing revisions. */
-export type StickerContourPoseStamp = Pick<RenderPose,
-  'sequence' | 'motionEpoch' | 'lastAcceptedCommand' | 'layoutRevision' | 'sceneRevision' | 'resourceRevision'>;
+/** Native stamps retain render authority. GL stamps describe the actual admitted
+ * query capture: monotonic sequence plus changed layout/assembly/print revisions,
+ * never a fictional render-worker frame, motion epoch or command acknowledgement. */
+export type StickerContourPoseStamp =
+  | ({ readonly backend: 'native' } & Pick<RenderPose,
+      'sequence' | 'motionEpoch' | 'lastAcceptedCommand' | 'layoutRevision' | 'sceneRevision' | 'resourceRevision'>)
+  | { readonly backend: 'gl'; readonly sequence: number; readonly layoutRevision: number;
+      readonly sceneRevision: number; readonly resourceRevision: number };
 export interface StickerContourLineage {
   readonly session: number;
   readonly stickerId: string;
