@@ -1,3 +1,4 @@
+import { drainSteps } from './sticker-computation-steps';
 import { type Camera, type Matrix4 } from 'three';
 import type { DeviceStickerPlacement, StickerArtwork } from './sticker-contract';
 import type { StickerWrapSurface } from './sticker-wrap';
@@ -36,7 +37,9 @@ export function stickerDropHardwareClear(wrap: StickerWrapSurface, center: { x: 
  * in flat device XY. The camera matrix includes current pitch, yaw and roll.
  * Preserve size/rotation; the chart shrinks only footprints too large to fit.
  */
-export function fitStickerDrop(art: StickerArtwork, requested: DeviceStickerPlacement, grabbedUv: readonly [number, number], screen: { x: number; y: number }, canvas: { left: number; top: number; width: number; height: number }, world: Matrix4, camera: Camera, wrap: StickerWrapSurface): DeviceStickerPlacement {
+export function fitStickerDrop(art: StickerArtwork, requested: DeviceStickerPlacement, grabbedUv: readonly [number, number], screen: { x: number; y: number }, canvas: { left: number; top: number; width: number; height: number }, world: Matrix4, camera: Camera, wrap: StickerWrapSurface): DeviceStickerPlacement { return drainSteps(fitStickerDropSteps(art, requested, grabbedUv, screen, canvas, world, camera, wrap)); }
+/** Exact search order; yield between candidates without changing tie breaking. */
+export function* fitStickerDropSteps(art: StickerArtwork, requested: DeviceStickerPlacement, grabbedUv: readonly [number, number], screen: { x: number; y: number }, canvas: { left: number; top: number; width: number; height: number }, world: Matrix4, camera: Camera, wrap: StickerWrapSurface): Generator<void, DeviceStickerPlacement, void> {
   const width = requested.width * DEVICE_LAYOUT.body.width, height = width * stickerVisibleAspect(art), angle = requested.rotationDeg * Math.PI / 180;
   const [left, top, right, bottom] = art.visibleBounds;
   const u = (grabbedUv[0] * art.width - left) / (right - left), v = ((1 - grabbedUv[1]) * art.height - top) / (bottom - top);
@@ -53,6 +56,7 @@ export function fitStickerDrop(art: StickerArtwork, requested: DeviceStickerPlac
   let best = evaluate((.5 - requested.x) * DEVICE_LAYOUT.body.width, (.5 - requested.y) * DEVICE_LAYOUT.body.height);
   // Multiple seeds avoid getting trapped on the wrong side of a hardware opening.
   for (const x of [-.4, 0, .4]) for (const y of [-.45, 0, .45]) {
+    yield;
     const candidate = evaluate(x * DEVICE_LAYOUT.body.width, y * DEVICE_LAYOUT.body.height);
     if (candidate.score < best.score) best = candidate;
   }
@@ -60,6 +64,7 @@ export function fitStickerDrop(art: StickerArtwork, requested: DeviceStickerPlac
     for (let iteration = 0; iteration < 12; iteration++) {
       const previous = best;
       for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [-1, -1], [-1, 1], [1, -1], [1, 1]]) {
+        yield;
         const candidate = evaluate(previous.x + (dx ?? 0) * step, previous.y + (dy ?? 0) * step);
         if (candidate.score < best.score) best = candidate;
       }

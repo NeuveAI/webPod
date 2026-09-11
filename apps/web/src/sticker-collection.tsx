@@ -1,3 +1,4 @@
+import { placeCurrentStickerDrop } from './sticker-drop-transaction'
 import { stickerHaptics } from './sticker-haptics'
 import { setStickerPackTucked, resetStickerPackTuck, stickerPackTuckAtom, stickerPackTuckedAtom } from './sticker-pack-tuck'
 import { authorizeAppleRuntime, musicRuntime } from './music-runtime'
@@ -12,7 +13,7 @@ import { deviceStore, stickerCollectionStatusAtom, stickerInteractionAtom, stick
 import { getSticker, isStickerPlacement, stickerWear, type StickerPlacement, type StickerInventory } from '@webpod/stickers'
 import type { DeviceOrientation } from '@webpod/device'
 import { stickerPackPresentation, deviceFrontVisibility, STICKER_PACK_LAYOUT, STICKER_SHEET_SLOTS, stickerPackViewportLayout, retryStickerArtwork } from '@webpod/device'
-import { animateStickerValue, returnStickerToSheet, resetStickerCarry, cancelStickerInteraction, releaseStickerPull, revealStickerPack, setStickerRearVisible, updateStickerInteraction, updateHeldStickerPreview, stickerArtworkFailureAtom, getStickerInteractionGeneration, supersedeStickerInteraction } from './sticker-interaction'
+import { animateStickerValue, returnStickerToSheet, resetStickerCarry, cancelStickerInteraction, releaseStickerPull, revealStickerPack, setStickerRearVisible, updateStickerInteraction, updateHeldStickerPreview, stickerArtworkFailureAtom, getStickerInteractionGeneration, stickerComputationEpochAtom, supersedeStickerInteraction } from './sticker-interaction'
 import { stickerPackTurnAtom, activeStickerCollectionAtom, stickerCollectionsAtom, selectedStickerGenreAtom, stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, genreLabel, formatListeningMinutes, stickerPlacementForIntent, stickerPeelMotion, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerProjectionVersionAtom, stickerPreparedIdsAtom, type CollectionSlot } from './sticker-collections-model'
 import { estimatePointerReleaseVelocity, type PointerMotionSample } from './device-orientation-motion'
 
@@ -58,7 +59,7 @@ function releaseCapturedStickerPointer(target: HTMLElement | null): void {
 }
 
 export interface StickerCollectionCommands {
-  readonly resolveDrop?: (placement: StickerPlacement, clientX: number, clientY: number) => StickerPlacement
+  readonly resolveDrop?: (placement: StickerPlacement, clientX: number, clientY: number, signal?: AbortSignal) => StickerPlacement | Promise<StickerPlacement>
   readonly fit?: (placement: StickerPlacement) => StickerPlacement
   readonly grab?: (x: number, y: number) => StickerGrab | null
   readonly contour?: (placement: StickerPlacement) => import('@webpod/device').StickerProjectedContour | null
@@ -163,12 +164,14 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
 
   /** Every new command/selection/gesture owns presentation; older server writes may still finish. */
   const admitIntent = (): void => { releaseCapturedStickerPointer(captureTarget.current); captureTarget.current = null; supersedeStickerInteraction() }
-  const run = (work: (isCurrent: () => boolean) => Promise<void>): void => {
+  const run = (work: (isCurrent: () => boolean, signal: AbortSignal) => Promise<void>): void => {
     admitIntent()
     const generation = getStickerInteractionGeneration()
     const isCurrent = (): boolean => generation === getStickerInteractionGeneration()
+    const controller = new AbortController()
+    const unsubscribe = deviceStore.sub(stickerComputationEpochAtom, () => { if (!isCurrent()) controller.abort() })
     deviceStore.set(collectionMessageAtom, null)
-    void work(isCurrent).catch((cause: unknown) => {
+    void work(isCurrent, controller.signal).finally(unsubscribe).catch((cause: unknown) => {
       // A successful local read may require a separate Apple sign-in gesture.
       // Its import-status control owns that action; this is not a failed edit.
       if (typeof cause === 'object' && cause !== null && 'code' in cause && cause.code === 'music_authorization_required') return
@@ -292,11 +295,11 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
         const projected = commands.project(event.clientX + velocity.xPxPerSecond * PACK.releaseInertiaSeconds, event.clientY + velocity.yPxPerSecond * PACK.releaseInertiaSeconds)
         const candidate = projected === null || current.sourcePlacement != null ? current.previewPlacement : { ...current.previewPlacement, ...projected }
         const fitted = commands.fit?.(isStickerPlacement(candidate) ? candidate : current.previewPlacement) ?? (isStickerPlacement(candidate) ? candidate : current.previewPlacement)
-        const placement = commands.resolveDrop?.(fitted, event.clientX, event.clientY) ?? fitted
+        const releaseX = event.clientX, releaseY = event.clientY
         updateStickerInteraction({ stage: 'settling' })
-        run(async (isCurrent) => {
-          if (pointer.touch) stickerHaptics.trigger('place')
-          await commands.place(placement); if (!isCurrent()) return
+        run(async (isCurrent, signal) => {
+          const placement = await placeCurrentStickerDrop({ placement: fitted, clientX: releaseX, clientY: releaseY, resolve: commands.resolveDrop, save: commands.place, beforeSave: () => { if (pointer.touch) stickerHaptics.trigger('place') }, isCurrent, signal })
+          if (placement === null) return
           updateStickerInteraction({ previewPlacement: placement })
           animateStickerValue('landing', { position: deviceStore.get(stickerInteractionAtom).landing, velocity: 0, target: 1 }, reducedMotion, () => {
             // Landing preserves the raised cylinder; peel now advances the actual

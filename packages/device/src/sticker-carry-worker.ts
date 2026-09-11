@@ -1,3 +1,4 @@
+import type { StickerBoundsIndex } from './sticker-bounds-index';
 import { bindStickerWrapSurface, createStickerWrapSurface } from './sticker-wrap';
 import type { DeviceFormParams } from './form';
 import { createStickerCollision, type StickerCollisionSnapshot } from './sticker-collision';
@@ -7,7 +8,7 @@ import { createStickerSurfaceGeometry } from './sticker-surface';
 import type { BufferGeometry } from 'three';
 
 export type CarryWorkerMessage = { readonly context: { readonly rear: PaperGeometryTransfer; readonly form: DeviceFormParams | null; readonly collision: StickerCollisionSnapshot } } | { readonly id: number; readonly input: CarryInput };
-export interface CarryWorkerResult { readonly id: number; readonly geometry?: PaperGeometryTransfer; readonly wearGeometry?: PaperGeometryTransfer | null; readonly wearRevision?: number; readonly pointerError?: number | null; readonly error?: string }
+export interface CarryWorkerResult { readonly id: number; readonly bounds?: StickerBoundsIndex; readonly geometry?: PaperGeometryTransfer; readonly wearGeometry?: PaperGeometryTransfer | null; readonly wearRevision?: number; readonly pointerError?: number | null; readonly error?: string }
 let rear: BufferGeometry | null = null, collider: ReturnType<typeof createStickerCollision> | null = null;
 let source: BufferGeometry | null = null, target: BufferGeometry | null = null, sourceKey = '', targetKey = '';
 let sentWear: BufferGeometry | null | undefined, wearRevision = 0;
@@ -30,7 +31,8 @@ self.onmessage = ({ data }: MessageEvent<CarryWorkerMessage>) => {
     const wearGeometry = changedWear ? (wear ? transferPaperGeometry(wear) : null) : undefined;
     if (changedWear) wearRevision++;
     const transfer = [geometry, ...(wearGeometry ? [wearGeometry] : [])].flatMap(value => [value.position.buffer, value.normal.buffer, ...(value.uv ? [value.uv.buffer] : []), ...(value.index ? [value.index.buffer] : [])]);
-    self.postMessage({ id: data.id, geometry, wearGeometry, wearRevision, pointerError: result.pointerError } satisfies CarryWorkerResult, { transfer });
+    transfer.push(result.bounds.bounds.buffer, result.bounds.nodes.buffer, result.bounds.seeds.buffer);
+    self.postMessage({ id: data.id, bounds: result.bounds, geometry, wearGeometry, wearRevision, pointerError: result.pointerError } satisfies CarryWorkerResult, { transfer });
     sentWear = wear;
   } catch { self.postMessage({ id: data.id, error: 'Sticker deformation failed' } satisfies CarryWorkerResult); }
   finally { shown?.dispose(); }

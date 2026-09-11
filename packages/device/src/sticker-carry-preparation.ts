@@ -1,3 +1,4 @@
+import { setStickerBoundsIndex } from './sticker-bounds-index';
 import { createCarryWearCache } from './sticker-carry-wear';
 import { computeStickerCarrySteps } from './sticker-carry-computation';
 import { createStickerSurfaceGeometrySteps } from './sticker-surface';
@@ -48,6 +49,7 @@ export function createCarryPreparation() {
           if (job.input.pack.sourcePlacement) source = await yieldSteps(createStickerSurfaceGeometrySteps(job.input.art, job.input.pack.sourcePlacement, assembly), controller.signal);
           if (job.input.pack.landing > 0 && job.input.pack.placement) target = await yieldSteps(createStickerSurfaceGeometrySteps(job.input.art, job.input.pack.placement, assembly), controller.signal);
           const result = await yieldSteps(computeStickerCarrySteps(job.input, assembly, source, target, collider), controller.signal);
+          setStickerBoundsIndex(result.geometry, result.bounds);
           const wearGeometry = job.input.pack.landing > 0 ? target : source;
           if (wearGeometry === target) target = null; else source = null;
           const frame = { geometry: result.geometry, wearGeometry, input: job.input, pointerError: result.pointerError, releaseWear: () => wearGeometry?.dispose() };
@@ -77,6 +79,7 @@ export function createCarryPreparation() {
             wearCache.accept(data.wearRevision, data.wearGeometry);
             if (!wanted || completed.owner !== wanted.owner || !visibility?.ready || revision !== visibility.revision) { dispatch(); return; }
             const geometry = restorePaperGeometry(data.geometry);
+            if (data.bounds) setStickerBoundsIndex(geometry, data.bounds);
             const wear = wearCache.retain();
             const frame = { geometry, wearGeometry: wear.geometry, releaseWear: wear.release, input: completed.input, pointerError: data.pointerError ?? null };
             if (wanted.id === completed.id) wanted = null;

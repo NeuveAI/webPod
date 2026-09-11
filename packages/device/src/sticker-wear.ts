@@ -2,8 +2,8 @@ import type { MeshPhysicalMaterial } from 'three';
 import { prepareStickerDamage, setStickerMaterialDamage, type StickerDamageResource } from './sticker-alpha';
 
 /** One uniform owner is intentionally shared by preparation clones and the live print. */
-export function applyStickerWear(material: MeshPhysicalMaterial, stickerId: string, backing = false) {
-  const field = material.map === null ? null : prepareStickerDamage(material.map, stickerId);
+export function applyStickerWear(material: MeshPhysicalMaterial, stickerId: string, backing = false, prepared?: StickerDamageResource | null) {
+  const field = prepared !== undefined ? prepared : material.map === null ? null : prepareStickerDamage(material.map, stickerId);
   const amount = { value: 0 };
   const damageTexture = { value: field?.texture ?? null }, damageEnabled = { value: field !== null };
   let seed = 2166136261;

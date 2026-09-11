@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "baseline": "ebebb32d0b7f0b30b7e41b81778293d6b7d44405",
+  "checks": [
+    "surface: exact native-worker/cooperative/synchronous bytes",
+    "damage: exact native-worker/cooperative/synchronous bytes",
+    "fit: exact native-worker/cooperative/synchronous bytes"
+  ],
+  "limitation": "Pinned original implementation and local Bun worker; not browser timing."
+}
