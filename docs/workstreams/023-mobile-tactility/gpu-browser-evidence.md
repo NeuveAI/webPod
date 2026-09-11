@@ -49,3 +49,7 @@ Shared assembly source/interface checkpoint074b9c1 was independently approved an
 ## Native scaled transfer confirmation
 
 The current Chrome remote connection was recovered by accepting its queued remote-debugging dialogs. Native DevTools confirmed iPhone16ProMax440×956 and6×CPU, with Record off. MCP now identifies the same localhost route as page109. The associated canvas one-shot experiment captured640×320 and copied into960×480 in its associated worker GPU context. Six stripe-center RGBA samples matched exactly and GPU validation returned null. The10-second bounded experiment completed and closed the image, destroyed GPU resources, terminated the worker, revoked its URL and removed its temporary canvas. Retained associated-scale-probe.js and associated-scale-result.json demonstrate scaling extent/color/alpha, not glyph quality or full-scene visual parity. No trace started.
+
+## First worker activation root cause
+
+After forwarding diagnostics through CompositeInputBoundary to its real DOM wrapper, current Chrome109 reports requested worker/effective webgl. Successive bounded cause diagnostics identify the retained recipe as unavailable because a pending renderer lease was cancelled and its producer retired. This is pre-frame fallback, not shader or native pixel-transfer failure. Host author is investigating the initiating mount/effect cancellation and exact resource recovery. Device/composite typechecks passed at the diagnostic checkpoint; no source or full visual acceptance is implied.
