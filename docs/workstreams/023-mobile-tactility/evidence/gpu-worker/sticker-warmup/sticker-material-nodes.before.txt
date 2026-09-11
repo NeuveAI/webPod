@@ -4,8 +4,6 @@ import { STICKER_SURFACE } from './sticker-surface';
 import type { StickerDamageResource } from './sticker-alpha';
 import { applyStickerWearNodes, installStickerSeatNodes, StickerPhysicalNodeMaterial } from './sticker-wear-nodes';
 
-export type StickerNodeDamage = Pick<StickerDamageResource, 'id' | 'texture'>;
-
 export interface StickerNodeMaterialInput {
   readonly id: string;
   readonly map: Texture;
@@ -15,7 +13,7 @@ export interface StickerNodeMaterialInput {
   readonly appearance: 'earned' | 'locked' | 'placed';
   readonly wear: number;
   /** Prepared by the resource owner, never synchronously rasterized in a worker material factory. */
-  readonly damage: StickerNodeDamage | null;
+  readonly damage: StickerDamageResource | null;
 }
 
 /** Exact front/back material pair used by StickerPrint. Geometry, artwork,
@@ -35,7 +33,7 @@ export function createStickerNodeMaterials(input: StickerNodeMaterialInput) {
   setWear(input.wear);
   return {
     front, back, setWear,
-    setDamage(resource: StickerNodeDamage | null) { wearing.setDamage(resource); backingWear.setDamage(resource); },
+    setDamage(resource: StickerDamageResource | null) { wearing.setDamage(resource); backingWear.setDamage(resource); },
     dispose() { wearing.dispose(); backingWear.dispose(); front.dispose(); back.dispose(); },
   };
 }

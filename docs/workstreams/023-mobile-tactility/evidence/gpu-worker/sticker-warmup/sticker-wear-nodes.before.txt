@@ -30,7 +30,7 @@ function mappedUv(image: Texture) {
  * resource remains owned by the existing damage cache; only the empty fallback
  * texture belongs to this controller. Uniform changes never rebuild shaders.
  */
-export function applyStickerWearNodes(material: StickerPhysicalNodeMaterial, stickerId: string, backing = false, preparedDamage: Pick<StickerDamageResource, 'texture'> | null = material.map === null ? null : prepareStickerDamage(material.map, stickerId)) {
+export function applyStickerWearNodes(material: StickerPhysicalNodeMaterial, stickerId: string, backing = false, preparedDamage: StickerDamageResource | null = material.map === null ? null : prepareStickerDamage(material.map, stickerId)) {
   const amount = uniform(0);
   let seed = 2166136261;
   for (const character of stickerId) seed = Math.imul(seed ^ character.charCodeAt(0), 16777619);
@@ -91,7 +91,7 @@ export function applyStickerWearNodes(material: StickerPhysicalNodeMaterial, sti
   return {
     amount, identity,
     set(value: number) { amount.value = Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0; },
-    setDamage(resource: Pick<StickerDamageResource, 'texture'> | null) { damageMap.value = resource?.texture ?? empty; enabled.value = resource !== null; },
+    setDamage(resource: StickerDamageResource | null) { damageMap.value = resource?.texture ?? empty; enabled.value = resource !== null; },
     dispose() { empty.dispose(); },
   };
 }

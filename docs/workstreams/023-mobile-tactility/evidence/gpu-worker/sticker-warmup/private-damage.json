@@ -1,0 +1,16 @@
+{
+  "method": "Actual canonical and private producer workers; exact full/default and GPU-only byte comparison, canonical eviction with retained private bytes, pre-abort and abort immediately after real delivery dispatch.",
+  "checks": 9,
+  "fullBytes": 27648,
+  "gpuBytes": 4096,
+  "final": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  }
+}

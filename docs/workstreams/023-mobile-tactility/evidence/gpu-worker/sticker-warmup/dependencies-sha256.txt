@@ -1,0 +1,4 @@
+3502a05b7ad5d5a4240c5385c708ff7465582738e97c3e961b69d7f784c0af3b  packages/composite/src/native-pack-resources.ts
+ac0cadf9b7d2a08a3b2b730c6846a3e86df0110cbb7293b417fa16d32de4164d  packages/device/src/sticker-pack-render-frame.ts
+761573e7c9e1b3f0c3777bb7638630891f68237ac87247494f8015c9c3fda7ae  packages/device/src/sticker-material-nodes.ts
+08536f2a9e64937ffa70942a37a0394218629a07d2bf4bf1103ded59b0ed48a7  packages/device/src/render-backend-services.ts

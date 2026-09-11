@@ -1,0 +1,24 @@
+{
+  "method": "Actual broker/producer arrays and contour reference dispatch; observed cancellation and forced producer failure recover exact contour through existing fallback.",
+  "checks": 7,
+  "shared": {
+    "actual": 40960,
+    "expected": 40960,
+    "resultBytes": 16384
+  },
+  "independent": {
+    "actual": 49152,
+    "expected": 49152,
+    "resultBytes": 16384
+  },
+  "final": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  }
+}

@@ -32,18 +32,13 @@ export type StickerTransactionResult =
   | { readonly kind: 'damage'; readonly stickerId: string; readonly field: StickerDamageField; readonly gpu: Uint8Array }
   | { readonly kind: 'contour'; readonly contour: PreparedStickerContour }
   | { readonly kind: 'fit'; readonly placement: DeviceStickerPlacement };
-/** Exact shader storage copied from the same canonical damage result. CPU alpha,
- * boundary and distance queries remain on their existing full-result owner. */
-export interface StickerRenderDamage { readonly kind: 'render-damage'; readonly stickerId: string; readonly width: number; readonly height: number; readonly gpu: Uint8Array }
-export type StickerPrivateTransactionResult = StickerTransactionResult | StickerRenderDamage;
 export interface StickerContourWorkerReference { readonly kind: 'contour-reference'; readonly damageId: number; readonly geometryId?: number; readonly positions?: Float32Array; readonly uv?: Float32Array; readonly wear: number }
 export type StickerTransactionMessage = { readonly version: typeof STICKER_TRANSACTION_VERSION; readonly id: number; readonly input: StickerTransactionRequest | StickerContourWorkerReference };
 export type StickerTransactionResponse = { readonly version: typeof STICKER_TRANSACTION_VERSION; readonly id: number } & ({ readonly result: StickerTransactionResult } | { readonly error: string });
 
-export function stickerTransactionBuffers(result: StickerPrivateTransactionResult): ArrayBuffer[] {
+export function stickerTransactionBuffers(result: StickerTransactionResult): ArrayBuffer[] {
   const buffers = new Set<ArrayBuffer>();
   const add = (view: ArrayBufferView) => { if (!(view.buffer instanceof ArrayBuffer)) throw new Error('Sticker transaction requires private buffers'); buffers.add(view.buffer); };
-  if (result.kind === 'render-damage') add(result.gpu);
   if (result.kind === 'surface') { add(result.bounds.bounds); add(result.bounds.nodes); add(result.bounds.seeds); for (const attr of Object.values(result.geometry.attributes)) add(attr.array); if (result.geometry.index) add(result.geometry.index); }
   if (result.kind === 'contour') { add(result.contour.anchors); for (const path of result.contour.paths) { add(path.points); add(path.visiblePoints); } }
   if (result.kind === 'damage') { add(result.gpu); add(result.field.alpha); add(result.field.onset); add(result.field.boundaryCandidates); if (result.field.distance) add(result.field.distance); }
