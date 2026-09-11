@@ -1,0 +1,32 @@
+diff --git a/packages/device/src/sticker-transaction-broker.ts b/packages/device/src/sticker-transaction-broker.ts
+index bfc8fce..5328e0b 100644
+--- a/packages/device/src/sticker-transaction-broker.ts
++++ b/packages/device/src/sticker-transaction-broker.ts
+@@ -1,3 +1,4 @@
++import { STICKER_SURFACE } from './sticker-surface';
+ import { computeStickerTransaction } from './sticker-transaction-computation';
+ import { yieldSteps } from './sticker-computation-steps';
+ import { STICKER_TRANSACTION_VERSION, stickerTransactionBuffers, type StickerTransactionMessage, type StickerTransactionRequest, type StickerTransactionResponse, type StickerTransactionResult } from './sticker-transaction-data';
+@@ -24,6 +25,13 @@ let deliverySequence = 0, privateBytes = 0, privateOwners = 0;
+ interface Delivery { readonly worker: Worker; readonly resolve: () => void; readonly reject: (error: Error) => void }
+ const deliveries = new Map<number, Delivery>();
+ const abortError = () => new DOMException('Sticker transaction cancelled', 'AbortError');
++/** The contour generator exits before allocating paths unless both attributes
++ * match its canonical grid. Input storage/cloning remains charged in all cases;
++ * a valid grid retains the full work allowance regardless of wear. */
++function contourWorkBytes(input: Extract<StickerTransactionRequest, { kind: 'contour' }>): number {
++ const vertices = (STICKER_SURFACE.segments + 1) ** 2;
++ return input.positions.length === vertices * 3 && input.uv.length === vertices * 2 ? input.field.boundaryCandidates.length * 512 : 0;
++}
+ function inputBytes(input: StickerTransactionRequest): number {
+  if(input.kind==='damage')return input.mask.pixels.byteLength+(input.surface?input.surface.normals.byteLength+input.surface.uv.byteLength:0);
+  if(input.kind==='contour')return input.positions.byteLength+input.uv.byteLength+input.field.alpha.byteLength+input.field.onset.byteLength+input.field.boundaryCandidates.byteLength+(input.field.distance?.byteLength??0);
+@@ -157,7 +165,7 @@ export function acquireStickerTransaction(key: string, input: StickerTransaction
+   let entry = entries.get(key);
+   if (!entry) {
+     evict();
+-    const reservation = input.kind === 'damage' ? input.mask.pixels.byteLength * 2 + (input.surface ? input.surface.normals.byteLength + input.surface.uv.byteLength : 0) * 2 + 40 * Math.min(input.mask.pixels.length, 1024 * 1024) : input.kind === 'surface' ? 1024 * 1024 : input.kind === 'contour' ? (input.positions.byteLength + input.uv.byteLength + input.field.alpha.byteLength + input.field.onset.byteLength + input.field.boundaryCandidates.byteLength + (input.field.distance?.byteLength ?? 0)) * 2 + input.field.boundaryCandidates.length * 512 : 4096;
++    const reservation = input.kind === 'damage' ? input.mask.pixels.byteLength * 2 + (input.surface ? input.surface.normals.byteLength + input.surface.uv.byteLength : 0) * 2 + 40 * Math.min(input.mask.pixels.length, 1024 * 1024) : input.kind === 'surface' ? 1024 * 1024 : input.kind === 'contour' ? (input.positions.byteLength + input.uv.byteLength + input.field.alpha.byteLength + input.field.onset.byteLength + input.field.boundaryCandidates.byteLength + (input.field.distance?.byteLength ?? 0)) * 2 + contourWorkBytes(input) : 4096;
+     makeRoom(0, active, input);
+     if (reservation > MAX_RETAINED_BYTES || accountedBytes(active, input) > MAX_RETAINED_BYTES) return { result: Promise.reject(new Error('Sticker transaction byte capacity exceeded')), release() {} };
+     if (entries.size >= MAX_JOBS) return { result: Promise.reject(new Error('Sticker transaction capacity exceeded')), release() {} };

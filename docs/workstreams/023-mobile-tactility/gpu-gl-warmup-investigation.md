@@ -53,3 +53,13 @@ The archived pre-change function in gl-prepared-damage-before.ts preserves its b
 Validation: 17 existing alpha/contour/program tests with 17,705 assertions pass; source and proof lint pass. Device types passed before the parallel output implementation began producing four Node.rgb/a typing errors; subsequent composite/web checks contain only those peer errors. Final package checks will be repeated after that disjoint seam is corrected. Source hash and exact patch are in source-reuse-manifest.json and source-reuse.patch. No build, browser work, or commit performed. Actual fresh GL tool and physical gesture acceptance remains with lead.
 
 Final frozen-source validation: after Mobile corrected the disjoint output typing seam, device, composite and web typechecks all pass. Source hash remains b2b27ba4.
+
+### Cold parallel admission: exact empty-grid work allowance
+
+The later initial PW-A04 failure is distinct from the source-wrapper duplication. The cold ledger rejected contour35 before any input at 103,996,312 bytes (37,950,564 main +34,339,424 canonical +31,706,324 execution), with contour36 pending. All temporary origin/broker instrumentation was restored before this correction.
+
+Pinned prepareStickerContourSteps exits immediately unless positions and UV arrays match the canonical 97×97 vertex grid. Actual rejected packet input was 25×25, so it allocates no contour paths at any wear. This is not a wear-zero optimization: full-grid wear0 produces nonempty contours. The broker now omits only boundaryCandidates.length×512 work allowance for that exact existing early-return predicate. All input, clone, canonical/private charges, valid-grid allowance and the 96MiB cap remain unchanged.
+
+Before/after proof retains five-art GL warmup and launches all eight packet prepares concurrently: old rejection is retained in gl-cold-parallel-before.json; corrected gl-cold-parallel-workload admits all23 total owners and releases to zero. gl-contour-admission-exact verifies19 cases, including full-grid wear0/.4/1/NaN nonempty output with unchanged estimate, each mismatched attribute shape's exact empty output, current ownership across actual-worker cancellation, full-grid over-cap rejection and finalzero. The source-wrapper four-generation, exact10-case output/lifecycle and actual-worker carry transition proofs also pass.
+
+One source file only: sticker-transaction-broker.ts. Eight existing alpha/contour tests (17,568 assertions), device/composite/web typechecks and scoped lint pass. Frozen hash/patch in contour-admission-manifest.json and contour-admission.patch. No browser/build/commit performed; fresh live cold GL and physical interaction acceptance stays pending with lead.
