@@ -19,6 +19,7 @@ import { useStudioEnvironmentSnapshot } from './StudioEnvironment';
 import { DEVICE_CONTENT_NAME, DEVICE_MODEL_NAME } from './ViewerLitDeviceFrame';
 import { prepareStickerAlpha } from './sticker-hit';
 import { prepareStickerPrograms } from './sticker-program-preparation';
+import { createStickerWarmupReadiness } from './sticker-warmup-readiness';
 import { DEVICE_LAYOUT } from './layout';
 
 /* ANIMATION STORYBOARD
@@ -316,18 +317,24 @@ const PrepareStickerAsset = memo(function PrepareStickerAsset({ art, report, onE
   // Shader variants don't depend on tessellation density. These hidden meshes
   // only retain compiled programs; they never represent a displayed print.
   const geometry = useMemo(() => createStickerPeelGeometry(art, 1, .75, 4), [art]);
+  // Callback identity changes with the exact surface/material generation. Child
+  // layout effects can run before this parent's passive effect subscribes.
+  const surfaces = useMemo(() => createStickerWarmupReadiness({ geometry, texture, environment: studio.texture, preparationEpoch }), [geometry, texture, studio.texture, preparationEpoch]);
   useEffect(() => () => { roughness.dispose(); geometry.dispose(); }, [roughness, geometry]);
   useEffect(() => {
     let current = true;
+    let started = false;
     let generation = 0;
     let preparation: AbortController | null = null;
     report(art.id, false);
     if (failed) onError?.(art.id);
     const prepare = (): void => {
+      if (!current || started || !surfaces.complete()) return;
       const expected = ++generation;
       preparation?.abort(); preparation = new AbortController();
       report(art.id, false);
       if (texture === null || failed || group.current === null || gl.getContext().isContextLost()) return;
+      started = true;
       try {
         prepareStickerAlpha(texture); gl.initTexture(texture);
         // Retain actual variants through readiness and cancel every superseded poll.
@@ -336,12 +343,12 @@ const PrepareStickerAsset = memo(function PrepareStickerAsset({ art, report, onE
         }, (error: unknown) => { if (current && expected === generation && !(error instanceof Error && error.name === 'AbortError')) onError?.(art.id); });
       } catch { if (current && expected === generation) onError?.(art.id); }
     };
-    const lost = (): void => { generation++; preparation?.abort(); report(art.id, false); };
+    const lost = (): void => { generation++; started = false; preparation?.abort(); report(art.id, false); };
     gl.domElement.addEventListener('webglcontextlost', lost); gl.domElement.addEventListener('webglcontextrestored', prepare);
-    prepare();
-    return () => { current = false; generation++; preparation?.abort(); gl.domElement.removeEventListener('webglcontextlost', lost); gl.domElement.removeEventListener('webglcontextrestored', prepare); report(art.id, false); };
-  }, [art.id, camera, failed, gl, onError, report, scene, studio.texture, texture, preparationEpoch]);
+    const unsubscribe = surfaces.subscribe(prepare);
+    return () => { unsubscribe(); current = false; generation++; preparation?.abort(); gl.domElement.removeEventListener('webglcontextlost', lost); gl.domElement.removeEventListener('webglcontextrestored', prepare); report(art.id, false); };
+  }, [art.id, camera, failed, gl, onError, report, scene, studio.texture, texture, preparationEpoch, surfaces]);
   return <group ref={group} visible={false} name={`prepared-sticker-${art.id}`}>
-    {(['earned', 'locked', 'placed'] as const).map((appearance) => <StickerPrint key={appearance} art={art} geometry={geometry} roughness={roughness} finishEnabled appearance={appearance} />)}
+    {(['earned', 'locked', 'placed'] as const).map((appearance) => <StickerPrint key={`${appearance}:${geometry.uuid}:${texture?.uuid ?? "pending"}:${preparationEpoch}`} computationEpoch={preparationEpoch} art={art} geometry={geometry} roughness={roughness} finishEnabled appearance={appearance} onSurfaceReady={surfaces[appearance]} onError={onError} />)}
   </group>;
 });
