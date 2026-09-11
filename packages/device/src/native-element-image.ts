@@ -86,6 +86,7 @@ export function createNativeScreenTexture(renderer: WebGPURenderer, width: numbe
   // extra full-texture copy. Native captures have a top-left origin.
   texture.repeat.y = -1; texture.offset.y = 1;
   let disposed = false;
+  let rasterWidth=width,rasterHeight=height;
   let target: GPUTexture;
   try {
     renderer.initTexture(texture);
@@ -96,12 +97,23 @@ export function createNativeScreenTexture(renderer: WebGPURenderer, width: numbe
   } catch (error) { texture.dispose(); throw error; }
   return {
     texture,
-    upload(image: NativeElementImage): void {
+    upload(image: NativeElementImage, dimensions?: {readonly width:number;readonly height:number}): void {
       try {
         if (disposed) throw new Error('Native screen raster generation has retired');
+        if(dimensions && (dimensions.width!==rasterWidth || dimensions.height!==rasterHeight)) {
+          const {width:nextWidth,height:nextHeight}=dimensions;
+          if(!Number.isSafeInteger(nextWidth)||!Number.isSafeInteger(nextHeight)||nextWidth<1||nextHeight<1)throw new Error('Invalid native raster resize');
+          // StorageTexture.setSize dispatches dispose. Three185 Textures destroys
+          // the old backend allocation AND every referencing bind group; the next
+          // draw recreates bindings for this same authored sampler identity.
+          texture.setSize(nextWidth,nextHeight,1);renderer.initTexture(texture);
+          target=getNativeTexture(renderer,texture);
+          if(target.width!==nextWidth||target.height!==nextHeight||target.format!=='rgba8unorm')throw new Error('Native resized allocation differs from raster contract');
+          rasterWidth=nextWidth;rasterHeight=nextHeight;
+        }
         if (!(image.width > 0 && image.height > 0)) throw new Error('Native paint is empty');
         queue.copyElementImageToTexture({ source: image }, {
-          destination: { texture: target, colorSpace: 'srgb', premultipliedAlpha: false }, width, height,
+          destination: { texture: target, colorSpace: 'srgb', premultipliedAlpha: false }, width:rasterWidth, height:rasterHeight,
         });
       } finally { image.close(); }
     },
