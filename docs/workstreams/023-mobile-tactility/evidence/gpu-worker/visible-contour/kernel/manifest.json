@@ -1,0 +1,5 @@
+{
+  "packages/device/src/sticker-contour.ts": "7a4527c5e74011600b16f48fd226d382071ecc314bbbdae4a7549d6bc6e3e75f",
+  "packages/device/src/sticker-transform-projection.ts": "4af102ee362c9634916198828fca0fb44fbd495d091a8bfe25322ddd1e30845b",
+  "packages/device/src/sticker-contour-query-data.ts": "3392c8b7b85b46de5c1c0227960f3239cd6b96f916e9ddf3a787ba4a0befde85"
+}

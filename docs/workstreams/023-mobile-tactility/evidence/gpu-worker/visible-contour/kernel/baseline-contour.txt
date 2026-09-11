@@ -1,12 +1,10 @@
 import { drainSteps } from './sticker-computation-steps';
 import { getPreparedStickerContour } from './sticker-contour-preparation-data';
-import { Matrix4, MeshPhysicalMaterial, Vector3, type Camera, type Mesh } from 'three';
+import { MeshPhysicalMaterial, Vector3, type Camera, type Mesh } from 'three';
 import { getStickerMaterialDamage, stickerPixelSurvives, type StickerDamageField } from './sticker-alpha';
 import type { StickerProjectedContour, StickerScreenPoint } from './sticker-contract';
 import { STICKER_SURFACE } from './sticker-surface';
 import { stickerProjectedQuad } from './sticker-transform-projection';
-import type { PreparedStickerContour } from './sticker-contour-preparation-data';
-import type { StickerContourProjection, StickerContourVisibility } from './sticker-contour-query-data';
 type Point = { readonly x: number; readonly y: number };
 const cache = new WeakMap<StickerDamageField, Map<number, readonly (readonly Point[])[]>>();
 interface ContourOcclusionRevision { readonly identity: object; readonly revision: number; readonly contentMatrix: readonly number[] }
@@ -91,7 +89,7 @@ export function projectStickerContourField(print: Mesh, camera: Camera, canvas: 
 function projectContourUncached(print: Mesh, camera: Camera, canvas: { readonly left: number; readonly top: number; readonly width: number; readonly height: number }, field: StickerDamageField, wear: number, visible?: (world: Vector3) => boolean): StickerProjectedContour | null {
   const quad = stickerProjectedQuad(print, camera, canvas); if (!quad) return null;
   const prepared = getPreparedStickerContour(print.geometry, field, wear);
-  if (prepared) return projectPreparedStickerContour(prepared.value, { world: print.matrixWorld.toArray(), cameraInverse: camera.matrixWorldInverse.toArray(), cameraProjection: camera.projectionMatrix.toArray(), canvas }, quad.center, visible);
+  if (prepared) return projectPreparedContour(print, camera, canvas, prepared.value, quad.center, visible);
   const positions = print.geometry.getAttribute('position'); const uv = print.geometry.getAttribute('uv'); const n = STICKER_SURFACE.segments;
   if (!positions || !uv || positions.count !== (n + 1) ** 2) return null;
   const minU = uv.getX(0); const maxU = uv.getX(n); const maxV = uv.getY(0); const minV = uv.getY(n * (n + 1));
@@ -140,20 +138,15 @@ function projectContourUncached(print: Mesh, camera: Camera, canvas: { readonly 
   return paths.length && tl?.point && tr?.point && br?.point && bl?.point ? { paths, closed, anchors: [tl.point, tr.point, br.point, bl.point], anchorVisible: [tl.visible, tr.visible, br.visible, bl.visible], center: quad.center } : null;
 }
 
-/** Exact prepared kernel shared by synchronous queries and an isolated query owner.
- * Borrows local points and the visibility callback; no scene, material or DOM is read.
- * The caller supplies the center from the same admitted quad projection. */
-export function projectPreparedStickerContour(value: PreparedStickerContour, projection: StickerContourProjection, center: StickerScreenPoint, visible?: StickerContourVisibility): StickerProjectedContour | null {
- const { canvas } = projection;
- const world = new Matrix4().fromArray(projection.world);
- const cameraInverse = new Matrix4().fromArray(projection.cameraInverse);
- const cameraProjection = new Matrix4().fromArray(projection.cameraProjection);
+/** Only rigid projection and exact visibility admission stay in the synchronous
+ * query. Dense alpha tracing and grid interpolation are prepared off main. */
+function projectPreparedContour(print: Mesh, camera: Camera, canvas: { readonly left: number; readonly top: number; readonly width: number; readonly height: number }, value: import('./sticker-contour-preparation-data').PreparedStickerContour, center: StickerScreenPoint, visible?: (world: Vector3) => boolean): StickerProjectedContour | null {
  const point = new Vector3();
  const project = (points: Float64Array, offset: number, check = true): StickerScreenPoint | null => {
-  point.fromArray(points, offset).applyMatrix4(world);
+  point.fromArray(points, offset).applyMatrix4(print.matrixWorld);
   if (check && visible && !visible(point)) return null;
-  point.applyMatrix4(cameraInverse); if (point.z >= 0) return null;
-  point.applyMatrix4(cameraProjection); if (![point.x,point.y,point.z].every(Number.isFinite) || point.z < -1 || point.z > 1) return null;
+  point.applyMatrix4(camera.matrixWorldInverse); if (point.z >= 0) return null;
+  point.applyMatrix4(camera.projectionMatrix); if (![point.x,point.y,point.z].every(Number.isFinite) || point.z < -1 || point.z > 1) return null;
   return { x: canvas.left + (point.x + 1) * canvas.width / 2, y: canvas.top + (1 - point.y) * canvas.height / 2 };
  };
  const paths: StickerScreenPoint[][] = [], closed: boolean[] = [];

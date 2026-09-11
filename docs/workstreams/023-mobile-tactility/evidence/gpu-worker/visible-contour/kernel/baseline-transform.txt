@@ -1,10 +1,9 @@
-import { Matrix4, Vector3, type BufferAttribute, type BufferGeometry, type InterleavedBufferAttribute, type Camera, type Mesh, type Object3D } from 'three';
+import { Matrix4, Vector3, type BufferAttribute, type InterleavedBufferAttribute, type Camera, type Mesh, type Object3D } from 'three';
 import { preparedStickerContourWear } from './sticker-contour-preparation-data';
 import { DEVICE_LAYOUT } from './layout';
 import type { StickerProjectedQuad, StickerTransformPlane } from './sticker-contract';
-import type { StickerContourCanvas, StickerContourProjection } from './sticker-contour-query-data';
 
-type CanvasRect = StickerContourCanvas;
+type CanvasRect = { readonly left: number; readonly top: number; readonly width: number; readonly height: number };
 const validCanvas = (r: CanvasRect) => [r.left, r.top, r.width, r.height].every(Number.isFinite) && r.width > 0 && r.height > 0;
 
 type SampleAttribute = BufferAttribute | InterleavedBufferAttribute;
@@ -43,35 +42,20 @@ function localSampleIndices(uv: SampleAttribute, reusable: boolean): readonly nu
   return indices;
 }
 
-/** Capture nine exact local samples through the existing UV-index cache. Positions
- * are always read live. Returned private Float64 storage can be transferred by its owner. */
-export function captureStickerQuadSamples(geometry: BufferGeometry): Float64Array | null {
-  const positions = geometry.getAttribute('position');
-  const uv = geometry.getAttribute('uv');
-  if (!positions || !uv || positions.count !== uv.count || uv.count === 0) return null;
-  const indices = localSampleIndices(uv, preparedStickerContourWear(geometry) !== undefined);
+/** Samples the actual visible-art UV boundary, preserving artwork order under model rotation. */
+export function stickerProjectedQuad(print: Mesh, camera: Camera, canvas: CanvasRect): StickerProjectedQuad | null {
+  const positions = print.geometry.getAttribute('position');
+  const uv = print.geometry.getAttribute('uv');
+  if (!validCanvas(canvas) || !positions || !uv || positions.count !== uv.count || uv.count === 0) return null;
+  const indices = localSampleIndices(uv, preparedStickerContourWear(print.geometry) !== undefined);
   if (indices === null) return null;
-  const samples = new Float64Array(27);
-  const point = new Vector3();
-  for (let slot = 0; slot < 9; slot++) {
-    const index = indices[slot];
-    if (index === undefined || index < 0) { samples.fill(NaN, slot * 3, slot * 3 + 3); continue; }
-    point.fromBufferAttribute(positions, index).toArray(samples, slot * 3);
-  }
-  return samples;
-}
-
-/** Exact rigid projection of captured local samples; never reuses old screen coordinates. */
-export function projectStickerQuadSamples(samples: Float64Array, projection: StickerContourProjection): StickerProjectedQuad | null {
-  const { canvas } = projection;
-  if (!validCanvas(canvas) || samples.length !== 27) return null;
-  const world = new Matrix4().fromArray(projection.world);
-  const cameraInverse = new Matrix4().fromArray(projection.cameraInverse);
-  const cameraProjection = new Matrix4().fromArray(projection.cameraProjection);
+  print.updateWorldMatrix(true, false); camera.updateMatrixWorld();
   const sample = (slot: number) => {
-    const point = new Vector3().fromArray(samples, slot * 3).applyMatrix4(world).applyMatrix4(cameraInverse);
+    const index = indices[slot];
+    if (index === undefined || index < 0) return null;
+    const point = new Vector3().fromBufferAttribute(positions, index).applyMatrix4(print.matrixWorld).applyMatrix4(camera.matrixWorldInverse);
     if (!Number.isFinite(point.z) || point.z >= 0) return null;
-    point.applyMatrix4(cameraProjection);
+    point.applyMatrix4(camera.projectionMatrix);
     if (![point.x, point.y, point.z].every(Number.isFinite) || point.z < -1 || point.z > 1) return null;
     return { x: canvas.left + (point.x + 1) * canvas.width / 2, y: canvas.top + (1 - point.y) * canvas.height / 2 };
   };
@@ -82,15 +66,6 @@ export function projectStickerQuadSamples(samples: Float64Array, projection: Sti
   const area = corners.reduce((sum, p, i) => { const q = corners[(i + 1) % 4] ?? tl; return sum + p.x * q.y - q.x * p.y; }, 0);
   if (Math.abs(area) < 1e-4) return null;
   return { corners, edges: [top, right, bottom, left], center };
-}
-
-/** Samples the actual visible-art UV boundary, preserving artwork order under model rotation. */
-export function stickerProjectedQuad(print: Mesh, camera: Camera, canvas: CanvasRect): StickerProjectedQuad | null {
-  if (!validCanvas(canvas)) return null;
-  const samples = captureStickerQuadSamples(print.geometry);
-  if (samples === null) return null;
-  print.updateWorldMatrix(true, false); camera.updateMatrixWorld();
-  return projectStickerQuadSamples(samples, { world: print.matrixWorld.toArray(), cameraInverse: camera.matrixWorldInverse.toArray(), cameraProjection: camera.projectionMatrix.toArray(), canvas });
 }
 
 /** Capture an unbounded editing plane at the selected center's content-local depth.
