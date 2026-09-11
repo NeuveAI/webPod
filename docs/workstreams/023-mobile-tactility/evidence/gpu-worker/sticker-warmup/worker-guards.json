@@ -1,0 +1,5 @@
+{
+  "method": "Actual worker helper validation/assembler with controlled bitmap; no GPU compile or bitmap-transfer claim.",
+  "checks": 8,
+  "bitmapCloses": 7
+}

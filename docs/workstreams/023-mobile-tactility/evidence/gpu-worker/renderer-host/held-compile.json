@@ -1,0 +1,45 @@
+{
+  "method": "Exact extracted worker publish and warmup orchestration; held backend compile and render boundary, no real GPU timing",
+  "completed": {
+    "during": {
+      "renders": 2,
+      "projections": 2,
+      "completed": 0,
+      "displayReady": true
+    },
+    "renders": 3,
+    "projections": 3,
+    "completed": 1,
+    "disposed": 0,
+    "failures": 0,
+    "adopted": true
+  },
+  "cancelled": {
+    "during": {
+      "renders": 2,
+      "projections": 2,
+      "completed": 0,
+      "displayReady": true
+    },
+    "renders": 2,
+    "projections": 2,
+    "completed": 0,
+    "disposed": 1,
+    "failures": 0,
+    "adopted": false
+  },
+  "rejected": {
+    "during": {
+      "renders": 2,
+      "projections": 2,
+      "completed": 0,
+      "displayReady": true
+    },
+    "renders": 2,
+    "projections": 2,
+    "completed": 0,
+    "disposed": 1,
+    "failures": 1,
+    "adopted": false
+  }
+}

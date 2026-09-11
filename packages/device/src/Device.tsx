@@ -1,3 +1,4 @@
+import { orientationGrabStart } from './device-orientation-events';
 import { DeviceAssembly } from "./DeviceAssembly";
 import { createDeviceAssemblyRecipe, deviceAssemblyGeometries } from "./device-assembly-recipe";
 import { createDeviceAssemblyMaterials } from "./device-assembly-materials";
@@ -31,8 +32,6 @@ import { createBackplateFinishMaps } from "./backplate-finish";
 import { useThree, type ThreeEvent } from "@react-three/fiber";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
-  type Camera,
-  Vector3,
   type Group,
   type Material,
   Mesh,
@@ -66,11 +65,9 @@ import {
 } from "./orientation";
 import {
   acceptsDeviceOrientationHover,
-  acceptsDeviceOrientationPointer,
   isDeviceOuterGrabPoint,
   isFirstVisibleDeviceShellHit,
   type DeviceOrientationGrabStart,
-  type DeviceOrientationPointerCapture,
 } from "./orientation-grab";
 import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
 import {
@@ -120,7 +117,7 @@ export type DeviceProps = {
   readonly onOrientationGrabHoverChange?: (grabbable: boolean) => void;
 };
 
-const { body, screen, wheel } = DEVICE_LAYOUT;
+const { screen, wheel } = DEVICE_LAYOUT;
 const { glass } = DEVICE_SURFACE_LAYOUT.front;
 
 // D-067 puts VWaJS's circular 26px enclosure in DEVICE_LAYOUT; every shell
@@ -375,93 +372,4 @@ export function Device({
       }} />
     </ViewerLitDeviceFrame>
   );
-}
-
-function isOrientationGrabHit(
-  event: ThreeEvent<PointerEvent>,
-  view: { readonly camera: Camera; readonly width: number; readonly height: number },
-): boolean {
-  if (
-    !acceptsDeviceOrientationPointer(event) ||
-    !isFirstVisibleDeviceShellHit(event.object, event.intersections)
-  ) {
-    return false;
-  }
-  const localPoint = event.object.worldToLocal(event.point.clone());
-  if (event.pointerType !== "touch") return isDeviceOuterGrabPoint(localPoint.x, localPoint.y);
-  // Preserve front controls even when their glass or decal is not an event
-  // target. Sticker meshes retain first-visible-hit ownership above the shell.
-  const front = event.face !== null && event.face !== undefined && event.face.normal.z > 0;
-  if (front && (
-    (Math.abs(localPoint.x - glass.centerX) <= glass.width / 2 &&
-      Math.abs(localPoint.y - glass.centerY) <= glass.height / 2) ||
-    Math.hypot(localPoint.x - wheel.centerX, localPoint.y - wheel.centerY) <= wheel.outerR
-  )) return false;
-  const project = (point: Vector3) => {
-    point.applyMatrix4(event.object.matrixWorld).project(view.camera);
-    return point.set(point.x * view.width / 2, point.y * view.height / 2, 0);
-  };
-  const origin = project(localPoint.clone());
-  const scaleX = project(localPoint.clone().add(new Vector3(1, 0, 0))).distanceTo(origin);
-  const scaleY = project(localPoint.clone().add(new Vector3(0, 1, 0))).distanceTo(origin);
-  // Size in CSS pixels, bounded at a quarter of the face when viewed edge-on.
-  const band = Math.min(body.width / 4, 44 / Math.max(0.01, Math.min(scaleX, scaleY)));
-  return isDeviceOuterGrabPoint(localPoint.x, localPoint.y, band);
-}
-
-function orientationGrabStart(
-  event: ThreeEvent<PointerEvent>,
-  view: { readonly camera: Camera; readonly width: number; readonly height: number },
-): DeviceOrientationGrabStart | null {
-  if (!isOrientationGrabHit(event, view)) return null;
-  const host = event.nativeEvent.currentTarget;
-  const capture = orientationPointerCapture(event.target);
-  const pointerType = orientationPointerType(event.pointerType);
-  if (host === null || capture === null || pointerType === null) return null;
-  return {
-    pointerId: event.pointerId,
-    pointerType,
-    clientX: event.clientX,
-    clientY: event.clientY,
-    timestampMs: event.timeStamp,
-    rollMode: event.altKey,
-    host,
-    capture,
-  };
-}
-
-function orientationPointerType(
-  value: string,
-): DeviceOrientationGrabStart["pointerType"] | null {
-  if (value === "mouse" || value === "pen" || value === "touch") return value;
-  return null;
-}
-
-function orientationPointerCapture(
-  target: EventTarget | null,
-): DeviceOrientationPointerCapture | null {
-  if (
-    target === null ||
-    !("hasPointerCapture" in target) ||
-    !("setPointerCapture" in target) ||
-    !("releasePointerCapture" in target) ||
-    typeof target.hasPointerCapture !== "function" ||
-    typeof target.setPointerCapture !== "function" ||
-    typeof target.releasePointerCapture !== "function"
-  ) {
-    return null;
-  }
-  const hasPointerCapture = target.hasPointerCapture;
-  const setPointerCapture = target.setPointerCapture;
-  const releasePointerCapture = target.releasePointerCapture;
-  return {
-    hasPointerCapture: (pointerId) =>
-      Reflect.apply(hasPointerCapture, target, [pointerId]) === true,
-    setPointerCapture: (pointerId) => {
-      Reflect.apply(setPointerCapture, target, [pointerId]);
-    },
-    releasePointerCapture: (pointerId) => {
-      Reflect.apply(releasePointerCapture, target, [pointerId]);
-    },
-  };
 }

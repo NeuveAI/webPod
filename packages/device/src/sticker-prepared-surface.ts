@@ -11,9 +11,9 @@ import { requestStickerTransaction } from './sticker-transaction-broker';
 import { registerPreparedStickerResources } from './sticker-transaction-client';
 import type { StickerSurfaceRequest } from './sticker-transaction-data';
 import { createLatestStickerPreparation } from './sticker-latest-preparation';
-interface PreparedSurface { readonly geometry: BufferGeometry; readonly placement: DeviceStickerPlacement; release(): void }
-interface SurfaceInput { readonly input: StickerSurfaceRequest | null; readonly custom: { readonly art: StickerArtwork; readonly placement: DeviceStickerPlacement; readonly rear: BufferGeometry; readonly wrap: StickerWrapSurface }; readonly onError?: (id: string) => void }
-async function prepareSurface({ input, custom }: SurfaceInput, signal: AbortSignal): Promise<PreparedSurface> {
+export interface PreparedSurface { readonly geometry: BufferGeometry; readonly placement: DeviceStickerPlacement; release(): void }
+export interface SurfaceInput { readonly input: StickerSurfaceRequest | null; readonly custom: { readonly art: StickerArtwork; readonly placement: DeviceStickerPlacement; readonly rear: BufferGeometry; readonly wrap: StickerWrapSurface }; readonly onError?: (id: string) => void }
+export async function prepareSurface({ input, custom }: SurfaceInput, signal: AbortSignal): Promise<PreparedSurface> {
   if (!input) {
     const geometry = await yieldSteps(createStickerSurfaceGeometrySteps(custom.art, custom.placement, custom.rear, custom.wrap), signal);
     try { setStickerBoundsIndex(geometry, await yieldSteps(createStickerBoundsIndex(geometry.getAttribute('position').array), signal)); let released = false; return { geometry, placement: custom.placement, release() { if (!released) { released = true; geometry.dispose(); } } }; }

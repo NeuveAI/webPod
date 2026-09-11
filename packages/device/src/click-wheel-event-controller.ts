@@ -17,7 +17,7 @@ export function createClickWheelEventController(input: Pick<ClickWheelEventDepen
   const wheel = createWheelEvents(dependencies), select = createSelectEvents(dependencies);
   return {wheel, select,
     configure(next: Pick<ClickWheelEventDependencies, 'callbacks' | 'point'>) {dependencies.callbacks = next.callbacks; dependencies.point = next.point;},
-    attachKeyboard: () => attachKeyboard(dependencies.controlPhysics),
+    attachKeyboard: (enabled: () => boolean = () => true) => attachKeyboard(dependencies.controlPhysics, enabled),
     dispose() {
       let firstError: unknown;
       let failed = false;
@@ -26,11 +26,12 @@ export function createClickWheelEventController(input: Pick<ClickWheelEventDepen
       if (failed) throw firstError;
     }};
 }
-function attachKeyboard(controlPhysics: ControlPhysicsController | null) {
+function attachKeyboard(controlPhysics: ControlPhysicsController | null, enabled: () => boolean) {
   const keyboardSelectRef = {current: false};
     if (controlPhysics === null || typeof window === "undefined") return () => {};
     const onKeyDown = (event: KeyboardEvent) => {
       if (
+        !enabled() ||
         event.key !== "Enter" ||
         event.repeat ||
         keyboardSelectRef.current ||

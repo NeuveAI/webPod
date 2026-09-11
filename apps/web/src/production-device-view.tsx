@@ -111,6 +111,7 @@ export const ProductionPanelView = memo(function ProductionPanelView({
 
 /** Renders the production panel through the production composite device. */
 export function ProductionDeviceView({
+  rendererBackend,
   motionAuthority,
   colourway,
   state = 'ready',
@@ -164,6 +165,7 @@ export function ProductionDeviceView({
   return (
     <>
     <CompositeDevice
+      rendererBackend={rendererBackend}
       motionAuthority={motionAuthority}
       className={className}
       colourway={colourway}
@@ -188,7 +190,7 @@ export function ProductionDeviceView({
         />
       )}
     />
-    <StickerCollection orientation={orientation ?? FRONT_DEVICE_ORIENTATION} commands={stickerCommands} />
+    <StickerCollection motionAuthority={motionAuthority} orientation={orientation ?? FRONT_DEVICE_ORIENTATION} commands={stickerCommands} />
     </>
   )
 }

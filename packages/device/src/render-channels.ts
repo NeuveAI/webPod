@@ -12,6 +12,7 @@ export function createLatestRenderChannel<T>(send: (sequence: number, value: T) 
     send(sequence, value);
   };
   return {
+    discardPending() { pending = null; },
     offer(value: T) { if (disposed) return; pending = { value }; flush(); },
     acknowledge(sequence: number) { if (disposed || inFlight !== sequence) return false; inFlight = null; flush(); return true; },
     pause(value: boolean) { if (disposed) return; paused = value; flush(); },

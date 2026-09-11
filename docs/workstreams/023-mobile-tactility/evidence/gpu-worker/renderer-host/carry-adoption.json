@@ -1,0 +1,14 @@
+{
+  "kind": "Offline actual worker adoption-policy ownership proof; no browser GPU or tactile claim",
+  "checks": {
+    "sourceGeometryIdentityRetainedUntilFirstCarry": true,
+    "earlyCancelRetainsDisplayedSource": true,
+    "supersededGestureCannotAdopt": true,
+    "assemblyRevisionMismatchRejected": true,
+    "sourceOwnersReleaseOnlyOnMatchingAdoption": true,
+    "twoSourceCandidatesDrainOnce": true,
+    "postAdoptionFinalSamplePersists": true,
+    "handoffOwnerExact": true,
+    "disposalRejectsPendingOnce": true
+  }
+}

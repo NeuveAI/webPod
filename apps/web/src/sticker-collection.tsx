@@ -11,7 +11,7 @@ import { useEffect, useRef, useSyncExternalStore, type PointerEvent as ReactPoin
 import { getCompositeTierSnapshot, subscribeCompositeTier } from '@webpod/composite'
 import { deviceStore, stickerCollectionStatusAtom, stickerInteractionAtom, stickerInventoryAtom } from '@webpod/state'
 import { getSticker, isStickerPlacement, stickerWear, type StickerPlacement, type StickerInventory } from '@webpod/stickers'
-import type { DeviceOrientation } from '@webpod/device'
+import type { DeviceOrientation, DeviceMotionAuthority } from '@webpod/device'
 import { stickerPackPresentation, deviceFrontVisibility, STICKER_PACK_LAYOUT, STICKER_SHEET_SLOTS, stickerPackViewportLayout, retryStickerArtwork } from '@webpod/device'
 import { animateStickerValue, returnStickerToSheet, resetStickerCarry, cancelStickerInteraction, releaseStickerPull, revealStickerPack, setStickerRearVisible, updateStickerInteraction, updateHeldStickerPreview, stickerArtworkFailureAtom, getStickerInteractionGeneration, stickerComputationEpochAtom, supersedeStickerInteraction } from './sticker-interaction'
 import { stickerPackTurnAtom, activeStickerCollectionAtom, stickerCollectionsAtom, selectedStickerGenreAtom, stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, genreLabel, formatListeningMinutes, stickerPlacementForIntent, stickerPeelMotion, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerProjectionVersionAtom, stickerPreparedIdsAtom, type CollectionSlot } from './sticker-collections-model'
@@ -86,7 +86,7 @@ const REAR_UI_MOTION = {
   enterEase: 'cubic-bezier(0, 0, 0, 1)', exitEase: 'cubic-bezier(.3, 0, 1, 1)',
 } as const
 
-export function StickerCollection({ orientation, commands }: { readonly orientation: DeviceOrientation; readonly commands: StickerCollectionCommands }) {
+export function StickerCollection({ orientation, motionAuthority, commands }: { readonly orientation: DeviceOrientation; readonly motionAuthority?: DeviceMotionAuthority; readonly commands: StickerCollectionCommands }) {
   const music = useSyncExternalStore(musicRuntime.subscribe, musicRuntime.getSnapshot, musicRuntime.getSnapshot)
   const session = useSyncExternalStore(music.provider.onSessionChange, () => music.provider.session, () => null)
   const connectMusic = session?.status === 'authorized' ? undefined : () => { void authorizeAppleRuntime() }
@@ -147,17 +147,29 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     return () => { query.removeEventListener('change', change); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); setStickerRearVisible(false); resetStickerPackPresence(); resetStickerPackTuck(); cancelStickerInteraction(); deviceStore.set(rearAdmittedAtom, false) }
   }, [])
   useEffect(() => {
-    const visible = deviceFrontVisibility(orientation)
+    let synchronizing = false, pending = false
+    const synchronize = () => {
+    if (synchronizing) { pending = true; return }
+    synchronizing = true
+    try { do {
+    pending = false
+    const currentOrientation = motionAuthority?.readIntent().orientation ?? orientation
+    const visible = deviceFrontVisibility(currentOrientation)
     const admitted = deviceStore.get(rearAdmittedAtom)
     const next = !deviceRevealing && compositeTier.tier === 'T1' && visible < (admitted ? REAR.leave : REAR.admit)
     deviceStore.set(rearAdmittedAtom, next)
     setStickerRearVisible(next)
-    const key = JSON.stringify(orientation)
+    const key = JSON.stringify(currentOrientation)
     if (poseKey.current !== key || compositeTier.tier !== 'T1') {
       clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); dismissStickerEditor(); if (deviceStore.get(stickerInteractionAtom).sourcePlacement != null) cancelStickerInteraction()
     }
     poseKey.current = key
-  }, [orientation, compositeTier.tier, usable, deviceRevealing])
+    } while (pending) } finally { synchronizing = false }
+    }
+    const unsubscribe = motionAuthority?.subscribeIntent(synchronize)
+    try { synchronize() } catch (error) { unsubscribe?.(); throw error }
+    return unsubscribe
+  }, [orientation, motionAuthority, compositeTier.tier, usable, deviceRevealing])
   useEffect(() => {
     if (status === 'signed-out') { resetStickerEditor(); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); cancelStickerInteraction(); deviceStore.set(collectionMessageAtom, null); deviceStore.set(selectedStickerGenreAtom, null); deviceStore.set(stickerSheetRevealAtom, 0); resetStickerCarry() }
   }, [status])

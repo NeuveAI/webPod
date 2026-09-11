@@ -1,0 +1,8 @@
+{
+  "method": "Exact extracted imperative effect with real scoped Jotai notifications; controlled interaction callbacks, not mounted React/browser",
+  "initialSync": true,
+  "frontRearFront": true,
+  "cleanup": true,
+  "reentrantPublicationDrained": true,
+  "poseNotificationsWithoutReact": true
+}

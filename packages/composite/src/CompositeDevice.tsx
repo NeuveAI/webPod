@@ -1,4 +1,6 @@
 import { InteractionHaptics, mountWheelHaptics, cancelWheelHaptics } from './interaction-haptics'
+import { WorkerDeviceCanvas } from './WorkerDeviceCanvas'
+import { atom, createStore, useAtomValue } from 'jotai'
 import { bindAgentWheelControls, bindAgentControlPhysics, getAgentControlPhysics } from './agent-controls'
 import { useThree } from '@react-three/fiber'
 import {
@@ -72,6 +74,7 @@ const CONTEXT_RESTORATION_STYLE = {
 } as const
 
 export interface CompositeDeviceProps {
+  readonly rendererBackend?: 'webgl' | 'worker'
   readonly motionAuthority?: DeviceMotionAuthority
   readonly stickerScene?: DeviceStickerScene
   readonly panel: ReactNode
@@ -103,6 +106,7 @@ export interface CompositeDeviceProps {
  * the canvas. No React component owns a duplicate copy of panel state.
  */
 export function CompositeDevice({
+  rendererBackend = 'webgl',
   motionAuthority,
   stickerScene,
   panel,
@@ -122,6 +126,9 @@ export function CompositeDevice({
   onTransportPress,
 }: CompositeDeviceProps) {
   const canUseDom = typeof document !== 'undefined'
+  const backendState = useMemo(() => ({ store: createStore(), failed: atom<string | null>(null) }), [])
+  const workerFailed = useAtomValue(backendState.failed, { store: backendState.store })
+  const useWorker = rendererBackend === 'worker' && !workerFailed
   const tier = useSyncExternalStore(
     subscribeCompositeTier,
     getCompositeTierSnapshot,
@@ -150,6 +157,9 @@ export function CompositeDevice({
       className={className}
       data-composite-tier={tier.tier}
       data-composite-ready={host !== null}
+      data-renderer-requested={rendererBackend}
+      data-renderer-effective={useWorker ? 'worker' : 'webgl'}
+      data-renderer-failure={workerFailed ?? undefined}
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
       onTransportPress={onTransportPress}
@@ -165,10 +175,18 @@ export function CompositeDevice({
         onCardinalPress,
       }) => (
         <>
-          {host !== null && tier.tier === 'T1' ? createPortal(panel, host) : null}
-          {shouldMountCanvas ? (
-            <DeviceCanvas
-              motionAuthority={motionAuthority}
+          {host !== null ? createPortal(panel, host) : null}
+          {shouldMountCanvas && useWorker && host ? <WorkerDeviceCanvas
+            key={JSON.stringify([colourway,cameraFov,cameraDistance,cameraMobileFraming,cameraSafePadding])}
+            panel={host} motionAuthority={motionAuthority} stickerScene={stickerScene} colourway={colourway}
+            inputCallbacks={{onArcStart, onArcMove, onArcEnd, onSelectStart, onSelectEnd, onCardinalStart, onCardinalEnd, onCardinalPress}}
+            onOrientationGrabStart={onOrientationGrabStart} onOrientationGrabHoverChange={onOrientationGrabHoverChange}
+            cameraFov={cameraFov} cameraDistance={cameraDistance} cameraMobileFraming={cameraMobileFraming}
+            cameraSafePadding={cameraSafePadding} orientation={orientation}
+            onFailure={error => backendState.store.set(backendState.failed, (error instanceof Error ? error.message : String(error)).slice(0, 512))}
+          /> : shouldMountCanvas ? (
+      <DeviceCanvas
+        motionAuthority={motionAuthority}
               stickerScene={stickerScene}
               colourway={colourway}
               cameraFov={cameraFov}
@@ -221,6 +239,9 @@ type CompositeInputBoundaryProps = {
   readonly className?: string
   readonly 'data-composite-tier'?: string
   readonly 'data-composite-ready'?: boolean
+  readonly 'data-renderer-requested'?: string
+  readonly 'data-renderer-effective'?: string
+  readonly 'data-renderer-failure'?: string
   readonly createDependencies?: () => ClickWheelRuntimeDependencies
   readonly createAudioRuntime?: () => InteractionAudioRuntime
   readonly interactionAudioEnabled?: boolean
@@ -238,6 +259,9 @@ export function CompositeInputBoundary({
   className,
   'data-composite-tier': tier,
   'data-composite-ready': ready,
+  'data-renderer-requested': rendererRequested,
+  'data-renderer-effective': rendererEffective,
+  'data-renderer-failure': rendererFailure,
   createDependencies = defaultRuntimeDependencies,
   createAudioRuntime = defaultInteractionAudioRuntime,
   interactionAudioEnabled = true,
@@ -276,6 +300,9 @@ export function CompositeInputBoundary({
       className={className}
       data-composite-tier={tier}
       data-composite-ready={ready}
+      data-renderer-requested={rendererRequested}
+      data-renderer-effective={rendererEffective}
+      data-renderer-failure={rendererFailure}
       onFocusCapture={onFocusCapture}
       style={{
         boxSizing: 'border-box',

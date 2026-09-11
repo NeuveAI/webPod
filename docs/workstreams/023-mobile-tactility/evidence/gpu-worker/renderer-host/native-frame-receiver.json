@@ -1,0 +1,10 @@
+{
+  "method": "Actual driver/control owner with exact extracted host callbacks and strict branded platform boundary; observed Chrome error attribution still requires stack",
+  "oldUnboundRequestRejected": true,
+  "oldUnboundCancelRejected": true,
+  "workerPauseResumeDispose": true,
+  "mainControlDispose": true,
+  "requests": 3,
+  "cancellations": 3,
+  "remainingFrames": 0
+}
