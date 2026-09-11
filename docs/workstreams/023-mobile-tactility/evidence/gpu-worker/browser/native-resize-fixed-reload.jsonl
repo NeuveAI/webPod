@@ -1,0 +1,5 @@
+{"t":387.69999998807907}
+{"t":7432.199999988079,"phase":"warming","renderer":"worker","warm":"pending","failure":null}
+{"t":8301.5,"phase":"warming","renderer":"worker","warm":"ready","failure":null}
+{"t":8869.5,"phase":"entering","renderer":"worker","warm":"ready","failure":null}
+{"t":11058.699999988079,"phase":"complete","renderer":"worker","warm":"ready","failure":null}

@@ -1,0 +1,200 @@
+{
+  "method": "Concurrent new-renderer warmup and previous usable packet snapshot adapters using actual shared texture cache, exact PNG alpha and real workers; controlled bitmap/compile ACK boundary, no GPU timing.",
+  "requested": [
+    "PW-A01",
+    "PW-A02",
+    "PW-A03",
+    "PW-A04",
+    "PW-A05",
+    "PW-B01",
+    "PW-B02",
+    "PW-B03",
+    "PW-B04",
+    "PW-B05"
+  ],
+  "slotIds": [
+    "PW-A01",
+    "PW-A02",
+    "PW-A03",
+    "PW-A04",
+    "PW-A05"
+  ],
+  "neighborIds": [
+    "PW-C01",
+    "PW-E01"
+  ],
+  "ackDelayMs": 1000,
+  "acquired": 17,
+  "sent": 1,
+  "ready": true,
+  "failure": null,
+  "visibleFailure": null,
+  "failedUsage": null,
+  "admitted": {
+    "transactions": {
+      "entries": 20,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 17,
+      "pendingCopies": 0,
+      "privateBytes": 8389840,
+      "accountedBytes": 77816960
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 23,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 23,
+      "privateBytes": 3020424,
+      "accountedBytes": 9061272
+    },
+    "visiblePrints": 8
+  },
+  "privateAcquisitions": [
+    {
+      "keyHash": "1397e34f2bee1fc2",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "78bb1f085fc35776"
+    },
+    {
+      "keyHash": "a19eea03367ea9a7",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f216b6f11a81285"
+    },
+    {
+      "keyHash": "9dd6cd17e76538a1",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "13a8abf292ab20ac"
+    },
+    {
+      "keyHash": "182093adf77082b8",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "fe55a50c384b093a"
+    },
+    {
+      "keyHash": "89f1583b1497043a",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "22ce752f042420c8"
+    },
+    {
+      "keyHash": "7a36186d72258dee",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "eed880866f0a73f8"
+    },
+    {
+      "keyHash": "e1ee0a7c5b398206",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2c4aeef864bf25eb"
+    },
+    {
+      "keyHash": "53f60712264d39c2",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "ff6a5ee6ffce09d3"
+    },
+    {
+      "keyHash": "1587190b5fd5a5e2",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "d6933ef3467cc4c"
+    },
+    {
+      "keyHash": "ae0abb6967c3f9e5",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "9489e415405ef136"
+    },
+    {
+      "keyHash": "e56fa2e96e4c1945",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "4a9332ce3ac4d2fe"
+    },
+    {
+      "keyHash": "7c544e6cc3c67cf",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "746e725be46832b0"
+    },
+    {
+      "keyHash": "403554ee0d3aa66e",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f73093f8955c4d9"
+    },
+    {
+      "keyHash": "3ea048eb28a5c672",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "96dc3ef707cfbdd6"
+    },
+    {
+      "keyHash": "43af929958b2366c",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "e059de8c3e477a8"
+    },
+    {
+      "keyHash": "c9c7c985b5bbf6bb",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "44497de88706cdf3"
+    },
+    {
+      "keyHash": "c624b31703ed450a",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "381dc9a86a9d7403"
+    }
+  ],
+  "final": {
+    "owners": 0,
+    "transactions": {
+      "entries": 0,
+      "queued": 0,
+      "active": null,
+      "worker": false,
+      "privateOwners": 0,
+      "pendingCopies": 0,
+      "privateBytes": 0,
+      "accountedBytes": 0
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 0,
+      "queued": 0,
+      "active": null,
+      "worker": false,
+      "privateOwners": 0,
+      "privateBytes": 0,
+      "accountedBytes": 0
+    }
+  }
+}
