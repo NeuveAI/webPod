@@ -1,0 +1,24 @@
+{
+  "checks": [
+    "initial actual integer offsets read once; border-box observation registered",
+    "five thousand pose cache reads perform no measurements",
+    "equal initial observer delivery refreshes without projecting",
+    "projection matrices exactly match prior integer-offset contract across six box/pose fixtures",
+    "transform-only update has no measurement or observer-triggered projection",
+    "idle size change projects once with newest pose",
+    "zero/unboxed suspends projection",
+    "positive reentry restores same last dimensions and projects",
+    "hidden observations and pose traffic read no offsets",
+    "visible reentry reads once and restores availability",
+    "dispose disconnects and ignores stale delivered callbacks",
+    "initial zero is not ready",
+    "first positive observer delivery releases readiness",
+    "aborted first-box wait retires cleanly",
+    "disposed first-box wait rejects and releases listeners",
+    "host invalidation callback updates only transform; adoption preserves one downstream query/carry publication"
+  ],
+  "widthReads": 15,
+  "heightReads": 15,
+  "matrixComparisons": 6,
+  "scope": "Counted offset getter and observer lifecycle fixtures; integer values are supplied, not browser CSS rounding measurements. Real route alignment/rounding remains lead runtime gate."
+}

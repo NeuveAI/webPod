@@ -1,3 +1,4 @@
+import { observeNativePanelDimensions } from './native-panel-measurement';
 import {createNativeCarryController} from './native-carry-controller';
 import {createNativeStickerWarmup} from './native-sticker-warmup';
 import {createNativeWorkspaceReframe} from './native-workspace-reframe';
@@ -47,6 +48,7 @@ export function createDeviceRenderHost(input: {
   let fonts: DeviceFontAssets | null = null;
   let pixels: ReturnType<typeof createNativeScreenTransport> | null = null;
   let visibilityRevision = 1;
+  let panelDimensions: ReturnType<typeof observeNativePanelDimensions> | null = null;
   let query: ReturnType<typeof createDeviceQueryView> | null = null;
   let detachInput: (() => void) | void;
   let carry:ReturnType<typeof createNativeCarryController>|null=null;
@@ -68,24 +70,31 @@ export function createDeviceRenderHost(input: {
     sendCommand(command) { if (disposed) return; poseChannel.discardPending(); commandSequence = Math.max(commandSequence, command.commandSequence); pose = command.pose; query?.applyPose(command.pose); send({ ...envelope, type: 'command', command }); },
     subscribe(listener) { listeners.add(listener); return () => { listeners.delete(listener); }; },
   };
-  const adoptPose = (next: RenderPose, projection?: RenderProjection): boolean => {
-    if (next.sequence < pose.sequence || next.resourceRevision !== pose.resourceRevision || next.sceneRevision !== pose.sceneRevision || next.motionEpoch !== pose.motionEpoch || next.lastAcceptedCommand < pose.lastAcceptedCommand || next.layoutRevision !== layout.revision) return false;
-    pose = next; query?.applyPose(next);
+  // Dimension notifications update only the panel transform, never replaying
+  // pose adoption, query work, carry preparation or public settlement listeners.
+  const projectPanel = (projection?: RenderProjection) => {
+    const dimensions = panelDimensions?.read();
+    if (!dimensions || disposed) return;
     const screenWorld = projection?.screenWorld ?? query?.nodes.get('screen')?.matrixWorld.toArray();
     if (screenWorld) {
       const matrix = projectNativePanel({cameraWorld: projection?.cameraWorld ?? layout.cameraWorld,
         cameraProjection: projection?.cameraProjection ?? layout.cameraProjection, screenWorld,
-        cssWidth: layout.cssWidth, cssHeight: layout.cssHeight, elementWidth: panel.offsetWidth, elementHeight: panel.offsetHeight,
+        cssWidth: layout.cssWidth, cssHeight: layout.cssHeight, elementWidth: dimensions.width, elementHeight: dimensions.height,
         screenWidth: DEVICE_LAYOUT.screen.width, screenHeight: DEVICE_LAYOUT.screen.height, screenMaxZ: 0});
       const transform = `matrix3d(${matrix.elements.join(',')})`;
       if (panel.style.transform !== transform) panel.style.transform = transform;
     }
+  };
+  const adoptPose = (next: RenderPose, projection?: RenderProjection): boolean => {
+    if (next.sequence < pose.sequence || next.resourceRevision !== pose.resourceRevision || next.sceneRevision !== pose.sceneRevision || next.motionEpoch !== pose.motionEpoch || next.lastAcceptedCommand < pose.lastAcceptedCommand || next.layoutRevision !== layout.revision) return false;
+    pose = next; query?.applyPose(next);
+    projectPanel(projection);
     stickers?.project(); carry?.project();
     return true;
   };
   const dispose = () => {
     if (disposed) return;
-    disposed = true; clearTimeout(deadline); abort.abort();carry?.dispose(); warmup?.dispose();workspace?.dispose();pack?.dispose();stickers?.dispose(); detachInput?.(); detachAuthority?.(); query?.dispose(); query = null; pixels?.dispose(); poseChannel.dispose();
+    disposed = true; clearTimeout(deadline); abort.abort();panelDimensions?.dispose();panelDimensions=null;carry?.dispose(); warmup?.dispose();workspace?.dispose();pack?.dispose();stickers?.dispose(); detachInput?.(); detachAuthority?.(); query?.dispose(); query = null; pixels?.dispose(); poseChannel.dispose();
     document.removeEventListener('visibilitychange', synchronizeVisibility);
     listeners.clear(); resources.port1.close(); resources.port2.close(); if (fonts) disposeDeviceFontAssets(fonts); fonts = null;
     // Send an ordered terminal command before the bounded hard termination. No
@@ -100,7 +109,9 @@ export function createDeviceRenderHost(input: {
   };
   const fail = (error: unknown) => { if (disposed) return; dispose(); input.onFailure(error); };
   const synchronizeVisibility = () => {
-    if (disposed || !initialized) return;
+    if (disposed) return;
+    panelDimensions?.refresh();
+    if (!initialized) return;
     const visible = document.visibilityState !== 'hidden'; visibilityRevision++;
     pixels?.update({ ...stamp, layoutRevision: layout.revision, visibilityRevision }, visible);
     poseChannel.pause(!visible);
@@ -168,6 +179,9 @@ export function createDeviceRenderHost(input: {
       canvas.setAttribute('layoutsubtree', 'true'); panel.setAttribute('drawable', ''); canvas.appendChild(panel);
       Object.assign(panel.style, { position: 'absolute', left: '0', top: '0', transformOrigin: '0 0', display: 'block', overflow: 'hidden', width: `${DEVICE_LAYOUT.screen.width / DEVICE_LAYOUT.screen.scale}px`, height: `${DEVICE_LAYOUT.screen.height / DEVICE_LAYOUT.screen.scale}px` });
       fitPanelContentToFrame(panel, DEVICE_LAYOUT.screen.width / DEVICE_LAYOUT.screen.scale, DEVICE_LAYOUT.screen.height / DEVICE_LAYOUT.screen.scale);
+      panelDimensions = observeNativePanelDimensions(panel, () => projectPanel());
+      await panelDimensions.whenReady(abort.signal);
+      if (disposed) return;
       const offscreen = canvas.transferControlToOffscreen();
       const message: DeviceRenderWorkerRequest = { ...envelope, type: 'initialize', canvas: offscreen, resources: resources.port2,
         form: input.form, materials: input.materials, lightRig: input.lightRig, isBlack: input.isBlack, fonts, layout, pose,
