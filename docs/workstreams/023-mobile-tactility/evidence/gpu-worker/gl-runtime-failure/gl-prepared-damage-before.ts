@@ -1,15 +1,15 @@
-import { equalStickerDamageInputs } from './sticker-damage-input';
-import { yieldSteps } from './sticker-computation-steps';
-import { getStickerBoundsIndex, setStickerBoundsIndex } from './sticker-bounds-index';
-import { atom, createStore, useAtomValue } from 'jotai';
-import { useLayoutEffect, useMemo } from 'react';
-import { BufferAttribute, BufferGeometry, DataTexture, NearestFilter, RedFormat, type Texture } from 'three';
-import { prepareStickerAlpha, type StickerDamageResource } from './sticker-alpha';
-import { acquireStickerTransaction, requestStickerTransaction } from './sticker-transaction-broker';
-import { commitPreparedStickerSurface, preparedStickerPlacement, preparedStickerResources, registerPreparedStickerResources, type PreparedStickerResource } from './sticker-transaction-client';
-import type { StickerDamageRequest, StickerContourRequest } from './sticker-transaction-data';
-import { setPreparedStickerContour, type PreparedStickerContour } from './sticker-contour-preparation-data';
-import { createLatestStickerPreparation } from './sticker-latest-preparation';
+import { equalStickerDamageInputs } from '../../../../../../packages/device/src/sticker-damage-input';
+import { yieldSteps } from '../../../../../../packages/device/src/sticker-computation-steps';
+import { getStickerBoundsIndex, setStickerBoundsIndex } from '../../../../../../packages/device/src/sticker-bounds-index';
+import { atom, createStore, useAtomValue } from '../../../../../../packages/device/node_modules/jotai';
+import { useLayoutEffect, useMemo } from '../../../../../../packages/device/node_modules/react';
+import { BufferAttribute, BufferGeometry, DataTexture, NearestFilter, RedFormat, type Texture } from '../../../../../../packages/device/node_modules/three/build/three.module.js';
+import { prepareStickerAlpha, type StickerDamageResource } from '../../../../../../packages/device/src/sticker-alpha';
+import { acquireStickerTransaction, requestStickerTransaction } from '../../../../../../packages/device/src/sticker-transaction-broker';
+import { commitPreparedStickerSurface, preparedStickerPlacement, preparedStickerResources, registerPreparedStickerResources, type PreparedStickerResource } from '../../../../../../packages/device/src/sticker-transaction-client';
+import type { StickerDamageRequest, StickerContourRequest } from '../../../../../../packages/device/src/sticker-transaction-data';
+import { setPreparedStickerContour, type PreparedStickerContour } from '../../../../../../packages/device/src/sticker-contour-preparation-data';
+import { createLatestStickerPreparation } from '../../../../../../packages/device/src/sticker-latest-preparation';
 const identities = new WeakMap<object, number>(); let sequence = 0;
 const identity = (value: object) => { let id = identities.get(value); if (id === undefined) { id = ++sequence; identities.set(value, id); } return id; };
 export interface PreparedPrint { readonly texture: Texture; readonly geometry: BufferGeometry; readonly damage: StickerDamageResource; readonly wear: number; release(): void }
@@ -38,19 +38,13 @@ export async function preparePrint(input: PrintInput, signal: AbortSignal, optio
   const surface = normals?.array instanceof Float32Array && uv?.array instanceof Float32Array ? { normals: normals.array, uv: uv.array } : null;
   let key = `damage:${id}:${identity(texture)}:${wearGeometry ? identity(wearGeometry) : 0}`;
   let damageInput: StickerDamageRequest = { kind: 'damage', artworkKey: String(identity(texture)), stickerId: id, mask, surface };
-  const descriptors = preparedStickerResources(geometry);
-  // A displayed source wrapper already carries the exact damage provenance.
-  // Reuse only after the same consumed-input comparison used by native owners;
-  // wrapper identity alone must not allocate another canonical damage field.
-  if ((options?.reuseDamage?.length ?? 0) > 64) throw new Error('Sticker damage reuse candidate capacity exceeded');
-  const candidates = [...new Set([...descriptors.filter(resource => resource.input.kind === 'damage'), ...(options?.reuseDamage ?? [])])];
-  if (candidates.length) {
-    if (candidates.length > 64) throw new Error('Sticker damage reuse candidate capacity exceeded');
-    for (const candidate of candidates) {
+  if (options?.reuseDamage?.length) {
+    if (options.reuseDamage.length > 64) throw new Error('Sticker damage reuse candidate capacity exceeded');
+    for (const candidate of options.reuseDamage) {
       if (candidate.input.kind === 'damage' && candidate.input.stickerId === damageInput.stickerId && candidate.input.artworkKey === damageInput.artworkKey && await yieldSteps(equalStickerDamageInputs(damageInput, candidate.input), signal)) { key = candidate.key; damageInput = candidate.input; break; }
     }
   }
-  const sources = descriptors.map(resource => acquireStickerTransaction(resource.key, resource.input));
+  const descriptors = preparedStickerResources(geometry), sources = descriptors.map(resource => acquireStickerTransaction(resource.key, resource.input));
   for (const source of sources) void source.result.catch(() => {});
   const releases: (() => void)[] = sources.map(source => source.release);
   let own: BufferGeometry | null = null, derived: DataTexture | null = null, released = false;
@@ -74,7 +68,7 @@ export async function preparePrint(input: PrintInput, signal: AbortSignal, optio
     own = borrowGeometry(geometry);
     const placement = preparedStickerPlacement(geometry); if (placement) commitPreparedStickerSurface(own, { ...placement, wear });
     if (contour) setPreparedStickerContour(own, damage.value.field, wear, contour);
-    registerPreparedStickerResources(own, descriptors.some(resource => resource.key === key) ? descriptors : [...descriptors, { key, input: damageInput }]);
+    registerPreparedStickerResources(own, [...descriptors, { key, input: damageInput }]);
     return { texture, geometry: own, damage: { id, field: damage.value.field, texture: derived }, wear, release };
   } catch (error) { release(); throw error; }
 }

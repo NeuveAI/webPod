@@ -1,14 +1,10 @@
 import assert from 'node:assert/strict';
 import {inflateSync} from 'node:zlib';
 import {GlobalRegistrator} from '../../../../../../packages/composite/node_modules/@happy-dom/global-registrator';
-import {Texture, BoxGeometry, Matrix4, PerspectiveCamera, type BufferGeometry} from '../../../../../../packages/device/node_modules/three/build/three.module.js';
-import {bindStickerWrapSurface,createStickerWrapSurface} from '../../../../../../packages/device/src/sticker-wrap';
-import {DEFAULT_DEVICE_FORM} from '../../../../../../packages/device/src/form';
-import {createCarryPreparation} from '../../../../../../packages/device/src/sticker-carry-preparation';
-import {createStickerCollision} from '../../../../../../packages/device/src/sticker-collision';
+import {Texture,    type BufferGeometry} from '../../../../../../packages/device/node_modules/three/build/three.module.js';
 import {STICKER_CATALOGUE} from '../../../../../../packages/stickers/src/catalogue';
 import {createStickerPeelGeometry} from '../../../../../../packages/device/src/sticker-surface';
-import {preparePrint,type PreparedPrint} from '../../../../../../packages/device/src/sticker-prepared-damage';
+import {preparePrint,type PreparedPrint} from './gl-prepared-damage-before';
 import {preparePackGeometry} from '../../../../../../packages/device/src/sticker-pack-resources';
 import {createStickerPackRecipe,type StickerPackNode} from '../../../../../../packages/device/src/sticker-pack-recipe';
 import {inspectStickerTransactions,releaseUnusedStickerTransactions} from '../../../../../../packages/device/src/sticker-transaction-broker';
@@ -47,23 +43,15 @@ try{
  const recipe=createStickerPackRecipe({assets:STICKER_CATALOGUE},pack,{width:231.22394283886186,height:242.78513998080496,pixel:.8116761084662326,x:0,y:0,workspaceLowering:0},true);
  const leaves:Extract<StickerPackNode,{kind:'print'}>[]=[];const visit=(nodes:readonly StickerPackNode[])=>{for(const n of nodes){if(n.kind==='group')visit(n.children);else if(n.kind==='print')leaves.push(n);}};visit(recipe.children);
  for(const leaf of leaves){phase=`packet:${leaf.id}`;const resource=await preparePackGeometry(leaf.geometry,new AbortController().signal);geometryOwners.push(resource.release);const geometry=resource.parts.geometry;assert(geometry);await print(leaf.artId,geometry);}
- const rear=new BoxGeometry(330,550,50),collision=createStickerCollision([{geometry:rear,source:'rear',kind:'surface'}]);
- rear.computeBoundingSphere();
- const unbind=bindStickerWrapSurface(rear,createStickerWrapSurface(DEFAULT_DEVICE_FORM,[]));
- const visibility={ready:true,revision:1,snapshot:()=>collision.snapshot()},runtime=createCarryPreparation(),unmount=runtime.mount();
- const camera=new PerspectiveCamera(40,440/956,1,3000);camera.position.set(0,0,-1000);camera.lookAt(0,0,0);camera.updateMatrixWorld();
- const until=async(check:()=>boolean)=>{const end=Date.now()+15000;while(!check()&&Date.now()<end)await Bun.sleep(5);assert(check(),'carry deadline');};
- let current:PreparedPrint|null=null;
- try{
-  for(const [index,peel]of [.3,.75,.35,.1].entries()){
-   phase=`carry:${index}`;const prior=runtime.getSnapshot().frame;
-   runtime.request({art:a,pack:{...pack,stickerId:a.id,peel,landing:.97,placement:{stickerId:a.id,surface:'back',x:.5,y:.5,width:.25,rotationDeg:0,wear:0},returnToSheet:false,computationEpoch:index>1?2:1},width:66,paperWidth:231.22394283886186,pixel:.8116761084662326,seatX:.5,origin:[0,-140,132],world:new Matrix4().toArray(),cameraWorld:camera.matrixWorld.toArray(),projection:camera.projectionMatrix.toArray(),viewportWidth:440,viewportHeight:956,worldPixel:1,workspaceBounds:null},rear,visibility);
-   await until(()=>runtime.getSnapshot().frame!==prior||!!runtime.getSnapshot().error);const frame=runtime.getSnapshot().frame;assert(frame);
-   const next=await preparePrint({id:a.id,texture:await textureFor(a.id),geometry:frame.geometry,wearGeometry:frame.wearGeometry,wear:0},new AbortController().signal);
-   stages.push({phase,transactions:inspectStickerTransactions()});current?.release();current=next;runtime.commit();
-  }
- }finally{current?.release();unmount();collision.dispose();unbind();rear.dispose();}
+ const sourceLeaf=leaves.find(leaf=>leaf.artId===a.id);assert(sourceLeaf);
+ const sourceResource=await preparePackGeometry(sourceLeaf.geometry,new AbortController().signal);geometryOwners.push(sourceResource.release);const raw=sourceResource.parts.geometry;assert(raw);
+ for(let index=0;index<4;index++){
+  phase=`pending-source-wrapper:${index}`;
+  const source=await preparePrint({id:a.id,texture:await textureFor(a.id),geometry:raw,wearGeometry:raw,wear:0},new AbortController().signal);
+  try{await print(a.id,source.geometry);}finally{source.release();}
+ }
+
 }catch(error){failure=error instanceof Error?error.message:String(error);stages.push({phase,failure,transactions:inspectStickerTransactions()});}
 finally{for(const owner of owners)owner.release();for(const release of geometryOwners)release();for(const texture of textures.values())texture.dispose();releaseUnusedStickerTransactions();releaseUnusedPaperPackGeometry();await Bun.sleep(30);}
-const result={carryWorkers,workerErrors,phase,failure,preparedPrints:owners.length,stages,finalTransactions:inspectStickerTransactions(),finalPaper:inspectPaperPool(),scope:'Actual GL preparePrint owners, exact catalogue alpha, authored warmup geometry and packet recipe; no mounted React/GPU or exact live timing claim'};
-await Bun.write(new URL('./gl-owner-workload.json',import.meta.url),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify({carryWorkers,workerErrors,phase,failure,prepared:owners.length,finalTransactions:result.finalTransactions}));await GlobalRegistrator.unregister();
+const result={carryWorkers,workerErrors,phase,failure,preparedPrints:owners.length,stages,finalTransactions:inspectStickerTransactions(),finalPaper:inspectPaperPool(),scope:'Actual preparePrint pending-source wrapper generations retain prior displayed candidates; exact catalogue alpha/packet, no mounted React scheduling claim'};
+await Bun.write(new URL('./gl-source-wrapper-before-workload.json',import.meta.url),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify({carryWorkers,workerErrors,phase,failure,prepared:owners.length,finalTransactions:result.finalTransactions}));await GlobalRegistrator.unregister();

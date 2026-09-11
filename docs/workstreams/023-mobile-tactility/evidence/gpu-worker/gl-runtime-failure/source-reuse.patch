@@ -1,0 +1,37 @@
+diff --git a/packages/device/src/sticker-prepared-damage.ts b/packages/device/src/sticker-prepared-damage.ts
+index 917c55f..9bea6b7 100644
+--- a/packages/device/src/sticker-prepared-damage.ts
++++ b/packages/device/src/sticker-prepared-damage.ts
+@@ -38,13 +38,19 @@ export async function preparePrint(input: PrintInput, signal: AbortSignal, optio
+   const surface = normals?.array instanceof Float32Array && uv?.array instanceof Float32Array ? { normals: normals.array, uv: uv.array } : null;
+   let key = `damage:${id}:${identity(texture)}:${wearGeometry ? identity(wearGeometry) : 0}`;
+   let damageInput: StickerDamageRequest = { kind: 'damage', artworkKey: String(identity(texture)), stickerId: id, mask, surface };
+-  if (options?.reuseDamage?.length) {
+-    if (options.reuseDamage.length > 64) throw new Error('Sticker damage reuse candidate capacity exceeded');
+-    for (const candidate of options.reuseDamage) {
++  const descriptors = preparedStickerResources(geometry);
++  // A displayed source wrapper already carries the exact damage provenance.
++  // Reuse only after the same consumed-input comparison used by native owners;
++  // wrapper identity alone must not allocate another canonical damage field.
++  if ((options?.reuseDamage?.length ?? 0) > 64) throw new Error('Sticker damage reuse candidate capacity exceeded');
++  const candidates = [...new Set([...descriptors.filter(resource => resource.input.kind === 'damage'), ...(options?.reuseDamage ?? [])])];
++  if (candidates.length) {
++    if (candidates.length > 64) throw new Error('Sticker damage reuse candidate capacity exceeded');
++    for (const candidate of candidates) {
+       if (candidate.input.kind === 'damage' && candidate.input.stickerId === damageInput.stickerId && candidate.input.artworkKey === damageInput.artworkKey && await yieldSteps(equalStickerDamageInputs(damageInput, candidate.input), signal)) { key = candidate.key; damageInput = candidate.input; break; }
+     }
+   }
+-  const descriptors = preparedStickerResources(geometry), sources = descriptors.map(resource => acquireStickerTransaction(resource.key, resource.input));
++  const sources = descriptors.map(resource => acquireStickerTransaction(resource.key, resource.input));
+   for (const source of sources) void source.result.catch(() => {});
+   const releases: (() => void)[] = sources.map(source => source.release);
+   let own: BufferGeometry | null = null, derived: DataTexture | null = null, released = false;
+@@ -68,7 +74,7 @@ export async function preparePrint(input: PrintInput, signal: AbortSignal, optio
+     own = borrowGeometry(geometry);
+     const placement = preparedStickerPlacement(geometry); if (placement) commitPreparedStickerSurface(own, { ...placement, wear });
+     if (contour) setPreparedStickerContour(own, damage.value.field, wear, contour);
+-    registerPreparedStickerResources(own, [...descriptors, { key, input: damageInput }]);
++    registerPreparedStickerResources(own, descriptors.some(resource => resource.key === key) ? descriptors : [...descriptors, { key, input: damageInput }]);
+     return { texture, geometry: own, damage: { id, field: damage.value.field, texture: derived }, wear, release };
+   } catch (error) { release(); throw error; }
+ }

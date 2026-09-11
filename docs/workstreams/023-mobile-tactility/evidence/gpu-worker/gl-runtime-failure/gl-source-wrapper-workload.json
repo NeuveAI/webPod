@@ -1,9 +1,9 @@
 {
-  "carryWorkers": 1,
+  "carryWorkers": 0,
   "workerErrors": [],
-  "phase": "carry:3",
+  "phase": "pending-source-wrapper:3",
   "failure": null,
-  "preparedPrints": 23,
+  "preparedPrints": 27,
   "stages": [
     {
       "phase": "warmup:PW-A01:earned",
@@ -305,20 +305,7 @@
       }
     },
     {
-      "phase": "carry:0",
-      "transactions": {
-        "entries": 28,
-        "queued": 0,
-        "active": null,
-        "worker": true,
-        "privateOwners": 0,
-        "pendingCopies": 0,
-        "privateBytes": 0,
-        "accountedBytes": 78100992
-      }
-    },
-    {
-      "phase": "carry:1",
+      "phase": "pending-source-wrapper:0",
       "transactions": {
         "entries": 29,
         "queued": 0,
@@ -327,11 +314,11 @@
         "privateOwners": 0,
         "pendingCopies": 0,
         "privateBytes": 0,
-        "accountedBytes": 78477716
+        "accountedBytes": 77536088
       }
     },
     {
-      "phase": "carry:2",
+      "phase": "pending-source-wrapper:1",
       "transactions": {
         "entries": 30,
         "queued": 0,
@@ -340,11 +327,11 @@
         "privateOwners": 0,
         "pendingCopies": 0,
         "privateBytes": 0,
-        "accountedBytes": 78854440
+        "accountedBytes": 77536088
       }
     },
     {
-      "phase": "carry:3",
+      "phase": "pending-source-wrapper:2",
       "transactions": {
         "entries": 31,
         "queued": 0,
@@ -353,7 +340,20 @@
         "privateOwners": 0,
         "pendingCopies": 0,
         "privateBytes": 0,
-        "accountedBytes": 79231164
+        "accountedBytes": 77536088
+      }
+    },
+    {
+      "phase": "pending-source-wrapper:3",
+      "transactions": {
+        "entries": 32,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 77536088
       }
     }
   ],
@@ -377,5 +377,5 @@
     "privateBytes": 0,
     "accountedBytes": 0
   },
-  "scope": "Actual GL preparePrint owners, exact catalogue alpha, authored warmup geometry and packet recipe; no mounted React/GPU or exact live timing claim"
+  "scope": "Actual preparePrint pending-source wrapper generations retain prior displayed candidates; exact catalogue alpha/packet, no mounted React scheduling claim"
 }

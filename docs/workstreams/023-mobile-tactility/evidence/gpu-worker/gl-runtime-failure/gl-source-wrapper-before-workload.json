@@ -1,8 +1,8 @@
 {
-  "carryWorkers": 1,
+  "carryWorkers": 0,
   "workerErrors": [],
-  "phase": "carry:3",
-  "failure": null,
+  "phase": "pending-source-wrapper:0",
+  "failure": "Sticker computation byte capacity exceeded",
   "preparedPrints": 23,
   "stages": [
     {
@@ -305,20 +305,8 @@
       }
     },
     {
-      "phase": "carry:0",
-      "transactions": {
-        "entries": 28,
-        "queued": 0,
-        "active": null,
-        "worker": true,
-        "privateOwners": 0,
-        "pendingCopies": 0,
-        "privateBytes": 0,
-        "accountedBytes": 78100992
-      }
-    },
-    {
-      "phase": "carry:1",
+      "phase": "pending-source-wrapper:0",
+      "failure": "Sticker computation byte capacity exceeded",
       "transactions": {
         "entries": 29,
         "queued": 0,
@@ -327,33 +315,7 @@
         "privateOwners": 0,
         "pendingCopies": 0,
         "privateBytes": 0,
-        "accountedBytes": 78477716
-      }
-    },
-    {
-      "phase": "carry:2",
-      "transactions": {
-        "entries": 30,
-        "queued": 0,
-        "active": null,
-        "worker": true,
-        "privateOwners": 0,
-        "pendingCopies": 0,
-        "privateBytes": 0,
-        "accountedBytes": 78854440
-      }
-    },
-    {
-      "phase": "carry:3",
-      "transactions": {
-        "entries": 31,
-        "queued": 0,
-        "active": null,
-        "worker": true,
-        "privateOwners": 0,
-        "pendingCopies": 0,
-        "privateBytes": 0,
-        "accountedBytes": 79231164
+        "accountedBytes": 82787936
       }
     }
   ],
@@ -377,5 +339,5 @@
     "privateBytes": 0,
     "accountedBytes": 0
   },
-  "scope": "Actual GL preparePrint owners, exact catalogue alpha, authored warmup geometry and packet recipe; no mounted React/GPU or exact live timing claim"
+  "scope": "Actual preparePrint pending-source wrapper generations retain prior displayed candidates; exact catalogue alpha/packet, no mounted React scheduling claim"
 }
