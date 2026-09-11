@@ -1,0 +1,150 @@
+[
+  {
+    "profile": "post-guard",
+    "durationMs": 7424.525,
+    "inclusiveMs": {
+      "StickerAppearanceEditor": 347.992,
+      "projectPreparedContour": 215.411,
+      "castSegment": 202.791,
+      "stickerProjectedQuad": 524.319,
+      "StickerCollection": 926.671,
+      "chooseHudLayout": 20.63
+    },
+    "selfTop": [
+      [
+        "(idle)",
+        2267.408
+      ],
+      [
+        "(program)",
+        1738.244
+      ],
+      [
+        "exports.jsxDEV",
+        339.181
+      ],
+      [
+        "createTask",
+        255.623
+      ],
+      [
+        "run",
+        203.89
+      ],
+      [
+        "stickerProjectedQuad",
+        193.17
+      ],
+      [
+        "(garbage collector)",
+        144.697
+      ],
+      [
+        "sample",
+        125.664
+      ],
+      [
+        "getX",
+        123.913
+      ],
+      [
+        "fromArray",
+        93.948
+      ],
+      [
+        "get offsetWidth",
+        81.493
+      ],
+      [
+        "",
+        81.147
+      ],
+      [
+        "getY",
+        62.807
+      ],
+      [
+        "castSegment",
+        60.921
+      ],
+      [
+        "postMessage",
+        59.771
+      ]
+    ]
+  },
+  {
+    "profile": "post-cache",
+    "durationMs": 7013.628,
+    "inclusiveMs": {
+      "StickerAppearanceEditor": 353.484,
+      "projectPreparedContour": 230.888,
+      "castSegment": 217.294,
+      "stickerProjectedQuad": 69.14,
+      "StickerCollection": 636.122,
+      "chooseHudLayout": 11.772
+    },
+    "selfTop": [
+      [
+        "(idle)",
+        2295.131
+      ],
+      [
+        "(program)",
+        1316.149
+      ],
+      [
+        "exports.jsxDEV",
+        526.797
+      ],
+      [
+        "createTask",
+        277.391
+      ],
+      [
+        "run",
+        193.994
+      ],
+      [
+        "",
+        108.583
+      ],
+      [
+        "fromArray",
+        83.737
+      ],
+      [
+        "multiplyMatrices",
+        81.73
+      ],
+      [
+        "postMessage",
+        79.105
+      ],
+      [
+        "(garbage collector)",
+        72.122
+      ],
+      [
+        "useAtomValue",
+        65.671
+      ],
+      [
+        "get offsetWidth",
+        63.073
+      ],
+      [
+        "prepareFreshStack",
+        51.276
+      ],
+      [
+        "castSegment",
+        49.779
+      ],
+      [
+        "send",
+        48.617
+      ]
+    ]
+  }
+]
