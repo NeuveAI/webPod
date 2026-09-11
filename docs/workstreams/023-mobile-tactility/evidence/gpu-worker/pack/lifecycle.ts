@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import { acquirePaperPackGeometry,acquirePrivatePaperPackGeometry,releaseUnusedPaperPackGeometry,inspectPaperPool,createPaperWorker } from '../../../../../../packages/device/src/sticker-paper-pool';
+import { stickerPackGeometryBuffers,prepareStickerPackGeometry,type StickerPackGeometryData } from '../../../../../../packages/device/src/sticker-pack-resource-data';
+import { drainSteps } from '../../../../../../packages/device/src/sticker-computation-steps';
+import type { StickerPackGeometryInput } from '../../../../../../packages/device/src/sticker-pack-recipe';
+const input:StickerPackGeometryInput={kind:'gpu-paper',width:300,height:420,pixel:1,liner:true};
+const first=acquirePaperPackGeometry(input),second=acquirePaperPackGeometry(input);assert.equal(first.result,second.result);
+const value=await first.result;assert.deepEqual(value,drainSteps(prepareStickerPackGeometry(input)));
+const bytes=stickerPackGeometryBuffers(value).map(buffer=>buffer.byteLength);
+// Dynamic stock and immutable leaves really share the same queue/worker.
+const client=createPaperWorker();const dynamic=new Promise<void>((resolve,reject)=>{client.onmessage=event=>event.data.stock?resolve():reject(Error(event.data.error));client.onerror=()=>reject(Error('dynamic failure'));});
+client.postMessage({id:1,input:{width:300,height:420,pixel:1,liner:true,curl:.4}});await dynamic;client.terminate();
+assert.equal(inspectPaperPool().worker,true);
+const abandoned=acquirePaperPackGeometry({...input,width:301});const cancelled=assert.rejects(abandoned.result);abandoned.release();await cancelled;assert.equal(inspectPaperPool().worker,true);
+const earlyChannel=new MessageChannel(),earlyAbort=new AbortController();earlyAbort.abort();await assert.rejects(acquirePrivatePaperPackGeometry(input,earlyChannel.port1,earlyAbort.signal));earlyChannel.port2.close();assert.equal(inspectPaperPool().worker,true);
+const channel=new MessageChannel();const received=new Promise<{version:number;id:number;value:StickerPackGeometryData}>(resolve=>{channel.port2.onmessage=event=>resolve(event.data);});
+const lease=await acquirePrivatePaperPackGeometry(input,channel.port1,new AbortController().signal);const payload=await received;
+assert.equal(payload.version,1);assert.equal(payload.id,lease.resourceId);assert.deepEqual(payload.value,value);
+structuredClone(payload.value,{transfer:stickerPackGeometryBuffers(payload.value)});assert.deepEqual(stickerPackGeometryBuffers(value).map(buffer=>buffer.byteLength),bytes);
+assert.equal(inspectPaperPool().privateBytes,bytes.reduce((a,b)=>a+b,0));lease.release();lease.release();channel.port2.close();
+assert.equal(inspectPaperPool().privateOwners,0);first.release();assert.equal(inspectPaperPool().worker,true);second.release();releaseUnusedPaperPackGeometry();assert.deepEqual(inspectPaperPool(),{clients:0,entries:0,queued:0,active:null,worker:false,privateOwners:0,privateBytes:0,accountedBytes:0});
+const originalWorker=globalThis.Worker;
+Object.defineProperty(globalThis,'Worker',{value:undefined,configurable:true,writable:true});
+const fallback=acquirePaperPackGeometry({kind:'sleeve',width:300,height:420,pixel:1});assert.deepEqual(await fallback.result,drainSteps(prepareStickerPackGeometry({kind:'sleeve',width:300,height:420,pixel:1})));
+const failedChannel=new MessageChannel();await assert.rejects(acquirePrivatePaperPackGeometry({kind:'sleeve',width:300,height:420,pixel:1},failedChannel.port1,new AbortController().signal),/Canonical/);failedChannel.port2.close();fallback.release();releaseUnusedPaperPackGeometry();Object.defineProperty(globalThis,'Worker',{value:originalWorker,configurable:true,writable:true});
+assert.equal(inspectPaperPool().accountedBytes,0);
+console.log(JSON.stringify({sharedJobIdentity:true,exactNativeAndCooperative:true,sameProducerDynamicPaper:true,cancelledOwnerPreservesCanonical:true,privateTransferExact:true,mountedBuffersNeverDetach:true,alreadyAbortedPrivateOwnerCleansUp:true,privateByteOwnership:true,idempotentRelease:true,finalAccountingZero:true,lostCanonicalRejectsWithoutRecomputation:true,scope:'Actual Bun Worker and MessagePort lifecycle; no browser or GPU performance claim.'},null,2));

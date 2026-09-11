@@ -1,7 +1,5 @@
-import { createStickerPackRecipe, stickerPackPaperMaterials, stickerPackSleeveMaterials, stickerPackSleeveParts, STICKER_PACK_PHYSICAL, type StickerPackNode } from './sticker-pack-recipe';
-import { usePackGeometry, bindPackPaperBounds } from './sticker-pack-resources';
 import { preparedStickerContourWear } from './sticker-contour-preparation-data';
-import { installGpuPaperMaterial } from './sticker-paper-gpu';
+import { createGpuPaperGeometry, installGpuPaperMaterial, sampleGpuPaperBounds } from './sticker-paper-gpu';
 import { createGpuPaperMaterialPreparation, useGpuPaperReady } from './sticker-paper-gpu-support';
 import { createCarryPreparation } from './sticker-carry-preparation';
 import { usePreparedStickerPaper } from './sticker-paper-preparation';
@@ -16,10 +14,11 @@ import { stickerWrapSurface } from './sticker-wrap';
 import { projectedStickerContour } from './sticker-contour';
 import { useThree } from '@react-three/fiber';
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSyncExternalStore, type RefObject } from 'react';
-import { Box3, MeshPhysicalMaterial, MeshStandardMaterial, Group, Mesh, Raycaster, Vector2, Vector3 } from 'three';
+import { Box3, MeshPhysicalMaterial, MeshStandardMaterial, BackSide, DoubleSide, FrontSide, Group, Mesh, Raycaster, Vector2, Vector3 } from 'three';
 import { DeviceCanvasOrientationContext } from './DeviceCanvas';
 import { useContext } from 'react';
-import { STICKER_PACK_LAYOUT, isStickerCarried, stickerPackViewportLayout, STICKER_SHEET_SLOTS, STICKER_SHEET_PRINT_WIDTH, type StickerRearProjection, type DeviceStickerScene, type StickerArtwork, type StickerPackVisual } from './sticker-contract';
+import { stickerPackPresentation, STICKER_PACK_MOTION, STICKER_PACK_LAYOUT, isStickerCarried, stickerPackViewportLayout, STICKER_SHEET_SLOTS, STICKER_SHEET_PRINT_WIDTH, type StickerRearProjection, type DeviceStickerScene, type StickerArtwork, type StickerPackVisual } from './sticker-contract';
+import { STICKER_PACK_MATERIAL } from './materials';
 import { createStickerPeelGeometry, stickerVisibleAspect } from './sticker-surface';
 import { createStickerRoughness, useStickerTexture, useStickerPreparationEpoch } from './sticker-textures';
 import { StickerPrint } from './StickerSurface';
@@ -31,6 +30,8 @@ import { intersectStickerPrint, prepareStickerAlpha } from './sticker-hit';
 import { prepareStickerPrograms } from './sticker-program-preparation';
 import { DEVICE_LAYOUT } from './layout';
 import { isDeviceOuterGrabPoint } from './orientation-grab';
+import { createStickerSleeveGeometry, SLEEVE_LAMINATE } from './sticker-sleeve';
+import { conformStickerToPaper, stickerPaperCurlProgress } from './sticker-paper';
 
 /* ANIMATION STORYBOARD
  *    0ms   rear reveal exposes the bottom 32px of sealed laminate
@@ -42,7 +43,8 @@ import { isDeviceOuterGrabPoint } from './orientation-grab';
 const EMPTY_SUBSCRIBE = () => () => {};
 const EMPTY_SNAPSHOT = () => 0;
 const CARRY_FRAME = Object.freeze({ stiffness: 240, damping: 30, maxStepSeconds: .032, tolerancePx: .15, maxSettleMs: 1800 });
-const PACK = STICKER_PACK_PHYSICAL;
+const PARKED_STICKER_SEGMENTS = 24;
+const PACK = Object.freeze({ depth: 130, returnClearancePx: 20, returnCurl: .35, linerClearcoat: .55, linerRoughness: .38, linerCoatRoughness: .23 });
 
 /** Existing camera/light rig; no second canvas, renderer, or animation scheduler. */
 export function StickerPackScene({ scene }: { readonly scene: DeviceStickerScene }) {
@@ -293,6 +295,7 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
     ? height * STICKER_PACK_LAYOUT.linerTravel * Math.max(0, Math.min(1, pack.workspaceLowering ?? 0)) : 0;
   const sheet = pack.sheet;
   const reveal = sheet?.reveal ?? 0;
+  const presentation = stickerPackPresentation(progress, reveal, pack.turn);
   const linerTravel = height * STICKER_PACK_LAYOUT.linerTravel * reveal;
   const art = stickerScene.assets.find((item) => item.id === pack.stickerId);
   const slots = sheet?.slots ?? [];
@@ -300,21 +303,33 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
   const seat = STICKER_SHEET_SLOTS[slotIndex] ?? (pack.sourcePlacement == null ? undefined : { x: .5, y: .5 });
   const printWidth = width * STICKER_SHEET_PRINT_WIDTH;
   const offset = pack.dragOffset;
-  const recipe = createStickerPackRecipe(stickerScene, pack, {width,height,pixel,x,y,workspaceLowering}, stickerScene.pack !== null);
-  return <group ref={packRoot} visible={recipe.visible} name={recipe.name}>
-    {recipe.kind === 'group' ? recipe.children.map(node => <PackRecipeNode key={node.id} node={node} roughness={roughness} stickerScene={stickerScene} />) : null}
+  return <group ref={packRoot} visible={stickerScene.pack !== null} name="sticker-pack-scene">
+    <group visible={pack.workspaceVisible !== false} position={[x, y - workspaceLowering - (pack.tuck ?? 0) * ((height - STICKER_PACK_LAYOUT.teasePx * pixel) * progress + linerTravel), PACK.depth]} rotation={[0, -presentation.turnRadians, 0]} name="sticker-pack-wrapper">
+      {(sheet?.neighbors ?? []).slice(0, 2).map((neighbor, index) => <group key={neighbor.stickerId} position={[(index === 0 ? -1 : 1) * pixel * (8 + presentation.fan * STICKER_PACK_MOTION.fanSpread), pixel * 10, -pixel * (8 + index)]} rotation={[0, 0, (index === 0 ? 1 : -1) * (.055 + presentation.fan * STICKER_PACK_MOTION.fanAngle)]}>
+        <PackPaper epoch={pack.computationEpoch ?? 0} width={width} height={height} pixel={pixel} ink={neighbor.ink} roughness={roughness} />
+        <group position={[0, 0, pixel * 2]}><CoverPrint stickerId={neighbor.stickerId} width={width * .58} pixel={pixel} roughness={roughness} stickerScene={stickerScene} /></group>
+      </group>)}
+      <group position={[0, linerTravel, pixel * 2]}>
+        <PackPaper epoch={pack.computationEpoch ?? 0} width={width} height={height} pixel={pixel} ink="#e9e2d1" roughness={roughness} liner curlProgress={stickerPaperCurlProgress(width, height, pixel, linerTravel)} />
+      <group visible={reveal > .02}>{slots.map((slot, index) => {
+        const slotArt = stickerScene.assets.find((item) => item.id === slot.stickerId);
+        const position = STICKER_SHEET_SLOTS[index];
+        if (slotArt === undefined || position === undefined) return null;
+        const peeling = isStickerCarried(pack, slot.stickerId);
+        return <group key={slot.stickerId} position={[(position.x - .5) * width, (.5 - position.y) * height, pixel * (5 * (1 - (position.x * 2 - 1) ** 2) + .8)]}>
+          <SheetPrint bow={{ pixel, paperWidth: width, seatX: position.x }} art={slotArt} width={Math.min(printWidth, height * .21 / stickerVisibleAspect(slotArt))} appearance={peeling || slot.state === 'placed' ? 'placed' : slot.state === 'locked' || slot.state === 'sealed' ? 'locked' : 'earned'} roughness={roughness} stickerScene={stickerScene} />
+        </group>;
+      })}</group>
+      </group>
+      <group position={[0, 0, pixel * 8]}>
+        <SleevePocket width={width + pixel * 4} height={height} pixel={pixel} ink={sheet?.ink ?? '#b7aa86'} roughness={roughness} />
+        {slots[0] === undefined ? null : <CoverPrint stickerId={slots[0].stickerId} width={width * .58} pixel={pixel} roughness={roughness} stickerScene={stickerScene} />}
+      </group>
+    </group>
     {art === undefined || seat === undefined || (pack.peel === 0 && pack.placement === null && pack.dragOffset == null && pack.sourcePlacement == null) ? null : <PeelingPrint paperWidth={width} pixel={pixel} seatX={seat.x} art={art} pack={pack} width={Math.min(printWidth, height * .21 / stickerVisibleAspect(art))}
       origin={new Vector3(x + (seat.x - .5) * width + (offset?.x ?? 0) * pixel, y + linerTravel + (.5 - seat.y) * height - (offset?.y ?? 0) * pixel, PACK.depth + pixel * (2 + 5 * (1 - (seat.x * 2 - 1) ** 2) + .8))}
       stickerScene={stickerScene} roughness={roughness} carryCollision={visibility} />}
   </group>;
-}
-/** Both render backends consume the same tree; callbacks remain on main. */
-function PackRecipeNode({node,roughness,stickerScene}:{readonly node:StickerPackNode;readonly roughness:ReturnType<typeof createStickerRoughness>;readonly stickerScene:DeviceStickerScene}) {
-  if(node.kind==='group')return <group name={node.name} position={node.position} rotation={node.rotation} visible={node.visible}>{node.children.map(child=><PackRecipeNode key={child.id} node={child} roughness={roughness} stickerScene={stickerScene}/>)}</group>;
-  if(node.kind==='paper')return <PackPaper {...node.size} epoch={node.epoch} ink={node.ink} liner={node.liner} curlProgress={node.curl} roughness={roughness}/>;
-  if(node.kind==='sleeve')return <SleevePocket {...node.size} ink={node.ink} roughness={roughness}/>;
-  const art=stickerScene.assets.find(asset=>asset.id===node.artId);
-  return art?<SheetPrint art={art} width={node.width} bow={node.bow} appearance={node.appearance} roughness={roughness} stickerScene={stickerScene}/>:null;
 }
 /** Release stock bows and curls at its unprinted top corner; the printed sleeve is stiffer. */
 const PackPaper = memo(function PackPaper(props: Parameters<typeof CpuPackPaper>[0]) {
@@ -323,32 +338,32 @@ const PackPaper = memo(function PackPaper(props: Parameters<typeof CpuPackPaper>
   return ready ? <GpuPackPaper {...props} /> : <CpuPackPaper {...props} />;
 });
 const GpuPackPaper = memo(function GpuPackPaper({ width, height, pixel, ink, roughness, liner = false, curlProgress = 1, epoch }: { readonly epoch: number; readonly width: number; readonly height: number; readonly pixel: number; readonly ink: string; readonly roughness: ReturnType<typeof createStickerRoughness>; readonly liner?: boolean; readonly curlProgress?: number }) {
-  const prepared = usePackGeometry({kind:'gpu-paper',width,height,pixel,liner});
-  const stock = useMemo(() => {
-    const parts = prepared?.parts;
-    return parts?.front && parts.back && parts.edge ? {front:parts.front,back:parts.back,edge:parts.edge} : null;
-  }, [prepared]);
-  if (!stock) return <CpuPackPaper width={width} height={height} pixel={pixel} ink={ink} roughness={roughness} liner={liner} curlProgress={curlProgress} epoch={epoch} />;
-  return <PreparedGpuPackPaper width={width} height={height} pixel={pixel} ink={ink} roughness={roughness} liner={liner} curlProgress={curlProgress} epoch={epoch} stock={stock} />;
-});
-const PreparedGpuPackPaper = memo(function PreparedGpuPackPaper({ width, height, pixel, ink, roughness, liner = false, curlProgress = 1, epoch, stock }: Parameters<typeof CpuPackPaper>[0] & {readonly stock: {readonly front: import('three').BufferGeometry;readonly back: import('three').BufferGeometry;readonly edge: import('three').BufferGeometry}}) {
+  void epoch;
   const studio = useStudioEnvironmentSnapshot(), invalidate = useThree(state => state.invalidate);
   const { gl, camera, scene } = useThree();
   const curl = useMemo(() => { const uniform = { value: 0 }; return { uniform, set(value: number) { uniform.value = value; } }; }, []);
   const input = useMemo(() => ({ width, height, pixel, liner }), [width, height, pixel, liner]);
-  useLayoutEffect(() => bindPackPaperBounds(stock, input, curl.uniform), [input, curl, stock]);
+  const stock = useMemo(() => {
+    const result = createGpuPaperGeometry(input);
+    let sampledCurl = NaN, sampled: ReturnType<typeof sampleGpuPaperBounds> | null = null;
+    for (const part of ['front', 'back', 'edge'] as const) result[part].computeBoundingBox = () => {
+      if (sampled === null || sampledCurl !== curl.uniform.value) { sampled = sampleGpuPaperBounds(input, curl.uniform.value); sampledCurl = curl.uniform.value; }
+      result[part].boundingBox = sampled[part].clone();
+    };
+    return result;
+  }, [input, curl]);
   const materials = useMemo(() => {
-    const recipe = stickerPackPaperMaterials({width,height,pixel}, ink, liner);
-    const back = new MeshStandardMaterial(recipe.back);
-    const edge = new MeshStandardMaterial(recipe.edge);
-    const front = new MeshPhysicalMaterial({ ...recipe.front, roughnessMap: roughness, bumpMap: roughness, envMap: studio.texture });
+    const back = new MeshStandardMaterial({ color: liner ? '#c4bba8' : '#b8a88d', roughness: .94, side: BackSide });
+    const edge = new MeshStandardMaterial({ color: liner ? '#b6aa92' : '#aa9574', roughness: .96, side: DoubleSide });
+    const front = new MeshPhysicalMaterial({ ...STICKER_PACK_MATERIAL, color: ink, roughnessMap: roughness, bumpMap: roughness, bumpScale: pixel * .2, roughness: liner ? PACK.linerRoughness : SLEEVE_LAMINATE.roughness, clearcoat: liner ? PACK.linerClearcoat : SLEEVE_LAMINATE.clearcoat, clearcoatRoughness: liner ? PACK.linerCoatRoughness : SLEEVE_LAMINATE.clearcoatRoughness, envMap: studio.texture, side: FrontSide });
     for (const material of [front, back, edge]) installGpuPaperMaterial(material, input, curl.uniform, material === edge);
     return { front, back, edge };
-  }, [input, curl, ink, liner, pixel, width, height, roughness, studio.texture]);
+  }, [input, curl, ink, liner, pixel, roughness, studio.texture]);
   const preparation = useMemo(() => createGpuPaperMaterialPreparation(gl, () => { const root = new Group(); for (const part of ['front', 'back', 'edge'] as const) root.add(new Mesh(stock[part], materials[part])); return { root, materials: Object.values(materials) }; }, camera, scene), [gl, stock, materials, camera, scene]);
   const linked = useSyncExternalStore(preparation.subscribe, preparation.getSnapshot, () => false);
   useEffect(() => preparation.mount(), [preparation]);
   useLayoutEffect(() => { curl.set(curlProgress); for (const geometry of Object.values(stock)) geometry.boundingBox = null; invalidate(); }, [curl, curlProgress, stock, invalidate]);
+  useEffect(() => () => { for (const geometry of Object.values(stock)) geometry.dispose(); }, [stock]);
   useEffect(() => () => { for (const material of Object.values(materials)) material.dispose(); }, [materials]);
   if (!linked) return <CpuPackPaper width={width} height={height} pixel={pixel} ink={ink} roughness={roughness} liner={liner} curlProgress={curlProgress} epoch={epoch} />;
   return <group name={liner ? 'release-liner-stock' : 'printed-sleeve-stock'}>{(['back', 'edge', 'front'] as const).map(part => <mesh key={part} geometry={stock[part]} material={materials[part]} raycast={() => {}} />)}</group>;
@@ -357,28 +372,39 @@ const CpuPackPaper = memo(function CpuPackPaper({ width, height, pixel, ink, rou
   const studio = useStudioEnvironmentSnapshot();
   const { stock } = usePreparedStickerPaper(width, height, pixel, liner, curlProgress, epoch);
   if (stock === null) return null;
-  const recipe = stickerPackPaperMaterials({width,height,pixel}, ink, liner);
   return <group name={liner ? "release-liner-stock" : "printed-sleeve-stock"}>
-    <mesh geometry={stock.back} raycast={() => {}}><meshStandardMaterial {...recipe.back} /></mesh>
-    <mesh geometry={stock.edge} raycast={() => {}}><meshStandardMaterial {...recipe.edge} /></mesh>
-    <mesh geometry={stock.front} raycast={() => {}}><meshPhysicalMaterial {...recipe.front} roughnessMap={roughness} bumpMap={roughness} envMap={studio.texture} /></mesh>
+    <mesh geometry={stock.back} raycast={() => {}}><meshStandardMaterial color={liner ? '#c4bba8' : '#b8a88d'} roughness={.94} side={BackSide} /></mesh>
+    <mesh geometry={stock.edge} raycast={() => {}}><meshStandardMaterial color={liner ? '#b6aa92' : '#aa9574'} roughness={.96} side={DoubleSide} /></mesh>
+    <mesh geometry={stock.front} raycast={() => {}}><meshPhysicalMaterial {...STICKER_PACK_MATERIAL} color={ink} roughnessMap={roughness} bumpMap={roughness} bumpScale={pixel * .2} roughness={liner ? PACK.linerRoughness : SLEEVE_LAMINATE.roughness} clearcoat={liner ? PACK.linerClearcoat : SLEEVE_LAMINATE.clearcoat} clearcoatRoughness={liner ? PACK.linerCoatRoughness : SLEEVE_LAMINATE.clearcoatRoughness} envMap={studio.texture} side={FrontSide} /></mesh>
   </group>;
 });
 /** Folded/glued paper pocket; the thumb notch and fold thickness identify the sleeve. */
 const SleevePocket = memo(function SleevePocket({ width, height, pixel, ink, roughness }: { readonly width: number; readonly height: number; readonly pixel: number; readonly ink: string; readonly roughness: ReturnType<typeof createStickerRoughness> }) {
-  return <group>{stickerPackSleeveParts({width,height,pixel}).map(part=><SleevePart key={part.id} part={part} pixel={pixel} ink={ink} roughness={roughness}/>)}</group>;
+  const studio = useStudioEnvironmentSnapshot();
+  const geometry = useMemo(() => createStickerSleeveGeometry(width, height, pixel), [width, height, pixel]);
+  const exterior = { ...SLEEVE_LAMINATE, color: ink, envMap: studio.texture, roughnessMap: roughness, bumpMap: roughness, bumpScale: pixel * .2 };
+  useEffect(() => () => geometry.dispose(), [geometry]);
+  return <group>
+    <mesh geometry={geometry} raycast={() => {}}>
+      <meshPhysicalMaterial attach="material-0" {...exterior} />
+      <meshStandardMaterial attach="material-1" color="#bca787" roughness={.94} />
+      <meshStandardMaterial attach="material-2" color="#b8a88d" roughness={.94} />
+    </mesh>
+    {[-1, 1].map((side) => <mesh key={side} position={[side * (width / 2 - pixel * 4), 0, pixel * 1.05]} rotation={[0, side * .045, 0]} raycast={() => {}}><planeGeometry args={[pixel * 7, height - pixel * 2]} /><meshPhysicalMaterial {...exterior} /></mesh>)}
+    <mesh position={[0, -height / 2 + pixel * 3, pixel * 1.05]} rotation={[.06, 0, 0]} raycast={() => {}}><planeGeometry args={[width - pixel * 2, pixel * 5]} /><meshPhysicalMaterial {...exterior} /></mesh>
+  </group>;
 });
-function SleevePart({part,pixel,ink,roughness}:{readonly part:ReturnType<typeof stickerPackSleeveParts>[number];readonly pixel:number;readonly ink:string;readonly roughness:ReturnType<typeof createStickerRoughness>}) {
-  const studio=useStudioEnvironmentSnapshot(), prepared=usePackGeometry(part.geometry), geometry=prepared?.parts.geometry;
-  const recipe=stickerPackSleeveMaterials(pixel,ink);
-  const exterior={...recipe.exterior,envMap:studio.texture,roughnessMap:roughness,bumpMap:roughness};
-  if(!geometry)return null;
-  return <mesh geometry={geometry} position={part.position} rotation={part.rotation} raycast={()=>{}}>{part.material==='pocket'?<><meshPhysicalMaterial attach="material-0" {...exterior}/><meshStandardMaterial attach="material-1" {...recipe.cut}/><meshStandardMaterial attach="material-2" {...recipe.interior}/></>:<meshPhysicalMaterial {...exterior}/>}</mesh>;
-}
 function SheetPrint({ art, width, appearance, roughness, stickerScene, bow }: { readonly art: StickerArtwork; readonly width: number; readonly appearance: 'earned' | 'locked' | 'placed'; readonly roughness: ReturnType<typeof createStickerRoughness>; readonly stickerScene: DeviceStickerScene; readonly bow?: { pixel: number; paperWidth: number; seatX: number } }) {
-  const prepared=usePackGeometry({kind:'parked-print',art,width,...(bow?{bow}:{})}), geometry=prepared?.parts.geometry;
-  if(!geometry)return null;
+  const paperPixel = bow?.pixel ?? 0, paperWidth = bow?.paperWidth ?? 1, seatX = bow?.seatX ?? .5;
+  const geometry = useMemo(() => {
+    return conformStickerToPaper(createStickerPeelGeometry(art, width, 0, PARKED_STICKER_SEGMENTS), paperWidth, paperPixel, seatX);
+  }, [art, width, paperPixel, paperWidth, seatX]);
+  useEffect(() => () => geometry.dispose(), [geometry]);
   return <StickerPrint computationEpoch={stickerScene.pack?.computationEpoch} art={art} geometry={geometry} roughness={roughness} wear={stickerScene.appearances?.find((entry) => entry.stickerId === art.id)?.wear ?? 0} appearance={appearance} finishEnabled={stickerScene.finishEnabled !== false} onError={stickerScene.onArtworkError} onReady={stickerScene.onArtworkReady} />;
+}
+function CoverPrint({ stickerId, width, pixel, roughness, stickerScene }: { readonly stickerId: string; readonly width: number; readonly pixel: number; readonly roughness: ReturnType<typeof createStickerRoughness>; readonly stickerScene: DeviceStickerScene }) {
+  const art = stickerScene.assets.find((asset) => asset.id === stickerId);
+  return art === undefined ? null : <group position={[0, -width * .04, pixel * 4]}><SheetPrint art={art} width={width} appearance="earned" roughness={roughness} stickerScene={stickerScene} /></group>;
 }
 
 function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paperWidth, pixel, seatX, carryCollision }: {
