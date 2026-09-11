@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {mock} from 'bun:test';
+import {CanvasTexture,SRGBColorSpace,RepeatWrapping,NearestFilter} from '../../../../../../packages/device/node_modules/three/build/three.module.js';
+import {DEFAULT_DEVICE_MATERIALS} from '../../../../../../packages/device/src/materials';
+let textureDisposals=0,closed=0,calls=0,failAt=0,abortAt=0;
+let controller=new AbortController();const options:ImageBitmapOptions[]=[];
+class Bitmap {readonly width=1024;readonly height=1024;close(){closed++;}}
+const makeTexture=()=>{const value=new CanvasTexture(null);value.colorSpace=SRGBColorSpace;value.wrapS=RepeatWrapping;value.minFilter=NearestFilter;value.anisotropy=8;value.addEventListener('dispose',()=>textureDisposals++);return value;};
+mock.module('../../../../../../packages/device/src/textures',()=>({createWheelLabelMap:makeTexture}));
+mock.module('../../../../../../packages/device/src/backplate-finish',()=>({createBackplateFinishMaps:()=>{const roughnessMap=makeTexture(),bumpMap=makeTexture();return {roughnessMap,bumpMap,dispose(){roughnessMap.dispose();bumpMap.dispose();}};}}));
+Object.defineProperty(globalThis,'createImageBitmap',{configurable:true,value:async(_source:unknown,input:ImageBitmapOptions)=>{calls++;options.push(input);if(calls===failAt)throw new Error('capture failed');if(calls===abortAt)controller.abort();return new Bitmap();}});
+const {captureDeviceFontAssets,disposeDeviceFontAssets,restoreDeviceFontTexture}=await import('../../../../../../packages/device/src/device-font-assets');
+const assets=await captureDeviceFontAssets(true,DEFAULT_DEVICE_MATERIALS,new Uint8ClampedArray(),controller.signal);
+assert.equal(textureDisposals,3);assert.equal(closed,0);assert.equal(calls,3);
+const texture=restoreDeviceFontTexture(assets.label);assert.equal(texture.colorSpace,SRGBColorSpace);assert.equal(texture.wrapS,RepeatWrapping);assert.equal(texture.minFilter,NearestFilter);assert.equal(texture.anisotropy,8);assert.equal(texture.flipY,false);assert.equal(texture.premultiplyAlpha,false);texture.dispose();disposeDeviceFontAssets(assets);assert.equal(closed,3);
+failAt=5;await assert.rejects(captureDeviceFontAssets(false,DEFAULT_DEVICE_MATERIALS,new Uint8ClampedArray(),controller.signal),/capture failed/);assert.equal(closed,4);assert.equal(textureDisposals,6);
+failAt=0;abortAt=6;await assert.rejects(captureDeviceFontAssets(false,DEFAULT_DEVICE_MATERIALS,new Uint8ClampedArray(),controller.signal),{name:'AbortError'});assert.equal(closed,5);assert.equal(textureDisposals,9);
+controller=new AbortController();controller.abort();await assert.rejects(captureDeviceFontAssets(false,DEFAULT_DEVICE_MATERIALS,new Uint8ClampedArray(),controller.signal),{name:'AbortError'});assert.equal(calls,6);assert.equal(textureDisposals,12);
+assert.ok(options.every(value=>value.imageOrientation==='flipY'&&value.premultiplyAlpha==='none'&&value.colorSpaceConversion==='none'));
+await Bun.write(new URL('./reviewer-fonts.json',import.meta.url),JSON.stringify({captureCalls:calls,textureDisposals,closed,success:true,partialFailure:true,lateAbort:true,alreadyAborted:true,samplerMetadata:true,pixelParity:'not measured; controlled raster/bitmap boundary'},null,2)+'\n');
