@@ -1,3 +1,4 @@
+import type { RenderPose } from '../../device/src/device-render-protocol';
 import { createStickerProjection } from '../../device/src/sticker-projection';
 import { createStickerVisibility } from '../../device/src/sticker-visibility';
 import type { RenderLayout } from '../../device/src/device-render-protocol';
@@ -17,7 +18,7 @@ type Frame = Awaited<ReturnType<typeof prepareNativeEquippedFrame>>;
  * keep their private leases until the worker confirms replacement or retires.
  * A source epoch cancels admission, never a GPU compile already in progress. */
 export function createNativeStickerController(input: {
-  readonly canvas:HTMLCanvasElement;readonly layout:()=>RenderLayout;
+  readonly canvas:HTMLCanvasElement;readonly layout:()=>RenderLayout;readonly readPose:()=>RenderPose;
   readonly form: DeviceFormParams; readonly query: ReturnType<typeof createDeviceQueryView>;
   readonly sendEpoch: (epoch: number) => void;
   readonly sendFrame: (frame: NativeEquippedFrameMessage, transfer: Transferable[]) => void;
@@ -32,7 +33,7 @@ export function createNativeStickerController(input: {
   const synchronizeProjection = () => {
     const layout = input.layout();camera.matrixAutoUpdate=false;camera.matrix.fromArray(layout.cameraWorld);camera.matrixWorld.fromArray(layout.cameraWorld);camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
     camera.projectionMatrix.fromArray(layout.cameraProjection);camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();
-    if (!projection && latest) projection=createStickerProjection({scene:input.query.scene,camera,canvas:input.canvas,readScene:()=>{if (!latest) throw new Error('Sticker scene retired');return latest;},visibility});
+    if (!projection && latest) projection=createStickerProjection({scene:input.query.scene,camera,canvas:input.canvas,readPose:input.readPose,readScene:()=>{if (!latest) throw new Error('Sticker scene retired');return latest;},visibility});
     if (projection) latest?.onProjectionReady?.(projection.handle);
   };
   const unsubscribeVisibility = visibility.subscribe(synchronizeProjection);

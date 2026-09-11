@@ -147,7 +147,7 @@ export function createDeviceRenderHost(input: {
         detachAuthority ??= input.authority?.attach(binding) ?? null;
         if (!query) throw new Error('Native query resources were not prepared');
         detachInput = input.onReady(binding, query);
-        stickers = createNativeStickerController({canvas,layout:()=>layout,form:input.form,query,sendEpoch:computationEpoch => send({...envelope,type:'sticker-epoch',computationEpoch}),
+        stickers = createNativeStickerController({canvas,layout:()=>layout,readPose:binding.read,form:input.form,query,sendEpoch:computationEpoch => send({...envelope,type:'sticker-epoch',computationEpoch}),
           sendFrame:(frame,transfer) => worker.postMessage({...envelope,type:'equipped-frame',frame} satisfies DeviceRenderWorkerRequest,transfer),fail});
         carry=createNativeCarryController({canvas,layout:()=>layout,query,visibility:stickers.visibility,sendState:state=>send({...envelope,type:'carry-state',state}),sendFrame:(frame,transfer)=>worker.postMessage({...envelope,type:'carry-frame',frame} satisfies DeviceRenderWorkerRequest,transfer),onProjection:()=>stickers?.project(),fail});
         warmup=createNativeStickerWarmup({send:(sequence,frame,transfer)=>worker.postMessage({...envelope,type:'warmup-frame',sequence,frame} satisfies DeviceRenderWorkerRequest,transfer),fail});

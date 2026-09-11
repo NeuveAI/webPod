@@ -1,0 +1,12 @@
+{
+  "packages/device/src/sticker-projection.ts": "9837831389e8f6afd123924d241ceffc772528696cda60b2b15009f7239338b4",
+  "packages/device/src/sticker-contract.ts": "b36bf11c26ad5d950cf470795b5d2affb3489317fa4ff65b8d08aafb06e1d282",
+  "packages/device/src/StickerPackScene.tsx": "b7d01a25522c32495e1d50cafd4bb17a90ff22966c2350900a5d150da3fe8dcf",
+  "packages/composite/src/device-render-host.ts": "cb9111bf83cb008062711802c2e2ad98a3e7c1cf66287ca0f17fd96c405d17d2",
+  "packages/composite/src/native-sticker-controller.ts": "80f71242a4e0ba6a9113485f85e540bb9842cead6b7e962496a679008f62fe7a",
+  "apps/web/src/production-device-view.tsx": "f998c519738852be04c5dab058f98b4efa023d54fdae2dd79cfa782fe58a5139",
+  "apps/web/src/sticker-editor.tsx": "a52f54016dd5c2806d53281c079ef718485987b5f7a88991fe62ecfe2f473e20",
+  "apps/web/src/sticker-editor-model.ts": "06ebc0dead7221bfcb924487f90bca76574213dcc8f7b4d7925e71e35f1c0b01",
+  "apps/web/src/sticker-contour-query-model.ts": "60bc94496f4aa365d398fc4fe805af842287f88d0c8b15169bca81d138f78b07",
+  "apps/web/src/sticker-editor-carry.test.tsx": "3cf6dde5a0df69817e33063a877a7d020e983f619a7f1d06f5b5e20fb3c56a45"
+}

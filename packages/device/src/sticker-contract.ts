@@ -1,3 +1,4 @@
+import type { StickerContourQueryState } from './sticker-contour-query';
 /** Browser-resolved immutable artwork. Bounds use exclusive right/bottom pixels. */
 export interface StickerArtwork {
   readonly id: string;
@@ -107,7 +108,15 @@ export interface StickerSurfaceGrab {
 }
 
 /** Runtime camera handle; never persist this or put it in Jotai user data. */
+/** Sampled presentation only; pointer transforms remain on StickerRearProjection. */
+export interface StickerContourPresentation {
+  request(placement: DeviceStickerPlacement, session: number): void;
+  clear(): void;
+  subscribe(listener: () => void): () => void;
+  getSnapshot(): StickerContourQueryState;
+}
 export interface StickerRearProjection {
+  readonly contourQuery?: StickerContourPresentation;
   readonly resolveDrop?: (placement: DeviceStickerPlacement, clientX: number, clientY: number, signal?: AbortSignal) => DeviceStickerPlacement | Promise<DeviceStickerPlacement>;
   readonly fit?: (placement: DeviceStickerPlacement) => DeviceStickerPlacement;
   /** Authoritative visible painted surface pickup; null must not fall back to rear hit. */

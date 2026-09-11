@@ -1,3 +1,7 @@
+import { createStickerContourQuery } from './sticker-contour-query';
+import type { RenderPose } from './device-render-protocol';
+import { preparedStickerContourDescriptor, getPreparedStickerContour } from './sticker-contour-preparation-data';
+import { captureStickerQuadSamples } from './sticker-transform-projection';
 import { Mesh, Raycaster, Vector2, Vector3, type Camera, type Object3D } from 'three';
 import type { DeviceStickerScene, StickerRearProjection } from './sticker-contract';
 import { isStickerCarried } from './sticker-contract';
@@ -21,7 +25,7 @@ const DEVICE_CONTENT_NAME = 'device-model-content';
 
 /** Exact shared main-thread sticker interaction authority. Both presentation
  * backends supply their admitted query scene and stable DOM/media boundaries. */
-export function createStickerProjection(input: {readonly scene:Object3D;readonly camera:Camera;readonly canvas:HTMLCanvasElement;readonly readScene:()=>DeviceStickerScene;readonly visibility:ReturnType<typeof createStickerVisibility>}) {
+export function createStickerProjection(input: {readonly scene:Object3D;readonly camera:Camera;readonly canvas:HTMLCanvasElement;readonly readScene:()=>DeviceStickerScene;readonly visibility:ReturnType<typeof createStickerVisibility>;readonly readPose?:()=>RenderPose}) {
   const {scene,camera,canvas,readScene,visibility} = input;
     const lifetime = new AbortController();
     const content = scene.getObjectByName(DEVICE_CONTENT_NAME);
@@ -85,7 +89,52 @@ export function createStickerProjection(input: {readonly scene:Object3D;readonly
         : scene.getObjectByName('device-equipped-stickers');
       return owner?.getObjectByName(`sticker-${placement.stickerId}`);
     };
-    const handle = { grab(clientX: number, clientY: number) {
+    const contourOwner = createStickerContourQuery();
+    let contourDemand: {placement: import('./sticker-contract').DeviceStickerPlacement; session: number} | null = null;
+    let captureSequence = 0, layoutRevision = 0, layoutKey = '';
+    const printIds = new WeakMap<object, number>(); let printSequence = 0;
+    /** Capture only adopted private-resource provenance and one coherent live pose.
+     * GL revisions describe query captures, never invented renderer frame IDs. */
+    const refreshContour = () => {
+      if (!contourDemand || lifetime.signal.aborted || document.hidden || !content) return;
+      const {placement, session} = contourDemand;
+      visibility.update(content);
+      const print = projectedPrint(placement);
+      if (!visibility.ready || !(print instanceof Mesh) || !print.visible) { contourOwner.clear(); return; }
+      const descriptor = preparedStickerContourDescriptor(print.geometry);
+      const prepared = descriptor && getPreparedStickerContour(print.geometry, descriptor.input.field, descriptor.input.wear);
+      const quad = descriptor && captureStickerQuadSamples(print.geometry);
+      if (!descriptor || !prepared || !quad) { contourOwner.clear(); return; }
+      print.updateWorldMatrix(true, false); content.updateWorldMatrix(true, false); camera.updateMatrixWorld();
+      const rect = canvas.getBoundingClientRect();
+      const bounds = {left:rect.left, top:rect.top, width:rect.width, height:rect.height};
+      if (![bounds.left,bounds.top,bounds.width,bounds.height].every(Number.isFinite) || bounds.width <= 0 || bounds.height <= 0) { contourOwner.clear(); return; }
+      const cameraProjection = camera.projectionMatrix.toArray();
+      const nextLayout = JSON.stringify([bounds,cameraProjection]);
+      if (nextLayout !== layoutKey) { layoutKey = nextLayout; layoutRevision++; }
+      let printRevision = printIds.get(print.geometry);
+      if (printRevision === undefined) { printRevision = ++printSequence; printIds.set(print.geometry, printRevision); }
+      const admitted = input.readPose?.();
+      const pose = admitted ? {backend:'native' as const, sequence:admitted.sequence, motionEpoch:admitted.motionEpoch, lastAcceptedCommand:admitted.lastAcceptedCommand, layoutRevision:admitted.layoutRevision, sceneRevision:admitted.sceneRevision, resourceRevision:admitted.resourceRevision}
+        : {backend:'gl' as const, sequence:++captureSequence, layoutRevision, sceneRevision:visibility.revision, resourceRevision:printRevision};
+      const pack = readScene().pack;
+      contourOwner.request({lineage:{session,stickerId:placement.stickerId,source:pack && isStickerCarried(pack,placement.stickerId)?'carry':'equipped'},pose,
+        visibilityRevision:visibility.revision, collider:{snapshot:visibility.snapshot(),revision:visibility.revision},
+        print:{identity:print.geometry,revision:printRevision,descriptor,contour:prepared.value,quad},
+        projection:{world:print.matrixWorld.toArray(),cameraInverse:camera.matrixWorldInverse.toArray(),cameraProjection,canvas:bounds},
+        contentWorld:content.matrixWorld.toArray(),cameraWorld:camera.matrixWorld.toArray()});
+    };
+    const contourQuery = {
+      request(placement: import('./sticker-contract').DeviceStickerPlacement, session: number) { contourDemand = {placement,session}; refreshContour(); },
+      clear() { contourDemand = null; contourOwner.clear(); },
+      subscribe:contourOwner.subscribe, getSnapshot:contourOwner.getSnapshot,
+    };
+    const detachContourVisibility = visibility.subscribe(refreshContour);
+    const onVisibility = () => { if (document.hidden) contourOwner.clear(); else refreshContour(); };
+    document.addEventListener('visibilitychange',onVisibility,{signal:lifetime.signal});
+    window.addEventListener('resize',refreshContour,{signal:lifetime.signal});
+    window.addEventListener('scroll',refreshContour,{signal:lifetime.signal,capture:true});
+    const handle = { contourQuery, grab(clientX: number, clientY: number) {
       const picked = pick(clientX, clientY), rear = scene.getObjectByName('device-steel-back');
       if (picked === null || picked.hit.uv === undefined || content === undefined || !(rear instanceof Mesh)) return null;
       const wrap = stickerWrapSurface(rear.geometry), art = readScene().assets.find(asset => asset.id === picked.placement.stickerId);
@@ -153,5 +202,5 @@ export function createStickerProjection(input: {readonly scene:Object3D;readonly
       const bounds = canvas.getBoundingClientRect();
       return { x: bounds.left + (point.x + 1) * bounds.width / 2, y: bounds.top + (1 - point.y) * bounds.height / 2 };
     } };
-  return {handle:handle satisfies StickerRearProjection,dispose:()=>lifetime.abort()};
+  return {handle:handle satisfies StickerRearProjection,refreshContour,dispose:()=>{lifetime.abort();detachContourVisibility();contourDemand=null;contourOwner.dispose();}};
 }

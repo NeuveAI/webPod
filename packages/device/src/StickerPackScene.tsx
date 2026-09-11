@@ -6,7 +6,7 @@ import { createGpuPaperMaterialPreparation, useGpuPaperReady } from './sticker-p
 import { createCarryPreparation } from './sticker-carry-preparation';
 import { usePreparedStickerPaper } from './sticker-paper-preparation';
 import { createStickerVisibility } from './sticker-visibility';
-import { useThree } from '@react-three/fiber';
+import { useThree, useFrame } from '@react-three/fiber';
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSyncExternalStore, type RefObject } from 'react';
 import { Box3, MeshPhysicalMaterial, MeshStandardMaterial, Group, Mesh, Vector3 } from 'three';
 import { DeviceCanvasOrientationContext } from './DeviceCanvas';
@@ -41,6 +41,9 @@ export function StickerPackScene({ scene }: { readonly scene: DeviceStickerScene
 function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceStickerScene }) {
   const { camera, scene, gl, size, viewport, invalidate } = useThree();
   const orientation = useContext(DeviceCanvasOrientationContext);
+  const projectionOwner = useRef<ReturnType<typeof createStickerProjection> | null>(null);
+  // Reuse the existing render cadence; no second RAF loop or React publication.
+  useFrame(() => projectionOwner.current?.refreshContour());
   const roughness = useMemo(() => createStickerRoughness(), []);
   useEffect(() => () => roughness.dispose(), [roughness]);
   const packRoot = useRef<Group>(null);
@@ -124,14 +127,15 @@ function StickerPackContents({ scene: stickerScene }: { readonly scene: DeviceSt
   useLayoutEffect(() => {
     visibility.current ??= createStickerVisibility({workerOnly:true});
     const projection = createStickerProjection({scene,camera,canvas:gl.domElement,readScene:()=>currentScene.current,visibility:visibility.current});
+    projectionOwner.current = projection;
     const handle = projection.handle;
     projectionHandle.current = handle; onProjectionReady?.(handle);
-    return () => { projection.dispose(); projectionHandle.current = null; onProjectionReady?.(null); };
-  }, [camera, gl, orientation.visibleFace, scene, onProjectionReady, packVisible, stickerScene.pack?.sourcePlacement?.stickerId, calculatedPresentation, rearCarry]);
+    return () => { projectionOwner.current = null; projection.dispose(); projectionHandle.current = null; onProjectionReady?.(null); };
+  }, [camera, gl, scene, onProjectionReady]);
   useLayoutEffect(() => {
     // The child carry geometry is committed before notifying the DOM HUD.
     if (projectionHandle.current !== null) onProjectionReady?.(projectionHandle.current);
-  }, [onProjectionReady, stickerScene.pack?.placement, stickerScene.pack?.peel, stickerScene.pack?.landing, visibilityEpoch]);
+  }, [onProjectionReady, stickerScene.pack?.placement, stickerScene.pack?.peel, stickerScene.pack?.landing, visibilityEpoch, orientation.visibleFace, packVisible, stickerScene.pack?.sourcePlacement?.stickerId, calculatedPresentation, rearCarry]);
   const pack: StickerPackVisual | null = stickerScene.pack ?? (stickerScene.preparedSheet ? {
     presence: 0, progress: 0, peel: 0, stickerId: null, placement: null, landing: 0,
     sheet: { ...stickerScene.preparedSheet, reveal: 0 },
@@ -251,6 +255,7 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
 }) {
   const { scene, camera, viewport, size, gl, invalidate } = useThree();
   const orientation = useContext(DeviceCanvasOrientationContext);
+
   const runtime = useMemo(() => createCarryPreparation(), []);
   const subscribeCarryOrientation = useCallback((listener: () => void) => orientation.motionAuthority?.subscribeIntent(listener) ?? (() => {}), [orientation.motionAuthority]);
   const readCarryOrientation = useCallback(() => orientation.motionAuthority?.readIntent().orientation ?? orientation.orientation, [orientation]);

@@ -1,3 +1,4 @@
+import { setStickerContourProjection, refreshStickerContour } from './sticker-contour-query-model'
 import { musicManager, manageMusic } from '@webpod/music-management/playback'
 import { stickerPackTuckAtom } from './sticker-pack-tuck'
 import { deviceRevealActiveAtom } from './device-reveal-state'
@@ -24,9 +25,9 @@ import { stickerComputationEpochAtom, stickerFinishCalibrationAtom, reportSticke
 import { createStickerProjectionNotifications } from './sticker-projection-notifications'
 
 let stickerProjection: StickerRearProjection | null = null
-const projectionNotifications = createStickerProjectionNotifications(() => deviceStore.set(stickerProjectionVersionAtom, version => version + 1))
+const projectionNotifications = createStickerProjectionNotifications(() => { refreshStickerContour(); deviceStore.set(stickerProjectionVersionAtom, version => version + 1) })
 const onStickerSurfaceReady = (): void => { projectionNotifications.notify() }
-const onStickerProjectionReady = (handle: StickerRearProjection | null): void => { stickerProjection = handle; projectionNotifications.notify() }
+const onStickerProjectionReady = (handle: StickerRearProjection | null): void => { stickerProjection = handle; setStickerContourProjection(handle); projectionNotifications.notify() }
 import.meta.hot?.dispose(() => projectionNotifications.cancel())
 const onStickerPrepared = (ids: readonly string[]): void => {
   for (const id of ids) reportStickerArtworkReady(id)
