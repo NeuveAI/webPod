@@ -53,3 +53,9 @@ The current Chrome remote connection was recovered by accepting its queued remot
 ## First worker activation root cause
 
 After forwarding diagnostics through CompositeInputBoundary to its real DOM wrapper, current Chrome109 reports requested worker/effective webgl. Successive bounded cause diagnostics identify the retained recipe as unavailable because a pending renderer lease was cancelled and its producer retired. This is pre-frame fallback, not shader or native pixel-transfer failure. Host author is investigating the initiating mount/effect cancellation and exact resource recovery. Device/composite typechecks passed at the diagnostic checkpoint; no source or full visual acceptance is implied.
+
+## First actual worker frame
+
+The pending-lease failure was resolved for initial React effect replay by deferring acquisition until the still-live mount; genuine cancellation recovery remains unfinished. The next upload error, No context found for ElementImage, came from Three185 lazy context configuration. Host now calls the public renderer.getContext() before announcing capture readiness.
+
+Current Chrome109 then reports requested/effective worker, wpRenderBackend worker-webgpu and wpRenderWarm ready. The retained worker-first-frame.png shows the complete chassis and upright native LCD text. It also exposes a real visual defect: LCD content occupies only the upper-left portion of the intended active screen with unused black space right/bottom. This is NOT visual parity or activation acceptance. The author is fixing projection/capture sizing; full sticker/input/motion/fallback gates remain open. No trace started.
