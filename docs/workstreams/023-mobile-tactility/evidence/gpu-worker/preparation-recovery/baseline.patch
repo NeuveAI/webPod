@@ -1,0 +1,91 @@
+diff --git a/packages/device/src/immutable-shell-preparation.ts b/packages/device/src/immutable-shell-preparation.ts
+index ae13757..1ec17d5 100644
+--- a/packages/device/src/immutable-shell-preparation.ts
++++ b/packages/device/src/immutable-shell-preparation.ts
+@@ -3,7 +3,7 @@ import type {DeviceFormParams} from './form';
+ import {prepareDeviceSteps,restorePreparedDevice,disposePreparedDevice,type PreparedDevice,type DevicePreparationResponse,DEVICE_PREPARATION_VERSION} from './device-preparation-data';
+ import {yieldSteps} from './sticker-computation-steps';
+ 
+-type Entry={id:number;bytes:number;resident:Worker|null;key:string;form:DeviceFormParams;promise:Promise<void>;resolve:()=>void;value:PreparedDevice|null;error:unknown;owners:number;expiry?:ReturnType<typeof setTimeout>};
++type Entry={id:number;bytes:number;resident:Worker|null;residencyFailure:string|null;key:string;form:DeviceFormParams;promise:Promise<void>;resolve:()=>void;value:PreparedDevice|null;error:unknown;owners:number;expiry?:ReturnType<typeof setTimeout>};
+ type RenderLease={id:number;entry:Entry;instance:Worker;pending:boolean;release:()=>void;reject:(error:unknown)=>void;resolve:()=>void;timer:ReturnType<typeof setTimeout>};
+ const cache=new Map<string,Entry>();
+ const renderLeases=new Map<number,RenderLease>();
+@@ -11,9 +11,9 @@ let nextId=0,nextLeaseId=0;
+ const queue:Entry[]=[];
+ let active:Entry|null=null,worker:Worker|null=null;
+ let deadline:ReturnType<typeof setTimeout>|undefined;
+-function stop(){
++function stop(reason = 'Preparation worker retired'){
+  clearTimeout(deadline);deadline=undefined;const retired=worker;worker=null;retired?.terminate();
+- for(const entry of cache.values())if(entry.resident===retired)entry.resident=null;
++ for(const entry of cache.values())if(entry.resident===retired){entry.resident=null;entry.residencyFailure=reason;}
+  for(const lease of [...renderLeases.values()])if(lease.instance===retired&&lease.pending){lease.reject(Error('Preparation worker retired'));lease.release();}
+ }
+ function evict(entry:Entry){
+@@ -33,8 +33,9 @@ function settle(entry:Entry,value:PreparedDevice|null,error?:unknown){
+  while(unused.length>=4 || unused.reduce((sum,item)=>sum+entryBytes(item),entryBytes(entry))>64*1024*1024){const oldest=unused.shift();if(!oldest)break;evict(oldest);}
+  pump();
+ }
+-function fallback(entry:Entry){
+- stop();
++function fallback(entry:Entry, reason = 'Preparation recovery'){
++ entry.residencyFailure=reason;
++ stop(reason);
+  // Termination precedes recovery: only one producer can own this entry.
+  const controller=new AbortController();
+  void yieldSteps(prepareDeviceSteps(entry.form),controller.signal).then(
+@@ -59,21 +60,21 @@ function pump(){
+      return;
+     }
+     if(!active||active.id!==data.id)return;const current=active;clearTimeout(deadline);deadline=undefined;
+-    if(!('result' in data)){fallback(current);return;}
+-    try{current.resident=instance;settle(current,restorePreparedDevice(data.result));}catch{fallback(current);}
++    if(!('result' in data)){fallback(current, `Preparation result failed: ${String(data.error).slice(0, 256)}`);return;}
++    try{current.resident=instance;current.residencyFailure=null;settle(current,restorePreparedDevice(data.result));}catch(error){fallback(current, `Preparation adoption failed: ${String(error).slice(0, 256)}`);}
+    };
+-   const fail=()=>{if(worker!==instance)return;if(active)fallback(active);else stop();};worker.onerror=fail;worker.onmessageerror=fail;
++   const fail=(reason:string)=>{if(worker!==instance)return;if(active)fallback(active,reason);else stop(reason);};worker.onerror=event=>fail(`Preparation worker error: ${event.message.slice(0,256)}`);worker.onmessageerror=()=>fail('Preparation worker message decoding failed');
+   }
+-  deadline=setTimeout(()=>fallback(entry),15_000);
++  deadline=setTimeout(()=>fallback(entry, 'Preparation worker exceeded 15000ms deadline'),15_000);
+   worker.postMessage({id:entry.id,form:entry.form});
+- }catch{fallback(entry);}
++ }catch(error){fallback(entry, `Preparation worker startup failed: ${String(error).slice(0, 256)}`);}
+ }
+ function read(form:DeviceFormParams):Entry {
+  const key=`${DEVICE_PREPARATION_VERSION}:${JSON.stringify(form)}`;let entry=cache.get(key);
+  if(!entry&&queue.length>=3){const gate=active??queue[0];if(gate)throw gate.promise;}
+  if(!entry){
+   let resolve=()=>{};const promise=new Promise<void>(done=>{resolve=done;});
+-  entry={id:++nextId,bytes:0,resident:null,key,form:{...form},promise,resolve,value:null,error:null,owners:0};cache.set(key,entry);queue.push(entry);pump();
++  entry={id:++nextId,bytes:0,resident:null,residencyFailure:null,key,form:{...form},promise,resolve,value:null,error:null,owners:0};cache.set(key,entry);queue.push(entry);pump();
+  }
+  if(entry.error)throw entry.error;if(!entry.value)throw entry.promise;return entry;
+ }
+@@ -120,7 +121,7 @@ export async function acquirePreparedDeviceForRenderer(form:DeviceFormParams,por
+    try{entry=read(form);break;}catch(error){if(!(error instanceof Promise))throw error;await waitForPreparation(error,signal);}
+   }
+   const instance=worker,value=entry.value;
+-  if(!instance||entry.resident!==instance||!value)throw Error('Native renderer requires a resident prepared recipe');
++  if(!instance||entry.resident!==instance||!value)throw Error(`Native renderer requires a resident prepared recipe: ${entry.residencyFailure ?? 'canonical owner unavailable'}`);
+   for(const unused of [...cache.values()]){
+    if(accountedBytes()+entry.bytes*2<=128*1024*1024)break;
+    if(unused!==entry&&unused.owners===0&&unused.value)evict(unused);
+@@ -140,14 +141,14 @@ export async function acquirePreparedDeviceForRenderer(form:DeviceFormParams,por
+    // A copy already queued in the worker keeps its reservation until it ends.
+    // Termination is the bounded cancellation boundary; deleting the accounting
+    // record alone would let repeated aborts enqueue unlimited private copies.
+-   if(renderLeases.get(leaseId)?.pending&&worker===instance){if(active)fallback(active);else stop();}
++   if(renderLeases.get(leaseId)?.pending&&worker===instance){if(active)fallback(active, 'Pending renderer lease cancelled');else stop('Pending renderer lease cancelled');}
+    release();
+   };
+   const timer=setTimeout(()=>{
+    if(worker!==instance)return;
+    // Terminate before any exceptional recovery: the outstanding copy cannot
+    // race a second producer or publish through its old MessagePort afterward.
+-   if(active)fallback(active);else stop();
++   if(active)fallback(active, 'Renderer private copy exceeded 15000ms deadline');else stop('Renderer private copy exceeded 15000ms deadline');
+   },15_000);
+   renderLeases.set(leaseId,{id:leaseId,entry,instance,pending:true,release,reject,resolve,timer});
+   signal.addEventListener('abort',onAbort,{once:true});

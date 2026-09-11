@@ -4,6 +4,7 @@ import { drainSteps } from './sticker-computation-steps';
 // its canonical bytes, not a second independently expiring recipe cache.
 const canonical = new Map<number, PreparedDeviceData>();
 self.onmessage=({data}:MessageEvent<DevicePreparationRequest>)=>{
+ if(data.type==='seed'){canonical.set(data.id,data.result);self.postMessage({type:'seeded',id:data.id,recoveryId:data.recoveryId});return;}
  if(data.type==='evict'){canonical.delete(data.id);return;}
  if(data.type==='lease'){
   try{

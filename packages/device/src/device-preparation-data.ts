@@ -12,10 +12,12 @@ export const DEVICE_PREPARATION_VERSION=1;
 export type DevicePreparationRequest =
  | {readonly id:number;readonly form:DeviceFormParams;readonly type?:'prepare'}
  | {readonly type:'lease';readonly id:number;readonly leaseId:number;readonly port:MessagePort}
- | {readonly type:'evict';readonly id:number};
+ | {readonly type:'evict';readonly id:number}
+ | {readonly type:'seed';readonly id:number;readonly recoveryId:number;readonly result:PreparedDeviceData};
 export type DevicePreparationResponse=
  | {readonly id:number;readonly result:PreparedDeviceData}
  | {readonly id:number;readonly error:string}
+ | {readonly type:'seeded';readonly id:number;readonly recoveryId:number}
  | {readonly type:'leased';readonly id:number;readonly leaseId:number}
  | {readonly type:'lease-failed';readonly id:number;readonly leaseId:number;readonly error:string};
 /** A privately owned copy, transferred by the sole preparation producer directly
@@ -105,4 +107,43 @@ export function preparedDeviceBuffers(data:PreparedDeviceData):ArrayBuffer[] {
  for(const texture of Object.values(data.textures))if(texture.data.buffer instanceof ArrayBuffer)result.add(texture.data.buffer);
  if(data.backplatePixels.buffer instanceof ArrayBuffer)result.add(data.backplatePixels.buffer);
  return [...result];
+}
+
+/** Snapshot metadata only; numeric arrays remain borrowed from the immutable
+ * query owner. This value must never itself be transferred. */
+export function borrowedPreparedDeviceData(value:PreparedDevice):PreparedDeviceData {
+ const inserts={} as PreparedDeviceData['inserts'];
+ for(const key of Object.keys(value.inserts) as (keyof Inserts)[])inserts[key]=transferShell(value.inserts[key]);
+ const textures={} as PreparedDeviceData['textures'];
+ for(const key of Object.keys(value.textures) as (keyof PreparedDevice['textures'])[])textures[key]=textureData(value.textures[key]);
+ return {front:transferShell(value.front),back:transferShell(value.back),inserts,
+  hardware:value.hardware.map(part=>({...part,geometry:transferShell(part.geometry)})),textures,backplatePixels:value.backplatePixels};
+}
+/** Exceptional canonical recovery only. Copy at most 256 KiB between yield
+ * checkpoints, preserving exact bytes, view offsets and shared-buffer identity.
+ * Native allocation of each destination buffer remains indivisible. */
+export function* copyPreparedDeviceSteps(source:PreparedDeviceData):Generator<void,PreparedDeviceData,void> {
+ const copies=new Map<ArrayBuffer,ArrayBuffer>();
+ for(const buffer of preparedDeviceBuffers(source)){
+  const copy=new ArrayBuffer(buffer.byteLength);copies.set(buffer,copy);yield;
+  const from=new Uint8Array(buffer),to=new Uint8Array(copy);
+  for(let offset=0;offset<from.length;offset+=262144){to.set(from.subarray(offset,offset+262144),offset);yield;}
+ }
+ function buffer(source:ArrayBufferLike):ArrayBuffer {
+  if(!(source instanceof ArrayBuffer))throw Error('Unsupported shared preparation buffer');
+  const result=copies.get(source);if(!result)throw Error('Missing private preparation buffer');return result;
+ }
+ function shell(source:ShellGeometryTransfer):ShellGeometryTransfer {
+  const attributes:ShellGeometryTransfer['attributes']={};
+  for(const [key,value] of Object.entries(source.attributes))attributes[key]={...value,array:new Float32Array(buffer(value.array.buffer),value.array.byteOffset,value.array.length)};
+  const index=source.index;
+  return {...source,attributes,index:index instanceof Uint16Array?new Uint16Array(buffer(index.buffer),index.byteOffset,index.length):index?new Uint32Array(buffer(index.buffer),index.byteOffset,index.length):null,
+   bounds:[...source.bounds],sphere:[...source.sphere],groups:source.groups.map(group=>({...group})),drawRange:{...source.drawRange}};
+ }
+ const inserts={} as PreparedDeviceData['inserts'];
+ for(const key of Object.keys(source.inserts) as (keyof Inserts)[]){inserts[key]=shell(source.inserts[key]);yield;}
+ const textures={} as PreparedDeviceData['textures'];
+ for(const key of Object.keys(source.textures) as (keyof PreparedDevice['textures'])[]){const value=source.textures[key];textures[key]={...value,repeat:[...value.repeat],data:new Uint8Array(buffer(value.data.buffer),value.data.byteOffset,value.data.length)};yield;}
+ return {front:shell(source.front),back:shell(source.back),inserts,hardware:source.hardware.map(part=>({...part,geometry:shell(part.geometry)})),textures,
+  backplatePixels:new Uint8ClampedArray(buffer(source.backplatePixels.buffer),source.backplatePixels.byteOffset,source.backplatePixels.length)};
 }
