@@ -9,3 +9,5 @@ Independent executions passed:19 retained exact generator/estimator/lifecycle ca
 Eight existing alpha/contour tests pass with17,568 assertions. Device, composite and web typechecks and scoped broker/estimator/workload lint pass. Proof-only hygiene feedback requested replacing an unchecked extracted-function assertion with runtime function/result validation; no application change is needed for that correction.
 
 This is bounded source/admission evidence, not mounted React scheduling or browser memory/timing proof. Fresh cold GL packet, tool release and physical peel/drop/return remain lead-owned runtime gates. No browser, full build or server actions performed.
+
+Proof hygiene follow-up complete: author replaced the unchecked extracted-function assertion with runtime callable and finite-number checks. Reviewer reran the19-case proof and scoped lint successfully; product broker hash unchanged.
