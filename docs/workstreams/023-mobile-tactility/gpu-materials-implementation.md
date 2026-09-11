@@ -35,3 +35,7 @@ After the final readiness correction:
 - Scoped `bunx eslint` across authored node modules, backend service, diagnostics and composite LCD factory:passed.
 
 Supervisor owns combined build/review/browser results. Full architecture acceptance under CPU-009 still requires worker-host adoption, full-route front/edge/rear/glass/sticker/wear/paper/LCD appearance, screen transport generation/fallback and interaction proof. The clarified scope allows CPU-008 source/contract review to complete before that host gate; it does not permit backend activation. No speedup or full quality equivalence is inferred merely from passing compilation. Shader/material source is frozen for independent review; only diary/evidence metadata follows.
+
+## Independent review corrections
+
+CPU-013 approved the source/interface milestone after two bounded lifecycle fixes: the owner invokes compileAsync inside its guarded work thunk so a synchronous GL shader throw retires/disposes exactly once; native onDeviceLost retires both readiness flags, disposes and forwards/restores the prior handler. The retained experiment now has9 passing cases. Device types and source/proof lint passed after these corrections. No shader or native GPU numerical code changed, so no new browser run is claimed. Source/proofs committed by the supervisor at67478ad; full integrated visual activation remains CPU-009.
