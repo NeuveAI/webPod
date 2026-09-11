@@ -1,0 +1,17 @@
+{
+  "files": [
+    {
+      "file": "webpod-output-fixed-native-silver-rear.png",
+      "sha256": "733c605180450b3e86c93cf18eabb47b675b0c9f5949c1e435d1e529c77132dc"
+    },
+    {
+      "file": "webpod-output-fixed-native-sticker-rear.png",
+      "sha256": "18b71dd42be00c46d9e346453c5aef4f4218fd834656dfb3ec5e060843f12dbb"
+    },
+    {
+      "file": "webpod-current-reuse-gl-silver-sticker-rear.png",
+      "sha256": "31348d4f117059407dc040e4ca5eea20f7374319c6f2fdf44727f63de8bb73c7"
+    }
+  ],
+  "provenance": "Lead verified Silver/light; current GL761130f0 settled ready heldnull placed1 pending0 alerts[]; native output-fixed capture"
+}
