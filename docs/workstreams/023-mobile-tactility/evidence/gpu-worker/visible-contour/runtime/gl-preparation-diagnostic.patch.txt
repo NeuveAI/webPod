@@ -1,0 +1,25 @@
+--- a/packages/device/src/sticker-latest-preparation.ts
++++ b/packages/device/src/sticker-latest-preparation.ts
+@@ -1,3 +1,13 @@
++import { inspectStickerTransactions } from './sticker-transaction-broker';
++// TEMPORARY DIAGNOSTIC: at most sixteen scalar failure marks, no input/asset data.
++let diagnosticFailures = 0;
++const diagnosticMessages = new Set(["Canonical sticker producer unavailable", "Canonical sticker resource was retired", "Contour dependencies retired", "Invalid sticker alpha dimensions", "Invalid sticker transaction protocol", "Private sticker byte capacity exceeded", "Private sticker owner capacity exceeded", "Renderer damage requires a damage source", "Sticker alpha is unavailable", "Sticker attributes require immutable float32 arrays", "Sticker computation byte capacity exceeded", "Sticker contour requires immutable float32 arrays", "Sticker damage reuse candidate capacity exceeded", "Sticker fallback failed", "Sticker port transfer failed", "Sticker preparation requires noninterleaved attributes", "Sticker private delivery failed", "Sticker producer retired", "Sticker transaction byte capacity exceeded", "Sticker transaction capacity exceeded", "Sticker transaction failed", "Unexpected sticker contour result", "Unexpected sticker damage result", "Unexpected sticker surface result"]);
++function markPreparationFailure(input: unknown, error: unknown) {
++  if (diagnosticFailures >= 16) return;
++  const stage = input && typeof input === 'object' && 'custom' in input ? 'surface' : 'print';
++  const message = error instanceof Error && diagnosticMessages.has(error.message) ? error.message : 'Unrecognized preparation failure';
++  performance.mark(`webpod:preparation-failure:${++diagnosticFailures}`, {detail: {stage, message, transactions: inspectStickerTransactions()}});
++}
+ /** One active preparation plus one replaceable latest input per live surface.
+  * Compatible progress can publish while a newer sample waits; ownership changes
+  * abort and reject the old epoch. The consumer owns adopted result disposal. */
+@@ -10,7 +20,7 @@
+     const running = { controller: new AbortController(), owner: next.owner }; active = running;
+     void prepare(next.input, running.controller.signal).then(value => {
+       if (!live || active !== running || running.controller.signal.aborted) value.release(); else publish(value);
+-    }, () => { if (live && active === running && !running.controller.signal.aborted && !wanted) failed(next.input); }).finally(() => { if (active === running) { active = null; dispatch(); } });
++    }, error => { if (live && active === running && !running.controller.signal.aborted && !wanted) { markPreparationFailure(next.input, error); failed(next.input); } }).finally(() => { if (active === running) { active = null; dispatch(); } });
+   };
+   return {
+     request(input: I, owner: string) {

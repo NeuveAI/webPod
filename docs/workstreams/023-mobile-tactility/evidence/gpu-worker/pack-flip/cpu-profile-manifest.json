@@ -1,0 +1,42 @@
+[
+  {
+    "file": "docs/workstreams/023-mobile-tactility/evidence/gpu-worker/pack-flip/post-cache-main.cpuprofile",
+    "sha256": "6c77a04c51b21ad9fc6dd0b1cba5650cd94edf2eb44b2c082eea292ad69ffffa",
+    "bytes": 711062,
+    "durationMs": 7013.628,
+    "profileStopped": true,
+    "profilerDisabled": true
+  },
+  {
+    "file": "docs/workstreams/023-mobile-tactility/evidence/gpu-worker/pack-flip/post-guard-main.cpuprofile",
+    "sha256": "e39852d7abb7bb4721eda288f96c699b15bbc70527960747af5e3b9b501507db",
+    "bytes": 681218,
+    "durationMs": 7424.525,
+    "profileStopped": true,
+    "profilerDisabled": true
+  },
+  {
+    "file": "docs/workstreams/023-mobile-tactility/evidence/gpu-worker/pack-flip/production-cache-main.cpuprofile",
+    "sha256": "8b5f4f0c17f6ba98aa58b57e6af7c5ee0e7261c27d7ecd29f5e0575b4134c5a3",
+    "bytes": 307785,
+    "durationMs": 6462.274,
+    "profileStopped": true,
+    "profilerDisabled": true
+  },
+  {
+    "file": "docs/workstreams/023-mobile-tactility/evidence/gpu-worker/pack-flip/post-contour-main.cpuprofile",
+    "sha256": "58897172764c13f1889c8640b46786f1fb13d56d8c0874d73e7689bc22dfe9f3",
+    "bytes": 388558,
+    "durationMs": 5746.907,
+    "profileStopped": true,
+    "profilerDisabled": true
+  },
+  {
+    "file": "docs/workstreams/023-mobile-tactility/evidence/gpu-worker/pack-flip/post-panel-main.cpuprofile",
+    "sha256": "35e44bac047d04576162b3977e82449684e16c5a06e3a1f0245d9f152ce7d276",
+    "bytes": 300961,
+    "durationMs": 5694.252,
+    "profileStopped": true,
+    "profilerDisabled": true
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "packages/device/src/sticker-collision.ts": "401f0411cd34dc6b31e22f9a7adfd0950473de16b39d212812aad4f62c4d3ea1",
+  "packages/device/src/packed-collision-tree.ts": "36609599686d9507e019f2426cb76ed705448f8d69c5849d4f57f1a00cbf88fc",
+  "packages/device/node_modules/three/src/math/Ray.js": "602318aea40bf007a542fb6562d12d21a41d2e4cbb0aec5b86edd757e32ddd69",
+  "packages/device/node_modules/three/src/math/Triangle.js": "365e342b914cd5a415160868ee55dc9db5effaffa9a85a21e447938655ce7a02",
+  "packages/device/node_modules/three/src/math/Vector3.js": "834c56c4a10a54ee1f967f111d792be37639b5a8761c6f190622184297bf3dc8",
+  "docs/workstreams/023-mobile-tactility/evidence/gpu-worker/contour-throughput/scalar.ts": "ec4164e3de469e6256259c0a54a5129b78925784ae02884b8a91cbd303b6029f",
+  "docs/workstreams/023-mobile-tactility/evidence/gpu-worker/contour-throughput/check.ts": "58c944531abd39f80d9c0268d4ad578b870690e5e2f398e6ddcdb29d8c4b092e"
+}

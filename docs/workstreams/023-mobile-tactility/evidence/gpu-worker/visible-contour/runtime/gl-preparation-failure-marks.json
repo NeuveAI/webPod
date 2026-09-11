@@ -1,0 +1,104 @@
+[
+  {
+    "name": "webpod:preparation-failure:1",
+    "detail": {
+      "stage": "print",
+      "message": "Sticker computation byte capacity exceeded",
+      "transactions": {
+        "entries": 31,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 1,
+        "pendingCopies": 0,
+        "privateBytes": 94272,
+        "accountedBytes": 85000896
+      }
+    }
+  },
+  {
+    "name": "webpod:preparation-failure:2",
+    "detail": {
+      "stage": "print",
+      "message": "Sticker computation byte capacity exceeded",
+      "transactions": {
+        "entries": 31,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 1,
+        "pendingCopies": 0,
+        "privateBytes": 94272,
+        "accountedBytes": 85000896
+      }
+    }
+  },
+  {
+    "name": "webpod:preparation-failure:3",
+    "detail": {
+      "stage": "print",
+      "message": "Sticker computation byte capacity exceeded",
+      "transactions": {
+        "entries": 31,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 1,
+        "pendingCopies": 0,
+        "privateBytes": 94272,
+        "accountedBytes": 85000896
+      }
+    }
+  },
+  {
+    "name": "webpod:preparation-failure:4",
+    "detail": {
+      "stage": "print",
+      "message": "Sticker computation byte capacity exceeded",
+      "transactions": {
+        "entries": 31,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 1,
+        "pendingCopies": 0,
+        "privateBytes": 94272,
+        "accountedBytes": 85000896
+      }
+    }
+  },
+  {
+    "name": "webpod:preparation-failure:5",
+    "detail": {
+      "stage": "print",
+      "message": "Sticker computation byte capacity exceeded",
+      "transactions": {
+        "entries": 31,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 1,
+        "pendingCopies": 0,
+        "privateBytes": 94272,
+        "accountedBytes": 85000896
+      }
+    }
+  },
+  {
+    "name": "webpod:preparation-failure:6",
+    "detail": {
+      "stage": "print",
+      "message": "Sticker computation byte capacity exceeded",
+      "transactions": {
+        "entries": 31,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 1,
+        "pendingCopies": 0,
+        "privateBytes": 94272,
+        "accountedBytes": 85000896
+      }
+    }
+  }
+]

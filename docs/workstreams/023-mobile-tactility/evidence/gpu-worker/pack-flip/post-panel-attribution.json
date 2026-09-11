@@ -1,0 +1,215 @@
+{
+  "revision": "dbe65c2a51187a81ef6623f9daf4bffbe47af3b7",
+  "durationMs": 5694.252,
+  "sampledMs": 5693.392,
+  "samples": 3816,
+  "hashes": [
+    {
+      "path": "docs/workstreams/023-mobile-tactility/evidence/gpu-worker/pack-flip/post-panel-main.cpuprofile",
+      "sha256": "35e44bac047d04576162b3977e82449684e16c5a06e3a1f0245d9f152ce7d276"
+    },
+    {
+      "path": "apps/web/dist/client/assets/src-B7bliWAb.js",
+      "sha256": "74ead7cdee0461d873bf48ec9ff00303f37006d3c62737370eebb645ad83ba98"
+    },
+    {
+      "path": "apps/web/dist/client/assets/index-DUN-SDO1.js",
+      "sha256": "e3dc5c0a0fbd7c1982e856d3567cbf7eb8f6ec0a9df374c8f9e66d8b7dc72a79"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 156,
+      "fn": "b",
+      "file": "src-B7bliWAb.js",
+      "line": 4419,
+      "col": 308159,
+      "self": 0,
+      "inclusive": 2.361,
+      "parent": 155
+    },
+    {
+      "id": 157,
+      "fn": "getBoundingClientRect",
+      "file": "",
+      "line": -1,
+      "col": -1,
+      "self": 2.361,
+      "inclusive": 2.361,
+      "parent": 156
+    },
+    {
+      "id": 301,
+      "fn": "screen",
+      "file": "src-B7bliWAb.js",
+      "line": 4419,
+      "col": 312761,
+      "self": 2.472,
+      "inclusive": 74.948,
+      "parent": 300
+    },
+    {
+      "id": 704,
+      "fn": "getBoundingClientRect",
+      "file": "",
+      "line": -1,
+      "col": -1,
+      "self": 32.489,
+      "inclusive": 32.489,
+      "parent": 301
+    },
+    {
+      "id": 410,
+      "fn": "b",
+      "file": "src-B7bliWAb.js",
+      "line": 4419,
+      "col": 308159,
+      "self": 3.612,
+      "inclusive": 15.468,
+      "parent": 409
+    },
+    {
+      "id": 464,
+      "fn": "getBoundingClientRect",
+      "file": "",
+      "line": -1,
+      "col": -1,
+      "self": 9.123,
+      "inclusive": 9.123,
+      "parent": 410
+    },
+    {
+      "id": 508,
+      "fn": "send",
+      "file": "src-B7bliWAb.js",
+      "line": 4455,
+      "col": 155361,
+      "self": 34.498,
+      "inclusive": 60.787,
+      "parent": 507
+    },
+    {
+      "id": 690,
+      "fn": "postMessage",
+      "file": "",
+      "line": -1,
+      "col": -1,
+      "self": 26.289,
+      "inclusive": 26.289,
+      "parent": 508
+    },
+    {
+      "id": 283,
+      "fn": "Z2.a.onmessage",
+      "file": "src-B7bliWAb.js",
+      "line": 4455,
+      "col": 153079,
+      "self": 24.012,
+      "inclusive": 367.909,
+      "parent": 1
+    },
+    {
+      "id": 284,
+      "fn": "receive",
+      "file": "src-B7bliWAb.js",
+      "line": 4455,
+      "col": 130797,
+      "self": 0,
+      "inclusive": 64.034,
+      "parent": 283
+    },
+    {
+      "id": 296,
+      "fn": "ne",
+      "file": "src-B7bliWAb.js",
+      "line": 4455,
+      "col": 151456,
+      "self": 3.565,
+      "inclusive": 209.857,
+      "parent": 283
+    },
+    {
+      "id": 297,
+      "fn": "te",
+      "file": "src-B7bliWAb.js",
+      "line": 4455,
+      "col": 150982,
+      "self": 46.135,
+      "inclusive": 54.066,
+      "parent": 296
+    },
+    {
+      "id": 1139,
+      "fn": "A2",
+      "file": "src-B7bliWAb.js",
+      "line": 4455,
+      "col": 140567,
+      "self": 0.833,
+      "inclusive": 5.777,
+      "parent": 297
+    },
+    {
+      "id": 412,
+      "fn": "applyPose",
+      "file": "src-B7bliWAb.js",
+      "line": 4455,
+      "col": 137463,
+      "self": 0,
+      "inclusive": 74.88,
+      "parent": 296
+    },
+    {
+      "id": 666,
+      "fn": "ne",
+      "file": "src-B7bliWAb.js",
+      "line": 4455,
+      "col": 112762,
+      "self": 3.4,
+      "inclusive": 54.07,
+      "parent": 296
+    },
+    {
+      "id": 908,
+      "fn": "m",
+      "file": "src-B7bliWAb.js",
+      "line": 4455,
+      "col": 131716,
+      "self": 0,
+      "inclusive": 22,
+      "parent": 296
+    },
+    {
+      "id": 624,
+      "fn": "k",
+      "file": "src-B7bliWAb.js",
+      "line": 4455,
+      "col": 150386,
+      "self": 6.144,
+      "inclusive": 29.255,
+      "parent": 283
+    },
+    {
+      "id": 293,
+      "fn": "b",
+      "file": "src-B7bliWAb.js",
+      "line": 4419,
+      "col": 308159,
+      "self": 1.714,
+      "inclusive": 9.344,
+      "parent": 292
+    },
+    {
+      "id": 509,
+      "fn": "getBoundingClientRect",
+      "file": "",
+      "line": -1,
+      "col": -1,
+      "self": 4.282,
+      "inclusive": 4.282,
+      "parent": 293
+    }
+  ],
+  "offsetGetterFrames": [],
+  "contourKernelFrames": [],
+  "method": "Paired sample timeDelta charged to leaf; inclusive time propagated to ancestors; built zero-based function positions matched to source. No unrelated URLs retained."
+}

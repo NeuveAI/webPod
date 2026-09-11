@@ -1,0 +1,7 @@
+{
+  "url": "/webpod",
+  "reduced": true,
+  "reveal": "complete",
+  "renderer": "worker",
+  "alerts": []
+}

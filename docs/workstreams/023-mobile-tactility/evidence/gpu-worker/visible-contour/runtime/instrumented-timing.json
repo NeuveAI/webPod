@@ -1,0 +1,225 @@
+{
+  "controls": false,
+  "timing": [
+    {
+      "name": "wp-contour:published-age",
+      "startTime": 7686.10009765625,
+      "duration": 118.89990234375,
+      "detail": {
+        "generation": 143,
+        "sequence": 1,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:pre-sweep",
+      "startTime": 7686.10009765625,
+      "duration": 101.7998046875,
+      "detail": {
+        "generation": 143,
+        "sequence": 1,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:worker-sweep",
+      "startTime": 7787.89990234375,
+      "duration": 11.199951171875,
+      "detail": {
+        "generation": 143,
+        "sequence": 1,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:post-sweep",
+      "startTime": 7799.099853515625,
+      "duration": 5.900146484375,
+      "detail": {
+        "generation": 143,
+        "sequence": 1,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:published-age",
+      "startTime": 8757,
+      "duration": 32.300048828125,
+      "detail": {
+        "generation": 143,
+        "sequence": 2,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:pre-sweep",
+      "startTime": 8757,
+      "duration": 14.099853515625,
+      "detail": {
+        "generation": 143,
+        "sequence": 2,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:worker-sweep",
+      "startTime": 8771.099853515625,
+      "duration": 6.400146484375,
+      "detail": {
+        "generation": 143,
+        "sequence": 2,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:post-sweep",
+      "startTime": 8777.5,
+      "duration": 11.800048828125,
+      "detail": {
+        "generation": 143,
+        "sequence": 2,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:published-age",
+      "startTime": 8822.10009765625,
+      "duration": 29.39990234375,
+      "detail": {
+        "generation": 143,
+        "sequence": 3,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:pre-sweep",
+      "startTime": 8822.10009765625,
+      "duration": 12.599853515625,
+      "detail": {
+        "generation": 143,
+        "sequence": 3,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:worker-sweep",
+      "startTime": 8834.699951171875,
+      "duration": 6.39990234375,
+      "detail": {
+        "generation": 143,
+        "sequence": 3,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:post-sweep",
+      "startTime": 8841.099853515625,
+      "duration": 10.400146484375,
+      "detail": {
+        "generation": 143,
+        "sequence": 3,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:published-age",
+      "startTime": 8869.10009765625,
+      "duration": 35.89990234375,
+      "detail": {
+        "generation": 143,
+        "sequence": 4,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:pre-sweep",
+      "startTime": 8869.10009765625,
+      "duration": 19.999755859375,
+      "detail": {
+        "generation": 143,
+        "sequence": 4,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:worker-sweep",
+      "startTime": 8889.099853515625,
+      "duration": 6.900146484375,
+      "detail": {
+        "generation": 143,
+        "sequence": 4,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:post-sweep",
+      "startTime": 8896,
+      "duration": 9,
+      "detail": {
+        "generation": 143,
+        "sequence": 4,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:published-age",
+      "startTime": 8918.199951171875,
+      "duration": 17,
+      "detail": {
+        "generation": 143,
+        "sequence": 5,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:pre-sweep",
+      "startTime": 8918.199951171875,
+      "duration": 1.89990234375,
+      "detail": {
+        "generation": 143,
+        "sequence": 5,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:worker-sweep",
+      "startTime": 8920.099853515625,
+      "duration": 7.60009765625,
+      "detail": {
+        "generation": 143,
+        "sequence": 5,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    },
+    {
+      "name": "wp-contour:post-sweep",
+      "startTime": 8927.699951171875,
+      "duration": 7.5,
+      "detail": {
+        "generation": 143,
+        "sequence": 5,
+        "colliderBytes": 45562636,
+        "outputBytes": 4126936
+      }
+    }
+  ]
+}
