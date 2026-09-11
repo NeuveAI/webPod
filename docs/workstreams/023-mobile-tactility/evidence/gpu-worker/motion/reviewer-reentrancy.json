@@ -1,0 +1,14 @@
+{
+  "reentrantPublicYaw": 20,
+  "reentrantSentYaw": 20,
+  "sent": [
+    20
+  ],
+  "independentOwners": true,
+  "staleDetachPreservesReplacement": true,
+  "previousFailure": {
+    "publicYaw": 20,
+    "sentYaw": 10
+  },
+  "scope": "Actual Jotai authority synchronous reentrant publication and independent owner replacement, no browser claim."
+}

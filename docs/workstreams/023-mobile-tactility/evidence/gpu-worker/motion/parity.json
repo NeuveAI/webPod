@@ -1,0 +1,7 @@
+{
+  "baseline": "f3d738fca7806f86c31cc849c2312ce2d9de54e8",
+  "orientationSingleStepCases": 105,
+  "revealCurveBoundaryCases": 19,
+  "exact": true,
+  "scope": "Extracted equations only; driver, clocks, cancellation, controls and live integration have separate evidence."
+}

@@ -1,0 +1,27 @@
+import { strict as assert } from 'node:assert';
+import { createPreviewMotionAuthority } from '../../../../../../apps/web/src/device-motion-authority';
+import type { RenderPose } from '../../../../../../packages/device/src/device-render-protocol';
+const authority = createPreviewMotionAuthority();
+let pose: RenderPose = {sequence: 0, motionEpoch: 0, lastAcceptedCommand: 0, layoutRevision: 1, sceneRevision: 1, resourceRevision: 1, nodes: [], orientation: {pitchDeg: 0, yawDeg: 0, rollDeg: 0}, reveal: null};
+const sent: number[] = [];
+const detach = authority.attach({read: () => pose, nextCommandSequence: () => 1, sendPose(next) {pose = next; sent.push(next.orientation.yawDeg);}, sendCommand() {}, subscribe: () => () => {}});
+const unsubscribe = authority.subscribeIntent(() => {
+  if (authority.readIntent().orientation.yawDeg === 10) authority.publishIntent({pitchDeg: 0, yawDeg: 20, rollDeg: 0});
+});
+authority.publishIntent({pitchDeg: 0, yawDeg: 10, rollDeg: 0});
+assert.equal(authority.readIntent().orientation.yawDeg, 20);
+assert.equal(pose.orientation.yawDeg, 20);
+assert.deepEqual(sent, [20]);
+const second = createPreviewMotionAuthority();
+second.publishIntent({pitchDeg: 0, yawDeg: 70, rollDeg: 0});
+assert.equal(authority.readIntent().orientation.yawDeg, 20);
+assert.equal(second.readIntent().orientation.yawDeg, 70);
+let replacementSends = 0;
+const detachReplacement = authority.attach({read: () => pose, nextCommandSequence: () => 2, sendPose(next) {pose = next; replacementSends++;}, sendCommand() {}, subscribe: () => () => {}});
+detach();
+authority.publishIntent({pitchDeg: 0, yawDeg: 30, rollDeg: 0});
+assert.equal(replacementSends, 1);
+assert.equal(pose.orientation.yawDeg, 30);
+detachReplacement();
+unsubscribe(); detach();
+console.log(JSON.stringify({reentrantPublicYaw: 20, reentrantSentYaw: sent.at(-1), sent, independentOwners: true, staleDetachPreservesReplacement: true, previousFailure: {publicYaw: 20, sentYaw: 10}, scope: 'Actual Jotai authority synchronous reentrant publication and independent owner replacement, no browser claim.'}, null, 2));

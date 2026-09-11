@@ -1,0 +1,9 @@
+{
+  "sharedControllerNativeDispatch": true,
+  "acceptedCardinalExactlyOnce": true,
+  "cardinalToArcOriginalSample": true,
+  "cancelAndLostCaptureIdempotent": true,
+  "disposalReleasesCapture": true,
+  "callbackFailureCleansCapture": true,
+  "scope": "Exact shared native event controller; geometric admission and browser media activation remain host/integration checks."
+}

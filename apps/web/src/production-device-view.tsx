@@ -55,6 +55,8 @@ interface ProductionPanelViewProps {
 }
 
 export interface ProductionDeviceViewProps extends ProductionPanelViewProps {
+  readonly rendererBackend?: 'webgl' | 'worker'
+  readonly motionAuthority?: import('@webpod/device').DeviceMotionAuthority
   readonly className?: string
   readonly cameraFov?: number
   readonly cameraDistance?: number
@@ -109,6 +111,7 @@ export const ProductionPanelView = memo(function ProductionPanelView({
 
 /** Renders the production panel through the production composite device. */
 export function ProductionDeviceView({
+  motionAuthority,
   colourway,
   state = 'ready',
   dynamicTypeScale = 1,
@@ -161,6 +164,7 @@ export function ProductionDeviceView({
   return (
     <>
     <CompositeDevice
+      motionAuthority={motionAuthority}
       className={className}
       colourway={colourway}
       panelTone={colourway === 'white' ? 'light' : 'dark'}

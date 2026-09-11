@@ -70,7 +70,10 @@ export interface RenderMotionOrigin {
 export type RenderMotionProgram = { readonly origin: RenderMotionOrigin } & (
   | { readonly kind: 'reveal'; readonly elapsedMs: number; readonly previousStepTimestampMs: number | null }
   | { readonly kind: 'orientation-release'; readonly state: RenderOrientationReleaseState; readonly previousStepTimestampMs: number | null }
-  | { readonly kind: 'control-release'; readonly channel: 'wheel' | 'select'; readonly nodeId: string; readonly restMatrix: RenderMatrix;
+  | { readonly kind: 'control-release'; readonly channel: 'wheel' | 'select'; readonly nodeId: string;
+      readonly restMatrix: RenderMatrix;
+      readonly restPosition: readonly [number, number, number]; readonly restQuaternion: readonly [number, number, number, number];
+      readonly restScale: readonly [number, number, number];
       readonly contactAngleDeg: number; readonly initialDepth: number; readonly durationMs: number;
       readonly startedAtTimestampMs: number; readonly lastTimestampMs: number; readonly stalledFrames: number }
 );
@@ -96,7 +99,7 @@ export type RenderCommand = RenderCommandBase & (
   | { readonly kind: 'motion-start'; readonly program: RenderMotionProgram }
   | { readonly kind: 'reduced-motion'; readonly enabled: boolean }
   | { readonly kind: 'motion-resume'; readonly checkpoint: RenderMotionCheckpoint }
-  | { readonly kind: 'motion-cancel'; readonly reason: 'external-input' | 'hidden' | 'unmount' | 'layout' }
+  | { readonly kind: 'motion-cancel'; readonly reason: 'external-input' | 'hidden' | 'unmount' | 'layout'; readonly channel?: 'orientation' | 'wheel' | 'select' | 'all' }
 );
 export interface RenderProjection {
   readonly epoch: number;

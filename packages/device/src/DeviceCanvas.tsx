@@ -1,4 +1,6 @@
 import { StickerPackScene } from "./StickerPackScene";
+import type { DeviceMotionAuthority } from './device-motion-authority';
+import { DeviceMotionBridge } from './DeviceMotionBridge';
 import { DeviceRenderWarmup } from "./DeviceRenderWarmup";
 /**
  * Demand-rendered physical device canvas. An untouched device schedules no
@@ -8,7 +10,7 @@ import { DeviceRenderWarmup } from "./DeviceRenderWarmup";
  * Old absolute steel stop-table calibration is superseded by the product studio.
  */
 import { Canvas, useThree } from "@react-three/fiber";
-import { createContext, Suspense, useLayoutEffect, useMemo, type ReactNode } from "react";
+import { createContext, Suspense, useLayoutEffect, useMemo, useSyncExternalStore, useCallback, type ReactNode } from "react";
 import { Box3, PerspectiveCamera } from "three";
 
 import { Device, type DeviceProps } from "./Device";
@@ -43,6 +45,7 @@ import {
 } from "./orientation";
 
 export type DeviceCanvasProps = DeviceProps & {
+  readonly motionAuthority?: DeviceMotionAuthority;
   /** Opt-in DOM projection evidence; never required for rendering or input. */
   readonly projectionDiagnostics?: boolean;
   readonly className?: string;
@@ -104,6 +107,7 @@ function publishProjectionDiagnostics(
 
 export type DeviceCanvasOrientationState = {
   readonly orientation: DeviceOrientation;
+  readonly motionAuthority?: DeviceMotionAuthority;
   readonly visibleFace: DeviceVisibleFace;
   readonly frontInteractive: boolean;
   /** The same injected solid-form contract consumed by visible front meshes. */
@@ -125,6 +129,7 @@ export const DeviceCanvasOrientationContext =
   );
 
 export function DeviceCanvas({
+  motionAuthority,
   className,
   cameraDistance,
   cameraFov = DEFAULT_CAMERA_FOV,
@@ -149,15 +154,20 @@ export function DeviceCanvas({
   const resolvedDensity = useAtomValue(densityOwner.density, { store: densityOwner.store });
   const form = device.form ?? DEFAULT_DEVICE_FORM;
   const envelope = useMemo(() => completeDeviceEnvelope(form), [form]);
-  const orientationState = useMemo<DeviceCanvasOrientationState>(
-    () => ({
-      orientation,
-      visibleFace: resolveDeviceVisibleFace(orientation),
-      frontInteractive: deviceScreenIsInteractable(orientation),
-      form,
-    }),
-    [form, orientation],
-  );
+  const readSemanticOrientation = useCallback(() => {
+    const current = motionAuthority?.readIntent().orientation ?? orientation;
+    return `${resolveDeviceVisibleFace(current)}:${deviceScreenIsInteractable(current)}`;
+  }, [motionAuthority, orientation]);
+  const subscribeOrientation = useCallback((listener: () => void) => motionAuthority?.subscribeIntent(listener) ?? (() => {}), [motionAuthority]);
+  const semanticOrientation = useSyncExternalStore(subscribeOrientation, readSemanticOrientation, readSemanticOrientation);
+  const orientationState = useMemo<DeviceCanvasOrientationState>(() => ({
+    get orientation() {return motionAuthority?.readIntent().orientation ?? orientation;},
+    motionAuthority,
+    visibleFace: semanticOrientation.startsWith('front:') ? 'front' : semanticOrientation.startsWith('back:') ? 'back' : 'edge',
+    frontInteractive: semanticOrientation.endsWith(':true'),
+    form,
+    // Provider changes only at admission/face boundaries, not every matrix tick.
+  }), [form, orientation, motionAuthority, semanticOrientation]);
   const initialDistance = cameraDistance ?? DEFAULT_CAMERA_DISTANCE;
   return (
     <Canvas
@@ -186,6 +196,7 @@ export function DeviceCanvas({
             <StudioEnvironment {...studioEnvironment} />
           )}
           <Device {...device} form={form} orientation={orientation} />
+          {motionAuthority ? <DeviceMotionBridge authority={motionAuthority} /> : null}
           {device.stickerScene === undefined ? null : <StickerPackScene scene={device.stickerScene} />}
           <ResponsiveDeviceCamera
             mobileFraming={cameraMobileFraming}

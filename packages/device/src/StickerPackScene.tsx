@@ -416,6 +416,9 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
   const { scene, camera, viewport, size, gl, invalidate } = useThree();
   const orientation = useContext(DeviceCanvasOrientationContext);
   const runtime = useMemo(() => createCarryPreparation(), []);
+  const subscribeCarryOrientation = useCallback((listener: () => void) => orientation.motionAuthority?.subscribeIntent(listener) ?? (() => {}), [orientation.motionAuthority]);
+  const readCarryOrientation = useCallback(() => orientation.motionAuthority?.readIntent().orientation ?? orientation.orientation, [orientation]);
+  const carryOrientation = useSyncExternalStore(subscribeCarryOrientation, readCarryOrientation, readCarryOrientation);
   const result = useSyncExternalStore(runtime.subscribe, runtime.getSnapshot, runtime.getServerSnapshot);
   useEffect(() => runtime.mount(), [runtime]);
   const collision = carryCollision.current;
@@ -435,7 +438,7 @@ function PeelingPrint({ art, pack, width, origin, stickerScene, roughness, paper
     const workspace = pose.returnToSheet ? scene.getObjectByName('sticker-pack-wrapper') : undefined;
     const bounds = workspace ? new Box3().setFromObject(workspace) : null;
     runtime.request({ art: artwork, pack: pose, width, paperWidth, pixel, seatX, origin: [originX, originY, originZ], world: content.matrixWorld.toArray(), cameraWorld: camera.matrixWorld.toArray(), projection: camera.projectionMatrix.toArray(), viewportWidth: size.width, viewportHeight: size.height, worldPixel: viewport.getCurrentViewport(camera, center).width / size.width, workspaceBounds: bounds && !bounds.isEmpty() ? { min: bounds.min.toArray(), max: bounds.max.toArray() } : null }, rear.geometry, collision);
-  }, [runtime, inputKey, scene, camera, collision, collisionEpoch, orientation.orientation, width, paperWidth, pixel, seatX, originX, originY, originZ, size.width, size.height, viewport]);
+  }, [runtime, inputKey, scene, camera, collision, collisionEpoch, carryOrientation, width, paperWidth, pixel, seatX, originX, originY, originZ, size.width, size.height, viewport]);
   useLayoutEffect(() => {
     runtime.commit();
     const error = result.frame?.pointerError;

@@ -20,6 +20,7 @@ import {
   type DeviceOrientation,
   type ScreenMeshHandle,
   type DeviceStickerScene,
+  type DeviceMotionAuthority,
 } from '@webpod/device'
 import {
   acceptedExternalPressActionAtom,
@@ -71,6 +72,7 @@ const CONTEXT_RESTORATION_STYLE = {
 } as const
 
 export interface CompositeDeviceProps {
+  readonly motionAuthority?: DeviceMotionAuthority
   readonly stickerScene?: DeviceStickerScene
   readonly panel: ReactNode
   readonly colourway?: Colourway
@@ -101,6 +103,7 @@ export interface CompositeDeviceProps {
  * the canvas. No React component owns a duplicate copy of panel state.
  */
 export function CompositeDevice({
+  motionAuthority,
   stickerScene,
   panel,
   colourway = 'black',
@@ -165,6 +168,7 @@ export function CompositeDevice({
           {host !== null && tier.tier === 'T1' ? createPortal(panel, host) : null}
           {shouldMountCanvas ? (
             <DeviceCanvas
+              motionAuthority={motionAuthority}
               stickerScene={stickerScene}
               colourway={colourway}
               cameraFov={cameraFov}

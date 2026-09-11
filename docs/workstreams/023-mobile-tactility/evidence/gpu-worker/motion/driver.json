@@ -1,0 +1,12 @@
+{
+  "remoteControlChannels": 2,
+  "mainControlFrames": 0,
+  "maxRendererFrames": 1,
+  "exactRest": true,
+  "distinctOrigins": true,
+  "rapidCommandsWithoutProjectionReceipt": true,
+  "modelReframeTranslationPreserved": true,
+  "staleCommandRejected": true,
+  "pauseDisposeQuiescent": true,
+  "scope": "Deterministic actual controller/driver seam; no native rendering or provider/browser claim."
+}

@@ -1,8 +1,9 @@
+import { createPreviewMotionAuthority } from './device-motion-authority';
 import { Button } from '@webpod/ui/components/button';
 import { Field, FieldGroup, FieldLabel, FieldSet, FieldLegend, FieldSeparator } from '@webpod/ui/components/field';
 import { Switch } from '@webpod/ui/components/switch';
 import { ToggleGroup, ToggleGroupItem } from '@webpod/ui/components/toggle-group';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { recordInteraction } from './interaction-telemetry';
 import { mountInteractionTelemetry } from './interaction-telemetry-browser';
 import { mountWebMcp } from './webmcp';
@@ -26,7 +27,7 @@ import {
 } from "@webpod/device";
 import { useAtomValue } from "jotai";
 import { DeviceSettings, InteractionSoundSetting, deviceSettingsStore, interactionAudioEnabledAtom } from "./device-settings";
-import { useCallback, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from "react";
 
 import { applePlaybackDiagnostics, deriveApplePlaybackDiagnosis, serializeApplePlaybackDiagnostics, type AppleEmeCapability, type ApplePlaybackDiagnosticEvent } from "./apple-playback-diagnostics";
 import {
@@ -165,13 +166,13 @@ export function DevicePage() {
 
 function InteractiveDevicePage() {
   const navigate = useNavigate();
+  const rendererBackend = useSearch({strict: false, select: search => search.renderBackend});
   const hadAppleSession = useRef(false);
+  const motionAuthority = useMemo(() => createPreviewMotionAuthority(previewStore.getSnapshot().orientation), []);
   const interactionAudioEnabled = useAtomValue(interactionAudioEnabledAtom, { store: deviceSettingsStore });
-  const state = useSyncExternalStore(
-    previewStore.subscribe,
-    previewStore.getSnapshot,
-    previewStore.getSnapshot,
-  );
+  const detailedPreview = import.meta.env.DEV && (new URLSearchParams(window.location.search).has('capture') || new URLSearchParams(window.location.search).has('diagnostic'));
+  const readPreview = detailedPreview ? previewStore.getSnapshot : previewStore.getAppearanceSnapshot;
+  const state = useSyncExternalStore(previewStore.subscribe, readPreview, readPreview);
   const stageRef = useRef<HTMLDivElement>(null);
   const orientationControlsRef = useRef<DeviceOrientationControls | null>(null);
   const onOrientationGrabStart = useCallback(
@@ -225,21 +226,21 @@ function InteractiveDevicePage() {
   useEffect(() => {
     const stage = stageRef.current;
     if (stage === null) return;
-    const controls = bindDeviceOrientationControls(stage, previewStore, window, undefined, import.meta.env.DEV ? recordInteraction : undefined);
+    const controls = bindDeviceOrientationControls(stage, previewStore, window, undefined, import.meta.env.DEV ? recordInteraction : undefined, motionAuthority);
     orientationControlsRef.current = controls;
     return () => {
       orientationControlsRef.current = null;
       controls.dispose();
     };
-  }, []);
+  }, [motionAuthority]);
 
   useEffect(() => mountWebMcp(document, () => orientationControlsRef.current), []);
   useLayoutEffect(() => {
     const stage = stageRef.current;
     if (stage === null || capture) return;
     stage.focus({ preventScroll: true });
-    return mountDeviceReveal(stage, previewStore);
-  }, [capture]);
+    return mountDeviceReveal(stage, previewStore, motionAuthority);
+  }, [capture, motionAuthority]);
   useEffect(() => import.meta.env.DEV ? mountInteractionTelemetry(document, () => orientationControlsRef.current) : undefined, []);
 
   useEffect(() => {
@@ -318,6 +319,8 @@ function InteractiveDevicePage() {
           />
         ) : (
           <ProductionDeviceView
+            motionAuthority={motionAuthority}
+            rendererBackend={rendererBackend}
             interactionAudioEnabled={interactionAudioEnabled}
             className="webpod-device-preview__device"
             colourway={renderedState.colourway}

@@ -537,7 +537,7 @@ describe("rigid physical click-wheel tilt", () => {
       "packages/device/src/control-physics.ts",
     ).text();
     const input = await Bun.file(
-      "packages/device/src/click-wheel-input.tsx",
+      "packages/device/src/click-wheel-event-controller.ts",
     ).text();
     const scope = await Bun.file(
       "packages/device/src/ControlPhysicsScope.tsx",
