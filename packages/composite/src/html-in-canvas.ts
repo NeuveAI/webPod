@@ -126,14 +126,7 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
         density,
         screen.panel.scale,
       )
-      panelElement.style.width = `${String(screen.panel.width)}px`
-      panelElement.style.height = `${String(screen.panel.height)}px`
-      if (content.style.transformOrigin !== 'left top') {
-        content.style.transformOrigin = 'top left'
-      }
-      const scale =
-        `scale(${String(screen.panel.width / contentWidth)}, ${String(screen.panel.height / contentHeight)})`
-      if (content.style.transform !== scale) content.style.transform = scale
+      fitPanelContentToFrame(panelElement, screen.panel.width, screen.panel.height, {content, width: contentWidth, height: contentHeight})
       this.scaledContent = content
       canvas.dataset['wpRasterDensity'] = String(density)
       canvas.dataset['wpRasterPixelWidth'] = String(rasterFrame.width)
@@ -417,4 +410,17 @@ export function createHtmlTextureMaterial(texture: HTMLTexture): MeshBasicMateri
   }
   material.customProgramCacheKey = () => 'webpod-htmltexture-rgba8-srgb-v1'
   return material
+}
+
+/** Shared DOM fit for both renderer backends. Panel's authored 272×204 layout
+ * fills the screen's 320×240 logical frame without changing text/layout rules. */
+export function fitPanelContentToFrame(panelElement: HTMLElement, width: number, height: number, existing?: {readonly content: HTMLElement; readonly width: number; readonly height: number}): HTMLElement {
+  const content = existing?.content ?? resolveRasterContent(panelElement)
+  const measured = existing ?? measurePanelElement(content)
+  panelElement.style.width = `${width}px`
+  panelElement.style.height = `${height}px`
+  content.style.transformOrigin = 'top left'
+  const scale = `scale(${width / measured.width}, ${height / measured.height})`
+  if (content.style.transform !== scale) content.style.transform = scale
+  return content
 }

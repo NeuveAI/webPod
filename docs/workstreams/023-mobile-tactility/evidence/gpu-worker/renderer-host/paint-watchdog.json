@@ -1,0 +1,11 @@
+{
+  "method": "Actual15s transport watchdog with controlled native capture/worker retirement callbacks; no GPU timing claim.",
+  "checks": {
+    "missingAckRetires": true,
+    "lateAckCannotRevive": true,
+    "hiddenOutstandingImageBounded": true,
+    "disposeCancelsTimer": true,
+    "tenSecondUploadAccepted": true,
+    "noOverlappingRecoveryCapture": true
+  }
+}
