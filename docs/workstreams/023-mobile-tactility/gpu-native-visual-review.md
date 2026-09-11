@@ -39,3 +39,20 @@ Lead supplied and reviewer retained `webpod-gl-capability-meta.json`, `webpod-gl
 Lead's read of the actual HMR module instance (`t=1789151924184` resource identity) found PW-A01 failed, prepared IDs empty and collection unusable; legitimate keyboard retry reproduced failure. An earlier unversioned atom import created a fresh default instance and its null result was discarded. The tier module was already loaded without a query, so its T1 evidence is not subject to that mistaken atom-instance read. These are lead-observed runtime facts, not reviewer browser actions.
 
 Missing-stage CSS therefore reflects this unhealthy GL artwork/readiness state, not established missing CSS or intentional backend layout. The reference still supports the recorded front chassis/LCD visual observations, but cannot establish complete working GL packet parity. A separately scoped GL readiness correction is in progress and will need independent source and actual-route verification. The native LCD/glass activation blocker remains unchanged; no app fixes were made during this evidence clarification.
+
+
+## Output-corrected actual glass-on front review
+
+Bounded visual disposition: APPROVE for the supplied Black/dark and Silver/light static front captures at37936fe. This supersedes the earlier front LCD/glass discrepancy as a current blocker for those views; it does not approve the entire native implementation or all visual states.
+
+Independently viewed `/tmp/webpod-output-fixed-native-black-dark.png` and `/tmp/webpod-output-fixed-native-silver-light.png` against the retained GL fronts and healthy actual PR5 `/tmp/webpod-baseline-silver-light.png`. The output-fixed captures are retained with hashes under `evidence/gpu-worker/visual-front/output-fixed/`. Lead provenance: current Chrome page21,440×956,DPR3,6×CPU, reveal complete/no alerts; Silver/light state confirmed by checked ARIA state. Reviewer performed no browser operations or application changes.
+
+Silver/light now visually matches the healthy production GL reference in LCD background brightness, header gradient, blue selected-row gradient and broad lower glass shading. The prior dark/flat native LCD difference is no longer visible. Screen aperture, bezel, chassis highlight/shape, brushed material, wheel/Select and framing remain aligned. Black/dark also matches the corresponding GL nontext LCD and body material regions; its older GL reference has1498+ songs and bottom controls because of the previously documented content/readiness difference, so these regions do not support text/UI pixel parity. No remaining concrete front-view optics discrepancy is apparent in these supplied images.
+
+This is a human visual comparison, not a byte-identical image claim. The separately reviewed16-case GPU output proof supports the corrected output contract, but the screenshots alone do not establish edge/rear/rotating reflections, packet/carry visuals, resize behavior or runtime performance. Full native acceptance and final activation remain lead-owned.
+
+### Same-code rear comparison attempt — identity correction
+
+Viewed `/tmp/webpod-output-fixed-native-silver-rear.png`, its native placed-sticker counterpart, and files named `webpod-output-fixed-gl-silver-light.png` / `webpod-output-fixed-gl-silver-rear.png`. The GL front is visibly Black/dark with1198+ songs; the GL rear has a dark room while native has a light room. Reviewer flagged the mismatch and lead confirmed GL reload reset settings. These misleadingly named GL captures must not be treated as a matched Silver/light comparison. Rear reflection lobes, engraving and packet artwork appear similar, but finish/room-sensitive rim or shading differences are not attributable to the backend from this pair. Correctly identified matching GL captures are pending.
+
+The native placed-sticker capture shows the actual Night Shift artwork on the rear, but a matching settled GL placed result is not yet accepted. Lead separately observed GL artwork error after a physical drop even though placement was visible; this runtime failure remains open and is not negated by the native visual success or broker source approval.

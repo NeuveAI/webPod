@@ -1,6 +1,6 @@
 # Preferred-worker activation: remaining evidence
 
-**Not ready for activation:** LCD/glass parity is a confirmed blocker. Independent source approvals do not close integrated browser gates. This matrix consolidates the existing GPU scope and acceptance checklist; it adds no feature or new benchmark target. Status reflects retained reports available at this audit, not an unreported live run.
+**Not ready for activation:** the front LCD/glass discrepancy is resolved by37936fe and independently verified in both finishes. Current GL post-placement contour admission remains a confirmed blocker. Independent source approvals do not close integrated browser gates. This matrix consolidates the existing GPU scope and acceptance checklist; it adds no feature or new benchmark target. Status reflects retained reports available at this audit, not an unreported live run.
 
 | Existing requirement | Already supported | Remaining minimal action / closure evidence |
 |---|---|---|
@@ -16,3 +16,9 @@
 | Default preference and final process | Explicit worker query route works; default remains GL pending activation. Source reviews and bounded tests/types/builds cover milestones, not whole-goal completion. | Once blockers close, review the bounded preferred-backend selection change and verify supported browser selects worker without query while fallback remains correct. Run final exact-range integrated checks/build; confirm no diagnostic source/active observer, clean user state, and authoritative artifact hashes. Full Neuve final-range/manual/HITL ledger remains lead-owned. |
 
 Execution order: finish LCD diagnosis/correction and current GL readiness check; combine a single final native interaction pass covering packet/media/keyboard/WebMCP/hide/resize; finish the already scoped priming measurements; then preferred-selection and final process gates. Existing exact selectors and ARIA actions are in [gpu-native-acceptance-checklist.md](gpu-native-acceptance-checklist.md). No application, browser/server or heavy-check actions were performed for this audit.
+
+## Latest integrated checkpoint
+
+Source37936fe actual native fronts pass the bounded independent visual review. CurrentChrome phone6× native liner→PW-A01pickup→rear drop→Edit→Return passes and restores zero placements. Native source output GPU16-case proof has exact GL pixels; full rear/motion proof remains separate. Broker81e2556 removes only impossible non-grid contour reservation, resolving cold packet admission; current GL physically opens/peels/drops but reports a cap error after placement settles. Placement return succeeds and restores zero. The captured postdrop ledger motivates the separately scoped exact current-print reuse; no whole-fallback acceptance yet. All temporary origin/broker diagnostics were restored byte-exactly, including the corrected broker, before commit.
+
+The initially named output-fixed GL Silver/light screenshots actually reset to Black/dark on navigation. They are not matched finish/room evidence; no verdict may rely on those names. A subsequent GL capture was interrupted by diagnostic HMR and shows connection UI, so is also excluded. The original healthy PR5 Silver/light reference remains the matched front optical reference. No performance trace was started during these checkpoints.
