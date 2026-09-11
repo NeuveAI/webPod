@@ -1,0 +1,55 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/control-physics.test.ts:
+(pass) rigid physical click-wheel tilt > the restrained rigid calibration and release laws are explicit [0.97ms]
+(pass) rigid physical click-wheel tilt > the complete production tessellation receives one distance-preserving rigid transform [130.42ms]
+(pass) rigid physical click-wheel tilt > the low side follows contact continuously while object-space circles never change [44.39ms]
+(pass) rigid physical click-wheel tilt > a rotated device applies the same rigid rotation to vertices and normals [2.50ms]
+(pass) rigid physical click-wheel tilt > wheel release is monotonic in tilt and restores exact rest [1.03ms]
+(pass) rigid physical click-wheel tilt > reduced motion during release restores and presents the exact rest transform [0.86ms]
+(pass) rigid physical click-wheel tilt > detach and rebind restore only the matching rigid assembly [2.29ms]
+(pass) rigid physical click-wheel tilt > Select is one restrained device-local Z press with invariant plastic [3.00ms]
+(pass) rigid physical click-wheel tilt > wheel and Select release durations are invariant from 15 through 360 Hz [23.13ms]
+(pass) rigid physical click-wheel tilt > release is demand-driven and a frozen clock has a bounded escape [0.77ms]
+(pass) rigid physical click-wheel tilt > production has one contact-following rigid wheel transform and no deformation or optical proxy [8.99ms]
+
+packages/device/src/screen-aperture.test.ts:
+(pass) square LCD aperture and flat assembly reveal > production collapses only the automatic inner bevel into one square wall [126.89ms]
+(pass) square LCD aperture and flat assembly reveal > opaque backing wall removal preserves every cap and exterior triangle [93.14ms]
+(pass) square LCD aperture and flat assembly reveal > the complete crowned body leaves active display edges clear from front and quarter cameras [1421.97ms]
+(pass) square LCD aperture and flat assembly reveal > the visible reveal is unlit black and neither screen layer can restore a reflective lip [4.02ms]
+
+packages/device/src/front-surface.test.ts:
+(pass) front assemblies share the crowned shell frame > the production crown is subtle rather than a second chassis depth [0.01ms]
+(pass) front assemblies share the crowned shell frame > flat display layers remain recessed at every outer corner [0.07ms]
+(pass) front assemblies share the crowned shell frame > the click wheel and Select share the shell's front surface [0.02ms]
+(pass) front assemblies share the crowned shell frame > the wheel and Select are near-flush separate parts without a border ring [0.02ms]
+(pass) front assemblies share the crowned shell frame > no renderer or calibration path can restore a dome or decorative Select border [0.86ms]
+(pass) front assemblies share the crowned shell frame > the active LCD keeps its physical grid while only depth moves
+
+packages/device/src/orientation-grab.test.ts:
+(pass) device enclosure orientation grab > leaves browser gesture suppression to the application touch-action boundary [0.28ms]
+(pass) device enclosure orientation grab > accepts primary mouse, pen, and touch without accepting secondary input [0.05ms]
+(pass) device enclosure orientation grab > admits the physical perimeter and corners, never face controls [0.16ms]
+(pass) device enclosure orientation grab > rejects a shell behind the LCD, wheel, or Select ray hit [0.07ms]
+
+packages/device/src/physical-continuity.test.ts:
+(pass) the live device is solid geometry rather than a front-pose lighting proxy [0.36ms]
+
+packages/device/src/backplate-finish.test.ts:
+(pass) the rear face stays softly polished while the roll has a narrower specular response [0.12ms]
+(pass) engraving is generated only as shell roughness and depressed bump, with SSR fallback [0.23ms]
+(pass) actual rear tray UVs preserve rear-local XY through hardware aperture cutting [54.20ms]
+
+packages/device/src/flush-wheel-geometry.test.ts:
+(pass) owner-primary flush wheel topology > wheel vertices occupy the exact local faceplate surface [1.05ms]
+(pass) owner-primary flush wheel topology > Classic Select has a shallow dish with a flush tangent-continuous rim [1.80ms]
+(pass) owner-primary flush wheel topology > both installed gaps remain physical-scale hairlines [0.02ms]
+(pass) owner-primary flush wheel topology > the defined 40° oblique can expose no wheel or Select sidewall [2.68ms]
+(pass) owner-primary flush wheel topology > production contains no pocket, annular bevel or shadow proxy [0.31ms]
+(pass) owner-primary flush wheel topology > both Select parts are brushed metal with no plastic clearcoat [0.05ms]
+
+ 35 pass
+ 0 fail
+ 164556 expect() calls
+Ran 35 tests across 7 files. [1.99s]

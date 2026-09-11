@@ -1,3 +1,6 @@
+import { DeviceAssembly } from "./DeviceAssembly";
+import { createDeviceAssemblyRecipe, deviceAssemblyGeometries } from "./device-assembly-recipe";
+import { createDeviceAssemblyMaterials } from "./device-assembly-materials";
 import {registerStickerAssembly,markStickerAssemblyChanged} from './sticker-assembly-revision';
 import { usePreparedImmutableShells } from './immutable-shell-preparation';
 import { createShellPicking } from './shell-picking';
@@ -6,7 +9,7 @@ import { completeDeviceEnvelope } from './device-envelope';
 import { bindStickerWrapSurface, createStickerWrapSurface } from './sticker-wrap';
 import { StickerSurface } from "./StickerSurface";
 import type { DeviceStickerScene } from "./sticker-contract";
-import { BACKPLATE_FINISH, createBackplateFinishMaps } from "./backplate-finish";
+import { createBackplateFinishMaps } from "./backplate-finish";
 /**
  * The device, as react-three-fiber elements.
  *
@@ -28,7 +31,6 @@ import { BACKPLATE_FINISH, createBackplateFinishMaps } from "./backplate-finish"
 import { useThree, type ThreeEvent } from "@react-three/fiber";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import {
-  Color,
   type Camera,
   Vector3,
   type Group,
@@ -39,7 +41,6 @@ import {
 } from "three";
 
 import { useControlPhysics } from "./ControlPhysicsScope";
-import { AxialSelectControl } from "./AxialSelectControl";
 import {
   createRoomEnvMap,
   type EnvRoomParams,
@@ -50,18 +51,11 @@ import {
 } from "./front-surface";
 import { DEVICE_LAYOUT } from "./layout";
 import { DEFAULT_LIGHT_RIG, type LightRigParams } from "./light-rig";
-import { materialMapOwnership } from "./material-map-ownership";
 import {
   DEFAULT_DEVICE_MATERIALS,
   type DeviceMaterials,
-  type PhysicalSurfaceParams,
 } from "./materials";
 import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
-import {
-  createPolycarbonateMaterial,
-  createCoverGlassMaterial,
-} from "./physical-materials";
-import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 import {
   createWheelLabelMap,
 } from "./textures";
@@ -79,11 +73,8 @@ import {
   type DeviceOrientationPointerCapture,
 } from "./orientation-grab";
 import { DEVICE_SURFACE_LAYOUT } from "./surface-layout";
-import { DeviceHardware } from "./DeviceHardware";
 import {
-  effectiveStudioEnvironmentIntensity,
   useStudioEnvironmentSnapshot,
-  type StudioEnvironmentSnapshot,
 } from "./StudioEnvironment";
 
 /** LAW 5: both modes are the product, so both colourways are first class. */
@@ -130,7 +121,7 @@ export type DeviceProps = {
 };
 
 const { body, screen, wheel } = DEVICE_LAYOUT;
-const { glass, mask } = DEVICE_SURFACE_LAYOUT.front;
+const { glass } = DEVICE_SURFACE_LAYOUT.front;
 
 // D-067 puts VWaJS's circular 26px enclosure in DEVICE_LAYOUT; every shell
 // below consumes that single typed geometry.
@@ -154,10 +145,14 @@ export function Device({
 }: DeviceProps) {
   const prepared = usePreparedImmutableShells(form);
   const { front: frontGeometry, back: backGeometry } = prepared;
-  const {ringGeometry,selectGeometry,selectSeamGeometry,outerSeamGeometry,glassGeometry,displayMaskGeometry,displayWellGeometry,screenGeometry}=prepared.inserts;
+  const {ringGeometry,selectGeometry,glassGeometry}=prepared.inserts;
+  const recipe=useMemo(()=>createDeviceAssemblyRecipe(form,prepared.hardware),[form,prepared]);
+  const geometries=useMemo(()=>deviceAssemblyGeometries(prepared),[prepared]);
   const invalidate = useThree((state) => state.invalidate);
   const controlPhysics = useControlPhysics();
   const wheelAssemblyRef = useRef<Group>(null);
+  const selectRef = useRef<Mesh>(null);
+  useEffect(()=>{const select=selectRef.current;return select?controlPhysics?.attachSelect(select):undefined;},[controlPhysics]);
   useLayoutEffect(()=>{
     let root=wheelAssemblyRef.current?.parent;
     while(root&&root.name!==DEVICE_CONTENT_NAME)root=root.parent;
@@ -250,21 +245,7 @@ export function Device({
 
   const backplateFinish = useMemo(() => createBackplateFinishMaps(undefined,prepared.backplatePixels), [prepared]);
   useEffect(() => () => backplateFinish?.dispose(), [backplateFinish]);
-  const noise=prepared.textures.noise;
-  const steelAnisotropy=prepared.textures.steel;
-  const aluminumGrain=useMemo(()=>({color:prepared.textures.aluminumColor,height:prepared.textures.aluminumHeight,roughness:prepared.textures.aluminumRoughness}),[prepared]);
   const isBlack = colourway === "black";
-  const ringMaterial = isBlack
-    ? materials.wheelRingBlack
-    : materials.wheelRingWhite;
-  const selectMaterial = isBlack
-    ? materials.selectBlack
-    : materials.selectWhite;
-  const surfaceMaps = materialMapOwnership({
-    microNoise: noise,
-    steelAnisotropy,
-  });
-
   // ── Geometry ───────────────────────────────────────────────────────────────
   // Built once per shape-affecting input. Under `frameloop="demand"` a rebuild
   // is also a re-render, so the memo keys are the whole render trigger.
@@ -315,14 +296,7 @@ export function Device({
   useEffect(() => () => labelMap?.dispose(), [labelMap]);
 
   // ── Every front insert is resolved from the same crowned shell ─────────────
-  const {
-    displayReferenceZ,
-    glassFrontZ,
-    screenFrontZ,
-    wheelSurfaceBaseZ,
-    wheelGapFloorBaseZ,
-    wheelTopAtCenterZ,
-  } = resolveFrontAssemblyDepths(form);
+  const {glassFrontZ,wheelSurfaceBaseZ}=resolveFrontAssemblyDepths(form);
 
   const wrapSampler = useMemo(() => createStickerWrapSurface(form, [
       { geometry: frontGeometry },
@@ -347,61 +321,12 @@ export function Device({
     () => () => screenDefaultMaterial.dispose(),
     [screenDefaultMaterial],
   );
-  const coverGlassMaterial = useMemo(
-    () =>
-      createCoverGlassMaterial(
-        withStudioEnvironment(materials.coverGlass, studio.intensity),
-        studio.screenTexture,
-      ),
-    [materials.coverGlass, studio],
-  );
-  useEffect(() => () => coverGlassMaterial.dispose(), [coverGlassMaterial]);
-  const blackBodyPhysicalMaterial = useMemo(
-    () => {
-      const material = createPolycarbonateMaterial(
-        withStudioEnvironment(materials.bodyBlack, studio.intensity),
-        studio.texture,
-      );
-      material.roughnessMap = aluminumGrain.roughness;
-      material.map = aluminumGrain.color;
-      material.bumpMap = aluminumGrain.height;
-      return material;
-    },
-    [materials.bodyBlack, studio, aluminumGrain],
-  );
-  useEffect(
-    () => () => blackBodyPhysicalMaterial.dispose(),
-    [blackBodyPhysicalMaterial],
-  );
-  const whiteBodyPhysicalMaterial = useMemo(
-    () => {
-      const material = createPolycarbonateMaterial(
-        withStudioEnvironment(materials.bodyWhite, studio.intensity),
-        studio.texture,
-      );
-      material.roughnessMap = aluminumGrain.roughness;
-      material.map = aluminumGrain.color;
-      material.bumpMap = aluminumGrain.height;
-      return material;
-    },
-    [materials.bodyWhite, studio, aluminumGrain],
-  );
-  useEffect(
-    () => () => whiteBodyPhysicalMaterial.dispose(),
-    [whiteBodyPhysicalMaterial],
-  );
-  const wheelPhysicalMaterial = useMemo(() => {
-    const material = createPolycarbonateMaterial(
-      withStudioEnvironment(ringMaterial, studio.intensity),
-      studio.texture,
-    );
-    material.name = isBlack ? "wheel-black" : "wheel-white";
-    return material;
-  }, [isBlack, ringMaterial, studio]);
-  useEffect(
-    () => () => wheelPhysicalMaterial.dispose(),
-    [wheelPhysicalMaterial],
-  );
+  const assemblyMaterials=useMemo(()=>createDeviceAssemblyMaterials({
+    backend:{kind:"webgl"},isBlack,params:materials,screen:screenDefaultMaterial,
+    maps:{prepared:prepared.textures,rearEnvironment:env,studio:studio.texture,screenStudio:studio.screenTexture,
+      studioIntensity:studio.intensity,label:labelMap,backplate:backplateFinish},
+  }),[isBlack,materials,screenDefaultMaterial,prepared,env,studio,labelMap,backplateFinish]);
+  useEffect(()=>()=>assemblyMaterials.dispose(),[assemblyMaterials]);
 
   const attachScreen = useCallback(
     (mesh: Mesh | null) => {
@@ -440,224 +365,14 @@ export function Device({
       form={form}
     >
       {stickerScene === undefined ? null : <StickerSurface scene={stickerScene} rear={backGeometry} wrap={wrapSampler} />}
-      {/* §5.2 — the mirror-polished back plate, uncut. */}
-      <mesh
-        name="device-steel-back-orientation-input"
-        dispose={null}
-        visible={false}
-        geometry={backGeometry}
-        raycast={orientationRaycasts.back}
-        onPointerDown={
-          onOrientationGrabStart === undefined ? undefined : onShellPointerDown
-        }
-        onPointerMove={
-          onOrientationGrabHoverChange === undefined
-            ? undefined
-            : onShellPointerMove
-        }
-        onPointerOut={
-          onOrientationGrabHoverChange === undefined
-            ? undefined
-            : onShellPointerOut
-        }
-      />
-      <mesh
-        name="device-steel-back"
-        dispose={null}
-        raycast={backPicking.raycast}
-        geometry={backGeometry}
-      >
-        <meshPhysicalMaterial
-          name="steel-back"
-          {...spread(materials.steelBack)}
-          envMap={env}
-          {...surfaceMaps.steel}
-          {...(backplateFinish === null ? {} : {
-            roughness: Math.min(1, BACKPLATE_FINISH.etchedRoughness *
-              materials.steelBack.roughness / DEFAULT_DEVICE_MATERIALS.steelBack.roughness),
-            roughnessMap: backplateFinish.roughnessMap,
-            bumpMap: backplateFinish.bumpMap,
-            bumpScale: BACKPLATE_FINISH.bumpDepth,
-          })}
-        />
-      </mesh>
-
-      <mesh
-        name="device-display-mask"
-        geometry={displayMaskGeometry}
-        position={[mask.centerX, mask.centerY, screenFrontZ + 0.1]}
-      >
-        <meshBasicMaterial
-          name="display-reveal"
-          color={materials.screenReveal.color}
-          toneMapped={materials.screenReveal.toneMapped}
-        />
-      </mesh>
-
-      <DeviceHardware parts={prepared.hardware} isBlack={isBlack} />
-
-      <mesh
-        name="device-body-orientation-input"
-        dispose={null}
-        visible={false}
-        geometry={frontGeometry}
-        raycast={orientationRaycasts.front}
-        onPointerDown={
-          onOrientationGrabStart === undefined ? undefined : onShellPointerDown
-        }
-        onPointerMove={
-          onOrientationGrabHoverChange === undefined
-            ? undefined
-            : onShellPointerMove
-        }
-        onPointerOut={
-          onOrientationGrabHoverChange === undefined
-            ? undefined
-            : onShellPointerOut
-        }
-      />
-      <mesh
-        name="device-body"
-        dispose={null}
-        raycast={frontPicking.raycast}
-        geometry={frontGeometry}
-      >
-        {isBlack ? (
-          <primitive
-            object={blackBodyPhysicalMaterial}
-            attach="material"
-            name="body-black"
-          />
-        ) : (
-          <primitive
-            object={whiteBodyPhysicalMaterial}
-            attach="material"
-            name="body-white"
-          />
-        )}
-      </mesh>
-
-      <mesh
-        name="device-display-well"
-        geometry={displayWellGeometry}
-        position={[glass.centerX, glass.centerY, displayReferenceZ]}
-      >
-        <meshBasicMaterial
-          name="display-reveal-wall"
-          color={materials.screenReveal.color}
-          toneMapped={materials.screenReveal.toneMapped}
-        />
-      </mesh>
-
-      {/* The fixed floor exists only under the two physical hairlines. A full
-          backing disk would sit in front of Select as soon as the separate
-          button travels inward, visually replacing its plastic with the well. */}
-      <group name="device-wheel-gap-floor">
-        <mesh
-          name="device-select-seam-floor"
-          geometry={selectSeamGeometry}
-          position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}
-        >
-          <meshPhysicalMaterial
-            name={isBlack ? "wheel-gap-black" : "wheel-gap-white"}
-            {...spread(
-              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
-            )}
-            {...studioEnvironmentProps(
-              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
-              studio,
-            )}
-          />
-        </mesh>
-        <mesh
-          name="device-outer-seam-floor"
-          geometry={outerSeamGeometry}
-          position={[wheel.centerX, wheel.centerY, wheelGapFloorBaseZ]}
-        >
-          <meshPhysicalMaterial
-            name={isBlack ? "wheel-gap-black" : "wheel-gap-white"}
-            {...spread(
-              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
-            )}
-            {...studioEnvironmentProps(
-              isBlack ? materials.wheelWellBlack : materials.wheelWellWhite,
-              studio,
-            )}
-          />
-        </mesh>
-      </group>
-
-      {/* The ring and its ink are one rigid plastic disc. Its group origin is
-          the wheel's flush surface centre, so contact changes only one tiny
-          center-pivot rotation; child geometry, normals and scale stay exact. */}
-      <group
-        ref={wheelAssemblyRef}
-        name="device-wheel-assembly"
-        position={[wheel.centerX, wheel.centerY, wheelTopAtCenterZ]}
-      >
-        {/* The wheel is a separate plastic patch on the faceplate surface. */}
-        <mesh
-          name="device-wheel"
-          geometry={ringGeometry}
-          position={[0, 0, wheelSurfaceBaseZ - wheelTopAtCenterZ]}
-        >
-          <primitive object={wheelPhysicalMaterial} attach="material" />
-        </mesh>
-
-        {/* §5.3 L8 — screen-printed ink. A separate transparent decal is
-            required because a multiplicative map cannot lighten black. */}
-        <mesh
-          name={WHEEL_LABEL_DECAL_NAME}
-          geometry={ringGeometry}
-          position={[0, 0, wheelSurfaceBaseZ - wheelTopAtCenterZ + 0.08]}
-          renderOrder={2}
-        >
-          <meshBasicMaterial
-            map={labelMap}
-            transparent
-            depthWrite={false}
-            toneMapped={false}
-            polygonOffset
-            polygonOffsetFactor={-1}
-          />
-        </mesh>
-      </group>
-
-      {/* Classic Select shares the front's aluminum and grain, with a shallow
-          geometric bowl. Its rim stays flush while the interior curves inward. */}
-      <AxialSelectControl
-        geometry={selectGeometry}
-        position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}
-      >
-        <meshPhysicalMaterial
-          key={isBlack ? "select-flat-black" : "select-flat-white"}
-          name={isBlack ? "select-black" : "select-white"}
-          {...spread(selectMaterial)}
-          roughnessMap={aluminumGrain.roughness}
-          map={aluminumGrain.color}
-          bumpMap={aluminumGrain.height}
-          {...studioEnvironmentProps(selectMaterial, studio)}
-        />
-      </AxialSelectControl>
-
-      {/* ⚑ The W6 boundary. §12.3: MeshBasicMaterial, toneMapped false. */}
-      <mesh
-        ref={attachScreen}
-        geometry={screenGeometry}
-        position={[
-          screen.centerX,
-          screen.centerY,
-          screenFrontZ,
-        ]}
-        material={screenDefaultMaterial}
-      />
-
-      {/* §5.5 — the cover glass sheet, above everything in the window. */}
-      <mesh
-        geometry={glassGeometry}
-        position={[glass.centerX, glass.centerY, glassFrontZ]}
-        material={coverGlassMaterial}
-      />
+      <DeviceAssembly nodes={recipe} geometries={geometries} materials={assemblyMaterials.materials} bindings={{
+        wheel:wheelAssemblyRef,select:selectRef,screen:attachScreen,
+        frontRaycast:frontPicking.raycast,backRaycast:backPicking.raycast,
+        frontInputRaycast:orientationRaycasts.front,backInputRaycast:orientationRaycasts.back,
+        onPointerDown:onOrientationGrabStart===undefined?undefined:onShellPointerDown,
+        onPointerMove:onOrientationGrabHoverChange===undefined?undefined:onShellPointerMove,
+        onPointerOut:onOrientationGrabHoverChange===undefined?undefined:onShellPointerOut,
+      }} />
     </ViewerLitDeviceFrame>
   );
 }
@@ -748,46 +463,5 @@ function orientationPointerCapture(
     releasePointerCapture: (pointerId) => {
       Reflect.apply(releasePointerCapture, target, [pointerId]);
     },
-  };
-}
-
-/**
- * Widen a frozen parameter record for JSX spreading.
- *
- * `PhysicalSurfaceParams` is deeply `readonly` so nothing can mutate the §12.3
- * table in place; three's element props are mutable. The cast is confined to
- * this one function so the immutability holds everywhere it matters.
- */
-function spread(params: PhysicalSurfaceParams): Record<string, unknown> {
-  const { albedoScale = 1, color, ...physical } = params;
-  return { ...physical, color: new Color(color).multiplyScalar(albedoScale) };
-}
-
-function withStudioEnvironment(
-  params: PhysicalSurfaceParams,
-  intensity: number,
-): PhysicalSurfaceParams {
-  return {
-    ...params,
-    envMapIntensity: effectiveStudioEnvironmentIntensity(
-      params.envMapIntensity,
-      intensity,
-    ),
-  };
-}
-
-function studioEnvironmentProps(
-  params: PhysicalSurfaceParams,
-  studio: StudioEnvironmentSnapshot,
-): {
-  readonly envMap: Texture | null;
-  readonly envMapIntensity: number;
-} {
-  return {
-    envMap: studio.texture,
-    envMapIntensity: effectiveStudioEnvironmentIntensity(
-      params.envMapIntensity,
-      studio.intensity,
-    ),
   };
 }

@@ -164,9 +164,10 @@ describe("owner-primary flush wheel topology", () => {
       device.indexOf("const ringGeometry"),
       device.indexOf("const glassGeometry"),
     );
-    const wheelMeshes = device.slice(
-      device.indexOf('name="device-wheel-gap-floor"'),
-      device.indexOf("{/* ⚑ The W6 boundary"),
+    const recipe = await Bun.file('packages/device/src/device-assembly-recipe.ts').text();
+    const wheelMeshes = recipe.slice(
+      recipe.indexOf("name: 'device-wheel-gap-floor'"),
+      recipe.indexOf("id: 'screen'"),
     );
 
     expect(controlSection).not.toContain("CylinderGeometry");
@@ -180,7 +181,7 @@ describe("owner-primary flush wheel topology", () => {
     expect(wheelMeshes).not.toContain("receiveShadow");
     expect(wheelMeshes).not.toContain("aoMap");
     expect(wheelMeshes).toContain(
-      "position={[wheel.centerX, wheel.centerY, wheelSurfaceBaseZ]}",
+      "position: [wheel.centerX, wheel.centerY, depth.wheelSurfaceBaseZ]",
     );
     expect(form).not.toContain("recessDepth");
     expect(form).not.toContain("selectRecess");

@@ -65,14 +65,6 @@ function aperturePlan() {
   } as const;
 }
 
-function meshSection(source: string, name: string): string {
-  const start = source.indexOf(`name="${name}"`);
-  if (start < 0) throw new Error(`missing ${name}`);
-  const end = source.indexOf("</mesh>", start);
-  if (end < 0) throw new Error(`unterminated ${name}`);
-  return source.slice(start, end);
-}
-
 describe("square LCD aperture and flat assembly reveal", () => {
   test("production collapses only the automatic inner bevel into one square wall", () => {
     const geometry = productionFrontExtrusion();
@@ -215,6 +207,8 @@ describe("square LCD aperture and flat assembly reveal", () => {
       toneMapped: false,
     });
     const device = await Bun.file("packages/device/src/Device.tsx").text();
+    const recipe = await Bun.file('packages/device/src/device-assembly-recipe.ts').text();
+    const assemblyMaterials = await Bun.file('packages/device/src/device-assembly-materials.ts').text();
     const shells = await Bun.file("packages/device/src/immutable-shells.ts").text();
     const inserts = await Bun.file("packages/device/src/device-insert-geometry.ts").text();
     const frontStart = shells.indexOf("const front=");
@@ -240,17 +234,16 @@ describe("square LCD aperture and flat assembly reveal", () => {
       "form.displayWellInset + form.displayWellDepth",
     );
     expect(revealBuild).toContain("bevelEnabled: false");
-    expect(device).toContain(
-      "position={[glass.centerX, glass.centerY, displayReferenceZ]}",
+    expect(device).toContain('createDeviceAssemblyRecipe(form,prepared.hardware)');
+    expect(recipe).toContain(
+      "position: [glass.centerX, glass.centerY, depth.displayReferenceZ]",
     );
 
-    for (const name of ["device-display-mask", "device-display-well"]) {
-      const section = meshSection(device, name);
-      expect(section).toContain("<meshBasicMaterial");
-      expect(section).toContain("materials.screenReveal.color");
-      expect(section).toContain("materials.screenReveal.toneMapped");
-      expect(section).not.toContain("meshPhysicalMaterial");
-      expect(section).not.toContain("studioEnvironmentProps");
+    for (const name of ['mask', 'well']) {
+      const section = assemblyMaterials.split('\n').find(line => line.includes(`const ${name} =`));
+      expect(section).toBeDefined();
+      expect(section).toContain('basic({ ...params.screenReveal })');
+      expect(section).not.toContain('physical(');
       expect(section).not.toMatch(/metalness|roughness|clearcoat|envMap|castShadow/);
     }
   });

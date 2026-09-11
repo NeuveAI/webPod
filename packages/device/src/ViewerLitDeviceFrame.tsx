@@ -1,16 +1,9 @@
 import type { ReactNode } from "react";
-import { RectAreaLight } from "three";
+import { createDeviceLightRecipe } from "./device-light-recipe";
+export { aimAreaLightAtOrigin, aimAreaLightAtTarget } from "./device-light-recipe";
 import { RectAreaLightUniformsLib } from "three/examples/jsm/lights/RectAreaLightUniformsLib.js";
 
-import {
-  areaLightIntensity,
-  keyLightPower,
-  keyLightPosition,
-  kickLightPosition,
-  kickLightPower,
-  rimLightPower,
-  type LightRigParams,
-} from "./light-rig";
+import type { LightRigParams } from "./light-rig";
 import {
   FRONT_DEVICE_ORIENTATION,
   deviceOrientationToRotation,
@@ -45,38 +38,11 @@ export function ViewerLitDeviceFrame({
   form = DEFAULT_DEVICE_FORM,
   children,
 }: ViewerLitDeviceFrameProps) {
-  const keyPosition = keyLightPosition(lightRig.key);
-  const kickPosition = kickLightPosition(lightRig.kick);
+  const lights = createDeviceLightRecipe(lightRig);
   const envelope = completeDeviceEnvelope(form);
   return (
     <>
-      <rectAreaLight
-        name="device-key-light"
-        position={keyPosition}
-        rotation={aimAreaLightAtOrigin(keyPosition)}
-        intensity={areaLightIntensity(keyLightPower(lightRig), lightRig.key.emitter)}
-        color={lightRig.key.color}
-        width={lightRig.key.emitter.width}
-        height={lightRig.key.emitter.height}
-      />
-      <rectAreaLight
-        name="device-kick-light"
-        position={kickPosition}
-        rotation={aimAreaLightAtTarget(kickPosition, lightRig.kick.target)}
-        intensity={areaLightIntensity(kickLightPower(lightRig), lightRig.kick.emitter)}
-        color={lightRig.kick.color}
-        width={lightRig.kick.emitter.width}
-        height={lightRig.kick.emitter.height}
-      />
-      <rectAreaLight
-        name="device-rim-light"
-        position={[...lightRig.rim.position]}
-        rotation={aimAreaLightAtTarget(lightRig.rim.position, lightRig.rim.target)}
-        intensity={areaLightIntensity(rimLightPower(lightRig), lightRig.rim.emitter)}
-        color={lightRig.rim.color}
-        width={lightRig.rim.emitter.width}
-        height={lightRig.rim.emitter.height}
-      />
+      {lights.map(light=><rectAreaLight key={light.name} {...light} />)}
       <group
         name={DEVICE_MODEL_NAME}
         rotation={deviceOrientationToRotation(orientation)}
@@ -94,22 +60,4 @@ export function ViewerLitDeviceFrame({
       </group>
     </>
   );
-}
-
-/** XYZ radians that point a RectAreaLight's emitting face at model origin. */
-export function aimAreaLightAtOrigin(
-  position: readonly [number, number, number],
-): readonly [number, number, number] {
-  return aimAreaLightAtTarget(position, [0, 0, 0]);
-}
-
-/** XYZ radians that point a RectAreaLight's emitting face at a world target. */
-export function aimAreaLightAtTarget(
-  position: readonly [number, number, number],
-  target: readonly [number, number, number],
-): readonly [number, number, number] {
-  const light = new RectAreaLight();
-  light.position.fromArray(position);
-  light.lookAt(...target);
-  return [light.rotation.x, light.rotation.y, light.rotation.z];
 }

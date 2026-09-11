@@ -28,8 +28,9 @@ test("engraving is generated only as shell roughness and depressed bump, with SS
   expect(source).toContain('bumpContext.fillStyle = "#FFFFFF"');
   expect(source).toContain("roughnessMap.dispose(); bumpMap.dispose()");
   const device = await Bun.file(new URL("./Device.tsx", import.meta.url)).text();
-  const steel = device.slice(device.indexOf('name="device-steel-back"'), device.indexOf('name="device-display-mask"'));
-  expect(steel).toContain("bumpMap: backplateFinish.bumpMap");
+  const assembly = await Bun.file(new URL('./device-assembly-materials.ts', import.meta.url)).text();
+  const steel = assembly.slice(assembly.indexOf('const steel ='), assembly.indexOf('const gapParams'));
+  expect(steel).toContain("bumpMap: maps.backplate.bumpMap");
   expect(device).toContain("backplateFinish?.dispose()");
 });
 

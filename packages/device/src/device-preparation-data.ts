@@ -9,8 +9,19 @@ import { transferShell, restoreShell, type ShellGeometryTransfer } from './immut
 
 /** Increment when the immutable recipe or transfer interpretation changes. */
 export const DEVICE_PREPARATION_VERSION=1;
-export interface DevicePreparationRequest {readonly id:number;readonly form:DeviceFormParams;}
-export type DevicePreparationResponse={readonly id:number;readonly result:PreparedDeviceData}|{readonly id:number;readonly error:string};
+export type DevicePreparationRequest =
+ | {readonly id:number;readonly form:DeviceFormParams;readonly type?:'prepare'}
+ | {readonly type:'lease';readonly id:number;readonly leaseId:number;readonly port:MessagePort}
+ | {readonly type:'evict';readonly id:number};
+export type DevicePreparationResponse=
+ | {readonly id:number;readonly result:PreparedDeviceData}
+ | {readonly id:number;readonly error:string}
+ | {readonly type:'leased';readonly id:number;readonly leaseId:number}
+ | {readonly type:'lease-failed';readonly id:number;readonly leaseId:number;readonly error:string};
+/** A privately owned copy, transferred by the sole preparation producer directly
+ * to its renderer. The main broker owns admission/release; no live cache buffer
+ * is ever included in this message's transfer list. */
+export interface PreparedDeviceRenderLease { readonly id:number;readonly leaseId:number;readonly result:PreparedDeviceData }
 type Inserts = { [K in keyof ReturnType<typeof import('./device-insert-geometry').createDeviceInsertGeometry>]: BufferGeometry };
 /** Data-only texture wire format. Buffers transfer once; restored wrappers own them
  * until the assembly cache releases its last device owner. Sampler settings match

@@ -9,7 +9,9 @@ test("the live device is solid geometry rather than a front-pose lighting proxy"
   ]);
 
   expect(shells).toContain("tessellateVerticalCrown");
-  expect(device).toContain("DeviceHardware");
+  expect(device).toContain("createDeviceAssemblyRecipe(form,prepared.hardware)");
+  const recipe = await Bun.file('packages/device/src/device-assembly-recipe.ts').text();
+  expect(recipe).toContain("name: 'device-hardware'");
   expect(shells).toContain("yield* cutHardwareAperturesSteps(shell)");
   expect(hardware).toContain("new ExtrudeGeometry");
   expect(hardware).toContain('"device-hold-slider"');
