@@ -320,7 +320,7 @@ function InteractiveDevicePage() {
         ) : (
           <ProductionDeviceView
             motionAuthority={motionAuthority}
-            rendererBackend={rendererBackend}
+            rendererBackend={rendererBackend ?? 'worker'}
             interactionAudioEnabled={interactionAudioEnabled}
             className="webpod-device-preview__device"
             colourway={renderedState.colourway}
