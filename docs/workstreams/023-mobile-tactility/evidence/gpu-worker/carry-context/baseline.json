@@ -1,0 +1,14 @@
+[
+  {
+    "path": "packages/device/src/sticker-carry-preparation.ts",
+    "sha256": "ad31d46f93c7309652d95399bc850950866a4dfc1f074c84f1be42da66f28d6a"
+  },
+  {
+    "path": "packages/composite/src/native-carry-controller.ts",
+    "sha256": "8f294012740fb066f8b4f6780c078e1ac21230b4e3e58611baff7fb5a741d303"
+  },
+  {
+    "path": "packages/device/src/sticker-carry-worker.ts",
+    "sha256": "ab77f45bd4c19889f487cc7926d1a11e7f9baf957cf82bbfef6dda5f4a84d88a"
+  }
+]

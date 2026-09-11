@@ -1,4 +1,3 @@
-import { carryContextSource, copyCarryContextSteps, MAX_CARRY_CONTEXT_BYTES } from './sticker-carry-context';
 import { createCarryRenderResources, type CarryRenderStamp, type CarryRenderAck } from './sticker-carry-render-resources';
 import { setStickerBoundsIndex } from './sticker-bounds-index';
 import { createCarryWearCache } from './sticker-carry-wear';
@@ -10,7 +9,7 @@ import { yieldSteps } from './sticker-computation-steps';
 import type { BufferGeometry } from 'three';
 import type { CarryInput } from './sticker-carry-computation';
 import type { CarryWorkerMessage, CarryWorkerResult } from './sticker-carry-worker';
-import { restorePaperGeometry } from './sticker-paper-transfer';
+import { restorePaperGeometry, transferPaperGeometry } from './sticker-paper-transfer';
 import type { createStickerVisibility } from './sticker-visibility';
 
 type CarryVisibility = Pick<ReturnType<typeof createStickerVisibility>, 'ready' | 'revision' | 'snapshot'>;
@@ -49,14 +48,10 @@ export function createCarryPreparation(options: { readonly renderer?: boolean } 
   let rear: BufferGeometry | null = null, visibility: CarryVisibility | null = null, revision = -1;
   let fallback: AbortController | null = null, workerFailed = false;
   let timeout: ReturnType<typeof setTimeout> | undefined;
-  let contextBytes = 0;
-  // An aborted copy keeps its reservation until its generator actually unwinds.
-  // dispatch cannot start another copy while this owner is non-null.
-  let contextJob: { controller: AbortController; bytes: number } | null = null;
   let snapshot = EMPTY;
   const retired = new Set<CarryFrame>(), listeners = new Set<() => void>();
   const publish = (next: CarrySnapshot) => { if (snapshot.frame && snapshot.frame !== next.frame) retired.add(snapshot.frame); snapshot = next; for (const listener of listeners) listener(); };
-  const stop = () => { stopping = true; contextJob?.controller.abort(); contextBytes = 0; clearTimeout(timeout); timeout = undefined; worker?.terminate(); worker = null; active = null; renderResources.retired(); wearCache.clear(); fallback?.abort(); fallback = null; stopping = false; };
+  const stop = () => { stopping = true; clearTimeout(timeout); timeout = undefined; worker?.terminate(); worker = null; active = null; renderResources.retired(); wearCache.clear(); fallback?.abort(); fallback = null; stopping = false; };
   const fail = () => { stop(); workerFailed = true; if (options.renderer) { wanted = null; publish({...snapshot, error: 'Native carry producer unavailable'}); } else dispatch(); };
   const dispatch = (): void => {
     if (stopping || !mounted || document.hidden || active || !wanted || !rear || !visibility?.ready) return;
@@ -86,56 +81,37 @@ export function createCarryPreparation(options: { readonly renderer?: boolean } 
       return;
     }
     try {
-      if (!worker) {
-        if (contextJob) return;
-        if (typeof Worker === 'undefined') { fail(); return; }
-        const assembly = rear, contact = visibility, expectedRevision = revision;
-        const source = carryContextSource(assembly, contact.snapshot(), stickerWrapSurface(assembly)?.form ?? null);
-        if (contextBytes + source.bytes > MAX_CARRY_CONTEXT_BYTES) throw Error('Carry context byte capacity exceeded');
-        const job = { controller: new AbortController(), bytes: source.bytes }; contextJob = job;
-        // Initial task yield and bounded copy checkpoints protect even the first
-        // cold request. New poses only replace wanted while context is pending.
-        void yieldSteps(copyCarryContextSteps(source), job.controller.signal).then(prepared => {
-          if (!mounted || document.hidden || job.controller.signal.aborted || rear !== assembly || visibility !== contact || !contact.ready || revision !== expectedRevision || contact.revision !== expectedRevision) return;
-          try {
-            workerGeneration++;
-            worker = new Worker(new URL('./sticker-carry-worker.ts', import.meta.url), { type: 'module' });
-            const instance = worker;
-            const workerFailure = () => { if (worker === instance) fail(); };
-            worker.onerror = workerFailure; worker.onmessageerror = workerFailure;
-            worker.onmessage = ({ data }: MessageEvent<CarryWorkerResult | CarryRenderAck>) => {
-              if (worker !== instance) return;
-              if ('type' in data) {renderResources.acknowledge(data); return;}
-              if (active?.id !== data.id) return;
-              const completed = active; active = null; clearTimeout(timeout); timeout = undefined;
-              if (!data.geometry || data.error) { fail(); return; }
-              try {
-                if (options.renderer) renderResources.complete(data.renderStamp, data.renderBytes);
-                // Consume immutable payloads even when their pose belongs to an old
-                // epoch: the same worker may reference that revision in its next job.
-                wearCache.accept(data.wearRevision, data.wearGeometry);
-                if (!wanted || completed.owner !== wanted.owner || !visibility?.ready || revision !== visibility.revision) { if (data.renderStamp) renderResources.releaseFrame(data.renderStamp); dispatch(); return; }
-                const geometry = restorePaperGeometry(data.geometry);
-                if (data.bounds) setStickerBoundsIndex(geometry, data.bounds);
-                const wear = wearCache.retain();
-                const frame = { renderStamp: data.renderStamp, geometry, wearGeometry: wear.geometry, releaseWear: wear.release, input: completed.input, pointerError: data.pointerError ?? null };
-                if (wanted.id === completed.id) wanted = null;
-                publish({ frame, error: null }); dispatch();
-              } catch { fail(); }
-            };
-            // These buffers are private. FIFO on this same Worker delivers context
-            // before the later scalar job; no second clone or context ACK is needed.
-            worker.postMessage(prepared.message, prepared.transfer);
-            contextBytes = job.bytes; job.bytes = 0;
-          } catch { fail(); }
-        }).catch(() => { if (!job.controller.signal.aborted) fail(); }).finally(() => {
-          job.bytes = 0;
-          if (contextJob === job) contextJob = null;
-          dispatch();
-        });
-        return;
-      }
       if (options.renderer && !renderResources.begin()) return;
+      if (!worker) {
+        workerGeneration++;
+        worker = new Worker(new URL('./sticker-carry-worker.ts', import.meta.url), { type: 'module' });
+        const instance = worker;
+        const workerFailure = () => { if (worker === instance) fail(); };
+        worker.onerror = workerFailure; worker.onmessageerror = workerFailure;
+        worker.onmessage = ({ data }: MessageEvent<CarryWorkerResult | CarryRenderAck>) => {
+          if (worker !== instance) return;
+          if ('type' in data) {renderResources.acknowledge(data); return;}
+          if (active?.id !== data.id) return;
+          const completed = active; active = null; clearTimeout(timeout); timeout = undefined;
+          if (!data.geometry || data.error) { fail(); return; }
+          try {
+            if (options.renderer) renderResources.complete(data.renderStamp, data.renderBytes);
+            // Consume immutable payloads even when their pose belongs to an old
+            // epoch: the same worker may reference that revision in its next job.
+            wearCache.accept(data.wearRevision, data.wearGeometry);
+            if (!wanted || completed.owner !== wanted.owner || !visibility?.ready || revision !== visibility.revision) { if (data.renderStamp) renderResources.releaseFrame(data.renderStamp); dispatch(); return; }
+            const geometry = restorePaperGeometry(data.geometry);
+            if (data.bounds) setStickerBoundsIndex(geometry, data.bounds);
+            const wear = wearCache.retain();
+            const frame = { renderStamp: data.renderStamp, geometry, wearGeometry: wear.geometry, releaseWear: wear.release, input: completed.input, pointerError: data.pointerError ?? null };
+            if (wanted.id === completed.id) wanted = null;
+            publish({ frame, error: null }); dispatch();
+          } catch { fail(); }
+        };
+        // Snapshot arrays are borrowed; structured clone copies them once per
+        // assembly lifetime. No live rendering or visibility buffers detach.
+        worker.postMessage({ context: { rear: transferPaperGeometry(rear), form: stickerWrapSurface(rear)?.form ?? null, collision: visibility.snapshot() } } satisfies CarryWorkerMessage);
+      }
       active = wanted; timeout = setTimeout(fail, 15_000);
       const renderStamp: CarryRenderStamp | undefined = options.renderer ? {ownerId, workerGeneration, jobId: active.id,
         computationEpoch: active.input.pack.computationEpoch ?? 0, owner: renderOwner(active.input), assemblyRevision: revision} : undefined;
