@@ -1,0 +1,11 @@
+{
+  "simultaneousChannels": 3,
+  "staleContactPreservesCoastAndOtherControl": true,
+  "affectedTargetExact": true,
+  "reframeTranslation": 17,
+  "newerEpochCancelsOrientationOnly": true,
+  "channelFinalSample": true,
+  "hiddenAndUnmountFinalSamples": true,
+  "independentReveal": true,
+  "scope": "Actual pure driver with controlled RAF; no browser, GPU or timing claim."
+}

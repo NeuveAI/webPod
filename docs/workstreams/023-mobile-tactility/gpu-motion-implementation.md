@@ -74,3 +74,31 @@ Host confirmed the reported reliable-command projection-ack gate was removed; re
 CPU018 found an actual same-turn nested-listener case: outer yaw10 publication resumed after a listener published yaw20 and sent stale yaw10 with a newer epoch. Corrected only device-motion-authority.ts: publication identity is checked after Jotai listeners before transport; projection callbacks require unchanged active owner and intent; settlement preserves the active record through intent notification and rejects superseded progress; reentrant binding replacement during previous-owner settlement cannot install a stale subscription. Existing authority proof, scoped lint and web typecheck pass. Source refrozen for the independent reviewer's own reproduction; this author does not approve the correction.
 
 Further bounded reviewer corrections: direct publishIntent now explicitly rejects an active standalone release before transport, so stale projection/settlement cannot later restore its old pose even without the app-store binder. Added this actual adapter case to authority.ts; it rejects the pending release and ignores both old response kinds. On frontInteractive admission loss, the shared GL clickwheel wrapper now cancels both pointer owners and clears its cursor, and keyboard capture is attached only while admitted, preserving the former Select child unmount lifetime.64 affected existing tests/408 assertions and focused lint pass; independent CPU018 reviewer verifies these fixes. No native/browser acceptance is inferred.
+
+## Native channel correction (implementation in progress)
+
+Baseline driver archived in evidence/gpu-worker/motion/channel-correction/driver.before.txt, SHA256 f47b7476f8c57de4b703b5923073a2f40a44193b5a30bf51a177afbcdf831595. Independent delayed-projection proof showed a wheel contact overwriting autonomous coast yaw. Main host review is paused with REQUEST_CHANGES; this correction requires Aristotle's independent review.
+
+Command/channel merge table, written before source changes:
+
+| Incoming operation | Exact incoming authority | Preserve from current worker pose |
+| --- | --- | --- |
+| Same-epoch pose/reframe | Nonanimated nodes and model translation | Active orientation rotation/reveal; active wheel/select node matrices |
+| Pointer start/release/cancel | Orientation final sample and model matrix | Unrelated active wheel/select |
+| Control down/up/cancel/contact | Target wheel/select matrix/contact | Active orientation/reveal and other active control |
+| Motion start | New program's channel final sample/seed | Other active channels |
+| Motion cancel one channel | Target channel final sample | Other active channels |
+| Motion cancel all (including hidden/unmount) | Entire final pose | None; all programs cancel |
+| Motion resume | Entire checkpoint pose | None; checkpoint replaces programs |
+| Reduced motion | Nonanimated pose fields | Active channels until exact existing settling equations run |
+| New motion epoch | Incoming orientation/reveal and nonanimated fields | Independent control releases unless explicitly targeted; old orientation program cancels |
+
+Model rotation preservation copies its existing linear transform entries while retaining incoming translation, avoiding decomposition and allowing packet reframe during coast. No protocol expansion or changed curve equations is intended.
+
+Correction frozen for independent review: only packages/device/src/device-motion-driver.ts application source changed. The exact reviewer coast/contact reproduction now keeps yaw5.6899237048919105 through the command and advances to8.06196463810584 on the next frame. channel-correction/check.ts exercises three simultaneous channels, exact targeted matrix, model translation17 during coast, newer orientation epoch, independent control cancellation, hidden/unmount final samples and reveal preservation. Existing motion/preview/control/orientation suites:59 tests,1,965 assertions pass (/tmp/cpu016-channel-tests.log). Existing retained motion/driver.ts passes. Device/composite/web typechecks and scoped source/proof ESLint pass. No browser or performance claim; independent reviewer must approve, including completed-but-unreported channel semantics before acceptance.
+
+Independent review extended the delayed-message case beyond settlement and found the first active-program-only merge insufficient. Final rule supersedes the table's “active” qualifier: same-epoch orientation/reveal remain authoritative after completion, until a new epoch or explicit orientation/all target. Control node ownership remembers at most two node IDs after release completion and preserves their current matrices for unrelated updates. This stores no historical samples/programs and clears on dispose. The reviewer completed-coast proof now retains26.666666666666668 degrees through the delayed wheel command. Exact explicit target, newer-epoch orientation, full hidden/unmount final samples and reframe translation still pass; device types/scoped lint and both authored driver proofs rerun pass. Source refrozen for independent approval.
+
+Final caller audit refined control ownership: control-down transfers that control to main-held ownership; control-release transfers it to worker ownership, which survives settlement. Reliable unrelated commands preserve either owner's current target matrix. Generic pose updates admit main-held controls, necessary because the existing reduced-motion release publishes exact rest via native invalidation without a release program. At most two stable node IDs and two held flags are retained; explicit channel/all cancellation clears corresponding held ownership. No protocol or control-physics edits.
+
+Actual controller/driver control-ownership.ts proves first simultaneous press, completion to exact rest, and a subsequent reduced-motion press/release after worker ownership was established. It uses the real controller and a controlled binding/query invalidation, no browser. This and both previous channel proofs pass; device types and scoped driver/proof lint pass. This refinement supersedes unconditional retention of all control matrices during generic pose updates. Independent approval must target the new frozen hash, not the previous9ff5e220 revision.

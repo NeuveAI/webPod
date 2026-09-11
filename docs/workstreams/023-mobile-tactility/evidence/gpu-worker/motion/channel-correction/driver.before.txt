@@ -23,10 +23,6 @@ const channelOf = (program: RenderMotionProgram) => program.kind === 'control-re
 export function createDeviceMotionDriver(initial: RenderPose, dependencies: DeviceMotionDriverDependencies) {
   let pose = initial;
   const programs = new Map<string, RenderMotionProgram>();
-  // A completed sample remains authoritative while its projection/settlement
-  // travels to main. Keep only the two control identities, not past programs.
-  const controlNodes = new Map<'wheel' | 'select', string>([['wheel', 'wheel-assembly'], ['select', 'select']]);
-  const mainHeldControls = new Set<string>();
   let frame: number | null = null, disposed = false, paused = false, reducedMotion = false, generation = 0;
   const rotationMatrix = new Matrix4(), rotationEuler = new Euler();
   const cancelFrame = () => { if (frame !== null) dependencies.cancelFrame(frame); frame = null; };
@@ -51,41 +47,6 @@ export function createDeviceMotionDriver(initial: RenderPose, dependencies: Devi
       ...(result.orientation ? {orientation: result.orientation} : {}),
       ...(result.reveal ? {reveal: result.reveal} : {})};
     return result.program;
-  };
-  // A coalesced main snapshot can lag autonomous channels. Only its explicit
-  // target owns their final sample; nonanimated nodes/translation stay current
-  // with main intent (notably the packet workspace reframe).
-  const mergePose = (incoming: RenderPose, target: string | null, directPose = false): RenderPose => {
-    if (target === 'all') return incoming;
-    const orientation = target !== 'orientation' && incoming.motionEpoch === pose.motionEpoch;
-    const retainedNodes = new Map<string, RenderPose['nodes'][number]>();
-    for (const [channel, nodeId] of controlNodes) {
-      if (channel === target || directPose && mainHeldControls.has(channel)) continue;
-      const node = pose.nodes.find(node => node.id === nodeId);
-      if (node) retainedNodes.set(node.id, node);
-    }
-    const currentModel = orientation ? pose.nodes.find(node => node.id === dependencies.orientationNodeId) : undefined;
-    return {...incoming,
-      ...(orientation ? {orientation: pose.orientation, reveal: pose.reveal} : {}),
-      nodes: incoming.nodes.map(node => {
-        const retained = retainedNodes.get(node.id);
-        if (retained) return retained;
-        if (currentModel && node.id === currentModel.id) {
-          const matrix = new Matrix4().fromArray(currentModel.matrix).setPosition(node.matrix[12], node.matrix[13], node.matrix[14]).toArray();
-          return {...node, matrix};
-        }
-        return node;
-      }),
-    };
-  };
-  const commandTarget = (command: RenderCommand): string | null => {
-    if (command.kind === 'motion-resume') return 'all';
-    if (command.kind === 'motion-cancel') return command.channel ?? 'all';
-    if (command.kind === 'motion-start') return channelOf(command.program);
-    if (command.kind === 'control-contact') return 'wheel';
-    if ('button' in command) return command.button === 'center' ? 'select' : 'wheel';
-    if ('sample' in command) return 'orientation';
-    return null;
   };
   const settleReduced = (program: RenderMotionProgram) => {
     if (program.kind === 'control-release') update(program, program.startedAtTimestampMs + program.durationMs);
@@ -126,7 +87,7 @@ export function createDeviceMotionDriver(initial: RenderPose, dependencies: Devi
     adoptPose(next: RenderPose): boolean {
       if (disposed || !Number.isSafeInteger(next.motionEpoch) || !Number.isSafeInteger(next.sequence) || next.motionEpoch < pose.motionEpoch) return false;
       generation++;
-      pose = {...mergePose(next, null, true), sequence: Math.max(pose.sequence, next.sequence) + 1,
+      pose = {...next, sequence: Math.max(pose.sequence, next.sequence) + 1,
         lastAcceptedCommand: Math.max(pose.lastAcceptedCommand, next.lastAcceptedCommand)};
       const orientation = programs.get('orientation');
       if (orientation && orientation.origin.motionEpoch < next.motionEpoch) {
@@ -146,21 +107,10 @@ export function createDeviceMotionDriver(initial: RenderPose, dependencies: Devi
       generation++;
       const currentGeneration = generation;
       const settledPrograms: RenderMotionProgram[] = [];
-      const target = commandTarget(command);
-      if (command.kind === 'control-down') mainHeldControls.add(target ?? '');
-      if (command.kind === 'control-up' || command.kind === 'control-cancel') mainHeldControls.delete(target ?? '');
-      const oldOrientation = programs.get('orientation');
-      const newerEpoch = command.motionEpoch > pose.motionEpoch;
-      pose = {...mergePose(command.pose, commandTarget(command)), sequence: Math.max(pose.sequence, command.pose.sequence) + 1,
+      pose = {...command.pose, sequence: Math.max(pose.sequence, command.pose.sequence) + 1,
         lastAcceptedCommand: command.commandSequence, motionEpoch: command.motionEpoch};
-      if (newerEpoch && oldOrientation && commandTarget(command) !== 'all') {
-        programs.delete('orientation');
-        emitSettlement(oldOrientation, 'cancelled');
-        if (generation !== currentGeneration) return true;
-      }
       if (command.kind === 'motion-cancel') {
         const target = command.channel ?? 'all';
-        if (target === 'all') mainHeldControls.clear(); else mainHeldControls.delete(target);
         const cancelled = [...programs.values()].filter(program => target === 'all' || channelOf(program) === target);
         for (const program of cancelled) programs.delete(channelOf(program));
         if (programs.size === 0) cancelFrame();
@@ -174,21 +124,14 @@ export function createDeviceMotionDriver(initial: RenderPose, dependencies: Devi
         const wheel = programs.get('wheel');
         if (wheel?.kind === 'control-release') programs.set('wheel', {...wheel, contactAngleDeg: command.contactAngleDeg});
       } else if (command.kind === 'motion-start') {
-        if (command.program.kind === 'control-release') {
-          controlNodes.set(command.program.channel, command.program.nodeId);
-          mainHeldControls.delete(command.program.channel);
-        }
         const channel = channelOf(command.program), old = programs.get(channel);
         programs.delete(channel);
         if (old) { emitSettlement(old, 'cancelled'); if (generation !== currentGeneration) return true; }
         if (reducedMotion) { settleReduced(command.program); settledPrograms.push(command.program); }
         else programs.set(channel, command.program);
       } else if (command.kind === 'motion-resume') {
-        programs.clear(); mainHeldControls.clear();
-        for (const program of command.checkpoint.programs) {
-          programs.set(channelOf(program), program);
-          if (program.kind === 'control-release') controlNodes.set(program.channel, program.nodeId);
-        }
+        programs.clear();
+        for (const program of command.checkpoint.programs) programs.set(channelOf(program), program);
         reducedMotion = command.checkpoint.reducedMotion;
       } else if (command.kind === 'reduced-motion') {
         reducedMotion = command.enabled;
@@ -211,6 +154,6 @@ export function createDeviceMotionDriver(initial: RenderPose, dependencies: Devi
       schedule(); return true;
     },
     pause(value: boolean) { if (disposed) return; paused = value; if (value) cancelFrame(); else schedule(); },
-    dispose() { if (disposed) return; disposed = true; generation++; cancelFrame(); programs.clear(); controlNodes.clear(); mainHeldControls.clear(); },
+    dispose() { if (disposed) return; disposed = true; generation++; cancelFrame(); programs.clear(); },
   };
 }
