@@ -18,6 +18,19 @@ The actual `get_review_model` MCP call returned `status: ok` with branch-current
 
 Actual read command: `bun /tmp/webpod-neuve-mcp-call.ts get_review_model /tmp/webpod-neuve-repo.json /tmp/webpod-final-review-model.json`. The helper starts the installed `/Users/vinicius/.local/bin/neuve mcp serve --repo /Users/vinicius/code/webPod`, initializes MCP and calls the advertised tool. Fresh `resources/read` retrieved `ui://neuve/review-shell`; `tools/list` confirmed the available reads and decision tool. No decision tool was called.
 
+## Final CLI artifacts (lead-owned execution)
+
+All four retained command outputs identify the same committed base→eff3f20 range above. Broad passes orient the range; the focused host pass supplies the19-unit shell model. No broad command was rerun by this integration lane.
+
+| Operation | Retained output | Actual artifact |
+| --- | --- | --- |
+| Scan | `/tmp/webpod-final-neuve-scan.txt` | `.neuve-artifact/scan-1789159180-619757000-56971.json` |
+| Broad triage | `/tmp/webpod-final-neuve-triage.txt` | `.neuve-artifact/triage-1789159219-731928000-57197.json` |
+| Sources: `packages/composite/src/device-render-host.ts` | `/tmp/webpod-final-neuve-host-sources.txt` | `.neuve-artifact/sources-1789159280-557289000-57712.json` |
+| Focused host triage | `/tmp/webpod-final-neuve-host-triage.txt` | `.neuve-artifact/triage-1789159323-300591000-58026.json` |
+
+The outputs explicitly exclude uncommitted changes. Subsequent evidence-only notes do not extend this source snapshot. Lead reports final source checks/smoke complete and PR6 ready for human review; the tool's manual lane and the independently accepted engineering evidence remain separate. Neither manual routing nor a local gate records automatic human approval.
+
 ## Visible actual shell
 
 No native Neuve tool was exposed in this Codex tool session. A temporary local host serves the exact actual MCP shell HTML unchanged inside an iframe and forwards only `get_review_model`, `list_review_models` and same-repository review-resource reads to the real stdio server. Served-shell SHA equality and actual forwarded model status/count were verified. Lead observed the shell visibly loaded in Codex reviewTab2 with19 units.
