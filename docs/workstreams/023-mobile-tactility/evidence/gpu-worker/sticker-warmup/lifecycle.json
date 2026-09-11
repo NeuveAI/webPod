@@ -1,4 +1,4 @@
 {
   "method": "Actual warmup controller with controlled preparation boundary and actual 60s preparation/ACK watchdogs; no GPU readiness claim.",
-  "checks": 16
+  "checks": 18
 }

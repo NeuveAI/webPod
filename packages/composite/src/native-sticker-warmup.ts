@@ -1,4 +1,3 @@
-import { DataTexture } from 'three';
 import type { DeviceStickerScene, StickerArtwork } from '../../device/src/sticker-contract';
 import { stickerPackGeometryKey, type StickerPackNode } from '../../device/src/sticker-pack-recipe';
 import { prepareNativePackFrame, type NativePackFrame } from './native-pack-resources';
@@ -38,18 +37,9 @@ function recipe(input: Request): StickerPackNode {
  * Only descriptors expand: geometry, bitmap and damage are acquired once from
  * the existing owners, never copied or regenerated for a shader appearance. */
 function validateBytes(owner: Owner): void {
-  const buffers = new Set<ArrayBufferLike>();
-  for (const resource of owner.prepared.values()) for (const geometry of Object.values(resource.parts)) {
-    for (const attribute of Object.values(geometry.attributes)) buffers.add(attribute.array.buffer);
-    if (geometry.index) buffers.add(geometry.index.array.buffer);
-  }
-  for (const print of owner.queryPrints.values()) {
-    const field = print.damage.field;
-    for (const array of [field.alpha, field.onset, field.boundaryCandidates, field.distance]) if (array) buffers.add(array.buffer);
-    if (!(print.damage.texture instanceof DataTexture) || !ArrayBuffer.isView(print.damage.texture.image.data)) throw new Error('Invalid warmup damage storage');
-    buffers.add(print.damage.texture.image.data.buffer);
-  }
-  if ([...buffers].reduce((sum, buffer) => sum + buffer.byteLength, 0) > MAX_RESOURCE_BYTES) throw new Error('Sticker warmup resource byte capacity exceeded');
+  // Captures retire their query arrays per artwork; validate the conservative
+  // aggregate captured byte count instead of a now-empty query collection.
+  if (owner.queryCaptureBytes > MAX_RESOURCE_BYTES || owner.queryPeakBytes > MAX_RESOURCE_BYTES) throw new Error('Sticker warmup resource byte capacity exceeded');
 }
 
 function variants(owner: Owner): NativePackFrame {
@@ -116,7 +106,7 @@ export function createNativeStickerWarmup(options: {
     const controller = new AbortController(); active = controller;
     const timer = setTimeout(() => { controller.abort(); fail(new Error('Sticker warmup preparation timed out')); }, DEADLINE_MS);
     const scene: DeviceStickerScene = {assets: input.assets, prepareIds: input.ids, placements: [], pack: null, finishEnabled: input.scene.finishEnabled !== false};
-    void prepareNativePackFrame(recipe(input), scene, controller.signal, {prepareContours: false}).then(owner => {
+    void prepareNativePackFrame(recipe(input), scene, controller.signal, {prepareContours: false, materialOnly: true}).then(owner => {
       if (disposed || controller.signal.aborted || latest?.key !== input.key) { owner.release(); return; }
       try { validateBytes(owner); send(input, owner); } catch (error) { owner.release(); fail(error); }
     }, error => { if (!disposed) fail(error); }).finally(() => { clearTimeout(timer); if (active === controller) active = null; dispatch(); });

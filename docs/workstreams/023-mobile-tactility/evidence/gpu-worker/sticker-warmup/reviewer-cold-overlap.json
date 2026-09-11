@@ -118,13 +118,6 @@
       "contentHash": "d6933ef3467cc4c"
     },
     {
-      "keyHash": "ae0abb6967c3f9e5",
-      "kind": "damage",
-      "purpose": "render-damage",
-      "count": 1,
-      "contentHash": "9489e415405ef136"
-    },
-    {
       "keyHash": "e56fa2e96e4c1945",
       "kind": "damage",
       "purpose": "render-damage",
@@ -132,11 +125,11 @@
       "contentHash": "4a9332ce3ac4d2fe"
     },
     {
-      "keyHash": "7c544e6cc3c67cf",
+      "keyHash": "ae0abb6967c3f9e5",
       "kind": "damage",
       "purpose": "render-damage",
       "count": 1,
-      "contentHash": "746e725be46832b0"
+      "contentHash": "9489e415405ef136"
     },
     {
       "keyHash": "403554ee0d3aa66e",
@@ -146,11 +139,11 @@
       "contentHash": "2f73093f8955c4d9"
     },
     {
-      "keyHash": "3ea048eb28a5c672",
+      "keyHash": "7c544e6cc3c67cf",
       "kind": "damage",
       "purpose": "render-damage",
       "count": 1,
-      "contentHash": "96dc3ef707cfbdd6"
+      "contentHash": "746e725be46832b0"
     },
     {
       "keyHash": "43af929958b2366c",
@@ -160,7 +153,14 @@
       "contentHash": "e059de8c3e477a8"
     },
     {
-      "keyHash": "c9c7c985b5bbf6bb",
+      "keyHash": "3ea048eb28a5c672",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "96dc3ef707cfbdd6"
+    },
+    {
+      "keyHash": "2ad667d0a97dff",
       "kind": "damage",
       "purpose": "render-damage",
       "count": 1,

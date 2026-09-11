@@ -48,9 +48,9 @@ await Bun.sleep(10); assert.equal(prepares, 1); assert.equal(messages.length, 0)
 const replacement = {...scene, assets: [{...art, url: 'replacement-art'}]};
 warm.update(replacement); const barrier = await next(); assert.equal(barrier.frame.prints.length, 0); assert.equal(prepares, 1); assert.equal(textureOwners, 0); assert.equal(inspectStickerTransactions().privateOwners, 1);
 const empty = await prepareStickerWarmup(barrier.frame, environment, new AbortController().signal); owner.dispose(); empty.dispose(); warm.ack(barrier.sequence);
-const second = await next(); assert.equal(prepares, 2); assert.equal(textureOwners, 1);
+const second = await next(); assert.equal(prepares, 2); assert.equal(textureOwners, 0, 'compile-only queries retired before frame submission');
 owner = await prepareStickerWarmup(second.frame, environment, new AbortController().signal); warm.ack(second.sequence);
-warm.dispose(); assert.equal(textureOwners, 0, 'query-only leases released after compile'); assert.equal(inspectStickerTransactions().privateOwners, 1, 'private owners retained until renderer retirement'); owner.dispose(); warm.rendererRetired(); warm.rendererRetired(); assert.equal(textureOwners, 0);
+warm.dispose(); assert.equal(textureOwners, 0, 'query-only leases retired after capture'); assert.equal(inspectStickerTransactions().privateOwners, 1, 'private owners retained until renderer retirement'); owner.dispose(); warm.rendererRetired(); warm.rendererRetired(); assert.equal(textureOwners, 0);
 const {preparePackGeometry} = await import('../../../../../../packages/device/src/sticker-pack-resources');
 const {preparePrint} = await import('../../../../../../packages/device/src/sticker-prepared-damage');
 const {getPreparedStickerContour} = await import('../../../../../../packages/device/src/sticker-contour-preparation-data');

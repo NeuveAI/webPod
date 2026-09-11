@@ -36,8 +36,9 @@ export interface NativePackResourceCache {
  readonly artwork:Map<string,{query:Shared<{texture:Texture;release:()=>void}>;render:Shared<ArtworkOwner>}>;
 }
 let artworkSequence=0;
-export async function prepareNativePackFrame(recipe:StickerPackNode,scene:DeviceStickerScene,signal:AbortSignal,options?:{readonly prepareContours?:boolean;readonly owner?:object;readonly reuseFrom?:NativePackResourceCache}) {
+export async function prepareNativePackFrame(recipe:StickerPackNode,scene:DeviceStickerScene,signal:AbortSignal,options?:{readonly prepareContours?:boolean;readonly materialOnly?:boolean;readonly owner?:object;readonly reuseFrom?:NativePackResourceCache}) {
  const owner=options?.owner??{},previous=options?.reuseFrom;
+ if(options?.materialOnly&&(options.prepareContours!==false||previous))throw new Error('Material-only capture cannot retain visible queries');
  if(previous&&(previous.owner!==owner||previous.retired))throw new Error('Native pack reuse crossed renderer ownership');
  const paper=stickerPackLeafSlots(recipe).find(({node})=>node.kind==='paper')?.node;
  const layout=paper?.kind==='paper'?[paper.size.width,paper.size.height,paper.size.pixel]:null;
@@ -45,9 +46,11 @@ export async function prepareNativePackFrame(recipe:StickerPackNode,scene:Device
  const geometry:NativePackResourcePort[]=[],damage:NativeStickerResourcePort[]=[],artworks:NativeStickerArtwork[]=[],prints:NativePackPrint[]=[];
  const reuse:{geometry:{key:string;id:number}[];damage:number[];artworks:string[]}={geometry:[],damage:[],artworks:[]};
  const owners:(()=>void)[]=[],queryOwners:(()=>void)[]=[],prepared=new Map<string,QueryGeometry>(),queryPrints=new Map<string,QueryPrint>();
- let disposed=false,bytes=0,printIndex=0;
+ const transferOwners=new Set<RenderPort|ArtworkOwner>();
+ let disposed=false,bytes=0,printIndex=0,queryPeakBytes=0,queryCaptureBytes=0;
+ const measureQueries=()=>{const buffers=new Set<ArrayBufferLike>();for(const resource of prepared.values())for(const geometry of Object.values(resource.parts)){for(const attribute of Object.values(geometry.attributes))buffers.add(attribute.array.buffer);if(geometry.index)buffers.add(geometry.index.array.buffer);}for(const print of queryPrints.values()){const field=print.damage.field;for(const array of [field.alpha,field.onset,field.boundaryCandidates,field.distance])if(array)buffers.add(array.buffer);const data=print.damage.texture.image.data;if(!ArrayBuffer.isView(data))throw new Error('Invalid warmup damage storage');buffers.add(data.buffer);}return [...buffers].reduce((sum,buffer)=>sum+buffer.byteLength,0);};
  const releaseQueries=()=>{for(const retire of queryOwners.splice(0).reverse())retire();prepared.clear();queryPrints.clear();cache.prints.clear();cache.geometry.clear();cache.artwork.clear();};
- const release=()=>{if(disposed)return;disposed=true;cache.retired=true;releaseQueries();for(const retire of owners.splice(0).reverse())retire();cache.geometry.clear();cache.damage.clear();cache.artwork.clear();};
+ const release=()=>{if(disposed)return;disposed=true;cache.retired=true;releaseQueries();for(const retire of owners.splice(0).reverse())retire();cache.geometry.clear();cache.damage.clear();cache.artwork.clear();transferOwners.clear();};
  const obtainGeometry=async(input:StickerPackGeometryInput)=>{
   const key=stickerPackGeometryKey(input),existing=prepared.get(key);if(existing)return existing;
   let unit=previous?.geometry.get(key);
@@ -57,12 +60,12 @@ export async function prepareNativePackFrame(recipe:StickerPackNode,scene:Device
    try{const lease=await acquirePrivatePaperPackGeometry(input,channel.port1,signal);unit={query:shared(main,main.release),render:shared({id:lease.resourceId,port:channel.port2,transferred:false},()=>{channel.port2.close();lease.release();})};}
    catch(error){main.release();channel.port1.close();channel.port2.close();throw error;}
   }
-  cache.geometry.set(key,unit);const main=retain(unit.query,queryOwners),wire=retain(unit.render,owners);prepared.set(key,main);
+  cache.geometry.set(key,unit);const main=retain(unit.query,queryOwners),wire=retain(unit.render,owners);transferOwners.add(wire);prepared.set(key,main);
   if(wire.transferred)reuse.geometry.push({key,id:wire.id});else geometry.push({key,id:wire.id,port:wire.port});
   return main;
  };
  try{
-  const slots=stickerPackLeafSlots(recipe);if(slots.length>32)throw new Error('Native pack leaf capacity exceeded');
+  const slots=stickerPackLeafSlots(recipe);if(options?.materialOnly&&slots.some(({node})=>node.kind!=='print'))throw new Error('Material-only capture requires print leaves');if(slots.length>32)throw new Error('Native pack leaf capacity exceeded');
   for(const {node,visible}of slots){signal.throwIfAborted();
    if(node.kind==='paper'){await obtainGeometry({kind:'gpu-paper',...node.size,liner:node.liner});continue;}
    if(node.kind==='sleeve'){for(const part of stickerPackSleeveParts(node.size))await obtainGeometry(part.geometry);continue;}
@@ -70,8 +73,8 @@ export async function prepareNativePackFrame(recipe:StickerPackNode,scene:Device
    const artKey=JSON.stringify(art);let artUnit=cache.artwork.get(artKey);
    if(!artUnit){
     artUnit=previous?.artwork.get(artKey);if(artUnit&&(artUnit.query.retired||artUnit.render.retired))artUnit=undefined;
-    if(!artUnit){const acquired=await acquireArtwork(art,signal);try{const bitmap=await snapshotArtwork(acquired.texture,signal,64*1024*1024-bytes);artUnit={query:shared(acquired,acquired.release),render:shared({id:`pack-art-${++artworkSequence}`,bitmap,bytes:bitmap.image.width*bitmap.image.height*4,transferred:false},()=>{if(!artUnit?.render.value.transferred)bitmap.image.close();})};}catch(error){acquired.release();throw error;}}
-    cache.artwork.set(artKey,artUnit);retain(artUnit.query,queryOwners);const wire=retain(artUnit.render,owners);bytes+=wire.bytes;if(bytes>64*1024*1024)throw new Error('Native pack artwork capacity exceeded');
+    if(!artUnit){const acquired=await acquireArtwork(art,signal);try{const bitmap=await snapshotArtwork(acquired.texture,signal,64*1024*1024-bytes);const wire:ArtworkOwner={id:`pack-art-${++artworkSequence}`,bitmap,bytes:bitmap.image.width*bitmap.image.height*4,transferred:false};artUnit={query:shared(acquired,acquired.release),render:shared(wire,()=>{if(!wire.transferred)bitmap.image.close();})};}catch(error){acquired.release();throw error;}}
+    cache.artwork.set(artKey,artUnit);retain(artUnit.query,queryOwners);const wire=retain(artUnit.render,owners);transferOwners.add(wire);bytes+=wire.bytes;if(bytes>64*1024*1024)throw new Error('Native pack artwork capacity exceeded');
     if(wire.transferred)reuse.artworks.push(wire.id);else artworks.push({id:wire.id,bitmap:wire.bitmap});
    }
    const texture=artUnit.query.value.texture,mesh=await obtainGeometry(node.geometry),surface=mesh.parts['geometry'];if(!surface)throw new Error('Native parked-print geometry missing');
@@ -84,12 +87,13 @@ export async function prepareNativePackFrame(recipe:StickerPackNode,scene:Device
    if(!damageUnit){
     damageUnit=previous?.damage.get(descriptor.key);if(damageUnit?.retired)damageUnit=undefined;
     if(!damageUnit){const channel=new MessageChannel();try{const lease=await acquirePrivateStickerTransaction(descriptor.key,descriptor.input,channel.port1,signal,{purpose:'render-damage'});damageUnit=shared({id:lease.resourceId,port:channel.port2,transferred:false},()=>{channel.port2.close();lease.release();});}catch(error){channel.port1.close();channel.port2.close();throw error;}}
-    cache.damage.set(descriptor.key,damageUnit);const wire=retain(damageUnit,owners);if(wire.transferred)reuse.damage.push(wire.id);else damage.push({id:wire.id,port:wire.port});
+    cache.damage.set(descriptor.key,damageUnit);const wire=retain(damageUnit,owners);transferOwners.add(wire);if(wire.transferred)reuse.damage.push(wire.id);else damage.push({id:wire.id,port:wire.port});
    }
    prints.push({key:node.id,id:art.id,geometryKey:mesh.key,damageResource:damageUnit.value.id,artwork:artUnit.render.value.id,wear:print.wear,visible,renderOrder:node.renderOrder,appearance:node.appearance,finishEnabled:scene.finishEnabled!==false});
+   if(options?.materialOnly){const queryBytes=measureQueries();queryPeakBytes=Math.max(queryPeakBytes,queryBytes);queryCaptureBytes+=queryBytes;releaseQueries();}
   }
   signal.throwIfAborted();const frame:NativePackFrame={key:nativePackResourceKey(recipe,scene),recipe,geometry,damage,artworks,prints,reuse};
-  return{frame,cache,release,releaseQueries,prepared,queryPrints,transferred(){for(const unit of cache.geometry.values())unit.render.value.transferred=true;for(const unit of cache.damage.values())unit.value.transferred=true;for(const unit of cache.artwork.values())unit.render.value.transferred=true;}};
+  return{frame,cache,release,releaseQueries,prepared,queryPrints,queryPeakBytes,queryCaptureBytes,transferred(){for(const wire of transferOwners)wire.transferred=true;}};
  }catch(error){const usage=inspectStickerTransactions();release();if(error instanceof Error&&error.message.includes('capacity')){
   // Layout is exact width/height/pixel; canonical recipe and catalogue recover
   // print width/bow without embedding artwork objects. Slot array index is ID.

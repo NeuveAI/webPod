@@ -62,3 +62,30 @@ Lead-owned native appearance/interaction/fallback/performance acceptance and the
 Follow-up narrow review independently compared the archived prepared-damage host baseline against HEAD: removing exactly `export` before `PreparedPrint`, `PrintInput`, and `preparePrint` produces HEAD byte-for-byte. These are the only host-owned changes in that baseline. Both interfaces remain the same structural types; exporting the existing function creates no new producer, invocation, state or disposal behavior. Its caller owns the returned release as before. The native pack/equipped/carry callers consume that same existing implementation rather than copying it.
 
 **The whole current `packages/device/src/sticker-prepared-damage.ts` is explicitly APPROVED**, including all three export declarations and the separately reviewed optional contour change, at SHA256 `0569f05a3336fea11e53648455d6afd51fbe5339faaf5272ec647e9dcfb5d949`. No other unreviewed logic is hidden in the delta. This closes the whole-file staging ambiguity; no exclusion patch is necessary. It does not approve the moving native callers themselves.
+
+## Independent per-art query lifetime delta — APPROVE
+
+Reviewed after the author freeze against HEAD2856a5a8031de57b372c6236aa4d39cc27630d96. Exact frozen two-source manifest /tmp/webpod-warmup-lifetime-freeze/manifest.json independently matches current bytes:
+
+| File | SHA256 |
+| --- | --- |
+| packages/composite/src/native-pack-resources.ts | a187375328e1002f425679ba21924e4d81f6ef97fecf434d08e6485603983feb |
+| packages/composite/src/native-sticker-warmup.ts | be36a81a1cb5b739d65e153d8ea430573a6dcf3531d5aaa383f0a2b0ca8009a7 |
+
+No Critical/Major finding remains in this bounded delta. No application source changes were made by this reviewer. Prior full host/native performance approval is not extended.
+
+The new materialOnly path is opted into only by invisible warmup and rejects contour-enabled, reused-visible-owner or non-print recipes. After each art's independent geometry/damage/private bitmap capture, query owners are released and maps cleared. The separate transferOwners set retains only wire identities/transfer flags, so later transferred() still marks all delivered resources despite empty query maps. Bitmap cleanup captures its renderer wire rather than the query pair. Private lease callbacks remain held in owners until exact frame replacement/renderer retirement; early query release is not early renderer release or readiness. Default visible preparation retains its original query maps and ownership through current/candidate lifetimes.
+
+The existing aggregate64MiB guard now consumes captured byte totals plus the per-art peak, rather than measuring cleared collections. Cumulative counting is conservative across arts; the adapter and brokers retain their existing fixed artwork/private/global caps. The scalar peak is the measured per-art query-buffer footprint, not total process peak heap. No producer, geometry/texel algorithm, material variants or compile-ACK state machine changed.
+
+Independent reruns:
+
+- `REVIEW_WARM_ACK_MS=1000 bun docs/workstreams/023-mobile-tactility/evidence/gpu-worker/sticker-warmup/reviewer-cold-overlap.ts`: ten IDs (A01–A05/B01–B05), existing eight-print packet with C01/E01 neighbors, held1s compile ACK, all admitted. Settled transaction accounting77,816,960bytes,17private owners; paper9,061,272bytes. These are retained settled accounting, not sampled peak heap. Both failure fields null and final owners/queues/bytes zero.
+- `per-art-lifetime.ts`: actual workers/ports/node assembly with declared controlled decode/bitmap boundary; one main artwork owner at a time, empty query maps before compile, exact private geometry attributes and GPU texels versus visible default, existing visible geometry retained through failure and cancellation, exactly-once bitmap closure and final zero. Query peak27,488bytes/cumulative82,464bytes in the three-art small fixture.
+- `owners.ts`:14 actual ownership/material checks pass, all three appearance variants retained and readiness published only after matching ACK; final paper/transaction zero.
+- `lifecycle.ts`:18 checks pass, including actual60s preparation and ACK deadlines, abort/late result, stale/reentrant readiness and retirement, unchanged64MiB rejection/exact-bound acceptance. Preparation is controlled in this lifecycle proof; actual preparation is covered separately above.
+-17 existing program/texture-cache/paper tests pass,75,163 assertions (/tmp/cpu025-query-lifetime-tests.log). Device/composite/web typechecks and both source plus authored proof scoped ESLint pass. Frozen hashes rechecked after runs.
+
+These two files are stageable together against the stated HEAD: their imports and required existing resource contracts are already present. The review does not silently include other uncommitted host/resource work. Existing current-Chrome full native cold entry, packet interaction, resize/fallback and6× acceptance remain lead-owned. The earlier unhealthy emulation interval is not used as a passing or failing performance comparison here.
+
+Tracking handoff: source-linked review evidence for existing CPU025, refs SRC-CLI-1789139460322-1/-2 and the scope's invisible warmup lifetime paragraph. Parent maintains the requested board/manual gate; this source approval does not mark the overall architecture complete.
