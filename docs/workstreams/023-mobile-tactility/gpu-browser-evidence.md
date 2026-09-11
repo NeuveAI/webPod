@@ -33,3 +33,19 @@ Supervisor independently reran the current renderer-host channel and prepared-le
 ## Shared GL assembly readiness
 
 With all three app writers paused, reconnected to the same user localhost tab: CUA804261003, new autoConnect MCP page241 after connection refresh. DOM reports complete/visible,440x956,DPR3. The shared GL assembly renders the front device and Music list; console query returned no errors or warnings. Retained screenshot `evidence/gpu-worker/browser/shared-gl-assembly-front.png` was inspected. The screenshot output is vertically cropped despite the DOM viewport report, so it supports scene readiness only, not full framing or pixel parity. No trace was started. Writers resumed afterward. Full native worker scene, sticker interactions, motion, recovery and comparative6x timing remain pending.
+
+## Live native screen dimensions
+
+On existing Chrome page241, an extra one-shot paint listener captured the actual panel ElementImage and closed it in finally; listener/timer were removed. No context transfer or trace. Result: ElementImage640x480; panel offset/style320x240; canvas1320x2664 backing/CSS440x888; window440x956,DPR3. Canvas metadata declares wpRasterDensity3 and960x720 target, with projected screen325.020x243.765 CSS. Native snapshot dimensions therefore differ from destination raster metadata. Host must use the observed native copy/scale contract and preserve intended destination quality, not equate snapshot dimensions with target allocation. Raw result retained in evidence/gpu-worker/browser/native-screen-dimensions.txt.
+
+Interpretation limit: existing GL uses direct texElementImage2D native-element upload. The960x720 dataset is intended raster metadata, not a queried GL allocation. A640x480 capture does not by itself prove the GL source or GPU target is lower quality. Explicit destination copy scaling and actual glyph/color/alpha appearance need verification; no quality equivalence is inferred from these dimensions.
+
+## Worker-route first integration attempt
+
+Current existing Chrome page241 was navigated to /webpod?renderBackend=worker with the same440×956DPR3 emulation. Initial provider connection completed; the final page showed the intact Music GL front view and a1320×2664 layoutsubtree canvas with painted native screen. No worker readiness/backend attributes survived. The only collected warning was the teaser Three.Clock deprecation. This does not prove a worker frame: source authors confirmed propagation and are retaining the native failure reason on the stable composite wrapper to distinguish fallback. No performance trace started.
+
+Shared assembly source/interface checkpoint074b9c1 was independently approved and pushed to draftPR6. Neuve focused triage artifact .neuve-artifact/triage-1789123389-330202000-7183.json still reports missing machine-correlated source/check metadata; source artifact .neuve-artifact/sources-1789123386-149197000-7464.json reports unavailable source graph. These are not correctness approval, and final review/acceptance remains open.
+
+## Native scaled transfer confirmation
+
+The current Chrome remote connection was recovered by accepting its queued remote-debugging dialogs. Native DevTools confirmed iPhone16ProMax440×956 and6×CPU, with Record off. MCP now identifies the same localhost route as page109. The associated canvas one-shot experiment captured640×320 and copied into960×480 in its associated worker GPU context. Six stripe-center RGBA samples matched exactly and GPU validation returned null. The10-second bounded experiment completed and closed the image, destroyed GPU resources, terminated the worker, revoked its URL and removed its temporary canvas. Retained associated-scale-probe.js and associated-scale-result.json demonstrate scaling extent/color/alpha, not glyph quality or full-scene visual parity. No trace started.
