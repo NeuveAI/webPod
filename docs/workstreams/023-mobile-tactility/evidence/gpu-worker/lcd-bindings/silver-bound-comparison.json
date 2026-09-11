@@ -1,0 +1,197 @@
+{
+  "glass": {
+    "equalIgnoringLocalIdentityVersionName": false,
+    "gl": {
+      "type": "MeshPhysicalMaterial",
+      "opacity": 0.2,
+      "alphaTest": 0,
+      "alphaHash": false,
+      "alphaToCoverage": false,
+      "transparent": true,
+      "visible": true,
+      "toneMapped": true,
+      "depthWrite": false,
+      "depthTest": true,
+      "side": 0,
+      "blending": 1,
+      "roughness": 0.08,
+      "metalness": 0,
+      "transmission": 0,
+      "thickness": 0.2,
+      "ior": 1.5,
+      "attenuationDistance": 48,
+      "clearcoat": 1,
+      "clearcoatRoughness": 0.06,
+      "specularIntensity": 1,
+      "envMapIntensity": 1.1,
+      "color": {
+        "r": 0,
+        "g": 0,
+        "b": 0
+      },
+      "attenuationColor": {
+        "r": 0.913098651791473,
+        "g": 0.9386857284565036,
+        "b": 0.9734452903978066
+      },
+      "specularColor": {
+        "r": 1,
+        "g": 1,
+        "b": 1
+      }
+    },
+    "native": {
+      "type": "MeshPhysicalNodeMaterial",
+      "opacity": 0.2,
+      "alphaTest": 0,
+      "alphaHash": false,
+      "alphaToCoverage": false,
+      "transparent": true,
+      "visible": true,
+      "toneMapped": true,
+      "depthWrite": false,
+      "depthTest": true,
+      "side": 0,
+      "blending": 1,
+      "roughness": 0.08,
+      "metalness": 0,
+      "transmission": 0,
+      "thickness": 0.2,
+      "ior": 1.5,
+      "attenuationDistance": 48,
+      "clearcoat": 1,
+      "clearcoatRoughness": 0.06,
+      "specularIntensity": 1,
+      "envMapIntensity": 1.1,
+      "color": {
+        "r": 0,
+        "g": 0,
+        "b": 0
+      },
+      "attenuationColor": {
+        "r": 0.913098651791473,
+        "g": 0.9386857284565036,
+        "b": 0.9734452903978066
+      },
+      "specularColor": {
+        "r": 1,
+        "g": 1,
+        "b": 1
+      }
+    }
+  },
+  "screenPMREM": {
+    "equalIgnoringLocalIdentityVersionName": true
+  },
+  "bodyPMREM": {
+    "equalIgnoringLocalIdentityVersionName": true
+  },
+  "scene": {
+    "equalIgnoringLocalIdentityVersionName": true
+  },
+  "renderer": {
+    "equalIgnoringLocalIdentityVersionName": false,
+    "gl": {
+      "outputColorSpace": "srgb",
+      "toneMapping": 6,
+      "toneMappingExposure": 1,
+      "transmissionResolutionScale": 1
+    },
+    "native": {
+      "outputColorSpace": "srgb",
+      "toneMapping": 6,
+      "toneMappingExposure": 1,
+      "transparent": true
+    }
+  },
+  "cards": {
+    "equalIgnoringLocalIdentityVersionName": true
+  },
+  "lcdmaterial": {
+    "gl": {
+      "type": "MeshBasicMaterial",
+      "opacity": 1,
+      "alphaTest": 0,
+      "alphaHash": false,
+      "alphaToCoverage": false,
+      "transparent": false,
+      "visible": true,
+      "toneMapped": false,
+      "depthWrite": true,
+      "depthTest": true,
+      "side": 0,
+      "blending": 1,
+      "color": {
+        "r": 1,
+        "g": 1,
+        "b": 1
+      }
+    },
+    "native": {
+      "type": "MeshBasicNodeMaterial",
+      "opacity": 1,
+      "alphaTest": 0,
+      "alphaHash": false,
+      "alphaToCoverage": false,
+      "transparent": false,
+      "visible": true,
+      "toneMapped": false,
+      "depthWrite": true,
+      "depthTest": true,
+      "side": 0,
+      "blending": 1,
+      "color": {
+        "r": 1,
+        "g": 1,
+        "b": 1
+      }
+    }
+  },
+  "lcdmap": {
+    "gl": {
+      "type": 1009,
+      "mapping": 300,
+      "format": 1023,
+      "colorSpace": "srgb",
+      "premultiplyAlpha": false,
+      "flipY": true,
+      "minFilter": 1006,
+      "magFilter": 1006,
+      "generateMipmaps": false,
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "repeat": {
+        "x": 1,
+        "y": 1
+      },
+      "image": {}
+    },
+    "native": {
+      "type": 1009,
+      "mapping": 300,
+      "format": 1023,
+      "colorSpace": "",
+      "premultiplyAlpha": false,
+      "flipY": false,
+      "minFilter": 1006,
+      "magFilter": 1006,
+      "generateMipmaps": false,
+      "width": 960,
+      "height": 720,
+      "offset": {
+        "x": 0,
+        "y": 1
+      },
+      "repeat": {
+        "x": 1,
+        "y": -1
+      },
+      "image": {
+        "width": 960,
+        "height": 720
+      }
+    }
+  }
+}

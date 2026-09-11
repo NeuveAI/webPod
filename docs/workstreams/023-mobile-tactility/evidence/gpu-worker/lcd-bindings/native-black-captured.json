@@ -1,0 +1,851 @@
+[
+  {
+    "owner": "gl-glass",
+    "isBlack": true,
+    "glass": {
+      "uuid": "317d8c1e-d03c-40e7-930c-356064eaa3cf",
+      "name": "",
+      "type": "MeshPhysicalMaterial",
+      "version": 1,
+      "opacity": 0.2,
+      "alphaTest": 0,
+      "alphaHash": false,
+      "alphaToCoverage": false,
+      "transparent": true,
+      "visible": true,
+      "toneMapped": true,
+      "depthWrite": false,
+      "depthTest": true,
+      "side": 0,
+      "blending": 1,
+      "roughness": 0.08,
+      "metalness": 0,
+      "transmission": 0,
+      "thickness": 0.2,
+      "ior": 1.5,
+      "attenuationDistance": 48,
+      "clearcoat": 1,
+      "clearcoatRoughness": 0.06,
+      "specularIntensity": 1,
+      "envMapIntensity": 1.1,
+      "color": {
+        "r": 0,
+        "g": 0,
+        "b": 0
+      },
+      "attenuationColor": {
+        "r": 0.913098651791473,
+        "g": 0.9386857284565036,
+        "b": 0.9734452903978066
+      },
+      "specularColor": {
+        "r": 1,
+        "g": 1,
+        "b": 1
+      }
+    },
+    "screenEnvironment": true,
+    "bodyEnvironment": true,
+    "sceneBodyEnvironment": true,
+    "environment": null,
+    "screenPMREM": null,
+    "bodyPMREM": null,
+    "scene": {
+      "uuid": "3847cf47-ccff-4cf6-a755-e309ca681321",
+      "name": "",
+      "type": "Scene",
+      "environmentIntensity": 1,
+      "visible": true,
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "order": "XYZ"
+      },
+      "environmentRotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "order": "XYZ"
+      }
+    },
+    "renderer": {
+      "outputColorSpace": "srgb",
+      "toneMapping": 6,
+      "toneMappingExposure": 1,
+      "transmissionResolutionScale": 1
+    },
+    "cards": [
+      {
+        "uuid": "91f12a58-643f-4b3f-8acd-ea1e01de5f2c",
+        "name": "device-key-light",
+        "type": "RectAreaLight",
+        "visible": true,
+        "width": 260,
+        "height": 820,
+        "intensity": 9.704569700725326,
+        "color": {
+          "r": 1,
+          "g": 0.982250550332711,
+          "b": 0.9386857284565036
+        },
+        "position": {
+          "x": 452.2519287286027,
+          "y": 400.1799589616778,
+          "z": 240.466615992093
+        },
+        "rotation": {
+          "x": -1.0297181176930388,
+          "y": 0.7694944334316965,
+          "z": 0.8584370597653037,
+          "order": "XYZ"
+        }
+      },
+      {
+        "uuid": "a2fcd54a-72fb-4a1b-812c-4e3ea2ed95e9",
+        "name": "device-kick-light",
+        "type": "RectAreaLight",
+        "visible": true,
+        "width": 800,
+        "height": 700,
+        "intensity": 0.6650402979197055,
+        "color": {
+          "r": 0.913098651791473,
+          "g": 0.9386857284565036,
+          "b": 1
+        },
+        "position": {
+          "x": -409.9281827163542,
+          "y": -179.22985673746948,
+          "z": 369.1009935894692
+        },
+        "rotation": {
+          "x": 0.09247395758789141,
+          "y": -0.7494212992595095,
+          "z": 0.06309100410734181,
+          "order": "XYZ"
+        }
+      },
+      {
+        "uuid": "a8227cea-eee2-42ee-98f5-a46c55daa605",
+        "name": "device-rim-light",
+        "type": "RectAreaLight",
+        "visible": true,
+        "width": 90,
+        "height": 760,
+        "intensity": 10.889548737866525,
+        "color": {
+          "r": 1,
+          "g": 1,
+          "b": 1
+        },
+        "position": {
+          "x": -390,
+          "y": 110,
+          "z": 120
+        },
+        "rotation": {
+          "x": -0.7419472680059173,
+          "y": -1.1753757006886483,
+          "z": -0.7021274813958829,
+          "order": "XYZ"
+        }
+      }
+    ],
+    "captureMessageId": "488"
+  },
+  {
+    "owner": "gl-glass",
+    "isBlack": true,
+    "glass": {
+      "uuid": "bd381081-ef80-4919-af76-5afbab06f158",
+      "name": "",
+      "type": "MeshPhysicalMaterial",
+      "version": 1,
+      "opacity": 0.2,
+      "alphaTest": 0,
+      "alphaHash": false,
+      "alphaToCoverage": false,
+      "transparent": true,
+      "visible": true,
+      "toneMapped": true,
+      "depthWrite": false,
+      "depthTest": true,
+      "side": 0,
+      "blending": 1,
+      "roughness": 0.08,
+      "metalness": 0,
+      "transmission": 0,
+      "thickness": 0.2,
+      "ior": 1.5,
+      "attenuationDistance": 48,
+      "clearcoat": 1,
+      "clearcoatRoughness": 0.06,
+      "specularIntensity": 1,
+      "envMapIntensity": 1.1,
+      "color": {
+        "r": 0,
+        "g": 0,
+        "b": 0
+      },
+      "attenuationColor": {
+        "r": 0.913098651791473,
+        "g": 0.9386857284565036,
+        "b": 0.9734452903978066
+      },
+      "specularColor": {
+        "r": 1,
+        "g": 1,
+        "b": 1
+      }
+    },
+    "screenEnvironment": true,
+    "bodyEnvironment": false,
+    "sceneBodyEnvironment": true,
+    "environment": {
+      "uuid": "ce9957a3-9c82-4b02-bfc5-1d774923c646",
+      "name": "PMREM.cubeUv",
+      "type": 1016,
+      "version": 1,
+      "mapping": 306,
+      "format": 1023,
+      "colorSpace": "srgb-linear",
+      "premultiplyAlpha": false,
+      "flipY": false,
+      "minFilter": 1006,
+      "magFilter": 1006,
+      "generateMipmaps": false,
+      "width": 768,
+      "height": 1024,
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "repeat": {
+        "x": 1,
+        "y": 1
+      },
+      "image": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    "screenPMREM": {
+      "uuid": "ce9957a3-9c82-4b02-bfc5-1d774923c646",
+      "name": "PMREM.cubeUv",
+      "type": 1016,
+      "version": 1,
+      "mapping": 306,
+      "format": 1023,
+      "colorSpace": "srgb-linear",
+      "premultiplyAlpha": false,
+      "flipY": false,
+      "minFilter": 1006,
+      "magFilter": 1006,
+      "generateMipmaps": false,
+      "width": 768,
+      "height": 1024,
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "repeat": {
+        "x": 1,
+        "y": 1
+      },
+      "image": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    "bodyPMREM": {
+      "uuid": "30c4dec1-75c0-4262-9d71-abc76c7a14a9",
+      "name": "PMREM.cubeUv",
+      "type": 1016,
+      "version": 1,
+      "mapping": 306,
+      "format": 1023,
+      "colorSpace": "srgb-linear",
+      "premultiplyAlpha": false,
+      "flipY": false,
+      "minFilter": 1006,
+      "magFilter": 1006,
+      "generateMipmaps": false,
+      "width": 768,
+      "height": 1024,
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "repeat": {
+        "x": 1,
+        "y": 1
+      },
+      "image": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    "scene": {
+      "uuid": "3847cf47-ccff-4cf6-a755-e309ca681321",
+      "name": "",
+      "type": "Scene",
+      "environmentIntensity": 0.2,
+      "visible": true,
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "order": "XYZ"
+      },
+      "environmentRotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "order": "XYZ"
+      }
+    },
+    "renderer": {
+      "outputColorSpace": "srgb",
+      "toneMapping": 6,
+      "toneMappingExposure": 1,
+      "transmissionResolutionScale": 1
+    },
+    "cards": [
+      {
+        "uuid": "91f12a58-643f-4b3f-8acd-ea1e01de5f2c",
+        "name": "device-key-light",
+        "type": "RectAreaLight",
+        "visible": true,
+        "width": 260,
+        "height": 820,
+        "intensity": 9.704569700725326,
+        "color": {
+          "r": 1,
+          "g": 0.982250550332711,
+          "b": 0.9386857284565036
+        },
+        "position": {
+          "x": 452.2519287286027,
+          "y": 400.1799589616778,
+          "z": 240.466615992093
+        },
+        "rotation": {
+          "x": -1.0297181176930388,
+          "y": 0.7694944334316965,
+          "z": 0.8584370597653037,
+          "order": "XYZ"
+        }
+      },
+      {
+        "uuid": "a2fcd54a-72fb-4a1b-812c-4e3ea2ed95e9",
+        "name": "device-kick-light",
+        "type": "RectAreaLight",
+        "visible": true,
+        "width": 800,
+        "height": 700,
+        "intensity": 0.6650402979197055,
+        "color": {
+          "r": 0.913098651791473,
+          "g": 0.9386857284565036,
+          "b": 1
+        },
+        "position": {
+          "x": -409.9281827163542,
+          "y": -179.22985673746948,
+          "z": 369.1009935894692
+        },
+        "rotation": {
+          "x": 0.09247395758789141,
+          "y": -0.7494212992595095,
+          "z": 0.06309100410734181,
+          "order": "XYZ"
+        }
+      },
+      {
+        "uuid": "a8227cea-eee2-42ee-98f5-a46c55daa605",
+        "name": "device-rim-light",
+        "type": "RectAreaLight",
+        "visible": true,
+        "width": 90,
+        "height": 760,
+        "intensity": 10.889548737866525,
+        "color": {
+          "r": 1,
+          "g": 1,
+          "b": 1
+        },
+        "position": {
+          "x": -390,
+          "y": 110,
+          "z": 120
+        },
+        "rotation": {
+          "x": -0.7419472680059173,
+          "y": -1.1753757006886483,
+          "z": -0.7021274813958829,
+          "order": "XYZ"
+        }
+      }
+    ],
+    "captureMessageId": "489"
+  },
+  {
+    "owner": "gl-screen",
+    "material": {
+      "uuid": "249a9408-4de7-463a-aa4e-669c5eb7a87a",
+      "name": "",
+      "type": "MeshBasicMaterial",
+      "version": 0,
+      "opacity": 1,
+      "alphaTest": 0,
+      "alphaHash": false,
+      "alphaToCoverage": false,
+      "transparent": false,
+      "visible": true,
+      "toneMapped": false,
+      "depthWrite": true,
+      "depthTest": true,
+      "side": 0,
+      "blending": 1,
+      "color": {
+        "r": 1,
+        "g": 1,
+        "b": 1
+      }
+    },
+    "map": {
+      "uuid": "26a01f56-be61-42e9-a290-18671e930c9e",
+      "name": "",
+      "type": 1009,
+      "version": 2,
+      "mapping": 300,
+      "format": 1023,
+      "colorSpace": "srgb",
+      "premultiplyAlpha": false,
+      "flipY": true,
+      "minFilter": 1008,
+      "magFilter": 1006,
+      "generateMipmaps": true,
+      "width": 816,
+      "height": 612,
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "repeat": {
+        "x": 1,
+        "y": 1
+      },
+      "image": {
+        "width": 816,
+        "height": 612
+      }
+    },
+    "renderer": {
+      "outputColorSpace": "srgb",
+      "toneMapping": 6,
+      "toneMappingExposure": 1,
+      "transmissionResolutionScale": 1
+    },
+    "scene": {
+      "uuid": "3847cf47-ccff-4cf6-a755-e309ca681321",
+      "name": "",
+      "type": "Scene",
+      "environmentIntensity": 0.2,
+      "visible": true,
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "order": "XYZ"
+      },
+      "environmentRotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "order": "XYZ"
+      }
+    },
+    "environment": {
+      "uuid": "30c4dec1-75c0-4262-9d71-abc76c7a14a9",
+      "name": "PMREM.cubeUv",
+      "type": 1016,
+      "version": 1,
+      "mapping": 306,
+      "format": 1023,
+      "colorSpace": "srgb-linear",
+      "premultiplyAlpha": false,
+      "flipY": false,
+      "minFilter": 1006,
+      "magFilter": 1006,
+      "generateMipmaps": false,
+      "width": 768,
+      "height": 1024,
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "repeat": {
+        "x": 1,
+        "y": 1
+      },
+      "image": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    "captureMessageId": "490"
+  },
+  {
+    "owner": "native-upload",
+    "target": {
+      "width": 960,
+      "height": 720,
+      "format": "rgba8unorm"
+    },
+    "capture": {
+      "width": 640,
+      "height": 480
+    },
+    "destination": {
+      "colorSpace": "srgb",
+      "premultipliedAlpha": false
+    },
+    "texture": {
+      "uuid": "89019094-305e-47e4-8889-3c15add9e859",
+      "name": "webpod-native-screen",
+      "type": 1009,
+      "version": 0,
+      "mapping": 300,
+      "format": 1023,
+      "colorSpace": "",
+      "premultiplyAlpha": false,
+      "flipY": false,
+      "minFilter": 1006,
+      "magFilter": 1006,
+      "generateMipmaps": false,
+      "width": 960,
+      "height": 720,
+      "offset": {
+        "x": 0,
+        "y": 1
+      },
+      "repeat": {
+        "x": 1,
+        "y": -1
+      },
+      "image": {
+        "width": 960,
+        "height": 720
+      }
+    },
+    "captureMessageId": "491"
+  },
+  {
+    "owner": "native-render",
+    "isBlack": true,
+    "glass": {
+      "uuid": "d1c98d95-9202-42ef-9e2c-4251e2c4082b",
+      "name": "",
+      "type": "MeshPhysicalNodeMaterial",
+      "version": 1,
+      "opacity": 0.2,
+      "alphaTest": 0,
+      "alphaHash": false,
+      "alphaToCoverage": false,
+      "transparent": true,
+      "visible": true,
+      "toneMapped": true,
+      "depthWrite": false,
+      "depthTest": true,
+      "side": 0,
+      "blending": 1,
+      "roughness": 0.08,
+      "metalness": 0,
+      "transmission": 0,
+      "thickness": 0.2,
+      "ior": 1.5,
+      "attenuationDistance": 48,
+      "clearcoat": 1,
+      "clearcoatRoughness": 0.06,
+      "specularIntensity": 1,
+      "envMapIntensity": 1.1,
+      "color": {
+        "r": 0,
+        "g": 0,
+        "b": 0
+      },
+      "attenuationColor": {
+        "r": 0.913098651791473,
+        "g": 0.9386857284565036,
+        "b": 0.9734452903978066
+      },
+      "specularColor": {
+        "r": 1,
+        "g": 1,
+        "b": 1
+      }
+    },
+    "screenEnvironment": true,
+    "bodyEnvironment": false,
+    "sceneBodyEnvironment": true,
+    "environment": {
+      "uuid": "d8101581-0222-4328-94a0-ff3bcd2fce19",
+      "name": "PMREM.cubeUv",
+      "type": 1016,
+      "version": 2,
+      "mapping": 306,
+      "format": 1023,
+      "colorSpace": "srgb-linear",
+      "premultiplyAlpha": false,
+      "flipY": false,
+      "minFilter": 1006,
+      "magFilter": 1006,
+      "generateMipmaps": false,
+      "width": 768,
+      "height": 1024,
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "repeat": {
+        "x": 1,
+        "y": 1
+      },
+      "image": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    "screenPMREM": {
+      "uuid": "d8101581-0222-4328-94a0-ff3bcd2fce19",
+      "name": "PMREM.cubeUv",
+      "type": 1016,
+      "version": 2,
+      "mapping": 306,
+      "format": 1023,
+      "colorSpace": "srgb-linear",
+      "premultiplyAlpha": false,
+      "flipY": false,
+      "minFilter": 1006,
+      "magFilter": 1006,
+      "generateMipmaps": false,
+      "width": 768,
+      "height": 1024,
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "repeat": {
+        "x": 1,
+        "y": 1
+      },
+      "image": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    "bodyPMREM": {
+      "uuid": "0b4115ff-ea8b-4a74-820c-e1ede82e4570",
+      "name": "PMREM.cubeUv",
+      "type": 1016,
+      "version": 2,
+      "mapping": 306,
+      "format": 1023,
+      "colorSpace": "srgb-linear",
+      "premultiplyAlpha": false,
+      "flipY": false,
+      "minFilter": 1006,
+      "magFilter": 1006,
+      "generateMipmaps": false,
+      "width": 768,
+      "height": 1024,
+      "offset": {
+        "x": 0,
+        "y": 0
+      },
+      "repeat": {
+        "x": 1,
+        "y": 1
+      },
+      "image": {
+        "width": 768,
+        "height": 1024
+      }
+    },
+    "material": {
+      "uuid": "94105c2c-e6a6-4aae-b2fa-41186676c1dc",
+      "name": "",
+      "type": "MeshBasicNodeMaterial",
+      "version": 0,
+      "opacity": 1,
+      "alphaTest": 0,
+      "alphaHash": false,
+      "alphaToCoverage": false,
+      "transparent": false,
+      "visible": true,
+      "toneMapped": false,
+      "depthWrite": true,
+      "depthTest": true,
+      "side": 0,
+      "blending": 1,
+      "color": {
+        "r": 1,
+        "g": 1,
+        "b": 1
+      }
+    },
+    "map": {
+      "uuid": "89019094-305e-47e4-8889-3c15add9e859",
+      "name": "webpod-native-screen",
+      "type": 1009,
+      "version": 0,
+      "mapping": 300,
+      "format": 1023,
+      "colorSpace": "",
+      "premultiplyAlpha": false,
+      "flipY": false,
+      "minFilter": 1006,
+      "magFilter": 1006,
+      "generateMipmaps": false,
+      "width": 960,
+      "height": 720,
+      "offset": {
+        "x": 0,
+        "y": 1
+      },
+      "repeat": {
+        "x": 1,
+        "y": -1
+      },
+      "image": {
+        "width": 960,
+        "height": 720
+      }
+    },
+    "renderer": {
+      "outputColorSpace": "srgb",
+      "toneMapping": 6,
+      "toneMappingExposure": 1,
+      "transparent": true
+    },
+    "scene": {
+      "uuid": "87142c51-dae8-41d6-9f50-89ce5aeb756a",
+      "name": "",
+      "type": "Scene",
+      "environmentIntensity": 0.2,
+      "visible": true,
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "order": "XYZ"
+      },
+      "environmentRotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0,
+        "order": "XYZ"
+      }
+    },
+    "cards": [
+      {
+        "uuid": "ed9fd4da-023a-4761-b8e7-2491c675e330",
+        "name": "device-key-light",
+        "type": "RectAreaLight",
+        "visible": true,
+        "width": 620,
+        "height": 820,
+        "intensity": 4.069658261594491,
+        "color": {
+          "r": 1,
+          "g": 0.982250550332711,
+          "b": 0.9386857284565036
+        },
+        "position": {
+          "x": 293.7898599090298,
+          "y": 400.1799589616778,
+          "z": 419.575402830126
+        },
+        "rotation": {
+          "x": -0.7617425378119641,
+          "y": 0.4689886875864502,
+          "z": 0.4070182828701109,
+          "order": "XYZ"
+        }
+      },
+      {
+        "uuid": "85132684-4e8e-4968-aedc-1a51e7e2b61f",
+        "name": "device-kick-light",
+        "type": "RectAreaLight",
+        "visible": true,
+        "width": 800,
+        "height": 700,
+        "intensity": 1.5517606951459797,
+        "color": {
+          "r": 0.913098651791473,
+          "g": 0.9386857284565036,
+          "b": 1
+        },
+        "position": {
+          "x": -409.9281827163542,
+          "y": -179.22985673746948,
+          "z": 369.1009935894692
+        },
+        "rotation": {
+          "x": 0.09247395758789141,
+          "y": -0.7494212992595095,
+          "z": 0.06309100410734181,
+          "order": "XYZ"
+        }
+      },
+      {
+        "uuid": "2845fe57-c568-48b4-a3d8-e53f61a40b2a",
+        "name": "device-rim-light",
+        "type": "RectAreaLight",
+        "visible": true,
+        "width": 160,
+        "height": 760,
+        "intensity": 2.7223871844666307,
+        "color": {
+          "r": 1,
+          "g": 1,
+          "b": 1
+        },
+        "position": {
+          "x": -390,
+          "y": 110,
+          "z": -280
+        },
+        "rotation": {
+          "x": -2.7672590375822095,
+          "y": -0.9137615211420879,
+          "z": -2.840013877270908,
+          "order": "XYZ"
+        }
+      }
+    ],
+    "captureMessageId": "492"
+  }
+]
