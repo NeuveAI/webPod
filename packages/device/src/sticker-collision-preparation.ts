@@ -1,3 +1,4 @@
+import { reserveStickerCollisionBytes, type StickerCollisionReservation } from './sticker-collision-budget';
 import { BufferAttribute } from 'three';
 import { prepareCollisionCooperatively } from './sticker-collision-cooperative';
 import { drainSteps,yieldSteps } from './sticker-computation-steps';
@@ -23,24 +24,26 @@ export function* collisionWorkerFacesSteps(faces:readonly StickerCollisionFace[]
  return result;
 }
 export function collisionWorkerFaces(faces:readonly StickerCollisionFace[]):CollisionWorkerFace[]{return drainSteps(collisionWorkerFacesSteps(faces));}
-interface Job {id:number;faces:readonly StickerCollisionFace[];signal:AbortSignal;bytes:number;resolve:(snapshot:StickerCollisionSnapshot)=>void;reject:(error:unknown)=>void;abort:()=>void;}
+interface Job {id:number;faces:readonly StickerCollisionFace[];signal:AbortSignal;reservation:StickerCollisionReservation;pendingWork:number;retired:boolean;resolve:(snapshot:StickerCollisionSnapshot)=>void;reject:(error:unknown)=>void;abort:()=>void;}
 const queue:Job[]=[];let active:Job|null=null,worker:Worker|null=null,nextId=0;
 let deadline:ReturnType<typeof setTimeout>|undefined;
-const MAX_BYTES=128*1024*1024;
 const cancelled=()=>new DOMException('Cancelled','AbortError');
 function stopWorker(){clearTimeout(deadline);deadline=undefined;worker?.terminate();worker=null;}
+function releaseRetired(job:Job){if(job.retired&&job.pendingWork===0)job.reservation.release();}
 function finish(job:Job,error:unknown,snapshot?:StickerCollisionSnapshot){
- if(active!==job)return;stopWorker();active=null;job.signal.removeEventListener('abort',job.abort);
+ if(active!==job)return;stopWorker();active=null;job.signal.removeEventListener('abort',job.abort);job.retired=true;releaseRetired(job);
  if(snapshot)job.resolve(snapshot);else job.reject(error);pump();
 }
 function recover(job:Job){
  if(active!==job)return;stopWorker();
  // Recovery retains the global producer slot. Overloaded owners cannot each
  // start an independent main-thread fallback or silently retry a worker.
- void prepareCollisionCooperatively(job.faces,job.signal).then(snapshot=>finish(job,null,snapshot),error=>finish(job,error));
+ job.pendingWork++;
+ void prepareCollisionCooperatively(job.faces,job.signal).then(snapshot=>finish(job,null,snapshot),error=>finish(job,error)).finally(()=>{job.pendingWork--;releaseRetired(job);});
 }
 function pump(){
  if(active)return;const job=queue.shift();if(!job)return;active=job;
+ job.pendingWork++;
  void yieldSteps(collisionWorkerFacesSteps(job.faces),job.signal).then(input=>{
   if(active!==job||job.signal.aborted)return;
   try {
@@ -55,7 +58,7 @@ function pump(){
    const buffers=input.flatMap(face=>face.indices?[face.positions.buffer,face.indices.buffer]:[face.positions.buffer]);
    worker.postMessage({id:job.id,faces:input},buffers);
   }catch{recover(job);}
- },error=>finish(job,error));
+ },error=>finish(job,error)).finally(()=>{job.pendingWork--;releaseRetired(job);});
 }
 /** Session-wide one producer plus at most three waiting owners and 128 MiB of
  * estimated private input plus packed output storage. Admission overflow rejects explicitly; only admitted
@@ -65,9 +68,10 @@ export function prepareCollisionInWorker(faces:readonly StickerCollisionFace[],s
  return new Promise((resolve,reject)=>{
   const bytes=faces.reduce((sum,face)=>{const count=face.geometry.getAttribute('position').count,indexCount=face.geometry.index?.count;return sum+count*24+(indexCount??0)*4+Math.ceil((indexCount??count)/3)*112;},0);
   if(signal.aborted){reject(cancelled());return;}
-  if(queue.length>=3||bytes+(active?.bytes??0)+queue.reduce((sum,job)=>sum+job.bytes,0)>MAX_BYTES){reject(new Error('Collision preparation capacity exceeded'));return;}
-  const job:Job={id:++nextId,faces,signal,bytes,resolve,reject,abort:()=>{
-   if(active===job)finish(job,cancelled());else{const index=queue.indexOf(job);if(index>=0)queue.splice(index,1);signal.removeEventListener('abort',job.abort);reject(cancelled());}
+  if(queue.length>=3){reject(new Error('Collision preparation capacity exceeded'));return;}
+  const reservation=reserveStickerCollisionBytes(bytes);
+  const job:Job={id:++nextId,faces,signal,reservation,pendingWork:0,retired:false,resolve,reject,abort:()=>{
+   if(active===job)finish(job,cancelled());else{const index=queue.indexOf(job);if(index>=0)queue.splice(index,1);signal.removeEventListener('abort',job.abort);job.retired=true;releaseRetired(job);reject(cancelled());}
   }};
   signal.addEventListener('abort',job.abort,{once:true});queue.push(job);pump();
  });

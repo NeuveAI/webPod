@@ -8,7 +8,7 @@ import { prepareStickerAlpha, type StickerDamageResource } from './sticker-alpha
 import { acquireStickerTransaction, requestStickerTransaction } from './sticker-transaction-broker';
 import { commitPreparedStickerSurface, preparedStickerPlacement, preparedStickerResources, registerPreparedStickerResources, type PreparedStickerResource } from './sticker-transaction-client';
 import type { StickerDamageRequest, StickerContourRequest } from './sticker-transaction-data';
-import { setPreparedStickerContour, type PreparedStickerContour } from './sticker-contour-preparation-data';
+import { setPreparedStickerContour, type PreparedStickerContour, type PreparedStickerContourDescriptor } from './sticker-contour-preparation-data';
 import { createLatestStickerPreparation } from './sticker-latest-preparation';
 const identities = new WeakMap<object, number>(); let sequence = 0;
 const identity = (value: object) => { let id = identities.get(value); if (id === undefined) { id = ++sequence; identities.set(value, id); } return id; };
@@ -59,6 +59,7 @@ export async function preparePrint(input: PrintInput, signal: AbortSignal, optio
     const damage = await requestStickerTransaction(key, damageInput, signal); releases.push(damage.release);
     if (damage.value.kind !== 'damage') throw new Error('Unexpected sticker damage result');
     let contour: PreparedStickerContour | null = null;
+    let contourDescriptor: PreparedStickerContourDescriptor | undefined;
     if (options?.prepareContour !== false) {
       const positions = geometry.getAttribute('position'), uv = geometry.getAttribute('uv');
       if (!(positions?.array instanceof Float32Array) || !(uv?.array instanceof Float32Array)) throw new Error('Sticker contour requires immutable float32 arrays');
@@ -67,13 +68,14 @@ export async function preparePrint(input: PrintInput, signal: AbortSignal, optio
       const prepared = await requestStickerTransaction(contourKey, contourInput, signal); releases.push(prepared.release);
       if (prepared.value.kind !== 'contour') throw new Error('Unexpected sticker contour result');
       contour = prepared.value.contour;
+      contourDescriptor = {key: contourKey, input: contourInput};
     }
     signal.throwIfAborted();
     derived = new DataTexture(damage.value.gpu, damage.value.field.width, damage.value.field.height, RedFormat);
     derived.minFilter = NearestFilter; derived.magFilter = NearestFilter; derived.flipY = false; derived.generateMipmaps = false; derived.needsUpdate = true;
     own = borrowGeometry(geometry);
     const placement = preparedStickerPlacement(geometry); if (placement) commitPreparedStickerSurface(own, { ...placement, wear });
-    if (contour) setPreparedStickerContour(own, damage.value.field, wear, contour);
+    if (contour) setPreparedStickerContour(own, damage.value.field, wear, contour, contourDescriptor);
     registerPreparedStickerResources(own, descriptors.some(resource => resource.key === key) ? descriptors : [...descriptors, { key, input: damageInput }]);
     return { texture, geometry: own, damage: { id, field: damage.value.field, texture: derived }, wear, release };
   } catch (error) { release(); throw error; }
