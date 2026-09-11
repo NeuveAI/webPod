@@ -1,0 +1,32 @@
+--- a/packages/device/src/sticker-latest-preparation.ts
++++ b/packages/device/src/sticker-latest-preparation.ts
+@@ -1,3 +1,6 @@
++// Temporary one-record rejection inspection; never shipped.
++let reportedPreparationFailure = false;
++
+ /** One active preparation plus one replaceable latest input per live surface.
+  * Compatible progress can publish while a newer sample waits; ownership changes
+  * abort and reject the old epoch. The consumer owns adopted result disposal. */
+@@ -10,7 +13,21 @@
+     const running = { controller: new AbortController(), owner: next.owner }; active = running;
+     void prepare(next.input, running.controller.signal).then(value => {
+       if (!live || active !== running || running.controller.signal.aborted) value.release(); else publish(value);
+-    }, () => { if (live && active === running && !running.controller.signal.aborted && !wanted) failed(next.input); }).finally(() => { if (active === running) { active = null; dispatch(); } });
++    }, (error: unknown) => { if (live && active === running && !running.controller.signal.aborted && !wanted) {
++      if (!reportedPreparationFailure) {
++        reportedPreparationFailure = true;
++        try {
++          const object: unknown = next.input;
++          const custom: unknown = object && typeof object === 'object' ? Reflect.get(object, 'custom') : null;
++          const art: unknown = custom && typeof custom === 'object' ? Reflect.get(custom, 'art') : null;
++          const id: unknown = art && typeof art === 'object' ? Reflect.get(art, 'id') : object && typeof object === 'object' ? Reflect.get(object, 'id') : null;
++          const code: unknown = error && typeof error === 'object' ? Reflect.get(error, 'code') : null;
++          const message = error instanceof Error ? error.message.replace(/https?:\/\/[^\s]+/g, '[url]').slice(0, 256) : 'Non-Error rejection';
++          console.info('webpod-sticker-preparation-failure ' + JSON.stringify({ kind: custom ? 'surface' : 'print-damage-contour', artwork: typeof id === 'string' ? id.slice(0, 64) : null, name: error instanceof Error ? error.name.slice(0, 64) : typeof error, message, code: typeof code === 'string' ? code.slice(0, 64) : typeof code === 'number' && Number.isFinite(code) ? code : null }));
++        } catch { /* Inspection must not replace the existing failure outcome. */ }
++      }
++      failed(next.input);
++    } }).finally(() => { if (active === running) { active = null; dispatch(); } });
+   };
+   return {
+     request(input: I, owner: string) {
