@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "phase": "init",
+  "stages": [
+    {
+      "name": "initialization-start",
+      "elapsedMs": 3.5999999940395355
+    },
+    {
+      "name": "initialization-ready",
+      "elapsedMs": 71.09999999403954
+    }
+  ],
+  "coreFeatures": true
+}
