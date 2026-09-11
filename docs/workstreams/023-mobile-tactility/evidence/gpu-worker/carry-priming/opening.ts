@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {readFileSync,writeFileSync} from 'node:fs';
+const source=readFileSync(new URL('../../../../../../packages/composite/src/native-carry-controller.ts',import.meta.url),'utf8');
+const body=source.split(' const request=()=>{')[1]?.split('  const value=nativeCarryInput')[0];
+if(!body)throw Error('Opening source boundary missing');
+const script=new Bun.Transpiler({loader:'ts'}).transformSync(`let packetOpen=false,primeEligible=false,primedRevision=-1;let latest=null,disposed=false;const hidden=()=>{if(document.hidden)primeEligible=false;};function request(){${body}};return {update(scene){latest=scene;request();},request,hidden};`);
+let calls=0,ready=true,revision=1;const doc={hidden:false};const visibility={get ready(){return ready;},get revision(){return revision;},update(){}};
+const controller=new Function('input','runtime','document',script)({visibility,query:{content:{},rear:{geometry:{}}}},{primeContext(){calls++;}},doc);
+const scene=(progress:number,presence=1,workspaceVisible=true)=>({pack:{progress,presence,workspaceVisible}});
+controller.update({pack:null,preparedSheet:{}});controller.update(scene(0));assert.equal(calls,0);
+ready=false;controller.update(scene(.1));assert.equal(calls,0);ready=true;controller.request();assert.equal(calls,1);
+for(let i=0;i<1000;i++)controller.update(scene(.2));assert.equal(calls,1);
+revision++;controller.request();assert.equal(calls,2);
+doc.hidden=true;controller.hidden();doc.hidden=false;controller.request();assert.equal(calls,2);
+controller.update(scene(0));controller.update(scene(.1));assert.equal(calls,3);
+controller.update(scene(0));controller.update(scene(.1,0));controller.update(scene(.1,1,false));assert.equal(calls,3);
+writeFileSync(new URL('./opening.json',import.meta.url),JSON.stringify({checks:7,noEntryPrime:true,waitsExistingVisibility:true,repeatedNotifications:1000,generationRefresh:true,noResumePrime:true,reopenAllowed:true,presenceAndWorkspaceGated:true,scope:'Actual extracted native controller admission; controlled scalar scene and visibility boundary'},null,2)+'\n');

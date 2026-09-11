@@ -49,19 +49,20 @@ export function createCarryPreparation(options: { readonly renderer?: boolean } 
   let rear: BufferGeometry | null = null, visibility: CarryVisibility | null = null, revision = -1;
   let fallback: AbortController | null = null, workerFailed = false;
   let timeout: ReturnType<typeof setTimeout> | undefined;
-  let contextBytes = 0;
+  let contextBytes = 0, primeWanted = false;
   // An aborted copy keeps its reservation until its generator actually unwinds.
   // dispatch cannot start another copy while this owner is non-null.
   let contextJob: { controller: AbortController; bytes: number } | null = null;
   let snapshot = EMPTY;
   const retired = new Set<CarryFrame>(), listeners = new Set<() => void>();
   const publish = (next: CarrySnapshot) => { if (snapshot.frame && snapshot.frame !== next.frame) retired.add(snapshot.frame); snapshot = next; for (const listener of listeners) listener(); };
-  const stop = () => { stopping = true; contextJob?.controller.abort(); contextBytes = 0; clearTimeout(timeout); timeout = undefined; worker?.terminate(); worker = null; active = null; renderResources.retired(); wearCache.clear(); fallback?.abort(); fallback = null; stopping = false; };
+  const stop = () => { stopping = true; primeWanted = false; contextJob?.controller.abort(); contextBytes = 0; clearTimeout(timeout); timeout = undefined; worker?.terminate(); worker = null; active = null; renderResources.retired(); wearCache.clear(); fallback?.abort(); fallback = null; stopping = false; };
   const fail = () => { stop(); workerFailed = true; if (options.renderer) { wanted = null; publish({...snapshot, error: 'Native carry producer unavailable'}); } else dispatch(); };
   const dispatch = (): void => {
-    if (stopping || !mounted || document.hidden || active || !wanted || !rear || !visibility?.ready) return;
+    if (stopping || !mounted || document.hidden || active || (!wanted && !primeWanted) || !rear || !visibility?.ready) return;
     if (workerFailed && options.renderer) { wanted = null; return; }
     if (workerFailed) {
+      if (!wanted) return;
       const job = wanted, assembly = rear, contact = visibility, expectedRevision = revision, controller = new AbortController(); fallback = controller; active = job;
       const prepare = async () => {
         let source: BufferGeometry | null = null, target: BufferGeometry | null = null;
@@ -135,6 +136,7 @@ export function createCarryPreparation(options: { readonly renderer?: boolean } 
         });
         return;
       }
+      if (!wanted) return;
       if (options.renderer && !renderResources.begin()) return;
       active = wanted; timeout = setTimeout(fail, 15_000);
       const renderStamp: CarryRenderStamp | undefined = options.renderer ? {ownerId, workerGeneration, jobId: active.id,
@@ -146,6 +148,12 @@ export function createCarryPreparation(options: { readonly renderer?: boolean } 
     getSnapshot: () => snapshot,
     getServerSnapshot: () => EMPTY,
     subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
+    /** Speculative context only: never manufacture a pose or publish readiness. */
+    primeContext(nextRear: BufferGeometry, nextVisibility: CarryVisibility): void {
+      if (!mounted || document.hidden || workerFailed) return;
+      if (rear !== nextRear || visibility !== nextVisibility || revision !== nextVisibility.revision) { stop(); rear = nextRear; visibility = nextVisibility; revision = nextVisibility.revision; }
+      primeWanted = true; dispatch();
+    },
     request(input: CarryInput, nextRear: BufferGeometry, nextVisibility: CarryVisibility): void {
       if (rear !== nextRear || visibility !== nextVisibility || revision !== nextVisibility.revision) { stop(); rear = nextRear; visibility = nextVisibility; revision = nextVisibility.revision; }
       latestRenderOwner = renderOwner(input);

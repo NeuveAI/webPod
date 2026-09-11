@@ -15,6 +15,9 @@ export function createNativeCarryController(input:{readonly canvas:HTMLCanvasEle
  let disposed=false,latest:DeviceStickerScene|null=null,epoch=0,owner='',active=false,id:string|null=null,source:'equipped'|'pack'='pack',requestKey='',sequence=0,artworkBytes=0;
  let candidateEpoch=0,lastAssemblyRevision=-1,lastOffered:CarryFrame|null=null;
  let pending:CarryFrame|null=null,current:Candidate|null=null,candidate:Candidate|null=null,working=false,waiting=false,controller:AbortController|null=null,deadline:ReturnType<typeof setTimeout>|null=null;
+ let packetOpen=false,primeEligible=false,primedRevision=-1;
+ const hidden=()=>{if(document.hidden)primeEligible=false;};
+ document.addEventListener('visibilitychange',hidden);
  let queryRoot:Group|null=null,queryMaterial:MeshPhysicalMaterial|null=null,borrowed:Mesh|null=null;
  const clearQuery=()=>{queryRoot?.removeFromParent();queryRoot?.clear();queryRoot=null;queryMaterial?.dispose();queryMaterial=null;borrowed=null;};
  const borrowSource=()=>{
@@ -50,7 +53,15 @@ export function createNativeCarryController(input:{readonly canvas:HTMLCanvasEle
   }catch(error){if(!disposed&&expected===epoch&&frame.renderStamp?.assemblyRevision===input.visibility.revision)input.fail(error);}finally{untransferred?.close();prepared?.release();clearTimeout(timer);controller=null;working=false;if(!disposed)void pump();}
  };
  const request=()=>{
-  if(disposed||!latest)return;const value=nativeCarryInput(latest,input.layout(),input.query);
+  if(disposed||!latest)return;
+  const pack=latest.pack,open=!!pack&&pack.progress>0&&(pack.presence??1)>0&&pack.workspaceVisible!==false;
+  if(open&&!packetOpen&&!document.hidden){primeEligible=true;primedRevision=-1;}
+  packetOpen=open;if(!open)primeEligible=false;
+  if(primeEligible&&!document.hidden){
+   input.visibility.update(input.query.content);
+   if(input.visibility.ready&&primedRevision!==input.visibility.revision){primedRevision=input.visibility.revision;runtime.primeContext(input.query.rear.geometry,input.visibility);}
+  }
+  const value=nativeCarryInput(latest,input.layout(),input.query);
   if(!value){if(active){active=false;requestKey='';pending=null;epoch++;owner='';input.sendState({epoch,assemblyRevision:input.visibility.revision,active:false,id,source,handoff:id&&latest.placements.some(item=>item.stickerId===id)?'equipped':id&&latest.pack?.sheet?.slots.some(item=>item.stickerId===id)?'pack':'none'});}return;}
   const nextOwner=JSON.stringify([value.pack.computationEpoch,value.art.id,value.pack.sourcePlacement??null]);
   if(!active||nextOwner!==owner){active=true;owner=nextOwner;epoch++;id=value.art.id;source=value.pack.sourcePlacement?'equipped':'pack';input.sendState({epoch,assemblyRevision:input.visibility.revision,active:true,id,source,handoff:'none'});borrowSource();}
@@ -63,7 +74,7 @@ export function createNativeCarryController(input:{readonly canvas:HTMLCanvasEle
  return{update(scene:DeviceStickerScene){latest=scene;request();},project:request,
   acknowledge(received:number,accepted:boolean){if(disposed||received!==sequence||!candidate)return;if(deadline!==null)clearTimeout(deadline);deadline=null;waiting=false;const value=candidate;candidate=null;if(accepted&&active&&candidateEpoch===epoch&&value.stamp.assemblyRevision===input.visibility.revision){adoptQuery(value);current?.release();current=value;runtime.commit();if(id)latest?.onArtworkReady?.(id);latest?.onSurfaceReady?.();}else{value.release();runtime.commit();}void pump();},
   cleared(receivedEpoch:number){if(disposed||receivedEpoch!==epoch)return;clearQuery();current?.release();current=null;runtime.commit();input.onProjection();},
-  dispose(){if(disposed)return;disposed=true;active=false;pending=null;controller?.abort();if(deadline!==null)clearTimeout(deadline);unsubscribe();unsubscribeVisibility();unmount();clearQuery();},
+  dispose(){if(disposed)return;disposed=true;active=false;pending=null;controller?.abort();if(deadline!==null)clearTimeout(deadline);unsubscribe();unsubscribeVisibility();document.removeEventListener('visibilitychange',hidden);unmount();clearQuery();},
   rendererRetired(){candidate?.release();candidate=null;current?.release();current=null;for(const artwork of artworks.values())artwork.release();artworks.clear();},
  };
 }
