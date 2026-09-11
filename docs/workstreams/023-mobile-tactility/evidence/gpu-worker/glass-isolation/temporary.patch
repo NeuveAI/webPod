@@ -1,0 +1,51 @@
+diff --git a/packages/device/src/Device.tsx b/packages/device/src/Device.tsx
+index 89268b7..8cdfdaa 100644
+--- a/packages/device/src/Device.tsx
++++ b/packages/device/src/Device.tsx
+@@ -143,7 +143,9 @@ export function Device({
+   const prepared = usePreparedImmutableShells(form);
+   const { front: frontGeometry, back: backGeometry } = prepared;
+   const {ringGeometry,selectGeometry,glassGeometry}=prepared.inserts;
+-  const recipe=useMemo(()=>createDeviceAssemblyRecipe(form,prepared.hardware),[form,prepared]);
++  // Temporary actual-scene isolation: only cover glass is hidden; restore archived source after capture.
++  const recipe=useMemo(()=>createDeviceAssemblyRecipe(form,prepared.hardware).map(node =>
++    node.kind === "mesh" && node.id === "glass" ? { ...node, visible: false } : node),[form,prepared]);
+   const geometries=useMemo(()=>deviceAssemblyGeometries(prepared),[prepared]);
+   const invalidate = useThree((state) => state.invalidate);
+   const controlPhysics = useControlPhysics();
+diff --git a/packages/device/src/device-render-worker.ts b/packages/device/src/device-render-worker.ts
+index 86741ab..da4a06f 100644
+--- a/packages/device/src/device-render-worker.ts
++++ b/packages/device/src/device-render-worker.ts
+@@ -115,6 +115,10 @@ async function initialize(input: Extract<DeviceRenderWorkerRequest, { type: 'ini
+       screenStudio: studio.screenTexture, studioIntensity: input.studio.intensity, label: fonts.label,
+       backplate: { roughnessMap: fonts.rearRoughness, bumpMap: fonts.rearBump } } }); cleanups.push(() => materials.dispose());
+   const graph = createDeviceAssemblyGraph(createDeviceAssemblyRecipe(input.form, data.hardware), data, materials.materials); cleanups.push(() => graph.dispose());
++  // Temporary actual-scene isolation: preserve the real LCD and all other objects.
++  const isolatedGlass = graph.objects.get("glass");
++  if (!(isolatedGlass instanceof Mesh)) throw new Error("Actual cover glass is absent");
++  isolatedGlass.visible = false;
+   const model = new Group(), content = graph.root;
+   model.name = 'device-model'; content.name = 'device-model-content';
+   const envelope = completeDeviceEnvelope(input.form); content.position.set(-envelope.center[0], -envelope.center[1], -envelope.center[2]);
+@@ -122,6 +126,7 @@ async function initialize(input: Extract<DeviceRenderWorkerRequest, { type: 'ini
+   const screenMesh = graph.objects.get('screen'); if (!(screenMesh instanceof Mesh)) throw new Error('Authored LCD mesh is absent');
+   const projection = createLatestRenderChannel<Omit<RenderProjection, 'notificationSequence'>>((notificationSequence, value) => send({ type: 'projection', version: 1, epoch, projection: { ...value, notificationSequence } }));
+   cleanups.push(() => projection.dispose());
++  let glassIsolationReported = false;
+   const publish = (next: RenderPose) => {
+     pose = next;
+     for (const node of pose.nodes) {
+@@ -129,6 +134,12 @@ async function initialize(input: Extract<DeviceRenderWorkerRequest, { type: 'ini
+       target.matrixAutoUpdate = false; target.matrix.fromArray(node.matrix);
+     }
+     if (!visible || !painted || !compiled || retired) return;
++    if (!glassIsolationReported) {
++      glassIsolationReported = true;
++      console.info("webpod-glass-isolation", JSON.stringify({ epoch, isBlack: input.isBlack, uuid: isolatedGlass.uuid,
++        visible: isolatedGlass.visible, hasParent: isolatedGlass.parent !== null,
++        sameObject: graph.objects.get("glass") === isolatedGlass }));
++    }
+     scene.updateMatrixWorld(true); renderer.render(scene, camera);
+     if (!backend.isInitialized()) throw new Error('Renderer became unavailable');
+     if(pendingPackPoseAck!==null){send({type:'pack-pose-consumed',version:1,epoch,notificationSequence:pendingPackPoseAck,accepted:true});pendingPackPoseAck=null;}

@@ -1,0 +1,12 @@
+{
+  "files": [
+    {
+      "path": "packages/device/src/Device.tsx",
+      "sha256": "346b9311bae1b580c49c109f014c79c6f02ee0a3541bdacd14424bd1e872978a"
+    },
+    {
+      "path": "packages/device/src/device-render-worker.ts",
+      "sha256": "565be76e729edfd6ca8b76aa6a1382cafd57c33bd71fa53e89696fe50e61408e"
+    }
+  ]
+}
