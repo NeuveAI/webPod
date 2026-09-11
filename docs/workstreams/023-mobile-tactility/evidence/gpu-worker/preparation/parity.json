@@ -1,0 +1,19 @@
+{
+  "baseline": "1e11d02b4b0a74f3e03a34d9c19aaf931fb77ec2",
+  "geometryCount": 57,
+  "hardwareCount": 47,
+  "geometryParity": true,
+  "textureChannelsAndSamplers": true,
+  "backplateBasePixels": true,
+  "cooperativeParity": true,
+  "heartbeat": 62,
+  "steps": 277162,
+  "maxStepMs": 8.224459000000024,
+  "stepsOver4ms": [
+    4.081083000000035,
+    7.81770900000015,
+    8.224459000000024
+  ],
+  "preparedBytes": 23148696,
+  "timingEnvironment": "Unthrottled local Bun; not browser/device/GPU timing"
+}

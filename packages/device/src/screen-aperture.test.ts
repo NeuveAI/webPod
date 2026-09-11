@@ -216,25 +216,26 @@ describe("square LCD aperture and flat assembly reveal", () => {
     });
     const device = await Bun.file("packages/device/src/Device.tsx").text();
     const shells = await Bun.file("packages/device/src/immutable-shells.ts").text();
+    const inserts = await Bun.file("packages/device/src/device-insert-geometry.ts").text();
     const frontStart = shells.indexOf("const front=");
     const frontEnd = shells.indexOf("return {front,back}");
     expect(frontStart).toBeGreaterThanOrEqual(0);
     expect(frontEnd).toBeGreaterThan(frontStart);
     const frontBuild = shells.slice(frontStart, frontEnd);
-    expect(frontBuild).toContain("squareRoundedRectApertureWalls(");
+    expect(frontBuild).toContain("squareRoundedRectApertureWallsSteps(");
 
-    const glassBuild = device.slice(
-      device.indexOf("const glassGeometry"),
-      device.indexOf("const displayMaskGeometry"),
+    const glassBuild = inserts.slice(
+      inserts.indexOf("const glassGeometry"),
+      inserts.indexOf("const displayMaskGeometry"),
     );
     expect(glassBuild).toContain("new ShapeGeometry(shape, 1)");
     expect(glassBuild).not.toMatch(/ExtrudeGeometry|bevel|glassThickness/);
 
-    const revealStart = device.indexOf("const displayWellGeometry");
-    const revealEnd = device.indexOf("const screenGeometry");
+    const revealStart = inserts.indexOf("const displayWellGeometry");
+    const revealEnd = inserts.indexOf("const screenGeometry");
     expect(revealStart).toBeGreaterThanOrEqual(0);
     expect(revealEnd).toBeGreaterThan(revealStart);
-    const revealBuild = device.slice(revealStart, revealEnd);
+    const revealBuild = inserts.slice(revealStart, revealEnd);
     expect(revealBuild).toContain(
       "form.displayWellInset + form.displayWellDepth",
     );

@@ -1,3 +1,4 @@
+import { drainSteps } from './sticker-computation-steps';
 import { BufferAttribute, type BufferGeometry, type InterleavedBufferAttribute } from 'three';
 
 const plainAttribute = (attribute: BufferAttribute | InterleavedBufferAttribute): attribute is BufferAttribute => 'isBufferAttribute' in attribute && attribute.isBufferAttribute === true;
@@ -7,7 +8,8 @@ const plainAttribute = (attribute: BufferAttribute | InterleavedBufferAttribute)
  * custom data remain exact; triangle order/groups/bounds and geometry identity
  * remain unchanged. Already indexed and unsupported attributes stay untouched.
  * Run after all vertex edits, never on a mounted or deforming geometry. */
-export function indexImmutableGeometry<T extends BufferGeometry>(geometry: T): T {
+export function indexImmutableGeometry<T extends BufferGeometry>(geometry: T): T { return drainSteps(indexImmutableGeometrySteps(geometry)); }
+export function* indexImmutableGeometrySteps<T extends BufferGeometry>(geometry: T): Generator<void,T,void> {
   const position = geometry.getAttribute('position');
   if (geometry.index || !position || position.count % 3 || Object.keys(geometry.morphAttributes).length) return geometry;
   const entries = Object.entries(geometry.attributes);
@@ -27,6 +29,7 @@ export function indexImmutableGeometry<T extends BufferGeometry>(geometry: T): T
     return true;
   };
   for (let vertex = 0; vertex < count; vertex++) {
+    if(vertex % 128 === 0) yield;
     let hash = 2166136261;
     for (const { attribute, words } of attributes) {
       for (let k = 0; k < attribute.itemSize; k++) hash = Math.imul(hash ^ (words[vertex * attribute.itemSize + k] ?? 0), 16777619) >>> 0;
@@ -44,17 +47,19 @@ export function indexImmutableGeometry<T extends BufferGeometry>(geometry: T): T
   if (unique * stride + count * indexBytes >= count * stride) return geometry;
   // Commit only after all replacement attributes are ready. No live GPU buffers
   // exist at this construction boundary; discarded source arrays become garbage.
-  const compact = attributes.map(({ name, attribute, words }) => {
+  const compact: {name:string;attribute:BufferAttribute}[]=[];
+  for (const { name, attribute, words } of attributes) {
     const array = new Float32Array(unique * attribute.itemSize), target = new Uint32Array(array.buffer);
     for (let vertex = 0; vertex < unique; vertex++) {
+      if(vertex % 128 === 0) yield;
       const source = canonical[vertex] ?? 0;
       for (let k = 0; k < attribute.itemSize; k++) target[vertex * attribute.itemSize + k] = words[source * attribute.itemSize + k] ?? 0;
     }
     const replacement = new BufferAttribute(array, attribute.itemSize, attribute.normalized);
     replacement.name = attribute.name; replacement.setUsage(attribute.usage); replacement.gpuType = attribute.gpuType;
     replacement.onUpload(attribute.onUploadCallback);
-    return { name, attribute: replacement };
-  });
+    compact.push({ name, attribute: replacement });
+  }
   const index = new BufferAttribute(unique > 65535 ? remap : Uint16Array.from(remap), 1);
   for (const { name, attribute } of compact) geometry.setAttribute(name, attribute);
   geometry.setIndex(index);

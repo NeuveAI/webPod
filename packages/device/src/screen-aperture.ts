@@ -1,3 +1,4 @@
+import { drainSteps } from './sticker-computation-steps';
 import { Float32BufferAttribute, type BufferAttribute, type BufferGeometry } from "three";
 
 export type RoundedRectAperture = {
@@ -108,6 +109,13 @@ export function squareRoundedRectApertureWalls(
   aperture: RoundedRectAperture,
   bevelBand: number,
 ): void {
+return drainSteps(squareRoundedRectApertureWallsSteps(geometry,aperture,bevelBand));
+}
+export function* squareRoundedRectApertureWallsSteps(
+  geometry: BufferGeometry,
+  aperture: RoundedRectAperture,
+  bevelBand: number,
+): Generator<void,void,void> {
   validateAperture(aperture);
   if (!(bevelBand > 0) || !Number.isFinite(bevelBand)) {
     throw new Error("screen aperture bevel band must be finite and positive");
@@ -124,6 +132,7 @@ export function squareRoundedRectApertureWalls(
   // these endpoints and left an inward bevel crossing the top LCD pixels.
   const miterBand = bevelBand / Math.cos(Math.PI / (4 * APERTURE_CORNER_SEGMENTS));
   for (let index = 0; index < position.count; index += 1) {
+    if(index % 32 === 0)yield;
     const point = { x: position.getX(index), y: position.getY(index) };
     const boundary = projectToRoundedRectBoundary(point, aperture);
     if (squaredDistance(point, boundary) > (miterBand + tolerance) ** 2) continue;
@@ -146,11 +155,13 @@ export function squareRoundedRectApertureWalls(
 
 /** The opaque colour backing has an opening, but the clear plastic cover is
  * continuous. Do not shade its backing boundary as a separate cut plastic wall. */
-export function removeOpaqueApertureWalls(geometry: BufferGeometry, aperture: RoundedRectAperture): void {
+export function removeOpaqueApertureWalls(geometry: BufferGeometry, aperture: RoundedRectAperture): void {return drainSteps(removeOpaqueApertureWallsSteps(geometry,aperture));}
+export function* removeOpaqueApertureWallsSteps(geometry:BufferGeometry,aperture:RoundedRectAperture):Generator<void,void,void> {
   if (geometry.index !== null) throw new Error("opaque aperture removal expects non-indexed extrusion");
   const position = geometry.getAttribute("position");
   const keep: number[] = [];
   for (let i = 0; i < position.count; i += 3) {
+    if(i % 96 === 0)yield;
     const vertices = [i, i + 1, i + 2];
     const onBoundary = vertices.every((v) => roundedRectBoundaryDistance(
       { x: position.getX(v), y: position.getY(v) }, aperture,
@@ -160,8 +171,8 @@ export function removeOpaqueApertureWalls(geometry: BufferGeometry, aperture: Ro
     if (!wall) keep.push(...vertices);
   }
   for (const [name, attribute] of Object.entries(geometry.attributes)) {
-    const values = keep.flatMap((index) => Array.from({ length: attribute.itemSize },
-      (_, component) => attribute.getComponent(index, component)));
+    const values:number[]=[];
+    for(const index of keep){ if(values.length % 384 === 0)yield; for(let component=0;component<attribute.itemSize;component++)values.push(attribute.getComponent(index,component)); }
     geometry.setAttribute(name, new Float32BufferAttribute(values, attribute.itemSize));
   }
   geometry.clearGroups();

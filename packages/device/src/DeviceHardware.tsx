@@ -1,15 +1,11 @@
 import { memo, useEffect, useMemo } from "react";
 import { MeshBasicMaterial, MeshPhysicalMaterial, type Material } from "three";
-import type { DeviceFormParams } from "./form";
-import { createHardwareGeometry, type HardwareMaterial } from "./hardware-geometry";
+import { type HardwarePart, type HardwareMaterial } from "./hardware-geometry";
 import { effectiveStudioEnvironmentIntensity, useStudioEnvironmentSnapshot } from "./StudioEnvironment";
 
 /** Physical connector surfaces use the same studio as the front controls. */
-export const DeviceHardware = memo(function DeviceHardware({ form, isBlack }: { readonly form: DeviceFormParams; readonly isBlack: boolean }) {
+export const DeviceHardware = memo(function DeviceHardware({ parts, isBlack }: { readonly parts: readonly HardwarePart[]; readonly isBlack: boolean }) {
   const studio = useStudioEnvironmentSnapshot();
-  const formSignature = JSON.stringify(form);
-  const parts = useMemo(() => createHardwareGeometry(JSON.parse(formSignature) as DeviceFormParams), [formSignature]);
-  useEffect(() => () => { for (const part of parts) part.geometry.dispose(); }, [parts]);
   const materials = useMemo(() => {
     const physical = (color: string, metalness: number, roughness: number) => new MeshPhysicalMaterial({
       color, metalness, roughness, envMap: studio.texture,

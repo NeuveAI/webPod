@@ -30,21 +30,15 @@ import {
   Color,
   type Camera,
   Vector3,
-  ExtrudeGeometry,
   type Group,
   type Material,
   Mesh,
   MeshBasicMaterial,
-  ShapeGeometry,
   type Texture,
 } from "three";
 
 import { useControlPhysics } from "./ControlPhysicsScope";
 import { AxialSelectControl } from "./AxialSelectControl";
-import {
-  createFrontControlPatchGeometry,
-  createWheelGapFloorGeometries,
-} from "./front-control-geometry";
 import {
   createRoomEnvMap,
   type EnvRoomParams,
@@ -52,10 +46,8 @@ import {
 import { DEFAULT_DEVICE_FORM, type DeviceFormParams } from "./form";
 import {
   resolveFrontAssemblyDepths,
-  SELECT_CONCAVITY,
-  WHEEL_OUTER_SEAM_WIDTH,
 } from "./front-surface";
-import { DEVICE_LAYOUT, SCREEN_CORNER_R } from "./layout";
+import { DEVICE_LAYOUT } from "./layout";
 import { DEFAULT_LIGHT_RIG, type LightRigParams } from "./light-rig";
 import { materialMapOwnership } from "./material-map-ownership";
 import {
@@ -63,21 +55,13 @@ import {
   type DeviceMaterials,
   type PhysicalSurfaceParams,
 } from "./materials";
-import {
-  roundedRectFrameShape,
-  roundedRectShape,
-} from "./shapes";
 import { createScreenMeshHandle, type ScreenMeshReady } from "./screen-mesh";
-import { createScreenGeometry } from "./screen-geometry";
 import {
   createPolycarbonateMaterial,
   createCoverGlassMaterial,
 } from "./physical-materials";
 import { WHEEL_LABEL_DECAL_NAME } from "./probe-raycast";
 import {
-  createMicroNoiseRoughnessMap,
-  createAluminumFinishMaps,
-  createSteelAnisotropyMap,
   createWheelLabelMap,
 } from "./textures";
 import { ViewerLitDeviceFrame } from "./ViewerLitDeviceFrame";
@@ -145,7 +129,7 @@ export type DeviceProps = {
 };
 
 const { body, screen, wheel } = DEVICE_LAYOUT;
-const { displayWell, glass, mask } = DEVICE_SURFACE_LAYOUT.front;
+const { glass, mask } = DEVICE_SURFACE_LAYOUT.front;
 
 // D-067 puts VWaJS's circular 26px enclosure in DEVICE_LAYOUT; every shell
 // below consumes that single typed geometry.
@@ -167,7 +151,9 @@ export function Device({
   onOrientationGrabStart,
   onOrientationGrabHoverChange,
 }: DeviceProps) {
-  const { front: frontGeometry, back: backGeometry } = usePreparedImmutableShells(form);
+  const prepared = usePreparedImmutableShells(form);
+  const { front: frontGeometry, back: backGeometry } = prepared;
+  const {ringGeometry,selectGeometry,selectSeamGeometry,outerSeamGeometry,glassGeometry,displayMaskGeometry,displayWellGeometry,screenGeometry}=prepared.inserts;
   const invalidate = useThree((state) => state.invalidate);
   const controlPhysics = useControlPhysics();
   const wheelAssemblyRef = useRef<Group>(null);
@@ -253,23 +239,11 @@ export function Device({
   const studio = useStudioEnvironmentSnapshot();
   const env = envMap !== undefined ? envMap : builtEnv ?? studio.texture;
 
-  const backplateFinish = useMemo(() => createBackplateFinishMaps(), []);
+  const backplateFinish = useMemo(() => createBackplateFinishMaps(undefined,prepared.backplatePixels), [prepared]);
   useEffect(() => () => backplateFinish?.dispose(), [backplateFinish]);
-
-  const noise = useMemo(() => {
-    const map = createMicroNoiseRoughnessMap();
-    map.repeat.set(0.04, 0.04);
-    return map;
-  }, []);
-  useEffect(() => () => noise.dispose(), [noise]);
-  const steelAnisotropy = useMemo(() => {
-    const map = createSteelAnisotropyMap();
-    map.repeat.set(0.02, 0.02);
-    return map;
-  }, []);
-  useEffect(() => () => steelAnisotropy.dispose(), [steelAnisotropy]);
-  const aluminumGrain = useMemo(() => createAluminumFinishMaps(), []);
-  useEffect(() => () => aluminumGrain.dispose(), [aluminumGrain]);
+  const noise=prepared.textures.noise;
+  const steelAnisotropy=prepared.textures.steel;
+  const aluminumGrain=useMemo(()=>({color:prepared.textures.aluminumColor,height:prepared.textures.aluminumHeight,roughness:prepared.textures.aluminumRoughness}),[prepared]);
   const isBlack = colourway === "black";
   const ringMaterial = isBlack
     ? materials.wheelRingBlack
@@ -306,153 +280,11 @@ export function Device({
   useEffect(() => frontPicking.prepare(frontGeometry), [frontGeometry, frontPicking]);
   useEffect(() => backPicking.prepare(backGeometry), [backGeometry, backPicking]);
 
-  const {
-    ringGeometry,
-    selectGeometry,
-    selectSeamGeometry,
-    outerSeamGeometry,
-  } = useMemo(() => {
-    const controlForm = {
-      seamWidth: form.seamWidth,
-      bodyCrown: form.bodyCrown,
-      bodyCrossCrown: form.bodyCrossCrown,
-      topEdgeCrown: form.topEdgeCrown,
-      bottomEdgeCrown: form.bottomEdgeCrown,
-      edgeCrownExtent: form.edgeCrownExtent,
-    };
-    const gapFloor = createWheelGapFloorGeometries(controlForm);
-    const selectGeometry = createFrontControlPatchGeometry(
-        {
-          centerX: wheel.centerX,
-          centerY: wheel.centerY,
-          innerRadius: 0,
-          outerRadius: wheel.selectR,
-          concavity: SELECT_CONCAVITY,
-          uvRadius: wheel.outerR,
-        },
-        controlForm,
-      );
-    // Match the extrusion's model-unit UVs; the wheel retains its decal UVs.
-    const position = selectGeometry.getAttribute("position");
-    const uv = selectGeometry.getAttribute("uv");
-    for (let index = 0; index < uv.count; index++) {
-      uv.setXY(index, position.getX(index) + wheel.centerX, position.getY(index) + wheel.centerY);
-    }
-    uv.needsUpdate = true;
-    return {
-      ringGeometry: createFrontControlPatchGeometry(
-        {
-          centerX: wheel.centerX,
-          centerY: wheel.centerY,
-          innerRadius: wheel.selectLipR,
-          outerRadius: wheel.outerR - WHEEL_OUTER_SEAM_WIDTH,
-          uvRadius: wheel.outerR,
-        },
-        controlForm,
-      ),
-      selectGeometry,
-      selectSeamGeometry: gapFloor.selectSeam,
-      outerSeamGeometry: gapFloor.outerSeam,
-    };
-  }, [
-    form.seamWidth,
-    form.bodyCrown,
-    form.bodyCrossCrown,
-    form.topEdgeCrown,
-    form.bottomEdgeCrown,
-    form.edgeCrownExtent,
-  ]);
-  useEffect(
-    () => () => {
-      ringGeometry.dispose();
-      selectGeometry.dispose();
-      selectSeamGeometry.dispose();
-      outerSeamGeometry.dispose();
-    },
-    [outerSeamGeometry, ringGeometry, selectGeometry, selectSeamGeometry],
-  );
   useEffect(() => {
     const assembly = wheelAssemblyRef.current;
     if (assembly === null) return;
     return controlPhysics?.attachWheel(assembly);
   }, [controlPhysics]);
-
-  const glassGeometry = useMemo(() => {
-    const shape = roundedRectShape(
-      glass.width,
-      glass.height,
-      glass.cornerR,
-      12,
-    );
-    // The cover sheet contributes reflection across its face, not a raised
-    // perimeter. A planar shape keeps its thickness from becoming a visible
-    // silver lip around the LCD opening at oblique viewing angles.
-    return new ShapeGeometry(shape, 1);
-  }, []);
-  useEffect(() => () => glassGeometry.dispose(), [glassGeometry]);
-
-  const displayMaskGeometry = useMemo(() => {
-    const shape = roundedRectFrameShape(
-      {
-        width: mask.width,
-        height: mask.height,
-        radius: mask.cornerR,
-      },
-      {
-        width: screen.width,
-        height: screen.height,
-        radius: screen.cornerR,
-      },
-      12,
-    );
-    const geometry = new ExtrudeGeometry(shape, {
-      depth: 0.08,
-      bevelEnabled: false,
-      curveSegments: 1,
-    });
-    geometry.translate(0, 0, -0.08);
-    return geometry;
-  }, []);
-  useEffect(() => () => displayMaskGeometry.dispose(), [displayMaskGeometry]);
-
-  const displayWellGeometry = useMemo(() => {
-    const shape = roundedRectFrameShape(
-      {
-        width: displayWell.width,
-        height: displayWell.height,
-        radius: displayWell.cornerR,
-      },
-      {
-        width: glass.width - 1,
-        height: glass.height - 1,
-        radius: glass.cornerR - 0.5,
-      },
-      12,
-    );
-    const geometry = new ExtrudeGeometry(shape, {
-      // Fill the complete opening depth with black so the glossy face's own
-      // hole wall never becomes a reflective bezel at a quarter view.
-      depth: Math.max(
-        0.1,
-        form.displayWellInset + form.displayWellDepth,
-      ),
-      bevelEnabled: false,
-      curveSegments: 1,
-    });
-    geometry.translate(
-      0,
-      0,
-      -Math.max(0.1, form.displayWellInset + form.displayWellDepth),
-    );
-    return geometry;
-  }, [form.displayWellDepth, form.displayWellInset]);
-  useEffect(() => () => displayWellGeometry.dispose(), [displayWellGeometry]);
-
-  const screenGeometry = useMemo(
-    () => createScreenGeometry(screen.width, screen.height, SCREEN_CORNER_R),
-    [],
-  );
-  useEffect(() => () => screenGeometry.dispose(), [screenGeometry]);
 
   // OEM black and white wheels use independently calibrated ink. Keeping it
   // in the injected material table prevents a white model from becoming a
@@ -653,7 +485,7 @@ export function Device({
         />
       </mesh>
 
-      <DeviceHardware form={form} isBlack={isBlack} />
+      <DeviceHardware parts={prepared.hardware} isBlack={isBlack} />
 
       <mesh
         name="device-body-orientation-input"

@@ -1,13 +1,8 @@
-import {createImmutableShells} from './immutable-shells';
-import {transferShell} from './immutable-shell-transfer';
-import type {DeviceFormParams} from './form';
-self.onmessage=({data}:MessageEvent<DeviceFormParams>)=>{
- let shells:ReturnType<typeof createImmutableShells>|undefined;
+import { prepareDeviceSteps, preparedDeviceBuffers, type DevicePreparationRequest } from './device-preparation-data';
+import { drainSteps } from './sticker-computation-steps';
+self.onmessage=({data}:MessageEvent<DevicePreparationRequest>)=>{
  try {
-  shells=createImmutableShells(data);
-  const result={front:transferShell(shells.front),back:transferShell(shells.back)};
-  const buffers=Object.values(result).flatMap(geometry=>[...Object.values(geometry.attributes).map(attribute=>attribute.array.buffer),...(geometry.index?[geometry.index.buffer]:[])]);
-  self.postMessage({result},{transfer:buffers});
- }catch{self.postMessage({error:'Shell preparation failed'});}
- finally{shells?.front.dispose();shells?.back.dispose();}
+  const result=drainSteps(prepareDeviceSteps(data.form));
+  self.postMessage({id:data.id,result},{transfer:preparedDeviceBuffers(result)});
+ }catch{self.postMessage({id:data.id,error:'Device preparation failed'});}
 };
