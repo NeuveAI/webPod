@@ -1,0 +1,148 @@
+{
+  "inputSha256": "2a3e88ee8ad3f0e83e27131bd67627e0e3684a52591ec9337a4cc6776f4882af",
+  "windows": [
+    {
+      "name": "packet-opening",
+      "start": 220008.30000001192,
+      "end": 221377.09999999404,
+      "duration": 1368.7999999821186,
+      "rafCount": 77,
+      "rafMax": 66.60000000000582,
+      "over50": 1,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 220008.30000001192,
+          "duration": 72,
+          "processingStart": 220031.5,
+          "processingEnd": 220058,
+          "interactionId": 4401,
+          "delay": 23.19999998807907,
+          "handler": 26.5,
+          "roundedPresentationRemainder": 22.30000001192093
+        },
+        {
+          "name": "pointerup",
+          "start": 220965.70000001788,
+          "duration": 24,
+          "processingStart": 220973.30000001192,
+          "processingEnd": 220980.59999999404,
+          "interactionId": 4401,
+          "delay": 7.5999999940395355,
+          "handler": 7.299999982118607,
+          "roundedPresentationRemainder": 9.100000023841858
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 220124.40000000596,
+          "duration": 52
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 220093.30000001192,
+          "duration": 74.59999999403954,
+          "blocking": 13.4,
+          "renderStart": 220124.40000000596,
+          "scripts": [
+            {
+              "duration": 19.900000005960464,
+              "executionStart": 220104.30000001192,
+              "invoker": "MessagePort.onmessage",
+              "sourceURL": "http://localhost:3000/assets/src-CqwCxLDT.js",
+              "sourceFunctionName": "D",
+              "forcedStyleAndLayoutDuration": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "liner-opening",
+      "start": 221377.09999999404,
+      "end": 222234.30000001192,
+      "duration": 857.2000000178814,
+      "rafCount": 50,
+      "rafMax": 18.699999999982538,
+      "over50": 0,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 221377.09999999404,
+          "duration": 24,
+          "processingStart": 221390.30000001192,
+          "processingEnd": 221394.70000001788,
+          "interactionId": 4408,
+          "delay": 13.200000017881393,
+          "handler": 4.4000000059604645,
+          "roundedPresentationRemainder": 6.399999976158142
+        },
+        {
+          "name": "pointerup",
+          "start": 222213.80000001192,
+          "duration": 24,
+          "processingStart": 222224.20000001788,
+          "processingEnd": 222229.09999999404,
+          "interactionId": 4408,
+          "delay": 10.400000005960464,
+          "handler": 4.899999976158142,
+          "roundedPresentationRemainder": 8.700000017881393
+        }
+      ],
+      "longTasks": [],
+      "longFrames": []
+    },
+    {
+      "name": "first-peel-and-settle",
+      "start": 222234.30000001192,
+      "end": 223867.5,
+      "duration": 1633.199999988079,
+      "rafCount": 97,
+      "rafMax": 18.60000000000582,
+      "over50": 0,
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 222234.30000001192,
+          "duration": 56,
+          "processingStart": 222242,
+          "processingEnd": 222248.40000000596,
+          "interactionId": 4415,
+          "delay": 7.699999988079071,
+          "handler": 6.4000000059604645,
+          "roundedPresentationRemainder": 41.900000005960464
+        },
+        {
+          "name": "pointerup",
+          "start": 223067.40000000596,
+          "duration": 24,
+          "processingStart": 223076.30000001192,
+          "processingEnd": 223087.09999999404,
+          "interactionId": 4415,
+          "delay": 8.900000005960464,
+          "handler": 10.799999982118607,
+          "roundedPresentationRemainder": 4.300000011920929
+        }
+      ],
+      "longTasks": [],
+      "longFrames": []
+    }
+  ],
+  "sheetUsableToPeelDown": 1.5,
+  "linerUpToPeelDown": 20.5,
+  "inputCounts": {
+    "pointerdown": 3,
+    "pointermove": 72,
+    "pointerup": 3,
+    "pointercancel": 0,
+    "lostpointercapture": 3
+  },
+  "support": {
+    "event": true,
+    "longtask": true,
+    "long-animation-frame": true
+  },
+  "truncated": {},
+  "contention": "Awaiting author check timestamps; concurrent types/lint may confound timing."
+}
