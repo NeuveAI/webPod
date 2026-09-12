@@ -1,4 +1,4 @@
-import { musicRuntime, ensureMusicRuntime, authorizeAppleRuntime, selectMusicRuntime, musicLoginUrl, musicRuntimeReady, type MusicRuntimeSnapshot } from './music-runtime'
+import { musicRuntime, ensureMusicRuntime, authorizeAppleRuntime, musicRuntimeReady, type MusicRuntimeSnapshot } from './music-runtime'
 import { getCompositeTierSnapshot, HTML_IN_CANVAS_FLAG, refreshCompositeTier, subscribeCompositeTier, type CapabilityReport } from '@webpod/composite'
 import { atom, createStore, useAtomValue } from 'jotai'
 import { Link, useNavigate } from '@tanstack/react-router'
@@ -107,9 +107,9 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
     : music.phase === 'error' || music.phase === 'permission-denied' ? 'retry' : 'connect'
   const authorizationAttempted = useAtomValue(authorizationAttemptedAtom, { store: welcomeStore })
   useEffect(() => { ensureMusicRuntime() }, [music.provider])
-  const signIn = async (provider: 'apple' | 'spotify') => {
+  const signIn = async () => {
     welcomeStore.set(authorizationAttemptedAtom, true)
-    const result = provider === 'spotify' ? await selectMusicRuntime('spotify') : await authorizeAppleRuntime()
+    const result = await authorizeAppleRuntime()
     const capability = getCompositeTierSnapshot().report
     if (result.ready && capability !== null && browserWelcomeReason(capability) === null) {
       await enterDevice(result.snapshot)
@@ -181,19 +181,12 @@ function BrowserWelcome({ report, reason }: { readonly report: CapabilityReport;
           </div>
         </div>
         <div className="webpod-welcome__play-action">
-          {typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('spotify') ? <p className="webpod-welcome__auth-status" role="status">Spotify sign-in wasn’t completed. Please try again.</p> : null}
           {action.kind === 'sign-in' ? <div className="webpod-welcome__providers">
             <span className="webpod-welcome__jam">Jam using</span>
-            <button type="button" className="webpod-welcome__provider webpod-welcome__provider--apple" disabled={signingIn} aria-busy={signingIn && music.activeMode === 'apple'} aria-label={signingIn && music.activeMode === 'apple' ? 'Connecting to Apple Music' : 'Connect Apple Music'} onClick={() => void signIn('apple')}>
+            <button type="button" className="webpod-welcome__provider webpod-welcome__provider--apple" disabled={signingIn} aria-busy={signingIn && music.activeMode === 'apple'} aria-label={signingIn && music.activeMode === 'apple' ? 'Connecting to Apple Music' : 'Connect Apple Music'} onClick={() => void signIn()}>
               {music.activeMode === 'apple' && actionIcon !== 'connect' ? <WelcomeActionIcon kind={actionIcon} /> : <img src="/brands/apple-music.svg" width="24" height="24" alt="" />}
               <span>Apple Music</span>
             </button>
-            <span className="webpod-welcome__or">or</span>
-            {music.activeMode === 'spotify' && (music.phase === 'error' || signingIn) ? <button type="button" className="webpod-welcome__provider webpod-welcome__provider--spotify" disabled={signingIn} aria-busy={signingIn} aria-label={signingIn ? 'Connecting to Spotify' : 'Retry Spotify'} onClick={() => void signIn('spotify')}>
-              <WelcomeActionIcon kind={actionIcon} /><img src="/brands/spotify.svg" width="88" height="26" alt="Spotify" />
-            </button> : <a className="webpod-welcome__provider webpod-welcome__provider--spotify" href={signingIn ? undefined : musicLoginUrl('spotify')} aria-label="Connect Spotify" aria-disabled={signingIn || undefined} tabIndex={signingIn ? -1 : undefined}>
-              <img src="/brands/spotify.svg" width="88" height="26" alt="Spotify" />
-            </a>}
             {signingIn ? <span className="webpod-welcome__provider-status" role="status">Connecting…</span> : null}
           </div>
             : !action.disabled ? <Link to="/webpod" className="webpod-welcome__primary" onClick={event => {

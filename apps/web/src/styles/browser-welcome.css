@@ -107,20 +107,17 @@ body:has(.webpod-welcome) { margin: 0; }
   }
 }
 
-.webpod-welcome__providers { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 14px 16px; width: min(100%, 380px); }
+.webpod-welcome__providers { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 14px; width: min(100%, 240px); }
 .webpod-welcome__jam { grid-column: 1 / -1; }
-.webpod-welcome__jam, .webpod-welcome__or { color: #abb2bd; font-size: 14px; white-space: nowrap; }
+.webpod-welcome__jam { color: #abb2bd; font-size: 14px; white-space: nowrap; }
 .webpod-welcome .webpod-welcome__provider { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 12px 18px; border: 0; border-radius: 6px; font: 600 16px/1.25 var(--font-ui); text-decoration: none; white-space: nowrap; }
 .webpod-welcome .webpod-welcome__provider--apple { background: #fafafa; color: #111; }
 .webpod-welcome .webpod-welcome__provider--apple:hover { background: #e8e8e8; }
-.webpod-welcome .webpod-welcome__provider--spotify { background: #1ed760; color: #000; }
-.webpod-welcome .webpod-welcome__provider--spotify:hover { background: #3be477; }
 .webpod-welcome__provider img { display: block; flex: none; object-fit: contain; }
 .webpod-welcome .webpod-welcome__provider:is(:disabled, [aria-disabled="true"]) { opacity: .55; cursor: wait; }
 .webpod-welcome__provider-status { grid-column: 1 / -1; color: #abb2bd; font-size: 12px; }
 @media (min-width: 601px) and (max-width: 900px), (max-width: 380px) {
   .webpod-welcome__providers { width: 100%; display: grid; grid-template-columns: 1fr; gap: 10px; }
-  .webpod-welcome__or { text-align: center; }
 }
 
 .webpod-welcome__action-icon { flex: none; }
