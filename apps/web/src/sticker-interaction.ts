@@ -9,7 +9,7 @@ import { atom } from 'jotai'
 import { stickerCarryAnchorAtom, stickerSourceAnchorAtom, stickerSourcePullAtom, updateStickerSourcePull } from './sticker-carry-anchor'
 import { isStickerPlacement, type StickerPlacement } from '@webpod/stickers'
 import { stickerLiftAnimation, stickerLiftPhase, stickerLiftProgress } from './sticker-lift-phase'
-import { stickerPackTurnAtom, stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerPreparationIdsAtom } from './sticker-collections-model'
+import { stickerPackTurnAtom, stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerPreparationIdsAtom, stickerCollectionTransitionAtom, activeStickerCollectionAtom, selectedStickerGenreAtom } from './sticker-collections-model'
 
 /** Development calibration only; production always enables the physical finish. */
 export const stickerFinishCalibrationAtom = atom(true)
@@ -31,7 +31,7 @@ const advanceComputationEpoch = (): void => { deviceStore.set(stickerComputation
 let interactionGeneration = 0
 export const getStickerInteractionGeneration = (): number => interactionGeneration
 /** A new gesture/selection takes ownership from any pending completion. */
-export function supersedeStickerInteraction(): void { stickerHaptics.cancel(); interactionGeneration += 1; advanceComputationEpoch(); deviceStore.set(stickerToolEditorPropertyAtom, null); stopStickerAnimation(); deviceStore.set(stickerPackTurnAtom, 0) }
+export function supersedeStickerInteraction(): void { deviceStore.set(stickerCollectionTransitionAtom, null); stickerHaptics.cancel(); interactionGeneration += 1; advanceComputationEpoch(); deviceStore.set(stickerToolEditorPropertyAtom, null); stopStickerAnimation(); deviceStore.set(stickerPackTurnAtom, 0) }
 
 /** All semantic and pointer actions publish through the same public device store. */
 export function updateStickerInteraction(patch: Partial<StickerInteraction>): void {
@@ -65,6 +65,7 @@ export function resetStickerCarry(): void {
 
 /** Cancels every transient gesture without changing an earned pack or saved placement. */
 export function cancelStickerInteraction(): void {
+  deviceStore.set(stickerCollectionTransitionAtom, null)
   stickerHaptics.cancel()
   deviceStore.set(stickerToolEditorPropertyAtom, null)
   interactionGeneration += 1; advanceComputationEpoch()
@@ -84,6 +85,7 @@ export function setStickerRearVisible(visible: boolean): void {
   const changed = rearVisible !== visible
   rearVisible = visible
   if (!visible) {
+    deviceStore.set(stickerCollectionTransitionAtom, null)
     if (changed && deviceStore.get(stickerInteractionAtom).sourcePlacement == null) {
       interactionGeneration += 1; advanceComputationEpoch()
       stopStickerAnimation()
@@ -149,7 +151,7 @@ export function releaseStickerPull(samples: readonly PointerMotionSample[], time
 }
 
 /** Keyboard/click equivalent of pulling the pack lip. Interruptible by a new drag. */
-export function revealStickerPack(reducedMotion: boolean): void {
+export function revealStickerPack(reducedMotion: boolean, onComplete?: () => void): void {
   dismissStickerEditor()
   setStickerPackTucked(false)
   supersedeStickerInteraction()
@@ -159,7 +161,19 @@ export function revealStickerPack(reducedMotion: boolean): void {
   const pack = inventory?.packs.find((item) => item.openedAt === null)
     ?? inventory?.packs.find((item) => item.id === current.packId) ?? inventory?.packs.at(-1)
   updateStickerInteraction({ stage: 'pulling', packId: pack?.id ?? null })
-  animateStickerValue('progress', { position: current.progress, velocity: 0, target: 1 }, reducedMotion, () => updateStickerInteraction({ stage: 'open' }))
+  animateStickerValue('progress', { position: current.progress, velocity: 0, target: 1 }, reducedMotion, () => { updateStickerInteraction({ stage: 'open' }); onComplete?.() })
+}
+
+/** Open the displayed genre's liner without allowing pack selection to change its target. */
+export function revealStickerLiner(reducedMotion: boolean, signal?: AbortSignal) {
+  signal?.throwIfAborted()
+  const target = deviceStore.get(activeStickerCollectionAtom)
+  if (target === null) throw new Error('No earned sticker collection is loaded.')
+  deviceStore.set(selectedStickerGenreAtom, target.genre)
+  revealStickerPack(reducedMotion, () => {
+    if (!signal?.aborted) animateStickerValue('sheet', { position: deviceStore.get(stickerSheetRevealAtom), velocity: 0, target: 1 }, reducedMotion, () => {})
+  })
+  return target
 }
 
 /** Keeps a missed or cancelled peel continuous from its actual pointer position to its seat. */

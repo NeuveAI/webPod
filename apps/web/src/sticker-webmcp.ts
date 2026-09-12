@@ -3,7 +3,7 @@ import { atom } from 'jotai'
 import { deviceStore, stickerCollectionStatusAtom, stickerInteractionAtom, stickerInventoryAtom } from '@webpod/state'
 import { getSticker, STICKER_CATALOGUE, stickerWear, isStickerPlacement, type StickerPlacement } from '@webpod/stickers'
 import type { StickerToolControls } from '@webpod/tools'
-import { activeStickerCollectionAtom, requestedStickerCollectionAtom, stickerCollectionsAtom, stickerCollectionUsableAtom, stickerPreparationIdsAtom, stickerPreparedIdsAtom, stickerSheetRevealAtom, stickerPlacementForIntent } from './sticker-collections-model'
+import { activeStickerCollectionAtom, requestedStickerCollectionAtom, stickerCollectionsAtom, stickerCollectionUsableAtom, stickerPreparationIdsAtom, stickerPreparedIdsAtom, stickerSheetRevealAtom, stickerPlacementForIntent, stickerCollectionTransitionAtom, stickerPackTurnAtom, stickerClaimStateAtom } from './sticker-collections-model'
 import { animateStickerValue, cancelStickerInteraction, getStickerInteractionGeneration, resetStickerCarry, supersedeStickerInteraction, updateStickerInteraction, stickerArtworkFailureAtom } from './sticker-interaction'
 import { constrainedStickerEdit, dismissStickerEditor, sameStickerPose, stickerEditPending, stickerEditorPendingAtom, stickerToolEditorPropertyAtom } from './sticker-editor-model'
 
@@ -12,7 +12,7 @@ export interface StickerUiActions {
   readonly rear: () => boolean
   readonly humanBusy: () => boolean
   readonly reducedMotion: () => boolean
-  readonly open: () => void
+  readonly open: (signal: AbortSignal) => Promise<void>
   readonly close: () => void
   readonly navigate: (direction: number) => void
   readonly lift: (source: StickerPlacement) => void
@@ -34,17 +34,19 @@ export function readStickerPageState() {
   const pendingSaves = Object.keys(deviceStore.get(stickerEditorPendingAtom)).length
   const ids = deviceStore.get(stickerPreparationIdsAtom), prepared = deviceStore.get(stickerPreparedIdsAtom)
   const loadedItems = ids.filter(id => prepared.includes(id)).length
+  const claims = deviceStore.get(stickerClaimStateAtom)
   const collectionStatus = deviceStore.get(stickerCollectionStatusAtom)
   const usable = deviceStore.get(stickerCollectionUsableAtom)
   const interaction = deviceStore.get(stickerInteractionAtom)
   const preparing = loadedItems < ids.length
-  const animating = interaction.stage === 'pulling' || interaction.stage === 'settling'
+  const sheet = deviceStore.get(stickerSheetRevealAtom)
+  const animating = sheet > 0 && sheet < .99 || deviceStore.get(stickerPackTurnAtom) !== 0 || deviceStore.get(stickerCollectionTransitionAtom) !== null || interaction.stage === 'pulling' || interaction.stage === 'settling'
   const rearReady = mountedActions?.().rear() ?? false
   const humanBusy = mountedActions?.().humanBusy() ?? false
   const unavailable = mounted === null || deviceStore.get(stickerInventoryAtom) === null || !rearReady
-  const error = deviceStore.get(stickerArtworkFailureAtom) ?? operation?.error ?? null
-  const status = pendingSaves > 0 ? 'saving' : unavailable ? 'unavailable' : error !== null || collectionStatus === 'error' ? 'error' : operation?.saving ? 'saving' : preparing ? 'loading' : animating ? 'animating' : usable ? 'ready' : 'unavailable'
-  return { status, interactionReady: status === 'ready' && !humanBusy, pendingSaves, rearReady, humanBusy, collectionStatus, loadedItems, totalItems: ids.length, progressPercent: ids.length === 0 ? null : loadedItems / ids.length * 100, startedAtMs: save?.startedAtMs ?? operation?.startedAtMs ?? null, elapsedMs: save !== null ? Date.now() - save.startedAtMs : operation === null ? null : (operation.completedAtMs ?? Date.now()) - operation.startedAtMs, stage: interaction.stage, packOpen: interaction.progress > .9 && !deviceStore.get(stickerPackTuckedAtom), sheetOpen: deviceStore.get(stickerSheetRevealAtom) > .98 && !deviceStore.get(stickerPackTuckedAtom), packClosing: deviceStore.get(stickerPackTuckedAtom) && deviceStore.get(stickerPackTuckAtom) < .99 }
+  const error = deviceStore.get(stickerArtworkFailureAtom) ?? operation?.error ?? claims.error ?? null
+  const status = claims.pending > 0 || pendingSaves > 0 ? 'saving' : unavailable ? 'unavailable' : error !== null || collectionStatus === 'error' ? 'error' : operation?.saving ? 'saving' : preparing ? 'loading' : animating ? 'animating' : usable ? 'ready' : 'unavailable'
+  return { status, pendingCollection: deviceStore.get(stickerCollectionTransitionAtom), interactionReady: status === 'ready' && !humanBusy, pendingSaves, rearReady, humanBusy, collectionStatus, loadedItems, totalItems: ids.length, progressPercent: ids.length === 0 ? null : loadedItems / ids.length * 100, startedAtMs: save?.startedAtMs ?? operation?.startedAtMs ?? null, elapsedMs: save !== null ? Date.now() - save.startedAtMs : operation === null ? null : (operation.completedAtMs ?? Date.now()) - operation.startedAtMs, stage: interaction.stage, packOpen: interaction.progress > .9 && !deviceStore.get(stickerPackTuckedAtom), sheetOpen: deviceStore.get(stickerSheetRevealAtom) > .98 && !deviceStore.get(stickerPackTuckedAtom), packClosing: deviceStore.get(stickerPackTuckedAtom) && deviceStore.get(stickerPackTuckAtom) < .99 }
 }
 /** Full catalogue status includes untouched genres and never infers ownership. */
 export function readStickerList() {
@@ -57,9 +59,10 @@ export function readStickerList() {
     const placement = inventory?.placements.find(item => item.stickerId === art.id) ?? null
     const opened = inventory?.packs.some(pack => pack.openedAt !== null && pack.stickerIds.includes(art.id)) ?? false
     const slot = collections.flatMap(collection => collection.slots).find(slot => slot.art.id === art.id)
-    return { id: art.id, name: art.name, collection: art.collection, genre: art.genre, artworkUrl: art.url, owned, available: owned && (placement !== null || opened), state: !owned ? 'locked' : placement !== null ? 'placed' : opened ? 'earned' : 'sealed', placement, scale: placement?.width ?? null, wear: placement?.wear ?? stickerWear(inventory ?? {}, art.id), meaning: slot?.meaning ?? null, remainingMinutes: slot?.remainingMinutes ?? null }
+    return { id: art.id, name: art.name, collection: art.collection, genre: art.genre, artworkUrl: art.url, owned, claimable: owned && !opened && inventory?.packs.some(pack => pack.openedAt === null && pack.stickerIds.includes(art.id)) === true, available: owned && (placement !== null || opened), state: !owned ? 'locked' : placement !== null ? 'placed' : opened ? 'earned' : 'sealed', placement, scale: placement?.width ?? null, wear: placement?.wear ?? stickerWear(inventory ?? {}, art.id), meaning: slot?.meaning ?? null, remainingMinutes: owned ? 0 : slot?.remainingMinutes ?? null }
   })
-  return { count: items.length, items, selectedCollection: requested === null ? null : { genre: requested.genre, index: collections.findIndex(item => item.genre === requested.genre) }, held: held.selectedStickerId === null || held.previewPlacement === null && held.sourcePlacement == null && held.peel === 0 && held.stage === 'open' ? null : { stickerId: held.selectedStickerId, source: held.sourcePlacement == null ? 'collection' : 'placed', placement: held.previewPlacement, origin: held.sourcePlacement ?? null, scale: held.previewPlacement?.width ?? held.sourcePlacement?.width ?? null, wear: held.previewPlacement?.wear ?? held.sourcePlacement?.wear ?? stickerWear(inventory ?? {}, held.selectedStickerId) }, pageState: readStickerPageState() }
+  const active = deviceStore.get(activeStickerCollectionAtom)
+  return { count: items.length, items, availabilityMeaning: 'available means earned and unsealed or placed; collection grabs also require the current prepared open sheet. For claimable sealed stickers, navigate to their genre and call webpod_open_sticker_pack.', activeCollection: active === null ? null : { genre: active.genre, index: collections.findIndex(item => item.genre === active.genre) }, selectedCollection: requested === null ? null : { genre: requested.genre, index: collections.findIndex(item => item.genre === requested.genre) }, held: held.selectedStickerId === null || held.previewPlacement === null && held.sourcePlacement == null && held.peel === 0 && held.stage === 'open' ? null : { stickerId: held.selectedStickerId, source: held.sourcePlacement == null ? 'collection' : 'placed', placement: held.previewPlacement, origin: held.sourcePlacement ?? null, scale: held.previewPlacement?.width ?? held.sourcePlacement?.width ?? null, wear: held.previewPlacement?.wear ?? held.sourcePlacement?.wear ?? stickerWear(inventory ?? {}, held.selectedStickerId) }, pageState: readStickerPageState() }
 }
 
 /** Mounts shared sticker actions. Saved inventory remains authoritative through aborts,
@@ -77,7 +80,9 @@ export function mountStickerToolControls(actions: () => StickerUiActions, option
     if (disposed) throw new Error('Sticker controls have unmounted. Read webpod_page_state before retrying.')
     if (deviceStore.get(stickerInventoryAtom) === null) throw new Error('Sticker inventory has not loaded. Read webpod_page_state before retrying.')
     if (!actions().rear()) throw new Error('The rendered back face is not ready for sticker interaction. Read webpod_device_state and stickers.pageState.rearReady. If visibleFace is already back, repeating flicks will not establish readiness; the rendered device and orientation state may be out of sync.')
-    if (saving || Object.keys(deviceStore.get(stickerEditorPendingAtom)).length > 0 || actions().humanBusy()) throw new Error('A sticker gesture or save is running.')
+    if (saving || deviceStore.get(stickerClaimStateAtom).pending > 0 || Object.keys(deviceStore.get(stickerEditorPendingAtom)).length > 0 || actions().humanBusy()) throw new Error('A sticker gesture or save is running.')
+    if (prepared && deviceStore.get(stickerCollectionTransitionAtom) !== null) throw new Error('The collection is still turning. Wait for webpod_page_state stickers readiness before opening or grabbing.')
+    if (prepared && deviceStore.get(activeStickerCollectionAtom)?.genre !== deviceStore.get(requestedStickerCollectionAtom)?.genre) throw new Error('The requested collection is still turning or preparing. Read webpod_page_state until activeCollection matches selectedCollection in webpod_sticker_list.')
     if (prepared && !deviceStore.get(stickerCollectionUsableAtom)) throw new Error('The current sticker sheet is still preparing. Read page state.')
   }
   const clearHeld = () => { heldGeneration = null; resetStickerCarry() }
@@ -90,18 +95,24 @@ export function mountStickerToolControls(actions: () => StickerUiActions, option
   }
   const controls: StickerToolControls = {
     list: readStickerList,
-    open: async signal => { requireUi(signal, true); actions().open(); begin(); heldGeneration = null; if (deviceStore.get(stickerInteractionAtom).stage === 'open') complete(); return readStickerList() },
+    open: async signal => {
+      requireUi(signal, true); begin(); heldGeneration = null; saving = true
+      deviceStore.set(stickerOperationAtom, current => current === null ? null : { ...current, saving: true })
+      try { await actions().open(signal); signal.throwIfAborted(); if (disposed) throw new Error('Sticker controls have unmounted.'); complete(); return readStickerList() }
+      catch (error) { complete(error instanceof Error ? error.message : 'Earned packs could not open. Retry webpod_open_sticker_pack.'); throw error }
+      finally { saving = false }
+    },
     close: async signal => { requireUi(signal); actions().close(); begin(); heldGeneration = null; if (deviceStore.get(stickerInteractionAtom).stage !== 'pulling') complete(); return readStickerList() },
     navigate: async (direction, signal) => { requireUi(signal, true); actions().navigate(direction === 'next' ? 1 : -1); begin(); heldGeneration = null; inspectPreparation(); return readStickerList() },
     grab: async (id, source, signal) => {
       requireUi(signal, source === 'collection')
       const inventory = deviceStore.get(stickerInventoryAtom), art = getSticker(id)
-      if (art === undefined || inventory === null || !inventory.stickerIds.includes(art.id)) throw new Error('Sticker is unknown or not owned.')
+      if (art === undefined || inventory === null || !inventory.stickerIds.includes(art.id)) throw new Error(art === undefined ? 'Unknown sticker identifier. Call webpod_sticker_list and use an exact item id; do not substitute another sticker without user authorization.' : 'This sticker is locked. Listen to earn it; opening a pack cannot unlock unearned stickers.')
       if (readStickerList().held !== null) throw new Error('Release the held sticker before grabbing another.')
       if (stickerEditPending(id)) throw new Error('This sticker already has a pending save.')
       const saved = inventory.placements.find(item => item.stickerId === id)
       const slot = deviceStore.get(activeStickerCollectionAtom)?.slots.find(item => item.art.id === id)
-      if (source === 'placed' ? saved === undefined : saved !== undefined || slot?.state !== 'earned' || deviceStore.get(stickerPackTuckedAtom) || deviceStore.get(stickerInteractionAtom).progress < .99) throw new Error('Sticker is not available at that source. Collection grabs require its current open UI and an earned, unsealed slot.')
+      if (source === 'placed' ? saved === undefined : saved !== undefined || slot?.state !== 'earned' || deviceStore.get(stickerPackTuckedAtom) || deviceStore.get(stickerInteractionAtom).progress < .99 || deviceStore.get(stickerSheetRevealAtom) < .99 || deviceStore.get(stickerPackTurnAtom) !== 0) throw new Error('Sticker is not available at that source. For collection source, navigate to its genre, call webpod_open_sticker_pack to open already-earned sealed packs, then wait for pageState readiness. Placed stickers require source placed.')
       begin(); dismissStickerEditor()
       if (saved !== undefined) actions().lift(saved)
       else { supersedeStickerInteraction(); resetStickerCarry(); deviceStore.set(stickerSheetRevealAtom, 1) }

@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import { stickerLiftPhase } from './sticker-lift-phase'
-import { stickerInventoryAtom, stickerInteractionAtom } from '@webpod/state'
+import { deviceStore, stickerInventoryAtom, stickerInteractionAtom } from '@webpod/state'
 import { STICKER_CATALOGUE, STICKER_GENRES, type StickerDefinition, type StickerGenre, type StickerInventory, type StickerPlacement, type StickerId } from '@webpod/stickers'
 
 /** Display milestones mirror the v1 earning policy; ownership always comes from inventory. */
@@ -100,3 +100,21 @@ export const stickerProjectionVersionAtom = atom(0)
 
 /** Signed packet turn shared by DOM and canvas; zero is the interactive resting pose. */
 export const stickerPackTurnAtom = atom(0)
+
+/** Open only packs already earned in this sheet; persistence remains the authority. */
+export const stickerClaimStateAtom = atom<{ pending: number; error: string | null }>({ pending: 0, error: null })
+export async function openEarnedStickerPacks(collection: StickerGenreCollection, openPack: (id: string) => Promise<void>, signal?: AbortSignal): Promise<void> {
+  deviceStore.set(stickerClaimStateAtom, current => ({ pending: current.pending + 1, error: null }))
+  try {
+    for (const id of collection.unopenedPackIds) {
+      signal?.throwIfAborted()
+      await openPack(id)
+    }
+    signal?.throwIfAborted()
+  } catch (error) {
+    if (!signal?.aborted) deviceStore.set(stickerClaimStateAtom, current => ({ ...current, error: 'Earned stickers could not open. Retry webpod_open_sticker_pack.' }))
+    throw error
+  } finally { deviceStore.set(stickerClaimStateAtom, current => ({ ...current, pending: current.pending - 1 })) }
+}
+
+export const stickerCollectionTransitionAtom = atom<string | null>(null)

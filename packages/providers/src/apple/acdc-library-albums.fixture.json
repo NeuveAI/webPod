@@ -1,0 +1,143 @@
+{
+  "data": [
+    {
+      "id": "l.XKfeYit",
+      "type": "library-albums",
+      "attributes": {
+        "artistName": "AC/DC",
+        "genreNames": [
+          "Hard Rock"
+        ],
+        "name": "POWER UP",
+        "playParams": {
+          "id": "l.XKfeYit",
+          "isLibrary": true,
+          "kind": "album"
+        },
+        "releaseDate": "2020-11-13",
+        "trackCount": 12
+      }
+    },
+    {
+      "id": "l.rt3wAAz",
+      "type": "library-albums",
+      "attributes": {
+        "artistName": "AC/DC",
+        "genreNames": [
+          "Rock"
+        ],
+        "name": "Rock or Bust",
+        "playParams": {
+          "id": "l.rt3wAAz",
+          "isLibrary": true,
+          "kind": "album"
+        },
+        "releaseDate": "2014-11-17",
+        "trackCount": 11
+      }
+    },
+    {
+      "id": "l.Su0hzvb",
+      "type": "library-albums",
+      "attributes": {
+        "artistName": "AC/DC",
+        "genreNames": [
+          "Rock"
+        ],
+        "name": "Live At River Plate [Disc 1]",
+        "playParams": {
+          "id": "l.Su0hzvb",
+          "isLibrary": true,
+          "kind": "album"
+        },
+        "trackCount": 10
+      }
+    },
+    {
+      "id": "l.RM6Ot5w",
+      "type": "library-albums",
+      "attributes": {
+        "artistName": "AC/DC",
+        "genreNames": [
+          "Rock"
+        ],
+        "name": "Live At River Plate [Disc 2]",
+        "playParams": {
+          "id": "l.RM6Ot5w",
+          "isLibrary": true,
+          "kind": "album"
+        },
+        "trackCount": 12
+      }
+    },
+    {
+      "id": "l.LtiMA0z",
+      "type": "library-albums",
+      "attributes": {
+        "artistName": "AC/DC",
+        "genreNames": [
+          "Hard Rock"
+        ],
+        "name": "Black Ice",
+        "playParams": {
+          "id": "l.LtiMA0z",
+          "isLibrary": true,
+          "kind": "album"
+        },
+        "releaseDate": "2008-10-20",
+        "trackCount": 16
+      }
+    },
+    {
+      "id": "l.VmolRa9",
+      "type": "library-albums",
+      "attributes": {
+        "genreNames": [],
+        "name": "Back In Black",
+        "playParams": {
+          "id": "l.VmolRa9",
+          "isLibrary": true,
+          "kind": "album"
+        },
+        "trackCount": 0
+      }
+    },
+    {
+      "id": "l.xVEDJKv",
+      "type": "library-albums",
+      "attributes": {
+        "artistName": "AC/DC",
+        "genreNames": [
+          "Rock"
+        ],
+        "name": "Let There Be Rock",
+        "playParams": {
+          "id": "l.xVEDJKv",
+          "isLibrary": true,
+          "kind": "album"
+        },
+        "trackCount": 8
+      }
+    },
+    {
+      "id": "l.r6uUdb5",
+      "type": "library-albums",
+      "attributes": {
+        "artistName": "AC/DC",
+        "genreNames": [
+          "Rock"
+        ],
+        "name": "High Voltage",
+        "playParams": {
+          "id": "l.r6uUdb5",
+          "isLibrary": true,
+          "kind": "album"
+        },
+        "trackCount": 9
+      }
+    }
+  ],
+  "meta": {
+    "total": 8
+  }
+}

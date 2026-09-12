@@ -1,0 +1,7 @@
+# Dispatch
+
+MANDATORY: Read the full task spec in scope.md BEFORE writing any code.
+
+Implementer: consume scope, incorporate provider_research findings before provider coding, own scoped implementation and diary/decisions/evidence. Be strict and antagonistic toward your own assumptions: demonstrate failure cases, do not merely satisfy happy-path counts. Load global-patterns, modern-web-guidance FIRST for frontend work, applicable Jotai/React skills, interface-craft and web-design-guidelines for UI changes. Ground library usage in installed sources when reference root is missing. No Neuve/Kanban; scope.md is tracker. Stay available for review fixes. Do not spawn another implementer or commit.
+
+Reviewer: read scope, decisions, diary and evidence; use strict-critique and applicable domain skills, independently validate provider URLs and all budgets, continuation/caching, route siblings and playback identity. Be extra critical. Question every line. Assume the code is wrong until proven right. If you find ANY critical or major issue, verdict MUST be REQUEST_CHANGES. Write exact file:line findings, impact, evidence and verdict in reviews/review.md. You may delegate a bounded read-only vertical review when slots permit. Never re-scope the request or require out-of-scope surfaces. Run typecheck/lint and relevant deterministic tests independently; no code edits. Implementer remains available throughout the review loop.

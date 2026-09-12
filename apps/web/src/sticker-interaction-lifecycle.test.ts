@@ -2,9 +2,10 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { deviceStore, receiveStickerInventoryActionAtom, resetStickerCollectionActionAtom, setStickerCollectionStatusActionAtom, stickerInteractionAtom } from '@webpod/state'
 import { captureStickerCarryAnchor, mountStickerCarryAnchorLifecycle, stickerCarryAnchorAtom, stickerSourceAnchorAtom, stickerSourcePullAtom, updateStickerSourcePull } from './sticker-carry-anchor'
 import { publishOwnedStickerPull } from './sticker-grab'
-import { STICKER_GENRES } from '@webpod/stickers'
-import { animateStickerValue, getStickerInteractionGeneration, cancelStickerInteraction, resetStickerCarry, returnStickerToSheet, setStickerRearVisible, supersedeStickerInteraction, updateHeldStickerPreview, updateStickerInteraction } from './sticker-interaction'
-import { stickerSheetRevealAtom, stickerWorkspaceLoweringAtom, stickerPackTurnAtom, activeStickerCollectionAtom, stickerPreparedIdsAtom, stickerDragOffsetAtom } from './sticker-collections-model'
+import { placeCurrentStickerDrop } from './sticker-drop-transaction'
+import { STICKER_GENRES, type StickerPlacement } from '@webpod/stickers'
+import { stickerComputationEpochAtom, revealStickerLiner, animateStickerValue, getStickerInteractionGeneration, cancelStickerInteraction, resetStickerCarry, returnStickerToSheet, setStickerRearVisible, supersedeStickerInteraction, updateHeldStickerPreview, updateStickerInteraction } from './sticker-interaction'
+import { selectedStickerGenreAtom, stickerCollectionTransitionAtom, stickerSheetRevealAtom, stickerWorkspaceLoweringAtom, stickerPackTurnAtom, activeStickerCollectionAtom, stickerPreparedIdsAtom, stickerDragOffsetAtom } from './sticker-collections-model'
 
 const frames = new Map<number, FrameRequestCallback>()
 let sequence = 0
@@ -229,4 +230,56 @@ test('packet turn is signed, reduced-motion immediate, and interruptible without
   expect(deviceStore.get(stickerPackTurnAtom)).toBe(0)
   expect(frames.size).toBe(0)
   expect(swaps).toBe(1)
+})
+
+
+test('non-reduced reveal completes before opening the liner and front admission clears a pending collection', () => {
+  revealStickerLiner(false)
+  let timestamp = performance.now()
+  for (let step = 0; step < 600 && frames.size > 0; step++) {
+    timestamp += 16
+    const pending = [...frames]; frames.clear()
+    for (const [, frame] of pending) frame(timestamp)
+  }
+  expect(deviceStore.get(stickerInteractionAtom)).toMatchObject({ progress: 1, stage: 'open' })
+  expect(deviceStore.get(stickerSheetRevealAtom)).toBe(1)
+  deviceStore.set(stickerCollectionTransitionAtom, 'pop'); setStickerRearVisible(false)
+  expect(deviceStore.get(stickerCollectionTransitionAtom)).toBeNull()
+})
+
+
+test('opening a liner pins the displayed genre when another sealed pack would change default selection', () => {
+  deviceStore.set(receiveStickerInventoryActionAtom, { stickerIds: ['PW-A01', 'PW-C01'], packs: [{ id: 'metal', source: 'starter', stickerIds: ['PW-A01'], earnedAt: 0, openedAt: 1 }, { id: 'rock', source: 'listening', stickerIds: ['PW-C01'], earnedAt: 0, openedAt: null }], progress: [], placements: [], placementRevision: 0, importStatus: 'complete' })
+  deviceStore.set(selectedStickerGenreAtom, null)
+  updateStickerInteraction({ packId: 'metal' })
+  expect(deviceStore.get(activeStickerCollectionAtom)?.genre).toBe('metal')
+  const opened = revealStickerLiner(true)
+  expect(opened.genre).toBe('metal')
+  expect(deviceStore.get(activeStickerCollectionAtom)?.genre).toBe('metal')
+  expect(deviceStore.get(selectedStickerGenreAtom)).toBe('metal')
+})
+
+
+test('opening the earned liner retires a pending worker drop and clears its navigation transition', async () => {
+  const placement: StickerPlacement = { stickerId: 'PW-A01', surface: 'back', x: .5, y: .5, width: .25, rotationDeg: 0 }
+  const generation = getStickerInteractionGeneration(), epoch = deviceStore.get(stickerComputationEpochAtom)
+  const controller = new AbortController()
+  const isCurrent = () => generation === getStickerInteractionGeneration()
+  const stop = deviceStore.sub(stickerComputationEpochAtom, () => { if (!isCurrent()) controller.abort() })
+  let finish: ((placement: StickerPlacement) => void) | undefined
+  const saves: StickerPlacement[] = [], samples: number[][] = []
+  const pending = placeCurrentStickerDrop({ placement, clientX: 123, clientY: 456, resolve: (_, x, y) => { samples.push([x, y]); return new Promise(resolve => { finish = resolve }) }, save: async value => { saves.push(value) }, beforeSave: () => {}, isCurrent, signal: controller.signal })
+  try {
+    deviceStore.set(stickerCollectionTransitionAtom, 'rock')
+    revealStickerLiner(true)
+    expect(deviceStore.get(stickerCollectionTransitionAtom)).toBeNull()
+    expect(deviceStore.get(stickerComputationEpochAtom)).toBeGreaterThan(epoch)
+    expect(controller.signal.aborted).toBe(true)
+    finish?.(placement)
+    expect(await pending).toBeNull()
+    expect(samples).toEqual([[123, 456]])
+    expect(saves).toEqual([])
+    expect(deviceStore.get(stickerInteractionAtom).progress).toBe(1)
+    expect(deviceStore.get(stickerSheetRevealAtom)).toBe(1)
+  } finally { stop() }
 })

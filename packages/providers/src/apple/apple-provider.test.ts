@@ -1,3 +1,4 @@
+import acdcLibraryAlbums from './acdc-library-albums.fixture.json'
 import { describe, expect, spyOn, test } from 'bun:test'
 import { APPLE_CONTINUATION_CACHE_MAX_ENTRIES, APPLE_DEVELOPER_TOKEN_REFRESH_LEAD_MS, createAppleProvider, MUSICKIT_SCRIPT_URL, type MusicKitGlobalLike } from './apple-provider.ts'
 
@@ -242,6 +243,7 @@ describe('Apple provider', () => {
     if (first.next === null) throw new Error('song continuation missing')
     expect(first.next).not.toContain('/v1/')
     await expect(provider.libraryList('albums', first.next)).rejects.toHaveProperty('_tag', 'InvalidCursor')
+    expect((await provider.libraryList('songs', first.next)).items).toHaveLength(1)
     await expect(provider.libraryList('songs', first.next)).rejects.toHaveProperty('_tag', 'InvalidCursor')
     await expect(provider.libraryList('songs', 'invented')).rejects.toHaveProperty('_tag', 'InvalidCursor')
 
@@ -317,7 +319,7 @@ describe('Apple provider', () => {
     if (first.next === null) throw new Error('continuation missing')
     await expect(provider.libraryList('songs', first.next)).rejects.toThrow('Apple Music library pagination did not advance')
     expect(offsets).toEqual(['0', '100'])
-    await expect(provider.libraryList('songs', first.next)).rejects.toHaveProperty('_tag', 'InvalidCursor')
+    await expect(provider.libraryList('songs', first.next)).rejects.toThrow('Apple Music library pagination did not advance')
   })
   test('subscribes to playback and removes consumer callbacks cleanly', async () => { const { provider, music } = setup(); await provider.configure(); let changes = 0; let ticks = 0; const offState = provider.onPlaybackChange(() => { changes += 1 }); const offTick = provider.onProgress(() => { ticks += 1 }); music.emit('playbackStateDidChange'); music.emit('playbackTimeDidChange'); expect(changes).toBe(1); expect(ticks).toBe(1); offState(); offTick(); music.emit('playbackStateDidChange'); music.emit('playbackTimeDidChange'); expect(changes).toBe(1); expect(ticks).toBe(1) })
   test('polls MusicKit progress while playing when v3 omits time-change events', async () => {
@@ -1216,12 +1218,126 @@ test('Apple artist albums publish pages before the full request completes', asyn
   const playlist = (await provider.libraryList('playlists')).items[0]
   if (!playlist) throw new Error('Missing fixture')
   const pages: string[][] = []
+  let lastPublished: Awaited<ReturnType<typeof provider.relatedAlbums>> | undefined
   music.api.music = async (_path, parameters) => {
     const second = parameters?.['offset'] === '1'
     if (second) expect(pages).toEqual([['First']])
     return { data: { data: [{ id: second ? 'a2' : 'a1', type: 'albums', attributes: { name: second ? 'Second' : 'First', artistName: 'Artist' } }], ...(second ? {} : { next: '/v1/catalog/se/artists/artist.1/albums?offset=1' }) } }
   }
-  const result = await provider.relatedAlbums({ kind: 'artist', key: playlist.key, provider: 'apple', catalogId: 'artist.1', name: 'Artist' }, { onPage: (items) => { pages.push(items.map(item => item.title)) } })
+  const result = await provider.relatedAlbums({ kind: 'artist', key: playlist.key, provider: 'apple', catalogId: 'artist.1', name: 'Artist' }, { onPage: (items) => { lastPublished = items; pages.push(items.map(item => item.title)) } })
   expect(pages).toEqual([['First'], ['First', 'Second']])
   expect(result).toHaveLength(2)
+  if (lastPublished === undefined) throw new Error('Missing artist page publication')
+  expect(result).toBe(lastPublished)
+})
+
+test('bounded Apple relationship pages preserve library scope, limit and continuation ownership', async () => {
+  const { provider, music } = setup()
+  const requests: { path: string; limit: string | number | undefined }[] = []
+  music.api.music = async (path, parameters) => {
+    requests.push({ path, limit: parameters?.['limit'] })
+    return { data: { data: [librarySong(parameters?.['offset'] !== undefined ? 1 : 0)], ...(parameters?.['offset'] !== undefined ? {} : { next: '/v1/me/library/albums/a/tracks?offset=5' }) } }
+  }
+  await provider.configure()
+  const ref = { kind: 'album', key: 'album-key', provider: 'apple', catalogId: 'catalog-a', libraryId: 'a', title: 'Album', artistName: 'Artist', trackCount: 20 } as const
+  const key = (await provider.libraryList('albums')).items[0]?.key
+  if (key === undefined || provider.relatedTracksPage === undefined) throw new Error('Missing provider fixture')
+  requests.length = 0
+  const album = { ...ref, key }
+  const first = await provider.relatedTracksPage(album, { limit: 5 })
+  expect(first.next).not.toBeNull()
+  const second = await provider.relatedTracksPage(album, { cursor: first.next ?? undefined, limit: 15 })
+  expect(second.items[0]?.title).toBe('Song 1')
+  expect(requests).toEqual([{ path: '/v1/me/library/albums/a/tracks', limit: '5' }, { path: '/v1/me/library/albums/a/tracks', limit: '15' }])
+  await expect(provider.relatedTracksPage({ ...album, libraryId: 'other' }, { cursor: first.next ?? undefined, limit: 15 })).rejects.toThrow('cursor')
+  const controller = new AbortController(); controller.abort()
+  await expect(provider.relatedTracksPage(album, { limit: 5, signal: controller.signal })).rejects.toThrow()
+  expect(requests).toHaveLength(2)
+  expect(provider.artistTracksPage).toBeUndefined()
+})
+
+test('bare MusicKit relationship arrays paginate at5 then15 without false completion', async () => {
+  const { provider, music } = setup()
+  const requests: unknown[] = []
+  const songs = Array.from({ length: 20 }, (_, index) => librarySong(index))
+  music.api.library.albumRelationship = async (_id, _relationship, parameters) => {
+    requests.push(parameters)
+    const offset = Number(parameters?.['offset'] ?? 0)
+    return songs.slice(offset, offset + Number(parameters?.['limit']))
+  }
+  await provider.configure()
+  const album = (await provider.libraryList('albums')).items[0]
+  if (album?.kind !== 'album' || provider.relatedTracksPage === undefined) throw new Error('Missing album fixture')
+  const first = await provider.relatedTracksPage(album, { limit: 5 })
+  expect(first.items).toHaveLength(5)
+  expect(first.next).not.toBeNull()
+  const second = await provider.relatedTracksPage(album, { cursor: first.next ?? undefined, limit: 15 })
+  expect(second.items.map((track) => track.title)).toEqual(Array.from({ length: 15 }, (_, index) => `Song ${index + 5}`))
+  const terminal = await provider.relatedTracksPage(album, { cursor: second.next ?? undefined, limit: 15 })
+  expect(terminal.next).toBeNull()
+  expect(terminal.items).toHaveLength(0)
+  expect(requests).toEqual([{ limit: '5' }, { offset: '5', limit: '15' }, { offset: '20', limit: '15' }])
+  await provider.unauthorize()
+  await expect(provider.relatedTracksPage(album, { cursor: first.next ?? undefined, limit: 15 })).rejects.toThrow()
+})
+
+test('live AC/DC library albums keep all8 when an empty album omits artistName', async () => {
+  const { provider, music } = setup()
+  // Derived from the captured200 response: Back In Black lacks artistName,
+  // artwork and releaseDate but is a valid named zero-track library album.
+  music.api.music = async (path) => {
+    if (path === '/v1/me/library/artists') return { data: { data: [{ id: 'r.hYxXFAA', type: 'library-artists', attributes: { name: 'AC/DC' } }] } }
+    if (path === '/v1/me/library/artists/r.hYxXFAA/albums') return { data: acdcLibraryAlbums }
+    if (path === '/v1/me/library/albums/l.VmolRa9/tracks') return { data: { data: [] } }
+    throw new Error(`Unexpected fixture path ${path}`)
+  }
+  await provider.configure()
+  const artist = (await provider.libraryList('artists')).items[0]
+  if (artist?.kind !== 'artist' || provider.relatedAlbumsPage === undefined || provider.relatedTracksPage === undefined) throw new Error('Missing artist')
+  const page = await provider.relatedAlbumsPage(artist, { limit: 15 })
+  expect(page.items.map((album) => album.title)).toEqual(['POWER UP', 'Rock or Bust', 'Live At River Plate [Disc 1]', 'Live At River Plate [Disc 2]', 'Black Ice', 'Back In Black', 'Let There Be Rock', 'High Voltage'])
+  expect(page.items.every((album) => album.artistName === 'AC/DC')).toBe(true)
+  expect(page.next).toBeNull()
+  const emptyAlbum = page.items[5]
+  if (emptyAlbum === undefined) throw new Error('Missing empty album')
+  expect(emptyAlbum.trackCount).toBe(0)
+  expect((await provider.relatedTracksPage(emptyAlbum, { limit: 15 })).items).toHaveLength(0)
+  expect((await provider.relatedAlbums(artist)).map((album) => album.key)).toEqual(page.items.map((album) => album.key))
+})
+
+test('Apple library continuation can retry a transient failure and is consumed only on success', async () => {
+  const { provider, music } = setup()
+  let fail = true
+  music.api.music = async (_path, parameters) => {
+    if (parameters?.['offset'] === '15') {
+      if (fail) { fail = false; throw new Error('temporary transport failure') }
+      return { data: { data: [librarySong(15)] } }
+    }
+    return { data: { data: Array.from({ length: 15 }, (_, index) => librarySong(index)), next: '/v1/me/library/songs?offset=15' } }
+  }
+  await provider.configure()
+  const first = await provider.libraryList('songs', undefined, { limit: 15 })
+  if (first.next === null) throw new Error('missing cursor')
+  await expect(provider.libraryList('songs', first.next, { limit: 15 })).rejects.toThrow('temporary transport failure')
+  const next = await provider.libraryList('songs', first.next, { limit: 15 })
+  expect(next.items).toHaveLength(1)
+  expect(next.next).toBeNull()
+  await expect(provider.libraryList('songs', first.next, { limit: 15 })).rejects.toThrow()
+})
+
+test('Apple library expands the initial15 to its native100-item background batch', async () => {
+  const { provider, music } = setup()
+  const requests: unknown[] = []
+  music.api.library.songs = async (parameters) => {
+    requests.push(parameters)
+    const offset = Number(parameters?.['offset'] ?? 0)
+    const limit = Number(parameters?.['limit'])
+    return Array.from({ length: Math.min(limit, 160 - offset) }, (_, index) => librarySong(offset + index))
+  }
+  await provider.configure()
+  const first = await provider.libraryList('songs', undefined, { limit: 15 })
+  const next = await provider.libraryList('songs', first.next ?? undefined, { priority: 'low' })
+  expect(first.items).toHaveLength(15)
+  expect(next.items).toHaveLength(100)
+  expect(requests).toEqual([{ limit: '15', offset: '0' }, { limit: '100', offset: '15' }])
 })

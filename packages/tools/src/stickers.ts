@@ -27,8 +27,8 @@ export function createInteractionMutation(): InteractionMutation {
 /** Sticker tools use the current draft's ordinary JSON results and cancellation. */
 export function createStickerTools(controls: () => StickerToolControls, mutate: InteractionMutation = createInteractionMutation()): readonly NativeTool[] {
   const empty = (name: string, description: string, action: 'open' | 'close' | 'release') => tool(name, description, {}, async (input, { signal }) => { objectInput(input, []); return mutate(signal, () => controls()[action](signal)) })
-  return [
-    empty('webpod_open_sticker_pack', 'Reveal the real sticker pack UI on the back face. Requires prepared collection artwork and no human gesture. Does not open or claim sealed earned packs. Returns actual readiness and animation state; read page state until ready.', 'open'),
+  const definitions = [
+    empty('webpod_open_sticker_pack', 'Reveal the real sticker pack UI on the back face. Requires prepared collection artwork and no human gesture. Opens the current liner and awaits opening packs already earned in that collection; never grants locked stickers. Returns actual readiness and animation state; read page state until ready.', 'open'),
     empty('webpod_close_sticker_pack', 'Slide the real sticker pack UI away and cancel any held sticker, restoring its saved origin without persistence. Requires the back face and no running placement save.', 'close'),
     tool('webpod_navigate_sticker_collection', 'Move next or previous through owned genre collections using the real UI. Wraps at either end, just like the collection buttons. Cancels any held draft; read page state for artwork preparation. Returns the selected collection and zero-based index.', { direction: { type: 'string', enum: ['next', 'previous'] } }, async (input, { signal }) => {
       const args = objectInput(input, ['direction']); const direction = enumInput(args['direction'], ['next', 'previous'], 'direction')
@@ -61,4 +61,12 @@ export function createStickerTools(controls: () => StickerToolControls, mutate: 
       return mutate(signal, () => controls().place(x, y, signal))
     }),
   ]
+  return definitions.map(definition => ({ ...definition, execute: async (input, options) => {
+    try { return await definition.execute(input, options) }
+    catch (error) {
+      options.signal.throwIfAborted()
+      if (error instanceof TypeError) throw error
+      return { ok: false, error: { code: 'STICKER_ACTION_FAILED', message: error instanceof Error ? error.message : 'Sticker action failed.', hint: 'Read webpod_sticker_list and webpod_page_state. Navigate to the sticker genre, open its earned pack, and wait for readiness before grabbing. Locked stickers must first be earned.' } }
+    }
+  } }))
 }

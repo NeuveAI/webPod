@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from 'bun:test'
 import { deviceStore, receiveStickerInventoryActionAtom, resetStickerCollectionActionAtom, stickerInteractionAtom, stickerInventoryAtom } from '@webpod/state'
 import { STICKER_GENRES, type StickerInventory, type StickerPlacement } from '@webpod/stickers'
 import { getStickerToolControls, mountStickerToolControls, readStickerList, readStickerPageState, type StickerUiActions } from './sticker-webmcp'
-import { activeStickerCollectionAtom, selectedStickerGenreAtom, stickerPreparedIdsAtom } from './sticker-collections-model'
+import { activeStickerCollectionAtom, selectedStickerGenreAtom, stickerPreparedIdsAtom, openEarnedStickerPacks, stickerSheetRevealAtom, stickerCollectionTransitionAtom, stickerClaimStateAtom } from './sticker-collections-model'
 import { cancelStickerInteraction, revealStickerPack, setStickerRearVisible, supersedeStickerInteraction, updateStickerInteraction } from './sticker-interaction'
 import { stickerEditorPendingAtom, stickerToolEditorAtom } from './sticker-editor-model'
 import { createDeviceStateTool } from './device-state-webmcp'
@@ -14,15 +14,18 @@ let dispose: (() => void) | undefined
 let saved: StickerPlacement[] = [], expected: (StickerPlacement | undefined)[] = []
 let rear = true, human = false
 let persist: StickerUiActions['place']
+let claim: (id: string) => Promise<void>
 const signal = () => new AbortController().signal
 function inventory(): StickerInventory { const value = deviceStore.get(stickerInventoryAtom); if (value === null) throw new Error('Missing fixture'); return value }
 function prepare() { const ids = deviceStore.get(activeStickerCollectionAtom)?.slots.map(slot => slot.art.id) ?? []; deviceStore.set(stickerPreparedIdsAtom, ids) }
 function mount(saveTimeoutMs?: number) {
-  dispose = mountStickerToolControls(() => ({ rear: () => rear, humanBusy: () => human, reducedMotion: () => true, open: () => revealStickerPack(true), close: () => cancelStickerInteraction(), navigate: direction => { supersedeStickerInteraction(); deviceStore.set(selectedStickerGenreAtom, direction === 1 ? 'pop' : 'metal'); prepare() }, lift: source => { supersedeStickerInteraction(); updateStickerInteraction({ sourcePlacement: source, selectedStickerId: source.stickerId, stage: 'peeling' }) }, place: persist }), saveTimeoutMs === undefined ? {} : { saveTimeoutMs })
+  dispose = mountStickerToolControls(() => ({ rear: () => rear, humanBusy: () => human, reducedMotion: () => true, open: async signal => { revealStickerPack(true); deviceStore.set(stickerSheetRevealAtom, 1); const collection = deviceStore.get(activeStickerCollectionAtom); if (collection !== null) await openEarnedStickerPacks(collection, claim, signal) }, close: () => cancelStickerInteraction(), navigate: direction => { supersedeStickerInteraction(); deviceStore.set(selectedStickerGenreAtom, direction === 1 ? 'pop' : 'metal'); prepare() }, lift: source => { supersedeStickerInteraction(); updateStickerInteraction({ sourcePlacement: source, selectedStickerId: source.stickerId, stage: 'peeling' }) }, place: persist }), saveTimeoutMs === undefined ? {} : { saveTimeoutMs })
   return getStickerToolControls()
 }
 beforeEach(() => {
   saved = []; expected = []; rear = true; human = false
+  deviceStore.set(stickerClaimStateAtom, { pending: 0, error: null })
+  claim = async id => { deviceStore.set(receiveStickerInventoryActionAtom, { ...inventory(), packs: inventory().packs.map(pack => pack.id === id ? { ...pack, openedAt: 3 } : pack) }) }
   deviceStore.set(resetStickerCollectionActionAtom); deviceStore.set(receiveStickerInventoryActionAtom, seed()); deviceStore.set(selectedStickerGenreAtom, 'metal'); deviceStore.set(stickerEditorPendingAtom, {})
   prepare(); setStickerRearVisible(true)
   persist = async (placement, source) => { saved.push(placement); expected.push(source); deviceStore.set(receiveStickerInventoryActionAtom, { ...inventory(), placements: [...inventory().placements.filter(item => item.stickerId !== placement.stickerId), placement], placementRevision: inventory().placementRevision + 1 }) }
@@ -111,7 +114,7 @@ describe('mounted sticker adapter shared state and persistence', () => {
     expect(readStickerList().items.find(item => item.id === original.stickerId)).toMatchObject({ scale: .2, wear: 0 })
     expect(readStickerList().items.find(item => item.id === 'PW-A01')).toMatchObject({ scale: null, wear: 0 })
   })
-  test('all catalogue statuses include locked/sealed/owned/placed and open UI never claims packs', async () => {
+  test('opening the current sheet preserves sealed stickers in other packs and locked slots', async () => {
     const controls = mount(), before = inventory()
     await controls.open(signal())
     const list = readStickerList()
@@ -236,4 +239,54 @@ describe('mounted sticker adapter shared state and persistence', () => {
     expect(readStickerPageState().elapsedMs).not.toBeNull(); const elapsed = readStickerPageState().elapsedMs
     expect(readStickerPageState().elapsedMs).toBe(elapsed)
   })
+})
+
+
+test('sealed earned packs open through persistence and support the requested placement while locked slots remain locked', async () => {
+  const before = seed()
+  deviceStore.set(receiveStickerInventoryActionAtom, { ...before, packs: before.packs.map(pack => ({ ...pack, openedAt: null })) })
+  const controls = mount()
+  expect(readStickerList().items.find(item => item.id === 'PW-A01')).toMatchObject({ state: 'sealed', available: false, claimable: true })
+  await expect(controls.grab('PW-A01', 'collection', signal())).rejects.toThrow('webpod_open_sticker_pack')
+  await controls.open(signal())
+  expect(readStickerList().items.find(item => item.id === 'PW-A01')).toMatchObject({ state: 'earned', available: true, claimable: false })
+  expect(readStickerList().items.find(item => item.id === 'PW-A02')).toMatchObject({ state: 'locked', available: false, claimable: false })
+  await controls.grab('PW-A01', 'collection', signal())
+  await controls.scale(25, signal()); await controls.rotate(45, signal()); await controls.place(.5, .5, signal())
+  expect(saved).toEqual([expect.objectContaining({ stickerId: 'PW-A01', width: .3125, rotationDeg: 45, x: .5, y: .5 })])
+})
+test('a transitioning collection is not ready and a closed liner cannot supply a sticker', async () => {
+  const controls = mount(); await controls.open(signal())
+  deviceStore.set(stickerCollectionTransitionAtom, 'pop')
+  expect(readStickerPageState()).toMatchObject({ status: 'animating', interactionReady: false, pendingCollection: 'pop' })
+  await expect(controls.grab('PW-A01', 'collection', signal())).rejects.toThrow('turning')
+  deviceStore.set(stickerCollectionTransitionAtom, null)
+  deviceStore.set(stickerSheetRevealAtom, 0)
+  await expect(controls.grab('PW-A01', 'collection', signal())).rejects.toThrow('not available')
+})
+test('earned pack command failure is awaited and cancellation never admits the next pack', async () => {
+  const collection = deviceStore.get(activeStickerCollectionAtom)
+  if (collection === null) throw new Error('Missing collection')
+  const target = { ...collection, unopenedPackIds: ['one', 'two'] }
+  const controller = new AbortController(), calls: string[] = []
+  await expect(openEarnedStickerPacks(target, async () => { throw new Error('storage offline') })).rejects.toThrow('storage offline')
+  await expect(openEarnedStickerPacks(target, async id => { calls.push(id); controller.abort() }, controller.signal)).rejects.toThrow()
+  expect(calls).toEqual(['one'])
+})
+
+
+test('opening exposes pending persistence and a failed claim stays sealed and retryable', async () => {
+  const seedInventory = seed()
+  deviceStore.set(receiveStickerInventoryActionAtom, { ...seedInventory, packs: seedInventory.packs.map(pack => ({ ...pack, openedAt: null })) })
+  let rejectClaim: ((error: Error) => void) | undefined
+  const normalClaim = claim
+  claim = () => new Promise((_, reject) => { rejectClaim = reject })
+  const controls = mount(), pending = controls.open(signal())
+  expect(readStickerPageState()).toMatchObject({ status: 'saving', interactionReady: false })
+  rejectClaim?.(new Error('offline'))
+  await expect(pending).rejects.toThrow('offline')
+  expect(readStickerList().items.find(item => item.id === 'PW-A01')).toMatchObject({ state: 'sealed', claimable: true, remainingMinutes: 0 })
+  claim = normalClaim
+  await controls.open(signal())
+  expect(readStickerList().items.find(item => item.id === 'PW-A01')).toMatchObject({ state: 'earned' })
 })

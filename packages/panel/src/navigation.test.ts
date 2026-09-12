@@ -3,7 +3,7 @@ import { APPLE_SUPPORTS, createFixtureProvider, mintLocalKey, type LocalKey, typ
 import type { NavigationRoute } from '@webpod/state'
 
 import { fixtureNavigationSource } from './fixtures'
-import { albumCollectionForFrame, clearNavigationCaches, isNavigationLoadingFrame, navigationRoot, playbackQueueForFrame, preparationForFrame, preparationsForFrame, previewEntityForFrame, providerStatusFrame, refreshNavigationFrame, selectNavigation, selectNavigationImmediate } from './navigation'
+import { acquireNavigationCaches, albumCollectionForFrame, clearNavigationCaches, isNavigationLoadingFrame, navigationRoot, playbackQueueForFrame, preparationForFrame, preparationsForFrame, previewEntityForFrame, providerStatusFrame, refreshNavigationFrame, selectNavigation, selectNavigationImmediate } from './navigation'
 
 const provider = createFixtureProvider({ supports: APPLE_SUPPORTS })
 
@@ -69,7 +69,7 @@ describe('typed navigation graph', () => {
     const albums = (await selectNavigation(artists, fixtureNavigationSource, provider)).frame
     expect(albums?.route?.kind).toBe('artist-albums')
     if (albums === null) throw new Error('artist albums frame missing')
-    const tracks = (await selectNavigation(albums, fixtureNavigationSource, provider)).frame
+    const tracks = (await selectNavigation(highlight(albums, 1), fixtureNavigationSource, provider)).frame
     expect(tracks?.route?.kind).toBe('album-tracks')
     if (tracks === null) throw new Error('album tracks frame missing')
     const nowPlaying = await selectNavigation(tracks, fixtureNavigationSource, provider)
@@ -166,12 +166,13 @@ describe('typed navigation graph', () => {
     expect(tracks?.route?.kind).toBe('album-tracks')
   })
 
-  test('prefetch scope follows only the highlighted row instead of speculative neighbors', async () => {
+  test('prefetch includes immediate neighbors without speculative playback', async () => {
     const albums = (await selectNavigation(highlight(navigationRoot(fixtureNavigationSource, provider), 2), fixtureNavigationSource, provider)).frame
     if (albums === null) throw new Error('albums frame missing')
     const preparations = preparationsForFrame(highlight(albums, 2), fixtureNavigationSource)
 
-    expect(preparations).toHaveLength(1)
+    expect(preparations).toHaveLength(3)
+    expect(preparations.slice(1).every((item) => item.playTarget === null)).toBe(true)
     expect(preparations[0]?.key).toBe(preparationForFrame(highlight(albums, 2), fixtureNavigationSource)?.key)
   })
 
@@ -277,7 +278,7 @@ describe('typed navigation graph', () => {
     const selectedAlbum = stableAlbums[1]
     if (selectedAlbum === undefined) throw new Error('second album missing')
 
-    const tracks = (await selectNavigation(highlight(albums, 1), changingSource, provider)).frame
+    const tracks = (await selectNavigation(highlight(albums, 2), changingSource, provider)).frame
 
     expect(relationshipReads).toBe(1)
     expect(albumCollectionForFrame(albums)).toBe(stableAlbums)
@@ -390,4 +391,59 @@ describe('typed navigation graph', () => {
     expect(providerStatusFrame(browseOnly)?.route).toEqual({ kind: 'status', state: 'playback-unavailable' })
     expect(providerStatusFrame(provider)).toBeNull()
   })
+})
+
+test('artist All leads albums without shifting preview or selected album identity', async () => {
+  const root = navigationRoot(fixtureNavigationSource, provider)
+  const artists = (await selectNavigation(highlight(root, 1), fixtureNavigationSource, provider)).frame
+  if (artists === null) throw new Error('missing artists')
+  const albums = (await selectNavigation(artists, fixtureNavigationSource, provider)).frame
+  if (albums === null) throw new Error('missing albums')
+  expect(albums.rows[0]?.label).toBe('All')
+  expect(previewEntityForFrame(highlight(albums, 1), fixtureNavigationSource)?.key).toBe(albumCollectionForFrame(albums)?.[0]?.key)
+  const all = (await selectNavigation(albums, fixtureNavigationSource, provider)).frame
+  expect(all?.route?.kind).toBe('artist-tracks')
+  const expected = []
+  for (const album of albumCollectionForFrame(albums) ?? []) expected.push(...await fixtureNavigationSource.tracksForAlbum(album.key))
+  expect(all === null ? [] : playbackQueueForFrame(all)?.tracks).toEqual(expected)
+})
+
+test('Cover Flow requests the remaining album library on navigation', () => {
+  const requested: string[] = []
+  const source = { ...fixtureNavigationSource, ensureLibrary: async (kind: 'playlists' | 'artists' | 'albums' | 'songs') => { requested.push(kind) } }
+  const root = navigationRoot(source, provider)
+  const selected = selectNavigationImmediate({ ...root, highlightIndex: 0, rows: [{ index: 0, label: 'Cover Flow', sublabel: null, glyphs: [], provenance: null, destination: { kind: 'cover-flow' } }] }, source, provider)
+  expect(selected.frame?.route?.kind).toBe('cover-flow')
+  expect(requested).toEqual(['albums'])
+})
+
+
+test('source I/O is cleared only after its last mounted panel owner leaves', () => {
+  let clears = 0
+  const source = { ...fixtureNavigationSource, clearRelationships: () => { clears += 1 } }
+  const releaseFirst = acquireNavigationCaches(source)
+  const releaseSecond = acquireNavigationCaches(source)
+  releaseFirst()
+  expect(clears).toBe(0)
+  releaseSecond()
+  expect(clears).toBe(1)
+  releaseSecond()
+  expect(clears).toBe(1)
+})
+
+test('accepted album navigation hands off the rendered ref when its lookup cache is gone', async () => {
+  const album = fixtureNavigationSource.albums[0]
+  if (album === undefined) throw new Error('missing album')
+  const tracks = fixtureNavigationSource.songs.slice(0, 2)
+  const refs: string[] = []
+  const source = { ...fixtureNavigationSource, albums: [], tracksSnapshot: () => undefined, tracksForAlbum: () => { throw new Error('expired lookup') }, tracksForAlbumRef: async (ref: typeof album) => { refs.push(ref.key); return tracks } }
+  const artists = (await selectNavigation(highlight(navigationRoot(source, provider), 1), source, provider)).frame
+  if (artists === null) throw new Error('missing artists')
+  const albums = (await selectNavigation(artists, source, provider)).frame
+  if (albums === null) throw new Error('missing albums')
+  const rendered = albumCollectionForFrame(albums)?.[0]
+  if (rendered === undefined) throw new Error('missing rendered album')
+  const selected = (await selectNavigation(highlight(albums, 1), source, provider)).frame
+  expect(selected?.rows).toHaveLength(2)
+  expect(refs).toEqual([rendered.key])
 })

@@ -18,6 +18,26 @@ const renderFrame = (frame: ScreenFrame) => {
 }
 
 describe('the canonical panel list view', () => {
+  test('a partially loaded track list preserves the visible absolute window and title-only rows', () => {
+    const original = albumTracksFrame()
+    const seed = original.rows[0]
+    if (seed === undefined) throw new Error('Missing track row')
+    const frame = {
+      ...original, highlightIndex: 12, windowStart: 10, navigationLoading: true, navigationRequestId: 100,
+      rows: Array.from({ length: 40 }, (_, index) => ({ ...seed, index, label: `Window track ${index}`, sublabel: 'Artist subtitle must stay hidden' })),
+    }
+    const markup = renderFrame(frame)
+    expect(markup.match(/class="wp-list-row"/g)).toHaveLength(9)
+    expect(markup).toContain('Window track 10')
+    expect(markup).toContain('Window track 18')
+    expect(markup).not.toContain('Window track 19')
+    expect(markup).not.toContain('Artist subtitle must stay hidden')
+    expect(markup).not.toContain('wp-list-loading')
+    expect(markup).toContain('aria-busy="false"')
+    expect(markup).toContain('wp-list-scroll')
+    expect(markup).toMatch(/aria-current="true"[^]*?Window track 12/)
+  })
+
   test('fits exactly nine rows and adds the Aqua rail only for the tenth', () => {
     const eight = renderToStaticMarkup(<ListViewport rows={rows(9)} highlightIndex={0} windowStart={0} label="Eight" panelId="eight" />)
     const nine = renderToStaticMarkup(<ListViewport rows={rows(10)} highlightIndex={0} windowStart={0} label="Nine" panelId="nine" />)

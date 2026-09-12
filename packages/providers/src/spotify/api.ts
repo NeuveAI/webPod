@@ -88,6 +88,7 @@ export function createSpotifyApi() {
     method = 'GET',
     body?: object,
     responseKind: 'json' | 'acknowledgement' = 'json',
+    options?: { readonly signal?: AbortSignal; readonly priority?: 'low' | 'high' },
   ): Promise<unknown> {
     const url = new URL(path, 'https://api.spotify.com/v1/')
     if (
@@ -106,7 +107,8 @@ export function createSpotifyApi() {
           ...(body ? { 'Content-Type': 'application/json' } : {}),
         },
         ...(body ? { body: JSON.stringify(body) } : {}),
-        signal: AbortSignal.timeout(15000),
+        signal: options?.signal === undefined ? AbortSignal.timeout(15000) : AbortSignal.any([options.signal, AbortSignal.timeout(15000)]),
+        priority: options?.priority,
       })
       if (response.status === 401 && attempt === 0) {
         token = null

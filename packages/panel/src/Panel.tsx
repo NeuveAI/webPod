@@ -10,6 +10,8 @@ import {
   effectiveDensityAtom,
   liveRegionAtom,
   navigationIntentAtom,
+  claimNavigationIntentAtom,
+  handledNavigationIntentAtom,
   nowPlayingModeAtom,
   nowPlayingVolumeFeedbackAtom,
   nowPlayingWheelControlAtom,
@@ -43,7 +45,7 @@ import {
   type NowPlayingCenterState,
   type PanelState,
 } from './model'
-import { isNavigationLoadingFrame, navigationLoadingRequestId, navigationRoot, preparationForFrame, providerStatusFrame, refreshNavigationFrame, selectNavigationImmediate, statusFrame, type NavigationDataSource, type NavigationStatus } from './navigation'
+import { acquireNavigationCaches, isNavigationLoadingFrame, navigationLoadingRequestId, navigationRoot, preparationForFrame, preparationsForFrame, providerStatusFrame, refreshNavigationFrame, selectNavigationImmediate, statusFrame, type NavigationDataSource, type NavigationStatus } from './navigation'
 import { acquireAnnouncer, acquireNowPlayingVolumeFeedback, acquirePlaybackClock, acquireStableSelection, prefetchProviderArtwork, sampleProviderArtwork, type ArtworkSamples } from './runtime'
 import { BoundedAsyncCache } from './bounded-async-cache'
 import { ListViewport, type ListRowContent } from './list-view'
@@ -74,7 +76,7 @@ const readinessAtom = atom((get): PageActivity => {
   const mode = get(nowPlayingModeAtom)
   const queue = get(queueViewAtom)
   const intent = get(navigationIntentAtom)
-  const handled = get(handledReadinessIntentAtom)
+  const handled = get(handledNavigationIntentAtom)
   let status: PageActivity['status'] = 'ready'
   if (frame === null || context === null) status = 'unavailable'
   else if (context.state === 'error' || frame.route?.kind === 'status' && frame.route.state === 'error') status = 'error'
@@ -90,7 +92,6 @@ const readinessAtom = atom((get): PageActivity => {
   const library = context?.source.libraryStatus
   return { status, operationKey: get(operationIdentityAtom), operationStartedAtMs: get(operationIdentityAtom).startedAtMs, loadedItems: frame?.rows.length ?? 0, backgroundLoading: library !== undefined && Object.values(library).some((entry) => entry.state === 'loading') }
 })
-const handledReadinessIntentAtom = atom(0)
 const pageClock = createPageClock()
 let pageReadinessOwners = 0
 // Lifecycle-bound below; the snapshot is externally readable without a React closure.
@@ -128,7 +129,6 @@ let initializedAccountStatus: NavigationStatus | null | undefined
 const libraryCountLabels = new Set(['Playlists', 'Artists', 'Albums', 'Songs', 'Genres'])
 const successOperations = new WeakMap<Document, Map<string, Promise<SuccessResult>>>()
 const artworkRequests = new BoundedAsyncCache<ArtworkSamples>({ maxEntries: 48, ttlMs: 10 * 60 * 1_000 })
-const handledNavigationSeq = new WeakMap<Document, number>()
 const subscribeToStaticSource = (): (() => void) => () => {}
 const staticSourceRevision = (): number => 0
 
@@ -248,6 +248,7 @@ export function Panel({
     deviceStore.set(setDensityActionAtom, density)
     deviceStore.set(setDynamicTypeScaleActionAtom, dynamicTypeScale)
   }, [accountStatus, actor, density, dynamicTypeScale, navigationSource, provider, session, sourceRevision, state])
+  useEffect(() => acquireNavigationCaches(navigationSource), [navigationSource, provider, session])
   useEffect(() => {
     const publishPlayback = (): void => {
       deviceStore.set(playbackObservationAtom, { provider, playback: provider.playback })
@@ -304,7 +305,7 @@ function PanelSurface({
   const queueIndex = visibleWheelControl?.kind === 'queue' ? Math.round(visibleWheelControl.value) : visibleQueue.currentIndex
   const isQueue = frame?.screenId === 'S13' && visibleMode.frame === frame && visibleMode.mode === 'queue'
   const hasListRows = frame !== null && frame.screenId !== 'S13' && frame.route?.kind !== 'status'
-    && (frame.screenId === 'S03' || (!isNavigationLoadingFrame(frame) && !['loading', 'empty', 'error', 'permission-denied'].includes(state)))
+    && (frame.screenId === 'S03' || ((!isNavigationLoadingFrame(frame) || frame.rows.length > 0) && !['loading', 'empty', 'error', 'permission-denied'].includes(state)))
   const activeDescendant = isQueue
     ? visibleQueue.provider === provider && visibleQueue.status === 'ready' && queueIndex >= 0 && queueIndex < visibleQueue.items.length ? `${panelId}-queue-row-${queueIndex}` : undefined
     : hasListRows && frame.highlightIndex >= 0 && frame.rows.length > 0 ? `${panelId}-row-${frame.highlightIndex}` : undefined
@@ -324,7 +325,10 @@ function PanelSurface({
       if (currentFrame === null) return
       const selected = preparationForFrame(currentFrame, navigationSource)
       if (selected === null || selected.key !== preparationIntentKey || signal.aborted) return
-      const work: Promise<unknown>[] = [selected.prefetchData()]
+      const work: Promise<unknown>[] = preparationsForFrame(currentFrame, navigationSource).map(async (preparation) => {
+        const artwork = resolvedArtwork(preparation.artwork ? { artwork: preparation.artwork } : null, 176)
+        await Promise.all([preparation.prefetchData(), ...(artwork === null ? [] : [prefetchProviderArtwork(artwork.url)])])
+      })
       const art = resolvedArtwork(selected.artwork ? { artwork: selected.artwork } : null, 176)
       if (art) work.push(cachedArtworkSamples(art.url, 'low'))
       if (selected.playTarget !== null) work.push(provider.prepare(selected.playTarget, signal))
@@ -332,9 +336,7 @@ function PanelSurface({
     })
   }, [navigationSource, preparationIntentKey, provider])
   useEffect(() => {
-    if (navigationIntent === null || navigationIntent.seq <= (handledNavigationSeq.get(document) ?? 0)) return
-    handledNavigationSeq.set(document, navigationIntent.seq)
-    deviceStore.set(handledReadinessIntentAtom, navigationIntent.seq)
+    if (navigationIntent === null || !deviceStore.set(claimNavigationIntentAtom, navigationIntent.seq)) return
     if (navigationIntent.kind !== 'select' || frame === null) return
     if (frame.route?.kind === 'now-playing') {
       const modeState = deviceStore.get(nowPlayingModeAtom)
@@ -403,7 +405,10 @@ function PanelSurface({
     const selectedFrame = selection.frame
     push(selectedFrame)
     if (selection.resolution !== undefined) {
-      void selection.resolution.then((resolved) => replacePendingFrame(selectedFrame, resolved)).catch(() => replacePendingFrame(selectedFrame, statusFrame('error')))
+      void selection.resolution.then((resolved) => replacePendingFrame(selectedFrame, resolved)).catch(() => {
+        const pending = deviceStore.get(screenStackAtom).find((value) => navigationLoadingRequestId(value) === navigationLoadingRequestId(selectedFrame))
+        replacePendingFrame(selectedFrame, pending !== undefined && pending.rows.length > 0 ? settledNavigationFrame(pending) : statusFrame('error'))
+      })
     }
     void selection.playback?.catch(() => undefined)
   }, [frame, navigationIntent, navigationSource, provider, push])
@@ -590,7 +595,7 @@ function BrowserList({ frame, state, visibleRows, panelId, provider }: { readonl
   const query = useAtomValue(searchQueryAtom)
   const setQuery = useSetAtom(searchQueryAtom)
   const rows: readonly ListRowContent[] = frame.rows.slice(frame.windowStart, frame.windowStart + Math.max(1, visibleRows)).map((row) => ({ index: row.index, primary: row.label, secondary: frame.route?.kind === 'songs' ? undefined : row.sublabel, chevron: row.glyphs.includes('descend') ? <PanelIcon name="chevron" /> : undefined, unavailable: state === 'offline' }))
-  const loading = state === 'loading' || isNavigationLoadingFrame(frame)
+  const loading = state === 'loading' || (isNavigationLoadingFrame(frame) && frame.rows.length === 0)
   const message = listStateMessage(frame, loading ? 'loading' : state, visibleRows)
   const search = frame.route?.kind === 'search-entry' ? <label className="wp-search-field"><span>Search Query</span><input name="music-search" value={query} onChange={(event) => setQuery(event.currentTarget.value)} placeholder="Artists, albums, songs…" autoComplete="off" /></label> : undefined
   return (
@@ -605,7 +610,7 @@ function BrowserList({ frame, state, visibleRows, panelId, provider }: { readonl
 function NestedTrackList({ frame, state, visibleRows, panelId, provider, navigationSource }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string; readonly provider: MusicProvider; readonly navigationSource: NavigationDataSource }) {
   const success = useLibrarySuccess('S08', frame.title, state, provider, navigationSource)
   const rows: readonly ListRowContent[] = frame.rows.slice(frame.windowStart, frame.windowStart + Math.max(1, visibleRows)).map((row) => ({ index: row.index, primary: row.label, secondary: state === 'offline' ? '☁︎' : undefined, unavailable: state === 'offline', agent: state === 'agent-active' && row.index === frame.highlightIndex, success: success !== null && row.index === frame.highlightIndex }))
-  const loading = state === 'loading' || isNavigationLoadingFrame(frame)
+  const loading = state === 'loading' || (isNavigationLoadingFrame(frame) && frame.rows.length === 0)
   return (
     <section className="wp-screen" aria-label="Album tracks" aria-busy={loading} data-success-object={success?.objectKey} data-library-total={success?.libraryTotal}>
       <BrowsingTitleBar title={frame.title} provider={provider} index={state === 'offline' ? 'Cached metadata' : undefined} />
@@ -809,7 +814,6 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
       index: windowStart + offset,
       leading: windowStart + offset === activeQueueView.currentIndex ? '▶' : windowStart + offset + 1,
       primary: item.title,
-      secondary: item.artistName,
     }))
     return (
       <section className="wp-screen wp-now wp-now--queue" aria-label="Now Playing queue" aria-busy={activeQueueView.status === 'loading' || queueState === 'selecting'} data-mode="queue" data-queue-state={queueState} data-wheel-control={wheelControl?.kind} style={artStyle}>
@@ -903,12 +907,18 @@ function SpeakerGlyph({ loud = false }: { readonly loud?: boolean }) {
   )
 }
 
+function settledNavigationFrame(value: ScreenFrame) { return { ...value, navigationLoading: false } }
+
+/** Settles the matching frame even behind Now Playing; a popped/replaced request has no owner. */
 function replacePendingFrame(pending: ScreenFrame, resolved: ScreenFrame): void {
   const stack = deviceStore.get(screenStackAtom)
-  const visible = stack.at(-1)
   const requestId = navigationLoadingRequestId(pending)
-  if (visible === undefined || requestId === null || navigationLoadingRequestId(visible) !== requestId) return
-  deviceStore.set(screenStackAtom, [...stack.slice(0, -1), resolved])
+  if (requestId === null) return
+  const index = stack.findIndex((value) => navigationLoadingRequestId(value) === requestId)
+  const current = stack[index]
+  if (current === undefined) return
+  const settled = { ...resolved, ...(current.rows.length === 0 ? {} : { highlightIndex: Math.min(current.highlightIndex, resolved.rows.length - 1), windowStart: current.windowStart }) }
+  deviceStore.set(screenStackAtom, stack.map((value, position) => position === index ? settled : value))
 }
 
 function FooterReceipt({ children }: { readonly children: ReactNode }) {

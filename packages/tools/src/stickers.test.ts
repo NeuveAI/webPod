@@ -53,3 +53,10 @@ describe('native sticker tool contracts', () => {
     await expect(rotate.execute({ xDeg: 0, yDeg: 20 }, { signal: new AbortController().signal })).resolves.toEqual({})
   })
 })
+
+
+test('native sticker execution returns actionable domain failures instead of throwing opaque browser errors', async () => {
+  const f = fixture()
+  f.controls.grab = async () => { throw new Error('Unknown sticker identifier. Call webpod_sticker_list and use an exact item id.') }
+  expect(await f.execute('get_sticker', { stickerId: 'rockstar', source: 'collection' })).toMatchObject({ ok: false, error: { code: 'STICKER_ACTION_FAILED', message: expect.stringContaining('exact item id'), hint: expect.stringContaining('webpod_sticker_list') } })
+})

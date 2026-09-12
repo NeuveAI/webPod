@@ -2,14 +2,14 @@ import { manageMusic } from '@webpod/music-management/playback'
 import { afterAll, beforeAll, describe, expect, test } from 'bun:test'
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 import { createFixtureProvider, type MusicProvider, type PlaybackState, type QueueSnapshot } from '@webpod/providers'
-import { detentActionAtom, deviceStore, pressActionAtom, resetStackActionAtom, type NavigationRoute } from '@webpod/state'
+import { detentActionAtom, deviceStore, pressActionAtom, resetStackActionAtom, screenStackAtom, type NavigationRoute } from '@webpod/state'
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 
 import { Panel, readPageState, showNowPlayingScreen } from './Panel'
 import { fixtureNavigationSource, mainMenuFrame } from './fixtures'
 import { nowPlayingFrame } from './model'
-import { navigationRoot, selectNavigation } from './navigation'
+import { isNavigationLoadingFrame, navigationRoot, selectNavigation } from './navigation'
 
 GlobalRegistrator.register()
 Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { value: true })
@@ -70,7 +70,7 @@ describe('mounted playback selection', () => {
     expect(readPageState().interactionReady).toBe(true)
   })
 
-  test('browsing retains live play/pause status and Songs hides only artist subtitles', async () => {
+  test('browsing retains live play/pause status with title-only song and album rows', async () => {
     const provider = createFixtureProvider()
     const source = fixtureNavigationSource
     const menu = navigationRoot(source, provider)
@@ -88,8 +88,7 @@ describe('mounted playback selection', () => {
     expect(container.querySelector('.wp-list-row__secondary')).toBeNull()
     expect(container.querySelector('.wp-list-row__primary')?.textContent).toContain(songs.rows[0]?.label ?? '')
     await show(albums)
-    expect(container.querySelector('.wp-list-row__secondary')?.textContent).toBe(albums.rows[0]?.sublabel ?? undefined)
-    expect(container.querySelector('.wp-list-row__secondary')).not.toBeNull()
+    expect(container.querySelector('.wp-list-row__secondary')).toBeNull()
     await act(async () => { await provider.play({ kind: 'tracks', tracks: provider.catalog.tracks, startIndex: 0 }) })
     for (const frame of [artists, songs, albums, menu]) {
       await show(frame)
@@ -786,7 +785,7 @@ test('the full-context counter advances independently of a rolling upcoming queu
 })
 
 
-for (const kind of ['album-tracks', 'playlist-tracks', 'songs', 'genre-tracks', 'search-results'] as const) {
+for (const kind of ['album-tracks', 'playlist-tracks', 'artist-tracks', 'songs', 'genre-tracks', 'search-results'] as const) {
   test(`${kind} shows the exact selected counter before transport responds`, async () => {
     const fixture = createFixtureProvider()
     const tracks = fixture.catalog.tracks.slice(0, 3)
@@ -810,6 +809,7 @@ for (const kind of ['album-tracks', 'playlist-tracks', 'songs', 'genre-tracks', 
     if (!songs) throw new Error('Missing list')
     const route: NavigationRoute = kind === 'album-tracks' ? { kind, albumKey: selected.key }
       : kind === 'playlist-tracks' ? { kind, playlistKey: selected.key }
+      : kind === 'artist-tracks' ? { kind, artistKey: selected.key }
       : kind === 'genre-tracks' ? { kind, genreKey: selected.key }
       : kind === 'search-results' ? { kind, query: 'test', trackKeys: tracks.map(track => track.key) }
       : { kind }
@@ -877,4 +877,37 @@ test('empty artwork cannot crash highlight, hover, or Now Playing', async () => 
   await act(async () => { deviceStore.set(pressActionAtom, { button: 'center', source: 'human', path: 'key' }) })
   expect(container.querySelector('.wp-now-meta h1')?.textContent).toContain(tracks[0]?.title ?? '')
   expect(container.querySelector('.wp-art')).not.toBeNull()
+})
+
+
+test('a warmed track parent settles behind Now Playing and is ready when navigating back', async () => {
+  const provider = createFixtureProvider()
+  const tracks = fixtureNavigationSource.songs.slice(0, 3)
+  let resolveTracks: ((value: readonly (typeof tracks)[number][]) => void) | undefined
+  const relationship = new Promise<readonly (typeof tracks)[number][]>((resolve) => { resolveTracks = resolve })
+  const source = { ...fixtureNavigationSource, tracksSnapshot: () => tracks.slice(0, 2), tracksForAlbum: () => relationship }
+  const rootFrame = navigationRoot(source, provider)
+  const albums = (await selectNavigation({ ...rootFrame, highlightIndex: 2 }, source, provider)).frame
+  if (albums === null) throw new Error('missing albums')
+  await act(async () => root.render(<Panel provider={provider} navigationSource={source} accountStatus={null} />))
+  await act(async () => {
+    deviceStore.set(resetStackActionAtom, [rootFrame, albums])
+    deviceStore.set(pressActionAtom, { button: 'center', source: 'human', path: 'key' })
+  })
+  expect(container.querySelector('.wp-list-loading')).toBeNull()
+  expect(deviceStore.get(screenStackAtom).at(-1)?.rows).toHaveLength(2)
+  await act(async () => {
+    deviceStore.set(detentActionAtom, { direction: 1, page: false, path: 'key', source: 'human', timestampMs: 100 })
+    deviceStore.set(pressActionAtom, { button: 'center', source: 'human', path: 'key' })
+  })
+  expect(deviceStore.get(screenStackAtom).at(-1)?.route?.kind).toBe('now-playing')
+  await act(async () => { resolveTracks?.(tracks); await relationship })
+  const parent = deviceStore.get(screenStackAtom).find((value) => value.route?.kind === 'album-tracks')
+  if (parent === undefined) throw new Error('missing parent')
+  expect(parent.rows).toHaveLength(3)
+  expect(isNavigationLoadingFrame(parent)).toBe(false)
+  expect(parent.highlightIndex).toBe(1)
+  await act(async () => { deviceStore.set(pressActionAtom, { button: 'menu', source: 'human', path: 'key' }) })
+  expect(deviceStore.get(screenStackAtom).at(-1)?.route?.kind).toBe('album-tracks')
+  expect(readPageState().status).toBe('ready')
 })
