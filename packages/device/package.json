@@ -21,6 +21,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@types/three": "^0.185.0",
+    "@webgpu/types": "0.1.72",
     "happy-dom": "^20.11.15",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

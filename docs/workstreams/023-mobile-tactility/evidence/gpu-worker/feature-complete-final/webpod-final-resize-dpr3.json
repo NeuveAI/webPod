@@ -1,0 +1,29 @@
+{
+  "before": {
+    "width": 440,
+    "height": 956,
+    "dpr": 3,
+    "editor": true,
+    "contour": true,
+    "renderer": "worker",
+    "alerts": []
+  },
+  "alternate": {
+    "width": 500,
+    "height": 956,
+    "dpr": 3,
+    "editor": true,
+    "contour": true,
+    "renderer": "worker",
+    "alerts": []
+  },
+  "after": {
+    "width": 440,
+    "height": 956,
+    "dpr": 3,
+    "editor": true,
+    "contour": true,
+    "renderer": "worker",
+    "alerts": []
+  }
+}

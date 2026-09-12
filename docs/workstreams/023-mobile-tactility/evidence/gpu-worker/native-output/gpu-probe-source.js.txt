@@ -1,0 +1,73 @@
+import { Color, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, PlaneGeometry, Scene, OrthographicCamera, WebGLRenderer, AgXToneMapping, NoToneMapping, LinearSRGBColorSpace, RenderTarget, UnsignedByteType, RGBAFormat } from 'three';
+import { MeshBasicNodeMaterial, MeshPhysicalNodeMaterial, MeshStandardNodeMaterial, WebGPURenderer } from 'three/webgpu';
+import { vec4 } from 'three/tsl';
+import { installNativeMaterialOutput } from '../native-material-output';
+import { createRenderBackendOwner } from '../render-backend-services';
+
+// Lead-only isolated GPU correctness probe; no live app state or canvas changes.
+export async function runNativeOutputProbe() {
+  const glCanvas = new globalThis.OffscreenCanvas(4, 4), gpuCanvas = new globalThis.OffscreenCanvas(4, 4);
+  const gl = new WebGLRenderer({ canvas: glCanvas, alpha: true, antialias: true });
+  const gpu = new WebGPURenderer({ canvas: gpuCanvas, alpha: true, antialias: true, outputType: UnsignedByteType });
+  gl.toneMapping = AgXToneMapping; gpu.toneMapping = NoToneMapping; gpu.outputColorSpace = LinearSRGBColorSpace;
+  const geometry = new PlaneGeometry(2, 2), camera = new OrthographicCamera(-1, 1, 1, -1, .1, 10); camera.position.z = 2;
+  const linear = new RenderTarget(4, 4, { type: UnsignedByteType, format: RGBAFormat, colorSpace: LinearSRGBColorSpace });
+  const backend = createRenderBackendOwner({ kind: 'webgpu', renderer: gpu });
+  const abort = new globalThis.AbortController();
+  const owned = []; let buffer = null, expired = false;
+  const deadline = globalThis.setTimeout(() => { expired = true; abort.abort(new Error('Output probe deadline')); buffer?.destroy(); }, 45000);
+  const read = async texture => {
+    if (expired) throw Error('Output probe deadline');
+    const device = gpu.backend.device;
+    buffer = device.createBuffer({ size: 4, usage: globalThis.GPUBufferUsage.COPY_DST | globalThis.GPUBufferUsage.MAP_READ });
+    const current = buffer, encoder = device.createCommandEncoder();
+    encoder.copyTextureToBuffer({ texture, origin: { x: 2, y: 2 } }, { buffer: current, bytesPerRow: 256 }, { width: 1, height: 1 });
+    device.queue.submit([encoder.finish()]);
+    try { await current.mapAsync(globalThis.GPUMapMode.READ); if (expired) throw Error('Output probe deadline'); return [...new Uint8Array(current.getMappedRange())]; }
+    finally { current.destroy(); if (buffer === current) buffer = null; }
+  };
+  const readCanvas = async () => { const b = await read(gpuCanvas.getContext('webgpu').getCurrentTexture()); return [b[2], b[1], b[0], b[3]]; };
+  try {
+    await backend.initialize(abort.signal, 10000); gl.setSize(4, 4, false); gpu.setSize(4, 4, false);
+    const results = [];
+    for (const toneMapped of [false, true]) for (const alpha of [0, .2, 1]) for (const premultipliedAlpha of [false, true]) {
+      const params = { color: new Color(.8, .35, .02), toneMapped, opacity: alpha, transparent: true, premultipliedAlpha, depthWrite: false };
+      const gm = new MeshBasicMaterial(params), nm = installNativeMaterialOutput(new MeshBasicNodeMaterial(params)); owned.push(gm, nm);
+      const gs = new Scene(), ns = new Scene(); gs.add(new Mesh(geometry, gm)); ns.add(new Mesh(geometry, nm));
+      gl.render(gs, camera); const expected = new Uint8Array(4); gl.getContext().readPixels(2, 2, 1, 1, gl.getContext().RGBA, gl.getContext().UNSIGNED_BYTE, expected);
+      await backend.compile(ns, camera, ns, abort.signal, 10000); gpu.render(ns, camera); const actual = await readCanvas();
+      results.push({ toneMapped, alpha, premultipliedAlpha, expected: [...expected], actual, maxError: Math.max(...actual.map((v, i) => Math.abs(v - expected[i]))) });
+    }
+    const ordered = [];
+    for (const physical of [false, true]) for (const premultipliedAlpha of [false, true]) {
+      const gs = new Scene(), ns = new Scene();
+      const layers = [
+        { color: new Color(.98, .98, .96), toneMapped: false, opacity: 1, transparent: false },
+        { color: new Color(.1, .3, .7), toneMapped: true, opacity: .25, transparent: true },
+        { color: new Color(.03, .03, .03), toneMapped: true, opacity: .2, transparent: true },
+      ];
+      for (const [index, layer] of layers.entries()) {
+        const params = { ...layer, premultipliedAlpha, depthWrite: index === 0 };
+        const glass = physical && index === 2;
+        const gm = glass ? new MeshPhysicalMaterial({ ...params, roughness: .08, clearcoat: 1, clearcoatRoughness: .06 }) : new MeshBasicMaterial(params);
+        const nm = installNativeMaterialOutput(glass ? new MeshPhysicalNodeMaterial({ ...params, roughness: .08, clearcoat: 1, clearcoatRoughness: .06 }) : new MeshBasicNodeMaterial(params));
+        owned.push(gm, nm);
+        for (const [scene, material] of [[gs, gm], [ns, nm]]) { const mesh = new Mesh(geometry, material); mesh.position.z = index * .01; mesh.renderOrder = index; scene.add(mesh); }
+      }
+      gl.render(gs, camera); const expected = new Uint8Array(4); gl.getContext().readPixels(2, 2, 1, 1, gl.getContext().RGBA, gl.getContext().UNSIGNED_BYTE, expected);
+      await backend.compile(ns, camera, ns, abort.signal, 10000); gpu.render(ns, camera); const actual = await readCanvas();
+      ordered.push({ physical, premultipliedAlpha, expected: [...expected], actual, maxError: Math.max(...actual.map((v, i) => Math.abs(v - expected[i]))) });
+    }
+    const shared = installNativeMaterialOutput(new MeshBasicNodeMaterial({ color: new Color(.25, .25, .25), toneMapped: false })); owned.push(shared);
+    const scene = new Scene(); scene.add(new Mesh(geometry, shared));
+    gpu.render(scene, camera); const before = await readCanvas();
+    gpu.setRenderTarget(linear); gpu.render(scene, camera); const intermediate = await read(gpu.backend.get(linear.texture).texture);
+    gpu.setRenderTarget(null); gpu.render(scene, camera); const after = await readCanvas();
+    const variants = [];
+    for (const material of [new MeshPhysicalNodeMaterial({ transparent: true, opacity: .2, clearcoat: 1 }), new MeshStandardNodeMaterial(), new MeshBasicNodeMaterial()]) {
+      installNativeMaterialOutput(material); owned.push(material); const s = new Scene(); s.add(new Mesh(geometry, material)); await backend.compile(s, camera, s, abort.signal, 10000); gpu.render(s, camera); variants.push(material.type);
+    }
+    const custom = new MeshBasicNodeMaterial(); custom.fragmentNode = vec4(.5, .2, .1, .4); installNativeMaterialOutput(custom); owned.push(custom); const cs = new Scene(); cs.add(new Mesh(geometry, custom)); await backend.compile(cs, camera, cs, abort.signal, 10000); gpu.render(cs, camera);
+    return { results, ordered, antialias: true, orderedWithinOneByte: ordered.every(r => r.maxError <= 1), sharedPass: { before, intermediate, after }, variants, fragmentNodeCompiled: true, format: 'bgra8unorm canvas / rgba8unorm linear target', allWithinOneByte: results.every(r => r.maxError <= 1) };
+  } finally { globalThis.clearTimeout(deadline); buffer?.destroy(); linear.dispose(); geometry.dispose(); for (const m of owned) m.dispose(); gl.dispose(); backend.dispose(); }
+}

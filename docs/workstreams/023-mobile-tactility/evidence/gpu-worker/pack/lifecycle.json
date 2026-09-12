@@ -1,0 +1,14 @@
+{
+  "sharedJobIdentity": true,
+  "exactNativeAndCooperative": true,
+  "sameProducerDynamicPaper": true,
+  "cancelledOwnerPreservesCanonical": true,
+  "privateTransferExact": true,
+  "mountedBuffersNeverDetach": true,
+  "alreadyAbortedPrivateOwnerCleansUp": true,
+  "privateByteOwnership": true,
+  "idempotentRelease": true,
+  "finalAccountingZero": true,
+  "lostCanonicalRejectsWithoutRecomputation": true,
+  "scope": "Actual Bun Worker and MessagePort lifecycle; no browser or GPU performance claim."
+}

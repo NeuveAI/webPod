@@ -1,0 +1,42 @@
+{
+  "factorySha256": "6bcc5dac94bb180dde7ff1239b75b38fccc578dcdca8431dedd1845594a43bc8",
+  "rows": [
+    {
+      "appearance": "earned",
+      "side": "front",
+      "cacheKey": "physical,STANDARD,,PHYSICAL,,highp,srgb,306,512,uv,false,false,false,false,false,false,false,false,uv,false,false,false,false,false,false,false,false,false,false,false,false,false,,false,false,0,,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,8389264,8388610,srgb,webpod-sticker-wear-v5-front",
+      "shaderHash": "524c0be3876d26c00f5385d304fa6c16db38f401d8dac6f817a25d7b575e2289"
+    },
+    {
+      "appearance": "earned",
+      "side": "back",
+      "cacheKey": "physical,STANDARD,,PHYSICAL,,highp,srgb,306,512,uv,false,false,false,false,false,false,false,false,uv,false,false,false,false,false,false,false,false,false,false,false,false,false,,false,false,0,,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,8389136,8392706,srgb,webpod-sticker-wear-v5-back",
+      "shaderHash": "8181690cf21569edef65dfc6ec4239605458010182d0cd0eedc06af72448fc00"
+    },
+    {
+      "appearance": "locked",
+      "side": "front",
+      "cacheKey": "physical,STANDARD,,PHYSICAL,,highp,srgb,306,512,uv,false,false,false,false,false,false,false,false,uv,false,false,false,false,false,false,false,false,false,false,false,false,false,,false,false,0,,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,8389136,8388610,srgb,webpod-sticker-seat-locked",
+      "shaderHash": "00e3f8000a8ec4dc13984cdcf8535472c7dd23c323cc47c3993bd9da07b740aa"
+    },
+    {
+      "appearance": "locked",
+      "side": "back",
+      "cacheKey": "physical,STANDARD,,PHYSICAL,,highp,srgb,306,512,uv,false,false,false,false,false,false,false,false,uv,false,false,false,false,false,false,false,false,false,false,false,false,false,,false,false,0,,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,8389136,8392706,srgb,webpod-sticker-wear-v5-back",
+      "shaderHash": "8181690cf21569edef65dfc6ec4239605458010182d0cd0eedc06af72448fc00"
+    },
+    {
+      "appearance": "placed",
+      "side": "front",
+      "cacheKey": "physical,STANDARD,,PHYSICAL,,highp,srgb,306,512,uv,false,false,false,false,false,false,false,false,uv,false,false,false,false,false,false,false,false,false,false,false,false,false,,false,false,0,,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,8389136,8388610,srgb,webpod-sticker-seat-placed",
+      "shaderHash": "aad1fb64575da25ca8805d2f12f9347874f63b9b9d2d7837f11ebe46d592dabd"
+    },
+    {
+      "appearance": "placed",
+      "side": "back",
+      "cacheKey": "physical,STANDARD,,PHYSICAL,,highp,srgb,306,512,uv,false,false,false,false,false,false,false,false,uv,false,false,false,false,false,false,false,false,false,false,false,false,false,,false,false,0,,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,8389136,8392706,srgb,webpod-sticker-wear-v5-back",
+      "shaderHash": "8181690cf21569edef65dfc6ec4239605458010182d0cd0eedc06af72448fc00"
+    }
+  ],
+  "scope": "Exact production material factory; installed Three WebGLPrograms parameters/cache keys and patched GLSL, six variants. CPU-only compile-key proof; actual GPU compile readiness remains browser gate."
+}

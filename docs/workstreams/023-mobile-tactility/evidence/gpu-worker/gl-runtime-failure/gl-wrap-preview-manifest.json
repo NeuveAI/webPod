@@ -1,0 +1,13 @@
+{
+  "scope": "GL invisible program-only warmup; exact wrapped human rotation capacity regression",
+  "files": [
+    {
+      "path": "packages/device/src/StickerSurface.tsx",
+      "sha256": "f10d952af50dc26c616dc9fda845ba9e46d54cbd7fadf4314395bc62013b149e"
+    },
+    {
+      "path": "packages/device/src/StickerPackScene.tsx",
+      "sha256": "ff3a937366131ab6e78ac051a7d7b74699246ef991071020a6cf5d4c7da95d6c"
+    }
+  ]
+}

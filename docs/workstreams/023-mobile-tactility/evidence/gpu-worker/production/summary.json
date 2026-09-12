@@ -1,0 +1,2209 @@
+{
+  "method": "Offline arithmetic over stopped main-window RAF and PerformanceObserver inputs. Nearest-rank quantiles; phase times are first RAF observation, not exact transition. RAF reconstruction anchored only because original probe records its first RAF phase and every successive delta.",
+  "results": [
+    {
+      "name": "entry",
+      "build": "production f89be7f index-DuyC5bju.js",
+      "inputSha256": "aa0643948efddfac59cb95aaa98a78900d3087736a8c9092b4dd22a7931d6b34",
+      "origin": 1789149790417.4,
+      "observerStart": 204.7000000178814,
+      "observerEnd": 17290.90000000596,
+      "observerDuration": 17086.19999998808,
+      "firstRAF": 419,
+      "lastRAF": 17285.6,
+      "phaseMatches": [
+        {
+          "phase": "no-stage",
+          "time": 419,
+          "distanceToReconstructedRAF": 0
+        },
+        {
+          "phase": "warming",
+          "time": 3220.1,
+          "distanceToReconstructedRAF": 0
+        },
+        {
+          "phase": "entering",
+          "time": 4884.8,
+          "distanceToReconstructedRAF": 0
+        },
+        {
+          "phase": "complete",
+          "time": 6820.2,
+          "distanceToReconstructedRAF": 0
+        }
+      ],
+      "renderer": "worker",
+      "failure": null,
+      "raf": {
+        "count": 883,
+        "median": 16.699999999999818,
+        "p95": 18.600000000000364,
+        "max": 298.2000000000003,
+        "over33_34": 27,
+        "over50": 16
+      },
+      "windows": [
+        {
+          "label": "before-stage",
+          "start": 204.7000000178814,
+          "end": 3220.1,
+          "duration": 3015.3999999821185,
+          "rafFullyContained": {
+            "count": 92,
+            "median": 16.799999999999955,
+            "p95": 116.5,
+            "max": 217.5,
+            "over33_34": 17,
+            "over50": 11
+          },
+          "crossingRAFIntervals": [],
+          "longTasks": [
+            {
+              "start": 304.7000000178814,
+              "duration": 123
+            },
+            {
+              "start": 603.7000000178814,
+              "duration": 109
+            },
+            {
+              "start": 717.1000000238419,
+              "duration": 156
+            },
+            {
+              "start": 1039.800000011921,
+              "duration": 122
+            },
+            {
+              "start": 1246,
+              "duration": 83
+            },
+            {
+              "start": 2046.6000000238419,
+              "duration": 84
+            },
+            {
+              "start": 2130.800000011921,
+              "duration": 146
+            },
+            {
+              "start": 2277.600000023842,
+              "duration": 102
+            },
+            {
+              "start": 2398.800000011921,
+              "duration": 84
+            },
+            {
+              "start": 2785.4000000059605,
+              "duration": 53
+            },
+            {
+              "start": 2853.4000000059605,
+              "duration": 60
+            },
+            {
+              "start": 3211.100000023842,
+              "duration": 293
+            }
+          ],
+          "longTaskTotalMs": 1130.999999976158,
+          "longFrames": [
+            {
+              "start": 295.5,
+              "duration": 185.10000002384186,
+              "blocking": 75,
+              "renderStart": 479.5,
+              "styleAndLayoutStart": 480.60000002384186,
+              "scripts": [
+                {
+                  "duration": 5.300000011920929,
+                  "executionStart": 419.60000002384186,
+                  "invoker": "http://localhost:3000/webpod?renderBackend=worker",
+                  "sourceURL": "http://localhost:3000/webpod?renderBackend=worker",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 483.10000002384186,
+              "duration": 89,
+              "blocking": 0,
+              "renderStart": 572,
+              "styleAndLayoutStart": 572.1000000238419,
+              "scripts": []
+            },
+            {
+              "start": 600.7000000178814,
+              "duration": 112.19999998807907,
+              "blocking": 59,
+              "renderStart": 712.8000000119209,
+              "styleAndLayoutStart": 712.9000000059605,
+              "scripts": [
+                {
+                  "duration": 109,
+                  "executionStart": 603.7000000178814,
+                  "invoker": "http://localhost:3000/assets/index-DuyC5bju.js",
+                  "sourceURL": "http://localhost:3000/assets/index-DuyC5bju.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 714,
+              "duration": 161.40000000596046,
+              "blocking": 107.4,
+              "renderStart": 875,
+              "styleAndLayoutStart": 875.4000000059605,
+              "scripts": [
+                {
+                  "duration": 154.40000000596046,
+                  "executionStart": 717.2000000178814,
+                  "invoker": "http://localhost:3000/assets/index-DuyC5bju.js",
+                  "sourceURL": "http://localhost:3000/assets/index-DuyC5bju.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 1039.800000011921,
+              "duration": 137.90000000596046,
+              "blocking": 77.6,
+              "renderStart": 1173.1000000238419,
+              "styleAndLayoutStart": 1173.1000000238419,
+              "scripts": [
+                {
+                  "duration": 122.90000000596046,
+                  "executionStart": 1039.800000011921,
+                  "invoker": "import.then",
+                  "sourceURL": "http://localhost:3000/assets/index-DuyC5bju.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 3.8
+                }
+              ]
+            },
+            {
+              "start": 1245.1000000238419,
+              "duration": 92.7999999821186,
+              "blocking": 35.5,
+              "renderStart": 1335.9000000059605,
+              "styleAndLayoutStart": 1336,
+              "scripts": [
+                {
+                  "duration": 83.5,
+                  "executionStart": 1246,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 1392.6000000238419,
+              "duration": 57.19999998807907,
+              "blocking": 0,
+              "renderStart": 1448.1000000238419,
+              "styleAndLayoutStart": 1449.800000011921,
+              "scripts": []
+            },
+            {
+              "start": 1978.300000011921,
+              "duration": 60,
+              "blocking": 0,
+              "renderStart": 2038.2000000178814,
+              "styleAndLayoutStart": 2038.2000000178814,
+              "scripts": [
+                {
+                  "duration": 6.5,
+                  "executionStart": 1978.300000011921,
+                  "invoker": "Worker.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 37.19999998807907,
+                  "executionStart": 1984.800000011921,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 2046.5,
+              "duration": 231,
+              "blocking": 180.9,
+              "renderStart": 2130.800000011921,
+              "styleAndLayoutStart": 2274.5,
+              "scripts": [
+                {
+                  "duration": 84.19999998807907,
+                  "executionStart": 2046.6000000238419,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 142.59999999403954,
+                  "executionStart": 2131.9000000059605,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "mb",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 2277.600000023842,
+              "duration": 203.59999999403954,
+              "blocking": 134.7,
+              "renderStart": 2398.800000011921,
+              "styleAndLayoutStart": 2481,
+              "scripts": [
+                {
+                  "duration": 102.09999999403954,
+                  "executionStart": 2277.600000023842,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 82.19999998807907,
+                  "executionStart": 2398.800000011921,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "mb",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 2483.4000000059605,
+              "duration": 53.20000001788139,
+              "blocking": 0,
+              "renderStart": 2528.2000000178814,
+              "styleAndLayoutStart": 2535.2000000178814,
+              "scripts": [
+                {
+                  "duration": 14.5,
+                  "executionStart": 2495.4000000059605,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 7,
+                  "executionStart": 2528.2000000178814,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "mb",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 2657.4000000059605,
+              "duration": 50.70000001788139,
+              "blocking": 0,
+              "renderStart": 2702.300000011921,
+              "styleAndLayoutStart": 2706.800000011921,
+              "scripts": [
+                {
+                  "duration": 39.400000005960464,
+                  "executionStart": 2657.5,
+                  "invoker": "IMG[src=\"/stickers/playworn/pop/pw-b01-on-repeat.png\"].onload",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "s",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 2773.300000011921,
+              "duration": 64.30000001192093,
+              "blocking": 4,
+              "renderStart": 2786.7000000178814,
+              "styleAndLayoutStart": 2835.2000000178814,
+              "scripts": [
+                {
+                  "duration": 48.30000001192093,
+                  "executionStart": 2786.9000000059605,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "mb",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 2842.2000000178814,
+              "duration": 72,
+              "blocking": 13.3,
+              "renderStart": 2853.4000000059605,
+              "styleAndLayoutStart": 2913.5,
+              "scripts": [
+                {
+                  "duration": 59.39999997615814,
+                  "executionStart": 2854.100000023842,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "mb",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 3204.7000000178814,
+              "duration": 318.40000000596046,
+              "blocking": 251.2,
+              "renderStart": 3515.2000000178814,
+              "styleAndLayoutStart": 3515.4000000059605,
+              "scripts": [
+                {
+                  "duration": 293.19999998807907,
+                  "executionStart": 3211.100000023842,
+                  "invoker": "Response.json.then",
+                  "sourceURL": "https://js-cdn.music.apple.com/musickit/v3/musickit.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 13
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "warming-observed",
+          "start": 3220.1,
+          "end": 4884.8,
+          "duration": 1664.7000000000003,
+          "rafFullyContained": {
+            "count": 54,
+            "median": 16.800000000000182,
+            "p95": 134.69999999999982,
+            "max": 298.2000000000003,
+            "over33_34": 6,
+            "over50": 5
+          },
+          "crossingRAFIntervals": [],
+          "longTasks": [
+            {
+              "start": 3211.100000023842,
+              "duration": 293
+            },
+            {
+              "start": 3588.4000000059605,
+              "duration": 144
+            },
+            {
+              "start": 3734.7000000178814,
+              "duration": 69
+            },
+            {
+              "start": 3890.2000000178814,
+              "duration": 140
+            }
+          ],
+          "longTaskTotalMs": 637.000000023842,
+          "longFrames": [
+            {
+              "start": 3204.7000000178814,
+              "duration": 318.40000000596046,
+              "blocking": 251.2,
+              "renderStart": 3515.2000000178814,
+              "styleAndLayoutStart": 3515.4000000059605,
+              "scripts": [
+                {
+                  "duration": 293.19999998807907,
+                  "executionStart": 3211.100000023842,
+                  "invoker": "Response.json.then",
+                  "sourceURL": "https://js-cdn.music.apple.com/musickit/v3/musickit.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 13
+                }
+              ]
+            },
+            {
+              "start": 3528.800000011921,
+              "duration": 271.90000000596046,
+              "blocking": 161,
+              "renderStart": 3734.7000000178814,
+              "styleAndLayoutStart": 3798.4000000059605,
+              "scripts": [
+                {
+                  "duration": 17,
+                  "executionStart": 3533.4000000059605,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 144.90000000596046,
+                  "executionStart": 3588.4000000059605,
+                  "invoker": "Worker.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 12
+                },
+                {
+                  "duration": 62.79999998211861,
+                  "executionStart": 3734.7000000178814,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "c",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 3875.7000000178814,
+              "duration": 147.90000000596046,
+              "blocking": 92.8,
+              "renderStart": 3890.2000000178814,
+              "styleAndLayoutStart": 4022.800000011921,
+              "scripts": [
+                {
+                  "duration": 9.5,
+                  "executionStart": 3877.2000000178814,
+                  "invoker": "TimerHandler:setTimeout",
+                  "sourceURL": "",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 131.59999999403954,
+                  "executionStart": 3890.300000011921,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 4030.5,
+              "duration": 65.80000001192093,
+              "blocking": 0,
+              "renderStart": 4094.4000000059605,
+              "styleAndLayoutStart": 4094.600000023842,
+              "scripts": []
+            }
+          ]
+        },
+        {
+          "label": "entering-observed",
+          "start": 4884.8,
+          "end": 6820.2,
+          "duration": 1935.3999999999996,
+          "rafFullyContained": {
+            "count": 109,
+            "median": 16.699999999999818,
+            "p95": 31.5,
+            "max": 35.30000000000018,
+            "over33_34": 4,
+            "over50": 0
+          },
+          "crossingRAFIntervals": [],
+          "longTasks": [],
+          "longTaskTotalMs": 0,
+          "longFrames": []
+        },
+        {
+          "label": "after-DOM-complete",
+          "start": 6820.2,
+          "end": 17290.90000000596,
+          "duration": 10470.70000000596,
+          "rafFullyContained": {
+            "count": 628,
+            "median": 16.69999999999891,
+            "p95": 18.5,
+            "max": 18.700000000000728,
+            "over33_34": 0,
+            "over50": 0
+          },
+          "crossingRAFIntervals": [],
+          "longTasks": [],
+          "longTaskTotalMs": 0,
+          "longFrames": []
+        }
+      ],
+      "events": [],
+      "coverage": {
+        "rafCapReached": false,
+        "longFrameCapReached": false,
+        "longTaskCapReached": false,
+        "eventCapReached": false,
+        "observerSupportNotRecorded": true,
+        "undeliveredEntriesAtDisconnectNotDrained": true
+      }
+    },
+    {
+      "name": "peel",
+      "build": "production same navigation as entry",
+      "inputSha256": "825d8c3651f69e10d142af6d1ac160d3fc1e61697f71aaa2512d3e90463e81ce",
+      "origin": 1789149790417.4,
+      "observerStart": 372847.40000000596,
+      "observerEnd": 376543,
+      "observerDuration": 3695.5999999940395,
+      "firstRAF": 372835.2,
+      "lastRAF": 376536.1,
+      "phaseMatches": [
+        {
+          "phase": "complete",
+          "time": 372835.2,
+          "distanceToReconstructedRAF": 0
+        }
+      ],
+      "renderer": "worker",
+      "failure": null,
+      "raf": {
+        "count": 215,
+        "median": 16.70000000001164,
+        "p95": 17.599999999976717,
+        "max": 133.79999999998836,
+        "over33_34": 1,
+        "over50": 1
+      },
+      "windows": [
+        {
+          "label": "observed",
+          "start": 372847.40000000596,
+          "end": 376543,
+          "duration": 3695.5999999940395,
+          "rafFullyContained": {
+            "count": 214,
+            "median": 16.70000000001164,
+            "p95": 17.599999999976717,
+            "max": 133.79999999998836,
+            "over33_34": 1,
+            "over50": 1
+          },
+          "crossingRAFIntervals": [
+            {
+              "start": 372835.2,
+              "end": 372852.9,
+              "duration": 17.70000000001164
+            }
+          ],
+          "longTasks": [
+            {
+              "start": 373397.5,
+              "duration": 141
+            }
+          ],
+          "longTaskTotalMs": 141,
+          "longFrames": [
+            {
+              "start": 373391.60000002384,
+              "duration": 149.19999998807907,
+              "blocking": 93.1,
+              "renderStart": 373539.2000000179,
+              "styleAndLayoutStart": 373540.2000000179,
+              "scripts": [
+                {
+                  "duration": 141.2000000178814,
+                  "executionStart": 373397.5,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 373363.5,
+          "duration": 144,
+          "processingStart": 373372.2000000179,
+          "processingEnd": 373378.8000000119,
+          "interactionId": 5721,
+          "inputDelay": 8.700000017881393,
+          "processingDuration": 6.5999999940395355,
+          "roundedPresentationRemainder": 128.69999998807907
+        },
+        {
+          "name": "pointerup",
+          "start": 374331.5,
+          "duration": 32,
+          "processingStart": 374339.10000002384,
+          "processingEnd": 374351.10000002384,
+          "interactionId": 5721,
+          "inputDelay": 7.600000023841858,
+          "processingDuration": 12,
+          "roundedPresentationRemainder": 12.399999976158142
+        }
+      ],
+      "coverage": {
+        "rafCapReached": false,
+        "longFrameCapReached": false,
+        "longTaskCapReached": false,
+        "eventCapReached": false,
+        "observerSupportNotRecorded": true,
+        "undeliveredEntriesAtDisconnectNotDrained": true
+      }
+    },
+    {
+      "name": "rotation",
+      "build": "DEV separate navigation/run",
+      "inputSha256": "f60e917c7185641da08ba1a6d26b615a0d2f5904de4421fc919bbfc6cec5f21f",
+      "origin": 1789148786568.5,
+      "observerStart": 577442.7000000179,
+      "observerEnd": 581079.8000000119,
+      "observerDuration": 3637.0999999940395,
+      "firstRAF": 577429.318,
+      "lastRAF": 581062.7,
+      "phaseMatches": [
+        {
+          "phase": "complete",
+          "time": 577429.318,
+          "distanceToReconstructedRAF": 0
+        }
+      ],
+      "renderer": "worker",
+      "failure": null,
+      "raf": {
+        "count": 214,
+        "median": 16.699999999953434,
+        "p95": 18.5,
+        "max": 34.70000000006985,
+        "over33_34": 3,
+        "over50": 0
+      },
+      "windows": [
+        {
+          "label": "observed",
+          "start": 577442.7000000179,
+          "end": 581079.8000000119,
+          "duration": 3637.0999999940395,
+          "rafFullyContained": {
+            "count": 213,
+            "median": 16.699999999953434,
+            "p95": 18.5,
+            "max": 34.70000000006985,
+            "over33_34": 3,
+            "over50": 0
+          },
+          "crossingRAFIntervals": [
+            {
+              "start": 577429.318,
+              "end": 577446.6,
+              "duration": 17.28200000000652
+            }
+          ],
+          "longTasks": [],
+          "longTaskTotalMs": 0,
+          "longFrames": []
+        }
+      ],
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 577956.099999994,
+          "duration": 24,
+          "processingStart": 577965.8000000119,
+          "processingEnd": 577973.7000000179,
+          "interactionId": 3342,
+          "inputDelay": 9.700000017881393,
+          "processingDuration": 7.9000000059604645,
+          "roundedPresentationRemainder": 6.399999976158142
+        },
+        {
+          "name": "pointerup",
+          "start": 578840.8000000119,
+          "duration": 40,
+          "processingStart": 578870.8000000119,
+          "processingEnd": 578874.5,
+          "interactionId": 3342,
+          "inputDelay": 30,
+          "processingDuration": 3.699999988079071,
+          "roundedPresentationRemainder": 6.300000011920929
+        }
+      ],
+      "coverage": {
+        "rafCapReached": false,
+        "longFrameCapReached": false,
+        "longTaskCapReached": false,
+        "eventCapReached": false,
+        "observerSupportNotRecorded": true,
+        "undeliveredEntriesAtDisconnectNotDrained": true
+      }
+    },
+    {
+      "name": "baseline-entry",
+      "build": "production 4cc7f4a index-B26XPa1g.js",
+      "inputSha256": "d8e59aadcc190d0808e8eee7d9175720c931b9a148f6413d9838fbe34af50d44",
+      "origin": 1789150446879.2,
+      "observerStart": 224.7999999821186,
+      "observerEnd": 20868.69999998808,
+      "observerDuration": 20643.90000000596,
+      "firstRAF": 382.2,
+      "lastRAF": 20849.1,
+      "phaseMatches": [
+        {
+          "phase": "no-stage",
+          "time": 382.2,
+          "distanceToReconstructedRAF": 0
+        },
+        {
+          "phase": "warming",
+          "time": 3216.5,
+          "distanceToReconstructedRAF": 0
+        },
+        {
+          "phase": "entering",
+          "time": 5366,
+          "distanceToReconstructedRAF": 0
+        },
+        {
+          "phase": "complete",
+          "time": 7931.5,
+          "distanceToReconstructedRAF": 0
+        }
+      ],
+      "raf": {
+        "count": 935,
+        "median": 16.700000000000728,
+        "p95": 34.19999999999982,
+        "max": 549.9000000000001,
+        "over33_34": 58,
+        "over50": 29
+      },
+      "windows": [
+        {
+          "label": "before-stage",
+          "start": 224.7999999821186,
+          "end": 3216.5,
+          "duration": 2991.7000000178814,
+          "rafFullyContained": {
+            "count": 56,
+            "median": 18.09999999999991,
+            "p95": 183.0999999999999,
+            "max": 549.9000000000001,
+            "over33_34": 18,
+            "over50": 12
+          },
+          "crossingRAFIntervals": [],
+          "longTasks": [
+            {
+              "start": 296.19999998807907,
+              "duration": 94
+            },
+            {
+              "start": 518.7999999821186,
+              "duration": 90
+            },
+            {
+              "start": 613.7999999821186,
+              "duration": 96
+            },
+            {
+              "start": 899.0999999940395,
+              "duration": 119
+            },
+            {
+              "start": 1100.2999999821186,
+              "duration": 81
+            },
+            {
+              "start": 1245.5,
+              "duration": 52
+            },
+            {
+              "start": 1657.5,
+              "duration": 553
+            },
+            {
+              "start": 2222.699999988079,
+              "duration": 55
+            },
+            {
+              "start": 2375.699999988079,
+              "duration": 92
+            },
+            {
+              "start": 2472.5999999940395,
+              "duration": 53
+            },
+            {
+              "start": 2525.699999988079,
+              "duration": 109
+            },
+            {
+              "start": 2634.699999988079,
+              "duration": 96
+            },
+            {
+              "start": 2763.699999988079,
+              "duration": 69
+            },
+            {
+              "start": 2846.2999999821186,
+              "duration": 96
+            },
+            {
+              "start": 3007.5999999940395,
+              "duration": 69
+            },
+            {
+              "start": 3076.5999999940395,
+              "duration": 79
+            }
+          ],
+          "longTaskTotalMs": 1803,
+          "longFrames": [
+            {
+              "start": 285.09999999403954,
+              "duration": 116.69999998807907,
+              "blocking": 50.8,
+              "renderStart": 395.19999998807907,
+              "styleAndLayoutStart": 397,
+              "scripts": []
+            },
+            {
+              "start": 402.40000000596046,
+              "duration": 100.7999999821186,
+              "blocking": 0,
+              "renderStart": 503.19999998807907,
+              "styleAndLayoutStart": 503.19999998807907,
+              "scripts": []
+            },
+            {
+              "start": 514.5999999940395,
+              "duration": 95.5,
+              "blocking": 40.5,
+              "renderStart": 610.0999999940395,
+              "styleAndLayoutStart": 610.0999999940395,
+              "scripts": [
+                {
+                  "duration": 90.5,
+                  "executionStart": 518.7999999821186,
+                  "invoker": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceURL": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 612.4000000059605,
+              "duration": 113.09999999403954,
+              "blocking": 46.8,
+              "renderStart": 725.4000000059605,
+              "styleAndLayoutStart": 725.4000000059605,
+              "scripts": [
+                {
+                  "duration": 95,
+                  "executionStart": 613.7999999821186,
+                  "invoker": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceURL": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 899.0999999940395,
+              "duration": 133.19999998807907,
+              "blocking": 78.1,
+              "renderStart": 1024.0999999940395,
+              "styleAndLayoutStart": 1024.0999999940395,
+              "scripts": [
+                {
+                  "duration": 118.69999998807907,
+                  "executionStart": 900.0999999940395,
+                  "invoker": "import.then",
+                  "sourceURL": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 2.8
+                }
+              ]
+            },
+            {
+              "start": 1094.9000000059605,
+              "duration": 89.7999999821186,
+              "blocking": 33.6,
+              "renderStart": 1182.4000000059605,
+              "styleAndLayoutStart": 1182.4000000059605,
+              "scripts": [
+                {
+                  "duration": 81.2000000178814,
+                  "executionStart": 1100.2999999821186,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 1242.5999999940395,
+              "duration": 56.400000005960464,
+              "blocking": 3.5,
+              "renderStart": 1298,
+              "styleAndLayoutStart": 1298,
+              "scripts": [
+                {
+                  "duration": 51.5,
+                  "executionStart": 1245.5,
+                  "invoker": "https://js-cdn.music.apple.com/musickit/v3/musickit.js",
+                  "sourceURL": "https://js-cdn.music.apple.com/musickit/v3/musickit.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 1322.2999999821186,
+              "duration": 52.70000001788139,
+              "blocking": 0,
+              "renderStart": 1373.2999999821186,
+              "styleAndLayoutStart": 1373.2999999821186,
+              "scripts": []
+            },
+            {
+              "start": 1651.699999988079,
+              "duration": 564.5,
+              "blocking": 504,
+              "renderStart": 2216.0999999940395,
+              "styleAndLayoutStart": 2216.0999999940395,
+              "scripts": [
+                {
+                  "duration": 553.9000000059605,
+                  "executionStart": 1657.5,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 2217.199999988079,
+              "duration": 61.5,
+              "blocking": 6,
+              "renderStart": 2277.699999988079,
+              "styleAndLayoutStart": 2278.5999999940395,
+              "scripts": [
+                {
+                  "duration": 55,
+                  "executionStart": 2222.699999988079,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 2374.2999999821186,
+              "duration": 94.60000002384186,
+              "blocking": 42.9,
+              "renderStart": 2468.7999999821186,
+              "styleAndLayoutStart": 2468.7999999821186,
+              "scripts": [
+                {
+                  "duration": 92.7000000178814,
+                  "executionStart": 2375.699999988079,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 2470.0999999940395,
+              "duration": 164.59999999403954,
+              "blocking": 112.1,
+              "renderStart": 2525.7999999821186,
+              "styleAndLayoutStart": 2633.199999988079,
+              "scripts": [
+                {
+                  "duration": 53.099999994039536,
+                  "executionStart": 2472.5999999940395,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 107.40000000596046,
+                  "executionStart": 2525.7999999821186,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 2634.699999988079,
+              "duration": 197.90000000596046,
+              "blocking": 114.4,
+              "renderStart": 2764.699999988079,
+              "styleAndLayoutStart": 2831.199999988079,
+              "scripts": [
+                {
+                  "duration": 94.09999999403954,
+                  "executionStart": 2636,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 66.5,
+                  "executionStart": 2764.699999988079,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 2833.5,
+              "duration": 171,
+              "blocking": 83.2,
+              "renderStart": 2967.5,
+              "styleAndLayoutStart": 3002.4000000059605,
+              "scripts": [
+                {
+                  "duration": 10.299999982118607,
+                  "executionStart": 2835.9000000059605,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 96.10000002384186,
+                  "executionStart": 2846.2999999821186,
+                  "invoker": "IMG[src=\"/stickers/playworn/pop/pw-b01-on-repeat.png\"].onload",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "s",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 34.900000005960464,
+                  "executionStart": 2967.5,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 3005.2999999821186,
+              "duration": 189.90000000596046,
+              "blocking": 87.5,
+              "renderStart": 3155.7999999821186,
+              "styleAndLayoutStart": 3194,
+              "scripts": [
+                {
+                  "duration": 69,
+                  "executionStart": 3007.5999999940395,
+                  "invoker": "IMG[src=\"/stickers/playworn/metal/pw-a01-night-shift.png\"].onload",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "s",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 79.09999999403954,
+                  "executionStart": 3076.5999999940395,
+                  "invoker": "IMG[src=\"/stickers/playworn/metal/pw-a05-heavy-rotation.png\"].onload",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "s",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 37,
+                  "executionStart": 3157,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "warming-observed",
+          "start": 3216.5,
+          "end": 5366,
+          "duration": 2149.5,
+          "rafFullyContained": {
+            "count": 40,
+            "median": 17.09999999999991,
+            "p95": 168,
+            "max": 483.10000000000036,
+            "over33_34": 10,
+            "over50": 9
+          },
+          "crossingRAFIntervals": [],
+          "longTasks": [
+            {
+              "start": 3222.9000000059605,
+              "duration": 130
+            },
+            {
+              "start": 3881.2999999821186,
+              "duration": 497
+            },
+            {
+              "start": 4383.0999999940395,
+              "duration": 99
+            },
+            {
+              "start": 4506.799999982119,
+              "duration": 62
+            },
+            {
+              "start": 4570.699999988079,
+              "duration": 91
+            },
+            {
+              "start": 4674.4000000059605,
+              "duration": 93
+            },
+            {
+              "start": 4768.199999988079,
+              "duration": 82
+            },
+            {
+              "start": 4854.0999999940395,
+              "duration": 85
+            },
+            {
+              "start": 4939.199999988079,
+              "duration": 75
+            },
+            {
+              "start": 5038.5999999940395,
+              "duration": 67
+            },
+            {
+              "start": 5112,
+              "duration": 66
+            },
+            {
+              "start": 5190.5,
+              "duration": 68
+            },
+            {
+              "start": 5296.5,
+              "duration": 65
+            }
+          ],
+          "longTaskTotalMs": 1480,
+          "longFrames": [
+            {
+              "start": 3219.2999999821186,
+              "duration": 142.2000000178814,
+              "blocking": 86,
+              "renderStart": 3356.0999999940395,
+              "styleAndLayoutStart": 3356.0999999940395,
+              "scripts": [
+                {
+                  "duration": 130.59999999403954,
+                  "executionStart": 3222.9000000059605,
+                  "invoker": "Response.json.then",
+                  "sourceURL": "https://js-cdn.music.apple.com/musickit/v3/musickit.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 6.8
+                }
+              ]
+            },
+            {
+              "start": 3405.5,
+              "duration": 61.5,
+              "blocking": 0,
+              "renderStart": 3465,
+              "styleAndLayoutStart": 3466.7999999821186,
+              "scripts": [
+                {
+                  "duration": 38.89999997615814,
+                  "executionStart": 3416.9000000059605,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 3867.5,
+              "duration": 512.5999999940395,
+              "blocking": 448.6,
+              "renderStart": 4378.9000000059605,
+              "styleAndLayoutStart": 4380,
+              "scripts": [
+                {
+                  "duration": 5.200000017881393,
+                  "executionStart": 3874.199999988079,
+                  "invoker": "TimerHandler:setTimeout",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 497.5,
+                  "executionStart": 3881.2999999821186,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 4380.199999988079,
+              "duration": 104.90000000596046,
+              "blocking": 51.9,
+              "renderStart": 4482.4000000059605,
+              "styleAndLayoutStart": 4484.4000000059605,
+              "scripts": [
+                {
+                  "duration": 99.2000000178814,
+                  "executionStart": 4383.199999988079,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 4497.9000000059605,
+              "duration": 163.59999999403954,
+              "blocking": 103.2,
+              "renderStart": 4570.699999988079,
+              "styleAndLayoutStart": 4661.199999988079,
+              "scripts": [
+                {
+                  "duration": 62.30000001192093,
+                  "executionStart": 4506.799999982119,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 88.69999998807907,
+                  "executionStart": 4571.5,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 4674.4000000059605,
+              "duration": 170,
+              "blocking": 118.5,
+              "renderStart": 4769.799999982119,
+              "styleAndLayoutStart": 4842,
+              "scripts": [
+                {
+                  "duration": 93.7999999821186,
+                  "executionStart": 4674.4000000059605,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 11
+                },
+                {
+                  "duration": 65.09999999403954,
+                  "executionStart": 4771,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0.1
+                },
+                {
+                  "duration": 5.700000017881393,
+                  "executionStart": 4836.199999988079,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 4850.5,
+              "duration": 183.90000000596046,
+              "blocking": 80.1,
+              "renderStart": 5015.0999999940395,
+              "styleAndLayoutStart": 5033,
+              "scripts": [
+                {
+                  "duration": 84.19999998807907,
+                  "executionStart": 4854.0999999940395,
+                  "invoker": "IMG[src=\"/stickers/playworn/metal/pw-a01-night-shift.png\"].onload",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "s",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 74.10000002384186,
+                  "executionStart": 4939.299999982119,
+                  "invoker": "IMG[src=\"/stickers/playworn/metal/pw-a05-heavy-rotation.png\"].onload",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "s",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 16.80000001192093,
+                  "executionStart": 5016.199999988079,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 5036,
+              "duration": 153,
+              "blocking": 43.5,
+              "renderStart": 5179.4000000059605,
+              "styleAndLayoutStart": 5187.5999999940395,
+              "scripts": [
+                {
+                  "duration": 67.80000001192093,
+                  "executionStart": 5038.5999999940395,
+                  "invoker": "IMG[src=\"/stickers/playworn/metal/pw-a02-deep-cut.png\"].onload",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "s",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 5.5,
+                  "executionStart": 5106.5,
+                  "invoker": "TimerHandler:setTimeout",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "n",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 66,
+                  "executionStart": 5112,
+                  "invoker": "IMG[src=\"/stickers/playworn/metal/pw-a03-full-volume.png\"].onload",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "s",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 6.5,
+                  "executionStart": 5181,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 5190.5,
+              "duration": 101,
+              "blocking": 29.5,
+              "renderStart": 5279.9000000059605,
+              "styleAndLayoutStart": 5284.4000000059605,
+              "scripts": [
+                {
+                  "duration": 67.90000000596046,
+                  "executionStart": 5190.5999999940395,
+                  "invoker": "IMG[src=\"/stickers/playworn/metal/pw-a04-no-skip.png\"].onload",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "s",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 9.099999994039536,
+                  "executionStart": 5267.699999988079,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 5294,
+              "duration": 81,
+              "blocking": 24,
+              "renderStart": 5366.0999999940395,
+              "styleAndLayoutStart": 5373.9000000059605,
+              "scripts": [
+                {
+                  "duration": 64.2999999821186,
+                  "executionStart": 5296.5,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 5.4000000059604645,
+                  "executionStart": 5367.699999988079,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "entering-observed",
+          "start": 5366,
+          "end": 7931.5,
+          "duration": 2565.5,
+          "rafFullyContained": {
+            "count": 71,
+            "median": 32.899999999999636,
+            "p95": 133.30000000000018,
+            "max": 166.59999999999945,
+            "over33_34": 27,
+            "over50": 8
+          },
+          "crossingRAFIntervals": [],
+          "longTasks": [
+            {
+              "start": 5424.799999982119,
+              "duration": 53
+            },
+            {
+              "start": 5568,
+              "duration": 67
+            },
+            {
+              "start": 5698.699999988079,
+              "duration": 100
+            },
+            {
+              "start": 5827.4000000059605,
+              "duration": 143
+            },
+            {
+              "start": 7189.4000000059605,
+              "duration": 56
+            }
+          ],
+          "longTaskTotalMs": 419,
+          "longFrames": [
+            {
+              "start": 5294,
+              "duration": 81,
+              "blocking": 24,
+              "renderStart": 5366.0999999940395,
+              "styleAndLayoutStart": 5373.9000000059605,
+              "scripts": [
+                {
+                  "duration": 64.2999999821186,
+                  "executionStart": 5296.5,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 5.4000000059604645,
+                  "executionStart": 5367.699999988079,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 5424.199999988079,
+              "duration": 130.7000000178814,
+              "blocking": 31.3,
+              "renderStart": 5527.299999982119,
+              "styleAndLayoutStart": 5545.9000000059605,
+              "scripts": [
+                {
+                  "duration": 53.70000001788139,
+                  "executionStart": 5424.799999982119,
+                  "invoker": "TimerHandler:setTimeout",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "m",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 47.79999998211861,
+                  "executionStart": 5479.4000000059605,
+                  "invoker": "IMG[src=\"/stickers/playworn/pop/pw-b01-on-repeat.png\"].onload",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "s",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 13.199999988079071,
+                  "executionStart": 5528,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceFunctionName": "h",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 5558,
+              "duration": 129.69999998807907,
+              "blocking": 43.3,
+              "renderStart": 5661.199999988079,
+              "styleAndLayoutStart": 5687.5999999940395,
+              "scripts": [
+                {
+                  "duration": 66.30000001192093,
+                  "executionStart": 5568.0999999940395,
+                  "invoker": "IMG[src=\"/stickers/playworn/rock/pw-c01-soundcheck.png\"].onload",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "s",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 23.400000005960464,
+                  "executionStart": 5636.5,
+                  "invoker": "TimerHandler:setTimeout",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "p",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 10.899999976158142,
+                  "executionStart": 5661.4000000059605,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceFunctionName": "h",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 7,
+                  "executionStart": 5672.299999982119,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "f",
+                  "forcedStyleAndLayoutDuration": 5.6
+                },
+                {
+                  "duration": 7.9000000059604645,
+                  "executionStart": 5679.299999982119,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 5690.5999999940395,
+              "duration": 130.80000001192093,
+              "blocking": 72.7,
+              "renderStart": 5798.9000000059605,
+              "styleAndLayoutStart": 5821.299999982119,
+              "scripts": [
+                {
+                  "duration": 100,
+                  "executionStart": 5698.799999982119,
+                  "invoker": "Worker.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 8.599999994039536,
+                  "executionStart": 5799,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceFunctionName": "h",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 13.699999988079071,
+                  "executionStart": 5807.5999999940395,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 5.8
+                }
+              ]
+            },
+            {
+              "start": 5823,
+              "duration": 172.2999999821186,
+              "blocking": 116.9,
+              "renderStart": 5971.5999999940395,
+              "styleAndLayoutStart": 5994,
+              "scripts": [
+                {
+                  "duration": 143.2999999821186,
+                  "executionStart": 5827.4000000059605,
+                  "invoker": "Worker.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 8.5,
+                  "executionStart": 5972.4000000059605,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceFunctionName": "h",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 13,
+                  "executionStart": 5980.9000000059605,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 6.6
+                }
+              ]
+            },
+            {
+              "start": 7183.9000000059605,
+              "duration": 60.39999997615814,
+              "blocking": 8.1,
+              "renderStart": 7189.4000000059605,
+              "styleAndLayoutStart": 7243.0999999940395,
+              "scripts": [
+                {
+                  "duration": 31.69999998807907,
+                  "executionStart": 7190.5,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceFunctionName": "h",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 20.80000001192093,
+                  "executionStart": 7222.199999988079,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 13.7
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "label": "after-DOM-complete",
+          "start": 7931.5,
+          "end": 20868.69999998808,
+          "duration": 12937.199999988079,
+          "rafFullyContained": {
+            "count": 768,
+            "median": 16.69999999999891,
+            "p95": 18.599999999998545,
+            "max": 34.20000000000073,
+            "over33_34": 3,
+            "over50": 0
+          },
+          "crossingRAFIntervals": [],
+          "longTasks": [],
+          "longTaskTotalMs": 0,
+          "longFrames": []
+        }
+      ],
+      "events": [],
+      "coverage": {
+        "rafCapReached": false,
+        "longFrameCapReached": false,
+        "longTaskCapReached": false,
+        "eventCapReached": false,
+        "observerSupportNotRecorded": true,
+        "undeliveredEntriesAtDisconnectNotDrained": true
+      }
+    },
+    {
+      "name": "baseline-peel",
+      "build": "production 4cc7f4a same baseline navigation",
+      "inputSha256": "2400f96871136d16ae523ea1c523b540ce66b87e8b9ac8583152a5c4abb472c6",
+      "origin": 1789150446879.2,
+      "observerStart": 411232.90000000596,
+      "observerEnd": 415311,
+      "observerDuration": 4078.0999999940395,
+      "firstRAF": 411232.1,
+      "lastRAF": 415298.7,
+      "phaseMatches": [
+        {
+          "phase": "complete",
+          "time": 411232.1,
+          "distanceToReconstructedRAF": 0
+        }
+      ],
+      "raf": {
+        "count": 218,
+        "median": 16.70000000001164,
+        "p95": 18.600000000034925,
+        "max": 283,
+        "over33_34": 4,
+        "over50": 3
+      },
+      "windows": [
+        {
+          "label": "observed",
+          "start": 411232.90000000596,
+          "end": 415311,
+          "duration": 4078.0999999940395,
+          "rafFullyContained": {
+            "count": 217,
+            "median": 16.70000000001164,
+            "p95": 18.600000000034925,
+            "max": 283,
+            "over33_34": 4,
+            "over50": 3
+          },
+          "crossingRAFIntervals": [
+            {
+              "start": 411232.1,
+              "end": 411250.3,
+              "duration": 18.20000000001164
+            }
+          ],
+          "longTasks": [
+            {
+              "start": 411846.6999999881,
+              "duration": 292
+            },
+            {
+              "start": 413182.6999999881,
+              "duration": 71
+            },
+            {
+              "start": 413271.40000000596,
+              "duration": 59
+            }
+          ],
+          "longTaskTotalMs": 422,
+          "longFrames": [
+            {
+              "start": 411786.5,
+              "duration": 58.69999998807907,
+              "blocking": 0,
+              "renderStart": 411835.90000000596,
+              "styleAndLayoutStart": 411845.09999999404,
+              "scripts": [
+                {
+                  "duration": 7.699999988079071,
+                  "executionStart": 411790.90000000596,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 37.099999994039536,
+                  "executionStart": 411798.6999999881,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 7.799999982118607,
+                  "executionStart": 411836,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 411846.59999999404,
+              "duration": 301.59999999403954,
+              "blocking": 248.3,
+              "renderStart": 412142.7999999821,
+              "styleAndLayoutStart": 412148.09999999404,
+              "scripts": [
+                {
+                  "duration": 292.7000000178814,
+                  "executionStart": 411846.6999999881,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 5.300000011920929,
+                  "executionStart": 412142.7999999821,
+                  "invoker": "FrameRequestCallback",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "Px",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 413104,
+              "duration": 61.29999998211861,
+              "blocking": 8.4,
+              "renderStart": 413156.1999999881,
+              "styleAndLayoutStart": 413160.5,
+              "scripts": [
+                {
+                  "duration": 48.30000001192093,
+                  "executionStart": 413105.1999999881,
+                  "invoker": "#document.onpointerup",
+                  "sourceURL": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceFunctionName": "cp",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 413169.59999999404,
+              "duration": 96,
+              "blocking": 31.7,
+              "renderStart": 413255.59999999404,
+              "styleAndLayoutStart": 413259.6999999881,
+              "scripts": [
+                {
+                  "duration": 8.5,
+                  "executionStart": 413174.1999999881,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 71.60000002384186,
+                  "executionStart": 413182.7999999821,
+                  "invoker": "Worker.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 413268.90000000596,
+              "duration": 67.2999999821186,
+              "blocking": 13.3,
+              "renderStart": 413331.90000000596,
+              "styleAndLayoutStart": 413334.1999999881,
+              "scripts": [
+                {
+                  "duration": 59.099999994039536,
+                  "executionStart": 413271.40000000596,
+                  "invoker": "MessagePort.onmessage",
+                  "sourceURL": "http://localhost:3000/assets/src-C14EfisF.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 411749.5,
+          "duration": 144,
+          "processingStart": 411755.40000000596,
+          "processingEnd": 411766.7999999821,
+          "interactionId": 5304,
+          "inputDelay": 5.9000000059604645,
+          "processingDuration": 11.399999976158142,
+          "roundedPresentationRemainder": 126.7000000178814
+        },
+        {
+          "name": "pointerup",
+          "start": 413097.59999999404,
+          "duration": 112,
+          "processingStart": 413105.09999999404,
+          "processingEnd": 413153.5,
+          "interactionId": 5304,
+          "inputDelay": 7.5,
+          "processingDuration": 48.400000005960464,
+          "roundedPresentationRemainder": 56.099999994039536
+        }
+      ],
+      "coverage": {
+        "rafCapReached": false,
+        "longFrameCapReached": false,
+        "longTaskCapReached": false,
+        "eventCapReached": false,
+        "observerSupportNotRecorded": true,
+        "undeliveredEntriesAtDisconnectNotDrained": true
+      }
+    },
+    {
+      "name": "baseline-rotation-verified",
+      "build": "production 4cc7f4a verified front-to-rear rotation",
+      "inputSha256": "169f3e5193261b5c3c74183bbdea8a3d9a3d983f0c202c778db52a37735999f0",
+      "origin": 1789150446879.2,
+      "observerStart": 466799.40000000596,
+      "observerEnd": 470864.1999999881,
+      "observerDuration": 4064.7999999821186,
+      "firstRAF": 466798.4,
+      "lastRAF": 470850.3,
+      "phaseMatches": [
+        {
+          "phase": "complete",
+          "time": 466798.4,
+          "distanceToReconstructedRAF": 0
+        }
+      ],
+      "raf": {
+        "count": 225,
+        "median": 16.70000000001164,
+        "p95": 33.300000000046566,
+        "max": 50.79999999998836,
+        "over33_34": 11,
+        "over50": 1
+      },
+      "windows": [
+        {
+          "label": "observed",
+          "start": 466799.40000000596,
+          "end": 470864.1999999881,
+          "duration": 4064.7999999821186,
+          "rafFullyContained": {
+            "count": 224,
+            "median": 16.70000000001164,
+            "p95": 33.300000000046566,
+            "max": 50.79999999998836,
+            "over33_34": 11,
+            "over50": 1
+          },
+          "crossingRAFIntervals": [
+            {
+              "start": 466798.4,
+              "end": 466817,
+              "duration": 18.599999999976717
+            }
+          ],
+          "longTasks": [],
+          "longTaskTotalMs": 0,
+          "longFrames": [
+            {
+              "start": 467582.90000000596,
+              "duration": 87.7999999821186,
+              "blocking": 0,
+              "renderStart": 467665.1999999881,
+              "styleAndLayoutStart": 467668.90000000596,
+              "scripts": [
+                {
+                  "duration": 40.599999994039536,
+                  "executionStart": 467623.40000000596,
+                  "invoker": "DIV.onpointermove",
+                  "sourceURL": "http://localhost:3000/assets/index-B26XPa1g.js",
+                  "sourceFunctionName": "i",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 467329.59999999404,
+          "duration": 40,
+          "processingStart": 467341.59999999404,
+          "processingEnd": 467364.40000000596,
+          "interactionId": 5332,
+          "inputDelay": 12,
+          "processingDuration": 22.80000001192093,
+          "roundedPresentationRemainder": 5.199999988079071
+        },
+        {
+          "name": "pointerup",
+          "start": 468512.6999999881,
+          "duration": 80,
+          "processingStart": 468534.40000000596,
+          "processingEnd": 468540.59999999404,
+          "interactionId": 5332,
+          "inputDelay": 21.700000017881393,
+          "processingDuration": 6.199999988079071,
+          "roundedPresentationRemainder": 52.099999994039536
+        }
+      ],
+      "coverage": {
+        "rafCapReached": false,
+        "longFrameCapReached": false,
+        "longTaskCapReached": false,
+        "eventCapReached": false,
+        "observerSupportNotRecorded": true,
+        "undeliveredEntriesAtDisconnectNotDrained": true
+      }
+    },
+    {
+      "name": "native-production-rotation-verified",
+      "build": "production f89be7f verified front-to-rear rotation",
+      "inputSha256": "0f531ff3b5bfa5ee4f09a8c6451bba9f90ab1c2079aadfd1adfbafa2d40bbd1c",
+      "origin": 1789150974079.9,
+      "observerStart": 50437.30000001192,
+      "observerEnd": 54260,
+      "observerDuration": 3822.699999988079,
+      "firstRAF": 50438.9,
+      "lastRAF": 54255.5,
+      "phaseMatches": [
+        {
+          "phase": "complete",
+          "time": 50438.9,
+          "distanceToReconstructedRAF": 0
+        }
+      ],
+      "renderer": "worker",
+      "failure": null,
+      "raf": {
+        "count": 210,
+        "median": 16.69999999999709,
+        "p95": 32.400000000001455,
+        "max": 68.20000000000437,
+        "over33_34": 6,
+        "over50": 2
+      },
+      "windows": [
+        {
+          "label": "observed",
+          "start": 50437.30000001192,
+          "end": 54260,
+          "duration": 3822.699999988079,
+          "rafFullyContained": {
+            "count": 210,
+            "median": 16.69999999999709,
+            "p95": 32.400000000001455,
+            "max": 68.20000000000437,
+            "over33_34": 6,
+            "over50": 2
+          },
+          "crossingRAFIntervals": [],
+          "longTasks": [
+            {
+              "start": 50975.59999999404,
+              "duration": 71
+            },
+            {
+              "start": 51053.69999998808,
+              "duration": 67
+            }
+          ],
+          "longTaskTotalMs": 138,
+          "longFrames": [
+            {
+              "start": 50975.59999999404,
+              "duration": 73.90000000596046,
+              "blocking": 21.8,
+              "renderStart": 51049.5,
+              "styleAndLayoutStart": 51049.5,
+              "scripts": [
+                {
+                  "duration": 23.400000005960464,
+                  "executionStart": 50985.40000000596,
+                  "invoker": "DIV.onpointerdown",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "o",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 37,
+                  "executionStart": 51008.90000000596,
+                  "invoker": "CANVAS.onpointerdown",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "D",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 51052.19999998808,
+              "duration": 70.60000002384186,
+              "blocking": 19,
+              "renderStart": 51121.40000000596,
+              "styleAndLayoutStart": 51122.80000001192,
+              "scripts": [
+                {
+                  "duration": 45.19999998807907,
+                  "executionStart": 51054.80000001192,
+                  "invoker": "CANVAS.onpointermove",
+                  "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+                  "sourceFunctionName": "k",
+                  "forcedStyleAndLayoutDuration": 0
+                },
+                {
+                  "duration": 21.099999994039536,
+                  "executionStart": 51100,
+                  "invoker": "CANVAS.onpointermove",
+                  "sourceURL": "http://localhost:3000/assets/index-DuyC5bju.js",
+                  "sourceFunctionName": "i",
+                  "forcedStyleAndLayoutDuration": 0
+                }
+              ]
+            },
+            {
+              "start": 52139.69999998808,
+              "duration": 73.90000000596046,
+              "blocking": 0,
+              "renderStart": 52211.69999998808,
+              "styleAndLayoutStart": 52213.40000000596,
+              "scripts": []
+            }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 50967.5,
+          "duration": 80,
+          "processingStart": 50981.30000001192,
+          "processingEnd": 51045.90000000596,
+          "interactionId": 9231,
+          "inputDelay": 13.800000011920929,
+          "processingDuration": 64.59999999403954,
+          "roundedPresentationRemainder": 1.5999999940395355
+        },
+        {
+          "name": "pointerup",
+          "start": 52016.69999998808,
+          "duration": 64,
+          "processingStart": 52039.90000000596,
+          "processingEnd": 52045.59999999404,
+          "interactionId": 9231,
+          "inputDelay": 23.200000017881393,
+          "processingDuration": 5.699999988079071,
+          "roundedPresentationRemainder": 35.099999994039536
+        }
+      ],
+      "coverage": {
+        "rafCapReached": false,
+        "longFrameCapReached": false,
+        "longTaskCapReached": false,
+        "eventCapReached": false,
+        "observerSupportNotRecorded": true,
+        "undeliveredEntriesAtDisconnectNotDrained": true
+      }
+    }
+  ]
+}

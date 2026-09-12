@@ -1,0 +1,106 @@
+[
+  {
+    "path": "apps/web/src/production-device-view.tsx",
+    "sha256": "0ead9752b4ced8a8cbe17a787e5d46eee6843572dd9df8a8711d34f7bb862912"
+  },
+  {
+    "path": "apps/web/src/sticker-collection.tsx",
+    "sha256": "9fb6f3c7965e631f4f134ee63696efff415d171539837bb06620edb08d700359"
+  },
+  {
+    "path": "packages/composite/src/CompositeDevice.tsx",
+    "sha256": "12b2066ade4a2a8e762fe64c385b91aaa370a6aada33013bf464fb8e653a084c"
+  },
+  {
+    "path": "packages/composite/src/WorkerDeviceCanvas.tsx",
+    "sha256": "37ef8fa480960f45e2c9751c6976933353de9bc29724968e1df45f295e4f1de1"
+  },
+  {
+    "path": "packages/composite/src/device-render-host.ts",
+    "sha256": "4b5cf4bd46ed4edb800c9f8a4c6cedddeac9c54332a653042bb44d8aefedc7f9"
+  },
+  {
+    "path": "packages/composite/src/native-carry-controller.ts",
+    "sha256": "8f294012740fb066f8b4f6780c078e1ac21230b4e3e58611baff7fb5a741d303"
+  },
+  {
+    "path": "packages/composite/src/native-carry-input.ts",
+    "sha256": "4373c684b93d81678c8b48e0fbfd85f800d5473fcfe61bfa14df18ecefb49249"
+  },
+  {
+    "path": "packages/composite/src/native-carry-resources.ts",
+    "sha256": "7c04e8c8e3c824f57eabbfd6107bb1a0e7af47a882122c565989393dfc6d519c"
+  },
+  {
+    "path": "packages/composite/src/native-pack-controller.ts",
+    "sha256": "66cbefa2cd07f44bdf44b3b0b06b7ce732f400f5bfaa19953b9f1c7b09ed7633"
+  },
+  {
+    "path": "packages/composite/src/native-pack-query.ts",
+    "sha256": "9d95c87eb320293047b6cce93536b116a9d974eeb7ff35c0454b5c13dda1fc09"
+  },
+  {
+    "path": "packages/composite/src/native-pack-resources.ts",
+    "sha256": "40eb87735c57d8f51b7ea9314a824f2202d2fcf930c7325dbd7836b3dc0ba7b5"
+  },
+  {
+    "path": "packages/composite/src/native-sticker-controller.ts",
+    "sha256": "47a10aa0f80cfc441055a4748a25c416b60749141154fb0c3e550624d8bd2818"
+  },
+  {
+    "path": "packages/composite/src/native-sticker-resources.ts",
+    "sha256": "885ba5f749ffddcbf81039a284685dc4e0c91d5f162975067cf94137e77248c0"
+  },
+  {
+    "path": "packages/composite/src/native-sticker-warmup.ts",
+    "sha256": "e864e4d13a1996e66848c4d3d43ae83b2c57d5fa5607475773f3b481ea31009e"
+  },
+  {
+    "path": "packages/composite/src/native-workspace-reframe.ts",
+    "sha256": "ac2a37cf618e6192019a94c71aef17c229ab9d33a8b3906323b4900cd8eb948f"
+  },
+  {
+    "path": "packages/device/src/Device.tsx",
+    "sha256": "9344ff6ecfe5ce27c5e2defe69b49cb9538937a304006f9697a9921b60e1c07d"
+  },
+  {
+    "path": "packages/device/src/StickerPackScene.tsx",
+    "sha256": "6eac53c6a96c080a42547b9f96b7dd7aa439b74728997b326b3ad947adb9c5e0"
+  },
+  {
+    "path": "packages/device/src/click-wheel-event-controller.ts",
+    "sha256": "6825b1733ff1c4bc7263556ea5f0bf36d25462de50763f9be3316435912afc22"
+  },
+  {
+    "path": "packages/device/src/device-native-input.ts",
+    "sha256": "7ed6620642127d38820839cf12bcd952b3a39cb6e4e54eed75d62e77329d3570"
+  },
+  {
+    "path": "packages/device/src/device-orientation-events.ts",
+    "sha256": "679982a4349dda8256ff96cd224dcc99148ca588c74108fda571fb0e73d0c64c"
+  },
+  {
+    "path": "packages/device/src/render-channels.ts",
+    "sha256": "063538b46af7297b4de26c229c456ebc5cd5e121cd1d16cd1b1b7b2478746e7c"
+  },
+  {
+    "path": "packages/device/src/sticker-pack-render-frame.ts",
+    "sha256": "846072ae2234a478f0b09123fd083abdd5395fbae428f5f1a3f6fef8670ee0bf"
+  },
+  {
+    "path": "packages/device/src/sticker-prepared-surface.ts",
+    "sha256": "47431ba831d1f8f981adb5f5158178008d2605a1b88de4d6a40e31ba8f716a3e"
+  },
+  {
+    "path": "packages/device/src/sticker-render-frame.ts",
+    "sha256": "fdc1ecad2ac074d46d858217df52adbe4a702e5a4039012d4d43e0c52cad3dc2"
+  },
+  {
+    "path": "packages/device/src/sticker-textures.ts",
+    "sha256": "2ac9932193afe4550d99ac02b2a55541fe9adf9b9c9ad23588c62316167474f6"
+  },
+  {
+    "path": "packages/device/src/sticker-warmup-renderer.ts",
+    "sha256": "bd283fcfa65606597e64f9d9d8c3a4aea01153f41148aa56f64c10c597708c46"
+  }
+]

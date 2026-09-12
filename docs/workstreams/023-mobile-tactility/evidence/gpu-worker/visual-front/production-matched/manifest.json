@@ -1,0 +1,29 @@
+{
+  "method": "Unmodified supervisor-provided current Chrome screenshots and scalar metadata; independent read-only visual inspection",
+  "files": [
+    {
+      "file": "webpod-baseline-silver-light.png",
+      "source": "4cc7f4a7f5964d04733c5bb6a1e0b23cde0d072c",
+      "sha256": "51e5930b56dce4e5971d96fa5bb1fa712a4ad82160173695dcca09b0bbfc250b",
+      "bytes": 1286453
+    },
+    {
+      "file": "webpod-baseline-silver-light-meta.json",
+      "source": "4cc7f4a7f5964d04733c5bb6a1e0b23cde0d072c",
+      "sha256": "d38d1c8eeece4f7041d7f950ae73ef28518fcf4e47ef4474703a8969797e66fd",
+      "bytes": 1356
+    },
+    {
+      "file": "webpod-cpu-fixes-native-silver-light.png",
+      "source": "a822fecf2544841688b27d943bb1393fc302dba1",
+      "sha256": "02608401e3766ab48704350769450bb0e999f5659deac3b91ef8f97329a91c62",
+      "bytes": 1262075
+    },
+    {
+      "file": "webpod-cpu-fixes-native-silver-light-meta.json",
+      "source": "a822fecf2544841688b27d943bb1393fc302dba1",
+      "sha256": "7f5cc7df48e36782c28b305bda935aab738bde9906ec47d8c4f40d32dc4ad6b4",
+      "bytes": 764
+    }
+  ]
+}

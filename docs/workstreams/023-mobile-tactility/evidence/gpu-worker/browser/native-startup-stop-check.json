@@ -1,0 +1,12 @@
+{
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "Emulating viewport: {\"deviceScaleFactor\":3,\"isMobile\":true,\"hasTouch\":true,\"isLandscape\":false,\"width\":440,\"height\":956}\nEmulating CPU throttling: 6x slowdown"
+      }
+    ]
+  },
+  "jsonrpc": "2.0",
+  "id": 35
+}

@@ -1,0 +1,284 @@
+{
+  "reusePacket": false,
+  "privateAcquisitions": [
+    {
+      "keyHash": "1397e34f2bee1fc2",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "78bb1f085fc35776"
+    },
+    {
+      "keyHash": "657b55eacd342a18",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "13a8abf292ab20ac"
+    },
+    {
+      "keyHash": "af782c471d6f840",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "22ce752f042420c8"
+    },
+    {
+      "keyHash": "ea0375e68f1bc44d",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2c4aeef864bf25eb"
+    },
+    {
+      "keyHash": "246be6dfd00c1581",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "d6933ef3467cc4c"
+    },
+    {
+      "keyHash": "a41d96efced92ed8",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "9489e415405ef136"
+    },
+    {
+      "keyHash": "f97b01aaf6e8355b",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "746e725be46832b0"
+    },
+    {
+      "keyHash": "b7052c7a4168ba83",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "96dc3ef707cfbdd6"
+    },
+    {
+      "keyHash": "274ff2f12c4080bb",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "44497de88706cdf3"
+    },
+    {
+      "keyHash": "642e744eca09348c",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "381dc9a86a9d7403"
+    },
+    {
+      "keyHash": "b13ad0c2a29e7334",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f216b6f11a81285"
+    },
+    {
+      "keyHash": "da43334a32790cc4",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "fe55a50c384b093a"
+    },
+    {
+      "keyHash": "ba72300c968efafc",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "eed880866f0a73f8"
+    },
+    {
+      "keyHash": "c88bb158c28f134f",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "ff6a5ee6ffce09d3"
+    },
+    {
+      "keyHash": "c1d7d8d9ca9efcd5",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "4a9332ce3ac4d2fe"
+    },
+    {
+      "keyHash": "5f902eacb192fbf3",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f73093f8955c4d9"
+    },
+    {
+      "keyHash": "1cca971dab2c1b81",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "e059de8c3e477a8"
+    },
+    {
+      "keyHash": "5c8e8a281596a565",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "78bb1f085fc35776"
+    },
+    {
+      "keyHash": "f253aef237c9feb2",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 2,
+      "contentHash": "d8db892a8f9e6ba1"
+    },
+    {
+      "keyHash": "177020aabe8669a8",
+      "kind": "surface",
+      "purpose": "full",
+      "count": 1,
+      "contentHash": null
+    },
+    {
+      "keyHash": "53e8d6fe27a3ffdf",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "d8db892a8f9e6ba1"
+    },
+    {
+      "keyHash": "e9fc524e0265ce0f",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f216b6f11a81285"
+    },
+    {
+      "keyHash": "673636cc224788fd",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "fe55a50c384b093a"
+    }
+  ],
+  "transitionFailure": "Sticker computation byte capacity exceeded; native pack phase=print-3; completed prints=2; artworkBytes=5922240; transactions={\"entries\":26,\"queued\":0,\"active\":null,\"worker\":true,\"privateOwners\":24,\"pendingCopies\":0,\"privateBytes\":11828136,\"accountedBytes\":80773300}",
+  "transition": {
+    "transactions": {
+      "entries": 26,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 22,
+      "pendingCopies": 0,
+      "privateBytes": 10841096,
+      "accountedBytes": 79786260
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 23,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 23,
+      "privateBytes": 3020424,
+      "accountedBytes": 9061272
+    },
+    "carry": {
+      "canonical": 2,
+      "privateOwners": 2,
+      "pendingPrivate": 0,
+      "preparing": false,
+      "bytes": 6660240
+    }
+  },
+  "provenance": "Actual catalogue PNG alpha and real canonical/private worker preparation; actual shared texture-cache identity with simulated browser bitmap object, no GPU compile.",
+  "catalogueArtworks": 60,
+  "requestedArtworks": 10,
+  "acquired": 21,
+  "sent": 1,
+  "failure": null,
+  "visibleFailure": null,
+  "visiblePrints": 8,
+  "carryFailure": null,
+  "combined": {
+    "transactions": {
+      "entries": 22,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 20,
+      "pendingCopies": 0,
+      "privateBytes": 9870400,
+      "accountedBytes": 79201888
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 23,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 23,
+      "privateBytes": 3020424,
+      "accountedBytes": 9061272
+    },
+    "carry": {
+      "canonical": 2,
+      "privateOwners": 2,
+      "pendingPrivate": 0,
+      "preparing": false,
+      "bytes": 6660240
+    }
+  },
+  "finalCarry": {
+    "canonical": 0,
+    "privateOwners": 0,
+    "pendingPrivate": 0,
+    "preparing": false,
+    "bytes": 0
+  },
+  "beforeRelease": {
+    "paper": {
+      "clients": 0,
+      "entries": 10,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 10,
+      "privateBytes": 269120,
+      "accountedBytes": 807360
+    },
+    "transactions": {
+      "entries": 5,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 10,
+      "pendingCopies": 0,
+      "privateBytes": 4935200,
+      "accountedBytes": 33932508
+    }
+  },
+  "finalOwners": 0,
+  "finalPaper": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "finalTransactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  }
+}

@@ -1,0 +1,53 @@
+--- a/packages/device/src/sticker-transaction-broker.ts
++++ b/packages/device/src/sticker-transaction-broker.ts
+@@ -116,6 +116,29 @@
+     };
+     instance.onerror = instance.onmessageerror = () => { if (worker !== instance) return; if (active) recover(active); else { stopWorker(); workerFailed = true; } };
+ }
++let admissionDiagnosticReported = false;
++function reportAdmissionDiagnostic(rejected: Entry): void {
++ if (admissionDiagnosticReported) return;
++ admissionDiagnosticReported = true;
++ try {
++  const main = new Set<ArrayBufferLike>(); let canonical = 0, scalarInputs = 0;
++  const rows = [...entries.values()].slice(0, MAX_JOBS).map(entry => {
++   const buffers = inputStorage(entry.input);
++   for (const buffer of buffers) main.add(buffer);
++   if (!buffers.length) scalarInputs += inputBytes(entry.input);
++   if (entry.result) for (const buffer of stickerTransactionBuffers(entry.result)) main.add(buffer);
++   const resident = worker !== null && entry.producer === worker;
++   if (entry.result && resident) canonical += entry.bytes;
++   const source = entry.input;
++   const shape = source.kind === 'damage' ? {art: source.stickerId, width: source.mask.width, height: source.mask.height, normals: source.surface?.normals.length ?? 0, uv: source.surface?.uv.length ?? 0}
++    : source.kind === 'contour' ? {width: source.field.width, height: source.field.height, positions: source.positions.length, uv: source.uv.length, wear: source.wear}
++    : {art: source.art.id};
++   return {id: entry.id, kind: source.kind, refs: entry.refs, inputBytes: inputBytes(source), bytes: entry.bytes, reservation: entry.reservation, result: entry.result?.kind ?? null, resident, reference: entry.reference?.id ?? null, ...shape};
++  });
++  const mainBytes = [...main].reduce((sum, buffer) => sum + buffer.byteLength, 0);
++  console.info('webpod-sticker-admission ' + JSON.stringify({rejected: rejected.id, limit: MAX_RETAINED_BYTES, accounted: accountedBytes(rejected), mainBytes, scalarInputs, canonical, privateBytes, privateOwners, pendingCopies: deliveries.size, executionAllowance: storageCharge(entries.values(), rejected) - storageCharge(entries.values()), active: active?.id ?? null, pending: pending.map(entry => entry.id).slice(0, MAX_JOBS), entries: entries.size, rows}));
++ } catch { /* Diagnostic failure must not replace the original rejection. */ }
++}
+ function pump() {
+   if (active !== null) return;
+   const entry = pending.shift();
+@@ -126,7 +149,7 @@
+     if (damage?.producer === worker && damage.result?.kind === 'damage' && damage.result.field === entry.input.field) { damage.refs++; entry.reference = damage; }
+   }
+   makeRoom(0, entry);
+-  if (accountedBytes(entry) > MAX_RETAINED_BYTES) { releaseReference(entry); entries.delete(entry.key); entry.reject(new Error('Sticker computation byte capacity exceeded')); pump(); return; }
++  if (accountedBytes(entry) > MAX_RETAINED_BYTES) { reportAdmissionDiagnostic(entry); releaseReference(entry); entries.delete(entry.key); entry.reject(new Error('Sticker computation byte capacity exceeded')); pump(); return; }
+   active = entry;
+   if (workerFailed || typeof Worker === 'undefined') { recover(entry); return; }
+   try {
+--- a/packages/device/src/sticker-carry-preparation.ts
++++ b/packages/device/src/sticker-carry-preparation.ts
+@@ -57,7 +57,8 @@
+   const retired = new Set<CarryFrame>(), listeners = new Set<() => void>();
+   const publish = (next: CarrySnapshot) => { if (snapshot.frame && snapshot.frame !== next.frame) retired.add(snapshot.frame); snapshot = next; for (const listener of listeners) listener(); };
+   const stop = () => { stopping = true; primeWanted = false; contextJob?.controller.abort(); contextBytes = 0; clearTimeout(timeout); timeout = undefined; worker?.terminate(); worker = null; active = null; renderResources.retired(); wearCache.clear(); fallback?.abort(); fallback = null; stopping = false; };
+-  const fail = () => { stop(); workerFailed = true; if (options.renderer) { wanted = null; publish({...snapshot, error: 'Native carry producer unavailable'}); } else dispatch(); };
++  let carryDiagnosticReported = false;
++  const fail = () => { if (!carryDiagnosticReported) { carryDiagnosticReported = true; try { console.info('webpod-carry-failure ' + JSON.stringify({ownerId, workerGeneration, revision, renderer: !!options.renderer, mounted, worker: !!worker, contextPending: !!contextJob, contextBytes, pendingContextBytes: contextJob?.bytes ?? 0, active: !!active, wanted: !!wanted, fallback: !!fallback})); } catch { /* Preserve failure semantics. */ } } stop(); workerFailed = true; if (options.renderer) { wanted = null; publish({...snapshot, error: 'Native carry producer unavailable'}); } else dispatch(); };
+   const dispatch = (): void => {
+     if (stopping || !mounted || document.hidden || active || (!wanted && !primeWanted) || !rear || !visibility?.ready) return;
+     if (workerFailed && options.renderer) { wanted = null; return; }

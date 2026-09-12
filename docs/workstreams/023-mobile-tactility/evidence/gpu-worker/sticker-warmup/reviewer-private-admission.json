@@ -1,0 +1,24 @@
+{
+  "requested": 100,
+  "rejectedBeforeCancel": 68,
+  "before": {
+    "entries": 1,
+    "queued": 0,
+    "active": 1,
+    "worker": true,
+    "privateOwners": 32,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 2752512
+  },
+  "final": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  }
+}

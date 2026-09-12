@@ -1,0 +1,66 @@
+{
+  "ok": true,
+  "results": [
+    {
+      "liner": false,
+      "curl": 0,
+      "vertices": 18818,
+      "maxPositionError": 8.940696716308594e-8,
+      "maxNormalError": 2.1979212760925293e-7
+    },
+    {
+      "liner": false,
+      "curl": 0.0001,
+      "vertices": 18818,
+      "maxPositionError": 8.940696716308594e-8,
+      "maxNormalError": 2.1979212760925293e-7
+    },
+    {
+      "liner": false,
+      "curl": 0.65,
+      "vertices": 18818,
+      "maxPositionError": 8.940696716308594e-8,
+      "maxNormalError": 2.1979212760925293e-7
+    },
+    {
+      "liner": false,
+      "curl": 1,
+      "vertices": 18818,
+      "maxPositionError": 8.940696716308594e-8,
+      "maxNormalError": 2.1979212760925293e-7
+    },
+    {
+      "liner": true,
+      "curl": 0,
+      "vertices": 18818,
+      "maxPositionError": 5.960464477539063e-8,
+      "maxNormalError": 1.564621925354004e-7
+    },
+    {
+      "liner": true,
+      "curl": 0.0001,
+      "vertices": 18818,
+      "maxPositionError": 5.960464477539063e-8,
+      "maxNormalError": 1.564621925354004e-7
+    },
+    {
+      "liner": true,
+      "curl": 0.65,
+      "vertices": 18818,
+      "maxPositionError": 1.1920928955078125e-7,
+      "maxNormalError": 0.000003874301910400391
+    },
+    {
+      "liner": true,
+      "curl": 1,
+      "vertices": 18818,
+      "maxPositionError": 1.1920928955078125e-7,
+      "maxNormalError": 0.000006727874279022217
+    }
+  ],
+  "limits": {
+    "worldPosition": 0.00005,
+    "localNormal": 0.0005
+  },
+  "provenance": "Actual WGSL compute readback versus existing Three full96-grid CPU geometry, not visual parity"
+}

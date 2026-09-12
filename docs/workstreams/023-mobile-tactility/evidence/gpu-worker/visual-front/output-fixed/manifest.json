@@ -1,0 +1,14 @@
+{
+  "source": "37936fe",
+  "capture": "Lead current Chrome page21;440x956 DPR3 CPU6; reveal complete, no alerts; Silver/light aria checked true",
+  "files": [
+    {
+      "file": "webpod-output-fixed-native-black-dark.png",
+      "sha256": "3d596853afade2a8049e81259dd6fc7102cfa0b0620f25c830fbe5dbe96ebd10"
+    },
+    {
+      "file": "webpod-output-fixed-native-silver-light.png",
+      "sha256": "5f6e8cf1839d4e103d91ab3ea5a9ff03a7d765650c6247a32f34fce91867eab3"
+    }
+  ]
+}

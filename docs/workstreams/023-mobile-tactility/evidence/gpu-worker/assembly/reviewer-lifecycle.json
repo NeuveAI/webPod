@@ -1,0 +1,9 @@
+{
+  "meshes": 7,
+  "geometryDisposals": 6,
+  "materialDisposals": 6,
+  "idempotentDispose": true,
+  "packAbort": true,
+  "equippedAbort": true,
+  "identityMismatch": true
+}

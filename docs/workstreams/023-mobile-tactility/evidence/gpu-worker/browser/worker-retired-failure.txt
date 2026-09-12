@@ -1,0 +1,4 @@
+Script ran on page and returned:
+```json
+{"url":"http://localhost:3000/webpod?renderBackend=worker","state":[{"compositeTier":"T1","compositeReady":"true","rendererRequested":"worker","rendererEffective":"webgl","wpAudioLifecycle":"locked","wpAudioScheduledTotal":"0","wpAudioDroppedTotal":"0","rendererFailure":"Native renderer requires a resident prepared recipe: Preparation worker retired"}]}
+```

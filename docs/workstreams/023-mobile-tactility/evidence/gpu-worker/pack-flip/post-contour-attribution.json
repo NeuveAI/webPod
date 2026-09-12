@@ -1,0 +1,155 @@
+{
+  "revision": "be77986ce45eceeb562e9e419cfe4b052a4536b4",
+  "durationMs": 5746.907,
+  "sampledMs": 5745.517,
+  "samples": 3808,
+  "offsetWidthSamples": 91,
+  "hashes": [
+    {
+      "path": "docs/workstreams/023-mobile-tactility/evidence/gpu-worker/pack-flip/post-contour-main.cpuprofile",
+      "sha256": "58897172764c13f1889c8640b46786f1fb13d56d8c0874d73e7689bc22dfe9f3"
+    },
+    {
+      "path": "apps/web/dist/client/assets/src-DJ7nZMNT.js",
+      "sha256": "ed5bb8fb1b7f29a16477be99d34cdd6be84fcf8ffa24da7ffbc518e03601001e"
+    },
+    {
+      "path": "apps/web/dist/client/assets/index-CzDfb-RC.js",
+      "sha256": "78892dc805d87fefc0211d7a44296a6fe277fc0de5b44a6ee5b637550bffe83e"
+    }
+  ],
+  "nodes": [
+    {
+      "id": 740,
+      "fn": "screen",
+      "file": "src-DJ7nZMNT.js",
+      "line": 4419,
+      "col": 312761,
+      "self": 0.012,
+      "inclusive": 96.928,
+      "parent": 739
+    },
+    {
+      "id": 1376,
+      "fn": "getBoundingClientRect",
+      "file": "",
+      "line": -1,
+      "col": -1,
+      "self": 19.281,
+      "inclusive": 19.281,
+      "parent": 740
+    },
+    {
+      "id": 366,
+      "fn": "b",
+      "file": "src-DJ7nZMNT.js",
+      "line": 4419,
+      "col": 308159,
+      "self": 0,
+      "inclusive": 11.985,
+      "parent": 365
+    },
+    {
+      "id": 367,
+      "fn": "getBoundingClientRect",
+      "file": "",
+      "line": -1,
+      "col": -1,
+      "self": 10.257,
+      "inclusive": 10.257,
+      "parent": 366
+    },
+    {
+      "id": 223,
+      "fn": "X2.a.onmessage",
+      "file": "src-DJ7nZMNT.js",
+      "line": 4455,
+      "col": 152080,
+      "self": 50.575,
+      "inclusive": 567.169,
+      "parent": 1
+    },
+    {
+      "id": 233,
+      "fn": "M",
+      "file": "src-DJ7nZMNT.js",
+      "line": 4455,
+      "col": 150039,
+      "self": 54.343,
+      "inclusive": 370.81,
+      "parent": 223
+    },
+    {
+      "id": 234,
+      "fn": "ne",
+      "file": "src-DJ7nZMNT.js",
+      "line": 4455,
+      "col": 111829,
+      "self": 1.722,
+      "inclusive": 53.07,
+      "parent": 233
+    },
+    {
+      "id": 718,
+      "fn": "get offsetWidth",
+      "file": "",
+      "line": -1,
+      "col": -1,
+      "self": 132.551,
+      "inclusive": 132.551,
+      "parent": 233
+    },
+    {
+      "id": 727,
+      "fn": "applyPose",
+      "file": "src-DJ7nZMNT.js",
+      "line": 4455,
+      "col": 136530,
+      "self": 1.299,
+      "inclusive": 100.046,
+      "parent": 233
+    },
+    {
+      "id": 893,
+      "fn": "k2",
+      "file": "src-DJ7nZMNT.js",
+      "line": 4455,
+      "col": 139634,
+      "self": 2.857,
+      "inclusive": 6.632,
+      "parent": 233
+    },
+    {
+      "id": 1038,
+      "fn": "m",
+      "file": "src-DJ7nZMNT.js",
+      "line": 4455,
+      "col": 130783,
+      "self": 0.054,
+      "inclusive": 20.495,
+      "parent": 233
+    },
+    {
+      "id": 539,
+      "fn": "b",
+      "file": "src-DJ7nZMNT.js",
+      "line": 4419,
+      "col": 308159,
+      "self": 0,
+      "inclusive": 1.194,
+      "parent": 538
+    },
+    {
+      "id": 540,
+      "fn": "getBoundingClientRect",
+      "file": "",
+      "line": -1,
+      "col": -1,
+      "self": 1.194,
+      "inclusive": 1.194,
+      "parent": 539
+    }
+  ],
+  "contourKernelFrames": [],
+  "method": "Each timeDelta charged to its paired sampled node; inclusive propagated to parents. Zero-based built positions matched to exact source body. Sampling absence is not universal non-execution proof. No unrelated page URLs retained."
+}

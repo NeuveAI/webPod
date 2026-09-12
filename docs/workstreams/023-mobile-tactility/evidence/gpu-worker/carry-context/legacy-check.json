@@ -1,0 +1,21 @@
+{
+  "actualModuleWorker": true,
+  "mainPrivateExact": true,
+  "boundsWearStampParity": true,
+  "mountedBuffersNeverDetached": true,
+  "pinnedQuerySurvivesCommit": true,
+  "currentPlusCandidateBound": true,
+  "privateAdmissionBound": true,
+  "finalLatestJobDrained": true,
+  "staleOwnerRejected": true,
+  "pendingAbortRetiresProducer": true,
+  "oldGpuLeaseSurvivesRetirement": true,
+  "staleAckIgnored": true,
+  "unavailablePrivateRejects": true,
+  "unavailableWorkerHasNoMainDeformation": true,
+  "finalZero": true,
+  "resourceBytes": 1110040,
+  "computedJobs": 4,
+  "workers": 1,
+  "browserTimingClaim": false
+}

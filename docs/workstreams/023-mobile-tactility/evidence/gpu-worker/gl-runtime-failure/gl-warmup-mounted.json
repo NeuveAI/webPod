@@ -1,0 +1,26 @@
+{
+  "ready": 3,
+  "variants": 3,
+  "meshes": 6,
+  "preparationInputs": [
+    "disabled",
+    "disabled",
+    "disabled",
+    "disabled",
+    "disabled",
+    "disabled",
+    "artwork",
+    "artwork"
+  ],
+  "transactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "scope": "Mounted actual StickerPrint with mocked R3F environment/artwork; wrapper records preparation texture and runs actual disabled hook. DOM mesh attachment only; actual GPU compilation is independent browser gate."
+}

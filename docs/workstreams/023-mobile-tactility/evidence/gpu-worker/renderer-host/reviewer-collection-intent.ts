@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {atom,createStore} from '../../../../../../packages/device/node_modules/jotai/vanilla';
+import {deviceFrontVisibility} from '../../../../../../packages/device/src/orientation';
+import type {DeviceOrientation} from '../../../../../../packages/device/src/orientation';
+const text=readFileSync('apps/web/src/sticker-collection.tsx','utf8');const begin=text.indexOf('    let synchronizing = false, pending = false'),end=text.indexOf('\n  }, [orientation, motionAuthority',begin);assert(begin>=0&&end>begin);
+const body=text.slice(begin,end);const js=new Bun.Transpiler({loader:'ts'}).transformSync(`function mount(){${body}}`);
+const store=createStore(),intent=atom<DeviceOrientation>({pitchDeg:0,yawDeg:0,rollDeg:0}),rear=atom(false),interaction=atom({sourcePlacement:null});let listeners=0,visible=false,clears=0,reenter=false;
+const authority={readIntent:()=>({orientation:store.get(intent),reveal:null}),subscribeIntent(listener:()=>void){listeners++;const stop=store.sub(intent,listener);return()=>{listeners--;stop();};}};
+const factory=new Function('motionAuthority','orientation','deviceFrontVisibility','deviceStore','rearAdmittedAtom','stickerInteractionAtom','deviceRevealing','compositeTier','REAR','setStickerRearVisible','poseKey','clearRearCandidate','releaseCapturedStickerPointer','captureTarget','dismissStickerEditor','cancelStickerInteraction',`${js};return mount;`);
+const mount=factory(authority,{pitchDeg:0,yawDeg:0,rollDeg:0},deviceFrontVisibility,store,rear,interaction,false,{tier:'T1'},{admit:-.35,leave:-.15},(next:boolean)=>{visible=next;if(reenter&&next){reenter=false;store.set(intent,{pitchDeg:0,yawDeg:0,rollDeg:0});}},{current:''},()=>{clears++;},()=>{},{current:null},()=>{},()=>{});
+const cleanup:()=>void=mount();assert.equal(listeners,1);assert.equal(visible,false);store.set(intent,{pitchDeg:0,yawDeg:180,rollDeg:0});assert.equal(visible,true);store.set(intent,{pitchDeg:0,yawDeg:0,rollDeg:0});assert.equal(visible,false);reenter=true;store.set(intent,{pitchDeg:0,yawDeg:180,rollDeg:0});assert.equal(visible,false);assert.equal(store.get(rear),false);const before=clears;cleanup();assert.equal(listeners,0);store.set(intent,{pitchDeg:0,yawDeg:180,rollDeg:0});assert.equal(clears,before);assert.equal(visible,false);
+await Bun.write(new URL('./reviewer-collection-intent.json',import.meta.url),JSON.stringify({method:'Exact extracted imperative effect with real scoped Jotai notifications; controlled interaction callbacks, not mounted React/browser',initialSync:true,frontRearFront:true,cleanup:true,reentrantPublicationDrained:true,poseNotificationsWithoutReact:true},null,2)+'\n');

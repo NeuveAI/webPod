@@ -1,0 +1,32 @@
+{
+  "method": "Actual measurement owner and controlled browser observations from existing retained lifecycle fixture; same CSS dimensions/native DPR, duplicate resize after physical-box observation.",
+  "beforeDuplicate": {
+    "cssWidth": 390,
+    "cssHeight": 844,
+    "backingWidth": 585,
+    "backingHeight": 1266,
+    "pixelRatio": 1.5,
+    "rasterWidth": 640,
+    "rasterHeight": 480
+  },
+  "afterDuplicate": {
+    "cssWidth": 390,
+    "cssHeight": 844,
+    "backingWidth": 585,
+    "backingHeight": 1266,
+    "pixelRatio": 1.5,
+    "rasterWidth": 640,
+    "rasterHeight": 480
+  },
+  "changed": false,
+  "coalescedPhysical": {
+    "cssWidth": 390,
+    "cssHeight": 844,
+    "backingWidth": 682,
+    "backingHeight": 1477,
+    "pixelRatio": 1.75,
+    "rasterWidth": 640,
+    "rasterHeight": 480
+  },
+  "coalescedCorrect": true
+}

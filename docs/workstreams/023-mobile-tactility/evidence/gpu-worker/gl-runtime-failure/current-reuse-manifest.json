@@ -1,0 +1,6 @@
+{
+  "file": "packages/device/src/sticker-prepared-damage.ts",
+  "beforeSha256": "b2b27ba40d83d194dff431fba66c3465188625aedfab426b6a2aff0d54a85a54",
+  "sha256": "761130f081597423d3fde543c830f37e3b19f0f6791ad2244d15dc8bb695de27",
+  "checks": "Actual mounted hook4restoredepochs +rapid5/6supersession +pending7unmount finalzero; beforeadaptersecondrestore cap /explicitcurrentcandidate4pass; exact10cases;17tests17705assertions;3types/sourceprooflintpass"
+}

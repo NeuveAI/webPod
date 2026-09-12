@@ -1,0 +1,2 @@
+# Raw browser CPU profiles remain local; commit summaries and fingerprints.
+*.cpuprofile

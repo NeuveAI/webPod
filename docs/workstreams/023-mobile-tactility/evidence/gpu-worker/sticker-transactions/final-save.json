@@ -1,0 +1,9 @@
+{
+  "method": "Actual live collection transaction helper with deferred exact fit and ownership changes; no UI/browser or server write.",
+  "checks": 5,
+  "finalSampleCaptured": true,
+  "noPersistenceBeforeFit": true,
+  "abortAndSupersessionBlockSave": true,
+  "reentrantCallbackRechecked": true,
+  "obsoleteCompletedSaveCannotAnimate": true
+}

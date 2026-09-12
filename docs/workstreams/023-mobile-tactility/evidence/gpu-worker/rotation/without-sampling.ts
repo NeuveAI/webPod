@@ -1,0 +1,10 @@
+import {createHash} from 'node:crypto';
+interface Event {pid:number;tid:number;name:string;ph:string;ts:number;dur?:number;args?:{name?:string;data?:{type?:string}}}
+const path='/tmp/webpod-rotation-without-sampling.json',raw=await Bun.file(path).arrayBuffer();
+const all:Event[]=JSON.parse(new TextDecoder().decode(raw)).traceEvents;
+const target=all.filter(e=>e.pid===39318),main=target.filter(e=>e.tid===4511411);
+const input=main.filter(e=>e.name==='EventDispatch'&&['pointerdown','pointermove','pointerup','pointercancel','touchstart','touchmove','touchend'].includes(e.args?.data?.type??''));
+const start=Math.min(...input.map(e=>e.ts)),end=Math.max(...input.map(e=>e.ts+(e.dur??0)));
+const groups=new Map<string,{count:number;observedDurationMs:number;maxObservedDurationMs:number}>();for(const e of input){const type=e.args?.data?.type??'',g=groups.get(type)??{count:0,observedDurationMs:0,maxObservedDurationMs:0};g.count++;g.observedDurationMs+=(e.dur??0)/1000;g.maxObservedDurationMs=Math.max(g.maxObservedDurationMs,(e.dur??0)/1000);groups.set(type,g);}
+const output={traceSha256:createHash('sha256').update(new Uint8Array(raw)).digest('hex'),dataLossOccurred:true,target:{pid:39318,main:4511411},mainName:main.find(e=>e.name==='thread_name')?.args?.name,mainEvents:main.length,observedInputWindow:{start,end,durationMs:(end-start)/1000},observedInput:[...groups].map(([type,value])=>({type,...value})),observedWindowCallbacks:main.filter(e=>e.ts>=start&&e.ts<=end&&e.name==='FireAnimationFrame').length,limitations:['Coverage diagnostic only: explicit dropped data; no complete CPU totals, INP, FPS or app-versus-baseline timing claim.','No JS stack sampling was requested, so no self/inclusive symbol attribution.','Trace includes earlier target-process events predating the current gesture; do not use raw global bounds as gesture duration.','Only target process input types/scalars retained; unrelated tab content excluded.']};
+await Bun.write(new URL('./without-sampling-summary.json',import.meta.url),JSON.stringify(output,null,2)+'\n');console.log(output);

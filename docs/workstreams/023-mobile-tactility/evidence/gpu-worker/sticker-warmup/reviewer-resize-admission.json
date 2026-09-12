@@ -1,0 +1,513 @@
+{
+  "resizeScale": 1.1,
+  "geometryInputs": [
+    {
+      "keyHash": "b2e390c6da3589f0",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "1959231ad5136896",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "4f7bb37d9336f956",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "7ea0d94378ce3593",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "296eb2cb420ee0c5",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "88cff0d0675348f8",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "19a9be9b5777fe4d",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "a743c751eb447905",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "10f6876f133e53e",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "964d51760aff1eba",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "eb7ad0882bfe595",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "4cfa2ac631b40e39",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "604d3cd45b72794b",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "9ef0f597d0189345",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "1bdb3268f76961fb",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "93c7c048248ab42c",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "4146e607be7a15bf",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "45a3d55185180d7f",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "e682a33655af28f4",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "8dfaa31b43b34a6c",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "f7701acdd9ada44",
+      "kind": "gpu-paper",
+      "normalHash": null,
+      "uvHash": null,
+      "normalCount": 0,
+      "uvCount": 0
+    },
+    {
+      "keyHash": "570fe0d8f98c3fe1",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "35f48f354c823d6c",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "cd206d470f02b2a0",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "cbf693f169936cfe",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "2a1ca121286aef04",
+      "kind": "gpu-paper",
+      "normalHash": null,
+      "uvHash": null,
+      "normalCount": 0,
+      "uvCount": 0
+    },
+    {
+      "keyHash": "5422f3ac36cb603d",
+      "kind": "parked-print",
+      "normalHash": "a7b1f907020e8e6e",
+      "uvHash": "1959231ad5136896",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "d0b01fbb137f87ba",
+      "kind": "parked-print",
+      "normalHash": "d041c6c379c2a3b8",
+      "uvHash": "7ea0d94378ce3593",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "6e2666736a51a0a",
+      "kind": "parked-print",
+      "normalHash": "257ff469549c82e4",
+      "uvHash": "88cff0d0675348f8",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "18df1b30490c2792",
+      "kind": "parked-print",
+      "normalHash": "10855ad721ef34fa",
+      "uvHash": "a743c751eb447905",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "6744f1846add8729",
+      "kind": "parked-print",
+      "normalHash": "b8b588e22e54da42",
+      "uvHash": "964d51760aff1eba",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "754c6be44f3a17c6",
+      "kind": "sleeve",
+      "normalHash": "7a497eed2df16261",
+      "uvHash": "c1e612ecd335d66e",
+      "normalCount": 3300,
+      "uvCount": 3300
+    },
+    {
+      "keyHash": "29ed134864afc662",
+      "kind": "plane",
+      "normalHash": "cd6a85169f14e1e0",
+      "uvHash": "e7f69e2be59e7726",
+      "normalCount": 4,
+      "uvCount": 4
+    },
+    {
+      "keyHash": "6e3c0147099c8ab6",
+      "kind": "plane",
+      "normalHash": "cd6a85169f14e1e0",
+      "uvHash": "e7f69e2be59e7726",
+      "normalCount": 4,
+      "uvCount": 4
+    },
+    {
+      "keyHash": "cc4174f96ce27db",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "1959231ad5136896",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "e6e2880a67dbded4",
+      "kind": "gpu-paper",
+      "normalHash": null,
+      "uvHash": null,
+      "normalCount": 0,
+      "uvCount": 0
+    },
+    {
+      "keyHash": "de397b58cff26cfc",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "35f48f354c823d6c",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "f6484c49134fab0f",
+      "kind": "parked-print",
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "cbf693f169936cfe",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "9eb105f40f27bf3",
+      "kind": "gpu-paper",
+      "normalHash": null,
+      "uvHash": null,
+      "normalCount": 0,
+      "uvCount": 0
+    },
+    {
+      "keyHash": "916599e5e6931ad1",
+      "kind": "parked-print",
+      "normalHash": "855930880ee09d75",
+      "uvHash": "1959231ad5136896",
+      "normalCount": 625,
+      "uvCount": 625
+    }
+  ],
+  "crossOwnerRejectedWithoutReservation": true,
+  "retiredOwnerRejected": true,
+  "reusePacket": true,
+  "privateAcquisitions": [
+    {
+      "keyHash": "1397e34f2bee1fc2",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "78bb1f085fc35776"
+    },
+    {
+      "keyHash": "657b55eacd342a18",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "13a8abf292ab20ac"
+    },
+    {
+      "keyHash": "af782c471d6f840",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "22ce752f042420c8"
+    },
+    {
+      "keyHash": "ea0375e68f1bc44d",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2c4aeef864bf25eb"
+    },
+    {
+      "keyHash": "246be6dfd00c1581",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "d6933ef3467cc4c"
+    },
+    {
+      "keyHash": "a41d96efced92ed8",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "9489e415405ef136"
+    },
+    {
+      "keyHash": "f97b01aaf6e8355b",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "746e725be46832b0"
+    },
+    {
+      "keyHash": "b7052c7a4168ba83",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "96dc3ef707cfbdd6"
+    },
+    {
+      "keyHash": "274ff2f12c4080bb",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "44497de88706cdf3"
+    },
+    {
+      "keyHash": "642e744eca09348c",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "381dc9a86a9d7403"
+    },
+    {
+      "keyHash": "b13ad0c2a29e7334",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f216b6f11a81285"
+    },
+    {
+      "keyHash": "da43334a32790cc4",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "fe55a50c384b093a"
+    },
+    {
+      "keyHash": "ba72300c968efafc",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "eed880866f0a73f8"
+    },
+    {
+      "keyHash": "c88bb158c28f134f",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "ff6a5ee6ffce09d3"
+    },
+    {
+      "keyHash": "c1d7d8d9ca9efcd5",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "4a9332ce3ac4d2fe"
+    },
+    {
+      "keyHash": "5f902eacb192fbf3",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f73093f8955c4d9"
+    },
+    {
+      "keyHash": "1cca971dab2c1b81",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "e059de8c3e477a8"
+    },
+    {
+      "keyHash": "5c8e8a281596a565",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "78bb1f085fc35776"
+    },
+    {
+      "keyHash": "f253aef237c9feb2",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 2,
+      "contentHash": "d8db892a8f9e6ba1"
+    },
+    {
+      "keyHash": "177020aabe8669a8",
+      "kind": "surface",
+      "purpose": "full",
+      "count": 1,
+      "contentHash": null
+    },
+    {
+      "keyHash": "53e8d6fe27a3ffdf",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "d8db892a8f9e6ba1"
+    },
+    {
+      "keyHash": "e9fc524e0265ce0f",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f216b6f11a81285"
+    },
+    {
+      "keyHash": "673636cc224788fd",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "fe55a50c384b093a"
+    }
+  ],
+  "transitionFailure": "Sticker computation byte capacity exceeded; native pack phase=print-3; completed prints=2; artworkBytes=5922240; transactions={\"entries\":26,\"queued\":0,\"active\":null,\"worker\":true,\"privateOwners\":24,\"pendingCopies\":0,\"privateBytes\":11828136,\"accountedBytes\":80813300}; preparation={\"prepareIds\":[],\"placements\":[{\"id\":\"PW-A01\",\"wear\":0.2}],\"slots\":[{\"id\":\"neighbor-0/cover/art/print\",\"art\":\"PW-C01\",\"width\":191.39999999999998,\"wear\":0,\"appearance\":\"earned\",\"geometry\":{\"kind\":\"parked-print\",\"art\":{\"id\":\"PW-C01\",\"name\":\"Soundcheck\",\"genre\":\"rock\",\"collection\":\"LIVE WIRE\",\"url\":\"/stickers/playworn/rock/pw-c01-soundcheck.png\",\"width\":796,\"height\":620,\"visibleBounds\":[129,27,666,586]},\"width\":191.39999999999998}},{\"id\":\"neighbor-1/cover/art/print\",\"art\":\"PW-E01\",\"width\":191.39999999999998,\"wear\":0,\"appearance\":\"earned\",\"geometry\":{\"kind\":\"parked-print\",\"art\":{\"id\":\"PW-E01\",\"name\":\"Slow Jam\",\"genre\":\"rnb\",\"collection\":\"VELVET SIGNAL\",\"url\":\"/stickers/playworn/rnb/pw-e01-slow-jam.png\",\"width\":796,\"height\":620,\"visibleBounds\":[129,68,695,575]},\"width\":191.39999999999998}},{\"id\":\"slot-0/print\",\"art\":\"PW-A01\",\"width\":80.85,\"wear\":0,\"appearance\":\"placed\",\"geometry\":{\"kind\":\"parked-print\",\"art\":{\"id\":\"PW-A01\",\"name\":\"Night Shift\",\"genre\":\"metal\",\"collection\":\"AFTER HOURS\",\"url\":\"/stickers/playworn/metal/pw-a01-night-shift.png\",\"width\":796,\"height\":620,\"visibleBounds\":[103,85,693,543]},\"width\":80.85,\"bow\":{\"pixel\":1.1,\"paperWidth\":330,\"seatX\":0.19}}},{\"id\":\"slot-1/print\",\"art\":\"PW-A02\",\"width\":63.00384146341463,\"wear\":0,\"appearance\":\"locked\",\"geometry\":{\"kind\":\"parked-print\",\"art\":{\"id\":\"PW-A02\",\"name\":\"Deep Cut\",\"genre\":\"metal\",\"collection\":\"AFTER HOURS\",\"url\":\"/stickers/playworn/metal/pw-a02-deep-cut.png\",\"width\":796,\"height\":620,\"visibleBounds\":[150,23,647,597]},\"width\":63.00384146341463,\"bow\":{\"pixel\":1.1,\"paperWidth\":330,\"seatX\":0.5}}},{\"id\":\"slot-2/print\",\"art\":\"PW-A03\",\"width\":80.85,\"wear\":0,\"appearance\":\"locked\",\"geometry\":{\"kind\":\"parked-print\",\"art\":{\"id\":\"PW-A03\",\"name\":\"Full Volume\",\"genre\":\"metal\",\"collection\":\"AFTER HOURS\",\"url\":\"/stickers/playworn/metal/pw-a03-full-volume.png\",\"width\":796,\"height\":620,\"visibleBounds\":[70,36,725,584]},\"width\":80.85,\"bow\":{\"pixel\":1.1,\"paperWidth\":330,\"seatX\":0.81}}},{\"id\":\"slot-3/print\",\"art\":\"PW-A04\",\"width\":80.09790697674418,\"wear\":0,\"appearance\":\"locked\",\"geometry\":{\"kind\":\"parked-print\",\"art\":{\"id\":\"PW-A04\",\"name\":\"No Skip\",\"genre\":\"metal\",\"collection\":\"AFTER HOURS\",\"url\":\"/stickers/playworn/metal/pw-a04-no-skip.png\",\"width\":796,\"height\":620,\"visibleBounds\":[114,52,682,568]},\"width\":80.09790697674418,\"bow\":{\"pixel\":1.1,\"paperWidth\":330,\"seatX\":0.345}}},{\"id\":\"slot-4/print\",\"art\":\"PW-A05\",\"width\":72.27582352941175,\"wear\":0,\"appearance\":\"locked\",\"geometry\":{\"kind\":\"parked-print\",\"art\":{\"id\":\"PW-A05\",\"name\":\"Heavy Rotation\",\"genre\":\"metal\",\"collection\":\"AFTER HOURS\",\"url\":\"/stickers/playworn/metal/pw-a05-heavy-rotation.png\",\"width\":796,\"height\":620,\"visibleBounds\":[102,12,693,607]},\"width\":72.27582352941175,\"bow\":{\"pixel\":1.1,\"paperWidth\":330,\"seatX\":0.655}}},{\"id\":\"pocket/cover/print\",\"art\":\"PW-A01\",\"width\":191.39999999999998,\"wear\":0,\"appearance\":\"earned\",\"geometry\":{\"kind\":\"parked-print\",\"art\":{\"id\":\"PW-A01\",\"name\":\"Night Shift\",\"genre\":\"metal\",\"collection\":\"AFTER HOURS\",\"url\":\"/stickers/playworn/metal/pw-a01-night-shift.png\",\"width\":796,\"height\":620,\"visibleBounds\":[103,85,693,543]},\"width\":191.39999999999998}}]}",
+  "transition": {
+    "transactions": {
+      "entries": 26,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 22,
+      "pendingCopies": 0,
+      "privateBytes": 10841096,
+      "accountedBytes": 79826260
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 28,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 23,
+      "privateBytes": 3020424,
+      "accountedBytes": 14083000
+    },
+    "carry": {
+      "canonical": 2,
+      "privateOwners": 2,
+      "pendingPrivate": 0,
+      "preparing": false,
+      "bytes": 6660240
+    }
+  },
+  "provenance": "Actual catalogue PNG alpha and real canonical/private worker preparation; actual shared texture-cache identity with simulated browser bitmap object, no GPU compile.",
+  "catalogueArtworks": 60,
+  "requestedArtworks": 10,
+  "acquired": 18,
+  "sent": 1,
+  "failure": null,
+  "visibleFailure": null,
+  "visiblePrints": 8,
+  "carryFailure": null,
+  "combined": {
+    "transactions": {
+      "entries": 22,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 20,
+      "pendingCopies": 0,
+      "privateBytes": 9870400,
+      "accountedBytes": 79201888
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 23,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 23,
+      "privateBytes": 3020424,
+      "accountedBytes": 9061272
+    },
+    "carry": {
+      "canonical": 2,
+      "privateOwners": 2,
+      "pendingPrivate": 0,
+      "preparing": false,
+      "bytes": 6660240
+    }
+  },
+  "finalCarry": {
+    "canonical": 0,
+    "privateOwners": 0,
+    "pendingPrivate": 0,
+    "preparing": false,
+    "bytes": 0
+  },
+  "beforeRelease": {
+    "paper": {
+      "clients": 0,
+      "entries": 10,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 10,
+      "privateBytes": 269120,
+      "accountedBytes": 807360
+    },
+    "transactions": {
+      "entries": 5,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 10,
+      "pendingCopies": 0,
+      "privateBytes": 4935200,
+      "accountedBytes": 33932508
+    }
+  },
+  "finalOwners": 0,
+  "finalPaper": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "finalTransactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  }
+}

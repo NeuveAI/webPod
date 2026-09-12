@@ -1,0 +1,17 @@
+[
+  {
+    "file": "packages/device/src/sticker-latest-preparation.ts",
+    "original": "c6ed30bfd2ecddb737fe99192f68b82298afaf643a880e3c974669a44866fc95",
+    "instrumented": "f2a57e91c4a8eeac2750c3bcaa4eb5f3735ad399804a65c69529083e97ea0a5f"
+  },
+  {
+    "file": "packages/device/src/StickerPackScene.tsx",
+    "original": "80a0bdf70a63025778555b012f4162c7c29443c57a821a9956c741f71a9d65ad",
+    "instrumented": "9037242a45fb3b6a645c252d870a4f507af11e98ebc4f22134abb3369dade3ff"
+  },
+  {
+    "file": "packages/device/src/sticker-texture-cache.ts",
+    "original": "ae033ff789e2a89a2d6008b6531b30f18eb0fa7ea5fec90a1e33d3575a777f77",
+    "instrumented": "047c1e4fe36bbabbde9df5d4a80ee846d64d2bcf293007e92de9f88f45168f02"
+  }
+]

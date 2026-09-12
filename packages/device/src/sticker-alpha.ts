@@ -1,3 +1,4 @@
+import { drainSteps } from './sticker-computation-steps';
 import { DataTexture, NearestFilter, RedFormat, type Texture, type BufferGeometry, type MeshPhysicalMaterial } from 'three';
 
 export interface StickerAlphaMask { readonly width: number; readonly height: number; readonly pixels: Uint8Array }
@@ -5,6 +6,7 @@ export interface StickerDamageField { readonly width: number; readonly height: n
 const masks = new WeakMap<Texture, StickerAlphaMask>();
 const damage = new WeakMap<Texture, { readonly id: string; readonly field: StickerDamageField; readonly texture: DataTexture }>();
 export const STICKER_ALPHA_THRESHOLD = 16;
+export const STICKER_SURFACE_DAMAGE_EXPOSURE_THRESHOLD = .05;
 
 /** Image readback happens once per loaded source, before gesture admission. */
 export function prepareStickerAlpha(texture: Texture): StickerAlphaMask | null {
@@ -30,20 +32,23 @@ function noise(x: number, y: number, seed: number): number {
   return (a + (b - a) * u) * (1 - v) + (c + (d - c) * u) * v;
 }
 /** Bounded, deterministic edge-distance field; thresholding never creates new random damage. */
-export function createStickerDamageField(mask: StickerAlphaMask, id: string): StickerDamageField {
+export function createStickerDamageField(mask: StickerAlphaMask, id: string): StickerDamageField { return drainSteps(createStickerDamageFieldSteps(mask, id)); }
+/** Same field math, with bounded checkpoints for off-input-path failure recovery. */
+export function* createStickerDamageFieldSteps(mask: StickerAlphaMask, id: string): Generator<void, StickerDamageField, void> {
+  let steps = 0;
   const scale = Math.min(1, 1024 / Math.max(mask.width, mask.height));
   const width = Math.max(1, Math.round(mask.width * scale)); const height = Math.max(1, Math.round(mask.height * scale));
   const alpha = new Uint8Array(width * height); const distance = new Uint16Array(width * height); const onset = new Uint8Array(width * height); onset.fill(255);
   const resolution = Math.max(1, Math.max(width, height) / 256);
   const candidates: number[] = [];
   let seed = 2166136261; for (const character of id) seed = Math.imul(seed ^ character.charCodeAt(0), 16777619);
-  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) { if (++steps % 512 === 0) yield;
     const i = y * width + x;
     alpha[i] = mask.pixels[Math.min(mask.height - 1, Math.floor((y + .5) / height * mask.height)) * mask.width + Math.min(mask.width - 1, Math.floor((x + .5) / width * mask.width))] ?? 0;
     distance[i] = (alpha[i] ?? 0) < STICKER_ALPHA_THRESHOLD ? 0 : Math.min(x + 1, y + 1, width - x, height - y, 65534);
   }
-  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) { const i = y * width + x; distance[i] = Math.min(distance[i] ?? 0, x ? (distance[i - 1] ?? 0) + 1 : 1, y ? (distance[i - width] ?? 0) + 1 : 1); }
-  for (let y = height - 1; y >= 0; y--) for (let x = width - 1; x >= 0; x--) {
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) { if (++steps % 512 === 0) yield; const i = y * width + x; distance[i] = Math.min(distance[i] ?? 0, x ? (distance[i - 1] ?? 0) + 1 : 1, y ? (distance[i - width] ?? 0) + 1 : 1); }
+  for (let y = height - 1; y >= 0; y--) for (let x = width - 1; x >= 0; x--) { if (++steps % 512 === 0) yield;
     const i = y * width + x; const d = Math.min(distance[i] ?? 0, x < width - 1 ? (distance[i + 1] ?? 0) + 1 : 1, y < height - 1 ? (distance[i + width] ?? 0) + 1 : 1); distance[i] = d;
     const band = Math.ceil(resolution * 6.5) + 1;
     if (d <= 0 || d > band) continue;
@@ -90,20 +95,22 @@ export function getStickerMaterialDamage(material: MeshPhysicalMaterial, id: str
 /** Recalculate only the narrow silhouette band from the seated material's
  * local normals. Camera motion never changes wear; replacing/reorienting does.
  */
-export function createSurfaceStickerDamage(base: StickerDamageField, geometry: BufferGeometry): StickerDamageField {
+export function createSurfaceStickerDamage(base: StickerDamageField, geometry: BufferGeometry): StickerDamageField { return drainSteps(createSurfaceStickerDamageSteps(base, geometry)); }
+export function* createSurfaceStickerDamageSteps(base: StickerDamageField, geometry: BufferGeometry): Generator<void, StickerDamageField, void> {
+  let steps = 0;
   const normals = geometry.getAttribute('normal'), uv = geometry.getAttribute('uv');
   if (!normals || !uv) return base;
   const n = Math.round(Math.sqrt(normals.count)) - 1;
   if (!uv || (n + 1) ** 2 !== normals.count) return base;
   const minU = uv.getX(0), maxU = uv.getX(n), maxV = uv.getY(0), minV = uv.getY(n * (n + 1));
   const onset = base.onset.slice(), resolution = Math.max(1, Math.max(base.width, base.height) / 256);
-  for (const i of base.boundaryCandidates) {
+  for (const i of base.boundaryCandidates) { if (++steps % 256 === 0) yield;
     const u = (i % base.width + .5) / base.width, v = 1 - (Math.floor(i / base.width) + .5) / base.height;
     const col = Math.max(0, Math.min(n, Math.round((u - minU) / (maxU - minU) * n)));
     const row = Math.max(0, Math.min(n, Math.round((maxV - v) / (maxV - minV) * n)));
     const normalZ = normals.getZ(row * (n + 1) + col);
     const exposure = Math.min(1, Math.max(0, 1 - Math.abs(normalZ)));
-    if (exposure < .05) continue;
+    if (exposure < STICKER_SURFACE_DAMAGE_EXPOSURE_THRESHOLD) continue;
     const distance = base.distance?.[i] ?? 1, original = base.onset[i] ?? 255;
     // Thin connected fibers at exposed rims; no random holes through the print.
     const depth = original < 255 ? distance / (original / 255) : resolution * .45;

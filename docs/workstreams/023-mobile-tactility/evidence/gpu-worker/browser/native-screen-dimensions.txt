@@ -1,0 +1,4 @@
+Script ran on page and returned:
+```json
+{"ok":true,"imageWidth":640,"imageHeight":480,"panelWidth":320,"panelHeight":240,"styleWidth":"320px","styleHeight":"240px","raster":{"pixelSource":"html-in-canvas"},"canvasWidth":1320,"canvasHeight":2664,"dpr":3}
+```

@@ -1,7 +1,10 @@
+import { stickerContourQueryAtom, requestStickerContour, clearStickerContour } from './sticker-contour-query-model'
+import { stickerComputationEpochAtom } from './sticker-interaction'
+import { stickerEditorQuerySessionAtom } from './sticker-editor-model'
 import { stickerHaptics } from './sticker-haptics'
 import { atom, useAtomValue } from 'jotai'
 import { StickerContourGrips, StickerContourPaths } from './sticker-contour-presentation'
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { deviceStore, stickerInventoryAtom, stickerInteractionAtom } from '@webpod/state'
 import type { StickerProjectedContour, StickerProjectedQuad, StickerTransformPlane } from '@webpod/device'
 import { BODY_H, BODY_W } from '@webpod/tokens'
@@ -21,6 +24,7 @@ import { chooseHudLayout, type HudLayout } from './sticker-hud-layout'
 const HUD = { stiffness: 300, damping: 25, maxStep: .032, settle: .002 }
 const releaseAtom = atom<{ corner: number; kind: 'width' | 'rotationDeg'; x: number; y: number; progress: number; epoch: number } | null>(null)
 const rangeGestureAtom = atom<'active' | 'cancelled' | null>(null)
+const lastPresentedSessionAtom = atom(0)
 const lastPresentedAtom = atom<StickerEditorState | null>(null)
 const activeEditorAtom = atom(get => get(stickerToolEditorAtom) ?? get(stickerEditorAtom))
 const shownEditorAtom = atom(get => get(activeEditorAtom) ?? get(lastPresentedAtom))
@@ -64,7 +68,7 @@ export function StickerEditor(props: StickerEditorProps) {
   if (toolEditor === null && (interaction.stage === 'peeling' || interaction.stage === 'placing' || interaction.stage === 'settling')) return null
   return <StickerAppearanceEditor {...props} />
 }
-function StickerAppearanceEditor({ fit, screen, quad, contour, beginTransform, place, returnToPack }: StickerEditorProps) {
+function StickerAppearanceEditor({ fit, screen, quad, beginTransform, place, returnToPack }: StickerEditorProps) {
   const toolEditor = useAtomValue(stickerToolEditorAtom, { store: deviceStore })
   const state = useAtomValue(activeEditorAtom, { store: deviceStore }), failure = useAtomValue(stickerEditorFailureAtom, { store: deviceStore })
   const handleMode = useAtomValue(stickerEditorHandleModeAtom, { store: deviceStore })
@@ -77,9 +81,15 @@ function StickerAppearanceEditor({ fit, screen, quad, contour, beginTransform, p
   const presence = useAtomValue(presenceAtom, { store: deviceStore }), viewport = useAtomValue(viewportAtom, { store: deviceStore })
   const shown = useAtomValue(shownEditorAtom, { store: deviceStore })
   const projectionVersion = useAtomValue(stickerProjectionVersionAtom, { store: deviceStore })
+  const humanSession = useAtomValue(stickerEditorQuerySessionAtom, { store: deviceStore })
+  const toolEpoch = useAtomValue(stickerComputationEpochAtom, { store: deviceStore })
+  const retainedSession = useAtomValue(lastPresentedSessionAtom, { store: deviceStore })
+  const activeSession = toolEditor === null ? humanSession * 2 : toolEpoch * 2 + 1
+  const shownSession = state === null ? retainedSession : activeSession
+  const contourSnapshot = useAtomValue(stickerContourQueryAtom, { store: deviceStore })
   const savedLayout = useAtomValue(layoutAtom, { store: deviceStore }), dragVisual = useAtomValue(dragVisualAtom, { store: deviceStore }), gesture = useAtomValue(stickerEditorGestureAtom, { store: deviceStore })
   const drag = useRef<Drag | null>(null), velocity = useRef(0), activeId = useRef<string | null>(null), range = useRef<HTMLInputElement>(null)
-  useLayoutEffect(() => { if (state !== null) deviceStore.set(lastPresentedAtom, state) }, [state])
+  useLayoutEffect(() => { if (state !== null) { deviceStore.set(lastPresentedAtom, state); deviceStore.set(lastPresentedSessionAtom, activeSession) } }, [state, activeSession])
   const selectedId = state?.source.stickerId ?? null
   const projectionKey = (source: StickerPlacement): string => JSON.stringify([source, { ...source, x: source.x + .1 }, { ...source, y: source.y + .1 }].map(p => screen(p)).map(p => p === null ? null : [Math.round(p.x * 100), Math.round(p.y * 100)]))
   useLayoutEffect(() => {
@@ -104,7 +114,7 @@ function StickerAppearanceEditor({ fit, screen, quad, contour, beginTransform, p
     const hidden = (): void => { if (document.hidden) cancel() }
     const pointerMoved = (event: PointerEvent): void => { if(tooltipDismissedAt!==null && !(event.target instanceof Element && event.target.closest('[data-tooltip-trigger]')) && Math.hypot(event.clientX-tooltipDismissedAt.x,event.clientY-tooltipDismissedAt.y)>=2) tooltipDismissedAt=null }
     update(); window.addEventListener('pointermove',pointerMoved); window.addEventListener('resize', update); document.addEventListener('visibilitychange', hidden)
-    return () => { cancel(); tooltipPointer=null;tooltipDismissedAt=null;deviceStore.set(lastPresentedAtom, null); deviceStore.set(focusedCornerAtom, null); deviceStore.set(rangeGestureAtom, null); deviceStore.set(presenceAtom, 0); deviceStore.set(releaseAtom, null); deviceStore.set(tooltipAtom, null); window.removeEventListener('pointermove',pointerMoved); window.removeEventListener('resize', update); document.removeEventListener('visibilitychange', hidden) }
+    return () => { clearStickerContour(); cancel(); tooltipPointer=null;tooltipDismissedAt=null;deviceStore.set(lastPresentedAtom, null); deviceStore.set(focusedCornerAtom, null); deviceStore.set(rangeGestureAtom, null); deviceStore.set(presenceAtom, 0); deviceStore.set(releaseAtom, null); deviceStore.set(tooltipAtom, null); window.removeEventListener('pointermove',pointerMoved); window.removeEventListener('resize', update); document.removeEventListener('visibilitychange', hidden) }
   }, [])
   useEffect(() => {
     const target = selectedId === null ? 0 : 1
@@ -153,18 +163,23 @@ function StickerAppearanceEditor({ fit, screen, quad, contour, beginTransform, p
     onBlur: () => deviceStore.set(tooltipAtom, null),
   })
   const tooltipView = tooltip === null ? null : <div id="sticker-contour-tooltip" role="tooltip" popover={typeof HTMLElement !== 'undefined' && 'popover' in HTMLElement.prototype ? 'manual' : undefined} className="pointer-events-auto fixed max-w-56 rounded-lg bg-[#202a31] px-3 py-2 text-xs text-white shadow-lg" style={{ left: tooltip.x, top: tooltip.y, margin: 0, right: 'auto', bottom: 'auto', border: 0 }} onPointerEnter={event => { tooltipPointer={x:event.clientX,y:event.clientY};if (tooltipTimer !== null) clearTimeout(tooltipTimer) }} onPointerMove={event=>{tooltipPointer={x:event.clientX,y:event.clientY}}} onPointerLeave={() => { if (!document.activeElement?.hasAttribute('aria-describedby')) deviceStore.set(tooltipAtom, null) }}>{tooltip.text}</div>
-  // Projection is keyed to committed renderer geometry, not the requested
-  // draft. Reading the mesh on a draft render samples the previous frame.
-  const { shape } = useMemo(() => {
+  // Only committed effects submit demand. Ordinary pose changes replace the
+  // latest query without cancelling compatible work or changing authored fades.
+  const contourVisible = shown !== null && presence > 0
+  useLayoutEffect(() => {
     const presented = deviceStore.get(shownEditorAtom)
-    return { version: projectionVersion, id: selectedId, shape: presented === null || contour === undefined ? null : contour(presented.draft) }
-  }, [contour, projectionVersion, selectedId])
+    if (!contourVisible || presented === null) { clearStickerContour(); return }
+    requestStickerContour(presented.draft, shownSession)
+  }, [contourVisible, projectionVersion, selectedId, shownSession])
+  const result = contourSnapshot.result
+  const shape = contourVisible && result?.stamp.lineage.session === shownSession && result.stamp.lineage.stickerId === shown?.source.stickerId ? result.contour : null
   if (shown === null || presence <= 0) {
     if (failure === null) return null
     const source = deviceStore.get(stickerInventoryAtom)?.placements.find(p => p.stickerId === failure.stickerId), point = source === undefined ? null : screen(source)
     return <><div data-sticker-editor-failure role="alert" className="pointer-events-auto fixed z-40 rounded-full bg-[#242a2e] px-3 text-xs text-white" style={{ left: Math.max(16, Math.min(viewport.width - 220, point?.x ?? 16)), top: Math.max(64, Math.min(viewport.height - 60, point?.y ?? 64)) }}>{failure.message}{failure.attempted !== undefined && <button className="min-h-11 px-3 underline" {...tipEvents('retry', 'Retry saving this change')} onClick={() => retryStickerEdit(place)}>Retry</button>}</div>{tooltipView}</>
   }
-  if (shape == null) return null
+  const queryFailure = contourSnapshot.error === null ? null : <div role="alert" inert={state === null || toolEditor !== null} className="pointer-events-auto fixed bottom-6 left-1/2 z-40 -translate-x-1/2 rounded-full bg-[#242a2e] px-4 py-2 text-sm text-white">Couldn’t update sticker controls. <button className="min-h-11 px-3 underline" onClick={() => { clearStickerContour(); requestStickerContour(shown.draft, shownSession) }}>Retry</button></div>
+  if (shape == null) return <div style={{opacity:Math.min(1,presence)}}>{queryFailure}</div>
   const arrangement = gesture && savedLayout !== null ? savedLayout : chooseHudLayout(shape, viewport.width, viewport.height, (deviceStore.get(stickerInventoryAtom)?.placements ?? []).filter(p => p.stickerId !== shown.source.stickerId).flatMap(p => { const q = quad?.(p); return q == null ? [] : [{ left: Math.min(...q.corners.map(p => p.x)), right: Math.max(...q.corners.map(p => p.x)), top: Math.min(...q.corners.map(p => p.y)), bottom: Math.max(...q.corners.map(p => p.y)) }] }))
   const grips = shape.anchors.map((anchor, i) => {
     const offset = arrangement.offsets[i] ?? { x: 0, y: 0 }
@@ -261,6 +276,7 @@ function StickerAppearanceEditor({ fit, screen, quad, contour, beginTransform, p
       <button className={buttonClass} aria-label="Reset wear and straighten" {...tipEvents('reset', 'Reset wear and straighten')} aria-disabled={shown.phase === 'saving'} onClick={() => resetStickerAppearance(place)}><Icon kind="undo" /></button>
     </div>
     {tooltipView}
+    {queryFailure}
     {shown.message !== null && tooltip?.text !== shown.message && <span role="status" className="fixed max-w-56 rounded bg-[#242a2e] px-2 py-1 text-[11px] text-white" style={{ left: arrangement.tools.x, top: arrangement.tools.y + 52 }}>{shown.message}</span>}
     {shown.phase === 'saving' && <span role="status" className="fixed rounded bg-[#242a2e] px-2 py-1 text-[11px] text-white" style={{ left: arrangement.tools.x, top: arrangement.tools.y - 24 }}>Saving…</span>}
     {failure?.stickerId === shown.source.stickerId && <div role="alert" className="pointer-events-auto fixed rounded bg-[#242a2e] px-3 text-xs text-white" style={{ left: arrangement.tools.x, top: arrangement.tools.y + 52 }}>{failure.message}{failure.attempted !== undefined && <button className="min-h-11 px-2 underline" {...tipEvents('retry', 'Retry saving this change')} onClick={() => retryStickerEdit(place)}>Retry</button>}</div>}

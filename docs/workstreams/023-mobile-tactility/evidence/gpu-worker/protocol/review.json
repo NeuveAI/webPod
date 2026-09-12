@@ -1,0 +1,12 @@
+{
+  "notificationOffers": 1002,
+  "sentNotifications": 3,
+  "maxInFlight": 1,
+  "maxPending": 1,
+  "staleAckRejected": true,
+  "disposalSuppressesSend": true,
+  "concurrentProgramOriginsRetained": 3,
+  "originalOrientationSeedStructurallyAssignable": true,
+  "regressingControlClockRepresentable": true,
+  "scope": "Source contract and notification helper only; no worker rendering, presentation, or integrated motion acceptance."
+}

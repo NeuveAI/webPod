@@ -1,0 +1,16 @@
+{
+  "reduced": true,
+  "selectOk": true,
+  "menuOk": true,
+  "placementEqual": true,
+  "held": null,
+  "pending": 0,
+  "animating": false,
+  "beingHeld": false,
+  "orientation": {
+    "pitchDeg": 0,
+    "yawDeg": 0,
+    "rollDeg": 0
+  },
+  "renderer": "worker"
+}

@@ -1,0 +1,8 @@
+{
+  "baselineCommit": "485d728",
+  "baselineSceneSHA256": "6eac53c6a96c080a42547b9f96b7dd7aa439b74728997b326b3ad947adb9c5e0",
+  "files": {
+    "packages/device/src/StickerPackScene.tsx": "80a0bdf70a63025778555b012f4162c7c29443c57a821a9956c741f71a9d65ad",
+    "packages/device/src/sticker-warmup-readiness.ts": "9437277d90cddb8447f54ecca068149f80543440f72303b2aafad3b34466fdf3"
+  }
+}

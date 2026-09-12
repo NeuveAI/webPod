@@ -1,3 +1,4 @@
+import { drainSteps } from './sticker-computation-steps';
 /**
  * The two textures the device needs, both generated rather than authored.
  *
@@ -262,14 +263,12 @@ function drawTriangle(
  * there, silently turning every authored roughness into the mirror floor.
  * RGBA stores the same linear noise in RGB and keeps alpha opaque.
  */
-export function createMicroNoiseRoughnessMap(
-  amplitude = 0.02,
-  size = 128,
-  seed = 0x5eed1234,
-): DataTexture {
+export function createMicroNoiseRoughnessMap(amplitude = 0.02, size = 128, seed = 0x5eed1234): DataTexture { return drainSteps(createMicroNoiseRoughnessMapSteps(amplitude,size,seed)); }
+export function* createMicroNoiseRoughnessMapSteps(amplitude = 0.02, size = 128, seed = 0x5eed1234): Generator<void,DataTexture,void> {
   const random = xorshift32(seed);
   const data = new Uint8Array(size * size * 4);
   for (let i = 0; i < data.length; i += 4) {
+    if(i % 4096 === 0) yield;
     const noise = Math.round(255 * (1 - random() * amplitude));
     data[i] = noise;
     data[i + 1] = noise;
@@ -291,9 +290,11 @@ export function createMicroNoiseRoughnessMap(
 }
 
 /** §12.3 recipe 2 — horizontal 304-steel grain, encoded as RG direction + B strength. */
-export function createSteelAnisotropyMap(size = 1024): DataTexture {
+export function createSteelAnisotropyMap(size = 1024): DataTexture { return drainSteps(createSteelAnisotropyMapSteps(size)); }
+export function* createSteelAnisotropyMapSteps(size = 1024): Generator<void,DataTexture,void> {
   const data = new Uint8Array(size * size * 4);
   for (let y = 0; y < size; y += 1) {
+    yield;
     // Two deterministic, horizontal-only micro-stripe frequencies. Direction
     // remains +x; only the strength breathes by at most five percent.
     const grain =
@@ -323,12 +324,14 @@ export function createSteelAnisotropyMap(size = 1024): DataTexture {
  * physical lighting, and linear green modulates roughness. All maps share
  * scale on the front and Select and mip-filter down at normal viewing size.
  */
-export function createAluminumFinishMaps(size = 512) {
+export function createAluminumFinishMaps(size = 512) { return drainSteps(createAluminumFinishMapsSteps(size)); }
+export function* createAluminumFinishMapsSteps(size = 512) {
   const random = xorshift32(0x6c617373);
   const colorData = new Uint8Array(size * size * 4);
   const heightData = new Uint8Array(size * size * 4);
   const roughnessData = new Uint8Array(size * size * 4);
   for (let y = 0; y < size; y++) {
+    yield;
     let streak = random();
     for (let x = 0; x < size; x++) {
       streak = streak * 0.75 + random() * 0.25;

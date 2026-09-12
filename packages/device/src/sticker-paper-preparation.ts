@@ -22,11 +22,10 @@ export function createPaperPreparation() {
   let wanted: PaperJob | null = null;
   let active: PaperJob | null = null;
   let fallback: AbortController | null = null, workerFailed = false;
-  let deadline: ReturnType<typeof setTimeout> | undefined;
   let snapshot = EMPTY;
   const retired = new Set<Stock>(), listeners = new Set<() => void>();
   const publish = (next: PaperSnapshot) => { if (snapshot.stock && snapshot.stock !== next.stock) retired.add(snapshot.stock); snapshot = next; for (const listener of listeners) listener(); };
-  const stop = () => { clearTimeout(deadline); deadline = undefined; worker?.terminate(); worker = null; fallback?.abort(); fallback = null; active = null; };
+  const stop = () => { worker?.terminate(); worker = null; fallback?.abort(); fallback = null; active = null; };
   const fail = () => { stop(); workerFailed = true; dispatch(); };
   const dispatch = (): void => {
     if (!mounted || document.hidden || active || !wanted) return;
@@ -51,7 +50,7 @@ export function createPaperPreparation() {
         worker.onerror = workerFailure; worker.onmessageerror = workerFailure;
         worker.onmessage = ({ data }: MessageEvent<PaperWorkerResponse>) => {
           if (worker !== instance || active?.id !== data.id) return;
-          const completed = active; active = null; clearTimeout(deadline); deadline = undefined;
+          const completed = active; active = null;
           if (!wanted || (dimensions(wanted.input) !== dimensions(completed.input) || wanted.input.epoch !== completed.input.epoch)) { dispatch(); return; }
           if (!data.stock || data.error) { fail(); return; }
           if (wanted.id === completed.id) wanted = null;
@@ -62,7 +61,6 @@ export function createPaperPreparation() {
         };
       }
       active = wanted;
-      deadline = setTimeout(fail, 10_000);
       worker.postMessage(active);
     } catch { fail(); }
   };

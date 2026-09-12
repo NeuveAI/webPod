@@ -1,0 +1,4 @@
+Script ran on page and returned:
+```json
+{"phase":"content","counts":{"rotation":{"paints":1,"unknown":0,"styleMutations":1,"elements":{"host:DIV:wp-composite-panel-host":1}},"content":{"paints":1,"unknown":0,"styleMutations":0,"elements":{"host:DIV:wp-composite-panel-host":1}}},"started":408231.09999999404,"stopped":453156.7999999821}
+```

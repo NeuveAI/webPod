@@ -1,0 +1,6 @@
+{
+  "file": "packages/device/src/sticker-transaction-broker.ts",
+  "beforeSha256": "b05a560fd272a4a74e729251792136799cc4264e8412a484e18654822dd1f44c",
+  "sha256": "6d5909aeb25d10b599e989a0899e21a578902d2a7abd1c63c4975302d735c4fe",
+  "checks": "19 exact admission/generator/lifecycle checks; parallel8packet, four wrappers,10 output/reuse cases and actual worker carry transition pass/finalzero;8existingtests17568assertions;3package types/scopedlint pass"
+}

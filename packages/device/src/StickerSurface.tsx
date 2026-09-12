@@ -1,15 +1,18 @@
+import { usePreparedStickerDamage } from './sticker-prepared-damage';
+import { usePreparedStickerSurface } from './sticker-prepared-surface';
+import { commitPreparedStickerSurface, preparedStickerPlacement } from './sticker-transaction-client';
 import type { StickerWrapSurface } from './sticker-wrap';
 import { useThree } from '@react-three/fiber';
 import { memo, useEffect, useLayoutEffect, useMemo } from 'react';
 import { BackSide, FrontSide, MeshPhysicalMaterial, type BufferGeometry, type Texture } from 'three';
 import { STICKER_LAMINATE } from './materials';
-import { createStickerSurfaceGeometry, STICKER_SURFACE } from './sticker-surface';
+import { STICKER_SURFACE } from './sticker-surface';
 import { createStickerRoughness, useStickerTexture } from './sticker-textures';
 import { isStickerCarried, type DeviceStickerPlacement, type DeviceStickerScene, type StickerArtwork } from './sticker-contract';
 import { useStudioEnvironmentSnapshot } from './StudioEnvironment';
 import { applyStickerWear } from './sticker-wear';
-import { prepareStickerAlpha } from './sticker-hit';
-import { prepareStickerSurfaceDamage } from './sticker-alpha';
+
+
 
 /** Placement array is bottom-to-top. Explicit transparent draw order must win
  * over camera-distance sorting; depth testing still hides ink behind the shell.
@@ -29,33 +32,34 @@ function EquippedSticker({ art, placement, rear, wrap, roughness, scene, renderO
   readonly renderOrder: number; readonly roughness: Texture; readonly scene: DeviceStickerScene; readonly wrap: StickerWrapSurface;
 }) {
   const { stickerId, surface, x, y, width, rotationDeg } = placement;
-  const geometry = useMemo(() => {
-    try { return createStickerSurfaceGeometry(art, { stickerId, surface, x, y, width, rotationDeg }, rear, wrap); } catch { return null; }
-  }, [art, stickerId, surface, x, y, width, rotationDeg, rear, wrap]);
-  useEffect(() => () => geometry?.dispose(), [geometry]);
+  const input = useMemo(() => wrap.form ? { kind: 'surface' as const, art, placement: { stickerId, surface, x, y, width, rotationDeg }, form: wrap.form } : null, [art, stickerId, surface, x, y, width, rotationDeg, wrap]);
+  const custom = useMemo(() => ({ art, placement: { stickerId, surface, x, y, width, rotationDeg }, rear, wrap }), [art, stickerId, surface, x, y, width, rotationDeg, rear, wrap]);
+  const prepared = usePreparedStickerSurface(input, custom, scene.pack?.computationEpoch ?? 0, scene.onArtworkError);
+  const geometry = prepared?.geometry ?? null;
   // Child material layout effects run first, so alpha and mesh refer to the
   // same committed pose before the DOM editor projects its outline.
   const onSurfaceReady = scene.onSurfaceReady;
-  useLayoutEffect(() => { if (geometry) onSurfaceReady?.(); }, [geometry, placement.wear, onSurfaceReady]);
+  useLayoutEffect(() => { if (prepared) { commitPreparedStickerSurface(prepared.geometry, { ...prepared.placement, wear: placement.wear }); onSurfaceReady?.(); } }, [prepared, placement.wear, onSurfaceReady]);
   if (geometry === null) return null;
-  return <StickerPrint renderOrder={renderOrder} visible={!isStickerCarried(scene.pack, placement.stickerId)} wear={placement.wear ?? 0} art={art} geometry={geometry} roughness={roughness} finishEnabled={scene.finishEnabled !== false} onError={scene.onArtworkError} onReady={scene.onArtworkReady} />;
+  return <StickerPrint computationEpoch={scene.pack?.computationEpoch ?? 0} renderOrder={renderOrder} visible={!isStickerCarried(scene.pack, placement.stickerId)} wear={placement.wear ?? 0} art={art} geometry={geometry} roughness={roughness} finishEnabled={scene.finishEnabled !== false} onError={scene.onArtworkError} onReady={scene.onArtworkReady} onSurfaceReady={scene.onSurfaceReady} />;
 }
 /** One map alpha-tests before physical lighting, clipping both print and satin response. */
-export const StickerPrint = memo(function StickerPrint({ art, geometry, wearGeometry = geometry, roughness, finishEnabled, onError, onReady, appearance = 'earned', visible = true, wear = 0, renderOrder = 4 }: {
+export const StickerPrint = memo(function StickerPrint({ art, geometry, wearGeometry = geometry, roughness, finishEnabled, onError, onReady, onSurfaceReady, computationEpoch = 0, appearance = 'earned', visible = true, wear = 0, renderOrder = 4, purpose = 'visible-print' }: {
   readonly art: StickerArtwork; readonly geometry: BufferGeometry; readonly wearGeometry?: BufferGeometry | null; readonly roughness: Texture;
-  readonly renderOrder?: number; readonly wear?: number; readonly visible?: boolean; readonly appearance?: 'earned' | 'locked' | 'placed'; readonly finishEnabled: boolean; readonly onError?: (id: string) => void; readonly onReady?: (id: string) => void;
+  readonly purpose?: 'visible-print' | 'program-warmup';
+  readonly computationEpoch?: number; readonly renderOrder?: number; readonly wear?: number; readonly visible?: boolean; readonly appearance?: 'earned' | 'locked' | 'placed'; readonly finishEnabled: boolean; readonly onError?: (id: string) => void; readonly onReady?: (id: string) => void; readonly onSurfaceReady?: () => void;
 }) {
   const { texture, failed } = useStickerTexture(art.url);
+  const preparedPrint = usePreparedStickerDamage(purpose === 'program-warmup' ? null : texture, art.id, geometry, wearGeometry, appearance === 'earned' ? wear : 0, computationEpoch, onError);
   const invalidate = useThree((state) => state.invalidate);
   const studio = useStudioEnvironmentSnapshot();
   useEffect(() => { invalidate(); }, [texture, geometry, finishEnabled, studio, invalidate]);
   useEffect(() => { if (failed) onError?.(art.id); }, [failed, art.id, onError]);
-  useEffect(() => { if (texture !== null) { prepareStickerAlpha(texture); onReady?.(art.id); } }, [texture, art.id, onReady]);
   const materials = useMemo(() => {
     const shared = { ...STICKER_LAMINATE, map: texture, roughnessMap: roughness,
       envMap: studio.texture, alphaTest: STICKER_SURFACE.alphaThreshold, transparent: true, depthWrite: false };
     const front = new MeshPhysicalMaterial({ ...shared, side: FrontSide, clearcoat: finishEnabled ? STICKER_LAMINATE.clearcoat : 0 });
-    const wearing = applyStickerWear(front, art.id);
+    const wearing = applyStickerWear(front, art.id, false, null);
     if (appearance !== 'earned') {
       front.onBeforeCompile = (shader) => { shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', `#include <map_fragment>\n diffuseColor.rgb = ${appearance === 'placed' ? 'vec3(0.69, 0.65, 0.56)' : 'mix(vec3(dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114))), vec3(0.42, 0.40, 0.34), 0.35)'};`); };
       if (appearance === 'placed') front.onBeforeCompile = (shader) => {
@@ -71,21 +75,25 @@ export const StickerPrint = memo(function StickerPrint({ art, geometry, wearGeom
       front.clearcoat = 0;
     }
     const back = new MeshPhysicalMaterial({ ...shared, side: BackSide, clearcoat: 0 });
-    const backingWear = applyStickerWear(back, art.id, true);
+    const backingWear = applyStickerWear(back, art.id, true, null);
     return { front, back, wearing, backingWear };
   }, [texture, roughness, studio.texture, finishEnabled, appearance, art.id]);
   useLayoutEffect(() => {
-    const damage = texture ? prepareStickerSurfaceDamage(texture, art.id, wearGeometry ?? undefined) : null;
+    const damage = preparedPrint?.damage ?? null;
     materials.wearing.setDamage(damage); materials.backingWear.setDamage(damage);
     invalidate();
-  }, [materials, texture, art.id, wearGeometry, invalidate]);
-  useLayoutEffect(() => { materials.wearing.set(appearance === 'earned' ? wear : 0); materials.backingWear.set(appearance === 'earned' ? wear : 0); invalidate(); }, [materials, wear, appearance, invalidate]);
+  }, [materials, preparedPrint, invalidate]);
+  useLayoutEffect(() => { materials.wearing.set(preparedPrint?.wear ?? 0); materials.backingWear.set(preparedPrint?.wear ?? 0); invalidate(); }, [materials, preparedPrint, invalidate]);
+  useLayoutEffect(() => { if (purpose === 'program-warmup') { if (texture) onSurfaceReady?.(); return; } if (preparedPrint) { const placement = preparedStickerPlacement(preparedPrint.geometry); if (placement) commitPreparedStickerSurface(preparedPrint.geometry, { ...placement, wear: preparedPrint.wear }); onReady?.(art.id); onSurfaceReady?.(); } }, [preparedPrint, art.id, onReady, onSurfaceReady, purpose, texture]);
   useEffect(() => () => { materials.front.dispose(); materials.back.dispose(); }, [materials]);
-  if (texture === null) return null;
+  // Hidden program warmup uses the same material factory and geometry attributes;
+  // damage uniforms do not create shader variants or need CPU query resources.
+  const printGeometry = purpose === 'program-warmup' ? geometry : preparedPrint?.geometry;
+  if (texture === null || !printGeometry) return null;
   // Meshes borrow geometry/maps. Their owners dispose those, while this component
   // owns exactly these two physical materials, including the unprinted underside.
-  return <group visible={visible} name={`sticker-print-${art.id}`}>
-    <mesh name={`sticker-${art.id}`} geometry={geometry} material={materials.front} dispose={null} raycast={() => {}} renderOrder={renderOrder} />
-    <mesh name={`sticker-backing-${art.id}`} geometry={geometry} material={materials.back} dispose={null} raycast={() => {}} renderOrder={renderOrder} />
+  return <group visible={purpose === 'program-warmup' ? false : visible} name={`sticker-print-${art.id}`}>
+    <mesh name={`sticker-${art.id}`} geometry={printGeometry} material={materials.front} dispose={null} raycast={() => {}} renderOrder={renderOrder} />
+    <mesh name={`sticker-backing-${art.id}`} geometry={printGeometry} material={materials.back} dispose={null} raycast={() => {}} renderOrder={renderOrder} />
   </group>;
 });

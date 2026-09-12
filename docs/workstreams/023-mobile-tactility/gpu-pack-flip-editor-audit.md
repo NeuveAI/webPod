@@ -1,0 +1,40 @@
+# CPU030 editor and transition subscription audit
+
+Read-only source audit against the current worktree after reading gpu-pack-flip-investigation.md and existing WEBPOD-CPU-030 show/context. No browser calls, source edits, new benchmarks or quality changes. The supplied screenshot's356.10ms hovered React span and8.2s aggregate scripting are not self-time attribution.
+
+## Concrete hidden-editor path
+
+`apps/web/src/sticker-editor.tsx:60–66` mounts StickerAppearanceEditor except during a human peeling/placing/settling carry. A hidden packet or zero HUD presence does not unmount it. The inner component subscribes to15 atoms, including global stickerProjectionVersionAtom. lastPresentedAtom is retained after dismissal and is cleared only by the component's cleanup (line106); this preserves the exit animation.
+
+Its contour useMemo at158–162 runs BEFORE the shown/presence guard at163. With a retained previously shown editor and presence0, every changed projectionVersion still calls contour(presented.draft), then returns null for the UI. This is unnecessary exact query work for an invisible HUD. A truly cold editor with shown:null avoids the contour call, so this mechanism must not be asserted as the cause without matching profile/state evidence.
+
+The command is the stable production stickerProjection.contour adapter (`production-device-view.tsx:41`). `packages/device/src/sticker-projection.ts:127–130` prepares current visibility, locates the real print and reads the canvas rect before projecting the contour. `sticker-contour.ts:71–86` caches by geometry/field/quantized wear, visibility revision, content transform, mesh transform, camera and canvas. A real flip changes those transforms, invalidating the cache. For a valid prepared contour, each path point requires projection and an exact visibility query; four anchors add four visibility checks (with additional unoccluded anchor projection). This is proportional to contour point count, not a fixed cheap rectangle. Dense alpha tracing is already prepared and should not be blamed again without evidence of fallback.
+
+Smallest candidate: in sticker-editor.tsx, gate the contour memo using actual `shown!==null && presence>0` (and include that boolean dependency). Keep current projection while exit presence is positive, all hooks/lifetime listeners, cancellation, keyboard/failure UI, tooltip and live editor semantics. Once presence reaches0, skip projection entirely. Re-entry must recompute against the current renderer pose. This is not permission to drop the dismissal animation or unmount arbitrary state. A source/controlled proof should count zero contour calls while fully hidden, preserve calls through dismissal and on re-entry, and exercise failure/cancel paths before matched profile comparison.
+
+## Parent fan-out and visible HUD work
+
+`production-device-view.tsx:130–147` subscribes to18 atom values, including packet presence, interaction, sheet reveal, turn and lowering. Every spring presence update triggers a render and allocates a fresh preparedSheet descriptor (neighbor filter/slice/map and slot map) plus the scene object. `sticker-pack-presence.ts:25–40` publishes one atom value per animation tick; its bounded1/120 integration substeps are not themselves evidence of hundreds of milliseconds.
+
+StickerCollection independently subscribes to presence and projection version (`sticker-collection.tsx:96,106`) and always renders StickerEditor at593. Neither StickerEditor nor StickerAppearanceEditor is memoized. Parent updates therefore cause editor render even if its own atoms have not changed. `returnPlaced` is a fresh function at415, so wrapping the editor in memo without stabilizing callback semantics will not remove this path; ignoring changed callbacks in a comparator would risk stale behavior.
+
+When visible, the contour memo avoids work if projectionVersion/selection/contour callback are stable, but the HUD layout is recomputed outside a memo on every render (`sticker-editor.tsx:171`). It projects the other saved placements, flattens contour paths, and calls chooseHudLayout. That helper tries six radial offsets; its fallback scans24px/48px viewport grids and repeatedly filters/sorts candidate seats. Cost depends on viewport, contour length and placement count. Presence/release/tooltip changes can repeat the same layout even if the shape/viewport/occupied geometry are unchanged. This is a separate memoization candidate after attribution, preserving all exact layout math and drag's saved-layout branch.
+
+## Required trace discrimination
+
+- Determine whether the hovered React measure is a component self render, inclusive subtree/render attempt, or broader update span. Do not sum nested ancestor/descendant spans.
+- Correlate main JS samples under StickerAppearanceEditor with contour/visibility or chooseHudLayout, versus hook/reconciliation overhead. Establish whether shown/active/presence were nonzero or merely retained.
+- Separate packet presence atom fan-out from native renderer/preparation workers and actual resource compilation. A component appearing repeatedly is not proof it owns the whole356ms.
+- Preserve the existing trace before considering a new bounded repeat. First reveal and repeated/reversed flips may have different resource work.
+
+Only the hidden contour guard is presently a concrete minimal avoidable-work boundary. The broader parent subscription split and visible-layout memo should remain proposals until the exported trace supports their priority. No cap increase, new hidden-scene cache or altered GPU formula is proposed.
+
+## Confirmed trace follow-up and bounded algorithm boundary
+
+Lead/trace analyst subsequently confirmed the changed-prop async React spans include the screenshot356.10ms measure; numeric TimeStamp spans cover a different render subset. CPU samples attribute approximately5.65s inclusively to the editor,5.63s to its contour memo and5.49s to projectPreparedContour. These nested samples must not be added together. Trace does not establish whether HUD presence was positive.
+
+Collection's motion synchronization (sticker-collection.tsx:154–167) calls dismissStickerEditor on every changed orientation key, independently of rear admission thresholds. Dismissal clears the human editor atom; lastPresented remains. The HUD can therefore remain visibly fading during a back-to-front flip or packet dismissal until the existing spring reaches zero (bounded1500ms). An agent tool editor takes precedence over the human editor and is not cleared by dismissStickerEditor; it can remain visibly active. Hidden-only gating cannot eliminate positive-fade or active-tool contour costs.
+
+The exact ray path already shares camera/content preparation once per contour call: stickerVisibilityQuery calls visibility.update once, inverts content once and converts camera once. Each sample transforms only its point into content space. createStickerCollision.castSegment does NOT transform the complete geometry or decode its original indices per ray: it traverses the immutable packed BVH, reads visited node bounds with two Vector3.fromArray calls, and reads each tested triangle's three pretransformed coordinates with three fromArray calls. A successful hit rereads its winning triangle for the returned normal. Each contour sample still repeats traversal and overlapping triangle loads. The trace's fromArray cost is consistent with this repetition, not proof of full-mesh transforms.
+
+Consequently, a new once-per-pose visibility preparation alone duplicates an existing boundary and cannot remove most exact-ray cost. If matched post-guard evidence still shows visible contour stalls, propose a separately scoped batch projection/visibility job over immutable prepared contour+collider with a pose/resource stamp, bounded current/candidate results and exact visibility/output parity. That requires explicitly preserving current-pose handles/admission and cancellation and is not part of this fix. Do not replace visibility with approximate contours or simply reuse results from another pose.

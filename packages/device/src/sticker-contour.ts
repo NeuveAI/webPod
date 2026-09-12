@@ -1,8 +1,12 @@
-import { MeshPhysicalMaterial, Vector3, type Camera, type Mesh } from 'three';
+import { drainSteps } from './sticker-computation-steps';
+import { getPreparedStickerContour } from './sticker-contour-preparation-data';
+import { Matrix4, MeshPhysicalMaterial, Vector3, type Camera, type Mesh } from 'three';
 import { getStickerMaterialDamage, stickerPixelSurvives, type StickerDamageField } from './sticker-alpha';
 import type { StickerProjectedContour, StickerScreenPoint } from './sticker-contract';
 import { STICKER_SURFACE } from './sticker-surface';
 import { stickerProjectedQuad } from './sticker-transform-projection';
+import type { PreparedStickerContour } from './sticker-contour-preparation-data';
+import type { StickerContourProjection, StickerContourVisibility } from './sticker-contour-query-data';
 type Point = { readonly x: number; readonly y: number };
 const cache = new WeakMap<StickerDamageField, Map<number, readonly (readonly Point[])[]>>();
 interface ContourOcclusionRevision { readonly identity: object; readonly revision: number; readonly contentMatrix: readonly number[] }
@@ -14,7 +18,10 @@ const projectedCache = new WeakMap<Mesh, { readonly key: readonly unknown[]; rea
  * Coordinates are image-normalized. Only collinear vertices are removed (zero added error).
  * A four-entry LRU bounds alternating sheet/rear wear previews without rebuilding textures.
  */
-export function stickerAlphaContours(field: StickerDamageField, wear: number): readonly (readonly Point[])[] {
+export function stickerAlphaContours(field: StickerDamageField, wear: number): readonly (readonly Point[])[] { return drainSteps(stickerAlphaContoursSteps(field, wear)); }
+/** Shared exact boundary tracing with bounded cooperative checkpoints. */
+export function* stickerAlphaContoursSteps(field: StickerDamageField, wear: number): Generator<void, readonly (readonly Point[])[], void> {
+  let work = 0;
   const normalized = Number.isFinite(wear) ? Math.max(0, Math.min(1, wear)) : 0;
   // Only byte thresholds can change topology; range input between them reuses the same boundary.
   const key = Math.floor(normalized * 255);
@@ -24,6 +31,7 @@ export function stickerAlphaContours(field: StickerDamageField, wear: number): r
   const solid = (x: number, y: number) => x >= 0 && y >= 0 && x < field.width && y < field.height && stickerPixelSurvives(field, x, y, normalized);
   const add = (x: number, y: number, xx: number, yy: number) => { const start = y * stride + x; const end = yy * stride + xx; const list = edges.get(start); if (list) list.push(end); else edges.set(start, [end]); };
   for (const index of field.boundaryCandidates) {
+    if (++work % 256 === 0) yield;
     const x = index % field.width; const y = Math.floor(index / field.width);
     if (!solid(x, y)) continue;
     if (!solid(x, y - 1)) add(x, y, x + 1, y);
@@ -36,14 +44,16 @@ export function stickerAlphaContours(field: StickerDamageField, wear: number): r
     const start = edges.keys().next().value; if (start === undefined) break;
     const path: Point[] = []; let current = start;
     do {
+      if (++work % 256 === 0) yield;
       path.push({ x: current % stride, y: Math.floor(current / stride) });
       const outgoing = edges.get(current); const next = outgoing?.pop();
       if (!outgoing?.length) edges.delete(current);
       if (next === undefined) break; current = next;
     } while (current !== start);
     if (path.length < 4) continue;
-    const reduced = path.filter((p, i) => { const prev = path[(i + path.length - 1) % path.length]; const next = path[(i + 1) % path.length]; return prev && next && (p.x - prev.x) * (next.y - p.y) !== (p.y - prev.y) * (next.x - p.x); });
-    paths.push(reduced.map((p) => ({ x: p.x / field.width, y: p.y / field.height })));
+    const reduced: Point[] = [];
+    for (let i = 0; i < path.length; i++) { if (++work % 256 === 0) yield; const p = path[i], prev = path[(i + path.length - 1) % path.length], next = path[(i + 1) % path.length]; if (p && prev && next && (p.x - prev.x) * (next.y - p.y) !== (p.y - prev.y) * (next.x - p.x)) reduced.push({ x: p.x / field.width, y: p.y / field.height }); }
+    paths.push(reduced);
   }
   entries.set(key, paths); if (entries.size > 4) { const oldest = entries.keys().next().value; if (oldest !== undefined) entries.delete(oldest); }
   return paths;
@@ -80,6 +90,8 @@ export function projectStickerContourField(print: Mesh, camera: Camera, canvas: 
 
 function projectContourUncached(print: Mesh, camera: Camera, canvas: { readonly left: number; readonly top: number; readonly width: number; readonly height: number }, field: StickerDamageField, wear: number, visible?: (world: Vector3) => boolean): StickerProjectedContour | null {
   const quad = stickerProjectedQuad(print, camera, canvas); if (!quad) return null;
+  const prepared = getPreparedStickerContour(print.geometry, field, wear);
+  if (prepared) return projectPreparedStickerContour(prepared.value, { world: print.matrixWorld.toArray(), cameraInverse: camera.matrixWorldInverse.toArray(), cameraProjection: camera.projectionMatrix.toArray(), canvas }, quad.center, visible);
   const positions = print.geometry.getAttribute('position'); const uv = print.geometry.getAttribute('uv'); const n = STICKER_SURFACE.segments;
   if (!positions || !uv || positions.count !== (n + 1) ** 2) return null;
   const minU = uv.getX(0); const maxU = uv.getX(n); const maxV = uv.getY(0); const minV = uv.getY(n * (n + 1));
@@ -126,4 +138,32 @@ function projectContourUncached(print: Mesh, camera: Camera, canvas: { readonly 
   const anchor = (x: number, y: number) => { let best = outer[0]; let distance = Infinity; for (const p of outer) { const dx = (p.x - minU) / (maxU - minU) - x; const dy = (p.y - (1 - maxV)) / (maxV - minV) - y; const score = dx * dx + dy * dy; if (score < distance) { distance = score; best = p; } } return best ? { point: project(best, false), visible: project(best) !== null } : null; };
   const tl = anchor(0, 0); const tr = anchor(1, 0); const br = anchor(1, 1); const bl = anchor(0, 1);
   return paths.length && tl?.point && tr?.point && br?.point && bl?.point ? { paths, closed, anchors: [tl.point, tr.point, br.point, bl.point], anchorVisible: [tl.visible, tr.visible, br.visible, bl.visible], center: quad.center } : null;
+}
+
+/** Exact prepared kernel shared by synchronous queries and an isolated query owner.
+ * Borrows local points and the visibility callback; no scene, material or DOM is read.
+ * The caller supplies the center from the same admitted quad projection. */
+export function projectPreparedStickerContour(value: PreparedStickerContour, projection: StickerContourProjection, center: StickerScreenPoint, visible?: StickerContourVisibility): StickerProjectedContour | null {
+ const { canvas } = projection;
+ const world = new Matrix4().fromArray(projection.world);
+ const cameraInverse = new Matrix4().fromArray(projection.cameraInverse);
+ const cameraProjection = new Matrix4().fromArray(projection.cameraProjection);
+ const point = new Vector3();
+ const project = (points: Float64Array, offset: number, check = true): StickerScreenPoint | null => {
+  point.fromArray(points, offset).applyMatrix4(world);
+  if (check && visible && !visible(point)) return null;
+  point.applyMatrix4(cameraInverse); if (point.z >= 0) return null;
+  point.applyMatrix4(cameraProjection); if (![point.x,point.y,point.z].every(Number.isFinite) || point.z < -1 || point.z > 1) return null;
+  return { x: canvas.left + (point.x + 1) * canvas.width / 2, y: canvas.top + (1 - point.y) * canvas.height / 2 };
+ };
+ const paths: StickerScreenPoint[][] = [], closed: boolean[] = [];
+ for (const path of value.paths) {
+  const points = visible ? path.visiblePoints : path.points, projected: (StickerScreenPoint | null)[] = [];
+  for(let i=0;i<points.length;i+=3) projected.push(project(points,i));
+  const hidden=projected.indexOf(null);
+  if(hidden<0){paths.push(projected.filter((p): p is StickerScreenPoint => p!==null));closed.push(true);}
+  else {let span: StickerScreenPoint[]=[];for(let i=1;i<=projected.length;i++){const p=projected[(hidden+i)%projected.length];if(p)span.push(p);else{if(span.length>1){paths.push(span);closed.push(false);}span=[];}}}
+ }
+ const a=project(value.anchors,0,false), b=project(value.anchors,3,false), c=project(value.anchors,6,false), d=project(value.anchors,9,false);
+ return paths.length && value.anchors.length===12 && a && b && c && d ? {paths,closed,anchors:[a,b,c,d],anchorVisible:[project(value.anchors,0)!==null,project(value.anchors,3)!==null,project(value.anchors,6)!==null,project(value.anchors,9)!==null],center}:null;
 }

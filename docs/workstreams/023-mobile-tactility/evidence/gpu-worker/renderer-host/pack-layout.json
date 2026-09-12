@@ -1,0 +1,6 @@
+{
+  "cases": 54,
+  "maxWorldScalarError": 4.547473508864641e-13,
+  "resourceIdentityIndependentOfPacketProgressAndLinerCurl": true,
+  "scope": "Offline original GL/Fiber formula versus native scalar packet layout; no browser or timing claim."
+}

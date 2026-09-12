@@ -1,22 +1,26 @@
+import {translatePreparedGeometrySteps} from './geometry-preparation-steps';
+import { drainSteps } from './sticker-computation-steps';
+import type {BufferGeometry} from 'three';
 import { ExtrudeGeometry } from 'three';
-import { toCreasedNormals } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { frontCoreDepth, tessellateVerticalCrown } from './curved-shell';
-import { createRearShellGeometry, frontShellPlan, productShellDepths } from './product-shell';
-import { cutHardwareApertures } from './hardware-apertures';
+import { creasePreparedNormalsSteps } from './creased-normal-steps';
+import { frontCoreDepth, tessellateVerticalCrownSteps } from './curved-shell';
+import { createRearShellGeometrySteps, frontShellPlan, productShellDepths } from './product-shell';
+import { cutHardwareAperturesSteps } from './hardware-apertures';
 import { circleHole, roundedRectHole, silhouetteShape } from './shapes';
-import { squareRoundedRectApertureWalls, removeOpaqueApertureWalls } from './screen-aperture';
+import { squareRoundedRectApertureWallsSteps, removeOpaqueApertureWallsSteps } from './screen-aperture';
 import { DEVICE_LAYOUT } from './layout';
 import { DEVICE_SURFACE_LAYOUT } from './surface-layout';
 import type { DeviceFormParams } from './form';
-import { indexImmutableGeometry } from './immutable-geometry-index';
+import { indexImmutableGeometrySteps } from './immutable-geometry-index';
 const {body,wheel}=DEVICE_LAYOUT, {displayWell}=DEVICE_SURFACE_LAYOUT.front;
 const BEVEL_SEGMENTS=16;
 /** Exact original procedural shell factory. Worker compacts after all edits;
- * exceptional CPU recovery retains original unindexed output and construction cost. */
-export function createImmutableShells(form: DeviceFormParams, indexed = true) {
+ * CPU recovery executes the same staged, indexed recipe with cooperative yields. */
+export function createImmutableShells(form: DeviceFormParams, indexed = true) { return drainSteps(createImmutableShellsSteps(form,indexed)); }
+export function* createImmutableShellsSteps(form:DeviceFormParams,indexed=true):Generator<void,{front:BufferGeometry;back:BufferGeometry},void> {
  const plateBackZ=productShellDepths(body.depth,form.frontThickness).seamZ;
- const back=(()=>{
-    const shell = createRearShellGeometry({
+ const back=yield* (function*(){
+    const shell = yield* createRearShellGeometrySteps({
       width: body.width,
       height: body.height,
       depth: body.depth,
@@ -26,11 +30,12 @@ export function createImmutableShells(form: DeviceFormParams, indexed = true) {
       rearCrownInset: form.rearCrownInset,
       frontRimInset: form.seamWidth + form.frontBevel + 0.25,
     });
-    const opened = cutHardwareApertures(shell);
+    yield;
+    const opened = yield* cutHardwareAperturesSteps(shell);
     shell.dispose();
-    return indexed ? indexImmutableGeometry(opened) : opened;
+    return indexed ? yield* indexImmutableGeometrySteps(opened) : opened;
 })();
- const front=(()=>{
+ const front=yield* (function*(){
     // §5.6 modelled rather than stroked: the aluminum front is inset by
     // the seam width, so what runs round the perimeter is the steel shell's own
     // rolled edge, presenting a different angle to the light at every point of
@@ -71,7 +76,7 @@ export function createImmutableShells(form: DeviceFormParams, indexed = true) {
     // Three applies the outer-shell bevel to holes as well. The flush LCD
     // opening is square to the glossy face, so collapse only this hole's
     // generated slope before the shell crown is applied.
-    squareRoundedRectApertureWalls(
+    yield* squareRoundedRectApertureWallsSteps(
       extrusion,
       {
         centerX: displayWell.centerX,
@@ -82,14 +87,16 @@ export function createImmutableShells(form: DeviceFormParams, indexed = true) {
       },
       form.frontBevel,
     );
-    removeOpaqueApertureWalls(extrusion, {
+    yield* removeOpaqueApertureWallsSteps(extrusion, {
       centerX: displayWell.centerX, centerY: displayWell.centerY,
       width: displayWell.width, height: displayWell.height, cornerR: displayWell.cornerR,
     });
     // Smooth the rolled aluminum before deformation; preserve the LCD wall
     // crease. ExtrudeGeometry starts with an independent normal per triangle.
-    toCreasedNormals(extrusion, Math.PI / 4);
-    const geometry = tessellateVerticalCrown(
+    yield;
+    yield* creasePreparedNormalsSteps(extrusion,Math.PI/4);
+    yield;
+    const geometry = yield* tessellateVerticalCrownSteps(
       extrusion,
       body.height / 2 - seam,
       form.bodyCrown,
@@ -101,8 +108,8 @@ export function createImmutableShells(form: DeviceFormParams, indexed = true) {
       },
     );
     extrusion.dispose();
-    geometry.translate(0, 0, plateBackZ + form.frontBevel);
-    return indexed ? indexImmutableGeometry(geometry) : geometry;
+    yield* translatePreparedGeometrySteps(geometry,0,0,plateBackZ+form.frontBevel);
+    return indexed ? yield* indexImmutableGeometrySteps(geometry) : geometry;
 })();
  return {front,back};
 }

@@ -1,0 +1,26 @@
+{
+  "method": "Actual Bun module worker/MessagePorts; worker-unavailable exact cooperative recovery. Not browser or mobile timing.",
+  "checks": {
+    "sharedPromise": true,
+    "canonicalContourReferencesExact": true,
+    "ordinaryCancellationPreservesCanonicalProducer": true,
+    "privateExactCopy": true,
+    "mountedBuffersNotDetached": true,
+    "privateBytesAndOwnerCount": true,
+    "idempotentRelease": true,
+    "pendingAbortRetiresProducer": true,
+    "canonicalLossRejectsWithoutRecompute": true,
+    "finalCleanup": true,
+    "exactCooperativeFallback": true
+  },
+  "admitted": {
+    "entries": 1,
+    "queued": 0,
+    "active": null,
+    "worker": true,
+    "privateOwners": 1,
+    "pendingCopies": 0,
+    "privateBytes": 477176,
+    "accountedBytes": 1435624
+  }
+}

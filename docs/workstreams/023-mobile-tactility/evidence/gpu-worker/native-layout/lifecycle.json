@@ -1,0 +1,80 @@
+{
+  "actualOwner": true,
+  "deterministicBrowserCallbacks": true,
+  "browserRenderingClaim": false,
+  "checks": [
+    "one observer per generation",
+    "equal burst coalescing",
+    "no layout read for observer payload",
+    "CSS resize",
+    "DPR-only change",
+    "fractional physical pixels",
+    "same-frame resize preserves newest physical observation",
+    "duplicate viewport keeps valid physical evidence",
+    "hidden defer",
+    "zero dimensions",
+    "resume",
+    "queued frame cancellation",
+    "late callbacks rejected",
+    "idempotent disposal",
+    "replacement owner",
+    "explicit density"
+  ],
+  "publications": [
+    {
+      "cssWidth": 440,
+      "cssHeight": 888,
+      "backingWidth": 440,
+      "backingHeight": 888,
+      "pixelRatio": 1,
+      "rasterWidth": 320,
+      "rasterHeight": 240
+    },
+    {
+      "cssWidth": 390,
+      "cssHeight": 844,
+      "backingWidth": 390,
+      "backingHeight": 844,
+      "pixelRatio": 1,
+      "rasterWidth": 320,
+      "rasterHeight": 240
+    },
+    {
+      "cssWidth": 390,
+      "cssHeight": 844,
+      "backingWidth": 1170,
+      "backingHeight": 2532,
+      "pixelRatio": 3,
+      "rasterWidth": 960,
+      "rasterHeight": 720
+    },
+    {
+      "cssWidth": 390,
+      "cssHeight": 844,
+      "backingWidth": 390,
+      "backingHeight": 844,
+      "pixelRatio": 1,
+      "rasterWidth": 320,
+      "rasterHeight": 240
+    },
+    {
+      "cssWidth": 390,
+      "cssHeight": 844,
+      "backingWidth": 585,
+      "backingHeight": 1266,
+      "pixelRatio": 1.5,
+      "rasterWidth": 640,
+      "rasterHeight": 480
+    },
+    {
+      "cssWidth": 420,
+      "cssHeight": 900,
+      "backingWidth": 420,
+      "backingHeight": 900,
+      "pixelRatio": 1,
+      "rasterWidth": 320,
+      "rasterHeight": 240
+    }
+  ],
+  "layoutReads": 7
+}

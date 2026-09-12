@@ -1,0 +1,45 @@
+{
+  "status": "author-frozen; independent review pending",
+  "files": [
+    {
+      "path": "packages/composite/src/native-sticker-warmup.ts",
+      "sha256": "e864e4d13a1996e66848c4d3d43ae83b2c57d5fa5607475773f3b481ea31009e",
+      "snapshot": "frozen/native-sticker-warmup.ts.txt"
+    },
+    {
+      "path": "packages/device/src/sticker-warmup-renderer.ts",
+      "sha256": "bd283fcfa65606597e64f9d9d8c3a4aea01153f41148aa56f64c10c597708c46",
+      "snapshot": "frozen/sticker-warmup-renderer.ts.txt"
+    },
+    {
+      "path": "packages/device/src/sticker-prepared-damage.ts",
+      "sha256": "0569f05a3336fea11e53648455d6afd51fbe5339faaf5272ec647e9dcfb5d949",
+      "snapshot": "frozen/sticker-prepared-damage.ts.txt"
+    },
+    {
+      "path": "packages/device/src/sticker-transaction-broker.ts",
+      "sha256": "b05a560fd272a4a74e729251792136799cc4264e8412a484e18654822dd1f44c",
+      "snapshot": "frozen/sticker-transaction-broker.ts.txt"
+    },
+    {
+      "path": "packages/device/src/sticker-transaction-data.ts",
+      "sha256": "f28a4f8b3b0787620e4ded4498236a10435adcd29e8f160a88f921e6daae5f0a",
+      "snapshot": "frozen/sticker-transaction-data.ts.txt"
+    },
+    {
+      "path": "packages/device/src/sticker-transaction-worker.ts",
+      "sha256": "797b998a54f2dc4e8870ae754322d992b6d6f03682094776ae69e12dedefca54",
+      "snapshot": "frozen/sticker-transaction-worker.ts.txt"
+    },
+    {
+      "path": "packages/device/src/sticker-material-nodes.ts",
+      "sha256": "bac746d29fe60abe503de9eb3de7a2b0f8a86c3606530460c3f0ea76bdab9866",
+      "snapshot": "frozen/sticker-material-nodes.ts.txt"
+    },
+    {
+      "path": "packages/device/src/sticker-wear-nodes.ts",
+      "sha256": "38cc33e87e171af22e21866ab576ebed43909d4a77f6f250792e3b4da7cfcff0",
+      "snapshot": "frozen/sticker-wear-nodes.ts.txt"
+    }
+  ]
+}

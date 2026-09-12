@@ -1,0 +1,9 @@
+{
+  "source": "packages/device/src/device-native-input.ts",
+  "sha256": "918654bbe6e96b120684c8d285506827e1dd67e71c0502963d80cff629aa88c8",
+  "baselineSha256": "769d9b2a0cc817afc48f7424b91767f01b3deeb07374f44187e9d7e6cbe0d67e",
+  "archive": "/tmp/webpod-rotation-input-freeze/device-native-input.ts",
+  "baselineCommit": "6f6538686c8fae213e94be94798295f8c35c4707",
+  "checks": "ownership.ts/json; 25 existing tests / 928 assertions; device/composite/web types; scoped lint",
+  "acceptance": "Independent source review and matched production browser timing pending"
+}

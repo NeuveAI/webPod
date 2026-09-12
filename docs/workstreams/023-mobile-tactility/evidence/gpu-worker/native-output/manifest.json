@@ -1,0 +1,26 @@
+{
+  "files": [
+    {
+      "path": "packages/device/src/native-material-output.ts",
+      "sha256": "36c6d21dc7b3d37abe1e48cdb26e7e32393d6a47bd830a4805a38e4e9430fdee"
+    },
+    {
+      "path": "packages/device/src/device-assembly-materials.ts",
+      "sha256": "51d94baddddca9430ea1d263a408584af226e19ca6df5a93f6a458ba63b071f5"
+    },
+    {
+      "path": "packages/device/src/sticker-material-nodes.ts",
+      "sha256": "bb0db68eabaae51f3dc80576ed205d534b2ba9da4001019133cb661e3594ae0a"
+    },
+    {
+      "path": "packages/device/src/sticker-pack-render-frame.ts",
+      "sha256": "ee6fb7c01c71f8c0cbaba44e1dce56b25431f9747986efb9991d0e9de16aa7f5"
+    },
+    {
+      "path": "packages/device/src/device-render-worker.ts",
+      "sha256": "518ac617382e1a0b4aea3d7be62bbdfea05aa538bcaacd768fd06705e039a974"
+    }
+  ],
+  "temporaryProbe": "removed after successful capture; exact source retained gpu-probe-source.js.txt",
+  "gpuProof": "passed; gpu-result.json andgpu-summary.json"
+}

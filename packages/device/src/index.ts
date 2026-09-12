@@ -303,3 +303,4 @@ export { STICKER_LAMINATE, STICKER_PACK_MATERIAL } from "./materials";
 export { retryStickerArtwork } from "./sticker-textures";
 
 export { useControlPhysics } from './ControlPhysicsScope';
+export type { DeviceMotionAuthority, DeviceMotionBinding } from './device-motion-authority';

@@ -1,0 +1,10 @@
+[
+  {
+    "path": "packages/device/src/sticker-carry-context.ts",
+    "sha256": "0a12a95a7d029669b671c394ff99b05e5f50bd60b5da3629f75d04356f2a62b8"
+  },
+  {
+    "path": "packages/device/src/sticker-carry-preparation.ts",
+    "sha256": "f6ef5eb1287faf69c61df0b301a81888b49a6b396fbdf21bf7367b4c7a4dbd62"
+  }
+]

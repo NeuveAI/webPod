@@ -1,0 +1,22 @@
+{
+  "source": "e940356",
+  "cacheSourceHash": "6a0069cbbd654e4f72a18e4d581f1bdb4c03cd35fbc5993e94064af7d3080840",
+  "build": "bun run build passed",
+  "launch": "NODE_ENV=production bun --env-file=/Users/vinicius/code/webPod/.env.local run --cwd apps/web start",
+  "cpuThrottling": 6,
+  "backend": "worker",
+  "route": "http://localhost:3000/webpod",
+  "assets": [
+    {
+      "file": "apps/web/dist/client/assets/src-DNzIxBUm.js",
+      "sha256": "7a179c815dcf1fa5e9f070a3c4dcd7a01eaca3268bc49cd5a4f051eb18000327",
+      "bytes": 1869575
+    },
+    {
+      "file": "apps/web/dist/client/assets/index-ZO9oaSeJ.js",
+      "sha256": "30de8b1748a6e060fe045b2c08cc39836b389f28fabc103ec36f52635051636d",
+      "bytes": 516857
+    }
+  ],
+  "qualification": "Runtime observer and CPU profile collected separately. Long tasks 87,83,95ms remain during positive editor fade; no feature-complete claim."
+}

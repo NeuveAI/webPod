@@ -1,3 +1,4 @@
+import type { PreviewMotionAuthority } from './device-motion-authority'
 import type { DevicePreviewStore } from './device-preview-orientation'
 import { deviceStore } from '@webpod/state'
 import { deviceRevealActiveAtom } from './device-reveal-state'
@@ -15,36 +16,11 @@ import { resetStickerPackPresence } from './sticker-pack-presence'
  * 3460ms   rest; never repeat the hint
  * reduced  show the resting front immediately
  */
-export const DEVICE_REVEAL_TIMING = {
-  warm: 1450, turn: 440, front: 1600, settle: 1900,
-  wink: 2300, winkPeak: 2720, winkReturn: 2800, complete: 3460,
-  maxFrameStep: 32,
-} as const
-const REVEAL = { travelPercent: 110, yawDeg: 180, pitchDeg: -12, rollDeg: -5 } as const
-const WINK = { yawDeg: -32, pitchDeg: -5, rollDeg: 2 } as const
-const smooth = (value: number) => {
-  const t = Math.max(0, Math.min(1, value))
-  return t * t * t * (t * (t * 6 - 15) + 10)
-}
-
-export function deviceRevealFrame(elapsedMs: number) {
-  const progress = Math.max(0, Math.min(1, elapsedMs / DEVICE_REVEAL_TIMING.settle))
-  const rise = 1 - Math.pow(1 - progress, 3)
-  const turn = smooth((elapsedMs - DEVICE_REVEAL_TIMING.turn) / (DEVICE_REVEAL_TIMING.front - DEVICE_REVEAL_TIMING.turn))
-  const wink = smooth((elapsedMs - DEVICE_REVEAL_TIMING.wink) / (DEVICE_REVEAL_TIMING.winkPeak - DEVICE_REVEAL_TIMING.wink)) *
-    (1 - smooth((elapsedMs - DEVICE_REVEAL_TIMING.winkReturn) / (DEVICE_REVEAL_TIMING.complete - DEVICE_REVEAL_TIMING.winkReturn)))
-  return {
-    travelPercent: REVEAL.travelPercent * (1 - rise),
-    orientation: {
-      yawDeg: REVEAL.yawDeg * (1 - turn) + WINK.yawDeg * wink,
-      pitchDeg: REVEAL.pitchDeg * (1 - rise) + WINK.pitchDeg * wink,
-      rollDeg: REVEAL.rollDeg * (1 - rise) + WINK.rollDeg * wink,
-    },
-  }
-}
+import { DEVICE_REVEAL_TIMING, deviceRevealFrame, smooth } from '../../../packages/device/src/device-reveal-motion'
+export { DEVICE_REVEAL_TIMING, deviceRevealFrame } from '../../../packages/device/src/device-reveal-motion'
 
 /** One scene-entry owner; user/tool orientation changes immediately take over. */
-export function mountDeviceReveal(stage: HTMLElement, store: DevicePreviewStore): () => void {
+export function mountDeviceReveal(stage: HTMLElement, store: DevicePreviewStore, motionAuthority?: PreviewMotionAuthority): () => void {
   const media = window.matchMedia('(prefers-reduced-motion: reduce)')
   let frame = 0
   let previousFrame: number | null = null
@@ -69,12 +45,16 @@ export function mountDeviceReveal(stage: HTMLElement, store: DevicePreviewStore)
     room?.style.removeProperty('--device-reveal-glow')
     if (front) store.resetOrientation()
     deviceStore.set(deviceRevealActiveAtom, false)
+    motionAuthority?.publishReveal(store.getSnapshot().orientation, null)
   }
   const publish = (elapsed: number) => {
     const next = deviceRevealFrame(elapsed)
     stage.style.setProperty('--device-reveal-y', `${next.travelPercent}%`)
     room?.style.setProperty('--device-reveal-glow', String(1 - smooth(elapsed / DEVICE_REVEAL_TIMING.front)))
     publishing = true
+    motionAuthority?.publishReveal(next.orientation, {elapsedMs: elapsed, travelPercent: next.travelPercent,
+      glow: 1 - smooth(elapsed / DEVICE_REVEAL_TIMING.front), publicActive: elapsed < DEVICE_REVEAL_TIMING.settle,
+      settled: elapsed >= DEVICE_REVEAL_TIMING.settle, timelineComplete: elapsed >= DEVICE_REVEAL_TIMING.complete})
     try { store.setOrientation(next.orientation) } finally { publishing = false }
   }
   const tick = (now: number) => {

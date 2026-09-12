@@ -1,0 +1,1 @@
+{"result":{"content":[{"type":"text","text":"Script ran on page and returned:\n```json\n{\"stage\":\"result\",\"ok\":true,\"sourceWidth\":64,\"sourceHeight\":32,\"textureWidth\":64,\"textureHeight\":32,\"pixel\":[100,150,200,255],\"expectedPixel\":[100,150,200,255],\"validation\":null}\n```"}]},"jsonrpc":"2.0","id":11}

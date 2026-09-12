@@ -14,6 +14,8 @@ export interface StickerEditorState {
   readonly message: string | null
   readonly keyboard: boolean
 }
+/** New selection lifetime, independent of asynchronous write cancellation. */
+export const stickerEditorQuerySessionAtom = atom(0)
 export const stickerEditorAtom = atom<StickerEditorState | null>(null)
 export const stickerEditorFailureAtom = atom<{ readonly stickerId: string; readonly message: string; readonly attempted?: StickerPlacement; readonly expected?: StickerPlacement } | null>(null)
 export const stickerEditorPendingAtom = atom<Readonly<Record<string, StickerPlacement>>>({})
@@ -49,6 +51,7 @@ const projectedEditorPlacementsAtom = atom((get) => {
 /** Metadata-only editor publications keep the rendered placement identity. */
 export const stickerEditorPlacementsAtom = selectAtom(projectedEditorPlacementsAtom, placements => placements, (a, b) => a.length === b.length && a.every((placement, index) => placement === b[index]))
 export function selectStickerEditor(source: StickerPlacement, keyboard = false): void {
+  deviceStore.set(stickerEditorQuerySessionAtom, value => value + 1)
   setStickerPackTucked(true)
   deviceStore.set(stickerEditorHandleModeAtom, 'rotationDeg')
   deviceStore.set(stickerEditorFailureAtom, null)

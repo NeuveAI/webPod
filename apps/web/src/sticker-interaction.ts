@@ -20,7 +20,7 @@ export function setStickerFinishCalibration(enabled: boolean): void {
 const stickerArtworkFailuresAtom = atom<readonly string[]>([])
 export const stickerArtworkFailureAtom = atom((get) => get(stickerArtworkFailuresAtom).find((id) => get(stickerPreparationIdsAtom).some((active) => active === id) || get(stickerInventoryAtom)?.placements.some((placement) => placement.stickerId === id)) ?? null)
 export const reportStickerArtworkFailure = (id: string): void => { deviceStore.set(stickerArtworkFailuresAtom, (ids) => ids.includes(id) ? ids : [...ids, id]) }
-export const reportStickerArtworkReady = (id: string): void => { deviceStore.set(stickerArtworkFailuresAtom, (ids) => ids.filter((failed) => failed !== id)) }
+export const reportStickerArtworkReady = (id: string): void => { deviceStore.set(stickerArtworkFailuresAtom, (ids) => ids.includes(id) ? ids.filter((failed) => failed !== id) : ids) }
 
 let animationFrame: number | null = null
 let animationGeneration = 0

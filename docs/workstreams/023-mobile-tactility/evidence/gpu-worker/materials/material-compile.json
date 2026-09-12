@@ -1,0 +1,263 @@
+{
+  "ok": true,
+  "phase": "all",
+  "stages": [
+    {
+      "name": "initialization-start",
+      "elapsedMs": 5.5999999940395355
+    },
+    {
+      "name": "initialization-ready",
+      "elapsedMs": 12
+    },
+    {
+      "name": "polycarbonate-subsurface-directional-and-rectangle:compile-start",
+      "elapsedMs": 24
+    },
+    {
+      "name": "polycarbonate-subsurface-directional-and-rectangle:compile-ready",
+      "elapsedMs": 117.69999998807907
+    },
+    {
+      "name": "polycarbonate-subsurface-directional-and-rectangle:render-submitted",
+      "elapsedMs": 133.09999999403954
+    },
+    {
+      "name": "glass-authored-rectangle-cards:compile-start",
+      "elapsedMs": 133.89999997615814
+    },
+    {
+      "name": "glass-authored-rectangle-cards:compile-ready",
+      "elapsedMs": 530.6999999880791
+    },
+    {
+      "name": "glass-authored-rectangle-cards:render-submitted",
+      "elapsedMs": 539.2999999821186
+    },
+    {
+      "name": "wear-front:compile-start",
+      "elapsedMs": 542.1999999880791
+    },
+    {
+      "name": "wear-front:compile-ready",
+      "elapsedMs": 930.8999999761581
+    },
+    {
+      "name": "wear-front:render-submitted",
+      "elapsedMs": 933.6999999880791
+    },
+    {
+      "name": "wear-backing:compile-start",
+      "elapsedMs": 934.7999999821186
+    },
+    {
+      "name": "wear-backing:compile-ready",
+      "elapsedMs": 1218.0999999940395
+    },
+    {
+      "name": "wear-backing:render-submitted",
+      "elapsedMs": 1222.199999988079
+    },
+    {
+      "name": "seat-locked:compile-start",
+      "elapsedMs": 1223.199999988079
+    },
+    {
+      "name": "seat-locked:compile-ready",
+      "elapsedMs": 1476.3999999761581
+    },
+    {
+      "name": "seat-locked:render-submitted",
+      "elapsedMs": 1478.2999999821186
+    },
+    {
+      "name": "seat-placed:compile-start",
+      "elapsedMs": 1479.5
+    },
+    {
+      "name": "seat-placed:compile-ready",
+      "elapsedMs": 1746.2999999821186
+    },
+    {
+      "name": "seat-placed:render-submitted",
+      "elapsedMs": 1748.5
+    },
+    {
+      "name": "paper-sticker-front-96-grid:compile-start",
+      "elapsedMs": 1765.5
+    },
+    {
+      "name": "paper-sticker-front-96-grid:compile-ready",
+      "elapsedMs": 2201.2999999821186
+    },
+    {
+      "name": "paper-sticker-front-96-grid:render-submitted",
+      "elapsedMs": 2203.899999976158
+    },
+    {
+      "name": "paper-sticker-back-96-grid:compile-start",
+      "elapsedMs": 2204.899999976158
+    },
+    {
+      "name": "paper-sticker-back-96-grid:compile-ready",
+      "elapsedMs": 2302.899999976158
+    },
+    {
+      "name": "paper-sticker-back-96-grid:render-submitted",
+      "elapsedMs": 2303.899999976158
+    },
+    {
+      "name": "paper-sticker-edge-96-grid:compile-start",
+      "elapsedMs": 2305.699999988079
+    },
+    {
+      "name": "paper-sticker-edge-96-grid:compile-ready",
+      "elapsedMs": 2690.399999976158
+    },
+    {
+      "name": "paper-sticker-edge-96-grid:render-submitted",
+      "elapsedMs": 2692.0999999940395
+    },
+    {
+      "name": "paper-liner-front-96-grid:compile-start",
+      "elapsedMs": 2699.5
+    },
+    {
+      "name": "paper-liner-front-96-grid:compile-ready",
+      "elapsedMs": 2965.699999988079
+    },
+    {
+      "name": "paper-liner-front-96-grid:render-submitted",
+      "elapsedMs": 2966.899999976158
+    },
+    {
+      "name": "paper-liner-back-96-grid:compile-start",
+      "elapsedMs": 2967
+    },
+    {
+      "name": "paper-liner-back-96-grid:compile-ready",
+      "elapsedMs": 3095.7999999821186
+    },
+    {
+      "name": "paper-liner-back-96-grid:render-submitted",
+      "elapsedMs": 3097.0999999940395
+    },
+    {
+      "name": "paper-liner-edge-96-grid:compile-start",
+      "elapsedMs": 3098.199999988079
+    },
+    {
+      "name": "paper-liner-edge-96-grid:compile-ready",
+      "elapsedMs": 3549.2999999821186
+    },
+    {
+      "name": "paper-liner-edge-96-grid:render-submitted",
+      "elapsedMs": 3550.399999976158
+    },
+    {
+      "name": "lcd-native-unorm-single-EOTF:compile-start",
+      "elapsedMs": 3552.199999988079
+    },
+    {
+      "name": "lcd-native-unorm-single-EOTF:compile-ready",
+      "elapsedMs": 3711.2999999821186
+    },
+    {
+      "name": "lcd-native-unorm-single-EOTF:render-submitted",
+      "elapsedMs": 3712.5999999940395
+    },
+    {
+      "name": "lcd-tagged-sRGB-single-EOTF:compile-start",
+      "elapsedMs": 3713.399999976158
+    },
+    {
+      "name": "lcd-tagged-sRGB-single-EOTF:compile-ready",
+      "elapsedMs": 3868.2999999821186
+    },
+    {
+      "name": "lcd-tagged-sRGB-single-EOTF:render-submitted",
+      "elapsedMs": 3869.5999999940395
+    },
+    {
+      "name": "authored-studio-PMREM:compile-start",
+      "elapsedMs": 3982.199999988079
+    },
+    {
+      "name": "authored-studio-PMREM:compile-ready",
+      "elapsedMs": 4576.799999982119
+    },
+    {
+      "name": "authored-studio-PMREM:render-submitted",
+      "elapsedMs": 4579.399999976158
+    }
+  ],
+  "variants": [
+    {
+      "name": "polycarbonate-subsurface-directional-and-rectangle",
+      "compiled": true
+    },
+    {
+      "name": "glass-authored-rectangle-cards",
+      "compiled": true
+    },
+    {
+      "name": "wear-front",
+      "compiled": true
+    },
+    {
+      "name": "wear-backing",
+      "compiled": true
+    },
+    {
+      "name": "seat-locked",
+      "compiled": true
+    },
+    {
+      "name": "seat-placed",
+      "compiled": true
+    },
+    {
+      "name": "paper-sticker-front-96-grid",
+      "compiled": true
+    },
+    {
+      "name": "paper-sticker-back-96-grid",
+      "compiled": true
+    },
+    {
+      "name": "paper-sticker-edge-96-grid",
+      "compiled": true
+    },
+    {
+      "name": "paper-liner-front-96-grid",
+      "compiled": true
+    },
+    {
+      "name": "paper-liner-back-96-grid",
+      "compiled": true
+    },
+    {
+      "name": "paper-liner-edge-96-grid",
+      "compiled": true
+    },
+    {
+      "name": "lcd-native-unorm-single-EOTF",
+      "compiled": true
+    },
+    {
+      "name": "lcd-tagged-sRGB-single-EOTF",
+      "compiled": true
+    },
+    {
+      "name": "authored-studio-PMREM",
+      "compiled": true
+    }
+  ],
+  "canvas": {
+    "width": 64,
+    "height": 64
+  },
+  "backend": "WebGPURenderer",
+  "version": "three 0.185.1",
+  "limitation": "Compilation/render submission only; no screenshot or numerical parity assertion."
+}

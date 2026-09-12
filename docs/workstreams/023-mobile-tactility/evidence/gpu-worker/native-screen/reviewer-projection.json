@@ -1,0 +1,7 @@
+{
+  "installedThree": "0.185.1",
+  "actualInteractionManager": true,
+  "exactMatrixComparisons": 20,
+  "sharedPanelFit": true,
+  "scope": "Actual installed projection implementation with controlled DOM dimensions; no physical compositor or input timing claim."
+}

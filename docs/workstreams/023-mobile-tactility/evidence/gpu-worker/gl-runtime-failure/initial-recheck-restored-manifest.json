@@ -1,0 +1,6 @@
+{
+  "file": "packages/device/src/sticker-latest-preparation.ts",
+  "sha256": "c6ed30bfd2ecddb737fe99192f68b82298afaf643a880e3c974669a44866fc95",
+  "records": 0,
+  "result": "After explicit entry phase complete, GL flick/open/get/release remained ready. Earlier initial-open error cause not reproduced or explained."
+}

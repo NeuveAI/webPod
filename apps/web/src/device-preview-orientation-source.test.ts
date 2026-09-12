@@ -7,7 +7,7 @@ const source = (path: string): string =>
 
 test('orientation release is bounded while the canonical canvas stays demand-rendered', () => {
   const controls = source('device-preview-orientation.ts')
-  const motion = source('device-orientation-motion.ts')
+  const motion = source('../../../packages/device/src/device-orientation-motion.ts')
   const canvas = source('../../../packages/device/src/DeviceCanvas.tsx')
   const route = source('device-page.tsx')
 
@@ -38,9 +38,14 @@ test('canonical product has no broad stage drag or pose-preset controls', () => 
 test('shell handlers are attached to the physical enclosure, never the stage', () => {
   const device = source('../../../packages/device/src/Device.tsx')
 
-  expect(device).toContain('name="device-steel-back"')
-  expect(device).toContain('name="device-body"')
-  expect(device.match(/onPointerDown=/g)).toHaveLength(2)
+  const recipe = source('../../../packages/device/src/device-assembly-recipe.ts')
+  const assembly = source('../../../packages/device/src/DeviceAssembly.tsx')
+  expect(recipe).toContain("id: 'rear-input', name: 'device-steel-back-orientation-input', geometry: 'back'")
+  expect(recipe).toContain("id: 'front-input', name: 'device-body-orientation-input', geometry: 'front'")
+  expect(recipe.match(/material: 'orientation'/g)).toHaveLength(2)
+  expect(assembly).toContain("const input = node.id === 'front-input' || node.id === 'rear-input'")
+  expect(assembly).toContain('onPointerDown={input ? bindings.onPointerDown : undefined}')
+  expect(device.replace(/\s/g, '')).toContain('onPointerDown:onOrientationGrabStart===undefined?undefined:onShellPointerDown')
   expect(device).toContain('isFirstVisibleDeviceShellHit')
   expect(device).toContain('isDeviceOuterGrabPoint')
 })

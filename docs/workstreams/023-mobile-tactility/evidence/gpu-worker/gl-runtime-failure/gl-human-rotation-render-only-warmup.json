@@ -1,0 +1,396 @@
+{
+  "diagnosticMarks": [],
+  "carryWorkers": 0,
+  "workerErrors": [],
+  "phase": "mounted-rotation:4",
+  "failure": "Expected \"actual\" to be reference-equal to \"expected\":\n\n... Skipped lines\n{\n  alpha: Uint8Array(493520) [\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n...\n",
+  "preparedPrints": 8,
+  "stages": [
+    {
+      "phase": "warmup:PW-A01:earned",
+      "transactions": {
+        "entries": 1,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 1,
+        "pendingCopies": 0,
+        "privateBytes": 493520,
+        "accountedBytes": 6239388
+      }
+    },
+    {
+      "phase": "warmup:PW-A01:locked",
+      "transactions": {
+        "entries": 1,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 2,
+        "pendingCopies": 0,
+        "privateBytes": 987040,
+        "accountedBytes": 6732908
+      }
+    },
+    {
+      "phase": "warmup:PW-A01:placed",
+      "transactions": {
+        "entries": 1,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 3,
+        "pendingCopies": 0,
+        "privateBytes": 1480560,
+        "accountedBytes": 7226428
+      }
+    },
+    {
+      "phase": "warmup:PW-A02:earned",
+      "transactions": {
+        "entries": 2,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 4,
+        "pendingCopies": 0,
+        "privateBytes": 1974080,
+        "accountedBytes": 13423992
+      }
+    },
+    {
+      "phase": "warmup:PW-A02:locked",
+      "transactions": {
+        "entries": 2,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 5,
+        "pendingCopies": 0,
+        "privateBytes": 2467600,
+        "accountedBytes": 13917512
+      }
+    },
+    {
+      "phase": "warmup:PW-A02:placed",
+      "transactions": {
+        "entries": 2,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 6,
+        "pendingCopies": 0,
+        "privateBytes": 2961120,
+        "accountedBytes": 14411032
+      }
+    },
+    {
+      "phase": "warmup:PW-A03:earned",
+      "transactions": {
+        "entries": 3,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 7,
+        "pendingCopies": 0,
+        "privateBytes": 3454640,
+        "accountedBytes": 20703300
+      }
+    },
+    {
+      "phase": "warmup:PW-A03:locked",
+      "transactions": {
+        "entries": 3,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 8,
+        "pendingCopies": 0,
+        "privateBytes": 3948160,
+        "accountedBytes": 21196820
+      }
+    },
+    {
+      "phase": "warmup:PW-A03:placed",
+      "transactions": {
+        "entries": 3,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 9,
+        "pendingCopies": 0,
+        "privateBytes": 4441680,
+        "accountedBytes": 21690340
+      }
+    },
+    {
+      "phase": "warmup:PW-A04:earned",
+      "transactions": {
+        "entries": 4,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 10,
+        "pendingCopies": 0,
+        "privateBytes": 4935200,
+        "accountedBytes": 28108296
+      }
+    },
+    {
+      "phase": "warmup:PW-A04:locked",
+      "transactions": {
+        "entries": 4,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 11,
+        "pendingCopies": 0,
+        "privateBytes": 5428720,
+        "accountedBytes": 28601816
+      }
+    },
+    {
+      "phase": "warmup:PW-A04:placed",
+      "transactions": {
+        "entries": 4,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 12,
+        "pendingCopies": 0,
+        "privateBytes": 5922240,
+        "accountedBytes": 29095336
+      }
+    },
+    {
+      "phase": "warmup:PW-A05:earned",
+      "transactions": {
+        "entries": 5,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 13,
+        "pendingCopies": 0,
+        "privateBytes": 6415760,
+        "accountedBytes": 35353068
+      }
+    },
+    {
+      "phase": "warmup:PW-A05:locked",
+      "transactions": {
+        "entries": 5,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 14,
+        "pendingCopies": 0,
+        "privateBytes": 6909280,
+        "accountedBytes": 35846588
+      }
+    },
+    {
+      "phase": "warmup:PW-A05:placed",
+      "transactions": {
+        "entries": 5,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 15,
+        "pendingCopies": 0,
+        "privateBytes": 7402800,
+        "accountedBytes": 36340108
+      }
+    },
+    {
+      "phase": "packet:neighbor-0/cover/art/print",
+      "transactions": {
+        "entries": 7,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 15,
+        "pendingCopies": 0,
+        "privateBytes": 7402800,
+        "accountedBytes": 42110804
+      }
+    },
+    {
+      "phase": "packet:neighbor-1/cover/art/print",
+      "transactions": {
+        "entries": 9,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 15,
+        "pendingCopies": 0,
+        "privateBytes": 7402800,
+        "accountedBytes": 47846484
+      }
+    },
+    {
+      "phase": "packet:slot-0/print",
+      "transactions": {
+        "entries": 11,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 15,
+        "pendingCopies": 0,
+        "privateBytes": 7402800,
+        "accountedBytes": 53118332
+      }
+    },
+    {
+      "phase": "packet:slot-1/print",
+      "transactions": {
+        "entries": 13,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 15,
+        "pendingCopies": 0,
+        "privateBytes": 7402800,
+        "accountedBytes": 58348356
+      }
+    },
+    {
+      "phase": "packet:slot-2/print",
+      "transactions": {
+        "entries": 15,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 15,
+        "pendingCopies": 0,
+        "privateBytes": 7402800,
+        "accountedBytes": 63673084
+      }
+    },
+    {
+      "phase": "packet:slot-3/print",
+      "transactions": {
+        "entries": 17,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 15,
+        "pendingCopies": 0,
+        "privateBytes": 7402800,
+        "accountedBytes": 69123500
+      }
+    },
+    {
+      "phase": "packet:slot-4/print",
+      "transactions": {
+        "entries": 19,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 15,
+        "pendingCopies": 0,
+        "privateBytes": 7402800,
+        "accountedBytes": 74413692
+      }
+    },
+    {
+      "phase": "packet:pocket/cover/print",
+      "transactions": {
+        "entries": 21,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 15,
+        "pendingCopies": 0,
+        "privateBytes": 7402800,
+        "accountedBytes": 79685540
+      }
+    },
+    {
+      "phase": "mounted-rotation:1",
+      "transactions": {
+        "entries": 22,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 16,
+        "pendingCopies": 0,
+        "privateBytes": 7497072,
+        "accountedBytes": 75715780
+      }
+    },
+    {
+      "phase": "mounted-rotation:2",
+      "transactions": {
+        "entries": 24,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 16,
+        "pendingCopies": 0,
+        "privateBytes": 7497072,
+        "accountedBytes": 76809392
+      }
+    },
+    {
+      "phase": "mounted-rotation:3",
+      "transactions": {
+        "entries": 26,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 16,
+        "pendingCopies": 0,
+        "privateBytes": 7497072,
+        "accountedBytes": 77777316
+      }
+    },
+    {
+      "phase": "mounted-rotation:4",
+      "transactions": {
+        "entries": 28,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 16,
+        "pendingCopies": 0,
+        "privateBytes": 7497072,
+        "accountedBytes": 78905464
+      }
+    },
+    {
+      "phase": "mounted-rotation:4",
+      "failure": "Expected \"actual\" to be reference-equal to \"expected\":\n\n... Skipped lines\n{\n  alpha: Uint8Array(493520) [\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n    0,\n...\n",
+      "transactions": {
+        "entries": 28,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 16,
+        "pendingCopies": 0,
+        "privateBytes": 7497072,
+        "accountedBytes": 78905464
+      }
+    }
+  ],
+  "finalTransactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "finalPaper": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "scope": "Actual mounted GL print with exact five-art warmup + packet, changed rotation surfaces, and one retained private current contour; actual workers. No browser rendering claim."
+}

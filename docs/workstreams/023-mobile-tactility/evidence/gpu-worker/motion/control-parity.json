@@ -1,0 +1,7 @@
+{
+  "baseline": "f3d738fca7806f86c31cc849c2312ce2d9de54e8",
+  "exactMatrixComparisons": 80,
+  "transformedRest": true,
+  "timestampRollbackAndNaN": true,
+  "scope": "Original controller versus shared worker step; no GPU timing claim."
+}

@@ -1,0 +1,36 @@
+{
+  "checks": 19,
+  "values": [
+    {
+      "wear": 0,
+      "fullAllowance": 262144,
+      "paths": 1
+    },
+    {
+      "wear": 0.4,
+      "fullAllowance": 262144,
+      "paths": 1
+    },
+    {
+      "wear": 1,
+      "fullAllowance": 262144,
+      "paths": 1
+    },
+    {
+      "wear": "NaN",
+      "fullAllowance": 262144,
+      "paths": 1
+    }
+  ],
+  "final": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "scope": "Actual contour generator, extracted installed broker estimate, actual worker cancellation/current retention and unchanged over-cap full-grid rejection."
+}

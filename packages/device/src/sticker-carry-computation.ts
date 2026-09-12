@@ -1,3 +1,4 @@
+import { createStickerBoundsIndex } from './sticker-bounds-index';
 import { drainSteps } from './sticker-computation-steps';
 import { Box3, Matrix4, PerspectiveCamera, Vector3, type BufferGeometry } from 'three';
 import { routeStickerReturn } from './sticker-return-path';
@@ -142,5 +143,6 @@ export function* computeStickerCarrySteps(input: CarryInput, rearGeometry: Buffe
     base?.dispose(); rearOrigin?.dispose(); free?.dispose(); target?.dispose();
 
 
-  return { geometry, contacts, pointerError };
+  const bounds = yield* createStickerBoundsIndex(geometry.getAttribute('position').array);
+  return { geometry, contacts, pointerError, bounds };
 }

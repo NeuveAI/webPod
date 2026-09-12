@@ -1,0 +1,37 @@
+{
+  "method": "Actual Bun preparation module workers and native MessagePorts; controlled ack delivery and injected seed transfer failure. React commit shim, no browser/GPU or phone timing claim.",
+  "checks": [
+    "initial canonical, main and private bytes accounted",
+    "genuine private-port copy cancellation retains mounted buffers",
+    "cancel then retry reseeds exact query bytes without geometry recomputation",
+    "retired worker acknowledgements cannot mutate current authority",
+    "recovered private payload can transfer without detaching mounted query arrays",
+    "reseed copy reserves full payload before allocation",
+    "copy cancellation releases reservation with no surviving producer",
+    "concurrent recovery callers share one reserved seed",
+    "concurrent callers make one adoption with bounded renderer capacity",
+    "cancellation after worker adoption retires canonical bytes before retry",
+    "late retired seed acknowledgement cannot mark replacement resident",
+    "seed transfer failure retires producer and preserves query ownership",
+    "all recovery attempts use one producer and no repeated geometry build",
+    "unrelated form eviction preserves active recovery without recomputation",
+    "final mounted owner releases resources, reservations and worker once"
+  ],
+  "passed": 15,
+  "bytes": 23148696,
+  "preparations": 2,
+  "seeds": 7,
+  "peakWorkers": 1,
+  "final": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "renderLeases": 0,
+    "rendererRequests": 0,
+    "recovering": null,
+    "recoveryBytes": 0,
+    "accountedBytes": 0,
+    "canonicalBytes": 0
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "before": {
+    "root": true,
+    "inert": false
+  },
+  "movedContour": true,
+  "cancelRestoredContour": false,
+  "placementEqual": true,
+  "held": null,
+  "pending": 0,
+  "after": {
+    "root": false
+  }
+}

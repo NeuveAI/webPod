@@ -1,0 +1,5 @@
+{
+  "localRestExact": true,
+  "rendererRestExact": true,
+  "scope": "Actual ControlPhysicsController and motion driver; controlled RAF and native-style generic pose invalidation, no browser/GPU timing."
+}

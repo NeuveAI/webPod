@@ -1,0 +1,19 @@
+import {installExpression,stopExpression,markerExpression} from '/Users/vinicius/code/webPod/docs/workstreams/023-mobile-tactility/evidence/gpu-worker/priming-validation/probe';
+async function c(method:string,params:object={}){const r=await fetch('http://127.0.0.1:9348',{method:'POST',body:JSON.stringify({method,params})}).then(r=>r.json());if(r.error)throw Error(r.error);return r.result;}
+async function ev(expression:string){const r=await c('Runtime.evaluate',{expression,returnByValue:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;}
+async function rect(selector:string){return ev(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});if(!e||e.disabled)return null;const r=e.getBoundingClientRect();if(r.width<1||r.height<1)return null;return {x:r.x+r.width/2,y:r.y+r.height/2,label:e.getAttribute('aria-label'),slot:e.getAttribute('data-sticker-slot')};})()`);}
+async function waitRect(selector:string){for(let i=0;i<80;i++){const p=await rect(selector);if(p)return p;await Bun.sleep(40)}throw Error('Target not ready '+selector);}
+let active=false;const actions=[];
+async function drag(start:{x:number;y:number;label:string;slot?:string},end:{x:number;y:number}){
+ await c('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:start.x,y:start.y,id:1}]});active=true;
+ const down=await ev("window.__webpodPrimingProbe.inputs.filter(e=>e.type==='pointerdown').at(-1)");actions.push({start,end,down});if(!down?.trusted||Math.abs(down.x-start.x)>2||Math.abs(down.y-start.y)>2||(start.slot&&down.slot!==start.slot))throw Error('Wrong pointer delivery');
+ for(let n=1;n<=24;n++){await c('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:start.x+(end.x-start.x)*n/24,y:start.y+(end.y-start.y)*n/24,id:1}]});await Bun.sleep(25)}await c('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});active=false;
+}
+await ev(installExpression.replace('window[key]={stop,mark:', 'window[key]={inputs:result.inputs,stop,mark:'));
+try{
+ await ev(markerExpression('before-open'));const lip=await waitRect('[aria-label="Pull sticker pack into view"]');await drag(lip,{x:lip.x,y:350});
+ const liner=await waitRect('[aria-label="Pull sticker liner open"]');await drag(liner,{x:liner.x,y:Math.max(110,liner.y-300)});
+ const slot=await waitRect('[data-sticker-slot][aria-label*="Peel Night Shift"]');await ev(markerExpression('sheet-usable'));await ev(markerExpression('before-first-peel'));await drag(slot,{x:220,y:150});
+ for(let i=0;i<80;i++){if(await ev("document.querySelectorAll('[data-sticker-placed]').length>0"))break;await Bun.sleep(40)}await ev(markerExpression('drop-confirmed'));await Bun.sleep(700);
+}catch(error){actions.push({error:String(error)});console.log(String(error));}
+finally{if(active)await c('Input.dispatchTouchEvent',{type:'touchCancel',touchPoints:[]});const result=await ev(stopExpression);await Bun.write('/tmp/webpod-priming-opening-first-peel.json',JSON.stringify({actions,result},null,2));console.log(JSON.stringify({actions,states:result?.states.slice(-4),inputs:result?.inputs.length}));}

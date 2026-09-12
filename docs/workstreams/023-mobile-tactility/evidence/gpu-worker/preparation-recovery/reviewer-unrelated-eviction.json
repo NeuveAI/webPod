@@ -1,0 +1,28 @@
+{
+  "before": {
+    "entries": 2,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "renderLeases": 0,
+    "rendererRequests": 1,
+    "recovering": 1,
+    "recoveryBytes": 23148696,
+    "accountedBytes": 69446088,
+    "canonicalBytes": 0
+  },
+  "outcome": "fulfilled",
+  "callerAborted": false,
+  "after": {
+    "entries": 1,
+    "queued": 0,
+    "active": null,
+    "worker": true,
+    "renderLeases": 0,
+    "rendererRequests": 0,
+    "recovering": null,
+    "recoveryBytes": 0,
+    "accountedBytes": 46297392,
+    "canonicalBytes": 23148696
+  }
+}

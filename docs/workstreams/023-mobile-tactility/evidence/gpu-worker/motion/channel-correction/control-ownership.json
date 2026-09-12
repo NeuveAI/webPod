@@ -1,0 +1,7 @@
+{
+  "firstSimultaneousPress": true,
+  "completedWorkerRest": true,
+  "laterReducedMotionPressAndRelease": true,
+  "mainFrames": 0,
+  "scope": "Actual ControlPhysicsController and driver, controlled binding/query invalidation; no browser activation claim."
+}

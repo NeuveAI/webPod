@@ -1,0 +1,11 @@
+{
+  "actualTransport": true,
+  "paintCreditsBounded": 10000,
+  "exactAck": true,
+  "resizeWaitsForOwnedImage": true,
+  "hiddenDoesNotCapture": true,
+  "disposedDoesNotCapture": true,
+  "synchronousTransferFailureClosesOnce": true,
+  "panelAssociationAdmission": true,
+  "scope": "Actual transport with controlled DOM/capture callbacks; native transfer and GPU execution are separate Chrome evidence."
+}

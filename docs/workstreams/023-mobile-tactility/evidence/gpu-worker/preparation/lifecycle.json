@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "same-form suspended renders share one promise",
+    "one producer for duplicate cold requests",
+    "two devices share the entire immutable assembly",
+    "first device unmount does not dispose second device buffers",
+    "StrictMode cleanup/reacquire preserves prepared identity",
+    "StrictMode reacquisition cancels pending disposal",
+    "last owner disposes assembly once",
+    "late retired worker cannot publish into replacement entry",
+    "worker failure terminates producer before cooperative recovery",
+    "exact recovery remains usable",
+    "multiple forms keep one global active producer",
+    "fifth cold form waits behind bounded four-entry admission"
+  ],
+  "passed": 12,
+  "method": "Actual preparation hook/cache with deterministic React commit callbacks and Worker transport; real cooperative fallback and disposal timers"
+}

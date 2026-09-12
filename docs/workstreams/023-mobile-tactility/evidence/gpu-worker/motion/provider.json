@@ -1,0 +1,9 @@
+{
+  "actualCompositeBoundary": true,
+  "sharedNativeController": true,
+  "providerCallsInPointerStack": 1,
+  "renderCommands": 1,
+  "renderAcknowledgments": 0,
+  "providerBeforeAcknowledgmentOrAwait": true,
+  "scope": "Offline product callback ordering; no real media account or browser autoplay claim."
+}

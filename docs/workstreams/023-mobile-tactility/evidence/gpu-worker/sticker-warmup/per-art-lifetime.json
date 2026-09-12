@@ -1,0 +1,32 @@
+{
+  "method": "Actual adapter, computation workers, private MessagePorts and node assembly; controlled decode/bitmap boundary, no native GPU timing",
+  "queryPeakBytes": 27488,
+  "queryCaptureBytes": 82464,
+  "perArtQueryPeakOwners": 1,
+  "emptyMainQueryCollectionsBeforeCompile": true,
+  "privateOwnersRetainedUntilRenderRetirement": true,
+  "materialMeshes": 6,
+  "exactPrivateGeometryAndGpuAgainstVisibleDefault": true,
+  "visibleCurrentSurvivesCaptureFailureAndCancellation": true,
+  "bitmapCloses": 11,
+  "finalTransactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "finalPaper": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  }
+}

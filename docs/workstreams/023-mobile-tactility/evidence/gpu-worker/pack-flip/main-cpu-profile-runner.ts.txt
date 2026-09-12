@@ -1,0 +1,14 @@
+async function c(method:string,params:Record<string,unknown>={}){const r=await fetch('http://127.0.0.1:9348',{method:'POST',body:JSON.stringify({method,params})}).then(r=>r.json());if(r.error)throw Error(r.error);return r.result}
+const out='/Users/vinicius/code/webPod/docs/workstreams/023-mobile-tactility/evidence/gpu-worker/pack-flip';
+let stopPromise:Promise<unknown>|undefined;let timer:ReturnType<typeof setTimeout>|undefined;const phases:Array<{name:string;host:number}>=[];
+function stop(){return stopPromise??=c('Profiler.stop').then(async r=>{await Bun.write(`${out}/post-guard-main.cpuprofile`,JSON.stringify(r.profile));return r})}
+async function drag(a:string[]){const p=Bun.spawn(['bun','/tmp/webpod-touch-drag.ts',...a],{stdout:'pipe',stderr:'pipe'});if(await p.exited!==0)throw Error(await new Response(p.stderr).text())}
+try{
+ await c('Profiler.enable');await c('Profiler.setSamplingInterval',{interval:1000});
+ timer=setTimeout(()=>{void stop().catch(e=>console.error(String(e)))},9000);
+ await c('Profiler.start');phases.push({name:'profile-started',host:Date.now()});
+ await Bun.sleep(150);phases.push({name:'dismiss-flip',host:Date.now()});await drag(['395','490','80','490']);
+ await Bun.sleep(2000);phases.push({name:'hidden-repeat-flip',host:Date.now()});await drag(['40','490','340','490']);await Bun.sleep(1600);
+}finally{
+ try{await stop();console.log('Main CPU profiler stopped; profile saved')}finally{if(timer)clearTimeout(timer);await c('Profiler.disable');phases.push({name:'profile-stopped',host:Date.now()});await Bun.write(`${out}/post-guard-profile-phases.json`,JSON.stringify(phases,null,2))}
+}

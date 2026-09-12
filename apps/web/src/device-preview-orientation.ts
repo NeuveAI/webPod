@@ -1,3 +1,6 @@
+import { selectAtom } from 'jotai/vanilla/utils'
+import type { PreviewMotionAuthority } from './device-motion-authority'
+import { atom, createStore } from 'jotai/vanilla'
 import {
   DEVICE_ORIENTATION_PRESETS,
   FRONT_DEVICE_ORIENTATION,
@@ -47,6 +50,8 @@ const DEVICE_POSES = [
 export type DevicePreviewStore = {
   readonly subscribe: (listener: () => void) => () => void
   readonly getSnapshot: () => DevicePreviewState
+  /** Stable across orientation ticks; full live tool state stays getSnapshot. */
+  readonly getAppearanceSnapshot: () => DevicePreviewState
   readonly setColourway: (colourway: Colourway) => DevicePreviewState
   readonly setOrientation: (orientation: DeviceOrientation) => DevicePreviewState
   readonly setPose: (pose: DevicePosePreset) => DevicePreviewState
@@ -59,34 +64,33 @@ export type DevicePreviewStore = {
 export function createDevicePreviewStore(
   initial: DevicePreviewState = INITIAL_DEVICE_PREVIEW_STATE,
 ): DevicePreviewStore {
-  let state = freezePreviewState(initial)
-  const listeners = new Set<() => void>()
-
+  const authority = createStore()
+  const stateAtom = atom(freezePreviewState(initial))
+  const appearanceAtom = selectAtom(stateAtom, state => state, (a, b) => a.colourway === b.colourway && a.room === b.room)
+  const read = () => authority.get(stateAtom)
   const publish = (next: DevicePreviewState): DevicePreviewState => {
-    if (samePreviewState(state, next)) return state
-    state = freezePreviewState(next)
-    for (const listener of listeners) listener()
-    return state
+    if (samePreviewState(read(), next)) return read()
+    authority.set(stateAtom, freezePreviewState(next))
+    // A reentrant subscriber may have replaced this publication synchronously.
+    return read()
   }
 
   return {
-    subscribe(listener) {
-      listeners.add(listener)
-      return () => listeners.delete(listener)
-    },
-    getSnapshot: () => state,
-    setColourway: (colourway) => publish({ ...state, colourway }),
+    subscribe: (listener) => authority.sub(stateAtom, listener),
+    getSnapshot: read,
+    getAppearanceSnapshot: () => authority.get(appearanceAtom),
+    setColourway: (colourway) => publish({ ...read(), colourway }),
     setOrientation(orientation) {
-      if (!isFiniteOrientation(orientation)) return state
+      if (!isFiniteOrientation(orientation)) return read()
       const next = clampDeviceOrientation(orientation)
-      return publish({ ...state, pose: poseForOrientation(next), orientation: next })
+      return publish({ ...read(), pose: poseForOrientation(next), orientation: next })
     },
     setPose: (pose) =>
-      publish({ ...state, pose, orientation: DEVICE_ORIENTATION_PRESETS[pose] }),
-    setRoom: (room) => publish({ ...state, room }),
+      publish({ ...read(), pose, orientation: DEVICE_ORIENTATION_PRESETS[pose] }),
+    setRoom: (room) => publish({ ...read(), room }),
     resetOrientation: () =>
       publish({
-        ...state,
+        ...read(),
         pose: 'front',
         orientation: FRONT_DEVICE_ORIENTATION,
       }),
@@ -159,6 +163,7 @@ export type DeviceOrientationControls = {
 }
 
 export type DeviceOrientationControlStage = EventTarget & {
+  readonly ownerDocument?: EventTarget & { readonly hidden: boolean }
   readonly dataset: { [name: string]: string | undefined }
   focus(options?: FocusOptions): void
 }
@@ -178,10 +183,13 @@ export function bindDeviceOrientationControls(
   motionEnvironment: DeviceOrientationMotionEnvironment =
     browserDeviceOrientationMotionEnvironment(),
   onTrace?: (kind: string, detail: Readonly<Record<string, unknown>>) => void,
+  rendererMotion?: PreviewMotionAuthority,
 ): DeviceOrientationControls {
+  const visibilityHost = stage.ownerDocument ?? (typeof document === 'undefined' ? null : document)
   let active: ActiveOrientationGrab | null = null
   let releaseMotion: DeviceOrientationReleaseMotion | null = null
   let motionFrame: number | null = null
+  let cancelRemoteMotion: (() => void) | null = null
   let lastMotionFrameMs = 0
   let grabbable = false
   let publishingOrientation: DeviceOrientation | null = null
@@ -206,10 +214,14 @@ export function bindDeviceOrientationControls(
     if (error === undefined) pending.resolve(store.getSnapshot())
     else pending.reject(error)
   }
-  const publishOrientation = (orientation: DeviceOrientation) => {
+  const publishOrientation = (orientation: DeviceOrientation, fromRenderer = false) => {
     const previousPublication = publishingOrientation
     publishingOrientation = clampDeviceOrientation(orientation)
-    try { return store.setOrientation(orientation) } finally { publishingOrientation = previousPublication }
+    try {
+      const next = store.setOrientation(orientation)
+      if (!fromRenderer) rendererMotion?.publishIntent(next.orientation)
+      return next
+    } finally { publishingOrientation = previousPublication }
   }
 
   const reflectAffordance = () => {
@@ -233,6 +245,9 @@ export function bindDeviceOrientationControls(
   const stopMotion = () => {
     if (releaseMotion !== null || pendingFlick !== null) trace('motion-stopped')
     motionGeneration += 1
+    const cancelRemote = cancelRemoteMotion
+    cancelRemoteMotion = null
+    cancelRemote?.()
     settleFlick(new DOMException('Device orientation motion interrupted', 'AbortError'))
     releaseMotion = null
     if (motionFrame !== null) {
@@ -264,6 +279,25 @@ export function bindDeviceOrientationControls(
     }
   }
 
+  const scheduleMotion = () => {
+    const current = releaseMotion
+    if (current === null) return
+    const generation = motionGeneration
+    const remote = rendererMotion?.startOrientation(current,
+      (orientation) => { if (generation === motionGeneration && !disposed) publishOrientation(orientation, true) },
+      (error) => {
+        if (generation !== motionGeneration || disposed) return
+        cancelRemoteMotion = null
+        releaseMotion = null
+        reflectAffordance()
+        settleFlick(error)
+      },
+    )
+    if (remote !== undefined && remote !== null) { cancelRemoteMotion = remote; return }
+    lastMotionFrameMs = motionEnvironment.now()
+    motionFrame = motionEnvironment.requestFrame(onMotionFrame)
+  }
+
   const beginReleaseMotion = (grab: ActiveOrientationGrab, timestampMs: number, cancelled = false) => {
     const pointerVelocity = estimatePointerReleaseVelocity(
       cancelled ? [] : grab.samples,
@@ -284,8 +318,7 @@ export function bindDeviceOrientationControls(
     publishOrientation(release.orientation)
     releaseMotion = release.motion
     if (releaseMotion !== null) {
-      lastMotionFrameMs = motionEnvironment.now()
-      motionFrame = motionEnvironment.requestFrame(onMotionFrame)
+      scheduleMotion()
     }
     reflectAffordance()
   }
@@ -320,7 +353,7 @@ export function bindDeviceOrientationControls(
   }
 
   const begin = (start: DeviceOrientationGrabStart): boolean => {
-    if (disposed || active !== null) { trace('grab-rejected', { disposed }); return false }
+    if (disposed || active !== null || visibilityHost?.hidden) { trace('grab-rejected', { disposed }); return false }
     try {
       start.capture.setPointerCapture(start.pointerId)
     } catch {
@@ -352,6 +385,7 @@ export function bindDeviceOrientationControls(
         return
       }
       updateGrab(current, pointer, { setOrientation: publishOrientation })
+      rendererMotion?.pointer('pointer-release', {...pointer, pointerType: current.start.pointerType, timestampMs: motionTimestamp(pointer.timestampMs)})
       const released = finish(pointer.pointerId, true)
       if (released !== null) beginReleaseMotion(released, pointer.timestampMs)
       if (released !== null && event.cancelable) event.preventDefault()
@@ -359,6 +393,11 @@ export function bindDeviceOrientationControls(
     const onCancel: EventListener = (event) => {
       const pointerId = pointerIdOf(event)
       if (pointerId !== null) {
+        const current = active
+        if (current !== null && current.start.pointerId === pointerId) {
+          const sample = current.samples.at(-1) ?? current.start
+          rendererMotion?.pointer('pointer-cancel', {clientX: sample.clientX, clientY: sample.clientY, pointerId, pointerType: current.start.pointerType, timestampMs: motionTimestamp(motionEnvironment.now())})
+        }
         const cancelled = finish(pointerId, true)
         if (cancelled !== null) beginReleaseMotion(cancelled, motionEnvironment.now(), true)
       }
@@ -366,6 +405,11 @@ export function bindDeviceOrientationControls(
     const onLostCapture: EventListener = (event) => {
       const pointerId = pointerIdOf(event)
       if (pointerId !== null) {
+        const current = active
+        if (current !== null && current.start.pointerId === pointerId) {
+          const sample = current.samples.at(-1) ?? current.start
+          rendererMotion?.pointer('pointer-cancel', {clientX: sample.clientX, clientY: sample.clientY, pointerId, pointerType: current.start.pointerType, timestampMs: motionTimestamp(motionEnvironment.now())})
+        }
         const cancelled = finish(pointerId, true)
         if (cancelled !== null) beginReleaseMotion(cancelled, motionEnvironment.now(), true)
       }
@@ -389,6 +433,7 @@ export function bindDeviceOrientationControls(
       onCancel,
       onLostCapture,
     }
+    rendererMotion?.pointer('pointer-start', {pointerId: start.pointerId, pointerType: start.pointerType, clientX: start.clientX, clientY: start.clientY, timestampMs: motionTimestamp(Number.isFinite(start.timestampMs) ? start.timestampMs : motionEnvironment.now())})
     trace('grab-started', { pointerId: start.pointerId })
     start.host.addEventListener('pointermove', onMove, { passive: false })
     start.host.addEventListener('pointerup', onRelease, { passive: false })
@@ -414,8 +459,7 @@ export function bindDeviceOrientationControls(
       velocity: { pitchDegPerSecond: 0, yawDegPerSecond: 0, rollDegPerSecond: 0 },
       targetYawDeg, flickDirection: targetYawDeg < current.yawDeg ? -1 : 1,
     }
-    lastMotionFrameMs = motionEnvironment.now()
-    motionFrame = motionEnvironment.requestFrame(onMotionFrame)
+    scheduleMotion()
     reflectAffordance()
     return store.getSnapshot()
   }
@@ -455,11 +499,18 @@ export function bindDeviceOrientationControls(
     event.preventDefault()
   }
 
-  const onBlur: EventListener = () => {
-    trace('orientation-blur')
+  const interruptForVisibility = () => {
     const current = active
-    if (current !== null) finish(current.start.pointerId, true)
+    if (current !== null) {
+      const sample = current.samples.at(-1) ?? current.start
+      rendererMotion?.pointer('pointer-cancel', { clientX: sample.clientX, clientY: sample.clientY, pointerId: current.start.pointerId, pointerType: current.start.pointerType, timestampMs: motionTimestamp(motionEnvironment.now()) })
+      finish(current.start.pointerId, true)
+    }
     stopMotion()
+  }
+  const onBlur: EventListener = () => { trace('orientation-blur'); interruptForVisibility() }
+  const onVisibility: EventListener = () => {
+    if (visibilityHost?.hidden) { trace('orientation-hidden'); interruptForVisibility() }
   }
 
   const unsubscribe = store.subscribe(() => {
@@ -470,6 +521,7 @@ export function bindDeviceOrientationControls(
     // synchronous subscriber while our publication is still on the stack.
     if (!changed || (publishingOrientation !== null && sameOrientation(publishingOrientation, next))) return
     trace('external-orientation-write')
+    rendererMotion?.publishIntent(next)
     // Reset/preset/tool writes supersede the gesture rather than being undone
     // by its next animation frame or pointer sample.
     if (active !== null) finish(active.start.pointerId, true)
@@ -477,6 +529,7 @@ export function bindDeviceOrientationControls(
   })
   stage.addEventListener('keydown', onKeyDown)
   blurHost.addEventListener('blur', onBlur)
+  visibilityHost?.addEventListener('visibilitychange', onVisibility)
   return {
     begin,
     reset,
@@ -517,8 +570,7 @@ export function bindDeviceOrientationControls(
           targetYawDeg,
           flickDirection: targetYawDeg < current.yawDeg ? -1 : 1,
         }
-        lastMotionFrameMs = motionEnvironment.now()
-        motionFrame = motionEnvironment.requestFrame(onMotionFrame)
+        scheduleMotion()
         reflectAffordance()
       })
     },
@@ -536,6 +588,7 @@ export function bindDeviceOrientationControls(
       stopMotion()
       stage.removeEventListener('keydown', onKeyDown)
       blurHost.removeEventListener('blur', onBlur)
+      visibilityHost?.removeEventListener('visibilitychange', onVisibility)
       grabbable = false
       reflectAffordance()
     },
@@ -700,4 +753,9 @@ function samePreviewState(
     left.room === right.room &&
     sameOrientation(left.orientation, right.orientation)
   )
+}
+
+/** Event timestamps can already be epoch-relative on legacy event sources. */
+function motionTimestamp(timestampMs: number): number {
+  return timestampMs >= performance.timeOrigin ? timestampMs : performance.timeOrigin + timestampMs
 }

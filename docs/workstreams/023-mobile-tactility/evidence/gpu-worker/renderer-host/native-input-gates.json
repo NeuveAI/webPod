@@ -1,0 +1,10 @@
+{
+  "kind": "Actual native input adapter with controlled Happy DOM events, not trusted browser activation",
+  "checks": {
+    "frontEnterAdmitted": true,
+    "rearEnterSuppressed": true,
+    "frontReadmissionWorks": true,
+    "pointerLeaveClearsCursor": true,
+    "disposalRemovesMotionAndKeyboardListeners": true
+  }
+}
