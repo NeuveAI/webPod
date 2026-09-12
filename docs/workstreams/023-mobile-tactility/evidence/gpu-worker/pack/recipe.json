@@ -1,0 +1,11 @@
+{
+  "baseline": {
+    "commit": "789c8f096741c530b8e17307c8f120f8e302afbd",
+    "sceneSha256": "7dd6b7f5b2c817990e65e0e8f0a8745d64930993ea7419ff61f7d980ecd21c70",
+    "sceneArchive": "StickerPackScene.before.txt"
+  },
+  "cases": 108,
+  "leafMatrixComparisons": 1296,
+  "exactHierarchy": true,
+  "method": "Executes archived original JSX render tail and CoverPrint, compares every group/leaf value and graph world matrix. No browser or timing claim."
+}

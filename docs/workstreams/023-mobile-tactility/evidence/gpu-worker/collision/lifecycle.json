@@ -1,0 +1,29 @@
+{
+  "passed": 21,
+  "checks": [
+    "registered global poses perform zero repeated assembly walks",
+    "actual physics mutation publishes local assembly revision",
+    "material visibility signal preserves exact occlusion exclusion",
+    "actual screen material slot publishes visibility revision",
+    "child-added event invalidates topology",
+    "child-removed event invalidates topology",
+    "buffer mutation signal invalidates immutable query resource",
+    "registration cleanup is idempotent and preserves second owner",
+    "final registry owner releases topology listeners",
+    "unregistered external assemblies retain defensive mutation inspection",
+    "multiple collision owners share one active worker",
+    "worker transfer never detaches borrowed render geometry",
+    "active cancellation rejects without fallback",
+    "late retired generation cannot publish replacement resource",
+    "idle producer terminates after successful publication",
+    "worker message failure recovers exactly after terminating its producer",
+    "fifth owner is rejected by bounded admission without hidden fallback",
+    "same-geometry shell owners coalesce one index preparation",
+    "first shell owner release retains second preparation",
+    "final shell owner releases idle worker/index ownership",
+    "query disposal never mutates borrowed packed snapshot"
+  ],
+  "registeredPoseQueries": 100,
+  "initialAssemblyWalks": 1,
+  "mainDenseNodeRestorations": 0
+}

@@ -1,0 +1,89 @@
+{
+  "method": "Exact captured resize geometry, actual authored surface-damage generator, every synthetic boundary texel; no browser timing",
+  "rows": [
+    {
+      "id": "neighbor-0/cover/art/print",
+      "width": 231.22394283886186,
+      "exactAllFields": true
+    },
+    {
+      "id": "neighbor-1/cover/art/print",
+      "width": 231.22394283886186,
+      "exactAllFields": true
+    },
+    {
+      "id": "slot-0/print",
+      "width": 231.22394283886186,
+      "exactAllFields": true
+    },
+    {
+      "id": "slot-1/print",
+      "width": 231.22394283886186,
+      "exactAllFields": true
+    },
+    {
+      "id": "slot-2/print",
+      "width": 231.22394283886186,
+      "exactAllFields": true
+    },
+    {
+      "id": "slot-3/print",
+      "width": 231.22394283886186,
+      "exactAllFields": true
+    },
+    {
+      "id": "slot-4/print",
+      "width": 231.22394283886186,
+      "exactAllFields": true
+    },
+    {
+      "id": "pocket/cover/print",
+      "width": 231.22394283886186,
+      "exactAllFields": true
+    },
+    {
+      "id": "neighbor-0/cover/art/print",
+      "width": 130.81970435848044,
+      "exactAllFields": true
+    },
+    {
+      "id": "neighbor-1/cover/art/print",
+      "width": 130.81970435848044,
+      "exactAllFields": true
+    },
+    {
+      "id": "slot-0/print",
+      "width": 130.81970435848044,
+      "exactAllFields": true
+    },
+    {
+      "id": "slot-1/print",
+      "width": 130.81970435848044,
+      "exactAllFields": true
+    },
+    {
+      "id": "slot-2/print",
+      "width": 130.81970435848044,
+      "exactAllFields": true
+    },
+    {
+      "id": "slot-3/print",
+      "width": 130.81970435848044,
+      "exactAllFields": true
+    },
+    {
+      "id": "slot-4/print",
+      "width": 130.81970435848044,
+      "exactAllFields": true
+    },
+    {
+      "id": "pocket/cover/print",
+      "width": 130.81970435848044,
+      "exactAllFields": true
+    }
+  ],
+  "activeBranchNotAliased": true,
+  "changedArtworkStickerMaskRejected": true,
+  "invalidIndexingAndNaNNotCertified": true,
+  "cancellation": true
+}

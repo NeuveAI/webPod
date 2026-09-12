@@ -1,0 +1,33 @@
+{
+  "method": "Actual Bun module worker, last owner cancels during work; no manual idle cleanup until after each observed result. No browser/timing claim.",
+  "pending": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": "paper",
+    "worker": true,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 4194304
+  },
+  "dynamic": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "immutable": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  }
+}

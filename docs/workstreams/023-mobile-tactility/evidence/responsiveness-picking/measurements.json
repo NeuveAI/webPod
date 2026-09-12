@@ -1,0 +1,45 @@
+{
+  "note": "Offline unthrottled Bun, render geometry source copied verbatim from Device front factory; timings single bounded pass, not browser/input latency.",
+  "report": [
+    {
+      "name": "front",
+      "touch": false,
+      "triangles": 169367,
+      "rays": 140,
+      "exactCalls": 92,
+      "broadPhaseRejected": 48,
+      "baselineMs": 264.29320199999955,
+      "optimizedMs": 144.73103799999956
+    },
+    {
+      "name": "front",
+      "touch": true,
+      "triangles": 169367,
+      "rays": 140,
+      "exactCalls": 115,
+      "broadPhaseRejected": 25,
+      "baselineMs": 253.4871640000008,
+      "optimizedMs": 196.79950499999939
+    },
+    {
+      "name": "rear",
+      "touch": false,
+      "triangles": 22166,
+      "rays": 140,
+      "exactCalls": 92,
+      "broadPhaseRejected": 48,
+      "baselineMs": 63.552172000001065,
+      "optimizedMs": 40.550665999999865
+    },
+    {
+      "name": "rear",
+      "touch": true,
+      "triangles": 22166,
+      "rays": 140,
+      "exactCalls": 115,
+      "broadPhaseRejected": 25,
+      "baselineMs": 50.46245700000077,
+      "optimizedMs": 41.41944900000044
+    }
+  ]
+}

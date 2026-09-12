@@ -1,0 +1,218 @@
+{
+  "reduced": true,
+  "restored": false,
+  "before": {
+    "webpod_device_state": {
+      "colourway": "black",
+      "pose": "custom",
+      "orientation": {
+        "pitchDeg": 0,
+        "yawDeg": 22.680000000000064,
+        "rollDeg": 0
+      },
+      "room": "dark",
+      "visibleFace": "front",
+      "isAnimating": false,
+      "isBeingHeld": false,
+      "stickers": {
+        "inventoryLoaded": true,
+        "pageState": {
+          "status": "unavailable",
+          "interactionReady": false,
+          "pendingSaves": 0,
+          "rearReady": false,
+          "humanBusy": false,
+          "collectionStatus": "ready",
+          "loadedItems": 0,
+          "totalItems": 5,
+          "progressPercent": 0,
+          "startedAtMs": 1789171516300,
+          "elapsedMs": 0,
+          "stage": "hidden",
+          "packOpen": false,
+          "sheetOpen": false,
+          "packClosing": false
+        },
+        "placed": [
+          {
+            "id": "PW-A01",
+            "name": "Night Shift",
+            "placement": {
+              "stickerId": "PW-A01",
+              "surface": "back",
+              "x": 0.2358403058370761,
+              "y": 0.28404935793217645,
+              "width": 0.7204816442896202,
+              "rotationDeg": 0,
+              "wear": 0
+            },
+            "scale": 0.7204816442896202,
+            "wear": 0
+          }
+        ],
+        "held": null,
+        "pendingSaves": 0
+      }
+    },
+    "webpod_page_state": {
+      "status": "ready",
+      "interactionReady": true,
+      "startedAtMs": 1789171999837,
+      "elapsedMs": 3580,
+      "progressPercent": null,
+      "loadedItems": 5,
+      "backgroundLoading": false,
+      "volume0to100": 100,
+      "stickers": {
+        "status": "unavailable",
+        "interactionReady": false,
+        "pendingSaves": 0,
+        "rearReady": false,
+        "humanBusy": false,
+        "collectionStatus": "ready",
+        "loadedItems": 0,
+        "totalItems": 5,
+        "progressPercent": 0,
+        "startedAtMs": 1789171516300,
+        "elapsedMs": 0,
+        "stage": "hidden",
+        "packOpen": false,
+        "sheetOpen": false,
+        "packClosing": false
+      },
+      "audio": {
+        "snapshot": {
+          "lifecycle": "running",
+          "enabled": true,
+          "activeVoices": 0,
+          "activeButtonContacts": 0,
+          "reservedButtonReleases": 0,
+          "pendingEvents": 0,
+          "scheduledTotal": 30,
+          "droppedTotal": 0,
+          "lastResult": {
+            "status": "silent",
+            "reason": "budget-zero",
+            "requested": 0,
+            "scheduled": 0,
+            "dropped": 0
+          }
+        },
+        "requiresUserActivation": false,
+        "nextAction": null
+      },
+      "navigation": null
+    },
+    "media": {
+      "state": 3,
+      "time": 3
+    }
+  },
+  "after": {
+    "webpod_device_state": {
+      "colourway": "black",
+      "pose": "front",
+      "orientation": {
+        "pitchDeg": 0,
+        "yawDeg": 0,
+        "rollDeg": 0
+      },
+      "room": "dark",
+      "visibleFace": "front",
+      "isAnimating": false,
+      "isBeingHeld": false,
+      "stickers": {
+        "inventoryLoaded": true,
+        "pageState": {
+          "status": "unavailable",
+          "interactionReady": false,
+          "pendingSaves": 0,
+          "rearReady": false,
+          "humanBusy": false,
+          "collectionStatus": "ready",
+          "loadedItems": 0,
+          "totalItems": 5,
+          "progressPercent": 0,
+          "startedAtMs": 1789171516300,
+          "elapsedMs": 0,
+          "stage": "hidden",
+          "packOpen": false,
+          "sheetOpen": false,
+          "packClosing": false
+        },
+        "placed": [
+          {
+            "id": "PW-A01",
+            "name": "Night Shift",
+            "placement": {
+              "stickerId": "PW-A01",
+              "surface": "back",
+              "x": 0.2358403058370761,
+              "y": 0.28404935793217645,
+              "width": 0.7204816442896202,
+              "rotationDeg": 0,
+              "wear": 0
+            },
+            "scale": 0.7204816442896202,
+            "wear": 0
+          }
+        ],
+        "held": null,
+        "pendingSaves": 0
+      }
+    },
+    "webpod_page_state": {
+      "status": "ready",
+      "interactionReady": true,
+      "startedAtMs": 1789171999837,
+      "elapsedMs": 3580,
+      "progressPercent": null,
+      "loadedItems": 5,
+      "backgroundLoading": false,
+      "volume0to100": 100,
+      "stickers": {
+        "status": "unavailable",
+        "interactionReady": false,
+        "pendingSaves": 0,
+        "rearReady": false,
+        "humanBusy": false,
+        "collectionStatus": "ready",
+        "loadedItems": 0,
+        "totalItems": 5,
+        "progressPercent": 0,
+        "startedAtMs": 1789171516300,
+        "elapsedMs": 0,
+        "stage": "hidden",
+        "packOpen": false,
+        "sheetOpen": false,
+        "packClosing": false
+      },
+      "audio": {
+        "snapshot": {
+          "lifecycle": "running",
+          "enabled": true,
+          "activeVoices": 0,
+          "activeButtonContacts": 0,
+          "reservedButtonReleases": 0,
+          "pendingEvents": 0,
+          "scheduledTotal": 30,
+          "droppedTotal": 0,
+          "lastResult": {
+            "status": "silent",
+            "reason": "budget-zero",
+            "requested": 0,
+            "scheduled": 0,
+            "dropped": 0
+          }
+        },
+        "requiresUserActivation": false,
+        "nextAction": null
+      },
+      "navigation": null
+    },
+    "media": {
+      "state": 3,
+      "time": 3
+    }
+  }
+}

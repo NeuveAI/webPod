@@ -1,0 +1,14 @@
+import { Group, Mesh, MeshPhysicalMaterial, PlaneGeometry, PerspectiveCamera, Scene, type Material } from '../../../../../../packages/device/node_modules/three/build/three.module.js';
+import { prepareStickerPrograms } from '../../../../../../packages/device/src/sticker-program-preparation';
+import { writeFileSync } from 'node:fs';
+const root = new Group(); let calls = 0;
+const renderer = { domElement: new EventTarget(), getContext: () => ({ isContextLost: () => false }), properties: { get: () => ({ currentProgram: { isReady: () => true } }) }, compile(object: Group) { calls++; const materials = new Set<Material>(); object.traverse(node => { if (node instanceof Mesh) for (const material of Array.isArray(node.material) ? node.material : [node.material]) materials.add(material); }); return materials; } };
+const controller = new AbortController();
+const error = await prepareStickerPrograms(renderer, root, new PerspectiveCamera(), new Scene(), controller.signal).then(() => '', error => String(error));
+await new Promise(resolve => setTimeout(resolve, 0));
+const geometry = new PlaneGeometry();
+for (let i = 0; i < 6; i++) root.add(new Mesh(geometry, new MeshPhysicalMaterial()));
+await new Promise(resolve => setTimeout(resolve, 0));
+if (!error.includes('No sticker materials') || calls !== 0 || root.children.length !== 6) throw new Error('Cold delayed-mesh race did not reproduce');
+writeFileSync(new URL('./cold-race.json', import.meta.url), JSON.stringify({ error, delayedActualMeshes: root.children.length, compileCallsAfterDelayedMount: calls }, null, 2)+'\n');
+controller.abort(); root.traverse(node => { if (node instanceof Mesh) node.material.dispose(); }); geometry.dispose();

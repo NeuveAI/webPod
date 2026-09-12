@@ -1,0 +1,563 @@
+{
+  "method": "Stopped main RAF/PerformanceObserver arithmetic; nearest rank, no GPU timing; event remainder quantized and not exact presentation; missing support/drain flags limit absence claims",
+  "results": [
+    {
+      "name": "fixed-rotation",
+      "sha256": "553dbae1249d83625161c219b45c76e55c4e2e7a3787adf1c2622388bffab399",
+      "duration": 3635.5999999940395,
+      "origin": 1789152726697.2,
+      "start": 58001.70000001788,
+      "end": 61637.30000001192,
+      "firstRAF": 57987.7,
+      "lastRAF": 61620,
+      "raf": {
+        "count": 205,
+        "median": 16.700000000004366,
+        "p95": 31.900000000001455,
+        "max": 49.19999999999709,
+        "over33_34": 8,
+        "over50": 0
+      },
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 58530.30000001192,
+          "duration": 48,
+          "processingStart": 58549.30000001192,
+          "processingEnd": 58578.90000000596,
+          "interactionId": 168,
+          "delay": 19,
+          "handler": 29.599999994039536,
+          "presentationRemainder": -0.5999999940395355
+        },
+        {
+          "name": "pointerup",
+          "start": 59415.70000001788,
+          "duration": 24,
+          "processingStart": 59424,
+          "processingEnd": 59428.70000001788,
+          "interactionId": 168,
+          "delay": 8.299999982118607,
+          "handler": 4.700000017881393,
+          "presentationRemainder": 11
+        }
+      ],
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 59589.70000001788,
+          "duration": 56.39999997615814,
+          "blocking": 0,
+          "renderStart": 59644.40000000596,
+          "styleAndLayoutStart": 59645.90000000596,
+          "scripts": [],
+          "afterDown": 1059.4000000059605,
+          "afterDownHandler": 1010.8000000119209
+        }
+      ],
+      "intervalsOver33": [
+        {
+          "start": 58669.3,
+          "end": 58702.9,
+          "duration": 33.599999999998545,
+          "afterDown": 138.99999998808198
+        },
+        {
+          "start": 59587.6,
+          "end": 59636.2,
+          "duration": 48.599999999998545,
+          "afterDown": 1057.2999999880776
+        },
+        {
+          "start": 59704.3,
+          "end": 59753.5,
+          "duration": 49.19999999999709,
+          "afterDown": 1173.999999988082
+        },
+        {
+          "start": 59785.7,
+          "end": 59820.4,
+          "duration": 34.700000000004366,
+          "afterDown": 1255.3999999880762
+        },
+        {
+          "start": 59852.8,
+          "end": 59887,
+          "duration": 34.19999999999709,
+          "afterDown": 1322.499999988082
+        },
+        {
+          "start": 59903.2,
+          "end": 59937.7,
+          "duration": 34.5,
+          "afterDown": 1372.8999999880762
+        },
+        {
+          "start": 60002.5,
+          "end": 60036.5,
+          "duration": 34,
+          "afterDown": 1472.199999988079
+        },
+        {
+          "start": 60070.1,
+          "end": 60104.4,
+          "duration": 34.30000000000291,
+          "afterDown": 1539.7999999880776
+        }
+      ],
+      "phase": [
+        {
+          "t": 57987.7,
+          "phase": "complete",
+          "renderer": "worker"
+        }
+      ],
+      "renderer": "worker",
+      "failure": null
+    },
+    {
+      "name": "fixed-peel",
+      "sha256": "af9e74a93966b3e68eedd044a94ae54eb51b40436a136d85e096526905ed6839",
+      "duration": 3654.300000011921,
+      "origin": 1789152726697.2,
+      "start": 104926.59999999404,
+      "end": 108580.90000000596,
+      "firstRAF": 104919.8,
+      "lastRAF": 108569.2,
+      "raf": {
+        "count": 215,
+        "median": 16.69999999999709,
+        "p95": 18.5,
+        "max": 65.69999999999709,
+        "over33_34": 2,
+        "over50": 1
+      },
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 105440.90000000596,
+          "duration": 184,
+          "processingStart": 105457.59999999404,
+          "processingEnd": 105463.90000000596,
+          "interactionId": 189,
+          "delay": 16.69999998807907,
+          "handler": 6.300000011920929,
+          "presentationRemainder": 161
+        },
+        {
+          "name": "pointerup",
+          "start": 106367.80000001192,
+          "duration": 32,
+          "processingStart": 106373.09999999404,
+          "processingEnd": 106392.20000001788,
+          "interactionId": 189,
+          "delay": 5.299999982118607,
+          "handler": 19.100000023841858,
+          "presentationRemainder": 7.5999999940395355
+        }
+      ],
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 105488.80000001192,
+          "duration": 72.69999998807907,
+          "blocking": 0,
+          "renderStart": 105561.09999999404,
+          "styleAndLayoutStart": 105561.5,
+          "scripts": [
+            {
+              "duration": 26.19999998807907,
+              "executionStart": 105489.80000001192,
+              "invoker": "MessagePort.onmessage",
+              "sourceURL": "http://localhost:3000/assets/src-Bg8cOn_5.js",
+              "sourceFunctionName": "D",
+              "forcedStyleAndLayoutDuration": 0,
+              "afterDown": 48.900000005960464
+            },
+            {
+              "duration": 15.400000005960464,
+              "executionStart": 105517.30000001192,
+              "invoker": "TimerHandler:setTimeout",
+              "sourceURL": "",
+              "sourceFunctionName": "",
+              "forcedStyleAndLayoutDuration": 0,
+              "afterDown": 76.40000000596046
+            },
+            {
+              "duration": 8.100000023841858,
+              "executionStart": 105543.09999999404,
+              "invoker": "TimerHandler:setTimeout",
+              "sourceURL": "",
+              "sourceFunctionName": "",
+              "forcedStyleAndLayoutDuration": 0,
+              "afterDown": 102.19999998807907
+            }
+          ],
+          "afterDown": 47.900000005960464,
+          "afterDownHandler": 24.900000005960464
+        }
+      ],
+      "intervalsOver33": [
+        {
+          "start": 105486.7,
+          "end": 105552.4,
+          "duration": 65.69999999999709,
+          "afterDown": 45.799999994036625
+        },
+        {
+          "start": 107602.6,
+          "end": 107637.3,
+          "duration": 34.69999999999709,
+          "afterDown": 2161.6999999940454
+        }
+      ],
+      "phase": [
+        {
+          "t": 104919.8,
+          "phase": "complete",
+          "renderer": "worker"
+        }
+      ],
+      "renderer": "worker",
+      "failure": null
+    },
+    {
+      "name": "repeat-peel",
+      "sha256": "4740fce7d202f20f32b63bb9a4382d6915c834894b45fa49072f7f64bc9294ac",
+      "duration": 3665.0999999940395,
+      "origin": 1789152726697.2,
+      "start": 244862.30000001192,
+      "end": 248527.40000000596,
+      "firstRAF": 244852.7,
+      "lastRAF": 248521.2,
+      "raf": {
+        "count": 218,
+        "median": 16.699999999982538,
+        "p95": 18.60000000000582,
+        "max": 35.19999999998254,
+        "over33_34": 1,
+        "over50": 0
+      },
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 245380.40000000596,
+          "duration": 56,
+          "processingStart": 245396.80000001192,
+          "processingEnd": 245419.09999999404,
+          "interactionId": 210,
+          "delay": 16.400000005960464,
+          "handler": 22.299999982118607,
+          "presentationRemainder": 17.30000001192093
+        },
+        {
+          "name": "pointerup",
+          "start": 246315.5,
+          "duration": 32,
+          "processingStart": 246322.80000001192,
+          "processingEnd": 246334.5,
+          "interactionId": 210,
+          "delay": 7.300000011920929,
+          "handler": 11.699999988079071,
+          "presentationRemainder": 13
+        }
+      ],
+      "longTasks": [],
+      "longFrames": [
+        {
+          "start": 245504.80000001192,
+          "duration": 51,
+          "blocking": 0,
+          "renderStart": 245555.20000001788,
+          "styleAndLayoutStart": 245555.30000001192,
+          "scripts": [
+            {
+              "duration": 10.199999988079071,
+              "executionStart": 245504.90000000596,
+              "invoker": "Worker.onmessage",
+              "sourceURL": "http://localhost:3000/assets/src-Bg8cOn_5.js",
+              "sourceFunctionName": "",
+              "forcedStyleAndLayoutDuration": 0,
+              "afterDown": 124.5
+            }
+          ],
+          "afterDown": 124.40000000596046,
+          "afterDownHandler": 85.7000000178814
+        }
+      ],
+      "intervalsOver33": [
+        {
+          "start": 245519.2,
+          "end": 245554.4,
+          "duration": 35.19999999998254,
+          "afterDown": 138.79999999405118
+        }
+      ],
+      "phase": [
+        {
+          "t": 244852.7,
+          "phase": "complete",
+          "renderer": "worker"
+        }
+      ],
+      "renderer": "worker",
+      "failure": null
+    },
+    {
+      "name": "prior-rotation",
+      "sha256": "0f531ff3b5bfa5ee4f09a8c6451bba9f90ab1c2079aadfd1adfbafa2d40bbd1c",
+      "duration": 3822.699999988079,
+      "origin": 1789150974079.9,
+      "start": 50437.30000001192,
+      "end": 54260,
+      "firstRAF": 50438.9,
+      "lastRAF": 54255.5,
+      "raf": {
+        "count": 210,
+        "median": 16.69999999999709,
+        "p95": 32.400000000001455,
+        "max": 68.20000000000437,
+        "over33_34": 6,
+        "over50": 2
+      },
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 50967.5,
+          "duration": 80,
+          "processingStart": 50981.30000001192,
+          "processingEnd": 51045.90000000596,
+          "interactionId": 9231,
+          "delay": 13.800000011920929,
+          "handler": 64.59999999403954,
+          "presentationRemainder": 1.5999999940395355
+        },
+        {
+          "name": "pointerup",
+          "start": 52016.69999998808,
+          "duration": 64,
+          "processingStart": 52039.90000000596,
+          "processingEnd": 52045.59999999404,
+          "interactionId": 9231,
+          "delay": 23.200000017881393,
+          "handler": 5.699999988079071,
+          "presentationRemainder": 35.099999994039536
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 50975.59999999404,
+          "duration": 71
+        },
+        {
+          "start": 51053.69999998808,
+          "duration": 67
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 50975.59999999404,
+          "duration": 73.90000000596046,
+          "blocking": 21.8,
+          "renderStart": 51049.5,
+          "styleAndLayoutStart": 51049.5,
+          "scripts": [
+            {
+              "duration": 23.400000005960464,
+              "executionStart": 50985.40000000596,
+              "invoker": "DIV.onpointerdown",
+              "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+              "sourceFunctionName": "o",
+              "forcedStyleAndLayoutDuration": 0,
+              "afterDown": 17.900000005960464
+            },
+            {
+              "duration": 37,
+              "executionStart": 51008.90000000596,
+              "invoker": "CANVAS.onpointerdown",
+              "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+              "sourceFunctionName": "D",
+              "forcedStyleAndLayoutDuration": 0,
+              "afterDown": 41.400000005960464
+            }
+          ],
+          "afterDown": 8.099999994039536,
+          "afterDownHandler": -70.30000001192093
+        },
+        {
+          "start": 51052.19999998808,
+          "duration": 70.60000002384186,
+          "blocking": 19,
+          "renderStart": 51121.40000000596,
+          "styleAndLayoutStart": 51122.80000001192,
+          "scripts": [
+            {
+              "duration": 45.19999998807907,
+              "executionStart": 51054.80000001192,
+              "invoker": "CANVAS.onpointermove",
+              "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+              "sourceFunctionName": "k",
+              "forcedStyleAndLayoutDuration": 0,
+              "afterDown": 87.30000001192093
+            },
+            {
+              "duration": 21.099999994039536,
+              "executionStart": 51100,
+              "invoker": "CANVAS.onpointermove",
+              "sourceURL": "http://localhost:3000/assets/index-DuyC5bju.js",
+              "sourceFunctionName": "i",
+              "forcedStyleAndLayoutDuration": 0,
+              "afterDown": 132.5
+            }
+          ],
+          "afterDown": 84.69999998807907,
+          "afterDownHandler": 6.299999982118607
+        },
+        {
+          "start": 52139.69999998808,
+          "duration": 73.90000000596046,
+          "blocking": 0,
+          "renderStart": 52211.69999998808,
+          "styleAndLayoutStart": 52213.40000000596,
+          "scripts": [],
+          "afterDown": 1172.199999988079,
+          "afterDownHandler": 1093.7999999821186
+        }
+      ],
+      "intervalsOver33": [
+        {
+          "start": 50989.2,
+          "end": 51039.1,
+          "duration": 49.900000000001455,
+          "afterDown": 21.69999999999709
+        },
+        {
+          "start": 51053.8,
+          "end": 51120.8,
+          "duration": 67,
+          "afterDown": 86.30000000000291
+        },
+        {
+          "start": 52137.2,
+          "end": 52205.4,
+          "duration": 68.20000000000437,
+          "afterDown": 1169.699999999997
+        },
+        {
+          "start": 52420.8,
+          "end": 52454.9,
+          "duration": 34.099999999998545,
+          "afterDown": 1453.300000000003
+        },
+        {
+          "start": 52554.7,
+          "end": 52588.7,
+          "duration": 34,
+          "afterDown": 1587.199999999997
+        },
+        {
+          "start": 52620.6,
+          "end": 52655.1,
+          "duration": 34.5,
+          "afterDown": 1653.0999999999985
+        }
+      ],
+      "phase": [
+        {
+          "t": 50438.9,
+          "phase": "complete",
+          "renderer": "worker"
+        }
+      ],
+      "renderer": "worker",
+      "failure": null
+    },
+    {
+      "name": "prior-peel",
+      "sha256": "825d8c3651f69e10d142af6d1ac160d3fc1e61697f71aaa2512d3e90463e81ce",
+      "duration": 3695.5999999940395,
+      "origin": 1789149790417.4,
+      "start": 372847.40000000596,
+      "end": 376543,
+      "firstRAF": 372835.2,
+      "lastRAF": 376536.1,
+      "raf": {
+        "count": 215,
+        "median": 16.70000000001164,
+        "p95": 17.599999999976717,
+        "max": 133.79999999998836,
+        "over33_34": 1,
+        "over50": 1
+      },
+      "events": [
+        {
+          "name": "pointerdown",
+          "start": 373363.5,
+          "duration": 144,
+          "processingStart": 373372.2000000179,
+          "processingEnd": 373378.8000000119,
+          "interactionId": 5721,
+          "delay": 8.700000017881393,
+          "handler": 6.5999999940395355,
+          "presentationRemainder": 128.69999998807907
+        },
+        {
+          "name": "pointerup",
+          "start": 374331.5,
+          "duration": 32,
+          "processingStart": 374339.10000002384,
+          "processingEnd": 374351.10000002384,
+          "interactionId": 5721,
+          "delay": 7.600000023841858,
+          "handler": 12,
+          "presentationRemainder": 12.399999976158142
+        }
+      ],
+      "longTasks": [
+        {
+          "start": 373397.5,
+          "duration": 141
+        }
+      ],
+      "longFrames": [
+        {
+          "start": 373391.60000002384,
+          "duration": 149.19999998807907,
+          "blocking": 93.1,
+          "renderStart": 373539.2000000179,
+          "styleAndLayoutStart": 373540.2000000179,
+          "scripts": [
+            {
+              "duration": 141.2000000178814,
+              "executionStart": 373397.5,
+              "invoker": "MessagePort.onmessage",
+              "sourceURL": "http://localhost:3000/assets/src-BV2gYAs6.js",
+              "sourceFunctionName": "D",
+              "forcedStyleAndLayoutDuration": 0,
+              "afterDown": 34
+            }
+          ],
+          "afterDown": 28.100000023841858,
+          "afterDownHandler": 12.800000011920929
+        }
+      ],
+      "intervalsOver33": [
+        {
+          "start": 373402.4,
+          "end": 373536.2,
+          "duration": 133.79999999998836,
+          "afterDown": 38.90000000002328
+        }
+      ],
+      "phase": [
+        {
+          "t": 372835.2,
+          "phase": "complete",
+          "renderer": "worker"
+        }
+      ],
+      "renderer": "worker",
+      "failure": null
+    }
+  ]
+}

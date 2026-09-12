@@ -1,0 +1,28 @@
+{
+  "source": "be77986",
+  "temporaryInstrumentation": true,
+  "phone": "iPhone16ProMax",
+  "cpuThrottle": 6,
+  "files": [
+    {
+      "path": "packages/device/src/sticker-contour-query.ts",
+      "sha256": "8db6f9bb0b6e086d7aff989fe216605e5e10fba5098f2aace1c43c8f041c2ea7",
+      "bytes": 17656
+    },
+    {
+      "path": "apps/web/dist/client/assets/src-Dtf95Qjj.js",
+      "sha256": "05f25c9f5736edd52ac79fa627d2eada029fd2bd54a197d5277e64029cf12c2d",
+      "bytes": 1881718
+    },
+    {
+      "path": "apps/web/dist/client/assets/sticker-contour-query-worker-BKc12squ.js",
+      "sha256": "95602081502dedf27e41ad4bae111a0d8f06fc590b53e217ee3af70107b50913",
+      "bytes": 109167
+    },
+    {
+      "path": "apps/web/dist/client/assets/index-B5bAI07W.js",
+      "sha256": "9ac8c8cc0fb463526a221256a34cdf0cec02e5c7ce528a4ac41931f311fc5cb5",
+      "bytes": 518313
+    }
+  ]
+}

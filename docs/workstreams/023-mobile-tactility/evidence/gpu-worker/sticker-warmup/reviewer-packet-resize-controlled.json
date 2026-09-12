@@ -1,0 +1,480 @@
+{
+  "method": "Actual same-cache five-artwork warmup then current and resized full packet, old private owner retained; controlled bitmap/compile ACK and explicit world layouts; no browser/GPU timing.",
+  "requested": [
+    "PW-A01",
+    "PW-A02",
+    "PW-A03",
+    "PW-A04",
+    "PW-A05"
+  ],
+  "neighbors": [
+    "PW-B01",
+    "PW-C01"
+  ],
+  "currentLayout": {
+    "width": 300,
+    "height": 315,
+    "pixel": 1,
+    "x": 0,
+    "y": 0,
+    "workspaceLowering": 0
+  },
+  "candidateLayout": {
+    "width": 330,
+    "height": 346.5,
+    "pixel": 1.1,
+    "x": 0,
+    "y": 0,
+    "workspaceLowering": 0
+  },
+  "acquired": 12,
+  "sent": 1,
+  "failure": null,
+  "visibleFailure": null,
+  "resizeFailure": "pack capacity {\"p\":5,\"old\":[300,315,1],\"next\":[330,346.5,1.1],\"ids\":[\"PW-A01\",\"PW-A02\",\"PW-A03\",\"PW-A04\",\"PW-A05\"],\"placed\":[],\"s\":[[\"PW-B01\",0,0],[\"PW-C01\",0,0],[\"PW-A01\",0,0],[\"PW-A02\",1,0],[\"PW-A03\",1,0],[\"PW-A04\",1,0],[\"PW-A05\",1,0],[\"PW-A01\",0,0]],\"b\":[25,17,8389840,80567804]}",
+  "usage": {
+    "transactions": {
+      "entries": 25,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 13,
+      "pendingCopies": 0,
+      "privateBytes": 6415760,
+      "accountedBytes": 78593724
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 25,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 18,
+      "privateBytes": 2885864,
+      "accountedBytes": 13786968
+    },
+    "currentPrints": 8,
+    "candidatePrints": 0
+  },
+  "geometryInputs": [
+    {
+      "keyHash": "b2e390c6da3589f0",
+      "phase": "warmup",
+      "kind": "parked-print",
+      "artId": "PW-A01",
+      "width": 1,
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "1959231ad5136896",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "4f7bb37d9336f956",
+      "phase": "warmup",
+      "kind": "parked-print",
+      "artId": "PW-A02",
+      "width": 1,
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "7ea0d94378ce3593",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "296eb2cb420ee0c5",
+      "phase": "warmup",
+      "kind": "parked-print",
+      "artId": "PW-A03",
+      "width": 1,
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "88cff0d0675348f8",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "19a9be9b5777fe4d",
+      "phase": "warmup",
+      "kind": "parked-print",
+      "artId": "PW-A04",
+      "width": 1,
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "a743c751eb447905",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "10f6876f133e53e",
+      "phase": "warmup",
+      "kind": "parked-print",
+      "artId": "PW-A05",
+      "width": 1,
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "964d51760aff1eba",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "f7701acdd9ada44",
+      "phase": "current",
+      "kind": "gpu-paper",
+      "artId": null,
+      "width": 300,
+      "normalHash": null,
+      "uvHash": null,
+      "normalCount": 0,
+      "uvCount": 0
+    },
+    {
+      "keyHash": "6e6e83e19efa53ab",
+      "phase": "current",
+      "kind": "parked-print",
+      "artId": "PW-B01",
+      "width": 174,
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "4cfa2ac631b40e39",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "570fe0d8f98c3fe1",
+      "phase": "current",
+      "kind": "parked-print",
+      "artId": "PW-C01",
+      "width": 174,
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "35f48f354c823d6c",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "2a1ca121286aef04",
+      "phase": "current",
+      "kind": "gpu-paper",
+      "artId": null,
+      "width": 300,
+      "normalHash": null,
+      "uvHash": null,
+      "normalCount": 0,
+      "uvCount": 0
+    },
+    {
+      "keyHash": "5422f3ac36cb603d",
+      "phase": "current",
+      "kind": "parked-print",
+      "artId": "PW-A01",
+      "width": 73.5,
+      "normalHash": "a7b1f907020e8e6e",
+      "uvHash": "1959231ad5136896",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "d0b01fbb137f87ba",
+      "phase": "current",
+      "kind": "parked-print",
+      "artId": "PW-A02",
+      "width": 57.27621951219511,
+      "normalHash": "d041c6c379c2a3b8",
+      "uvHash": "7ea0d94378ce3593",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "6e2666736a51a0a",
+      "phase": "current",
+      "kind": "parked-print",
+      "artId": "PW-A03",
+      "width": 73.5,
+      "normalHash": "257ff469549c82e4",
+      "uvHash": "88cff0d0675348f8",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "18df1b30490c2792",
+      "phase": "current",
+      "kind": "parked-print",
+      "artId": "PW-A04",
+      "width": 72.81627906976743,
+      "normalHash": "10855ad721ef34fa",
+      "uvHash": "a743c751eb447905",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "6744f1846add8729",
+      "phase": "current",
+      "kind": "parked-print",
+      "artId": "PW-A05",
+      "width": 65.70529411764704,
+      "normalHash": "b8b588e22e54da42",
+      "uvHash": "964d51760aff1eba",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "754c6be44f3a17c6",
+      "phase": "current",
+      "kind": "sleeve",
+      "artId": null,
+      "width": 304,
+      "normalHash": "7a497eed2df16261",
+      "uvHash": "c1e612ecd335d66e",
+      "normalCount": 3300,
+      "uvCount": 3300
+    },
+    {
+      "keyHash": "29ed134864afc662",
+      "phase": "current",
+      "kind": "plane",
+      "artId": null,
+      "width": 7,
+      "normalHash": "cd6a85169f14e1e0",
+      "uvHash": "e7f69e2be59e7726",
+      "normalCount": 4,
+      "uvCount": 4
+    },
+    {
+      "keyHash": "6e3c0147099c8ab6",
+      "phase": "current",
+      "kind": "plane",
+      "artId": null,
+      "width": 302,
+      "normalHash": "cd6a85169f14e1e0",
+      "uvHash": "e7f69e2be59e7726",
+      "normalCount": 4,
+      "uvCount": 4
+    },
+    {
+      "keyHash": "cc4174f96ce27db",
+      "phase": "current",
+      "kind": "parked-print",
+      "artId": "PW-A01",
+      "width": 174,
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "1959231ad5136896",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "e6e2880a67dbded4",
+      "phase": "candidate",
+      "kind": "gpu-paper",
+      "artId": null,
+      "width": 330,
+      "normalHash": null,
+      "uvHash": null,
+      "normalCount": 0,
+      "uvCount": 0
+    },
+    {
+      "keyHash": "207faa19677a0599",
+      "phase": "candidate",
+      "kind": "parked-print",
+      "artId": "PW-B01",
+      "width": 191.39999999999998,
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "4cfa2ac631b40e39",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "de397b58cff26cfc",
+      "phase": "candidate",
+      "kind": "parked-print",
+      "artId": "PW-C01",
+      "width": 191.39999999999998,
+      "normalHash": "37500f9ca328cc0b",
+      "uvHash": "35f48f354c823d6c",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "9eb105f40f27bf3",
+      "phase": "candidate",
+      "kind": "gpu-paper",
+      "artId": null,
+      "width": 330,
+      "normalHash": null,
+      "uvHash": null,
+      "normalCount": 0,
+      "uvCount": 0
+    },
+    {
+      "keyHash": "916599e5e6931ad1",
+      "phase": "candidate",
+      "kind": "parked-print",
+      "artId": "PW-A01",
+      "width": 80.85,
+      "normalHash": "855930880ee09d75",
+      "uvHash": "1959231ad5136896",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "26c12337ac474b8b",
+      "phase": "candidate",
+      "kind": "parked-print",
+      "artId": "PW-A02",
+      "width": 63.00384146341463,
+      "normalHash": "db3f2c0573bcfe9f",
+      "uvHash": "7ea0d94378ce3593",
+      "normalCount": 625,
+      "uvCount": 625
+    },
+    {
+      "keyHash": "80f84e67370ba434",
+      "phase": "candidate",
+      "kind": "parked-print",
+      "artId": "PW-A03",
+      "width": 80.85,
+      "normalHash": "688508b93f90dadb",
+      "uvHash": "88cff0d0675348f8",
+      "normalCount": 625,
+      "uvCount": 625
+    }
+  ],
+  "privateAcquisitions": [
+    {
+      "keyHash": "1397e34f2bee1fc2",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "78bb1f085fc35776"
+    },
+    {
+      "keyHash": "657b55eacd342a18",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "13a8abf292ab20ac"
+    },
+    {
+      "keyHash": "af782c471d6f840",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "22ce752f042420c8"
+    },
+    {
+      "keyHash": "ea0375e68f1bc44d",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2c4aeef864bf25eb"
+    },
+    {
+      "keyHash": "246be6dfd00c1581",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "d6933ef3467cc4c"
+    },
+    {
+      "keyHash": "a41d96efced92ed8",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "9489e415405ef136"
+    },
+    {
+      "keyHash": "959ba085e3841b74",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f216b6f11a81285"
+    },
+    {
+      "keyHash": "837c1b7c948d1d4b",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "eed880866f0a73f8"
+    },
+    {
+      "keyHash": "cb5a9afcd3924806",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "ff6a5ee6ffce09d3"
+    },
+    {
+      "keyHash": "e56fa2e96e4c1945",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "4a9332ce3ac4d2fe"
+    },
+    {
+      "keyHash": "3c5f694bed703035",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f73093f8955c4d9"
+    },
+    {
+      "keyHash": "9e89f5eacafe1ce0",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "e059de8c3e477a8"
+    },
+    {
+      "keyHash": "d86f8a017cb0a1a7",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "78bb1f085fc35776"
+    },
+    {
+      "keyHash": "1e219e370b6fe347",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "9489e415405ef136"
+    },
+    {
+      "keyHash": "99f35ea15f78259b",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f216b6f11a81285"
+    },
+    {
+      "keyHash": "37bfa7d10135d305",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "5223369bd038338a"
+    },
+    {
+      "keyHash": "76c67a7579fb672c",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "5cd1766a9eb6cec9"
+    }
+  ],
+  "final": {
+    "owners": 0,
+    "transactions": {
+      "entries": 0,
+      "queued": 0,
+      "active": null,
+      "worker": false,
+      "privateOwners": 0,
+      "pendingCopies": 0,
+      "privateBytes": 0,
+      "accountedBytes": 0
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 0,
+      "queued": 0,
+      "active": null,
+      "worker": false,
+      "privateOwners": 0,
+      "privateBytes": 0,
+      "accountedBytes": 0
+    }
+  }
+}

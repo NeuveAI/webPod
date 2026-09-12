@@ -1,0 +1,33 @@
+{
+  "sameTextureSamplerIdentity": true,
+  "oldAllocationRetainedBeforeMatchingCapture": true,
+  "equalRasterDoesNotReallocate": true,
+  "matchingRasterAllocatesThenCopies": true,
+  "allocationFailureClosesImage": true,
+  "retiredUploadClosesImage": true,
+  "allocations": [
+    [
+      960,
+      720
+    ],
+    [
+      1280,
+      960
+    ]
+  ],
+  "copies": [
+    [
+      960,
+      720
+    ],
+    [
+      1280,
+      960
+    ],
+    [
+      1280,
+      960
+    ]
+  ],
+  "scope": "Actual wrapper and installed Three StorageTexture/Backend with controlled allocation and copy callbacks; bind-group disposal behavior grounded in installed Textures.js, actual GPU resize validation remains browser gate."
+}

@@ -1,0 +1,18 @@
+diff --git a/packages/device/src/sticker-prepared-damage.ts b/packages/device/src/sticker-prepared-damage.ts
+index 9bea6b7..892a293 100644
+--- a/packages/device/src/sticker-prepared-damage.ts
++++ b/packages/device/src/sticker-prepared-damage.ts
+@@ -84,7 +84,12 @@ export async function preparePrint(input: PrintInput, signal: AbortSignal, optio
+ export function usePreparedStickerDamage(texture: Texture | null, id: string, geometry: BufferGeometry, wearGeometry: BufferGeometry | null, wear: number, computationEpoch: number, onError?: (id: string) => void): PreparedPrint | null {
+   const owner = useMemo(() => {
+     const store = createStore(), state = atom<PreparedPrint | null>(null), retired = new Set<PreparedPrint>();
+-    return { store, state, retired, runtime: createLatestStickerPreparation(preparePrint, value => { const previous = store.get(state); if (previous) retired.add(previous); store.set(state, value); }, input => input.onError?.(input.id)) };
++    return { store, state, retired, runtime: createLatestStickerPreparation((input: PrintInput, signal) => {
++      const current = store.get(state);
++      // The current print stays owned until its replacement commits. A restored
++      // surface wrapper may share exact damage inputs without inheriting its key.
++      return preparePrint(input, signal, { reuseDamage: current ? preparedStickerResources(current.geometry) : [] });
++    }, value => { const previous = store.get(state); if (previous) retired.add(previous); store.set(state, value); }, input => input.onError?.(input.id)) };
+   }, []);
+   const current = useAtomValue(owner.state, { store: owner.store });
+   useLayoutEffect(() => {

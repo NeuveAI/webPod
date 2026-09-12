@@ -1,0 +1,23 @@
+Emulating viewport: {"deviceScaleFactor":3,"isMobile":true,"hasTouch":true,"isLandscape":false,"width":440,"height":956}
+Emulating CPU throttling: 6x slowdown
+## Insight Title: Forced reflow
+
+## Insight Summary:
+This insight identifies forced synchronous layouts (also known as forced reflows) and layout thrashing caused by JavaScript accessing layout properties at suboptimal points in time.
+
+## Detailed analysis:
+A forced reflow occurs when JavaScript queries geometric properties (such as `offsetWidth`) after styles have been invalidated by a change to the DOM state. This can result in poor performance. Learn more about [forced reflows](https://developer.chrome.com/docs/performance/insights/forced-reflow) and possible mitigations.
+
+The forced reflow checks revealed one or more problems.
+
+No top-level functions causing forced reflows were identified.
+
+Call frames that trigger reflow (including total time):
+
+ - 26 ms in [unattributed]
+
+## Estimated savings: none
+
+## External resources:
+- https://developer.chrome.com/docs/performance/insights/forced-reflow
+- https://developers.google.com/web/fundamentals/performance/rendering/avoid-large-complex-layouts-and-layout-thrashing#avoid-forced-synchronous-layouts

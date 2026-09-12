@@ -1,0 +1,52 @@
+{
+  "source": "a822fecf2544841688b27d943bb1393fc302dba1",
+  "tree": "073108bd33229f2dbff539100310f4a67b722619",
+  "archive": "/tmp/webpod-worker-cpu-fixes",
+  "method": "git archive exact tracked tree; no environment/cert or untracked files;12 workspace links verified inside archive",
+  "bun": "1.4.0",
+  "install": {
+    "command": "bun install --frozen-lockfile",
+    "exit": 0,
+    "log": "/tmp/webpod-worker-cpu-fixes-install.log"
+  },
+  "build": {
+    "command": "bun run build",
+    "exit": 0,
+    "log": "/tmp/webpod-worker-cpu-fixes-build.log",
+    "id": "99c49902-8607-4ca6-a989-f41427c6804b",
+    "client": "/tmp/webpod-worker-cpu-fixes/apps/web/dist/client",
+    "server": "/tmp/webpod-worker-cpu-fixes/apps/web/dist/server/server.js",
+    "files": 126,
+    "manifestSha256": "48fddbd6b891056701f9da62f5d388fceff548dbe51193acb6317f7b80897cdc",
+    "manifestDefinition": "SHA256 sorted relativepath NUL filesha256 newline",
+    "relevant": [
+      {
+        "path": "client/assets/device-render-worker-BEBY8OYa.js",
+        "bytes": 1343440,
+        "sha256": "f0799e65f46f447c824f8b16da5cb5b59f5ec95aed6f4f5f3031f03bd41b5f9c"
+      },
+      {
+        "path": "client/assets/index-CC2h7_xA.js",
+        "bytes": 516824,
+        "sha256": "d2cee14bb8989fd67e23124a80122fadc4fe5d76859052825db56db98de5e509"
+      },
+      {
+        "path": "client/assets/sticker-carry-worker-DWuamdeK.js",
+        "bytes": 176079,
+        "sha256": "a51747ebcfb2d5feaaff6d76889ed3ae0b8b44402da8af22e7a10890d7c41ad1"
+      },
+      {
+        "path": "server/assets/router-CSXAzwQ9.js",
+        "bytes": 514985,
+        "sha256": "0ced48d6b18b4dea8b326c9755f640eeb511992853adef5ac4cd378aa7421ab0"
+      },
+      {
+        "path": "server/server.js",
+        "bytes": 621079,
+        "sha256": "e12d1d8a54e2f4ba5cf3ec0c34ade477b33268ae1163f44acbf76796f17822a0"
+      }
+    ]
+  },
+  "serverStarted": false,
+  "currentCheckoutModified": false
+}

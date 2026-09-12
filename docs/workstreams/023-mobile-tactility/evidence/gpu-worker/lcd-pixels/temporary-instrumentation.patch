@@ -1,0 +1,95 @@
+--- a/packages/device/src/screen-mesh.ts
++++ b/packages/device/src/screen-mesh.ts
+@@ -49,7 +49,11 @@
+  * tier where the composite is not mounted.
+  */
+ import type { Camera, Material, Mesh, Object3D } from "three";
+-import { Matrix4, Vector3 } from "three";
++import { Matrix4, Vector3, Color, Vector4, Scene, OrthographicCamera, PlaneGeometry, Mesh as SampleMesh, WebGLRenderTarget, LinearSRGBColorSpace, RGBAFormat, UnsignedByteType } from "three";
++
++// Temporary diagnostic timers are owned by this module through HMR retirement.
++const lcdPixelTimers=new Set<() => void>();
++import.meta.hot?.dispose(()=>{for(const cancel of lcdPixelTimers)cancel();lcdPixelTimers.clear();});
+ 
+ /** A point in the canvas's CSS pixel space: origin top-left, +y **down**. */
+ export type ViewportPoint = { readonly x: number; readonly y: number };
+@@ -255,7 +259,27 @@
+ 
+   // three.js calls this once per rendered frame, per mesh. Under
+   // `frameloop="demand"` that is once per frame somebody asked for.
+-  mesh.onBeforeRender = function onBeforeRender(this: Object3D) {
++  const lcdSampleSeen=new Set<string>();
++  mesh.onBeforeRender = function onBeforeRender(this: Object3D, renderer, _scene, _camera, _geometry, material) {
++    if(material.name.startsWith('webpod-lcd-')&&lcdSampleSeen.size<2&&!lcdSampleSeen.has(material.uuid)){
++      lcdSampleSeen.add(material.uuid);
++      const cancel=()=>{clearTimeout(timer);material.removeEventListener('dispose',cancel);lcdPixelTimers.delete(cancel);};
++      const timer=setTimeout(()=>{
++        material.removeEventListener('dispose',cancel);lcdPixelTimers.delete(cancel);
++        if(mesh.parent===null||!renderer.domElement.isConnected||mesh.material!==material||renderer.getContext().isContextLost())return;
++        const target=new WebGLRenderTarget(8,8,{format:RGBAFormat,type:UnsignedByteType,colorSpace:LinearSRGBColorSpace,depthBuffer:false,stencilBuffer:false});
++        const geometry=new PlaneGeometry(2,2),sampleScene=new Scene(),quad=new SampleMesh(geometry,material),camera=new OrthographicCamera(-1,1,1,-1,.1,2);camera.position.z=1;sampleScene.add(quad);
++        const saved={target:renderer.getRenderTarget(),face:renderer.getActiveCubeFace(),mip:renderer.getActiveMipmapLevel(),viewport:renderer.getViewport(new Vector4()),scissor:renderer.getScissor(new Vector4()),test:renderer.getScissorTest(),color:renderer.getClearColor(new Color()),alpha:renderer.getClearAlpha(),auto:renderer.autoClear};
++        const start=performance.now(),bytes=new Uint8Array(256);
++        try{renderer.setRenderTarget(target);renderer.setViewport(0,0,8,8);renderer.setScissorTest(false);renderer.setClearColor(0,0);renderer.autoClear=true;renderer.render(sampleScene,camera);renderer.readRenderTargetPixels(target,0,0,8,8,bytes);
++          if(performance.now()-start>3000)throw Error('Readback deadline exceeded');
++          console.info('webpod-lcd-pixels '+JSON.stringify({backend:'webgl',material:material.name,materialId:material.uuid,format:'rgba8-linear',width:8,height:8,rowOrigin:'bottom-left',uv:'quad pixel centers; actual material map transform',elapsedMs:performance.now()-start,rgba:[...bytes]}));
++        }catch(error){console.info('webpod-lcd-pixels '+JSON.stringify({backend:'webgl',error:String(error)}));}
++        finally{renderer.setRenderTarget(saved.target,saved.face,saved.mip);renderer.setViewport(saved.viewport);renderer.setScissor(saved.scissor);renderer.setScissorTest(saved.test);renderer.setClearColor(saved.color,saved.alpha);renderer.autoClear=saved.auto;sampleScene.remove(quad);geometry.dispose();target.dispose();}
++      },1500);
++      lcdPixelTimers.add(cancel);material.addEventListener('dispose',cancel);
++    }
++
+     if (listeners.size === 0) return;
+     const { camera, width, height } = state.deps.view();
+     if (state.everReported && lastReported.equals(mesh.matrixWorld) &&
+--- a/packages/device/src/device-render-worker.ts
++++ b/packages/device/src/device-render-worker.ts
+@@ -6,7 +6,7 @@
+ import type {NativePackFrame} from '../../composite/src/native-pack-resources';
+ import type {StickerPackNode} from './sticker-pack-recipe';
+ import { closeStickerFrameMessage, prepareStickerRenderFrame, type NativeEquippedFrameMessage } from './sticker-render-frame';
+-import { AgXToneMapping, Group, Mesh, PerspectiveCamera, RectAreaLight, Scene } from 'three';
++import { AgXToneMapping, Group, Mesh, PerspectiveCamera, RectAreaLight, Scene, Color, Vector4, OrthographicCamera, PlaneGeometry, RenderTarget, LinearSRGBColorSpace, RGBAFormat, UnsignedByteType } from 'three';
+ import { WebGPURenderer, RectAreaLightNode } from 'three/webgpu';
+ import { RectAreaLightTexturesLib } from 'three/addons/lights/RectAreaLightTexturesLib.js';
+ import { createRenderBackendOwner, createBackendStudioMaps } from './render-backend-services';
+@@ -122,6 +122,31 @@
+   const screenMesh = graph.objects.get('screen'); if (!(screenMesh instanceof Mesh)) throw new Error('Authored LCD mesh is absent');
+   const projection = createLatestRenderChannel<Omit<RenderProjection, 'notificationSequence'>>((notificationSequence, value) => send({ type: 'projection', version: 1, epoch, projection: { ...value, notificationSequence } }));
+   cleanups.push(() => projection.dispose());
++  let lcdSampleScheduled=false;
++  const sampleLcd=()=>{
++    const target=new RenderTarget(8,8,{format:RGBAFormat,type:UnsignedByteType,colorSpace:LinearSRGBColorSpace,depthBuffer:false,stencilBuffer:false});
++    const geometry=new PlaneGeometry(2,2),sampleScene=new Scene(),quad=new Mesh(geometry,lcd),sampleCamera=new OrthographicCamera(-1,1,1,-1,.1,2);sampleCamera.position.z=1;sampleScene.add(quad);
++    let buffer:GPUBuffer|null=null,done=false;const start=performance.now();
++    const dispose=()=>{if(done)return;done=true;clearTimeout(timeout);buffer?.destroy();sampleScene.remove(quad);geometry.dispose();target.dispose();abort.signal.removeEventListener('abort',dispose);};
++    const timeout=setTimeout(()=>{console.info('webpod-lcd-pixels '+JSON.stringify({backend:'webgpu',error:'readback deadline'}));dispose();},3000);abort.signal.addEventListener('abort',dispose,{once:true});
++    const saved={target:renderer.getRenderTarget(),face:renderer.getActiveCubeFace(),mip:renderer.getActiveMipmapLevel(),viewport:renderer.getViewport(new Vector4()),scissor:renderer.getScissor(new Vector4()),test:renderer.getScissorTest(),color:renderer.getClearColor(new Color()),alpha:renderer.getClearAlpha(),auto:renderer.autoClear};
++    try{
++      try{renderer.setRenderTarget(target);renderer.setViewport(0,0,8,8);renderer.setScissorTest(false);renderer.setClearColor(0,0);renderer.autoClear=true;renderer.render(sampleScene,sampleCamera);}
++      finally{renderer.setRenderTarget(saved.target,saved.face,saved.mip);renderer.setViewport(saved.viewport);renderer.setScissor(saved.scissor);renderer.setScissorTest(saved.test);renderer.setClearColor(saved.color,saved.alpha);renderer.autoClear=saved.auto;}
++      const device:unknown=Reflect.get(renderer.backend,'device'),get:unknown=Reflect.get(renderer.backend,'get');
++      if(!(device instanceof GPUDevice)||typeof get!=='function')throw Error('Readback backend unavailable');
++      const data:unknown=get.call(renderer.backend,target.texture),texture:unknown=data&&typeof data==='object'?Reflect.get(data,'texture'):null;
++      if(!(texture instanceof GPUTexture)||texture.format!=='rgba8unorm')throw Error('Unexpected linear sample texture format');
++      // Installed Three copyTextureToBuffer uses 256-byte row alignment. Own the
++      // buffer here so deadline/rejection/retirement always destroy it.
++      buffer=device.createBuffer({size:1824,usage:GPUBufferUsage.COPY_DST|GPUBufferUsage.MAP_READ});
++      const encoder=device.createCommandEncoder();encoder.copyTextureToBuffer({texture},{buffer,bytesPerRow:256},{width:8,height:8,depthOrArrayLayers:1});device.queue.submit([encoder.finish()]);
++      const owned=buffer;
++      void owned.mapAsync(GPUMapMode.READ).then(()=>{if(done)return;const padded=new Uint8Array(owned.getMappedRange()),bytes=new Uint8Array(256);for(let y=0;y<8;y++)bytes.set(padded.subarray(y*256,y*256+32),y*32);
++        console.info('webpod-lcd-pixels '+JSON.stringify({backend:'webgpu',isBlack:input.isBlack,materialId:lcd.uuid,format:'rgba8-linear',width:8,height:8,rowOrigin:'top-left',uv:'quad pixel centers; actual material map transform',elapsedMs:performance.now()-start,rgba:[...bytes]}));
++      }).catch(error=>{if(!done)console.info('webpod-lcd-pixels '+JSON.stringify({backend:'webgpu',error:String(error)}));}).finally(dispose);
++    }catch(error){console.info('webpod-lcd-pixels '+JSON.stringify({backend:'webgpu',error:String(error)}));dispose();}
++  };
+   const publish = (next: RenderPose) => {
+     pose = next;
+     for (const node of pose.nodes) {
+@@ -130,6 +155,7 @@
+     }
+     if (!visible || !painted || !compiled || retired) return;
+     scene.updateMatrixWorld(true); renderer.render(scene, camera);
++    if(!lcdSampleScheduled){lcdSampleScheduled=true;const timer=setTimeout(()=>{if(!retired&&!abort.signal.aborted)sampleLcd();},1500);cleanups.push(()=>clearTimeout(timer));}
+     if (!backend.isInitialized()) throw new Error('Renderer became unavailable');
+     if(pendingPackPoseAck!==null){send({type:'pack-pose-consumed',version:1,epoch,notificationSequence:pendingPackPoseAck,accepted:true});pendingPackPoseAck=null;}
+     projection.offer({ epoch, sceneRevision, resourceRevision,

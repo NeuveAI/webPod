@@ -1,0 +1,22 @@
+{
+  "head": "988811c",
+  "sourceCommit": "4667bcf",
+  "commands": [
+    {
+      "command": "bun run typecheck",
+      "result": "passed",
+      "projects": 14
+    },
+    {
+      "command": "bun run build",
+      "result": "passed",
+      "caveat": "Existing large chunk warning; not a runtime performance result"
+    }
+  ],
+  "sourceReviews": [
+    "gpu-native-host-review.md",
+    "gpu-native-worker-review.md"
+  ],
+  "browserAcceptance": "pending",
+  "productionChanged": false
+}

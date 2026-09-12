@@ -1,0 +1,29 @@
+{
+  "kind": "Actual native adapter and query geometry, controlled Happy DOM pointer capture, not trusted browser performance",
+  "checks": {
+    "exactDownAccepted": true,
+    "capturedMovesZeroHoverPicks": true,
+    "declinedSecondDownPreservesOwner": true,
+    "otherPointerCancelPreservesOwner": true,
+    "otherPrimaryPointerStillPicks": true,
+    "nonprimaryStillRejected": true,
+    "upRestoresHover": true,
+    "pointercancelRestoresHover": true,
+    "lostpointercaptureRestoresHover": true,
+    "blurRestoresHover": true,
+    "unrelatedCaptureDoesNotSuppressHover": true,
+    "declinedAdmissionStillHovers": true,
+    "acceptedWithoutCaptureStillHovers": true,
+    "reentrantCancelCannotInstallOwner": true,
+    "missingCaptureRestoresHoverBeforeLostEvent": true,
+    "outsideDoesNotAdmit": true,
+    "wheelNeverBecomesOrientationOwner": true,
+    "wheelMoveKeepsSharedControlPath": true,
+    "rearCaptureSuppressesOnlyHover": true,
+    "disposedListenersPerformZeroPicks": true,
+    "cursorCleared": true,
+    "bindingListenersReleased": true
+  },
+  "picks": 46,
+  "attempts": 11
+}

@@ -1,0 +1,17 @@
+{
+  "checks": 11,
+  "results": [
+    "No compile before last variant",
+    "Out-of-order six meshes compile once",
+    "Duplicate readiness does not compile",
+    "Ready program clones released once",
+    "Child layout readiness before parent effect is retained",
+    "Context restoration compiles one fresh generation",
+    "Restored program clones released once",
+    "Disposed pending generation cannot publish or report late abort",
+    "Compile rejection reports one current error",
+    "Explicit retry compiles complete group successfully",
+    "Late child readiness after disposal is ignored"
+  ],
+  "scope": "Actual extracted GL parent effect, actual Three meshes and preparation helper; controlled GPU compilation boundary"
+}

@@ -1,0 +1,8 @@
+{
+  "comparisons": 36,
+  "gridVertices": 9409,
+  "firstUvScalarReads": 188180,
+  "twentyWarmPoseUvScalarReads": 0,
+  "positionSamplesPerPose": 9,
+  "limitation": "Exact CPU reference/operation counts, not browser or GPU timing."
+}

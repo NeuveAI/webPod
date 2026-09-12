@@ -1,0 +1,7 @@
+{
+  "passed": 13,
+  "requests": 9,
+  "clears": 2,
+  "retired": 2,
+  "scope": "Actual shared projection capture, real Three geometry/visibility, mocked query transport; worker lifecycle is separately proved by C1."
+}

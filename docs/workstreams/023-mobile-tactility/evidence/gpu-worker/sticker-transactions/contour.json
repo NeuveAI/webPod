@@ -1,0 +1,8 @@
+{
+  "baseline": "ebebb32d0b7f0b30b7e41b81778293d6b7d44405",
+  "checked": 1320,
+  "exact": true,
+  "boundaryPoints": 3800,
+  "visiblePoints": 25260,
+  "method": "Pinned exact alpha paths and full projection/anchors/visibility spans, including cutout, cropped UV, wear and wrapped rotation; cooperative same-math parity. No browser/timing claim."
+}

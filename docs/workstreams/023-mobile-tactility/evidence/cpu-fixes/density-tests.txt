@@ -1,0 +1,61 @@
+bun test v1.4.0 (34cbb9a40)
+
+packages/device/src/pixel-density.test.ts:
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box [0.04ms]
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box
+(pass) canvas physical-pixel density > maps a 330px by 552px CSS canvas to its physical box
+(pass) canvas physical-pixel density > maps a 275px by 460px CSS canvas to its physical box
+(pass) canvas physical-pixel density > uses browser DPR when the physical box API is unavailable
+(pass) canvas physical-pixel density > does not let a CSS-sized emulation box override a higher browser DPR
+(pass) canvas physical-pixel density > clamps expensive or invalid device scales to the supported 1–3 range
+(pass) canvas physical-pixel density > passes a measured zoom DPR through the R3F seam as an exact number [0.03ms]
+
+packages/device/src/camera-fit.test.ts:
+(pass) perspective camera fit from measured model bounds > 375x812 contains the front model inside its safe area [0.59ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the three-quarter model inside its safe area [0.06ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the left-edge model inside its safe area [0.06ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the right-edge model inside its safe area [0.04ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the rear model inside its safe area [0.03ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the top model inside its safe area [0.04ms]
+(pass) perspective camera fit from measured model bounds > 375x812 contains the bottom model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the front model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the three-quarter model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the left-edge model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the right-edge model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the rear model inside its safe area [0.03ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the top model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 430x932 contains the bottom model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the front model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the three-quarter model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the left-edge model inside its safe area [0.05ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the right-edge model inside its safe area [0.04ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the rear model inside its safe area [0.22ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the top model inside its safe area [0.05ms]
+(pass) perspective camera fit from measured model bounds > 1024x768 contains the bottom model inside its safe area [0.04ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the front model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the three-quarter model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the left-edge model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the right-edge model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the rear model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the top model inside its safe area [0.01ms]
+(pass) perspective camera fit from measured model bounds > 844x390 contains the bottom model inside its safe area [0.02ms]
+(pass) perspective camera fit from measured model bounds > a shorter planted distance visibly escapes the safe area [0.08ms]
+(pass) perspective camera fit from measured model bounds > one production camera contains the complete rotational envelope at every DPR [78.19ms]
+(pass) perspective camera fit from measured model bounds > front and rear reproduce dimensions while the projected pivot stays fixed [7.30ms]
+(pass) perspective camera fit from measured model bounds > a shorter planted production camera clips the rotational envelope [4.88ms]
+
+packages/device/src/screen-mesh.test.ts:
+(pass) the screen mesh boundary > screen UVs are normalized with TL/TR/BR/BL texture orientation [1.38ms]
+(pass) the screen mesh boundary > size is 272 × 204 body px and panel is 320 × 240 at 0.85 [0.39ms]
+(pass) the screen mesh boundary > world corners are TL, TR, BR, BL with +y up [0.14ms]
+(pass) the screen mesh boundary > viewport corners are canvas CSS px with +y DOWN [0.04ms]
+(pass) the screen mesh boundary > a moved device reports a new transform, not the one it was created with [0.04ms]
+(pass) the screen mesh boundary > onTransformChange delivers the value and fires only on a real change [0.10ms]
+(pass) the screen mesh boundary > callback-ref replay preserves handle identity and active subscriptions [0.11ms]
+(pass) the screen mesh boundary > setMaterial installs, null restores the default, and both ask for a frame [0.08ms]
+(pass) the screen mesh boundary > the handle exposes no Object3D — D-054, staleness has no slot [0.04ms]
+
+ 49 pass
+ 0 fail
+ 299 expect() calls
+Ran 49 tests across 3 files. [174.00ms]

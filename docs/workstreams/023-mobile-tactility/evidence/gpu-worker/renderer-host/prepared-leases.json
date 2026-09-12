@@ -1,0 +1,21 @@
+{
+  "method": "Actual Bun module worker and native MessagePorts; deterministic React commit shim. No browser/GPU or latency claim.",
+  "checks": {
+    "sameHookAndRendererAuthority": true,
+    "privateTransferPreservesMountedBuffers": true,
+    "canonicalMainAndRenderBytesAccounted": true,
+    "rendererReleaseRetainsOtherOwner": true,
+    "pendingAbortTerminatesBeforeReservationRelease": true,
+    "failedWorkerDoesNotRecomputeCachedRecipe": true,
+    "finalOwnerEvictsAndTerminates": true
+  },
+  "admitted": {
+    "entries": 1,
+    "queued": 0,
+    "active": null,
+    "worker": true,
+    "renderLeases": 1,
+    "accountedBytes": 69446088,
+    "canonicalBytes": 23148696
+  }
+}

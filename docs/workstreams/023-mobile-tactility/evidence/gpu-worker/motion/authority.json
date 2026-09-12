@@ -1,0 +1,12 @@
+{
+  "sameTurnRotate": true,
+  "acceptedDoesNotSettle": true,
+  "remoteMainFrames": 0,
+  "staleSettlementIgnored": true,
+  "actualSettlementResolves": true,
+  "directIntentSupersedesRelease": true,
+  "staleProjectionIgnored": true,
+  "appearanceSnapshotStable": true,
+  "finalListeners": 0,
+  "scope": "Actual main adapter/controller deterministic binding, no native presentation or media claim."
+}

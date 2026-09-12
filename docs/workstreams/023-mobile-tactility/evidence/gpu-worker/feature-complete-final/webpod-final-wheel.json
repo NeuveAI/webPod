@@ -1,0 +1,14 @@
+{
+  "before": {
+    "title": "Music",
+    "selected": 3
+  },
+  "moved": {
+    "title": "Music",
+    "selected": 4
+  },
+  "restored": {
+    "title": "Music",
+    "selected": 0
+  }
+}

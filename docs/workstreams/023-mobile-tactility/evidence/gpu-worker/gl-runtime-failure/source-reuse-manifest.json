@@ -1,0 +1,11 @@
+{
+  "file": "packages/device/src/sticker-prepared-damage.ts",
+  "beforeSha256": "dcdda0d2d0ddd80be80cef629b70b33bacb712e85a17adef0bb1459b301a8a31",
+  "sha256": "b2b27ba40d83d194dff431fba66c3465188625aedfab426b6a2aff0d54a85a54",
+  "proofs": [
+    "gl-source-wrapper-before-workload.ts/json",
+    "gl-source-wrapper-workload.ts/json",
+    "gl-source-wrapper-exact.ts/json"
+  ],
+  "checks": "17 existing tests / 17705 assertions pass; source/proof lint pass; device, composite and web typechecks pass after parallel output type seam correction."
+}

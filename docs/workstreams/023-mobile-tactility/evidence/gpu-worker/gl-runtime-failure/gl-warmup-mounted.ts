@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import {mock} from 'bun:test';
+import {GlobalRegistrator} from '../../../../../../packages/composite/node_modules/@happy-dom/global-registrator';
+import {act,createElement} from '../../../../../../packages/device/node_modules/react';
+import {createRoot} from '../../../../../../packages/device/node_modules/react-dom/client';
+import {Texture,PlaneGeometry} from '../../../../../../packages/device/node_modules/three/build/three.module.js';
+import {STICKER_CATALOGUE} from '../../../../../../packages/stickers/src/catalogue';
+import {inspectStickerTransactions} from '../../../../../../packages/device/src/sticker-transaction-broker';
+GlobalRegistrator.register();Object.assign(globalThis,{IS_REACT_ACT_ENVIRONMENT:true});
+const art=STICKER_CATALOGUE[0];assert(art);
+const texture=new Texture(),roughness=new Texture(),geometry=new PlaneGeometry(10,10,4,4),studio={texture:null};
+const preparation=await import('../../../../../../packages/device/src/sticker-prepared-damage');
+const actual=preparation.usePreparedStickerDamage;const inputs:unknown[]=[];
+mock.module('../../../../../../packages/device/src/sticker-prepared-damage',()=>({...preparation,usePreparedStickerDamage(...args:Parameters<typeof actual>){inputs.push(args[0]);return actual(...[null,...args.slice(1)] as Parameters<typeof actual>);}}));
+mock.module('@react-three/fiber',()=>({useThree:(select:(value:unknown)=>unknown)=>select({invalidate(){}})}));
+mock.module('../../../../../../packages/device/src/sticker-textures',()=>({useStickerTexture:()=>({texture,failed:false}),createStickerRoughness:()=>roughness}));
+mock.module('../../../../../../packages/device/src/StudioEnvironment',()=>({useStudioEnvironmentSnapshot:()=>studio}));
+const {StickerPrint}=await import('../../../../../../packages/device/src/StickerSurface');
+const host=document.createElement('div');document.body.append(host);const root=createRoot(host);let ready=0;
+const originalError=console.error;const expectedWarnings:string[]=[];console.error=(...values:unknown[])=>{expectedWarnings.push(String(values[0]));};
+try{
+ await act(async()=>{root.render(createElement('div',null,...(['earned','locked','placed'] as const).map(appearance=>createElement(StickerPrint,{key:appearance,purpose:'program-warmup',art:art,geometry,roughness,finishEnabled:true,appearance,onSurfaceReady:()=>ready++}))));await Bun.sleep(20);});
+ assert.equal(ready,3);assert(inputs.length>=3&&inputs.every(value=>value===null));assert.equal(host.querySelectorAll('mesh').length,6);assert.equal(inspectStickerTransactions().entries,0);
+ const before=inputs.length;
+ await act(async()=>{root.render(createElement(StickerPrint,{art:art,geometry,roughness,finishEnabled:true}));await Bun.sleep(5);});
+ assert(inputs.slice(before).some(value=>value===texture),'visible default still supplies artwork to preparation');
+}finally{await act(async()=>root.unmount());console.error=originalError;host.remove();texture.dispose();roughness.dispose();geometry.dispose();}
+assert.equal(inspectStickerTransactions().accountedBytes,0);
+await Bun.write(new URL('./gl-warmup-mounted.json',import.meta.url),JSON.stringify({ready,variants:3,meshes:6,preparationInputs:inputs.map(value=>value===null?'disabled':'artwork'),transactions:inspectStickerTransactions(),scope:'Mounted actual StickerPrint with mocked R3F environment/artwork; wrapper records preparation texture and runs actual disabled hook. DOM mesh attachment only; actual GPU compilation is independent browser gate.'},null,2)+'\n');
+console.log('PASS: mounted three program variants ready, six meshes, no transaction ownership; visible default retains preparation');await GlobalRegistrator.unregister();

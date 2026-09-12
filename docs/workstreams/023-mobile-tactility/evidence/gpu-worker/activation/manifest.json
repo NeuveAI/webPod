@@ -1,0 +1,13 @@
+{
+  "path": "apps/web/src/device-page.tsx",
+  "sha256": "b084488b6042270a753329ec76c01d4b7960e04dd0b5ca04990b10a484908bfa",
+  "checks": {
+    "webTypes": "pass",
+    "scopedLint": "pass",
+    "diffCheck": "pass",
+    "sourceSelection": "undefined→worker; explicitwebgl→webgl; explicitworker→worker",
+    "canonicalValidation": "unchanged",
+    "compositeDefaultAndFallback": "unchanged"
+  },
+  "runtime": "pending lead clean build and no-query check"
+}

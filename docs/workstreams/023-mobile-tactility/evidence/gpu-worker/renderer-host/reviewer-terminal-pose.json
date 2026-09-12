@@ -1,0 +1,15 @@
+{
+  "method": "Actual extracted host message handler and adoption guard; controlled query/listener boundary without a screen node. No GPU/Panel image claim.",
+  "settlement": {
+    "poseSequence": 2,
+    "seenByListener": 2,
+    "seenQuery": 2
+  },
+  "checkpoint": {
+    "poseSequence": 3,
+    "seenByListener": 3,
+    "seenQuery": 3
+  },
+  "notifications": 2,
+  "finalSequence": 3
+}

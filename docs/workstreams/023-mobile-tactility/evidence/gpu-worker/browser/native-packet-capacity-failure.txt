@@ -1,0 +1,4 @@
+Script ran on page and returned:
+```json
+{"url":"http://localhost:3000/webpod?renderBackend=worker","renderer":[{"compositeTier":"T1","compositeReady":"true","rendererRequested":"worker","rendererEffective":"webgl","wpAudioLifecycle":"running","wpAudioScheduledTotal":"0","wpAudioDroppedTotal":"0","rendererFailure":"Sticker computation byte capacity exceeded"}],"canvas":[{"width":1320,"height":2664,"data":{"engine":"three.js r185","wpPackVisible":"false","wpCollectionReframe":"0","wpCameraFitDistance":"3558.8268","wpCameraFitPadding":"8","wpCameraFitMarginRatio":"0.04","wpProjectedLimitX":"0.960000","wpProjectedLimitY":"0.960000","wpCompositeSourceState":"painted","wpRasterDensity":"3","wpRasterPixelWidth":"960","wpRasterPixelHeight":"720","wpScreenClipLeft":"57.24560288161113","wpScreenClipTop":"143.25319740497275","wpScreenClipWidth":"303.65592037515836","wpScreenClipHeight":"245.05011742161656"}}]}
+```

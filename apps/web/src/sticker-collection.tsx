@@ -1,3 +1,5 @@
+import { placeCurrentStickerDrop } from './sticker-drop-transaction'
+import { stickerHaptics } from './sticker-haptics'
 import { setStickerPackTucked, resetStickerPackTuck, stickerPackTuckAtom, stickerPackTuckedAtom } from './sticker-pack-tuck'
 import { authorizeAppleRuntime, musicRuntime } from './music-runtime'
 import { deviceRevealActiveAtom } from './device-reveal-state'
@@ -9,9 +11,9 @@ import { useEffect, useRef, useSyncExternalStore, type PointerEvent as ReactPoin
 import { getCompositeTierSnapshot, subscribeCompositeTier } from '@webpod/composite'
 import { deviceStore, stickerCollectionStatusAtom, stickerInteractionAtom, stickerInventoryAtom } from '@webpod/state'
 import { getSticker, isStickerPlacement, stickerWear, type StickerPlacement, type StickerInventory } from '@webpod/stickers'
-import type { DeviceOrientation } from '@webpod/device'
+import type { DeviceOrientation, DeviceMotionAuthority } from '@webpod/device'
 import { stickerPackPresentation, deviceFrontVisibility, STICKER_PACK_LAYOUT, STICKER_SHEET_SLOTS, stickerPackViewportLayout, retryStickerArtwork } from '@webpod/device'
-import { animateStickerValue, returnStickerToSheet, resetStickerCarry, cancelStickerInteraction, releaseStickerPull, revealStickerLiner, revealStickerPack, setStickerRearVisible, updateStickerInteraction, updateHeldStickerPreview, stickerArtworkFailureAtom, getStickerInteractionGeneration, supersedeStickerInteraction } from './sticker-interaction'
+import { animateStickerValue, returnStickerToSheet, resetStickerCarry, cancelStickerInteraction, releaseStickerPull, revealStickerLiner, revealStickerPack, setStickerRearVisible, updateStickerInteraction, updateHeldStickerPreview, stickerArtworkFailureAtom, getStickerInteractionGeneration, stickerComputationEpochAtom, supersedeStickerInteraction } from './sticker-interaction'
 import { stickerPackTurnAtom, activeStickerCollectionAtom, stickerCollectionsAtom, selectedStickerGenreAtom, stickerSheetRevealAtom, stickerDetailIdAtom, stickerDragOffsetAtom, genreLabel, formatListeningMinutes, stickerPlacementForIntent, stickerPeelMotion, stickerWorkspaceLoweringAtom, stickerCollectionUsableAtom, stickerProjectionVersionAtom, stickerPreparedIdsAtom, stickerCollectionTransitionAtom, openEarnedStickerPacks, type CollectionSlot } from './sticker-collections-model'
 import { estimatePointerReleaseVelocity, type PointerMotionSample } from './device-orientation-motion'
 
@@ -24,6 +26,7 @@ const REAR = { admit: -0.7, leave: -0.45 } as const
 const SERVER_TIER: ReturnType<typeof getCompositeTierSnapshot> = { tier: 'T4', reason: 'Device rendering begins in the browser.', report: null, contextLost: false }
 const readServerTier = (): ReturnType<typeof getCompositeTierSnapshot> => SERVER_TIER
 interface StickerPointer {
+  readonly touch: boolean
   readonly grab?: StickerGrab | null
   readonly kind: 'pull' | 'liner' | 'peel' | 'rear'
   readonly pointerId: number
@@ -49,13 +52,14 @@ function clearRearCandidate(): RearCandidate | null {
 }
 
 function releaseCapturedStickerPointer(target: HTMLElement | null): void {
+  stickerHaptics.cancel()
   const pointer = deviceStore.get(pointerAtom)
   deviceStore.set(pointerAtom, null)
   if (pointer !== null && target?.hasPointerCapture(pointer.pointerId)) target.releasePointerCapture(pointer.pointerId)
 }
 
 export interface StickerCollectionCommands {
-  readonly resolveDrop?: (placement: StickerPlacement, clientX: number, clientY: number) => StickerPlacement
+  readonly resolveDrop?: (placement: StickerPlacement, clientX: number, clientY: number, signal?: AbortSignal) => StickerPlacement | Promise<StickerPlacement>
   readonly fit?: (placement: StickerPlacement) => StickerPlacement
   readonly grab?: (x: number, y: number) => StickerGrab | null
   readonly contour?: (placement: StickerPlacement) => import('@webpod/device').StickerProjectedContour | null
@@ -82,12 +86,13 @@ const REAR_UI_MOTION = {
   enterEase: 'cubic-bezier(0, 0, 0, 1)', exitEase: 'cubic-bezier(.3, 0, 1, 1)',
 } as const
 
-export function StickerCollection({ orientation, commands }: { readonly orientation: DeviceOrientation; readonly commands: StickerCollectionCommands }) {
+export function StickerCollection({ orientation, motionAuthority, commands }: { readonly orientation: DeviceOrientation; readonly motionAuthority?: DeviceMotionAuthority; readonly commands: StickerCollectionCommands }) {
   const music = useSyncExternalStore(musicRuntime.subscribe, musicRuntime.getSnapshot, musicRuntime.getSnapshot)
   const session = useSyncExternalStore(music.provider.onSessionChange, () => music.provider.session, () => null)
   const connectMusic = session?.status === 'authorized' ? undefined : () => { void authorizeAppleRuntime() }
   const deviceRevealing = useAtomValue(deviceRevealActiveAtom, { store: deviceStore })
   useEffect(mountStickerCarryAnchorLifecycle, [])
+  useEffect(() => stickerHaptics.mount(), [])
   useAtomValue(stickerProjectionVersionAtom, { store: deviceStore })
   const editor = useAtomValue(stickerEditorAtom, { store: deviceStore })
   const usable = useAtomValue(stickerCollectionUsableAtom, { store: deviceStore })
@@ -142,29 +147,43 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     return () => { query.removeEventListener('change', change); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); setStickerRearVisible(false); deviceStore.set(stickerCollectionTransitionAtom, null); resetStickerPackPresence(); resetStickerPackTuck(); cancelStickerInteraction(); deviceStore.set(rearAdmittedAtom, false) }
   }, [])
   useEffect(() => {
-    const visible = deviceFrontVisibility(orientation)
+    let synchronizing = false, pending = false
+    const synchronize = () => {
+    if (synchronizing) { pending = true; return }
+    synchronizing = true
+    try { do {
+    pending = false
+    const currentOrientation = motionAuthority?.readIntent().orientation ?? orientation
+    const visible = deviceFrontVisibility(currentOrientation)
     const admitted = deviceStore.get(rearAdmittedAtom)
     const next = !deviceRevealing && compositeTier.tier === 'T1' && visible < (admitted ? REAR.leave : REAR.admit)
     deviceStore.set(rearAdmittedAtom, next)
     setStickerRearVisible(next)
-    const key = JSON.stringify(orientation)
+    const key = JSON.stringify(currentOrientation)
     if (poseKey.current !== key || compositeTier.tier !== 'T1') {
       clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); dismissStickerEditor(); if (deviceStore.get(stickerInteractionAtom).sourcePlacement != null) cancelStickerInteraction()
     }
     poseKey.current = key
-  }, [orientation, compositeTier.tier, usable, deviceRevealing])
+    } while (pending) } finally { synchronizing = false }
+    }
+    const unsubscribe = motionAuthority?.subscribeIntent(synchronize)
+    try { synchronize() } catch (error) { unsubscribe?.(); throw error }
+    return unsubscribe
+  }, [orientation, motionAuthority, compositeTier.tier, usable, deviceRevealing])
   useEffect(() => {
     if (status === 'signed-out') { deviceStore.set(stickerCollectionTransitionAtom, null); resetStickerEditor(); clearRearCandidate(); releaseCapturedStickerPointer(captureTarget.current); cancelStickerInteraction(); deviceStore.set(collectionMessageAtom, null); deviceStore.set(selectedStickerGenreAtom, null); deviceStore.set(stickerSheetRevealAtom, 0); resetStickerCarry() }
   }, [status])
 
   /** Every new command/selection/gesture owns presentation; older server writes may still finish. */
   const admitIntent = (): void => { deviceStore.set(stickerCollectionTransitionAtom, null); releaseCapturedStickerPointer(captureTarget.current); captureTarget.current = null; supersedeStickerInteraction() }
-  const run = (work: (isCurrent: () => boolean) => Promise<void>): void => {
+  const run = (work: (isCurrent: () => boolean, signal: AbortSignal) => Promise<void>): void => {
     admitIntent()
     const generation = getStickerInteractionGeneration()
     const isCurrent = (): boolean => generation === getStickerInteractionGeneration()
+    const controller = new AbortController()
+    const unsubscribe = deviceStore.sub(stickerComputationEpochAtom, () => { if (!isCurrent()) controller.abort() })
     deviceStore.set(collectionMessageAtom, null)
-    void work(isCurrent).catch((cause: unknown) => {
+    void work(isCurrent, controller.signal).finally(unsubscribe).catch((cause: unknown) => {
       // A successful local read may require a separate Apple sign-in gesture.
       // Its import-status control owns that action; this is not a failed edit.
       if (typeof cause === 'object' && cause !== null && 'code' in cause && cause.code === 'music_authorization_required') return
@@ -190,7 +209,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     animateStickerValue('sheet', { position: deviceStore.get(stickerSheetRevealAtom), velocity: 0, target: 0 }, reducedMotion, lower)
     lip.current?.focus()
   }
-  const start = (event: Pick<globalThis.PointerEvent, 'isPrimary' | 'button' | 'pointerId' | 'clientX' | 'clientY' | 'timeStamp' | 'stopPropagation'>, target: HTMLElement, kind: StickerPointer['kind'], slot?: CollectionSlot, sourcePlacement: StickerPlacement | null = null, grab: StickerGrab | null = null): void => {
+  const start = (event: Pick<globalThis.PointerEvent, 'isPrimary' | 'button' | 'pointerType' | 'pointerId' | 'clientX' | 'clientY' | 'timeStamp' | 'stopPropagation'>, target: HTMLElement, kind: StickerPointer['kind'], slot?: CollectionSlot, sourcePlacement: StickerPlacement | null = null, grab: StickerGrab | null = null): void => {
     if (!event.isPrimary || event.button !== 0) return
     if (kind === 'pull' && deviceStore.get(stickerPackTuckedAtom)) { admitIntent(); dismissStickerEditor(); revealStickerPack(reducedMotion); return }
     deviceStore.set(suppressClickAtom, false)
@@ -202,8 +221,9 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     if (slot !== undefined) updateStickerInteraction({ selectedStickerId: slot.art.id, peel: 0, previewPlacement: null, landing: 0, sourcePlacement })
     target.setPointerCapture(event.pointerId)
     captureTarget.current = target
-    deviceStore.set(pointerAtom, { kind, grab, maxDistance: 0, pickup: sourcePlacement === null ? null : commands.project(event.clientX, event.clientY), pointerId: event.pointerId, stickerId: slot?.art.id ?? null, startX: event.clientX, startY: event.clientY, startProgress: kind === 'liner' ? deviceStore.get(stickerSheetRevealAtom) : deviceStore.get(stickerInteractionAtom).progress, travel: kind === 'liner' ? layout.height * PACK.linerTravel : layout.height - PACK.teasePx, samples: [sample(event)] })
+    deviceStore.set(pointerAtom, { touch: event.pointerType === 'touch', kind, grab, maxDistance: 0, pickup: sourcePlacement === null ? null : commands.project(event.clientX, event.clientY), pointerId: event.pointerId, stickerId: slot?.art.id ?? null, startX: event.clientX, startY: event.clientY, startProgress: kind === 'liner' ? deviceStore.get(stickerSheetRevealAtom) : deviceStore.get(stickerInteractionAtom).progress, travel: kind === 'liner' ? layout.height * PACK.linerTravel : layout.height - PACK.teasePx, samples: [sample(event)] })
     updateStickerInteraction({ stage: kind === 'pull' ? 'pulling' : kind === 'liner' ? 'open' : 'peeling' })
+    if (event.pointerType === 'touch') stickerHaptics.trigger('pickup')
     if (sourcePlacement !== null) { captureStickerCarryAnchor(sourcePlacement, grab?.anchor); setStickerPackTucked(true) }
   }
   const begin = (event: ReactPointerEvent<HTMLButtonElement>, kind: StickerPointer['kind'], slot?: CollectionSlot): void => start(event, event.currentTarget, kind, slot)
@@ -221,6 +241,13 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
     else if (pointer.kind === 'liner') deviceStore.set(stickerSheetRevealAtom, Math.max(0, Math.min(1, pointer.startProgress + delta / pointer.travel)))
     else {
       const motion = stickerPeelMotion(event.clientX - pointer.startX, event.clientY - pointer.startY, reducedMotion, PACK.peelTravelPx, maxDistance)
+      if (pointer.touch) {
+        const previous = stickerPeelMotion(0, 0, reducedMotion, PACK.peelTravelPx, pointer.maxDistance)
+        if (motion.detached && !previous.detached) {
+          stickerHaptics.cancel()
+          stickerHaptics.trigger('detach')
+        } else if (!motion.detached && Math.floor(maxDistance / 12) > Math.floor(pointer.maxDistance / 12)) stickerHaptics.trigger('peel')
+      }
       if (motion.detached) setStickerPackTucked(true)
       const dragged = pointer.stickerId === null ? undefined : getSticker(pointer.stickerId)
       const source = deviceStore.get(stickerInteractionAtom).sourcePlacement
@@ -247,7 +274,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
       if (!sampleOwnedStickerRelease(pointer.pointerId, () => deviceStore.get(pointerAtom)?.pointerId ?? null, getStickerInteractionGeneration, () => move(event))) return
       deviceStore.set(suppressClickAtom, Math.hypot(event.clientX - pointer.startX, event.clientY - pointer.startY) >= 4)
     }
-    event.stopPropagation(); deviceStore.set(pointerAtom, null)
+    event.stopPropagation(); stickerHaptics.cancel(); deviceStore.set(pointerAtom, null)
     if (captureTarget.current?.hasPointerCapture(event.pointerId)) captureTarget.current.releasePointerCapture(event.pointerId)
     captureTarget.current = null
     if (cancelled) {
@@ -280,10 +307,11 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
         const projected = commands.project(event.clientX + velocity.xPxPerSecond * PACK.releaseInertiaSeconds, event.clientY + velocity.yPxPerSecond * PACK.releaseInertiaSeconds)
         const candidate = projected === null || current.sourcePlacement != null ? current.previewPlacement : { ...current.previewPlacement, ...projected }
         const fitted = commands.fit?.(isStickerPlacement(candidate) ? candidate : current.previewPlacement) ?? (isStickerPlacement(candidate) ? candidate : current.previewPlacement)
-        const placement = commands.resolveDrop?.(fitted, event.clientX, event.clientY) ?? fitted
+        const releaseX = event.clientX, releaseY = event.clientY
         updateStickerInteraction({ stage: 'settling' })
-        run(async (isCurrent) => {
-          await commands.place(placement); if (!isCurrent()) return
+        run(async (isCurrent, signal) => {
+          const placement = await placeCurrentStickerDrop({ placement: fitted, clientX: releaseX, clientY: releaseY, resolve: commands.resolveDrop, save: commands.place, beforeSave: () => { if (pointer.touch) stickerHaptics.trigger('place') }, isCurrent, signal })
+          if (placement === null) return
           updateStickerInteraction({ previewPlacement: placement })
           animateStickerValue('landing', { position: deviceStore.get(stickerInteractionAtom).landing, velocity: 0, target: 1 }, reducedMotion, () => {
             // Landing preserves the raised cylinder; peel now advances the actual
@@ -462,6 +490,7 @@ export function StickerCollection({ orientation, commands }: { readonly orientat
         const own = deviceStore.get(stickerCollectionsAtom).find((item) => item.slots.some((slot) => slot.art.id === candidate.source.stickerId))
         if (own !== undefined) deviceStore.set(selectedStickerGenreAtom, own.genre)
         selectStickerEditor(candidate.source)
+        if (event.pointerType === 'touch') stickerHaptics.trigger('pickup')
       } else if (deviceStore.get(pointerAtom)?.kind === 'rear') end(event)
     }
     const cancelled = (event: globalThis.PointerEvent): void => {

@@ -1,0 +1,33 @@
+{
+  "checks": [
+    "shared cap admission rejects build before allocation and releases once",
+    "queued cancellation releases only queued reservation",
+    "active copy cancellation stays charged until cooperative task settles",
+    "other FIFO owners complete while resident charge remains",
+    "worker-unavailable cooperative recovery keeps exact output",
+    "recovery completion releases shared reservation",
+    "actual preparePrint keeps descriptor out of surface/damage render list",
+    "private contour exact Float64 paths and anchors match canonical with independent buffers",
+    "private actual worker contour delivery does not detach mounted arrays",
+    "geometry revision invalidates descriptor",
+    "material-only preparation has no contour descriptor",
+    "final collision budget zero",
+    "final canonical/private transaction bytes zero"
+  ],
+  "budget": {
+    "bytes": 0,
+    "reservations": 0,
+    "limit": 134217728
+  },
+  "transactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "scope": "Actual build/transaction workers and MessagePort; deterministic alpha-readback fixture; no browser/GPU claim."
+}

@@ -1,0 +1,8 @@
+{
+  "fiberSource": "packages/device/node_modules/@react-three/fiber/dist/events-156d8d12.esm.js",
+  "installedRemoveChild": true,
+  "firstUnmountMaterialDisposed": true,
+  "sharedGeometryRetainedAcrossBothUnmounts": true,
+  "secondUnmountMaterialDisposed": true,
+  "cacheFinallyDisposesGeometry": true
+}

@@ -1,0 +1,5 @@
+{
+  "file": "packages/device/src/sticker-transaction-broker.ts",
+  "original": "6d5909aeb25d10b599e989a0899e21a578902d2a7abd1c63c4975302d735c4fe",
+  "instrumented": "ae4c8cd6d027e1a6cf29a1151160bcfe0c3aadf7fec0b1220832bac2427bc60d"
+}

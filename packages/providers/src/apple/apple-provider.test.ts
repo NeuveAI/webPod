@@ -1218,14 +1218,17 @@ test('Apple artist albums publish pages before the full request completes', asyn
   const playlist = (await provider.libraryList('playlists')).items[0]
   if (!playlist) throw new Error('Missing fixture')
   const pages: string[][] = []
+  let lastPublished: Awaited<ReturnType<typeof provider.relatedAlbums>> | undefined
   music.api.music = async (_path, parameters) => {
     const second = parameters?.['offset'] === '1'
     if (second) expect(pages).toEqual([['First']])
     return { data: { data: [{ id: second ? 'a2' : 'a1', type: 'albums', attributes: { name: second ? 'Second' : 'First', artistName: 'Artist' } }], ...(second ? {} : { next: '/v1/catalog/se/artists/artist.1/albums?offset=1' }) } }
   }
-  const result = await provider.relatedAlbums({ kind: 'artist', key: playlist.key, provider: 'apple', catalogId: 'artist.1', name: 'Artist' }, { onPage: (items) => { pages.push(items.map(item => item.title)) } })
+  const result = await provider.relatedAlbums({ kind: 'artist', key: playlist.key, provider: 'apple', catalogId: 'artist.1', name: 'Artist' }, { onPage: (items) => { lastPublished = items; pages.push(items.map(item => item.title)) } })
   expect(pages).toEqual([['First'], ['First', 'Second']])
   expect(result).toHaveLength(2)
+  if (lastPublished === undefined) throw new Error('Missing artist page publication')
+  expect(result).toBe(lastPublished)
 })
 
 test('bounded Apple relationship pages preserve library scope, limit and continuation ownership', async () => {

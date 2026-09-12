@@ -1,0 +1,243 @@
+diff --git a/apps/web/src/production-device-view.tsx b/apps/web/src/production-device-view.tsx
+index 2e911ba..cdcbe7f 100644
+--- a/apps/web/src/production-device-view.tsx
++++ b/apps/web/src/production-device-view.tsx
+@@ -127,6 +127,7 @@ export function ProductionDeviceView({
+   onOrientationGrabHoverChange,
+   interactionAudioEnabled,
+ }: ProductionDeviceViewProps) {
++  const peelRenderStart = peelBegin();
+   const packTuck = useAtomValue(stickerPackTuckAtom, { store: deviceStore })
+   const packPresence = useAtomValue(stickerPackPresenceAtom, { store: deviceStore })
+   const deviceRevealing = useAtomValue(deviceRevealActiveAtom, { store: deviceStore })
+@@ -162,7 +163,7 @@ export function ProductionDeviceView({
+     [],
+   )
+   const preparedSheet = collection === null ? undefined : { neighbors: collections.filter((item) => item.genre !== collection.genre).slice(0, 2).flatMap((item) => item.slots[0] === undefined ? [] : [{ ink: item.ink, stickerId: item.slots[0].art.id }]), reveal: sheetReveal, ink: collection.ink, slots: collection.slots.map((slot) => ({ stickerId: slot.art.id, state: slot.state })) }
+-  return (
++  const peelRenderResult = (
+     <>
+     <CompositeDevice
+       rendererBackend={rendererBackend}
+@@ -193,6 +194,8 @@ export function ProductionDeviceView({
+     <StickerCollection motionAuthority={motionAuthority} orientation={orientation ?? FRONT_DEVICE_ORIENTATION} commands={stickerCommands} />
+     </>
+   )
++  peelEnd('ProductionDeviceView.render', peelRenderStart);
++  return peelRenderResult;
+ }
+ 
+ /** Pauses the provider whose playback would otherwise become invisible at the root. */
+@@ -257,3 +260,17 @@ export async function skipProductionPlayback(
+     return true
+   } finally { stop() }
+ }
++
++// TEMPORARY bounded peel attribution; restored byte-for-byte after one capture.
++let peelMeasureCount = 0;
++function peelBegin(): number {
++  if (typeof window === 'undefined' || peelMeasureCount >= 512) return -1;
++  const arm = performance.getEntriesByName('wp-peel-probe:start', 'mark')[0];
++  const now = performance.now();
++  return arm && now >= arm.startTime && now - arm.startTime <= 12000 ? now : -1;
++}
++function peelEnd(name: string, start: number, detail?: Readonly<Record<string, string | number>>) {
++  if (start < 0 || peelMeasureCount >= 512) return;
++  peelMeasureCount++;
++  performance.measure(`wp-peel:${name}`, { start, end: performance.now(), detail });
++}
+diff --git a/apps/web/src/sticker-collection.tsx b/apps/web/src/sticker-collection.tsx
+index 5276070..f6446d6 100644
+--- a/apps/web/src/sticker-collection.tsx
++++ b/apps/web/src/sticker-collection.tsx
+@@ -87,6 +87,7 @@ const REAR_UI_MOTION = {
+ } as const
+ 
+ export function StickerCollection({ orientation, motionAuthority, commands }: { readonly orientation: DeviceOrientation; readonly motionAuthority?: DeviceMotionAuthority; readonly commands: StickerCollectionCommands }) {
++  const peelRenderStart = peelBegin();
+   const music = useSyncExternalStore(musicRuntime.subscribe, musicRuntime.getSnapshot, musicRuntime.getSnapshot)
+   const session = useSyncExternalStore(music.provider.onSessionChange, () => music.provider.session, () => null)
+   const connectMusic = session?.status === 'authorized' ? undefined : () => { void authorizeAppleRuntime() }
+@@ -530,6 +531,7 @@ export function StickerCollection({ orientation, motionAuthority, commands }: {
+   const rearUiVisible = rear || packPresence > .001 || carryingRear || editor !== null
+   const presenceMs = reducedMotion ? REAR_UI_MOTION.reducedMs : rearUiVisible ? REAR_UI_MOTION.enterMs : REAR_UI_MOTION.exitMs
+   const presenceEase = rearUiVisible ? REAR_UI_MOTION.enterEase : REAR_UI_MOTION.exitEase
++  const peelRenderResult = (() => {
+   if (compositeTier.tier !== 'T1') return null
+   if (!usable && interaction.sourcePlacement == null && editor === null) return !rearUiVisible ? null : artworkFailure !== null
+     ? <p role="status" className="pointer-events-auto absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs text-stone-800">This pack’s artwork couldn’t load. <button type="button" className={buttonClass} onClick={() => { retryStickerArtwork() }}>Retry artwork</button></p>
+@@ -594,7 +596,11 @@ export function StickerCollection({ orientation, motionAuthority, commands }: {
+       {artworkFailure === null ? <StickerImportStatus connecting={music.phase === 'signing-in'} connect={connectMusic} status={inventory?.importStatus} retry={() => run(commands.retry)} usable={usable} /> : <p role="alert" className="pointer-events-auto absolute right-4 top-16 max-w-[min(22rem,calc(100%-2rem))] rounded-sm bg-[#eee7d9]/95 px-3 py-2 text-xs leading-relaxed text-stone-800">A sticker image could not load. <button type="button" className={buttonClass} onClick={() => { retryStickerArtwork() }}>Retry artwork</button></p>}
+     </div>
+   )
++  })();
++  peelEnd('StickerCollection.render', peelRenderStart);
++  return peelRenderResult;
+ }
++
+ const navigationClass = 'min-h-11 min-w-11 cursor-pointer rounded-md text-2xl hover:bg-[#ded5c5] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-30'
+ 
+ const buttonClass = 'min-h-11 shrink-0 rounded-md px-3 py-2 font-medium hover:bg-stone-200 active:bg-stone-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900 disabled:opacity-50'
+@@ -625,3 +631,17 @@ function waitForStickerSheet(id: string, isCurrent: () => boolean): Promise<void
+     dispose.push(() => clearTimeout(timer)); inspect()
+   })
+ }
++
++// TEMPORARY bounded peel attribution; restored byte-for-byte after one capture.
++let peelMeasureCount = 0;
++function peelBegin(): number {
++  if (typeof window === 'undefined' || peelMeasureCount >= 512) return -1;
++  const arm = performance.getEntriesByName('wp-peel-probe:start', 'mark')[0];
++  const now = performance.now();
++  return arm && now >= arm.startTime && now - arm.startTime <= 12000 ? now : -1;
++}
++function peelEnd(name: string, start: number, detail?: Readonly<Record<string, string | number>>) {
++  if (start < 0 || peelMeasureCount >= 512) return;
++  peelMeasureCount++;
++  performance.measure(`wp-peel:${name}`, { start, end: performance.now(), detail });
++}
+diff --git a/packages/composite/src/WorkerDeviceCanvas.tsx b/packages/composite/src/WorkerDeviceCanvas.tsx
+index b254ed7..3550a68 100644
+--- a/packages/composite/src/WorkerDeviceCanvas.tsx
++++ b/packages/composite/src/WorkerDeviceCanvas.tsx
+@@ -24,7 +24,7 @@ export function WorkerDeviceCanvas(props: DeviceCanvasProps & { readonly panel:
+   const ref = useRef<HTMLCanvasElement>(null);
+   const latest = useRef(props);
+   const owner = useRef<ReturnType<typeof createDeviceRenderHost> | null>(null);
+-  useLayoutEffect(() => { latest.current = props; owner.current?.updateStickerScene(props.stickerScene); }, [props]);
++  useLayoutEffect(() => { peelMeasure('WorkerDeviceCanvas.layoutEffect', () => { latest.current = props; owner.current?.updateStickerScene(props.stickerScene); }); }, [props]);
+   useLayoutEffect(() => {
+     const canvas = ref.current; if (!canvas) return;
+     const initial = latest.current, form = initial.form ?? DEFAULT_DEVICE_FORM;
+@@ -81,3 +81,21 @@ export function WorkerDeviceCanvas(props: DeviceCanvasProps & { readonly panel:
+   }, []);
+   return <canvas ref={ref} className={props.className} style={{ display: 'block', width: '100%', height: '100%' }} />;
+ }
++
++// TEMPORARY bounded peel attribution; restored byte-for-byte after one capture.
++let peelMeasureCount = 0;
++function peelBegin(): number {
++  if (typeof window === 'undefined' || peelMeasureCount >= 512) return -1;
++  const arm = performance.getEntriesByName('wp-peel-probe:start', 'mark')[0];
++  const now = performance.now();
++  return arm && now >= arm.startTime && now - arm.startTime <= 12000 ? now : -1;
++}
++function peelEnd(name: string, start: number, detail?: Readonly<Record<string, string | number>>) {
++  if (start < 0 || peelMeasureCount >= 512) return;
++  peelMeasureCount++;
++  performance.measure(`wp-peel:${name}`, { start, end: performance.now(), detail });
++}
++function peelMeasure<T>(name: string, work: () => T, detail?: Readonly<Record<string, string | number>>): T {
++  const start = peelBegin();
++  try { return work(); } finally { peelEnd(name, start, detail); }
++}
+diff --git a/packages/composite/src/device-render-host.ts b/packages/composite/src/device-render-host.ts
+index 86be71b..1011800 100644
+--- a/packages/composite/src/device-render-host.ts
++++ b/packages/composite/src/device-render-host.ts
+@@ -179,7 +179,7 @@ export function createDeviceRenderHost(input: {
+   // Do not enqueue a private canonical copy until that commit turn survives.
+   queueMicrotask(() => { if (!disposed) void start(); });
+   return { binding, dispose, inspect: () => ({ epoch, initialized, ready, disposed }),
+-    updateStickerScene(next: DeviceStickerScene | undefined) {stickerScene = next;if (next) {warmup?.update(next);workspace?.update(next);carry?.update(next);stickers?.update(next);pack?.update(next);}},
++    updateStickerScene(next: DeviceStickerScene | undefined) {peelMeasure('host.updateStickerScene', () => {stickerScene = next;if (next) {peelMeasure('host.warmup', () => warmup?.update(next));peelMeasure('host.workspace', () => workspace?.update(next));peelMeasure('host.carry', () => carry?.update(next));peelMeasure('host.equipped', () => stickers?.update(next));peelMeasure('host.pack', () => pack?.update(next));}});},
+     updateLayout(next: RenderLayout,raster?:{readonly width:number;readonly height:number}) {
+       if(raster && (raster.width!==stamp.width||raster.height!==stamp.height))stamp={...stamp,rasterRevision:stamp.rasterRevision+1,width:raster.width,height:raster.height};
+       layout = next;if(stickerScene)workspace?.update(stickerScene);carry?.project(); pack?.layoutChanged();pose = { ...pose, layoutRevision: layout.revision }; if (initialized) {
+@@ -187,3 +187,21 @@ export function createDeviceRenderHost(input: {
+     } },
+   };
+ }
++
++// TEMPORARY bounded peel attribution; restored byte-for-byte after one capture.
++let peelMeasureCount = 0;
++function peelBegin(): number {
++  if (typeof window === 'undefined' || peelMeasureCount >= 512) return -1;
++  const arm = performance.getEntriesByName('wp-peel-probe:start', 'mark')[0];
++  const now = performance.now();
++  return arm && now >= arm.startTime && now - arm.startTime <= 12000 ? now : -1;
++}
++function peelEnd(name: string, start: number, detail?: Readonly<Record<string, string | number>>) {
++  if (start < 0 || peelMeasureCount >= 512) return;
++  peelMeasureCount++;
++  performance.measure(`wp-peel:${name}`, { start, end: performance.now(), detail });
++}
++function peelMeasure<T>(name: string, work: () => T, detail?: Readonly<Record<string, string | number>>): T {
++  const start = peelBegin();
++  try { return work(); } finally { peelEnd(name, start, detail); }
++}
+diff --git a/packages/device/src/sticker-transaction-broker.ts b/packages/device/src/sticker-transaction-broker.ts
+index bfc8fce..93aba6a 100644
+--- a/packages/device/src/sticker-transaction-broker.ts
++++ b/packages/device/src/sticker-transaction-broker.ts
+@@ -85,12 +85,16 @@ function evict() {
+   if ([...entries.values()].some(entry => entry.refs === 0)) idleTimer = setTimeout(evict, IDLE_MS);
+ }
+ function complete(entry: Entry, result?: StickerTransactionResult, error?: Error) {
++  const peelStart = peelBegin();
++  const peelDetail = peelStart < 0 ? undefined : {kind: entry.input.kind, bytes: inputBytes(entry.input)};
++  try {
+   if (active !== entry) return;
+   clearTimeout(deadline); deadline = undefined; fallback = null; releaseReference(entry); active = null;
+   if (entry.refs === 0) { removeEntry(entry); entry.reject(abortError()); }
+   else if (result) { entry.result = result; entry.bytes = stickerTransactionBuffers(result).reduce((sum, buffer) => sum + buffer.byteLength, 0); entry.resolve(result); }
+   else { entries.delete(entry.key); entry.reject(error ?? new Error('Sticker transaction failed')); }
+   pump();
++  } finally { peelEnd('broker.complete', peelStart, peelDetail); }
+ }
+ function recover(entry: Entry) {
+   if (active !== entry || fallback) return;
+@@ -117,6 +121,9 @@ function bindWorker(instance: Worker) {
+     instance.onerror = instance.onmessageerror = () => { if (worker !== instance) return; if (active) recover(active); else { stopWorker(); workerFailed = true; } };
+ }
+ function pump() {
++  const peelStart = peelBegin();
++  const peelDetail = peelStart < 0 ? undefined : {kind: pending[0]?.input.kind ?? 'idle', bytes: pending[0] ? inputBytes(pending[0].input) : 0};
++  try {
+   if (active !== null) return;
+   const entry = pending.shift();
+   if (!entry) { evict(); return; }
+@@ -125,8 +132,8 @@ function pump() {
+     const damage = entries.get(entry.input.damageKey);
+     if (damage?.producer === worker && damage.result?.kind === 'damage' && damage.result.field === entry.input.field) { damage.refs++; entry.reference = damage; }
+   }
+-  makeRoom(0, entry);
+-  if (accountedBytes(entry) > MAX_RETAINED_BYTES) { releaseReference(entry); entries.delete(entry.key); entry.reject(new Error('Sticker computation byte capacity exceeded')); pump(); return; }
++  const peelAdmission = peelMeasure('broker.admission', () => { makeRoom(0, entry); return accountedBytes(entry); }, {kind: entry.input.kind, bytes: inputBytes(entry.input)});
++  if (peelAdmission > MAX_RETAINED_BYTES) { releaseReference(entry); entries.delete(entry.key); entry.reject(new Error('Sticker computation byte capacity exceeded')); pump(); return; }
+   active = entry;
+   if (workerFailed || typeof Worker === 'undefined') { recover(entry); return; }
+   try {
+@@ -144,8 +151,9 @@ function pump() {
+         input = { kind: 'contour-reference', damageId: damage.id, geometryId, wear: input.wear, ...(geometryId === undefined ? { positions: input.positions, uv: input.uv } : {}) };
+       }
+     }
+-    instance.postMessage({ version: STICKER_TRANSACTION_VERSION, id: entry.id, input } satisfies StickerTransactionMessage);
++    peelMeasure('broker.postMessage', () => instance.postMessage({ version: STICKER_TRANSACTION_VERSION, id: entry.id, input } satisfies StickerTransactionMessage), {kind: input.kind, bytes: inputBytes(entry.input)});
+   } catch { recover(entry); }
++  } finally { peelEnd('broker.pump', peelStart, peelDetail); }
+ }
+ /** One session-wide worker and bounded FIFO. Identical immutable keys share a job
+  * and completed result. A cancelled native job stays the sole charged active job
+@@ -260,3 +268,21 @@ export async function requestStickerTransaction(key: string, input: StickerTrans
+     signal.throwIfAborted(); return { value, release: lease.release };
+   } catch (error) { lease.release(); throw error; }
+ }
++
++// TEMPORARY bounded peel attribution; restored byte-for-byte after one capture.
++let peelMeasureCount = 0;
++function peelBegin(): number {
++  if (typeof window === 'undefined' || peelMeasureCount >= 512) return -1;
++  const arm = performance.getEntriesByName('wp-peel-probe:start', 'mark')[0];
++  const now = performance.now();
++  return arm && now >= arm.startTime && now - arm.startTime <= 12000 ? now : -1;
++}
++function peelEnd(name: string, start: number, detail?: Readonly<Record<string, string | number>>) {
++  if (start < 0 || peelMeasureCount >= 512) return;
++  peelMeasureCount++;
++  performance.measure(`wp-peel:${name}`, { start, end: performance.now(), detail });
++}
++function peelMeasure<T>(name: string, work: () => T, detail?: Readonly<Record<string, string | number>>): T {
++  const start = peelBegin();
++  try { return work(); } finally { peelEnd(name, start, detail); }
++}

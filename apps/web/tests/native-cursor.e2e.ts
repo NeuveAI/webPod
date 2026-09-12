@@ -9,7 +9,7 @@ test.use({
 })
 
 test('native cursors follow mounted control and authoritative drag state', async ({ page }) => {
-  await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+  await page.goto('/_spike/device?projection-diagnostics=1', { waitUntil: 'domcontentloaded' })
   const device = page.locator('.webpod-device-preview__device')
   const canvas = page.locator('.webpod-device-preview canvas')
   const stage = page.locator('.webpod-device-preview__stage')
@@ -66,7 +66,7 @@ test.describe('coarse pointer', () => {
   test.use({ hasTouch: true })
 
   test('wheel and orientation cursors stay inactive while interactions remain mounted', async ({ page }) => {
-    await page.goto('/_spike/device', { waitUntil: 'domcontentloaded' })
+    await page.goto('/_spike/device?projection-diagnostics=1', { waitUntil: 'domcontentloaded' })
     const canvas = page.locator('.webpod-device-preview canvas')
     await expect(canvas).toHaveCount(1)
     await expect

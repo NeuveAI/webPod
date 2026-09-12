@@ -1,0 +1,12 @@
+{
+  "completedControlsRetainRestAcrossNewOrientation": true,
+  "explicitPressAdmitsTargetPreservesHeldPeer": true,
+  "settledYaw": 26.666666666666668,
+  "afterSettledCommand": 26.666666666666668,
+  "completedChannelRegresses": false,
+  "before": 5.6899237048919105,
+  "afterCommand": 5.6899237048919105,
+  "afterNextTick": 8.06196463810584,
+  "unrelatedCommandRegressesOrientation": false,
+  "scope": "Actual motion driver with delayed main projection receipt; controlled clock/RAF, no browser or latency measurement."
+}

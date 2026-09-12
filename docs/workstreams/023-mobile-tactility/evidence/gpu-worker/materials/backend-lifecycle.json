@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "checks": [
+    "late-success-after-abort-disposed-once",
+    "late-init-rejection-disposes-backend-without-reentrant-renderer-dispose",
+    "timeout-then-success-cannot-publish-ready",
+    "compatibility-mode-retires-quality-incomplete-renderer",
+    "native-fallback-releases-both-generations",
+    "late-compile-after-abort-cannot-revive-owner",
+    "only-latest-complete-material-generation-is-ready",
+    "synchronous-GL-compile-throw-retires-and-disposes-once",
+    "native-device-loss-retires-ready-owner-and-restores-handler"
+  ]
+}

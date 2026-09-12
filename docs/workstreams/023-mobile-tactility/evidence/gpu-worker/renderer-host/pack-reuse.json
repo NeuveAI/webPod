@@ -1,0 +1,14 @@
+{
+  "method": "Actual worker assembler and MessagePorts; controlled bitmap close boundary, no GPU rendering",
+  "exactSharedIdentity": true,
+  "failedCandidatePreservesCurrent": true,
+  "abortPreservesCurrent": true,
+  "retiredOwnerRejected": true,
+  "currentReplacementRetainsCandidate": true,
+  "finalDisposals": {
+    "geometryDisposes": 1,
+    "damageDisposes": 1,
+    "artDisposes": 1,
+    "closes": 1
+  }
+}

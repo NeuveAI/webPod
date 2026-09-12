@@ -1,0 +1,42 @@
+{
+  "preparationCommit": "88ecc44",
+  "materialState": "uncommitted; final independent review pending",
+  "checks": [
+    {
+      "command": "bun run typecheck",
+      "result": "passed",
+      "projects": 14
+    },
+    {
+      "command": "bun run build",
+      "result": "passed"
+    },
+    {
+      "command": "bun test packages/device/src packages/composite/src",
+      "result": "failed",
+      "passed": 413,
+      "failed": 2,
+      "notes": "Known unchanged StudioEnvironment route source assertion plus physical-continuity renamed generator assertion; latter corrected and targeted 17 assertions passed."
+    },
+    {
+      "command": "bunx --bun eslint packages/device/src packages/composite/src docs/workstreams/023-mobile-tactility/evidence/gpu-worker",
+      "result": "passed",
+      "notes": "After correcting retained lifecycle script globals."
+    },
+    {
+      "command": "bun run lint",
+      "result": "failed",
+      "notes": "359 evidence-script errors at run; 12 newly introduced script globals corrected; remaining historical proof-file errors not changed."
+    },
+    {
+      "command": "bun docs/workstreams/023-mobile-tactility/evidence/gpu-worker/materials/backend-lifecycle.mjs",
+      "result": "passed",
+      "cases": 9
+    }
+  ],
+  "limits": [
+    "No full-device WebGPU activation yet",
+    "No new 6x motion or performance result",
+    "Full integration and final review remain pending"
+  ]
+}

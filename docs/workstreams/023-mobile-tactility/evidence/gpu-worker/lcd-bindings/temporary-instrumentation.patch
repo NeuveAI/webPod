@@ -1,0 +1,156 @@
+--- a/packages/device/src/Device.tsx
++++ b/packages/device/src/Device.tsx
+@@ -324,6 +324,15 @@
+       studioIntensity:studio.intensity,label:labelMap,backplate:backplateFinish},
+   }),[isBlack,materials,screenDefaultMaterial,prepared,env,studio,labelMap,backplateFinish]);
+   useEffect(()=>()=>assemblyMaterials.dispose(),[assemblyMaterials]);
++  const lcdBindingSeen=useRef(new Set<string>());
++  useLayoutEffect(()=>{
++    const glass=assemblyMaterials.materials.glass,key=[glass.uuid,studio.screenTexture?.uuid,studio.texture?.uuid,isBlack].join(':');
++    if(lcdBindingSeen.current.size>=4||lcdBindingSeen.current.has(key))return;lcdBindingSeen.current.add(key);
++    const state=getStore(),environment=Reflect.get(glass,'envMap');
++    const cards:unknown[]=[];state.scene.traverse(node=>{if(Reflect.get(node,'isRectAreaLight')===true&&cards.length<4)cards.push(lcdBindingScalar(node));});
++    console.info('webpod-lcd-binding '+JSON.stringify({owner:'gl-glass',isBlack,glass:lcdBindingScalar(glass),screenEnvironment:environment===studio.screenTexture,bodyEnvironment:environment===studio.texture,sceneBodyEnvironment:state.scene.environment===studio.texture,environment:lcdBindingScalar(environment),screenPMREM:lcdBindingScalar(studio.screenTexture),bodyPMREM:lcdBindingScalar(studio.texture),scene:lcdBindingScalar(state.scene),renderer:lcdBindingScalar(state.gl),cards}));
++  },[assemblyMaterials,studio,isBlack,getStore]);
++
+ 
+   const attachScreen = useCallback(
+     (mesh: Mesh | null) => {
+@@ -373,3 +382,20 @@
+     </ViewerLitDeviceFrame>
+   );
+ }
++
++// Temporary bounded LCD binding inspection; restored byte-exact after capture.
++function lcdBindingScalar(value: unknown): Record<string, unknown> | null {
++  if (value === null || typeof value !== 'object') return null;
++  const output: Record<string, unknown> = {};
++  for (const key of ['uuid','name','type','version','mapping','format','colorSpace','outputColorSpace','toneMapping','toneMappingExposure','transmissionResolutionScale','environmentIntensity','opacity','alphaTest','alphaHash','alphaToCoverage','transparent','visible','toneMapped','depthWrite','depthTest','side','blending','premultiplyAlpha','flipY','minFilter','magFilter','generateMipmaps','roughness','metalness','transmission','thickness','ior','attenuationDistance','clearcoat','clearcoatRoughness','specularIntensity','envMapIntensity','width','height','intensity']) {
++    const item: unknown = Reflect.get(value,key);
++    if (typeof item === 'number') output[key]=Number.isFinite(item)?item:null;
++    else if (typeof item === 'string' || typeof item === 'boolean') output[key]=item;
++  }
++  for (const key of ['color','attenuationColor','specularColor','position','rotation','environmentRotation','offset','repeat']) {
++    const item: unknown=Reflect.get(value,key);if (!item || typeof item!=='object') continue;
++    const scalars:Record<string,unknown>={};for(const axis of ['x','y','z','r','g','b','order']){const scalar:unknown=Reflect.get(item,axis);if(typeof scalar==='number'||typeof scalar==='string')scalars[axis]=scalar;}output[key]=scalars;
++  }
++  const image:unknown=Reflect.get(value,'image');if(image&&typeof image==='object')output.image={width:Reflect.get(image,'width'),height:Reflect.get(image,'height')};
++  return output;
++}
+--- a/packages/device/src/screen-mesh.ts
++++ b/packages/device/src/screen-mesh.ts
+@@ -255,7 +255,11 @@
+ 
+   // three.js calls this once per rendered frame, per mesh. Under
+   // `frameloop="demand"` that is once per frame somebody asked for.
+-  mesh.onBeforeRender = function onBeforeRender(this: Object3D) {
++  const lcdBindingSeen=new Set<string>();
++  mesh.onBeforeRender = function onBeforeRender(this: Object3D, renderer, scene, _camera, _geometry, material) {
++    const map:unknown=Reflect.get(material,'map'),key=JSON.stringify([material.uuid,lcdBindingScalar(map)?.uuid,scene.environment?.uuid]);
++    if(map&&lcdBindingSeen.size<4&&!lcdBindingSeen.has(key)){lcdBindingSeen.add(key);console.info('webpod-lcd-binding '+JSON.stringify({owner:'gl-screen',material:lcdBindingScalar(material),map:lcdBindingScalar(map),renderer:lcdBindingScalar(renderer),scene:lcdBindingScalar(scene),environment:lcdBindingScalar(scene.environment)}));}
++
+     if (listeners.size === 0) return;
+     const { camera, width, height } = state.deps.view();
+     if (state.everReported && lastReported.equals(mesh.matrixWorld) &&
+@@ -286,3 +290,20 @@
+   }
+   return { topLeft, topRight, bottomRight, bottomLeft };
+ }
++
++// Temporary bounded LCD binding inspection; restored byte-exact after capture.
++function lcdBindingScalar(value: unknown): Record<string, unknown> | null {
++  if (value === null || typeof value !== 'object') return null;
++  const output: Record<string, unknown> = {};
++  for (const key of ['uuid','name','type','version','mapping','format','colorSpace','outputColorSpace','toneMapping','toneMappingExposure','transmissionResolutionScale','environmentIntensity','opacity','alphaTest','alphaHash','alphaToCoverage','transparent','visible','toneMapped','depthWrite','depthTest','side','blending','premultiplyAlpha','flipY','minFilter','magFilter','generateMipmaps','roughness','metalness','transmission','thickness','ior','attenuationDistance','clearcoat','clearcoatRoughness','specularIntensity','envMapIntensity','width','height','intensity']) {
++    const item: unknown = Reflect.get(value,key);
++    if (typeof item === 'number') output[key]=Number.isFinite(item)?item:null;
++    else if (typeof item === 'string' || typeof item === 'boolean') output[key]=item;
++  }
++  for (const key of ['color','attenuationColor','specularColor','position','rotation','environmentRotation','offset','repeat']) {
++    const item: unknown=Reflect.get(value,key);if (!item || typeof item!=='object') continue;
++    const scalars:Record<string,unknown>={};for(const axis of ['x','y','z','r','g','b','order']){const scalar:unknown=Reflect.get(item,axis);if(typeof scalar==='number'||typeof scalar==='string')scalars[axis]=scalar;}output[key]=scalars;
++  }
++  const image:unknown=Reflect.get(value,'image');if(image&&typeof image==='object')output.image={width:Reflect.get(image,'width'),height:Reflect.get(image,'height')};
++  return output;
++}
+--- a/packages/device/src/device-render-worker.ts
++++ b/packages/device/src/device-render-worker.ts
+@@ -122,6 +122,7 @@
+   const screenMesh = graph.objects.get('screen'); if (!(screenMesh instanceof Mesh)) throw new Error('Authored LCD mesh is absent');
+   const projection = createLatestRenderChannel<Omit<RenderProjection, 'notificationSequence'>>((notificationSequence, value) => send({ type: 'projection', version: 1, epoch, projection: { ...value, notificationSequence } }));
+   cleanups.push(() => projection.dispose());
++  const lcdBindingSeen=new Set<string>();
+   const publish = (next: RenderPose) => {
+     pose = next;
+     for (const node of pose.nodes) {
+@@ -129,6 +130,10 @@
+       target.matrixAutoUpdate = false; target.matrix.fromArray(node.matrix);
+     }
+     if (!visible || !painted || !compiled || retired) return;
++    const glass=graph.objects.get('glass'),glassMaterial=glass instanceof Mesh?glass.material:null;
++    const lcdMaterial=screenMesh.material,key=JSON.stringify([lcdBindingScalar(glassMaterial)?.uuid,lcdBindingScalar(lcdMaterial)?.uuid,studio.screenTexture.uuid,input.isBlack]);
++    if(lcdBindingSeen.size<4&&!lcdBindingSeen.has(key)){lcdBindingSeen.add(key);const environment=glassMaterial&&typeof glassMaterial==='object'?Reflect.get(glassMaterial,'envMap'):null;
++      console.info('webpod-lcd-binding '+JSON.stringify({owner:'native-render',isBlack:input.isBlack,glass:lcdBindingScalar(glassMaterial),screenEnvironment:environment===studio.screenTexture,bodyEnvironment:environment===studio.texture,sceneBodyEnvironment:scene.environment===studio.texture,environment:lcdBindingScalar(environment),screenPMREM:lcdBindingScalar(studio.screenTexture),bodyPMREM:lcdBindingScalar(studio.texture),material:lcdBindingScalar(lcdMaterial),map:lcdBindingScalar(screen.texture),renderer:lcdBindingScalar(renderer),scene:lcdBindingScalar(scene),cards:lights.slice(0,4).map(lcdBindingScalar)}));}
+     scene.updateMatrixWorld(true); renderer.render(scene, camera);
+     if (!backend.isInitialized()) throw new Error('Renderer became unavailable');
+     if(pendingPackPoseAck!==null){send({type:'pack-pose-consumed',version:1,epoch,notificationSequence:pendingPackPoseAck,accepted:true});pendingPackPoseAck=null;}
+@@ -264,3 +269,20 @@
+     else closeIncoming(data);
+   } catch (error) { fail(error); }
+ };
++
++// Temporary bounded LCD binding inspection; restored byte-exact after capture.
++function lcdBindingScalar(value: unknown): Record<string, unknown> | null {
++  if (value === null || typeof value !== 'object') return null;
++  const output: Record<string, unknown> = {};
++  for (const key of ['uuid','name','type','version','mapping','format','colorSpace','outputColorSpace','toneMapping','toneMappingExposure','transmissionResolutionScale','environmentIntensity','opacity','alphaTest','alphaHash','alphaToCoverage','transparent','visible','toneMapped','depthWrite','depthTest','side','blending','premultiplyAlpha','flipY','minFilter','magFilter','generateMipmaps','roughness','metalness','transmission','thickness','ior','attenuationDistance','clearcoat','clearcoatRoughness','specularIntensity','envMapIntensity','width','height','intensity']) {
++    const item: unknown = Reflect.get(value,key);
++    if (typeof item === 'number') output[key]=Number.isFinite(item)?item:null;
++    else if (typeof item === 'string' || typeof item === 'boolean') output[key]=item;
++  }
++  for (const key of ['color','attenuationColor','specularColor','position','rotation','environmentRotation','offset','repeat']) {
++    const item: unknown=Reflect.get(value,key);if (!item || typeof item!=='object') continue;
++    const scalars:Record<string,unknown>={};for(const axis of ['x','y','z','r','g','b','order']){const scalar:unknown=Reflect.get(item,axis);if(typeof scalar==='number'||typeof scalar==='string')scalars[axis]=scalar;}output[key]=scalars;
++  }
++  const image:unknown=Reflect.get(value,'image');if(image&&typeof image==='object')output.image={width:Reflect.get(image,'width'),height:Reflect.get(image,'height')};
++  return output;
++}
+--- a/packages/device/src/native-element-image.ts
++++ b/packages/device/src/native-element-image.ts
+@@ -86,6 +86,7 @@
+   // extra full-texture copy. Native captures have a top-left origin.
+   texture.repeat.y = -1; texture.offset.y = 1;
+   let disposed = false;
++  const lcdBindingSeen=new Set<string>();
+   let rasterWidth=width,rasterHeight=height;
+   let target: GPUTexture;
+   try {
+@@ -115,8 +116,28 @@
+         queue.copyElementImageToTexture({ source: image }, {
+           destination: { texture: target, colorSpace: 'srgb', premultipliedAlpha: false }, width:rasterWidth, height:rasterHeight,
+         });
++        const key=[target.width,target.height,target.format,texture.version].join(':');
++        if(lcdBindingSeen.size<4&&!lcdBindingSeen.has(key)){lcdBindingSeen.add(key);console.info('webpod-lcd-binding '+JSON.stringify({owner:'native-upload',target:{width:target.width,height:target.height,format:target.format},capture:{width:image.width,height:image.height},destination:{colorSpace:'srgb',premultipliedAlpha:false},texture:lcdBindingScalar(texture)}));}
++
+       } finally { image.close(); }
+     },
+     dispose() { if (disposed) return; disposed = true; texture.dispose(); },
+   };
+ }
++
++// Temporary bounded LCD binding inspection; restored byte-exact after capture.
++function lcdBindingScalar(value: unknown): Record<string, unknown> | null {
++  if (value === null || typeof value !== 'object') return null;
++  const output: Record<string, unknown> = {};
++  for (const key of ['uuid','name','type','version','mapping','format','colorSpace','outputColorSpace','toneMapping','toneMappingExposure','transmissionResolutionScale','environmentIntensity','opacity','alphaTest','alphaHash','alphaToCoverage','transparent','visible','toneMapped','depthWrite','depthTest','side','blending','premultiplyAlpha','flipY','minFilter','magFilter','generateMipmaps','roughness','metalness','transmission','thickness','ior','attenuationDistance','clearcoat','clearcoatRoughness','specularIntensity','envMapIntensity','width','height','intensity']) {
++    const item: unknown = Reflect.get(value,key);
++    if (typeof item === 'number') output[key]=Number.isFinite(item)?item:null;
++    else if (typeof item === 'string' || typeof item === 'boolean') output[key]=item;
++  }
++  for (const key of ['color','attenuationColor','specularColor','position','rotation','environmentRotation','offset','repeat']) {
++    const item: unknown=Reflect.get(value,key);if (!item || typeof item!=='object') continue;
++    const scalars:Record<string,unknown>={};for(const axis of ['x','y','z','r','g','b','order']){const scalar:unknown=Reflect.get(item,axis);if(typeof scalar==='number'||typeof scalar==='string')scalars[axis]=scalar;}output[key]=scalars;
++  }
++  const image:unknown=Reflect.get(value,'image');if(image&&typeof image==='object')output.image={width:Reflect.get(image,'width'),height:Reflect.get(image,'height')};
++  return output;
++}

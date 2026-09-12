@@ -569,7 +569,7 @@ function BrowsingTitleBar({ title, index, provider }: { readonly title: string; 
 function MainMenu({ frame, state, visibleRows, panelId, navigationSource, provider }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string; readonly navigationSource: NavigationDataSource; readonly provider: MusicProvider }) {
   const success = useLibrarySuccess('S03', frame.title, state, provider, navigationSource)
   void navigationSource
-  const rows: readonly ListRowContent[] = frame.rows.map((row) => ({
+  const rows: readonly ListRowContent[] = frame.rows.slice(frame.windowStart, frame.windowStart + Math.max(1, visibleRows)).map((row) => ({
     index: row.index,
     primary: row.label,
     count: state === 'ready' || state === 'offline' || state === 'agent-active' || state === 'success-confirmation' ? row.sublabel : null,
@@ -581,7 +581,7 @@ function MainMenu({ frame, state, visibleRows, panelId, navigationSource, provid
   return (
     <div className="wp-screen">
       <BrowsingTitleBar title={frame.title} provider={provider} />
-      <ListViewport rows={rows} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label="Music categories" panelId={panelId} />
+      <ListViewport rows={rows} rowsStart={frame.windowStart} totalRows={frame.rows.length} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label="Music categories" panelId={panelId} />
       {state === 'empty' ? <FooterReceipt>Nothing in your library yet. Try Radio, or search for anything.</FooterReceipt> : null}
       {state === 'offline' ? <FooterReceipt>Offline. Showing cached library metadata.</FooterReceipt> : null}
       {state === 'permission-denied' ? <FooterReceipt>Browsing only — a subscription is needed to play.</FooterReceipt> : null}
@@ -594,14 +594,14 @@ function MainMenu({ frame, state, visibleRows, panelId, navigationSource, provid
 function BrowserList({ frame, state, visibleRows, panelId, provider }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string; readonly provider: MusicProvider }) {
   const query = useAtomValue(searchQueryAtom)
   const setQuery = useSetAtom(searchQueryAtom)
-  const rows: readonly ListRowContent[] = frame.rows.map((row) => ({ index: row.index, primary: row.label, secondary: frame.route?.kind === 'songs' ? undefined : row.sublabel, chevron: row.glyphs.includes('descend') ? <PanelIcon name="chevron" /> : undefined, unavailable: state === 'offline' }))
+  const rows: readonly ListRowContent[] = frame.rows.slice(frame.windowStart, frame.windowStart + Math.max(1, visibleRows)).map((row) => ({ index: row.index, primary: row.label, secondary: frame.route?.kind === 'songs' ? undefined : row.sublabel, chevron: row.glyphs.includes('descend') ? <PanelIcon name="chevron" /> : undefined, unavailable: state === 'offline' }))
   const loading = state === 'loading' || (isNavigationLoadingFrame(frame) && frame.rows.length === 0)
   const message = listStateMessage(frame, loading ? 'loading' : state, visibleRows)
   const search = frame.route?.kind === 'search-entry' ? <label className="wp-search-field"><span>Search Query</span><input name="music-search" value={query} onChange={(event) => setQuery(event.currentTarget.value)} placeholder="Artists, albums, songs…" autoComplete="off" /></label> : undefined
   return (
     <section className="wp-screen wp-browser-list" aria-label={frame.title} aria-busy={loading}>
       <BrowsingTitleBar title={frame.title} provider={provider} />
-      <ListViewport rows={rows} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label={frame.title} panelId={panelId} preview={search} message={message} />
+      <ListViewport rows={rows} rowsStart={frame.windowStart} totalRows={frame.rows.length} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label={frame.title} panelId={panelId} preview={search} message={message} />
       {state === 'offline' ? <FooterReceipt>Offline. Showing cached library metadata.</FooterReceipt> : null}
     </section>
   )
@@ -609,12 +609,12 @@ function BrowserList({ frame, state, visibleRows, panelId, provider }: { readonl
 
 function NestedTrackList({ frame, state, visibleRows, panelId, provider, navigationSource }: { readonly frame: ScreenFrame; readonly state: PanelState; readonly visibleRows: number; readonly panelId: string; readonly provider: MusicProvider; readonly navigationSource: NavigationDataSource }) {
   const success = useLibrarySuccess('S08', frame.title, state, provider, navigationSource)
-  const rows: readonly ListRowContent[] = frame.rows.map((row) => ({ index: row.index, primary: row.label, secondary: state === 'offline' ? '☁︎' : undefined, unavailable: state === 'offline', agent: state === 'agent-active' && row.index === frame.highlightIndex, success: success !== null && row.index === frame.highlightIndex }))
+  const rows: readonly ListRowContent[] = frame.rows.slice(frame.windowStart, frame.windowStart + Math.max(1, visibleRows)).map((row) => ({ index: row.index, primary: row.label, secondary: state === 'offline' ? '☁︎' : undefined, unavailable: state === 'offline', agent: state === 'agent-active' && row.index === frame.highlightIndex, success: success !== null && row.index === frame.highlightIndex }))
   const loading = state === 'loading' || (isNavigationLoadingFrame(frame) && frame.rows.length === 0)
   return (
     <section className="wp-screen" aria-label="Album tracks" aria-busy={loading} data-success-object={success?.objectKey} data-library-total={success?.libraryTotal}>
       <BrowsingTitleBar title={frame.title} provider={provider} index={state === 'offline' ? 'Cached metadata' : undefined} />
-      <ListViewport rows={rows} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label={`${frame.title} tracks`} panelId={panelId} message={listStateMessage(frame, loading ? 'loading' : state, visibleRows, 'Nothing here plays in your region.', 'Search for it · Go to artist')} />
+      <ListViewport rows={rows} rowsStart={frame.windowStart} totalRows={frame.rows.length} highlightIndex={frame.highlightIndex} windowStart={frame.windowStart} visibleRows={visibleRows} label={`${frame.title} tracks`} panelId={panelId} message={listStateMessage(frame, loading ? 'loading' : state, visibleRows, 'Nothing here plays in your region.', 'Search for it · Go to artist')} />
       {success?.screenId === 'S08' ? <FooterReceipt>{success.text}</FooterReceipt> : null}
     </section>
   )
@@ -806,15 +806,15 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
     const queueCursor = wheelControl?.kind === 'queue'
       ? Math.round(wheelControl.value)
       : activeQueueView.currentIndex
-    const queueRows: readonly ListRowContent[] = activeQueueView.items.map((item, index) => ({
-      index,
-      leading: index === activeQueueView.currentIndex ? '▶' : index + 1,
-      primary: item.title,
-    }))
     const windowStart = Math.max(0, Math.min(
-      Math.max(0, queueRows.length - VISIBLE_ROWS.compact),
+      Math.max(0, activeQueueView.items.length - VISIBLE_ROWS.compact),
       queueCursor - 3,
     ))
+    const queueRows: readonly ListRowContent[] = activeQueueView.items.slice(windowStart, windowStart + VISIBLE_ROWS.compact).map((item, offset) => ({
+      index: windowStart + offset,
+      leading: windowStart + offset === activeQueueView.currentIndex ? '▶' : windowStart + offset + 1,
+      primary: item.title,
+    }))
     return (
       <section className="wp-screen wp-now wp-now--queue" aria-label="Now Playing queue" aria-busy={activeQueueView.status === 'loading' || queueState === 'selecting'} data-mode="queue" data-queue-state={queueState} data-wheel-control={wheelControl?.kind} style={artStyle}>
         <TitleBar title="Up Next" transport={transportState} />
@@ -824,7 +824,7 @@ function NowPlaying({ panelId, frame, state, colourway, artworkTone, actor, prov
             ? <PanelError message="Couldn’t load Up Next." detail="Press Center and try again." />
             : queueRows.length === 0
               ? <PanelEmpty title="Up Next is empty." detail="Press Center to return." />
-              : <ListViewport rows={queueRows} highlightIndex={queueCursor} windowStart={windowStart} visibleRows={VISIBLE_ROWS.compact} label="Up Next" panelId={`${panelId}-queue`} />}
+              : <ListViewport rows={queueRows} rowsStart={windowStart} totalRows={activeQueueView.items.length} highlightIndex={queueCursor} windowStart={windowStart} visibleRows={VISIBLE_ROWS.compact} label="Up Next" panelId={`${panelId}-queue`} />}
       </section>
     )
   }

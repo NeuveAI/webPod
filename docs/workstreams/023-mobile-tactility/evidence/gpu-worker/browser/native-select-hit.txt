@@ -1,0 +1,4 @@
+Script ran on page and returned:
+```json
+{"canvas":[{"wpRenderWarm":"ready","wpRenderBackend":"worker-webgpu","wpNativeInput":"{\"x\":218.96875,\"y\":589.28125,\"front\":true,\"hits\":[{\"name\":\"device-select\",\"distance\":3532.9447812795793},{\"name\":\"click-wheel-select-input\",\"distance\":3532.945773380183}]}"}]}
+```

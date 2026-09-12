@@ -1,8 +1,9 @@
+import { createPreviewMotionAuthority } from './device-motion-authority';
 import { Button } from '@webpod/ui/components/button';
 import { Field, FieldGroup, FieldLabel, FieldSet, FieldLegend, FieldSeparator } from '@webpod/ui/components/field';
 import { Switch } from '@webpod/ui/components/switch';
 import { ToggleGroup, ToggleGroupItem } from '@webpod/ui/components/toggle-group';
-import { useNavigate } from '@tanstack/react-router';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { recordInteraction } from './interaction-telemetry';
 import { mountInteractionTelemetry } from './interaction-telemetry-browser';
 import { mountWebMcp } from './webmcp';
@@ -26,7 +27,7 @@ import {
 } from "@webpod/device";
 import { useAtomValue } from "jotai";
 import { DeviceSettings, InteractionSoundSetting, deviceSettingsStore, interactionAudioEnabledAtom } from "./device-settings";
-import { useCallback, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from "react";
 
 import { applePlaybackDiagnostics, deriveApplePlaybackDiagnosis, serializeApplePlaybackDiagnostics, type AppleEmeCapability, type ApplePlaybackDiagnosticEvent } from "./apple-playback-diagnostics";
 import {
@@ -165,13 +166,13 @@ export function DevicePage() {
 
 function InteractiveDevicePage() {
   const navigate = useNavigate();
+  const rendererBackend = useSearch({strict: false, select: search => search.renderBackend});
   const hadAppleSession = useRef(false);
+  const motionAuthority = useMemo(() => createPreviewMotionAuthority(previewStore.getSnapshot().orientation), []);
   const interactionAudioEnabled = useAtomValue(interactionAudioEnabledAtom, { store: deviceSettingsStore });
-  const state = useSyncExternalStore(
-    previewStore.subscribe,
-    previewStore.getSnapshot,
-    previewStore.getSnapshot,
-  );
+  const detailedPreview = import.meta.env.DEV && (new URLSearchParams(window.location.search).has('capture') || new URLSearchParams(window.location.search).has('diagnostic'));
+  const readPreview = detailedPreview ? previewStore.getSnapshot : previewStore.getAppearanceSnapshot;
+  const state = useSyncExternalStore(previewStore.subscribe, readPreview, readPreview);
   const stageRef = useRef<HTMLDivElement>(null);
   const orientationControlsRef = useRef<DeviceOrientationControls | null>(null);
   const onOrientationGrabStart = useCallback(
@@ -197,6 +198,7 @@ function InteractiveDevicePage() {
     }
   }, [music, navigate]);
   const capture = import.meta.env.DEV && search.has("capture");
+  const projectionDiagnostics = capture || search.has("projection-diagnostics");
   const diagnosticMode = search.get("diagnostic");
   const diagnostic = import.meta.env.DEV && diagnosticMode === "neutral";
   const productionSurfaceCapture =
@@ -224,21 +226,21 @@ function InteractiveDevicePage() {
   useEffect(() => {
     const stage = stageRef.current;
     if (stage === null) return;
-    const controls = bindDeviceOrientationControls(stage, previewStore, window, undefined, import.meta.env.DEV ? recordInteraction : undefined);
+    const controls = bindDeviceOrientationControls(stage, previewStore, window, undefined, import.meta.env.DEV ? recordInteraction : undefined, motionAuthority);
     orientationControlsRef.current = controls;
     return () => {
       orientationControlsRef.current = null;
       controls.dispose();
     };
-  }, []);
+  }, [motionAuthority]);
 
   useEffect(() => mountWebMcp(document, () => orientationControlsRef.current), []);
   useLayoutEffect(() => {
     const stage = stageRef.current;
     if (stage === null || capture) return;
     stage.focus({ preventScroll: true });
-    return mountDeviceReveal(stage, previewStore);
-  }, [capture]);
+    return mountDeviceReveal(stage, previewStore, motionAuthority);
+  }, [capture, motionAuthority]);
   useEffect(() => import.meta.env.DEV ? mountInteractionTelemetry(document, () => orientationControlsRef.current) : undefined, []);
 
   useEffect(() => {
@@ -269,6 +271,7 @@ function InteractiveDevicePage() {
   return (
     <main
       className="webpod-device-preview"
+      data-mobile-framing={capture ? undefined : "true"}
       data-room={renderedState.room}
       data-colourway={renderedState.colourway}
       data-pose={renderedState.pose}
@@ -291,7 +294,9 @@ function InteractiveDevicePage() {
             className="webpod-device-preview__device"
             colourway={renderedState.colourway}
             cameraFov={30}
+            cameraMobileFraming={!capture}
             cameraSafePadding={capture ? 34 : 48}
+            projectionDiagnostics={projectionDiagnostics}
             orientation={renderedState.orientation}
             materials={NEUTRAL_DIAGNOSTIC_MATERIALS}
             lightRig={NEUTRAL_DIAGNOSTIC_LIGHT_RIG}
@@ -305,6 +310,7 @@ function InteractiveDevicePage() {
             colourway={renderedState.colourway}
             cameraFov={30}
             cameraSafePadding={34}
+            projectionDiagnostics={projectionDiagnostics}
             orientation={renderedState.orientation}
             lightRig={productionLightRig}
             studioEnvironment={undefined}
@@ -313,11 +319,15 @@ function InteractiveDevicePage() {
           />
         ) : (
           <ProductionDeviceView
+            motionAuthority={motionAuthority}
+            rendererBackend={rendererBackend ?? 'worker'}
             interactionAudioEnabled={interactionAudioEnabled}
             className="webpod-device-preview__device"
             colourway={renderedState.colourway}
             cameraFov={30}
+            cameraMobileFraming={!capture}
             cameraSafePadding={capture ? 34 : 48}
+            projectionDiagnostics={projectionDiagnostics}
             orientation={renderedState.orientation}
             onOrientationGrabStart={onOrientationGrabStart}
             onOrientationGrabHoverChange={onOrientationGrabHoverChange}
@@ -555,6 +565,14 @@ const DEVICE_PREVIEW_CSS = `
   .webpod-device-preview__controls > button:focus-visible {
     outline: 2px solid #38bdf8;
     outline-offset: 2px;
+  }
+  @media (max-width: 520px), (max-width: 960px) and (max-height: 520px) {
+    .webpod-device-preview[data-mobile-framing="true"] .webpod-device-preview__stage {
+      inset-block-start: max(8px, env(safe-area-inset-top));
+      inset-block-end: calc(60px + env(safe-area-inset-bottom));
+      inset-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+    }
+    .webpod-device-preview[data-mobile-framing="true"] .webpod-device-preview__controls > button { min-block-size: 44px; }
   }
   @media (max-width: 520px) {
     .webpod-device-preview__controls { gap: 4px; }

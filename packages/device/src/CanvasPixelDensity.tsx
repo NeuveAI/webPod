@@ -6,7 +6,10 @@ import {
   resolveCanvasPixelRatio,
 } from "./pixel-density";
 
-type CanvasPixelDensityProps = { readonly enabled: boolean };
+type CanvasPixelDensityProps = {
+  readonly enabled: boolean;
+  readonly onChange: (density: number) => void;
+};
 
 export function commitResolvedCanvasPixelRatio(
   setDpr: (dpr: number) => void,
@@ -16,15 +19,15 @@ export function commitResolvedCanvasPixelRatio(
 }
 
 /** Keeps the WebGL drawing buffer aligned to physical pixels and page zoom. */
-export function CanvasPixelDensity({ enabled }: CanvasPixelDensityProps) {
+export function CanvasPixelDensity({ enabled, onChange }: CanvasPixelDensityProps) {
   const canvas = useThree((state) => state.gl.domElement);
-  const setDpr = useThree((state) => state.setDpr);
-  const invalidate = useThree((state) => state.invalidate);
 
   useEffect(() => {
     if (!enabled || typeof ResizeObserver === "undefined") return;
+    let disposed = false;
 
     const sync = (entry?: ResizeObserverEntry): void => {
+      if (disposed) return;
       const rect = entry?.contentRect ?? canvas.getBoundingClientRect();
       const dpr = resolveCanvasPixelRatio({
         cssWidth: rect.width,
@@ -35,8 +38,7 @@ export function CanvasPixelDensity({ enabled }: CanvasPixelDensityProps) {
       // The physical-box resolver has already clamped and resolved this
       // number. Passing a range asks R3F to resolve it again against
       // window.devicePixelRatio and loses fractional browser-zoom density.
-      commitResolvedCanvasPixelRatio(setDpr, dpr);
-      invalidate();
+      commitResolvedCanvasPixelRatio(onChange, dpr);
     };
 
     const observer = new ResizeObserver((entries) => sync(entries[0]));
@@ -52,10 +54,11 @@ export function CanvasPixelDensity({ enabled }: CanvasPixelDensityProps) {
     const onViewportResize = (): void => sync();
     window.visualViewport?.addEventListener("resize", onViewportResize);
     return () => {
+      disposed = true;
       observer.disconnect();
       window.visualViewport?.removeEventListener("resize", onViewportResize);
     };
-  }, [canvas, enabled, invalidate, setDpr]);
+  }, [canvas, enabled, onChange]);
 
   return null;
 }

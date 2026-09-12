@@ -1,3 +1,4 @@
+import { UpdateNotice } from '../update-notice'
 /// <reference types="vite/client" />
 import { HeadContent, Link, Scripts, createRootRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
@@ -41,6 +42,7 @@ function RootDocument({ children }: { readonly children: ReactNode }) {
       </head>
       <body>
         {children}
+        <UpdateNotice />
         <Scripts />
       </body>
     </html>

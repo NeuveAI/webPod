@@ -1,0 +1,114 @@
+{
+  "coverage": {
+    "mainIdentity": "Prior same-process entrance main tid; current capture has no CrRendererMain metadata or main profile",
+    "targetThreadNames": [
+      {
+        "tid": 4511423,
+        "name": "PerfettoTrace"
+      },
+      {
+        "tid": 4534077,
+        "name": "DedicatedWorker thread"
+      },
+      {
+        "tid": 4534019,
+        "name": "DedicatedWorker thread"
+      },
+      {
+        "tid": 4534087,
+        "name": "DedicatedWorker thread"
+      },
+      {
+        "tid": 4534049,
+        "name": "DedicatedWorker thread"
+      },
+      {
+        "tid": 4534020,
+        "name": "DedicatedWorker thread"
+      },
+      {
+        "tid": 4550017,
+        "name": "v8:ProfEvntProc"
+      }
+    ],
+    "inputEvents": 0,
+    "unclosedProfilerStart": [
+      {
+        "tid": 4534077,
+        "ts": 260411952772,
+        "phase": "B"
+      }
+    ],
+    "gestureConfirmed": false
+  },
+  "lifecycle": {
+    "targetFrameProcessSwapEvents": 0,
+    "explicitPauseHiddenBfcacheEvents": 0,
+    "note": "No explicit matching lifecycle marker is proof of neither absence nor cause; incomplete main RunTask cannot be assigned a completed duration."
+  },
+  "sourceCommit": "2856a5a plus frozen warmup source hashes",
+  "traceSha256": "990d36a5803fb4f86a50d256080fb7a85d0a00fa0ab19a6734f32a3e2aa2ccfb",
+  "traceBytes": 58449894,
+  "interval": {
+    "min": 260412205264,
+    "max": 260420943964,
+    "durationMs": 8738.7
+  },
+  "target": {
+    "pid": 39318,
+    "main": 4511411,
+    "renderer": 4534077
+  },
+  "tracks": [
+    {
+      "tid": 4511411,
+      "lastEventTimestamp": null,
+      "eventsInInterval": 0,
+      "runTasks": 0,
+      "longTasksOver50ms": [],
+      "unclosedTaskBegins": 0,
+      "callbackEvents": 0
+    },
+    {
+      "tid": 4534077,
+      "lastEventTimestamp": 260420703530,
+      "eventsInInterval": 149,
+      "runTasks": 0,
+      "longTasksOver50ms": [],
+      "unclosedTaskBegins": 1,
+      "callbackEvents": 0
+    }
+  ],
+  "profiles": [
+    {
+      "thread": 4534077,
+      "worker": "@fs/Users/vinicius/code/webPod/packages/device/src/device-render-worker.ts",
+      "samples": 100,
+      "sampledDeltaMs": 2479.224,
+      "lastSampleTimestamp": 260414684488,
+      "top": [
+        {
+          "sampleDeltaMs": 2479.224,
+          "stack": [
+            {
+              "name": "update",
+              "source": "node_modules/.vite/deps/three_webgpu.js",
+              "line": 19909,
+              "column": 18
+            },
+            {
+              "name": "(root)"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "No target main-thread events or CPU profile in the authoritative interval; absence is not zero CPU cost.",
+    "Profile time-delta attribution is sampling weight, not exact function duration or GPU time.",
+    "No confirmed drag or target input events; cannot establish rotation workload, motion cadence or responsiveness.",
+    "Only sampled symbol is Three Animation.start update; first delta2218.399ms overlaps profiler startup and is not trustworthy function CPU cost.99remaining sample deltas total513.459ms, also insufficient for rotation attribution.",
+    "Global trace contains other processes; analysis intentionally excludes them."
+  ]
+}

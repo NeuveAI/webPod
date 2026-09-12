@@ -1,0 +1,88 @@
+--- a/packages/device/src/sticker-latest-preparation.ts
++++ b/packages/device/src/sticker-latest-preparation.ts
+@@ -1,3 +1,6 @@
++// Temporary one-record rejection inspection; never shipped.
++let reportedPreparationFailure = false;
++
+ /** One active preparation plus one replaceable latest input per live surface.
+  * Compatible progress can publish while a newer sample waits; ownership changes
+  * abort and reject the old epoch. The consumer owns adopted result disposal. */
+@@ -10,7 +13,21 @@
+     const running = { controller: new AbortController(), owner: next.owner }; active = running;
+     void prepare(next.input, running.controller.signal).then(value => {
+       if (!live || active !== running || running.controller.signal.aborted) value.release(); else publish(value);
+-    }, () => { if (live && active === running && !running.controller.signal.aborted && !wanted) failed(next.input); }).finally(() => { if (active === running) { active = null; dispatch(); } });
++    }, (error: unknown) => { if (live && active === running && !running.controller.signal.aborted && !wanted) {
++      if (!reportedPreparationFailure) {
++        reportedPreparationFailure = true;
++        try {
++          const object: unknown = next.input;
++          const custom: unknown = object && typeof object === 'object' ? Reflect.get(object, 'custom') : null;
++          const art: unknown = custom && typeof custom === 'object' ? Reflect.get(custom, 'art') : null;
++          const id: unknown = art && typeof art === 'object' ? Reflect.get(art, 'id') : object && typeof object === 'object' ? Reflect.get(object, 'id') : null;
++          const code: unknown = error && typeof error === 'object' ? Reflect.get(error, 'code') : null;
++          const message = error instanceof Error ? error.message.replace(/https?:\/\/[^\s]+/g, '[url]').slice(0, 256) : 'Non-Error rejection';
++          console.info('webpod-sticker-preparation-failure ' + JSON.stringify({ kind: custom ? 'surface' : 'print-damage-contour', artwork: typeof id === 'string' ? id.slice(0, 64) : null, name: error instanceof Error ? error.name.slice(0, 64) : typeof error, message, code: typeof code === 'string' ? code.slice(0, 64) : typeof code === 'number' && Number.isFinite(code) ? code : null }));
++        } catch { /* Inspection must not replace the existing failure outcome. */ }
++      }
++      failed(next.input);
++    } }).finally(() => { if (active === running) { active = null; dispatch(); } });
+   };
+   return {
+     request(input: I, owner: string) {
+--- a/packages/device/src/StickerPackScene.tsx
++++ b/packages/device/src/StickerPackScene.tsx
+@@ -305,6 +305,12 @@
+   useLayoutEffect(() => { onPrepared?.(ids.filter((id) => ready.current.has(id))); }, [ids, onPrepared]);
+   return <>{ids.map((id) => { const art = scene.assets.find((item) => item.id === id); return art === undefined ? null : <PrepareStickerAsset key={id} art={art} report={report} onError={scene.onArtworkError} />; })}</>;
+ }
++let glWarmupDiagnosticCount = 0;
++function reportGlWarmupFailure(kind: string, artwork: string, error: unknown): void {
++ if (glWarmupDiagnosticCount >= 3) return;
++ glWarmupDiagnosticCount++;
++ try { console.info('webpod-gl-artwork-failure ' + JSON.stringify({kind, artwork, name: error instanceof Error ? error.name : typeof error, message: error instanceof Error ? error.message.replace(/https?:\/\/[^\s]+/g, '[url]').slice(0, 256) : 'No error detail'})); } catch { /* Preserve original callback outcome. */ }
++}
+ const PrepareStickerAsset = memo(function PrepareStickerAsset({ art, report, onError }: { readonly art: StickerArtwork; readonly report: (id: string, ready: boolean) => void; readonly onError?: (id: string) => void }) {
+   const { texture, failed } = useStickerTexture(art.url);
+   const preparationEpoch = useStickerPreparationEpoch();
+@@ -327,7 +333,7 @@
+     let generation = 0;
+     let preparation: AbortController | null = null;
+     report(art.id, false);
+-    if (failed) onError?.(art.id);
++    if (failed) { reportGlWarmupFailure('texture-state', art.id, null); onError?.(art.id); }
+     const prepare = (): void => {
+       if (!current || started || !surfaces.complete()) return;
+       const expected = ++generation;
+@@ -340,8 +346,8 @@
+         // Retain actual variants through readiness and cancel every superseded poll.
+         void prepareStickerPrograms(gl, group.current, camera, scene, preparation.signal).then(() => {
+           if (current && expected === generation && !gl.getContext().isContextLost()) report(art.id, true);
+-        }, (error: unknown) => { if (current && expected === generation && !(error instanceof Error && error.name === 'AbortError')) onError?.(art.id); });
+-      } catch { if (current && expected === generation) onError?.(art.id); }
++        }, (error: unknown) => { if (current && expected === generation && !(error instanceof Error && error.name === 'AbortError')) { reportGlWarmupFailure('program-async', art.id, error); onError?.(art.id); } });
++      } catch (error) { if (current && expected === generation) { reportGlWarmupFailure('program-sync', art.id, error); onError?.(art.id); } }
+     };
+     const lost = (): void => { generation++; started = false; preparation?.abort(); report(art.id, false); };
+     gl.domElement.addEventListener('webglcontextlost', lost); gl.domElement.addEventListener('webglcontextrestored', prepare);
+--- a/packages/device/src/sticker-texture-cache.ts
++++ b/packages/device/src/sticker-texture-cache.ts
+@@ -10,6 +10,7 @@
+  * One request per subscribed URL. Retries are explicit and bounded to one request
+  * per failed entry per invocation; pending/successful entries cannot be restarted.
+  */
++let textureFailureDiagnosticCount = 0;
+ export function createStickerTextureCache(load: StickerTextureLoad) {
+   const entries = new Map<string, Entry>();
+   const publish = (entry: Entry, snapshot: StickerTextureSnapshot) => {
+@@ -28,8 +29,9 @@
+       const previous = entry.snapshot.texture;
+       publish(entry, { texture, failed: false });
+       if (previous !== texture) previous?.dispose();
+-    }, () => {
++    }, (error?: unknown) => {
+       if (!isCurrent()) return;
++      if (textureFailureDiagnosticCount < 2) { textureFailureDiagnosticCount++; try { console.info('webpod-gl-artwork-failure ' + JSON.stringify({kind: 'texture-load', generation, listeners: entry.listeners.size, name: error instanceof Error ? error.name : typeof error, message: error instanceof Error ? error.message.replace(/https?:\/\/[^\s]+/g, '[url]').slice(0, 256) : 'Loader failure without Error detail'})); } catch { /* Preserve original failure publication. */ } }
+       entry.pending = false;
+       publish(entry, { texture: null, failed: true });
+     });

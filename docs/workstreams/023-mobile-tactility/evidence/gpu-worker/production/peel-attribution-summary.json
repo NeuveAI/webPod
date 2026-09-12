@@ -1,0 +1,86 @@
+{
+  "source": "peel-attribution.json",
+  "countsAreBoundedNotFullGestureTotals": true,
+  "hostModuleReached512EntryCap": true,
+  "measures": [
+    {
+      "name": "wp-peel:ProductionDeviceView.render",
+      "count": 125,
+      "maxMs": 1.5,
+      "sumMs": 21.599999964237213
+    },
+    {
+      "name": "wp-peel:StickerCollection.render",
+      "count": 130,
+      "maxMs": 7.5,
+      "sumMs": 53.60000002384186
+    },
+    {
+      "name": "wp-peel:host.updateStickerScene",
+      "count": 85,
+      "maxMs": 78.5,
+      "sumMs": 193.79999992251396
+    },
+    {
+      "name": "wp-peel:WorkerDeviceCanvas.layoutEffect",
+      "count": 125,
+      "maxMs": 78.5,
+      "sumMs": 247.99999997019768
+    },
+    {
+      "name": "wp-peel:host.warmup",
+      "count": 86,
+      "maxMs": 1.4000000059604645,
+      "sumMs": 13.099999994039536
+    },
+    {
+      "name": "wp-peel:host.workspace",
+      "count": 86,
+      "maxMs": 1.399999976158142,
+      "sumMs": 2.899999976158142
+    },
+    {
+      "name": "wp-peel:host.carry",
+      "count": 85,
+      "maxMs": 73,
+      "sumMs": 102.69999986886978
+    },
+    {
+      "name": "wp-peel:host.equipped",
+      "count": 85,
+      "maxMs": 2.5,
+      "sumMs": 4.300000011920929
+    },
+    {
+      "name": "wp-peel:host.pack",
+      "count": 85,
+      "maxMs": 5,
+      "sumMs": 67.6000000834465
+    },
+    {
+      "name": "wp-peel:broker.pump",
+      "count": 76,
+      "maxMs": 3,
+      "sumMs": 50.20000001788139
+    },
+    {
+      "name": "wp-peel:broker.admission",
+      "count": 21,
+      "maxMs": 2.0999999940395355,
+      "sumMs": 4.900000035762787
+    },
+    {
+      "name": "wp-peel:broker.postMessage",
+      "count": 21,
+      "maxMs": 1.5,
+      "sumMs": 7.199999988079071
+    },
+    {
+      "name": "wp-peel:broker.complete",
+      "count": 21,
+      "maxMs": 1.800000011920929,
+      "sumMs": 13.700000047683716
+    }
+  ],
+  "nestedSpansMustNotBeAdded": true
+}

@@ -1,3 +1,4 @@
+import { drainSteps } from './sticker-computation-steps';
 import {
   BufferGeometry,
   Float32BufferAttribute,
@@ -294,6 +295,16 @@ export function tessellateVerticalCrown(
   edge: EdgeCrown = { top: 0, bottom: 0, extent: 1 },
   cross: CrossCrown = { halfWidth: 1, crown: 0 },
 ): BufferGeometry {
+ return drainSteps(tessellateVerticalCrownSteps(source,halfHeight,crown,rowStep,edge,cross));
+}
+export function* tessellateVerticalCrownSteps(
+  source: BufferGeometry,
+  halfHeight: number,
+  crown: number,
+  rowStep = BODY_CROWN_ROW_STEP,
+  edge: EdgeCrown = { top: 0, bottom: 0, extent: 1 },
+  cross: CrossCrown = { halfWidth: 1, crown: 0 },
+): Generator<void,BufferGeometry,void> {
   if (!(rowStep > 0) || !Number.isFinite(rowStep)) {
     throw new Error(
       `crown row step must be finite and positive; got ${rowStep}`,
@@ -386,10 +397,10 @@ export function tessellateVerticalCrown(
     }
   };
 
-  const emitCrossTessellated = (
+  const emitCrossTessellated = function* (
     polygon: ReadonlyArray<Vertex>,
     capFacing: -1 | 0 | 1,
-  ) => {
+  ) {
     if (cross.crown === 0) {
       emitPolygon(polygon, capFacing);
       return;
@@ -398,6 +409,7 @@ export function tessellateVerticalCrown(
     const maxX = Math.max(...polygon.map((vertex) => vertex.x));
     const cuts = rowCuts(minX, maxX, cross.halfWidth, rowStep);
     for (let cut = 0; cut < cuts.length - 1; cut += 1) {
+      yield;
       const left = cuts[cut];
       const right = cuts[cut + 1];
       if (left === undefined || right === undefined) continue;
@@ -409,6 +421,7 @@ export function tessellateVerticalCrown(
   };
 
   for (let index = 0; index < position.count; index += 3) {
+    yield;
     const triangle = [
       vertexAt(position, normal, uv, index),
       vertexAt(position, normal, uv, index + 1),
@@ -425,12 +438,13 @@ export function tessellateVerticalCrown(
     const capFacing: -1 | 0 | 1 = allAtMaxZ ? 1 : allAtMinZ ? -1 : 0;
 
     if (maxY - minY <= EPSILON) {
-      emitCrossTessellated(triangle, capFacing);
+      yield* emitCrossTessellated(triangle, capFacing);
       continue;
     }
 
     const cuts = rowCuts(minY, maxY, halfHeight, rowStep);
     for (let cut = 0; cut < cuts.length - 1; cut += 1) {
+      yield;
       const lower = cuts[cut];
       const upper = cuts[cut + 1];
       if (lower === undefined || upper === undefined) continue;
@@ -439,20 +453,26 @@ export function tessellateVerticalCrown(
         upper,
         false,
       );
-      emitCrossTessellated(polygon, capFacing);
+      yield* emitCrossTessellated(polygon, capFacing);
     }
   }
 
   const geometry = new BufferGeometry();
   geometry.name = "TessellatedCrownedShellGeometry";
+  yield;
   geometry.setAttribute("position", new Float32BufferAttribute(positions, 3));
+  yield;
   geometry.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+  yield;
   geometry.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
+  yield;
   geometry.setAttribute(
     "crownCap",
     new Float32BufferAttribute(capFaces, 1),
   );
+  yield;
   geometry.computeBoundingBox();
+  yield;
   geometry.computeBoundingSphere();
   return geometry;
 }

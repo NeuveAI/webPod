@@ -61,6 +61,8 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
   private paintListener: EventListener | null = null
   private attachmentGeneration = 0
   private hasPaintRecord = false
+  private paintFrame: number | null = null
+  private visibilityCleanup: (() => void) | null = null
 
   constructor(private readonly tone: PanelOverlayTone) {}
 
@@ -124,32 +126,40 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
         density,
         screen.panel.scale,
       )
-      panelElement.style.width = `${String(screen.panel.width)}px`
-      panelElement.style.height = `${String(screen.panel.height)}px`
-      if (content.style.transformOrigin !== 'left top') {
-        content.style.transformOrigin = 'top left'
-      }
-      const scale =
-        `scale(${String(screen.panel.width / contentWidth)}, ${String(screen.panel.height / contentHeight)})`
-      if (content.style.transform !== scale) content.style.transform = scale
+      fitPanelContentToFrame(panelElement, screen.panel.width, screen.panel.height, {content, width: contentWidth, height: contentHeight})
       this.scaledContent = content
       canvas.dataset['wpRasterDensity'] = String(density)
       canvas.dataset['wpRasterPixelWidth'] = String(rasterFrame.width)
       canvas.dataset['wpRasterPixelHeight'] = String(rasterFrame.height)
     }
 
-    const requestPixels = (): void => {
+    // Observer bursts share one pre-paint fit/request. CSS animation paint events
+    // reuse the current geometry; they must not measure layout on every tick.
+    let pixelsDirty = false
+    const flushPixels = (): void => {
+      this.paintFrame = null
       if (this.attachmentGeneration !== generation || this.attachment !== attachment) return
+      if (document.hidden) { pixelsDirty = true; return }
+      pixelsDirty = false
       fitPanelToNativeGrid()
       canvas.dataset['wpCompositeSourceState'] = this.hasPaintRecord
         ? 'repaint-requested'
         : 'snapshot-requested'
       canvas.requestPaint()
-      if (this.hasPaintRecord) {
-        texture.needsUpdate = true
-        screen.invalidate()
-      }
     }
+    const requestPixels = (): void => {
+      pixelsDirty = true
+      if (document.hidden || this.paintFrame !== null) return
+      this.paintFrame = requestAnimationFrame(flushPixels)
+    }
+    const visibilityChanged = (): void => {
+      if (document.hidden) {
+        if (this.paintFrame !== null) cancelAnimationFrame(this.paintFrame)
+        this.paintFrame = null
+      } else if (pixelsDirty) requestPixels()
+    }
+    document.addEventListener('visibilitychange', visibilityChanged)
+    this.visibilityCleanup = () => document.removeEventListener('visibilitychange', visibilityChanged)
 
     this.mutationObserver = new MutationObserver((records) => {
       const pixelsChanged = records.some((record) =>
@@ -164,10 +174,7 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
       subtree: true,
     })
 
-    this.resizeObserver = new ResizeObserver(() => {
-      fitPanelToNativeGrid()
-      requestPixels()
-    })
+    this.resizeObserver = new ResizeObserver(requestPixels)
     this.resizeObserver.observe(panelElement)
     const initialContent = resolveRasterContent(panelElement)
     if (initialContent !== panelElement) this.resizeObserver.observe(initialContent)
@@ -178,10 +185,7 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     })
     this.canvasResizeObserver.observe(canvas)
 
-    this.resolutionCleanup = subscribeBrowserPixelRatio(() => {
-      fitPanelToNativeGrid()
-      requestPixels()
-    })
+    this.resolutionCleanup = subscribeBrowserPixelRatio(requestPixels)
     this.unsubscribeTransform = screen.onTransformChange((transform) => {
       this.syncGeometry(transform)
     })
@@ -190,7 +194,6 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
       if (this.attachmentGeneration !== generation || this.attachment !== attachment) return
       const changedElements = (event as CanvasPaintEvent).changedElements
       if (!paintTouchesPanel(panelElement, changedElements)) return
-      fitPanelToNativeGrid()
       if (!this.hasPaintRecord) screen.setMaterial(material)
       this.hasPaintRecord = true
       canvas.dataset['wpCompositeSourceState'] = 'painted'
@@ -200,12 +203,8 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
     }
     canvas.addEventListener('paint', this.paintListener)
 
+    flushPixels()
     requestPixels()
-    requestAnimationFrame(() => {
-      if (this.attachmentGeneration === generation && this.attachment === attachment) {
-        requestPixels()
-      }
-    })
     this.syncGeometry(screen.readTransform())
   }
 
@@ -241,6 +240,10 @@ export class HtmlInCanvasPixelSource implements PanelPixelSource<'webgl'> {
 
   detach(): void {
     this.attachmentGeneration += 1
+    if (this.paintFrame !== null) cancelAnimationFrame(this.paintFrame)
+    this.paintFrame = null
+    this.visibilityCleanup?.()
+    this.visibilityCleanup = null
     const attachment = this.attachment
     const panel = attachment?.panelElement ?? null
     const canvas = attachment?.renderer.domElement ?? null
@@ -407,4 +410,17 @@ export function createHtmlTextureMaterial(texture: HTMLTexture): MeshBasicMateri
   }
   material.customProgramCacheKey = () => 'webpod-htmltexture-rgba8-srgb-v1'
   return material
+}
+
+/** Shared DOM fit for both renderer backends. Panel's authored 272×204 layout
+ * fills the screen's 320×240 logical frame without changing text/layout rules. */
+export function fitPanelContentToFrame(panelElement: HTMLElement, width: number, height: number, existing?: {readonly content: HTMLElement; readonly width: number; readonly height: number}): HTMLElement {
+  const content = existing?.content ?? resolveRasterContent(panelElement)
+  const measured = existing ?? measurePanelElement(content)
+  panelElement.style.width = `${width}px`
+  panelElement.style.height = `${height}px`
+  content.style.transformOrigin = 'top left'
+  const scale = `scale(${width / measured.width}, ${height / measured.height})`
+  if (content.style.transform !== scale) content.style.transform = scale
+  return content
 }

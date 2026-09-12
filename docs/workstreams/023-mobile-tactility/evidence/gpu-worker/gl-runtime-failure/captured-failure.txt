@@ -1,0 +1,1 @@
+msgid=604 [info] webpod-sticker-preparation-failure {"kind":"print-damage-contour","artwork":"PW-A01","name":"Error","message":"Sticker computation byte capacity exceeded","code":null} (1 args)

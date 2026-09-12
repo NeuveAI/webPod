@@ -1,0 +1,12 @@
+{
+  "commitAtFreeze": "2dbec7290d8831947a41526514cb9ba0cb7d2081",
+  "baseline": {
+    "sticker-carry-preparation.ts": "cbecba1edd41f835abfafc0ea88d4635aec6a7ca672306e36014f1d3cb6e1b23",
+    "sticker-carry-worker.ts": "0e696895026de6267e4f2ba820f7161caa02fc9df3041ff9afc082e6e2356afd"
+  },
+  "frozen": {
+    "sticker-carry-preparation.ts": "ad31d46f93c7309652d95399bc850950866a4dfc1f074c84f1be42da66f28d6a",
+    "sticker-carry-worker.ts": "ab77f45bd4c19889f487cc7926d1a11e7f9baf957cf82bbfef6dda5f4a84d88a",
+    "sticker-carry-render-resources.ts": "2175d9d69e8c5b5b618049d3fa1457137c7159afe160ddf1dc0222f8310afb55"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "scope": "Shared orientation hidden/blur interruption lifecycle",
+  "files": [
+    {
+      "path": "apps/web/src/device-preview-orientation.ts",
+      "sha256": "d93405b434205e7831664bc83f416583e402592fbb1a06981c09c2e3fce4ac12"
+    },
+    {
+      "path": "apps/web/src/device-preview-orientation.test.ts",
+      "sha256": "227c36b2a43e6a81c9f504310b56ffd26261810630c25b28f1a8522ea952b545"
+    }
+  ]
+}

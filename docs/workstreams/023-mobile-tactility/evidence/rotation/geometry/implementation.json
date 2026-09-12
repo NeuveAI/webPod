@@ -1,0 +1,2429 @@
+{
+  "baselineConstructionMs": 252.33920900000004,
+  "note": "Default form offline generated geometry. Buffer byte counts are exact typed-array payload, not driver allocation, peak JS heap, GPU time or frame rate. Draw counts are source-derived one color pass, absent stickers and auxiliary lighting/PMREM.",
+  "rows": [
+    {
+      "name": "front",
+      "vertices": 91557,
+      "triangles": 169367,
+      "indexed": true,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 1098684
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 1098684
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 732456
+        },
+        {
+          "name": "crownCap",
+          "itemSize": 1,
+          "type": "Float32Array",
+          "bytes": 366228
+        }
+      ],
+      "attributeBytes": 3296052,
+      "indexBytes": 2032404,
+      "totalBytes": 5328456,
+      "groups": 0,
+      "uniqueExactVertices": 91557,
+      "exactIndexedBytes": 5328456,
+      "savedBytes": 0,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "rear",
+      "vertices": 11651,
+      "triangles": 22166,
+      "indexed": true,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 139812
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 139812
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 93208
+        }
+      ],
+      "attributeBytes": 372832,
+      "indexBytes": 132996,
+      "totalBytes": 505828,
+      "groups": 0,
+      "uniqueExactVertices": 11651,
+      "exactIndexedBytes": 505828,
+      "savedBytes": 0,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "ringGeometry",
+      "vertices": 3225,
+      "triangles": 6144,
+      "indexed": true,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 38700
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 38700
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 25800
+        }
+      ],
+      "attributeBytes": 103200,
+      "indexBytes": 36864,
+      "totalBytes": 140064,
+      "groups": 0,
+      "uniqueExactVertices": 3225,
+      "exactIndexedBytes": 140064,
+      "savedBytes": 0,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "selectGeometry",
+      "vertices": 3097,
+      "triangles": 6016,
+      "indexed": true,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 37164
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 37164
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 24776
+        }
+      ],
+      "attributeBytes": 99104,
+      "indexBytes": 36096,
+      "totalBytes": 135200,
+      "groups": 0,
+      "uniqueExactVertices": 3097,
+      "exactIndexedBytes": 135200,
+      "savedBytes": 0,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "selectSeamGeometry",
+      "vertices": 3225,
+      "triangles": 6144,
+      "indexed": true,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 38700
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 38700
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 25800
+        }
+      ],
+      "attributeBytes": 103200,
+      "indexBytes": 36864,
+      "totalBytes": 140064,
+      "groups": 0,
+      "uniqueExactVertices": 3225,
+      "exactIndexedBytes": 140064,
+      "savedBytes": 0,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "outerSeamGeometry",
+      "vertices": 3225,
+      "triangles": 6144,
+      "indexed": true,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 38700
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 38700
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 25800
+        }
+      ],
+      "attributeBytes": 103200,
+      "indexBytes": 36864,
+      "totalBytes": 140064,
+      "groups": 0,
+      "uniqueExactVertices": 3225,
+      "exactIndexedBytes": 140064,
+      "savedBytes": 0,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "glass",
+      "vertices": 52,
+      "triangles": 50,
+      "indexed": true,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 624
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 624
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 416
+        }
+      ],
+      "attributeBytes": 1664,
+      "indexBytes": 300,
+      "totalBytes": 1964,
+      "groups": 0,
+      "uniqueExactVertices": 52,
+      "exactIndexedBytes": 1964,
+      "savedBytes": 0,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "displayMask",
+      "vertices": 666,
+      "triangles": 222,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 7992
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 5328
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 7992
+        }
+      ],
+      "attributeBytes": 21312,
+      "indexBytes": 0,
+      "totalBytes": 21312,
+      "groups": 2,
+      "uniqueExactVertices": 368,
+      "exactIndexedBytes": 13108,
+      "savedBytes": 8204,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "displayWell",
+      "vertices": 1248,
+      "triangles": 416,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 14976
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 9984
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 14976
+        }
+      ],
+      "attributeBytes": 39936,
+      "indexBytes": 0,
+      "totalBytes": 39936,
+      "groups": 2,
+      "uniqueExactVertices": 690,
+      "exactIndexedBytes": 24576,
+      "savedBytes": 15360,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "screen",
+      "vertices": 36,
+      "triangles": 12,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 432
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 288
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 432
+        }
+      ],
+      "attributeBytes": 1152,
+      "indexBytes": 0,
+      "totalBytes": 1152,
+      "groups": 2,
+      "uniqueExactVertices": 30,
+      "exactIndexedBytes": 1032,
+      "savedBytes": 120,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-hold-collar",
+      "vertices": 1200,
+      "triangles": 400,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 14400
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 9600
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 14400
+        }
+      ],
+      "attributeBytes": 38400,
+      "indexBytes": 0,
+      "totalBytes": 38400,
+      "groups": 2,
+      "uniqueExactVertices": 416,
+      "exactIndexedBytes": 15712,
+      "savedBytes": 22688,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-hold-recess",
+      "vertices": 396,
+      "triangles": 132,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 4752
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3168
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 4752
+        }
+      ],
+      "attributeBytes": 12672,
+      "indexBytes": 0,
+      "totalBytes": 12672,
+      "groups": 2,
+      "uniqueExactVertices": 144,
+      "exactIndexedBytes": 5400,
+      "savedBytes": 7272,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-hold-slot-wall",
+      "vertices": 1200,
+      "triangles": 400,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 14400
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 9600
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 14400
+        }
+      ],
+      "attributeBytes": 38400,
+      "indexBytes": 0,
+      "totalBytes": 38400,
+      "groups": 2,
+      "uniqueExactVertices": 416,
+      "exactIndexedBytes": 15712,
+      "savedBytes": 22688,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-hold-indicator",
+      "vertices": 396,
+      "triangles": 132,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 4752
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3168
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 4752
+        }
+      ],
+      "attributeBytes": 12672,
+      "indexBytes": 0,
+      "totalBytes": 12672,
+      "groups": 2,
+      "uniqueExactVertices": 144,
+      "exactIndexedBytes": 5400,
+      "savedBytes": 7272,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-hold-slider",
+      "vertices": 780,
+      "triangles": 260,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 9360
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 6240
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 9360
+        }
+      ],
+      "attributeBytes": 24960,
+      "indexBytes": 0,
+      "totalBytes": 24960,
+      "groups": 2,
+      "uniqueExactVertices": 272,
+      "exactIndexedBytes": 10264,
+      "savedBytes": 14696,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-headphone-rim",
+      "vertices": 2304,
+      "triangles": 768,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 27648
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 18432
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 27648
+        }
+      ],
+      "attributeBytes": 73728,
+      "indexBytes": 0,
+      "totalBytes": 73728,
+      "groups": 2,
+      "uniqueExactVertices": 776,
+      "exactIndexedBytes": 29440,
+      "savedBytes": 44288,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-headphone-barrel",
+      "vertices": 2304,
+      "triangles": 768,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 27648
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 18432
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 27648
+        }
+      ],
+      "attributeBytes": 73728,
+      "indexBytes": 0,
+      "totalBytes": 73728,
+      "groups": 2,
+      "uniqueExactVertices": 776,
+      "exactIndexedBytes": 29440,
+      "savedBytes": 44288,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-headphone-well",
+      "vertices": 1524,
+      "triangles": 508,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 18288
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 12192
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 18288
+        }
+      ],
+      "attributeBytes": 48768,
+      "indexBytes": 0,
+      "totalBytes": 48768,
+      "groups": 2,
+      "uniqueExactVertices": 516,
+      "exactIndexedBytes": 19560,
+      "savedBytes": 29208,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-headphone-contact-0",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-headphone-contact-1",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-headphone-contact-2",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-collar",
+      "vertices": 1248,
+      "triangles": 416,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 14976
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 9984
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 14976
+        }
+      ],
+      "attributeBytes": 39936,
+      "indexBytes": 0,
+      "totalBytes": 39936,
+      "groups": 2,
+      "uniqueExactVertices": 438,
+      "exactIndexedBytes": 16512,
+      "savedBytes": 23424,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-reveal",
+      "vertices": 1248,
+      "triangles": 416,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 14976
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 9984
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 14976
+        }
+      ],
+      "attributeBytes": 39936,
+      "indexBytes": 0,
+      "totalBytes": 39936,
+      "groups": 2,
+      "uniqueExactVertices": 446,
+      "exactIndexedBytes": 16768,
+      "savedBytes": 23168,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-well",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-tongue",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-1",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-2",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-3",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-4",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-5",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-6",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-7",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-8",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-9",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-10",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-11",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-12",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-13",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-14",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-15",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-16",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-17",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-18",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-19",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-20",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-21",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-22",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-23",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-24",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-25",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-26",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-27",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-28",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-29",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-contact-30",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-key--1",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    },
+    {
+      "name": "device-dock-key-1",
+      "vertices": 420,
+      "triangles": 140,
+      "indexed": false,
+      "attributes": [
+        {
+          "name": "position",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        },
+        {
+          "name": "uv",
+          "itemSize": 2,
+          "type": "Float32Array",
+          "bytes": 3360
+        },
+        {
+          "name": "normal",
+          "itemSize": 3,
+          "type": "Float32Array",
+          "bytes": 5040
+        }
+      ],
+      "attributeBytes": 13440,
+      "indexBytes": 0,
+      "totalBytes": 13440,
+      "groups": 2,
+      "uniqueExactVertices": 152,
+      "exactIndexedBytes": 5704,
+      "savedBytes": 7736,
+      "triangleAttributeExpansionBitExact": true
+    }
+  ],
+  "totals": {
+    "uniqueGeometryObjects": 57,
+    "triangles": 226061,
+    "typedBytes": 7354520,
+    "exactIndexedBytes": 6805612,
+    "savedBytes": 548908,
+    "hardwareMeshes": 47,
+    "hardwareMaterials": 6,
+    "deviceVisibleDraws": 58,
+    "deviceSubmittedTriangles": 232205
+  },
+  "hardwareByMaterial": {
+    "metal": [
+      "device-hold-collar",
+      "device-headphone-rim",
+      "device-dock-collar",
+      "device-dock-key--1",
+      "device-dock-key-1"
+    ],
+    "cavity": [
+      "device-hold-recess",
+      "device-headphone-well",
+      "device-dock-well"
+    ],
+    "insulator": [
+      "device-hold-slot-wall",
+      "device-headphone-barrel",
+      "device-dock-reveal"
+    ],
+    "orange": [
+      "device-hold-indicator"
+    ],
+    "slider": [
+      "device-hold-slider",
+      "device-dock-tongue"
+    ],
+    "contact": [
+      "device-headphone-contact-0",
+      "device-headphone-contact-1",
+      "device-headphone-contact-2",
+      "device-dock-contact-1",
+      "device-dock-contact-2",
+      "device-dock-contact-3",
+      "device-dock-contact-4",
+      "device-dock-contact-5",
+      "device-dock-contact-6",
+      "device-dock-contact-7",
+      "device-dock-contact-8",
+      "device-dock-contact-9",
+      "device-dock-contact-10",
+      "device-dock-contact-11",
+      "device-dock-contact-12",
+      "device-dock-contact-13",
+      "device-dock-contact-14",
+      "device-dock-contact-15",
+      "device-dock-contact-16",
+      "device-dock-contact-17",
+      "device-dock-contact-18",
+      "device-dock-contact-19",
+      "device-dock-contact-20",
+      "device-dock-contact-21",
+      "device-dock-contact-22",
+      "device-dock-contact-23",
+      "device-dock-contact-24",
+      "device-dock-contact-25",
+      "device-dock-contact-26",
+      "device-dock-contact-27",
+      "device-dock-contact-28",
+      "device-dock-contact-29",
+      "device-dock-contact-30"
+    ]
+  },
+  "implementation": [
+    {
+      "name": "front",
+      "finalizeMs": 33.96720899999997,
+      "bytes": 5328456,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "rear",
+      "finalizeMs": 8.829917000000023,
+      "bytes": 505828,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "ringGeometry",
+      "finalizeMs": 0.00024999999993724487,
+      "bytes": 140064,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "selectGeometry",
+      "finalizeMs": 0.00012500000002546585,
+      "bytes": 135200,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "selectSeamGeometry",
+      "finalizeMs": 0.00020800000004328467,
+      "bytes": 140064,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "outerSeamGeometry",
+      "finalizeMs": 0.00020899999992707308,
+      "bytes": 140064,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "glass",
+      "finalizeMs": 0.00020900000004075991,
+      "bytes": 1964,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "displayMask",
+      "finalizeMs": 0.00012500000002546585,
+      "bytes": 21312,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "displayWell",
+      "finalizeMs": 0,
+      "bytes": 39936,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "screen",
+      "finalizeMs": 0.00020800000004328467,
+      "bytes": 1152,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-hold-collar",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 38400,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-hold-recess",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 12672,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-hold-slot-wall",
+      "finalizeMs": 0.000041999999893960194,
+      "bytes": 38400,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-hold-indicator",
+      "finalizeMs": 0,
+      "bytes": 12672,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-hold-slider",
+      "finalizeMs": 0.00004100000001017179,
+      "bytes": 24960,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-headphone-rim",
+      "finalizeMs": 0.00004100000001017179,
+      "bytes": 73728,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-headphone-barrel",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 73728,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-headphone-well",
+      "finalizeMs": 0.00008300000001781882,
+      "bytes": 48768,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-headphone-contact-0",
+      "finalizeMs": 0.0003329999999550637,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-headphone-contact-1",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-headphone-contact-2",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-collar",
+      "finalizeMs": 0.000041999999893960194,
+      "bytes": 39936,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-reveal",
+      "finalizeMs": 0.00004100000001017179,
+      "bytes": 39936,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-well",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-tongue",
+      "finalizeMs": 0.00004100000001017179,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-1",
+      "finalizeMs": 0.00016700000003311288,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-2",
+      "finalizeMs": 0.000041999999893960194,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-3",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-4",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-5",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-6",
+      "finalizeMs": 0.00004100000001017179,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-7",
+      "finalizeMs": 0.000041999999893960194,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-8",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-9",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-10",
+      "finalizeMs": 0,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-11",
+      "finalizeMs": 0,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-12",
+      "finalizeMs": 0.00020900000004075991,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-13",
+      "finalizeMs": 0.00008300000001781882,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-14",
+      "finalizeMs": 0.00008300000001781882,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-15",
+      "finalizeMs": 0.00016699999991942605,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-16",
+      "finalizeMs": 0.00008400000001529406,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-17",
+      "finalizeMs": 0.00004100000001017179,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-18",
+      "finalizeMs": 0.00012500000002546585,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-19",
+      "finalizeMs": 0.00004100000001017179,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-20",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-21",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-22",
+      "finalizeMs": 0.00004100000001017179,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-23",
+      "finalizeMs": 0.00012500000002546585,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-24",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-25",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-26",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-27",
+      "finalizeMs": 0.00004100000001017179,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-28",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-29",
+      "finalizeMs": 0.00008300000001781882,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-contact-30",
+      "finalizeMs": 0.00004100000001017179,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-key--1",
+      "finalizeMs": 0.00008300000001781882,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    },
+    {
+      "name": "device-dock-key-1",
+      "finalizeMs": 0.00004200000000764703,
+      "bytes": 13440,
+      "expandedAttributeBytesExact": true,
+      "groupsAndBoundsExact": true
+    }
+  ],
+  "production": {
+    "baselineBytes": 21939808,
+    "finalBytes": 7354520,
+    "savedBytes": 14585288,
+    "note": "Only front/rear finalized in production worker; all-geometry theoretical maximum remains measurements.json"
+  }
+}

@@ -1,0 +1,9 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/scripts/start-unconfigured.test.ts:
+(pass) production serves the page without storage and fails sticker requests safely [230.87ms]
+
+ 1 pass
+ 0 fail
+ 3 expect() calls
+Ran 1 test across 1 file. [245.00ms]

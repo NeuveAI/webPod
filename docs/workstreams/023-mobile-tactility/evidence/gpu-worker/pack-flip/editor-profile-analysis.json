@@ -1,0 +1,579 @@
+{
+  "traceFile": "/Users/vinicius/Downloads/Trace-20260912T000938.json.gz",
+  "gzipSha256": "bbf3e90f3fd8fa4bd814494f4c2f04da45774c563b2a3bbcd4c213884a342b13",
+  "metadata": {
+    "source": "DevTools",
+    "startTime": "2026-09-11T22:09:38.161Z",
+    "emulatedDeviceTitle": "iPhone 16 Pro Max",
+    "cpuThrottling": 6,
+    "dataOrigin": "TraceEvents",
+    "hostDPR": 2,
+    "modifications": {
+      "entriesModifications": {
+        "hiddenEntries": [],
+        "expandableEntries": []
+      },
+      "initialBreadcrumb": {
+        "window": {
+          "min": 276489075006,
+          "max": 276500938960,
+          "range": 11863954
+        },
+        "child": null
+      },
+      "annotations": {
+        "entryLabels": [],
+        "labelledTimeRanges": [],
+        "linksBetweenEntries": []
+      }
+    }
+  },
+  "mainPid": 62025,
+  "mainTid": 4853675,
+  "profileIds": {
+    "0x1": 276489082663
+  },
+  "profileChunkTids": [
+    4867514
+  ],
+  "sampleCount": 88181,
+  "nodeCount": 2187,
+  "negativeDeltaCount": 2728,
+  "negativeDeltaSumUs": -174157,
+  "initialUnsampledGapUs": 391980,
+  "sampledIntervalMs": 11433.615,
+  "topSelf": [
+    {
+      "function": "(program)",
+      "url": "",
+      "transformedLine": 0,
+      "ms": 2186.205
+    },
+    {
+      "function": "fromArray",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 4879,
+      "ms": 2011.918
+    },
+    {
+      "function": "castSegment",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+      "transformedLine": 129,
+      "ms": 1498.485
+    },
+    {
+      "function": "(idle)",
+      "url": "",
+      "transformedLine": 0,
+      "ms": 1292.636
+    },
+    {
+      "function": "run",
+      "url": "",
+      "transformedLine": 0,
+      "ms": 746.906
+    },
+    {
+      "function": "intersectBox",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 16669,
+      "ms": 363.946
+    },
+    {
+      "function": "subVectors",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 4253,
+      "ms": 329.107
+    },
+    {
+      "function": "createTask",
+      "url": "",
+      "transformedLine": 0,
+      "ms": 293.458
+    },
+    {
+      "function": "crossVectors",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 4658,
+      "ms": 243.627
+    },
+    {
+      "function": "(garbage collector)",
+      "url": "",
+      "transformedLine": 0,
+      "ms": 232.8
+    },
+    {
+      "function": "intersectTriangle",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 16723,
+      "ms": 228.759
+    },
+    {
+      "function": "getX",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 12879,
+      "ms": 196.49
+    },
+    {
+      "function": "dot",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 4562,
+      "ms": 169.445
+    },
+    {
+      "function": "sample",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-transform-projection.ts",
+      "transformedLine": 30,
+      "ms": 125.905
+    },
+    {
+      "function": "getY",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 12902,
+      "ms": 95.139
+    },
+    {
+      "function": "getNormal",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 11783,
+      "ms": 95.05
+    },
+    {
+      "function": "nodeBox",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+      "transformedLine": 36,
+      "ms": 85.433
+    },
+    {
+      "function": "addScaledVector",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 4216,
+      "ms": 79.916
+    },
+    {
+      "function": "setValueForStyle",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 1557,
+      "ms": 72.628
+    },
+    {
+      "function": "postMessage",
+      "url": "",
+      "transformedLine": 0,
+      "ms": 68.043
+    },
+    {
+      "function": "project",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-contour.ts",
+      "transformedLine": 286,
+      "ms": 64.953
+    },
+    {
+      "function": "applyMatrix4",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 4346,
+      "ms": 59.246
+    },
+    {
+      "function": "measure",
+      "url": "",
+      "transformedLine": 0,
+      "ms": 58.25
+    },
+    {
+      "function": "distanceToSquared",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 4727,
+      "ms": 57.384
+    },
+    {
+      "function": "getNormal",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 11575,
+      "ms": 55.643
+    }
+  ],
+  "topInclusive": [
+    {
+      "function": "(root)",
+      "url": "",
+      "transformedLine": 0,
+      "ms": 11433.615
+    },
+    {
+      "function": "performWorkUntilDeadline",
+      "url": "http://localhost:3000/node_modules/.vite/deps/scheduler-TNt0Kg51.js",
+      "transformedLine": 14,
+      "ms": 7428.267
+    },
+    {
+      "function": "run",
+      "url": "",
+      "transformedLine": 0,
+      "ms": 7400.791
+    },
+    {
+      "function": "performWorkOnRootViaSchedulerTask",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 8802,
+      "ms": 7351.008
+    },
+    {
+      "function": "performWorkOnRoot",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 7693,
+      "ms": 7273.25
+    },
+    {
+      "function": "runWithFiberInDEV",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 600,
+      "ms": 7229.282
+    },
+    {
+      "function": "renderRootSync",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 8021,
+      "ms": 6827.042
+    },
+    {
+      "function": "workLoopSync",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 8077,
+      "ms": 6802.329
+    },
+    {
+      "function": "performUnitOfWork",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 8180,
+      "ms": 6802.328
+    },
+    {
+      "function": "beginWork",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 5834,
+      "ms": 6345.349
+    },
+    {
+      "function": "updateFunctionComponent",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 5314,
+      "ms": 6343.629
+    },
+    {
+      "function": "renderWithHooks",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 3954,
+      "ms": 6342.664
+    },
+    {
+      "function": "react_stack_bottom_frame",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 12615,
+      "ms": 6342.372
+    },
+    {
+      "function": "StickerAppearanceEditor",
+      "url": "http://localhost:3000/src/sticker-editor.tsx",
+      "transformedLine": 101,
+      "ms": 5646.226
+    },
+    {
+      "function": "useMemo",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 13021,
+      "ms": 5639.785
+    },
+    {
+      "function": "exports.useMemo",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react.js",
+      "transformedLine": 735,
+      "ms": 5639.766
+    },
+    {
+      "function": "(anonymous)",
+      "url": "http://localhost:3000/src/sticker-editor.tsx",
+      "transformedLine": 340,
+      "ms": 5639.543
+    },
+    {
+      "function": "updateMemo",
+      "url": "http://localhost:3000/node_modules/.vite/deps/react-dom_client.js",
+      "transformedLine": 4696,
+      "ms": 5639.525
+    },
+    {
+      "function": "contour",
+      "url": "http://localhost:3000/src/production-device-view.tsx",
+      "transformedLine": 61,
+      "ms": 5638.508
+    },
+    {
+      "function": "contour",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-projection.ts",
+      "transformedLine": 176,
+      "ms": 5638.401
+    },
+    {
+      "function": "projectedStickerContour",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-contour.ts",
+      "transformedLine": 93,
+      "ms": 5626.257
+    },
+    {
+      "function": "projectStickerContourField",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-contour.ts",
+      "transformedLine": 103,
+      "ms": 5624.927
+    },
+    {
+      "function": "projectContourUncached",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-contour.ts",
+      "transformedLine": 143,
+      "ms": 5620.478
+    },
+    {
+      "function": "projectPreparedContour",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-contour.ts",
+      "transformedLine": 284,
+      "ms": 5484.616
+    },
+    {
+      "function": "project",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-contour.ts",
+      "transformedLine": 286,
+      "ms": 5472.629
+    },
+    {
+      "function": "(anonymous)",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-visibility.ts",
+      "transformedLine": 12,
+      "ms": 5368.442
+    },
+    {
+      "function": "visible",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-visibility.ts",
+      "transformedLine": 186,
+      "ms": 5347.324
+    },
+    {
+      "function": "castSegment",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+      "transformedLine": 129,
+      "ms": 5284.471
+    },
+    {
+      "function": "(program)",
+      "url": "",
+      "transformedLine": 0,
+      "ms": 2186.205
+    },
+    {
+      "function": "fromArray",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 4879,
+      "ms": 2011.918
+    },
+    {
+      "function": "(idle)",
+      "url": "",
+      "transformedLine": 0,
+      "ms": 1292.636
+    },
+    {
+      "function": "read",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+      "transformedLine": 46,
+      "ms": 1209.325
+    },
+    {
+      "function": "nodeBox",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+      "transformedLine": 36,
+      "ms": 931.427
+    },
+    {
+      "function": "intersectTriangle",
+      "url": "http://localhost:3000/node_modules/.vite/deps/three.core-Cc_5yv7c.js",
+      "transformedLine": 16723,
+      "ms": 716.504
+    },
+    {
+      "function": "StickerCollection",
+      "url": "http://localhost:3000/src/sticker-collection.tsx",
+      "transformedLine": 76,
+      "ms": 571.174
+    }
+  ],
+  "queryInclusive": [
+    {
+      "function": "StickerAppearanceEditor",
+      "url": "http://localhost:3000/src/sticker-editor.tsx",
+      "transformedLine": 101,
+      "ms": 5646.226
+    },
+    {
+      "function": "contour",
+      "url": "http://localhost:3000/src/production-device-view.tsx",
+      "transformedLine": 61,
+      "ms": 5638.508
+    },
+    {
+      "function": "contour",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-projection.ts",
+      "transformedLine": 176,
+      "ms": 5638.401
+    },
+    {
+      "function": "projectPreparedContour",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-contour.ts",
+      "transformedLine": 284,
+      "ms": 5484.616
+    },
+    {
+      "function": "visible",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-visibility.ts",
+      "transformedLine": 186,
+      "ms": 5347.324
+    },
+    {
+      "function": "castSegment",
+      "url": "http://localhost:3000/@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+      "transformedLine": 129,
+      "ms": 5284.471
+    }
+  ],
+  "editorSelfMs": 2.698,
+  "editorMeasures": {
+    "count": 125,
+    "sumMs": 5980.297,
+    "largest": [
+      {
+        "startUs": 276498554481,
+        "durationMs": 374.6,
+        "sampledEditorInclusiveMs": 364.608,
+        "changedProps": [
+          [
+            "Changed Props",
+            ""
+          ],
+          [
+            "\u2007\u00a0returnToPack",
+            "returnPlaced() {} Referentially unequal function closure. Consider memoization."
+          ]
+        ]
+      },
+      {
+        "startUs": 276499342581,
+        "durationMs": 372.7,
+        "sampledEditorInclusiveMs": 360.73,
+        "changedProps": [
+          [
+            "Changed Props",
+            ""
+          ],
+          [
+            "\u2007\u00a0returnToPack",
+            "returnPlaced() {} Referentially unequal function closure. Consider memoization."
+          ]
+        ]
+      },
+      {
+        "startUs": 276498949781,
+        "durationMs": 370.2,
+        "sampledEditorInclusiveMs": 352.035,
+        "changedProps": [
+          [
+            "Changed Props",
+            ""
+          ],
+          [
+            "\u2007\u00a0returnToPack",
+            "returnPlaced() {} Referentially unequal function closure. Consider memoization."
+          ]
+        ]
+      },
+      {
+        "startUs": 276495830881,
+        "durationMs": 361.9,
+        "sampledEditorInclusiveMs": 343.656,
+        "changedProps": [
+          [
+            "Changed Props",
+            ""
+          ],
+          [
+            "\u2007\u00a0returnToPack",
+            "returnPlaced() {} Referentially unequal function closure. Consider memoization."
+          ]
+        ]
+      },
+      {
+        "startUs": 276492828281,
+        "durationMs": 356.1,
+        "sampledEditorInclusiveMs": 333.25,
+        "changedProps": [
+          [
+            "Changed Props",
+            ""
+          ],
+          [
+            "\u2007\u00a0returnToPack",
+            "returnPlaced() {} Referentially unequal function closure. Consider memoization."
+          ]
+        ]
+      },
+      {
+        "startUs": 276495461881,
+        "durationMs": 353.6,
+        "sampledEditorInclusiveMs": 340.337,
+        "changedProps": [
+          [
+            "Changed Props",
+            ""
+          ],
+          [
+            "\u2007\u00a0returnToPack",
+            "returnPlaced() {} Referentially unequal function closure. Consider memoization."
+          ]
+        ]
+      },
+      {
+        "startUs": 276493213481,
+        "durationMs": 340.9,
+        "sampledEditorInclusiveMs": 320.757,
+        "changedProps": [
+          [
+            "Changed Props",
+            ""
+          ],
+          [
+            "\u2007\u00a0returnToPack",
+            "returnPlaced() {} Referentially unequal function closure. Consider memoization."
+          ]
+        ]
+      },
+      {
+        "startUs": 276495125981,
+        "durationMs": 303.5,
+        "sampledEditorInclusiveMs": 290.29,
+        "changedProps": [
+          [
+            "Changed Props",
+            ""
+          ],
+          [
+            "\u2007\u00a0returnToPack",
+            "returnPlaced() {} Referentially unequal function closure. Consider memoization."
+          ]
+        ]
+      }
+    ]
+  },
+  "editorTimeStamps": {
+    "count": 18,
+    "maxMs": 0.801
+  },
+  "limits": "Sampled inclusive estimates overlap ancestors; never sum them. Export does not capture editor shown/presence atom values. DEV profiler/CPU6x costs do not establish production timing."
+}

@@ -1,3 +1,4 @@
+import { setStickerContourProjection, refreshStickerContour } from './sticker-contour-query-model'
 import { musicManager, manageMusic } from '@webpod/music-management/playback'
 import { stickerPackTuckAtom } from './sticker-pack-tuck'
 import { deviceRevealActiveAtom } from './device-reveal-state'
@@ -20,13 +21,13 @@ import { StickerCollection } from './sticker-collection'
 import { stickerSourceAnchorAtom, stickerSourcePullAtom } from './sticker-carry-anchor'
 import { adaptStickerGrab } from './sticker-grab'
 import { openStickerPack, placeSticker, removeSticker, retryStickerCollection } from './sticker-runtime'
-import { stickerFinishCalibrationAtom, reportStickerArtworkFailure, reportStickerArtworkReady } from './sticker-interaction'
+import { stickerComputationEpochAtom, stickerFinishCalibrationAtom, reportStickerArtworkFailure, reportStickerArtworkReady } from './sticker-interaction'
 import { createStickerProjectionNotifications } from './sticker-projection-notifications'
 
 let stickerProjection: StickerRearProjection | null = null
-const projectionNotifications = createStickerProjectionNotifications(() => deviceStore.set(stickerProjectionVersionAtom, version => version + 1))
+const projectionNotifications = createStickerProjectionNotifications(() => { refreshStickerContour(); deviceStore.set(stickerProjectionVersionAtom, version => version + 1) })
 const onStickerSurfaceReady = (): void => { projectionNotifications.notify() }
-const onStickerProjectionReady = (handle: StickerRearProjection | null): void => { stickerProjection = handle; projectionNotifications.notify() }
+const onStickerProjectionReady = (handle: StickerRearProjection | null): void => { stickerProjection = handle; setStickerContourProjection(handle); projectionNotifications.notify() }
 import.meta.hot?.dispose(() => projectionNotifications.cancel())
 const onStickerPrepared = (ids: readonly string[]): void => {
   for (const id of ids) reportStickerArtworkReady(id)
@@ -38,7 +39,7 @@ const fitStickerPlacement = (placement: import('@webpod/stickers').StickerPlacem
   const fitted = stickerProjection?.fit?.(placement)
   return isStickerPlacement(fitted) ? fitted : placement
 }
-const stickerCommands = { resolveDrop: (placement: import('@webpod/stickers').StickerPlacement, x: number, y: number) => { const result = stickerProjection?.resolveDrop?.(placement, x, y); return isStickerPlacement(result) ? result : placement }, fit: fitStickerPlacement, retry: retryStickerCollection, openPack: openStickerPack, place: (placement: import('@webpod/stickers').StickerPlacement, expectedSource?: import('@webpod/stickers').StickerPlacement) => placeSticker(fitStickerPlacement(placement), expectedSource), remove: removeSticker, project: (clientX: number, clientY: number) => stickerProjection?.project(clientX, clientY) ?? null, grab: (x: number, y: number) => adaptStickerGrab(stickerProjection?.grab?.(x, y)), hit: (x: number, y: number) => { const hit = stickerProjection?.hit(x, y); return isStickerPlacement(hit) ? hit : null }, contour: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.contour?.(placement) ?? null, quad: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.quad?.(placement) ?? null, beginTransform: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.beginTransform?.(placement) ?? null, bounds: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.bounds?.(placement) ?? null, screen: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.screen(placement) ?? null }
+const stickerCommands = { resolveDrop: async (placement: import('@webpod/stickers').StickerPlacement, x: number, y: number, signal?: AbortSignal) => { const result = await stickerProjection?.resolveDrop?.(placement, x, y, signal); signal?.throwIfAborted(); return isStickerPlacement(result) ? result : placement }, fit: fitStickerPlacement, retry: retryStickerCollection, openPack: openStickerPack, place: (placement: import('@webpod/stickers').StickerPlacement, expectedSource?: import('@webpod/stickers').StickerPlacement) => placeSticker(fitStickerPlacement(placement), expectedSource), remove: removeSticker, project: (clientX: number, clientY: number) => stickerProjection?.project(clientX, clientY) ?? null, grab: (x: number, y: number) => adaptStickerGrab(stickerProjection?.grab?.(x, y)), hit: (x: number, y: number) => { const hit = stickerProjection?.hit(x, y); return isStickerPlacement(hit) ? hit : null }, contour: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.contour?.(placement) ?? null, quad: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.quad?.(placement) ?? null, beginTransform: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.beginTransform?.(placement) ?? null, bounds: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.bounds?.(placement) ?? null, screen: (placement: import('@webpod/stickers').StickerPlacement) => stickerProjection?.screen(placement) ?? null }
 
 export type ProductionPanelState = PanelState
 
@@ -55,10 +56,14 @@ interface ProductionPanelViewProps {
 }
 
 export interface ProductionDeviceViewProps extends ProductionPanelViewProps {
+  readonly rendererBackend?: 'webgl' | 'worker'
+  readonly motionAuthority?: import('@webpod/device').DeviceMotionAuthority
   readonly className?: string
   readonly cameraFov?: number
   readonly cameraDistance?: number
+  readonly cameraMobileFraming?: boolean
   readonly cameraSafePadding?: number
+  readonly projectionDiagnostics?: boolean
   readonly orientation?: DeviceOrientation
   readonly onOrientationGrabStart?: (start: DeviceOrientationGrabStart) => boolean
   readonly onOrientationGrabHoverChange?: (grabbable: boolean) => void
@@ -107,14 +112,18 @@ export const ProductionPanelView = memo(function ProductionPanelView({
 
 /** Renders the production panel through the production composite device. */
 export function ProductionDeviceView({
+  rendererBackend,
+  motionAuthority,
   colourway,
   state = 'ready',
   dynamicTypeScale = 1,
   className,
   cameraFov,
   cameraDistance,
+  cameraMobileFraming,
   cameraSafePadding,
   orientation,
+  projectionDiagnostics,
   onOrientationGrabStart,
   onOrientationGrabHoverChange,
   interactionAudioEnabled,
@@ -125,6 +134,7 @@ export function ProductionDeviceView({
   const preparationIds = useAtomValue(stickerPreparationIdsAtom, { store: deviceStore })
   const collectionUsable = useAtomValue(stickerCollectionUsableAtom, { store: deviceStore })
   const stickerInteraction = useAtomValue(stickerInteractionAtom, { store: deviceStore })
+  const computationEpoch = useAtomValue(stickerComputationEpochAtom, { store: deviceStore })
   const collection = useAtomValue(activeStickerCollectionAtom, { store: deviceStore })
   const collections = useAtomValue(stickerCollectionsAtom, { store: deviceStore })
   const sheetReveal = useAtomValue(stickerSheetRevealAtom, { store: deviceStore })
@@ -156,19 +166,23 @@ export function ProductionDeviceView({
   return (
     <>
     <CompositeDevice
+      rendererBackend={rendererBackend}
+      motionAuthority={motionAuthority}
       className={className}
       colourway={colourway}
       panelTone={colourway === 'white' ? 'light' : 'dark'}
       cameraFov={cameraFov}
       cameraDistance={cameraDistance}
+      cameraMobileFraming={cameraMobileFraming}
       cameraSafePadding={cameraSafePadding}
+      projectionDiagnostics={projectionDiagnostics}
       orientation={orientation}
       onOrientationGrabStart={onOrientationGrabStart}
       onOrientationGrabHoverChange={onOrientationGrabHoverChange}
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
       onTransportPress={onTransportPress}
-      stickerScene={{ assets: STICKER_CATALOGUE, preparedSheet: collectionUsable ? preparedSheet : undefined, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, appearances: inventory?.appearances, pack: deviceRevealing || (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { presence: packPresence, workspaceVisible: collectionUsable, tuck: packTuck, progress: stickerInteraction.progress, peel: stickerInteraction.peel, sourcePeelFront: stickerInteraction.sourcePeelFront, detachTransport: stickerInteraction.detachTransport, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, sourceAnchor: sourceAnchor ?? undefined, sourcePull: sourcePull ?? undefined, dragOffset, workspaceLowering, turn: packTurn, sheet: preparedSheet }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onSurfaceReady: onStickerSurfaceReady, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
+      stickerScene={{ assets: STICKER_CATALOGUE, preparedSheet: collectionUsable ? preparedSheet : undefined, prepareIds: preparationIds, onPrepared: onStickerPrepared, placements: stickerPlacements, appearances: inventory?.appearances, pack: deviceRevealing || (!collectionUsable && stickerInteraction.sourcePlacement == null) || stickerInteraction.stage === 'hidden' ? null : { presence: packPresence, workspaceVisible: collectionUsable, tuck: packTuck, progress: stickerInteraction.progress, peel: stickerInteraction.peel, computationEpoch, sourcePeelFront: stickerInteraction.sourcePeelFront, detachTransport: stickerInteraction.detachTransport, stickerId: stickerInteraction.selectedStickerId, placement: stickerInteraction.previewPlacement, landing: stickerInteraction.landing, sourcePlacement: stickerInteraction.sourcePlacement, returnToSheet: stickerInteraction.returnToSheet, sourceAnchor: sourceAnchor ?? undefined, sourcePull: sourcePull ?? undefined, dragOffset, workspaceLowering, turn: packTurn, sheet: preparedSheet }, finishEnabled: import.meta.env.DEV ? calibratedFinish : true, onSurfaceReady: onStickerSurfaceReady, onProjectionReady: onStickerProjectionReady, onArtworkError: reportStickerArtworkFailure, onArtworkReady: reportStickerArtworkReady }}
       panel={(
         <ProductionPanelView
           colourway={colourway}
@@ -177,7 +191,7 @@ export function ProductionDeviceView({
         />
       )}
     />
-    <StickerCollection orientation={orientation ?? FRONT_DEVICE_ORIENTATION} commands={stickerCommands} />
+    <StickerCollection motionAuthority={motionAuthority} orientation={orientation ?? FRONT_DEVICE_ORIENTATION} commands={stickerCommands} />
     </>
   )
 }

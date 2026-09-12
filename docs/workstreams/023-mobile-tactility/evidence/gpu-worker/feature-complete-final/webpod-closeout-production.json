@@ -1,0 +1,71 @@
+{
+  "device": {
+    "colourway": "black",
+    "pose": "front",
+    "orientation": {
+      "pitchDeg": 0,
+      "yawDeg": 0,
+      "rollDeg": 0
+    },
+    "room": "dark",
+    "visibleFace": "front",
+    "isAnimating": false,
+    "isBeingHeld": false,
+    "stickers": {
+      "inventoryLoaded": true,
+      "pageState": {
+        "status": "unavailable",
+        "interactionReady": false,
+        "pendingSaves": 0,
+        "rearReady": false,
+        "humanBusy": false,
+        "collectionStatus": "ready",
+        "loadedItems": 5,
+        "totalItems": 5,
+        "progressPercent": 100,
+        "startedAtMs": null,
+        "elapsedMs": null,
+        "stage": "hidden",
+        "packOpen": false,
+        "sheetOpen": false,
+        "packClosing": false
+      },
+      "placed": [
+        {
+          "id": "PW-A01",
+          "name": "Night Shift",
+          "placement": {
+            "stickerId": "PW-A01",
+            "surface": "back",
+            "x": 0.2358403058370761,
+            "y": 0.28404935793217645,
+            "width": 0.7204816442896202,
+            "rotationDeg": 0,
+            "wear": 0
+          },
+          "scale": 0.7204816442896202,
+          "wear": 0
+        }
+      ],
+      "held": null,
+      "pendingSaves": 0
+    }
+  },
+  "list": {
+    "title": "Music",
+    "selection": 3
+  },
+  "renderer": "worker",
+  "alerts": [],
+  "media": {
+    "state": 0,
+    "time": 0
+  },
+  "viewport": {
+    "w": 440,
+    "h": 956,
+    "dpr": 3
+  },
+  "reduced": false,
+  "diagnostics": []
+}

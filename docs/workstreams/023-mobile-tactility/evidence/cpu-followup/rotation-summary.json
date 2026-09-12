@@ -1,0 +1,3630 @@
+{
+  "source": "Trace-20260911T000602.json.gz",
+  "metadata": {
+    "device": "iPhone 16 Pro Max",
+    "cpuThrottling": 6,
+    "pid": 74270,
+    "tid": 3381954
+  },
+  "profileDurationMs": 18442.191,
+  "overall": {
+    "sampleCount": 70878,
+    "sampledMs": 17132.883,
+    "topSelf": [
+      {
+        "node": 5,
+        "symbol": "(idle)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 11896.653
+      },
+      {
+        "node": 2,
+        "symbol": "(program)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 2993.056
+      },
+      {
+        "node": 98,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 201.495
+      },
+      {
+        "node": 1554,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 83.467
+      },
+      {
+        "node": 982,
+        "symbol": "WebGLRenderer.setSize",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 51408,
+        "column": 26,
+        "sampledMs": 73.299
+      },
+      {
+        "node": 104,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 53.639
+      },
+      {
+        "node": 2201,
+        "symbol": "texElementImage2D",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 46.299
+      },
+      {
+        "node": 1959,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 40.73
+      },
+      {
+        "node": 265,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 39.575
+      },
+      {
+        "node": 262,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 38.815
+      },
+      {
+        "node": 4,
+        "symbol": "(garbage collector)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 36.25
+      },
+      {
+        "node": 1966,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 31.517
+      },
+      {
+        "node": 1562,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 31.05
+      },
+      {
+        "node": 2177,
+        "symbol": "get clientWidth",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 29.441
+      },
+      {
+        "node": 1586,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 23.929
+      },
+      {
+        "node": 29,
+        "symbol": "(anonymous)",
+        "asset": "evaluate;CdpFrame.title%20(file%3A%2F%2F%2Fprivate%2Fvar%2Ffolders%2Fft%2F7tsjkpcn20q5fx1q8dwv26x80000gn%2FT%2Fbunx-501-chrome-devtools-mcp%40latest%2Fnode_modules%2Fchrome-devtools-mcp%2Fbuild%2Fsrc%2Fthird_party%2Findex.js%3A54163%3A47)",
+        "line": 1,
+        "column": 2,
+        "sampledMs": 23.423
+      },
+      {
+        "node": 3,
+        "symbol": "(anonymous)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 23.341
+      },
+      {
+        "node": 1597,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 22.027
+      },
+      {
+        "node": 133,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 22.003
+      },
+      {
+        "node": 2843,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 21.873
+      },
+      {
+        "node": 1578,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 21.127
+      },
+      {
+        "node": 2889,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 19.815
+      },
+      {
+        "node": 947,
+        "symbol": "run",
+        "asset": "@react-three_fiber.js",
+        "line": 9494,
+        "column": 22,
+        "sampledMs": 19.529
+      },
+      {
+        "node": 49,
+        "symbol": "onKeyDown",
+        "asset": "device-preview-orientation.ts",
+        "line": 317,
+        "column": 20,
+        "sampledMs": 19.366
+      },
+      {
+        "node": 115,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 18.946
+      },
+      {
+        "node": 328,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 18.337
+      },
+      {
+        "node": 1592,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 17.886
+      },
+      {
+        "node": 1582,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 17.614
+      },
+      {
+        "node": 2892,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 16.693
+      },
+      {
+        "node": 141,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 16.375
+      },
+      {
+        "node": 1594,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 15.891
+      },
+      {
+        "node": 643,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 15.634
+      },
+      {
+        "node": 1620,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.756
+      },
+      {
+        "node": 1605,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.542
+      },
+      {
+        "node": 123,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.455
+      },
+      {
+        "node": 130,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.283
+      },
+      {
+        "node": 247,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.222
+      },
+      {
+        "node": 1883,
+        "symbol": "measure",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 12.407
+      },
+      {
+        "node": 1613,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 12.196
+      },
+      {
+        "node": 331,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 11.533
+      },
+      {
+        "node": 190,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 11.108
+      },
+      {
+        "node": 250,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.248
+      },
+      {
+        "node": 423,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.207
+      },
+      {
+        "node": 1630,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.016
+      },
+      {
+        "node": 1633,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.918
+      }
+    ],
+    "topInclusive": [
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 17132.883
+      },
+      {
+        "node": 5,
+        "symbol": "(idle)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 11896.653
+      },
+      {
+        "node": 2,
+        "symbol": "(program)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 2993.056
+      },
+      {
+        "node": 77,
+        "symbol": "processRootScheduleInMicrotask",
+        "asset": "react-dom_client.js",
+        "line": 8748,
+        "column": 42,
+        "sampledMs": 1149.909
+      },
+      {
+        "node": 76,
+        "symbol": "(anonymous)",
+        "asset": "react-dom_client.js",
+        "line": 8830,
+        "column": 30,
+        "sampledMs": 1149.909
+      },
+      {
+        "node": 81,
+        "symbol": "performSyncWorkOnRoot",
+        "asset": "react-dom_client.js",
+        "line": 8816,
+        "column": 33,
+        "sampledMs": 1149.865
+      },
+      {
+        "node": 80,
+        "symbol": "flushSyncWorkAcrossRoots_impl",
+        "asset": "react-dom_client.js",
+        "line": 8721,
+        "column": 41,
+        "sampledMs": 1149.865
+      },
+      {
+        "node": 82,
+        "symbol": "performWorkOnRoot",
+        "asset": "react-dom_client.js",
+        "line": 7693,
+        "column": 29,
+        "sampledMs": 1149.858
+      },
+      {
+        "node": 83,
+        "symbol": "renderRootSync",
+        "asset": "react-dom_client.js",
+        "line": 8021,
+        "column": 26,
+        "sampledMs": 800.269
+      },
+      {
+        "node": 90,
+        "symbol": "workLoopSync",
+        "asset": "react-dom_client.js",
+        "line": 8077,
+        "column": 24,
+        "sampledMs": 784.994
+      },
+      {
+        "node": 91,
+        "symbol": "performUnitOfWork",
+        "asset": "react-dom_client.js",
+        "line": 8180,
+        "column": 29,
+        "sampledMs": 784.56
+      },
+      {
+        "node": 92,
+        "symbol": "runWithFiberInDEV",
+        "asset": "react-dom_client.js",
+        "line": 600,
+        "column": 29,
+        "sampledMs": 730.779
+      },
+      {
+        "node": 98,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 727.675
+      },
+      {
+        "node": 1544,
+        "symbol": "Ap",
+        "asset": "@react-three_fiber.js",
+        "line": 2775,
+        "column": 15,
+        "sampledMs": 583.595
+      },
+      {
+        "node": 1543,
+        "symbol": "Wa",
+        "asset": "@react-three_fiber.js",
+        "line": 2709,
+        "column": 15,
+        "sampledMs": 583.595
+      },
+      {
+        "node": 1542,
+        "symbol": "Di",
+        "asset": "@react-three_fiber.js",
+        "line": 2732,
+        "column": 15,
+        "sampledMs": 583.595
+      },
+      {
+        "node": 1541,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 2785,
+        "column": 25,
+        "sampledMs": 583.595
+      },
+      {
+        "node": 1545,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15,
+        "sampledMs": 577.142
+      },
+      {
+        "node": 99,
+        "symbol": "beginWork",
+        "asset": "react-dom_client.js",
+        "line": 5834,
+        "column": 21,
+        "sampledMs": 526.114
+      },
+      {
+        "node": 1546,
+        "symbol": "Ff",
+        "asset": "@react-three_fiber.js",
+        "line": 6526,
+        "column": 15,
+        "sampledMs": 477.868
+      },
+      {
+        "node": 1552,
+        "symbol": "Ph",
+        "asset": "@react-three_fiber.js",
+        "line": 6648,
+        "column": 15,
+        "sampledMs": 471.842
+      },
+      {
+        "node": 1551,
+        "symbol": "wh",
+        "asset": "@react-three_fiber.js",
+        "line": 6568,
+        "column": 15,
+        "sampledMs": 471.842
+      },
+      {
+        "node": 1553,
+        "symbol": "B",
+        "asset": "@react-three_fiber.js",
+        "line": 2379,
+        "column": 14,
+        "sampledMs": 440.73
+      },
+      {
+        "node": 1554,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 440.687
+      },
+      {
+        "node": 108,
+        "symbol": "updateFunctionComponent",
+        "asset": "react-dom_client.js",
+        "line": 5314,
+        "column": 35,
+        "sampledMs": 389.893
+      },
+      {
+        "node": 109,
+        "symbol": "renderWithHooks",
+        "asset": "react-dom_client.js",
+        "line": 3954,
+        "column": 27,
+        "sampledMs": 387.234
+      },
+      {
+        "node": 1555,
+        "symbol": "tt",
+        "asset": "@react-three_fiber.js",
+        "line": 4840,
+        "column": 15,
+        "sampledMs": 357.22
+      },
+      {
+        "node": 527,
+        "symbol": "commitRoot",
+        "asset": "react-dom_client.js",
+        "line": 8285,
+        "column": 22,
+        "sampledMs": 349.589
+      },
+      {
+        "node": 526,
+        "symbol": "commitRootWhenReady",
+        "asset": "react-dom_client.js",
+        "line": 7812,
+        "column": 31,
+        "sampledMs": 349.589
+      },
+      {
+        "node": 1563,
+        "symbol": "ks",
+        "asset": "@react-three_fiber.js",
+        "line": 4550,
+        "column": 15,
+        "sampledMs": 319.964
+      },
+      {
+        "node": 1564,
+        "symbol": "It",
+        "asset": "@react-three_fiber.js",
+        "line": 3530,
+        "column": 15,
+        "sampledMs": 319.906
+      },
+      {
+        "node": 110,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "react-dom_client.js",
+        "line": 12615,
+        "column": 59,
+        "sampledMs": 215.556
+      },
+      {
+        "node": 1565,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "@react-three_fiber.js",
+        "line": 7406,
+        "column": 49,
+        "sampledMs": 177.857
+      },
+      {
+        "node": 2121,
+        "symbol": "loop",
+        "asset": "@react-three_fiber.js",
+        "line": 9240,
+        "column": 14,
+        "sampledMs": 171.867
+      },
+      {
+        "node": 117,
+        "symbol": "renderWithHooksAgain",
+        "asset": "react-dom_client.js",
+        "line": 4001,
+        "column": 32,
+        "sampledMs": 171.678
+      },
+      {
+        "node": 118,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "react-dom_client.js",
+        "line": 12615,
+        "column": 59,
+        "sampledMs": 171.659
+      },
+      {
+        "node": 2207,
+        "symbol": "performWorkUntilDeadline",
+        "asset": "scheduler-TNt0Kg51.js",
+        "line": 14,
+        "column": 36,
+        "sampledMs": 168.708
+      },
+      {
+        "node": 2834,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15,
+        "sampledMs": 163.039
+      },
+      {
+        "node": 2833,
+        "symbol": "Tu",
+        "asset": "@react-three_fiber.js",
+        "line": 2768,
+        "column": 15,
+        "sampledMs": 163.039
+      },
+      {
+        "node": 2123,
+        "symbol": "update",
+        "asset": "@react-three_fiber.js",
+        "line": 9219,
+        "column": 16,
+        "sampledMs": 162.969
+      },
+      {
+        "node": 2124,
+        "symbol": "WebGLRenderer.render",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 51938,
+        "column": 25,
+        "sampledMs": 160.708
+      },
+      {
+        "node": 2835,
+        "symbol": "Ff",
+        "asset": "@react-three_fiber.js",
+        "line": 6526,
+        "column": 15,
+        "sampledMs": 148.471
+      },
+      {
+        "node": 2841,
+        "symbol": "Ph",
+        "asset": "@react-three_fiber.js",
+        "line": 6648,
+        "column": 15,
+        "sampledMs": 145.807
+      },
+      {
+        "node": 2840,
+        "symbol": "wh",
+        "asset": "@react-three_fiber.js",
+        "line": 6568,
+        "column": 15,
+        "sampledMs": 145.807
+      },
+      {
+        "node": 1588,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "@react-three_fiber.js",
+        "line": 7406,
+        "column": 49,
+        "sampledMs": 142
+      }
+    ]
+  },
+  "interactionWindow": {
+    "startMs": 8914.854,
+    "endMs": 11933.306,
+    "definition": "first keydown through last keyup plus 1000 ms settlement",
+    "sampleCount": 42708,
+    "sampledMs": 3018.452,
+    "topSelf": [
+      {
+        "node": 5,
+        "symbol": "(idle)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 490.688
+      },
+      {
+        "node": 2,
+        "symbol": "(program)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 356.956
+      },
+      {
+        "node": 98,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 201.495
+      },
+      {
+        "node": 1554,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 83.467
+      },
+      {
+        "node": 982,
+        "symbol": "WebGLRenderer.setSize",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 51408,
+        "column": 26,
+        "sampledMs": 73.299
+      },
+      {
+        "node": 104,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 53.639
+      },
+      {
+        "node": 2201,
+        "symbol": "texElementImage2D",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 46.299
+      },
+      {
+        "node": 1959,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 40.73
+      },
+      {
+        "node": 265,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 39.575
+      },
+      {
+        "node": 262,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 38.815
+      },
+      {
+        "node": 4,
+        "symbol": "(garbage collector)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 34.843
+      },
+      {
+        "node": 1966,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 31.517
+      },
+      {
+        "node": 1562,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 31.05
+      },
+      {
+        "node": 2177,
+        "symbol": "get clientWidth",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 29.441
+      },
+      {
+        "node": 1586,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 23.929
+      },
+      {
+        "node": 1597,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 22.027
+      },
+      {
+        "node": 133,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 22.003
+      },
+      {
+        "node": 2843,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 21.873
+      },
+      {
+        "node": 1578,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 21.127
+      },
+      {
+        "node": 2889,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 19.815
+      },
+      {
+        "node": 947,
+        "symbol": "run",
+        "asset": "@react-three_fiber.js",
+        "line": 9494,
+        "column": 22,
+        "sampledMs": 19.529
+      },
+      {
+        "node": 49,
+        "symbol": "onKeyDown",
+        "asset": "device-preview-orientation.ts",
+        "line": 317,
+        "column": 20,
+        "sampledMs": 19.366
+      },
+      {
+        "node": 115,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 18.946
+      },
+      {
+        "node": 328,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 18.337
+      },
+      {
+        "node": 1592,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 17.886
+      },
+      {
+        "node": 1582,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 17.614
+      },
+      {
+        "node": 2892,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 16.693
+      },
+      {
+        "node": 141,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 16.375
+      },
+      {
+        "node": 1594,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 15.891
+      },
+      {
+        "node": 643,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 15.634
+      },
+      {
+        "node": 1620,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.756
+      },
+      {
+        "node": 1605,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.542
+      },
+      {
+        "node": 123,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.455
+      },
+      {
+        "node": 130,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.283
+      },
+      {
+        "node": 247,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.222
+      },
+      {
+        "node": 1883,
+        "symbol": "measure",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 12.407
+      },
+      {
+        "node": 1613,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 12.196
+      },
+      {
+        "node": 331,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 11.533
+      },
+      {
+        "node": 190,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 11.108
+      },
+      {
+        "node": 250,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.248
+      },
+      {
+        "node": 423,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.207
+      },
+      {
+        "node": 1630,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.016
+      },
+      {
+        "node": 1633,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.918
+      },
+      {
+        "node": 357,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.893
+      },
+      {
+        "node": 529,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.79
+      }
+    ],
+    "topInclusive": [
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 3018.452
+      },
+      {
+        "node": 77,
+        "symbol": "processRootScheduleInMicrotask",
+        "asset": "react-dom_client.js",
+        "line": 8748,
+        "column": 42,
+        "sampledMs": 1149.909
+      },
+      {
+        "node": 76,
+        "symbol": "(anonymous)",
+        "asset": "react-dom_client.js",
+        "line": 8830,
+        "column": 30,
+        "sampledMs": 1149.909
+      },
+      {
+        "node": 81,
+        "symbol": "performSyncWorkOnRoot",
+        "asset": "react-dom_client.js",
+        "line": 8816,
+        "column": 33,
+        "sampledMs": 1149.865
+      },
+      {
+        "node": 80,
+        "symbol": "flushSyncWorkAcrossRoots_impl",
+        "asset": "react-dom_client.js",
+        "line": 8721,
+        "column": 41,
+        "sampledMs": 1149.865
+      },
+      {
+        "node": 82,
+        "symbol": "performWorkOnRoot",
+        "asset": "react-dom_client.js",
+        "line": 7693,
+        "column": 29,
+        "sampledMs": 1149.858
+      },
+      {
+        "node": 83,
+        "symbol": "renderRootSync",
+        "asset": "react-dom_client.js",
+        "line": 8021,
+        "column": 26,
+        "sampledMs": 800.269
+      },
+      {
+        "node": 90,
+        "symbol": "workLoopSync",
+        "asset": "react-dom_client.js",
+        "line": 8077,
+        "column": 24,
+        "sampledMs": 784.994
+      },
+      {
+        "node": 91,
+        "symbol": "performUnitOfWork",
+        "asset": "react-dom_client.js",
+        "line": 8180,
+        "column": 29,
+        "sampledMs": 784.56
+      },
+      {
+        "node": 92,
+        "symbol": "runWithFiberInDEV",
+        "asset": "react-dom_client.js",
+        "line": 600,
+        "column": 29,
+        "sampledMs": 730.779
+      },
+      {
+        "node": 98,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 727.675
+      },
+      {
+        "node": 1544,
+        "symbol": "Ap",
+        "asset": "@react-three_fiber.js",
+        "line": 2775,
+        "column": 15,
+        "sampledMs": 583.595
+      },
+      {
+        "node": 1543,
+        "symbol": "Wa",
+        "asset": "@react-three_fiber.js",
+        "line": 2709,
+        "column": 15,
+        "sampledMs": 583.595
+      },
+      {
+        "node": 1542,
+        "symbol": "Di",
+        "asset": "@react-three_fiber.js",
+        "line": 2732,
+        "column": 15,
+        "sampledMs": 583.595
+      },
+      {
+        "node": 1541,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 2785,
+        "column": 25,
+        "sampledMs": 583.595
+      },
+      {
+        "node": 1545,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15,
+        "sampledMs": 577.142
+      },
+      {
+        "node": 99,
+        "symbol": "beginWork",
+        "asset": "react-dom_client.js",
+        "line": 5834,
+        "column": 21,
+        "sampledMs": 526.114
+      },
+      {
+        "node": 5,
+        "symbol": "(idle)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 490.688
+      },
+      {
+        "node": 1546,
+        "symbol": "Ff",
+        "asset": "@react-three_fiber.js",
+        "line": 6526,
+        "column": 15,
+        "sampledMs": 477.868
+      },
+      {
+        "node": 1552,
+        "symbol": "Ph",
+        "asset": "@react-three_fiber.js",
+        "line": 6648,
+        "column": 15,
+        "sampledMs": 471.842
+      },
+      {
+        "node": 1551,
+        "symbol": "wh",
+        "asset": "@react-three_fiber.js",
+        "line": 6568,
+        "column": 15,
+        "sampledMs": 471.842
+      },
+      {
+        "node": 1553,
+        "symbol": "B",
+        "asset": "@react-three_fiber.js",
+        "line": 2379,
+        "column": 14,
+        "sampledMs": 440.73
+      },
+      {
+        "node": 1554,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 440.687
+      },
+      {
+        "node": 108,
+        "symbol": "updateFunctionComponent",
+        "asset": "react-dom_client.js",
+        "line": 5314,
+        "column": 35,
+        "sampledMs": 389.893
+      },
+      {
+        "node": 109,
+        "symbol": "renderWithHooks",
+        "asset": "react-dom_client.js",
+        "line": 3954,
+        "column": 27,
+        "sampledMs": 387.234
+      },
+      {
+        "node": 1555,
+        "symbol": "tt",
+        "asset": "@react-three_fiber.js",
+        "line": 4840,
+        "column": 15,
+        "sampledMs": 357.22
+      },
+      {
+        "node": 2,
+        "symbol": "(program)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 356.956
+      },
+      {
+        "node": 527,
+        "symbol": "commitRoot",
+        "asset": "react-dom_client.js",
+        "line": 8285,
+        "column": 22,
+        "sampledMs": 349.589
+      },
+      {
+        "node": 526,
+        "symbol": "commitRootWhenReady",
+        "asset": "react-dom_client.js",
+        "line": 7812,
+        "column": 31,
+        "sampledMs": 349.589
+      },
+      {
+        "node": 1563,
+        "symbol": "ks",
+        "asset": "@react-three_fiber.js",
+        "line": 4550,
+        "column": 15,
+        "sampledMs": 319.964
+      },
+      {
+        "node": 1564,
+        "symbol": "It",
+        "asset": "@react-three_fiber.js",
+        "line": 3530,
+        "column": 15,
+        "sampledMs": 319.906
+      },
+      {
+        "node": 110,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "react-dom_client.js",
+        "line": 12615,
+        "column": 59,
+        "sampledMs": 215.556
+      },
+      {
+        "node": 1565,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "@react-three_fiber.js",
+        "line": 7406,
+        "column": 49,
+        "sampledMs": 177.857
+      },
+      {
+        "node": 2121,
+        "symbol": "loop",
+        "asset": "@react-three_fiber.js",
+        "line": 9240,
+        "column": 14,
+        "sampledMs": 171.867
+      },
+      {
+        "node": 117,
+        "symbol": "renderWithHooksAgain",
+        "asset": "react-dom_client.js",
+        "line": 4001,
+        "column": 32,
+        "sampledMs": 171.678
+      },
+      {
+        "node": 118,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "react-dom_client.js",
+        "line": 12615,
+        "column": 59,
+        "sampledMs": 171.659
+      },
+      {
+        "node": 2207,
+        "symbol": "performWorkUntilDeadline",
+        "asset": "scheduler-TNt0Kg51.js",
+        "line": 14,
+        "column": 36,
+        "sampledMs": 168.708
+      },
+      {
+        "node": 2834,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15,
+        "sampledMs": 163.039
+      },
+      {
+        "node": 2833,
+        "symbol": "Tu",
+        "asset": "@react-three_fiber.js",
+        "line": 2768,
+        "column": 15,
+        "sampledMs": 163.039
+      },
+      {
+        "node": 2123,
+        "symbol": "update",
+        "asset": "@react-three_fiber.js",
+        "line": 9219,
+        "column": 16,
+        "sampledMs": 162.969
+      },
+      {
+        "node": 2124,
+        "symbol": "WebGLRenderer.render",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 51938,
+        "column": 25,
+        "sampledMs": 160.708
+      },
+      {
+        "node": 2835,
+        "symbol": "Ff",
+        "asset": "@react-three_fiber.js",
+        "line": 6526,
+        "column": 15,
+        "sampledMs": 148.471
+      },
+      {
+        "node": 2841,
+        "symbol": "Ph",
+        "asset": "@react-three_fiber.js",
+        "line": 6648,
+        "column": 15,
+        "sampledMs": 145.807
+      },
+      {
+        "node": 2840,
+        "symbol": "wh",
+        "asset": "@react-three_fiber.js",
+        "line": 6568,
+        "column": 15,
+        "sampledMs": 145.807
+      },
+      {
+        "node": 1588,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "@react-three_fiber.js",
+        "line": 7406,
+        "column": 49,
+        "sampledMs": 142
+      }
+    ],
+    "groupsMs": {
+      "reactDomInclusive": 1158.941,
+      "nativeReactDebugTaskSelf": 1596.624,
+      "fiberInclusive": 1084.83,
+      "graphicsNativeSelf": 0.86,
+      "rendererSetSizeSelf": 78.392,
+      "threeInclusive": 246.896,
+      "idleSelf": 490.688,
+      "htmlTextureUploadSelf": 46.299
+    }
+  },
+  "keyEvents": [
+    {
+      "type": "keydown",
+      "startMs": 8914.854,
+      "durationMs": 455.301
+    },
+    {
+      "type": "keyup",
+      "startMs": 9425.059,
+      "durationMs": 1.015
+    },
+    {
+      "type": "keydown",
+      "startMs": 9484.525,
+      "durationMs": 206.133
+    },
+    {
+      "type": "keyup",
+      "startMs": 9712.356,
+      "durationMs": 0.799
+    },
+    {
+      "type": "keydown",
+      "startMs": 9802.011,
+      "durationMs": 223.655
+    },
+    {
+      "type": "keyup",
+      "startMs": 10173.561,
+      "durationMs": 0.087
+    },
+    {
+      "type": "keydown",
+      "startMs": 10291.802,
+      "durationMs": 171.999
+    },
+    {
+      "type": "keyup",
+      "startMs": 10507.236,
+      "durationMs": 0.093
+    },
+    {
+      "type": "keydown",
+      "startMs": 10539.562,
+      "durationMs": 168.449
+    },
+    {
+      "type": "keyup",
+      "startMs": 10722.381,
+      "durationMs": 1.203
+    },
+    {
+      "type": "keydown",
+      "startMs": 10770.443,
+      "durationMs": 30.301
+    },
+    {
+      "type": "keyup",
+      "startMs": 10933.224,
+      "durationMs": 0.082
+    }
+  ],
+  "keydownOnly": {
+    "durationMs": 1255.838,
+    "topSelf": [
+      {
+        "node": 98,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 111.634
+      },
+      {
+        "node": 982,
+        "symbol": "WebGLRenderer.setSize",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 51408,
+        "column": 26,
+        "sampledMs": 73.299
+      },
+      {
+        "node": 1554,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 67.101
+      },
+      {
+        "node": 2,
+        "symbol": "(program)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 35.298
+      },
+      {
+        "node": 1959,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 35.287
+      },
+      {
+        "node": 104,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 33.125
+      },
+      {
+        "node": 265,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 29.511
+      },
+      {
+        "node": 1966,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 26.495
+      },
+      {
+        "node": 1562,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 22.489
+      },
+      {
+        "node": 262,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 22.374
+      },
+      {
+        "node": 4,
+        "symbol": "(garbage collector)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 20.14
+      },
+      {
+        "node": 49,
+        "symbol": "onKeyDown",
+        "asset": "device-preview-orientation.ts",
+        "line": 317,
+        "column": 20,
+        "sampledMs": 19.366
+      },
+      {
+        "node": 1586,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 16.248
+      },
+      {
+        "node": 947,
+        "symbol": "run",
+        "asset": "@react-three_fiber.js",
+        "line": 9494,
+        "column": 22,
+        "sampledMs": 16.013
+      },
+      {
+        "node": 1597,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 15.783
+      },
+      {
+        "node": 1582,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 15.756
+      },
+      {
+        "node": 1592,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.398
+      },
+      {
+        "node": 1578,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 14.137
+      },
+      {
+        "node": 115,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 11.758
+      },
+      {
+        "node": 133,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 11.746
+      },
+      {
+        "node": 1883,
+        "symbol": "measure",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 11.274
+      },
+      {
+        "node": 1594,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.654
+      },
+      {
+        "node": 328,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.257
+      },
+      {
+        "node": 1620,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.927
+      },
+      {
+        "node": 141,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.289
+      },
+      {
+        "node": 88,
+        "symbol": "measure",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.12
+      },
+      {
+        "node": 643,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.014
+      },
+      {
+        "node": 423,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 8.705
+      },
+      {
+        "node": 123,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 8.593
+      },
+      {
+        "node": 1613,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 7.742
+      },
+      {
+        "node": 1630,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 7.321
+      },
+      {
+        "node": 247,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 7.288
+      },
+      {
+        "node": 1633,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 7.236
+      },
+      {
+        "node": 1605,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 7.126
+      },
+      {
+        "node": 331,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 6.877
+      },
+      {
+        "node": 250,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 6.605
+      },
+      {
+        "node": 1737,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 6.35
+      },
+      {
+        "node": 190,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 6.336
+      },
+      {
+        "node": 130,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 6.127
+      },
+      {
+        "node": 2046,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 5.87
+      }
+    ],
+    "topInclusive": [
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 1255.838
+      },
+      {
+        "node": 77,
+        "symbol": "processRootScheduleInMicrotask",
+        "asset": "react-dom_client.js",
+        "line": 8748,
+        "column": 42,
+        "sampledMs": 729.769
+      },
+      {
+        "node": 76,
+        "symbol": "(anonymous)",
+        "asset": "react-dom_client.js",
+        "line": 8830,
+        "column": 30,
+        "sampledMs": 729.769
+      },
+      {
+        "node": 81,
+        "symbol": "performSyncWorkOnRoot",
+        "asset": "react-dom_client.js",
+        "line": 8816,
+        "column": 33,
+        "sampledMs": 729.725
+      },
+      {
+        "node": 80,
+        "symbol": "flushSyncWorkAcrossRoots_impl",
+        "asset": "react-dom_client.js",
+        "line": 8721,
+        "column": 41,
+        "sampledMs": 729.725
+      },
+      {
+        "node": 82,
+        "symbol": "performWorkOnRoot",
+        "asset": "react-dom_client.js",
+        "line": 7693,
+        "column": 29,
+        "sampledMs": 729.718
+      },
+      {
+        "node": 83,
+        "symbol": "renderRootSync",
+        "asset": "react-dom_client.js",
+        "line": 8021,
+        "column": 26,
+        "sampledMs": 477.265
+      },
+      {
+        "node": 90,
+        "symbol": "workLoopSync",
+        "asset": "react-dom_client.js",
+        "line": 8077,
+        "column": 24,
+        "sampledMs": 463.577
+      },
+      {
+        "node": 91,
+        "symbol": "performUnitOfWork",
+        "asset": "react-dom_client.js",
+        "line": 8180,
+        "column": 29,
+        "sampledMs": 463.145
+      },
+      {
+        "node": 92,
+        "symbol": "runWithFiberInDEV",
+        "asset": "react-dom_client.js",
+        "line": 600,
+        "column": 29,
+        "sampledMs": 429.907
+      },
+      {
+        "node": 98,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 427.606
+      },
+      {
+        "node": 1544,
+        "symbol": "Ap",
+        "asset": "@react-three_fiber.js",
+        "line": 2775,
+        "column": 15,
+        "sampledMs": 426.6
+      },
+      {
+        "node": 1543,
+        "symbol": "Wa",
+        "asset": "@react-three_fiber.js",
+        "line": 2709,
+        "column": 15,
+        "sampledMs": 426.6
+      },
+      {
+        "node": 1542,
+        "symbol": "Di",
+        "asset": "@react-three_fiber.js",
+        "line": 2732,
+        "column": 15,
+        "sampledMs": 426.6
+      },
+      {
+        "node": 1541,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 2785,
+        "column": 25,
+        "sampledMs": 426.6
+      },
+      {
+        "node": 1545,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15,
+        "sampledMs": 426.529
+      },
+      {
+        "node": 1546,
+        "symbol": "Ff",
+        "asset": "@react-three_fiber.js",
+        "line": 6526,
+        "column": 15,
+        "sampledMs": 356.103
+      },
+      {
+        "node": 1552,
+        "symbol": "Ph",
+        "asset": "@react-three_fiber.js",
+        "line": 6648,
+        "column": 15,
+        "sampledMs": 351.998
+      },
+      {
+        "node": 1551,
+        "symbol": "wh",
+        "asset": "@react-three_fiber.js",
+        "line": 6568,
+        "column": 15,
+        "sampledMs": 351.998
+      },
+      {
+        "node": 1553,
+        "symbol": "B",
+        "asset": "@react-three_fiber.js",
+        "line": 2379,
+        "column": 14,
+        "sampledMs": 329.458
+      },
+      {
+        "node": 1554,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 329.415
+      },
+      {
+        "node": 99,
+        "symbol": "beginWork",
+        "asset": "react-dom_client.js",
+        "line": 5834,
+        "column": 21,
+        "sampledMs": 315.918
+      },
+      {
+        "node": 1555,
+        "symbol": "tt",
+        "asset": "@react-three_fiber.js",
+        "line": 4840,
+        "column": 15,
+        "sampledMs": 262.314
+      },
+      {
+        "node": 527,
+        "symbol": "commitRoot",
+        "asset": "react-dom_client.js",
+        "line": 8285,
+        "column": 22,
+        "sampledMs": 252.453
+      },
+      {
+        "node": 526,
+        "symbol": "commitRootWhenReady",
+        "asset": "react-dom_client.js",
+        "line": 7812,
+        "column": 31,
+        "sampledMs": 252.453
+      },
+      {
+        "node": 1563,
+        "symbol": "ks",
+        "asset": "@react-three_fiber.js",
+        "line": 4550,
+        "column": 15,
+        "sampledMs": 242.744
+      },
+      {
+        "node": 1564,
+        "symbol": "It",
+        "asset": "@react-three_fiber.js",
+        "line": 3530,
+        "column": 15,
+        "sampledMs": 242.69
+      },
+      {
+        "node": 108,
+        "symbol": "updateFunctionComponent",
+        "asset": "react-dom_client.js",
+        "line": 5314,
+        "column": 35,
+        "sampledMs": 231.247
+      },
+      {
+        "node": 109,
+        "symbol": "renderWithHooks",
+        "asset": "react-dom_client.js",
+        "line": 3954,
+        "column": 27,
+        "sampledMs": 231.089
+      },
+      {
+        "node": 1565,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "@react-three_fiber.js",
+        "line": 7406,
+        "column": 49,
+        "sampledMs": 136.532
+      },
+      {
+        "node": 828,
+        "symbol": "flushLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 8403,
+        "column": 30,
+        "sampledMs": 127.136
+      },
+      {
+        "node": 863,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37,
+        "sampledMs": 126.5
+      },
+      {
+        "node": 862,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44,
+        "sampledMs": 126.5
+      },
+      {
+        "node": 861,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37,
+        "sampledMs": 126.5
+      },
+      {
+        "node": 860,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44,
+        "sampledMs": 126.5
+      },
+      {
+        "node": 859,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37,
+        "sampledMs": 126.5
+      },
+      {
+        "node": 858,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44,
+        "sampledMs": 126.5
+      },
+      {
+        "node": 857,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37,
+        "sampledMs": 126.5
+      },
+      {
+        "node": 856,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44,
+        "sampledMs": 126.5
+      },
+      {
+        "node": 855,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37,
+        "sampledMs": 126.5
+      }
+    ]
+  },
+  "longTasks": [
+    {
+      "startMs": -46.494,
+      "durationMs": 3919.996,
+      "profilerStartup": true,
+      "inputTypes": []
+    },
+    {
+      "startMs": 8898.609,
+      "durationMs": 475.129,
+      "profilerStartup": false,
+      "inputTypes": [
+        "keydown"
+      ]
+    },
+    {
+      "startMs": 9373.747,
+      "durationMs": 51.269,
+      "profilerStartup": false,
+      "inputTypes": []
+    },
+    {
+      "startMs": 9426.095,
+      "durationMs": 52.966,
+      "profilerStartup": false,
+      "inputTypes": []
+    },
+    {
+      "startMs": 9484.285,
+      "durationMs": 208.09,
+      "profilerStartup": false,
+      "inputTypes": [
+        "keydown"
+      ]
+    },
+    {
+      "startMs": 9714.63,
+      "durationMs": 87.26,
+      "profilerStartup": false,
+      "inputTypes": []
+    },
+    {
+      "startMs": 9801.921,
+      "durationMs": 225.158,
+      "profilerStartup": false,
+      "inputTypes": [
+        "keydown"
+      ]
+    },
+    {
+      "startMs": 10044.734,
+      "durationMs": 128.785,
+      "profilerStartup": false,
+      "inputTypes": []
+    },
+    {
+      "startMs": 10291.754,
+      "durationMs": 174.826,
+      "profilerStartup": false,
+      "inputTypes": [
+        "keydown"
+      ]
+    },
+    {
+      "startMs": 10539.272,
+      "durationMs": 169.852,
+      "profilerStartup": false,
+      "inputTypes": [
+        "keydown"
+      ]
+    },
+    {
+      "startMs": 10808.334,
+      "durationMs": 123.799,
+      "profilerStartup": false,
+      "inputTypes": []
+    },
+    {
+      "startMs": 10933.333,
+      "durationMs": 181.464,
+      "profilerStartup": false,
+      "inputTypes": []
+    },
+    {
+      "startMs": 11114.806,
+      "durationMs": 52.367,
+      "profilerStartup": false,
+      "inputTypes": []
+    },
+    {
+      "startMs": 11168.549,
+      "durationMs": 164.222,
+      "profilerStartup": false,
+      "inputTypes": []
+    },
+    {
+      "startMs": 11334.219,
+      "durationMs": 58.783,
+      "profilerStartup": false,
+      "inputTypes": []
+    },
+    {
+      "startMs": 11393.018,
+      "durationMs": 185.038,
+      "profilerStartup": false,
+      "inputTypes": []
+    },
+    {
+      "startMs": 11578.781,
+      "durationMs": 57.784,
+      "profilerStartup": false,
+      "inputTypes": []
+    }
+  ],
+  "notes": [
+    "Profile contains negative timestamp deltas; samples sorted by absolute timestamp before weighting to next sample, preventing overlapping weight.",
+    "Inclusive samples overlap and must not be added.",
+    "Durations are recorded under 6x emulation; not native phone timings.",
+    "Native API self samples may include browser/driver work or synchronization; this CPU trace cannot measure GPU execution duration.",
+    "Asset basenames only; no raw URLs, query strings, source text or user payloads retained."
+  ],
+  "selectedStacks": [
+    [
+      {
+        "node": 98,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      },
+      {
+        "node": 92,
+        "symbol": "runWithFiberInDEV",
+        "asset": "react-dom_client.js",
+        "line": 600,
+        "column": 29
+      },
+      {
+        "node": 91,
+        "symbol": "performUnitOfWork",
+        "asset": "react-dom_client.js",
+        "line": 8180,
+        "column": 29
+      },
+      {
+        "node": 90,
+        "symbol": "workLoopSync",
+        "asset": "react-dom_client.js",
+        "line": 8077,
+        "column": 24
+      },
+      {
+        "node": 83,
+        "symbol": "renderRootSync",
+        "asset": "react-dom_client.js",
+        "line": 8021,
+        "column": 26
+      },
+      {
+        "node": 82,
+        "symbol": "performWorkOnRoot",
+        "asset": "react-dom_client.js",
+        "line": 7693,
+        "column": 29
+      },
+      {
+        "node": 81,
+        "symbol": "performSyncWorkOnRoot",
+        "asset": "react-dom_client.js",
+        "line": 8816,
+        "column": 33
+      },
+      {
+        "node": 80,
+        "symbol": "flushSyncWorkAcrossRoots_impl",
+        "asset": "react-dom_client.js",
+        "line": 8721,
+        "column": 41
+      },
+      {
+        "node": 77,
+        "symbol": "processRootScheduleInMicrotask",
+        "asset": "react-dom_client.js",
+        "line": 8748,
+        "column": 42
+      },
+      {
+        "node": 76,
+        "symbol": "(anonymous)",
+        "asset": "react-dom_client.js",
+        "line": 8830,
+        "column": 30
+      },
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      }
+    ],
+    [
+      {
+        "node": 982,
+        "symbol": "WebGLRenderer.setSize",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 51408,
+        "column": 26
+      },
+      {
+        "node": 981,
+        "symbol": "WebGLRenderer.setPixelRatio",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 51385,
+        "column": 32
+      },
+      {
+        "node": 980,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 976,
+        "column": 22
+      },
+      {
+        "node": 979,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 18,
+        "column": 22
+      },
+      {
+        "node": 978,
+        "symbol": "setState",
+        "asset": "@react-three_fiber.js",
+        "line": 13,
+        "column": 19
+      },
+      {
+        "node": 977,
+        "symbol": "setDpr",
+        "asset": "@react-three_fiber.js",
+        "line": 922,
+        "column": 12
+      },
+      {
+        "node": 948,
+        "symbol": "configure",
+        "asset": "@react-three_fiber.js",
+        "line": 8920,
+        "column": 18
+      },
+      {
+        "node": 947,
+        "symbol": "run",
+        "asset": "@react-three_fiber.js",
+        "line": 9494,
+        "column": 22
+      },
+      {
+        "node": 946,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 9490,
+        "column": 28
+      },
+      {
+        "node": 945,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "react-dom_client.js",
+        "line": 12652,
+        "column": 171
+      },
+      {
+        "node": 944,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      },
+      {
+        "node": 943,
+        "symbol": "runWithFiberInDEV",
+        "asset": "react-dom_client.js",
+        "line": 600,
+        "column": 29
+      },
+      {
+        "node": 942,
+        "symbol": "commitHookEffectListMount",
+        "asset": "react-dom_client.js",
+        "line": 6363,
+        "column": 37
+      },
+      {
+        "node": 941,
+        "symbol": "commitHookLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 6357,
+        "column": 35
+      },
+      {
+        "node": 933,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 932,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 931,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 930,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 929,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 928,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 927,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 926,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 925,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 924,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 923,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 922,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 921,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 920,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 919,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 918,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 917,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 916,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 915,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 914,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 913,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 912,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 911,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 910,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 909,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 908,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 907,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 906,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 905,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 904,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 903,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 902,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 901,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 900,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 899,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 898,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 897,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 896,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 895,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 894,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 893,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 892,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 891,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 890,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 889,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 888,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 887,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 886,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 885,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 884,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 883,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 882,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 881,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 880,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 879,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 878,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 877,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 876,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 875,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 874,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 873,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 872,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 871,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 870,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 869,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 868,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 867,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 866,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 865,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 864,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 863,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 862,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 861,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 860,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 859,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 858,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 857,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 856,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 855,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 854,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 853,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 852,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 851,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 850,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 849,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 848,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 847,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 846,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 845,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 844,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 843,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 842,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 841,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 840,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 839,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 838,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 837,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 836,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 835,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 834,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 833,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 832,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 831,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 830,
+        "symbol": "recursivelyTraverseLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 7231,
+        "column": 44
+      },
+      {
+        "node": 829,
+        "symbol": "commitLayoutEffectOnFiber",
+        "asset": "react-dom_client.js",
+        "line": 6705,
+        "column": 37
+      },
+      {
+        "node": 828,
+        "symbol": "flushLayoutEffects",
+        "asset": "react-dom_client.js",
+        "line": 8403,
+        "column": 30
+      },
+      {
+        "node": 527,
+        "symbol": "commitRoot",
+        "asset": "react-dom_client.js",
+        "line": 8285,
+        "column": 22
+      },
+      {
+        "node": 526,
+        "symbol": "commitRootWhenReady",
+        "asset": "react-dom_client.js",
+        "line": 7812,
+        "column": 31
+      },
+      {
+        "node": 82,
+        "symbol": "performWorkOnRoot",
+        "asset": "react-dom_client.js",
+        "line": 7693,
+        "column": 29
+      },
+      {
+        "node": 81,
+        "symbol": "performSyncWorkOnRoot",
+        "asset": "react-dom_client.js",
+        "line": 8816,
+        "column": 33
+      },
+      {
+        "node": 80,
+        "symbol": "flushSyncWorkAcrossRoots_impl",
+        "asset": "react-dom_client.js",
+        "line": 8721,
+        "column": 41
+      },
+      {
+        "node": 77,
+        "symbol": "processRootScheduleInMicrotask",
+        "asset": "react-dom_client.js",
+        "line": 8748,
+        "column": 42
+      },
+      {
+        "node": 76,
+        "symbol": "(anonymous)",
+        "asset": "react-dom_client.js",
+        "line": 8830,
+        "column": 30
+      },
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      }
+    ],
+    [
+      {
+        "node": 1554,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      },
+      {
+        "node": 1553,
+        "symbol": "B",
+        "asset": "@react-three_fiber.js",
+        "line": 2379,
+        "column": 14
+      },
+      {
+        "node": 1552,
+        "symbol": "Ph",
+        "asset": "@react-three_fiber.js",
+        "line": 6648,
+        "column": 15
+      },
+      {
+        "node": 1551,
+        "symbol": "wh",
+        "asset": "@react-three_fiber.js",
+        "line": 6568,
+        "column": 15
+      },
+      {
+        "node": 1546,
+        "symbol": "Ff",
+        "asset": "@react-three_fiber.js",
+        "line": 6526,
+        "column": 15
+      },
+      {
+        "node": 1545,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15
+      },
+      {
+        "node": 1544,
+        "symbol": "Ap",
+        "asset": "@react-three_fiber.js",
+        "line": 2775,
+        "column": 15
+      },
+      {
+        "node": 1543,
+        "symbol": "Wa",
+        "asset": "@react-three_fiber.js",
+        "line": 2709,
+        "column": 15
+      },
+      {
+        "node": 1542,
+        "symbol": "Di",
+        "asset": "@react-three_fiber.js",
+        "line": 2732,
+        "column": 15
+      },
+      {
+        "node": 1541,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 2785,
+        "column": 25
+      },
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      }
+    ],
+    [
+      {
+        "node": 1959,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      },
+      {
+        "node": 1958,
+        "symbol": "exports.jsxDEV",
+        "asset": "react_jsx-dev-runtime.js",
+        "line": 191,
+        "column": 28
+      },
+      {
+        "node": 1957,
+        "symbol": "Device",
+        "asset": "Device.tsx",
+        "line": 59,
+        "column": 23
+      },
+      {
+        "node": 1565,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "@react-three_fiber.js",
+        "line": 7406,
+        "column": 49
+      },
+      {
+        "node": 1564,
+        "symbol": "It",
+        "asset": "@react-three_fiber.js",
+        "line": 3530,
+        "column": 15
+      },
+      {
+        "node": 1563,
+        "symbol": "ks",
+        "asset": "@react-three_fiber.js",
+        "line": 4550,
+        "column": 15
+      },
+      {
+        "node": 1555,
+        "symbol": "tt",
+        "asset": "@react-three_fiber.js",
+        "line": 4840,
+        "column": 15
+      },
+      {
+        "node": 1554,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      },
+      {
+        "node": 1553,
+        "symbol": "B",
+        "asset": "@react-three_fiber.js",
+        "line": 2379,
+        "column": 14
+      },
+      {
+        "node": 1552,
+        "symbol": "Ph",
+        "asset": "@react-three_fiber.js",
+        "line": 6648,
+        "column": 15
+      },
+      {
+        "node": 1551,
+        "symbol": "wh",
+        "asset": "@react-three_fiber.js",
+        "line": 6568,
+        "column": 15
+      },
+      {
+        "node": 1546,
+        "symbol": "Ff",
+        "asset": "@react-three_fiber.js",
+        "line": 6526,
+        "column": 15
+      },
+      {
+        "node": 1545,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15
+      },
+      {
+        "node": 1544,
+        "symbol": "Ap",
+        "asset": "@react-three_fiber.js",
+        "line": 2775,
+        "column": 15
+      },
+      {
+        "node": 1543,
+        "symbol": "Wa",
+        "asset": "@react-three_fiber.js",
+        "line": 2709,
+        "column": 15
+      },
+      {
+        "node": 1542,
+        "symbol": "Di",
+        "asset": "@react-three_fiber.js",
+        "line": 2732,
+        "column": 15
+      },
+      {
+        "node": 1541,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 2785,
+        "column": 25
+      },
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      }
+    ],
+    [
+      {
+        "node": 1966,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      },
+      {
+        "node": 1965,
+        "symbol": "exports.jsxDEV",
+        "asset": "react_jsx-dev-runtime.js",
+        "line": 191,
+        "column": 28
+      },
+      {
+        "node": 1964,
+        "symbol": "Device",
+        "asset": "Device.tsx",
+        "line": 59,
+        "column": 23
+      },
+      {
+        "node": 1588,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "@react-three_fiber.js",
+        "line": 7406,
+        "column": 49
+      },
+      {
+        "node": 1587,
+        "symbol": "Ou",
+        "asset": "@react-three_fiber.js",
+        "line": 3553,
+        "column": 15
+      },
+      {
+        "node": 1564,
+        "symbol": "It",
+        "asset": "@react-three_fiber.js",
+        "line": 3530,
+        "column": 15
+      },
+      {
+        "node": 1563,
+        "symbol": "ks",
+        "asset": "@react-three_fiber.js",
+        "line": 4550,
+        "column": 15
+      },
+      {
+        "node": 1555,
+        "symbol": "tt",
+        "asset": "@react-three_fiber.js",
+        "line": 4840,
+        "column": 15
+      },
+      {
+        "node": 1554,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      },
+      {
+        "node": 1553,
+        "symbol": "B",
+        "asset": "@react-three_fiber.js",
+        "line": 2379,
+        "column": 14
+      },
+      {
+        "node": 1552,
+        "symbol": "Ph",
+        "asset": "@react-three_fiber.js",
+        "line": 6648,
+        "column": 15
+      },
+      {
+        "node": 1551,
+        "symbol": "wh",
+        "asset": "@react-three_fiber.js",
+        "line": 6568,
+        "column": 15
+      },
+      {
+        "node": 1546,
+        "symbol": "Ff",
+        "asset": "@react-three_fiber.js",
+        "line": 6526,
+        "column": 15
+      },
+      {
+        "node": 1545,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15
+      },
+      {
+        "node": 1544,
+        "symbol": "Ap",
+        "asset": "@react-three_fiber.js",
+        "line": 2775,
+        "column": 15
+      },
+      {
+        "node": 1543,
+        "symbol": "Wa",
+        "asset": "@react-three_fiber.js",
+        "line": 2709,
+        "column": 15
+      },
+      {
+        "node": 1542,
+        "symbol": "Di",
+        "asset": "@react-three_fiber.js",
+        "line": 2732,
+        "column": 15
+      },
+      {
+        "node": 1541,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 2785,
+        "column": 25
+      },
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      }
+    ]
+  ]
+}

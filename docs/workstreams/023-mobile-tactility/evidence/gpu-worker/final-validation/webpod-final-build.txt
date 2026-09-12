@@ -1,0 +1,53 @@
+$ bun run --cwd apps/web build
+$ bun scripts/build.ts
+vite v8.2.2 building client environment for production...
+transforming...
+✓ 651 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/client/assets/sqlite3-opfs-async-proxy-Ck-yCayi.js       32.50 kB
+dist/client/assets/sticker-collision-worker-Csdaagb3.js      119.47 kB
+dist/client/assets/shell-picking-worker-B25WVjnY.js          119.54 kB
+dist/client/assets/sticker-paper-worker-BOlYtWop.js          145.58 kB
+dist/client/assets/sticker-transaction-worker-BMNenrYd.js    161.92 kB
+dist/client/assets/immutable-shell-worker-M8sVUJdu.js        172.96 kB
+dist/client/assets/sticker-carry-worker-DWuamdeK.js          176.07 kB
+dist/client/assets/sqlite3-worker1-CRm4oQOX.js               211.88 kB
+dist/client/assets/sticker-worker-BqRmK6g-.js                303.60 kB
+dist/client/assets/sqlite3-Con_VOcu.wasm                     868.90 kB │ gzip: 407.46 kB
+dist/client/assets/device-render-worker-C18PPzMk.js        1,344.67 kB
+dist/client/assets/browser-welcome-C7L8kSYy.css                8.79 kB │ gzip:   2.34 kB
+dist/client/assets/index-StaVrH5E.css                         78.46 kB │ gzip:  16.74 kB
+dist/client/assets/webpod-CVcgpuUB.js                          0.07 kB │ gzip:   0.08 kB
+dist/client/assets/routes-C0ktopyR.js                          0.08 kB │ gzip:   0.09 kB
+dist/client/assets/___spike.device-Ba1wR_2v.js                 0.21 kB │ gzip:   0.19 kB
+dist/client/assets/___probe.capabilities-DLONKbeS.js           0.54 kB │ gzip:   0.35 kB
+dist/client/assets/browser-welcome-DN6nbh0U.js               249.89 kB │ gzip:  77.18 kB
+dist/client/assets/index-KOU3nNjq.js                         516.83 kB │ gzip: 163.88 kB
+dist/client/assets/src-BDu-8VwD.js                         1,868.99 kB │ gzip: 570.19 kB
+
+✓ built in 1.03s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+vite v8.2.2 building ssr environment for production...
+transforming...
+✓ 924 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/server/assets/start-XEGAwR_q.js                         0.21 kB │ gzip:   0.17 kB
+dist/server/assets/webpod-82PNmu4J.js                        0.27 kB │ gzip:   0.20 kB
+dist/server/assets/routes-CIGvRHUO.js                        0.28 kB │ gzip:   0.21 kB
+dist/server/assets/empty-plugin-adapters-63t6GYbj.js         0.28 kB │ gzip:   0.18 kB
+dist/server/assets/___spike.device-BZzAH2ye.js               0.45 kB │ gzip:   0.31 kB
+dist/server/assets/___probe.capabilities-CqF40qzd.js         0.81 kB │ gzip:   0.45 kB
+dist/server/assets/_tanstack-start-manifest_v-D06wZ6ya.js    1.52 kB │ gzip:   0.57 kB
+dist/server/assets/browser-welcome-Brq3GMPl.js             143.36 kB │ gzip:  36.71 kB
+dist/server/assets/src-B1IzaQgG.js                         287.21 kB │ gzip:  68.62 kB
+dist/server/assets/router-CqeFJgoH.js                      515.01 kB │ gzip: 118.64 kB
+dist/server/server.js                                      621.07 kB │ gzip: 142.63 kB
+dist/server/assets/src-CcFl72wl.js                         844.48 kB │ gzip: 226.55 kB
+
+✓ built in 346ms

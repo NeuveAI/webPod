@@ -1,0 +1,270 @@
+import { STICKER_SURFACE } from './sticker-surface';
+import { computeStickerTransaction } from './sticker-transaction-computation';
+import { yieldSteps } from './sticker-computation-steps';
+import { STICKER_TRANSACTION_VERSION, stickerTransactionBuffers, type StickerTransactionMessage, type StickerTransactionRequest, type StickerTransactionResponse, type StickerTransactionResult } from './sticker-transaction-data';
+
+const MAX_JOBS = 32, MAX_IDLE_BYTES = 32 * 1024 * 1024, MAX_RETAINED_BYTES = 96 * 1024 * 1024, IDLE_MS = 30000;
+interface Entry {
+  readonly key: string; readonly input: StickerTransactionRequest; readonly id: number;
+  readonly promise: Promise<StickerTransactionResult>; readonly resolve: (result: StickerTransactionResult) => void; readonly reject: (error: Error) => void;
+  readonly reservation: number; reference: Entry | null; producer: Worker | null; refs: number; result: StickerTransactionResult | null; bytes: number; touched: number;
+}
+/** A lease borrows immutable result buffers. Releasing it never detaches another
+ * owner. Renderer transfer must request a private result, not post this storage. */
+export interface StickerTransactionLease {
+  readonly result: Promise<StickerTransactionResult>;
+  release(): void;
+}
+const entries = new Map<string, Entry>();
+const pending: Entry[] = [];
+let sequence = 0, worker: Worker | null = null, active: Entry | null = null;
+let fallback: AbortController | null = null, deadline: ReturnType<typeof setTimeout> | undefined;
+let idleTimer: ReturnType<typeof setTimeout> | undefined;
+let workerFailed = false;
+let deliverySequence = 0, privateBytes = 0, privateOwners = 0;
+interface Delivery { readonly worker: Worker; readonly resolve: () => void; readonly reject: (error: Error) => void }
+const deliveries = new Map<number, Delivery>();
+const abortError = () => new DOMException('Sticker transaction cancelled', 'AbortError');
+/** The contour generator exits before allocating paths unless both attributes
+ * match its canonical grid. Input storage/cloning remains charged in all cases;
+ * a valid grid retains the full work allowance regardless of wear. */
+function contourWorkBytes(input: Extract<StickerTransactionRequest, { kind: 'contour' }>): number {
+ const vertices = (STICKER_SURFACE.segments + 1) ** 2;
+ return input.positions.length === vertices * 3 && input.uv.length === vertices * 2 ? input.field.boundaryCandidates.length * 512 : 0;
+}
+function inputBytes(input: StickerTransactionRequest): number {
+ if(input.kind==='damage')return input.mask.pixels.byteLength+(input.surface?input.surface.normals.byteLength+input.surface.uv.byteLength:0);
+ if(input.kind==='contour')return input.positions.byteLength+input.uv.byteLength+input.field.alpha.byteLength+input.field.onset.byteLength+input.field.boundaryCandidates.byteLength+(input.field.distance?.byteLength??0);
+ return 4096;
+}
+function inputStorage(input: StickerTransactionRequest, reference = false): readonly ArrayBufferLike[] {
+ const buffers = new Set<ArrayBufferLike>();
+ const add = (array: ArrayBufferView) => buffers.add(array.buffer);
+ if (input.kind === 'damage') { add(input.mask.pixels); if (input.surface) { add(input.surface.normals); add(input.surface.uv); } }
+ if (input.kind === 'contour') {
+  add(input.positions); add(input.uv);
+  if (!reference) { add(input.field.alpha); add(input.field.onset); add(input.field.boundaryCandidates); if (input.field.distance) add(input.field.distance); }
+ }
+ return [...buffers];
+}
+/** Main contour inputs borrow their damage result's backing buffers. Charge that
+ * storage once, but retain independent canonical-worker and private-copy bytes.
+ * Execution adds the original output/work allowance plus actual cloned backing
+ * storage. A pinned same-producer reference avoids only the field clone. */
+function storageCharge(values: Iterable<Entry>, executing: Entry | null = null, prospective?: StickerTransactionRequest): number {
+ const main = new Set<ArrayBufferLike>(); let other = 0;
+ const include = (input: StickerTransactionRequest) => { const storage = inputStorage(input); if (storage.length) for (const buffer of storage) main.add(buffer); else other += inputBytes(input); };
+ for (const entry of values) {
+  include(entry.input);
+  if (entry.result) {
+   for (const buffer of stickerTransactionBuffers(entry.result)) main.add(buffer);
+   if (worker !== null && entry.producer === worker) other += entry.bytes;
+  }
+  if (entry === executing && !entry.result) {
+   const reference = entry.reference !== null && worker !== null && entry.reference.producer === worker;
+   const clone = inputStorage(entry.input, reference);
+   const cloneBytes = clone.length ? clone.reduce((sum, buffer) => sum + buffer.byteLength, 0) : inputBytes(entry.input);
+   other += Math.max(0, entry.reservation - 2 * inputBytes(entry.input) + cloneBytes);
+  }
+ }
+ if (prospective) include(prospective);
+ return other + [...main].reduce((sum, buffer) => sum + buffer.byteLength, 0);
+}
+function accountedBytes(executing: Entry | null = active, prospective?: StickerTransactionRequest): number { return privateBytes + storageCharge(entries.values(), executing, prospective); }
+function removeEntry(entry: Entry) { entries.delete(entry.key); if(entry.producer===worker)worker?.postMessage({type:'release',id:entry.id}); }
+function makeRoom(additional: number, executing: Entry | null = active, prospective?: StickerTransactionRequest) {
+ for(const entry of [...entries.values()].filter(entry=>entry.refs===0&&entry.result!==null).sort((a,b)=>a.touched-b.touched)){if(accountedBytes(executing, prospective)+additional<=MAX_RETAINED_BYTES)break;removeEntry(entry);}
+}
+function releaseReference(entry: Entry) { const reference = entry.reference; if (!reference) return; entry.reference = null; reference.refs--; reference.touched = performance.now(); }
+
+function stopWorker() {
+  const previous = worker; worker = null;
+  if (previous) { previous.onmessage = null; previous.onerror = null; previous.onmessageerror = null; previous.terminate(); }
+  for (const entry of entries.values()) if (entry.producer === previous) entry.producer = null;
+  for (const [id, delivery] of deliveries) if (delivery.worker === previous) { deliveries.delete(id); delivery.reject(new Error('Sticker producer retired')); }
+}
+function evict() {
+  const now = performance.now();
+  const idleCharge = () => storageCharge([...entries.values()].filter(entry => entry.refs === 0 && entry.result !== null));
+  const idle = [...entries.values()].filter(entry => entry.refs === 0 && entry.result !== null).sort((a, b) => a.touched - b.touched);
+  for (const entry of idle) if (now - entry.touched >= IDLE_MS || idleCharge() > MAX_IDLE_BYTES || entries.size >= MAX_JOBS) { removeEntry(entry); }
+  clearTimeout(idleTimer);
+  if (active === null && pending.length === 0 && entries.size === 0) stopWorker();
+  if ([...entries.values()].some(entry => entry.refs === 0)) idleTimer = setTimeout(evict, IDLE_MS);
+}
+function complete(entry: Entry, result?: StickerTransactionResult, error?: Error) {
+  if (active !== entry) return;
+  clearTimeout(deadline); deadline = undefined; fallback = null; releaseReference(entry); active = null;
+  if (entry.refs === 0) { removeEntry(entry); entry.reject(abortError()); }
+  else if (result) { entry.result = result; entry.bytes = stickerTransactionBuffers(result).reduce((sum, buffer) => sum + buffer.byteLength, 0); entry.resolve(result); }
+  else { entries.delete(entry.key); entry.reject(error ?? new Error('Sticker transaction failed')); }
+  pump();
+}
+function recover(entry: Entry) {
+  if (active !== entry || fallback) return;
+  clearTimeout(deadline); deadline = undefined; stopWorker(); releaseReference(entry); workerFailed = true; entry.producer = null;
+  if (entry.refs === 0) { complete(entry, undefined, abortError()); return; }
+  const controller = new AbortController(); fallback = controller;
+  void yieldSteps(computeStickerTransaction(entry.input), controller.signal).then(result => complete(entry, result), error => complete(entry, undefined, error instanceof Error ? error : new Error('Sticker fallback failed')));
+}
+function bindWorker(instance: Worker) {
+    instance.onmessage = ({ data }: MessageEvent<StickerTransactionResponse | { readonly type: 'delivered' | 'delivery-failed'; readonly deliveryId: number }>) => {
+      if (worker !== instance) return;
+      if ('type' in data) {
+        const delivery = deliveries.get(data.deliveryId); if (!delivery || delivery.worker !== instance) return;
+        deliveries.delete(data.deliveryId);
+        if (data.type === 'delivered') delivery.resolve(); else delivery.reject(new Error('Sticker private delivery failed'));
+        return;
+      }
+      const entry = active; if (!entry) return;
+      if (data.id !== entry.id || data.version !== STICKER_TRANSACTION_VERSION) { recover(entry); return; }
+      if ('error' in data) { complete(entry, undefined, new Error(data.error)); return; }
+      if (data.result.kind !== entry.input.kind) { recover(entry); return; }
+      complete(entry, data.result);
+    };
+    instance.onerror = instance.onmessageerror = () => { if (worker !== instance) return; if (active) recover(active); else { stopWorker(); workerFailed = true; } };
+}
+function pump() {
+  if (active !== null) return;
+  const entry = pending.shift();
+  if (!entry) { evict(); return; }
+  if (entry.refs === 0) { entries.delete(entry.key); entry.reject(abortError()); pump(); return; }
+  if (entry.input.kind === 'contour' && worker !== null) {
+    const damage = entries.get(entry.input.damageKey);
+    if (damage?.producer === worker && damage.result?.kind === 'damage' && damage.result.field === entry.input.field) { damage.refs++; entry.reference = damage; }
+  }
+  makeRoom(0, entry);
+  if (accountedBytes(entry) > MAX_RETAINED_BYTES) { releaseReference(entry); entries.delete(entry.key); entry.reject(new Error('Sticker computation byte capacity exceeded')); pump(); return; }
+  active = entry;
+  if (workerFailed || typeof Worker === 'undefined') { recover(entry); return; }
+  try {
+    if (!worker) { worker = new Worker(new URL('./sticker-transaction-worker.ts', import.meta.url), { type: 'module' }); bindWorker(worker); }
+    const instance = worker; entry.producer = instance;
+    // Deadline begins at actual execution, not while queued behind another owner.
+    deadline = setTimeout(() => { if (worker === instance && active === entry) recover(entry); }, 15000);
+    // Inputs remain borrowed until completion; structured clone gives the worker
+    // private storage. A displayed/query buffer is never transferred/detached.
+    let input: StickerTransactionMessage['input'] = entry.input;
+    if (input.kind === 'contour') {
+      const damage = entry.reference, geometry = input.geometryKey ? entries.get(input.geometryKey) : undefined;
+      if (damage?.producer === instance && damage.result?.kind === 'damage') {
+        const geometryId = geometry?.producer === instance && geometry.result?.kind === 'surface' ? geometry.id : undefined;
+        input = { kind: 'contour-reference', damageId: damage.id, geometryId, wear: input.wear, ...(geometryId === undefined ? { positions: input.positions, uv: input.uv } : {}) };
+      }
+    }
+    instance.postMessage({ version: STICKER_TRANSACTION_VERSION, id: entry.id, input } satisfies StickerTransactionMessage);
+  } catch { recover(entry); }
+}
+/** One session-wide worker and bounded FIFO. Identical immutable keys share a job
+ * and completed result. A cancelled native job stays the sole charged active job
+ * until its bounded completion/deadline; its result is discarded. This preserves
+ * canonical renderer resources across ordinary gesture supersession. Cooperative
+ * work aborts at its next checkpoint before the queue advances. */
+export function acquireStickerTransaction(key: string, input: StickerTransactionRequest): StickerTransactionLease {
+  clearTimeout(idleTimer);
+  let entry = entries.get(key);
+  if (!entry) {
+    evict();
+    const reservation = input.kind === 'damage' ? input.mask.pixels.byteLength * 2 + (input.surface ? input.surface.normals.byteLength + input.surface.uv.byteLength : 0) * 2 + 40 * Math.min(input.mask.pixels.length, 1024 * 1024) : input.kind === 'surface' ? 1024 * 1024 : input.kind === 'contour' ? (input.positions.byteLength + input.uv.byteLength + input.field.alpha.byteLength + input.field.onset.byteLength + input.field.boundaryCandidates.byteLength + (input.field.distance?.byteLength ?? 0)) * 2 + contourWorkBytes(input) : 4096;
+    makeRoom(0, active, input);
+    if (reservation > MAX_RETAINED_BYTES || accountedBytes(active, input) > MAX_RETAINED_BYTES) return { result: Promise.reject(new Error('Sticker transaction byte capacity exceeded')), release() {} };
+    if (entries.size >= MAX_JOBS) return { result: Promise.reject(new Error('Sticker transaction capacity exceeded')), release() {} };
+    let resolve: Entry['resolve'] = () => {}, reject: Entry['reject'] = () => {};
+    const promise = new Promise<StickerTransactionResult>((accept, decline) => { resolve = accept; reject = decline; });
+    entry = { key, input, id: ++sequence, promise, resolve, reject, reservation, reference: null, producer: null, refs: 0, result: null, bytes: 0, touched: performance.now() };
+    entries.set(key, entry); pending.push(entry);
+  }
+  const owned = entry; owned.refs++; owned.touched = performance.now(); pump();
+  let released = false;
+  return { result: owned.promise, release() {
+    if (released) return; released = true; owned.refs--; owned.touched = performance.now();
+    if (owned.refs === 0 && owned.result === null) {
+      if (active === owned) {
+        fallback?.abort();
+        // Native compute cannot be interrupted without destroying all canonical
+        // resources. Retain its reservation until completion; request owners use
+        // their AbortSignal race for immediate cancellation.
+        return;
+      } else { const index = pending.indexOf(owned); if (index >= 0) pending.splice(index, 1); }
+      entries.delete(owned.key); owned.reject(abortError()); pump();
+    }
+    evict();
+  } };
+}
+
+/** Deliver a private copy directly from the existing canonical producer. The
+ * receiver adopts {version,id,result}; this lease remains held until its arrays
+ * and GPU wrappers are no longer used. No mounted main buffers detach and no
+ * hidden recomputation occurs after canonical loss: caller chooses GL recovery.
+ * The supplied port is consumed/closed even on failure. Count and bytes remain
+ * reserved through cancellation until the producer acknowledges or is retired. */
+export async function acquirePrivateStickerTransaction(key: string, input: StickerTransactionRequest, port: MessagePort, signal: AbortSignal, options?: { readonly purpose: 'render-damage' }): Promise<{ readonly resourceId: number; release(): void }> {
+  if (signal.aborted || input.kind === 'fit' || (options?.purpose === 'render-damage' && input.kind !== 'damage')) {
+    port.close(); signal.throwIfAborted();
+    throw new Error(input.kind === 'fit' ? 'A fit result is not a renderer resource' : 'Renderer damage requires a damage request');
+  }
+  if (privateOwners >= MAX_JOBS) { port.close(); throw new Error('Private sticker owner capacity exceeded'); }
+  privateOwners++;
+  let main: StickerTransactionLease | null = null;
+  const releaseMain = () => { main?.release(); main = null; };
+  let reserved = 0, released = false;
+  const release = () => { if (released) return; released = true; privateBytes -= reserved; privateOwners--; releaseMain(); };
+  try {
+    main = acquireStickerTransaction(key, input);
+    const mainResult = main.result;
+    signal.throwIfAborted();
+    const result = await new Promise<StickerTransactionResult>((resolve, reject) => {
+      const abort = () => { releaseMain(); reject(abortError()); };
+      signal.addEventListener('abort', abort, { once: true });
+      void mainResult.then(value => { signal.removeEventListener('abort', abort); resolve(value); }, error => { signal.removeEventListener('abort', abort); reject(error); });
+    });
+    signal.throwIfAborted();
+    const entry = entries.get(key), producer = entry?.producer;
+    if (!entry || !producer || producer !== worker) throw new Error('Canonical sticker producer unavailable');
+    reserved = (options?.purpose === 'render-damage' && result.kind === 'damage' ? result.gpu.byteLength : stickerTransactionBuffers(result).reduce((sum, buffer) => sum + buffer.byteLength, 0)) * 2;
+    makeRoom(reserved);
+    if (accountedBytes() + reserved > MAX_RETAINED_BYTES) { reserved = 0; throw new Error('Private sticker byte capacity exceeded'); }
+    privateBytes += reserved;
+    const resourceId = ++deliverySequence;
+    await new Promise<void>((resolve, reject) => {
+      const retire = () => { if (worker !== producer) return; if (active) recover(active); else stopWorker(); };
+      const timeout = setTimeout(retire, 15000);
+      const finish = (error?: Error) => { clearTimeout(timeout); signal.removeEventListener('abort', abort); if (error) reject(error); else resolve(); };
+      const abort = retire;
+      deliveries.set(resourceId, { worker: producer, resolve: () => finish(), reject: error => finish(error) });
+      signal.addEventListener('abort', abort, { once: true });
+      try { producer.postMessage({ type: 'deliver', id: entry.id, deliveryId: resourceId, port, ...(options ? {purpose: options.purpose} : {}) }, [port]); }
+      catch (error) { deliveries.delete(resourceId); finish(error instanceof Error ? error : new Error('Sticker port transfer failed')); }
+    });
+    signal.throwIfAborted();
+    privateBytes -= reserved / 2; reserved /= 2;
+    // Delivery owns independent transferred buffers. The private byte lease
+    // remains charged, but it no longer pins an unused canonical/query copy.
+    releaseMain();
+    return { resourceId, release };
+  } catch (error) { port.close(); release(); throw error; }
+}
+/** Explicit renderer/session cleanup releases unused canonical copies immediately. */
+export function releaseUnusedStickerTransactions(): void {
+  for (const entry of entries.values()) if (entry.refs === 0 && entry.result) { removeEntry(entry); }
+  evict();
+}
+
+/** Scalar accounting only; no vertex walk or sampled telemetry. */
+export function inspectStickerTransactions() { return { entries: entries.size, queued: pending.length, active: active?.id ?? null, worker: worker !== null, privateOwners, pendingCopies: deliveries.size, privateBytes, accountedBytes: accountedBytes() }; }
+
+/** Await one borrowed result with prompt per-owner cancellation, even when a
+ * second consumer keeps the shared computation alive. Successful caller owns
+ * release; failures release automatically and cannot retain a queued job. */
+export async function requestStickerTransaction(key: string, input: StickerTransactionRequest, signal: AbortSignal): Promise<{ readonly value: StickerTransactionResult; release(): void }> {
+  signal.throwIfAborted();
+  const lease = acquireStickerTransaction(key, input);
+  try {
+    const value = await new Promise<StickerTransactionResult>((resolve, reject) => {
+      const abort = () => { lease.release(); reject(abortError()); };
+      signal.addEventListener('abort', abort, { once: true });
+      void lease.result.then(result => { signal.removeEventListener('abort', abort); resolve(result); }, error => { signal.removeEventListener('abort', abort); reject(error); });
+    });
+    signal.throwIfAborted(); return { value, release: lease.release };
+  } catch (error) { lease.release(); throw error; }
+}

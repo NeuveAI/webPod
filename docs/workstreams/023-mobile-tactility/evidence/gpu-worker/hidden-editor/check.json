@@ -1,0 +1,11 @@
+{
+  "baselineCommit": "902c9d1a54af93c524b53076abc037949b12176f",
+  "sourceSha256": "4234685bf634c154e9a5cec74244a515c5a768f62f1b28bc104de877ce4a3e75",
+  "baselineContourCalls": 24,
+  "correctedBeforeReentry": 3,
+  "hiddenProjectionUpdates": 21,
+  "hiddenContourCalls": 0,
+  "reentryPose": 24,
+  "unchangedLifecycleAndReturnBranches": true,
+  "limitation": "Executes extracted production memo with deterministic dependency semantics; not a mounted React or browser timing test."
+}

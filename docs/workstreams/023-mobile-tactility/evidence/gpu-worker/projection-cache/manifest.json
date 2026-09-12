@@ -1,0 +1,9 @@
+{
+  "baseline": "8d95ff9ad28ab11852b19963c96544bee975998c",
+  "files": [
+    {
+      "path": "packages/device/src/sticker-transform-projection.ts",
+      "sha256": "6a0069cbbd654e4f72a18e4d581f1bdb4c03cd35fbc5993e94064af7d3080840"
+    }
+  ]
+}

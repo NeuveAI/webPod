@@ -1,0 +1,768 @@
+{
+  "profileSamples": 39699,
+  "sampledMs": 14850.03,
+  "topSelf": [
+    {
+      "node": 5,
+      "symbol": "(idle)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 10890.99
+    },
+    {
+      "node": 2,
+      "symbol": "(program)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 1853.8
+    },
+    {
+      "node": 620,
+      "symbol": "texElementImage2D",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 208.02
+    },
+    {
+      "node": 624,
+      "symbol": "cancelAnimationFrame",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 143.02
+    },
+    {
+      "node": 745,
+      "symbol": "requestAnimationFrame",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 82.14
+    },
+    {
+      "node": 1849,
+      "symbol": "get clientWidth",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 64.94
+    },
+    {
+      "node": 3,
+      "symbol": "(garbage collector)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 41.42
+    },
+    {
+      "node": 60,
+      "symbol": "getVertexPosition",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 165658,
+      "sampledMs": 38.71
+    },
+    {
+      "node": 65,
+      "symbol": "getX",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 115614,
+      "sampledMs": 33.18
+    },
+    {
+      "node": 615,
+      "symbol": "bt",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 39960,
+      "sampledMs": 32.16
+    },
+    {
+      "node": 63,
+      "symbol": "subVectors",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 40324,
+      "sampledMs": 30.83
+    },
+    {
+      "node": 622,
+      "symbol": "s",
+      "asset": "src-B2IO_406.js",
+      "line": 3671,
+      "column": 10663,
+      "sampledMs": 29.76
+    },
+    {
+      "node": 61,
+      "symbol": "Eo",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 167807,
+      "sampledMs": 27.37
+    },
+    {
+      "node": 1915,
+      "symbol": "update",
+      "asset": "src-B2IO_406.js",
+      "line": 4201,
+      "column": 392076,
+      "sampledMs": 26.69
+    },
+    {
+      "node": 62,
+      "symbol": "intersectTriangle",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 162965,
+      "sampledMs": 24.13
+    },
+    {
+      "node": 59,
+      "symbol": "Do",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 168096,
+      "sampledMs": 22.48
+    },
+    {
+      "node": 64,
+      "symbol": "fromBufferAttribute",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 45241,
+      "sampledMs": 22.31
+    },
+    {
+      "node": 614,
+      "symbol": "renderBufferDirect",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 28723,
+      "sampledMs": 22.2
+    },
+    {
+      "node": 761,
+      "symbol": "bindVertexArray",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 21.51
+    },
+    {
+      "node": 68,
+      "symbol": "getZ",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 115976,
+      "sampledMs": 21.06
+    },
+    {
+      "node": 71,
+      "symbol": "crossVectors",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 43378,
+      "sampledMs": 20.4
+    },
+    {
+      "node": 58,
+      "symbol": "_computeIntersections",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 166514,
+      "sampledMs": 20.27
+    },
+    {
+      "node": 38,
+      "symbol": "getX",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 115614,
+      "sampledMs": 18.75
+    },
+    {
+      "node": 298,
+      "symbol": "removeChild",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 18.61
+    },
+    {
+      "node": 670,
+      "symbol": "Lm",
+      "asset": "src-B2IO_406.js",
+      "line": 4006,
+      "column": 1629,
+      "sampledMs": 18.32
+    },
+    {
+      "node": 564,
+      "symbol": "get scrollWidth",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 18.16
+    },
+    {
+      "node": 697,
+      "symbol": "a",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 9827,
+      "sampledMs": 17.83
+    },
+    {
+      "node": 657,
+      "symbol": "compose",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 74160,
+      "sampledMs": 16.93
+    },
+    {
+      "node": 751,
+      "symbol": "multiplyMatrices",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 70738,
+      "sampledMs": 16.84
+    },
+    {
+      "node": 44,
+      "symbol": "getY",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 115793,
+      "sampledMs": 16.8
+    },
+    {
+      "node": 69,
+      "symbol": "getY",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 115793,
+      "sampledMs": 16.48
+    },
+    {
+      "node": 39,
+      "symbol": "getZ",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 115976,
+      "sampledMs": 15.65
+    },
+    {
+      "node": 43,
+      "symbol": "subVectors",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 40324,
+      "sampledMs": 13.58
+    },
+    {
+      "node": 669,
+      "symbol": "Km",
+      "asset": "src-B2IO_406.js",
+      "line": 4006,
+      "column": 3164,
+      "sampledMs": 13.37
+    },
+    {
+      "node": 610,
+      "symbol": "clear",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 12.48
+    }
+  ],
+  "topInclusive": [
+    {
+      "node": 1,
+      "symbol": "(root)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 14850.03
+    },
+    {
+      "node": 5,
+      "symbol": "(idle)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 10890.99
+    },
+    {
+      "node": 2,
+      "symbol": "(program)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 1853.8
+    },
+    {
+      "node": 602,
+      "symbol": "Jy",
+      "asset": "src-B2IO_406.js",
+      "line": 4119,
+      "column": 14859,
+      "sampledMs": 1062.4
+    },
+    {
+      "node": 604,
+      "symbol": "Hy",
+      "asset": "src-B2IO_406.js",
+      "line": 4119,
+      "column": 14396,
+      "sampledMs": 903.9
+    },
+    {
+      "node": 605,
+      "symbol": "render",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 31590,
+      "sampledMs": 901.31
+    },
+    {
+      "node": 611,
+      "symbol": "ft",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 34678,
+      "sampledMs": 683.23
+    },
+    {
+      "node": 612,
+      "symbol": "mt",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 36460,
+      "sampledMs": 669.02
+    },
+    {
+      "node": 613,
+      "symbol": "ht",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 36692,
+      "sampledMs": 665.76
+    },
+    {
+      "node": 614,
+      "symbol": "renderBufferDirect",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 28723,
+      "sampledMs": 570.19
+    },
+    {
+      "node": 615,
+      "symbol": "bt",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 39960,
+      "sampledMs": 445.33
+    },
+    {
+      "node": 50,
+      "symbol": "",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 77318,
+      "sampledMs": 323.87
+    },
+    {
+      "node": 51,
+      "symbol": "r",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 74222,
+      "sampledMs": 298.9
+    },
+    {
+      "node": 616,
+      "symbol": "upload",
+      "asset": "src-B2IO_406.js",
+      "line": 4006,
+      "column": 9359,
+      "sampledMs": 296.9
+    },
+    {
+      "node": 56,
+      "symbol": "Lf",
+      "asset": "src-B2IO_406.js",
+      "line": 5,
+      "column": 110908,
+      "sampledMs": 295.99
+    },
+    {
+      "node": 55,
+      "symbol": "intersectObject",
+      "asset": "src-B2IO_406.js",
+      "line": 5,
+      "column": 110701,
+      "sampledMs": 295.99
+    },
+    {
+      "node": 54,
+      "symbol": "s",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 74461,
+      "sampledMs": 295.99
+    },
+    {
+      "node": 57,
+      "symbol": "raycast",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 166017,
+      "sampledMs": 295.31
+    },
+    {
+      "node": 58,
+      "symbol": "_computeIntersections",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 166514,
+      "sampledMs": 290.27
+    },
+    {
+      "node": 59,
+      "symbol": "Do",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 168096,
+      "sampledMs": 266.71
+    },
+    {
+      "node": 617,
+      "symbol": "th",
+      "asset": "src-B2IO_406.js",
+      "line": 4006,
+      "column": 4788,
+      "sampledMs": 261.06
+    },
+    {
+      "node": 618,
+      "symbol": "N",
+      "asset": "src-B2IO_406.js",
+      "line": 4084,
+      "column": 23279,
+      "sampledMs": 260.87
+    },
+    {
+      "node": 619,
+      "symbol": "ce",
+      "asset": "src-B2IO_406.js",
+      "line": 4084,
+      "column": 27403,
+      "sampledMs": 244.98
+    },
+    {
+      "node": 620,
+      "symbol": "texElementImage2D",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 208.02
+    },
+    {
+      "node": 134,
+      "symbol": "od",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 121449,
+      "sampledMs": 194.69
+    },
+    {
+      "node": 133,
+      "symbol": "cd",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 121864,
+      "sampledMs": 194.69
+    },
+    {
+      "node": 132,
+      "symbol": "",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 123280,
+      "sampledMs": 194.69
+    },
+    {
+      "node": 135,
+      "symbol": "dd",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 123218,
+      "sampledMs": 193.38
+    },
+    {
+      "node": 136,
+      "symbol": "_u",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 111133,
+      "sampledMs": 192.73
+    },
+    {
+      "node": 624,
+      "symbol": "cancelAnimationFrame",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 143.02
+    },
+    {
+      "node": 1028,
+      "symbol": "D",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 9438,
+      "sampledMs": 135.54
+    },
+    {
+      "node": 60,
+      "symbol": "getVertexPosition",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 165658,
+      "sampledMs": 131.74
+    },
+    {
+      "node": 15,
+      "symbol": "a",
+      "asset": "src-B2IO_406.js",
+      "line": 4201,
+      "column": 321572,
+      "sampledMs": 131.26
+    },
+    {
+      "node": 14,
+      "symbol": "grab",
+      "asset": "src-B2IO_406.js",
+      "line": 4201,
+      "column": 322587,
+      "sampledMs": 131.26
+    },
+    {
+      "node": 13,
+      "symbol": "grab",
+      "asset": "index-DlDF9dMF.js",
+      "line": 40,
+      "column": 33442,
+      "sampledMs": 131.26
+    }
+  ],
+  "mainTasks": {
+    "count": 2839,
+    "over50ms": 5,
+    "longTotalMs": 1082.16,
+    "maxMs": 477.33
+  },
+  "input": {
+    "pointerover": {
+      "count": 3,
+      "totalMs": 0.88,
+      "maxMs": 0.71
+    },
+    "pointerdown": {
+      "count": 3,
+      "totalMs": 270.66,
+      "maxMs": 108.2
+    },
+    "touchstart": {
+      "count": 3,
+      "totalMs": 0.05,
+      "maxMs": 0.02
+    },
+    "gotpointercapture": {
+      "count": 3,
+      "totalMs": 1.42,
+      "maxMs": 1.39
+    },
+    "pointerup": {
+      "count": 3,
+      "totalMs": 198.83,
+      "maxMs": 116.01
+    },
+    "lostpointercapture": {
+      "count": 3,
+      "totalMs": 2.4,
+      "maxMs": 1.22
+    },
+    "pointerout": {
+      "count": 3,
+      "totalMs": 0.12,
+      "maxMs": 0.05
+    },
+    "pointerleave": {
+      "count": 3,
+      "totalMs": 0.04,
+      "maxMs": 0.02
+    },
+    "touchend": {
+      "count": 3,
+      "totalMs": 0.06,
+      "maxMs": 0.03
+    },
+    "keydown": {
+      "count": 4,
+      "totalMs": 4.38,
+      "maxMs": 2.31
+    },
+    "keyup": {
+      "count": 4,
+      "totalMs": 1.05,
+      "maxMs": 0.82
+    },
+    "mousemove": {
+      "count": 1,
+      "totalMs": 0.02,
+      "maxMs": 0.02
+    },
+    "mousedown": {
+      "count": 1,
+      "totalMs": 2.09,
+      "maxMs": 2.09
+    },
+    "mouseup": {
+      "count": 1,
+      "totalMs": 0.02,
+      "maxMs": 0.02
+    },
+    "pointermove": {
+      "count": 2,
+      "totalMs": 52.93,
+      "maxMs": 44.11
+    },
+    "touchmove": {
+      "count": 2,
+      "totalMs": 0.94,
+      "maxMs": 0.92
+    }
+  },
+  "longTasks": [
+    {
+      "durationMs": 477.33,
+      "nested": {},
+      "inputTypes": []
+    },
+    {
+      "durationMs": 246.39,
+      "nested": {
+        "EventDispatch": 10,
+        "FunctionCall": 35,
+        "FireAnimationFrame": 2
+      },
+      "inputTypes": [
+        "pointerdown",
+        "pointerleave",
+        "touchend",
+        "pointerout",
+        "lostpointercapture",
+        "pointerup",
+        "paint",
+        "gotpointercapture",
+        "pointerover",
+        "touchstart"
+      ]
+    },
+    {
+      "durationMs": 172.79,
+      "nested": {
+        "EventDispatch": 17,
+        "FunctionCall": 35
+      },
+      "inputTypes": [
+        "pointerdown",
+        "pointermove",
+        "pointerleave",
+        "focus",
+        "touchend",
+        "DOMFocusOut",
+        "DOMFocusIn",
+        "touchmove",
+        "pointerout",
+        "lostpointercapture",
+        "pointerup",
+        "gotpointercapture",
+        "pointerover",
+        "focusout",
+        "blur",
+        "touchstart",
+        "focusin"
+      ]
+    },
+    {
+      "durationMs": 134.72,
+      "nested": {
+        "EventDispatch": 17,
+        "FunctionCall": 39
+      },
+      "inputTypes": [
+        "pointerdown",
+        "pointermove",
+        "pointerleave",
+        "focus",
+        "touchend",
+        "DOMFocusOut",
+        "DOMFocusIn",
+        "touchmove",
+        "pointerout",
+        "lostpointercapture",
+        "pointerup",
+        "pointerover",
+        "focusin",
+        "focusout",
+        "gotpointercapture",
+        "blur",
+        "touchstart"
+      ]
+    },
+    {
+      "durationMs": 50.94,
+      "nested": {
+        "EventDispatch": 19,
+        "FunctionCall": 71
+      },
+      "inputTypes": [
+        "focus",
+        "DOMFocusOut",
+        "DOMFocusIn",
+        "gesturetapdown",
+        "click",
+        "keyup",
+        "mousedown",
+        "mousemove",
+        "DOMActivate",
+        "gestureshowpress",
+        "keydown",
+        "focusin",
+        "focusout",
+        "mouseup",
+        "blur"
+      ]
+    }
+  ],
+  "applicationLongTasksExcludingProfilerStart": {
+    "count": 4,
+    "totalMs": 604.836,
+    "maxMs": 246.387
+  },
+  "notes": [
+    "Raw mainTasks includes profiler startup; use applicationLongTasksExcludingProfilerStart for app attribution.",
+    "CPU samples are recorded under6x throttling; inclusive figures overlap and are not additive."
+  ]
+}

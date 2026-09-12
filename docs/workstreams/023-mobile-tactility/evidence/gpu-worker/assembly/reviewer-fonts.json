@@ -1,0 +1,11 @@
+{
+  "captureCalls": 6,
+  "textureDisposals": 12,
+  "closed": 5,
+  "success": true,
+  "partialFailure": true,
+  "lateAbort": true,
+  "alreadyAborted": true,
+  "samplerMetadata": true,
+  "pixelParity": "not measured; controlled raster/bitmap boundary"
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "black": true,
+    "comparisons": 58,
+    "changedRevision": true,
+    "equalRevision": true
+  },
+  {
+    "black": false,
+    "comparisons": 58,
+    "changedRevision": true,
+    "equalRevision": true
+  }
+]

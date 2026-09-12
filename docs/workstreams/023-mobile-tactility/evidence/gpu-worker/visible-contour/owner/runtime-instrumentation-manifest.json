@@ -1,0 +1,8 @@
+{
+  "path": "packages/device/src/sticker-contour-query.ts",
+  "originalSha256": "96082b58a246d8987eb0608fe2207020e75f7383b80d1e41956f8760a8849c12",
+  "instrumentedSha256": "8db6f9bb0b6e086d7aff989fe216605e5e10fba5098f2aace1c43c8f041c2ea7",
+  "applied": false,
+  "maximumEntriesPerOwner": 100,
+  "deadlineMilliseconds": 15000
+}

@@ -1,51 +1,14 @@
+import type { DeviceMotionBinding } from './device-motion-authority';
+import type { RenderCommand, RenderMotionProgram } from './device-render-protocol';
+import {markStickerAssemblyChanged} from './sticker-assembly-revision';
 import {
   type Object3D,
   Quaternion,
   Vector3,
 } from "three";
 
-import { WHEEL_OUTER_SEAM_WIDTH } from "./front-surface";
-import { DEVICE_LAYOUT, PX_PER_MM } from "./layout";
-
-/**
- * Transient control travel, expressed in physical millimetres and converted
- * through the established 5G body scale.
- *
- * No surviving Apple service source publishes the 5G control travel. The
- * owner photographs establish the flush rest geometry, while these restrained
- * depths are visual calibration under the approved key/fill rig. They are not
- * presented as OEM dimensions.
- */
-export const CONTROL_TRAVEL = Object.freeze({
-  // Low-side rim travel for the rigid wheel rock. This is deliberately below
-  // both the rejected 0.08 mm basin and rejected 0.03 mm whole-wheel shift.
-  // It remains bounded visual calibration, not an OEM dimension.
-  wheelMm: 0.006,
-  // Select is a separate plastic part, but its live travel must remain a
-  // restrained near-flush device-local translation rather than a deep pocket.
-  selectMm: 0.12,
-  wheelModel: 0.006 * PX_PER_MM,
-  selectModel: 0.12 * PX_PER_MM,
-});
-
-const WHEEL_VISIBLE_RADIUS_MODEL =
-  DEVICE_LAYOUT.wheel.outerR - WHEEL_OUTER_SEAM_WIDTH;
-
-/** One rigid-disc tilt derived from its bounded low-side rim travel. */
-export const WHEEL_TILT = Object.freeze({
-  radiusModel: WHEEL_VISIBLE_RADIUS_MODEL,
-  maxAngleRad: Math.asin(
-    CONTROL_TRAVEL.wheelModel / WHEEL_VISIBLE_RADIUS_MODEL,
-  ),
-});
-
-export const CONTROL_RELEASE_MS = Object.freeze({
-  wheel: 120,
-  select: 96,
-});
-
-/** Consecutive non-advancing timestamps tolerated before a safety settle. */
-export const CONTROL_STALLED_FRAME_LIMIT = 24;
+import { CONTROL_TRAVEL, WHEEL_TILT, CONTROL_RELEASE_MS, advanceControlRelease } from './control-motion';
+export { CONTROL_TRAVEL, WHEEL_TILT, CONTROL_RELEASE_MS, CONTROL_STALLED_FRAME_LIMIT } from './control-motion';
 
 type BoundRigidAssembly = {
   readonly object: Object3D;
@@ -54,6 +17,7 @@ type BoundRigidAssembly = {
   readonly restZ: number;
   readonly restQuaternion: Quaternion;
   readonly restScale: Vector3;
+  readonly restMatrixAutoUpdate: boolean;
   readonly tiltAxis: Vector3;
   readonly tiltQuaternion: Quaternion;
 };
@@ -65,6 +29,7 @@ type BoundAxialControl = {
   readonly restZ: number;
   readonly restQuaternion: Quaternion;
   readonly restScale: Vector3;
+  readonly restMatrixAutoUpdate: boolean;
 };
 
 type Release = {
@@ -99,6 +64,7 @@ function bindRigidAssembly(object: Object3D): BoundRigidAssembly {
     restZ: object.position.z,
     restQuaternion: object.quaternion.clone(),
     restScale: object.scale.clone(),
+    restMatrixAutoUpdate: object.matrixAutoUpdate,
     tiltAxis: new Vector3(),
     tiltQuaternion: new Quaternion(),
   };
@@ -112,6 +78,7 @@ function bindAxialControl(object: Object3D): BoundAxialControl {
     restZ: object.position.z,
     restQuaternion: object.quaternion.clone(),
     restScale: object.scale.clone(),
+    restMatrixAutoUpdate: object.matrixAutoUpdate,
   };
 }
 
@@ -119,7 +86,9 @@ function translateAxialControl(control: BoundAxialControl, depth: number): void 
   control.object.position.set(control.restX, control.restY, control.restZ - depth);
   control.object.quaternion.copy(control.restQuaternion);
   control.object.scale.copy(control.restScale);
+  control.object.matrixAutoUpdate = control.restMatrixAutoUpdate;
   control.object.updateMatrix();
+  markStickerAssemblyChanged(control.object);
 }
 
 function restoreAxialControl(control: BoundAxialControl): void {
@@ -160,14 +129,18 @@ function tiltRigidAssembly(
     .multiply(assembly.tiltQuaternion)
     .normalize();
   assembly.object.scale.copy(assembly.restScale);
+  assembly.object.matrixAutoUpdate = assembly.restMatrixAutoUpdate;
   assembly.object.updateMatrix();
+  markStickerAssemblyChanged(assembly.object);
 }
 
 function restoreRigidAssembly(assembly: BoundRigidAssembly): void {
   assembly.object.position.set(assembly.restX, assembly.restY, assembly.restZ);
   assembly.object.quaternion.copy(assembly.restQuaternion);
   assembly.object.scale.copy(assembly.restScale);
+  assembly.object.matrixAutoUpdate = assembly.restMatrixAutoUpdate;
   assembly.object.updateMatrix();
+  markStickerAssemblyChanged(assembly.object);
 }
 
 function channel(): Channel {
@@ -189,9 +162,90 @@ export class ControlPhysicsController {
   #reducedMotion = false;
   #disposed = false;
   #wheelAngleDeg = 0;
+  #lastRemotePoseSequence = -1;
+  #motionBinding: DeviceMotionBinding | null = null;
+  #motionUnsubscribe: (() => void) | null = null;
+  readonly #remoteReleases = new Map<'wheel' | 'select', number>();
 
   constructor(dependencies: ControlPhysicsDependencies) {
     this.#dependencies = dependencies;
+  }
+
+  /** Attaches the complete renderer's shared reliable command owner. Main
+   * press/query transforms remain synchronous; only released travel migrates.
+   * Detach restores exact rest and retires old replies without replaying input. */
+  attachMotion(binding: DeviceMotionBinding): () => void {
+    this.#motionUnsubscribe?.();
+    this.#settle(this.#wheel); this.#settle(this.#select);
+    this.#motionBinding = binding;
+    this.#lastRemotePoseSequence = -1;
+    this.#remoteReleases.clear();
+    const unsubscribe = binding.subscribe(response => {
+      if (this.#motionBinding !== binding || this.#disposed) return;
+      if (response.type === 'projection') {
+        if (this.#remoteReleases.size === 0 || response.projection.pose.sequence <= this.#lastRemotePoseSequence) return;
+        this.#lastRemotePoseSequence = response.projection.pose.sequence;
+        for (const [channel, sequence] of this.#remoteReleases) {
+          if (response.projection.pose.lastAcceptedCommand < sequence) continue;
+          const object = channel === 'wheel' ? this.#wheelAssembly?.object : this.#selectControl?.object;
+          const node = response.projection.pose.nodes.find(node => node.id === (channel === 'wheel' ? 'wheel-assembly' : 'select'));
+          if (object && node) {
+            object.matrix.fromArray(node.matrix);
+            // Preserve the submitted matrix exactly for immediate queries;
+            // rest/press paths restore authored components and auto-update.
+            object.matrixAutoUpdate = false;
+            markStickerAssemblyChanged(object);
+          }
+        }
+        this.#dependencies.invalidate();
+      } else if (response.type === 'command-settled' || response.type === 'command-rejected') {
+        for (const [channel, sequence] of this.#remoteReleases) {
+          if (sequence !== response.commandSequence) continue;
+          this.#remoteReleases.delete(channel);
+          this.#settle(channel === 'wheel' ? this.#wheel : this.#select);
+          this.#dependencies.invalidate();
+        }
+      }
+    });
+    this.#motionUnsubscribe = unsubscribe;
+    return () => {
+      unsubscribe();
+      if (this.#motionBinding !== binding) return;
+      this.#motionBinding = null; this.#motionUnsubscribe = null;
+      this.#remoteReleases.clear();
+      this.#settle(this.#wheel); this.#settle(this.#select);
+      this.#dependencies.invalidate();
+    };
+  }
+
+  #motionPose(binding: DeviceMotionBinding) {
+    const current = binding.read();
+    return {...current, nodes: current.nodes.map(node => {
+      const object = node.id === 'wheel-assembly' ? this.#wheelAssembly?.object : node.id === 'select' ? this.#selectControl?.object : undefined;
+      return object ? {...node, matrix: object.matrix.toArray()} : node;
+    })};
+  }
+
+  #sendMotion(binding: DeviceMotionBinding, command: RenderCommand): boolean {
+    try { binding.sendCommand(command); return true; } catch {
+      if (this.#motionBinding === binding) {
+        this.#motionUnsubscribe?.(); this.#motionUnsubscribe = null; this.#motionBinding = null;
+        this.#remoteReleases.clear();
+        this.#settle(this.#wheel); this.#settle(this.#select);
+        this.#dependencies.invalidate();
+      }
+      return false;
+    }
+  }
+
+  #remotePress(channel: 'wheel' | 'select'): void {
+    const binding = this.#motionBinding;
+    this.#remoteReleases.delete(channel);
+    if (!binding) return;
+    const pose = this.#motionPose(binding);
+    const command: RenderCommand = {kind: 'control-down', button: channel === 'select' ? 'center' : 'menu',
+      timestampMs: performance.timeOrigin + this.#dependencies.now(), commandSequence: binding.nextCommandSequence(), motionEpoch: pose.motionEpoch, pose};
+    this.#sendMotion(binding, command);
   }
 
   attachWheel(assemblyObject: Object3D): () => void {
@@ -238,6 +292,7 @@ export class ControlPhysicsController {
     this.#wheelAngleDeg = normalizeAngleDeg(contactAngleDeg);
     this.#wheel.depth = CONTROL_TRAVEL.wheelModel;
     this.#renderWheel();
+    this.#remotePress('wheel');
     this.#dependencies.invalidate();
     this.#cancelFrameWhenSettled();
   }
@@ -252,7 +307,13 @@ export class ControlPhysicsController {
     const nextAngle = normalizeAngleDeg(contactAngleDeg);
     if (nextAngle === this.#wheelAngleDeg) return;
     this.#wheelAngleDeg = nextAngle;
-    this.#renderWheel();
+    if (!this.#remoteReleases.has('wheel')) this.#renderWheel();
+    const binding = this.#motionBinding;
+    if (binding) {
+      const pose = this.#motionPose(binding);
+      this.#sendMotion(binding, {kind: 'control-contact', contactAngleDeg: nextAngle,
+        timestampMs: performance.timeOrigin + this.#dependencies.now(), commandSequence: binding.nextCommandSequence(), motionEpoch: pose.motionEpoch, pose});
+    }
     this.#dependencies.invalidate();
   }
 
@@ -265,6 +326,7 @@ export class ControlPhysicsController {
     this.#select.release = null;
     this.#select.depth = CONTROL_TRAVEL.selectModel;
     this.#renderSelect();
+    this.#remotePress('select');
     this.#dependencies.invalidate();
     this.#cancelFrameWhenSettled();
   }
@@ -275,7 +337,17 @@ export class ControlPhysicsController {
 
   setReducedMotion(reduced: boolean): void {
     this.#reducedMotion = reduced;
+    const binding = this.#motionBinding;
+    if (binding) {
+      const pose = this.#motionPose(binding);
+      this.#sendMotion(binding, {kind: 'reduced-motion', enabled: reduced, commandSequence: binding.nextCommandSequence(), motionEpoch: pose.motionEpoch, pose});
+    }
     if (!reduced) return;
+    if (this.#remoteReleases.size > 0) {
+      for (const channel of this.#remoteReleases.keys()) this.#settle(channel === 'wheel' ? this.#wheel : this.#select);
+      this.#remoteReleases.clear();
+      this.#dependencies.invalidate();
+    }
     const wheelWasReleasing = this.#wheel.release !== null;
     const selectWasReleasing = this.#select.release !== null;
     if (wheelWasReleasing) this.#settle(this.#wheel);
@@ -291,6 +363,7 @@ export class ControlPhysicsController {
   dispose(): void {
     if (this.#disposed) return;
     this.#disposed = true;
+    this.#motionUnsubscribe?.(); this.#motionUnsubscribe = null; this.#motionBinding = null; this.#remoteReleases.clear();
     if (this.#frame !== null) this.#dependencies.cancelFrame(this.#frame);
     this.#frame = null;
     this.#settle(this.#wheel);
@@ -302,6 +375,24 @@ export class ControlPhysicsController {
     if (this.#reducedMotion) {
       this.#settle(channelState);
       this.#dependencies.invalidate();
+      this.#cancelFrameWhenSettled();
+      return;
+    }
+    const binding = this.#motionBinding;
+    const channel = channelState === this.#wheel ? 'wheel' : 'select';
+    const control = channel === 'wheel' ? this.#wheelAssembly : this.#selectControl;
+    if (binding && control) {
+      const pose = this.#motionPose(binding);
+      const commandSequence = binding.nextCommandSequence();
+      const startedAtTimestampMs = performance.timeOrigin + this.#dependencies.now();
+      const restPosition: [number, number, number] = [control.restX, control.restY, control.restZ];
+      const restMatrix = control.object.matrix.clone().compose(new Vector3(...restPosition), control.restQuaternion, control.restScale).toArray();
+      const program: RenderMotionProgram = {kind: 'control-release', channel, nodeId: channel === 'wheel' ? 'wheel-assembly' : 'select',
+        origin: {commandSequence, motionEpoch: pose.motionEpoch}, restPosition, restQuaternion: control.restQuaternion.toArray(), restScale: control.restScale.toArray(), restMatrix,
+        contactAngleDeg: this.#wheelAngleDeg, initialDepth: channelState.depth, durationMs, startedAtTimestampMs, lastTimestampMs: startedAtTimestampMs, stalledFrames: 0};
+      this.#remoteReleases.set(channel, commandSequence);
+      channelState.release = null;
+      this.#sendMotion(binding, {kind: 'motion-start', commandSequence, motionEpoch: pose.motionEpoch, pose, program});
       this.#cancelFrameWhenSettled();
       return;
     }
@@ -337,25 +428,11 @@ export class ControlPhysicsController {
   #advance(channelState: Channel, timestampMs: number): boolean {
     const release = channelState.release;
     if (release === null) return false;
-    const timestampAdvanced =
-      Number.isFinite(timestampMs) && timestampMs > release.lastTimestampMs;
-    if (timestampAdvanced) {
-      release.lastTimestampMs = timestampMs;
-      release.stalledFrames = 0;
-    } else {
-      release.stalledFrames += 1;
-    }
-    const elapsed = Number.isFinite(timestampMs)
-      ? Math.max(0, timestampMs - release.startedAtMs)
-      : 0;
-    const progress = Math.min(1, elapsed / release.durationMs);
-    if (progress >= 1 || release.stalledFrames >= CONTROL_STALLED_FRAME_LIMIT) {
-      this.#settle(channelState);
-      return true;
-    }
-    const remaining = 1 - progress;
-    channelState.depth =
-      release.initialDepth * remaining * remaining * remaining;
+    const next = advanceControlRelease(release, timestampMs);
+    release.lastTimestampMs = next.lastTimestampMs;
+    release.stalledFrames = next.stalledFrames;
+    if (next.settled) this.#settle(channelState);
+    else channelState.depth = next.depth;
     return true;
   }
 

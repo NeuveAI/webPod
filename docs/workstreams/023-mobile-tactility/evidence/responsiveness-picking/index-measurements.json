@@ -1,0 +1,61 @@
+{
+  "note": "Offline unthrottled Bun, render geometry source copied verbatim from Device front factory; timings single bounded pass, not browser/input latency.",
+  "report": [
+    {
+      "name": "front",
+      "touch": false,
+      "triangles": 169367,
+      "rays": 140,
+      "exactCalls": 92,
+      "broadPhaseRejected": 48,
+      "baselineMs": 262.6045810000001,
+      "optimizedMs": 144.6779570000001
+    },
+    {
+      "name": "front",
+      "touch": true,
+      "triangles": 169367,
+      "rays": 140,
+      "exactCalls": 115,
+      "broadPhaseRejected": 25,
+      "baselineMs": 256.6740039999992,
+      "optimizedMs": 199.5184670000001
+    },
+    {
+      "name": "rear",
+      "touch": false,
+      "triangles": 22166,
+      "rays": 140,
+      "exactCalls": 92,
+      "broadPhaseRejected": 48,
+      "baselineMs": 69.89008400000148,
+      "optimizedMs": 43.86699799999724
+    },
+    {
+      "name": "rear",
+      "touch": true,
+      "triangles": 22166,
+      "rays": 140,
+      "exactCalls": 115,
+      "broadPhaseRejected": 25,
+      "baselineMs": 73.29140800000005,
+      "optimizedMs": 59.46458499999903
+    }
+  ],
+  "indexReport": [
+    {
+      "name": "front",
+      "buildMs": 224.00758399999995,
+      "rays": 420,
+      "baselineMs": 1316.8135830000053,
+      "indexedMs": 6.430245000001378
+    },
+    {
+      "name": "rear",
+      "buildMs": 36.49329200000011,
+      "rays": 420,
+      "baselineMs": 201.76675399999522,
+      "indexedMs": 9.332341999993332
+    }
+  ]
+}

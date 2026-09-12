@@ -537,7 +537,7 @@ describe("rigid physical click-wheel tilt", () => {
       "packages/device/src/control-physics.ts",
     ).text();
     const input = await Bun.file(
-      "packages/device/src/click-wheel-input.tsx",
+      "packages/device/src/click-wheel-event-controller.ts",
     ).text();
     const scope = await Bun.file(
       "packages/device/src/ControlPhysicsScope.tsx",
@@ -575,12 +575,14 @@ describe("rigid physical click-wheel tilt", () => {
     expect(input.match(/controlPhysics\?\.pressWheel\(first\.angleDeg\)/g)).toHaveLength(1);
     expect(pointerMove).toContain("controlPhysics?.moveWheel(next.angleDeg)");
     expect(physics).not.toMatch(/ShaderMaterial|uniform|wheelReadability/);
-    expect(device).toContain('name="device-wheel-assembly"');
-    expect(device).toContain(
-      "position={[wheel.centerX, wheel.centerY, wheelTopAtCenterZ]}",
+    const recipe = await Bun.file('packages/device/src/device-assembly-recipe.ts').text();
+    expect(device).toContain('createDeviceAssemblyRecipe(form,prepared.hardware)');
+    expect(recipe).toContain("name: 'device-wheel-assembly'");
+    expect(recipe).toContain(
+      "position: [wheel.centerX, wheel.centerY, depth.wheelTopAtCenterZ]",
     );
-    expect(device.indexOf('name="device-wheel-gap-floor"')).toBeLessThan(
-      device.indexOf('name="device-wheel-assembly"'),
+    expect(recipe.indexOf("name: 'device-wheel-gap-floor'")).toBeLessThan(
+      recipe.indexOf("name: 'device-wheel-assembly'"),
     );
     expect(device).toContain("controlPhysics?.attachWheel(assembly)");
     expect(device).not.toMatch(

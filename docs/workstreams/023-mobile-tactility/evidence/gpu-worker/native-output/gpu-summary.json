@@ -1,0 +1,39 @@
+{
+  "source": "gpu-result.json",
+  "operator": "lead; existing Chrome page21",
+  "environment": "dev; mobile440x956DPR3CPU6 as supplied by lead",
+  "method": "isolated4x4 GL/WebGPU correctness comparison; not performance",
+  "basicCases": 12,
+  "orderedCases": 4,
+  "maxError": 0,
+  "antialias": true,
+  "sharedPass": {
+    "before": [
+      137,
+      137,
+      137,
+      255
+    ],
+    "intermediate": [
+      64,
+      64,
+      64,
+      255
+    ],
+    "after": [
+      137,
+      137,
+      137,
+      255
+    ]
+  },
+  "variants": [
+    "MeshPhysicalNodeMaterial",
+    "MeshStandardNodeMaterial",
+    "MeshBasicNodeMaterial"
+  ],
+  "fragmentNodeCompiled": true,
+  "ownedResources": "returned after finally: readbuffer,target,geometry,materials,GLrenderer,backendowner disposed; deadline cleared",
+  "temporaryHelperRemoved": true,
+  "limitation": "physical ordered stack has no PMREM; full actual scene visual gate separate"
+}

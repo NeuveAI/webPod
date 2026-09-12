@@ -184,7 +184,9 @@ export function applyDeviceCameraFit(
   camera: PerspectiveCamera,
   fit: DeviceCameraFit,
   viewport: Pick<DeviceFitViewport, "width" | "height">,
+  verticalFovDeg = camera.fov,
 ): void {
+  camera.fov = verticalFovDeg;
   camera.aspect = viewport.width / viewport.height;
   camera.near = fit.near;
   camera.far = fit.far;

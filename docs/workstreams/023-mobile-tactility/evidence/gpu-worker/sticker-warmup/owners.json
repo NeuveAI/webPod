@@ -1,0 +1,28 @@
+{
+  "provenance": "Bun real geometry/damage workers and private MessagePorts; controlled browser decode/raster/bitmap, manual compile ACK. No WebGPU compile or native ImageBitmap-transfer claim.",
+  "checks": 14,
+  "artworkPreparations": 2,
+  "variantsPerArtwork": 3,
+  "materialMeshes": 6,
+  "bitmapCloses": 2,
+  "finalPaper": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "finalTransactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  }
+}

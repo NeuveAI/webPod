@@ -1,0 +1,846 @@
+{
+  "lifecycle": {
+    "targetFrameProcessSwapEvents": 0,
+    "explicitPauseHiddenBfcacheEvents": 0,
+    "mainLastUnclosedTaskStart": 259138682915,
+    "note": "No explicit matching lifecycle marker is proof of neither absence nor cause; incomplete main RunTask cannot be assigned a completed duration."
+  },
+  "sourceCommit": "22437fc",
+  "traceSha256": "b77edff2040f173150824f6ed6b3d100916ed8b184821ceac72d80568065ff40",
+  "traceBytes": 57643253,
+  "interval": {
+    "min": 259138966067,
+    "max": 259146301959,
+    "durationMs": 7335.892
+  },
+  "target": {
+    "pid": 39318,
+    "main": 4511411,
+    "renderer": 4525946
+  },
+  "tracks": [
+    {
+      "tid": 4511411,
+      "lastEventTimestamp": 259138682915,
+      "eventsInInterval": 0,
+      "runTasks": 0,
+      "longTasksOver50ms": [],
+      "unclosedTaskBegins": 1,
+      "callbackEvents": 0
+    },
+    {
+      "tid": 4525946,
+      "lastEventTimestamp": 259145317664,
+      "eventsInInterval": 175,
+      "runTasks": 0,
+      "longTasksOver50ms": [],
+      "unclosedTaskBegins": 1,
+      "callbackEvents": 0
+    }
+  ],
+  "profiles": [
+    {
+      "thread": 4526114,
+      "worker": null,
+      "samples": 278,
+      "sampledDeltaMs": 3911.745,
+      "lastSampleTimestamp": 259142877812,
+      "top": [
+        {
+          "sampleDeltaMs": 2889.916,
+          "stack": [
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "collisionSteps",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 9,
+              "column": 32
+            },
+            {
+              "name": "createStickerCollision",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+              "line": 31,
+              "column": 39
+            }
+          ]
+        },
+        {
+          "sampleDeltaMs": 377.79,
+          "stack": [
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "collisionSteps",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 9,
+              "column": 32
+            },
+            {
+              "name": "createStickerCollision",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+              "line": 31,
+              "column": 39
+            },
+            {
+              "name": "buildShellPickingIndex",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-index.ts",
+              "line": 5,
+              "column": 39
+            },
+            {
+              "name": "self.onmessage",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-worker.ts",
+              "line": 5,
+              "column": 18
+            },
+            {
+              "name": "(root)"
+            }
+          ]
+        },
+        {
+          "sampleDeltaMs": 270.822,
+          "stack": [
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "collisionSteps",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 9,
+              "column": 32
+            },
+            {
+              "name": "createStickerCollision",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+              "line": 31,
+              "column": 39
+            },
+            {
+              "name": "buildShellPickingIndex",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-index.ts",
+              "line": 5,
+              "column": 39
+            }
+          ]
+        },
+        {
+          "sampleDeltaMs": 189.063,
+          "stack": [
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "collisionSteps",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 9,
+              "column": 32
+            },
+            {
+              "name": "createStickerCollision",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+              "line": 31,
+              "column": 39
+            },
+            {
+              "name": "buildShellPickingIndex",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-index.ts",
+              "line": 5,
+              "column": 39
+            },
+            {
+              "name": "self.onmessage",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-worker.ts",
+              "line": 5,
+              "column": 18
+            },
+            {
+              "name": "(root)"
+            }
+          ]
+        },
+        {
+          "sampleDeltaMs": 163.403,
+          "stack": [
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            }
+          ]
+        },
+        {
+          "sampleDeltaMs": 17.157,
+          "stack": [
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "collisionSteps",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 9,
+              "column": 32
+            },
+            {
+              "name": "createStickerCollision",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+              "line": 31,
+              "column": 39
+            },
+            {
+              "name": "buildShellPickingIndex",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-index.ts",
+              "line": 5,
+              "column": 39
+            },
+            {
+              "name": "self.onmessage",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-worker.ts",
+              "line": 5,
+              "column": 18
+            },
+            {
+              "name": "(root)"
+            }
+          ]
+        },
+        {
+          "sampleDeltaMs": 3.269,
+          "stack": [
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "collisionSteps",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 9,
+              "column": 32
+            }
+          ]
+        },
+        {
+          "sampleDeltaMs": 0.117,
+          "stack": [
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "collisionSteps",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 9,
+              "column": 32
+            },
+            {
+              "name": "createStickerCollision",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+              "line": 31,
+              "column": 39
+            },
+            {
+              "name": "buildShellPickingIndex",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-index.ts",
+              "line": 5,
+              "column": 39
+            },
+            {
+              "name": "self.onmessage",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-worker.ts",
+              "line": 5,
+              "column": 18
+            },
+            {
+              "name": "(root)"
+            }
+          ]
+        },
+        {
+          "sampleDeltaMs": 0.115,
+          "stack": [
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "build",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 57,
+              "column": 17
+            },
+            {
+              "name": "collisionSteps",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 9,
+              "column": 32
+            },
+            {
+              "name": "createStickerCollision",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+              "line": 31,
+              "column": 39
+            },
+            {
+              "name": "buildShellPickingIndex",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-index.ts",
+              "line": 5,
+              "column": 39
+            },
+            {
+              "name": "self.onmessage",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-worker.ts",
+              "line": 5,
+              "column": 18
+            },
+            {
+              "name": "(root)"
+            }
+          ]
+        },
+        {
+          "sampleDeltaMs": 0.093,
+          "stack": [
+            {
+              "name": "collisionSteps",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision-cooperative.ts",
+              "line": 9,
+              "column": 32
+            },
+            {
+              "name": "createStickerCollision",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/sticker-collision.ts",
+              "line": 31,
+              "column": 39
+            },
+            {
+              "name": "buildShellPickingIndex",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-index.ts",
+              "line": 5,
+              "column": 39
+            },
+            {
+              "name": "self.onmessage",
+              "source": "@fs/Users/vinicius/code/webPod/packages/device/src/shell-picking-worker.ts",
+              "line": 5,
+              "column": 18
+            },
+            {
+              "name": "(root)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "thread": 4525946,
+      "worker": "@fs/Users/vinicius/code/webPod/packages/device/src/device-render-worker.ts",
+      "samples": 100,
+      "sampledDeltaMs": 1998.939,
+      "lastSampleTimestamp": 259140965006,
+      "top": [
+        {
+          "sampleDeltaMs": 1998.939,
+          "stack": [
+            {
+              "name": "update",
+              "source": "node_modules/.vite/deps/three_webgpu.js",
+              "line": 19909,
+              "column": 18
+            },
+            {
+              "name": "(root)"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "No target main-thread events or CPU profile in the authoritative interval; absence is not zero CPU cost.",
+    "Profile time-delta attribution is sampling weight, not exact function duration or GPU time.",
+    "No reveal phase/logical elapsed markers in this capture; cannot establish start/end or pose cadence.",
+    "Chrome DEV source coordinates refer to transformed modules; primary source function names checked at pinned commit.",
+    "Global trace contains other processes; analysis intentionally excludes them."
+  ]
+}

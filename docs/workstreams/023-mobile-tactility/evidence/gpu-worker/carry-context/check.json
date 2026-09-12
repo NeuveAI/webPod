@@ -1,0 +1,20 @@
+{
+  "authoredRearAndPackedCollisionExact": true,
+  "privateTypedBytes": 20906104,
+  "reservedContextBytes": 20915342,
+  "oneTransferPerBuffer": true,
+  "borrowedIntact": true,
+  "copyCheckpointsAtMost2048Elements": true,
+  "initialYieldAndMidCopyAbort": true,
+  "coldRequestCreatesNoWorkerSynchronously": true,
+  "cancelledGenerationNeverPosts": true,
+  "latestIntentDrains": true,
+  "hiddenRetiresInstalledContext": true,
+  "previousFrameRetainedUntilReplacement": true,
+  "peakLiveProducer": 1,
+  "peakInstalledBytes": 20906104,
+  "disposePendingNoLateWorker": true,
+  "contextPostFailureRetiresProducer": true,
+  "overCapacityRejectedBeforeCopy": true,
+  "finalZero": true
+}

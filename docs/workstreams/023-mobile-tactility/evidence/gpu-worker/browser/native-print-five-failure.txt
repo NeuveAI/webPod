@@ -1,0 +1,4 @@
+Script ran on page and returned:
+```json
+{"width":440,"height":956,"dpr":3,"renderer":"webgl","failure":"Sticker computation byte capacity exceeded; native pack phase=print-5; completed prints=4; artworkBytes=9870400; transactions={\"entries\":25,\"queued\":0,\"active\":null,\"worker\":true,\"privateOwners\":17,\"pendingCopies\":0,\"privateBytes\":8389840,\"accountedBytes\":80567804}"}
+```

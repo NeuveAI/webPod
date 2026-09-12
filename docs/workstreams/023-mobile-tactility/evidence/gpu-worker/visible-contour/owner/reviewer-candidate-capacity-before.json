@@ -1,0 +1,22 @@
+{
+  "retained": true,
+  "error": "Collision preparation capacity exceeded",
+  "checks": [
+    "final collision/private ownership zero"
+  ],
+  "budget": {
+    "bytes": 0,
+    "reservations": 0,
+    "limit": 134217728
+  },
+  "transactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  }
+}

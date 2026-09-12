@@ -76,3 +76,5 @@ export type {
 
 export { getAgentWheelControls, type AgentWheelControls } from './agent-controls'
 export { readInteractionAudioState } from './interaction-audio'
+
+export { InteractionHaptics, type InteractionHaptic } from './interaction-haptics'

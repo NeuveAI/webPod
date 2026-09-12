@@ -1,0 +1,1220 @@
+{
+  "topSelf": [
+    {
+      "symbol": "(idle)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 10890.99
+    },
+    {
+      "symbol": "(program)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 1853.8
+    },
+    {
+      "symbol": "texElementImage2D",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 208.02
+    },
+    {
+      "symbol": "cancelAnimationFrame",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 143.02
+    },
+    {
+      "symbol": "requestAnimationFrame",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 98.81
+    },
+    {
+      "symbol": "get clientWidth",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 69.82
+    },
+    {
+      "symbol": "getVertexPosition",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 165658,
+      "sampledMs": 59.91
+    },
+    {
+      "symbol": "getX",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 115614,
+      "sampledMs": 51.93
+    },
+    {
+      "symbol": "multiplyMatrices",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 70738,
+      "sampledMs": 51.84
+    },
+    {
+      "symbol": "intersectTriangle",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 162965,
+      "sampledMs": 47.41
+    },
+    {
+      "symbol": "compose",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 74160,
+      "sampledMs": 46.6
+    },
+    {
+      "symbol": "subVectors",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 40324,
+      "sampledMs": 44.41
+    },
+    {
+      "symbol": "(garbage collector)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 41.42
+    },
+    {
+      "symbol": "Do",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 168096,
+      "sampledMs": 38.73
+    },
+    {
+      "symbol": "getZ",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 115976,
+      "sampledMs": 36.71
+    },
+    {
+      "symbol": "Eo",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 167807,
+      "sampledMs": 35.34
+    },
+    {
+      "symbol": "getY",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 115793,
+      "sampledMs": 33.27
+    },
+    {
+      "symbol": "bt",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 39960,
+      "sampledMs": 33.25
+    },
+    {
+      "symbol": "get scrollWidth",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 32.01
+    },
+    {
+      "symbol": "update",
+      "asset": "src-B2IO_406.js",
+      "line": 4201,
+      "column": 392076,
+      "sampledMs": 30.65
+    },
+    {
+      "symbol": "s",
+      "asset": "src-B2IO_406.js",
+      "line": 3671,
+      "column": 10663,
+      "sampledMs": 29.76
+    },
+    {
+      "symbol": "dt",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 33606,
+      "sampledMs": 28.25
+    },
+    {
+      "symbol": "fromBufferAttribute",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 45241,
+      "sampledMs": 27.84
+    },
+    {
+      "symbol": "crossVectors",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 43378,
+      "sampledMs": 27.79
+    },
+    {
+      "symbol": "_computeIntersections",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 166514,
+      "sampledMs": 24.35
+    },
+    {
+      "symbol": "Lm",
+      "asset": "src-B2IO_406.js",
+      "line": 4006,
+      "column": 1629,
+      "sampledMs": 23.41
+    },
+    {
+      "symbol": "renderBufferDirect",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 28723,
+      "sampledMs": 22.2
+    },
+    {
+      "symbol": "removeChild",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 21.64
+    },
+    {
+      "symbol": "bindVertexArray",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 21.51
+    },
+    {
+      "symbol": "dot",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 42774,
+      "sampledMs": 18.34
+    },
+    {
+      "symbol": "a",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 9827,
+      "sampledMs": 17.83
+    },
+    {
+      "symbol": "Km",
+      "asset": "src-B2IO_406.js",
+      "line": 4006,
+      "column": 3164,
+      "sampledMs": 16.2
+    },
+    {
+      "symbol": "updateMatrixWorld",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 84860,
+      "sampledMs": 14.2
+    },
+    {
+      "symbol": "clear",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 12.48
+    },
+    {
+      "symbol": "upload",
+      "asset": "src-B2IO_406.js",
+      "line": 4006,
+      "column": 9359,
+      "sampledMs": 10.92
+    },
+    {
+      "symbol": "u",
+      "asset": "src-B2IO_406.js",
+      "line": 4057,
+      "column": 13756,
+      "sampledMs": 10.64
+    },
+    {
+      "symbol": "applyMatrix4",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 59435,
+      "sampledMs": 9.56
+    },
+    {
+      "symbol": "applyMatrix4",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 40950,
+      "sampledMs": 9.37
+    },
+    {
+      "symbol": "ce",
+      "asset": "src-B2IO_406.js",
+      "line": 4084,
+      "column": 27403,
+      "sampledMs": 9.23
+    },
+    {
+      "symbol": "i",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 9065,
+      "sampledMs": 8.58
+    },
+    {
+      "symbol": "p",
+      "asset": "src-B2IO_406.js",
+      "line": 3671,
+      "column": 11477,
+      "sampledMs": 8.49
+    },
+    {
+      "symbol": "q_",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 65884,
+      "sampledMs": 7.87
+    },
+    {
+      "symbol": "invert",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 47041,
+      "sampledMs": 7.59
+    },
+    {
+      "symbol": "he",
+      "asset": "src-B2IO_406.js",
+      "line": 4084,
+      "column": 11821,
+      "sampledMs": 7.58
+    },
+    {
+      "symbol": "Hm",
+      "asset": "src-B2IO_406.js",
+      "line": 4006,
+      "column": 2194,
+      "sampledMs": 6.94
+    },
+    {
+      "symbol": "setValue",
+      "asset": "src-B2IO_406.js",
+      "line": 4006,
+      "column": 8394,
+      "sampledMs": 6.94
+    },
+    {
+      "symbol": "uniformMatrix4fv",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 6.93
+    },
+    {
+      "symbol": "u",
+      "asset": "src-B2IO_406.js",
+      "line": 4201,
+      "column": 394391,
+      "sampledMs": 6.86
+    },
+    {
+      "symbol": "xg",
+      "asset": "src-B2IO_406.js",
+      "line": 4057,
+      "column": 12579,
+      "sampledMs": 6.8
+    },
+    {
+      "symbol": "fetch",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 6.73
+    }
+  ],
+  "topInclusive": [
+    {
+      "symbol": "(root)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 14850.03
+    },
+    {
+      "symbol": "(idle)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 10890.99
+    },
+    {
+      "symbol": "(program)",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 1853.8
+    },
+    {
+      "symbol": "Jy",
+      "asset": "src-B2IO_406.js",
+      "line": 4119,
+      "column": 14859,
+      "sampledMs": 1062.4
+    },
+    {
+      "symbol": "Hy",
+      "asset": "src-B2IO_406.js",
+      "line": 4119,
+      "column": 14396,
+      "sampledMs": 904.18
+    },
+    {
+      "symbol": "render",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 31590,
+      "sampledMs": 901.38
+    },
+    {
+      "symbol": "ft",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 34678,
+      "sampledMs": 683.23
+    },
+    {
+      "symbol": "mt",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 36460,
+      "sampledMs": 669.02
+    },
+    {
+      "symbol": "ht",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 36692,
+      "sampledMs": 665.76
+    },
+    {
+      "symbol": "renderBufferDirect",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 28723,
+      "sampledMs": 570.19
+    },
+    {
+      "symbol": "bt",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 39960,
+      "sampledMs": 446.42
+    },
+    {
+      "symbol": "Lf",
+      "asset": "src-B2IO_406.js",
+      "line": 5,
+      "column": 110908,
+      "sampledMs": 425.06
+    },
+    {
+      "symbol": "intersectObject",
+      "asset": "src-B2IO_406.js",
+      "line": 5,
+      "column": 110701,
+      "sampledMs": 425.06
+    },
+    {
+      "symbol": "raycast",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 166017,
+      "sampledMs": 424.27
+    },
+    {
+      "symbol": "_computeIntersections",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 166514,
+      "sampledMs": 419.18
+    },
+    {
+      "symbol": "Do",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 168096,
+      "sampledMs": 396.15
+    },
+    {
+      "symbol": "",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 77318,
+      "sampledMs": 323.87
+    },
+    {
+      "symbol": "r",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 74222,
+      "sampledMs": 298.9
+    },
+    {
+      "symbol": "upload",
+      "asset": "src-B2IO_406.js",
+      "line": 4006,
+      "column": 9359,
+      "sampledMs": 296.9
+    },
+    {
+      "symbol": "s",
+      "asset": "src-B2IO_406.js",
+      "line": 4108,
+      "column": 74461,
+      "sampledMs": 295.99
+    },
+    {
+      "symbol": "th",
+      "asset": "src-B2IO_406.js",
+      "line": 4006,
+      "column": 4788,
+      "sampledMs": 261.27
+    },
+    {
+      "symbol": "N",
+      "asset": "src-B2IO_406.js",
+      "line": 4084,
+      "column": 23279,
+      "sampledMs": 260.87
+    },
+    {
+      "symbol": "ce",
+      "asset": "src-B2IO_406.js",
+      "line": 4084,
+      "column": 27403,
+      "sampledMs": 244.98
+    },
+    {
+      "symbol": "getVertexPosition",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 165658,
+      "sampledMs": 209.67
+    },
+    {
+      "symbol": "texElementImage2D",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 208.02
+    },
+    {
+      "symbol": "_u",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 111133,
+      "sampledMs": 203.09
+    },
+    {
+      "symbol": "od",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 121449,
+      "sampledMs": 194.69
+    },
+    {
+      "symbol": "cd",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 121864,
+      "sampledMs": 194.69
+    },
+    {
+      "symbol": "",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 123280,
+      "sampledMs": 194.69
+    },
+    {
+      "symbol": "dd",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 123218,
+      "sampledMs": 193.38
+    },
+    {
+      "symbol": "Eo",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 167807,
+      "sampledMs": 159.78
+    },
+    {
+      "symbol": "fromBufferAttribute",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 45241,
+      "sampledMs": 149.76
+    },
+    {
+      "symbol": "cancelAnimationFrame",
+      "asset": "",
+      "line": 0,
+      "column": 0,
+      "sampledMs": 143.02
+    },
+    {
+      "symbol": "Ti",
+      "asset": "src-B2IO_406.js",
+      "line": 4115,
+      "column": 77749,
+      "sampledMs": 138.83
+    },
+    {
+      "symbol": "intersectTriangle",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 162965,
+      "sampledMs": 136.09
+    },
+    {
+      "symbol": "D",
+      "asset": "src-B2IO_406.js",
+      "line": 1,
+      "column": 9438,
+      "sampledMs": 135.54
+    },
+    {
+      "symbol": "a",
+      "asset": "src-B2IO_406.js",
+      "line": 4201,
+      "column": 321572,
+      "sampledMs": 131.26
+    },
+    {
+      "symbol": "grab",
+      "asset": "src-B2IO_406.js",
+      "line": 4201,
+      "column": 322587,
+      "sampledMs": 131.26
+    },
+    {
+      "symbol": "grab",
+      "asset": "index-DlDF9dMF.js",
+      "line": 40,
+      "column": 33442,
+      "sampledMs": 131.26
+    },
+    {
+      "symbol": "fb",
+      "asset": "index-DlDF9dMF.js",
+      "line": 12,
+      "column": 213327,
+      "sampledMs": 131.26
+    },
+    {
+      "symbol": "n",
+      "asset": "index-DlDF9dMF.js",
+      "line": 40,
+      "column": 16670,
+      "sampledMs": 131.26
+    },
+    {
+      "symbol": "",
+      "asset": "src-B2IO_406.js",
+      "line": 4201,
+      "column": 321863,
+      "sampledMs": 129.07
+    },
+    {
+      "symbol": "ku",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 114399,
+      "sampledMs": 114.03
+    },
+    {
+      "symbol": "Oe",
+      "asset": "src-B2IO_406.js",
+      "line": 4115,
+      "column": 5815,
+      "sampledMs": 113.91
+    },
+    {
+      "symbol": "Nu",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 115805,
+      "sampledMs": 111.36
+    },
+    {
+      "symbol": "Au",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 114863,
+      "sampledMs": 111.36
+    },
+    {
+      "symbol": "Mc",
+      "asset": "index-DlDF9dMF.js",
+      "line": 9,
+      "column": 79779,
+      "sampledMs": 108.69
+    },
+    {
+      "symbol": "update",
+      "asset": "src-B2IO_406.js",
+      "line": 4201,
+      "column": 392076,
+      "sampledMs": 101.05
+    },
+    {
+      "symbol": "syncGeometry",
+      "asset": "src-B2IO_406.js",
+      "line": 4201,
+      "column": 396239,
+      "sampledMs": 101.01
+    },
+    {
+      "symbol": "paintListener",
+      "asset": "src-B2IO_406.js",
+      "line": 4201,
+      "column": 395773,
+      "sampledMs": 99.44
+    }
+  ],
+  "raycastAncestors": [
+    {
+      "leaf": 58,
+      "stack": [
+        {
+          "symbol": "_computeIntersections",
+          "asset": "src-B2IO_406.js",
+          "line": 1,
+          "column": 166514,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "raycast",
+          "asset": "src-B2IO_406.js",
+          "line": 1,
+          "column": 166017,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Lf",
+          "asset": "src-B2IO_406.js",
+          "line": 5,
+          "column": 110908,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "intersectObject",
+          "asset": "src-B2IO_406.js",
+          "line": 5,
+          "column": 110701,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "s",
+          "asset": "src-B2IO_406.js",
+          "line": 4108,
+          "column": 74461,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "r",
+          "asset": "src-B2IO_406.js",
+          "line": 4108,
+          "column": 74222,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "",
+          "asset": "src-B2IO_406.js",
+          "line": 4108,
+          "column": 77318,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "(root)",
+          "asset": "",
+          "line": 0,
+          "column": 0,
+          "sampledMs": 0.0
+        }
+      ]
+    },
+    {
+      "leaf": 1915,
+      "stack": [
+        {
+          "symbol": "update",
+          "asset": "src-B2IO_406.js",
+          "line": 4201,
+          "column": 392076,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "syncGeometry",
+          "asset": "src-B2IO_406.js",
+          "line": 4201,
+          "column": 396239,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "resyncGeometry",
+          "asset": "src-B2IO_406.js",
+          "line": 4201,
+          "column": 400648,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "",
+          "asset": "src-B2IO_406.js",
+          "line": 4201,
+          "column": 431575,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "kr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 59424,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 70301,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Wr",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 62650,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "qi",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 84329,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Gi",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 83550,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Ei",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 78835,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Ti",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 77749,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Oe",
+          "asset": "src-B2IO_406.js",
+          "line": 4115,
+          "column": 5815,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "D",
+          "asset": "src-B2IO_406.js",
+          "line": 1,
+          "column": 9438,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "(root)",
+          "asset": "",
+          "line": 0,
+          "column": 0,
+          "sampledMs": 0.0
+        }
+      ]
+    },
+    {
+      "leaf": 620,
+      "stack": [
+        {
+          "symbol": "texElementImage2D",
+          "asset": "",
+          "line": 0,
+          "column": 0,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ce",
+          "asset": "src-B2IO_406.js",
+          "line": 4084,
+          "column": 27403,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "N",
+          "asset": "src-B2IO_406.js",
+          "line": 4084,
+          "column": 23279,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "th",
+          "asset": "src-B2IO_406.js",
+          "line": 4006,
+          "column": 4788,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "upload",
+          "asset": "src-B2IO_406.js",
+          "line": 4006,
+          "column": 9359,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "bt",
+          "asset": "src-B2IO_406.js",
+          "line": 4108,
+          "column": 39960,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "renderBufferDirect",
+          "asset": "src-B2IO_406.js",
+          "line": 4108,
+          "column": 28723,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ht",
+          "asset": "src-B2IO_406.js",
+          "line": 4108,
+          "column": 36692,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "mt",
+          "asset": "src-B2IO_406.js",
+          "line": 4108,
+          "column": 36460,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "ft",
+          "asset": "src-B2IO_406.js",
+          "line": 4108,
+          "column": 34678,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "render",
+          "asset": "src-B2IO_406.js",
+          "line": 4108,
+          "column": 31590,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Hy",
+          "asset": "src-B2IO_406.js",
+          "line": 4119,
+          "column": 14396,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "Jy",
+          "asset": "src-B2IO_406.js",
+          "line": 4119,
+          "column": 14859,
+          "sampledMs": 0.0
+        },
+        {
+          "symbol": "(root)",
+          "asset": "",
+          "line": 0,
+          "column": 0,
+          "sampledMs": 0.0
+        }
+      ]
+    }
+  ]
+}

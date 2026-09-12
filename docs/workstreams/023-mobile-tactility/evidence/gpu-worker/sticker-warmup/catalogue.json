@@ -1,0 +1,90 @@
+{
+  "provenance": "Actual catalogue PNG alpha and real canonical/private worker preparation; simulated browser bitmap object, no GPU compile.",
+  "catalogueArtworks": 60,
+  "requestedArtworks": 10,
+  "acquired": 17,
+  "sent": 1,
+  "failure": null,
+  "visibleFailure": null,
+  "visiblePrints": 8,
+  "carryFailure": null,
+  "combined": {
+    "transactions": {
+      "entries": 22,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 20,
+      "pendingCopies": 0,
+      "privateBytes": 9870400,
+      "accountedBytes": 79201888
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 23,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 23,
+      "privateBytes": 3020424,
+      "accountedBytes": 9061272
+    },
+    "carry": {
+      "canonical": 2,
+      "privateOwners": 2,
+      "pendingPrivate": 0,
+      "preparing": false,
+      "bytes": 6660240
+    }
+  },
+  "finalCarry": {
+    "canonical": 0,
+    "privateOwners": 0,
+    "pendingPrivate": 0,
+    "preparing": false,
+    "bytes": 0
+  },
+  "beforeRelease": {
+    "paper": {
+      "clients": 0,
+      "entries": 10,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 10,
+      "privateBytes": 269120,
+      "accountedBytes": 807360
+    },
+    "transactions": {
+      "entries": 5,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 10,
+      "pendingCopies": 0,
+      "privateBytes": 4935200,
+      "accountedBytes": 33932508
+    }
+  },
+  "finalOwners": 0,
+  "finalPaper": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "finalTransactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  }
+}

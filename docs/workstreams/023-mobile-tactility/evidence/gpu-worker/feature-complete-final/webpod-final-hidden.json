@@ -1,0 +1,22 @@
+{
+  "events": [
+    {
+      "at": 660089,
+      "state": "visible"
+    },
+    {
+      "at": 665073.7999999523,
+      "state": "hidden"
+    },
+    {
+      "at": 673529.7999999523,
+      "state": "visible"
+    }
+  ],
+  "placementEqual": true,
+  "held": null,
+  "pending": 0,
+  "animating": false,
+  "beingHeld": true,
+  "renderer": "worker"
+}

@@ -1,3 +1,4 @@
+import {markStickerAssemblyChanged} from './sticker-assembly-revision';
 /**
  * The device ↔ composite boundary (D-011).
  *
@@ -39,7 +40,7 @@
  * per *rendered* frame — and under `frameloop="demand"` frames are only
  * rendered when something asked for one. Idle costs exactly nothing, and a
  * moving device notifies on every frame it actually moved in. The listener
- * fires only when the matrix differs from the last one reported, so a render
+ * fires only when mesh/camera matrices or viewport dimensions differ from the last report, so a render
  * triggered by something else (a texture upload, say) does not produce a
  * spurious geometry recompute downstream.
  *
@@ -104,7 +105,7 @@ export type ScreenMeshHandle = {
   readTransform(): ScreenTransform;
   /**
    * Subscribe to transform changes. Fires during `onBeforeRender`, only on
-   * frames where the transform actually differs, and is handed the new value.
+   * frames where the mesh, camera or viewport transform actually differs, and is handed the new value.
    * Returns an unsubscriber.
    */
   onTransformChange(listener: (transform: ScreenTransform) => void): () => void;
@@ -151,6 +152,10 @@ type HandleState = {
   deps: HandleDeps;
   readonly listeners: Set<(transform: ScreenTransform) => void>;
   readonly lastReported: Matrix4;
+  readonly lastCameraWorld: Matrix4;
+  readonly lastCameraProjection: Matrix4;
+  lastWidth: number;
+  lastHeight: number;
   everReported: boolean;
   readonly handle: ScreenMeshHandle;
 };
@@ -219,6 +224,7 @@ export function createScreenMeshHandle(deps: HandleDeps): ScreenMeshHandle {
 
     setMaterial(material) {
       mesh.material = material ?? state.deps.defaultMaterial;
+      markStickerAssemblyChanged(mesh);
       state.deps.invalidate();
     },
 
@@ -238,6 +244,10 @@ export function createScreenMeshHandle(deps: HandleDeps): ScreenMeshHandle {
     deps,
     listeners,
     lastReported,
+    lastCameraWorld: new Matrix4(),
+    lastCameraProjection: new Matrix4(),
+    lastWidth: -1,
+    lastHeight: -1,
     everReported: false,
     handle,
   };
@@ -247,8 +257,15 @@ export function createScreenMeshHandle(deps: HandleDeps): ScreenMeshHandle {
   // `frameloop="demand"` that is once per frame somebody asked for.
   mesh.onBeforeRender = function onBeforeRender(this: Object3D) {
     if (listeners.size === 0) return;
-    if (state.everReported && lastReported.equals(mesh.matrixWorld)) return;
+    const { camera, width, height } = state.deps.view();
+    if (state.everReported && lastReported.equals(mesh.matrixWorld) &&
+        state.lastCameraWorld.equals(camera.matrixWorld) &&
+        state.lastCameraProjection.equals(camera.projectionMatrix) &&
+        state.lastWidth === width && state.lastHeight === height) return;
     lastReported.copy(mesh.matrixWorld);
+    state.lastCameraWorld.copy(camera.matrixWorld);
+    state.lastCameraProjection.copy(camera.projectionMatrix);
+    state.lastWidth = width; state.lastHeight = height;
     state.everReported = true;
     const transform = readTransform();
     for (const listener of listeners) listener(transform);

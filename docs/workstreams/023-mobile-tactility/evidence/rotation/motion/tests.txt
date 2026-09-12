@@ -1,0 +1,115 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/welcome-entry.test.ts:
+(pass) welcome rejects resolved Apple auth result after initial library 403, then retries successfully [3.42ms]
+(pass) welcome rejects resolved Apple auth result after initial library 500, then retries successfully [0.64ms]
+(pass) cancelled Apple authorization stays on welcome even though configure restored a session [0.37ms]
+(pass) apple restore uses shared readiness and accepts empty libraries [0.38ms]
+(pass) spotify restore uses shared readiness and accepts empty libraries [0.19ms]
+(pass) apple restore/callback library failure cannot enter player [0.27ms]
+(pass) spotify restore/callback library failure cannot enter player [0.17ms]
+(pass) provider change during authorization cannot borrow newer ready state [0.44ms]
+(pass) exit animation rechecks exact runtime and suppresses concurrent entry [0.39ms]
+(pass) optional sticker bootstrap rejection does not fail required music readiness [0.33ms]
+(pass) rejected Apple authorization never enters and a retry remains available [0.32ms]
+(pass) runtime logout keeps shared playback retired while native logout is pending [0.55ms]
+
+apps/web/src/device-preview-orientation.test.ts:
+(pass) external device preview orientation > publishes only real changes and reset preserves room and colourway [0.12ms]
+(pass) external device preview orientation > normal drag reaches the rear, wraps yaw, and clamps pitch [0.08ms]
+(pass) external device preview orientation > malformed external orientation cannot poison the shared store [0.02ms]
+(pass) external device preview orientation > Option drag is an explicit bounded roll gesture without yaw drift
+(pass) external device preview orientation > captures mouse movement beyond the edge and releases exactly once [0.63ms]
+(pass) external device preview orientation > production release continues over frames and a fast yaw flick coasts to an arbitrary angle [0.49ms]
+(pass) external device preview orientation > a deliberate horizontal flick snaps flat and can be caught midway [0.34ms]
+(pass) external device preview orientation > a new grab and blur interrupt release motion without an idle frame [0.09ms]
+(pass) external device preview orientation > reduced motion preserves the release pose without scheduling [0.04ms]
+(pass) external device preview orientation > supports touch and makes duplicate pointers, cancel, blur, and dispose safe [0.07ms]
+(pass) external device preview orientation > teardown remains silent when the browser has already dropped capture [0.06ms]
+(pass) external device preview orientation > pointercancel preserves an edge pose, clears capture and permits another grab [0.04ms]
+(pass) external device preview orientation > lostpointercapture preserves an edge pose, clears capture and permits another grab [0.03ms]
+(pass) external device preview orientation > a held release cannot refresh stale flick samples [0.03ms]
+(pass) external device preview orientation > keyboard interrupts a captured drag and unrelated keys do not interrupt settling [0.23ms]
+(pass) external device preview orientation > re-grabbing samples the current pose and external reset cancels all pending work [0.06ms]
+(pass) external device preview orientation > failed capture does not strand a settling device [0.11ms]
+(pass) external device preview orientation > idle window blur preserves a chosen inspection pose [0.02ms]
+(pass) external device preview orientation > keyboard fallback is stage-scoped, supports roll, and resets [0.08ms]
+(pass) tool orientation controls > reset springs every axis to front and a new command interrupts it [0.33ms]
+(pass) tool orientation controls > rotates degree deltas with actual clamping and rejects nonfinite input [0.10ms]
+(pass) tool orientation controls > flick resolves only after shared physical spring settles at the requested face [0.30ms]
+(pass) tool orientation controls > reduced motion settles without frames and reacts during a flick [0.06ms]
+(pass) tool orientation controls > concurrent and already-aborted calls leave the admitted flick intact [0.11ms]
+(pass) tool orientation controls > abort rejects the pending flick and removes its frame [0.11ms]
+(pass) tool orientation controls > dispose rejects the pending flick and removes its frame [0.03ms]
+(pass) tool orientation controls > blur rejects the pending flick and removes its frame [0.01ms]
+(pass) tool orientation controls > external-write rejects the pending flick and removes its frame
+(pass) tool orientation controls > rotate rejects the pending flick and removes its frame
+(pass) tool orientation controls > human-grab rejects the pending flick and removes its frame [0.03ms]
+(pass) tool orientation controls > abort from an orientation subscriber cannot resurrect the frame loop [0.06ms]
+(pass) tool orientation controls > nested external mutation during intermediate publication cancels and preserves the override [0.07ms]
+(pass) tool orientation controls > nested external mutation during settlement publication cancels and preserves the override [0.04ms]
+
+apps/web/src/device-preview-orientation-source.test.ts:
+(pass) orientation release is bounded while the canonical canvas stays demand-rendered [0.23ms]
+(pass) canonical product has no broad stage drag or pose-preset controls [0.07ms]
+(pass) shell handlers are attached to the physical enclosure, never the stage [0.07ms]
+
+apps/web/src/device-orientation-motion.test.ts:
+(pass) device release motion > weights recent timestamped samples and rejects stale, zero-time and outlier input [0.07ms]
+(pass) device release motion > a stationary or reduced-motion release retains any chosen angle [0.03ms]
+(pass) device release motion > coast distance scales continuously with speed in either direction [0.30ms]
+(pass) device release motion > diagonal coasting has the same destination at different frame rates [0.08ms]
+(pass) device release motion > coasting respects pitch and roll limits without reversing yaw [0.02ms]
+(pass) device release motion > a late reversal follows the latest movement direction [0.02ms]
+(pass) optional flick snap > speed and recent travel must both reach the threshold [0.03ms]
+(pass) optional flick snap > both faces snap flat in either direction across frame rates [0.15ms]
+(pass) optional flick snap > tiny corrections, diagonal gestures, and already-passed faces coast [0.02ms]
+(pass) optional flick snap > reduced motion applies only an intentional snap immediately [0.01ms]
+
+packages/composite/src/CompositeDevice.test.tsx:
+(pass) CompositeDevice public boundary > renders on the server without touching document [2.86ms]
+(pass) CompositeCoordinator lifecycle > replaces renderer and camera without retaining a detached source [0.14ms]
+(pass) CompositeCoordinator lifecycle > resyncs geometry without polling [0.02ms]
+(pass) CompositeCoordinator lifecycle > context loss detaches and restore attaches once [0.04ms]
+(pass) CompositeCoordinator lifecycle > cleans a source whose attach fails and can retry [0.06ms]
+(pass) CompositeCoordinator lifecycle > repeated clear, reattach, and dispose are idempotent [0.04ms]
+
+packages/composite/src/CompositeDevice.integration.test.tsx:
+(pass) mounted composite input boundary > production arc callbacks move the singleton store and restore application focus [9.00ms]
+(pass) mounted composite input boundary > selection suppression is gesture-scoped and restores prior outside ranges [1.91ms]
+(pass) mounted composite input boundary > the mounted boundary consumes the store feedback stream once and disposes audio [1.44ms]
+(pass) mounted composite input boundary > all four cardinal sectors publish one accepted feedback event [1.22ms]
+(pass) mounted composite input boundary > a short annular tap stays cardinal while movement takeover changes volume without double action [0.80ms]
+(pass) mounted composite input boundary > provider transport owns next when accepted and falls back to list paging when declined [0.39ms]
+(pass) mounted composite input boundary > rejected provider transport is consumed without list paging or accepted feedback [0.37ms]
+(pass) mounted composite input boundary > holding Menu for 600ms returns to root without also popping it [0.39ms]
+(pass) mounted composite input boundary > rejected Play/Pause, mute and raw DOM click never enter audio [0.75ms]
+(pass) mounted composite input boundary > cardinal semantics have no raw DOM click wiring to double-fire [0.23ms]
+(pass) mounted composite input boundary > keyboard physical semantics fire on release once and cancel on blur [1.23ms]
+(pass) mounted composite input boundary > agent buttons share all five semantic/audio edges and cancel on unmount [414.23ms]
+(pass) mounted composite input boundary > same-channel human takeover stays pressed while cross-channel takeover releases abandoned agent travel [3.63ms]
+(pass) mounted composite input boundary > multiple mounted public boundaries consume one feedback sequence once [0.69ms]
+(pass) mounted composite input boundary > the mounted mute prop reaches the runtime without constructing settings UI [0.49ms]
+
+packages/composite/src/html-in-canvas.test.ts:
+(pass) html-in-canvas invariants > quantizes the authored LCD into stable 1×/2×/3× raster sources [0.02ms]
+(pass) html-in-canvas invariants > ignores host style writes so raster sizing does not request itself forever [0.02ms]
+(pass) html-in-canvas invariants > keeps the native 320×240 LCD source on stable 1×/2×/3× raster grids [0.03ms]
+(pass) html-in-canvas invariants > keeps one interactive DOM panel on the native HTMLTexture path [0.26ms]
+(pass) HTMLTexture RGBA8 upload decodes sRGB once before renderer output encoding [0.53ms]
+
+packages/device/src/screen-mesh.test.ts:
+(pass) the screen mesh boundary > screen UVs are normalized with TL/TR/BR/BL texture orientation [1.50ms]
+(pass) the screen mesh boundary > size is 272 × 204 body px and panel is 320 × 240 at 0.85 [0.49ms]
+(pass) the screen mesh boundary > world corners are TL, TR, BR, BL with +y up [0.19ms]
+(pass) the screen mesh boundary > viewport corners are canvas CSS px with +y DOWN [0.07ms]
+(pass) the screen mesh boundary > a moved device reports a new transform, not the one it was created with [0.06ms]
+(pass) the screen mesh boundary > onTransformChange delivers the value and fires only on a real change [0.14ms]
+(pass) the screen mesh boundary > callback-ref replay preserves handle identity and active subscriptions [0.10ms]
+(pass) the screen mesh boundary > setMaterial installs, null restores the default, and both ask for a frame [0.06ms]
+(pass) the screen mesh boundary > the handle exposes no Object3D — D-054, staleness has no slot [0.05ms]
+
+ 93 pass
+ 0 fail
+ 1417 expect() calls
+Ran 93 tests across 8 files. [639.00ms]

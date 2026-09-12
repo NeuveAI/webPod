@@ -1,0 +1,38 @@
+[
+  {
+    "case": "sheet",
+    "vertices": 9409,
+    "originalSyncWorkerCooperativeExact": true,
+    "cooperativeTimerTicks": 4
+  },
+  {
+    "case": "attached",
+    "vertices": 9409,
+    "originalSyncWorkerCooperativeExact": true,
+    "cooperativeTimerTicks": 3
+  },
+  {
+    "case": "detached",
+    "vertices": 9409,
+    "originalSyncWorkerCooperativeExact": true,
+    "cooperativeTimerTicks": 4
+  },
+  {
+    "case": "landing",
+    "vertices": 9409,
+    "originalSyncWorkerCooperativeExact": true,
+    "cooperativeTimerTicks": 5
+  },
+  {
+    "case": "landed",
+    "vertices": 9409,
+    "originalSyncWorkerCooperativeExact": true,
+    "cooperativeTimerTicks": 4
+  },
+  {
+    "case": "return",
+    "vertices": 9409,
+    "originalSyncWorkerCooperativeExact": true,
+    "cooperativeTimerTicks": 5
+  }
+]

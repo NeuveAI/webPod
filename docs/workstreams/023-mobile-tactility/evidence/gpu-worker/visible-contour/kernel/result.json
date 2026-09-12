@@ -1,0 +1,16 @@
+{
+  "artworks": [
+    "PW-A01",
+    "PW-A02"
+  ],
+  "provenance": "Exact pinned catalogue PNG alpha decoded losslessly; production wrap/contour preparation, source-built geometry. Not a captured live device.",
+  "cases": 224,
+  "nonnull": 144,
+  "nulls": 80,
+  "sampleComparisons": 248,
+  "visibilityPoints": 669608,
+  "exactVisibilityCallOrder": true,
+  "structuredCloneReplay": true,
+  "livePositionReads": true,
+  "baseline": "Archived pre-PhaseA source with e940 UV cache; imports share current canonical preparation metadata."
+}

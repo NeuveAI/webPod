@@ -41,3 +41,12 @@ export function createStickerRoughness(): DataTexture {
   texture.needsUpdate = true;
   return texture;
 }
+
+/** Non-React ownership of the same artwork cache used by StickerPrint. A
+ * renderer generation retains this lease through upload/query use; release
+ * drops only its subscriber and never disposes another mounted owner's map. */
+export function acquireStickerTexture(url: string, listener: () => void) {
+  const unsubscribe = artworkTextures.subscribe(url, listener);
+  let released = false;
+  return { read: () => artworkTextures.getSnapshot(url), release() { if (released) return; released = true; unsubscribe(); } };
+}

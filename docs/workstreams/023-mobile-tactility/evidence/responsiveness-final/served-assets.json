@@ -1,0 +1,44 @@
+[
+  {
+    "path": "/",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "bytes": 4119
+  },
+  {
+    "path": "/webpod",
+    "status": 200,
+    "type": "text/html; charset=utf-8",
+    "bytes": 4149
+  },
+  {
+    "path": "/api/version",
+    "status": 200,
+    "type": "application/json;charset=utf-8",
+    "bytes": 50
+  },
+  {
+    "path": "/assets/sticker-paper-worker-CyGX1kdw.js",
+    "status": 200,
+    "type": "text/javascript;charset=utf-8",
+    "bytes": 108546
+  },
+  {
+    "path": "/assets/sticker-carry-worker-kQMPFk0N.js",
+    "status": 200,
+    "type": "text/javascript;charset=utf-8",
+    "bytes": 172832
+  },
+  {
+    "path": "/assets/shell-picking-worker-DsEtRXZk.js",
+    "status": 200,
+    "type": "text/javascript;charset=utf-8",
+    "bytes": 118815
+  },
+  {
+    "path": "/assets/sticker-collision-worker-BWLPkAF4.js",
+    "status": 200,
+    "type": "text/javascript;charset=utf-8",
+    "bytes": 118505
+  }
+]

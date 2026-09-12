@@ -1,0 +1,11 @@
+{
+  "checks": 7,
+  "noEntryPrime": true,
+  "waitsExistingVisibility": true,
+  "repeatedNotifications": 1000,
+  "generationRefresh": true,
+  "noResumePrime": true,
+  "reopenAllowed": true,
+  "presenceAndWorkspaceGated": true,
+  "scope": "Actual extracted native controller admission; controlled scalar scene and visibility boundary"
+}

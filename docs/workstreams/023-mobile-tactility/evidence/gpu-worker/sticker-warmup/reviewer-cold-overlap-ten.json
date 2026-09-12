@@ -1,0 +1,185 @@
+{
+  "method": "Concurrent new-renderer warmup and previous usable packet snapshot adapters using actual shared texture cache, exact PNG alpha and real workers; controlled bitmap/compile ACK boundary, no GPU timing.",
+  "requested": [
+    "PW-A01",
+    "PW-A02",
+    "PW-A03",
+    "PW-A04",
+    "PW-A05",
+    "PW-B01",
+    "PW-B02",
+    "PW-B03",
+    "PW-B04",
+    "PW-B05"
+  ],
+  "slotIds": [
+    "PW-A01",
+    "PW-A02",
+    "PW-A03",
+    "PW-A04",
+    "PW-A05"
+  ],
+  "neighborIds": [
+    "PW-C01",
+    "PW-E01"
+  ],
+  "acquired": 13,
+  "sent": 0,
+  "ready": false,
+  "failure": null,
+  "visibleFailure": "Sticker computation byte capacity exceeded; native pack phase=print-7; completed prints=6; artworkBytes=13818560; transactions={\"entries\":19,\"queued\":0,\"active\":null,\"worker\":true,\"privateOwners\":12,\"pendingCopies\":1,\"privateBytes\":6415760,\"accountedBytes\":79220580}",
+  "failedUsage": {
+    "transactions": {
+      "entries": 17,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 6,
+      "pendingCopies": 1,
+      "privateBytes": 3454640,
+      "accountedBytes": 67760540
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 15,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 6,
+      "privateBytes": 161472,
+      "accountedBytes": 5721440
+    }
+  },
+  "admitted": {
+    "transactions": {
+      "entries": 17,
+      "queued": 0,
+      "active": null,
+      "worker": false,
+      "privateOwners": 6,
+      "pendingCopies": 0,
+      "privateBytes": 3454640,
+      "accountedBytes": 38786264
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 15,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 6,
+      "privateBytes": 161472,
+      "accountedBytes": 5721440
+    },
+    "visiblePrints": 0
+  },
+  "privateAcquisitions": [
+    {
+      "keyHash": "1397e34f2bee1fc2",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "78bb1f085fc35776"
+    },
+    {
+      "keyHash": "a19eea03367ea9a7",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f216b6f11a81285"
+    },
+    {
+      "keyHash": "9dd6cd17e76538a1",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "13a8abf292ab20ac"
+    },
+    {
+      "keyHash": "182093adf77082b8",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "fe55a50c384b093a"
+    },
+    {
+      "keyHash": "89f1583b1497043a",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "22ce752f042420c8"
+    },
+    {
+      "keyHash": "91f71396959791d9",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "eed880866f0a73f8"
+    },
+    {
+      "keyHash": "fa287b3f42c2a4b0",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2c4aeef864bf25eb"
+    },
+    {
+      "keyHash": "c9f7f1d7de87c1f5",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "ff6a5ee6ffce09d3"
+    },
+    {
+      "keyHash": "3872673818e57afd",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "4a9332ce3ac4d2fe"
+    },
+    {
+      "keyHash": "affc35aae4e4f2d7",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "d6933ef3467cc4c"
+    },
+    {
+      "keyHash": "dc5c4126e410aa86",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "2f73093f8955c4d9"
+    },
+    {
+      "keyHash": "dc79db4a4c00d22",
+      "kind": "damage",
+      "purpose": "render-damage",
+      "count": 1,
+      "contentHash": "9489e415405ef136"
+    }
+  ],
+  "final": {
+    "owners": 0,
+    "transactions": {
+      "entries": 0,
+      "queued": 0,
+      "active": null,
+      "worker": false,
+      "privateOwners": 0,
+      "pendingCopies": 0,
+      "privateBytes": 0,
+      "accountedBytes": 0
+    },
+    "paper": {
+      "clients": 0,
+      "entries": 0,
+      "queued": 0,
+      "active": null,
+      "worker": false,
+      "privateOwners": 0,
+      "privateBytes": 0,
+      "accountedBytes": 0
+    }
+  }
+}

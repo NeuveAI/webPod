@@ -1,0 +1,25 @@
+{
+  "method": "Actual latest preparation runtime with deliberately late completions that ignore cancellation.",
+  "checks": {
+    "compatibleProgressNotStarved": true,
+    "onlyOneLatestWaiting": true,
+    "epochChangeRejectsOldReply": true,
+    "finalLatestPublishes": true,
+    "disposedReplyReleased": true,
+    "noSpuriousError": true
+  },
+  "started": [
+    1,
+    2,
+    5,
+    6
+  ],
+  "published": [
+    1,
+    5
+  ],
+  "released": [
+    2,
+    6
+  ]
+}

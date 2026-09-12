@@ -1,0 +1,8 @@
+{
+  "deadlineReportsFailure": true,
+  "lateResolveIgnored": true,
+  "unmountCancelsDeadlineAndPublication": true,
+  "successRetainsThreeWarmFrames": true,
+  "rejectionReportsFailure": true,
+  "noResidualScheduling": true
+}

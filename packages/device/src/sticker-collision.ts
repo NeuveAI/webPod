@@ -1,4 +1,7 @@
-import { Box3, Matrix4, Ray, Triangle, Vector3, type BufferGeometry } from 'three';
+import type {PackedCollisionTree} from './packed-collision-tree';
+import {collisionSteps} from './sticker-collision-cooperative';
+import {drainSteps} from './sticker-computation-steps';
+import { Box3, type Matrix4, Ray, Triangle, Vector3, type BufferGeometry } from 'three';
 
 export interface StickerCollisionFace {
   readonly geometry: BufferGeometry;
@@ -16,25 +19,14 @@ export interface StickerCollisionHit {
   readonly source: string;
   readonly kind: 'surface' | 'bridge';
 }
-interface Node { readonly box: Box3; readonly left?: Node; readonly right?: Node; readonly triangles?: readonly number[] }
-interface SerializedNode { readonly bounds: readonly number[]; readonly left?: SerializedNode; readonly right?: SerializedNode; readonly triangles?: readonly number[] }
 export interface StickerCollisionSnapshot {
   readonly coordinates: Float64Array;
   readonly provenance: Uint32Array;
   readonly metadata: { source: string; kind: 'surface' | 'bridge'; adhesiveSupport: boolean }[];
-  readonly root: SerializedNode;
+  readonly root: PackedCollisionTree;
   readonly nodeCount: number;
 }
-function serializeNode(node: Node): SerializedNode {
-  return { bounds: [...node.box.min.toArray(), ...node.box.max.toArray()], triangles: node.triangles,
-    left: node.left ? serializeNode(node.left) : undefined, right: node.right ? serializeNode(node.right) : undefined };
-}
-function restoreNode(node: SerializedNode): Node {
-  return { box: new Box3(new Vector3().fromArray(node.bounds), new Vector3().fromArray(node.bounds, 3)), triangles: node.triangles,
-    left: node.left ? restoreNode(node.left) : undefined, right: node.right ? restoreNode(node.right) : undefined };
-}
 const EPSILON = 1e-7;
-const LEAF_SIZE = 8;
 
 function coplanarOverlap(a: Triangle, b: Triangle, normal: Vector3): boolean {
   const axis = Math.abs(normal.x) > Math.abs(normal.y) ? (Math.abs(normal.x) > Math.abs(normal.z) ? 'x' : 'z') : (Math.abs(normal.y) > Math.abs(normal.z) ? 'y' : 'z');
@@ -55,63 +47,21 @@ function coplanarOverlap(a: Triangle, b: Triangle, normal: Vector3): boolean {
  * Final triangle tests also require an exterior-start/sweep or containment invariant in the caller.
  */
 export function createStickerCollision(faces: readonly StickerCollisionFace[], prepared?: StickerCollisionSnapshot) {
-  const raw: number[] = [], owners: number[] = [];
-  const metadata = prepared?.metadata ?? faces.map(face => ({ source: face.source, kind: face.kind, adhesiveSupport: face.adhesiveSupport === true }));
-  const vertex = new Vector3();
-  for (const [owner, face] of (prepared ? [] : faces).entries()) {
-    const position = face.geometry.getAttribute('position'), index = face.geometry.index;
-    const count = index?.count ?? position.count;
-    if (count % 3 !== 0) throw new Error('Sticker collider requires triangle geometry');
-    for (let i = 0; i < count; i += 3) {
-      for (let k = 0; k < 3; k++) {
-        const j = index ? index.getX(i + k) : i + k;
-        vertex.set(position.getX(j), position.getY(j), position.getZ(j));
-        if (face.transform) vertex.applyMatrix4(face.transform);
-        if (![vertex.x, vertex.y, vertex.z].every(Number.isFinite)) throw new Error('Nonfinite sticker collision geometry');
-        raw.push(vertex.x, vertex.y, vertex.z);
-      }
-      owners.push(owner);
-    }
-  }
-  let coordinates = prepared?.coordinates ?? new Float64Array(raw), provenance = prepared?.provenance ?? new Uint32Array(owners);
-  // Build-only caches preserve stable sorting and exact partitions. They are
-  // released after construction rather than retained in the collider.
-  let buildCenters = new Float64Array(owners.length * 3), buildBounds = new Float64Array(owners.length * 6);
-  for (let id = 0; id < owners.length; id++) for (let axis = 0; axis < 3; axis++) {
-    const a = coordinates[id * 9 + axis] ?? 0, b = coordinates[id * 9 + 3 + axis] ?? 0, c = coordinates[id * 9 + 6 + axis] ?? 0;
-    buildCenters[id * 3 + axis] = a + b + c;
-    buildBounds[id * 6 + axis] = Math.min(a, b, c); buildBounds[id * 6 + axis + 3] = Math.max(a, b, c);
-  }
-
+  let snapshot:StickerCollisionSnapshot|null=prepared??drainSteps(collisionSteps(faces));
+  let {coordinates,provenance,metadata}=snapshot;
+  let root:PackedCollisionTree|null=snapshot.root;
+  const box=new Box3();
+  const nodeBox=(node:number):Box3=>{if(!root)throw Error('Sticker collider was disposed');box.min.fromArray(root.bounds,node*6);box.max.fromArray(root.bounds,node*6+3);return box;};
   const working = new Triangle();
   // Calls are synchronous and invoke no external callbacks. Returned hits own
   // their vectors; this bounded scratch never escapes the collider.
-  const segmentRay = new Ray(), segmentDirection = new Vector3(), segmentHitPoint = new Vector3(), segmentBoxPoint = new Vector3(), segmentNormal = new Vector3(), segmentBestPoint = new Vector3(), segmentStack: Node[] = [];
+  const segmentRay = new Ray(), segmentDirection = new Vector3(), segmentHitPoint = new Vector3(), segmentBoxPoint = new Vector3(), segmentNormal = new Vector3(), segmentBestPoint = new Vector3(), segmentStack: number[] = [];
 
   const read = (id: number, target: Triangle) => {
     target.a.fromArray(coordinates, id * 9); target.b.fromArray(coordinates, id * 9 + 3); target.c.fromArray(coordinates, id * 9 + 6); return target;
   };
-  let nodeCount = prepared?.nodeCount ?? 0;
-  const build = (ids: number[]): Node => {
-    nodeCount++;
-    const box = new Box3();
-    for (const id of ids) {
-      const offset = id * 6;
-      box.min.x = Math.min(box.min.x, buildBounds[offset] ?? 0); box.min.y = Math.min(box.min.y, buildBounds[offset + 1] ?? 0); box.min.z = Math.min(box.min.z, buildBounds[offset + 2] ?? 0);
-      box.max.x = Math.max(box.max.x, buildBounds[offset + 3] ?? 0); box.max.y = Math.max(box.max.y, buildBounds[offset + 4] ?? 0); box.max.z = Math.max(box.max.z, buildBounds[offset + 5] ?? 0);
-    }
-    if (ids.length <= LEAF_SIZE) return { box, triangles: ids };
-    const extent = box.getSize(new Vector3());
-    const axis = extent.x >= extent.y && extent.x >= extent.z ? 0 : extent.y >= extent.z ? 1 : 2;
-    const center = (id: number) => buildCenters[id * 3 + axis] ?? 0;
-    ids.sort((a, b) => center(a) - center(b)); const half = ids.length >> 1;
-    return { box, left: build(ids.slice(0, half)), right: build(ids.slice(half)) };
-  };
-  let root: Node | null = prepared ? restoreNode(prepared.root) : build(Array.from({ length: owners.length }, (_, i) => i));
-  buildCenters = new Float64Array(0); buildBounds = new Float64Array(0);
-  const ensure = () => { if (!root) throw new Error('Sticker collider was disposed'); return root; };
-  const stats = { triangleCount: provenance.length, nodeCount, typedBytes: coordinates.byteLength + provenance.byteLength };
-  raw.length = 0; owners.length = 0;
+  const ensure=()=>{if(!root)throw Error('Sticker collider was disposed');return root;};
+  const stats={triangleCount:provenance.length,nodeCount:snapshot.nodeCount,typedBytes:coordinates.byteLength+provenance.byteLength+root.bounds.byteLength+root.links.byteLength+root.triangles.byteLength};
   const supportStats = { queries: 0, nodes: 0, triangles: 0 };
   const closestSupport = (point: Vector3, maximumDistance: number, initialFacet = -1): (StickerCollisionHit & { readonly signedDistance: number; readonly facetIndex: number }) | null => {
       const tree = ensure();
@@ -129,21 +79,23 @@ export function createStickerCollision(faces: readonly StickerCollisionFace[], p
         best = { point: closest.clone(), normal, distance, signedDistance: point.clone().sub(closest).dot(normal), source: owner.source, kind: owner.kind, facetIndex: id };
       };
       if (initialFacet >= 0 && initialFacet < provenance.length) consider(initialFacet);
-      const visit = (node: Node) => {
+      const visit = (node: number) => {
         supportStats.nodes++;
-        if (node.box.distanceToPoint(point) > (best?.distance ?? maximumDistance)) return;
-        for (const id of node.triangles ?? []) if (id !== initialFacet) consider(id);
-        const left = node.left, right = node.right;
-        if (left && right) {
-          if (left.box.distanceToPoint(point) < right.box.distanceToPoint(point)) { visit(left); visit(right); } else { visit(right); visit(left); }
-        } else { if (left) visit(left); if (right) visit(right); }
+        if (nodeBox(node).distanceToPoint(point) > (best?.distance ?? maximumDistance)) return;
+        for(let cursor=tree.links[node*4+2]??0,end=cursor+(tree.links[node*4+3]??0);cursor<end;cursor++){const id=tree.triangles[cursor]??0;if(id!==initialFacet)consider(id);}
+        const left=(tree.links[node*4]??0)-1,right=(tree.links[node*4+1]??0)-1;
+        if (left>=0 && right>=0) {
+          if (nodeBox(left).distanceToPoint(point) < nodeBox(right).distanceToPoint(point)) { visit(left); visit(right); } else { visit(right); visit(left); }
+        } else { if (left>=0) visit(left); if (right>=0) visit(right); }
       };
-      visit(tree); return best;
+      visit(0); return best;
   };
   return {
     stats,
-    /** Worker handoff owns these buffers; callers must stop using the sender after transfer. */
-    snapshot(): StickerCollisionSnapshot { return { coordinates, provenance, metadata, root: serializeNode(ensure()), nodeCount }; },
+    /** Immutable borrowed snapshot; transfer only buffers held by an explicitly private worker owner. */
+    snapshot(): StickerCollisionSnapshot {
+      ensure();if(!snapshot)throw Error('Sticker collider was disposed');return snapshot;
+    },
     /** Earliest transverse facet contact on a finite segment. Coplanar sliding is handled by the triangle-overlap gate. */
     castSegment(start: Vector3, end: Vector3): StickerCollisionHit | null {
       const tree = ensure();
@@ -151,16 +103,17 @@ export function createStickerCollision(faces: readonly StickerCollisionFace[], p
       segmentDirection.copy(end).sub(start); const length = segmentDirection.length(); if (length < EPSILON) return null;
       segmentDirection.multiplyScalar(1 / length); segmentRay.set(start, segmentDirection);
       const startLength = start.length(); let bestDistance = Infinity, bestId = -1;
-      segmentStack.length = 0; segmentStack.push(tree);
+      segmentStack.length = 0; segmentStack.push(0);
       while (segmentStack.length) {
-        const node = segmentStack.pop(); if (!node) break;
-        if (!segmentRay.intersectBox(node.box, segmentBoxPoint)) continue;
+        const node = segmentStack.pop(); if (node===undefined) break;
+        if (!segmentRay.intersectBox(nodeBox(node), segmentBoxPoint)) continue;
         const limit = Math.min(bestDistance, length) + EPSILON;
         // For an outside origin, intersectBox returns the entry point. Its ray
         // distance is a tighter bound than the nearest Euclidean box distance.
         // An inside origin must retain the node even when its exit is beyond end.
-        if (!node.box.containsPoint(start) && segmentBoxPoint.distanceToSquared(start) > limit * limit) continue;
-        if (node.triangles) for (const id of node.triangles) {
+        if (!box.containsPoint(start) && segmentBoxPoint.distanceToSquared(start) > limit * limit) continue;
+        for(let cursor=tree.links[node*4+2]??0,end=cursor+(tree.links[node*4+3]??0);cursor<end;cursor++){
+          const id=tree.triangles[cursor]??0;
           read(id, working); let point = segmentRay.intersectTriangle(working.a, working.b, working.c, false, segmentHitPoint);
           if (!point) {
             // Preserve the exact shared-edge roundoff fallback without allocating
@@ -189,7 +142,8 @@ export function createStickerCollision(faces: readonly StickerCollisionFace[], p
           bestDistance = distance; bestId = id; segmentBestPoint.copy(point);
         }
         // Match the old left-then-right traversal and tie behavior.
-        if (node.right) segmentStack.push(node.right); if (node.left) segmentStack.push(node.left);
+        const right=(tree.links[node*4+1]??0)-1,left=(tree.links[node*4]??0)-1;
+        if(right>=0)segmentStack.push(right);if(left>=0)segmentStack.push(left);
       }
       if (bestId < 0) return null;
       const owner = metadata[provenance[bestId] ?? -1]; if (!owner) throw new Error('Missing collision provenance');
@@ -232,17 +186,19 @@ export function createStickerCollision(faces: readonly StickerCollisionFace[], p
         }
         return false;
       };
-      const visit = (node: Node): boolean => {
-        if (!node.box.intersectsTriangle(query)) return false;
-        for (const id of node.triangles ?? []) {
+      const visit = (node: number): boolean => {
+        if (!nodeBox(node).intersectsTriangle(query)) return false;
+        for(let cursor=tree.links[node*4+2]??0,end=cursor+(tree.links[node*4+3]??0);cursor<end;cursor++){
+          const id=tree.triangles[cursor]??0;
           read(id, working);
           const coplanar = [working.a, working.b, working.c].every(p => Math.abs(p.clone().sub(a).dot(queryNormal)) < EPSILON);
           if (coplanar ? coplanarOverlap(query, working, queryNormal) : edgesCross(query, working) || edgesCross(working, query)) return true;
         }
-        return (node.left ? visit(node.left) : false) || (node.right ? visit(node.right) : false);
+        const left=(tree.links[node*4]??0)-1,right=(tree.links[node*4+1]??0)-1;
+        return (left>=0&&visit(left))||(right>=0&&visit(right));
       };
-      return visit(tree);
+      return visit(0);
     },
-    dispose() { segmentStack.length = 0; root = null; coordinates = new Float64Array(); provenance = new Uint32Array(); metadata.length = 0; },
+    dispose() { segmentStack.length = 0; root = null; snapshot = null; coordinates = new Float64Array(); provenance = new Uint32Array(); metadata = []; },
   };
 }

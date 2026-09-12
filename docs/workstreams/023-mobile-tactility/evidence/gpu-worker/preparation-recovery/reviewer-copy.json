@@ -1,0 +1,8 @@
+{
+  "exactMetadataAndBytes": true,
+  "sharedBufferIdentity": true,
+  "typedOffsetsAndLengths": true,
+  "privateBufferOwnership": true,
+  "initialCancellationPreservesSource": true,
+  "browserTimingClaim": false
+}

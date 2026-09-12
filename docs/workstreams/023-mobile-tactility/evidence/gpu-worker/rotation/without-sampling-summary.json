@@ -1,0 +1,60 @@
+{
+  "traceSha256": "532df04771c6d91d9b5d4a37769424a33a80a6ef02222821738a3d940cc37a7f",
+  "dataLossOccurred": true,
+  "target": {
+    "pid": 39318,
+    "main": 4511411
+  },
+  "mainName": "CrRendererMain",
+  "mainEvents": 12987,
+  "observedInputWindow": {
+    "start": 260569232270,
+    "end": 260570217165,
+    "durationMs": 984.895
+  },
+  "observedInput": [
+    {
+      "type": "pointerdown",
+      "count": 1,
+      "observedDurationMs": 16.572,
+      "maxObservedDurationMs": 16.572
+    },
+    {
+      "type": "touchstart",
+      "count": 1,
+      "observedDurationMs": 0.236,
+      "maxObservedDurationMs": 0.236
+    },
+    {
+      "type": "pointermove",
+      "count": 24,
+      "observedDurationMs": 108.05300000000003,
+      "maxObservedDurationMs": 19.55
+    },
+    {
+      "type": "touchmove",
+      "count": 24,
+      "observedDurationMs": 8.127999999999998,
+      "maxObservedDurationMs": 4.897
+    },
+    {
+      "type": "pointerup",
+      "count": 1,
+      "observedDurationMs": 3.079,
+      "maxObservedDurationMs": 3.079
+    },
+    {
+      "type": "touchend",
+      "count": 1,
+      "observedDurationMs": 1.248,
+      "maxObservedDurationMs": 1.248
+    }
+  ],
+  "observedWindowCallbacks": 54,
+  "limitations": [
+    "Coverage diagnostic only: explicit dropped data; no complete CPU totals, INP, FPS or app-versus-baseline timing claim.",
+    "No JS stack sampling was requested, so no self/inclusive symbol attribution.",
+    "Trace includes earlier target-process events predating the current gesture; do not use raw global bounds as gesture duration.",
+    "Only target process input types/scalars retained; unrelated tab content excluded."
+  ]
+}

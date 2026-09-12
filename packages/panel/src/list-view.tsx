@@ -52,6 +52,8 @@ export function ListRow({ row, current, id }: { readonly row: ListRowContent; re
  */
 export function ListViewport({
   rows,
+  rowsStart = 0,
+  totalRows = rows.length,
   highlightIndex,
   windowStart,
   visibleRows = LIST_DEFAULT_VISIBLE_ROWS,
@@ -61,6 +63,10 @@ export function ListViewport({
   message,
 }: {
   readonly rows: readonly ListRowContent[]
+  /** Absolute offset of a preprepared window; defaults to a complete list. */
+  readonly rowsStart?: number
+  /** Full list length for the rail when only visible content was prepared. */
+  readonly totalRows?: number
   readonly highlightIndex: number
   readonly windowStart: number
   readonly visibleRows?: number
@@ -70,8 +76,8 @@ export function ListViewport({
   readonly message?: ReactNode
 }) {
   const capacity = Math.max(1, visibleRows)
-  const visible = rows.slice(windowStart, windowStart + capacity)
-  const overflows = rows.length > capacity
+  const visible = rows.slice(windowStart - rowsStart, windowStart - rowsStart + capacity)
+  const overflows = totalRows > capacity
   const style = { '--wp-list-visible-rows': capacity } as CSSProperties
   return (
     <div className="wp-list-view" data-layout={preview === undefined ? 'full' : 'split'} style={style}>
@@ -83,7 +89,7 @@ export function ListViewport({
             </ol>
           )}
         </div>
-        <ListScrollIndicator totalRows={rows.length} visibleRows={capacity} windowStart={windowStart} />
+        <ListScrollIndicator totalRows={totalRows} visibleRows={capacity} windowStart={windowStart} />
       </div>
       {preview === undefined ? null : <aside className="wp-list-preview">{preview}</aside>}
     </div>

@@ -1,0 +1,11 @@
+{
+  "sourceRef": "4cc7f4a7f5964d04733c5bb6a1e0b23cde0d072c",
+  "sourceTree": "ac6307b4ddcb453ce7bbf070b1d9c8efffd0fe84",
+  "method": "git archive; no environment or cert files in tracked tree or copied; own workspace symlinks verified isolated",
+  "build": {
+    "exit": 0,
+    "id": "2aa4eaa4-f999-426f-bc91-217a95df30d5",
+    "clientIdentityFile": "assets/index-B26XPa1g.js",
+    "manifestSha256": "5fa0ba8ad67df0da901ebfd595d93619e0e809522f78bd098836b29b5259fbe1"
+  }
+}

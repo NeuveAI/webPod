@@ -1,0 +1,127 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/sticker-interaction-lifecycle.test.ts:
+(pass) shared sticker spring publication ownership > synchronous cancellation at intermediate publication cannot requeue the old frame [1.22ms]
+(pass) shared sticker spring publication ownership > synchronous supersede at final reduced publication suppresses old completion [0.22ms]
+(pass) shared sticker spring publication ownership > synchronous supersede at final animated publication suppresses old completion [0.18ms]
+(pass) visible source carry animates with rear packet hidden; cancellation stops the owned clock [0.31ms]
+(pass) hidden packet alone does not keep an animation loop alive [0.10ms]
+(pass) existing clock reverses transport before contact and retargets either physical subphase [0.80ms]
+(pass) held target changes stay free, clear invalid targets and reenter without stale landing [0.29ms]
+(pass) captured material anchor survives release and return but clears on source or lifecycle loss [2.64ms]
+(pass) raw partial pull is current finite delta, reverses from a frozen origin and cannot revive after takeover [0.37ms]
+(pass) a stale move cannot adopt a same-source owner replaced during preceding phase or offset publication [0.24ms]
+(pass) completed placement dismisses the sheet and its interaction owner together [0.12ms]
+(pass) packet turn is signed, reduced-motion immediate, and interruptible without a stale swap [0.08ms]
+
+apps/web/src/sticker-grab.test.ts:
+(pass) production grab adapter retains original UV projection and live validity without legacy fallback [0.07ms]
+(pass) visible wrapped hit admits side/front independently of pack rear gate [0.04ms]
+(pass) absent visible capability and hidden/invalid hits cannot steal off-rear shell gestures [0.03ms]
+(pass) missing collection candidate cancellation clears ownership before capture release [0.04ms]
+(pass) Escape candidate cancellation clears ownership before capture release
+(pass) invalid final grab sample and same-pointer supersession prevent release settlement [0.03ms]
+(pass) grab anchor is copied as finite local material data and malformed anchors reject admission [0.05ms]
+
+apps/web/src/sticker-return.test.ts:
+(pass) missed and cancelled rear drops reverse from the displayed pose and release their frame owner [1.39ms]
+
+apps/web/src/sticker-editor-carry.test.tsx:
+(pass) moving suppresses all appearance controls, while idle selection retains rotation and wear [196.85ms]
+
+apps/web/src/sticker-webmcp.test.ts:
+(pass) mounted sticker adapter shared state and persistence > device state exposes a rendered rear mismatch and rejected sticker calls remain recoverable [1.35ms]
+(pass) mounted sticker adapter shared state and persistence > device state reads live faces and saved placements without opening the sticker UI [0.65ms]
+(pass) mounted sticker adapter shared state and persistence > device state separates held edits from saved placement until persistence [0.66ms]
+(pass) mounted sticker adapter shared state and persistence > device state and grab report comparable saved scale/wear and separate draft wear [0.54ms]
+(pass) mounted sticker adapter shared state and persistence > legacy wear defaults to zero and unplaced stickers have no saved scale [0.19ms]
+(pass) mounted sticker adapter shared state and persistence > all catalogue statuses include locked/sealed/owned/placed and open UI never claims packs [0.30ms]
+(pass) mounted sticker adapter shared state and persistence > collection carry uses visible shared preview, clamps edits and release writes nothing [0.61ms]
+(pass) mounted sticker adapter shared state and persistence > 45 percent scaling updates the visible draft, preserves pose, and persists only on placement [0.78ms]
+(pass) mounted sticker adapter shared state and persistence > scaling clamps to domain limits, release discards size, and human takeover removes tool HUD [0.71ms]
+(pass) mounted sticker adapter shared state and persistence > placed release restores exact origin; placement keeps all properties and passes expectedSource [0.70ms]
+(pass) mounted sticker adapter shared state and persistence > invalid physical silhouette is rejected; failed save retains draft and retry uses real command [0.59ms]
+(pass) mounted sticker adapter shared state and persistence > background inventory refresh keeps unchanged carry; lost ownership or origin invalidates [0.38ms]
+(pass) mounted sticker adapter shared state and persistence > passive human detail selection is not held and explicit grab supersedes it [0.33ms]
+(pass) mounted sticker adapter shared state and persistence > human takeover, face flip, aborted invocation and unmount prevent stale carry mutations [0.30ms]
+(pass) mounted sticker adapter shared state and persistence > abort synchronously during settling publication never admits persistence [0.31ms]
+(pass) mounted sticker adapter shared state and persistence > abort after persistence admission preserves eventual saved inventory; late write cannot mutate remounted operation [0.41ms]
+(pass) mounted sticker adapter shared state and persistence > bounded timeout keeps actual save pending until it really settles, including remount [1.51ms]
+(pass) mounted sticker adapter shared state and persistence > save rejects concurrent sticker changes and reports elapsed frozen on completion [0.33ms]
+
+apps/web/src/sticker-collections-model.test.ts:
+(pass) mixed starter remains two genre sheets with five honest seats each [0.09ms]
+(pass) opening a mixed grant reveals earned seats across its genre sheets without granting future art [0.05ms]
+(pass) display thresholds stay identical to server earning policy and unknown collections are absent [0.02ms]
+(pass) shared liner layout fits narrow and short viewports and retains five reachable seats [0.07ms]
+(pass) keyboard and meaning intents cannot borrow another earned sticker preview [0.01ms]
+(pass) partial peel anchors remaining contact, releases continuously, and reduced motion follows directly [0.06ms]
+(pass) held curl relaxes with zero endpoint slope and stays curled on long drags [0.02ms]
+(pass) ready collection requires its five prepared seats and survives same-session refresh/error [0.29ms]
+
+apps/web/src/sticker-editor-model.test.ts:
+(pass) one-copy live draft and gesture cancellation retain inventory identity and values [0.29ms]
+(pass) full rear edge permits rotated maximum size without moving center; nonfinite values stay out [0.03ms]
+(pass) gesture save dispatches captured source once and rebases later cancellation to canonical result [0.33ms]
+(pass) failed auto-save restores authority, conflict adopts canonical source, dismissed failure stays local [0.23ms]
+(pass) same-ID reselect rebases after pending write and cannot revive a signed-out session [0.12ms]
+(pass) reset preserves size/center/ownership, clears owned wear and fully straightens at the edge [0.12ms]
+(pass) rendered placements retain identity across metadata while every editor publication remains observable [0.13ms]
+(pass) handle mode survives wear edits and cannot change during a gesture or save [0.07ms]
+
+packages/composite/src/CompositeDevice.integration.test.tsx:
+(pass) mounted composite input boundary > production arc callbacks move the singleton store and restore application focus [3.77ms]
+(pass) mounted composite input boundary > selection suppression is gesture-scoped and restores prior outside ranges [1.53ms]
+(pass) mounted composite input boundary > the mounted boundary consumes the store feedback stream once and disposes audio [3.77ms]
+(pass) mounted composite input boundary > all four cardinal sectors publish one accepted feedback event [1.13ms]
+(pass) mounted composite input boundary > a short annular tap stays cardinal while movement takeover changes volume without double action [0.77ms]
+(pass) mounted composite input boundary > provider transport owns next when accepted and falls back to list paging when declined [0.42ms]
+(pass) mounted composite input boundary > rejected provider transport is consumed without list paging or accepted feedback [0.39ms]
+(pass) mounted composite input boundary > holding Menu for 600ms returns to root without also popping it [0.49ms]
+(pass) mounted composite input boundary > rejected Play/Pause, mute and raw DOM click never enter audio [0.48ms]
+(pass) mounted composite input boundary > cardinal semantics have no raw DOM click wiring to double-fire [0.24ms]
+(pass) mounted composite input boundary > keyboard physical semantics fire on release once and cancel on blur [1.12ms]
+(pass) mounted composite input boundary > agent buttons share all five semantic/audio edges and cancel on unmount [407.59ms]
+(pass) mounted composite input boundary > same-channel human takeover stays pressed while cross-channel takeover releases abandoned agent travel [2.66ms]
+(pass) mounted composite input boundary > multiple mounted public boundaries consume one feedback sequence once [0.48ms]
+(pass) mounted composite input boundary > the mounted mute prop reaches the runtime without constructing settings UI [0.36ms]
+
+packages/composite/src/interaction-audio.test.ts:
+(pass) interaction audio scheduler > keeps the clicker budgets literal and reviewable [0.01ms]
+(pass) interaction audio scheduler > does not construct audio or replay feedback before activation [0.05ms]
+(pass) interaction audio scheduler > holds the first click only while a suspended context resumes [0.34ms]
+(pass) interaction audio scheduler > bounds activation-time feedback and reports unsupported audio precisely [0.09ms]
+(pass) interaction audio scheduler > terminal diagnostics survive mute changes and interruption [0.15ms]
+(pass) interaction audio scheduler > a synchronous suspend throw during mute remains terminal failed [0.05ms]
+(pass) interaction audio scheduler > an interruption during resume cannot revive audio in the background [0.05ms]
+(pass) interaction audio scheduler > a newer activation wins over an older deferred blur suspension [0.05ms]
+(pass) interaction audio scheduler > a newer activation wins over an older deferred mute suspension [0.04ms]
+(pass) interaction audio scheduler > center and cardinal switches share digital-down plus two physical phases [0.16ms]
+(pass) interaction audio scheduler > actual hold duration shifts release and duplicate edges stay exact-once [0.06ms]
+(pass) interaction audio scheduler > state press feedback and agent actions cannot duplicate physical voices [0.03ms]
+(pass) interaction audio scheduler > interruption clears a held switch and its reserved release [0.05ms]
+(pass) interaction audio scheduler > the voice cap reserves every admitted button release atomically [0.07ms]
+(pass) interaction audio scheduler > N detents schedule N lighter, 30Hz-spaced ticks with ±2% jitter [0.09ms]
+(pass) interaction audio scheduler > zero budgets and the explicit mute seam create no voices [0.04ms]
+(pass) interaction audio scheduler > muting a held button clears both voices and its release reservation [0.04ms]
+(pass) interaction audio scheduler > system provenance remains silent even when its boolean is false [0.02ms]
+(pass) interaction audio scheduler > rapid detents are articulate, bounded, and cannot build runaway gain [0.07ms]
+(pass) interaction audio scheduler > natural endings release the cap; dispose stops every remaining voice [0.07ms]
+(pass) interaction audio scheduler > resume failure is structured, clears pending work, and never rejects outward [0.05ms]
+(pass) interaction audio scheduler > a stale resume rejection cannot overwrite disposal [0.03ms]
+(pass) interaction audio scheduler > a stale resume rejection cannot overwrite a newer interruption [0.03ms]
+(pass) interaction audio scheduler > graph scheduling failure returns a no-sound result instead of throwing [0.05ms]
+(pass) store and browser lifecycle binding > inspector focus preserves agent wheel and physical button sounds, and tab return resumes them [0.29ms]
+(pass) store and browser lifecycle binding > visibility alone cannot unlock a fresh page [0.07ms]
+(pass) store and browser lifecycle binding > the default gate rejects script-dispatched events without proving provenance [0.06ms]
+(pass) store and browser lifecycle binding > duplicate bindings consume one authoritative sequence exactly once [0.09ms]
+(pass) store and browser lifecycle binding > multiple mounted runtimes share exact-once sequence ownership [0.10ms]
+(pass) store and browser lifecycle binding > an eligible activation signal unlocks once, then state drives sound [0.18ms]
+(pass) store and browser lifecycle binding > audio consumes accepted list movement, never raw outward detent attempts [0.11ms]
+(pass) store and browser lifecycle binding > hidden documents interrupt and clean the graph deterministically [0.10ms]
+(pass) store and browser lifecycle binding > a failing diagnostic observer cannot escape the audio boundary [0.08ms]
+
+ 103 pass
+ 0 fail
+ 755 expect() calls
+Ran 103 tests across 9 files. [732.00ms]

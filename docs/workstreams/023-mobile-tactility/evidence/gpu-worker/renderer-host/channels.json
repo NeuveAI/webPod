@@ -1,0 +1,15 @@
+{
+  "kind": "offline deterministic channel lifecycle, not browser rendering or latency",
+  "checks": {
+    "tenThousandNotificationsRetainOnlyOneInFlightAndLatest": true,
+    "exactAcknowledgmentRequired": true,
+    "pausedLatestResumes": true,
+    "disposalStopsPublication": true,
+    "captureIsBoundedBeforeTransfer": true,
+    "resizeWaitsAndClosesStaleCapture": true,
+    "latestPaintSurvivesBackpressure": true,
+    "staleAckCannotReleaseNewCredit": true,
+    "hiddenCaptureClosesWithoutRepaint": true,
+    "captureAfterDisposeCloses": true
+  }
+}

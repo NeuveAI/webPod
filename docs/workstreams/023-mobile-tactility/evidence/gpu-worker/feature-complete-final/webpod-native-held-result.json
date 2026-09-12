@@ -1,0 +1,17 @@
+{
+  "before": {
+    "root": true,
+    "inert": false
+  },
+  "movedAlerts": [],
+  "movedRoot": true,
+  "movedContour": true,
+  "cancelRestoredContour": true,
+  "placementEqual": true,
+  "held": null,
+  "pending": 0,
+  "after": {
+    "root": true,
+    "inert": false
+  }
+}

@@ -1,3 +1,6 @@
+import { InteractionHaptics, mountWheelHaptics, cancelWheelHaptics } from './interaction-haptics'
+import { WorkerDeviceCanvas } from './WorkerDeviceCanvas'
+import { atom, createStore, useAtomValue } from 'jotai'
 import { bindAgentWheelControls, bindAgentControlPhysics, getAgentControlPhysics } from './agent-controls'
 import { useThree } from '@react-three/fiber'
 import {
@@ -19,6 +22,7 @@ import {
   type DeviceOrientation,
   type ScreenMeshHandle,
   type DeviceStickerScene,
+  type DeviceMotionAuthority,
 } from '@webpod/device'
 import {
   acceptedExternalPressActionAtom,
@@ -70,6 +74,8 @@ const CONTEXT_RESTORATION_STYLE = {
 } as const
 
 export interface CompositeDeviceProps {
+  readonly rendererBackend?: 'webgl' | 'worker'
+  readonly motionAuthority?: DeviceMotionAuthority
   readonly stickerScene?: DeviceStickerScene
   readonly panel: ReactNode
   readonly colourway?: Colourway
@@ -77,7 +83,9 @@ export interface CompositeDeviceProps {
   readonly panelTone?: PanelOverlayTone
   readonly cameraFov?: number
   readonly cameraDistance?: number
+  readonly cameraMobileFraming?: boolean
   readonly cameraSafePadding?: number
+  readonly projectionDiagnostics?: boolean
   readonly orientation?: DeviceOrientation
   /** Ray-confirmed outer-shell grab seam for diagnostic free orientation. */
   readonly onOrientationGrabStart?: (start: DeviceOrientationGrabStart) => boolean
@@ -98,6 +106,8 @@ export interface CompositeDeviceProps {
  * the canvas. No React component owns a duplicate copy of panel state.
  */
 export function CompositeDevice({
+  rendererBackend = 'webgl',
+  motionAuthority,
   stickerScene,
   panel,
   colourway = 'black',
@@ -105,7 +115,9 @@ export function CompositeDevice({
   panelTone = 'dark',
   cameraFov,
   cameraDistance,
+  cameraMobileFraming,
   cameraSafePadding,
+  projectionDiagnostics = false,
   orientation = FRONT_DEVICE_ORIENTATION,
   onOrientationGrabStart,
   onOrientationGrabHoverChange,
@@ -114,6 +126,9 @@ export function CompositeDevice({
   onTransportPress,
 }: CompositeDeviceProps) {
   const canUseDom = typeof document !== 'undefined'
+  const backendState = useMemo(() => ({ store: createStore(), failed: atom<string | null>(null) }), [])
+  const workerFailed = useAtomValue(backendState.failed, { store: backendState.store })
+  const useWorker = rendererBackend === 'worker' && !workerFailed
   const tier = useSyncExternalStore(
     subscribeCompositeTier,
     getCompositeTierSnapshot,
@@ -142,6 +157,9 @@ export function CompositeDevice({
       className={className}
       data-composite-tier={tier.tier}
       data-composite-ready={host !== null}
+      data-renderer-requested={rendererBackend}
+      data-renderer-effective={useWorker ? 'worker' : 'webgl'}
+      data-renderer-failure={workerFailed ?? undefined}
       interactionAudioEnabled={interactionAudioEnabled}
       onPlayPausePress={onPlayPausePress}
       onTransportPress={onTransportPress}
@@ -157,14 +175,25 @@ export function CompositeDevice({
         onCardinalPress,
       }) => (
         <>
-          {host !== null && tier.tier === 'T1' ? createPortal(panel, host) : null}
-          {shouldMountCanvas ? (
-            <DeviceCanvas
+          {host !== null ? createPortal(panel, host) : null}
+          {shouldMountCanvas && useWorker && host ? <WorkerDeviceCanvas
+            key={JSON.stringify([colourway,cameraFov,cameraDistance,cameraMobileFraming,cameraSafePadding])}
+            panel={host} motionAuthority={motionAuthority} stickerScene={stickerScene} colourway={colourway}
+            inputCallbacks={{onArcStart, onArcMove, onArcEnd, onSelectStart, onSelectEnd, onCardinalStart, onCardinalEnd, onCardinalPress}}
+            onOrientationGrabStart={onOrientationGrabStart} onOrientationGrabHoverChange={onOrientationGrabHoverChange}
+            cameraFov={cameraFov} cameraDistance={cameraDistance} cameraMobileFraming={cameraMobileFraming}
+            cameraSafePadding={cameraSafePadding} orientation={orientation}
+            onFailure={error => backendState.store.set(backendState.failed, (error instanceof Error ? error.message : String(error)).slice(0, 512))}
+          /> : shouldMountCanvas ? (
+      <DeviceCanvas
+        motionAuthority={motionAuthority}
               stickerScene={stickerScene}
               colourway={colourway}
               cameraFov={cameraFov}
               cameraDistance={cameraDistance}
+              cameraMobileFraming={cameraMobileFraming}
               cameraSafePadding={cameraSafePadding}
+              projectionDiagnostics={projectionDiagnostics}
               orientation={orientation}
               onOrientationGrabStart={onOrientationGrabStart}
               onOrientationGrabHoverChange={onOrientationGrabHoverChange}
@@ -210,6 +239,9 @@ type CompositeInputBoundaryProps = {
   readonly className?: string
   readonly 'data-composite-tier'?: string
   readonly 'data-composite-ready'?: boolean
+  readonly 'data-renderer-requested'?: string
+  readonly 'data-renderer-effective'?: string
+  readonly 'data-renderer-failure'?: string
   readonly createDependencies?: () => ClickWheelRuntimeDependencies
   readonly createAudioRuntime?: () => InteractionAudioRuntime
   readonly interactionAudioEnabled?: boolean
@@ -227,6 +259,9 @@ export function CompositeInputBoundary({
   className,
   'data-composite-tier': tier,
   'data-composite-ready': ready,
+  'data-renderer-requested': rendererRequested,
+  'data-renderer-effective': rendererEffective,
+  'data-renderer-failure': rendererFailure,
   createDependencies = defaultRuntimeDependencies,
   createAudioRuntime = defaultInteractionAudioRuntime,
   interactionAudioEnabled = true,
@@ -265,6 +300,9 @@ export function CompositeInputBoundary({
       className={className}
       data-composite-tier={tier}
       data-composite-ready={ready}
+      data-renderer-requested={rendererRequested}
+      data-renderer-effective={rendererEffective}
+      data-renderer-failure={rendererFailure}
       onFocusCapture={onFocusCapture}
       style={{
         boxSizing: 'border-box',
@@ -295,6 +333,7 @@ class CompositeInputController {
   private activeSelectPointerId: number | null = null
   private applicationFocus: HTMLElement | null = null
   private selection: ScopedGestureSelection | null = null
+  private readonly haptics = new InteractionHaptics()
   private audio: InteractionAudioRuntime | null = null
   private audioRoot: HTMLDivElement | null = null
   private interactionAudioEnabled = true
@@ -319,6 +358,7 @@ class CompositeInputController {
     },
     onArcMove: (sample) => this.runtime?.arcMove(sample),
     onArcEnd: (end) => {
+      if (this.store !== null) cancelWheelHaptics(this.store)
       this.humanArcActive = false
       try {
         this.runtime?.arcEnd(end)
@@ -332,6 +372,7 @@ class CompositeInputController {
       this.agentOperation?.abort(new DOMException('Interrupted by human input.', 'AbortError'))
       if (this.activeSelectPointerId !== null) return
       this.activeSelectPointerId = start.pointerId
+      if (start.pointerType === 'touch' && !this.store?.get(holdEngagedAtom)) this.haptics.trigger('press')
       this.audioButtonDown(
         pointerAudioContactId(start.pointerId, 'center'),
         'center',
@@ -343,6 +384,7 @@ class CompositeInputController {
     onSelectEnd: (end) => {
       if (this.activeSelectPointerId !== end.pointerId) return
       this.activeSelectPointerId = null
+      if (end.reason !== 'release') this.haptics.cancel()
       this.audioButtonUp(
         pointerAudioContactId(end.pointerId, 'center'),
         end.timestampMs,
@@ -357,6 +399,7 @@ class CompositeInputController {
       this.wheelContactGeneration += 1
       this.agentOperation?.abort(new DOMException('Interrupted by human input.', 'AbortError'))
       this.cardinalStartTimes.set(start.pointerId, start.timestampMs)
+      if (start.pointerType === 'touch' && !this.store?.get(holdEngagedAtom)) this.haptics.trigger('press')
       this.audioButtonDown(
         pointerAudioContactId(start.pointerId, start.button),
         start.button,
@@ -365,6 +408,7 @@ class CompositeInputController {
       )
     },
     onCardinalEnd: (end) => {
+      if (end.reason !== 'release') this.haptics.cancel()
       this.audioButtonUp(
         pointerAudioContactId(end.pointerId, end.button),
         end.timestampMs,
@@ -399,6 +443,8 @@ class CompositeInputController {
     this.attachmentGeneration = generation
     const runtimeDependencies = this.createDependencies()
     const runtime = createClickWheelRuntime(runtimeDependencies)
+    const detachHaptics = this.haptics.mount()
+    const detachWheelHaptics = mountWheelHaptics(runtimeDependencies.store)
     const audio = this.createAudioRuntime()
     audio.setEnabled(this.interactionAudioEnabled)
     const ownerWindow = root.ownerDocument.defaultView ?? window
@@ -428,6 +474,8 @@ class CompositeInputController {
       detachKeyboard()
       detachWheel()
       detachAudio()
+      detachHaptics()
+      detachWheelHaptics()
       audio.dispose()
       clearInteractionAudioDiagnostics(root)
       selection.dispose()
@@ -760,19 +808,14 @@ function CompositeSceneBridge({
   const renderer = useThree((state) => state.gl)
   const camera = useThree((state) => state.camera)
   const scene = useThree((state) => state.scene)
-  const width = useThree((state) => state.size.width)
-  const height = useThree((state) => state.size.height)
-  void width
-  void height
 
   useEffect(() => {
     coordinator.setRenderContext({ renderer, camera, scene })
     return () => coordinator.clearRenderContext(renderer)
   }, [camera, coordinator, renderer, scene])
 
-  useLayoutEffect(() => {
-    coordinator.resyncGeometry()
-  })
+  // The screen handle publishes before its draw, including camera/viewport
+  // changes. A React layout resync would repeat that same transform work.
 
   return (
     <ClickWheelInputSurface

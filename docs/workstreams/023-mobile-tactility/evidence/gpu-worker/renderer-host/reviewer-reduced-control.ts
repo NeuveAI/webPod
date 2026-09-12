@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {Group,Matrix4} from '../../../../../../packages/device/node_modules/three';
+import {ControlPhysicsController} from '../../../../../../packages/device/src/control-physics';
+import {createDeviceMotionDriver} from '../../../../../../packages/device/src/device-motion-driver';
+import type {DeviceMotionBinding} from '../../../../../../packages/device/src/device-motion-authority';
+import type {RenderControlResponse,RenderPose} from '../../../../../../packages/device/src/device-render-protocol';
+const rest=new Matrix4().identity().toArray(),wheel=new Group(),select=new Group();
+let now=1000,frameId=0,commandId=0,remote=false;
+const frames=new Map<number,(time:number)=>void>(),listeners=new Set<(message:RenderControlResponse)=>void>();
+let main:RenderPose={sequence:0,motionEpoch:1,lastAcceptedCommand:0,layoutRevision:1,sceneRevision:1,resourceRevision:1,nodes:['device-model','wheel-assembly','select'].map(id=>({id,matrix:rest})),orientation:{yawDeg:0,pitchDeg:0,rollDeg:0},reveal:null};
+const driver=createDeviceMotionDriver(main,{now:()=>now,requestFrame:callback=>{frames.set(++frameId,callback);return frameId;},cancelFrame:id=>{frames.delete(id);},rendererEpoch:1,orientationNodeId:'device-model',publish(){},settled(message){main=message.pose;remote=true;try{for(const listener of listeners)listener(message);}finally{remote=false;}}});
+const binding:DeviceMotionBinding={read:()=>main,nextCommandSequence:()=>++commandId,sendPose(next){main=next;assert(driver.adoptPose(next));},sendCommand(command){main=command.pose;assert(driver.command(command));},subscribe(listener){listeners.add(listener);return()=>{listeners.delete(listener);};}};
+const controller=new ControlPhysicsController({now:()=>now-performance.timeOrigin,requestFrame(){throw Error('Unexpected main animation');},cancelFrame(){},invalidate(){if(remote)return;binding.sendPose({...main,nodes:main.nodes.map(node=>node.id==='wheel-assembly'?{...node,matrix:wheel.matrix.toArray()}:node.id==='select'?{...node,matrix:select.matrix.toArray()}:node)});}});
+controller.attachWheel(wheel);controller.attachSelect(select);const detach=controller.attachMotion(binding);
+controller.pressWheel(30);controller.releaseWheel();
+for(let step=0;step<20&&frames.size;step++){now+=16;const pending=[...frames.values()];frames.clear();for(const callback of pending)callback(now);}
+assert.equal(frames.size,0);assert.deepEqual(driver.read().nodes.find(node=>node.id==='wheel-assembly')?.matrix,rest);
+controller.setReducedMotion(true);controller.pressWheel(40);const pressed=driver.read().nodes.find(node=>node.id==='wheel-assembly')?.matrix;assert.notDeepEqual(pressed,rest);
+controller.releaseWheel();const released=driver.read().nodes.find(node=>node.id==='wheel-assembly')?.matrix;
+const result={localRestExact:JSON.stringify(wheel.matrix.toArray())===JSON.stringify(rest),rendererRestExact:JSON.stringify(released)===JSON.stringify(rest),scope:'Actual ControlPhysicsController and motion driver; controlled RAF and native-style generic pose invalidation, no browser/GPU timing.'};
+detach();controller.dispose();driver.dispose();await Bun.write(new URL('./reviewer-reduced-control.json',import.meta.url),JSON.stringify(result,null,2)+'\n');console.log(result);assert(result.localRestExact);assert(result.rendererRestExact);

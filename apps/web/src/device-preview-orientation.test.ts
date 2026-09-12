@@ -1,3 +1,4 @@
+import { createPreviewMotionAuthority } from './device-motion-authority'
 import { describe, expect, test } from 'bun:test'
 import {
   DEVICE_ORIENTATION_PRESETS,
@@ -15,6 +16,7 @@ import {
 } from './device-preview-orientation'
 
 class FakeStage extends EventTarget {
+  constructor(readonly ownerDocument?: EventTarget & { readonly hidden: boolean }) { super() }
   readonly dataset: { [name: string]: string | undefined } = {}
   focusCount = 0
 
@@ -735,3 +737,62 @@ function keyboardEvent(
   })
   return event
 }
+
+
+describe('orientation visibility interruption', () => {
+  class Visibility extends EventTarget { hidden = false }
+  test('hide without blur cancels main/native hold once, preserves pose, and permits a fresh visible grab', () => {
+    const visibility = new Visibility(), stage = new FakeStage(visibility), host = new EventTarget(), blur = new EventTarget()
+    const capture = new FakeCapture(), frames = new FrameEnvironment(), store = createDevicePreviewStore()
+    const sent: {kind: string; pointerId: number}[] = []
+    const authority = createPreviewMotionAuthority()
+    const controls = bindDeviceOrientationControls(stage, store, blur, frames, undefined, { ...authority, pointer(kind, sample) { sent.push({kind, pointerId: sample.pointerId}); authority.pointer(kind, sample) } })
+    expect(controls.begin(grabStart(host, capture, 'touch', 71, 36, 450))).toBe(true)
+    host.dispatchEvent(pointerEvent('pointermove', 71, 90, 450, 200))
+    const pose = store.getSnapshot().orientation
+    visibility.hidden = true; visibility.dispatchEvent(new Event('visibilitychange'))
+    expect(controls.isActive()).toBe(false); expect(controls.isAnimating()).toBe(false)
+    expect(capture.captured.size).toBe(0); expect(capture.releases).toEqual([71])
+    expect(sent.filter(item => item.kind === 'pointer-cancel')).toEqual([{kind:'pointer-cancel', pointerId:71}])
+    expect(store.getSnapshot().orientation).toEqual(pose)
+    host.dispatchEvent(pointerEvent('pointermove', 71, 500, 100, 300))
+    host.dispatchEvent(pointerEvent('pointerup', 71, 500, 100, 300))
+    blur.dispatchEvent(new Event('blur')); visibility.dispatchEvent(new Event('visibilitychange'))
+    expect(sent.filter(item => item.kind === 'pointer-cancel')).toHaveLength(1)
+    expect(store.getSnapshot().orientation).toEqual(pose); expect(frames.pendingFrames).toBe(0)
+    expect(controls.begin(grabStart(host, capture, 'touch', 72, 0, 0))).toBe(false)
+    visibility.hidden = false; visibility.dispatchEvent(new Event('visibilitychange'))
+    expect(controls.isActive()).toBe(false)
+    expect(controls.begin(grabStart(host, capture, 'touch', 73, 0, 0))).toBe(true)
+    controls.dispose(); const count = sent.length
+    visibility.hidden = true; visibility.dispatchEvent(new Event('visibilitychange'))
+    expect(sent).toHaveLength(count); expect(capture.releases).toEqual([71,73])
+  })
+  test('hide interrupts a pending flick, cancels its frame and does not resume on return', async () => {
+    const visibility = new Visibility(), frames = new FrameEnvironment(), store = createDevicePreviewStore()
+    const controls = bindDeviceOrientationControls(new FakeStage(visibility), store, new EventTarget(), frames)
+    const flick = controls.flick('back', new AbortController().signal)
+    const rejection = flick.then(() => null, (error: unknown) => error)
+    frames.step(16); const pose = store.getSnapshot().orientation
+    visibility.hidden = true; visibility.dispatchEvent(new Event('visibilitychange')); expect(await rejection).toMatchObject({name: 'AbortError'})
+    expect(controls.isAnimating()).toBe(false); expect(frames.pendingFrames).toBe(0)
+    visibility.hidden = false; visibility.dispatchEvent(new Event('visibilitychange')); frames.step(1000)
+    expect(store.getSnapshot().orientation).toEqual(pose); controls.dispose()
+  })
+  test('hide cancels remote motion ownership exactly once and rejects late renderer progress', async () => {
+    const visibility = new Visibility(), store = createDevicePreviewStore(), frames = new FrameEnvironment()
+    const authority = createPreviewMotionAuthority(); let cancellations = 0
+    let progress: ((orientation: typeof FRONT_DEVICE_ORIENTATION) => void) | null = null
+    const controls = bindDeviceOrientationControls(new FakeStage(visibility), store, new EventTarget(), frames, undefined, {...authority, startOrientation(_motion, publish) { progress = publish; return () => { cancellations++ } }})
+    const rejected = controls.flick('back', new AbortController().signal).then(() => null, (error: unknown) => error)
+    expect(controls.isAnimating()).toBe(true); expect(frames.pendingFrames).toBe(0)
+    const pose = store.getSnapshot().orientation
+    visibility.hidden = true; visibility.dispatchEvent(new Event('visibilitychange'))
+    expect(await rejected).toMatchObject({name:'AbortError'}); expect(cancellations).toBe(1)
+    const sendLate = progress as ((orientation: typeof FRONT_DEVICE_ORIENTATION) => void) | null
+    sendLate?.({...FRONT_DEVICE_ORIENTATION,yawDeg:180})
+    expect(store.getSnapshot().orientation).toEqual(pose); expect(controls.isAnimating()).toBe(false)
+    visibility.dispatchEvent(new Event('visibilitychange')); controls.dispose(); expect(cancellations).toBe(1)
+  })
+
+})

@@ -1,0 +1,51 @@
+{
+  "provenance": "Actual catalogue PNG alpha and real canonical/private worker preparation; simulated browser bitmap object, no GPU compile.",
+  "catalogueArtworks": 60,
+  "requestedArtworks": 10,
+  "acquired": 8,
+  "sent": 0,
+  "failure": "Sticker computation byte capacity exceeded; native pack phase=print-8; completed prints=7; artworkBytes=15792640; transactions={\"entries\":15,\"queued\":0,\"active\":null,\"worker\":true,\"privateOwners\":7,\"pendingCopies\":0,\"privateBytes\":18491424,\"accountedBytes\":79882652}",
+  "beforeRelease": {
+    "paper": {
+      "clients": 0,
+      "entries": 8,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 0,
+      "privateBytes": 0,
+      "accountedBytes": 430592
+    },
+    "transactions": {
+      "entries": 8,
+      "queued": 0,
+      "active": null,
+      "worker": true,
+      "privateOwners": 0,
+      "pendingCopies": 0,
+      "privateBytes": 0,
+      "accountedBytes": 31895524
+    }
+  },
+  "finalOwners": 0,
+  "finalPaper": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "finalTransactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  }
+}

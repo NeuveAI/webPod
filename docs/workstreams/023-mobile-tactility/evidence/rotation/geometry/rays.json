@@ -1,0 +1,20 @@
+{
+  "note": "Offline unthrottled Bun, render geometry source copied verbatim from Device front factory; timings single bounded pass, not browser/input latency.",
+  "report": [],
+  "indexReport": [
+    {
+      "name": "front",
+      "buildMs": 222.188583,
+      "rays": 420,
+      "baselineMs": 989.0982080000001,
+      "indexedMs": 8.807909999998628
+    },
+    {
+      "name": "rear",
+      "buildMs": 37.23225000000002,
+      "rays": 420,
+      "baselineMs": 196.10214900000142,
+      "indexedMs": 11.052833000003375
+    }
+  ]
+}

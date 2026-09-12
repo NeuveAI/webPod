@@ -1,3 +1,4 @@
+import { drainSteps } from './sticker-computation-steps';
 import { CanvasTexture, ClampToEdgeWrapping, LinearFilter } from "three";
 import { DEVICE_LAYOUT } from "./layout";
 
@@ -30,7 +31,7 @@ export function backplateRoughnessAt(x: number, y: number): number {
     (BACKPLATE_FINISH.faceRoughness - BACKPLATE_FINISH.edgeRoughness);
 }
 
-export function createBackplateFinishMaps(content: Readonly<{ name: string; badge: string; detail: string; tribute: string; credit: string }> = BACKPLATE_ENGRAVING) {
+export function createBackplateFinishMaps(content: Readonly<{ name: string; badge: string; detail: string; tribute: string; credit: string }> = BACKPLATE_ENGRAVING, basePixels?: Uint8ClampedArray) {
   if (typeof document === "undefined") return null;
   const { width, height } = DEVICE_LAYOUT.body;
   const canvas = document.createElement("canvas");
@@ -38,16 +39,7 @@ export function createBackplateFinishMaps(content: Readonly<{ name: string; badg
   const context = canvas.getContext("2d");
   if (context === null) return null;
   const pixels = context.createImageData(canvas.width, canvas.height);
-  for (let y = 0; y < canvas.height; y++) {
-    for (let x = 0; x < canvas.width; x++) {
-      const value = Math.round(255 * backplateRoughnessAt(
-        (x / canvas.width - 0.5) * width, (0.5 - y / canvas.height) * height,
-      ) / BACKPLATE_FINISH.etchedRoughness);
-      const offset = (y * canvas.width + x) * 4;
-      pixels.data[offset] = value; pixels.data[offset + 1] = value;
-      pixels.data[offset + 2] = value; pixels.data[offset + 3] = 255;
-    }
-  }
+  pixels.data.set(basePixels ?? drainSteps(createBackplatePixelsSteps()));
   context.putImageData(pixels, 0, 0);
   function engrave(ctx: CanvasRenderingContext2D, color: string) {
     ctx.save();
@@ -84,4 +76,23 @@ export function createBackplateFinishMaps(content: Readonly<{ name: string; badg
     texture.magFilter = LinearFilter; texture.anisotropy = 8;
   }
   return { roughnessMap, bumpMap, dispose() { roughnessMap.dispose(); bumpMap.dispose(); } };
+}
+
+/** Procedural base only; font raster stays in its original browser context. */
+export function* createBackplatePixelsSteps(): Generator<void,Uint8ClampedArray,void> {
+ const {width,height}=DEVICE_LAYOUT.body;
+  const pixels = new Uint8ClampedArray(1024 * 2048 * 4);
+  for (let y = 0; y < 2048; y++) {
+    yield;
+    for (let x = 0; x < 1024; x++) {
+      const value = Math.round(255 * backplateRoughnessAt(
+        (x / 1024 - 0.5) * width, (0.5 - y / 2048) * height,
+      ) / BACKPLATE_FINISH.etchedRoughness);
+      const offset = (y * 1024 + x) * 4;
+      pixels[offset] = value; pixels[offset + 1] = value;
+      pixels[offset + 2] = value; pixels[offset + 3] = 255;
+    }
+  }
+
+return pixels;
 }

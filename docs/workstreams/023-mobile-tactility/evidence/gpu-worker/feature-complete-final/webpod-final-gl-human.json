@@ -1,0 +1,24 @@
+{
+  "before": {
+    "root": true,
+    "inert": false,
+    "angle": "rotate(90 16 16)"
+  },
+  "movedAlerts": [],
+  "movedAngle": "rotate(100.4074328147916 16 16)",
+  "beforeFiber": {
+    "available": false
+  },
+  "movedFiber": {
+    "available": false
+  },
+  "movedContour": true,
+  "cancelRestoredContour": true,
+  "placementEqual": true,
+  "held": null,
+  "pending": 0,
+  "after": {
+    "root": true,
+    "inert": false
+  }
+}

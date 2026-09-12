@@ -1,0 +1,14 @@
+{
+  "checks": 10,
+  "final": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "scope": "Actual preparation and worker outputs; exact fields/GPU/contour, negative consumed inputs, cancellation and borrowed current retention. No mounted React/browser claim."
+}

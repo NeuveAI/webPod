@@ -1,0 +1,75 @@
+{
+  "runtime": "1.4.0",
+  "fixture": "Source-built default device shells/hardware and production prepared contour from synthetic 64x96 cutout alpha. Not a captured user scene/catalogue.",
+  "parity": {
+    "deviceRays": 4080,
+    "deviceHits": 746,
+    "adversarial": 489,
+    "projectedContours": 3,
+    "nonnullProjectedContours": 3,
+    "comparison": "node assert.deepEqual full Vector3 point/normal/distance/provenance, including signed zero",
+    "borrowedBuffersUnchanged": true
+  },
+  "geometry": {
+    "triangles": 200913,
+    "nodes": 65535,
+    "bytes": 20267280,
+    "contourPoints": 960
+  },
+  "scalarWork": {
+    "calls": 4080,
+    "nodes": 320608,
+    "triangles": 247884,
+    "fallbackHits": 0,
+    "retainedScratchArrays": 1
+  },
+  "adversarialWork": [
+    {
+      "calls": 96,
+      "nodes": 96,
+      "triangles": 462,
+      "fallbackHits": 40,
+      "retainedScratchArrays": 1
+    },
+    {
+      "calls": 96,
+      "nodes": 96,
+      "triangles": 462,
+      "fallbackHits": 32,
+      "retainedScratchArrays": 1
+    },
+    {
+      "calls": 128,
+      "nodes": 128,
+      "triangles": 546,
+      "fallbackHits": 52,
+      "retainedScratchArrays": 1
+    }
+  ],
+  "benchmark": {
+    "raysPerBatch": 4000,
+    "warmupBatchesPerKernel": 2,
+    "order": "alternating six batches each, no instrumentation counters",
+    "oldMs": [
+      20.703875000000153,
+      21.198416999999836,
+      20.870332999999846,
+      19.778542000000016,
+      19.51841599999989,
+      20.97262499999988
+    ],
+    "scalarMs": [
+      13.487125000000106,
+      14.167666999999938,
+      13.739082999999937,
+      13.485041999999794,
+      14.121124999999893,
+      13.458916999999929
+    ],
+    "oldMedianMs": 20.787104,
+    "scalarMedianMs": 13.613104000000021,
+    "speedup": 1.5269922274890404,
+    "sink": 8023605.239681212
+  },
+  "limits": "Bun/JSC bounded warm microbenchmark, not Chrome/6x/production UI/worker latency. Not a complete proof for arbitrary geometry or asynchronous ownership."
+}

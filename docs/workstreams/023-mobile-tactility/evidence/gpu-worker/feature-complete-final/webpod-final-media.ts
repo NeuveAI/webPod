@@ -1,0 +1,9 @@
+async function c(method,params={}){const r=await fetch('http://127.0.0.1:9348',{method:'POST',body:JSON.stringify({method,params})}).then(r=>r.json());if(r.error||r.result.exceptionDetails)throw Error(JSON.stringify(r));return r.result}
+async function ev(expression){return (await c('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true})).result.value}
+async function tap(x,y){await c('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});await Bun.sleep(100);await c('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await Bun.sleep(450)}
+const state=()=>ev("(async()=>{const t=await document.modelContext.getTools();const out={};for(const name of ['webpod_device_state','webpod_page_state'])out[name]=JSON.parse(await document.modelContext.executeTool(t.find(x=>x.name===name),'{}'));const m=window.MusicKit?.getInstance();out.media=m?{state:m.playbackState,time:m.currentPlaybackTime}:null;return out})()");
+
+const before=await state();await tap(220,585);const select=await state();await tap(220,585);await Bun.sleep(2500);const started=await state();
+await c('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:35,y:450,id:1}]});await c('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:45,y:450,id:1}]});await Bun.sleep(300);await c('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+await tap(220,688);const paused=await state();await tap(220,688);await Bun.sleep(1600);const resumed=await state();await tap(220,688);await tap(220,490);await tap(220,490);const restored=await state();
+await Bun.write('/tmp/webpod-final-media.json',JSON.stringify({before,select,started,paused,resumed,restored},null,2));console.log(JSON.stringify({started:started.media,paused:paused.media,resumed:resumed.media,restored:restored.media,pose:restored.webpod_device_state.pose}));

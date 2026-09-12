@@ -1,3 +1,4 @@
+import { drainSteps } from './sticker-computation-steps';
 import { BufferGeometry, Float32BufferAttribute, type Vector2 } from "three";
 import { DEVICE_LAYOUT } from "./layout";
 import { roundedRectShape } from "./shapes";
@@ -58,7 +59,8 @@ function split(polygon: Vertex[], a: { x: number; y: number }, b: { x: number; y
 
 /** Cut real openings into the top/bottom steel triangles. No depth-test masks,
  * overlapping black stickers, runtime CSG dependency or new render passes. */
-export function cutHardwareApertures(source: BufferGeometry): BufferGeometry {
+export function cutHardwareApertures(source: BufferGeometry): BufferGeometry { return drainSteps(cutHardwareAperturesSteps(source)); }
+export function* cutHardwareAperturesSteps(source: BufferGeometry): Generator<void,BufferGeometry,void> {
   const straightEdgeStart = DEVICE_LAYOUT.body.height / 2 - DEVICE_LAYOUT.body.cornerR;
   const raw = source.index === null ? source.clone() : source.toNonIndexed();
   const position = raw.getAttribute("position");
@@ -66,6 +68,7 @@ export function cutHardwareApertures(source: BufferGeometry): BufferGeometry {
   const uv = raw.getAttribute("uv");
   let triangles: Vertex[][] = [];
   for (let i = 0; i < position.count; i += 3) {
+    if(i % 384 === 0) yield;
     triangles.push(Array.from({ length: 3 }, (_, k) => ({
       p: [position.getX(i + k), position.getY(i + k), position.getZ(i + k)],
       n: [normal.getX(i + k), normal.getY(i + k), normal.getZ(i + k)],
@@ -77,6 +80,7 @@ export function cutHardwareApertures(source: BufferGeometry): BufferGeometry {
     const xs = aperture.outline.map((p) => p.x);
     const zs = aperture.outline.map((p) => p.y);
     for (const polygon of triangles) {
+      yield;
       // Openings all lie on straight top/bottom bands, well away from corners.
       if (polygon.some((v) => aperture.side * (v.p[1] ?? 0) < straightEdgeStart) ||
         Math.max(...polygon.map((v) => v.p[0] ?? 0)) < Math.min(...xs) ||
@@ -100,6 +104,7 @@ export function cutHardwareApertures(source: BufferGeometry): BufferGeometry {
   }
   const positions: number[] = [], normals: number[] = [], uvs: number[] = [];
   for (const polygon of triangles) {
+      yield;
     for (let i = 1; i < polygon.length - 1; i++) {
       const a = polygon[0], b = polygon[i], c = polygon[i + 1];
       if (a === undefined || b === undefined || c === undefined) continue;

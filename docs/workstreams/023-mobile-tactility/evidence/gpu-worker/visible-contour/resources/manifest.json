@@ -1,0 +1,20 @@
+{
+  "files": [
+    {
+      "path": "packages/device/src/sticker-contour-preparation-data.ts",
+      "sha256": "9780b3696617d48ecc7ba2a6b3ba16fdf966047f5161e6eb96cccdea36684e51"
+    },
+    {
+      "path": "packages/device/src/sticker-prepared-damage.ts",
+      "sha256": "816fc3b21e048c40c11b0ed2798e7b83ef6160300c4399f99ca79875aa22234d"
+    },
+    {
+      "path": "packages/device/src/sticker-collision-preparation.ts",
+      "sha256": "62d74b12b9a6bed6a6af91e949ec29612dd80757f07dd155f268f20609e351fb"
+    },
+    {
+      "path": "packages/device/src/sticker-collision-budget.ts",
+      "sha256": "32a1700eca372f0b8d41786537a55709ead7a0de1d04a6410ca907bd2ce869ce"
+    }
+  ]
+}

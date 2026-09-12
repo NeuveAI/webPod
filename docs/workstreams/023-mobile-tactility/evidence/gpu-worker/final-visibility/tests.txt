@@ -1,0 +1,44 @@
+bun test v1.4.0 (34cbb9a40)
+
+apps/web/src/device-preview-orientation.test.ts:
+(pass) external device preview orientation > publishes only real changes and reset preserves room and colourway [0.71ms]
+(pass) external device preview orientation > normal drag reaches the rear, wraps yaw, and clamps pitch [0.06ms]
+(pass) external device preview orientation > malformed external orientation cannot poison the shared store [0.05ms]
+(pass) external device preview orientation > Option drag is an explicit bounded roll gesture without yaw drift
+(pass) external device preview orientation > captures mouse movement beyond the edge and releases exactly once [0.65ms]
+(pass) external device preview orientation > production release continues over frames and a fast yaw flick coasts to an arbitrary angle [0.85ms]
+(pass) external device preview orientation > a deliberate horizontal flick snaps flat and can be caught midway [0.60ms]
+(pass) external device preview orientation > a new grab and blur interrupt release motion without an idle frame [0.21ms]
+(pass) external device preview orientation > reduced motion preserves the release pose without scheduling [0.09ms]
+(pass) external device preview orientation > supports touch and makes duplicate pointers, cancel, blur, and dispose safe [0.10ms]
+(pass) external device preview orientation > teardown remains silent when the browser has already dropped capture [0.12ms]
+(pass) external device preview orientation > pointercancel preserves an edge pose, clears capture and permits another grab [0.09ms]
+(pass) external device preview orientation > lostpointercapture preserves an edge pose, clears capture and permits another grab [0.07ms]
+(pass) external device preview orientation > a held release cannot refresh stale flick samples [0.06ms]
+(pass) external device preview orientation > keyboard interrupts a captured drag and unrelated keys do not interrupt settling [0.39ms]
+(pass) external device preview orientation > re-grabbing samples the current pose and external reset cancels all pending work [0.10ms]
+(pass) external device preview orientation > failed capture does not strand a settling device [0.30ms]
+(pass) external device preview orientation > idle window blur preserves a chosen inspection pose [0.04ms]
+(pass) external device preview orientation > keyboard fallback is stage-scoped, supports roll, and resets [0.21ms]
+(pass) tool orientation controls > reset springs every axis to front and a new command interrupts it [0.25ms]
+(pass) tool orientation controls > rotates degree deltas with actual clamping and rejects nonfinite input [0.08ms]
+(pass) tool orientation controls > flick resolves only after shared physical spring settles at the requested face [0.51ms]
+(pass) tool orientation controls > reduced motion settles without frames and reacts during a flick [0.08ms]
+(pass) tool orientation controls > concurrent and already-aborted calls leave the admitted flick intact [0.23ms]
+(pass) tool orientation controls > abort rejects the pending flick and removes its frame [0.12ms]
+(pass) tool orientation controls > dispose rejects the pending flick and removes its frame [0.04ms]
+(pass) tool orientation controls > blur rejects the pending flick and removes its frame [0.03ms]
+(pass) tool orientation controls > external-write rejects the pending flick and removes its frame [0.03ms]
+(pass) tool orientation controls > rotate rejects the pending flick and removes its frame [0.02ms]
+(pass) tool orientation controls > human-grab rejects the pending flick and removes its frame [0.04ms]
+(pass) tool orientation controls > abort from an orientation subscriber cannot resurrect the frame loop [0.07ms]
+(pass) tool orientation controls > nested external mutation during intermediate publication cancels and preserves the override [0.09ms]
+(pass) tool orientation controls > nested external mutation during settlement publication cancels and preserves the override [0.21ms]
+(pass) orientation visibility interruption > hide without blur cancels main/native hold once, preserves pose, and permits a fresh visible grab [0.28ms]
+(pass) orientation visibility interruption > hide interrupts a pending flick, cancels its frame and does not resume on return [0.08ms]
+(pass) orientation visibility interruption > hide cancels remote motion ownership exactly once and rejects late renderer progress [0.09ms]
+
+ 36 pass
+ 0 fail
+ 205 expect() calls
+Ran 36 tests across 1 file. [89.00ms]

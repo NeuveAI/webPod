@@ -1,0 +1,329 @@
+{
+  "carryWorkers": 0,
+  "workerErrors": [],
+  "phase": "parallel-packet:pocket/cover/print",
+  "failure": null,
+  "preparedPrints": 23,
+  "stages": [
+    {
+      "phase": "warmup:PW-A01:earned",
+      "transactions": {
+        "entries": 2,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 5746168
+      }
+    },
+    {
+      "phase": "warmup:PW-A01:locked",
+      "transactions": {
+        "entries": 2,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 5746168
+      }
+    },
+    {
+      "phase": "warmup:PW-A01:placed",
+      "transactions": {
+        "entries": 2,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 5746168
+      }
+    },
+    {
+      "phase": "warmup:PW-A02:earned",
+      "transactions": {
+        "entries": 4,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 11450512
+      }
+    },
+    {
+      "phase": "warmup:PW-A02:locked",
+      "transactions": {
+        "entries": 4,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 11450512
+      }
+    },
+    {
+      "phase": "warmup:PW-A02:placed",
+      "transactions": {
+        "entries": 4,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 11450512
+      }
+    },
+    {
+      "phase": "warmup:PW-A03:earned",
+      "transactions": {
+        "entries": 6,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 17249560
+      }
+    },
+    {
+      "phase": "warmup:PW-A03:locked",
+      "transactions": {
+        "entries": 6,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 17249560
+      }
+    },
+    {
+      "phase": "warmup:PW-A03:placed",
+      "transactions": {
+        "entries": 6,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 17249560
+      }
+    },
+    {
+      "phase": "warmup:PW-A04:earned",
+      "transactions": {
+        "entries": 8,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 23174296
+      }
+    },
+    {
+      "phase": "warmup:PW-A04:locked",
+      "transactions": {
+        "entries": 8,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 23174296
+      }
+    },
+    {
+      "phase": "warmup:PW-A04:placed",
+      "transactions": {
+        "entries": 8,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 23174296
+      }
+    },
+    {
+      "phase": "warmup:PW-A05:earned",
+      "transactions": {
+        "entries": 10,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 28938808
+      }
+    },
+    {
+      "phase": "warmup:PW-A05:locked",
+      "transactions": {
+        "entries": 10,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 28938808
+      }
+    },
+    {
+      "phase": "warmup:PW-A05:placed",
+      "transactions": {
+        "entries": 10,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 28938808
+      }
+    },
+    {
+      "phase": "parallel-packet:pocket/cover/print",
+      "transactions": {
+        "entries": 22,
+        "queued": 6,
+        "active": 16,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 71243876
+      }
+    },
+    {
+      "phase": "parallel-packet:pocket/cover/print",
+      "transactions": {
+        "entries": 26,
+        "queued": 5,
+        "active": 21,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 72296740
+      }
+    },
+    {
+      "phase": "parallel-packet:pocket/cover/print",
+      "transactions": {
+        "entries": 26,
+        "queued": 4,
+        "active": 22,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 72296740
+      }
+    },
+    {
+      "phase": "parallel-packet:pocket/cover/print",
+      "transactions": {
+        "entries": 26,
+        "queued": 3,
+        "active": 23,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 72296740
+      }
+    },
+    {
+      "phase": "parallel-packet:pocket/cover/print",
+      "transactions": {
+        "entries": 26,
+        "queued": 2,
+        "active": 24,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 72296740
+      }
+    },
+    {
+      "phase": "parallel-packet:pocket/cover/print",
+      "transactions": {
+        "entries": 26,
+        "queued": 1,
+        "active": 25,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 72296740
+      }
+    },
+    {
+      "phase": "parallel-packet:pocket/cover/print",
+      "transactions": {
+        "entries": 26,
+        "queued": 0,
+        "active": 26,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 72296740
+      }
+    },
+    {
+      "phase": "parallel-packet:pocket/cover/print",
+      "transactions": {
+        "entries": 26,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 72284240
+      }
+    }
+  ],
+  "finalTransactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "finalPaper": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "scope": "Actual preparePrint five-art warmup then parallel8packet, exact catalogue alpha/authored packet; no mounted React scheduling claim"
+}

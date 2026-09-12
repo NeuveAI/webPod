@@ -1,3 +1,4 @@
+import {drainSteps} from './sticker-computation-steps';
 import { BufferGeometry, Float32BufferAttribute, type Vector2 } from "three";
 
 import { silhouetteShape } from "./shapes";
@@ -210,7 +211,8 @@ export function rearRollInsetSlopeAt(
  * Shared vertices keep the surface watertight. Analytic sweep normals keep
  * highlights continuous independently of triangle area and cap triangulation.
  */
-export function createRearShellGeometry({
+export function createRearShellGeometry(params:RearShellParams):BufferGeometry {return drainSteps(createRearShellGeometrySteps(params));}
+export function* createRearShellGeometrySteps({
   width,
   height,
   depth,
@@ -220,7 +222,7 @@ export function createRearShellGeometry({
   rearCrownInset,
   cornerSegments = 48,
   frontRimInset = 0,
-}: RearShellParams): BufferGeometry {
+}: RearShellParams): Generator<void,BufferGeometry,void> {
   if (!(width > 2 * rearCrownInset) || !(height > 2 * rearCrownInset)) {
     throw new Error("rear crown inset must fit inside the enclosure plan");
   }
@@ -257,6 +259,7 @@ export function createRearShellGeometry({
     sectionIndex < sections.length;
     sectionIndex += 1
   ) {
+    yield;
     const section = sections[sectionIndex];
     const ring = rings[sectionIndex];
     if (section === undefined || ring === undefined) continue;
@@ -342,7 +345,9 @@ export function createRearShellGeometry({
   geometry.setAttribute("uv", new Float32BufferAttribute(uvs, 2));
   geometry.setIndex(indices);
   geometry.setAttribute("normal", new Float32BufferAttribute(normals, 3));
+  yield;
   geometry.computeBoundingBox();
+  yield;
   geometry.computeBoundingSphere();
   return geometry;
 }

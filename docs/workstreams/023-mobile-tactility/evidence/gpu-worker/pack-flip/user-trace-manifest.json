@@ -1,0 +1,40 @@
+{
+  "file": "/Users/vinicius/Downloads/Trace-20260912T000938.json.gz",
+  "sha256": "bbf3e90f3fd8fa4bd814494f4c2f04da45774c563b2a3bbcd4c213884a342b13",
+  "bytes": 5931198,
+  "metadata": {
+    "source": "DevTools",
+    "startTime": "2026-09-11T22:09:38.161Z",
+    "emulatedDeviceTitle": "iPhone 16 Pro Max",
+    "cpuThrottling": 6,
+    "dataOrigin": "TraceEvents",
+    "hostDPR": 2,
+    "modifications": {
+      "entriesModifications": {
+        "hiddenEntries": [],
+        "expandableEntries": []
+      },
+      "initialBreadcrumb": {
+        "window": {
+          "min": 276489075006,
+          "max": 276500938960,
+          "range": 11863954
+        },
+        "child": null
+      },
+      "annotations": {
+        "entryLabels": [],
+        "labelledTimeRanges": [],
+        "linksBetweenEntries": []
+      }
+    }
+  },
+  "events": 212520,
+  "mainThread": {
+    "pid": 62025,
+    "tid": 4853675
+  },
+  "longTasks": 27,
+  "maxLongTaskMs": 1897.94,
+  "note": "Existing user recording; export Save dialogs accepted. No new recording started. Startup profiler cost included in long-task count. Raw trace retained locally only."
+}

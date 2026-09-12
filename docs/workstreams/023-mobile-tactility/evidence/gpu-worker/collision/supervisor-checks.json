@@ -1,0 +1,33 @@
+{
+  "sourceState": "CPU010 frozen before independent review; base da8a204",
+  "commands": [
+    {
+      "command": "bun docs/workstreams/023-mobile-tactility/evidence/gpu-worker/collision/parity.ts",
+      "exitCode": 0,
+      "baseline": "d252c4425e18fff1424f26aff9e3dcb6e28e46f8",
+      "segments": 529,
+      "supportQueries": 529,
+      "triangleQueries": 529,
+      "shellRays": 840,
+      "uvAlphaRays": 840,
+      "packedNodeRestorations": 0
+    },
+    {
+      "command": "bun docs/workstreams/023-mobile-tactility/evidence/gpu-worker/collision/lifecycle.ts",
+      "exitCode": 0,
+      "checks": 21
+    },
+    {
+      "command": "bun test packages/device/src/{sticker-collision,sticker-collision-preparation,sticker-visibility,sticker-contour-visibility,sticker-free-carry,probe-raycast,orientation-grab,control-physics,screen-mesh}.test.ts",
+      "exitCode": 0,
+      "passed": 60,
+      "failed": 0,
+      "assertions": 865192
+    }
+  ],
+  "limits": [
+    "Not browser performance evidence",
+    "Independent source review pending",
+    "Full GPU/worker integration pending"
+  ]
+}
