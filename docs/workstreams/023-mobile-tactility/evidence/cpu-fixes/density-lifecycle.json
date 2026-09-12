@@ -1,0 +1,14 @@
+{
+  "fractionalDensity": 1.5024209486166007,
+  "physicalResolverParity": true,
+  "sixtyPoseConfigurationsWithoutResize": true,
+  "equalMeasurementSuppressed": true,
+  "emulatedDprThree": true,
+  "clampedDensity": true,
+  "resizeAndViewportZoom": true,
+  "independentCanvases": true,
+  "numericOptOut": true,
+  "observerAndViewportCleanup": true,
+  "publications": 4,
+  "resizeTransitions": 4
+}

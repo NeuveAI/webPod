@@ -1,0 +1,4449 @@
+{
+  "source": "Trace-20260911T001443.json.gz",
+  "metadata": {
+    "device": "iPhone 16 Pro Max",
+    "cpuThrottling": 6,
+    "pid": 74270,
+    "tid": 3381954
+  },
+  "profileDurationMs": 6475.44,
+  "overall": {
+    "sampleCount": 54191,
+    "sampledMs": 5092.525,
+    "topSelf": [
+      {
+        "node": 2,
+        "symbol": "(program)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 2078.234
+      },
+      {
+        "node": 1424,
+        "symbol": "dispatch",
+        "asset": "sticker-carry-preparation.ts",
+        "line": 54,
+        "column": 19,
+        "sampledMs": 376.5
+      },
+      {
+        "node": 4,
+        "symbol": "(garbage collector)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 278.336
+      },
+      {
+        "node": 2765,
+        "symbol": "(idle)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 210.576
+      },
+      {
+        "node": 1443,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 188.936
+      },
+      {
+        "node": 1577,
+        "symbol": "dispatch",
+        "asset": "sticker-carry-preparation.ts",
+        "line": 54,
+        "column": 19,
+        "sampledMs": 152.997
+      },
+      {
+        "node": 732,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 89.273
+      },
+      {
+        "node": 1596,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 81.467
+      },
+      {
+        "node": 1442,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 65.464
+      },
+      {
+        "node": 3126,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 53.831
+      },
+      {
+        "node": 1444,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 51.694
+      },
+      {
+        "node": 1681,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 45.894
+      },
+      {
+        "node": 1595,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 44.136
+      },
+      {
+        "node": 1441,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 43.845
+      },
+      {
+        "node": 1597,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 38.289
+      },
+      {
+        "node": 1594,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 29.133
+      },
+      {
+        "node": 3180,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 28.759
+      },
+      {
+        "node": 3175,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 28.359
+      },
+      {
+        "node": 1748,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 25.318
+      },
+      {
+        "node": 735,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 23.545
+      },
+      {
+        "node": 61,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 23.214
+      },
+      {
+        "node": 1761,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 22.331
+      },
+      {
+        "node": 1426,
+        "symbol": "transferPaperGeometry",
+        "asset": "sticker-paper-transfer.ts",
+        "line": 3,
+        "column": 38,
+        "sampledMs": 21.93
+      },
+      {
+        "node": 1684,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 19.629
+      },
+      {
+        "node": 3172,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 18.939
+      },
+      {
+        "node": 764,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 18.743
+      },
+      {
+        "node": 1440,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 17.318
+      },
+      {
+        "node": 759,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 17.235
+      },
+      {
+        "node": 775,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 16.728
+      },
+      {
+        "node": 747,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 16.627
+      },
+      {
+        "node": 786,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 16.257
+      },
+      {
+        "node": 752,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 13.919
+      },
+      {
+        "node": 1610,
+        "symbol": "requestAnimationFrame",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 13.694
+      },
+      {
+        "node": 749,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 13.441
+      },
+      {
+        "node": 1124,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 13.222
+      },
+      {
+        "node": 3231,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 12.517
+      },
+      {
+        "node": 1598,
+        "symbol": "toArray",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 4882,
+        "column": 9,
+        "sampledMs": 12.423
+      },
+      {
+        "node": 3574,
+        "symbol": "texElementImage2D",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 12.056
+      },
+      {
+        "node": 1438,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 11.145
+      },
+      {
+        "node": 761,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.568
+      },
+      {
+        "node": 1127,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.599
+      },
+      {
+        "node": 3243,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 8.864
+      },
+      {
+        "node": 130,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 8.762
+      },
+      {
+        "node": 1593,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 8.378
+      },
+      {
+        "node": 1629,
+        "symbol": "setProgram",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 52262,
+        "column": 22,
+        "sampledMs": 8.339
+      }
+    ],
+    "topInclusive": [
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 5092.525
+      },
+      {
+        "node": 2,
+        "symbol": "(program)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 2078.234
+      },
+      {
+        "node": 723,
+        "symbol": "Ap",
+        "asset": "@react-three_fiber.js",
+        "line": 2775,
+        "column": 15,
+        "sampledMs": 1709.088
+      },
+      {
+        "node": 722,
+        "symbol": "Wa",
+        "asset": "@react-three_fiber.js",
+        "line": 2709,
+        "column": 15,
+        "sampledMs": 1709.088
+      },
+      {
+        "node": 721,
+        "symbol": "Di",
+        "asset": "@react-three_fiber.js",
+        "line": 2732,
+        "column": 15,
+        "sampledMs": 1709.088
+      },
+      {
+        "node": 720,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 2785,
+        "column": 25,
+        "sampledMs": 1709.088
+      },
+      {
+        "node": 724,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15,
+        "sampledMs": 1676.157
+      },
+      {
+        "node": 832,
+        "symbol": "Hf",
+        "asset": "@react-three_fiber.js",
+        "line": 6726,
+        "column": 15,
+        "sampledMs": 1328.302
+      },
+      {
+        "node": 831,
+        "symbol": "yh",
+        "asset": "@react-three_fiber.js",
+        "line": 6398,
+        "column": 15,
+        "sampledMs": 1328.302
+      },
+      {
+        "node": 985,
+        "symbol": "_h",
+        "asset": "@react-three_fiber.js",
+        "line": 6792,
+        "column": 15,
+        "sampledMs": 1255.821
+      },
+      {
+        "node": 986,
+        "symbol": "el",
+        "asset": "@react-three_fiber.js",
+        "line": 6850,
+        "column": 15,
+        "sampledMs": 1255.812
+      },
+      {
+        "node": 987,
+        "symbol": "Eh",
+        "asset": "@react-three_fiber.js",
+        "line": 6853,
+        "column": 15,
+        "sampledMs": 1255.811
+      },
+      {
+        "node": 990,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.336
+      },
+      {
+        "node": 989,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.336
+      },
+      {
+        "node": 988,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.336
+      },
+      {
+        "node": 1004,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 1003,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 1002,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 1001,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 1000,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 999,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 998,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 997,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 996,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 995,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 994,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 993,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 992,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 991,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 1008,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.868
+      },
+      {
+        "node": 1007,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.868
+      },
+      {
+        "node": 1006,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.868
+      },
+      {
+        "node": 1005,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.868
+      },
+      {
+        "node": 1012,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.865
+      },
+      {
+        "node": 1011,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.865
+      },
+      {
+        "node": 1010,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.865
+      },
+      {
+        "node": 1009,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.865
+      },
+      {
+        "node": 1022,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1021,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1020,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1019,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1018,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1017,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1016,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1015,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.81
+      }
+    ]
+  },
+  "interactionWindow": {
+    "startMs": 3251.168,
+    "endMs": 6374.306,
+    "definition": "first keydown through last keyup plus 1000 ms settlement",
+    "sampleCount": 51131,
+    "sampledMs": 3123.138,
+    "topSelf": [
+      {
+        "node": 1424,
+        "symbol": "dispatch",
+        "asset": "sticker-carry-preparation.ts",
+        "line": 54,
+        "column": 19,
+        "sampledMs": 376.5
+      },
+      {
+        "node": 4,
+        "symbol": "(garbage collector)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 278.119
+      },
+      {
+        "node": 2,
+        "symbol": "(program)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 211.673
+      },
+      {
+        "node": 1443,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 188.936
+      },
+      {
+        "node": 1577,
+        "symbol": "dispatch",
+        "asset": "sticker-carry-preparation.ts",
+        "line": 54,
+        "column": 19,
+        "sampledMs": 152.997
+      },
+      {
+        "node": 2765,
+        "symbol": "(idle)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 112.083
+      },
+      {
+        "node": 732,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 89.273
+      },
+      {
+        "node": 1596,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 81.467
+      },
+      {
+        "node": 1442,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 65.464
+      },
+      {
+        "node": 3126,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 53.831
+      },
+      {
+        "node": 1444,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 51.694
+      },
+      {
+        "node": 1681,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 45.894
+      },
+      {
+        "node": 1595,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 44.136
+      },
+      {
+        "node": 1441,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 43.845
+      },
+      {
+        "node": 1597,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 38.289
+      },
+      {
+        "node": 1594,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 29.133
+      },
+      {
+        "node": 3180,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 28.759
+      },
+      {
+        "node": 3175,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 28.359
+      },
+      {
+        "node": 1748,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 25.318
+      },
+      {
+        "node": 735,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 23.545
+      },
+      {
+        "node": 61,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 23.214
+      },
+      {
+        "node": 1761,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 22.331
+      },
+      {
+        "node": 1426,
+        "symbol": "transferPaperGeometry",
+        "asset": "sticker-paper-transfer.ts",
+        "line": 3,
+        "column": 38,
+        "sampledMs": 21.93
+      },
+      {
+        "node": 1684,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 19.629
+      },
+      {
+        "node": 3172,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 18.939
+      },
+      {
+        "node": 764,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 18.743
+      },
+      {
+        "node": 1440,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 17.318
+      },
+      {
+        "node": 759,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 17.235
+      },
+      {
+        "node": 775,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 16.728
+      },
+      {
+        "node": 747,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 16.627
+      },
+      {
+        "node": 786,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 16.257
+      },
+      {
+        "node": 752,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 13.919
+      },
+      {
+        "node": 1610,
+        "symbol": "requestAnimationFrame",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 13.694
+      },
+      {
+        "node": 749,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 13.441
+      },
+      {
+        "node": 1124,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 13.222
+      },
+      {
+        "node": 3231,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 12.517
+      },
+      {
+        "node": 1598,
+        "symbol": "toArray",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 4882,
+        "column": 9,
+        "sampledMs": 12.423
+      },
+      {
+        "node": 3574,
+        "symbol": "texElementImage2D",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 12.056
+      },
+      {
+        "node": 1438,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 11.145
+      },
+      {
+        "node": 761,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.568
+      },
+      {
+        "node": 1127,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.599
+      },
+      {
+        "node": 3243,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 8.864
+      },
+      {
+        "node": 130,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 8.762
+      },
+      {
+        "node": 1593,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 8.378
+      },
+      {
+        "node": 1629,
+        "symbol": "setProgram",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 52262,
+        "column": 22,
+        "sampledMs": 8.339
+      }
+    ],
+    "topInclusive": [
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 3123.138
+      },
+      {
+        "node": 723,
+        "symbol": "Ap",
+        "asset": "@react-three_fiber.js",
+        "line": 2775,
+        "column": 15,
+        "sampledMs": 1709.088
+      },
+      {
+        "node": 722,
+        "symbol": "Wa",
+        "asset": "@react-three_fiber.js",
+        "line": 2709,
+        "column": 15,
+        "sampledMs": 1709.088
+      },
+      {
+        "node": 721,
+        "symbol": "Di",
+        "asset": "@react-three_fiber.js",
+        "line": 2732,
+        "column": 15,
+        "sampledMs": 1709.088
+      },
+      {
+        "node": 720,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 2785,
+        "column": 25,
+        "sampledMs": 1709.088
+      },
+      {
+        "node": 724,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15,
+        "sampledMs": 1676.157
+      },
+      {
+        "node": 832,
+        "symbol": "Hf",
+        "asset": "@react-three_fiber.js",
+        "line": 6726,
+        "column": 15,
+        "sampledMs": 1328.302
+      },
+      {
+        "node": 831,
+        "symbol": "yh",
+        "asset": "@react-three_fiber.js",
+        "line": 6398,
+        "column": 15,
+        "sampledMs": 1328.302
+      },
+      {
+        "node": 985,
+        "symbol": "_h",
+        "asset": "@react-three_fiber.js",
+        "line": 6792,
+        "column": 15,
+        "sampledMs": 1255.821
+      },
+      {
+        "node": 986,
+        "symbol": "el",
+        "asset": "@react-three_fiber.js",
+        "line": 6850,
+        "column": 15,
+        "sampledMs": 1255.812
+      },
+      {
+        "node": 987,
+        "symbol": "Eh",
+        "asset": "@react-three_fiber.js",
+        "line": 6853,
+        "column": 15,
+        "sampledMs": 1255.811
+      },
+      {
+        "node": 990,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.336
+      },
+      {
+        "node": 989,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.336
+      },
+      {
+        "node": 988,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.336
+      },
+      {
+        "node": 1004,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 1003,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 1002,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 1001,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 1000,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 999,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 998,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 997,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 996,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 995,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 994,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 993,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 992,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 991,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 856.184
+      },
+      {
+        "node": 1008,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.868
+      },
+      {
+        "node": 1007,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.868
+      },
+      {
+        "node": 1006,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.868
+      },
+      {
+        "node": 1005,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.868
+      },
+      {
+        "node": 1012,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.865
+      },
+      {
+        "node": 1011,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.865
+      },
+      {
+        "node": 1010,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.865
+      },
+      {
+        "node": 1009,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.865
+      },
+      {
+        "node": 1022,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1021,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1020,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1019,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1018,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1017,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1016,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1015,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 854.81
+      },
+      {
+        "node": 1014,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 854.81
+      }
+    ]
+  },
+  "keyEvents": [
+    {
+      "type": "keydown",
+      "startMs": 3251.168,
+      "durationMs": 1534.785
+    },
+    {
+      "type": "keyup",
+      "startMs": 4807.33,
+      "durationMs": 0.645
+    },
+    {
+      "type": "keydown",
+      "startMs": 4853.861,
+      "durationMs": 136.649
+    },
+    {
+      "type": "keyup",
+      "startMs": 5081.465,
+      "durationMs": 0.06
+    },
+    {
+      "type": "keydown",
+      "startMs": 5104.413,
+      "durationMs": 61.275
+    },
+    {
+      "type": "keyup",
+      "startMs": 5186.558,
+      "durationMs": 0.796
+    },
+    {
+      "type": "keydown",
+      "startMs": 5198.405,
+      "durationMs": 57.45
+    },
+    {
+      "type": "keyup",
+      "startMs": 5259.762,
+      "durationMs": 1.243
+    },
+    {
+      "type": "keydown",
+      "startMs": 5297.402,
+      "durationMs": 69.434
+    },
+    {
+      "type": "keyup",
+      "startMs": 5373.267,
+      "durationMs": 1.039
+    }
+  ],
+  "keydownOnly": {
+    "durationMs": 1859.593,
+    "topSelf": [
+      {
+        "node": 1424,
+        "symbol": "dispatch",
+        "asset": "sticker-carry-preparation.ts",
+        "line": 54,
+        "column": 19,
+        "sampledMs": 376.5
+      },
+      {
+        "node": 4,
+        "symbol": "(garbage collector)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 214.733
+      },
+      {
+        "node": 1443,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 188.936
+      },
+      {
+        "node": 1577,
+        "symbol": "dispatch",
+        "asset": "sticker-carry-preparation.ts",
+        "line": 54,
+        "column": 19,
+        "sampledMs": 152.997
+      },
+      {
+        "node": 1596,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 81.467
+      },
+      {
+        "node": 1442,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 65.464
+      },
+      {
+        "node": 1444,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 51.694
+      },
+      {
+        "node": 732,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 51.549
+      },
+      {
+        "node": 1595,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 44.136
+      },
+      {
+        "node": 1441,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 43.845
+      },
+      {
+        "node": 1597,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 38.289
+      },
+      {
+        "node": 1594,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 29.133
+      },
+      {
+        "node": 61,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 23.214
+      },
+      {
+        "node": 1426,
+        "symbol": "transferPaperGeometry",
+        "asset": "sticker-paper-transfer.ts",
+        "line": 3,
+        "column": 38,
+        "sampledMs": 21.93
+      },
+      {
+        "node": 1440,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 17.318
+      },
+      {
+        "node": 1124,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 13.222
+      },
+      {
+        "node": 1598,
+        "symbol": "toArray",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 4882,
+        "column": 9,
+        "sampledMs": 12.423
+      },
+      {
+        "node": 2,
+        "symbol": "(program)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 12.239
+      },
+      {
+        "node": 1438,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 11.145
+      },
+      {
+        "node": 786,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.316
+      },
+      {
+        "node": 735,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.142
+      },
+      {
+        "node": 764,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 10.136
+      },
+      {
+        "node": 775,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.688
+      },
+      {
+        "node": 1127,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 9.599
+      },
+      {
+        "node": 130,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 8.762
+      },
+      {
+        "node": 747,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 8.454
+      },
+      {
+        "node": 1593,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 8.378
+      },
+      {
+        "node": 1592,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 8.29
+      },
+      {
+        "node": 1130,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 7.502
+      },
+      {
+        "node": 749,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 6.872
+      },
+      {
+        "node": 136,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 6.546
+      },
+      {
+        "node": 1445,
+        "symbol": "toArray",
+        "asset": "three.module-BYjGvIp7.js",
+        "line": 4882,
+        "column": 9,
+        "sampledMs": 6.541
+      },
+      {
+        "node": 1292,
+        "symbol": "(anonymous)",
+        "asset": "sticker-visibility.ts",
+        "line": 43,
+        "column": 20,
+        "sampledMs": 6.223
+      },
+      {
+        "node": 915,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 6
+      },
+      {
+        "node": 1231,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 5.997
+      },
+      {
+        "node": 1439,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 5.775
+      },
+      {
+        "node": 752,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 5.399
+      },
+      {
+        "node": 797,
+        "symbol": "createTask",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 5.262
+      },
+      {
+        "node": 2887,
+        "symbol": "update",
+        "asset": "sticker-editor.tsx",
+        "line": 166,
+        "column": 18,
+        "sampledMs": 5.143
+      },
+      {
+        "node": 1430,
+        "symbol": "serializeNode",
+        "asset": "sticker-collision.ts",
+        "line": 2,
+        "column": 23,
+        "sampledMs": 4.668
+      }
+    ],
+    "topInclusive": [
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0,
+        "sampledMs": 1859.593
+      },
+      {
+        "node": 724,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15,
+        "sampledMs": 1503.689
+      },
+      {
+        "node": 723,
+        "symbol": "Ap",
+        "asset": "@react-three_fiber.js",
+        "line": 2775,
+        "column": 15,
+        "sampledMs": 1503.689
+      },
+      {
+        "node": 722,
+        "symbol": "Wa",
+        "asset": "@react-three_fiber.js",
+        "line": 2709,
+        "column": 15,
+        "sampledMs": 1503.689
+      },
+      {
+        "node": 721,
+        "symbol": "Di",
+        "asset": "@react-three_fiber.js",
+        "line": 2732,
+        "column": 15,
+        "sampledMs": 1503.689
+      },
+      {
+        "node": 720,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 2785,
+        "column": 25,
+        "sampledMs": 1503.689
+      },
+      {
+        "node": 832,
+        "symbol": "Hf",
+        "asset": "@react-three_fiber.js",
+        "line": 6726,
+        "column": 15,
+        "sampledMs": 1294.58
+      },
+      {
+        "node": 831,
+        "symbol": "yh",
+        "asset": "@react-three_fiber.js",
+        "line": 6398,
+        "column": 15,
+        "sampledMs": 1294.58
+      },
+      {
+        "node": 985,
+        "symbol": "_h",
+        "asset": "@react-three_fiber.js",
+        "line": 6792,
+        "column": 15,
+        "sampledMs": 1241.775
+      },
+      {
+        "node": 986,
+        "symbol": "el",
+        "asset": "@react-three_fiber.js",
+        "line": 6850,
+        "column": 15,
+        "sampledMs": 1241.771
+      },
+      {
+        "node": 987,
+        "symbol": "Eh",
+        "asset": "@react-three_fiber.js",
+        "line": 6853,
+        "column": 15,
+        "sampledMs": 1241.77
+      },
+      {
+        "node": 990,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 843.704
+      },
+      {
+        "node": 989,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 843.704
+      },
+      {
+        "node": 988,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 843.704
+      },
+      {
+        "node": 1004,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 1003,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 1002,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 1001,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 1000,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 999,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 998,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 997,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 996,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 995,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 994,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 993,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 992,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 991,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 843.552
+      },
+      {
+        "node": 1008,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 842.236
+      },
+      {
+        "node": 1007,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 842.236
+      },
+      {
+        "node": 1006,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 842.236
+      },
+      {
+        "node": 1005,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 842.236
+      },
+      {
+        "node": 1012,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 842.233
+      },
+      {
+        "node": 1011,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 842.233
+      },
+      {
+        "node": 1010,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 842.233
+      },
+      {
+        "node": 1009,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 842.233
+      },
+      {
+        "node": 1022,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 842.178
+      },
+      {
+        "node": 1021,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 842.178
+      },
+      {
+        "node": 1020,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15,
+        "sampledMs": 842.178
+      },
+      {
+        "node": 1019,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15,
+        "sampledMs": 842.178
+      }
+    ],
+    "groupsMs": {
+      "gcSelf": 214.733,
+      "carryDispatchSelf": 529.497,
+      "carryDispatchInclusive": 1203.951,
+      "paperTransferSelf": 24.216,
+      "collisionSerializeSelf": 606.747
+    },
+    "perEvent": [
+      {
+        "startMs": 3251.168,
+        "dispatchSelfMs": 529.497,
+        "serializeSelfMs": 606.747
+      },
+      {
+        "startMs": 4853.861,
+        "dispatchSelfMs": 0,
+        "serializeSelfMs": 0
+      },
+      {
+        "startMs": 5104.413,
+        "dispatchSelfMs": 0,
+        "serializeSelfMs": 0
+      },
+      {
+        "startMs": 5198.405,
+        "dispatchSelfMs": 0,
+        "serializeSelfMs": 0
+      },
+      {
+        "startMs": 5297.402,
+        "dispatchSelfMs": 0,
+        "serializeSelfMs": 0
+      }
+    ]
+  },
+  "longTasks": [
+    {
+      "startMs": -285.019,
+      "durationMs": 3534.016,
+      "profilerStartup": true,
+      "inputTypes": []
+    },
+    {
+      "startMs": 3249.569,
+      "durationMs": 1536.44,
+      "profilerStartup": false,
+      "inputTypes": [
+        "keydown"
+      ]
+    },
+    {
+      "startMs": 4851.834,
+      "durationMs": 138.715,
+      "profilerStartup": false,
+      "inputTypes": [
+        "keydown"
+      ]
+    },
+    {
+      "startMs": 5103.723,
+      "durationMs": 63.056,
+      "profilerStartup": false,
+      "inputTypes": [
+        "keydown"
+      ]
+    },
+    {
+      "startMs": 5198.368,
+      "durationMs": 57.532,
+      "profilerStartup": false,
+      "inputTypes": [
+        "keydown"
+      ]
+    },
+    {
+      "startMs": 5296.77,
+      "durationMs": 70.097,
+      "profilerStartup": false,
+      "inputTypes": [
+        "keydown"
+      ]
+    }
+  ],
+  "notes": [
+    "Profile contains negative timestamp deltas; samples sorted by absolute timestamp before weighting to next sample, preventing overlapping weight.",
+    "Inclusive samples overlap and must not be added.",
+    "Durations are recorded under 6x emulation; not native phone timings.",
+    "Native API self samples may include browser/driver work or synchronization; this CPU trace cannot measure GPU execution duration.",
+    "Asset basenames only; no raw URLs, query strings, source text or user payloads retained."
+  ],
+  "stickerStacks": [
+    {
+      "node": 21,
+      "symbol": "onKeyDown",
+      "asset": "sticker-collection.tsx",
+      "line": 1115,
+      "column": 19
+    },
+    {
+      "node": 22,
+      "symbol": "admitIntent",
+      "asset": "sticker-collection.tsx",
+      "line": 189,
+      "column": 22
+    },
+    {
+      "node": 23,
+      "symbol": "releaseCapturedStickerPointer",
+      "asset": "sticker-collection.tsx",
+      "line": 55,
+      "column": 39
+    },
+    {
+      "node": 27,
+      "symbol": "supersedeStickerInteraction",
+      "asset": "sticker-interaction.ts",
+      "line": 37,
+      "column": 44
+    },
+    {
+      "node": 28,
+      "symbol": "advanceComputationEpoch",
+      "asset": "sticker-interaction.ts",
+      "line": 31,
+      "column": 33
+    },
+    {
+      "node": 41,
+      "symbol": "setStickerPackTucked",
+      "asset": "sticker-pack-tuck.ts",
+      "line": 15,
+      "column": 37
+    },
+    {
+      "node": 44,
+      "symbol": "updateStickerInteraction",
+      "asset": "sticker-interaction.ts",
+      "line": 46,
+      "column": 41
+    },
+    {
+      "node": 48,
+      "symbol": "(anonymous)",
+      "asset": "stickers.ts",
+      "line": 34,
+      "column": 59
+    },
+    {
+      "node": 128,
+      "symbol": "StickerCollection",
+      "asset": "sticker-collection.tsx",
+      "line": 75,
+      "column": 34
+    },
+    {
+      "node": 131,
+      "symbol": "(anonymous)",
+      "asset": "sticker-collection.tsx",
+      "line": 1083,
+      "column": 47
+    },
+    {
+      "node": 134,
+      "symbol": "StickerCollection",
+      "asset": "sticker-collection.tsx",
+      "line": 75,
+      "column": 34
+    },
+    {
+      "node": 137,
+      "symbol": "(anonymous)",
+      "asset": "sticker-collection.tsx",
+      "line": 1083,
+      "column": 47
+    },
+    {
+      "node": 574,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 654,
+      "column": 71
+    },
+    {
+      "node": 740,
+      "symbol": "StickerPackContents",
+      "asset": "StickerPackScene.tsx",
+      "line": 78,
+      "column": 29
+    },
+    {
+      "node": 745,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 455,
+      "column": 46
+    },
+    {
+      "node": 750,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 525,
+      "column": 27
+    },
+    {
+      "node": 753,
+      "symbol": "isStickerCarried",
+      "asset": "sticker-contract.ts",
+      "line": 45,
+      "column": 33
+    },
+    {
+      "node": 756,
+      "symbol": "StickerPackContents",
+      "asset": "StickerPackScene.tsx",
+      "line": 78,
+      "column": 29
+    },
+    {
+      "node": 757,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 455,
+      "column": 46
+    },
+    {
+      "node": 762,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 525,
+      "column": 27
+    },
+    {
+      "node": 772,
+      "symbol": "GpuPackPaper",
+      "asset": "StickerPackScene.tsx",
+      "line": 651,
+      "column": 62
+    },
+    {
+      "node": 773,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 790,
+      "column": 9
+    },
+    {
+      "node": 783,
+      "symbol": "GpuPackPaper",
+      "asset": "StickerPackScene.tsx",
+      "line": 651,
+      "column": 62
+    },
+    {
+      "node": 784,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 790,
+      "column": 9
+    },
+    {
+      "node": 789,
+      "symbol": "CoverPrint",
+      "asset": "StickerPackScene.tsx",
+      "line": 1044,
+      "column": 20
+    },
+    {
+      "node": 792,
+      "symbol": "CoverPrint",
+      "asset": "StickerPackScene.tsx",
+      "line": 1044,
+      "column": 20
+    },
+    {
+      "node": 795,
+      "symbol": "SheetPrint",
+      "asset": "StickerPackScene.tsx",
+      "line": 1014,
+      "column": 20
+    },
+    {
+      "node": 798,
+      "symbol": "SheetPrint",
+      "asset": "StickerPackScene.tsx",
+      "line": 1014,
+      "column": 20
+    },
+    {
+      "node": 1082,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 133,
+      "column": 18
+    },
+    {
+      "node": 1134,
+      "symbol": "StickerSurface",
+      "asset": "StickerSurface.tsx",
+      "line": 18,
+      "column": 31
+    },
+    {
+      "node": 1137,
+      "symbol": "StickerSurface",
+      "asset": "StickerSurface.tsx",
+      "line": 18,
+      "column": 31
+    },
+    {
+      "node": 1146,
+      "symbol": "StickerPackScene",
+      "asset": "StickerPackScene.tsx",
+      "line": 62,
+      "column": 33
+    },
+    {
+      "node": 1149,
+      "symbol": "StickerPackScene",
+      "asset": "StickerPackScene.tsx",
+      "line": 62,
+      "column": 33
+    },
+    {
+      "node": 1152,
+      "symbol": "PrepareStickerAssets",
+      "asset": "StickerPackScene.tsx",
+      "line": 1221,
+      "column": 30
+    },
+    {
+      "node": 1153,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 1235,
+      "column": 64
+    },
+    {
+      "node": 1158,
+      "symbol": "PrepareStickerAssets",
+      "asset": "StickerPackScene.tsx",
+      "line": 1221,
+      "column": 30
+    },
+    {
+      "node": 1159,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 1235,
+      "column": 64
+    },
+    {
+      "node": 1172,
+      "symbol": "PackPaper",
+      "asset": "StickerPackScene.tsx",
+      "line": 632,
+      "column": 56
+    },
+    {
+      "node": 1175,
+      "symbol": "PackPaper",
+      "asset": "StickerPackScene.tsx",
+      "line": 632,
+      "column": 56
+    },
+    {
+      "node": 1178,
+      "symbol": "StickerPrint",
+      "asset": "StickerSurface.tsx",
+      "line": 106,
+      "column": 69
+    },
+    {
+      "node": 1181,
+      "symbol": "StickerPrint",
+      "asset": "StickerSurface.tsx",
+      "line": 106,
+      "column": 69
+    },
+    {
+      "node": 1187,
+      "symbol": "(anonymous)",
+      "asset": "StickerSurface.tsx",
+      "line": 137,
+      "column": 28
+    },
+    {
+      "node": 1193,
+      "symbol": "PeelingPrint",
+      "asset": "StickerPackScene.tsx",
+      "line": 1070,
+      "column": 22
+    },
+    {
+      "node": 1203,
+      "symbol": "PeelingPrint",
+      "asset": "StickerPackScene.tsx",
+      "line": 1070,
+      "column": 22
+    },
+    {
+      "node": 1215,
+      "symbol": "StickerPrint",
+      "asset": "StickerSurface.tsx",
+      "line": 106,
+      "column": 69
+    },
+    {
+      "node": 1220,
+      "symbol": "StickerPrint",
+      "asset": "StickerSurface.tsx",
+      "line": 106,
+      "column": 69
+    },
+    {
+      "node": 1282,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 1101,
+      "column": 18
+    },
+    {
+      "node": 1287,
+      "symbol": "update",
+      "asset": "sticker-visibility.ts",
+      "line": 143,
+      "column": 9
+    },
+    {
+      "node": 1288,
+      "symbol": "inspect",
+      "asset": "sticker-visibility.ts",
+      "line": 39,
+      "column": 18
+    },
+    {
+      "node": 1292,
+      "symbol": "(anonymous)",
+      "asset": "sticker-visibility.ts",
+      "line": 43,
+      "column": 20
+    },
+    {
+      "node": 1293,
+      "symbol": "request",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 176,
+      "column": 10
+    },
+    {
+      "node": 1294,
+      "symbol": "stop",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 40,
+      "column": 15
+    },
+    {
+      "node": 1301,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 386,
+      "column": 18
+    },
+    {
+      "node": 1302,
+      "symbol": "onStickerProjectionReady",
+      "asset": "production-device-view.tsx",
+      "line": 29,
+      "column": 34
+    },
+    {
+      "node": 1303,
+      "symbol": "notify",
+      "asset": "sticker-projection-notifications.ts",
+      "line": 6,
+      "column": 9
+    },
+    {
+      "node": 1304,
+      "symbol": "request",
+      "asset": "sticker-projection-notifications.ts",
+      "line": 3,
+      "column": 73
+    },
+    {
+      "node": 1422,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 1076,
+      "column": 12
+    },
+    {
+      "node": 1423,
+      "symbol": "mount",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 195,
+      "column": 8
+    },
+    {
+      "node": 1424,
+      "symbol": "dispatch",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 54,
+      "column": 19
+    },
+    {
+      "node": 1426,
+      "symbol": "transferPaperGeometry",
+      "asset": "sticker-paper-transfer.ts",
+      "line": 3,
+      "column": 38
+    },
+    {
+      "node": 1427,
+      "symbol": "snapshot",
+      "asset": "sticker-visibility.ts",
+      "line": 90,
+      "column": 11
+    },
+    {
+      "node": 1428,
+      "symbol": "snapshot",
+      "asset": "sticker-collision.ts",
+      "line": 194,
+      "column": 11
+    },
+    {
+      "node": 1429,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1430,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1431,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1432,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1433,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1434,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1435,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1436,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1437,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1438,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1439,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1440,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1441,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1442,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1443,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1444,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1501,
+      "symbol": "(anonymous)",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 203,
+      "column": 11
+    },
+    {
+      "node": 1502,
+      "symbol": "stop",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 40,
+      "column": 15
+    },
+    {
+      "node": 1537,
+      "symbol": "(anonymous)",
+      "asset": "StickerSurface.tsx",
+      "line": 189,
+      "column": 18
+    },
+    {
+      "node": 1545,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 1101,
+      "column": 18
+    },
+    {
+      "node": 1546,
+      "symbol": "update",
+      "asset": "sticker-visibility.ts",
+      "line": 143,
+      "column": 9
+    },
+    {
+      "node": 1547,
+      "symbol": "inspect",
+      "asset": "sticker-visibility.ts",
+      "line": 39,
+      "column": 18
+    },
+    {
+      "node": 1551,
+      "symbol": "(anonymous)",
+      "asset": "sticker-visibility.ts",
+      "line": 43,
+      "column": 20
+    },
+    {
+      "node": 1554,
+      "symbol": "request",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 176,
+      "column": 10
+    },
+    {
+      "node": 1555,
+      "symbol": "stop",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 40,
+      "column": 15
+    },
+    {
+      "node": 1575,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 1076,
+      "column": 12
+    },
+    {
+      "node": 1576,
+      "symbol": "mount",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 195,
+      "column": 8
+    },
+    {
+      "node": 1577,
+      "symbol": "dispatch",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 54,
+      "column": 19
+    },
+    {
+      "node": 1579,
+      "symbol": "transferPaperGeometry",
+      "asset": "sticker-paper-transfer.ts",
+      "line": 3,
+      "column": 38
+    },
+    {
+      "node": 1580,
+      "symbol": "snapshot",
+      "asset": "sticker-visibility.ts",
+      "line": 90,
+      "column": 11
+    },
+    {
+      "node": 1581,
+      "symbol": "snapshot",
+      "asset": "sticker-collision.ts",
+      "line": 194,
+      "column": 11
+    },
+    {
+      "node": 1582,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1583,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1584,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1585,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1586,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1587,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1588,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1589,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1590,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1591,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1592,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1593,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1594,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1595,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1596,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1597,
+      "symbol": "serializeNode",
+      "asset": "sticker-collision.ts",
+      "line": 2,
+      "column": 23
+    },
+    {
+      "node": 1607,
+      "symbol": "step",
+      "asset": "sticker-pack-tuck.ts",
+      "line": 28,
+      "column": 15
+    },
+    {
+      "node": 1641,
+      "symbol": "(anonymous)",
+      "asset": "sticker-projection-notifications.ts",
+      "line": 8,
+      "column": 20
+    },
+    {
+      "node": 1670,
+      "symbol": "readStickerPageState",
+      "asset": "sticker-webmcp.ts",
+      "line": 18,
+      "column": 37
+    },
+    {
+      "node": 1746,
+      "symbol": "StickerCollection",
+      "asset": "sticker-collection.tsx",
+      "line": 75,
+      "column": 34
+    },
+    {
+      "node": 1756,
+      "symbol": "(anonymous)",
+      "asset": "sticker-collection.tsx",
+      "line": 1083,
+      "column": 47
+    },
+    {
+      "node": 1759,
+      "symbol": "StickerCollection",
+      "asset": "sticker-collection.tsx",
+      "line": 75,
+      "column": 34
+    },
+    {
+      "node": 1764,
+      "symbol": "(anonymous)",
+      "asset": "sticker-collection.tsx",
+      "line": 1083,
+      "column": 47
+    },
+    {
+      "node": 2076,
+      "symbol": "stickerPaperCurlProgress",
+      "asset": "sticker-paper.ts",
+      "line": 108,
+      "column": 41
+    },
+    {
+      "node": 2081,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 1045,
+      "column": 39
+    },
+    {
+      "node": 2362,
+      "symbol": "stickerPackViewportLayout",
+      "asset": "sticker-contract.ts",
+      "line": 12,
+      "column": 42
+    },
+    {
+      "node": 2382,
+      "symbol": "GpuPackPaper",
+      "asset": "StickerPackScene.tsx",
+      "line": 651,
+      "column": 62
+    },
+    {
+      "node": 2383,
+      "symbol": "CoverPrint",
+      "asset": "StickerPackScene.tsx",
+      "line": 1044,
+      "column": 20
+    },
+    {
+      "node": 2712,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 1260,
+      "column": 25
+    },
+    {
+      "node": 2776,
+      "symbol": "(anonymous)",
+      "asset": "sticker-carry-anchor.ts",
+      "line": 5,
+      "column": 45
+    },
+    {
+      "node": 2783,
+      "symbol": "stickerPaperCurlProgress",
+      "asset": "sticker-paper.ts",
+      "line": 108,
+      "column": 41
+    },
+    {
+      "node": 2800,
+      "symbol": "identity",
+      "asset": "sticker-visibility.ts",
+      "line": 22,
+      "column": 19
+    },
+    {
+      "node": 2813,
+      "symbol": "escaped",
+      "asset": "sticker-collection.tsx",
+      "line": 774,
+      "column": 19
+    },
+    {
+      "node": 2814,
+      "symbol": "onKeyDown",
+      "asset": "sticker-collection.tsx",
+      "line": 923,
+      "column": 14
+    },
+    {
+      "node": 2815,
+      "symbol": "close",
+      "asset": "sticker-collection.tsx",
+      "line": 242,
+      "column": 16
+    },
+    {
+      "node": 2816,
+      "symbol": "admitIntent",
+      "asset": "sticker-collection.tsx",
+      "line": 189,
+      "column": 22
+    },
+    {
+      "node": 2817,
+      "symbol": "supersedeStickerInteraction",
+      "asset": "sticker-interaction.ts",
+      "line": 37,
+      "column": 44
+    },
+    {
+      "node": 2818,
+      "symbol": "advanceComputationEpoch",
+      "asset": "sticker-interaction.ts",
+      "line": 31,
+      "column": 33
+    },
+    {
+      "node": 2827,
+      "symbol": "resetStickerCarry",
+      "asset": "sticker-interaction.ts",
+      "line": 69,
+      "column": 34
+    },
+    {
+      "node": 2830,
+      "symbol": "updateStickerInteraction",
+      "asset": "sticker-interaction.ts",
+      "line": 46,
+      "column": 41
+    },
+    {
+      "node": 2835,
+      "symbol": "clearStale",
+      "asset": "sticker-carry-anchor.ts",
+      "line": 66,
+      "column": 21
+    },
+    {
+      "node": 2839,
+      "symbol": "animateStickerValue",
+      "asset": "sticker-interaction.ts",
+      "line": 137,
+      "column": 36
+    },
+    {
+      "node": 2851,
+      "symbol": "StickerEditor",
+      "asset": "sticker-editor.tsx",
+      "line": 86,
+      "column": 30
+    },
+    {
+      "node": 2854,
+      "symbol": "StickerEditor",
+      "asset": "sticker-editor.tsx",
+      "line": 86,
+      "column": 30
+    },
+    {
+      "node": 2886,
+      "symbol": "(anonymous)",
+      "asset": "sticker-editor.tsx",
+      "line": 165,
+      "column": 12
+    },
+    {
+      "node": 2887,
+      "symbol": "update",
+      "asset": "sticker-editor.tsx",
+      "line": 166,
+      "column": 18
+    },
+    {
+      "node": 2889,
+      "symbol": "(anonymous)",
+      "asset": "sticker-editor.tsx",
+      "line": 199,
+      "column": 12
+    },
+    {
+      "node": 2956,
+      "symbol": "(anonymous)",
+      "asset": "sticker-editor.tsx",
+      "line": 222,
+      "column": 10
+    },
+    {
+      "node": 2971,
+      "symbol": "(anonymous)",
+      "asset": "sticker-editor.tsx",
+      "line": 199,
+      "column": 12
+    },
+    {
+      "node": 2993,
+      "symbol": "(anonymous)",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 203,
+      "column": 11
+    },
+    {
+      "node": 2994,
+      "symbol": "stop",
+      "asset": "sticker-carry-preparation.ts",
+      "line": 40,
+      "column": 15
+    },
+    {
+      "node": 3003,
+      "symbol": "frame",
+      "asset": "sticker-interaction.ts",
+      "line": 187,
+      "column": 16
+    },
+    {
+      "node": 3020,
+      "symbol": "StickerEditor",
+      "asset": "sticker-editor.tsx",
+      "line": 86,
+      "column": 30
+    },
+    {
+      "node": 3023,
+      "symbol": "StickerEditor",
+      "asset": "sticker-editor.tsx",
+      "line": 86,
+      "column": 30
+    },
+    {
+      "node": 3026,
+      "symbol": "StickerAppearanceEditor",
+      "asset": "sticker-editor.tsx",
+      "line": 101,
+      "column": 33
+    },
+    {
+      "node": 3048,
+      "symbol": "publish",
+      "asset": "sticker-interaction.ts",
+      "line": 149,
+      "column": 18
+    },
+    {
+      "node": 3115,
+      "symbol": "(anonymous)",
+      "asset": "sticker-collection.tsx",
+      "line": 815,
+      "column": 10
+    },
+    {
+      "node": 3189,
+      "symbol": "StickerSurface",
+      "asset": "StickerSurface.tsx",
+      "line": 18,
+      "column": 31
+    },
+    {
+      "node": 3192,
+      "symbol": "StickerSurface",
+      "asset": "StickerSurface.tsx",
+      "line": 18,
+      "column": 31
+    },
+    {
+      "node": 3206,
+      "symbol": "StickerPackScene",
+      "asset": "StickerPackScene.tsx",
+      "line": 62,
+      "column": 33
+    },
+    {
+      "node": 3211,
+      "symbol": "StickerPackScene",
+      "asset": "StickerPackScene.tsx",
+      "line": 62,
+      "column": 33
+    },
+    {
+      "node": 3214,
+      "symbol": "PrepareStickerAssets",
+      "asset": "StickerPackScene.tsx",
+      "line": 1221,
+      "column": 30
+    },
+    {
+      "node": 3215,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 1235,
+      "column": 64
+    },
+    {
+      "node": 3220,
+      "symbol": "PrepareStickerAssets",
+      "asset": "StickerPackScene.tsx",
+      "line": 1221,
+      "column": 30
+    },
+    {
+      "node": 3221,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 1235,
+      "column": 64
+    },
+    {
+      "node": 3226,
+      "symbol": "StickerPackContents",
+      "asset": "StickerPackScene.tsx",
+      "line": 78,
+      "column": 29
+    },
+    {
+      "node": 3227,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 455,
+      "column": 46
+    },
+    {
+      "node": 3232,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 525,
+      "column": 27
+    },
+    {
+      "node": 3235,
+      "symbol": "StickerPackContents",
+      "asset": "StickerPackScene.tsx",
+      "line": 78,
+      "column": 29
+    },
+    {
+      "node": 3236,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 455,
+      "column": 46
+    },
+    {
+      "node": 3241,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 525,
+      "column": 27
+    },
+    {
+      "node": 3244,
+      "symbol": "CoverPrint",
+      "asset": "StickerPackScene.tsx",
+      "line": 1044,
+      "column": 20
+    },
+    {
+      "node": 3247,
+      "symbol": "CoverPrint",
+      "asset": "StickerPackScene.tsx",
+      "line": 1044,
+      "column": 20
+    },
+    {
+      "node": 3250,
+      "symbol": "SheetPrint",
+      "asset": "StickerPackScene.tsx",
+      "line": 1014,
+      "column": 20
+    },
+    {
+      "node": 3253,
+      "symbol": "SheetPrint",
+      "asset": "StickerPackScene.tsx",
+      "line": 1014,
+      "column": 20
+    },
+    {
+      "node": 3362,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 371,
+      "column": 10
+    },
+    {
+      "node": 3363,
+      "symbol": "onStickerProjectionReady",
+      "asset": "production-device-view.tsx",
+      "line": 29,
+      "column": 34
+    },
+    {
+      "node": 3364,
+      "symbol": "notify",
+      "asset": "sticker-projection-notifications.ts",
+      "line": 6,
+      "column": 9
+    },
+    {
+      "node": 3365,
+      "symbol": "request",
+      "asset": "sticker-projection-notifications.ts",
+      "line": 3,
+      "column": 73
+    },
+    {
+      "node": 3430,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 133,
+      "column": 18
+    },
+    {
+      "node": 3431,
+      "symbol": "publish",
+      "asset": "StickerPackScene.tsx",
+      "line": 145,
+      "column": 19
+    },
+    {
+      "node": 3452,
+      "symbol": "StickerAppearanceEditor",
+      "asset": "sticker-editor.tsx",
+      "line": 101,
+      "column": 33
+    },
+    {
+      "node": 3580,
+      "symbol": "(anonymous)",
+      "asset": "sticker-collection.tsx",
+      "line": 698,
+      "column": 12
+    },
+    {
+      "node": 3602,
+      "symbol": "PackPaper",
+      "asset": "StickerPackScene.tsx",
+      "line": 632,
+      "column": 56
+    },
+    {
+      "node": 3607,
+      "symbol": "PackPaper",
+      "asset": "StickerPackScene.tsx",
+      "line": 632,
+      "column": 56
+    },
+    {
+      "node": 3610,
+      "symbol": "GpuPackPaper",
+      "asset": "StickerPackScene.tsx",
+      "line": 651,
+      "column": 62
+    },
+    {
+      "node": 3611,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 790,
+      "column": 9
+    },
+    {
+      "node": 3616,
+      "symbol": "GpuPackPaper",
+      "asset": "StickerPackScene.tsx",
+      "line": 651,
+      "column": 62
+    },
+    {
+      "node": 3617,
+      "symbol": "(anonymous)",
+      "asset": "StickerPackScene.tsx",
+      "line": 790,
+      "column": 9
+    },
+    {
+      "node": 3687,
+      "symbol": "lower",
+      "asset": "sticker-collection.tsx",
+      "line": 253,
+      "column": 17
+    },
+    {
+      "node": 3688,
+      "symbol": "animateStickerValue",
+      "asset": "sticker-interaction.ts",
+      "line": 137,
+      "column": 36
+    },
+    {
+      "node": 3717,
+      "symbol": "updateStickerInteraction",
+      "asset": "sticker-interaction.ts",
+      "line": 46,
+      "column": 41
+    },
+    {
+      "node": 3722,
+      "symbol": "(anonymous)",
+      "asset": "stickers.ts",
+      "line": 34,
+      "column": 59
+    },
+    {
+      "node": 3727,
+      "symbol": "(anonymous)",
+      "asset": "sticker-collections-model.ts",
+      "line": 66,
+      "column": 52
+    },
+    {
+      "node": 3728,
+      "symbol": "(anonymous)",
+      "asset": "sticker-collections-model.ts",
+      "line": 70,
+      "column": 93
+    },
+    {
+      "node": 3865,
+      "symbol": "(anonymous)",
+      "asset": "sticker-webmcp.ts",
+      "line": 347,
+      "column": 66
+    },
+    {
+      "node": 4120,
+      "symbol": "(anonymous)",
+      "asset": "sticker-carry-anchor.ts",
+      "line": 5,
+      "column": 45
+    },
+    {
+      "node": 4136,
+      "symbol": "(anonymous)",
+      "asset": "sticker-collection.tsx",
+      "line": 78,
+      "column": 71
+    },
+    {
+      "node": 4144,
+      "symbol": "(anonymous)",
+      "asset": "StickerSurface.tsx",
+      "line": 109,
+      "column": 30
+    },
+    {
+      "node": 4145,
+      "symbol": "updateStickerInteraction",
+      "asset": "sticker-interaction.ts",
+      "line": 46,
+      "column": 41
+    },
+    {
+      "node": 4186,
+      "symbol": "(anonymous)",
+      "asset": "sticker-collection.tsx",
+      "line": 257,
+      "column": 21
+    }
+  ],
+  "carryDispatchStacks": [
+    [
+      {
+        "node": 1424,
+        "symbol": "dispatch",
+        "asset": "sticker-carry-preparation.ts",
+        "line": 54,
+        "column": 19
+      },
+      {
+        "node": 1423,
+        "symbol": "mount",
+        "asset": "sticker-carry-preparation.ts",
+        "line": 195,
+        "column": 8
+      },
+      {
+        "node": 1422,
+        "symbol": "(anonymous)",
+        "asset": "StickerPackScene.tsx",
+        "line": 1076,
+        "column": 12
+      },
+      {
+        "node": 1421,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "@react-three_fiber.js",
+        "line": 7443,
+        "column": 93
+      },
+      {
+        "node": 1420,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      },
+      {
+        "node": 1419,
+        "symbol": "B",
+        "asset": "@react-three_fiber.js",
+        "line": 2379,
+        "column": 14
+      },
+      {
+        "node": 1418,
+        "symbol": "ca",
+        "asset": "@react-three_fiber.js",
+        "line": 5257,
+        "column": 15
+      },
+      {
+        "node": 1417,
+        "symbol": "Yp",
+        "asset": "@react-three_fiber.js",
+        "line": 5310,
+        "column": 15
+      },
+      {
+        "node": 1038,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1037,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1036,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1035,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1032,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1031,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1030,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1029,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1028,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1027,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1026,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1025,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1024,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1023,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1022,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1021,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1020,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1019,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1018,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1017,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1016,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1015,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1014,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1013,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1012,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1011,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1010,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1009,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1008,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1007,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1006,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1005,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1004,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1003,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1002,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 1001,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 1000,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 999,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 998,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 997,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 996,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 995,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 994,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 993,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 992,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 991,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 990,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 989,
+        "symbol": "wr",
+        "asset": "@react-three_fiber.js",
+        "line": 5990,
+        "column": 15
+      },
+      {
+        "node": 988,
+        "symbol": "lh",
+        "asset": "@react-three_fiber.js",
+        "line": 5996,
+        "column": 15
+      },
+      {
+        "node": 987,
+        "symbol": "Eh",
+        "asset": "@react-three_fiber.js",
+        "line": 6853,
+        "column": 15
+      },
+      {
+        "node": 986,
+        "symbol": "el",
+        "asset": "@react-three_fiber.js",
+        "line": 6850,
+        "column": 15
+      },
+      {
+        "node": 985,
+        "symbol": "_h",
+        "asset": "@react-three_fiber.js",
+        "line": 6792,
+        "column": 15
+      },
+      {
+        "node": 832,
+        "symbol": "Hf",
+        "asset": "@react-three_fiber.js",
+        "line": 6726,
+        "column": 15
+      },
+      {
+        "node": 831,
+        "symbol": "yh",
+        "asset": "@react-three_fiber.js",
+        "line": 6398,
+        "column": 15
+      },
+      {
+        "node": 724,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15
+      },
+      {
+        "node": 723,
+        "symbol": "Ap",
+        "asset": "@react-three_fiber.js",
+        "line": 2775,
+        "column": 15
+      },
+      {
+        "node": 722,
+        "symbol": "Wa",
+        "asset": "@react-three_fiber.js",
+        "line": 2709,
+        "column": 15
+      },
+      {
+        "node": 721,
+        "symbol": "Di",
+        "asset": "@react-three_fiber.js",
+        "line": 2732,
+        "column": 15
+      },
+      {
+        "node": 720,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 2785,
+        "column": 25
+      },
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      }
+    ],
+    [
+      {
+        "node": 1577,
+        "symbol": "dispatch",
+        "asset": "sticker-carry-preparation.ts",
+        "line": 54,
+        "column": 19
+      },
+      {
+        "node": 1576,
+        "symbol": "mount",
+        "asset": "sticker-carry-preparation.ts",
+        "line": 195,
+        "column": 8
+      },
+      {
+        "node": 1575,
+        "symbol": "(anonymous)",
+        "asset": "StickerPackScene.tsx",
+        "line": 1076,
+        "column": 12
+      },
+      {
+        "node": 1574,
+        "symbol": "react_stack_bottom_frame",
+        "asset": "@react-three_fiber.js",
+        "line": 7443,
+        "column": 93
+      },
+      {
+        "node": 1573,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      },
+      {
+        "node": 1572,
+        "symbol": "B",
+        "asset": "@react-three_fiber.js",
+        "line": 2379,
+        "column": 14
+      },
+      {
+        "node": 1571,
+        "symbol": "ca",
+        "asset": "@react-three_fiber.js",
+        "line": 5257,
+        "column": 15
+      },
+      {
+        "node": 1570,
+        "symbol": "Yp",
+        "asset": "@react-three_fiber.js",
+        "line": 5310,
+        "column": 15
+      },
+      {
+        "node": 1559,
+        "symbol": "sh",
+        "asset": "@react-three_fiber.js",
+        "line": 6044,
+        "column": 15
+      },
+      {
+        "node": 1494,
+        "symbol": "Gt",
+        "asset": "@react-three_fiber.js",
+        "line": 6973,
+        "column": 15
+      },
+      {
+        "node": 1493,
+        "symbol": "run",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      },
+      {
+        "node": 1492,
+        "symbol": "B",
+        "asset": "@react-three_fiber.js",
+        "line": 2379,
+        "column": 14
+      },
+      {
+        "node": 1491,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1490,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1489,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1488,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1487,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1486,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1485,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1484,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1483,
+        "symbol": "B",
+        "asset": "@react-three_fiber.js",
+        "line": 2379,
+        "column": 14
+      },
+      {
+        "node": 1482,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1481,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1480,
+        "symbol": "B",
+        "asset": "@react-three_fiber.js",
+        "line": 2379,
+        "column": 14
+      },
+      {
+        "node": 1479,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1478,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1477,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1476,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1475,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1474,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1473,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1472,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1471,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1470,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1469,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1468,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1467,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1466,
+        "symbol": "jf",
+        "asset": "@react-three_fiber.js",
+        "line": 6967,
+        "column": 15
+      },
+      {
+        "node": 1465,
+        "symbol": "Df",
+        "asset": "@react-three_fiber.js",
+        "line": 6981,
+        "column": 15
+      },
+      {
+        "node": 987,
+        "symbol": "Eh",
+        "asset": "@react-three_fiber.js",
+        "line": 6853,
+        "column": 15
+      },
+      {
+        "node": 986,
+        "symbol": "el",
+        "asset": "@react-three_fiber.js",
+        "line": 6850,
+        "column": 15
+      },
+      {
+        "node": 985,
+        "symbol": "_h",
+        "asset": "@react-three_fiber.js",
+        "line": 6792,
+        "column": 15
+      },
+      {
+        "node": 832,
+        "symbol": "Hf",
+        "asset": "@react-three_fiber.js",
+        "line": 6726,
+        "column": 15
+      },
+      {
+        "node": 831,
+        "symbol": "yh",
+        "asset": "@react-three_fiber.js",
+        "line": 6398,
+        "column": 15
+      },
+      {
+        "node": 724,
+        "symbol": "Lf",
+        "asset": "@react-three_fiber.js",
+        "line": 6316,
+        "column": 15
+      },
+      {
+        "node": 723,
+        "symbol": "Ap",
+        "asset": "@react-three_fiber.js",
+        "line": 2775,
+        "column": 15
+      },
+      {
+        "node": 722,
+        "symbol": "Wa",
+        "asset": "@react-three_fiber.js",
+        "line": 2709,
+        "column": 15
+      },
+      {
+        "node": 721,
+        "symbol": "Di",
+        "asset": "@react-three_fiber.js",
+        "line": 2732,
+        "column": 15
+      },
+      {
+        "node": 720,
+        "symbol": "(anonymous)",
+        "asset": "@react-three_fiber.js",
+        "line": 2785,
+        "column": 25
+      },
+      {
+        "node": 1,
+        "symbol": "(root)",
+        "asset": "",
+        "line": 0,
+        "column": 0
+      }
+    ]
+  ]
+}
