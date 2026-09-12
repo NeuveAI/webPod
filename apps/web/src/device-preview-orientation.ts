@@ -163,6 +163,7 @@ export type DeviceOrientationControls = {
 }
 
 export type DeviceOrientationControlStage = EventTarget & {
+  readonly ownerDocument?: EventTarget & { readonly hidden: boolean }
   readonly dataset: { [name: string]: string | undefined }
   focus(options?: FocusOptions): void
 }
@@ -184,6 +185,7 @@ export function bindDeviceOrientationControls(
   onTrace?: (kind: string, detail: Readonly<Record<string, unknown>>) => void,
   rendererMotion?: PreviewMotionAuthority,
 ): DeviceOrientationControls {
+  const visibilityHost = stage.ownerDocument ?? (typeof document === 'undefined' ? null : document)
   let active: ActiveOrientationGrab | null = null
   let releaseMotion: DeviceOrientationReleaseMotion | null = null
   let motionFrame: number | null = null
@@ -351,7 +353,7 @@ export function bindDeviceOrientationControls(
   }
 
   const begin = (start: DeviceOrientationGrabStart): boolean => {
-    if (disposed || active !== null) { trace('grab-rejected', { disposed }); return false }
+    if (disposed || active !== null || visibilityHost?.hidden) { trace('grab-rejected', { disposed }); return false }
     try {
       start.capture.setPointerCapture(start.pointerId)
     } catch {
@@ -497,11 +499,18 @@ export function bindDeviceOrientationControls(
     event.preventDefault()
   }
 
-  const onBlur: EventListener = () => {
-    trace('orientation-blur')
+  const interruptForVisibility = () => {
     const current = active
-    if (current !== null) finish(current.start.pointerId, true)
+    if (current !== null) {
+      const sample = current.samples.at(-1) ?? current.start
+      rendererMotion?.pointer('pointer-cancel', { clientX: sample.clientX, clientY: sample.clientY, pointerId: current.start.pointerId, pointerType: current.start.pointerType, timestampMs: motionTimestamp(motionEnvironment.now()) })
+      finish(current.start.pointerId, true)
+    }
     stopMotion()
+  }
+  const onBlur: EventListener = () => { trace('orientation-blur'); interruptForVisibility() }
+  const onVisibility: EventListener = () => {
+    if (visibilityHost?.hidden) { trace('orientation-hidden'); interruptForVisibility() }
   }
 
   const unsubscribe = store.subscribe(() => {
@@ -520,6 +529,7 @@ export function bindDeviceOrientationControls(
   })
   stage.addEventListener('keydown', onKeyDown)
   blurHost.addEventListener('blur', onBlur)
+  visibilityHost?.addEventListener('visibilitychange', onVisibility)
   return {
     begin,
     reset,
@@ -578,6 +588,7 @@ export function bindDeviceOrientationControls(
       stopMotion()
       stage.removeEventListener('keydown', onKeyDown)
       blurHost.removeEventListener('blur', onBlur)
+      visibilityHost?.removeEventListener('visibilitychange', onVisibility)
       grabbable = false
       reflectAffordance()
     },
