@@ -40,3 +40,4 @@ cert/
 .data/
 *.sqlite-wal
 *.sqlite-shm
+.vercel
