@@ -354,6 +354,6 @@ const PrepareStickerAsset = memo(function PrepareStickerAsset({ art, report, onE
     return () => { unsubscribe(); current = false; generation++; preparation?.abort(); gl.domElement.removeEventListener('webglcontextlost', lost); gl.domElement.removeEventListener('webglcontextrestored', prepare); report(art.id, false); };
   }, [art.id, camera, failed, gl, onError, report, scene, studio.texture, texture, preparationEpoch, surfaces]);
   return <group ref={group} visible={false} name={`prepared-sticker-${art.id}`}>
-    {(['earned', 'locked', 'placed'] as const).map((appearance) => <StickerPrint key={`${appearance}:${geometry.uuid}:${texture?.uuid ?? "pending"}:${preparationEpoch}`} computationEpoch={preparationEpoch} art={art} geometry={geometry} roughness={roughness} finishEnabled appearance={appearance} onSurfaceReady={surfaces[appearance]} onError={onError} />)}
+    {(['earned', 'locked', 'placed'] as const).map((appearance) => <StickerPrint purpose="program-warmup" key={`${appearance}:${geometry.uuid}:${texture?.uuid ?? "pending"}:${preparationEpoch}`} computationEpoch={preparationEpoch} art={art} geometry={geometry} roughness={roughness} finishEnabled appearance={appearance} onSurfaceReady={surfaces[appearance]} onError={onError} />)}
   </group>;
 });

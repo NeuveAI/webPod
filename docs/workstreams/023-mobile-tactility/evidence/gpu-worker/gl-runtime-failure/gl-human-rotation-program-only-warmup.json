@@ -1,0 +1,382 @@
+{
+  "diagnosticMarks": [],
+  "carryWorkers": 0,
+  "workerErrors": [],
+  "phase": "mounted-rotation:4",
+  "failure": null,
+  "preparedPrints": 8,
+  "stages": [
+    {
+      "phase": "warmup:PW-A01:earned",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A01:locked",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A01:placed",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A02:earned",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A02:locked",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A02:placed",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A03:earned",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A03:locked",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A03:placed",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A04:earned",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A04:locked",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A04:placed",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A05:earned",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A05:locked",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "warmup:PW-A05:placed",
+      "transactions": {
+        "entries": 0,
+        "queued": 0,
+        "active": null,
+        "worker": false,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 0
+      }
+    },
+    {
+      "phase": "packet:neighbor-0/cover/art/print",
+      "transactions": {
+        "entries": 2,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 5770696
+      }
+    },
+    {
+      "phase": "packet:neighbor-1/cover/art/print",
+      "transactions": {
+        "entries": 4,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 11506376
+      }
+    },
+    {
+      "phase": "packet:slot-0/print",
+      "transactions": {
+        "entries": 6,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 17271744
+      }
+    },
+    {
+      "phase": "packet:slot-1/print",
+      "transactions": {
+        "entries": 8,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 22995288
+      }
+    },
+    {
+      "phase": "packet:slot-2/print",
+      "transactions": {
+        "entries": 10,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 28813536
+      }
+    },
+    {
+      "phase": "packet:slot-3/print",
+      "transactions": {
+        "entries": 12,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 34757472
+      }
+    },
+    {
+      "phase": "packet:slot-4/print",
+      "transactions": {
+        "entries": 14,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 40541184
+      }
+    },
+    {
+      "phase": "packet:pocket/cover/print",
+      "transactions": {
+        "entries": 16,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 0,
+        "pendingCopies": 0,
+        "privateBytes": 0,
+        "accountedBytes": 45813032
+      }
+    },
+    {
+      "phase": "mounted-rotation:1",
+      "transactions": {
+        "entries": 19,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 1,
+        "pendingCopies": 0,
+        "privateBytes": 94272,
+        "accountedBytes": 52306144
+      }
+    },
+    {
+      "phase": "mounted-rotation:2",
+      "transactions": {
+        "entries": 22,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 1,
+        "pendingCopies": 0,
+        "privateBytes": 94272,
+        "accountedBytes": 58704984
+      }
+    },
+    {
+      "phase": "mounted-rotation:3",
+      "transactions": {
+        "entries": 25,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 1,
+        "pendingCopies": 0,
+        "privateBytes": 94272,
+        "accountedBytes": 65103824
+      }
+    },
+    {
+      "phase": "mounted-rotation:4",
+      "transactions": {
+        "entries": 28,
+        "queued": 0,
+        "active": null,
+        "worker": true,
+        "privateOwners": 1,
+        "pendingCopies": 0,
+        "privateBytes": 94272,
+        "accountedBytes": 71502664
+      }
+    }
+  ],
+  "finalTransactions": {
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "pendingCopies": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "finalPaper": {
+    "clients": 0,
+    "entries": 0,
+    "queued": 0,
+    "active": null,
+    "worker": false,
+    "privateOwners": 0,
+    "privateBytes": 0,
+    "accountedBytes": 0
+  },
+  "scope": "Actual mounted GL print with exact five-art warmup + packet, changed rotation surfaces, and one retained private current contour; actual workers. No browser rendering claim."
+}
