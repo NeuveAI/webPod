@@ -1,0 +1,57 @@
+{
+  "during": {
+    "held": {
+      "stickerId": "PW-C01",
+      "source": "collection",
+      "placement": {
+        "stickerId": "PW-C01",
+        "surface": "back",
+        "x": 0.5,
+        "y": 0.439312891575485,
+        "width": 0.25,
+        "rotationDeg": 0,
+        "wear": 0
+      },
+      "origin": null,
+      "scale": 0.25,
+      "wear": 0
+    },
+    "page": {
+      "status": "ready",
+      "interactionReady": false,
+      "pendingSaves": 0,
+      "rearReady": true,
+      "humanBusy": true,
+      "collectionStatus": "ready",
+      "loadedItems": 5,
+      "totalItems": 5,
+      "progressPercent": 100,
+      "startedAtMs": 1789171516300,
+      "elapsedMs": 0,
+      "stage": "placing",
+      "packOpen": false,
+      "sheetOpen": false,
+      "packClosing": false
+    }
+  },
+  "after": {
+    "held": {
+      "stickerId": "PW-C01",
+      "source": "collection",
+      "placement": {
+        "stickerId": "PW-C01",
+        "surface": "back",
+        "x": 0.5,
+        "y": 0.439312891575485,
+        "width": 0.25,
+        "rotationDeg": 0,
+        "wear": 0
+      },
+      "origin": null,
+      "scale": 0.25,
+      "wear": 0
+    },
+    "pending": 0
+  },
+  "placementEqual": true
+}

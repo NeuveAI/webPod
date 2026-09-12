@@ -1,5 +1,7 @@
 # Finite GPU responsiveness closeout
 
+**Completed at d9434f5.** The checklist below is the original finite acceptance contract. See [final results](gpu-feature-complete-final-results.md) for passed gates, corrected hidden-tab finding, cleanup and coverage qualifications.
+
 This checklist follows the latest checkpoint in [the feature-complete plan](gpu-feature-complete-plan.md), superseding older unresolved rows in [the earlier validation matrix](gpu-final-validation-checklist.md). The active blocker is the real large wrapped GL preview capacity failure. Finish its independently reviewed correction, then run the bounded pass below on the exact clean production build. No further optimization of every remaining sampled function is required for completion.
 
 ## Established evidence — do not rediscover
